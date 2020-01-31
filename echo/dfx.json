@@ -1,0 +1,7 @@
+{
+  "canisters": {
+    "echo": {
+      "main": "main.mo"
+    }
+  }
+}
