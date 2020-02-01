@@ -1,0 +1,18 @@
+{
+  "description": "",
+  "devDependencies": {
+    "react": "^16.12.0",
+    "react-dom": "^16.12.0",
+    "terser-webpack-plugin": "2.2.2",
+    "ts-loader": "^6.2.1",
+    "typescript": "^3.7.5",
+    "webpack": "4.41.3",
+    "webpack-cli": "3.3.10"
+  },
+  "keywords": [],
+  "name": "phone-book",
+  "scripts": {
+    "build": "webpack"
+  },
+  "version": "0.1.0"
+}

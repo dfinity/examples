@@ -1,0 +1,22 @@
+{
+  "canisters": {
+    "phonebook": {
+      "frontend": {
+        "entrypoint": "src/phonebook/public/index.jsx"
+      },
+      "main": "src/phonebook/main.mo"
+    }
+  },
+  "defaults": {
+    "build": {
+      "output": "canisters/"
+    },
+    "start": {
+      "address": "127.0.0.1",
+      "port": 8000,
+      "serve_root": "canisters/phonebook/assets"
+    }
+  },
+  "dfx": "0.4.13",
+  "version": 1
+}

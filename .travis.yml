@@ -7,6 +7,9 @@ script:
   for project in $(ls -d */)
   do
     pushd $project
+    if [ -f package.json ]
+    then npm install
+    fi
     dfx build
     popd
   done
