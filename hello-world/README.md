@@ -1,5 +1,7 @@
 ## Hello World
 
+[![Build Status](https://travis-ci.org/dfinity-lab/examples.svg?branch=master)](https://travis-ci.org/dfinity-lab/examples?branch=master)
+
 ### Prerequisites
 
 - [DFINITY SDK](https://sdk.dfinity.org)
@@ -21,6 +23,7 @@ dfx canister call hello-world main
 ```
 
 Observe the internet computer console.
+
 ```
 debug.print: Hello World!
 ```
