@@ -10,7 +10,7 @@ script:
     pushd $project
     if [ -f Makefile ]
     then make
-    else if [ -f build.sh ]
+    elif [ -f build.sh ]
     then bash build.sh
     fi
     popd
