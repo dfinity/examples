@@ -8,6 +8,10 @@ script:
   for project in $(ls -d */)
   do
     pushd $project
-    bash build.sh
+    if [ -f Makefile ]
+    then make
+    else if [ -f build.sh ]
+    then bash build.sh
+    fi
     popd
   done
