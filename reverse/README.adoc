@@ -5,27 +5,27 @@ to build apps.
 
 First, install Clang and set up a couple of aliases. For example, on Debian:
 
-  $ sudo apt-get install clang gcc-multilib
+  $ sudo apt-get install clang lld gcc-multilib
   $ alias wld="wasm-ld-8 --no-entry --export-dynamic --allow-undefined"
   $ alias wcc="clang --target=wasm32 -c -O3"
 
 == Reverse a string ==
 
-In the `reverse/` subdirectory, the file `reverse.c` contains function that
-reverses a string in place. Build a wasm binary with:
+The file `reverse.c` contains function that reverses a string in place. Build a
+wasm binary with:
 
   $ wcc reverse.c
   $ wld reverse.o -o reverse.wasm
 
 Then package the binary so `dfx` can install and run it:
 
-  $ echo '{"canisters":{"reverse":{"main":"src/reverse.mo"}}}' > dfx.json
+  $ echo '{"canisters":{"reverse":{"main":"reverse"}}}' > dfx.json
   $ mkdir build
   $ mkdir build/reverse
   $ cp reverse.wasm build/reverse/
   $ head -c 8 /dev/urandom > build/reverse/_canister.id
 
-The script `reverse/build.sh` performs the above steps.
+The script `build.sh` performs the above steps.
 
 To test the app, run `dfx start` in another terminal, then:
 
