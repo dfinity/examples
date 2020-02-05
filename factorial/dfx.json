@@ -1,0 +1,7 @@
+{
+  "canisters": {
+    "factorial": {
+      "main": "src/main.mo"
+    }
+  }
+}
