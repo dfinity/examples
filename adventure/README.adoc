@@ -1,0 +1,21 @@
+= Adventure =
+
+A port of
+http://www.ifarchive.org/if-archive/games/source/Adventure2.5.tar.gz[a
+classic].
+
+The `grow_memory_to.o` object file exports a "grow_memory_to" function to grow
+the number of memory pages to a given target when there are currently fewer
+pages.
+
+Build with `./build.sh`.
+
+Run `dfx start` in another terminal, then:
+
+  $ dfx canister install --all
+  $ dfx canister call adventure play
+  $ dfx canister call adventure play --type string yes
+  $ dfx canister call adventure play --type string east
+  $ dfx canister call adventure play --type string "get water"
+
+and so on.
