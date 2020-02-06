@@ -14,10 +14,10 @@ void reverse(char*s,int len) {
 #define WASM_EXPORT(n) asm(n) __attribute__((visibility("default")))
 
 int dfn_ads(void) WASM_IMPORT("ic0", "msg_arg_data_size");
-void dfn_adc(int b, int c, int d) WASM_IMPORT("ic0", "msg_arg_data_copy");
-void dfn_reply_append(int b, int c) WASM_IMPORT("ic0", "msg_reply_data_append");
+void dfn_adc(void *, int, int) WASM_IMPORT("ic0", "msg_arg_data_copy");
+void dfn_reply_append(void *, int) WASM_IMPORT("ic0", "msg_reply_data_append");
 void dfn_reply(void) WASM_IMPORT("ic0", "msg_reply");
-void dfn_print(int a, int b) WASM_IMPORT("ic0", "debug_print");
+void dfn_print(void *, int) WASM_IMPORT("ic0", "debug_print");
 
 void go() WASM_EXPORT("canister_update go");
 void go() {

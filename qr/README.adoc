@@ -1,0 +1,8 @@
+= QR Code Generator =
+  
+Adaptation of https://github.com/nayuki/QR-Code-generator.git to DFINITY.
+
+Build with `./build.sh`, and run `dfx start` in another terminal. Then:
+
+  $ dfx canister install --all
+  $ dfx canister call qr go
