@@ -16,6 +16,5 @@
       "port": 8000,
       "serve_root": "canisters/phonebook/assets"
     }
-  },
-  "version": 1
+  }
 }

@@ -5,13 +5,22 @@ install:
 - yes Y | sh install.sh
 script:
 - |
+  set -e
+  # Build examples in C.
+  pushd c
   for project in $(ls -d */)
-  do
+  do 
     pushd $project
-    if [ -f Makefile ]
-    then make
-    elif [ -f build.sh ]
-    then ./build.sh
-    fi
+    ./build.sh
     popd
   done
+  popd
+  # Build examples in Motoko.
+  pushd motoko
+  for project in $(ls -d */)
+  do 
+    pushd $project
+    make
+    popd
+  done
+  popd
