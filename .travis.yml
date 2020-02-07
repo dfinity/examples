@@ -4,23 +4,4 @@ install:
 - travis_retry wget https://sdk.dfinity.org/install.sh
 - yes Y | sh install.sh
 script:
-- |
-  set -e
-  # Build examples in C.
-  pushd c
-  for project in $(ls -d */)
-  do 
-    pushd $project
-    ./build.sh
-    popd
-  done
-  popd
-  # Build examples in Motoko.
-  pushd motoko
-  for project in $(ls -d */)
-  do 
-    pushd $project
-    make
-    popd
-  done
-  popd
+- make
