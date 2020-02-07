@@ -2,12 +2,15 @@ const path = require("path");
 const TerserPlugin = require("terser-webpack-plugin");
 const dfxJson = require("./dfx.json");
 
+const outputBase = ["defaults", "build", "output"].reduce(function (accum, x) {
+  accum ? accum[x] : null
+}, dfxJson) || "build";
+
 // List of all aliases for canisters. This creates the module alias for
 // the `import ... from "ic:canisters/xyz"` where xyz is the name of a
 // canister.
 const aliases = Object.entries(dfxJson.canisters).reduce((acc, [name,]) => {
-  const outputRoot = path.join(__dirname, dfxJson.defaults.build.output, name);
-
+  const outputRoot = path.join(__dirname, outputBase, name);
   return {
     ...acc,
     ["ic:canisters/" + name]: path.join(outputRoot, "main.js"),
@@ -30,11 +33,9 @@ function generateWebpackConfigForCanister(name, info) {
   if (typeof info.frontend !== 'object') {
     return;
   }
-
-  const outputRoot = path.join(__dirname, dfxJson.defaults.build.output, name);
+  const outputRoot = path.join(__dirname, outputBase, name);
   const inputRoot = __dirname;
   const entry = path.join(inputRoot, info.frontend.entrypoint);
-
   return {
     mode: "production",
     entry,
