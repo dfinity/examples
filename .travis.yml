@@ -11,12 +11,13 @@ script:
   for project in $(ls -d */)
   do 
     pushd $project
-    bash build.sh
+    ./build.sh
     popd
   done
   popd
 # Examples in Motoko.
 - |
+  set -e
   pushd motoko
   for project in $(ls -d */)
   do 
