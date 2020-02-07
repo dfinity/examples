@@ -4,15 +4,24 @@ install:
 - travis_retry wget https://sdk.dfinity.org/install.sh
 - yes Y | sh install.sh
 script:
+# Examples in C.
 - |
   set -e
+  pushd c
   for project in $(ls -d */)
-  do
+  do 
     pushd $project
-    if [ -f Makefile ]
-    then make
-    elif [ -f build.sh ]
-    then bash build.sh
-    fi
+    bash build.sh
     popd
   done
+  popd
+# Examples in Motoko.
+- |
+  pushd motoko
+  for project in $(ls -d */)
+  do 
+    pushd $project
+    make
+    popd
+  done
+  popd
