@@ -1,4 +1,4 @@
-import Prelude "mo:stdlib/prelude.mo"
+import Prelude "mo:stdlib/prelude"
 
 actor HelloWorld {
   public func main() {
