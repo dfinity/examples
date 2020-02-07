@@ -1,0 +1,1103 @@
+diff --git a/actions1.c b/actions1.c
+index 57e8cb1..b5ef684 100644
+--- a/actions1.c
++++ b/actions1.c
+@@ -6,7 +6,7 @@
+ #define TRUE  (0==0)
+ #define FALSE (0!=0)
+ 
+-extern carry(), discard(long), attack(), throw(), feed(), fill();
++extern carry(), discard(int), attack(), throw(), feed(), fill();
+ 
+ /* This stuff was broken off as part of an effort to get the main program
+  * to compile without running out of memory.  We're called with a number
+@@ -17,7 +17,7 @@ extern carry(), discard(long), attack(), throw(), feed(), fill();
+ /*  ANALYSE A VERB.  REMEMBER WHAT IT WAS, GO BACK FOR OBJECT IF SECOND WORD
+  *  UNLESS VERB IS "SAY", WHICH SNARFS ARBITRARY SECOND WORD. */
+ 
+-action(STARTAT)long STARTAT; {
++action(STARTAT)int STARTAT; {
+ 	switch(STARTAT) {
+ 	   case 4000: goto L4000;
+ 	   case 4090: goto L4090;
+@@ -356,7 +356,7 @@ L9170:	return(throw());
+ 
+ /*  QUIT.  INTRANSITIVE ONLY.  VERIFY INTENT AND EXIT IF THAT'S WHAT HE WANTS. */
+ 
+-L8180:	if(YES(22,54,54)) score(1);
++L8180:	// if(YES(22,54,54)) score(1);
+ 	 return(2012);
+ 
+ /*  FIND.  MIGHT BE CARRYING IT, OR IT MIGHT BE HERE.  ELSE GIVE CAVEAT. */
+@@ -485,7 +485,7 @@ L8300:	SPK=201;
+ /*  THIS NEXT PART IS SHARED WITH THE "RESUME" CODE.  THE TWO CASES ARE
+  *  DISTINGUISHED BY THE VALUE OF KK (-1 FOR SUSPEND, +1 FOR RESUME). */
+ 
+-L8305:	DATIME(I,K);
++L8305:	I=123;K=456;
+ 	K=I+650*K;
+ 	SAVWRD(KK,K);
+ 	K=VRSION;
+diff --git a/actions2.c b/actions2.c
+index 98be045..7e78fbf 100644
+--- a/actions2.c
++++ b/actions2.c
+@@ -10,6 +10,8 @@
+  *  TAKE ONE WITHOUT THE OTHER).  LIQUIDS ALSO SPECIAL, SINCE THEY DEPEND ON
+  *  STATUS OF BOTTLE.  ALSO VARIOUS SIDE EFFECTS, ETC. */
+ 
++extern int entry;
++
+ carry() {
+ 	if(TOTING(OBJ)) return(2011);
+ 	SPK=25;
+@@ -60,7 +62,7 @@ L9015:	SPK=238;
+  *  BIRD (MIGHT ATTACK SNAKE OR DRAGON) AND CAGE (MIGHT CONTAIN BIRD) AND VASE.
+  *  DROP COINS AT VENDING MACHINE FOR EXTRA BATTERIES. */
+ 
+-discard(just_do_it)long just_do_it; {
++discard(just_do_it)int just_do_it; {
+ 	if(just_do_it) goto L9021;
+ 	if(TOTING(ROD2) && OBJ == ROD && !TOTING(ROD))OBJ=ROD2;
+ 	if(!TOTING(OBJ)) return(2011);
+@@ -135,6 +137,7 @@ L9028:	PROP[VASE]=2;
+  *  (BIRD, CLAM, MACHINE).  AMBIGUOUS IF 2 ENEMIES, OR NO ENEMIES BUT 2 OTHERS. */
+ 
+ attack() {
++  if(entry==ATTACK_GETIN) goto attack_getin;
+ 	I=ATDWRF(LOC);
+ 	if(OBJ != 0) goto L9124;
+ 	if(I > 0)OBJ=DWARF;
+@@ -179,7 +182,11 @@ L9126:	if(OBJ == 0)SPK=44;
+ 	RSPEAK(49);
+ 	VERB=0;
+ 	OBJ=0;
+-	GETIN(WD1,WD1X,WD2,WD2X);
++  entry = ATTACK_GETIN;
++  return FALSE;
++attack_getin:
++	if (!GETIN(WD1,WD1X,WD2,WD2X)) return FALSE;
++  entry = MAIN_PROMPT;  // Just in case. I doubt it's needed, but I'm not going to analyze the code!
+ 	if(WD1 != MAKEWD(25) && WD1 != MAKEWD(250519)) return(2607);
+ 	PSPEAK(DRAGON,3);
+ 	PROP[DRAGON]=1;
+diff --git a/datime.c b/datime.c
+deleted file mode 100644
+index 0fa30de..0000000
+--- a/datime.c
++++ /dev/null
+@@ -1,50 +0,0 @@
+-#ifdef AMIGA
+-#define _TIME_
+-#include "exec/types.h"
+-#include "intuition/intuition.h"
+-
+-#define INTUITIONREV 1
+-
+-struct IntuitionBase *IntuitionBase = NULL;
+-
+-fDATIME(X,Y)int *X, *Y; {
+-static int GOTX = 0, GOTY;
+-	if(GOTX == 0) {
+-		IntuitionBase = (struct IntuitionBase *)
+-			OpenLibrary("intuition.library", INTUITIONREV);
+-		if (IntuitionBase == NULL) {
+-			printf("Can't open library.\n");
+-			exit(FALSE);
+-			}
+-		CurrentTime(&GOTX, &GOTY);
+-		CloseLibrary(IntuitionBase);
+-		}
+-	GOTY += 654321;
+-	if(GOTY >= 1000000) {GOTX += 1; GOTY -= 1000000;}
+-	*X = GOTX;
+-	*Y = GOTY;
+-}
+-#endif
+-
+-#ifdef __MSDOS__
+-#define _TIME_
+-#include "time.h"
+-
+-fDATIME(X,Y)long *X, *Y; {
+-	time(X); time(Y);
+-	*Y /= 2;
+-	/* it would be even better if the two numbers were totally
+-	 * unrelated, like if 'time' returned 64 bits of data */
+-}
+-#endif
+-
+-#ifndef _TIME_
+-#include "sys/time.h"
+-
+-fDATIME(X,Y)long *X, *Y; {
+-	struct timeval now;
+-	gettimeofday(&now, 0);
+-	*X = now.tv_sec;
+-	*Y = now.tv_usec;
+-}
+-#endif
+diff --git a/init.c b/init.c
+index 6b2edea..ef648f9 100644
+--- a/init.c
++++ b/init.c
+@@ -164,14 +164,21 @@
+  *	%B = VARIABLE NUMBER OF BLANKS
+  *	%! = THE ENTIRE MESSAGE SHOULD BE SUPPRESSED */
+ 
++static raw_init();
++static finish_init();
++static report();
++static quick_init();
++static quick_io();
++static quick_save();
++
+ initialise() {
+-	printf("Initialising...\n");
++	puts("Initialising...");
+ 	if(!quick_init()){raw_init(); report(); quick_save();}
+ 	finish_init();
+ }
+ 
+ static raw_init() {
+-	printf("Couldn't find adventure.data, using adventure.text...\n");
++	puts("Couldn't find adventure.data, using adventure.text...");
+ 
+ /*  CLEAR OUT THE VARIOUS TEXT-POINTER ARRAYS.  ALL TEXT IS STORED IN ARRAY
+  *  LINES; EACH LINE IS PRECEDED BY A WORD POINTING TO THE NEXT POINTER (I.E.
+@@ -371,7 +378,7 @@ static finish_init() {
+ 	PLACE[I]=0;
+ 	PROP[I]=0;
+ 	LINK[I]=0;
+-L1101:	{long x = I+100; LINK[x]=0;}
++L1101:	{int x = I+100; LINK[x]=0;}
+ 	} /* end loop */
+ 
+ 	/* 1102 */ for (I=1; I<=LOCSIZ; I++) {
+@@ -565,7 +572,7 @@ L1700:	DSEEN[I]=FALSE;
+ 	DETAIL=0;
+ 	ABBNUM=5;
+ 	/* 1800 */ for (I=0; I<=4; I++) {
+-L1800:	{long x = 2*I+81; if(RTEXT[x] != 0)MAXDIE=I+1;}
++L1800:	{int x = 2*I+81; if(RTEXT[x] != 0)MAXDIE=I+1;}
+ 	} /* end loop */
+ 	NUMDIE=0;
+ 	HOLDNG=0;
+@@ -626,36 +633,28 @@ L1993:	SETPRM(1,LINUSE,LINSIZ);
+ 	TYPE0();
+ }
+ 
+-static long init_reading, init_cksum;
++static int init_reading, init_cksum;
+ static FILE *f;
+ 
+-static void quick_item(long*);
+-static void quick_array(long*, long);
++static void quick_item(int*);
++static void quick_array(int*, int);
+ 
+ static quick_init() {
+-#ifdef AMIGA
+-	f = fopen("ram:adventure.data", READ_MODE);
+-#else
+-	extern char *getenv();
+-	char *adv = getenv("ADVENTURE");
+-	f = NULL;
+-	if(adv)f = fopen(adv,READ_MODE);
+-#endif
+-	if(f == NULL)f = fopen("adventure.data",READ_MODE);
++	f = fopendata();
+ 	if(f == NULL)return(FALSE);
+ 	init_reading = TRUE;
+ 	init_cksum = 1;
+ 	quick_io();
+ 	if(fread(&K,4,1,f) == 1) init_cksum -= K; else init_cksum = 1;
+ 	fclose(f);
+-	if(init_cksum != 0)printf("Checksum error!\n");
++	if(init_cksum != 0)puts("Checksum error!");
+ 	return(init_cksum == 0);
+ }
+ 
+ static quick_save() {
+-	printf("Writing adventure.data...\n");
+-	f = fopen("adventure.data",WRITE_MODE);
+-	if(f == NULL){printf("Can't open file!\n"); return(0);}
++	puts("Writing adventure.data...");
++	f = fopendata();
++	if(f == NULL){puts("Can't open file!"); return(0);}
+ 	init_reading = FALSE;
+ 	init_cksum = 1;
+ 	quick_io();
+@@ -691,18 +690,18 @@ static quick_io() {
+ 	quick_array(PLAC,100);
+ 	quick_array(FIXD,100);
+ 	quick_array(ACTSPK,VRBSIZ);
+-	quick_array((long *)HINTS,(HNTMAX+1)*5-1);
++	quick_array((int *)HINTS,(HNTMAX+1)*5-1);
+ 	return(0);
+ }
+ 
+-static void quick_item(W)long *W; {
++static void quick_item(W)int *W; {
+ 	if(init_reading && fread(W,4,1,f) != 1)return;
+ 	init_cksum = MOD(init_cksum*13+(*W),60000000);
+ 	if(!init_reading)fwrite(W,4,1,f);
+ }
+ 
+-static void quick_array(A,N)long *A, N; { long I;
+-	if(init_reading && fread(A,4,N+1,f) != N+1)printf("Read error!\n");
++static void quick_array(A,N)int *A, N; { int I;
++	if(init_reading && fread(A,4,N+1,f) != N+1)puts("Read error!");
+ 	for(I=1;I<=N;I++)init_cksum = MOD(init_cksum*13+A[I],60000000);
+-	if(!init_reading && fwrite(A,4,N+1,f)!=N+1)printf("Write error!\n");
++	if(!init_reading && fwrite(A,4,N+1,f)!=N+1)puts("Write error!");
+ }
+diff --git a/main.c b/main.c
+index 6977bc5..e736387 100644
+--- a/main.c
++++ b/main.c
+@@ -5,14 +5,14 @@
+ 
+ #define TRUE  (0==0)
+ #define FALSE (0!=0)
+-long ABB[186], ATAB[331], ATLOC[186], BLKLIN = TRUE, DFLAG,
++int ABB[186], ATAB[331], ATLOC[186], BLKLIN = TRUE, DFLAG,
+ 		DLOC[7], FIXED[101], HOLDNG,
+ 		KTAB[331], *LINES, LINK[201], LNLENG, LNPOSN,
+ 		PARMS[26], PLACE[101], PTEXT[101], RTEXT[278],
+ 		SETUP = 0, TABSIZ = 330;
+ char INLINE[101], MAP1[129], MAP2[129];
+ 
+-long ABBNUM, ACTSPK[36], AMBER, ATTACK, AXE, BACK, BATTER, BEAR, BIRD, BLOOD, BONUS,
++int ABBNUM, ACTSPK[36], AMBER, ATTACK, AXE, BACK, BATTER, BEAR, BIRD, BLOOD, BONUS,
+ 		 BOTTLE, CAGE, CAVE, CAVITY, CHAIN, CHASM, CHEST, CHLOC, CHLOC2,
+ 		CLAM, CLOCK1, CLOCK2, CLOSED, CLOSNG, CLSHNT, CLSMAX = 12, CLSSES,
+ 		COINS, COND[186], CONDS, CTEXT[13], CVAL[13], DALTLC, DETAIL,
+@@ -36,14 +36,26 @@ long ABBNUM, ACTSPK[36], AMBER, ATTACK, AXE, BACK, BATTER, BEAR, BIRD, BLOOD, BO
+ 		WZDARK = FALSE, ZZWORD;
+ 
+ extern initialise();
+-extern void score(long);
+-extern action(long);
++extern void score(int);
++extern action(int);
+ 
+ /*
+  * MAIN PROGRAM
+  */
+ 
+-main() {
++int entry = BEGINNING;
++void YES_break(int X, int Y);
++
++void go() {
++  switch(entry) {
++    case YES_NOVICE: goto yes_novice;
++    case YES_DIE: goto yes_die;
++    case YES_HINT: goto yes_hint;
++    case YES_HINT_2: goto yes_hint_2;
++    case ATTACK_GETIN: attack(); return;
++    case MAIN_PROMPT: goto main_prompt;
++    case BEGINNING: break;
++  }
+ 
+ /*  ADVENTURE (REV 2: 20 TREASURES) */
+ 
+@@ -67,9 +79,9 @@ main() {
+ 
+ /*  READ THE DATABASE IF WE HAVE NOT YET DONE SO */
+ 
+-	LINES = (long *)calloc(LINSIZ+1,sizeof(long));
++	LINES = (int *)calloc(LINSIZ+1,sizeof(int));
+ 	if(!LINES){
+-		printf("Not enough memory!\n");
++		puts("Not enough memory!");
+ 		exit(FALSE);
+ 	}
+ 
+@@ -92,7 +104,14 @@ main() {
+ L1:	SETUP= -1;
+ 	I=RAN(-1);
+ 	ZZWORD=RNDVOC(3,0)+MESH*2;
++
++#define YES_return(X,Y) RSPEAK(X); entry=Y; return
++
++  YES_return(65,YES_NOVICE);
++yes_novice:
+ 	NOVICE=YES(65,1,0);
++  if (NOVICE == 42) return;
++
+ 	NEWLOC=1;
+ 	LOC=1;
+ 	LIMIT=330;
+@@ -169,7 +188,7 @@ L6010:	DTOTAL=0;
+ 	KK=KEY[KK];
+ 	if(KK == 0) goto L6016;
+ L6012:	NEWLOC=MOD(IABS(TRAVEL[KK])/1000,1000);
+-	{long x = J-1;
++	{int x = J-1;
+ 	if(NEWLOC > 300 || !INDEEP(NEWLOC) || NEWLOC == ODLOC[I] || (J > 1 &&
+ 		NEWLOC == TK[x]) || J >= 20 || NEWLOC == DLOC[I] ||
+ 		FORCED(NEWLOC) || (I == 6 && CNDBIT(NEWLOC,3)) ||
+@@ -177,7 +196,7 @@ L6012:	NEWLOC=MOD(IABS(TRAVEL[KK])/1000,1000);
+ 	TK[J]=NEWLOC;
+ 	J=J+1;
+ L6014:	KK=KK+1;
+-	{long x = KK-1; if(TRAVEL[x] >= 0) goto L6012;}
++	{int x = KK-1; if(TRAVEL[x] >= 0) goto L6012;}
+ L6016:	TK[J]=ODLOC[I];
+ 	if(J >= 2)J=J-1;
+ 	J=1+RAN(J);
+@@ -348,7 +367,10 @@ L2604:	if(TOTING(I) && PROP[I] < 0)PROP[I]= -1-PROP[I];
+ L2605:	WZDARK=DARK(0);
+ 	if(KNFLOC > 0 && KNFLOC != LOC)KNFLOC=0;
+ 	I=RAN(1);
+-	GETIN(WD1,WD1X,WD2,WD2X);
++  entry = MAIN_PROMPT;
++  return;
++main_prompt:
++	if (!GETIN(WD1,WD1X,WD2,WD2X)) return;
+ 
+ /*  EVERY INPUT, CHECK "FOOBAR" FLAG.  IF ZERO, NOTHING'S GOING ON.  IF POS,
+  *  MAKE NEG.  IF NEG, HE SKIPPED A WORD, SO MAKE IT ZERO. */
+@@ -380,7 +402,7 @@ L19999: K=43;
+ 	if(V1 == ENTER && WD2 > 0) goto L2800;
+ 	if((V1 != 1000+WATER && V1 != 1000+OIL) || (V2 != 1000+PLANT && V2 !=
+ 		1000+DOOR)) goto L2610;
+-	{long x = V2-1000; if(AT(x))WD2=MAKEWD(16152118);}
++	{int x = V2-1000; if(AT(x))WD2=MAKEWD(16152118);}
+ L2610:	if(V1 == 1000+CAGE && V2 == 1000+BIRD && HERE(CAGE) &&
+ 		HERE(BIRD))WD1=MAKEWD(301200308);
+ L2620:	if(WD1 != MAKEWD(23051920)) goto L2625;
+@@ -637,7 +659,15 @@ L90:	RSPEAK(23);
+ 
+ L99:	if(CLOSNG) goto L95;
+ 	NUMDIE=NUMDIE+1;
+-	if(!YES(79+NUMDIE*2,80+NUMDIE*2,54)) score(0);
++
++  YES_return(79+NUMDIE*2,YES_DIE);
++yes_die:
++{
++  int x = YES(79+NUMDIE*2,80+NUMDIE*2,54);
++  if (x == 42) return;
++	if(!x) score(0);
++}
++
+ 	if(NUMDIE == MAXDIE) score(0);
+ 	PLACE[WATER]=0;
+ 	PLACE[OIL]=0;
+@@ -680,10 +710,24 @@ L40000:    switch (HINT-1) { case 0: goto L40100; case 1: goto L40200; case 2: g
+ 	BUG(27);
+ 
+ L40010: HINTLC[HINT]=0;
+-	if(!YES(HINTS[HINT][3],0,54)) goto L2602;
++
++	YES_return(HINTS[HINT][3],YES_HINT);
++yes_hint:
++{
++  int x = YES(HINTS[HINT][3],0,54);
++  if (x == 42) return;
++	if(!x) goto L2602;
++}
++	//if(!YES(HINTS[HINT][3],0,54)) goto L2602;
+ 	SETPRM(1,HINTS[HINT][2],HINTS[HINT][2]);
+ 	RSPEAK(261);
++
++	YES_return(175,YES_HINT_2);
++yes_hint_2:
+ 	HINTED[HINT]=YES(175,HINTS[HINT][4],54);
++  if (HINTED[HINT] == 42) return;
++
++	//HINTED[HINT]=YES(175,HINTS[HINT][4],54);
+ 	if(HINTED[HINT] && LIMIT > 30)LIMIT=LIMIT+30*HINTS[HINT][2];
+ L40020: HINTLC[HINT]=0;
+ L40030:  goto L2602;
+diff --git a/main.h b/main.h
+index 575ee97..553d73f 100644
+--- a/main.h
++++ b/main.h
+@@ -1,4 +1,4 @@
+-extern long ABB[], ATAB[], ATLOC[], BLKLIN, DFLAG, DLOC[], FIXED[], HOLDNG,
++extern int ABB[], ATAB[], ATLOC[], BLKLIN, DFLAG, DLOC[], FIXED[], HOLDNG,
+ 		KTAB[], *LINES, LINK[], LNLENG, LNPOSN,
+ 		PARMS[], PLACE[], PTEXT[], RTEXT[], TABSIZ;
+ extern signed char INLINE[], MAP1[], MAP2[];
+diff --git a/misc.c b/misc.c
+index e3e8320..9cc0508 100644
+--- a/misc.c
++++ b/misc.c
+@@ -8,8 +8,8 @@
+ /*  I/O ROUTINES (SPEAK, PSPEAK, RSPEAK, SETPRM, GETIN, YES) */
+ 
+ #undef SPEAK
+-void fSPEAK(N)long N; {
+-long BLANK, CASE, I, K, L, NEG, NPARMS, PARM, PRMTYP, STATE;
++void fSPEAK(N)int N; {
++int BLANK, CASE, I, K, L, NEG, NPARMS, PARM, PRMTYP, STATE;
+ 
+ /*  PRINT THE MESSAGE WHICH STARTS AT LINES(N).  PRECEDE IT WITH A BLANK LINE
+  *  UNLESS BLKLIN IS FALSE. */
+@@ -31,7 +31,7 @@ L20:	PUTTXT(LINES[I],STATE,2,I);
+ L30:	LNPOSN=LNPOSN+1;
+ L32:	if(LNPOSN > LNLENG) goto L40;
+ 	if(INLINE[LNPOSN] != 63) goto L30;
+-	{long x = LNPOSN+1; PRMTYP=INLINE[x];}
++	{int x = LNPOSN+1; PRMTYP=INLINE[x];}
+ /*  63 IS A "%"; THE NEXT CHARACTER DETERMINE THE TYPE OF PARAMETER:  1 (!) =
+  *  SUPPRESS MESSAGE COMPLETELY, 29 (S) = NULL IF PARM=1, ELSE 'S' (OPTIONAL
+  *  PLURAL ENDING), 33 (W) = WORD (TWO 30-BIT VALUES) WITH TRAILING SPACES
+@@ -73,7 +73,7 @@ L340:	SHFTXT(LNPOSN+2,-2);
+ 	STATE=0;
+ 	CASE=2;
+ L345:	if(PARMS[NPARMS] < 0) goto L395;
+-	{long x = NPARMS+1; if(PARMS[x] < 0)CASE=0;}
++	{int x = NPARMS+1; if(PARMS[x] < 0)CASE=0;}
+ 	PUTTXT(PARMS[NPARMS],STATE,CASE,0);
+ 	NPARMS=NPARMS+1;
+ 	 goto L345;
+@@ -94,7 +94,7 @@ L380:	SHFTXT(LNPOSN+2,-2);
+ 	if(PRMTYP == 33)CASE=0;
+ 	I=LNPOSN;
+ 	PUTTXT(PARMS[NPARMS],STATE,CASE,0);
+-	{long x = NPARMS+1; PUTTXT(PARMS[x],STATE,CASE,0);}
++	{int x = NPARMS+1; PUTTXT(PARMS[x],STATE,CASE,0);}
+ 	if(PRMTYP == 13 && INLINE[I] >= 37 && INLINE[I] <=
+ 		62)INLINE[I]=INLINE[I]-26;
+ 	NPARMS=NPARMS+2;
+@@ -112,8 +112,8 @@ L40:	if(BLANK)TYPE0();
+ 
+ #define SPEAK(N) fSPEAK(N)
+ #undef PSPEAK
+-void fPSPEAK(MSG,SKIP)long MSG, SKIP; {
+-long I, M;
++void fPSPEAK(MSG,SKIP)int MSG, SKIP; {
++int I, M;
+ 
+ /*  FIND THE SKIP+1ST MESSAGE FROM MSG AND PRINT IT.  MSG SHOULD BE THE INDEX OF
+  *  THE INVENTORY MESSAGE FOR OBJECT.  (INVEN+N+1 MESSAGE IS PROP=N MESSAGE). */
+@@ -134,7 +134,7 @@ L9:	SPEAK(M);
+ 
+ #define PSPEAK(MSG,SKIP) fPSPEAK(MSG,SKIP)
+ #undef RSPEAK
+-void fRSPEAK(I)long I; {
++void fRSPEAK(I)int I; {
+ ;
+ 
+ /*  PRINT THE I-TH "RANDOM" MESSAGE (SECTION 6 OF DATABASE). */
+@@ -148,7 +148,7 @@ void fRSPEAK(I)long I; {
+ 
+ #define RSPEAK(I) fRSPEAK(I)
+ #undef SETPRM
+-void fSETPRM(FIRST,P1,P2)long FIRST, P1, P2; {
++void fSETPRM(FIRST,P1,P2)int FIRST, P1, P2; {
+ ;
+ 
+ /*  STORES PARAMETERS INTO THE PRMCOM PARMS ARRAY FOR USE BY SPEAK.  P1 AND P2
+@@ -157,7 +157,7 @@ void fSETPRM(FIRST,P1,P2)long FIRST, P1, P2; {
+ 
+ 	if(FIRST >= 25)BUG(29);
+ 	PARMS[FIRST]=P1;
+-	{long x = FIRST+1; PARMS[x]=P2;}
++	{int x = FIRST+1; PARMS[x]=P2;}
+ 	return;
+ }
+ 
+@@ -169,8 +169,8 @@ void fSETPRM(FIRST,P1,P2)long FIRST, P1, P2; {
+ #define WORD1X (*wORD1X)
+ #define WORD2 (*wORD2)
+ #define WORD2X (*wORD2X)
+-void fGETIN(wORD1,wORD1X,wORD2,wORD2X)long *wORD1, *wORD1X, *wORD2, *wORD2X; {
+-long JUNK;
++int fGETIN(wORD1,wORD1X,wORD2,wORD2X)int *wORD1, *wORD1X, *wORD2, *wORD2X; {
++int JUNK;
+ 
+ /*  GET A COMMAND FROM THE ADVENTURER.  SNARF OUT THE FIRST WORD, PAD IT WITH
+  *  BLANKS, AND RETURN IT IN WORD1.  CHARS 6 THRU 10 ARE RETURNED IN WORD1X, IN
+@@ -182,7 +182,7 @@ long JUNK;
+ L10:	if(BLKLIN)TYPE0();
+ 	MAPLIN(FALSE);
+ 	WORD1=GETTXT(TRUE,TRUE,TRUE,0);
+-	if(BLKLIN && WORD1 < 0) goto L10;
++	if(BLKLIN && WORD1 < 0) return FALSE;
+ 	WORD1X=GETTXT(FALSE,TRUE,TRUE,0);
+ L12:	JUNK=GETTXT(FALSE,TRUE,TRUE,0);
+ 	if(JUNK > 0) goto L12;
+@@ -190,9 +190,9 @@ L12:	JUNK=GETTXT(FALSE,TRUE,TRUE,0);
+ 	WORD2X=GETTXT(FALSE,TRUE,TRUE,0);
+ L22:	JUNK=GETTXT(FALSE,TRUE,TRUE,0);
+ 	if(JUNK > 0) goto L22;
+-	if(GETTXT(TRUE,TRUE,TRUE,0) <= 0)return;
++	if(GETTXT(TRUE,TRUE,TRUE,0) <= 0)return TRUE;
+ 	RSPEAK(53);
+-	 goto L10;
++	 return FALSE;
+ }
+ 
+ 
+@@ -203,19 +203,20 @@ L22:	JUNK=GETTXT(FALSE,TRUE,TRUE,0);
+ #undef WORD2X
+ #define GETIN(WORD1,WORD1X,WORD2,WORD2X) fGETIN(&WORD1,&WORD1X,&WORD2,&WORD2X)
+ #undef YES
+-long fYES(X,Y,Z)long X, Y, Z; {
++int fYES(X,Y,Z)int X, Y, Z; {
+ 
+-long YES, REPLY, JUNK1, JUNK2, JUNK3;
++int YES, REPLY, JUNK1, JUNK2, JUNK3;
+ 
+ /*  PRINT MESSAGE X, WAIT FOR YES/NO ANSWER.  IF YES, PRINT Y AND RETURN TRUE;
+  *  IF NO, PRINT Z AND RETURN FALSE. */
+ 
+-L1:	RSPEAK(X);
+-	GETIN(REPLY,JUNK1,JUNK2,JUNK3);
++// L1:	RSPEAK(X);
++	if (!GETIN(REPLY,JUNK1,JUNK2,JUNK3)) return 42;
+ 	if(REPLY == MAKEWD(250519) || REPLY == MAKEWD(25)) goto L10;
+ 	if(REPLY == MAKEWD(1415) || REPLY == MAKEWD(14)) goto L20;
+ 	RSPEAK(185);
+-	 goto L1;
++  // goto L1;
++	return 42;
+ L10:	YES=TRUE;
+ 	RSPEAK(Y);
+ 	return(YES);
+@@ -224,10 +225,6 @@ L20:	YES=FALSE;
+ 	return(YES);
+ }
+ 
+-
+-
+-
+-
+ /*  LINE-PARSING ROUTINES (GETNUM, GETTXT, MAKEWD, PUTTXT, SHFTXT, TYPE0)
+ 		*/
+ 
+@@ -239,8 +236,8 @@ L20:	YES=FALSE;
+ 
+ #define YES(X,Y,Z) fYES(X,Y,Z)
+ #undef GETNUM
+-long fGETNUM(K)long K; {
+-long DIGIT, GETNUM, SIGN;
++int fGETNUM(K)int K; {
++int DIGIT, GETNUM, SIGN;
+ 
+ /*  OBTAIN THE NEXT INTEGER FROM AN INPUT LINE.  IF K>0, WE FIRST READ A
+  *  NEW INPUT LINE FROM A FILE; IF K<0, WE READ A LINE FROM THE KEYBOARD;
+@@ -276,8 +273,8 @@ L42:	GETNUM=GETNUM*SIGN;
+ 
+ #define GETNUM(K) fGETNUM(K)
+ #undef GETTXT
+-long fGETTXT(SKIP,ONEWRD,UPPER,HASH)long HASH, ONEWRD, SKIP, UPPER; {
+-long CHAR, GETTXT, I; static long SPLITTING = -1;
++int fGETTXT(SKIP,ONEWRD,UPPER,HASH)int HASH, ONEWRD, SKIP, UPPER; {
++int CHAR, GETTXT, I; static int SPLITTING = -1;
+ 
+ /*  TAKE CHARACTERS FROM AN INPUT LINE AND PACK THEM INTO 30-BIT WORDS.
+  *  SKIP SAYS TO SKIP LEADING BLANKS.  ONEWRD SAYS STOP IF WE COME TO A
+@@ -324,8 +321,8 @@ L15:	/*etc*/ ;
+ 
+ #define GETTXT(SKIP,ONEWRD,UPPER,HASH) fGETTXT(SKIP,ONEWRD,UPPER,HASH)
+ #undef MAKEWD
+-long fMAKEWD(LETTRS)long LETTRS; {
+-long I, L, MAKEWD;
++int fMAKEWD(LETTRS)int LETTRS; {
++int I, L, MAKEWD;
+ 
+ /*  COMBINE FIVE UPPERCASE LETTERS (REPRESENTED BY PAIRS OF DECIMAL DIGITS
+  *  IN LETTRS) TO FORM A 30-BIT VALUE MATCHING THE ONE THAT GETTXT WOULD
+@@ -353,8 +350,8 @@ L10:	MAKEWD=MAKEWD+I*(MOD(L,50)+10);
+ #define MAKEWD(LETTRS) fMAKEWD(LETTRS)
+ #undef PUTTXT
+ #define STATE (*sTATE)
+-void fPUTTXT(WORD,sTATE,CASE,HASH)long CASE, HASH, *sTATE, WORD; {
+-long ALPH1, ALPH2, BYTE, DIV, I, W;
++void fPUTTXT(WORD,sTATE,CASE,HASH)int CASE, HASH, *sTATE, WORD; {
++int ALPH1, ALPH2, BYTE, DIV, I, W;
+ 
+ /*  UNPACK THE 30-BIT VALUE IN WORD TO OBTAIN UP TO 5 INTEGER-ENCODED CHARS,
+  *  AND STORE THEM IN INLINE STARTING AT LNPOSN.  IF LNLENG>=LNPOSN, SHIFT
+@@ -398,8 +395,8 @@ L18:	W=(W-BYTE*DIV)*64;
+ #undef STATE
+ #define PUTTXT(WORD,STATE,CASE,HASH) fPUTTXT(WORD,&STATE,CASE,HASH)
+ #undef SHFTXT
+-void fSHFTXT(FROM,DELTA)long DELTA, FROM; {
+-long I, II, JJ;
++void fSHFTXT(FROM,DELTA)int DELTA, FROM; {
++int I, II, JJ;
+ 
+ /*  MOVE INLINE(N) TO INLINE(N+DELTA) FOR N=FROM,LNLENG.  DELTA CAN BE
+  *  NEGATIVE.  LNLENG IS UPDATED; LNPOSN IS NOT CHANGED. */
+@@ -421,7 +418,7 @@ L2:	LNLENG=LNLENG+DELTA;
+ #define SHFTXT(FROM,DELTA) fSHFTXT(FROM,DELTA)
+ #undef TYPE0
+ void fTYPE0() {
+-long TEMP;
++int TEMP;
+ 
+ /*  TYPE A BLANK LINE.  THIS PROCEDURE IS PROVIDED AS A CONVENIENCE FOR CALLERS
+  *  WHO OTHERWISE HAVE NO USE FOR MAPCOM. */
+@@ -442,7 +439,7 @@ long TEMP;
+ /*  SUSPEND/RESUME I/O ROUTINES (SAVWDS, SAVARR, SAVWRD) */
+ 
+ #undef SAVWDS
+-void fSAVWDS(W1,W2,W3,W4,W5,W6,W7)long *W1, *W2, *W3, *W4, *W5, *W6, *W7; {
++void fSAVWDS(W1,W2,W3,W4,W5,W6,W7)int *W1, *W2, *W3, *W4, *W5, *W6, *W7; {
+ ;
+ 
+ /*  WRITE OR READ 7 VARIABLES.  SEE SAVWRD. */
+@@ -461,8 +458,8 @@ void fSAVWDS(W1,W2,W3,W4,W5,W6,W7)long *W1, *W2, *W3, *W4, *W5, *W6, *W7; {
+ 
+ #define SAVWDS(W1,W2,W3,W4,W5,W6,W7) fSAVWDS(&W1,&W2,&W3,&W4,&W5,&W6,&W7)
+ #undef SAVARR
+-void fSAVARR(ARR,N)long ARR[], N; {
+-long I;
++void fSAVARR(ARR,N)int ARR[], N; {
++int I;
+ 
+ /*  WRITE OR READ AN ARRAY OF N WORDS.  SEE SAVWRD. */
+ 
+@@ -478,8 +475,8 @@ L1:	SAVWRD(0,ARR[I]);
+ #define SAVARR(ARR,N) fSAVARR(ARR,N)
+ #undef SAVWRD
+ #define WORD (*wORD)
+-void fSAVWRD(OP,wORD)long OP, *wORD; {
+-static long BUF[250], CKSUM = 0, H1, HASH = 0, N = 0, STATE = 0;
++void fSAVWRD(OP,wORD)int OP, *wORD; {
++static int BUF[250], CKSUM = 0, H1, HASH = 0, N = 0, STATE = 0;
+ 
+ /*  IF OP<0, START WRITING A FILE, USING WORD TO INITIALISE ENCRYPTION; SAVE
+  *  WORD IN THE FILE.  IF OP>0, START READING A FILE; READ THE FILE TO FIND
+@@ -491,7 +488,7 @@ static long BUF[250], CKSUM = 0, H1, HASH = 0, N = 0, STATE = 0;
+  *  WE STORE ZERO INTO WORD IF THERE'S NO CHECKSUM ERROR, ELSE NONZERO. */
+ 
+ 
+-	if(OP != 0){long ifvar; ifvar=(STATE); switch (ifvar<0? -1 : ifvar>0? 1 :
++	if(OP != 0){int ifvar; ifvar=(STATE); switch (ifvar<0? -1 : ifvar>0? 1 :
+ 		0) { case -1: goto L30; case 0: goto L10; case 1: goto L30; }}
+ 	if(STATE == 0)return;
+ 	if(N == 250)SAVEIO(1,STATE > 0,BUF);
+@@ -540,8 +537,8 @@ L32:	N--; WORD=BUF[N]-CKSUM; N++;
+ #undef WORD
+ #define SAVWRD(OP,WORD) fSAVWRD(OP,&WORD)
+ #undef VOCAB
+-long fVOCAB(ID,INIT)long ID, INIT; {
+-long HASH, I, VOCAB;
++int fVOCAB(ID,INIT)int ID, INIT; {
++int HASH, I, VOCAB;
+ 
+ /*  LOOK UP ID IN THE VOCABULARY (ATAB) AND RETURN ITS "DEFINITION" (KTAB), OR
+  *  -1 IF NOT FOUND.  IF INIT IS POSITIVE, THIS IS AN INITIALISATION CALL SETTING
+@@ -573,7 +570,7 @@ L3:	VOCAB=KTAB[I];
+ 
+ #define VOCAB(ID,INIT) fVOCAB(ID,INIT)
+ #undef DSTROY
+-void fDSTROY(OBJECT)long OBJECT; {
++void fDSTROY(OBJECT)int OBJECT; {
+ ;
+ 
+ /*  PERMANENTLY ELIMINATE "OBJECT" BY MOVING TO A NON-EXISTENT LOCATION. */
+@@ -587,8 +584,8 @@ void fDSTROY(OBJECT)long OBJECT; {
+ 
+ #define DSTROY(OBJECT) fDSTROY(OBJECT)
+ #undef JUGGLE
+-void fJUGGLE(OBJECT)long OBJECT; {
+-long I, J;
++void fJUGGLE(OBJECT)int OBJECT; {
++int I, J;
+ 
+ /*  JUGGLE AN OBJECT BY PICKING IT UP AND PUTTING IT DOWN AGAIN, THE PURPOSE
+  *  BEING TO GET THE OBJECT TO THE FRONT OF THE CHAIN OF THINGS AT ITS LOC. */
+@@ -605,8 +602,8 @@ long I, J;
+ 
+ #define JUGGLE(OBJECT) fJUGGLE(OBJECT)
+ #undef MOVE
+-void fMOVE(OBJECT,WHERE)long OBJECT, WHERE; {
+-long FROM;
++void fMOVE(OBJECT,WHERE)int OBJECT, WHERE; {
++int FROM;
+ 
+ /*  PLACE ANY OBJECT ANYWHERE BY PICKING IT UP AND DROPPING IT.  MAY ALREADY BE
+  *  TOTING, IN WHICH CASE THE CARRY IS A NO-OP.  MUSTN'T PICK UP OBJECTS WHICH
+@@ -616,7 +613,7 @@ long FROM;
+ 	if(OBJECT > 100) goto L1;
+ 	FROM=PLACE[OBJECT];
+ 	 goto L2;
+-L1:	{long x = OBJECT-100; FROM=FIXED[x];}
++L1:	{int x = OBJECT-100; FROM=FIXED[x];}
+ L2:	if(FROM > 0 && FROM <= 300)CARRY(OBJECT,FROM);
+ 	DROP(OBJECT,WHERE);
+ 	return;
+@@ -626,8 +623,8 @@ L2:	if(FROM > 0 && FROM <= 300)CARRY(OBJECT,FROM);
+ 
+ #define MOVE(OBJECT,WHERE) fMOVE(OBJECT,WHERE)
+ #undef PUT
+-long fPUT(OBJECT,WHERE,PVAL)long OBJECT, PVAL, WHERE; {
+-long PUT;
++int fPUT(OBJECT,WHERE,PVAL)int OBJECT, PVAL, WHERE; {
++int PUT;
+ 
+ /*  PUT IS THE SAME AS MOVE, EXCEPT IT RETURNS A VALUE USED TO SET UP THE
+  *  NEGATED PROP VALUES FOR THE REPOSITORY OBJECTS. */
+@@ -642,8 +639,8 @@ long PUT;
+ 
+ #define PUT(OBJECT,WHERE,PVAL) fPUT(OBJECT,WHERE,PVAL)
+ #undef CARRY
+-void fCARRY(OBJECT,WHERE)long OBJECT, WHERE; {
+-long TEMP;
++void fCARRY(OBJECT,WHERE)int OBJECT, WHERE; {
++int TEMP;
+ 
+ /*  START TOTING AN OBJECT, REMOVING IT FROM THE LIST OF THINGS AT ITS FORMER
+  *  LOCATION.  INCR HOLDNG UNLESS IT WAS ALREADY BEING TOTED.  IF OBJECT>100
+@@ -669,7 +666,7 @@ L8:	LINK[TEMP]=LINK[OBJECT];
+ 
+ #define CARRY(OBJECT,WHERE) fCARRY(OBJECT,WHERE)
+ #undef DROP
+-void fDROP(OBJECT,WHERE)long OBJECT, WHERE; {
++void fDROP(OBJECT,WHERE)int OBJECT, WHERE; {
+ ;
+ 
+ /*  PLACE AN OBJECT AT A GIVEN LOC, PREFIXING IT ONTO THE ATLOC LIST.  DECR
+@@ -680,7 +677,7 @@ void fDROP(OBJECT,WHERE)long OBJECT, WHERE; {
+ 	if(PLACE[OBJECT] == -1)HOLDNG=HOLDNG-1;
+ 	PLACE[OBJECT]=WHERE;
+ 	 goto L2;
+-L1:	{long x = OBJECT-100; FIXED[x]=WHERE;}
++L1:	{int x = OBJECT-100; FIXED[x]=WHERE;}
+ L2:	if(WHERE <= 0)return;
+ 	LINK[OBJECT]=ATLOC[WHERE];
+ 	ATLOC[WHERE]=OBJECT;
+@@ -691,8 +688,8 @@ L2:	if(WHERE <= 0)return;
+ 
+ #define DROP(OBJECT,WHERE) fDROP(OBJECT,WHERE)
+ #undef ATDWRF
+-long fATDWRF(WHERE)long WHERE; {
+-long ATDWRF, I;
++int fATDWRF(WHERE)int WHERE; {
++int ATDWRF, I;
+ 
+ /*  RETURN THE INDEX OF FIRST DWARF AT THE GIVEN LOCATION, ZERO IF NO DWARF IS
+  *  THERE (OR IF DWARVES NOT ACTIVE YET), -1 IF ALL DWARVES ARE DEAD.  IGNORE
+@@ -722,8 +719,8 @@ L2:	ATDWRF=I;
+ /*  UTILITY ROUTINES (SETBIT, TSTBIT, RAN, RNDVOC, BUG) */
+ 
+ #undef SETBIT
+-long fSETBIT(BIT)long BIT; {
+-long I, SETBIT;
++int fSETBIT(BIT)int BIT; {
++int I, SETBIT;
+ 
+ /*  RETURNS 2**BIT FOR USE IN CONSTRUCTING BIT-MASKS. */
+ 
+@@ -740,8 +737,8 @@ L1:	SETBIT=SETBIT+SETBIT;
+ 
+ #define SETBIT(BIT) fSETBIT(BIT)
+ #undef TSTBIT
+-long fTSTBIT(MASK,BIT)long BIT, MASK; {
+-long TSTBIT;
++int fTSTBIT(MASK,BIT)int BIT, MASK; {
++int TSTBIT;
+ 
+ /*  RETURNS TRUE IF THE SPECIFIED BIT IS SET IN THE MASK. */
+ 
+@@ -754,8 +751,8 @@ long TSTBIT;
+ 
+ #define TSTBIT(MASK,BIT) fTSTBIT(MASK,BIT)
+ #undef RAN
+-long fRAN(RANGE)long RANGE; {
+-static long D, R = 0, RAN, T;
++int fRAN(RANGE)int RANGE; {
++static int D, R = 0, RAN, T;
+ 
+ /*  SINCE THE RAN FUNCTION IN LIB40 SEEMS TO BE A REAL LOSE, WE'LL USE ONE OF
+  *  OUR OWN.  IT'S BEEN RUN THROUGH MANY OF THE TESTS IN KNUTH VOL. 2 AND
+@@ -765,7 +762,8 @@ static long D, R = 0, RAN, T;
+ 
+ 	D=1;
+ 	if(R != 0 && RANGE >= 0) goto L1;
+-	DATIME(D,T);
++  D=314159;
++  T=271828;
+ 	R=MOD(T+5,1048576L);
+ 	D=1000+MOD(D,1000);
+ L1:	/* 2 */ for (T=1; T<=D; T++) {
+@@ -779,8 +777,8 @@ L2:	R=MOD(R*1093L+221587L,1048576L);
+ 
+ #define RAN(RANGE) fRAN(RANGE)
+ #undef RNDVOC
+-long fRNDVOC(CHAR,FORCE)long CHAR, FORCE; {
+-long DIV, I, J, RNDVOC;
++int fRNDVOC(CHAR,FORCE)int CHAR, FORCE; {
++int DIV, I, J, RNDVOC;
+ 
+ /*  SEARCHES THE VOCABULARY FOR A WORD WHOSE SECOND CHARACTER IS CHAR, AND
+  *  CHANGES THAT WORD SUCH THAT EACH OF THE OTHER FOUR CHARACTERS IS A
+@@ -812,7 +810,7 @@ L8:	ATAB[I]=RNDVOC+J*J;
+ 
+ #define RNDVOC(CHAR,FORCE) fRNDVOC(CHAR,FORCE)
+ #undef BUG
+-void fBUG(NUM)long NUM; {
++void fBUG(NUM)int NUM; {
+ 
+ /*  THE FOLLOWING CONDITIONS ARE CURRENTLY CONSIDERED FATAL BUGS.  NUMBERS < 20
+  *  ARE DETECTED WHILE READING THE DATABASE; THE OTHERS OCCUR AT "RUN TIME".
+@@ -839,21 +837,20 @@ void fBUG(NUM)long NUM; {
+  *	28	INVALID MONTH RETURNED BY DATE FUNCTION
+  *	29	TOO MANY PARAMETERS GIVEN TO SETPRM */
+ 
+-	printf("Fatal error %d.  See source code for interpretation.\n",
+-	   NUM);
++	puts("Fatal error");
+ 	exit(FALSE);
+ }
+ 
+ 
+ 
+-
++void score(int);
+ 
+ /*  MACHINE DEPENDENT ROUTINES (MAPLIN, TYPE, MPINIT, SAVEIO) */
+ 
+ #define BUG(NUM) fBUG(NUM)
+ #undef MAPLIN
+-void fMAPLIN(FIL)long FIL; {
+-long I, VAL; static FILE *OPENED = NULL;
++void fMAPLIN(FIL)int FIL; {
++int I, VAL; static FILE *OPENED = NULL;
+ 
+ /*  READ A LINE OF INPUT, EITHER FROM A FILE (IF FIL=.TRUE.) OR FROM THE
+  *  KEYBOARD, TRANSLATE THE CHARS TO INTEGERS IN THE RANGE 0-126 AND STORE
+@@ -889,7 +886,7 @@ long I, VAL; static FILE *OPENED = NULL;
+ 
+ 	if(FIL) goto L15;
+ 	gets(INLINE+1);
+-	if(feof(stdin)) score(1);
++	// if(feof(stdin)) score(1);
+ 	 goto L20;
+ 
+ L15:	if(!OPENED){
+@@ -897,8 +894,8 @@ L15:	if(!OPENED){
+ 		OPENED=fopen("ram:adventure.text","r" /* NOT binary */);
+ 		if(!OPENED)
+ #endif
+-		OPENED=fopen("adventure.text","r" /* NOT binary */);
+-		if(!OPENED){printf("Can't read adventure.text!\n"); exit(FALSE);}
++		OPENED=fopentext();
++		if(!OPENED){puts("Can't read adventure.text!"); exit(FALSE);}
+ 		}
+ 	fgets(INLINE+1,100,OPENED);
+ 
+@@ -920,7 +917,7 @@ L25:	if(INLINE[I] != 0)LNLENG=I;
+ #define MAPLIN(FIL) fMAPLIN(FIL)
+ #undef TYPE
+ void fTYPE() {
+-long I, VAL;
++int I, VAL;
+ 
+ /*  TYPE THE FIRST "LNLENG" CHARACTERS STORED IN INLINE, MAPPING THEM
+  *  FROM INTEGERS TO TEXT PER THE RULES DESCRIBED ABOVE.  INLINE(I),
+@@ -928,16 +925,16 @@ long I, VAL;
+ 
+ 
+ 	if(LNLENG != 0) goto L10;
+-	printf("\n");
++	puts("");
+ 	return;
+ 
+ L10:	if(MAP2[1] == 0)MPINIT();
+ 	/* 20 */ for (I=1; I<=LNLENG; I++) {
+ 	VAL=INLINE[I];
+-L20:	{long x = VAL+1; INLINE[I]=MAP2[x];}
++L20:	{int x = VAL+1; INLINE[I]=MAP2[x];}
+ 	} /* end loop */
+-	{long x = LNLENG+1; INLINE[x]=0;}
+-	printf("%s\n",INLINE+1);
++	{int x = LNLENG+1; INLINE[x]=0;}
++	puts(INLINE+1);
+ 	return;
+ }
+ 
+@@ -946,8 +943,8 @@ L20:	{long x = VAL+1; INLINE[I]=MAP2[x];}
+ #define TYPE() fTYPE()
+ #undef MPINIT
+ void fMPINIT() {
+-long FIRST, I, J, LAST, VAL;
+-static long RUNS[7][2] = {32,34, 39,46, 65,90, 97,122, 37,37, 48,57, 0,126};
++int FIRST, I, J, LAST, VAL;
++static int RUNS[7][2] = {32,34, 39,46, 65,90, 97,122, 37,37, 48,57, 0,126};
+ 
+ 
+ 	/* 10 */ for (I=1; I<=128; I++) {
+@@ -983,7 +980,7 @@ L30:	if(I >= 64)MAP2[VAL]=(I-64)*('B'-'A')+'@';
+ 
+ #define MPINIT() fMPINIT()
+ #undef SAVEIO
+-void fSAVEIO(OP,IN,ARR)long ARR[], IN, OP; {
++void fSAVEIO(OP,IN,ARR)int ARR[], IN, OP; {
+ static FILE *F; char NAME[50];
+ 
+ /*  IF OP=0, ASK FOR A FILE NAME AND OPEN A FILE.  (IF IN=.TRUE., THE FILE IS FOR
+@@ -995,16 +992,16 @@ static FILE *F; char NAME[50];
+  *  FILE) AND TRY AGAIN, GREAT.  DEC F40 CAN'T. */
+ 
+ 
+-	{long ifvar; ifvar=(OP); switch (ifvar<0? -1 : ifvar>0? 1 : 0) { case -1:
++	{int ifvar; ifvar=(OP); switch (ifvar<0? -1 : ifvar>0? 1 : 0) { case -1:
+ 		goto L10; case 0: goto L20; case 1: goto L30; }}
+ 
+ L10:	fclose(F);
+ 	return;
+ 
+-L20:	printf("\nFile name: ");
++L20:	puts("\n");puts("File name: ");
+ 	gets(NAME);
+-	F=fopen(NAME,(IN ? READ_MODE : WRITE_MODE));
+-	if(F == NULL) {printf("Can't open file, try again.\n"); goto L20;}
++	F=fopensave();
++	if(F == NULL) {puts("Can't open file, try again."); goto L20;}
+ 	return;
+ 
+ L30:	if(IN)fread(ARR,4,250,F);
+@@ -1015,5 +1012,5 @@ L30:	if(IN)fread(ARR,4,250,F);
+ 
+ 
+ 
+-long fIABS(N)long N; {return(N<0? -N : N);}
+-long fMOD(N,M)long N, M; {return(N%M);}
++int fIABS(N)int N; {return(N<0? -N : N);}
++int fMOD(N,M)int N, M; {return(N%M);}
+diff --git a/misc.h b/misc.h
+index 6654ea9..0c83e56 100644
+--- a/misc.h
++++ b/misc.h
+@@ -6,73 +6,73 @@
+ #define WRITE_MODE "w"
+ #endif
+ 
+-extern void fSPEAK(long);
++extern void fSPEAK(int);
+ #define SPEAK(N) fSPEAK(N)
+-extern void fPSPEAK(long,long);
++extern void fPSPEAK(int,int);
+ #define PSPEAK(MSG,SKIP) fPSPEAK(MSG,SKIP)
+-extern void fRSPEAK(long);
++extern void fRSPEAK(int);
+ #define RSPEAK(I) fRSPEAK(I)
+-extern void fSETPRM(long,long,long);
++extern void fSETPRM(int,int,int);
+ #define SETPRM(FIRST,P1,P2) fSETPRM(FIRST,P1,P2)
+-extern void fGETIN(long*,long*,long*,long*);
++extern int fGETIN(int*,int*,int*,int*);
+ #define GETIN(WORD1,WORD1X,WORD2,WORD2X) fGETIN(&WORD1,&WORD1X,&WORD2,&WORD2X)
+-extern long fYES(long,long,long);
++extern int fYES(int,int,int);
+ #define YES(X,Y,Z) fYES(X,Y,Z)
+-extern long fGETNUM(long);
++extern int fGETNUM(int);
+ #define GETNUM(K) fGETNUM(K)
+-extern long fGETTXT(long,long,long,long);
++extern int fGETTXT(int,int,int,int);
+ #define GETTXT(SKIP,ONEWRD,UPPER,HASH) fGETTXT(SKIP,ONEWRD,UPPER,HASH)
+-extern long fMAKEWD(long);
++extern int fMAKEWD(int);
+ #define MAKEWD(LETTRS) fMAKEWD(LETTRS)
+-extern void fPUTTXT(long,long*,long,long);
++extern void fPUTTXT(int,int*,int,int);
+ #define PUTTXT(WORD,STATE,CASE,HASH) fPUTTXT(WORD,&STATE,CASE,HASH)
+-extern void fSHFTXT(long,long);
++extern void fSHFTXT(int,int);
+ #define SHFTXT(FROM,DELTA) fSHFTXT(FROM,DELTA)
+ extern void fTYPE0();
+ #define TYPE0() fTYPE0()
+-extern void fSAVWDS(long*,long*,long*,long*,long*,long*,long*);
++extern void fSAVWDS(int*,int*,int*,int*,int*,int*,int*);
+ #define SAVWDS(W1,W2,W3,W4,W5,W6,W7) fSAVWDS(&W1,&W2,&W3,&W4,&W5,&W6,&W7)
+-extern void fSAVARR(long*,long);
++extern void fSAVARR(int*,int);
+ #define SAVARR(ARR,N) fSAVARR(ARR,N)
+-extern void fSAVWRD(long,long*);
++extern void fSAVWRD(int,int*);
+ #define SAVWRD(OP,WORD) fSAVWRD(OP,&WORD)
+-extern long fVOCAB(long,long);
++extern int fVOCAB(int,int);
+ #define VOCAB(ID,INIT) fVOCAB(ID,INIT)
+-extern void fDSTROY(long);
++extern void fDSTROY(int);
+ #define DSTROY(OBJECT) fDSTROY(OBJECT)
+-extern void fJUGGLE(long);
++extern void fJUGGLE(int);
+ #define JUGGLE(OBJECT) fJUGGLE(OBJECT)
+-extern void fMOVE(long,long);
++extern void fMOVE(int,int);
+ #define MOVE(OBJECT,WHERE) fMOVE(OBJECT,WHERE)
+-extern long fPUT(long,long,long);
++extern int fPUT(int,int,int);
+ #define PUT(OBJECT,WHERE,PVAL) fPUT(OBJECT,WHERE,PVAL)
+-extern void fCARRY(long,long);
++extern void fCARRY(int,int);
+ #define CARRY(OBJECT,WHERE) fCARRY(OBJECT,WHERE)
+-extern void fDROP(long,long);
++extern void fDROP(int,int);
+ #define DROP(OBJECT,WHERE) fDROP(OBJECT,WHERE)
+-extern long fATDWRF(long);
++extern int fATDWRF(int);
+ #define ATDWRF(WHERE) fATDWRF(WHERE)
+-extern long fSETBIT(long);
++extern int fSETBIT(int);
+ #define SETBIT(BIT) fSETBIT(BIT)
+-extern long fTSTBIT(long,long);
++extern int fTSTBIT(int,int);
+ #define TSTBIT(MASK,BIT) fTSTBIT(MASK,BIT)
+-extern long fRAN(long);
++extern int fRAN(int);
+ #define RAN(RANGE) fRAN(RANGE)
+-extern long fRNDVOC(long,long);
++extern int fRNDVOC(int,int);
+ #define RNDVOC(CHAR,FORCE) fRNDVOC(CHAR,FORCE)
+-extern void fBUG(long);
++extern void fBUG(int);
+ #define BUG(NUM) fBUG(NUM)
+-extern void fMAPLIN(long);
++extern void fMAPLIN(int);
+ #define MAPLIN(FIL) fMAPLIN(FIL)
+ extern void fTYPE();
+ #define TYPE() fTYPE()
+ extern void fMPINIT();
+ #define MPINIT() fMPINIT()
+-extern void fSAVEIO(long,long,long*);
++extern void fSAVEIO(int,int,int*);
+ #define SAVEIO(OP,IN,ARR) fSAVEIO(OP,IN,ARR)
+-extern void fDATIME(long*,long*);
+-#define DATIME(D,T) fDATIME(&D,&T)
+-extern long fIABS(long);
++extern int fIABS(int);
+ #define IABS(N) fIABS(N)
+-extern long fMOD(long,long);
++extern int fMOD(int,int);
+ #define MOD(N,M) fMOD(N,M)
++
++enum { BEGINNING, MAIN_PROMPT, YES_NOVICE, YES_DIE, YES_HINT, YES_HINT_2, ATTACK_GETIN };
+diff --git a/score.c b/score.c
+index acda23f..525d3fc 100644
+--- a/score.c
++++ b/score.c
+@@ -9,7 +9,7 @@
+  * SCORING AND WRAP-UP
+  */
+ 
+-void score(MODE)long MODE; {
++void score(MODE)int MODE; {
+ 	/* <0 if scoring, >0 if quitting, =0 if died or won */
+ 
+ /*  THE PRESENT SCORING ALGORITHM IS AS FOLLOWS:
+diff --git a/share.h b/share.h
+index ff4252b..c723e55 100644
+--- a/share.h
++++ b/share.h
+@@ -1,5 +1,5 @@
+-extern void score(long);
+-extern long ABBNUM, ACTSPK[], AMBER, ATTACK, AXE, BACK, BATTER, BEAR,
++extern void score(int);
++extern int ABBNUM, ACTSPK[], AMBER, ATTACK, AXE, BACK, BATTER, BEAR,
+    BIRD, BLOOD, BONUS,
+    BOTTLE, CAGE, CAVE, CAVITY, CHAIN, CHASM, CHEST, CHLOC, CHLOC2,
+    CLAM, CLOCK1, CLOCK2, CLOSED, CLOSNG, CLSHNT, CLSMAX, CLSSES,

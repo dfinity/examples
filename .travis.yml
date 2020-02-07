@@ -1,6 +1,6 @@
 dist: disco
 install:
-- travis_retry sudo apt-get install clang gcc-multilib
+- travis_retry sudo apt-get install clang-8 lld-8 gcc-multilib
 - travis_retry wget https://sdk.dfinity.org/install.sh
 - yes Y | sh install.sh
 script:
@@ -11,7 +11,7 @@ script:
     if [ -f Makefile ]
     then make
     elif [ -f build.sh ]
-    then bash build.sh
+    then ./build.sh
     fi
     popd
   done
