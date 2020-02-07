@@ -5,7 +5,8 @@ wcc="clang-8 --target=wasm32 -c -O3"
 tar xfz Adventure2.5.tar.gz
 patch < adv.patch
 (echo "char*textFile(){static char s[]=" ; cat adventure.text | sed 's/"/\\"/g' | sed 's/.*/"&\\n"/'; echo ";return s;}") > adventure.text.c
-$wcc *.c
+# Suppress warnings. The original source is old.
+$wcc -Wno-everything *.c
 $wld *.o -o adventure.wasm
 echo '{"canisters":{"adventure":{"main":"src/adventure"}}}' > dfx.json
 install -D adventure.wasm build/adventure/adventure.wasm
