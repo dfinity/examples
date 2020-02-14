@@ -2,9 +2,18 @@
 
 [![Build Status](https://travis-ci.org/dfinity-lab/examples.svg?branch=master)](https://travis-ci.org/dfinity-lab/examples?branch=master)
 
+This sample project create a single actor named `+Counter+` and provides a simple example of how you can verify that the variable state—that is, the value of the variable between calls—persists.
+
+The program uses the `+counter+` variable to contain a natural number that represents the current value of the counter.
+This program supports the following types of function calls:
+
+* The `+set+` function call updates the current value to an arbitrary numeric value you specify as an argument.
+* The `+inc+` function call updates the current value, incrementing by 1 (no return value).
+* The `+get+` function call queries and returns the current value.
+
 ### Prerequisites
 
-- [DFINITY SDK](https://sdk.dfinity.org)
+* You have downloaded and installed the SDK as described in [Getting started](https://sdk.dfinity.org/getting-started{outfilesuffix}).
 
 ### Demo
 
