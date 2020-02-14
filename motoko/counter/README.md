@@ -13,7 +13,7 @@ This program supports the following types of function calls:
 
 ### Prerequisites
 
-* You have downloaded and installed the SDK as described in [Getting started](https://sdk.dfinity.org/developers-guide/getting-started{outfilesuffix}).
+* You have downloaded and installed the SDK as described in [Getting started](https://sdk.dfinity.org/developers-guide/getting-started.html).
 
 ### Demo
 

@@ -4,7 +4,7 @@
 
 ### Prerequisites
 
-* You have downloaded and installed the SDK as described in [Getting started](https://sdk.dfinity.org/developer-guide/getting-started{outfilesuffix}).
+* You have downloaded and installed the SDK as described in [Getting started](https://sdk.dfinity.org/developer-guide/getting-started.html).
 
 ### Demo
 
