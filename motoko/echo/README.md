@@ -4,7 +4,7 @@
 
 ### Prerequisites
 
-- [DFINITY SDK](https://sdk.dfinity.org)
+You have downloaded and installed the SDK as described in [Getting started](https://sdk.dfinity.org/developers-guide/getting-started.html).
 
 ### Demo
 
