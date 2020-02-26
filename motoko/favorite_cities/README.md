@@ -6,3 +6,15 @@ In this example, the `[Text]` notation indicates an array of a collection of UTF
 ### Prerequisites
 
 You have downloaded and installed the SDK as described in [Getting started](https://sdk.dfinity.org/developers-guide/getting-started.html).
+
+### Demo
+Start a local internet computer.
+
+dfx start
+Execute the following commands in another tab.
+
+dfx build
+dfx canister install --all
+dfx canister call favorite-cities location_pretty '(vec {"San Francisco";"Paris";"Rome"})'
+Observe the following result.
+("Hello from San Francisco, Paris, Rome, bon voyage!")
