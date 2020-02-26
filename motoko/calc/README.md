@@ -12,6 +12,6 @@ This program supports the following types of function calls:
 
 The `+div+` function also includes code to prevent the program from attempting to divide by zero.
 
-== Before you begin
+## Before you begin
 
 You have downloaded and installed the SDK as described in [Getting started](https://sdk.dfinity.org/developers-guide/getting-started.html).
