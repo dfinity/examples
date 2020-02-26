@@ -1,19 +1,8 @@
-# hello_location_2_13
+# Favorite cities
 
-Welcome to your new hello_location_2_13 project and to the internet computer development community. By default, creating a new project adds this README and some template files to your project directory. You can edit these template files to customize your project and to include your own code to speed up the development cycle.
+This program provides functions that return multiple city names and illustrates how to use a type enclosed by square (`[ ]`) brackets to indicate an *array* of that type.
+In this example, the `[Text]` notation indicates an array of a collection of UTF-8 characters, enabling the program to accept and return multiple text strings.
 
-To get started, you might want to explore the project directory structure and the default configuration file. Working with this project in your development environment will not affect any production deployment or identity tokens.
+### Prerequisites
 
-To learn more before you start working with hello_location_2_13, see the following documentation available online:
-
-- [Quick Start](https://sdk.dfinity.org/developers-guide/quickstart.html)
-- [Developer's Guide](https://sdk.dfinity.org/developers-guide)
-- [Language Reference](https://sdk.dfinity.org/language-guide)
-
-If you want to start working on your project right away, you might want to try the following commands:
-
-```bash
-cd hello_location_2_13/
-dfx help
-dfx config --help
-```
+You have downloaded and installed the SDK as described in [Getting started](https://sdk.dfinity.org/developers-guide/getting-started.html).
