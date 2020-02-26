@@ -33,5 +33,5 @@ fx canister call calc add '(10)'
 Observe the following result.
 
 ```bash
-(10)
+(+10)
 ```
