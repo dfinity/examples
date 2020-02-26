@@ -14,5 +14,4 @@ The `+div+` function also includes code to prevent the program from attempting t
 
 == Before you begin
 
-You have downloaded and installed the SDK as described in
-link:../getting-started{outfilesuffix}[Getting started].
+You have downloaded and installed the SDK as described in [Getting started](https://sdk.dfinity.org/developers-guide/getting-started.html).
