@@ -1,0 +1,20 @@
+{
+  "canisters": {
+    "favorite_cities": {
+      "frontend": {
+        "entrypoint": "src/favorite_cities/public/index.js"
+      },
+      "main": "src/favorite_cities/main.mo"
+    }
+  },
+  "defaults": {
+    "build": {
+      "output": "canisters/"
+    },
+    "start": {
+      "address": "127.0.0.1",
+      "port": 8000,
+      "serve_root": "canisters/favorite_cities/assets"
+    }
+  }
+}
