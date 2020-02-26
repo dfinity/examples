@@ -1,19 +1,18 @@
-# calc
+# Calc
 
-Welcome to your new calc project and to the internet computer development community. By default, creating a new project adds this README and some template files to your project directory. You can edit these template files to customize your project and to include your own code to speed up the development cycle.
+The program uses the `+cell+` variable to contain an integer number that represents the current result of a calculator operation. 
 
-To get started, you might want to explore the project directory structure and the default configuration file. Working with this project in your development environment will not affect any production deployment or identity tokens.
+This program supports the following types of function calls:
 
-To learn more before you start working with calc, see the following documentation available online:
+* The `+add+` function call accepts input and performs addition.
+* The `+sub+` function call accepts input and performs subtraction.
+* The `+mul+` function call accepts input and performs multiplication.
+* The `+div+` function call accepts input and performs division.
+* The `+clearall+` function clears the `+cell+` value stored as the result of previous operations, resetting the `+cell+` value to zero.
 
-- [Quick Start](https://sdk.dfinity.org/developers-guide/quickstart.html)
-- [Developer's Guide](https://sdk.dfinity.org/developers-guide)
-- [Language Reference](https://sdk.dfinity.org/language-guide)
+The `+div+` function also includes code to prevent the program from attempting to divide by zero.
 
-If you want to start working on your project right away, you might want to try the following commands:
+== Before you begin
 
-```bash
-cd calc/
-dfx help
-dfx config --help
-```
+You have downloaded and installed the SDK as described in
+link:../getting-started{outfilesuffix}[Getting started].
