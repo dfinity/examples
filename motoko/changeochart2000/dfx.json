@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "changeochart2000": {
+      "main": "src/changeochart2000/main.mo"
+    }
+  },
+  "defaults": {
+    "build": {
+      "output": "canisters/"
+    },
+    "start": {
+      "address": "127.0.0.1",
+      "port": 8000,
+      "serve_root": "canisters/changeochart2000/assets"
+    }
+  }
+}
