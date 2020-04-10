@@ -1,0 +1,14 @@
+type Subscriber = 
+ record {
+   "callback": func (Counter) -> () oneway;
+   "topic": text;
+ };
+type Counter = 
+ record {
+   "topic": text;
+   "value": nat;
+ };
+service : {
+  "publish": (Counter) -> () oneway;
+  "subscribe": (Subscriber) -> () oneway;
+}

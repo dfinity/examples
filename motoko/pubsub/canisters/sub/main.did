@@ -1,0 +1,10 @@
+type Counter = 
+ record {
+   "topic": text;
+   "value": nat;
+ };
+service : {
+  "getCount": () -> (nat) query;
+  "init": () -> () oneway;
+  "updateCount": (Counter) -> () oneway;
+}
