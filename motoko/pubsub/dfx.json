@@ -1,15 +1,9 @@
 {
   "canisters": {
     "pub": {
-      "frontend": {
-        "entrypoint": "src/pub/public/index.js"
-      },
       "main": "src/pub/main.mo"
     },
     "sub": {
-      "frontend": {
-        "entrypoint": "src/sub/public/index.js"
-      },
       "main": "src/sub/main.mo"
     }
   },
@@ -22,7 +16,5 @@
       "port": 8000,
       "serve_root": "canisters/pubsub/assets"
     }
-  },
-  "dfx": "0.5.5",
-  "version": 1
+  }
 }
