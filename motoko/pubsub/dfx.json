@@ -1,0 +1,20 @@
+{
+  "canisters": {
+    "pub": {
+      "main": "src/pub/main.mo"
+    },
+    "sub": {
+      "main": "src/sub/main.mo"
+    }
+  },
+  "defaults": {
+    "build": {
+      "output": "canisters/"
+    },
+    "start": {
+      "address": "127.0.0.1",
+      "port": 8000,
+      "serve_root": "canisters/pubsub/assets"
+    }
+  }
+}
