@@ -94,8 +94,7 @@ For example, if you are only interested in reporting an issue, there's no need t
 This section describes the most common workflow scenarios:
 
 - Reporting an issue
-- Submitting a feature request
-- Submitting a code improvement
+- Submitting your own example
 
 ### Reporting an issue
 
@@ -113,8 +112,6 @@ To open a new issue:
 
     For any problem, describe it in detail, including details about the example app, the version of the code you are using, the results you expected, and how the actual results differed from your expectations.
 
-### Submitting a feature request
+### Submitting your own example
 
-### Submitting a code improvement
-
-    ```
+We're not accepting community examples at this time -- we have something better planned.
