@@ -1,0 +1,22 @@
+{
+  "canisters": {
+    "simple_to_do": {
+      "frontend": {
+        "entrypoint": "src/simple_to_do/public/index.js"
+      },
+      "main": "src/simple_to_do/main.mo"
+    }
+  },
+  "defaults": {
+    "build": {
+      "output": "canisters/"
+    },
+    "start": {
+      "address": "127.0.0.1",
+      "port": 8000,
+      "serve_root": "canisters/simple_to_do/assets"
+    }
+  },
+  "dfx": "0.5.7",
+  "version": 1
+}
