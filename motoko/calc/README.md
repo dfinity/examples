@@ -14,7 +14,7 @@ The `div` function also includes code to prevent the program from attempting to 
 
 ### Prerequisites
 
-You have downloaded and installed the SDK as described in [Getting started](https://sdk.dfinity.org/developers-guide/getting-started.html).
+You have downloaded and installed the SDK as described in [Getting started](https://sdk.dfinity.org/docs/developers-guide/getting-started.html).
 
 ### Demo
 
