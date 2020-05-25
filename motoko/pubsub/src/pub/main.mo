@@ -1,6 +1,6 @@
 // Publisher
 
-import Array "mo:stdlib/Array";
+import Array "mo:base/Array";
 
 type Counter = { topic: Text; value: Nat; };
 type Subscriber = { topic: Text; callback: shared Counter -> (); };
