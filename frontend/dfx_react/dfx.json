@@ -1,0 +1,22 @@
+{
+  "canisters": {
+    "dfx_react": {
+      "frontend": {
+        "entrypoint": "src/dfx_react/public/index.jsx"
+      },
+      "main": "src/dfx_react/main.mo"
+    }
+  },
+  "defaults": {
+    "build": {
+      "output": "canisters/"
+    },
+    "start": {
+      "address": "127.0.0.1",
+      "port": 8000,
+      "serve_root": "canisters/dfx_react/assets"
+    }
+  },
+  "dfx": "0.5.7",
+  "version": 1
+}
