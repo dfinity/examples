@@ -1,0 +1,1 @@
+declare module 'ic:canisters/dfx_react_typescript';

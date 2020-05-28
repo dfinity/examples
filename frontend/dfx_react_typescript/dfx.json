@@ -1,0 +1,22 @@
+{
+  "canisters": {
+    "dfx_react_typescript": {
+      "frontend": {
+        "entrypoint": "src/dfx_react_typescript/public/App.tsx"
+      },
+      "main": "src/dfx_react_typescript/counter.mo"
+    }
+  },
+  "defaults": {
+    "build": {
+      "output": "canisters/"
+    },
+    "start": {
+      "address": "127.0.0.1",
+      "port": 8000,
+      "serve_root": "canisters/dfx_react_typescript/assets"
+    }
+  },
+  "dfx": "0.5.7",
+  "version": 1
+}
