@@ -10,9 +10,9 @@ To learn more before you start working with dfx_react, see the following documen
 
 ## Important Note
 
-Before you run `dfx build`, you must update the `@dfinity/agent` property in the package.json
+Before you run `dfx build`, you must update the `@dfinity/agent` property in the package.json.
 
-to get the locataion of your `@dfinity/agent`, run `echo $HOME/.cache/dfinity/versions/<your-dfx-version>/js-user-library`. that should print something like this:
+To get the location of your `@dfinity/agent`, run `echo $HOME/.cache/dfinity/versions/<your-dfx-version>/js-user-library`, which should print something like this:
 
 `"/Users/myname/.cache/dfinity/versions/0.5.7/js-user-library"`
 
