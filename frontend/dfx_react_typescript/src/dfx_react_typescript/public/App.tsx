@@ -17,22 +17,9 @@ class App extends React.Component<AppProps, AppState> {
     super(props);
   }
 
-  public increment = this._updateCount.bind(this, '+');
-  public decrement = this._updateCount.bind(this, '-');
-
-  private async _updateCount(val: '+' | '-') {
-    let bigIntCount = 0;
-
-    switch (val) {
-      case '+':
-        bigIntCount = await reactTSCanister.increment();
-        break;
-        case '-':
-          bigIntCount = await reactTSCanister.decrement();
-          break;
-        }
-        const count = parseInt(BigInt(bigIntCount).toString(), 10);
-        this.setState({ count });
+  private async updateCount(val: '+' | '-') {
+    const count = +(val === '+' ? await reactTSCanister.increment() : await reactTSCanister.decrement());
+    this.setState({ count });
   }
 
   render() {
@@ -42,8 +29,8 @@ class App extends React.Component<AppProps, AppState> {
       <section>
         <h2>Count: {count}</h2>
         <h2>
-          <button onClick={this.increment}>Click to Add</button>
-          <button onClick={this.decrement}>Click to Subtract</button>
+          <button onClick={() => this.updateCount('+')}>Click to Add</button>
+          <button onClick={() => this.updateCount('-')}>Click to Subtract</button>
         </h2>
       </section>
     );

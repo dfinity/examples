@@ -7,7 +7,6 @@
     "build": "webpack"
   },
   "devDependencies": {
-    "@dfinity/agent": "<js-user-library>",
     "@types/react": "16.9.35",
     "@types/react-dom": "16.9.8",
     "terser-webpack-plugin": "2.2.2",
