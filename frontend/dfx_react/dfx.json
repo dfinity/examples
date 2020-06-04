@@ -2,7 +2,7 @@
   "canisters": {
     "dfx_react": {
       "frontend": {
-        "entrypoint": "src/dfx_react/public/index.jsx"
+        "entrypoint": "src/dfx_react/public/App.jsx"
       },
       "main": "src/dfx_react/main.mo"
     }
