@@ -42,7 +42,7 @@ You have downloaded and installed the SDK as described in [Getting started](http
     Installing code for canister phonebook, with canister_id ic:F5B3FD9D7854D55E3C
     ```
 
-1. Open up your web browser to view the phonebook web page:
+1. Open up your web browser to view the installed phonebook canister web page:
 
     http://localhost:8000/?canisterId=ic:F5B3FD9D7854D55E3C
 
