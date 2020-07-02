@@ -1,19 +1,81 @@
-# phonebook
+# Simple Phonebook
 
-Welcome to your new phonebook project and to the internet computer development community. By default, creating a new project adds this README and some template files to your project directory. You can edit these template files to customize your project and to include your own code to speed up the development cycle.
+The sample project illustrates how to create a simple phonebook web application using the Motoko programming language.
 
-To get started, you might want to explore the project directory structure and the default configuration file. Working with this project in your development environment will not affect any production deployment or identity tokens.
+## Source code
 
-To learn more before you start working with phonebook, see the following documentation available online:
+This project is implemented using the following Motoko source code files:
 
-- [Quick Start](https://sdk.dfinity.org/developers-guide/quickstart.html)
-- [Developer's Guide](https://sdk.dfinity.org/developers-guide)
-- [Language Reference](https://sdk.dfinity.org/language-guide)
+- The `index.jsx` file contains the motoko that is compiled into the webapp index.js file loaded by your web browser.
 
-If you want to start working on your project right away, you might want to try the following commands:
+- The `main.mo` file contains the actor definition and public functions that the compiled canister exposes.
 
-```bash
-cd phonebook/
-dfx help
-dfx config --help
-```
+## Prerequisites
+
+You have downloaded and installed the SDK as described in [Getting started](https://sdk.dfinity.org/developers-guide/getting-started.html).
+
+## Demo
+
+1. Start a local internet computer replica by running the following command:
+
+    ```bash
+    dfx start
+    ```
+
+1. Open a new terminal shell and navigate to the project directory.
+
+1. Build the project by running the following command:
+
+    ```bash
+    dfx build
+    ```
+
+1. Deploy the project by running the following command:
+
+    ```bash
+    dfx canister install --all
+    ```
+
+1. Take note of the resultant containerId
+
+    ```bash
+    Installing code for canister phonebook, with canister_id ic:F5B3FD9D7854D55E3C
+    ```
+
+1. Open up your web browser to view the phonebook web page:
+
+    http://localhost:8000/?canisterId=ic:F5B3FD9D7854D55E3C
+
+1. Enter a Name, Description, Phone and click the Insert or Update button:
+
+    Name: Information
+    Description: Local Directory Assitance in the NANPA dialplan
+    Phone: 411
+
+1. Enter another Name, Description, Phone and click the Insert or Update button:
+
+    Name: Emergency
+    Description: Local Emergency Services in the NANPA dialplan
+    Phone: 911
+
+1. Now enter "Information" into the Lookup Name field and click the Lookup button:
+
+    Lookup Name: Information
+
+1. Add additional phonebook records by using the Candid interface to call the `insert` function or by running the following command:
+
+    ```bash
+    dfx canister call phonebook insert '("TRS","Assistive Telecommunications Relay Service in the NANPA dialplan",711)'
+    ```
+
+1. Verify the updated phonebook checklist by using the Candid interface to call the 'lookup' function or by running the following command:  
+
+    ```bash
+    dfx canister call phonebook lookup '("TRS")'
+    ```
+
+    The function returns a checklist similar to the following:
+
+    ```bash
+    (opt record { 1224700491 = "TRS"; 1595738364 = "Assistive Telecommunications Relay Service in the NANPA dialplan"; 3253977966 = 711; })
+    ```
