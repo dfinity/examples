@@ -49,7 +49,7 @@ You have downloaded and installed the SDK as described in [Getting started](http
 1. Enter a Name, Description, Phone and click the Insert or Update button:
 
     Name: Information
-    Description: Local Directory Assitance in the NANPA dialplan
+    Description: Local Directory Assistance in the NANPA dialplan
     Phone: 411
 
 1. NOTE: the Name and Description are Text, and the Phone number is a Nat (number). Entering a non-number into the Phone field will cause the application to silently fail on the browser side. You will only see this failure in your browser's javascript console.
