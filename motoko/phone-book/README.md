@@ -1,6 +1,6 @@
 # Simple Phonebook
 
-The sample project illustrates how to create a simple phonebook web application using the Motoko programming language.
+This example project illustrates how to create a simple phonebook web application using the Motoko programming language.
 
 ## Source code
 
