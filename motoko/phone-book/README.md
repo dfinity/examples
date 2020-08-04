@@ -13,7 +13,10 @@ This project is implemented using the following source code files:
 
 ## Prerequisites
 
-You have downloaded and installed the SDK as described in the [Quick Start](https://sdk.dfinity.org/docs/quickstart/quickstart.html).
+Before building the example application, verify the following:
+
+* You have downloaded and installed the DFINITY Canister SDK as described in [Download and install](https://sdk.dfinity.org/docs/quickstart/quickstart.html#download-and-install).
+* You have stopped any Internet Computer network processes running on the local computer.
 
 ## Demo
 
