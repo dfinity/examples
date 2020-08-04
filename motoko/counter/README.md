@@ -13,7 +13,10 @@ This program supports the following types of function calls:
 
 ### Prerequisites
 
-You have downloaded and installed the SDK as described in [Getting started](https://sdk.dfinity.org/developers-guide/getting-started.html).
+Before building the example application, verify the following:
+
+* You have downloaded and installed the DFINITY Canister SDK as described in [Download and install](https://sdk.dfinity.org/docs/quickstart/quickstart.html#download-and-install).
+* You have stopped any Internet Computer network processes running on the local computer.
 
 ### Demo
 
