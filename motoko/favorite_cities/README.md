@@ -20,7 +20,7 @@ Execute the following commands in another tab.
 ```bash
 dfx build
 dfx canister install --all
-dfx canister call favorite-cities location_pretty '(vec {"San Francisco";"Paris";"Rome"})'
+dfx canister call favorite_cities location_pretty '(vec {"San Francisco";"Paris";"Rome"})'
 ```
 
 Observe the following result.
