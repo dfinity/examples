@@ -1,5 +1,8 @@
 .PHONY: default canister build install call
 
+# Usage:
+# make call method={actorMethod} [arg]
+
 src := $(wildcard src/*/*.mo) $(wildcard src/*.mo)
 
 c ?= $(shell basename $(CURDIR))
