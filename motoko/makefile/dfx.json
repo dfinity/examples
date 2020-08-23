@@ -1,0 +1,7 @@
+{
+  "canisters": {
+    "makefile": {
+      "main": "src/main.mo"
+    }
+  }
+}
