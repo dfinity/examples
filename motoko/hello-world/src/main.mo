@@ -1,7 +1,7 @@
-import Prelude "mo:base/Prelude"
+import Debug "mo:base/Debug"
 
 actor HelloWorld {
   public func main() {
-    Prelude.printLn("Hello World!")
+    Debug.print("Hello World!")
   }
 }
