@@ -11,22 +11,27 @@ Before building the example application, verify the following:
 
 ### Demo
 
-Start a local internet computer.
+1. Open a new terminal in the project directory.
 
-```bash
-dfx start
-```
+1. Start the Internet Computer netowrk locally by running the following command:
 
-Execute the following commands in another tab.
+    ```bash
+    dfx start
+    ```
 
-```bash
-dfx build
-dfx canister install --all
-dfx canister call hello-world main
-```
+1. Open another terminal in the project directory.
 
-Observe the internet computer console.
+1. Execute the following commands in the new terminal:
 
-```
-debug.print: Hello World!
-```
+    ```bash
+    dfx canister create --all
+    dfx build
+    dfx canister install --all
+    dfx canister call hello-world main
+    ```
+
+1. Observe the result in the terminal where the Internet Computer network is running.
+
+    ```
+    debug.print: Hello World!
+    ```
