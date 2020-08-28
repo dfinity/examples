@@ -21,13 +21,19 @@ Before building the example application, verify the following:
 
 ## Demo
 
-1. Start a local internet computer replica by running the following command:
+1. Start the Internet Computer network locally by running the following command:
 
     ```bash
     dfx start
     ```
 
 1. Open a new terminal shell and navigate to the project directory.
+
+1. Register identifiers for the project by running the following command:
+
+    ```bash
+    dfx canister create --all
+    ```
 
 1. Build the project by running the following command:
 
