@@ -17,6 +17,6 @@
       "serve_root": "canisters/simple_to_do/assets"
     }
   },
-  "dfx": "0.5.7",
+  "dfx": "0.6.6",
   "version": 1
 }
