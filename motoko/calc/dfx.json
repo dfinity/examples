@@ -17,6 +17,5 @@
       "serve_root": "canisters/calc/assets"
     }
   },
-  "dfx": "0.5.7",
   "version": 1
 }
