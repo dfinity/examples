@@ -1,0 +1,9 @@
+{
+    "canisters": {
+      "reverse": {
+        "type": "custom",
+        "wasm": "reverse.wasm",
+        "candid": "reverse.did"
+      }
+    }
+  }
