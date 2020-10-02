@@ -8,6 +8,7 @@ void dfn_adc(void *, int, int) WASM_IMPORT("ic0", "msg_arg_data_copy");
 void dfn_reply_append(void *, int) WASM_IMPORT("ic0", "msg_reply_data_append");
 void dfn_reply(void) WASM_IMPORT("ic0", "msg_reply");
 void dfn_print(void *, int) WASM_IMPORT("ic0", "debug_print");
+void dfx_js_create_heap_default() WASM_IMPORT("ic0", "duk_create_heap_default);
 
 void go() WASM_EXPORT("canister_update go");
 void go() {
@@ -19,7 +20,7 @@ void go() {
   // So offset 7 holds string length (for short strings).
   int n = buf[7];
   
-  duk_context *ctx = duk_create_heap_default();
+  duk_context *ctx = dfx_js_create_heap_default();
   duk_eval_string(ctx, "'a string'");
   const char *str;
 
