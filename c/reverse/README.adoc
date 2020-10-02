@@ -5,7 +5,7 @@ to build apps.
 
 # Running in Docker
 
-To create a docker container with all the libraries required and dfx follow the below instructions.  If you already have a debian environment you'd like to use, skip to the following section.
+To create a docker container with all the libraries required and `dfx`, follow the below instructions.  If you already have a debian environment you'd like to use, skip to the following section.
 
  Create a docker file with the below text:
  
@@ -76,4 +76,3 @@ The script `build.sh` performs the above steps.
 Ignoring the error message about "cannot find method type, dfx will send message with inferred type", we see:
 
   ("tset")
-
