@@ -30,7 +30,7 @@ This will launch you into your instance. Now we need to pull the code by running
   $ cd usr/src
   $ git clone https://github.com/dfinity/examples.git
   
-Install the dfinity sdk using
+Install the DFINITY Canister SDK using
 
   $ sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
   
