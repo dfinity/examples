@@ -25,7 +25,7 @@ void go() {
 
   str = duk_get_string(ctx, -3);
   
-  dfn_print(str);
+  dfn_print(str,12);
   dfn_reply_append(str, 8);
   dfn_reply();
 }
