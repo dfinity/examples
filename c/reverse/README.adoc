@@ -36,7 +36,7 @@ Install the dfinity sdk using
   
 # Compiling the C code  
 
-If you are not using the docker container you need to nstall Clang:
+If you are not using the docker container you need to install Clang:
 
 RUN bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
 
