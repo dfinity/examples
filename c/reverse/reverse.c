@@ -1,17 +1,5 @@
 #include "duktape.h"
 
-// Reverse a string in place.
-void reverse(char*s,int len) {
-  char*t = s+len-1,c;
-  while(s<t) {
-    c = *t;
-    *t = *s;
-    *s = c;
-    s++;
-    t--;
-  }
-}
-
 #define WASM_IMPORT(m,n) __attribute__((import_module(m))) __attribute__((import_name(n)));
 #define WASM_EXPORT(n) asm(n) __attribute__((visibility("default")))
 
