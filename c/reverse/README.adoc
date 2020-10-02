@@ -11,7 +11,7 @@ To create a docker container with all the libraries required and dfx follow the 
  
   FROM debian
   RUN apt-get update
-  RUN apt-get install -y curl gnupg xz-utils nodejs npm wget git
+  RUN apt-get install -y curl gnupg xz-utils wget git
   RUN apt install -y lsb-release wget software-properties-common
   RUN bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
   CMD ["/bin/bash"]
@@ -58,7 +58,6 @@ wasm binary with:
 Now we need to build the dfx package.  The dfx.json and reverse.did that you need are provided in this repo.  Much of this is usually taken care of when you issue a dfx new command.
 
   $ dfx canister create reverse
-  $ dfx build
   
 You now need a seperate terminal (docker exec -ti dfx bash) to start the dfx server. Make sure you are in the reverse directory and run
 
