@@ -1,4 +1,3 @@
-#include <string.h>
 #include "duktape.h"
 
 // Reverse a string in place.
