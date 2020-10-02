@@ -1,3 +1,6 @@
+#include <string.h>
+#include "duktape.h"
+
 // Reverse a string in place.
 void reverse(char*s,int len) {
   char*t = s+len-1,c;
@@ -28,8 +31,14 @@ void go() {
   // Encoded string: "DIDL" 0 1 0x71 LEB128(length) data
   // So offset 7 holds string length (for short strings).
   int n = buf[7];
-  reverse(buf+8, n);
-  dfn_print(buf+8, n);
-  dfn_reply_append(buf, sz);
+  
+  duk_context *ctx = duk_create_heap_default();
+  duk_eval_string(ctx, "'a string'");
+  const char *str;
+
+  str = duk_get_string(ctx, -3);
+  
+  dfn_print(str);
+  dfn_reply_append(str, 8);
   dfn_reply();
 }
