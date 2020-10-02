@@ -40,7 +40,7 @@ If you are not using the docker container you need to install Clang:
 
 RUN bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
 
-and set up a couple of aliases. navigate to the examples/c/reverse directory. Set up the following aliases:
+and set up a couple of aliases. Navigate to the `examples/c/reverse` directory. Set up the following aliases:
 
   $ alias wld="wasm-ld-11 --no-entry --export-dynamic --allow-undefined"
   $ alias wcc="clang-11 --target=wasm32 -c -O3"
