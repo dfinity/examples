@@ -3,11 +3,49 @@
 DFINITY uses standard wasm binaries, so we may use standard tools such as Clang
 to build apps.
 
-First, install Clang and set up a couple of aliases. For example, on Debian:
+# Running in Docker
 
-  $ sudo apt-get install clang lld gcc-multilib
-  $ alias wld="wasm-ld-8 --no-entry --export-dynamic --allow-undefined"
-  $ alias wcc="clang --target=wasm32 -c -O3"
+To create a docker container with all the libraries required and dfx follow the below instructions.  If you already have a debian environment you'd like to use, skip to the following section.
+
+ Create a docker file with the below text:
+ 
+  FROM debian
+  RUN apt-get update
+  RUN apt-get install -y curl gnupg xz-utils nodejs npm wget git
+  RUN apt install -y lsb-release wget software-properties-common
+  RUN bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+  CMD ["/bin/bash"]
+  WORKDIR /usr/src
+ 
+Create the new docker container by running the following command 
+
+  $ docker build --tag debian:dfx .
+
+Start the instance with 
+
+  $ docker run -ti --name dfx debian:dfx
+  
+This will launch you into your instance. Now we need to pull the code by running:
+
+  $ cd usr/src
+  $ git clone https://github.com/dfinity/examples.git
+  
+Install the dfinity sdk using
+
+  $ sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
+  
+# Compiling the C code  
+
+If you are not using the docker container you need to nstall Clang:
+
+RUN bash -c "$(wget -O - https://apt.llvm.org/llvm.sh)"
+
+and set up a couple of aliases. navigate to the examples/c/reverse directory. Set up the following aliases:
+
+  $ alias wld="wasm-ld-11 --no-entry --export-dynamic --allow-undefined"
+  $ alias wcc="clang-11 --target=wasm32 -c -O3"
+  
+Note that the version of the compiler that you may need to use in these aliases may change.  You can look in usr/bin to see what version was installed on your instance.
 
 == Reverse a string ==
 
@@ -17,22 +55,26 @@ wasm binary with:
   $ wcc reverse.c
   $ wld reverse.o -o reverse.wasm
 
-Then package the binary so `dfx` can install and run it:
+Now we need to build the dfx package.  The dfx.json and reverse.did that you need are provided in this repo.  Much of this is usually taken care of when you issue a dfx new command.
 
-  $ echo '{"canisters":{"reverse":{"main":"reverse"}}}' > dfx.json
-  $ mkdir build
-  $ mkdir build/reverse
-  $ cp reverse.wasm build/reverse/
-  $ head -c 8 /dev/urandom > build/reverse/_canister.id
+  $ dfx canister create reverse
+  $ dfx build
+  
+You now need a seperate terminal (docker exec -ti dfx bash) to start the dfx server. Make sure you are in the reverse directory and run
+
+  $ dfx start
+  
+Now install the cannister
+
+  $ dfx canister install --all
+  
+Now you can call your reverse function!
+
+  $ dfx canister call reverse go '("test")'
 
 The script `build.sh` performs the above steps.
 
-To test the app, run `dfx start` in another terminal, then:
+Ignoring the error message about "cannot find method type, dfx will send message with inferred type", we see:
 
-  $ dfx canister install --all
-  $ dfx canister call reverse go --type string repaid
-
-Ignoring the error message about a missing ".did" file, we see:
-
-  ("diaper")
+  ("tset")
 
