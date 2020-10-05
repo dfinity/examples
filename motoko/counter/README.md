@@ -29,8 +29,9 @@ dfx start
 Execute the following commands in another tab.
 
 ```bash
+dfx canister create counter
 dfx build
-dfx canister install --all
+dfx canister install counter
 dfx canister call counter set '(7)'
 dfx canister call counter inc
 dfx canister call counter get
