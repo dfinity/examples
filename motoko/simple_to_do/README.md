@@ -32,7 +32,7 @@ Before building the example application, verify the following:
 1. Register identifiers for the project by running the following command:
 
     ```bash
-    dfx canister create --all
+    dfx canister create simple_to_do
     ```
 
 1. Build the project by running the following command:
@@ -44,7 +44,7 @@ Before building the example application, verify the following:
 1. Deploy the project by running the following command:
 
     ```bash
-    dfx canister install --all
+    dfx canister install simple_to_do
     ```
 
 1. Create a to-do checklist by using the Candid interface to call the `addTodo` function or by running the following commands:
@@ -77,7 +77,7 @@ Before building the example application, verify the following:
     dfx canister call simple_to_do completeTodo '(1)'
     ```
 
-1. Verify the updated to-do checklist by running the following command:  
+1. Verify the updated to-do checklist by running the following command:
 
     ```bash
     dfx canister call simple_to_do showTodos
