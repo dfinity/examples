@@ -20,8 +20,9 @@ dfx start
 Execute the following commands in another tab.
 
 ```bash
+dfx canister create factorial
 dfx build
-dfx canister install --all
+dfx canister install factorial
 dfx canister call factorial fac '(20)'
 ```
 
