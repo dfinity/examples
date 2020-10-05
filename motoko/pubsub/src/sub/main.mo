@@ -2,9 +2,9 @@
 
 import Publisher "canister:pub";
 
-type Counter = { topic: Text; value: Nat; };
-
 actor Subscriber {
+    type Counter = { topic: Text; value: Nat; };
+
     let counter_topic = "Apples";
     var count: Nat = 0;
 
