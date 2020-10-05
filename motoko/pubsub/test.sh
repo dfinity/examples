@@ -1,3 +1,4 @@
+dfx canister create --all
 dfx build
 dfx canister install --all
 dfx canister call sub init
