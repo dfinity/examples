@@ -3,5 +3,6 @@
     "hello-world": {
       "main": "src/main.mo"
     }
-  }
+  },
+  "dfx": "0.6.10"
 }
