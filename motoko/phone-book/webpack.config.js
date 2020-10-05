@@ -26,22 +26,17 @@ console.log("dfx version = " + version);
 // List of all aliases for canisters. This creates the module alias for
 // the `import ... from "ic:canisters/xyz"` where xyz is the name of a
 // canister.
-const aliases = Object.entries(dfxJson.canisters).reduce((acc, [name,]) => {
-  const outputRoot = path.join(__dirname, output, name);
+const aliases = Object.entries(dfxJson.canisters).reduce((acc, [name, _value]) => {
+  // Get the network name, or `local` by default.
+  const networkName = process.env['DFX_NETWORK'] || 'local';
+  const outputRoot = path.join(__dirname, '.dfx', networkName, 'canisters', name);
+
   return {
     ...acc,
-    ["ic:canisters/" + name]: path.join(outputRoot, "main.js"),
-    ["ic:idl/" + name]: path.join(outputRoot, "main.did.js"),
+    ['ic:canisters/' + name]: path.join(outputRoot, name + '.js'),
+    ['ic:idl/' + name]: path.join(outputRoot, name + '.did.js'),
   };
-}, {
-  // This will later point to the userlib from npm, when we publish the userlib.
-  "ic:userlib": path.join(
-    process.env["HOME"],
-    ".cache/dfinity/versions",
-    version,
-    "js-user-library/dist/lib.prod.js",
-  ),
-});
+}, {});
 
 /**
  * Generate a webpack configuration for a canister.
@@ -68,7 +63,7 @@ function generateWebpackConfigForCanister(name, info) {
       rules: [
         { test: /\.(js|ts)x?$/, loader: "ts-loader" }
       ]
-    },  
+    },
     output: {
       filename: "index.js",
       path: path.join(outputRoot, "assets"),

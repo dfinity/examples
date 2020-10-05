@@ -31,6 +31,7 @@ Before building the example application, verify the following:
 1. Build the project by running the following command:
 
     ```bash
+    dfx canister create --all
     dfx build
     ```
 
@@ -43,12 +44,12 @@ Before building the example application, verify the following:
 1. Take note of the resultant canisterId
 
     ```bash
-    Installing code for canister phonebook, with canister_id ic:F5B3FD9D7854D55E3C
+    Installing code for canister phonebook_ui, with canister_id cxeji-wacaa-aaaaa-aaaaa-aaaaa-aaaaa-a
     ```
 
 1. Open up your web browser to view the installed phonebook canister web page:
 
-    http://localhost:8000/?canisterId=ic:F5B3FD9D7854D55E3C
+    http://localhost:8000/?canisterId=cxeji-wacaa-aaaaa-aaaaa-aaaaa-aaaaa-a
 
 1. Enter a Name, Description, Phone and click the Insert or Update button:
 
@@ -74,7 +75,7 @@ Before building the example application, verify the following:
     dfx canister call phonebook insert '("TRS","Assistive Telecommunications Relay Service in the NANPA dialplan",711)'
     ```
 
-1. Verify the updated phonebook checklist by calling the 'lookup' function using the Candid endpoint or by running the following command:  
+1. Verify the updated phonebook checklist by calling the 'lookup' function using the Candid endpoint or by running the following command:
 
     ```bash
     dfx canister call phonebook lookup '("TRS")'
@@ -83,5 +84,11 @@ Before building the example application, verify the following:
     The function returns output similar to the following:
 
     ```bash
-    (opt record { 1224700491 = "TRS"; 1595738364 = "Assistive Telecommunications Relay Service in the NANPA dialplan"; 3253977966 = 711; })
+        (
+        opt record {
+            name = "TRS";
+            description = "Assistive Telecommunications Relay Service in the NANPA dialplan";
+            phone = 711;
+        },
+        )
     ```

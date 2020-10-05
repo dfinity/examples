@@ -1,10 +1,16 @@
 {
   "canisters": {
     "phonebook": {
+      "main": "src/phonebook/main.mo",
+      "type": "motoko"
+    },
+    "phonebook_ui": {
+      "dependencies": ["phonebook"],
+      "type": "assets",
       "frontend": {
         "entrypoint": "src/phonebook/public/index.jsx"
       },
-      "main": "src/phonebook/main.mo"
+      "source": ["build/phonebook_ui/assets/"]
     }
   },
   "defaults": {
@@ -13,5 +19,6 @@
       "port": 8000,
       "serve_root": "canisters/phonebook/assets"
     }
-  }
+  },
+  "dfx": "0.6.10"
 }
