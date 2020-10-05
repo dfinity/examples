@@ -20,8 +20,9 @@ dfx start
 Execute the following commands in another tab.
 
 ```bash
+dfx canister create echo
 dfx build
-dfx canister install --all
+dfx canister install echo
 dfx canister call echo say '("This is a test.")'
 ```
 
