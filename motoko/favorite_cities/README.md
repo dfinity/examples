@@ -21,8 +21,9 @@ dfx start
 Execute the following commands in another tab.
 
 ```bash
+dfx canister create favorite_cities
 dfx build
-dfx canister install --all
+dfx canister install favorite_cities
 dfx canister call favorite_cities location_pretty '(vec {"San Francisco";"Paris";"Rome"})'
 ```
 
