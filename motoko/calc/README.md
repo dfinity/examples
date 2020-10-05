@@ -1,6 +1,6 @@
 # Calc
 
-The program uses the `+cell+` variable to contain an integer number that represents the current result of a calculator operation. 
+The program uses the `+cell+` variable to contain an integer number that represents the current result of a calculator operation.
 
 This program supports the following types of function calls:
 
@@ -30,7 +30,7 @@ dfx start
 Execute the following commands in another tab.
 
 ```bash
-fx canister call calc add '(10)'
+dfx canister call calc add '(10)'
 ```
 
 Observe the following result.
