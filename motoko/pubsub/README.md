@@ -34,6 +34,7 @@ dfx start
 Execute the following commands in another tab or run the `test.sh` script.
 
 ```bash
+dfx canister create --all
 dfx build
 dfx canister install --all
 dfx canister call sub init

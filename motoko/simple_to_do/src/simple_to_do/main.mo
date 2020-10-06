@@ -1,11 +1,11 @@
 import utils "utils";
 import types "types";
 
-type ToDo = types.ToDo;
 
 // Define the actor
 actor Assistant {
 
+  type ToDo = types.ToDo;
   var todos : [ToDo] = [];
   var nextId : Nat = 1;
 

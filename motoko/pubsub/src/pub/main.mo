@@ -2,10 +2,10 @@
 
 import Array "mo:base/Array";
 
-type Counter = { topic: Text; value: Nat; };
-type Subscriber = { topic: Text; callback: shared Counter -> (); };
-
 actor Publisher {
+    type Counter = { topic: Text; value: Nat; };
+    type Subscriber = { topic: Text; callback: shared Counter -> (); };
+
     var subscribers: [Subscriber] = [];
 
     public func subscribe(subscriber: Subscriber) {

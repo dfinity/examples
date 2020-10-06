@@ -1,10 +1,8 @@
 {
   "canisters": {
     "simple_to_do": {
-      "frontend": {
-        "entrypoint": "src/simple_to_do/public/index.js"
-      },
-      "main": "src/simple_to_do/main.mo"
+      "main": "src/simple_to_do/main.mo",
+      "type": "motoko"
     }
   },
   "defaults": {
@@ -17,5 +15,6 @@
       "serve_root": "canisters/simple_to_do/assets"
     }
   },
-  "version": 1
+  "version": 1,
+  "dfx": "0.6.10"
 }

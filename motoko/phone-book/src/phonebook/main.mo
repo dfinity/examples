@@ -1,18 +1,19 @@
 import List "mo:base/List";
 import AssocList "mo:base/AssocList";
 
-type Name = Text;
-type Phone = Nat;
-
-type Entry = {
-    name: Name;
-    description: Text;
-    phone: Phone;
-};
-
-type PhoneBookMap = AssocList.AssocList<Name, Entry>;
-
 actor {
+
+    type Name = Text;
+    type Phone = Nat;
+
+    type Entry = {
+        name: Name;
+        description: Text;
+        phone: Phone;
+    };
+
+    type PhoneBookMap = AssocList.AssocList<Name, Entry>;
+
     var phonebook: PhoneBookMap = List.nil<(Name, Entry)>();
 
     func nameEq(lhs: Name, rhs: Name): Bool {

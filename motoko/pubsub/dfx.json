@@ -13,5 +13,6 @@
       "port": 8000,
       "serve_root": "canisters/pubsub/assets"
     }
-  }
+  },
+  "dfx": "0.6.10"
 }
