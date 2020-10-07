@@ -3,6 +3,8 @@
 
 # Echo
 
+This program echoes the string specified as an argument.
+
 ### Prerequisites
 
 Before building the example application, verify the following:
