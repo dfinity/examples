@@ -1,8 +1,8 @@
 ![Compatibility](https://img.shields.io/badge/compatibility-0.6.10-blue)
-
-## Counter
-
 [![Build Status](https://travis-ci.org/dfinity-lab/examples.svg?branch=master)](https://travis-ci.org/dfinity-lab/examples?branch=master)
+
+# Counter
+
 
 This sample project create a single actor named `+Counter+` and provides a simple example of how you can verify that the variable state—that is, the value of the variable between calls—persists.
 
