@@ -1,4 +1,6 @@
-# Simple Phonebook
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.10-blue)
+
+## Simple Phonebook
 
 This example project illustrates how to create a simple phonebook web application using the Motoko programming language.
 
