@@ -1,6 +1,8 @@
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.10-blue)
+[![Build Status](https://travis-ci.org/dfinity-lab/examples.svg?branch=master)](https://travis-ci.org/dfinity-lab/examples?branch=master)
+
 ## Hello World
 
-[![Build Status](https://travis-ci.org/dfinity-lab/examples.svg?branch=master)](https://travis-ci.org/dfinity-lab/examples?branch=master)
 
 ### Prerequisites
 
