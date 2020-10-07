@@ -1,8 +1,9 @@
 ![Compatibility](https://img.shields.io/badge/compatibility-0.6.10-blue)
 [![Build Status](https://travis-ci.org/dfinity-lab/examples.svg?branch=master)](https://travis-ci.org/dfinity-lab/examples?branch=master)
 
-## Hello World
+# Hello World
 
+This program illustrates creating a simple *actor* with a public function of `main` that returns `Hello, World!`.
 
 ### Prerequisites
 
