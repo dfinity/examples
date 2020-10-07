@@ -1,6 +1,6 @@
 ![Compatibility](https://img.shields.io/badge/compatibility-0.6.10-blue)
 
-## Favorite cities
+# Favorite cities
 
 This program provides functions that return multiple city names and illustrates how to use a type enclosed by square (`[ ]`) brackets to indicate an *array* of that type.
 In this example, the `[Text]` notation indicates an array of a collection of UTF-8 characters, enabling the program to accept and return multiple text strings.
