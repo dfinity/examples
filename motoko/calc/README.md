@@ -1,3 +1,4 @@
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.10-blue)
 # Calc
 
 The program uses the `+cell+` variable to contain an integer number that represents the current result of a calculator operation.
