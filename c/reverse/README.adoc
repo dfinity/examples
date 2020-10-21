@@ -20,19 +20,25 @@ wasm binary with:
 Then package the binary so `dfx` can install and run it:
 
   $ echo '{"canisters":{"reverse":{"main":"reverse"}}}' > dfx.json
-  $ mkdir build
-  $ mkdir build/reverse
-  $ cp reverse.wasm build/reverse/
-  $ head -c 8 /dev/urandom > build/reverse/_canister.id
 
 The script `build.sh` performs the above steps.
 
 To test the app, run `dfx start` in another terminal, then:
 
+  $ dfx canister create reverse
+  $ cp reverse.wasm .dfx/local/canisters/
   $ dfx canister install --all
-  $ dfx canister call reverse go --type string repaid
+  $ dfx canister call reverse go '("repaid")'
 
-Ignoring the error message about a missing ".did" file, we see:
+The script `start.sh` performs the above steps.
+
+We see:
 
   ("diaper")
 
+To stop and delete the canister:
+
+  $ dfx canister stop --all
+  $ dfx canister delete --all
+
+The script `stop.sh` performs the above steps.
