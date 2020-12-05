@@ -16,7 +16,7 @@ Before building the example application, verify the following:
 
 1. Open a new terminal in the project directory.
 
-1. Start the Internet Computer netowrk locally by running the following command:
+1. Start the Internet Computer locally by running the following command:
 
     ```bash
     dfx start
@@ -33,7 +33,7 @@ Before building the example application, verify the following:
     dfx canister call hello-world main
     ```
 
-1. Observe the result in the terminal where the Internet Computer network is running.
+1. Observe the following result in the terminal where the Internet Computer network is running.
 
     ```
     debug.print: Hello World!
