@@ -1,6 +1,6 @@
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.10-blue)
-
 # Simple To-do checklist
+
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue)
 
 The sample project illustrates how to create a simple to-do checklist application using the Motoko programming language.
 
