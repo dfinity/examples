@@ -1,4 +1,4 @@
-NAME = echo
+NAME = favorite_cities
 
 .PHONY: all
 all: build
@@ -22,8 +22,8 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
-	dfx canister call $(NAME) say '("This is a test.")' \
-		| grep '("This is a test.")' && echo 'PASS'
+	dfx canister call $(NAME) hello_pretty '(vec {"Palo Alto"; "San Francisco"; "Zurich"})' \
+		| grep '("Hello from Palo Alto, San Francisco, and Zurich!")' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean

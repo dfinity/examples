@@ -1,4 +1,4 @@
-NAME = echo
+NAME = calc
 
 .PHONY: all
 all: build
@@ -22,8 +22,11 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
-	dfx canister call $(NAME) say '("This is a test.")' \
-		| grep '("This is a test.")' && echo 'PASS'
+	dfx canister call $(NAME) add '(9)'
+	dfx canister call $(NAME) sub '(1)'
+	dfx canister call $(NAME) mul '(3)'
+	dfx canister call $(NAME) div '(6)' \
+		| grep '(opt 4)' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean
