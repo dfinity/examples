@@ -1,18 +1,11 @@
 {
   "canisters": {
     "pub": {
-      "main": "src/pub/main.mo"
+      "main": "src/pub/Main.mo"
     },
     "sub": {
-      "main": "src/sub/main.mo"
+      "main": "src/sub/Main.mo"
     }
   },
-  "defaults": {
-    "start": {
-      "address": "127.0.0.1",
-      "port": 8000,
-      "serve_root": "canisters/pubsub/assets"
-    }
-  },
-  "dfx": "0.6.10"
+  "dfx": "0.6.20"
 }
