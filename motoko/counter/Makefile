@@ -1,30 +1,28 @@
-NAME = counter
-
 .PHONY: all
 all: build
 
 .PHONY: build
 .SILENT: build
 build:
-	dfx canister create $(NAME)
-	dfx build $(NAME)
+	dfx canister create --all
+	dfx build
 
 .PHONY: install
 .SILENT: install
 install: build
-	dfx canister install $(NAME)
+	dfx canister install --all
 
 .PHONY: upgrade
 .SILENT: upgrade
 upgrade: build
-	dfx canister install --mode=upgrade $(NAME)
+	dfx canister install --all --mode=upgrade
 
 .PHONY: test
 .SILENT: test
 test: install
-	dfx canister call $(NAME) set '(7)'
-	dfx canister call $(NAME) inc
-	dfx canister call $(NAME) get \
+	dfx canister call counter set '(7)'
+	dfx canister call counter inc
+	dfx canister call counter get \
 		| grep '(8)' && echo 'PASS'
 
 .PHONY: clean

@@ -1,31 +1,29 @@
-NAME = calc
-
 .PHONY: all
 all: build
 
 .PHONY: build
 .SILENT: build
 build:
-	dfx canister create $(NAME)
-	dfx build $(NAME)
+	dfx canister create --all
+	dfx build
 
 .PHONY: install
 .SILENT: install
 install: build
-	dfx canister install $(NAME)
+	dfx canister install --all
 
 .PHONY: upgrade
 .SILENT: upgrade
 upgrade: build
-	dfx canister install --mode=upgrade $(NAME)
+	dfx canister install --all --mode=upgrade
 
 .PHONY: test
 .SILENT: test
 test: install
-	dfx canister call $(NAME) add '(9)'
-	dfx canister call $(NAME) sub '(1)'
-	dfx canister call $(NAME) mul '(3)'
-	dfx canister call $(NAME) div '(6)' \
+	dfx canister call calc add '(9)'
+	dfx canister call calc sub '(1)'
+	dfx canister call calc mul '(3)'
+	dfx canister call calc div '(6)' \
 		| grep '(opt 4)' && echo 'PASS'
 
 .PHONY: clean

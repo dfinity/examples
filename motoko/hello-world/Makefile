@@ -1,28 +1,26 @@
-NAME = hello_world
-
 .PHONY: all
 all: build
 
 .PHONY: build
 .SILENT: build
 build:
-	dfx canister create $(NAME)
-	dfx build $(NAME)
+	dfx canister create --all
+	dfx build
 
 .PHONY: install
 .SILENT: install
 install: build
-	dfx canister install $(NAME)
+	dfx canister install --all
 
 .PHONY: upgrade
 .SILENT: upgrade
 upgrade: build
-	dfx canister install --mode=upgrade $(NAME)
+	dfx canister install --all --mode=upgrade
 
 .PHONY: test
 .SILENT: test
 test: install
-	dfx canister call $(NAME) main \
+	dfx canister call hello_world main \
 		| grep '()' && echo 'PASS'
 
 .PHONY: clean

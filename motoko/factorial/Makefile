@@ -1,28 +1,26 @@
-NAME = factorial
-
 .PHONY: all
 all: build
 
 .PHONY: build
 .SILENT: build
 build:
-	dfx canister create $(NAME)
-	dfx build $(NAME)
+	dfx canister create --all
+	dfx build
 
 .PHONY: install
 .SILENT: install
 install: build
-	dfx canister install $(NAME)
+	dfx canister install --all
 
 .PHONY: upgrade
 .SILENT: upgrade
 upgrade: build
-	dfx canister install --mode=upgrade $(NAME)
+	dfx canister install --all --mode=upgrade
 
 .PHONY: test
 .SILENT: test
 test: install
-	dfx canister call $(NAME) fac '(20)' \
+	dfx canister call factorial fac '(20)' \
 		| grep '(2_432_902_008_176_640_000)' && echo 'PASS'
 
 .PHONY: clean
