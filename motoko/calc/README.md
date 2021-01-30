@@ -2,41 +2,72 @@
 
 ![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue)
 
-The program uses the `+cell+` variable to contain an integer number that represents the current result of a calculator operation.
+This example illustrates a four-function calculator that uses an orthogonally
+persistent `cell` variable to store the result of its most recent calculation.
 
-This program supports the following types of function calls:
+## Introduction
 
-* The `add` function call accepts input and performs addition.
-* The `sub` function call accepts input and performs subtraction.
-* The `mul` function call accepts input and performs multiplication.
-* The `div` function call accepts input and performs division.
-* The `clearall` function clears the `cell` value stored as the result of previous operations, resetting the `cell` value to zero.
+The applciation provides an interface that exposes the following methods:
 
-The `div` function also includes code to prevent the program from attempting to divide by zero.
+*  `add`, which accepts input and performs addition;
+
+*  `sub`, which accepts input and performs subtraction;
+
+*  `mul`, which accepts input and performs multiplication;
+
+*  `div`, which accepts input and performs division, and returns an optional
+   type to guard against division by zero; and
+
+*  `clearall`, which clears the `cell` variable by setting its value to
+   zero.
 
 ## Prerequisites
 
-Before building the example application, verify the following:
+Verify the following before running this demo.
 
-* You have downloaded and installed the DFINITY Canister SDK as described in [Download and install](https://sdk.dfinity.org/docs/quickstart/quickstart.html#download-and-install).
-* You have stopped any Internet Computer network processes running on the local computer.
+*  You have downloaded and installed the [DFINITY Canister
+   SDK](https://sdk.dfinity.org).
+
+*  You have stopped any Internet Computer related processes that may conflict
+   with the following.
 
 ## Demo
 
 1. Start a local internet computer.
 
-   ```bash
+   ```text
    dfx start
    ```
 
-1. Execute the following commands in another tab.
+1. Open a new terminal window.
+
+1. Reserve an identifier for your canister.
+
+   ```text
+   dfx canister create --all
+   ```
+
+1. Build your canister.
+
+   ```text
+   dfx build
+   ```
+
+1. Deploy your canister.
+
+   ```text
+   dfx canister install --all
+   ```
+
+1. Multiply 2 by 3 by invoking the `add` and `mul` methods of your canister.
 
    ```bash
-   dfx canister call calc add '(10)'
+   dfx canister call calc add '(2)'
+   dfx canister call calc mul '(3)'
    ```
 
 1. Observe the following result.
 
    ```bash
-   (10)
+   (6)
    ```

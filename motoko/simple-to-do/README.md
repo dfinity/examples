@@ -1,96 +1,105 @@
-# Simple To-do checklist
+# Simple To-Do
 
 ![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue)
 
-The sample project illustrates how to create a simple to-do checklist application using the Motoko programming language.
+This example illustrates how to create a simple to-do checklist application.
 
-## Source code
+## Introduction
 
-This project is implemented using the following Motoko source code files:
+The application is built from the following Motoko source code files:
 
-- The `utils.mo` file contains the core functions for adding, completing, and removing to-do items.
+*  `Utils.mo`, which contains the core functions for adding, completing, and
+   removing to-do checklist items;
 
-- The `types.mo` file defines the properties for ToDo items as a custom data type definition.
+*  `Types.mo`, which contains the type definition of a to-do checklist item;
+   and
 
-- The `main.mo` file contains the actor definition and public functions that the compiled canister exposes.
+*  `Main.mo`, which contains the actor definition and methods exposed by this
+   canister.
 
 ## Prerequisites
 
-Before building the example application, verify the following:
+Verify the following before running this demo.
 
-* You have downloaded and installed the DFINITY Canister SDK as described in [Download and install](https://sdk.dfinity.org/docs/quickstart/quickstart.html#download-and-install).
-* You have stopped any Internet Computer network processes running on the local computer.
+*  You have downloaded and installed the [DFINITY Canister
+   SDK](https://sdk.dfinity.org).
+
+*  You have stopped any Internet Computer related processes that may conflict
+   with the following.
 
 ## Demo
 
-1. Start the Internet Computer network locally by running the following command:
+1. Start a local internet computer.
 
-    ```bash
-    dfx start
-    ```
+   ```text
+   dfx start
+   ```
 
-1. Open a new terminal shell and navigate to the project directory.
+1. Open a new terminal window.
 
-1. Register identifiers for the project by running the following command:
+1. Reserve an identifier for your canister.
 
-    ```bash
-    dfx canister create simple_to_do
-    ```
+   ```text
+   dfx canister create --all
+   ```
 
-1. Build the project by running the following command:
+1. Build your canister.
 
-    ```bash
-    dfx build
-    ```
+   ```text
+   dfx build
+   ```
 
-1. Deploy the project by running the following command:
+1. Deploy your canister.
 
-    ```bash
-    dfx canister install simple_to_do
-    ```
+   ```text
+   dfx canister install --all
+   ```
 
-1. Create a to-do checklist by using the Candid interface to call the `addTodo` function or by running the following commands:
+1. Create a to-do checklist by invoking the `addTodo` method of your canister.
 
-    ```bash
-    dfx canister call simple_to_do addTodo '("Create a project")'
-    dfx canister call simple_to_do addTodo '("Build the project")'
-    dfx canister call simple_to_do addTodo '("Deploy the project")'
-    ```
+   ```text
+   dfx canister call simple_to_do addTodo '("Create a project")'
+   dfx canister call simple_to_do addTodo '("Build the project")'
+   dfx canister call simple_to_do addTodo '("Deploy the project")'
+   ```
 
-1. Display the to-do checklist by using the Candid interface to call the `showTodos` function or by running the following command:
+1. Display the to-do checklist by invoking the `showTodos` method of your
+   canister.
 
-    ```bash
-    dfx canister call simple_to_do showTodos
-    ```
+   ```text
+   dfx canister call simple_to_do showTodos
+   ```
 
-1. Verify the function returns a checklist similar to the following:
+1. Verify the return value matches what you would expect.
 
-    ```bash
-    ("
-    ___TO-DOs___
-    (1) Create a project
-    (2) Build the project
-    (3) Deploy the project")
-    ```
+   ```text
+   ("
+   ___TO-DOs___
+   (1) Create a project
+   (2) Build the project
+   (3) Deploy the project")
+   ```
 
-1. Complete a checklist item by using the Candid interface to call the `completeTodo` function or by running the following command:
+1. Complete a to-do checklist item by invoking the `completeTodo` method of
+   your canister.
 
-    ```bash
-    dfx canister call simple_to_do completeTodo '(1)'
-    ```
+   ```text
+   dfx canister call simple_to_do completeTodo '(1)'
+   ```
 
-1. Verify the updated to-do checklist by running the following command:
+1. Display the to-do checklist by invoking the `showTodos` method of your
+   canister.
 
-    ```bash
-    dfx canister call simple_to_do showTodos
-    ```
+   ```text
+   dfx canister call simple_to_do showTodos
+   ```
 
-    The function returns a checklist similar to the following:
+1. Verify the return value matches what you would expect.
 
-    ```bash
-    ("
-    ___TO-DOs___
-    (1) Create a project ✔
-    (2) Build the project
-    (3) Deploy the project")
-    ```
+   ```text
+   ("
+   ___TO-DOs___
+   (1) Create a project ✔
+   (2) Build the project
+   (3) Deploy the project")
+   ```

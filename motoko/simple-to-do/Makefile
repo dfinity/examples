@@ -20,22 +20,22 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
-	# Add To-Dos
+	# Add To-Dos.
 	dfx canister call simple_to_do addTodo '("Create a project")'
 	dfx canister call simple_to_do addTodo '("Build the project")'
 	dfx canister call simple_to_do addTodo '("Deploy the project")'
-	# Show To-Dos
+	# Show To-Dos.
 	dfx canister call simple_to_do showTodos \
 		| grep '(1) Create a project' && echo 'PASS'
 	dfx canister call simple_to_do showTodos \
 		| grep '(2) Build the project' && echo 'PASS'
 	dfx canister call simple_to_do showTodos \
 		| grep '(3) Deploy the project' && echo 'PASS'
-	# Complete To-Dos
+	# Complete To-Dos.
 	dfx canister call simple_to_do completeTodo '(1)'
 	dfx canister call simple_to_do completeTodo '(2)'
 	dfx canister call simple_to_do completeTodo '(3)'
-	# Show To-Dos
+	# Show To-Dos.
 	dfx canister call simple_to_do showTodos \
 		| grep '(1) Create a project ✔' && echo 'PASS'
 	dfx canister call simple_to_do showTodos \
