@@ -19,7 +19,7 @@ The application is built from the following Motoko source code files:
 
 ## Prerequisites
 
-Verify the following before running this demo.
+Verify the following before running this demo:
 
 *  You have downloaded and installed the [DFINITY Canister
    SDK](https://sdk.dfinity.org).
@@ -55,7 +55,7 @@ Verify the following before running this demo.
    dfx canister install --all
    ```
 
-1. Create a to-do checklist by invoking the `addTodo` method of your canister.
+1. Create a to-do checklist by invoking the `addTodo` method.
 
    ```text
    dfx canister call simple_to_do addTodo '("Create a project")'
@@ -63,8 +63,7 @@ Verify the following before running this demo.
    dfx canister call simple_to_do addTodo '("Deploy the project")'
    ```
 
-1. Display the to-do checklist by invoking the `showTodos` method of your
-   canister.
+1. Display the to-do checklist by invoking the `showTodos` method.
 
    ```text
    dfx canister call simple_to_do showTodos
@@ -80,15 +79,13 @@ Verify the following before running this demo.
    (3) Deploy the project")
    ```
 
-1. Complete a to-do checklist item by invoking the `completeTodo` method of
-   your canister.
+1. Complete a to-do checklist item by invoking the `completeTodo` method.
 
    ```text
    dfx canister call simple_to_do completeTodo '(1)'
    ```
 
-1. Display the to-do checklist by invoking the `showTodos` method of your
-   canister.
+1. Display the to-do checklist by invoking the `showTodos` method.
 
    ```text
    dfx canister call simple_to_do showTodos

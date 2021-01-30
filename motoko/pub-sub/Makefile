@@ -20,7 +20,7 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
-	dfx canister call sub init
+	dfx canister call sub init '("Apples")'
 	dfx canister call sub getCount \
 		| grep '(0)' && echo 'PASS'
 	dfx canister call pub publish '(record { "topic" = "Apples"; "value" = 2 })'

@@ -1,14 +1,14 @@
 # Design Pattern: Pub/Sub
 
-[![Build Status](https://travis-ci.org/dfinity-lab/examples.svg?branch=master)](https://travis-ci.org/dfinity-lab/examples?branch=master)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue)
 
 This sample project demonstrates how functions may be passed as arguments of inter-canister calls to be used as callbacks.
 
-### Overview
+## Overview
 
 A common problem in both distributed and decentralized systems is keeping separate services (or canisters) synchronized with one another. While there are many potential solutions to this problem, a popular one is the Publisher/Subscriber pattern or "PubSub". PubSub is an especially valuable pattern on the Internet Computer as its primary drawback, message delivery failures, does not apply.
 
-### Implementation
+## Implementation
 
 The first canister (Publisher) exposes a `subscribe` method that other canisters can call to register a callback to be executed whenever its other method `publish` is called with an event matching the subscribed topic.
 
@@ -16,44 +16,64 @@ The second canister (Subscriber) updates its internal count when its `updateCoun
 
 Note: There are many obvious improvements (keying subscribers by topic in Publisher, validating the topic in the callback) and callbacks can do much more complex things than update counters but hopefully this example illustrates the concepts in a simple way.
 
-### Prerequisites
+## Prerequisites
 
-Before building the example application, verify the following:
+Verify the following before running this demo:
 
-* You have downloaded and installed the DFINITY Canister SDK as described in [Download and install](https://sdk.dfinity.org/docs/quickstart/quickstart.html#download-and-install).
-* You have stopped any Internet Computer network processes running on the local computer.
+*  You have downloaded and installed the [DFINITY Canister
+   SDK](https://sdk.dfinity.org).
 
-### Demo
+*  You have stopped any Internet Computer related processes that may conflict
+   with the following.
 
-Start a local internet computer.
+## Demo
 
-```bash
-dfx start
-```
+1. Start a local internet computer.
 
-Execute the following commands in another tab or run the `test.sh` script.
+   ```text
+   dfx start
+   ```
 
-```bash
-dfx canister create --all
-dfx build
-dfx canister install --all
-dfx canister call sub init
-dfx canister call sub getCount
-dfx canister call pub publish '(record { "topic" = "Apples"; "value" = 2 })'
-sleep 2
-dfx canister call sub getCount
-dfx canister call pub publish '(record { "topic" = "Bananas"; "value" = 3 })'
-sleep 2
-dfx canister call sub getCount
-```
+1. Open a new terminal window.
 
-Observe the following result.
+1. Reserve an identifier for your canister.
 
-```bash
-()  # Subscriber is initialized
-(0) # No count yet
-()  # Publisher receives a topic relevant to the Subscriber
-(2) # Subscriber has updated
-()  # Publisher receives a topic irrelevant to the Subscriber
-(2) # Subscriber has ignored the irrelevant topic
-```
+   ```text
+   dfx canister create --all
+   ```
+
+1. Build your canister.
+
+   ```text
+   dfx build
+   ```
+
+1. Deploy your canister.
+
+   ```text
+   dfx canister install --all
+   ```
+
+1. Subscribe to the `"Apples"` topic.
+
+   ```text
+   dfx canister call sub init '("Apples")'
+   ```
+
+1. Publish to the `"Apples"` topic.
+
+   ```text
+   dfx canister call pub publish '(record { "topic" = "Apples"; "value" = 2 })'
+   ```
+
+1. Receive your subscription.
+
+   ```text
+   dfx canister call sub getCount
+   ```
+
+1. Observe the following result.
+
+   ```
+   (2)
+   ```

@@ -15,15 +15,15 @@ The applciation provides an interface that exposes the following methods:
 
 *  `mul`, which accepts input and performs multiplication;
 
-*  `div`, which accepts input and performs division, and returns an optional
-   type to guard against division by zero; and
+*  `div`, which accepts input, performs division, and returns an optional type
+   to guard against division by zero; and
 
 *  `clearall`, which clears the `cell` variable by setting its value to
    zero.
 
 ## Prerequisites
 
-Verify the following before running this demo.
+Verify the following before running this demo:
 
 *  You have downloaded and installed the [DFINITY Canister
    SDK](https://sdk.dfinity.org).
@@ -59,15 +59,15 @@ Verify the following before running this demo.
    dfx canister install --all
    ```
 
-1. Multiply 2 by 3 by invoking the `add` and `mul` methods of your canister.
+1. Multiply 2 by 3.
 
-   ```bash
+   ```text
    dfx canister call calc add '(2)'
    dfx canister call calc mul '(3)'
    ```
 
 1. Observe the following result.
 
-   ```bash
+   ```text
    (6)
    ```

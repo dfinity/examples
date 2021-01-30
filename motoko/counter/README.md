@@ -1,6 +1,6 @@
 # Counter
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.10-blue)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue)
 
 This sample project create a single actor named `+Counter+` and provides a simple example of how you can verify that the variable state—that is, the value of the variable between calls—persists.
 
@@ -13,27 +13,57 @@ This program supports the following types of function calls:
 
 ## Prerequisites
 
-Before building the example application, verify the following:
+Verify the following before running this demo:
 
-* You have downloaded and installed the DFINITY Canister SDK as described in [Download and install](https://sdk.dfinity.org/docs/quickstart/quickstart.html#download-and-install).
-* You have stopped any Internet Computer network processes running on the local computer.
+*  You have downloaded and installed the [DFINITY Canister
+   SDK](https://sdk.dfinity.org).
+
+*  You have stopped any Internet Computer related processes that may conflict
+   with the following.
 
 ## Demo
 
 1. Start a local internet computer.
 
-   ```bash
+   ```text
    dfx start
    ```
 
-1. Execute the following commands in another tab.
+1. Open a new terminal window.
 
-   ```bash
-   dfx canister create counter
+1. Reserve an identifier for your canister.
+
+   ```text
+   dfx canister create --all
+   ```
+
+1. Build your canister.
+
+   ```text
    dfx build
-   dfx canister install counter
+   ```
+
+1. Deploy your canister.
+
+   ```text
+   dfx canister install --all
+   ```
+
+1. Set the value of the counter.
+
+   ```text
    dfx canister call counter set '(7)'
+   ```
+
+1. Increment the value of the counter.
+
+   ```text
    dfx canister call counter inc
+   ```
+
+1. Get the value of the counter.
+
+   ```text
    dfx canister call counter get
    ```
 

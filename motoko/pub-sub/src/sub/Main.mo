@@ -9,13 +9,11 @@ actor Subscriber {
     value : Nat;
   };
 
-  let counter_topic = "Apples";
-
   var count: Nat = 0;
 
-  public func init() {
+  public func init(topic0 : Text) {
     Publisher.subscribe({
-      topic = counter_topic;
+      topic = topic0;
       callback = updateCount;
     });
   };

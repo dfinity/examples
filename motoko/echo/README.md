@@ -4,7 +4,7 @@
 
 ## Prerequisites
 
-Verify the following before running this demo.
+Verify the following before running this demo:
 
 *  You have downloaded and installed the [DFINITY Canister
    SDK](https://sdk.dfinity.org).
@@ -40,14 +40,14 @@ Verify the following before running this demo.
    dfx canister install --all
    ```
 
-1. Invoke the `say` method of your canister.
+1. Invoke the `say` method.
 
-   ```
+   ```text
    dfx canister call echo say '("This is a test.")'
    ```
 
 1. Observe the following result.
 
-   ```
+   ```text
    ("This is a test.")
    ```
