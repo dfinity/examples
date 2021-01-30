@@ -1,0 +1,31 @@
+name: motoko-calc-example
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  motoko-calc-example-darwin:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Motoko Calc Exmaple Darwin
+        run: |
+          dfx start --background
+          pushd motoko/calc
+          make test
+          popd
+  motoko-calc-example-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Motoko Calc Exmaple Linux
+        run: |
+          dfx start --background
+          pushd motoko/calc
+          make test
+          popd
