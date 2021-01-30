@@ -18,7 +18,7 @@ DFX_VERSION=$version bash install-dfx.sh < <(yes Y)
 rm install-dfx.sh
 
 # Set environment variables.
-echo "::add-path::/home/runner/bin"
+echo "$HOME/bin" >> $GITHUB_PATH
 
 # Exit temporary directory.
 popd
