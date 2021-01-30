@@ -1,6 +1,6 @@
 # Favorite Cities
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue) [![Build Status](https://github.com/dfinity/examples/workflows/motoko-favorite-cities-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-favorite-cities-example)
 
 This program provides functions that return multiple city names and illustrates how to use a type enclosed by square (`[ ]`) brackets to indicate an *array* of that type.
 

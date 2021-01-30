@@ -1,6 +1,6 @@
 # Counter
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue) [![Build Status](https://github.com/dfinity/examples/workflows/motoko-counter-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-counter-example)
 
 This sample project create a single actor named `+Counter+` and provides a simple example of how you can verify that the variable state—that is, the value of the variable between calls—persists.
 

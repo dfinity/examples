@@ -1,6 +1,6 @@
 # Echo
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue) [![Build Status](https://github.com/dfinity/examples/workflows/motoko-echo-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-echo-example)
 
 ## Prerequisites
 
