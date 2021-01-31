@@ -11,18 +11,18 @@ node_modules:
 .PHONY: build
 .SILENT: build
 build: node_modules
-	dfx canister create --all
+	dfx canister create phone_book
 	dfx build
 
 .PHONY: install
 .SILENT: install
 install: build
-	dfx canister install --all
+	dfx canister install phone_book
 
 .PHONY: upgrade
 .SILENT: upgrade
 upgrade: build
-	dfx canister install --all --mode=upgrade
+	dfx canister install phone_book --mode=upgrade
 
 .PHONY: test
 .SILENT: test
