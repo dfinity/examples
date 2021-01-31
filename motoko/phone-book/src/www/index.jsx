@@ -1,41 +1,43 @@
-import phonebook from 'ic:canisters/phonebook';
+import canister from 'ic:canisters/phone_book';
 import * as React from 'react';
 import { render } from 'react-dom';
 
-class Phonebook extends React.Component {
+class PhoneBook extends React.Component {
+
   constructor(props) {
     super(props);
-    this.state = {
-    };
+    this.state = {};
   }
 
   async doInsert() {
     let name = document.getElementById("newEntryName").value;
     let desc = document.getElementById("newEntryDesc").value;
     let phone = document.getElementById("newEntryPhone").value;
-
-    phonebook.insert(name, desc, parseInt(phone.replace(/\W+/g,''), 10));
+    canister.insert(name, { desc, phone });
   }
 
   async lookup() {
     let name = document.getElementById("lookupName").value;
-    phonebook.lookup(name).then(opt_entry => {
-      let [entry] = opt_entry;
+    canister.lookup(name).then(opt_entry => {
+      let entry = opt_entry.length > 0 ? opt_entry[0] : null;
       if (entry === null || entry === undefined) {
-        entry = { name: "", description: "", phone: ""};
+        entry = {
+          desc: "",
+          phone: "",
+        };
       }
-      document.getElementById("newEntryName").value = entry.name;
-      document.getElementById("newEntryDesc").value = entry.description;
-      document.getElementById("newEntryPhone").value = entry.phone.toString();
+      document.getElementById("newEntryName").value = name;
+      document.getElementById("newEntryDesc").value = entry.desc;
+      document.getElementById("newEntryPhone").value = entry.phone;
     });
   }
 
   render() {
     return (
       <div>
-        <h1>PhoneBook</h1>
+        <h1>Phone Book</h1>
         <div>
-          Insert or update new phonebook entry:
+          Insert or update a new phone book entry:
           <table>
             <tr><td>Name:</td><td><input required id="newEntryName"></input></td></tr>
             <tr><td>Description:</td><td><input id="newEntryDesc"></input></td></tr>
@@ -53,6 +55,6 @@ class Phonebook extends React.Component {
   }
 }
 
-document.title = "DFINITY PHONEBOOK EXAMPLE";
+document.title = "DFINITY PHONE BOOK EXAMPLE";
 
-render(<Phonebook />, document.getElementById('app'));
+render(<PhoneBook />, document.getElementById('app'));
