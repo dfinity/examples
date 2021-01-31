@@ -4,18 +4,18 @@ all: build
 .PHONY: build
 .SILENT: build
 build:
-	dfx canister create --all
+	dfx canister create counter
 	dfx build
 
 .PHONY: install
 .SILENT: install
 install: build
-	dfx canister install --all
+	dfx canister install counter
 
 .PHONY: upgrade
 .SILENT: upgrade
 upgrade: build
-	dfx canister install --all --mode=upgrade
+	dfx canister install counter --mode=upgrade
 
 .PHONY: test
 .SILENT: test

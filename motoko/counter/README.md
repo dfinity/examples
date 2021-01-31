@@ -2,14 +2,19 @@
 
 ![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue) [![Build Status](https://github.com/dfinity/examples/workflows/motoko-counter-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-counter-example)
 
-This sample project create a single actor named `+Counter+` and provides a simple example of how you can verify that the variable state—that is, the value of the variable between calls—persists.
+This example demonstrates a counter application. It uses an orthogonally
+persistent `counter` variable to store an arbitrary precision natural number
+that represents the current value of the counter.
 
-The program uses the `+counter+` variable to contain a natural number that represents the current value of the counter.
-This program supports the following types of function calls:
+## Introduction
 
-* The `+set+` function call updates the current value to an arbitrary numeric value you specify as an argument.
-* The `+inc+` function call updates the current value, incrementing by 1 (no return value).
-* The `+get+` function call queries and returns the current value.
+The application provides an interface that exposes the following methods:
+
+*  `set`, which sets the value of the counter;
+
+*  `inc`, which increments the value of the counter; and
+
+*  `get`, which gets the value of the counter.
 
 ## Prerequisites
 
@@ -18,8 +23,8 @@ Verify the following before running this demo:
 *  You have downloaded and installed the [DFINITY Canister
    SDK](https://sdk.dfinity.org).
 
-*  You have stopped any Internet Computer related processes that may conflict
-   with the following.
+*  You have stopped any Internet Computer or other network process that would
+   create a port conflict on 8000.
 
 ## Demo
 
@@ -34,7 +39,7 @@ Verify the following before running this demo:
 1. Reserve an identifier for your canister.
 
    ```text
-   dfx canister create --all
+   dfx canister create counter
    ```
 
 1. Build your canister.
@@ -46,7 +51,7 @@ Verify the following before running this demo:
 1. Deploy your canister.
 
    ```text
-   dfx canister install --all
+   dfx canister install counter
    ```
 
 1. Set the value of the counter.

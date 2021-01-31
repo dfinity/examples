@@ -24,8 +24,8 @@ Verify the following before running this demo:
 *  You have downloaded and installed the [DFINITY Canister
    SDK](https://sdk.dfinity.org).
 
-*  You have stopped any Internet Computer related processes that may conflict
-   with the following.
+*  You have stopped any Internet Computer or other network process that would
+   create a port conflict on 8000.
 
 ## Demo
 
@@ -40,7 +40,7 @@ Verify the following before running this demo:
 1. Reserve an identifier for your canister.
 
    ```text
-   dfx canister create --all
+   dfx canister create simple_to_do
    ```
 
 1. Build your canister.
@@ -52,7 +52,7 @@ Verify the following before running this demo:
 1. Deploy your canister.
 
    ```text
-   dfx canister install --all
+   dfx canister install simple_to_do
    ```
 
 1. Create a to-do checklist by invoking the `addTodo` method.

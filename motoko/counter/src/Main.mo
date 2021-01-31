@@ -15,5 +15,5 @@ actor Counter {
   // Increment the value of the counter.
   public func inc() {
     counter += 1;
-  }
-}
+  };
+};

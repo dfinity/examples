@@ -1,9 +1,0 @@
-{
-  "canisters": {
-    "favorite_cities": {
-      "main": "src/Main.mo",
-      "type": "motoko"
-    }
-  },
-  "dfx": "0.6.20"
-}

@@ -23,8 +23,8 @@ Verify the following before running this demo:
 *  You have downloaded and installed the [DFINITY Canister
    SDK](https://sdk.dfinity.org).
 
-*  You have stopped any Internet Computer related processes that may conflict
-   with the following.
+*  You have stopped any Internet Computer or other network process that would
+   create a port conflict on 8000.
 
 ## Demo
 

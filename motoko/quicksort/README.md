@@ -1,10 +1,8 @@
-# Favorite Cities
+# Quicksort
 
 ![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue) [![Build Status](https://github.com/dfinity/examples/workflows/motoko-favorite-cities-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-favorite-cities-example)
 
-This program provides functions that return multiple city names and illustrates how to use a type enclosed by square (`[ ]`) brackets to indicate an *array* of that type.
-
-In this example, the `[Text]` notation indicates an array of a collection of UTF-8 characters, enabling the program to accept and return multiple text strings.
+This example implements the quicksort algorithm.
 
 ## Prerequisites
 
@@ -13,8 +11,8 @@ Verify the following before running this demo:
 *  You have downloaded and installed the [DFINITY Canister
    SDK](https://sdk.dfinity.org).
 
-*  You have stopped any Internet Computer related processes that may conflict
-   with the following.
+*  You have stopped any Internet Computer or other network process that would
+   create a port conflict on 8000.
 
 ## Demo
 
@@ -29,7 +27,7 @@ Verify the following before running this demo:
 1. Reserve an identifier for your canister.
 
    ```text
-   dfx canister create --all
+   dfx canister create quicksort
    ```
 
 1. Build your canister.
@@ -41,17 +39,17 @@ Verify the following before running this demo:
 1. Deploy your canister.
 
    ```text
-   dfx canister install --all
+   dfx canister install quicksort
    ```
 
-1. Say hello from your favorite cities.
+1. Sort an array of integers.
 
    ```text
-   dfx canister call favorite_cities hello_pretty '(vec {"Palo Alto"; "San Francisco"; "Zurich"})'
+   dfx canister call quicksort sort '(vec { 5; 3; 0; 9; 8; 2; 1; 4; 7; 6 })'
    ```
 
 1. Observe the following result.
 
    ```text
-   ("Hello from Palo Alto, San Francisco, and Zurich!")
+   (vec { 0; 1; 2; 3; 4; 5; 6; 7; 8; 9 })
    ```

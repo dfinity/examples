@@ -2,7 +2,7 @@
 
 ![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue) [![Build Status](https://github.com/dfinity/examples/workflows/motoko-hello-world--example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-hello-world-example)
 
-This example illustrates a canister called `hello_world`, which exports a
+This example demonstrates a canister called `hello_world`, which exports a
 method called `main`, which prints `Hello World!` to the console.
 
 ## Prerequisites
@@ -12,8 +12,8 @@ Verify the following before running this demo:
 *  You have downloaded and installed the [DFINITY Canister
    SDK](https://sdk.dfinity.org).
 
-*  You have stopped any Internet Computer related processes that may conflict
-   with the following.
+*  You have stopped any Internet Computer or other network process that would
+   create a port conflict on 8000.
 
 ## Demo
 
@@ -28,7 +28,7 @@ Verify the following before running this demo:
 1. Reserve an identifier for your canister.
 
    ```text
-   dfx canister create --all
+   dfx canister create hello_world
    ```
 
 1. Build your canister.
@@ -40,7 +40,7 @@ Verify the following before running this demo:
 1. Deploy your canister.
 
    ```text
-   dfx canister install --all
+   dfx canister install hello_world
    ```
 
 1. Invoke the `main` method.

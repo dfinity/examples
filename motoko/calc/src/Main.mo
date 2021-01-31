@@ -1,8 +1,3 @@
-/**
- * This canister implements a simple four-function calculator that applies one
- * calculator instruction per public method call.
- */
-
 actor Calc {
 
   var cell : Int = 0;
@@ -28,16 +23,16 @@ actor Calc {
   // Divide.
   public func div(n : Int) : async ?Int {
     if (n == 0) {
-      // null encodes div-by-zero error
+      // 'null' encodes the division by zero error.
       return null;
     } else {
       cell /= n;
       return ?cell;
-    }
+    };
   };
 
   // Clear the calculator and reset its cell to zero.
   public func clearall() : async () {
     cell := 0;
-  }
+  };
 };
