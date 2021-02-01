@@ -1,0 +1,32 @@
+{
+  "author": {
+    "email": "enzo@dfinity.org",
+    "name": "Enzo Haussecker"
+  },
+  "contributors": [
+    {
+      "email": "andrew.wylde@dfinity.org",
+      "name": "Andrew Wylde"
+    }
+  ],
+  "dependencies": {
+    "@babel/core": "7.9.0",
+    "@babel/preset-react": "7.9.0",
+    "@dfinity/agent": "0.6.20",
+    "babel-loader": "8.1.0",
+    "react": "16.13.1",
+    "react-dom": "16.13.1",
+    "webpack": "4.43.0",
+    "webpack-cli": "3.3.12"
+  },
+  "description": [
+    "A simple example that demonstrates how to build a CRUD application on",
+    "the Internet Computer using Motoko and React."
+  ],
+  "license": "SEE LICENSE IN LICENSE",
+  "name": "superheroes",
+  "scripts": {
+    "build": "webpack"
+  },
+  "version": "0.0.0"
+}
