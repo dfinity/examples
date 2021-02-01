@@ -1,6 +1,7 @@
 # Phone book
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue) [![Build Status](https://github.com/dfinity/examples/workflows/motoko-phone-book-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-phone-book-example)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue)
+[![Build Status](https://github.com/dfinity/examples/workflows/motoko-phone-book-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-phone-book-example)
 
 This example demonstrates a phone book application that is accessible from your
 web browser.
@@ -19,6 +20,8 @@ The application is built from the following Motoko source code files:
 ## Prerequisites
 
 Verify the following before running this demo:
+
+*  You have downloaded and installed [Node.js](https://nodejs.org).
 
 *  You have downloaded and installed the [DFINITY Canister
    SDK](https://sdk.dfinity.org).
