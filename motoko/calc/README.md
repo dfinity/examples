@@ -1,6 +1,7 @@
 # Calc
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue) [![Build Status](https://github.com/dfinity/examples/workflows/motoko-calc-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-calc-example)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue)
+[![Build Status](https://github.com/dfinity/examples/workflows/motoko-calc-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-calc-example)
 
 This example demonstrate a four-function calculator application. It uses an
 orthogonally persistent `cell` variable to store an arbitrary precision integer

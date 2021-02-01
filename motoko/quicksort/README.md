@@ -1,6 +1,7 @@
 # Quicksort
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue) [![Build Status](https://github.com/dfinity/examples/workflows/motoko-quicksort-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-quicksort-example)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue)
+[![Build Status](https://github.com/dfinity/examples/workflows/motoko-quicksort-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-quicksort-example)
 
 This example implements the quicksort algorithm.
 

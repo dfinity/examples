@@ -1,6 +1,7 @@
 # Counter
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue) [![Build Status](https://github.com/dfinity/examples/workflows/motoko-counter-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-counter-example)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue)
+[![Build Status](https://github.com/dfinity/examples/workflows/motoko-counter-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-counter-example)
 
 This example demonstrates a counter application. It uses an orthogonally
 persistent `counter` variable to store an arbitrary precision natural number

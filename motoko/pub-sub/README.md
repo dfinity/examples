@@ -1,6 +1,7 @@
 # Design Pattern: Pub/Sub
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue) [![Build Status](https://github.com/dfinity/examples/workflows/motoko-pub-sub-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-pub-sub-example)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue)
+[![Build Status](https://github.com/dfinity/examples/workflows/motoko-pub-sub-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-pub-sub-example)
 
 This sample project demonstrates how functions may be passed as arguments of inter-canister calls to be used as callbacks.
 

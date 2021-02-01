@@ -1,6 +1,7 @@
 # Simple To-Do
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue) [![Build Status](https://github.com/dfinity/examples/workflows/motoko-simple-to-do-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-simple-to-do-example)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.20-blue)
+[![Build Status](https://github.com/dfinity/examples/workflows/motoko-simple-to-do-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-simple-to-do-example)
 
 This example illustrates how to create a simple to-do checklist application.
 
