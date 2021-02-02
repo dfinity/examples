@@ -1,45 +1,80 @@
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.10-blue)
-[![Build Status](https://travis-ci.org/dfinity-lab/examples.svg?branch=master)](https://travis-ci.org/dfinity-lab/examples?branch=master)
-
 # Counter
 
-This sample project create a single actor named `+Counter+` and provides a simple example of how you can verify that the variable state—that is, the value of the variable between calls—persists.
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.21-blue)
+[![Build Status](https://github.com/dfinity/examples/workflows/motoko-counter-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-counter-example)
 
-The program uses the `+counter+` variable to contain a natural number that represents the current value of the counter.
-This program supports the following types of function calls:
+This example demonstrates a counter application. It uses an orthogonally
+persistent `counter` variable to store an arbitrary precision natural number
+that represents the current value of the counter.
 
-* The `+set+` function call updates the current value to an arbitrary numeric value you specify as an argument.
-* The `+inc+` function call updates the current value, incrementing by 1 (no return value).
-* The `+get+` function call queries and returns the current value.
+## Introduction
 
-### Prerequisites
+The application provides an interface that exposes the following methods:
 
-Before building the example application, verify the following:
+*  `set`, which sets the value of the counter;
 
-* You have downloaded and installed the DFINITY Canister SDK as described in [Download and install](https://sdk.dfinity.org/docs/quickstart/quickstart.html#download-and-install).
-* You have stopped any Internet Computer network processes running on the local computer.
+*  `inc`, which increments the value of the counter; and
 
-### Demo
+*  `get`, which gets the value of the counter.
 
-Start a local internet computer.
+## Prerequisites
 
-```bash
-dfx start
-```
+Verify the following before running this demo:
 
-Execute the following commands in another tab.
+*  You have downloaded and installed the [DFINITY Canister
+   SDK](https://sdk.dfinity.org).
 
-```bash
-dfx canister create counter
-dfx build
-dfx canister install counter
-dfx canister call counter set '(7)'
-dfx canister call counter inc
-dfx canister call counter get
-```
+*  You have stopped any Internet Computer or other network process that would
+   create a port conflict on 8000.
 
-Observe the following result.
+## Demo
 
-```
-(8)
-```
+1. Start a local internet computer.
+
+   ```text
+   dfx start
+   ```
+
+1. Open a new terminal window.
+
+1. Reserve an identifier for your canister.
+
+   ```text
+   dfx canister create counter
+   ```
+
+1. Build your canister.
+
+   ```text
+   dfx build
+   ```
+
+1. Deploy your canister.
+
+   ```text
+   dfx canister install counter
+   ```
+
+1. Set the value of the counter.
+
+   ```text
+   dfx canister call counter set '(7)'
+   ```
+
+1. Increment the value of the counter.
+
+   ```text
+   dfx canister call counter inc
+   ```
+
+1. Get the value of the counter.
+
+   ```text
+   dfx canister call counter get
+   ```
+
+1. Observe the following result.
+
+   ```
+   (8)
+   ```

@@ -1,34 +1,24 @@
-# File       : Makefile
-# Copyright  : 2020 DFINITY Stiftung
-# License    : Apache 2.0 with LLVM Exception
-# Maintainer : Enzo Haussecker <enzo@dfinity.org>
-# Stability  : Stable
-
 SHELL = /bin/bash
 
 .PHONY: all
-all: c motoko
+all: motoko
 
-# C.
-.ONESHELL: c
-.PHONY: c
-c:
-	cd c
-	for dir in $$(ls -d */)
-	do
+.ONESHELL: motoko
+.PHONY: motoko
+.SILENT: motoko
+motoko:
+	for dir in $$(ls -d motoko/*/); do
 		pushd $$dir
-		bash build.sh
+		make test
 		popd
 	done
 
-# Motoko.
-.ONESHELL: motoko
-.PHONY: motoko
-motoko:
-	cd motoko
-	for dir in $$(ls -d */)
-	do
+.ONESHELL: clean
+.PHONY: clean
+.SILENT: clean
+clean:
+	for dir in $$(ls -d motoko/*/); do
 		pushd $$dir
-		make
+		make clean
 		popd
 	done

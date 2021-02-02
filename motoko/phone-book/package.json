@@ -1,6 +1,7 @@
 {
   "description": "",
-  "devDependencies": {
+  "dependencies": {
+    "@dfinity/agent": "0.6.20",
     "react": "^16.12.0",
     "react-dom": "^16.12.0",
     "terser-webpack-plugin": "2.2.2",

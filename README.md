@@ -1,7 +1,5 @@
 ## DFINITY Examples for the Internet Computer
 
-[![Build Status](https://travis-ci.org/dfinity-lab/examples.svg?branch=master)](https://travis-ci.org/dfinity-lab/examples?branch=master)
-
 This repository provides access to sample code, applications, and microservices that run on the Internet Computer platform.
 
 From this repository, you can download, clone, fork, or share sample projects.

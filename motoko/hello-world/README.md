@@ -1,40 +1,64 @@
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.10-blue)
-[![Build Status](https://travis-ci.org/dfinity-lab/examples.svg?branch=master)](https://travis-ci.org/dfinity-lab/examples?branch=master)
-
 # Hello World
 
-This program illustrates creating a simple *actor* with a public function of `main` that returns `Hello, World!`.
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.21-blue)
+[![Build Status](https://github.com/dfinity/examples/workflows/motoko-hello-world--example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-hello-world-example)
 
-### Prerequisites
+This example demonstrates a canister called `hello_world`, which exports a
+method called `main`, which prints `Hello World!` to the console.
 
-Before building the example application, verify the following:
+## Prerequisites
 
-* You have downloaded and installed the DFINITY Canister SDK as described in [Download and install](https://sdk.dfinity.org/docs/quickstart/quickstart.html#download-and-install).
-* You have stopped any Internet Computer network processes running on the local computer.
+Verify the following before running this demo:
 
-### Demo
+*  You have downloaded and installed the [DFINITY Canister
+   SDK](https://sdk.dfinity.org).
 
-1. Open a new terminal in the project directory.
+*  You have stopped any Internet Computer or other network process that would
+   create a port conflict on 8000.
 
-1. Start the Internet Computer locally by running the following command:
+## Demo
 
-    ```bash
-    dfx start
-    ```
+1. Start a local internet computer.
 
-1. Open another terminal in the project directory.
+   ```text
+   dfx start
+   ```
 
-1. Execute the following commands in the new terminal:
+1. Open a new terminal window.
 
-    ```bash
-    dfx canister create --all
-    dfx build
-    dfx canister install --all
-    dfx canister call hello-world main
-    ```
+1. Reserve an identifier for your canister.
 
-1. Observe the following result in the terminal where the Internet Computer network is running.
+   ```text
+   dfx canister create hello_world
+   ```
 
-    ```
-    debug.print: Hello World!
-    ```
+1. Build your canister.
+
+   ```text
+   dfx build
+   ```
+
+1. Deploy your canister.
+
+   ```text
+   dfx canister install hello_world
+   ```
+
+1. Invoke the `main` method.
+
+   ```text
+   dfx canister call hello_world main
+   ```
+
+1. Observe the following output in the terminal where your local Internet
+   Computer is running.
+
+   ```text
+   debug.print: Hello World!
+   ```
+
+# Issues
+
+Don't see any output? Be sure to check the terminal where your local Internet
+Computer is running and not the terminal from which you invoked the `main`
+method.

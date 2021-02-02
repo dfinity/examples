@@ -1,41 +1,74 @@
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.10-blue)
 # Calc
 
-The program uses the `+cell+` variable to contain an integer number that represents the current result of a calculator operation.
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.21-blue)
+[![Build Status](https://github.com/dfinity/examples/workflows/motoko-calc-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-calc-example)
 
-This program supports the following types of function calls:
+This example demonstrates a four-function calculator application. It uses an
+orthogonally persistent `cell` variable to store an arbitrary precision integer
+that represents the result of the most recent calculation.
 
-* The `add` function call accepts input and performs addition.
-* The `sub` function call accepts input and performs subtraction.
-* The `mul` function call accepts input and performs multiplication.
-* The `div` function call accepts input and performs division.
-* The `clearall` function clears the `cell` value stored as the result of previous operations, resetting the `cell` value to zero.
+## Introduction
 
-The `div` function also includes code to prevent the program from attempting to divide by zero.
+The application provides an interface that exposes the following methods:
 
-### Prerequisites
+*  `add`, which accepts input and performs addition;
 
-Before building the example application, verify the following:
+*  `sub`, which accepts input and performs subtraction;
 
-* You have downloaded and installed the DFINITY Canister SDK as described in [Download and install](https://sdk.dfinity.org/docs/quickstart/quickstart.html#download-and-install).
-* You have stopped any Internet Computer network processes running on the local computer.
+*  `mul`, which accepts input and performs multiplication;
 
-### Demo
+*  `div`, which accepts input, performs division, and returns an optional type
+   to guard against division by zero; and
 
-Start a local internet computer.
+*  `clearall`, which clears the `cell` variable by setting its value to zero.
 
-```bash
-dfx start
-```
+## Prerequisites
 
-Execute the following commands in another tab.
+Verify the following before running this demo:
 
-```bash
-dfx canister call calc add '(10)'
-```
+*  You have downloaded and installed the [DFINITY Canister
+   SDK](https://sdk.dfinity.org).
 
-Observe the following result.
+*  You have stopped any Internet Computer or other network process that would
+   create a port conflict on 8000.
 
-```bash
-(+10)
-```
+## Demo
+
+1. Start a local internet computer.
+
+   ```text
+   dfx start
+   ```
+
+1. Open a new terminal window.
+
+1. Reserve an identifier for your canister.
+
+   ```text
+   dfx canister create calc
+   ```
+
+1. Build your canister.
+
+   ```text
+   dfx build
+   ```
+
+1. Deploy your canister.
+
+   ```text
+   dfx canister install calc
+   ```
+
+1. Multiply 2 by 3.
+
+   ```text
+   dfx canister call calc add '(2)'
+   dfx canister call calc mul '(3)'
+   ```
+
+1. Observe the following result.
+
+   ```text
+   (6)
+   ```

@@ -1,94 +1,66 @@
-# Simple Phonebook
+# Phone book
 
-This example project illustrates how to create a simple phonebook web application using the Motoko programming language.
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.21-blue)
+[![Build Status](https://github.com/dfinity/examples/workflows/motoko-phone-book-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-phone-book-example)
 
-## Source code
+This example demonstrates a phone book application that is accessible from your
+web browser.
 
-This project is implemented using the following source code files:
+## Introduction
 
-- The `main.mo` file contains the actor definition and public functions that the compiled canister exposes.
+The application is built from the following Motoko source code files:
 
-- The `index.jsx` file contains the JavaScript, React, and HTML used to generate the front-end user interface for the application when it is launched in a web browser.
+*  `index.jsx`, which contains the JavaScript, React, and HTML used to generate
+   the front-end user interface for the application when it is launched in a
+   web browser; and
 
+*  `Main.mo`, which contains the actor definition and methods exposed by this
+   canister.
 
 ## Prerequisites
 
-Before building the example application, verify the following:
+Verify the following before running this demo:
 
-* You have downloaded and installed the DFINITY Canister SDK as described in [Download and install](https://sdk.dfinity.org/docs/quickstart/quickstart.html#download-and-install).
-* You have stopped any Internet Computer network processes running on the local computer.
+*  You have downloaded and installed [Node.js](https://nodejs.org).
+
+*  You have downloaded and installed the [DFINITY Canister
+   SDK](https://sdk.dfinity.org).
+
+*  You have stopped any Internet Computer or other network process that would
+   create a port conflict on 8000.
 
 ## Demo
 
-1. Start a local internet computer replica by running the following command:
+1. Start a local internet computer.
 
-    ```bash
-    dfx start
-    ```
+   ```text
+   dfx start
+   ```
 
-1. Open a new terminal shell and navigate to the project directory.
+1. Open a new terminal window.
 
-1. Build the project by running the following command:
+1. Reserve an identifier for your canister.
 
-    ```bash
-    dfx canister create --all
-    dfx build
-    ```
+   ```text
+   dfx canister create --all
+   ```
 
-1. Deploy the project by running the following command:
+1. Build your canister.
 
-    ```bash
-    dfx canister install --all
-    ```
+   ```text
+   dfx build
+   ```
 
-1. Take note of the resultant canisterId
+1. Deploy your canister.
 
-    ```bash
-    Installing code for canister phonebook_ui, with canister_id cxeji-wacaa-aaaaa-aaaaa-aaaaa-aaaaa-a
-    ```
+   ```text
+   dfx canister install --all
+   ```
 
-1. Open up your web browser to view the installed phonebook canister web page:
+1. Take note of the URL at which the phone book is accessible.
 
-    http://localhost:8000/?canisterId=cxeji-wacaa-aaaaa-aaaaa-aaaaa-aaaaa-a
+   ```text
+   echo "http://localhost:8000/?canisterId=$(dfx canister id www)"
+   ```
 
-1. Enter a Name, Description, Phone and click the Insert or Update button:
-
-    Name: Information
-    Description: Local Directory Assistance in the NANPA dialplan
-    Phone: 411
-
-    NOTE: the Name and Description are Text, and the Phone number is a Nat (number). Entering a non-number into the Phone field will cause the application to silently fail on the browser side. You will only see this failure in your browser's javascript console.
-
-1. Enter another Name, Description, Phone and click the Insert or Update button:
-
-    Name: Emergency
-    Description: Local Emergency Services in the NANPA dialplan
-    Phone: 911
-
-1. Now enter "Information" into the Lookup Name field and click the Lookup button:
-
-    Lookup Name: Information
-
-1. Add additional phonebook records by calling the `insert` function using the Candid endpoint or by running the following command:
-
-    ```bash
-    dfx canister call phonebook insert '("TRS","Assistive Telecommunications Relay Service in the NANPA dialplan",711)'
-    ```
-
-1. Verify the updated phonebook checklist by calling the 'lookup' function using the Candid endpoint or by running the following command:
-
-    ```bash
-    dfx canister call phonebook lookup '("TRS")'
-    ```
-
-    The function returns output similar to the following:
-
-    ```bash
-        (
-        opt record {
-            name = "TRS";
-            description = "Assistive Telecommunications Relay Service in the NANPA dialplan";
-            phone = 711;
-        },
-        )
-    ```
+1. Open the aforementioned URL in your web browser.

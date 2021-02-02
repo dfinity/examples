@@ -1,0 +1,8 @@
+{
+  "canisters": {
+    "simple_to_do": {
+      "main": "src/Main.mo"
+    }
+  },
+  "dfx": "0.6.21"
+}

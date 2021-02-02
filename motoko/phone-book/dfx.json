@@ -1,24 +1,17 @@
 {
   "canisters": {
-    "phonebook": {
-      "main": "src/phonebook/main.mo",
-      "type": "motoko"
+    "phone_book": {
+      "main": "src/phone-book/Main.mo"
     },
-    "phonebook_ui": {
-      "dependencies": ["phonebook"],
-      "type": "assets",
+    "www": {
       "frontend": {
-        "entrypoint": "src/phonebook/public/index.jsx"
+        "entrypoint": "src/www/index.jsx"
       },
-      "source": ["build/phonebook_ui/assets/"]
+      "dependencies": [
+        "phone_book"
+      ],
+      "type": "assets"
     }
   },
-  "defaults": {
-    "start": {
-      "address": "127.0.0.1",
-      "port": 8000,
-      "serve_root": "canisters/phonebook/assets"
-    }
-  },
-  "dfx": "0.6.10"
+  "dfx": "0.6.21"
 }

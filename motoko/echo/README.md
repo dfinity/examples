@@ -1,33 +1,57 @@
-## Echo
+# Echo
 
-[![Build Status](https://travis-ci.org/dfinity-lab/examples.svg?branch=master)](https://travis-ci.org/dfinity-lab/examples?branch=master)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.21-blue)
+[![Build Status](https://github.com/dfinity/examples/workflows/motoko-echo-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-echo-example)
 
-### Prerequisites
+This example demonstrates a simple echo effect, where an application sends back
+the data it receives.
 
-Before building the example application, verify the following:
+## Prerequisites
 
-* You have downloaded and installed the DFINITY Canister SDK as described in [Download and install](https://sdk.dfinity.org/docs/quickstart/quickstart.html#download-and-install).
-* You have stopped any Internet Computer network processes running on the local computer.
+Verify the following before running this demo:
 
-### Demo
+*  You have downloaded and installed the [DFINITY Canister
+   SDK](https://sdk.dfinity.org).
 
-Start a local internet computer.
+*  You have stopped any Internet Computer or other network process that would
+   create a port conflict on 8000.
 
-```bash
-dfx start
-```
+## Demo
 
-Execute the following commands in another tab.
+1. Start a local internet computer.
 
-```bash
-dfx canister create echo
-dfx build
-dfx canister install echo
-dfx canister call echo say '("This is a test.")'
-```
+   ```text
+   dfx start
+   ```
 
-Observe the following result.
+1. Open a new terminal window.
 
-```
-("This is a test.")
-```
+1. Reserve an identifier for your canister.
+
+   ```text
+   dfx canister create echo
+   ```
+
+1. Build your canister.
+
+   ```text
+   dfx build
+   ```
+
+1. Deploy your canister.
+
+   ```text
+   dfx canister install echo
+   ```
+
+1. Invoke the `say` method.
+
+   ```text
+   dfx canister call echo say '("This is a test.")'
+   ```
+
+1. Observe the following result.
+
+   ```text
+   ("This is a test.")
+   ```

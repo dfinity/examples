@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "superheroes": {
+      "main": "src/superheroes/Main.mo"
+    },
+    "www": {
+      "dependencies": [
+        "superheroes"
+      ],
+      "frontend": {
+        "entrypoint": "src/www/index.jsx"
+      },
+      "type": "assets"
+    }
+  },
+  "dfx": "0.6.21"
+}

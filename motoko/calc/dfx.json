@@ -1,22 +1,8 @@
 {
   "canisters": {
     "calc": {
-      "frontend": {
-        "entrypoint": "src/calc/public/index.js"
-      },
-      "main": "src/calc/calc_main.mo"
+      "main": "src/Main.mo"
     }
   },
-  "defaults": {
-    "build": {
-      "output": "canisters/"
-    },
-    "start": {
-      "address": "127.0.0.1",
-      "port": 8000,
-      "serve_root": "canisters/calc/assets"
-    }
-  },
-  "version": 1,
-  "dfx": "0.6.10"
+  "dfx": "0.6.21"
 }
