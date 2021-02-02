@@ -1,6 +1,5 @@
 const Config = require("./dfx.json");
 const Path = require("path");
-const TerserPlugin = require("terser-webpack-plugin");
 
 // Identify build output directory.
 const output = ["defaults", "build", "output"].reduce((accum, x) => {
@@ -33,12 +32,6 @@ const generate = (name, info) => {
           loader: "ts-loader",
           test: /\.(js|ts)x?$/,
         },
-      ],
-    },
-    optimization: {
-      minimize: true,
-      minimizer: [
-        new TerserPlugin(),
       ],
     },
     output: {
