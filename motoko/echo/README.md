@@ -1,6 +1,6 @@
 # Echo
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.21-blue)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.23-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-echo-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-echo-example)
 
 This example demonstrates a simple echo effect, where an application sends back

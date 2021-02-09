@@ -1,6 +1,6 @@
 # Hello World
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.21-blue)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.23-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-hello-world--example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-hello-world-example)
 
 This example demonstrates a canister called `hello_world`, which exports a

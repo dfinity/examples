@@ -1,6 +1,6 @@
 # Counter
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.21-blue)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.23-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-counter-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-counter-example)
 
 This example demonstrates a counter application. It uses an orthogonally
