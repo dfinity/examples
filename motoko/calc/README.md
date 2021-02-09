@@ -1,6 +1,6 @@
 # Calc
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.21-blue)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.23-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-calc-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-calc-example)
 
 This example demonstrates a four-function calculator application. It uses an
