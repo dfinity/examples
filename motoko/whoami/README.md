@@ -3,7 +3,7 @@
 ![Compatibility](https://img.shields.io/badge/compatibility-0.6.24-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-identity-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-identity-example)
 
-This example demonstrates how a canister can identify its caller.
+This example demonstrates how a canister can identify its caller and itself.
 
 ## Prerequisites
 
@@ -50,3 +50,12 @@ Verify the following before running this demo:
    ```
 
 1. Observe your principal identifier.
+
+
+1. Invoke the `whoareyou` method.
+
+   ```text
+   dfx canister call whoami whoareyou
+   ```
+
+1. Observe the principal identifier of your canister.
