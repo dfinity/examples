@@ -1,8 +1,8 @@
 actor WhoAmI {
 
   // Return the principal identifier of the caller.
-  public shared ({caller}) func whoami() : async Principal {
-    return caller;
+  public shared (message) func whoami() : async Principal {
+    return message.caller;
   };
 
   // Return the principal identifier of the canister.
