@@ -1,7 +1,7 @@
-# Identity
+# Who Am I?
 
 ![Compatibility](https://img.shields.io/badge/compatibility-0.6.24-blue)
-[![Build Status](https://github.com/dfinity/examples/workflows/motoko-identity-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-identity-example)
+[![Build Status](https://github.com/dfinity/examples/workflows/motoko-whoami-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-whoami-example)
 
 This example demonstrates how a canister can identify its caller and itself.
 
