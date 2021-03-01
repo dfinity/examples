@@ -1,6 +1,6 @@
 # Factorial
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.23-blue)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.24-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-factorial-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-factorial-example)
 
 This example demonstrates a recursive mathematical function that calculates the

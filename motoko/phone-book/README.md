@@ -1,6 +1,6 @@
 # Phone book
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.23-blue)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.24-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-phone-book-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-phone-book-example)
 
 This example demonstrates a phone book application that is accessible from your
