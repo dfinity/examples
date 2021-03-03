@@ -1,0 +1,15 @@
+{
+  "name": "hello_cycles_assets",
+  "version": "0.1.0",
+  "description": "",
+  "keywords": [],
+  "scripts": {
+    "build": "webpack"
+  },
+  "devDependencies": {
+    "@dfinity/agent": "0.6.24",
+    "terser-webpack-plugin": "2.2.2",
+    "webpack": "4.41.3",
+    "webpack-cli": "3.3.10"
+  }
+}
