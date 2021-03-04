@@ -10,7 +10,6 @@ shared(msg) actor class HelloFunds (
   var balance = 0;
 
   public shared(msg) func wallet_balance() : async Nat {
-    assert (msg.caller == owner);
     return balance;
   };
 
