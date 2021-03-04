@@ -37,6 +37,12 @@ Verify the following before running this demo:
    dfx canister create --all
    ```
 
+1. Build your front-end.
+
+   ```text
+   npm install
+   ```
+
 1. Build your canister.
 
    ```text
