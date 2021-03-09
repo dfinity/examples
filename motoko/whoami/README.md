@@ -52,10 +52,10 @@ Verify the following before running this demo:
 1. Observe your principal identifier.
 
 
-1. Invoke the `whoareyou` method.
+1. Invoke the `id` method.
 
    ```text
-   dfx canister call whoami whoareyou
+   dfx canister call whoami id
    ```
 
 1. Observe the principal identifier of your canister.
