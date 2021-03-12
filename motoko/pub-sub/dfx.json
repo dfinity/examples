@@ -7,5 +7,5 @@
       "main": "src/sub/Main.mo"
     }
   },
-  "dfx": "0.6.24"
+  "dfx": "0.6.25"
 }
