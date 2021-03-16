@@ -1,20 +1,67 @@
-# hello_cycles
+# Hello cycles
 
-Welcome to your new hello_cycles project and to the internet computer development community. By default, creating a new project adds this README and some template files to your project directory. You can edit these template files to customize your project and to include your own code to speed up the development cycle.
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.25-blue)
 
-To get started, you might want to explore the project directory structure and the default configuration file. Working with this project in your development environment will not affect any production deployment or identity tokens.
+The `hello_cycles` sample project provides a simple example to illustrate how you might add functions to receive cycles and check your cycle balance to the default template program.
 
-To learn more before you start working with hello_cycles, see the following documentation available online:
+This sample project assumes that you are using the default cycles wallet canister that is created for you.
 
-- [Quick Start](https://sdk.dfinity.org/docs/quickstart/quickstart-intro.html)
-- [SDK Developer Tools](https://sdk.dfinity.org/docs/developers-guide/sdk-guide.html)
-- [Motoko Programming Language Guide](https://sdk.dfinity.org/docs/language-guide/motoko.html)
-- [Motoko Language Quick Reference](https://sdk.dfinity.org/docs/language-guide/language-manual.html)
+This example consists of the following functions: 
 
-If you want to start working on your project right away, you might want to try the following commands:
+* The `+wallet_balance+` function enables you to check the current cycle balance for the canister.
+* The `+wallet_receive+` function enables the program to accept cycles that are sent to the canister.
+* The `+greet+` function accepts a text argument and displays a greeting in a terminal.
 
-```bash
-cd hello_cycles/
-dfx help
-dfx config --help
-```
+## Prerequisites
+
+Verify the following before running this demo:
+
+*  You have downloaded and installed the [DFINITY Canister
+   SDK](https://sdk.dfinity.org).
+
+*  You have stopped any Internet Computer or other network process that would
+   create a port conflict on 8000.
+
+## Demo
+
+1. Open a terminal window.
+
+1. Start the Internet Computer locally by running the following command:
+
+   ```text
+   dfx start --clean --background
+   ```
+
+1. Deploy the project locally by running the following command:
+
+   ```text
+   dfx deploy --argument '(2000000000000)'
+   ```
+
+   The `--argument` option is used because this is an actor class.
+
+1. Verify the default `greet` function works as expected by running the following command:
+
+   ```text
+   dfx canister call hello_cycles greet '("everyone")'
+   ```
+
+1. Check that the current cycles balance for the `hello_cycles` canister is zero by running the following command:
+
+   ```text
+   dfx canister call hello_cycles wallet_balance
+   ```
+
+1. Run `more .dfx/local/wallets.json` to find the wallet canister identifier.
+
+1. Send cycles from the default wallet to the `hello_cycles` canister by running a command similar to the following:
+
+   ```text
+   dfx canister call rwlgt-iiaaa-aaaaa-aaaaa-cai wallet_send '(record { canister = principal "rrkah-fqaaa-aaaaa-aaaaq-cai"; amount = (2000000000000:nat64); } )'
+   ```
+
+1. Verify that the cycles balance for the `hello_cycles` canister has been update by running the following command:
+
+   ```text
+   dfx canister call hello_cycles wallet_balance
+   ```
