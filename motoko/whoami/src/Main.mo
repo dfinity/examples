@@ -25,9 +25,9 @@ shared (install) actor class WhoAmI(someone : Principal) =
     return await whoami();
   };
 
-  // Return the principal identifier of this canister via the optional `this` binding
-  // This is much quicker than `id()` above, since it avoids the latency of `await whoami()`
+  // Return the principal identifier of this canister via the optional `this` binding.
+  // This is much quicker than `id()` above, since it avoids the latency of `await whoami()`.
   public func idQuick() : async Principal {
     return Principal.fromActor(this);
-  }
+  };
 };
