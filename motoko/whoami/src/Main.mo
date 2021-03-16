@@ -1,4 +1,7 @@
-shared (install) actor class WhoAmI(someone : Principal) {
+import Principal "mo:base/Principal";
+
+shared (install) actor class WhoAmI(someone : Principal) = 
+  this { // Bind the optional `this` argument (any name will do)
 
   // Return the principal identifier of the wallet canister that installed this
   // canister.
@@ -21,4 +24,10 @@ shared (install) actor class WhoAmI(someone : Principal) {
   public func id() : async Principal {
     return await whoami();
   };
+
+  // Return the principal identifier of this canister via the optional `this` binding
+  // This is much quicker than `id()` above, since it avoids the latency of `await whoami()`
+  public func idQuick() : async Principal {
+    return Principal.fromActor(this);
+  }
 };
