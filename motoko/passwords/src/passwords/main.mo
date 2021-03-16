@@ -4,7 +4,6 @@ import Option "mo:base/Option";
 
 actor {
 
-
   // Types
 
   type Credentials = {
@@ -25,7 +24,7 @@ actor {
   };
 
 
-  // Initialize Data Structures
+  // Data Structures
 
   // Arrays a sub-optimal choice here but they're easy to understand
   var accounts : [Account] = [];
@@ -34,7 +33,7 @@ actor {
 
   // Public Functions
 
-  public func signup(credentials : Credentials) {
+  public func signup (credentials : Credentials) {
     // Generate a random salt and hash it together with the password
     let _salt = random_salt();
     let _hash = sha256(credentials.password # _salt);
@@ -42,7 +41,7 @@ actor {
     // Create a new account with the username and hashed password
     let account = {
       id = next_account_id;
-      username = creds.username;
+      username = credentials.username;
       hash = _hash;
       salt = _salt;
     };
@@ -52,12 +51,12 @@ actor {
     next_account_id += 1;
   };
 
-  public shared ({ caller }) func authenticate(creds : Credentials) {
+  public shared ({ caller }) func login (credentials : Credentials) {
     // Find the account associated with the username
-    let account = Option.unwrap(Array.find(accounts, findByUsername(creds.username)));
+    let account = Option.unwrap(Array.find(accounts, findByUsername(credentials.username)));
 
     // If the hashed passwords match then create a session
-    if (sha256(creds.password # account.salt) == account.hash) {
+    if (sha256(credentials.password # account.salt) == account.hash) {
       // The session associates this caller's ID with the account
       let session : Session = {
         principal = caller;
@@ -67,7 +66,12 @@ actor {
     };
   };
 
-  public shared ({ caller }) func whoami() : async Text {
+  public shared ({ caller }) func logout () {
+    // Remove the session for this caller's ID
+    sessions := Array.filter(sessions, omitCaller(caller));
+  };
+
+  public shared ({ caller }) func whoami () : async Text {
     // Find the account associated with this caller's ID and return the username
     let session = Option.unwrap(Array.find(sessions, findByCaller(caller)));
     let account = Option.unwrap(Array.find(accounts, findByAccountId(session.account_id)));
@@ -105,6 +109,12 @@ actor {
   func findByUsername (username : Text) : Account -> Bool {
     return func (account : Account) : Bool {
       account.username == username
+    };
+  };
+
+  func omitCaller (caller : Principal) : Session -> Bool {
+    return func (session : Session) : Bool {
+      session.principal != caller
     };
   };
 

@@ -11,7 +11,7 @@ End-users of an application might want to access their account from multiple dev
 
 ## Implementation
 
-The back-end canister exposes several methods for the lifecycle of a user account. A new user can `signup` with a specified username and password (which are then stored in a secure way). An existing user can `authenticate` to associate a new device to an existing account. An authenticated user can ask `whoami` to get the currently authenticated account.
+The back-end canister exposes several methods for the lifecycle of a user account. A new user can `signup` with a specified username and password (which are then stored in a secure way). An existing user can `login` to associate a new device to an existing account or `logout` to remove that association. An authenticated user can ask `whoami` to get the currently authenticated account.
 
 Note: There are many obvious improvements (storing accounts in a more optimal data structure, implementing a real hashing algorithm) but hopefully this example illustrates the concepts in a simple way.
 
@@ -24,6 +24,8 @@ Verify the following before running this demo:
 
 *  You have stopped any Internet Computer or other network process that would
    create a port conflict on 8000.
+
+*  You have installed the front-end dependencies by running `npm install`.
 
 ## Demo
 
@@ -50,7 +52,7 @@ Verify the following before running this demo:
 1. Authenticate your command line identity.
 
    ```text
-   dfx canister call passwords authenticate 'record { username = "Alice"; password = "p4ssw0rd" };
+   dfx canister call passwords login 'record { username = "Alice"; password = "p4ssw0rd" };
    ```
 
 1. Confirm that you're logged in.

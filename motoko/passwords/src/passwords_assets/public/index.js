@@ -22,7 +22,7 @@ document.getElementById("submit").addEventListener("click", async () => {
 
   try {
     // Try to authenticate using these credentials
-    await passwords.authenticate({ username, password });
+    await passwords.login({ username, password });
 
     // If authentication succeeds, ask which account we're logged in as
     const login = await passwords.whoami();
