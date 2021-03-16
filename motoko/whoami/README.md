@@ -1,6 +1,6 @@
 # Who Am I?
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.24-blue)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.25-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-whoami-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-whoami-example)
 
 This example demonstrates how a canister can identify its caller and itself.
@@ -52,10 +52,10 @@ Verify the following before running this demo:
 1. Observe your principal identifier.
 
 
-1. Invoke the `whoareyou` method.
+1. Invoke the `id` method.
 
    ```text
-   dfx canister call whoami whoareyou
+   dfx canister call whoami id
    ```
 
 1. Observe the principal identifier of your canister.
