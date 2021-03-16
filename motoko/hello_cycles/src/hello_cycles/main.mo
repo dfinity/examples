@@ -1,7 +1,7 @@
 import Nat64 "mo:base/Nat64";
 import Cycles "mo:base/ExperimentalCycles";
 
-shared(msg) actor class HelloFunds (
+shared(msg) actor class HelloCycles (
   capacity: Nat
   ) {
 
@@ -13,16 +13,16 @@ shared(msg) actor class HelloFunds (
     return balance;
   };
 
-  public func wallet_receive() : async { accepted: Nat64 } {
+  public func wallet_receive() : async { spare: Nat64 } {
     let amount = Cycles.available();
     let limit = capacity - balance;
-    let accepted =
+    let spare =
       if (amount <= limit) amount
       else limit;
-    let rec_accepted = Cycles.accept(accepted);
-    assert (rec_accepted == accepted);
-    balance += accepted;
-    { accepted = Nat64.fromNat(accepted) };
+    let accepted = Cycles.accept(spare);
+    assert (accepted == spare);
+    balance += spare;
+    { spare = Nat64.fromNat(spare) };
   };
 
   public func greet(name : Text) : async Text {
