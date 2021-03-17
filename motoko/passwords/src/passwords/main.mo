@@ -34,21 +34,29 @@ actor {
   // Public Functions
 
   public func signup (credentials : Credentials) {
-    // Generate a random salt and hash it together with the password
-    let _salt = random_salt();
-    let _hash = sha256(credentials.password # _salt);
+    // Make sure the account doesn't already exist
+    switch (Array.find(accounts, findByUsername(credentials.username))) {
+      case null {
+        // Generate a random salt and hash it together with the password
+        let _salt = random_salt();
+        let _hash = bcrypt(credentials.password # _salt);
 
-    // Create a new account with the username and hashed password
-    let account = {
-      id = next_account_id;
-      username = credentials.username;
-      hash = _hash;
-      salt = _salt;
+        // Create a new account with the username and hashed password
+        let account = {
+          id = next_account_id;
+          username = credentials.username;
+          hash = _hash;
+          salt = _salt;
+        };
+
+        // Save the account and auto-increment the next account ID
+        accounts := Array.append<Account>(accounts, [account]);
+        next_account_id += 1;
+      };
+      case (?account) {
+        return
+      };
     };
-
-    // Save the account and auto-increment the next account ID
-    accounts := Array.append<Account>(accounts, [account]);
-    next_account_id += 1;
   };
 
   public shared ({ caller }) func login (credentials : Credentials) {
@@ -56,7 +64,7 @@ actor {
     let account = Option.unwrap(Array.find(accounts, findByUsername(credentials.username)));
 
     // If the hashed passwords match then create a session
-    if (sha256(credentials.password # account.salt) == account.hash) {
+    if (bcrypt(credentials.password # account.salt) == account.hash) {
       // The session associates this caller's ID with the account
       let session : Session = {
         principal = caller;
@@ -81,7 +89,7 @@ actor {
 
   // "Crypto" Library
 
-  func sha256 (raw : Text) : Text {
+  func bcrypt (raw : Text) : Text {
     // WARNING: This is a terrible hashing algorithm
     raw
   };

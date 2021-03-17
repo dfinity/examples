@@ -49,6 +49,8 @@ Verify the following before running this demo:
    dfx canister call passwords signup 'record { username = "Alice"; password = "p4ssw0rd" }'
    ```
 
+   Note: You should probably not be sending passwords in the clear like this, despite messages to the Internet Computer being sent over HTTPS. Again, just trying to illustrate a concept.
+
 1. Authenticate your command line identity.
 
    ```text
