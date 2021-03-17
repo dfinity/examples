@@ -1,6 +1,6 @@
 # Design Pattern: Usernames & Passwords
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.24-blue)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.25-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-password-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-password-example)
 
 This example demonstrates how a more traditional username and password authentication scheme can be used alongside the `caller` functionality within a Motoko actor.
