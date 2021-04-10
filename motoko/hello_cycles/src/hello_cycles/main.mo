@@ -13,7 +13,7 @@ shared(msg) actor class HelloCycles (
     return balance;
   };
 
-  public func wallet_receive() : async { spare: Nat64 } {
+  public func wallet_receive() : async { accepted: Nat64 } {
     let amount = Cycles.available();
     let limit = capacity - balance;
     let spare =
@@ -21,8 +21,8 @@ shared(msg) actor class HelloCycles (
       else limit;
     let accepted = Cycles.accept(spare);
     assert (accepted == spare);
-    balance += spare;
-    { spare = Nat64.fromNat(spare) };
+    balance += accepted;
+    { accepted = Nat64.fromNat(accepted) };
   };
 
   public func greet(name : Text) : async Text {
