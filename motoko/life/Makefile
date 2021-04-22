@@ -1,9 +1,14 @@
 .PHONY: all
 all: build
 
+.PHONY: node_modules
+.SILENT: node_modules
+node_modules:
+	npm install
+
 .PHONY: build
 .SILENT: build
-build:
+build: node_modules
 	cp -r versions/v0 src
 	dfx canister create --all
 	dfx build
@@ -21,17 +26,19 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
+	dfx canister call life current | grep '0' && echo 'PASS'
 	rm -r -f src
 	cp -r versions/v1 src
-	dfx deploy \
-		| grep 'upgraded to v1' && echo 'PASS'
+	dfx deploy
+	dfx canister call life current | grep '1' && echo 'PASS'
 	rm -r -f src
 	cp -r versions/v2 src
-	dfx deploy \
-		| grep 'upgraded to v2' && echo 'PASS'
+	dfx deploy
+	dfx canister call life current | grep '2' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean
 clean:
 	rm -fr src
 	rm -fr .dfx
+	rm -fr node_modules
