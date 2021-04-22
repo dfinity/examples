@@ -1,0 +1,31 @@
+{
+  "name": "life_assets",
+  "version": "0.1.0",
+  "description": "",
+  "keywords": [],
+  "scripts": {
+    "build": "webpack"
+  },
+  "devDependencies": {
+    "@dfinity/agent": "0.8.3",
+    "assert": "2.0.0",
+    "buffer": "6.0.3",
+    "css-loader": "^5.2.4",
+    "events": "3.3.0",
+    "html-webpack-plugin": "5.3.1",
+    "nes.css": "^2.3.0",
+    "process": "0.11.10",
+    "stream-browserify": "3.0.0",
+    "style-loader": "^2.0.0",
+    "terser-webpack-plugin": "5.1.1",
+    "util": "0.12.3",
+    "webpack": "5.24.4",
+    "webpack-cli": "4.5.0"
+  },
+  "dependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "ts-loader": "^8.1.0",
+    "typescript": "^4.2.4"
+  }
+}
