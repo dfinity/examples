@@ -1,7 +1,7 @@
 import List "mo:base/List";
 import Option "mo:base/Option";
 import Trie "mo:base/Trie";
-import Word32 "mo:base/Word32";
+import Nat32 "mo:base/Nat32";
 
 actor Superheroes {
 
@@ -10,7 +10,7 @@ actor Superheroes {
    */
 
   // The type of a superhero identifier.
-  public type SuperheroId = Word32;
+  public type SuperheroId = Nat32;
 
   // The type of a superhero.
   public type Superhero = {
@@ -39,7 +39,7 @@ actor Superheroes {
     superheroes := Trie.replace(
       superheroes,
       key(superheroId),
-      Word32.equal,
+      Nat32.equal,
       ?superhero,
     ).0;
     return superheroId;
@@ -47,19 +47,19 @@ actor Superheroes {
 
   // Read a superhero.
   public query func read(superheroId : SuperheroId) : async ?Superhero {
-    let result = Trie.find(superheroes, key(superheroId), Word32.equal);
+    let result = Trie.find(superheroes, key(superheroId), Nat32.equal);
     return result;
   };
 
   // Update a superhero.
   public func update(superheroId : SuperheroId, superhero : Superhero) : async Bool {
-    let result = Trie.find(superheroes, key(superheroId), Word32.equal);
+    let result = Trie.find(superheroes, key(superheroId), Nat32.equal);
     let exists = Option.isSome(result);
     if (exists) {
       superheroes := Trie.replace(
         superheroes,
         key(superheroId),
-        Word32.equal,
+        Nat32.equal,
         ?superhero,
       ).0;
     };
@@ -68,13 +68,13 @@ actor Superheroes {
 
   // Delete a superhero.
   public func delete(superheroId : SuperheroId) : async Bool {
-    let result = Trie.find(superheroes, key(superheroId), Word32.equal);
+    let result = Trie.find(superheroes, key(superheroId), Nat32.equal);
     let exists = Option.isSome(result);
     if (exists) {
       superheroes := Trie.replace(
         superheroes,
         key(superheroId),
-        Word32.equal,
+        Nat32.equal,
         null,
       ).0;
     };
