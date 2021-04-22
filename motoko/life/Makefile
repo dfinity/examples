@@ -5,6 +5,7 @@ all: build
 .SILENT: build
 build:
 	cp -r versions/v0 src
+	dfx canister create --all
 	dfx build
 
 .PHONY: install
