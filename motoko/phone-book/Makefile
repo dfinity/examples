@@ -32,7 +32,7 @@ test: install
 		| grep '911' && echo 'PASS'
 	# This test needs to be rewritten for the new HTTP based architecture
 	# dfx canister call www retrieve '("index.js")' \
-		| grep 'Phone Book' && echo 'PASS'
+	#	| grep 'Phone Book' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean
