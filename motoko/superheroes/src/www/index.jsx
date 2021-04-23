@@ -6,6 +6,12 @@ import Read from './components/read.jsx';
 import Update from './components/update.jsx';
 import Delete from './components/delete.jsx';
 
+import { Actor, HttpAgent } from '@dfinity/agent';
+import { idlFactory as superheroes_idl, canisterId as superheroes_id } from 'dfx-generated/superheroes';
+
+const agent = new HttpAgent();
+const Superheroes = Actor.createActor(superheroes_idl, { agent, canisterId: superheroes_id });
+
 class App extends React.Component {
 
   render() {

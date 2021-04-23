@@ -1,5 +1,10 @@
 import React from 'react';
-import Superheroes from 'ic:canisters/superheroes';
+
+import { Actor, HttpAgent } from '@dfinity/agent';
+import { idlFactory as superheroes_idl, canisterId as superheroes_id } from 'dfx-generated/superheroes';
+
+const agent = new HttpAgent();
+const Superheroes = Actor.createActor(superheroes_idl, { agent, canisterId: superheroes_id });
 
 const $ = document.getElementById.bind(document);
 const idl = require('../utilities/idl');
