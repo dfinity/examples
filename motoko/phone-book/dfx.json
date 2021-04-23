@@ -5,8 +5,12 @@
     },
     "www": {
       "frontend": {
-        "entrypoint": "src/www/index.jsx"
+        "entrypoint": "src/www/public/index.html"
       },
+	"source": [
+        "src/www/assets",
+        "dist/www/"
+      ],
       "dependencies": [
         "phone_book"
       ],
