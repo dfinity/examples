@@ -34,7 +34,9 @@
     "webpack-cli": "4.5.0",
     "@babel/core": "7.9.0",
     "@babel/preset-react": "7.9.0",
-    "babel-loader": "8.1.0",
+    "babel-loader": "8.1.0"
+  },
+  "dependencies": {
     "react": "16.13.1",
     "react-dom": "16.13.1"
   }
