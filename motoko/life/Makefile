@@ -38,6 +38,5 @@ test: install
 .PHONY: clean
 .SILENT: clean
 clean:
-	rm -fr src
 	rm -fr .dfx
 	rm -fr node_modules

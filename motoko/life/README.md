@@ -9,8 +9,8 @@ Motoko's stable variables.  The implementations are meant to be
 instructive and are not optimized for efficiency or to hide network
 latency, which a production implementation would need to consider.
 
-Our `src` directory containts the initial version `v0` implementation
-but its contents will replaced with contents from `versions/v1` and
+Our `src` directory containts the initial, version `v0`, implementation
+but its contents will later be replaced with contents from directories `versions/v1` and
 `versions/v2`. In a real project, with proper source control, there
 might be a single `src` directory, with different versions of code
 residing in different branches of the repository.
@@ -28,7 +28,7 @@ deployed canister.
 ## Initial deployment of Version `v0`
 
 We start with version `v0` already checked out in
-the  `src` folder, and simply deploy it using `dfx`.
+the `src` folder, and simply deploy it using `dfx`.
 
 ```bash
 dfx deploy
@@ -142,7 +142,7 @@ actor Life {
     debug_show(cur.toState());
   };
 
-  // ... remaining code from v0/main.mo
+  // ... remaining code from src/main.mo
 };
 ```
 
