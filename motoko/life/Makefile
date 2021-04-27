@@ -9,7 +9,6 @@ node_modules:
 .PHONY: build
 .SILENT: build
 build: node_modules
-	cp -r versions/v0 src
 	dfx canister create --all
 	dfx build
 
@@ -39,6 +38,5 @@ test: install
 .PHONY: clean
 .SILENT: clean
 clean:
-	rm -fr src
 	rm -fr .dfx
 	rm -fr node_modules
