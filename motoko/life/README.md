@@ -9,17 +9,17 @@ Motoko's stable variables.  The implementations are meant to be
 instructive and are not optimized for efficiency or to hide network
 latency, which a production implementation would need to consider.
 
-Our `src` directory is initially non-existant, but will be created
-with sources from directories in `versions/v0`, `versions/v1` and
+Our `src` directory containts the initial version `v0` implementation
+but its contents will replaced with contents from `versions/v1` and
 `versions/v2`. In a real project, with proper source control, there
 might be a single `src` directory, with different versions of code
 residing in different branches of the repository.
 
-Directory `versions/v0` contains an application with a very simple
+Directory `src` (version `v0`) contains an application with a very simple
 React UI.
 
 Directories `versions/v1` and `versions/v2` contain sequential
-upgrades to `v0` used to illustrate live upgrade by re-deployment of a
+upgrades to `src` used to illustrate live upgrade by re-deployment of a
 deployed canister.
 
 (To make upgrades apparent, each version uses a different digit
@@ -27,11 +27,10 @@ deployed canister.
 
 ## Initial deployment of Version `v0`
 
-We first "checkout" version `v0` by moving it to the (initially
-non-existent) `src` folder, and then deploy using `dfx`.
+We start with version `v0` already checked out in
+the  `src` folder, and simply deploy it using `dfx`.
 
 ```bash
-mv versions/v0 src
 dfx deploy
 ```
 
@@ -53,7 +52,7 @@ re-initialized to the same(pseudo-random) initial state.
 
 The state of the grid is represented naively as a nested, mutable array of Boolean values:
 
-[v0/State.mo](./versions/v0/life/State.mo):
+[src/State.mo](./versions/src/life/State.mo):
 
 ```motoko
 module {
@@ -64,10 +63,10 @@ module {
 }
 ```
 
-A [v0/life/grid](./versions/v0/life/Grid.mo) is represented as a simple class
+A [src/life/grid](./src/life/Grid.mo) is represented as a simple class
 constructed from, and maintaining, state. We omit the details here.
 
-The main actor in [v0/life/main](versions/v0/life/main.mo) creates a
+The main actor in [src/life/main](./src/life/main.mo) creates a
 random state and maintains two grid objects, the current and
 next grid (`cur` and `nxt`).
 Life's `next()` method advances the Game of Life to the next generation by
@@ -76,7 +75,7 @@ The roles of `cur` and `nxt` are then swapped to re-use
 `cur`'s space for the next generation (a simple
 application of _double-buffering_).
 
-[v0/life/main.mo](./versions/v0/life/main.mo):
+[src/life/main.mo](./src/life/main.mo):
 
 ```Motoko
 import Random = "Random";
