@@ -30,8 +30,9 @@ test: install
 	dfx canister call phone_book insert '("Police", record { desc = "Call if you have an emergency."; phone = "911" })'
 	dfx canister call phone_book lookup '("Police")' \
 		| grep '911' && echo 'PASS'
-	dfx canister call www retrieve '("index.js")' \
-		| grep 'Phone Book' && echo 'PASS'
+	# This test needs to be rewritten for the new HTTP based architecture
+	# dfx canister call www retrieve '("index.js")' \
+	#	| grep 'Phone Book' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean

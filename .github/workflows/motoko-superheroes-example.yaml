@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
-      - name: Motoko Superheroes Exmaple Darwin
+      - name: Motoko Superheroes Example Darwin
         run: |
           dfx start --background
           pushd motoko/superheroes
@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
-      - name: Motoko Superheroes Exmaple Linux
+      - name: Motoko Superheroes Example Linux
         run: |
           dfx start --background
           pushd motoko/superheroes

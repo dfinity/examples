@@ -1,0 +1,31 @@
+name: motoko-life-example
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  motoko-life-example-darwin:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Motoko Life Example Darwin
+        run: |
+          dfx start --background
+          pushd motoko/life
+          make test
+          popd
+  motoko-life-example-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Motoko Life Example Linux
+        run: |
+          dfx start --background
+          pushd motoko/life
+          make test
+          popd
