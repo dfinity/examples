@@ -20,16 +20,16 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
-	dfx canister call hello_cycles wallet_balance
+	dfx canister call hello_cycles wallet_balance \
 		| grep '(10_000_000_000_000)' && echo 'PASS'
-	dfx status hello_cycles
+	dfx status hello_cycles \
 		| grep '(10_000_000_000_000)' && echo 'PASS'
 	dfx canister call $(dfx identity get-wallet) wallet_send "(record { canister = principal \"$(dfx canister id hello_cycles)\"; amount = (2000000000000:nat64); } )"
-	dfx canister call hello_cycles wallet_balance
+	dfx canister call hello_cycles wallet_balance \
 	 	| grep '(10_000_010_000_000)' && echo 'PASS'
-	dfx canister call hello_cycles transfer "(func \"$(dfx identity get-wallet)\"	.\"wallet_receive\", 5000000)"
+	dfx canister call hello_cycles transfer "(func \"$(dfx identity get-wallet)\"	.\"wallet_receive\", 5000000)" \
 		| grep '(record { refunded = 0 } )' && echo 'PASS'
-	dfx canister call hello_cycles wallet_balance
+	dfx canister call hello_cycles wallet_balance \
 	 	| grep '(10_000_005_000_000)' && echo 'PASS'
 
 .PHONY: clean
