@@ -1,6 +1,10 @@
-import canister from 'ic:canisters/phone_book';
 import * as React from 'react';
 import { render } from 'react-dom';
+import { Actor, HttpAgent } from '@dfinity/agent';
+import { idlFactory as phone_book_idl, canisterId as phone_book_id } from 'dfx-generated/phone_book';
+
+const agent = new HttpAgent();
+const canister = Actor.createActor(phone_book_idl, { agent, canisterId: phone_book_id });
 
 class PhoneBook extends React.Component {
 
@@ -54,7 +58,5 @@ class PhoneBook extends React.Component {
     );
   }
 }
-
-document.title = "DFINITY PHONE BOOK EXAMPLE";
 
 render(<PhoneBook />, document.getElementById('app'));

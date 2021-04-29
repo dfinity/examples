@@ -5,13 +5,17 @@
     },
     "www": {
       "frontend": {
-        "entrypoint": "src/www/index.jsx"
+        "entrypoint": "src/www/public/index.html"
       },
+	"source": [
+        "src/www/assets",
+        "dist/www/"
+      ],
       "dependencies": [
         "phone_book"
       ],
       "type": "assets"
     }
   },
-  "dfx": "0.6.25"
+  "dfx": "0.7.0-beta.4"
 }

@@ -1,5 +1,6 @@
 import React from 'react';
-import Superheroes from 'ic:canisters/superheroes';
+
+import Superheroes from './superheroes';
 
 const $ = document.getElementById.bind(document);
 const idl = require('../utilities/idl');
