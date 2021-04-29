@@ -74,23 +74,32 @@ Verify the following before running this demo:
 
    The wallet's `wallet_send` function transfers the amount to the argument canister's `wallet_receive` function (see above), and echoes the amount accepted.
 
-7. Verify that the cycles balance for the `hello_cycles` canister has been update by `10_000_000` running the following command:
+7. Verify that the cycles balance for the `hello_cycles` canister has increased by `10_000_000` running the following command:
 
    ```text
    dfx canister call hello_cycles wallet_balance
    ```
 
-8. Send cycles from the `hello_cycles` canister back to the wallet
+   The amount is only increase by `10_000_000` because the implementation of `wallet_receive` only accepts at
+   most 10_000_000 cycles, even when more cycles where transferred with the call.
+   Any unaccepted cycles are not lost, but refunded to the caller (in this case, the wallet).
+      
+8. Send some cycles from the `hello_cycles` canister back to the wallet
    by running the command:
 
    ```text
    dfx canister call hello_cycles transfer "(func \"$(dfx identity get-wallet)\".\"wallet_receive\", 5000000)"
-   ```text
-
-9. Verify that the cycles balance of `hello_cycles` canister has been decreased
-   with:
+   ```
+   
+9. Verify that the cycles balance of `hello_cycles` canister has decreased with:
 
    ```text
    dfx canister call hello_cycles wallet_balance
    ```
+
+In step 8, we are passing our own wallet's `wallet_receive` function as the first argument, followed by the amount.
+We, or a third party, could also pass any another `receiver` function, belonging to any other canister or wallet.
+
+Warning: without some additional access control checks (omitted here), a malicious client could abuse our naive
+transfer function to drain our canister of all of its cycles.
 
