@@ -32,19 +32,19 @@ Verify the following before running this demo:
 
 1. Open a terminal window.
 
-1. Start the Internet Computer locally by running the following command:
+2. Start the Internet Computer locally by running the following command:
 
    ```text
    dfx start --clean --background
    ```
 
-1. Deploy the project locally by running the following command:
+3. Deploy the project locally by running the following command:
 
    ```text
    dfx deploy
    ```
 
-1. Check that the current cycles balance for the `hello_cycles` by running the following command:
+4. Check that the current cycles balance for the `hello_cycles` by running the following command:
 
    ```text
    dfx canister call hello_cycles wallet_balance
@@ -56,30 +56,38 @@ Verify the following before running this demo:
    dfx status hello_cycles
    ```
 
-1. Run `dfx identity get-wallet` to find the wallet canister identifier.
+5. Run:
+   ```
+   dfx identity get-wallet
+   dfx canister id hello_cycles
+   ```
+   to display the default wallet and `hello_cycles` canister identifiers.
+   
 
-   Below, we'll frequently use `$(dfx identity get_wallet)`  and `$(dfx canister id hello)` to splice canister identifiers into longer bash commands.
+   Below, we'll frequently use `$(dfx identity get_wallet)`  and `$(dfx canister id hello_cycles)` to splice canister identifiers into longer bash commands.
 
-1. Send cycles from the default wallet to the `hello_cycles` canister by running a the following command:
+6. Attempt to send 2 trillion cycles from the default wallet to the `hello_cycles` canister by running the following command:
 
    ```text
    dfx canister call $(dfx identity get-wallet) wallet_send "(record { canister = principal \"$(dfx canister id hello_cycles)\"; amount = (2000000000000:nat64); } )"
    ```
 
-1. Verify that the cycles balance for the `hello_cycles` canister has been update by `10_000_000` running the following command:
+   The wallet's `wallet_send` function transfers the amount to the argument canister's `wallet_receive` function (see above), and echoes the amount accepted.
+
+7. Verify that the cycles balance for the `hello_cycles` canister has been update by `10_000_000` running the following command:
 
    ```text
    dfx canister call hello_cycles wallet_balance
    ```
 
-1. Send cycles from the `hello_cycles` canister back to the wallet
+8. Send cycles from the `hello_cycles` canister back to the wallet
    by running the command:
 
    ```text
    dfx canister call hello_cycles transfer "(func \"$(dfx identity get-wallet)\".\"wallet_receive\", 5000000)"
    ```text
 
-1. Verify that the cycles balance of `hello_cycles` canister has been decreased
+9. Verify that the cycles balance of `hello_cycles` canister has been decreased
    with:
 
    ```text
