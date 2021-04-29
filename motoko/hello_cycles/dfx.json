@@ -3,19 +3,6 @@
     "hello_cycles": {
       "main": "src/hello_cycles/main.mo",
       "type": "motoko"
-    },
-    "hello_cycles_assets": {
-      "dependencies": [
-        "hello_cycles"
-      ],
-      "frontend": {
-        "entrypoint": "src/hello_cycles_assets/public/index.js"
-      },
-      "source": [
-        "src/hello_cycles_assets/assets",
-        "dist/hello_cycles_assets/"
-      ],
-      "type": "assets"
     }
   },
   "defaults": {
@@ -23,7 +10,7 @@
       "packtool": ""
     }
   },
-  "dfx": "0.6.25",
+  "dfx": "0.7.0-beta.4",
   "networks": {
     "local": {
       "bind": "127.0.0.1:8000",

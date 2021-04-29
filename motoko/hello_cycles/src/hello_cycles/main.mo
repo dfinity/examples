@@ -1,32 +1,27 @@
+import Nat "mo:base/Nat";
 import Nat64 "mo:base/Nat64";
 import Cycles "mo:base/ExperimentalCycles";
 
-shared(msg) actor class HelloCycles (
-  capacity: Nat
-  ) {
+actor HelloCycles  {
 
-  let owner = msg.caller;
+  let limit = 10_000_000;
 
-  var balance = 0;
-
-  public shared(msg) func wallet_balance() : async Nat {
-    return balance;
+  public func wallet_balance() : async Nat {
+    return Cycles.balance();
   };
 
   public func wallet_receive() : async { accepted: Nat64 } {
-    let amount = Cycles.available();
-    let limit = capacity - balance;
-    let spare =
-      if (amount <= limit) amount
-      else limit;
-    let accepted = Cycles.accept(spare);
-    assert (accepted == spare);
-    balance += accepted;
+    let available = Cycles.available();
+    let accepted = Cycles.accept(Nat.min(available, limit));
     { accepted = Nat64.fromNat(accepted) };
   };
 
-  public func greet(name : Text) : async Text {
-    return "Hello, " # name # "!";
+  public func transfer(
+    receiver : shared () -> async (),
+    amount : Nat) : async { refunded : Nat } {
+      Cycles.add(amount);
+      await receiver();
+      { refunded = Cycles.refunded() };
   };
 
 };
