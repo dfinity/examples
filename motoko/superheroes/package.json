@@ -21,7 +21,7 @@
     "build": "webpack"
   },
   "devDependencies": {
-    "@dfinity/agent": "0.8.5",
+    "@dfinity/agent": "0.8.7",
     "assert": "2.0.0",
     "buffer": "6.0.3",
     "events": "3.3.0",
