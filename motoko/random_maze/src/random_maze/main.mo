@@ -49,7 +49,7 @@ actor {
         n := n / 2;
       };
       if (k < max)
-      	return ? k
+        return ? k
       else chooseMax(f, max) !; // retry
     };
   };
@@ -84,7 +84,9 @@ actor {
   ///
   /// https://en.wikipedia.org/wiki/Maze_generation_algorithm
   /// https://en.wikipedia.org/wiki/Maze_generation_algorithm#Iterative_implementation
-  public func generate(n : Nat) : async Text {
+  public func generate(size : Nat) : async Text {
+
+    let n = Nat.max(1, size / 2);
 
     // Construct a maze of mutable, unvisited walls
     let m = Array.tabulate<[var Nat8]>(2 * n + 1,
@@ -111,7 +113,7 @@ actor {
               case (? k) {
                 s.push((i, j));
                 let ? (i1, j1) = List.get(us, k);
-		// connect cell (i, j) and (i1, j1)
+                // connect cell (i, j) and (i1, j1)
                 m[if (i == i1) i else (Nat.min(i, i1) + 1)]
                   [if (j == j1) j else (Nat.min(j, j1) + 1)] := hall;
                 m[i1][j1] := visit(hall);
@@ -119,7 +121,7 @@ actor {
               };
               case null { // not enough entropy
                 Debug.print("need more entropy...");
-		let entropy = await Random.blob(); // get more entropy
+                let entropy = await Random.blob(); // get more entropy
                 f := Random.Finite(entropy);
                 s.push((i,j)); // continue from (i,j)
               }
