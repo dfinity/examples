@@ -1,6 +1,6 @@
 # Random Maze
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.25-blue)
+![Compatibility](https://img.shields.io/badge/compatibility-0.7.0-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-random_maze-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-random_maze-example)
 
 The example generates a random maze using cryptographic randomness.
@@ -9,10 +9,10 @@ It illustrates:
 
 * Importing library [Random](https://sdk.dfinity.org/docs/base-libraries/random) to use cryptographic randomness;
 * Make asynchronous requests for entropy using
-  shared function [Random.blob](https://sdk.dfinity.org/docs/base-libraries/random#blob); and
+  shared function [Random.blob()](https://sdk.dfinity.org/docs/base-libraries/random#blob); and
 * generating bounded, discrete random numbers using helper
-  class [Random.Finite()](https://sdk.dfinity.org/docs/base-libraries/random#type.Finite). Each instance of this class consumes its supplied entropy to
-  sample from various distributions.
+  class [Random.Finite(entropy: blob)](https://sdk.dfinity.org/docs/base-libraries/random#type.Finite). Each instance, `f`, of this class consumes it initially supplied entropy as it is called to
+  sample from various distributions. Calls to, for example `f.coin()` can fail by returning `null`, requiring `f` to be discarded in favour of a fresh instance of the `Finite` class, constructed from a fresh blob of entropy obtained from a new call to `Random.blob()` (for example `f := Finite(await Random.blob())`. 
 
 ## Introduction
 
@@ -20,7 +20,7 @@ The application is built from the following Motoko source code file:
 
 *  [main.mo](./src/random_maze/main.mo), which contains the actor definition and methods exposed by this canister.
 
-This actor use Motoko's 'Random' library to generate a cryptographically
+This actor use Motoko's `Random` library to generate a cryptographically
 random maze of user-specified size.
 
 Function `generate`, calls library function `Random.blob()` asynchronously to
