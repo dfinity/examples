@@ -7,11 +7,11 @@ The example generates a random maze using cryptographic randomness.
 
 It illustrates:
 
-* Importing library `Random.mo` to use cryptographic randomness;
-* Make asynchronous requests for initial and additional entropy using
-  shared function `Random.blob()`; and
+* Importing library [Random](https://sdk.dfinity.org/docs/base-libraries/random) to use cryptographic randomness;
+* Make asynchronous requests for entropy using
+  shared function [Random.blob](https://sdk.dfinity.org/docs/base-libraries/random#blob); and
 * generating bounded, discrete random numbers using helper
-  class `Random.Finite()` that consumes its supplied entropy to
+  class [Random.Finite()](https://sdk.dfinity.org/docs/base-libraries/random#type.Finite). Each instance of this class consumes its supplied entropy to
   sample from various distributions.
 
 ## Introduction
@@ -20,13 +20,13 @@ The application is built from the following Motoko source code file:
 
 *  [main.mo](./src/random_maze/main.mo), which contains the actor definition and methods exposed by this canister.
 
-This actor use Motoko's 'Random.mo' library to generate a cryptographically
-random maze of user-specified space.
+This actor use Motoko's 'Random' library to generate a cryptographically
+random maze of user-specified size.
 
-Each call to library function `Random.blob()` asynchronously
-obtains 256-bits of raw entropy from the Internet Computer.
-The random bits of this blob are then  used to generate
-samples from a variety of discrete distributions using
+Function `generate`, calls library function `Random.blob()` asynchronously to
+obtain 256-bits of raw entropy (256 random bits as 32 bytes) from the Internet Computer. It makes these calls on demand as it is constructing a maze.
+The bits of these blobs are consumed to generate
+samples from a variety of discrete distributions using some of
 the other classes and functions of library `Random.mo`.
 
 
@@ -88,4 +88,3 @@ General background:
 - [Quick  Start](https://sdk.dfinity.org/developers-guide/quickstart.html)
 - [Developer's Guide](https://sdk.dfinity.org/developers-guide)
 - [Language Reference](https://sdk.dfinity.org/language-guide)
-
