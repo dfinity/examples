@@ -1,6 +1,6 @@
 import Array "mo:base/Array";
 import Order "mo:base/Order";
-import Prim "mo:prim";
+import Int "mo:base/Int";
 
 module Quicksort {
 
@@ -28,18 +28,18 @@ module Quicksort {
       var i = l;
       var j = r;
       var swap  = xs[0];
-      let pivot = xs[Prim.abs(l + r) / 2];
+      let pivot = xs[Int.abs(l + r) / 2];
       while (i <= j) {
-        while (Order.isLess(f(xs[Prim.abs(i)], pivot))) {
+        while (Order.isLess(f(xs[Int.abs(i)], pivot))) {
           i += 1;
         };
-        while (Order.isGreater(f(xs[Prim.abs(j)], pivot))) {
+        while (Order.isGreater(f(xs[Int.abs(j)], pivot))) {
           j -= 1;
         };
         if (i <= j) {
-          swap := xs[Prim.abs(i)];
-          xs[Prim.abs(i)] := xs[Prim.abs(j)];
-          xs[Prim.abs(j)] := swap;
+          swap := xs[Int.abs(i)];
+          xs[Int.abs(i)] := xs[Int.abs(j)];
+          xs[Int.abs(j)] := swap;
           i += 1;
           j -= 1;
         };
