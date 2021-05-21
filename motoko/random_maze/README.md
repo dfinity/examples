@@ -11,7 +11,7 @@ It illustrates:
 * Make asynchronous requests for entropy using
   shared function [Random.blob()](https://sdk.dfinity.org/docs/base-libraries/random#blob); and
 * generating bounded, discrete random numbers using helper
-  class [Random.Finite(entropy: blob)](https://sdk.dfinity.org/docs/base-libraries/random#type.Finite). Each instance, `f`, of this class consumes it initially supplied entropy as it is called to
+  class [Random.Finite(entropy: blob)](https://sdk.dfinity.org/docs/base-libraries/random#type.Finite). Each instance, `f`, of this class consumes its initially supplied entropy as it is called to
   sample from various distributions. Calls to, for example `f.coin()` can fail by returning `null`, requiring `f` to be discarded in favour of a fresh instance of the `Finite` class, constructed from a fresh blob of entropy obtained from a new call to `Random.blob()` (for example `f := Finite(await Random.blob())`. 
 
 ## Introduction
