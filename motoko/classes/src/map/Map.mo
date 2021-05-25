@@ -4,7 +4,7 @@ import Buckets "Buckets";
 
 actor Map {
 
-  let n = 8; // number of buckets
+  let n = 4; // number of buckets
 
   // divide initial balance amongst self and buckets
   let cycleShare = Cycles.balance()/(n + 1);
