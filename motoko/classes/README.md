@@ -7,24 +7,24 @@ This example demonstrates a simple use of actor classes, which allow a program t
 
 The example define two Motoko actors (i.e. canisters), `Map` and `Test`.
 
-`Map` is a simple key value store, mapping `Nat` to `Text` values.
+`Map` is a dead simple, distributed key-value store, mapping `Nat` to `Text` values.
 
 [Map.mo](./src/map/Map.mo) imports a Motoko actor class `Bucket(i, n)`
 from library [Buckets.mo](./src/map/Buckets.mo).
 It also imports the `ExperimentalCycles` base library in order to share its
 cycles amongst the bucket it creates.
 
-Each call to `Buckets.Bucket(i, n)` within `Map` instantiates a new
-`Bucket` instance (one of `n`)
-containing then entries of the `Map` that hash to `i` (by modular arithmetic on the key).
+Each call to `Buckets.Bucket(n, i)` within `Map` instantiates a new
+`Bucket` instance (the `i`-th of `n`)
+dedicated to those entries of the `Map` that hash to `i` (by simple division of the key modulo `n`).
 
-Each instantiation of the actor class corresponds to the dynamic, programmatic installation of a new `Bucket` canister.
+Each asynchronous instantiation of the actor class corresponds to the dynamic, programmatic installation of a new `Bucket` canister.
 
 Each new Bucket must be provisioned with enough cycles to pay for installation.
-`Map.mo` achieves this by `add`-ing an equal share of `Map`'s initial Cycle balance to each call to `Bucket(i, n)`.
+`Map.mo` achieves this by `add`-ing an equal share of `Map`'s initial Cycle balance to each asynchronous call to `Bucket(n, i)`.
 
 The `Test` in [Test.mo](./src/test/Test.mo) canister imports the `Map` canister.
-Its `run` method simply insert 24 entries into Map, distributed evenly amongst the buckets making up the `Map` abstraction.
+Its `run` method simply `put`s 24 consecutive entries into `Map`. The entries are distributed evenly amongst the buckets making up the key-value store.
 
 ## Prerequisites
 
