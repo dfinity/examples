@@ -87,3 +87,17 @@ Verify the following before running this demo:
    debug.print: putting: (23, "23")
    ()
    ```
+
+# Links
+
+Specific links:
+
+- [Actor classes](https://sdk.dfinity.org/docs/language-guide/actor-classes.html)
+- [Managing Cycles](https://sdk.dfinity.org/docs/language-guide/cycles.html)
+
+General background:
+
+- [Manage Canisters](https://sdk.dfinity.org/docs/developers-guide/working-with-canisters.html)
+- [Quick Start](https://sdk.dfinity.org/developers-guide/quickstart.html)
+- [Developer's Guide](https://sdk.dfinity.org/developers-guide)
+- [Language Guide](https://sdk.dfinity.org/language-guide)
