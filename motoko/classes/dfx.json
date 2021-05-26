@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "dfx": "0.7.0",
+  "canisters": {
+    "Map": {
+      "type": "motoko",
+      "main": "src/map/Map.mo"
+    },
+    "Test": {
+      "type": "motoko",
+      "main": "src/test/Test.mo"
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": ""
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  }
+}
