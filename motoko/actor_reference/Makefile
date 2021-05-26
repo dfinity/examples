@@ -20,7 +20,7 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
-	dfx canister call actor_reference burn \
+	dfx canister call actor_reference burn '()' \
 		| grep '()' && echo 'PASS'
 
 .PHONY: clean
