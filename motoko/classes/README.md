@@ -5,9 +5,9 @@
 
 This example demonstrates a simple use of actor classes, which allow a program to dynamically install new actors (that is, canisters). It also demonstrates a multi-canister project, and actors using inter-actor communication through `shared` functions.
 
-The example define two Motoko actors, `Map` and `Test`.
+The example defines two Motoko actors, `Map` and `Test`.
 
-`Map` is a dead-simple, distributed key-value store, mapping `Nat` to `Text` values, with entries stored in a small number of separate `Bucket` actors.
+`Map` is a dead-simple, distributed key-value store, mapping `Nat` to `Text` values, with entries stored in a small number of separate `Bucket` actors, installed on demand.
 
 [Map.mo](./src/map/Map.mo) imports a Motoko actor class `Bucket(i, n)`
 from library [Buckets.mo](./src/map/Buckets.mo).
@@ -27,8 +27,8 @@ The [Test.mo](./src/test/Test.mo) actor imports the (installed) `Map` canister, 
 
 Verify the following before running this demo:
 
-*  You have downloaded and installed the [DFINITY Canister
-   SDK](https://sdk.dfinity.org).
+*  You have downloaded and installed the
+   [DFINITY Canister SDK](https://sdk.dfinity.org).
 
 *  You have stopped any Internet Computer or other network process that would
    create a port conflict on 8000.
@@ -41,7 +41,7 @@ Verify the following before running this demo:
    dfx start
    ```
 
-   (The example will run faster if you use the emulator, not replica:
+   (Alternatively, the example will run faster if you use the emulator, not a full replica:
    ```
      dfx start --emulator
    ```
