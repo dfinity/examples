@@ -20,7 +20,7 @@ is typically used to install, top up, and otherwise manage canisters on the IC.
 
 The full interface of the management canister is provided in the [Interface Computer Interface Specification](https://sdk.dfinity.org/docs/interface-spec/index.html#ic-management-canister).
 For this toy example, we only need a subset of the specified operations, and, due to subtyping, can even import them at less informative types than described in the full specification.
-To provide access to more operations, one would simply add them to the actor type, at the appropriate Motoko translation of the original Candid signature.a
+To provide access to more operations, one would simply add them to the actor type, at the appropriate Motoko translation of the original Candid signature.
 
 Our actor exposes a single `burn` method that uses its local `IC` actor reference
 to provision, create, query, stop and delete a transient canister, in order
