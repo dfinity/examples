@@ -3,28 +3,25 @@
 ![Compatibility](https://img.shields.io/badge/compatibility-0.7.0-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-echo-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-echo-example)
 
-This example demonstrates a simple use of actor classes, which allow a program to dynamically install new actors (i.e. canisters).
+This example demonstrates a simple use of actor classes, which allow a program to dynamically install new actors (that is, canisters). It also demonstrates a multi-canister project, and actors using inter-actor communication through `shared` functions.
 
-The example define two Motoko actors (i.e. canisters), `Map` and `Test`.
+The example define two Motoko actors, `Map` and `Test`.
 
-`Map` is a dead simple, distributed key-value store, mapping `Nat` to `Text` values.
+`Map` is a dead-simple, distributed key-value store, mapping `Nat` to `Text` values, with entries stored in a small number of separate `Bucket` actors.
 
 [Map.mo](./src/map/Map.mo) imports a Motoko actor class `Bucket(i, n)`
 from library [Buckets.mo](./src/map/Buckets.mo).
-It also imports the `ExperimentalCycles` base library in order to share its
-cycles amongst the bucket it creates.
+It also imports the `ExperimentalCycles` base library, naming it `Cycles` for short, in order to share its cycles amongst the bucket it creates.
 
-Each call to `Buckets.Bucket(n, i)` within `Map` instantiates a new
-`Bucket` instance (the `i`-th of `n`)
-dedicated to those entries of the `Map` that hash to `i` (by simple division of the key modulo `n`).
+Each call to `Buckets.Bucket(n, i)` within `Map` instantiates a new `Bucket` instance (the `i`-th of `n`) dedicated to those entries of the `Map` whose key _hashes_ to `i` (by taking the remainder of the key modulo division by `n`).
 
-Each asynchronous instantiation of the actor class corresponds to the dynamic, programmatic installation of a new `Bucket` canister.
+Each asynchronous instantiation of the `Bucket` actor class corresponds to the dynamic, programmatic installation of a new `Bucket` canister.
 
-Each new Bucket must be provisioned with enough cycles to pay for installation.
-`Map.mo` achieves this by `add`-ing an equal share of `Map`'s initial Cycle balance to each asynchronous call to `Bucket(n, i)`.
+Each new `Bucket` must be provisioned with enough cycles to pay for its installation and running costs.
+`Map` achieves this by adding an equal share of `Map`'s initial cycle balance to each asynchronous call to `Bucket(n, i)`, using a call to `Cycles.add(cycleShare)`.
 
-The `Test` in [Test.mo](./src/test/Test.mo) canister imports the `Map` canister.
-Its `run` method simply `put`s 24 consecutive entries into `Map`. The entries are distributed evenly amongst the buckets making up the key-value store.
+The [Test.mo](./src/test/Test.mo) actor imports the (installed) `Map` canister, using `Maps` Candid interface to determine its Motoko type.
+`Test`'s `run` method simply `put`s 24 consecutive entries into `Map`. These entries are distributed evenly amongst the buckets making up the key-value store. Adding the first entry to a bucket take longer than adding a subsequent one, since the bucket needs to be installed on first use.
 
 ## Prerequisites
 
@@ -43,6 +40,12 @@ Verify the following before running this demo:
    ```text
    dfx start
    ```
+
+   (The example will run faster if you use the emulator, not replica:
+   ```
+     dfx start --emulator
+   ```
+   )
 
 2. Open a new terminal window.
 
