@@ -1,7 +1,7 @@
-# Classes
+# Actor Classes
 
 ![Compatibility](https://img.shields.io/badge/compatibility-0.7.0-blue)
-[![Build Status](https://github.com/dfinity/examples/workflows/motoko-echo-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-echo-example)
+[![Build Status](https://github.com/dfinity/examples/workflows/motoko-classes-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-classes-example)
 
 This example demonstrates a simple use of actor classes, which allow a program to dynamically install new actors (that is, canisters). It also demonstrates a multi-canister project, and actors using inter-actor communication through `shared` functions.
 
@@ -9,7 +9,7 @@ The example defines two Motoko actors, `Map` and `Test`.
 
 `Map` is a dead-simple, distributed key-value store, mapping `Nat` to `Text` values, with entries stored in a small number of separate `Bucket` actors, installed on demand.
 
-[Map.mo](./src/map/Map.mo) imports a Motoko actor class `Bucket(i, n)`
+[Map.mo](./src/map/Map.mo) imports a Motoko _actor class_ `Bucket(i, n)`
 from library [Buckets.mo](./src/map/Buckets.mo).
 It also imports the `ExperimentalCycles` base library, naming it `Cycles` for short, in order to share its cycles amongst the bucket it creates.
 
