@@ -14,7 +14,7 @@ actor {
     actor "aaaaa-aa" : actor {
 
       create_canister : {
-          settings : Null // richer in ic.did
+          // richer in ic.did
         } -> async { canister_id : Principal };
 
       canister_status : { canister_id : Principal } ->
@@ -33,7 +33,7 @@ actor {
   public func burn() : async () {
     Debug.print("balance before: " # Nat.toText(Cycles.balance()));
     Cycles.add(Cycles.balance()/2);
-    let cid = await IC.create_canister({ settings = null });
+    let cid = await IC.create_canister({});
     let status = await IC.canister_status(cid);
     Debug.print("cycles: " # Nat.toText(status.cycles));
     await IC.stop_canister(cid);
