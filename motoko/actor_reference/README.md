@@ -8,18 +8,19 @@ a textual representation of some principal to a value of an actor type, that, no
 as an actor, can be communicated with by calling the `shared` functions of its interface.
 
 Actor references should be used sparingly, and only when necessary, to provide a typed interface to a raw principal identifier.
-Using an actor reference is regarded as unsafe since it is effectively a promise, made by the programmer to the compiler, that the given principal obeys the given interface.
+Using an actor reference is regarded as unsafe since it is effectively an assurance, made by the programmer to the compiler, that the given principal obeys the given interface.
+It's the programmers responsibility, as opposed to the compiler's, to ensure that the given principal obeys the given interface."
 
 Warning: Providing an incorrect interface may cause subsequent communication with the actor to fail with serialization (but not memory) errors.
 
 The example defines one Motoko actor: [main.mo](./src/actor_reference/main.mo) binds the name
 `IC` to the actor obtained by asserting an interface for the
-textual actor reference "aaaa-aa". This is the identify, in text format, of the
+textual actor reference "aaaaa-aa". This is the identity, in textual format, of the
 well-known (that is, system provided) _managment canister_ which
 is typically used to install, top up, and otherwise manage canisters on the IC.
 
 The full interface of the management canister is provided in the [Interface Computer Interface Specification](https://sdk.dfinity.org/docs/interface-spec/index.html#ic-management-canister).
-For this toy example, we only need a subset of the specified operations, and, due to subtyping, can even import them at less informative types than described in the full specification.
+For this toy example, we only need a subset of the specified operations, and, due to Candid subtyping, can even import them at less informative types than described in the full specification.
 To provide access to more operations, one would simply add them to the actor type, at the appropriate Motoko translation of the original Candid signature.
 
 Our actor exposes a single `burn` method that uses its local `IC` actor reference

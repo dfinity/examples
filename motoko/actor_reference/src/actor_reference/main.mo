@@ -6,7 +6,7 @@ import Debug "mo:base/Debug";
 actor {
 
   // Use an actor reference to access the well-known, virtual
-  // IC with specified Principal "aaaa-aa",
+  // IC management canister with specified Principal "aaaaa-aa",
   // asserting its interface type
   // NB: this is a smaller supertype of the full interface at
   //     https://sdk.dfinity.org/docs/interface-spec/index.html#ic-management-canister
