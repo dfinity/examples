@@ -9,7 +9,7 @@ as an actor, can be communicated with by calling the `shared` functions of its i
 
 Actor references should be used sparingly, and only when necessary, to provide a typed interface to a raw principal identifier.
 Using an actor reference is regarded as unsafe since it is effectively an assurance, made by the programmer to the compiler, that the given principal obeys the given interface.
-It's the programmers responsibility, as opposed to the compiler's, to ensure that the given principal obeys the given interface."
+It's the programmer's responsibility, as opposed to the compiler's, to ensure that the given principal obeys the given interface.
 
 Warning: Providing an incorrect interface may cause subsequent communication with the actor to fail with serialization (but not memory) errors.
 
