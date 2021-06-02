@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "dfx": "0.7.0",
+  "dfx": "0.7.1",
   "canisters": {
     "actor_reference": {
       "type": "motoko",
