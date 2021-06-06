@@ -1,3 +1,4 @@
 .dfx/
 build/
+dist/
 node_modules/
