@@ -7,7 +7,7 @@ This sample project demonstrates how functions may be passed as arguments of int
 
 ## Overview
 
-A common problem in both distributed and decentralized systems is keeping separate services (or canisters) synchronized with one another. While there are many potential solutions to this problem, a popular one is the Publisher/Subscriber pattern or "PubSub". PubSub is an especially valuable pattern on the Internet Computer as its primary drawback, message delivery failures, does not apply.
+A common problem in both distributed and decentralized systems is keeping separate services (or canisters) synchronized with one another. While there are many potential solutions to this problem, a popular one is the Publisher/Subscriber pattern or "PubSub". PubSub is an especially valuable pattern on the Internet Computer as its primary drawback, the potential for lock-ups due to message delivery failures, is typically a non-issue due loose coupling between the publisher and subscriber in a way that each can continue to operate normally when a receiving side [or the network between] is not.
 
 ## Implementation
 
