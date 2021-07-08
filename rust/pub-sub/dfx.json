@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "publisher": {
+      "build": "cargo build --target wasm32-unknown-unknown --package  publisher --release",
+      "candid": "src/publisher/src/publisher.did",
+      "wasm": "target/wasm32-unknown-unknown/release/publisher.wasm",
+      "type": "custom"
+    },
+    "subscriber": {
+      "build": "cargo build --target wasm32-unknown-unknown --package  subscriber --release",
+      "candid": "src/subscriber/src/subscriber.did",
+      "wasm": "target/wasm32-unknown-unknown/release/subscriber.wasm",
+      "type": "custom"
+    }
+  },
+  "dfx": "0.7.2"
+}
