@@ -55,9 +55,10 @@ actor {
   };
 
   func unvisited(i : Nat, j : Nat, m : Maze) : List.List<(Nat,Nat)> {
-      let max: Nat = m.size() - 1;
+    let max: Nat = m.size() - 1;
     var cs = List.nil<(Nat,Nat)>();
     if (i > 1 and not visited(m[i - 2][j]))
+      // The <(Nat,Nat)> type annotation is not required, but it can slience the underflow warning for i - 2
       cs := List.push<(Nat,Nat)>((i - 2, j), cs);
     if (i + 1 < max and not visited(m[i + 2][j]))
       cs := List.push((i + 2, j), cs);
