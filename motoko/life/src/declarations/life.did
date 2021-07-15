@@ -1,4 +1,5 @@
 service : {
   current: () -> (text) query;
   next: () -> (text);
+  stableState: () -> (text) query;
 }
