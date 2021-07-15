@@ -22,15 +22,15 @@ upgrade: build
 test: install
 	dfx canister call sub init '("Apples")'
 	dfx canister call sub getCount \
-		| grep '(0)' && echo 'PASS'
+		| grep '(0 : nat)' && echo 'PASS'
 	dfx canister call pub publish '(record { "topic" = "Apples"; "value" = 2 })'
 	sleep 2 # Wait for update.
 	dfx canister call sub getCount \
-		| grep '(2)' && echo 'PASS'
+		| grep '(2 : nat)' && echo 'PASS'
 	dfx canister call pub publish '(record { "topic" = "Bananas"; "value" = 3 })'
 	sleep 2 # Wait for update.
 	dfx canister call sub getCount \
-		| grep '(2)' && echo 'PASS'
+		| grep '(2 : nat)' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean
