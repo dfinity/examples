@@ -2,7 +2,7 @@ import * as React from 'react';
 import { render } from 'react-dom';
 import "nes.css/css/nes.min.css";
 import "./styles.css";
-import { life } from '../../declarations'
+import { life } from "../../declarations";
 
 class Life extends React.Component {
   constructor(props) {

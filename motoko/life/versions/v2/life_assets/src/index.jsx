@@ -2,11 +2,7 @@ import * as React from 'react';
 import { render } from 'react-dom';
 import "nes.css/css/nes.min.css";
 import "./styles.css";
-import { Actor, HttpAgent } from '@dfinity/agent';
-import { idlFactory as life_idl, canisterId as life_id } from 'dfx-generated/life';
-
-const agent = new HttpAgent();
-const life = Actor.createActor(life_idl, { agent, canisterId: life_id });
+import { life } from "../../declarations";
 
 class Life extends React.Component {
   constructor(props) {

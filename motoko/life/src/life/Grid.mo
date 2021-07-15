@@ -2,7 +2,7 @@ import State "State";
 
 module {
 
-  public class Grid((#v1 state) : State.State) {
+  public class Grid(state : State.State) {
 
     let grid = state;
 
@@ -45,7 +45,7 @@ module {
       var t = "";
       for (i in grid.keys()) {
         for (j in grid[i].keys()) {
-          t #= if (get(i, j)) "1" else " ";
+          t #= if (get(i, j)) "0" else " ";
         };
         if (i + 1 < n) {
 	  t #= "\n";
@@ -53,11 +53,5 @@ module {
       };
       t
     };
-
-    public func toState() :  State.State {
-      #v1 grid
-    };
-
- };
-
+  };
 }
