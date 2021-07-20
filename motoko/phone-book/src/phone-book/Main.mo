@@ -1,5 +1,4 @@
-import AssocList "mo:base/AssocList";
-import List "mo:base/List";
+import Map "mo:base/HashMap";
 import Text "mo:base/Text";
 
 actor {
@@ -12,20 +11,13 @@ actor {
     phone: Phone;
   };
 
-  type PhoneBookMap = AssocList.AssocList<Name, Entry>;
-
-  var phonebook: PhoneBookMap = List.nil<(Name, Entry)>();
+  let phonebook = Map.HashMap<Name, Entry>(0, Text.equal, Text.hash);
 
   public func insert(name : Name, entry : Entry): async () {
-    phonebook := AssocList.replace<Name, Entry>(
-      phonebook,
-      name,
-      Text.equal,
-      ?entry
-    ).0;
+    phonebook.put(name, entry);
   };
 
   public query func lookup(name : Name) : async ?Entry {
-    return AssocList.find<Name, Entry>(phonebook, name, Text.equal);
+    phonebook.get(name)
   };
 };
