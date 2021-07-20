@@ -36,7 +36,7 @@ const isDevelopment = process.env.NODE_ENV !== "production";
 const asset_entry = path.join(
   "src",
   "life_assets",
-  "src",
+  "public",
   "index.html"
 );
 
