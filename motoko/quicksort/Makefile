@@ -20,10 +20,11 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
-	dfx canister call quicksort sort '(vec { 5; 3; 0; 9; 8; 2; 1; 4; 7; 6 })' \
-		| grep '(vec { 0; 1; 2; 3; 4; 5; 6; 7; 8; 9 })' && echo 'PASS'
+	dfx canister call quicksort sort '(vec { 5; 3; 0; 9; 8; 2; 1; 4; 7; 6 })' > tmp.txt
+	tr '\n' ' ' < tmp.txt | grep '(   vec {     0 : int;     1 : int;     2 : int;     3 : int;     4 : int;     5 : int;     6 : int;     7 : int;     8 : int;     9 : int;   }, )' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean
 clean:
 	rm -fr .dfx
+	rm tmp.txt

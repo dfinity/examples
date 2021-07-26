@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Superheroes from './superheroes';
+import { superheroes } from "../../declarations";
 
 const $ = document.getElementById.bind(document);
 const idl = require('../utilities/idl');
@@ -24,7 +24,7 @@ class Update extends React.Component {
     };
     const superhero = { name, superpowers };
     superhero.superpowers = idl.toList(superhero.superpowers);
-    Superheroes.update(superheroId, superhero).then((success) => {
+    superheroes.update(superheroId, superhero).then((success) => {
       this.setState({ success });
     });
   }
@@ -54,13 +54,13 @@ class Update extends React.Component {
       <div>
         <h2>Update a Superhero</h2>
         <form onSubmit={ this.update.bind(this) }>
-          <label for="update-superhero-id">Identifier: </label>
+          <label htmlFor="update-superhero-id">Identifier: </label>
           <input id="update-superhero-id" type="number"/>
           <br/>
-          <label for="update-name">Name: </label>
+          <label htmlFor="update-name">Name: </label>
           <input id="update-name" type="text"/>
           <br/>
-          <label for="update-superpowers-count">Superpowers: </label>
+          <label htmlFor="update-superpowers-count">Superpowers: </label>
           <select id="update-superpowers-count" onChange={ this.toggle }>
             <option value="0">0</option>
             <option value="1">1</option>

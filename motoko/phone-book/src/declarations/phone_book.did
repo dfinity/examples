@@ -1,0 +1,11 @@
+type Phone = text;
+type Name = text;
+type Entry = 
+ record {
+   desc: text;
+   phone: Phone;
+ };
+service : {
+  insert: (Name, Entry) -> ();
+  lookup: (Name) -> (opt Entry) query;
+}
