@@ -1,6 +1,6 @@
 # Counter canister in WebAssembly
 
-This example demonstrate a counter application, written in WebAssembly directly. The compiled Wasm module is only 389 bytes.
+This example demonstrates a counter application, written in WebAssembly directly. The compiled Wasm module is only 389 bytes.
 
 It can be a good way to learn and experiment with [the IC system API](https://github.com/dfinity-lab/ic-ref/blob/0.17.0/spec/index.adoc#canister-interface-system-api).
 
