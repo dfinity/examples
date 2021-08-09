@@ -1,0 +1,19 @@
+{
+  "canisters": {
+    "counter": {
+      "type": "custom",
+      "candid": "counter.did",
+      "wasm": "counter.wasm",
+      "build": [
+        "wat2wasm counter.wat -o counter.wasm"
+      ]
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "localhost:8000",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
+}
