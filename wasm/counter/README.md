@@ -19,14 +19,14 @@ $ brew install wabt
 $ dfx start [--background]
 $ dfx deploy [--no-wallet] counter
 
-$ dfx canister call get
+$ dfx canister call counter get
 (0 : int64)
-$ dfx canister call inc
+$ dfx canister call counter inc
 ()
-$ dfx canister call get
+$ dfx canister call counter get
 (1 : int64)
-$ dfx canister call set '(42)'
+$ dfx canister call counter set '(42)'
 ()
-$ dfx canister call get
+$ dfx canister call counter get
 (42 : int64)
 ```
