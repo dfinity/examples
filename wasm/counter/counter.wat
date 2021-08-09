@@ -33,7 +33,7 @@
   ;; Deserializer error message
   (data (;2;) (i32.const 21) "Invalid input argument")
 
-  ;; Define `inc` function, which has to be of type () -> ()
+  ;; Define `get` function, which has to be of type () -> ()
   ;; At the Candid level, the type is () -> (int64)
   (func $get (type 0)
     ;; Construct the return Candid message
