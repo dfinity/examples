@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Superheroes from './superheroes';
+import { superheroes } from "../../declarations";
 
 const $ = document.getElementById.bind(document);
 const idl = require('../utilities/idl');
@@ -23,7 +23,7 @@ class Create extends React.Component {
     };
     const superhero = { name, superpowers };
     superhero.superpowers = idl.toList(superhero.superpowers);
-    Superheroes.create(superhero).then((superheroId) => {
+    superheroes.create(superhero).then((superheroId) => {
       this.setState({ superheroId });
     });
   }
@@ -53,10 +53,10 @@ class Create extends React.Component {
       <div>
         <h2>Create a Superhero</h2>
         <form onSubmit={ this.create.bind(this) }>
-          <label for="create-name">Name: </label>
+          <label htmlFor="create-name">Name: </label>
           <input id="create-name" type="text"/>
           <br/>
-          <label for="create-superpowers-count">Superpowers: </label>
+          <label htmlFor="create-superpowers-count">Superpowers: </label>
           <select id="create-superpowers-count" onChange={ this.toggle }>
             <option value="0">0</option>
             <option value="1">1</option>

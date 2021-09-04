@@ -25,11 +25,14 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
+	echo 'v0'
 	dfx canister call life current | grep '0' && echo 'PASS'
+	echo 'v1'
 	rm -r -f src
 	cp -r versions/v1 src
 	dfx deploy
 	dfx canister call life current | grep '1' && echo 'PASS'
+	echo 'v2'
 	rm -r -f src
 	cp -r versions/v2 src
 	dfx deploy

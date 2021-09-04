@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Superheroes from './superheroes';
+import { superheroes } from "../../declarations";
 
 const $ = document.getElementById.bind(document);
 const idl = require('../utilities/idl');
@@ -15,7 +15,7 @@ class Delete extends React.Component {
   delete(event) {
     event.preventDefault();
     const superheroId = parseInt($('delete-superhero-id').value, 10);
-    Superheroes.delete(superheroId).then((success) => {
+    superheroes.delete(superheroId).then((success) => {
       this.setState({ success });
     });
   }
@@ -25,7 +25,7 @@ class Delete extends React.Component {
       <div>
         <h2>Delete a Superhero</h2>
         <form onSubmit={ this.delete.bind(this) }>
-          <label for="delete-superhero-id">Identifier: </label>
+          <label htmlFor="delete-superhero-id">Identifier: </label>
           <input id="delete-superhero-id" type="number"/>
           <br/>
           <button type="submit">Submit</button>

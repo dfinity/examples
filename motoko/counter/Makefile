@@ -23,7 +23,7 @@ test: install
 	dfx canister call counter set '(7)'
 	dfx canister call counter inc
 	dfx canister call counter get \
-		| grep '(8)' && echo 'PASS'
+		| grep '(8 : nat)' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean

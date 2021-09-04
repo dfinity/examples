@@ -21,13 +21,13 @@ upgrade: build
 .SILENT: test
 test: install
 	dfx canister call calc add '(9)' \
-		| grep '(9)' && echo 'PASS'
+		| grep '(9 : int)' && echo 'PASS'
 	dfx canister call calc sub '(1)' \
-		| grep '(8)' && echo 'PASS'
+		| grep '(8 : int)' && echo 'PASS'
 	dfx canister call calc mul '(3)' \
-		| grep '(24)' && echo 'PASS'
+		| grep '(24 : int)' && echo 'PASS'
 	dfx canister call calc div '(6)' \
-		| grep '(opt 4)' && echo 'PASS'
+		| grep '(opt (4 : int))' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean
