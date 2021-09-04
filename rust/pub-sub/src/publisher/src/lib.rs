@@ -4,29 +4,29 @@ use ic_cdk::export::{
 };
 use ic_cdk::storage;
 use ic_cdk_macros::*;
-use serde::Serialize;
 use std::collections::BTreeMap;
 
 type SubscriberStore = BTreeMap<Principal, Subscriber>;
 
-#[derive(Clone, Debug, CandidType, Serialize, Deserialize)]
+#[derive(Clone, Debug, CandidType, Deserialize)]
 struct Counter {
     topic: String,
     value: u64,
 }
 
-#[derive(Clone, Debug, CandidType, Serialize, Deserialize)]
+#[derive(Clone, Debug, CandidType, Deserialize)]
 struct Subscriber {
     topic: String,
 }
 
 #[update]
-fn subscribe(subscriber: Subscriber) {
+fn subscribe(subscriber: Subscriber) -> bool {
     let subscriber_principal_id = ic_cdk::caller();
     let subscriber_store = storage::get_mut::<SubscriberStore>();
     if !subscriber_store.contains_key(&subscriber_principal_id) {
         subscriber_store.insert(subscriber_principal_id, subscriber);
     }
+    true
 }
 
 #[update]

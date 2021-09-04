@@ -3,17 +3,16 @@ use ic_cdk::export::{
     Principal,
 };
 use ic_cdk_macros::*;
-use serde::Serialize;
 
 static mut COUNTER: u64 = 0;
 
-#[derive(Clone, Debug, CandidType, Serialize, Deserialize)]
+#[derive(Clone, Debug, CandidType, Deserialize)]
 struct Counter {
     topic: String,
     value: u64,
 }
 
-#[derive(Clone, Debug, CandidType, Serialize, Deserialize)]
+#[derive(Clone, Debug, CandidType, Deserialize)]
 struct Subscriber {
     topic: String,
 }
