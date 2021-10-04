@@ -1,7 +1,7 @@
 # Certified Variable
 
 ![Compatibility](https://img.shields.io/badge/compatibility-0.7.0-blue)
-[![Build Status](https://github.com/dfinity/examples/workflows/motoko-cert_var-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-cert_var-example)
+[![Build Status](https://github.com/dfinity/examples/workflows/motoko-cert-var-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-cert-var-example)
 
 The example shows a cryptographically certified variable.
 
