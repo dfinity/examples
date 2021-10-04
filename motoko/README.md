@@ -27,11 +27,11 @@ These examples show the Motoko language as a backend language for the IC, operat
 These examples use a minimal front end component.
 
 - `random_maze` -- random maze generation, with IC-based randomness.
-- `life` -- demonstrates upgrades among three-versions and stable state migration.
 
 ## Full stack.
 
-These examples use a conventional front end component.
+These examples use a "conventional" front end component (via `React.Component`).
 
-- `superheroes` -- CRUD-like demo service.
+- `life` -- demonstrates upgrades among three-versions and stable state migration.
 - `phone-book` -- CRUD-like demo service.
+- `superheroes` -- CRUD-like demo service.
