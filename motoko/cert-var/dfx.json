@@ -1,0 +1,34 @@
+{
+  "canisters": {
+    "cert_var": {
+      "main": "src/cert_var/main.mo",
+      "type": "motoko"
+    },
+    "cert_var_assets": {
+      "dependencies": [
+        "cert_var"
+      ],
+      "frontend": {
+        "entrypoint": "src/cert_var_assets/src/index.html"
+      },
+      "source": [
+        "src/cert_var_assets/assets",
+        "dist/cert_var_assets/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": ""
+    }
+  },
+  "dfx": "0.8.1",
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
+}
