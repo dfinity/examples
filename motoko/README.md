@@ -26,7 +26,6 @@ These examples show the Motoko language as a backend language for the IC, operat
 
 These examples use a minimal front end component.
 
-- `cert-var` -- a single certified variable in Motoko.
 - `random_maze` -- random maze generation, with IC-based randomness.
 - `life` -- demonstrates upgrades among three-versions and stable state migration.
 
