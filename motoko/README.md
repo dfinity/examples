@@ -32,6 +32,6 @@ These examples use a minimal front end component.
 
 These examples use a "conventional" front end component (via `React.Component`).
 
-- `life` -- demonstrates upgrades among three-versions and stable state migration.
+- `life` -- demonstrates upgrades among three versions and stable state migration.
 - `phone-book` -- CRUD-like demo service.
 - `superheroes` -- CRUD-like demo service.
