@@ -9,7 +9,7 @@ node_modules:
 .PHONY: build
 .SILENT: build
 build: node_modules
-	find .
+	find src
 	dfx canister create --all
 	dfx build
 
