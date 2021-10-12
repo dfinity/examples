@@ -10,12 +10,6 @@ if (process.env.NODE_ENV !== "production") {
   agent.fetchRootKey();
 }
 
-function hexToBytes(hex) {
-    for (var bytes = [], c = 0; c < hex.length; c += 2)
-    bytes.push(parseInt(hex.substr(c, 2), 16));
-    return bytes;
-}
-
 document.getElementById("certifyBtn").addEventListener("click", async () => {
   const newVal = BigInt(document.getElementById("newValue").value);
   await cert_var.set(newVal);
@@ -60,9 +54,9 @@ document.getElementById("certifyBtn").addEventListener("click", async () => {
   // Checks:
   // - Canister ID is correct.
   // - Certified data is correct.
-  const cid = new Uint8Array(hexToBytes(Principal.fromText(canisterId).toHex()));
+  const cid = Principal.fromText(canisterId);
   const pathData = [te.encode('canister'),
-                    cid,
+                    cid.toUint8Array(),
                     te.encode('certified_data')];
   const rawData = cert.lookup(pathData);
   console.log(rawData);
