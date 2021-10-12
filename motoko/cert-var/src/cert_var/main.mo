@@ -10,6 +10,7 @@ actor Variable {
   var value : Nat32 = 0;
 
   /// Helper; should be in base?
+  /// LE encoding matches Candid encoding of Nat32, for consistency and convenience.
   func blobOfNat32(n : Nat32) : Blob {
     let byteMask : Nat32 = 0xff;
     func byte(n : Nat32) : Nat8 { Nat8.fromNat(Nat32.toNat(n)) };

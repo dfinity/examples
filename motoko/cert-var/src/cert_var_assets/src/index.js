@@ -36,7 +36,7 @@ document.getElementById("certifyBtn").addEventListener("click", async () => {
   expect(Math.abs(time - now) < 5).toBe(true);
 
   const pathData = [te.encode('canister'),
-                    te.encode("to do -- canister id"),
+                    cert_var.toText(),
                     te.encode('certified_data')];
   const rawData = cert.lookup(pathData);
   const decodedData = IDL.decode(
@@ -46,9 +46,8 @@ document.getElementById("certifyBtn").addEventListener("click", async () => {
       ...(new Uint8Array(rawData) || []),s
     ]),
   )[0];
-  // the certified data should be the same as the value
-  // (to do -- modulo the byte ordering of how we represent it...?)
-  expect(decodedData == resp.value).toBe(true);
+  const expectedData = IDL.Nat32.encodeValue(resp.value);
+  expect(decodedData == expectedData).toBe(true);
 
   document.getElementById("var").innerText = "Certified response.";
 });
