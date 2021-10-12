@@ -22,7 +22,7 @@ document.getElementById("certifyBtn").addEventListener("click", async () => {
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
   const te = new TextEncoder();
   const pathTime = [te.encode('time')];
-  const rawTime = cert.lookup(pathTime)!;
+  const rawTime = cert.lookup(pathTime);
   const decodedTime = IDL.decode(
     [IDL.Nat],
     new Uint8Array([
@@ -31,14 +31,14 @@ document.getElementById("certifyBtn").addEventListener("click", async () => {
     ]),
   )[0];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const time = Number(decoded as any) / 1e9;
+  const time = decodedTime / 1e9;
   // The diff between decoded time and local time is within 5s
   expect(Math.abs(time - now) < 5).toBe(true);
 
   const pathData = [te.encode('canister'),
                     te.encode("to do -- canister id"),
                     te.encode('certified_data')];
-  const rawData = cert.lookup(pathData)!;
+  const rawData = cert.lookup(pathData);
   const decodedData = IDL.decode(
     [IDL.Nat32],
     new Uint8Array([
