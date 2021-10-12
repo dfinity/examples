@@ -3,7 +3,7 @@
 ![Compatibility](https://img.shields.io/badge/compatibility-0.7.0-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-cert-var-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-cert-var-example)
 
-The example shows a cryptographically certified variable.
+The example demonstrates the use of a single cryptographically certified variable, as supported by the Internet Computer. 
 
 
 
