@@ -30,26 +30,21 @@ document.getElementById("certifyBtn").addEventListener("click", async () => {
   const te = new TextEncoder();
   const pathTime = [te.encode('time')];
   const rawTime = cert.lookup(pathTime);
-  console.log(rawTime);
-  /*
   const idlMessage = new Uint8Array([
       ...new TextEncoder().encode('DIDL\x00\x01\x7d'),
-      ...(new Uint8Array(rawTime) || []),
+      ...new Uint8Array(rawTime),
   ]);
-  console.log(idlMessage);
   const decodedTime = IDL.decode(
     [IDL.Nat], idlMessage
   )[0];
-  console.log(decodedTime);
-
-  const time = decodedTime / 1e9;
+  const time = Number(decodedTime) / 1e9;
 
   // Check: The diff between decoded time and local time is within 5s.
   const now = Date.now() / 1000;
   if(Math.abs(time - now) > 5) {
     document.getElementById("var").innerText = "Timing is wrong.";
-    return
-  };*/
+    return;
+  };
 
   // Checks:
   // - Canister ID is correct.
@@ -59,17 +54,18 @@ document.getElementById("certifyBtn").addEventListener("click", async () => {
                     cid.toUint8Array(),
                     te.encode('certified_data')];
   const rawData = cert.lookup(pathData);
-  console.log(rawData);
-  /*
   const decodedData = IDL.decode(
     [IDL.Nat32],
     new Uint8Array([
-      ...new TextEncoder().encode('DIDL\x00\x01\x7d'),
-      ...(new Uint8Array(rawData) || []),
+      ...new TextEncoder().encode('DIDL\x00\x01\x79'),
+      ...new Uint8Array(rawData),
     ]),
   )[0];
-  const expectedData = IDL.Nat32.encodeValue(resp.value);
-  expect(decodedData == expectedData).toBe(true);*/
+  const expectedData = resp.value;
+  if (expectedData !== decodedData) {
+    log.innerText = "Wrong certified data!";
+    return;
+  }
 
   log.innerText = "Certified response.";
 });
