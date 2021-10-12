@@ -16,9 +16,7 @@ document.getElementById("certifyBtn").addEventListener("click", async () => {
           return agent;
       },
   );
-  const now = Date.now() / 1000;
-
-  const cert = new Certificate(resp, agent);
+  const cert = new Certificate(resp.certificate[0], agent);
 
   // Check: Certificate verifies.
   if(!(await cert.verify())) {
@@ -41,6 +39,7 @@ document.getElementById("certifyBtn").addEventListener("click", async () => {
   const time = decodedTime / 1e9;
 
   // Check: The diff between decoded time and local time is within 5s.
+  const now = Date.now() / 1000;
   if(Math.abs(time - now) > 5) {
     document.getElementById("var").innerText = "Timing is wrong.";
     return
