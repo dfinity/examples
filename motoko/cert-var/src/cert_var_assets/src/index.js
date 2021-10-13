@@ -73,5 +73,5 @@ document.getElementById("setBtn").addEventListener("click", async () => {
     return;
   }
 
-  log.innerText = "Success: Certified response.";
+  log.innerText = "Success: Fully certified query response.";
 });
