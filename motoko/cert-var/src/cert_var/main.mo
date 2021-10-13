@@ -4,6 +4,7 @@ import CD "mo:base/CertifiedData";
 import Blob "mo:base/Blob";
 import Nat8 "mo:base/Nat8";
 import Nat32 "mo:base/Nat32";
+import Debug "mo:base/Debug";
 
 actor Variable {
 
@@ -13,12 +14,14 @@ actor Variable {
   /// LE encoding matches Candid encoding of Nat32, for consistency and convenience.
   func blobOfNat32(n : Nat32) : Blob {
     let byteMask : Nat32 = 0xff;
-    func byte(n : Nat32) : Nat8 { Nat8.fromNat(Nat32.toNat(n)) };
+    func byte(x : Nat32) : Nat8 {
+      Nat8.fromNat(Nat32.toNat(x))
+    };
     Blob.fromArray(
-      [byte(byteMask << 0 & value),
-       byte(byteMask << 8 & value),
-       byte(byteMask << 16 & value),
-       byte(byteMask << 24 & value)])
+      [byte(((byteMask << 0 ) & value) >> 0),
+       byte(((byteMask << 8 ) & value) >> 8),
+       byte(((byteMask << 16) & value) >> 16),
+       byte(((byteMask << 24) & value) >> 24)])
   };
 
   /// Update counter and certificate (via system).

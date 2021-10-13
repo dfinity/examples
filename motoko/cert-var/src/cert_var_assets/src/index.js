@@ -10,20 +10,27 @@ if (process.env.NODE_ENV !== "production") {
   agent.fetchRootKey();
 }
 
-document.getElementById("certifyBtn").addEventListener("click", async () => {
+document.getElementById("setBtn").addEventListener("click", async () => {
+  const cid = Principal.fromText(canisterId);
+  const log = document.getElementById("var");
   const newVal = BigInt(document.getElementById("newValue").value);
+
+  log.innerText = "Setting value " + newVal + " for canister " + cid + "...";
+
   await cert_var.set(newVal);
+
+  log.innerText = "Getting value " + newVal + " from canister " + cid + "...";
+
   const resp = await cert_var.get();
 
-  const log = document.getElementById("var");
-  log.innerText = "Verifying...";
+  log.innerText = "Verifying gotten value " + newVal + "from " + cid + "...";
 
   const readState = { certificate: new Uint8Array(resp.certificate[0]) };
   const cert = new Certificate(readState, agent);
 
   // Check: Certificate verifies.
   if(!(await cert.verify())) {
-    log.innerText = "Verification failed.";
+    log.innerText = "Failure: Certification verification failed.";
     return;
   }
   
@@ -42,14 +49,13 @@ document.getElementById("certifyBtn").addEventListener("click", async () => {
   // Check: The diff between decoded time and local time is within 5s.
   const now = Date.now() / 1000;
   if(Math.abs(time - now) > 5) {
-    document.getElementById("var").innerText = "Timing is wrong.";
+    document.getElementById("var").innerText = "Failure: Timing is wrong.";
     return;
   };
 
   // Checks:
   // - Canister ID is correct.
   // - Certified data is correct.
-  const cid = Principal.fromText(canisterId);
   const pathData = [te.encode('canister'),
                     cid.toUint8Array(),
                     te.encode('certified_data')];
@@ -63,9 +69,9 @@ document.getElementById("certifyBtn").addEventListener("click", async () => {
   )[0];
   const expectedData = resp.value;
   if (expectedData !== decodedData) {
-    log.innerText = "Wrong certified data!";
+    log.innerText = "Failure: Wrong certified data!";
     return;
   }
 
-  log.innerText = "Certified response.";
+  log.innerText = "Success: Certified response.";
 });
