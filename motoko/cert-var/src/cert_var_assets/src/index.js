@@ -1,4 +1,4 @@
-import { HttpAgent } from '@dfinity/agent';
+import { getDefaultAgent } from '@dfinity/agent';
 import { Certificate } from '@dfinity/agent';
 import { IDL } from '@dfinity/candid';
 import { Principal } from '@dfinity/principal'
