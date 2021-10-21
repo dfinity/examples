@@ -5,7 +5,6 @@ import { Principal } from '@dfinity/principal'
 import { cert_var, canisterId } from '../../declarations'
 
 const agent = new HttpAgent({});
-const hostname = agent._host.hostname;
 if (process.env.NODE_ENV !== "production") {
   agent.fetchRootKey();
 }
