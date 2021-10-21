@@ -3,7 +3,7 @@
 ![Compatibility](https://img.shields.io/badge/compatibility-0.7.0-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-cert-var-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-cert-var-example)
 
-The example demonstrates the use of a single cryptographically certified variable, as supported by the Internet Computer. 
+The example demonstrates the use of a single cryptographically certified variable, as supported by the Internet Computer.
 
 
 
@@ -39,10 +39,22 @@ Verify the following before running this demo:
    dfx deploy
    ```
 
-## TO DO
+4. Start a local web server hosting the front end.
 
-- Set variable.
-- Check variable.
+   ```text
+   npm start
+   ```
+
+5. Visit the frontend, and do the demo there:
+
+   http://localhost:8080/
+
+   Should present an entry for "New value of variable",
+   and a button to "Set and get!".
+
+   Enter a number and click the button.
+
+   The canister updates its certificate, and the frontend checks it.
 
 ## More info
 
