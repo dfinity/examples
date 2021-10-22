@@ -1,10 +1,10 @@
-import { getDefaultAgent } from '@dfinity/agent';
+import { HttpAgent } from '@dfinity/agent';
 import { Certificate } from '@dfinity/agent';
 import { IDL } from '@dfinity/candid';
 import { Principal } from '@dfinity/principal'
 import { cert_var, canisterId } from '../../declarations'
 
-const agent = getDefaultAgent();
+const agent = new HttpAgent({});
 if (process.env.NODE_ENV !== "production") {
   agent.fetchRootKey();
 }
@@ -63,8 +63,15 @@ document.getElementById("setBtn").addEventListener("click", async () => {
     a Blob, encoding something.
 
     In the case of time and our data, the encodings are each Candid.
-    Time is always a Candid Nat, and our data we choose to encode the same as
-    a Candid 32-bit Nat (see the Motoko canister for details).
+
+    The IC spec represents time using a LEB128 encoding, and certified data
+    uses little endian. Ideally, we should use a proper library to decode
+    these numbers.  To prevent an extra dependency, we take advantage of the fact
+    that the Candid value encoding of Nat and Nat32 happen to use the same
+    representation.
+
+    Our data we choose to encode the same as a Candid 32-bit Nat
+    (little endian -- see the Motoko canister for details).
 
     Notably, in an example with more data in the canister than a single number,
     or a more complex query interface, we would generally do more work to
@@ -84,6 +91,7 @@ document.getElementById("setBtn").addEventListener("click", async () => {
     log.innerText = "Failure: Certification verification failed.";
     return;
   }
+  console.log("Check 1: Verified certificate.", cert);
 
   const te = new TextEncoder();
   const pathTime = [te.encode('time')];
@@ -99,10 +107,12 @@ document.getElementById("setBtn").addEventListener("click", async () => {
 
   // Check 2: The diff between decoded time and local time is within 5s.
   const now = Date.now() / 1000;
-  if(Math.abs(time - now) > 5) {
+  const diff = Math.abs(time - now);
+  if(diff > 5) {
     document.getElementById("var").innerText = "Failure: Timing is wrong.";
     return;
   };
+  console.log("Check 2: Timestamp difference seems legit (< 5 sec).", diff);
 
   // Checks 3 and 4:
   // - Canister ID is correct.
@@ -123,6 +133,9 @@ document.getElementById("setBtn").addEventListener("click", async () => {
     log.innerText = "Failure: Wrong certified data!";
     return;
   }
+  console.log("Check 3: Canister ID is correct.", cid);
+  console.log("Check 4: Data is correct.", decodedData);
+  console.log("Success.");
 
   log.innerText = "Success: Fully certified query response.";
 });
