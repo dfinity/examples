@@ -58,7 +58,7 @@ To do -- finish.
 
 ## More info
 
-Sequences as (Carteasian) trees:
+Sequences as (Cartesian) trees:
 
 - [Wikipedia article](https://en.wikipedia.org/wiki/Cartesian_tree)
 - [Motoko package](https://github.com/matthewhammer/motoko-sequence)

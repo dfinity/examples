@@ -13,11 +13,11 @@ public type Entries = Seq.Sequence<Entry>;
 ///
 /// This module gives the conceptual design of stable memory, in terms of Motoko types.
 ///
-/// Within this memory, we represent a (conceptual) cartesian tree, like type Entries,
+/// Within this memory, we represent a (conceptual) Cartesian tree, like type Entries,
 /// except without relying on flexible memory or stable vars for storage, and instead using
 /// (experimental) direct access to stable memory.
 ///
-/// The conceptual design of this memory follows the cartesian tree data structure used by [sequence package](https://github.com/matthewhammer/motoko-sequence/).
+/// The conceptual design of this memory follows the Cartesian tree data structure used by [sequence package](https://github.com/matthewhammer/motoko-sequence/).
 ///
 /// In particular, when we insert a new entry, we use a version of [its append algorithm](https://github.com/matthewhammer/motoko-sequence/blob/e57b88cf4aa4852c7f66b9150692e256911c1425/src/Sequence.mo#L79)
 ///
