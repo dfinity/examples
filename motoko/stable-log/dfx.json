@@ -3,10 +3,6 @@
     "stable_log_0": {
       "main": "src/stable_log/main_v0.mo",
       "type": "motoko"
-    },
-    "stable_log_1": {
-      "main": "src/stable_log/main_v1.mo",
-      "type": "motoko"
     }
   },
   "defaults": {

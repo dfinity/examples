@@ -1,8 +1,9 @@
 import Seq "mo:sequence/Sequence";
+import Types "Types";
 import Common "Common";
 
 actor {    
-  stable var ourSeq : Common.Entries = #empty;
+  stable var ourSeq : Types.Entries = #empty;
 
   let append = Seq.defaultAppend();
 
