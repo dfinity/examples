@@ -1,0 +1,31 @@
+name: motoko-cert-var-example
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  motoko-cert-var-example-darwin:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Motoko Certified Variable Example Darwin
+        run: |
+          dfx start --background
+          pushd motoko/cert-var
+          make test
+          popd
+  motoko-cert-var-example-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Motoko Certified Variable Example Linux
+        run: |
+          dfx start --background
+          pushd motoko/cert-var
+          make test
+          popd
