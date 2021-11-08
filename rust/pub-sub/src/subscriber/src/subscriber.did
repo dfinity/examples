@@ -1,6 +1,6 @@
 type Counter = variant {    
     topic : text;
-    value:nat8;
+    value:nat64;
 };
 type Subscriber = variant {
     topic:text;
