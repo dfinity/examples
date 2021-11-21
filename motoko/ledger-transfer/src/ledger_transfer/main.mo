@@ -43,8 +43,8 @@ actor Self {
     }
   };
 
-  public query func canisterAddress() : async Account.Address {
-    Account.address(Principal.fromActor(Self), Account.defaultSubaccount())
+  public query func canisterAccount() : async Account.AccountIdentifier {
+    Account.accountIdentifier(Principal.fromActor(Self), Account.defaultSubaccount())
   };
 
   public func distributeRewards() : async ?Principal {
@@ -71,7 +71,7 @@ actor Self {
         let res = await Ledger.transfer({
           memo = Nat64.fromNat(maxPosts);
           from_subaccount = null;
-          to = Account.address(principal, Account.defaultSubaccount());
+          to = Account.accountIdentifier(principal, Account.defaultSubaccount());
           amount = { e8s = 100_000_000 };
           fee = { e8s = 10_000 };
           created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(now)) };
