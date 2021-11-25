@@ -1,0 +1,31 @@
+:root {
+  --color-black: #161617;
+}
+
+html,
+body {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  background-color: var(--color-black);
+  color: white;
+  margin: 0;
+  padding: 8px;
+  font-size: 16px;
+  box-sizing: border-box;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+}
+
+a,
+a:visited {
+  color: #f5cd66;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
