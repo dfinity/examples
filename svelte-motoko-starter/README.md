@@ -11,6 +11,8 @@ This template contains
 - a Svelte frontend app under `src/frontend` to be hosted on-chain, with support for authentication using Internet Identity
 - a Mokoto dapp under `src/backend` to serve as a backend to the Svelte frontend
 
+You can see a deployed version of this template here: https://zixfv-4yaaa-aaaam-aaatq-cai.ic0.app/
+
 ### What is the Internet Computer?
 
 The Internet Computer is a novel blockchain that has the unique capability to serve web content while not requiring the end users to use a browser extension, such as Metamask.

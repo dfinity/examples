@@ -8,6 +8,8 @@ This repository is meant to give Svelte developers an easy on-ramp to get starte
 
 This template contains a Svelte app under `src/frontend` that can be hosted on-chain on the Internet Computer.
 
+You can see a deployed version of this template here: https://zgvi5-hiaaa-aaaam-aaasq-cai.ic0.app/
+
 ### What is the Internet Computer?
 
 The Internet Computer is a novel blockchain that has the unique capability to serve web content while not requiring the end users to use a browser extension, such as Metamask.
