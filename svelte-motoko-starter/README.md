@@ -4,9 +4,12 @@
 
 # Svelte Dapp with Motoko & Internet Identity
 
-This repository is meant to give Svelte developers an easy on-ramp to get started with developing decentralized applications (Dapps in short) for the Internet Computer blockchain.
+This repository is meant to give Svelte developers an easy on-ramp to get started with developing decentralized applications (Dapps in short) for the Internet Computer blockchain. Dapps, also known as smart contracts are specialized software that run on a blockchain.
 
-Dapps, also known as smart contracts are specialized software that run on a blockchain.
+This template contains
+
+- a Svelte frontend app under `src/frontend` to be hosted on-chain, with support for authentication using Internet Identity
+- a Mokoto dapp under `src/backend` to serve as a backend to the Svelte frontend
 
 ### What is the Internet Computer?
 
@@ -104,6 +107,14 @@ This will take several minutes to complete.
 
 Make sure you switch back to the project root directory.
 
+First, install the frontend dependencies by running
+
+```
+cd src/frontend
+npm install
+cd ..
+```
+
 To build and deploy the project run
 
 ```
@@ -152,4 +163,26 @@ from the project root directory, it is not necessary to deploy it to the fronten
 
 ## Deploying to the IC
 
-`TODO`
+To host the frontend and backend on the IC, you'll need to have some cycles available. Cycles pay for the execution of your app, and they are also needed to create canisters.
+
+You can get $20 worth of cycles for free from the Cycles Faucet, if you have a GitHub account. To claim them, follow [this guide](https://smartcontracts.org/docs/quickstart/cycles-faucet.html).
+
+You should have a canister running the cycles wallet on the IC at this point. The cycles wallet makes it easy to pay for canister creation.
+
+You can check the balance by running
+
+```
+dfx wallet --network ic balance
+```
+
+After making sure you have cycles available you can run
+
+```
+dfx deploy --network ic
+```
+
+The command will build the project, create two new canisters on the IC and deploy both the Svelte and Motoko dapps. The command will also create a new file `canister_ids.json` which will help the dfx tool deploy to the same canisters in future updates. You can commit this file in your repository.
+
+You can now open your Svelte app running on the IC. You can find the canister ID in the deploy command output, or use the `frontend` ID in `canister_ids.json`.
+
+The link to your app is `<frontend canister id>.ic0.app`. For example if your `frontend` canister ID is `zixfv-4yaaa-aaaam-aaatq-cai`, your app will be at `https://zixfv-4yaaa-aaaam-aaatq-cai.ic0.app/`.

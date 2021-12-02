@@ -4,9 +4,9 @@
 
 # Svelte Dapp template
 
-This repository is meant to give Svelte developers an easy on-ramp to get started with developing decentralized applications (Dapps in short) for the Internet Computer blockchain.
+This repository is meant to give Svelte developers an easy on-ramp to get started with developing decentralized applications (Dapps in short) for the Internet Computer blockchain. Dapps, also known as smart contracts are specialized software that run on a blockchain.
 
-Dapps, also known as smart contracts are specialized software that run on a blockchain.
+This template contains a Svelte app under `src/frontend` that can be hosted on-chain on the Internet Computer.
 
 ### What is the Internet Computer?
 
@@ -60,6 +60,14 @@ from the project directory will stop the local replica.
 
 Make sure you switch back to the project root directory.
 
+First, install the frontend dependencies by running
+
+```
+cd src/frontend
+npm install
+cd ..
+```
+
 To build and deploy the project run
 
 ```
@@ -86,4 +94,26 @@ from the project root directory, it is not necessary to deploy it to the fronten
 
 ## Deploying to the IC
 
-`TODO`
+To host the Svelte app on the IC, you'll need to have some cycles available. Cycles pay for the execution of your app, and they are also needed to create canisters.
+
+You can get $20 worth of cycles for free from the Cycles Faucet, if you have a GitHub account. To claim them, follow [this guide](https://smartcontracts.org/docs/quickstart/cycles-faucet.html).
+
+You should have a canister running the cycles wallet on the IC at this point. The cycles wallet makes it easy to pay for canister creation.
+
+You can check the balance by running
+
+```
+dfx wallet --network ic balance
+```
+
+After making sure you have cycles available you can run
+
+```
+dfx deploy --network ic
+```
+
+The command will build the project, create a new canister on the IC and deploy the Svelte app into it. The command will also create a new file `canister_ids.json` which will help the dfx tool deploy to the same canister in future updates. You can commit this file in your repository.
+
+You can now open your Svelte app running on the IC. You can find the canister ID in the deploy command output, or use the ID in `canister_ids.json`.
+
+The link to your app is `<canister_id>.ic0.app`. For example if your canister ID is `zgvi5-hiaaa-aaaam-aaasq-cai`, your app will be at `https://zgvi5-hiaaa-aaaam-aaasq-cai.ic0.app/`.
