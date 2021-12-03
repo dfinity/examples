@@ -4,7 +4,7 @@
 
 # Svelte Dapp template
 
-This repository is meant to give Svelte developers an easy on-ramp to get started with developing decentralized applications (Dapps in short) for the Internet Computer blockchain. Dapps, also known as smart contracts are specialized software that run on a blockchain.
+This repository is meant to give [Svelte](https://svelte.dev/) developers an easy on-ramp to get started with developing decentralized applications (Dapps in short) for the Internet Computer blockchain. Dapps, also known as smart contracts are specialized software that run on a blockchain.
 
 This template contains a Svelte app under `src/frontend` that can be hosted on-chain on the Internet Computer.
 
@@ -31,7 +31,7 @@ Make sure you have [node.js](https://nodejs.org/) installed.
 To clone this template without downloading the entire repository, run the following command:
 
 ```
-npx degit olaszakos/examples/svelte-starter svelte-starter
+npx degit dfinity/examples/svelte-starter svelte-starter
 ```
 
 ### DFX

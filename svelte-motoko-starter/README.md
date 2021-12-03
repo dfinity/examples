@@ -4,7 +4,7 @@
 
 # Svelte Dapp with Motoko & Internet Identity
 
-This repository is meant to give Svelte developers an easy on-ramp to get started with developing decentralized applications (Dapps in short) for the Internet Computer blockchain. Dapps, also known as smart contracts are specialized software that run on a blockchain.
+This repository is meant to give [Svelte](https://svelte.dev/) developers an easy on-ramp to get started with developing decentralized applications (Dapps in short) for the Internet Computer blockchain. Dapps, also known as smart contracts are specialized software that run on a blockchain.
 
 This template contains
 
@@ -23,10 +23,12 @@ Coupled with super fast execution the Internet Computer provides the worlds firs
 
 Dapps on the Internet Computer live in canisters, which are special smart contracts that run WebAssembly, and can respond to regular HTTP requests, among other capabilities.
 
-This repository uses Svelte for the frontend running in the browser with Mokoto running the business logic of your dapp, and will build and deploy multiple _canisters_:
+This repository uses Svelte for the frontend running in the browser, and the backend dapp is written in Mokoto, it serves as the business logic of your dapp.
+
+You will build and deploy the following _canisters_:
 
 - `backend` that is written in Motoko, and will hold the business logic of your dapp.
-- `frontend` that is your regular Svelte app, transferred into an `frontend asset` canister.
+- `frontend` that is your regular Svelte app, transferred into a `frontend asset` canister.
 - `internet_identity` that this repository uses as an authentication provider. It is written in Rust.
 
 ### What is Motoko?
@@ -46,7 +48,7 @@ Make sure you have [node.js](https://nodejs.org/) installed.
 To clone this template without downloading the entire repository, run the following command:
 
 ```
-npx degit olaszakos/examples/svelte-motoko-starter svelte-motoko-starter
+npx degit dfinity/examples/svelte-motoko-starter svelte-motoko-starter
 ```
 
 ### DFX
