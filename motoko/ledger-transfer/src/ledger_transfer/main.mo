@@ -32,6 +32,10 @@ actor Self {
     posts.put(author, newPosts);
   };
 
+  func myAccountId() : Account.AccountIdentifier {
+    Account.accountIdentifier(Principal.fromActor(Self), Account.defaultSubaccount())
+  };
+
   public shared ({ caller }) func post(lit : Text) : async () {
     addPost(caller, lit);
   };
@@ -44,7 +48,11 @@ actor Self {
   };
 
   public query func canisterAccount() : async Account.AccountIdentifier {
-    Account.accountIdentifier(Principal.fromActor(Self), Account.defaultSubaccount())
+    myAccountId()
+  };
+
+  public func canisterBalance() : async Ledger.ICP {
+    await Ledger.account_balance({ account = myAccountId() })
   };
 
   public func distributeRewards() : async ?Principal {
