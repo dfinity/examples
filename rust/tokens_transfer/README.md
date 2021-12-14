@@ -64,7 +64,7 @@ dfx canister call ledger transfer "${ARGS}"
 read -r -d '' ARGS <<EOM
 (record {
   amount=record { e8s=5 };
-  to_account=principal "${YOUR_PRINCIPAL}"
+  to_principal=principal "${YOUR_PRINCIPAL}"
 },)
 EOM
 dfx canister call tokens_transfer transfer '${ARGS}'

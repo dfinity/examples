@@ -40,14 +40,14 @@ fn init(conf: Conf) {
 #[derive(CandidType, Serialize, Deserialize, Clone, Debug, Hash)]
 pub struct TransferArgs {
     amount: Tokens,
-    to_account: Principal,
+    to_principal: Principal,
     to_subaccount: Option<Subaccount>,
 }
 
 #[update]
 #[candid_method(update)]
 async fn transfer(args: TransferArgs) -> Result<BlockIndex, String> {
-    ic_cdk::println!("Transferring {} tokens to account {} subaccount {:?}", &args.amount, &args.to_account, &args.to_subaccount);
+    ic_cdk::println!("Transferring {} tokens to principal {} subaccount {:?}", &args.amount, &args.to_principal, &args.to_subaccount);
     let ledger_canister_id = CONF.with(|conf| conf.borrow().ledger_canister_id);
     let to_subaccount = args.to_subaccount.unwrap_or(DEFAULT_SUBACCOUNT);
     let transfer_args = CONF.with(|conf| {
@@ -57,7 +57,7 @@ async fn transfer(args: TransferArgs) -> Result<BlockIndex, String> {
             amount: args.amount,
             fee: conf.transaction_fee,
             from_subaccount: conf.subaccount,
-            to: AccountIdentifier::new(&args.to_account, &to_subaccount),
+            to: AccountIdentifier::new(&args.to_principal, &to_subaccount),
             created_at_time: None,
         }
     });

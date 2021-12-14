@@ -10,7 +10,7 @@ type Conf = record {
 
 type TransferArgs = record {
     amount: Tokens;
-    to_account: principal;
+    to_principal: principal;
     to_subaccount: opt blob
 };
 
