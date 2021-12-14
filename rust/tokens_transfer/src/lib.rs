@@ -13,6 +13,9 @@ use serde::{Deserialize, Serialize};
 #[derive(CandidType, Serialize, Deserialize, Clone, Debug, Hash, PartialEq)]
 pub struct Conf {
     ledger_canister_id: Principal,
+    // The subaccount of the account identifier that will be used to withdraw tokens and send them
+    // to another account identifier. If set to None then the default subaccount will be used.
+    // See the [Ledger doc](https://smartcontracts.org/docs/integration/ledger-quick-start.html#_accounts).
     subaccount: Option<Subaccount>,
     transaction_fee: Tokens
 }
