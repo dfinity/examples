@@ -7,9 +7,6 @@ use ic_ledger_types::{AccountIdentifier, BlockIndex, DEFAULT_SUBACCOUNT, MAINNET
 use ic_types::Principal;
 use serde::{Deserialize, Serialize};
 
-#[cfg(test)] use std::path::PathBuf;
-#[cfg(test)] use std::io::Write;
-
 #[derive(CandidType, Serialize, Deserialize, Clone, Debug, Hash, PartialEq)]
 pub struct Conf {
     ledger_canister_id: Principal,
