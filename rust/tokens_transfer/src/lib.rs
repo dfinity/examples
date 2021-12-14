@@ -2,7 +2,6 @@ use std::cell::RefCell;
 use std::hash::Hash;
 use candid::{candid_method, CandidType};
 
-use ic_cdk::api::call::call;
 use ic_cdk_macros::*;
 use ic_ledger_types::{AccountIdentifier, BlockIndex, DEFAULT_SUBACCOUNT, MAINNET_LEDGER_CANISTER_ID, Memo, Subaccount, Tokens};
 use ic_types::Principal;
@@ -49,6 +48,7 @@ pub struct TransferArgs {
 #[candid_method(update)]
 async fn transfer(args: TransferArgs) -> Result<BlockIndex, String> {
     ic_cdk::println!("Transferring {} tokens to account {} subaccount {:?}", &args.amount, &args.to_account, &args.to_subaccount);
+    let ledger_canister_id = CONF.with(|conf| conf.borrow().ledger_canister_id);
     let to_subaccount = args.to_subaccount.unwrap_or(DEFAULT_SUBACCOUNT);
     let transfer_args = CONF.with(|conf| {
         let conf = conf.borrow();
@@ -61,12 +61,7 @@ async fn transfer(args: TransferArgs) -> Result<BlockIndex, String> {
             created_at_time: None,
         }
     });
-    ledger_transfer(&transfer_args).await
-}
-
-async fn ledger_transfer(transfer_args: &ic_ledger_types::TransferArgs) -> Result<BlockIndex, String> {
-    let ledger_canister_id = CONF.with(|conf| conf.borrow().ledger_canister_id);
-    let res: (ic_ledger_types::TransferResult, ) = call(ledger_canister_id, "transfer", (transfer_args, )).await
-        .map_err(|e| format!("ledger transfer error {:?}", e))?;
-    Ok(res.0.map_err(|e| format!("ledger transfer error {:?}", e))?)
+    ic_ledger_types::transfer(ledger_canister_id, transfer_args).await
+        .map_err(|e| format!("ledger transfer error {:?}", e))?
+        .map_err(|e| format!("ledger transfer error {:?}", e))
 }
