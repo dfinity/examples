@@ -14,11 +14,6 @@ use serde::{Deserialize, Serialize};
 #[cfg(test)] use std::io::Write;
 use ic_cdk::id;
 
-use crate::errors::TransferError;
-
-#[cfg(test)] mod candid_util;
-mod errors;
-
 #[derive(CandidType, Serialize, Deserialize, Clone, Debug, Hash, PartialEq)]
 pub struct Conf {
     ledger_canister_id: Principal,
@@ -56,7 +51,7 @@ pub struct TransferArgs {
 // returns the memo as transaction id
 #[update]
 #[candid_method(update)]
-async fn transfer(args: TransferArgs) -> Result<Memo, TransferError> {
+async fn transfer(args: TransferArgs) -> Result<Memo, String> {
     ic_cdk::println!("Transferring {} tokens to account {} subaccount {:?}", &args.amount, &args.to_account, &args.to_subaccount);
     let to_subaccount = args.to_subaccount.unwrap_or(DEFAULT_SUBACCOUNT);
     let memo = CONF.with(|conf| {
@@ -86,18 +81,9 @@ fn hash_transfer_input(args: &TransferArgs, conf: &Conf) -> u64 {
     hasher.finish()
 }
 
-async fn ledger_transfer(transfer_args: &ic_ledger_types::TransferArgs) -> Result<BlockIndex, TransferError> {
+async fn ledger_transfer(transfer_args: &ic_ledger_types::TransferArgs) -> Result<BlockIndex, String> {
     let ledger_canister_id = CONF.with(|conf| conf.borrow().ledger_canister_id);
-    let res: (ic_ledger_types::TransferResult, ) = call(ledger_canister_id, "transfer", (transfer_args, )).await?;
-    Ok(res.0?)
-}
-
-#[test]
-fn check_candid_interface_compatibility() {
-    candid::export_service!();
-    let actual_interface = __export_service();
-    let mut actual = tempfile::NamedTempFile::new().expect("Failed to create a temporary file");
-    write!(actual, "{}", actual_interface).unwrap();
-    let expected = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("src").join("tokens_transfer.did");
-    candid_util::check_candid_interface_compatibility(&expected, &actual.path());
+    let res: (ic_ledger_types::TransferResult, ) = call(ledger_canister_id, "transfer", (transfer_args, )).await
+        .map_err(|e| format!("ledger transfer error {:?}", e))?;
+    Ok(res.0.map_err(|e| format!("ledger transfer error {:?}", e))?)
 }

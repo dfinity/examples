@@ -23,11 +23,11 @@ The canister expects three arguments:
 2. deploy the Ledger canister locally. Add some tokens to your account (`dfx identity get-principal`) in the initialization parameters of the Ledger canister.
 ```bash
 # MINTING_ACCOUNT_ID_HEX and ACCOUNT_ID_HEX are the hex representation
-# of the minting principal and your principal respectively
+# of the minting account id and your account id respectively
 read -r -d '' ARGS <<EOM
 (record {
-     minting_account="${MINTING_PRINCIPAL_HEX}";
-     initial_values=vec { record { "${YOUR_PRINCIPAL_HEX}"; record { e8s=10_000_000_000 } }; };
+     minting_account="${MINTING_ACCOUNT_ID_HEX}";
+     initial_values=vec { record { "${YOUR_ACCOUNT_ID_HEX}"; record { e8s=10_000_000_000 } }; };
      send_whitelist=vec {};
  }, )
 EOM
@@ -47,10 +47,10 @@ dfx deploy --argument "${ARGS}" tokens_transfer
 ```
 4. transfer some funds to the Tokens Transfer canister
 ```bash
-# TOKENS_TRANSFER_PRINCIPAL_ID_BYTES is the vec nat8 representation of the tokens transfer canister
+# TOKENS_TRANSFER_ACCOUNT_ID_BYTES is the vec nat8 representation of the tokens transfer canister
 read -r -d '' ARGS <<EOM
 (record {
-  to=${TOKENS_TRANSFER_PRINCIPAL_ID_BYTES};
+  to=${TOKENS_TRANSFER_ACCOUNT_ID_BYTES};
   amount=record { e8s=10_000 };
   fee=record { e8s=10_000 };
   memo=0:nat64;
