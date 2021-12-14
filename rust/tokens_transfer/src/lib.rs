@@ -6,7 +6,7 @@ use candid::{candid_method, CandidType};
 
 use ic_cdk::api::call::call;
 use ic_cdk_macros::*;
-use ic_ledger_types::{AccountBalanceArgs, AccountIdentifier, BlockIndex, DEFAULT_SUBACCOUNT, MAINNET_LEDGER_CANISTER_ID, Memo, Subaccount, Tokens};
+use ic_ledger_types::{AccountIdentifier, BlockIndex, DEFAULT_SUBACCOUNT, MAINNET_LEDGER_CANISTER_ID, Memo, Subaccount, Tokens};
 use ic_types::Principal;
 use serde::{Deserialize, Serialize};
 
@@ -44,19 +44,6 @@ thread_local! {
 #[candid_method(init)]
 fn init(conf: Conf) {
     CONF.with(|c| c.replace(conf));
-}
-
-#[query]
-#[candid_method(query)]
-async fn balance() -> Tokens {
-    ic_cdk::println!("Querying the balance");
-
-    let account_balance_args = CONF.with(|conf| {
-        AccountBalanceArgs {
-            account: AccountIdentifier::new(&id(), &conf.borrow().subaccount.unwrap_or(DEFAULT_SUBACCOUNT))
-        }
-    });
-    ledger_balance(&account_balance_args).await
 }
 
 #[derive(CandidType, Serialize, Deserialize, Clone, Debug, Hash)]
@@ -99,22 +86,11 @@ fn hash_transfer_input(args: &TransferArgs, conf: &Conf) -> u64 {
     hasher.finish()
 }
 
-
-// utility functions
-
-async fn ledger_balance(balance_args: &ic_ledger_types::AccountBalanceArgs) -> Tokens {
-    let ledger_canister_id = CONF.with(|conf| conf.borrow().ledger_canister_id);
-    let res: (ic_ledger_types::Tokens, ) = call(ledger_canister_id, "account_balance", (balance_args, )).await.expect("call to ledger failed");
-    res.0
-}
-
 async fn ledger_transfer(transfer_args: &ic_ledger_types::TransferArgs) -> Result<BlockIndex, TransferError> {
     let ledger_canister_id = CONF.with(|conf| conf.borrow().ledger_canister_id);
     let res: (ic_ledger_types::TransferResult, ) = call(ledger_canister_id, "transfer", (transfer_args, )).await?;
     Ok(res.0?)
 }
-
-//
 
 #[test]
 fn check_candid_interface_compatibility() {

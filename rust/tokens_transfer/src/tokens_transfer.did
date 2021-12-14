@@ -28,6 +28,5 @@ type TransferResult = variant {
 };
 
 service : (Conf) -> {
-    balance: () -> (Tokens) query;
     transfer: (TransferArgs) -> (TransferResult);
 }

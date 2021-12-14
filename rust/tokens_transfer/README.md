@@ -6,7 +6,6 @@ It is an example of a canister that uses the Ledger canister.
 
 ## Interface
 
-1. `balance`: takes no arguments and return the balance of the canister
 2. `transfer`: takes in input the amount of tokens to transfer, the account (and optionally the subaccount) to which to transfer the tokens and returns either success or an error in case e.g. the tokens transfer canister doesn't have enough tokens to do the transfer. In case of success, a unique identifier of the transaction is returned. This identifier will be stored in the memo of the transaction in the Ledger.
 
 
@@ -59,11 +58,7 @@ read -r -d '' ARGS <<EOM
 EOM
 dfx canister call ledger transfer "${ARGS}"
 ```
-5. verify that the Tokens Transfer canister has received the tokens
-```bash
-dfx canister call tokens_transfer balance
-```
-6. transfer some of the tokens from the Tokens Transfer canister back to the original account
+5. transfer some of the tokens from the Tokens Transfer canister back to the original account
 ```bash
 # YOUR_PRINCIPAL is the value returned by dfx identity get-principal
 read -r -d '' ARGS <<EOM
