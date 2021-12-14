@@ -19,8 +19,11 @@ actor Self {
 
   public type Posts = List.List<Post>;
 
+  // Posts indexed by the author.
+  // Newest posts are at the front of the post list.
   var posts : HashMap.HashMap<Principal, Posts> = HashMap.HashMap(10, Principal.equal, Principal.hash);
 
+  // Records a new message posted by the specified author.
   func addPost(author : Principal, text : Text) {
     let post = { text = text; created_at = Time.now(); };
     
@@ -32,14 +35,17 @@ actor Self {
     posts.put(author, newPosts);
   };
 
+  // Returns the default account identifier of this canister.
   func myAccountId() : Account.AccountIdentifier {
     Account.accountIdentifier(Principal.fromActor(Self), Account.defaultSubaccount())
   };
 
+  // Adds a new post.
   public shared ({ caller }) func post(lit : Text) : async () {
     addPost(caller, lit);
   };
 
+  // Returns messages posted by the caller.
   public shared query ({ caller }) func myPosts() : async Posts {
     switch (posts.get(caller)) {
       case null { null };
@@ -47,14 +53,19 @@ actor Self {
     }
   };
 
+  // Returns canister's default account identifier as a blob.
   public query func canisterAccount() : async Account.AccountIdentifier {
     myAccountId()
   };
 
+  // Returns current balance on the default account of this canister.
   public func canisterBalance() : async Ledger.ICP {
     await Ledger.account_balance({ account = myAccountId() })
   };
 
+  // Rewards the most prolific author of the last week with 1 ICP.
+  //
+  // Returns the principal of the winner, if there is one.
   public func distributeRewards() : async ?Principal {
     let weekNanos = 7 * 24 * 3600 * 1_000_000_000;
     let now = Time.now();
@@ -63,6 +74,7 @@ actor Self {
     var maxPosts = 0;
     var mostProlificAuthor : ?Principal = null;
 
+    // Go over all the posts and find the most prolific author.
     for ((author, posts) in posts.entries()) {
       let numFreshPosts = List.foldLeft(posts, 0 : Nat, func (acc : Nat, post : Post) : Nat {
         if (post.created_at >= threshold) { acc + 1 } else { acc }
@@ -76,6 +88,7 @@ actor Self {
     switch (mostProlificAuthor) {
       case null {};
       case (?principal) {
+        // If there is a winner, transfer 1 ICP to the winner.
         let res = await Ledger.transfer({
           memo = Nat64.fromNat(maxPosts);
           from_subaccount = null;
