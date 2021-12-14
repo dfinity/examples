@@ -1,7 +1,5 @@
 use std::cell::RefCell;
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
-use std::ops::Deref;
+use std::hash::Hash;
 use candid::{candid_method, CandidType};
 
 use ic_cdk::api::call::call;
@@ -12,7 +10,6 @@ use serde::{Deserialize, Serialize};
 
 #[cfg(test)] use std::path::PathBuf;
 #[cfg(test)] use std::io::Write;
-use ic_cdk::id;
 
 #[derive(CandidType, Serialize, Deserialize, Clone, Debug, Hash, PartialEq)]
 pub struct Conf {
@@ -48,19 +45,15 @@ pub struct TransferArgs {
     to_subaccount: Option<Subaccount>,
 }
 
-// returns the memo as transaction id
 #[update]
 #[candid_method(update)]
-async fn transfer(args: TransferArgs) -> Result<Memo, String> {
+async fn transfer(args: TransferArgs) -> Result<BlockIndex, String> {
     ic_cdk::println!("Transferring {} tokens to account {} subaccount {:?}", &args.amount, &args.to_account, &args.to_subaccount);
     let to_subaccount = args.to_subaccount.unwrap_or(DEFAULT_SUBACCOUNT);
-    let memo = CONF.with(|conf| {
-        Memo(hash_transfer_input(&args, conf.borrow().deref()))
-    });
     let transfer_args = CONF.with(|conf| {
         let conf = conf.borrow();
         ic_ledger_types::TransferArgs {
-            memo,
+            memo: Memo(0),
             amount: args.amount,
             fee: conf.transaction_fee,
             from_subaccount: conf.subaccount,
@@ -68,17 +61,7 @@ async fn transfer(args: TransferArgs) -> Result<Memo, String> {
             created_at_time: None,
         }
     });
-    ledger_transfer(&transfer_args).await?;
-    Ok(memo)
-}
-
-fn hash_transfer_input(args: &TransferArgs, conf: &Conf) -> u64 {
-    let mut hasher = DefaultHasher::default();
-    std::time::SystemTime::now().hash(&mut hasher);
-    id().hash(&mut hasher);
-    args.hash(&mut hasher);
-    conf.hash(&mut hasher);
-    hasher.finish()
+    ledger_transfer(&transfer_args).await
 }
 
 async fn ledger_transfer(transfer_args: &ic_ledger_types::TransferArgs) -> Result<BlockIndex, String> {
