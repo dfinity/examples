@@ -1,0 +1,95 @@
+syntax = "proto3";
+
+message GetBlockRequest {
+  uint64 start = 1;
+  uint64 length = 2;
+}
+
+message EncodedBlock {
+  bytes block = 1;
+}
+
+message EncodedBlocks {
+  repeated EncodedBlock blocks = 1;
+}
+
+message GetBlocksResponse {
+  oneof get_blocks_content {
+    EncodedBlocks blocks = 1;
+    string error = 2;
+  }
+}
+
+message Block {
+  Hash parent_hash = 1;
+  TimeStamp timestamp = 2;
+  Transaction transaction = 3;
+}
+
+message Hash {
+  bytes hash = 1;
+}
+
+message Tokens {
+  uint64 e8s = 1;
+}
+
+message BlockHeight {
+  uint64 height = 1;
+}
+
+message Account {
+  AccountIdentifier identifier = 1;
+  Tokens balance = 2;
+}
+
+message Transaction {
+  oneof transfer {
+    Burn burn = 1;
+    Mint mint = 2;
+    Send send = 3;
+  }
+  Memo memo = 4;
+  BlockHeight created_at = 5; // obsolete
+  TimeStamp created_at_time = 6;
+}
+
+message Send {
+  AccountIdentifier from = 1;
+  AccountIdentifier to = 2;
+  Tokens amount = 3;
+  Tokens max_fee = 4;
+}
+
+message Mint {
+  AccountIdentifier to = 2;
+  Tokens amount = 3;
+}
+
+message Burn {
+  AccountIdentifier from = 1;
+  Tokens amount = 3;
+}
+
+
+message AccountIdentifier {
+  // Can contain either:
+  //  * the 32 byte identifier (4 byte checksum + 28 byte hash)
+  //  * the 28 byte hash
+  bytes hash = 1;
+
+}
+
+message Subaccount {
+  bytes sub_account = 1;
+
+}
+
+message Memo {
+  uint64 memo = 1;
+
+}
+
+message TimeStamp {
+  uint64 timestamp_nanos = 1;
+}

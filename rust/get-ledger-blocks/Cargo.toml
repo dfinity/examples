@@ -1,0 +1,14 @@
+[package]
+name = "get-ledger-blocks"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+ic-agent = "0.10.1"
+prost = "0.9.0"
+structopt = "0.3.25"
+tokio = { version = "1.14.0", features = ["macros"] }
+url = "2.2.2"
+
+[build-dependencies]
+prost-build = "0.9.0"
