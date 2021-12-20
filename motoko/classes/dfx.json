@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "dfx": "0.8.0",
+  "dfx": "0.8.4",
   "canisters": {
     "Map": {
       "type": "motoko",

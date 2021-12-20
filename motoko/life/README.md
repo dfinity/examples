@@ -35,10 +35,15 @@ dfx deploy
 ```
 
 The deployment step should report a canister id for the `life_assets`
-canister, something like `ryjl3-tyaaa-aaaaa-aaaba-cai`.
+canister.
 
-1. Open the frontend in your browser using that canister id, for example
-   [http://localhost:8000/?canisterId=ryjl3-tyaaa-aaaaa-aaaba-cai](http://localhost:8000/?canisterId=rkp4c-7iaaa-aaaaa-aaaca-cai).
+1. Take note of the URL at which the `life_assets` is accessible.
+
+   ```text
+   echo "http://localhost:8000/?canisterId=$(dfx canister id life_assets)"
+   ```
+
+   Open the frontend in your browser by clicking on the link.
 
    You should see a frontend like this:
    ![life](./images/life.png)

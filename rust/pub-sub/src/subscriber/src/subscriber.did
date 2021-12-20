@@ -1,0 +1,12 @@
+type Counter = variant {    
+    topic : text;
+    value:nat64;
+};
+type Subscriber = variant {
+    topic:text;
+  };
+service : {
+     "setup_subscribe": (publisher_id:principal,topic:text) -> ();
+     "update_count": (counter : Counter) -> ();
+     "get_count": () -> (nat64);
+}
