@@ -59,11 +59,11 @@ actor Self {
   };
 
   // Returns current balance on the default account of this canister.
-  public func canisterBalance() : async Ledger.ICP {
+  public func canisterBalance() : async Ledger.Token {
     await Ledger.account_balance({ account = myAccountId() })
   };
 
-  // Rewards the most prolific author of the last week with 1 ICP.
+  // Rewards the most prolific author of the last week with 1 token.
   //
   // Returns the principal of the winner, if there is one.
   public func distributeRewards() : async ?Principal {
@@ -88,7 +88,7 @@ actor Self {
     switch (mostProlificAuthor) {
       case null {};
       case (?principal) {
-        // If there is a winner, transfer 1 ICP to the winner.
+        // If there is a winner, transfer 1 Token to the winner.
         let res = await Ledger.transfer({
           memo = Nat64.fromNat(maxPosts);
           from_subaccount = null;
