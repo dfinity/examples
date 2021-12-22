@@ -62,6 +62,6 @@ async fn transfer(args: TransferArgs) -> Result<BlockIndex, String> {
         }
     });
     ic_ledger_types::transfer(ledger_canister_id, transfer_args).await
-        .map_err(|e| format!("ledger transfer error {:?}", e))?
+        .map_err(|e| format!("failed to call ledger: {:?}", e))?
         .map_err(|e| format!("ledger transfer error {:?}", e))
 }
