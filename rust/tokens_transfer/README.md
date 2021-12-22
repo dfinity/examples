@@ -6,7 +6,7 @@ It is an example of a canister that uses the Ledger canister.
 
 ## Interface
 
-2. `transfer`: takes in input the amount of tokens to transfer, the account (and optionally the subaccount) to which to transfer the tokens and returns either success or an error in case e.g. the tokens transfer canister doesn't have enough tokens to do the transfer. In case of success, a unique identifier of the transaction is returned. This identifier will be stored in the memo of the transaction in the Ledger.
+1. `transfer`: takes in input the amount of tokens to transfer, the account (and optionally the subaccount) to which to transfer the tokens and returns either success or an error in case e.g. the tokens transfer canister doesn't have enough tokens to do the transfer. In case of success, a unique identifier of the transaction is returned. This identifier will be stored in the memo of the transaction in the Ledger.
 
 
 ## Initialization
@@ -19,8 +19,8 @@ The canister expects three arguments:
 
 ## Test Locally
 
-1. start the local replicate with `dfx start`
-2. deploy the Ledger canister locally. Add some tokens to your account (`dfx identity get-principal`) in the initialization parameters of the Ledger canister.
+1. [build and deploy the Ledger canister](https://github.com/dfinity/ic/tree/master/rs/rosetta-api/ledger_canister#deploying-locally)
+2. Add some tokens to your account (`dfx identity get-principal`) in the initialization parameters of the Ledger canister.
 ```bash
 # MINTING_ACCOUNT_ID_HEX and ACCOUNT_ID_HEX are the hex representation
 # of the minting account id and your account id respectively
