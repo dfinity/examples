@@ -16,15 +16,9 @@ type TransferArgs = record {
 
 type Memo = nat64;
 
-type TransferError = variant {
-    AccountError: text;
-    CallError: text;
-    LedgerError: text;
-};
-
 type TransferResult = variant {
     Ok: Memo;
-    Err: TransferError;
+    Err: text;
 };
 
 service : (Conf) -> {
