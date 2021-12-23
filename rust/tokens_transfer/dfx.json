@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "canisters": {
+    "tokens-transfer": {
+      "build": [
+        "cargo build --target wasm32-unknown-unknown --package tokens_transfer --release"
+      ],
+      "candid": "src/tokens_transfer.did",
+      "wasm": "target/wasm32-unknown-unknown/release/tokens_transfer.wasm",
+      "type": "custom"
+    }
+  }
+}

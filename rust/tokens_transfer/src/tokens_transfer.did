@@ -1,0 +1,26 @@
+type Tokens = record {
+    e8s: nat64
+};
+
+type Conf = record {
+  transaction_fee : Tokens;
+  subaccount : opt vec nat8;
+  ledger_canister_id : principal;
+};
+
+type TransferArgs = record {
+    amount: Tokens;
+    to_principal: principal;
+    to_subaccount: opt blob
+};
+
+type Memo = nat64;
+
+type TransferResult = variant {
+    Ok: Memo;
+    Err: text;
+};
+
+service : (Conf) -> {
+    transfer: (TransferArgs) -> (TransferResult);
+}
