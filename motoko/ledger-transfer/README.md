@@ -26,7 +26,7 @@ Verify the following before running this demo:
 
 1. Install the ledger canister
    ```
-dfx canister install --mode reinstall --argument '(record {send_whitelist=vec{}; minting_account="051b05839339f89053454a4b9865ea0452a4bffe2b1cd41f4982bad10c1e637c"; transaction_window = null; max_message_size_bytes = null; archive _options = null; initial_values = vec {record{"bdc4ee05d42cd0669786899f256c8fd7217fa71177bd1fa7b9534f568680a938"; record {e8s=100_000_000_000}}};})' ledger
+   dfx canister install --mode reinstall --argument '(record {send_whitelist=vec{}; minting_account="051b05839339f89053454a4b9865ea0452a4bffe2b1cd41f4982bad10c1e637c"; transaction_window = null; max_message_size_bytes = null; archive_options = null; initial_values = vec {record{"bdc4ee05d42cd0669786899f256c8fd7217fa71177bd1fa7b9534f568680a938"; record {e8s=100_000_000_000}}};})' ledger
    ```
 
 
