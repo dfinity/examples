@@ -12,10 +12,7 @@ Verify the following before running this demo:
 
 ## Demo
 
-1. Start a local internet computer
-   ```
-   dfx start
-   ```
+1. Follow the [Ledger: Deploying locally](https://github.com/dfinity/ic/tree/master/rs/rosetta-api/ledger_canister#deploying-locally) guide to install the ICP ledger canister locally.
 
 1. Open a new terminal window
 
@@ -23,12 +20,6 @@ Verify the following before running this demo:
    ```
    dfx build
    ```
-
-1. Install the ledger canister
-   ```
-dfx canister install --mode reinstall --argument '(record {send_whitelist=vec{}; minting_account="051b05839339f89053454a4b9865ea0452a4bffe2b1cd41f4982bad10c1e637c"; transaction_window = null; max_message_size_bytes = null; archive _options = null; initial_values = vec {record{"bdc4ee05d42cd0669786899f256c8fd7217fa71177bd1fa7b9534f568680a938"; record {e8s=100_000_000_000}}};})' ledger
-   ```
-
 
 1. Figure out the address of your canister
    ```

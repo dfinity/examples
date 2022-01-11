@@ -7,7 +7,7 @@
     },
     "ledger": {
       "type": "custom",
-      "candid": "ledger.did",
+      "candid": "ledger.public.did",
       "wasm": "ledger.wasm"
     }
   },
