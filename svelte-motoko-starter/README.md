@@ -111,15 +111,35 @@ This will take several minutes to complete.
 
 Make sure you switch back to the project root directory.
 
-First, install the frontend dependencies by running
+First, switch to the frontend directory:
 
 ```
 cd src/frontend
+```
+
+### Typescript support
+
+The Svelte starter comes with a script to enable using Typescript. If you want to use Typescript run the following commands:
+
+```
+node scripts/setupTypeScript.js
+```
+
+### Install & run the dapp locally
+
+Install the frontend dependencies by running:
+
+```
 npm install
+```
+
+Switch back to the project root directory:
+
+```
 cd ..
 ```
 
-To build and deploy the project run
+To build and deploy the project to the local replica, run
 
 ```
 dfx deploy
