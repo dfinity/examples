@@ -23,10 +23,10 @@ Verify the following before running this demo:
 
 1. Figure out the address of your canister
    ```
-   dfx canister call ledger_transfer canisterAddress '()'
+   dfx canister call ledger_transfer canisterAccount '()'
    ```
 
-1. Transfer funds to your canister
+1. Transfer funds to your canister (replace the `to` field in the call payload with the value you got at the previous step).
    ```
    dfx canister call ledger transfer '(record { to = blob "\08.\cf.?dz\c6\00\f4?8\a6\83B\fb\a5\b8\e6\8b\08_\02Y+w\f3\98\08\a8\d2\b5"; memo = 1; amount = record { e8s = 2_00_000_000 }; fee = record { e8s = 10_000 }; })'
    ```
