@@ -25,8 +25,8 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
-	dfx canister call hello greet '("Mom")' \
-		| grep '("Hello, Mom!")' && echo 'PASS'
+	dfx canister call hello greet '("everone")' \
+		| grep '("Hello, everone!")' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean
