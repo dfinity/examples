@@ -29,6 +29,7 @@ module {
     hash.write([0x0A]);
     hash.write(Blob.toArray(Text.encodeUtf8("account-id")));
     hash.write(Blob.toArray(Principal.toBlob(principal)));
+    assert subaccount.size() == 32;
     hash.write(Blob.toArray(subaccount));
     let hashSum = hash.sum();
     let crc32Bytes = beBytes(CRC32.ofArray(hashSum));
