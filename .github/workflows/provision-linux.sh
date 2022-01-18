@@ -21,11 +21,9 @@ rm install-dfx.sh
 sudo apt-get install --yes cmake
 
 # Install rust
-#curl --proto '=https' --tlsv1.2 https://sh.rustup.rs -sSf | sh -y
 wget --output-document install-rustup.sh "https://sh.rustup.rs"
 sudo bash install-rustup.sh -y
 rustup target add wasm32-unknown-unknown
-
 
 # Set environment variables.
 echo "$HOME/bin" >> $GITHUB_PATH
