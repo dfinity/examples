@@ -28,6 +28,7 @@ brew install cmake
 # Install rust
 curl --location --output install-rustup.sh "https://sh.rustup.rs"
 bash install-rustup.sh -y
+rustup target add wasm32-unknown-unknown
 
 # Exit temporary directory.
 popd
