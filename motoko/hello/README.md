@@ -7,7 +7,7 @@ This example demonstrates a dead simple dapp consisting of two canister smart co
 * a simple backend canister, `hello`, implementing the logic of the application in Motoko, and
 * a simple frontend asset canister, `hello_assets` serving the assets of the dapp's web user interface.
 
-This example is based on the default project created by running `dfx new` as described
+This example is based on the default project created by running `dfx new hello` as described
 [here](https://smartcontracts.org/docs/quickstart/local-quickstart.html).
 
 ### Rust variant
@@ -28,7 +28,7 @@ service : {
 }
 ```
 
-The frontend displays a page with an HTML text box for the argument and a button for calling the function greet with that argument. The result of the call is displayed in a text box.
+The frontend displays a page with an HTML text box for the argument and a button for calling the function greet with that argument. The result of the call is displayed in a message box.
 
 The relevant frontend code is:
 
@@ -39,7 +39,7 @@ The relevant frontend code is:
 ## Requirements
 
 The example requires an installation of:
-a
+
 * [DFINITY Canister SDK](https://sdk.dfinity.org).
 * `node.js` (to build the web frontend).
 
@@ -123,5 +123,6 @@ Other related links you might find useful are:
 
 - [Motoko Programming Language Guide](https://sdk.dfinity.org/docs/language-guide/motoko.html)
 - [Motoko Language Quick Reference](https://sdk.dfinity.org/docs/language-guide/language-manual.html)
-- [JavaScript API Reference](https://erxue-5aaaa-aaaab-qaagq-cai.raw.ic0.appa)
-- [Troubleshoot issues] https://smartcontracts.org/docs/developers-guide/troubleshooting.html
+- [Candid Introduction](https://smartcontracts.org/docs/candid-guide/candid-intro.html)
+- [JavaScript API Reference](https://erxue-5aaaa-aaaab-qaagq-cai.raw.ic0.app)
+- [Troubleshoot issues](https://smartcontracts.org/docs/developers-guide/troubleshooting.html)
