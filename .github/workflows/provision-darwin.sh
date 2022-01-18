@@ -26,7 +26,7 @@ rm install-dfx.sh
 brew install cmake
 
 # Install rust
-curl --location --output install-rustup.sh "https://sh.rustup.rs
+curl --location --output install-rustup.sh "https://sh.rustup.rs"
 bash install-rustup.sh -y
 
 # Exit temporary directory.
