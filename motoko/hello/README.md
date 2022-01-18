@@ -2,21 +2,25 @@
 
 ## Summary
 
-This example demonstrates a dead simple dapp consisting of:
+This example demonstrates a dead simple dapp consisting of two canister smart contracts:
 
 * a simple backend canister, `hello`, implementing the logic of the application in Motoko, and
 * a simple frontend asset canister, `hello_assets` serving the assets of the dapp's web user interface.
 
-The example is the template example created by running `dfx new` as described
-https://smartcontracts.org/docs/quickstart/local-quickstart.html[here].
+This example is based on the default project created by running `dfx new` as described
+[here](https://smartcontracts.org/docs/quickstart/local-quickstart.html).
 
 ### Rust variant
 
-A version of this example with a Rust implementation of canister `hello` can be found [here](../../rust/hello).
+A version of this example with a Rust implementation of canister `hello` can be found [here](../../rust/hello/README.md).
 
 ## Interface
 
-Canister `hello` is defined as a Motoko actor with the Candid interface:
+Canister `hello` is defined as a Motoko actor:
+
+* [src/hello/main.mo](src/hello/main.mo)
+
+with the Candid interface:
 
 ```
 service : {
@@ -24,14 +28,20 @@ service : {
 }
 ```
 
-The frontend displays a html text box and a button for suppling the argument and calling the function greet with that argument. The result of the call is displayed in a text box.
+The frontend displays a page with an HTML text box for the argument and a button for calling the function greet with that argument. The result of the call is displayed in a text box.
+
+The relevant frontend code is:
+
+* [src/hello_assets/src/index.html](src/hello_assets/src/index.html)
+* [src/hello_assets/src/index.jsx](src/hello_assets/src/index.jsx)
 
 
 ## Requirements
 
-The example requires an installation of
+The example requires an installation of:
+a
 * [DFINITY Canister SDK](https://sdk.dfinity.org).
-* node.js (to build the web frontend).
+* `node.js` (to build the web frontend).
 
 (The Rust version of this example additionally requires a working Rust environment.)
 
@@ -56,7 +66,7 @@ Using two terminal windows, do the following steps:
 
 1. Open the second terminal window.
 
-1. Ensure that the required `+node+` modules are available in your project direc   tory, if needed, by running the following command:
+1. Ensure that the required `node` modules are available in your project directory, if needed, by running the following command:
 
    ```text
    npm install
@@ -82,35 +92,36 @@ Using two terminal windows, do the following steps:
 
 The previous steps use `dfx` to directly call the function on the `hello` (backend) canister.
 
-To access the web user interface of the dapp, that is served by caniser `hello_assets`, do the following:
+To access the web user interface of the dapp, that is served by canister `hello_assets`, do the following:
 
-1. Determine the url of the `hello_assets` asset canister.
+1. Determine the URL of the `hello_assets` asset canister.
 
-  ```text
-  echo "http://localhost:8000/?canisterId=$(dfx canister id hello_assets)"
-  ```
+   ```text
+   echo "http://localhost:8000/?canisterId=$(dfx canister id hello_assets)"
+   ```
 
 1. Navigate to the URL in your browser.
 
 2. The browser should display a simple HTML page with a sample asset image file, an input field, and a button.
 
-3. Enter the text `everone` and click the button to see the greeting returned by the backend `hello` canister.
+3. Enter the text `everyone` and click the button to see the greeting returned by the backend `hello` canister.
 
 ## Troubleshooting
 
-If the UI doesn't display properly, or displays the wrong contents,
-you may need to clear your browser acache.
+If the web page doesn't display properly, or displays the wrong contents,
+you may need to clear your browser cache.
 
-Alternatively, use a new in-private browser window to start with a clean cache.
+Alternatively, open the URL in a fresh, in-private browser window to start with a clean cache.
 
 ## Links
 
 For instructions on how to create this example from scratch as well as a more detailed walkthrough and some tips on frontend development using a development server, see:
 
-- [Local Development](https://sdk.dfinity.org/docs/quickstart/quickstart-intro.html)
+- [Local Development](https://smartcontracts.org/docs/quickstart/local-quickstart.html)
 
 Other related links you might find useful are:
 
 - [Motoko Programming Language Guide](https://sdk.dfinity.org/docs/language-guide/motoko.html)
 - [Motoko Language Quick Reference](https://sdk.dfinity.org/docs/language-guide/language-manual.html)
 - [JavaScript API Reference](https://erxue-5aaaa-aaaab-qaagq-cai.raw.ic0.appa)
+- [Troubleshoot issues] https://smartcontracts.org/docs/developers-guide/troubleshooting.html
