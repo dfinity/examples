@@ -1,7 +1,8 @@
 <script>
-  import { AuthClient } from "@dfinity/auth-client";
-  import { onMount } from "svelte";
-  import { auth, createActor } from "../store/auth";
+  import { AuthClient } from '@dfinity/auth-client';
+  import { onMount } from 'svelte';
+  import { createActor } from '../lib/actor';
+  import { auth } from '../store/auth';
 
   /** @type {AuthClient} */
   let client;
@@ -31,8 +32,8 @@
   function login() {
     client.login({
       identityProvider:
-        process.env.DFX_NETWORK === "ic"
-          ? "https://identity.ic0.app/#authorize"
+        process.env.DFX_NETWORK === 'ic'
+          ? 'https://identity.ic0.app/#authorize'
           : `http://${process.env.INTERNET_IDENTITY_CANISTER_ID}.localhost:8000/#authorize`,
       onSuccess: handleAuth,
     });

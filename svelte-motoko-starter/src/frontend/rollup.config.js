@@ -147,4 +147,17 @@ export default {
   watch: {
     clearScreen: false,
   },
+  onwarn: function (warning) {
+    if (
+      [
+        'CIRCULAR_DEPENDENCY',
+        'THIS_IS_UNDEFINED',
+        'EVAL',
+        'NAMESPACE_CONFLIC',
+      ].includes(warning.code)
+    ) {
+      return;
+    }
+    console.warn(warning.message);
+  },
 };

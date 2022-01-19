@@ -13,7 +13,7 @@ const production = !process.env.ROLLUP_WATCH;
 const path = require('path');
 
 function initCanisterIds() {
-  let localCanisters, localIiCanister, prodCanisters, canisters;
+  let localCanisters, localIiCanister, prodCanisters;
   try {
     localCanisters = require(path.resolve(
       '..',
@@ -48,8 +48,6 @@ function initCanisterIds() {
   const network =
     process.env.DFX_NETWORK ||
     (process.env.NODE_ENV === 'production' ? 'ic' : 'local');
-
-  console.log(network);
 
   const canisterIds =
     network === 'local'
@@ -114,7 +112,7 @@ export default {
       browser: true,
       dedupe: ['svelte'],
     }),
-    // Add canister ID's & network to the environment
+
     commonjs(),
     json(),
     inject({
@@ -148,5 +146,18 @@ export default {
   ],
   watch: {
     clearScreen: false,
+  },
+  onwarn: function (warning) {
+    if (
+      [
+        'CIRCULAR_DEPENDENCY',
+        'THIS_IS_UNDEFINED',
+        'EVAL',
+        'NAMESPACE_CONFLIC',
+      ].includes(warning.code)
+    ) {
+      return;
+    }
+    console.warn(warning.message);
   },
 };
