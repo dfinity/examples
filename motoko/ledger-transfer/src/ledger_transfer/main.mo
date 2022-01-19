@@ -59,7 +59,7 @@ actor Self {
   };
 
   // Returns current balance on the default account of this canister.
-  public func canisterBalance() : async Ledger.Token {
+  public func canisterBalance() : async Ledger.Tokens {
     await Ledger.account_balance({ account = myAccountId() })
   };
 

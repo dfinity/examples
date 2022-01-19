@@ -7,7 +7,7 @@
     },
     "ledger": {
       "type": "custom",
-      "candid": "ledger.did",
+      "candid": "ledger.public.did",
       "wasm": "ledger.wasm"
     }
   },
@@ -17,7 +17,7 @@
       "packtool": ""
     }
   },
-  "dfx": "0.8.3",
+  "dfx": "0.8.5",
   "networks": {
     "local": {
       "bind": "127.0.0.1:8000",
