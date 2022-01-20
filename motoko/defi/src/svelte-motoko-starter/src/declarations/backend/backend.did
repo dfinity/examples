@@ -1,3 +1,30 @@
+type TokenBalance = 
+ record {
+   amount: nat;
+   "principal": principal;
+   token: Token;
+ };
+type Token = text;
+type OrderPlacementResult = 
+ record {
+   order: Order;
+   status: text;
+ };
+type Order = 
+ record {
+   from: Token;
+   fromAmount: nat;
+   id: text;
+   to: Token;
+   toAmount: nat;
+ };
 service : {
+  balances: () -> (vec TokenBalance) query;
+  cancel_order: (text) -> () oneway;
+  check_order: (text) -> (opt Order);
+  deposit: () -> () oneway;
+  list_order: () -> (vec Order) query;
+  place_order: (Token, nat, Token, nat) -> (OrderPlacementResult);
   whoami: () -> (principal) query;
+  withdraw: () -> () oneway;
 }

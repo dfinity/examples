@@ -2,6 +2,12 @@
   import Auth from "./components/Auth.svelte";
   import CanisterIds from "./components/CanisterIds.svelte";
   import Links from "./components/Links.svelte";
+  import PlugWallet from './components/PlugWallet.svelte';
+  import UserInfo from './components/UserInfo.svelte';
+  
+
+  let auth = localStorage.getItem('ic-identity');
+
 </script>
 
 <main>
@@ -13,8 +19,13 @@
   >
     <img src="images/dfinity.svg" alt="DFINITY logo" />
   </a>
-  <h1>Svelte Starter dApp</h1>
-  <Auth />
+  <h1>DeFi DEX Example</h1>
+  {#if !auth} 
+    <Auth />
+  {:else}
+    <UserInfo />
+  {/if}
+  <PlugWallet />
   <Links />
   <CanisterIds />
 </main>
@@ -25,8 +36,6 @@
   }
   .logo {
     display: inline-block;
-    margin-bottom: 64px;
-    margin-top: 24px;
   }
 
   main {
