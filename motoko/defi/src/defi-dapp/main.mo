@@ -14,6 +14,11 @@ actor Dex {
 
     type Balance = {
         principal: Principal;
+        balances: [TokenBalance];
+    };
+
+    type TokenBalance = {
+        principal: Principal;
         token: Token;
         amount: Nat;
     };
@@ -31,11 +36,11 @@ actor Dex {
     };
 
 
-    stable var book_stable : [(Principal,Balance)] = [];
+    stable var book_stable : [(Principal,[TokenBalance])] = [];
     stable var orders_stable : [(Text,Order)] = [];
     stable var lastId : Nat = 0;
 
-    let book = M.fromIter<Principal,Balance>(
+    let book = M.fromIter<Principal,[TokenBalance]>(
         book_stable.vals(),10, Principal.equal, Principal.hash
     );
     let orders = M.fromIter<Text,Order>(
@@ -100,4 +105,15 @@ actor Dex {
         buff.toArray();
     };
 
+    // For development only.
+    public query func balances() : async([TokenBalance]) {
+        Debug.print("List balances...");
+        let buff : Buffer.Buffer<TokenBalance> = Buffer.Buffer(book.size());
+        for (tb in book.vals()) {
+            for(x in tb.vals()) {
+                buff.add(x);
+            };
+        };
+        buff.toArray();
+    };
 }
