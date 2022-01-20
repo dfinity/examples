@@ -5,6 +5,8 @@ import Iter "mo:base/Iter";
 import M "mo:base/HashMap";
 import Nat "mo:base/Nat";
 import Principal "mo:base/Principal";
+import Random "mo:base/Random";
+import Text "mo:base/Text";
 
 actor Dex {
 
@@ -12,11 +14,17 @@ actor Dex {
 
     type Balance = {
         principal: Principal;
+        balances: [TokenBalance];
+    };
+
+    type TokenBalance = {
+        principal: Principal;
         token: Token;
         amount: Nat;
     };
 
     type Order = {
+        id: Text;
         from: Token;
         fromAmount: Nat;
         to: Token;
@@ -27,39 +35,42 @@ actor Dex {
         status: Text;
     };
 
-    stable var orders : [Order] = [];
-    stable var balances : [(Principal,Balance)] = [];
 
-    let book = M.fromIter<Principal,Balance>(
-        balances.vals(),10, Principal.equal, Principal.hash
+    stable var book_stable : [(Principal,[TokenBalance])] = [];
+    stable var orders_stable : [(Text,Order)] = [];
+    stable var lastId : Nat = 0;
+
+    let book = M.fromIter<Principal,[TokenBalance]>(
+        book_stable.vals(),10, Principal.equal, Principal.hash
+    );
+    let orders = M.fromIter<Text,Order>(
+        orders_stable.vals(),10,Text.equal,Text.hash
     );
     // Required since maps cannot be stable.
     system func preupgrade() {
-        balances := Iter.toArray(book.entries());
+        book_stable := Iter.toArray(book.entries());
+        orders_stable := Iter.toArray(orders.entries());
     };
     system func postupgrade() {
-        balances := [];
+        book_stable := [];
+        orders_stable := [];
     };
-
 
     public func deposit() {
         Debug.print("Deposit...");
     };
 
     public func place_order(from: Token, fromAmount: Nat, to: Token, toAmount: Nat) : async OrderPlacementResult {
-        Debug.print("Place order...");
+        let id : Text = nextId();
+        Debug.print("Placing order "# id #"...");
         let order : Order = {
+            id;
             from;
             fromAmount;
             to;
             toAmount;
         };
-        let buff : Buffer.Buffer<Order> = Buffer.Buffer(orders.size());
-        for (o in orders.vals()) {
-            buff.add(o);
-        };
-        buff.add(order);
-        orders := buff.toArray();
+        orders.put(id, order);
         let status = "Ok";
         let res : OrderPlacementResult = {
             status;
@@ -67,21 +78,42 @@ actor Dex {
         res;
     };
 
+    func nextId() : Text {
+        lastId += 1;
+        Nat.toText(lastId);
+    };
+
     public func withdraw() {
         Debug.print("Withdraw...");
     };
 
-    public func cancel_order(order_id: Nat) {
-        Debug.print("Cancelling order "# Nat.toText(order_id) #"...");
+    public func cancel_order(order_id: Text) {
+        Debug.print("Cancelling order "# order_id #"...");
     };
 
-    public func check_order(order_id: Nat) {
-        Debug.print("Checking order "# Nat.toText(order_id) #"...");
+    public func check_order(order_id: Text) : async(?Order) {
+        Debug.print("Checking order "# order_id #"...");
+        orders.get(order_id);
     };
 
     public query func list_order() : async([Order]) {
-        Debug.print("List order...");
-        orders;
+        Debug.print("List orders...");
+        let buff : Buffer.Buffer<Order> = Buffer.Buffer(orders.size());
+        for (o in orders.vals()) {
+            buff.add(o);
+        };
+        buff.toArray();
     };
 
+    // For development only.
+    public query func balances() : async([TokenBalance]) {
+        Debug.print("List balances...");
+        let buff : Buffer.Buffer<TokenBalance> = Buffer.Buffer(book.size());
+        for (tb in book.vals()) {
+            for(x in tb.vals()) {
+                buff.add(x);
+            };
+        };
+        buff.toArray();
+    };
 }
