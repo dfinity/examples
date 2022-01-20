@@ -1,0 +1,33 @@
+type Conf = record {
+  transaction_fee : float32;
+  ledger_canister_id : principal;
+};
+
+type TokenBalance = record {
+  owner : principal;
+  token_canister_id : principal;
+  amount : nat;
+};
+
+type Balance = record {
+  owner : principal;
+  balances : vec TokenBalance;
+};
+
+type Order = record {
+  id : nat;
+  from_token_canister_id : principal;
+  from_amount : nat;
+  to_token_canister_id : principal;
+  to_amount : nat;
+};
+
+service : (Conf) -> {
+  cancel_order : (order_id: nat) -> () oneway;
+  check_order : (order_id: nat) -> () oneway;
+  deposit : (token_canister_id: principal, amount: nat) -> () oneway;
+  list_orders : () -> (vec Order) query;
+  place_order : (from_token_canister_id : principal, from_amount : nat, to_token_canister_id : principal, to_amount : nat) -> () oneway;
+  withdraw : (token_canister_id : principal, amount : nat, to_principal : principal) -> () oneway;
+  whoami : () -> (principal) query;
+}

@@ -1,22 +1,23 @@
 {
   "canisters": {
-    "publisher": {
-      "build": [
-        "cargo build --target wasm32-unknown-unknown --package  publisher --release",
-        "ic-cdk-optimizer target/wasm32-unknown-unknown/release/publisher.wasm -o target/wasm32-unknown-unknown/release/publisher_opt.wasm"
-      ],
-      "candid": "src/publisher/src/publisher.did",
-      "wasm": "target/wasm32-unknown-unknown/release/publisher_opt.wasm",
-      "type": "custom"
-    },
-    "subscriber": {
-      "build": [
-        "cargo build --target wasm32-unknown-unknown --package  subscriber --release",
-        "ic-cdk-optimizer target/wasm32-unknown-unknown/release/subscriber.wasm -o target/wasm32-unknown-unknown/release/subscriber_opt.wasm"
-      ],
-      "candid": "src/subscriber/src/subscriber.did",
-      "wasm": "target/wasm32-unknown-unknown/release/subscriber_opt.wasm",
-      "type": "custom"
+    "defi": {
+      "candid": "src/defi/defi.did",
+      "package": "defi",
+      "type": "rust"
     }
-  }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "dfx": "0.8.5",
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
 }
