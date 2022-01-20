@@ -55,6 +55,9 @@ actor Dex {
             toAmount;
         };
         let buff : Buffer.Buffer<Order> = Buffer.Buffer(orders.size());
+        for (o in orders.vals()) {
+            buff.add(o);
+        };
         buff.add(order);
         orders := buff.toArray();
         let status = "Ok";
