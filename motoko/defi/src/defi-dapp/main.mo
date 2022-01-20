@@ -33,6 +33,7 @@ actor Dex {
 
     type OrderPlacementResult = {
         status: Text;
+        order: Order;
     };
 
 
@@ -74,6 +75,7 @@ actor Dex {
         let status = "Ok";
         let res : OrderPlacementResult = {
             status;
+            order;
         };
         res;
     };
@@ -116,4 +118,8 @@ actor Dex {
         };
         buff.toArray();
     };
+    public shared query (msg) func whoami() : async Principal {
+        return msg.caller;
+    };
+
 }

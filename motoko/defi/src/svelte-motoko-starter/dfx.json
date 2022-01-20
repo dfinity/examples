@@ -1,7 +1,7 @@
 {
   "canisters": {
     "backend": {
-      "main": "src/backend/main.mo",
+      "main": "../defi-dapp/main.mo",
       "type": "motoko"
     },
     "frontend": {

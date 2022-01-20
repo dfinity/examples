@@ -53,6 +53,7 @@
   {#if $auth.loggedIn}
     <div>
       <button on:click={logout}>Log out</button>
+      <button>Connect to Plug Wallet</button>
     </div>
   {:else}
     <button on:click={login}>Authenticate in with Internet Identity</button>
