@@ -9,6 +9,12 @@
 dfx start
 ```
 
+initialize submodule
+
+```
+git submodule update --init --recursive
+```
+
 
 ## DIP20
 
@@ -19,7 +25,7 @@ Folder `/DIP20` contains token contracts.
 
 ```bash
 
-cd DIP20/motoko
+cd src/DIP20/motoko
 #remove old content
 dfx stop
 rm -rf .dfx
@@ -31,14 +37,14 @@ ROOT_PUBLIC_KEY="principal \"$(HOME=$ROOT_HOME dfx identity get-principal)\""
 #build token canister
 dfx build
 # deploy token
-dfx canister --no-wallet install token --argument="(\"https://dogbreedslist.com/wp-content/uploads/2019/08/Are-Golden-Retrievers-easy-to-train.png\", \"Golden Coin\", \"DOG\", 8, 10000000000000000, $ROOT_PUBLIC_KEY, 10000)"
+dfx canister --no-wallet install DIP20 --argument="(\"https://dogbreedslist.com/wp-content/uploads/2019/08/Are-Golden-Retrievers-easy-to-train.png\", \"Golden Coin\", \"DOG\", 8, 10000000000000000, $ROOT_PUBLIC_KEY, 10000)"
 
 # set fee structure. Need Home prefix since this is location of our identity
-HOME=$ROOT_HOME  dfx canister  call token setFeeTo "($ROOT_PUBLIC_KEY)"
+HOME=$ROOT_HOME  dfx canister  call DIP20 setFeeTo "($ROOT_PUBLIC_KEY)"
 #deflationary
-HOME=$ROOT_HOME dfx canister  call token setFee "(420)" 
+HOME=$ROOT_HOME dfx canister  call DIP20 setFee "(420)" 
 # get balance. Congrats you are rich
-HOME=$ROOT_HOME dfx canister --no-wallet call token balanceOf "($ROOT_PUBLIC_KEY)"
+HOME=$ROOT_HOME dfx canister --no-wallet call DIP20 balanceOf "($ROOT_PUBLIC_KEY)"
 ``` 
 
 
@@ -108,7 +114,7 @@ https://github.com/dfinity/internet-identity/pull/434/files
 ```
 
 
-###Access to localhost was denied
+### Access to localhost was denied
 
 
 Change `dev` in `package.json`
