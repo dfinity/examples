@@ -9,9 +9,15 @@
 	path = svelte-starter/internet-identity
 	url = https://github.com/dfinity/internet-identity
 
+[submodule "motoko/defi/DIP20"]
+	path = motoko/defi/src/DIP20
+	url = git@github.com:Psychedelic/DIP20.git
+[submodule "motoko/defi/internet-identity"]
+	path = motoko/defi/src/svelte-motoko-starter/internet-identity
+	url = https://github.com/dfinity/internet-identity
 [submodule "rust/defi/DIP20"]
-	path = rust/defi/DIP20
+	path = rust/defi/src/DIP20
 	url = git@github.com:Psychedelic/DIP20.git
 [submodule "rust/defi/internet-identity"]
-	path = rust/defi/svelte-motoko-starter/internet-identity
+	path = rust/defi/src/svelte-motoko-starter/internet-identity
 	url = https://github.com/dfinity/internet-identity
