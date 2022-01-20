@@ -25,7 +25,7 @@ Folder `/DIP20` contains token contracts.
 
 ```bash
 
-cd src/DIP20/motoko
+cd src/DIP20/
 #remove old content
 dfx stop
 rm -rf .dfx
@@ -45,6 +45,21 @@ HOME=$ROOT_HOME  dfx canister  call DIP20 setFeeTo "($ROOT_PUBLIC_KEY)"
 HOME=$ROOT_HOME dfx canister  call DIP20 setFee "(420)" 
 # get balance. Congrats you are rich
 HOME=$ROOT_HOME dfx canister --no-wallet call DIP20 balanceOf "($ROOT_PUBLIC_KEY)"
+``` 
+
+
+## Set allowance for DEX
+
+should still be in `src/DIP20/`
+
+```bash
+#get principle ID of DEX
+DEX_PRINCIPLE=$(dfx canister --no-wallet id defi-dapp)
+# sth like this "r7inp-6aaaa-aaaaa-aaabq-cai"
+# approve dex to spend on users behalf
+HOME=$ROOT_HOME dfx canister --no-wallet call DIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',10000)'
+
+
 ``` 
 
 
