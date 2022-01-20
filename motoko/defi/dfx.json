@@ -1,8 +1,27 @@
 {
   "canisters": {
-    "XXX": {
-      "main": "src/Main.mo"
+    "defi-dapp": {
+      "main": "src/defi-dapp/main.mo",
+      "dependencies": [
+        "DIP20"
+      ]
+    },
+    "DIP20": {
+      "main": "src/DIP20/motoko/src/token.mo"
     }
   },
-  "dfx": "0.8.5"
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "dfx": "0.8.4",
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:9001",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
 }
