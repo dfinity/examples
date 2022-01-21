@@ -40,9 +40,14 @@ actor Dex {
         toAmount: Nat;
     };
 
-    type OrderPlacementResult = {
+    type OrderPlacementResponse = {
         status: Text;
         order: Order;
+    };
+    
+    type CancelOrderResponse = {
+        order_id: Text;
+        status: Text;
     };
 
     // ----------------------------------------
@@ -60,7 +65,7 @@ actor Dex {
         book_stable.vals(),10, Principal.equal, Principal.hash
     );
     let orders = M.fromIter<Text,Order>(
-        orders_stable.vals(),10,Text.equal,Text.hash
+        orders_stable.vals(),10, Text.equal, Text.hash
     );
     // Required since maps cannot be stable.
     system func preupgrade() {
@@ -74,9 +79,10 @@ actor Dex {
 
     public func deposit() {
         Debug.print("Deposit...");
+        // TODO
     };
 
-    public func place_order(from: Token, fromAmount: Nat, to: Token, toAmount: Nat) : async OrderPlacementResult {
+    public func place_order(from: Token, fromAmount: Nat, to: Token, toAmount: Nat) : async OrderPlacementResponse {
         let id : Text = nextId();
         Debug.print("Placing order "# id #"...");
         let order : Order = {
@@ -88,11 +94,10 @@ actor Dex {
         };
         orders.put(id, order);
         let status = "Ok";
-        let res : OrderPlacementResult = {
+        {
             status;
             order;
-        };
-        res;
+        }
     };
 
     func nextId() : Text {
@@ -102,10 +107,21 @@ actor Dex {
 
     public func withdraw() {
         Debug.print("Withdraw...");
+        // TODO
     };
 
-    public func cancel_order(order_id: Text) {
+    public func cancel_order(order_id: Text) : async(CancelOrderResponse) {
         Debug.print("Cancelling order "# order_id #"...");
+        let o=orders.remove(order_id);
+        let status = if(o==null) {
+            "Not_existing"
+        } else {
+            "Canceled"
+        };
+        {
+            order_id;
+            status;
+        }
     };
 
     public func check_order(order_id: Text) : async(?Order) {
@@ -133,10 +149,10 @@ actor Dex {
         };
         buff.toArray();
     };
+
     public shared query (msg) func whoami() : async Principal {
         return msg.caller;
     };
-
 
     // ----------------------------------------
     // NOTE: Initial work with a single token
