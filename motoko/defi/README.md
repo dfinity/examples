@@ -58,7 +58,8 @@ DEX_PRINCIPLE=$(dfx canister --no-wallet id defi-dapp)
 # sth like this "r7inp-6aaaa-aaaaa-aaabq-cai"
 # approve dex to spend on users behalf
 HOME=$ROOT_HOME dfx canister --no-wallet call DIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',10000)'
-
+dfx canister --no-wallet call GoldenDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',1000000)'
+dfx canister --no-wallet call AkitaDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',1000000)'
 
 ``` 
 

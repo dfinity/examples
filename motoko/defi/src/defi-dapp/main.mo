@@ -2,6 +2,7 @@ import Array "mo:base/Array";
 import Buffer "mo:base/Buffer";
 import Debug "mo:base/Debug";
 import Int "mo:base/Int";
+import Int64 "mo:base/Int64";
 import Iter "mo:base/Iter";
 import M "mo:base/HashMap";
 import Nat64 "mo:base/Nat64";
@@ -13,9 +14,8 @@ import Time "mo:base/Time";
 
 import DIP20 "../DIP20/motoko/src/token";
 import Account "./Account";
-
 import Ledger "canister:ledger";
-
+import Types "Types";
 
 actor Dex {
 
@@ -29,7 +29,7 @@ actor Dex {
     type TokenBalance = {
         principal: Principal;
         token: Token;
-        amount: Nat;
+        var amount: Nat64;
     };
 
     type Order = {
@@ -45,30 +45,46 @@ actor Dex {
         order: Order;
     };
 
+
     // ----------------------------------------
     // NOTE: Initial work with a single token
     stable var dip_tokens: ?DIP20.Token = null;
-    let dip_fee: Nat = 5;
+    let dip_fee: Nat = 420;
     let icp_fee: Nat64 = 10_000;
     // ----------------------------------------
 
-    stable var book_stable : [(Principal,[TokenBalance])] = [];
+    //stable var book_stable : [(Principal,[var TokenBalance])] = [];
     stable var orders_stable : [(Text,Order)] = [];
     stable var lastId : Nat = 0;
 
-    let book = M.fromIter<Principal,[TokenBalance]>(
-        book_stable.vals(),10, Principal.equal, Principal.hash
-    );
+    // var book = M.fromIter<Principal,[var TokenBalance]>(
+    //     book_stable.vals(),10, Principal.equal, Principal.hash
+    // );
+    private var book = M.HashMap<Principal, M.HashMap<Token, Nat64>>(10, Principal.equal, Principal.hash);
+    private stable var upgradeMap : [var (Principal, [(Token, Nat64)])] = [var];
+
+
     let orders = M.fromIter<Text,Order>(
         orders_stable.vals(),10,Text.equal,Text.hash
     );
     // Required since maps cannot be stable.
     system func preupgrade() {
-        book_stable := Iter.toArray(book.entries());
+        //book_stable := Iter.toArray(book.entries());
+        upgradeMap := Array.init(book.size(), (Principal.fromText(""), []));
+        var i = 0;
+        for ((x, y) in book.entries()) {
+            upgradeMap[i] := (x, Iter.toArray(y.entries()));
+            i += 1;
+        };
         orders_stable := Iter.toArray(orders.entries());
     };
     system func postupgrade() {
-        book_stable := [];
+        //book_stable := [];
+        for ((key: Principal, value: [(Token, Nat64)]) in upgradeMap.vals()) {
+            let tmp: M.HashMap<Token, Nat64> = M.fromIter<Token, Nat64>(Iter.fromArray<(Token, Nat64)>(value), 10, Text.equal, Text.hash);
+            book.put(key, tmp);
+        };
+        upgradeMap := [var];
         orders_stable := [];
     };
 
@@ -123,15 +139,14 @@ actor Dex {
     };
 
     // For development only.
-    public query func balances() : async([TokenBalance]) {
-        Debug.print("List balances...");
-        let buff : Buffer.Buffer<TokenBalance> = Buffer.Buffer(book.size());
-        for (tb in book.vals()) {
-            for(x in tb.vals()) {
-                buff.add(x);
+    private func print_balances(){
+        for ((x, y) in book.entries()) {
+            Debug.print( debug_show("PRINCIPLE: ", x));
+            var i=0;
+            for ((key: Token, value: Nat64) in y.entries()) {      
+                Debug.print( debug_show("Balance: ", i, "Token: ", key, " amount: ",value));
             };
         };
-        buff.toArray();
     };
     public shared query (msg) func whoami() : async Principal {
         return msg.caller;
@@ -162,6 +177,108 @@ actor Dex {
     public shared(msg) func deposit_address(): async Blob {
         Account.accountIdentifier(Principal.fromActor(Dex), Account.principalToSubaccount(msg.caller));
     };
+
+    // function that adds tokens to book. Book keeps track of users deposits. 
+    private func add_deposit_to_book(user: Principal, token: Token,amount: Nat64){
+        switch (book.get(user)) {
+            case (?token_balance) { 
+                // check if user already has existing balance for this token
+                switch (token_balance.get(token)){
+                    case (?balance) {
+                        Debug.print( debug_show("User", user, "has existing balance of ", token, " new amount: ",balance+amount));
+                        token_balance.put(token, balance+amount);
+                    };
+                    case(null){
+                        Debug.print( debug_show("User", user, "has no balance of ", token, " new amount: ",amount));
+                        token_balance.put(token, amount);
+                    };
+                };                
+            };
+            case (null) {
+                // user didn't exist
+                Debug.print( debug_show("User", user, "has no balance of ", token, " new amount: ",amount));
+                var x1 = M.HashMap<Token, Nat64>(2, Text.equal, Text.hash);
+                x1.put(token,amount);
+                book.put(user,x1);
+            };
+        };
+        
+    };
+
+     
+    // After user transfers ICP to the target subaccount
+    public shared(msg) func deposit_dip(token: Token): async ?Text {
+        do ? {
+            // ATTENTION!!! NOT SAFE
+            let dip20 = actor (token) : Types.DIPInterface;  
+            // Check DIP20 allowance for DEX
+            let balance: Nat = (await dip20.allowance(msg.caller, Principal.fromActor(Dex))) - dip_fee;
+
+            // Transfer to account. 
+            let token_reciept = if (balance > dip_fee) {
+                await dip20.transferFrom(msg.caller, Principal.fromActor(Dex),balance - dip_fee);
+            } else {
+                Debug.trap("Cannot affort to transfer tokens. Balance: "# Nat.toText(balance) );
+            };
+
+            switch token_reciept {
+                case (#Err e) {
+                    Debug.trap("Failed to transfer tokens.") ;
+                };
+                case _ {};
+            };
+
+            // add transfered amount to useres balance
+            add_deposit_to_book(msg.caller,token,Nat64.fromNat(balance - dip_fee));
+            //print_balances();
+
+            // Return result
+            "Deposited '" # Nat64.toText(Nat64.fromNat(balance - dip_fee)) # token # "' into DEX."
+        }
+    };
+
+    // After user transfers ICP to the target subaccount
+    public shared(msg) func deposit_icp(): async ?Text {
+        do? {
+            // Calculate target subaccount
+            // NOTE: Should this be hashed first instead?
+            let source_account = Account.accountIdentifier(Principal.fromActor(Dex), Account.principalToSubaccount(msg.caller));
+
+            // Check ledger for value
+            let balance = await Ledger.account_balance({ account = source_account });
+
+            // Transfer to default subaccount
+            let icp_reciept = if (balance.e8s > icp_fee) {
+                await Ledger.transfer({
+                    memo: Nat64    = 0;
+                    from_subaccount = ?Account.principalToSubaccount(msg.caller);
+                    to = Account.accountIdentifier(Principal.fromActor(Dex), Account.defaultSubaccount());
+                    amount = { e8s = balance.e8s - icp_fee };
+                    fee = { e8s = icp_fee };
+                    created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(Time.now())) };
+                })
+            } else {
+                Debug.trap("Cannot afford to transfer ICP.");
+            };
+
+            switch icp_reciept {
+                case ( #Err _) {
+                    Debug.trap("Failed to transfer ICP.");
+                };
+                case _ {};
+            };
+            // (Proactively save ICP fee for second transfer)
+            let available = { e8s = balance.e8s - (icp_fee * 2) };
+
+            // keep track of deposited ICP
+            add_deposit_to_book(msg.caller,Principal.toText(Principal.fromActor(Ledger)),available.e8s);
+
+            print_balances();
+            // Return result
+            "Deposited '" # Nat64.toText(available.e8s) # "' ICP into DEX."
+        }
+    };
+
 
     // After user transfers ICP to the target subaccount, convert all of it to tokens.
     public shared(msg) func convert_icp(): async ?Text {
