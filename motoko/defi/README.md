@@ -23,6 +23,10 @@ Setup local environment. This deploys a local ledger and two DIP20 Tokens
 sh install-local-ledger.sh 
 
 ```
+Deploy frontend canister
+```bash
+dfx deploy defi-dapp-frontend
+```
 Create the Defi app
 
 ```bash
