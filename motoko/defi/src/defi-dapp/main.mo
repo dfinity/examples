@@ -16,6 +16,7 @@ import Account "./Account";
 
 import Ledger "canister:ledger";
 
+//import Exchange "exchange";
 
 actor Dex {
 
@@ -34,6 +35,7 @@ actor Dex {
 
     type Order = {
         id: Text;
+        owner: Principal;
         from: Token;
         fromAmount: Nat;
         to: Token;
@@ -60,6 +62,7 @@ actor Dex {
     stable var book_stable : [(Principal,[TokenBalance])] = [];
     stable var orders_stable : [(Text,Order)] = [];
     stable var lastId : Nat = 0;
+    //var exchange: Exchange.Exchange = Exchange();
 
     let book = M.fromIter<Principal,[TokenBalance]>(
         book_stable.vals(),10, Principal.equal, Principal.hash
@@ -82,11 +85,13 @@ actor Dex {
         // TODO
     };
 
-    public func place_order(from: Token, fromAmount: Nat, to: Token, toAmount: Nat) : async OrderPlacementResponse {
+    public shared(msg) func place_order(from: Token, fromAmount: Nat, to: Token, toAmount: Nat) : async OrderPlacementResponse {
         let id : Text = nextId();
         Debug.print("Placing order "# id #"...");
+        let owner=msg.caller;
         let order : Order = {
             id;
+            owner;
             from;
             fromAmount;
             to;
@@ -110,18 +115,27 @@ actor Dex {
         // TODO
     };
 
-    public func cancel_order(order_id: Text) : async(CancelOrderResponse) {
+    public shared(msg) func cancel_order(order_id: Text) : async(CancelOrderResponse) {
         Debug.print("Cancelling order "# order_id #"...");
-        let o=orders.remove(order_id);
-        let status = if(o==null) {
-            "Not_existing"
-        } else {
-            "Canceled"
+        let o = orders.get(order_id);
+        switch (o) {
+            case null return {
+                order_id;
+                status: Text = "Not_existing";
+            };
+            case (?order) if(order.owner != msg.caller) {
+                return {
+                    order_id;
+                    status = "Not_allowed";
+                };
+            } else {
+                orders.delete(order_id);
+                return {
+                    order_id;
+                    status = "Canceled";
+                };
+            }
         };
-        {
-            order_id;
-            status;
-        }
     };
 
     public func check_order(order_id: Text) : async(?Order) {
