@@ -1,12 +1,39 @@
-import Nat64 "mo:base/Nat64";
-import Nat "mo:base/Nat";
-import Principal "mo:base/Principal";
-import Text "mo:base/Text";
-import Nat8 "mo:base/Nat8";
 import Time "mo:base/Time";
 
 
-module Types {
+module {
+
+    public type Token = Text;
+
+    public type Balance = {
+        principal: Principal;
+        balances: [TokenBalance];
+    };
+
+    public type TokenBalance = {
+        principal: Principal;
+        token: Token;
+        amount: Nat;
+    };
+
+    public type Order = {
+        id: Text;
+        owner: Principal;
+        from: Token;
+        fromAmount: Nat;
+        to: Token;
+        toAmount: Nat;
+    };
+
+    // Not required, will use ledger.
+    public type Transaction = {
+        id: Nat;
+        time: Nat;
+        price: Float;
+        order1: Order;
+        order2: Order;
+    };
+
 
     public type TxReceipt = {
         #Ok: Nat;
@@ -63,4 +90,5 @@ module Types {
         transferFrom : (Principal,Principal,Nat) -> async TxReceipt;
         allowance : (owner: Principal, spender: Principal) -> async Nat;
     };
+
 }

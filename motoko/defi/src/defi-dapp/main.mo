@@ -8,41 +8,30 @@ import M "mo:base/HashMap";
 import Nat64 "mo:base/Nat64";
 import Nat "mo:base/Nat";
 import Principal "mo:base/Principal";
-import Random "mo:base/Random";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
 
 import DIP20 "../DIP20/motoko/src/token";
 import Account "./Account";
 import Ledger "canister:ledger";
-import Types "Types";
+
+import E "exchange";
+import T "types";
 
 actor Dex {
 
-    type Token = Text;
+    type Order = T.Order;
+    type Token = T.Token;
+    type TokenBalance = T.TokenBalance;
 
-    type Balance = {
-        principal: Principal;
-        balances: [TokenBalance];
-    };
-
-    type TokenBalance = {
-        principal: Principal;
-        token: Token;
-        var amount: Nat64;
-    };
-
-    type Order = {
-        id: Text;
-        from: Token;
-        fromAmount: Nat;
-        to: Token;
-        toAmount: Nat;
-    };
-
-    type OrderPlacementResult = {
+    type OrderPlacementResponse = {
         status: Text;
         order: Order;
+    };
+    
+    type CancelOrderResponse = {
+        order_id: Text;
+        status: Text;
     };
 
 
@@ -56,16 +45,18 @@ actor Dex {
     //stable var book_stable : [(Principal,[var TokenBalance])] = [];
     stable var orders_stable : [(Text,Order)] = [];
     stable var lastId : Nat = 0;
+    var exchange = E.Exchange();
 
     // var book = M.fromIter<Principal,[var TokenBalance]>(
     //     book_stable.vals(),10, Principal.equal, Principal.hash
     // );
+    // User balance datastructure
     private var book = M.HashMap<Principal, M.HashMap<Token, Nat64>>(10, Principal.equal, Principal.hash);
     private stable var upgradeMap : [var (Principal, [(Token, Nat64)])] = [var];
 
 
     let orders = M.fromIter<Text,Order>(
-        orders_stable.vals(),10,Text.equal,Text.hash
+        orders_stable.vals(),10, Text.equal, Text.hash
     );
     // Required since maps cannot be stable.
     system func preupgrade() {
@@ -86,29 +77,33 @@ actor Dex {
         };
         upgradeMap := [var];
         orders_stable := [];
+        //exchange := E.Exchange(dip_tokens);
     };
 
     public func deposit() {
         Debug.print("Deposit...");
+        // TODO
     };
 
-    public func place_order(from: Token, fromAmount: Nat, to: Token, toAmount: Nat) : async OrderPlacementResult {
+    public shared(msg) func place_order(from: Token, fromAmount: Nat, to: Token, toAmount: Nat) : async OrderPlacementResponse {
         let id : Text = nextId();
         Debug.print("Placing order "# id #"...");
+        let owner=msg.caller;
         let order : Order = {
             id;
+            owner;
             from;
             fromAmount;
             to;
             toAmount;
         };
         orders.put(id, order);
+        exchange.addOrder(order);
         let status = "Ok";
-        let res : OrderPlacementResult = {
+        {
             status;
             order;
-        };
-        res;
+        }
     };
 
     func nextId() : Text {
@@ -118,10 +113,31 @@ actor Dex {
 
     public func withdraw() {
         Debug.print("Withdraw...");
+        // TODO
     };
 
-    public func cancel_order(order_id: Text) {
+    public shared(msg) func cancel_order(order_id: Text) : async(CancelOrderResponse) {
         Debug.print("Cancelling order "# order_id #"...");
+        switch (orders.get(order_id)) {
+            case null
+                return {
+                    order_id;
+                    status: Text = "Not_existing";
+                };
+            case (?order)
+                if(order.owner != msg.caller) {
+                    return {
+                        order_id;
+                        status = "Not_allowed";
+                    };
+                } else {
+                    orders.delete(order_id);
+                    return {
+                        order_id;
+                        status = "Canceled";
+                    };
+                }
+        };
     };
 
     public func check_order(order_id: Text) : async(?Order) {
@@ -148,10 +164,10 @@ actor Dex {
             };
         };
     };
+
     public shared query (msg) func whoami() : async Principal {
         return msg.caller;
     };
-
 
     // ----------------------------------------
     // NOTE: Initial work with a single token
@@ -210,7 +226,7 @@ actor Dex {
     public shared(msg) func deposit_dip(token: Token): async ?Text {
         do ? {
             // ATTENTION!!! NOT SAFE
-            let dip20 = actor (token) : Types.DIPInterface;  
+            let dip20 = actor (token) : T.DIPInterface;  
             // Check DIP20 allowance for DEX
             let balance: Nat = (await dip20.allowance(msg.caller, Principal.fromActor(Dex))) - dip_fee;
 
@@ -233,7 +249,7 @@ actor Dex {
             //print_balances();
 
             // Return result
-            "Deposited '" # Nat64.toText(Nat64.fromNat(balance - dip_fee)) # token # "' into DEX."
+            "Deposited '" # Nat64.toText(Nat64.fromNat(balance - dip_fee)) # " " #token # "' into DEX."
         }
     };
 
