@@ -7,7 +7,6 @@ import M "mo:base/HashMap";
 import Nat64 "mo:base/Nat64";
 import Nat "mo:base/Nat";
 import Principal "mo:base/Principal";
-import Random "mo:base/Random";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
 
@@ -16,31 +15,14 @@ import Account "./Account";
 
 import Ledger "canister:ledger";
 
-//import Exchange "exchange";
+import E "exchange";
+import T "types";
 
 actor Dex {
 
-    type Token = Text;
-
-    type Balance = {
-        principal: Principal;
-        balances: [TokenBalance];
-    };
-
-    type TokenBalance = {
-        principal: Principal;
-        token: Token;
-        amount: Nat;
-    };
-
-    type Order = {
-        id: Text;
-        owner: Principal;
-        from: Token;
-        fromAmount: Nat;
-        to: Token;
-        toAmount: Nat;
-    };
+    type Order = T.Order;
+    type Token = T.Token;
+    type TokenBalance = T.TokenBalance;
 
     type OrderPlacementResponse = {
         status: Text;
@@ -62,7 +44,7 @@ actor Dex {
     stable var book_stable : [(Principal,[TokenBalance])] = [];
     stable var orders_stable : [(Text,Order)] = [];
     stable var lastId : Nat = 0;
-    //var exchange: Exchange.Exchange = Exchange();
+    var exchange = E.Exchange();
 
     let book = M.fromIter<Principal,[TokenBalance]>(
         book_stable.vals(),10, Principal.equal, Principal.hash
@@ -78,6 +60,7 @@ actor Dex {
     system func postupgrade() {
         book_stable := [];
         orders_stable := [];
+        //exchange := E.Exchange(dip_tokens);
     };
 
     public func deposit() {
@@ -98,6 +81,7 @@ actor Dex {
             toAmount;
         };
         orders.put(id, order);
+        exchange.addOrder(order);
         let status = "Ok";
         {
             status;
@@ -117,24 +101,25 @@ actor Dex {
 
     public shared(msg) func cancel_order(order_id: Text) : async(CancelOrderResponse) {
         Debug.print("Cancelling order "# order_id #"...");
-        let o = orders.get(order_id);
-        switch (o) {
-            case null return {
-                order_id;
-                status: Text = "Not_existing";
-            };
-            case (?order) if(order.owner != msg.caller) {
+        switch (orders.get(order_id)) {
+            case null
                 return {
                     order_id;
-                    status = "Not_allowed";
+                    status: Text = "Not_existing";
                 };
-            } else {
-                orders.delete(order_id);
-                return {
-                    order_id;
-                    status = "Canceled";
-                };
-            }
+            case (?order)
+                if(order.owner != msg.caller) {
+                    return {
+                        order_id;
+                        status = "Not_allowed";
+                    };
+                } else {
+                    orders.delete(order_id);
+                    return {
+                        order_id;
+                        status = "Canceled";
+                    };
+                }
         };
     };
 
