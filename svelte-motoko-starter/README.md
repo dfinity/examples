@@ -87,12 +87,12 @@ from the project directory will stop the local replica.
 
 ## Install Internet Identity
 
-To use Internet Identity during development you need to have it running on your local replica. This repository includes it in a submodule.
+To use Internet Identity during development you need to have it running on your local replica. Clone the repository in the project directory, then build and deploy it locally.
 
-To clone the II repository, run:
+Make sure you're in the `svelte-motoko-starter` project directory, then clone the repository by running:
 
 ```
-git submodule update --init --recursive
+git clone https://github.com/dfinity/internet-identity
 ```
 
 When the repository is cloned, switch to its directory and install it:
