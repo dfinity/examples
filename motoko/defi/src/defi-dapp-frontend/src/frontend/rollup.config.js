@@ -59,6 +59,7 @@ function initCanisterIds() {
   return { canisterIds, network };
 }
 const { canisterIds, network } = initCanisterIds();
+console.log(canisterIds)
 
 function serve() {
   let server;

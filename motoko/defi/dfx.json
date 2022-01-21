@@ -9,6 +9,18 @@
       "candid": "ledger.did",
       "wasm": "ledger.wasm"
     },
+    "defi-dapp-frontend" : {
+      "dependencies" : [
+        "defi-dapp"
+      ],
+      "frontend": { 
+        "entrypoint": "src/defi-dapp-frontend/src/frontend/public/index.html"
+      },
+      "source" : [
+        "src/defi-dapp-frontend/src/frontend/public"
+      ],
+      "type": "assets"
+    },
     "AkitaDIP20": {
       "main": "src/DIP20/motoko/src/token.mo"
     },
