@@ -1,12 +1,12 @@
 {
   "canisters": {
-    "backend": {
+    "defi_dapp": {
       "main": "../defi-dapp/main.mo",
       "type": "motoko"
     },
     "frontend": {
       "dependencies": [
-        "backend"
+        "defi_dapp"
       ],
       "frontend": {
         "entrypoint": "src/frontend/public/index.html"

@@ -1,0 +1,36 @@
+type Token__1 = text;
+type Token = text;
+type OrderPlacementResponse = 
+ record {
+   order: Order;
+   status: text;
+ };
+type Order = 
+ record {
+   from: Token__1;
+   fromAmount: nat;
+   id: text;
+   owner: principal;
+   to: Token__1;
+   toAmount: nat;
+ };
+type CancelOrderResponse = 
+ record {
+   order_id: text;
+   status: text;
+ };
+service : {
+  cancel_order: (text) -> (CancelOrderResponse);
+  check_order: (text) -> (opt Order);
+  convert_icp: () -> (opt text);
+  convert_token: () -> (opt text);
+  deposit: () -> () oneway;
+  deposit_address: () -> (blob);
+  deposit_dip: (Token) -> (opt text);
+  deposit_icp: () -> (opt text);
+  init: () -> (opt text);
+  list_order: () -> (vec Order) query;
+  place_order: (Token, nat, Token, nat) -> (OrderPlacementResponse);
+  whoami: () -> (principal) query;
+  withdraw: () -> () oneway;
+}

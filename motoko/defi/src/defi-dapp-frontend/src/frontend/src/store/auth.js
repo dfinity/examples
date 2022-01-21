@@ -12,7 +12,7 @@ export function createActor(options) {
   const hostOptions = {
     host:
       process.env.DFX_NETWORK === "ic"
-        ? `https://${process.env.BACKEND_CANISTER_ID}.ic0.app`
+        ? `https://${process.env.DEFI_DAPP_CANISTER_ID}.ic0.app`
         : "http://localhost:8000",
   };
   if (!options) {
@@ -40,7 +40,7 @@ export function createActor(options) {
   // Creates an actor with using the candid interface and the HttpAgent
   return Actor.createActor(idlFactory, {
     agent,
-    canisterId: process.env.BACKEND_CANISTER_ID,
+    canisterId: process.env.DEFI_DAPP_CANISTER_ID,
     ...options?.actorOptions,
   });
 }

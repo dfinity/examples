@@ -27,8 +27,14 @@
             // end comment out in prod only
             backendActor = Actor.createActor(idlFactory, {
                 agent,
-                canisterId: process.env.BACKEND_CANISTER_ID
+                canisterId: process.env.DEFI_DAPP_CANISTER_ID
             });
+
+            // TESTING
+            const init = await backendActor.init();
+            console.log(init);
+            const depositAdd = await backendActor.deposit_address();
+            console.log(depositAdd)
             orders = await backendActor.list_order();
         }
 	});
