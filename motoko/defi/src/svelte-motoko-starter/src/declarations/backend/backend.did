@@ -5,7 +5,7 @@ type TokenBalance =
    token: Token;
  };
 type Token = text;
-type OrderPlacementResult = 
+type OrderPlacementResponse = 
  record {
    order: Order;
    status: text;
@@ -15,16 +15,26 @@ type Order =
    from: Token;
    fromAmount: nat;
    id: text;
+   owner: principal;
    to: Token;
    toAmount: nat;
  };
+type CancelOrderResponse = 
+ record {
+   order_id: text;
+   status: text;
+ };
 service : {
   balances: () -> (vec TokenBalance) query;
-  cancel_order: (text) -> () oneway;
+  cancel_order: (text) -> (CancelOrderResponse);
   check_order: (text) -> (opt Order);
+  convert_icp: () -> (opt text);
+  convert_token: () -> (opt text);
   deposit: () -> () oneway;
+  deposit_address: () -> (blob);
+  init: () -> (opt text);
   list_order: () -> (vec Order) query;
-  place_order: (Token, nat, Token, nat) -> (OrderPlacementResult);
+  place_order: (Token, nat, Token, nat) -> (OrderPlacementResponse);
   whoami: () -> (principal) query;
   withdraw: () -> () oneway;
 }

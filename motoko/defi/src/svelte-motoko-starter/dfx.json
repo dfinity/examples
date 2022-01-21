@@ -15,6 +15,11 @@
         "src/frontend/public"
       ],
       "type": "assets"
+    },
+    "ledger" : {
+      "candid": "../../ledger.did",
+      "wasm": "../../ledger.wasm",
+      "type": "custom"
     }
   },
   "defaults": {
