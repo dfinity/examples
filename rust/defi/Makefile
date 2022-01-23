@@ -1,4 +1,3 @@
-XXX
 .PHONY: all
 all: build
 
@@ -17,6 +16,14 @@ install: build
 .SILENT: upgrade
 upgrade: build
 	dfx canister --no-wallet  install --all --mode=reinstall
+
+LEDGER_CANISTER_ID = $(shell dfx canister id ledger)
+
+.PHONY: deploy
+.SILENT: deploy
+deploy: deploy
+	echo "ledger canister" $(LEDGER_CANISTER_ID)
+	dfx deploy defi --argument '(record { transaction_fee = 0.1 : float32;  ledger_canister_id = principal "$(LEDGER_CANISTER_ID)" } )'
 
 .PHONY: test
 .SILENT: test

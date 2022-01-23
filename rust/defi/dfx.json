@@ -3,7 +3,19 @@
     "defi": {
       "candid": "src/defi/defi.did",
       "package": "defi",
-      "type": "rust"
+      "type": "rust",
+      "dependencies": ["ledger"]
+    },
+    "ledger": {
+      "type": "custom",
+      "candid": "ledger.did",
+      "wasm": "ledger.wasm"
+    },
+    "AkitaDIP20": {
+      "main": "src/DIP20/motoko/src/token.mo"
+    },
+    "GoldenDIP20": {
+      "main": "src/DIP20/motoko/src/token.mo"
     }
   },
   "defaults": {

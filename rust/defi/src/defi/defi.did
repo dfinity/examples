@@ -3,31 +3,36 @@ type Conf = record {
   ledger_canister_id : principal;
 };
 
-type TokenBalance = record {
-  owner : principal;
+type Balance = record {
   token_canister_id : principal;
   amount : nat;
 };
 
-type Balance = record {
-  owner : principal;
-  balances : vec TokenBalance;
-};
-
 type Order = record {
-  id : nat;
+  id : nat64;
+  owner : principal;
   from_token_canister_id : principal;
   from_amount : nat;
   to_token_canister_id : principal;
   to_amount : nat;
 };
 
-service : (Conf) -> {
-  cancel_order : (order_id: nat) -> () oneway;
-  check_order : (order_id: nat) -> () oneway;
-  deposit : (token_canister_id: principal, amount: nat) -> () oneway;
+type DepositResponse = record {
+  id : opt nat;
+  status: opt text;
+};
+
+service defi : (Conf) -> {
+  cancel_order : (order_id: nat64) -> (text);
+  get_order : (order_id: nat64) -> (opt Order) query;
+  get_balance : (token_canister_id : principal) -> (opt Balance) query;
+  get_balances : () -> (vec Balance) query;
+  deposit : (token_canister_id: principal, amount: nat) -> (DepositResponse);
   list_orders : () -> (vec Order) query;
-  place_order : (from_token_canister_id : principal, from_amount : nat, to_token_canister_id : principal, to_amount : nat) -> () oneway;
+  list_from_orders : (token_canister_id : principal) -> (vec Order) query;
+  list_to_orders : (token_canister_id : principal) -> (vec Order) query;
+  place_order : (from_token_canister_id : principal, from_amount : nat, to_token_canister_id : principal, to_amount : nat) -> (text);
   withdraw : (token_canister_id : principal, amount : nat, to_principal : principal) -> () oneway;
   whoami : () -> (principal) query;
+  icp_deposit_account : () -> (text) query;
 }

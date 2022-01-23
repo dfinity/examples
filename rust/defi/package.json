@@ -1,0 +1,20 @@
+{
+  "name": "defi",
+  "version": "0.1.0",
+  "description": "Internet Computer defi application",
+  "keywords": [
+    "Internet Computer",
+    "Rust",
+    "Svelte",
+    "Defi",
+    "Canister",
+    "Internet Identity"
+  ],
+  "scripts": {
+    "build": "cd src/frontend && npm run build",
+    "prebuild": "npm run copy:types",
+    "dev": "cd src/frontend && npm run dev",
+    "prestart": "npm run copy:types",
+    "copy:types": "rsync -avr .dfx/$(echo ${DFX_NETWORK:-'**'})/canisters/** --exclude='src/defi_assets/' --exclude='idl/' --exclude='*.wasm' --delete src/declarations"
+  }
+}
