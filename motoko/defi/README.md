@@ -60,7 +60,35 @@ dfx canister call defi-dapp deposit_dip "(\"$AKITA_ID\")"
 dfx canister call defi-dapp deposit_dip "(\"$GOLDEN_ID\")"
 # transfer ICP to DEX
 dfx canister call defi-dapp deposit_icp
+
+# withdraw ICP
+dfx canister call defi-dapp withdraw_icp "(100000)"
+
+# withdraw DIP 
+PRINCIPAL=$(dfx identity get-principal)
+# user balance
+dfx canister --no-wallet call GoldenDIP20 balanceOf '(principal '\"$PRINCIPAL\"')'
+#user balance on DEX
+dfx canister call defi-dapp  balance "(\"$GOLDEN_ID\")"
+dfx canister call defi-dapp withdraw_dip "(\"$GOLDEN_ID\",100000)"
+# user balance
+dfx canister --no-wallet call GoldenDIP20 balanceOf '(principal '\"$PRINCIPAL\"')'
+#user balance on DEX
+dfx canister call defi-dapp  balance "(\"$GOLDEN_ID\")"
+
 ```
+
+### Token balance
+
+```bash
+# DIP tokens
+dfx canister call defi-dapp  balance "(\"$AKITA_ID\")"
+dfx canister call defi-dapp  balance "(\"$GOLDEN_ID\")"
+# ICP 
+ICP_ID=$(dfx canister --no-wallet id ledger)
+dfx canister call defi-dapp  balance "(\"$ICP_ID\")"
+```
+
 
 ### Deploy token
 
@@ -108,6 +136,16 @@ dfx canister --no-wallet call AkitaDIP20 approve  '(principal '\"$DEX_PRINCIPLE\
 
 
 # Issues
+
+### DFX deploys canisters with same ID
+
+Clear `.dfx` directories
+
+```
+rm -r .dfx/
+rm -r src/internet-identity/.dfx
+```
+
 
 ### Missing cmake
 
