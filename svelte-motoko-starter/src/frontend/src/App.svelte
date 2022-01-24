@@ -13,7 +13,7 @@
   >
     <img src="images/dfinity.svg" alt="DFINITY logo" />
   </a>
-  <h1>Defi Example DEX</h1>
+  <h1>Svelte Starter dApp</h1>
   <Auth />
   <Links />
   <CanisterIds />

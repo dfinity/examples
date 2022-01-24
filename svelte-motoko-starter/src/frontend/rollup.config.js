@@ -133,7 +133,8 @@ export default {
     ),
     commonjs(),
     inject({
-      Buffer: ["buffer", "Buffer"]
+      Buffer: ["buffer", "Buffer"],
+      process: "process/browser",
     }),
     json(),
 
