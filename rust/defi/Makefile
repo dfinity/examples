@@ -48,9 +48,12 @@ test: deploy
 	dfx canister call defi deposit '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai", 1: nat)'
 	dfx canister call defi get_balances
 	dfx canister call defi place_order '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai" : principal, 1: nat, principal "tlwi3-3aaaa-aaaaa-aaapq-cai", 2: nat)'
+	echo "expect empty vec"
 	dfx canister call defi get_orders
+	echo "expect 4 tlwi3"
 	dfx canister call defi get_balances
 	dfx identity use test2
+	echo "expect 96 tlwi3 and 2 tfuft"
 	dfx canister call defi get_balances
 	dfx identity use default
 
