@@ -6,17 +6,13 @@
 - [dfx](https://smartcontracts.org/docs/developers-guide/install-upgrade-remove.html)
 - [cmake](https://cmake.org/)
 
-initialize submodule
-
-```
-git submodule update --init --recursive
-```
 
 ## Quickstart
 
 Setup local environment. This deploys a local ledger and two DIP20 Tokens 
 
 ```bash
+git submodule update --init --recursive
 sh install-local-ledger.sh 
 ```
 
