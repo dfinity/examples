@@ -22,12 +22,29 @@ deploy:
 .SILENT: test
 test: deploy
 	$(eval defi_canister_id := $(shell dfx canister id defi))
+	dfx canister call defi clear
+	-dfx identity new test1
+	-dfx identity new test2
+	dfx identity use test1
+	dfx identity get-principal
 	dfx canister call defi get_balance '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai")'
 	dfx canister call defi deposit '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai", 100: nat)'
-	dfx canister call defi get_order '(1 : nat64)'
-	dfx canister call defi place_order '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai" : principal, 1: nat, principal "tfuft-aqaaa-aaaaa-aaaoq-cai", 2: nat)'
-	dfx canister call defi get_order '(1 : nat64)'      
+	dfx canister call defi get_balance '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai")'
+	dfx identity use test2
+	dfx identity get-principal
+	dfx canister call defi get_balance '(principal "tlwi3-3aaaa-aaaaa-aaapq-cai")'
+	dfx canister call defi deposit '(principal "tlwi3-3aaaa-aaaaa-aaapq-cai", 100: nat)'
+	dfx canister call defi get_balance '(principal "tlwi3-3aaaa-aaaaa-aaapq-cai")'
+	dfx identity use test1
+	dfx canister call defi place_order '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai" : principal, 1: nat, principal "tlwi3-3aaaa-aaaaa-aaapq-cai", 2: nat)'
 	dfx canister call defi get_orders
+	dfx identity use test2
+	dfx canister call defi place_order '(principal "tlwi3-3aaaa-aaaaa-aaapq-cai" : principal, 4: nat, principal "tfuft-aqaaa-aaaaa-aaaoq-cai", 2: nat)'
+	dfx canister call defi get_orders
+	dfx identity use test1
+	dfx canister call defi place_order '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai" : principal, 1: nat, principal "tlwi3-3aaaa-aaaaa-aaapq-cai", 2: nat)'
+	dfx canister call defi get_orders
+	dfx identity use default
 
 .PHONY: candid
 .SILENT: candid

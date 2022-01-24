@@ -30,4 +30,5 @@ service defi : (Conf) -> {
   withdraw : (token_canister_id : principal, amount : nat, to_principal : principal) -> () oneway;
   whoami : () -> (principal) query;
   icp_deposit_account : () -> (text) query;
+  clear : () -> (text);
 }

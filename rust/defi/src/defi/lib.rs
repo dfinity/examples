@@ -1,10 +1,7 @@
 use candid::{candid_method, export_service, CandidType, Nat, Principal};
-use ic_cdk::{caller, println};
+use ic_cdk::caller;
 use ic_cdk_macros::*;
-use ic_ledger_types::{
-    AccountIdentifier, BlockIndex, Memo, Subaccount, Tokens, DEFAULT_SUBACCOUNT,
-    MAINNET_LEDGER_CANISTER_ID,
-};
+use ic_ledger_types::{AccountIdentifier, Subaccount, MAINNET_LEDGER_CANISTER_ID};
 use num_bigint::BigUint;
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
@@ -49,6 +46,7 @@ type BalancesState = HashMap<Principal, HashMap<Principal, u128>>; // owner -> t
 #[derive(CandidType, Clone, Deserialize, Serialize)]
 pub struct State {
     conf: Conf,
+    owner: Option<Principal>,
     next_id: u64,
     balances: BalancesState,
     orders: OrdersState,
@@ -97,6 +95,7 @@ impl Default for State {
                 ledger_canister_id: MAINNET_LEDGER_CANISTER_ID,
                 withdrawl_fee: 0.01,
             },
+            owner: None,
             next_id: 0,
             balances: BalancesState::new(),
             orders: OrdersState::new(),
@@ -136,12 +135,17 @@ impl State {
     }
 
     fn deposit(&mut self, token_canister_id: Principal, amount: Nat) -> String {
-        let o = self.balances.get_mut(&caller()).unwrap();
-        let from_balance = o.get_mut(&token_canister_id.clone()).unwrap();
+        if !self.balances.contains_key(&caller()) {
+            self.balances.insert(caller(), HashMap::new());
+        }
         let amount: BigUint = amount.try_into().unwrap();
         let amount: u128 = amount.try_into().unwrap();
-        *from_balance += amount;
-        "ok".into()
+        add_balance(
+            self.balances.get_mut(&caller()).unwrap(),
+            &token_canister_id,
+            amount,
+        );
+        return "ok".into();
         //let amount: BigUint = amount.try_into().unwrap();
         //let _amount: u128 = amount.try_into().unwrap();
         /*
@@ -292,6 +296,7 @@ impl State {
                 .try_into()
                 .unwrap();
                 a.from_amount -= amount;
+                a.to_amount -= reverse_amount;
                 remove_a = a.from_amount == 0;
 
                 let o = self.balances.get_mut(&a.owner.clone()).unwrap();
@@ -303,6 +308,7 @@ impl State {
                 // Update to side.
                 let b = self.orders.get_mut(&pair.1).unwrap();
                 b.to_amount -= amount;
+                b.from_amount -= reverse_amount;
                 remove_b = b.to_amount == 0;
 
                 let o = self.balances.get_mut(&b.owner.clone()).unwrap();
@@ -316,6 +322,19 @@ impl State {
         if remove_b {
             self.orders.remove(&pair.1);
         }
+    }
+
+    fn clear(&mut self) -> String {
+        if let Some(owner) = self.owner {
+            if owner != caller() {
+                return "not authorized".into();
+            }
+        } else {
+            return "not initialized".into();
+        }
+        self.orders.clear();
+        self.balances.clear();
+        "ok".into()
     }
 }
 
@@ -335,8 +354,10 @@ fn principal_to_subaccount(principal_id: &Principal) -> Subaccount {
 #[candid_method(init)]
 pub fn init(conf: Conf) -> () {
     ic_cdk::setup();
-    println!("init!");
-    STATE.with(|s| s.borrow_mut().conf = conf);
+    STATE.with(|s| {
+        s.borrow_mut().conf = conf;
+        s.borrow_mut().owner = Some(caller());
+    });
 }
 
 #[pre_upgrade]
@@ -430,12 +451,17 @@ pub fn whoami() -> Principal {
     caller()
 }
 
+#[update]
+#[candid_method(update)]
+pub fn clear() -> String {
+    STATE.with(|s| s.borrow_mut().clear())
+}
+
 #[query]
 #[candid_method(query)]
 pub fn icp_deposit_account() -> String {
     let canister_id = ic_cdk::api::id();
     let subaccount = principal_to_subaccount(&caller());
     let account = AccountIdentifier::new(&canister_id, &subaccount).to_string();
-    println!("icp deposit account {}!", account);
     account
 }
