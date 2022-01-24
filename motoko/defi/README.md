@@ -23,19 +23,26 @@ Setup local environment. This deploys a local ledger and two DIP20 Tokens
 sh install-local-ledger.sh 
 ```
 
-Deploy defi app canister
+## Development
+
+Reinstall backend canister
 
 ```bash
-dfx deploy defi-dapp
+dfx deploy defi-dapp -m reinstall
 ```
 
-Deploy defi app frontend
+Local frontend development
 
 ```bash
-dfx deploy defi-dapp-frontend
+cd src/defi-dapp-frontend/src/frontend
+npm install
+npm dev run
 ```
 
-Deposit funds into defi app
+
+## Examples
+
+### Token transfers
 
 ```bash
 # deploy defi app
@@ -58,13 +65,7 @@ dfx canister call defi-dapp deposit_dip "(\"$GOLDEN_ID\")"
 dfx canister call defi-dapp deposit_icp
 ```
 
-
-## DIP20
-
-Folder `/DIP20` contains token contracts. 
-
-
-## Deploy token
+### Deploy token
 
 ```bash
 
@@ -105,6 +106,7 @@ dfx canister --no-wallet call GoldenDIP20 approve  '(principal '\"$DEX_PRINCIPLE
 dfx canister --no-wallet call AkitaDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',1000000)'
 
 ``` 
+
 
 
 
