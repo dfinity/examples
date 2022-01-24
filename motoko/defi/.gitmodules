@@ -1,6 +1,0 @@
-[submodule "DIP20"]
-	path = src/DIP20
-	url = git@github.com:Psychedelic/DIP20.git
-[submodule "internet-identity"]
-	path = src/svelte-motoko-starter/internet-identity
-	url = https://github.com/dfinity/internet-identity
