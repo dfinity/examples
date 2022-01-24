@@ -65,13 +65,6 @@ impl From<OrderState> for Order {
     }
 }
 
-export_service!();
-
-#[ic_cdk_macros::query(name = "__get_candid_interface_tmp_hack")]
-fn export_candid() -> String {
-    __export_service()
-}
-
 fn add_balance(m: &mut HashMap<Principal, u128>, token_canister_id: &Principal, delta: u128) {
     if let Some(x) = m.get_mut(&token_canister_id) {
         *x += delta;
@@ -463,4 +456,11 @@ pub fn icp_deposit_account() -> String {
     let subaccount = principal_to_subaccount(&caller());
     let account = AccountIdentifier::new(&canister_id, &subaccount).to_string();
     account
+}
+
+export_service!();
+
+#[ic_cdk_macros::query(name = "__get_candid_interface_tmp_hack")]
+fn export_candid() -> String {
+    __export_service()
 }
