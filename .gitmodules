@@ -18,3 +18,6 @@
 [submodule "rust/defi/internet-identity"]
 	path = rust/defi/src/svelte-motoko-starter/internet-identity
 	url = https://github.com/dfinity/internet-identity
+[submodule "motoko/defi/src/internet-identity"]
+	path = motoko/defi/src/internet-identity
+	url = https://github.com/dfinity/internet-identity

@@ -6,10 +6,10 @@
     },
     "ledger": {
       "type": "custom",
-      "candid": "ledger.did",
-      "wasm": "ledger.wasm"
+      "candid": "src/ledger/ledger.did",
+      "wasm": "src/ledger/ledger.wasm"
     },
-    "defi-dapp-frontend" : {
+    "frontend" : {
       "dependencies" : [
         "defi-dapp"
       ],
@@ -34,7 +34,7 @@
       "packtool": ""
     }
   },
-  "dfx": "0.8.5",
+  "dfx": "0.8.4",
   "networks": {
     "local": {
       "bind": "127.0.0.1:8000",

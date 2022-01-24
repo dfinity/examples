@@ -11,8 +11,8 @@ dfx identity use default
 export LEDGER_ACC=$(dfx ledger account-id)
 
 # Use private api for install
-rm ledger.did
-cp ledger.private.did ledger.did
+rm src/ledger/ledger.did
+cp src/ledger/ledger.private.did src/ledger/ledger.did
 
 dfx deploy ledger --argument '(record  {
     minting_account = "'${MINT_ACC}'";
@@ -21,8 +21,8 @@ dfx deploy ledger --argument '(record  {
     })'
 
 # Replace with public api
-rm ledger.did
-cp ledger.public.did ledger.did
+rm src/ledger/ledger.did
+cp src/ledger/ledger.public.did src/ledger/ledger.did
 
 ### === DEPLOY DIP TOKENS =====
 
@@ -40,3 +40,18 @@ dfx canister  call AkitaDIP20 setFeeTo "($ROOT_PRINCIPAL)"
 dfx canister  call AkitaDIP20 setFee "(420)" 
 dfx canister  call GoldenDIP20 setFeeTo "($ROOT_PRINCIPAL)"
 dfx canister  call GoldenDIP20 setFee "(420)" 
+
+### === DEPLOY INTERNET IDENTITY =====
+
+## Follow internet identity installation steps (https://github.com/dfinity/examples/tree/master/svelte-motoko-starter#install-internet-identity)
+cd src/internet-identity
+npm install
+II_ENV=development dfx deploy --no-wallet --argument '(null)'
+
+cd ../..
+
+
+## === INSTALL FRONTEND / BACKEND ==== 
+
+dfx deploy defi-dapp
+dfx deploy frontend
