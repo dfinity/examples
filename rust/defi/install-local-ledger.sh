@@ -1,7 +1,6 @@
 dfx stop
 dfx start --background --clean
 
-
 ### === DEPLOY LOCAL LEDGER =====
 dfx identity new minter
 dfx identity use minter

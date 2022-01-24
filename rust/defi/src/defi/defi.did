@@ -1,5 +1,5 @@
 type Conf = record {
-  transaction_fee : float32;
+  withdrawl_fee : float32;
   ledger_canister_id : principal;
 };
 
@@ -23,15 +23,15 @@ type DepositResponse = record {
 };
 
 service defi : (Conf) -> {
-  cancel_order : (order_id: nat64) -> (text);
-  get_order : (order_id: nat64) -> (opt Order) query;
   get_balance : (token_canister_id : principal) -> (opt Balance) query;
   get_balances : () -> (vec Balance) query;
   deposit : (token_canister_id: principal, amount: nat) -> (DepositResponse);
-  list_orders : () -> (vec Order) query;
-  list_from_orders : (token_canister_id : principal) -> (vec Order) query;
-  list_to_orders : (token_canister_id : principal) -> (vec Order) query;
+  get_order : (order_id: nat64) -> (opt Order) query;
+  get_orders : () -> (vec Order) query;
+  get_from_orders : (token_canister_id : principal) -> (vec Order) query;
+  get_to_orders : (token_canister_id : principal) -> (vec Order) query;
   place_order : (from_token_canister_id : principal, from_amount : nat, to_token_canister_id : principal, to_amount : nat) -> (text);
+  cancel_order : (order_id: nat64) -> (text);
   withdraw : (token_canister_id : principal, amount : nat, to_principal : principal) -> () oneway;
   whoami : () -> (principal) query;
   icp_deposit_account : () -> (text) query;

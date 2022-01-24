@@ -4,42 +4,35 @@ all: build
 .PHONY: build
 .SILENT: build
 build:
-	dfx canister --no-wallet create --all
+	dfx canister create --all
 	dfx build
 
 .PHONY: install
 .SILENT: install
 install: build
-	dfx canister --no-wallet  install --all
-
-.PHONY: upgrade
-.SILENT: upgrade
-upgrade: build
-	dfx canister --no-wallet  install --all --mode=reinstall
-
-LEDGER_CANISTER_ID = $(shell dfx canister id ledger)
+	dfx canister install --all
 
 .PHONY: deploy
 .SILENT: deploy
-deploy: deploy
-	echo "ledger canister" $(LEDGER_CANISTER_ID)
-	dfx deploy defi --argument '(record { transaction_fee = 0.1 : float32;  ledger_canister_id = principal "$(LEDGER_CANISTER_ID)" } )'
+deploy:
+	$(eval ledger_canister_id := $(shell dfx canister id ledger))
+	dfx deploy defi --argument '(record { withdrawl_fee = 0.1 : float32;  ledger_canister_id = principal "$(ledger_canister_id)" } )'
 
 .PHONY: test
 .SILENT: test
-test: upgrade
-	$(eval publisher_id := $(shell dfx canister id publisher))
-	dfx canister call subscriber setup_subscribe '(principal "$(publisher_id)","Apples")'
-	dfx canister call subscriber get_count \
-		| grep '(0 : nat64)' && echo 'PASS'
-	dfx canister call publisher publish '(record { "topic" = "Apples"; "value" = 2 })'
-	sleep 2 # Wait for update.
-	dfx canister call subscriber get_count \
-		| grep '(2 : nat64)' && echo 'PASS'
-	dfx canister call publisher publish '(record { "topic" = "Bananas"; "value" = 3 })'
-	sleep 2 # Wait for update.
-	dfx canister call subscriber get_count \
-		| grep '(2 : nat64)' && echo 'PASS'
+test: deploy
+	$(eval defi_canister_id := $(shell dfx canister id defi))
+	dfx canister call defi get_order '(1 : nat64)'
+
+.PHONY: candid
+.SILENT: candid
+candid: deploy
+	$(eval defi_canister_id := $(shell dfx canister id defi))
+	dfx canister call defi __get_candid_interface_tmp_hack 
+	dfx canister call defi get_order '(1 : nat64)'      
+	dfx canister call defi place_order '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai" : principal, 1: nat, principal "tfuft-aqaaa-aaaaa-aaaoq-cai", 2: nat)'
+	dfx canister call defi get_order '(1 : nat64)'      
+	dfx canister call defi get_orders
 
 .PHONY: clean
 .SILENT: clean
