@@ -14,10 +14,10 @@
         "defi-dapp"
       ],
       "frontend": { 
-        "entrypoint": "src/defi-dapp-frontend/src/frontend/public/index.html"
+        "entrypoint": "src/frontend/public/index.html"
       },
       "source" : [
-        "src/defi-dapp-frontend/src/frontend/public"
+        "src/frontend/public"
       ],
       "type": "assets"
     },

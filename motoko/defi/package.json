@@ -1,7 +1,7 @@
 {
-  "name": "svelte-motoko-starter",
+  "name": "defi-dapp-frontend",
   "version": "0.1.0",
-  "description": "Internet Computer starter application",
+  "description": "Example defi dapp frontend",
   "keywords": [
     "Internet Computer",
     "Motoko",

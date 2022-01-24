@@ -36,22 +36,24 @@ dfx canister --no-wallet install AkitaDIP20 --argument="(\"https://dogbreedslist
 dfx canister --no-wallet install GoldenDIP20 --argument="(\"https://akitagoose.com/wp-content/uploads/2021/12/IMG_0674.png\", \"Akita Coin\", \"AKI\", 8, 10000000000000000, $ROOT_PRINCIPAL, 10000)"
 
 # set fees 
-dfx canister  call AkitaDIP20 setFeeTo "($ROOT_PRINCIPAL)"
-dfx canister  call AkitaDIP20 setFee "(420)" 
-dfx canister  call GoldenDIP20 setFeeTo "($ROOT_PRINCIPAL)"
-dfx canister  call GoldenDIP20 setFee "(420)" 
+dfx canister call AkitaDIP20 setFeeTo "($ROOT_PRINCIPAL)"
+dfx canister call AkitaDIP20 setFee "(420)" 
+dfx canister call GoldenDIP20 setFeeTo "($ROOT_PRINCIPAL)"
+dfx canister call GoldenDIP20 setFee "(420)" 
 
 ### === DEPLOY INTERNET IDENTITY =====
 
 ## Follow internet identity installation steps (https://github.com/dfinity/examples/tree/master/svelte-motoko-starter#install-internet-identity)
-cd src/internet-identity
+pushd src/internet-identity
 npm install
 II_ENV=development dfx deploy --no-wallet --argument '(null)'
-
-cd ../..
-
+popd
 
 ## === INSTALL FRONTEND / BACKEND ==== 
 
 dfx deploy defi-dapp
+
+pushd src/frontend
+npm install
+popd
 dfx deploy frontend

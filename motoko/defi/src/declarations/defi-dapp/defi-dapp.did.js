@@ -1,35 +1,34 @@
 export const idlFactory = ({ IDL }) => {
   const Token = IDL.Text;
-  const TokenBalance = IDL.Record({
-    'principal' : IDL.Principal,
-    'token' : Token,
-    'amount' : IDL.Nat,
-  });
   const CancelOrderResponse = IDL.Record({
     'status' : IDL.Text,
     'order_id' : IDL.Text,
   });
+  const Token__1 = IDL.Text;
   const Order = IDL.Record({
     'id' : IDL.Text,
-    'to' : Token,
+    'to' : Token__1,
     'fromAmount' : IDL.Nat,
     'owner' : IDL.Principal,
-    'from' : Token,
+    'from' : Token__1,
     'toAmount' : IDL.Nat,
   });
   const OrderPlacementResponse = IDL.Record({
     'status' : IDL.Text,
     'order' : Order,
   });
+  const WithdrawError = IDL.Variant({
+    'balanceLow' : IDL.Null,
+    'transferFailure' : IDL.Null,
+  });
+  const Result = IDL.Variant({ 'ok' : IDL.Nat64, 'err' : WithdrawError });
   return IDL.Service({
-    'balances' : IDL.Func([], [IDL.Vec(TokenBalance)], ['query']),
+    'balance' : IDL.Func([Token], [IDL.Nat64], ['query']),
     'cancel_order' : IDL.Func([IDL.Text], [CancelOrderResponse], []),
     'check_order' : IDL.Func([IDL.Text], [IDL.Opt(Order)], []),
-    'convert_icp' : IDL.Func([], [IDL.Opt(IDL.Text)], []),
-    'convert_token' : IDL.Func([], [IDL.Opt(IDL.Text)], []),
-    'deposit' : IDL.Func([], [], ['oneway']),
     'deposit_address' : IDL.Func([], [IDL.Vec(IDL.Nat8)], []),
-    'init' : IDL.Func([], [IDL.Opt(IDL.Text)], []),
+    'deposit_dip' : IDL.Func([Token], [IDL.Opt(IDL.Text)], []),
+    'deposit_icp' : IDL.Func([], [IDL.Opt(IDL.Text)], []),
     'list_order' : IDL.Func([], [IDL.Vec(Order)], ['query']),
     'place_order' : IDL.Func(
         [Token, IDL.Nat, Token, IDL.Nat],
@@ -37,7 +36,8 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'whoami' : IDL.Func([], [IDL.Principal], ['query']),
-    'withdraw' : IDL.Func([], [], ['oneway']),
+    'withdraw_dip' : IDL.Func([Token, IDL.Nat64], [Result], []),
+    'withdraw_icp' : IDL.Func([IDL.Nat64], [Result], []),
   });
 };
 export const init = ({ IDL }) => { return []; };

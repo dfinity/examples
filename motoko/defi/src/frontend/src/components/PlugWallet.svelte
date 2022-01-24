@@ -1,6 +1,6 @@
 <script>
     import { onMount } from 'svelte';
-    import { idlFactory } from '../../../declarations/backend/backend.did.js';
+    import { idlFactory } from '../../../declarations/defi-dapp/defi-dapp.did.js';
 
     let plugWalletInstalled = window.ic ? true : false;
     let plugWalletConnected;

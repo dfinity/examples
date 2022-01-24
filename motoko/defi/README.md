@@ -9,11 +9,11 @@
 
 ## Quickstart
 
-Setup local environment. This deploys a local ledger and two DIP20 Tokens 
+Setup local environment. This deploys a local ledger, two DIP20 Tokens, II, and our project.
 
 ```bash
 git submodule update --init --recursive
-sh install-local-ledger.sh 
+sh install.sh 
 ```
 
 ## Development
@@ -27,7 +27,7 @@ dfx deploy defi-dapp -m reinstall
 Local frontend development
 
 ```bash
-cd src/defi-dapp-frontend/src/frontend
+cd src/frontend
 npm install
 npm dev run
 ```

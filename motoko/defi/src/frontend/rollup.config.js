@@ -18,8 +18,6 @@ function initCanisterIds() {
     localCanisters = require(path.resolve(
       "..",
       "..",
-      "..",
-      "..",
       ".dfx",
       "local",
       "canister_ids.json"
@@ -29,8 +27,6 @@ function initCanisterIds() {
   }
   try {
     localIiCanister = require(path.resolve(
-      "..",
-      "..",
       "..",
       "internet-identity",
       ".dfx",

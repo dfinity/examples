@@ -1,12 +1,12 @@
 import { writable } from "svelte/store";
-import { idlFactory } from "../../../declarations/backend/backend.did.js";
+import { idlFactory } from "../../../declarations/defi-dapp/defi-dapp.did.js";
 import { Actor, HttpAgent } from "@dfinity/agent";
 
 /**
  * Creates an actor for the Backend canister
  *
  * @param {{agentOptions: import("@dfinity/agent").HttpAgentOptions, actorOptions: import("@dfinity/agent").ActorConfig}} options
- * @returns {import("@dfinity/agent").ActorSubclass<import("../../../declarations/backend/backend.did")._SERVICE>}
+ * @returns {import("@dfinity/agent").ActorSubclass<import("../../../declarations/defi-dapp/defi-dapp.did")._SERVICE>}
  */
 export function createActor(options) {
   const hostOptions = {
