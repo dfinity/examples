@@ -1,13 +1,10 @@
 # defi-test
 
 
-## start local dev env
+## Dependencies
 
-- Install dfx
-
-```
-dfx start
-```
+- [dfx](https://smartcontracts.org/docs/developers-guide/install-upgrade-remove.html)
+- [cmake](https://cmake.org/)
 
 initialize submodule
 
