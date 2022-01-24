@@ -28,7 +28,7 @@ test: deploy
 	dfx identity use test1
 	dfx identity get-principal
 	dfx canister call defi get_balance '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai")'
-	dfx canister call defi deposit '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai", 100: nat)'
+	dfx canister call defi deposit '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai", 1: nat)'
 	dfx canister call defi get_balance '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai")'
 	dfx identity use test2
 	dfx identity get-principal
@@ -44,6 +44,14 @@ test: deploy
 	dfx identity use test1
 	dfx canister call defi place_order '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai" : principal, 1: nat, principal "tlwi3-3aaaa-aaaaa-aaapq-cai", 2: nat)'
 	dfx canister call defi get_orders
+	dfx canister call defi get_balances
+	dfx canister call defi deposit '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai", 1: nat)'
+	dfx canister call defi get_balances
+	dfx canister call defi place_order '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai" : principal, 1: nat, principal "tlwi3-3aaaa-aaaaa-aaapq-cai", 2: nat)'
+	dfx canister call defi get_orders
+	dfx canister call defi get_balances
+	dfx identity use test2
+	dfx canister call defi get_balances
 	dfx identity use default
 
 .PHONY: candid

@@ -120,17 +120,16 @@ impl State {
         }
     }
 
-    fn get_balances(&self) -> Option<Vec<Balance>> {
+    fn get_balances(&self) -> Vec<Balance> {
         match self.balances.get(&caller()) {
-            None => None,
-            Some(v) => Some(
-                v.iter()
-                    .map(|(token_canister_id, amount)| Balance {
-                        token_canister_id: *token_canister_id,
-                        amount: (*amount).into(),
-                    })
-                    .collect(),
-            ),
+            None => Vec::new(),
+            Some(v) => v
+                .iter()
+                .map(|(token_canister_id, amount)| Balance {
+                    token_canister_id: *token_canister_id,
+                    amount: (*amount).into(),
+                })
+                .collect(),
         }
     }
 
@@ -383,7 +382,7 @@ pub fn get_balance(token_canister_id: Principal) -> Option<Balance> {
 
 #[query]
 #[candid_method(query)]
-pub fn get_balances() -> Option<Vec<Balance>> {
+pub fn get_balances() -> Vec<Balance> {
     STATE.with(|s| s.borrow().get_balances())
 }
 
