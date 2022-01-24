@@ -17,15 +17,10 @@ type Order = record {
   to_amount : nat;
 };
 
-type DepositResponse = record {
-  id : opt nat;
-  status: opt text;
-};
-
 service defi : (Conf) -> {
   get_balance : (token_canister_id : principal) -> (opt Balance) query;
   get_balances : () -> (vec Balance) query;
-  deposit : (token_canister_id: principal, amount: nat) -> (DepositResponse);
+  deposit : (token_canister_id: principal, amount: nat) -> (text);
   get_order : (order_id: nat64) -> (opt Order) query;
   get_orders : () -> (vec Order) query;
   get_from_orders : (token_canister_id : principal) -> (vec Order) query;
