@@ -11,6 +11,7 @@ import RBTree "mo:base/RBTree";
 import DIP20 "../DIP20/motoko/src/token";
 import Ledger "canister:ledger";
 
+import Book "book";
 import T "types";
 
 module {
@@ -18,7 +19,7 @@ module {
     public let ledger = func(): Principal { Principal.fromActor(Ledger) };
 
     // An exchange between ICP and a DIP20 token.
-    public class Exchange(dip: T.Token, symbol: Text) {
+    public class Exchange(dip: T.Token, symbol: Text, book: Book.Book) {
 
         // The implicit pair will be dip/ICP (to have the price of a dip in ICP), therefore:
         // bid is for buying dip (ie selling ICP).
@@ -124,8 +125,9 @@ module {
                         case (?(ap,ao)) {
                             let spread = ap-bp;
                             if (spread<=0) {
-                                Debug.print("Crossing at midspread: " # Float.toText(bp+spread/2));
-                                execute(bo.get(0), ao.get(0));
+                                let price=bp+spread/2;
+                                Debug.print("Crossing at midspread: " # Float.toText(price));
+                                execute(bo.get(0), ao.get(0), price);
                             } else {
                                 Debug.print("No match. Spread: " # Float.toText(spread));
                                 return;
@@ -136,9 +138,15 @@ module {
             // TODO continue matching
         };
 
-        func execute(order1: T.Order, order2: T.Order) {
+        func execute(bid: T.Order, ask: T.Order, price: Float) {
             Debug.print("Executing transaction");
             // TODO
+            // Find volume.
+            let volume = Nat.min(bid.toAmount, ask.fromAmount);
+            //book.remove_tokens();
+            //book.add_tokens();
+
+
         }
 
         //public func transactions() : [Transaction] {}

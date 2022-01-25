@@ -17,6 +17,7 @@ import DIP20 "../DIP20/motoko/src/token";
 import Account "./Account";
 import Ledger "canister:ledger";
 
+import B "book";
 import E "exchange";
 import T "types";
 
@@ -33,7 +34,8 @@ actor Dex {
     var exchanges = M.HashMap<T.Token, E.Exchange>(10, Principal.equal, Principal.hash);
 
     // User balance datastructure
-    private var book = M.HashMap<Principal, M.HashMap<T.Token, Nat64>>(10, Principal.equal, Principal.hash);
+    //private var book : T.Book = M.HashMap<Principal, M.HashMap<T.Token, Nat64>>(10, Principal.equal, Principal.hash);
+    private var book = B.Book();
     private stable var upgradeMap : [var (Principal, [(T.Token, Nat64)])] = [var];
 
 
@@ -55,7 +57,7 @@ actor Dex {
             to;
             toAmount;
         };
-        orders.put(id, order);
+
         // Find or create the exchange.
         var dip : ?T.Token = null;
         if(from==E.ledger()) {
@@ -65,12 +67,15 @@ actor Dex {
         } else {
             Debug.print("Order must be from or to ICP.");
         };
+
+        orders.put(id, order);
+
         switch(dip) {
             case (?dip_token) {
                 let exchange = switch (exchanges.get(dip_token)) {
                     case null {
                         let dip_symbol = await symbol(dip_token);
-                        let exchange : E.Exchange = E.Exchange(dip_token, dip_symbol);
+                        let exchange : E.Exchange = E.Exchange(dip_token, dip_symbol, book);
                         exchanges.put(dip_token,exchange);
                         exchange
                     };
@@ -124,7 +129,7 @@ actor Dex {
         Debug.print("Withdraw...");
 
         // remove withdrawl amount from book
-        switch (remove_from_book(msg.caller,E.ledger(),amount+icp_fee)){
+        switch (book.remove_tokens(msg.caller,E.ledger(),amount+icp_fee)){
             case(null){
                 return #Err(#BalanceLow)
             };
@@ -145,7 +150,7 @@ actor Dex {
         switch icp_reciept {
             case (#Err e) {
                 // add tokens back to user account balance
-                add_deposit_to_book(msg.caller,E.ledger(),amount+icp_fee);
+                book.add_tokens(msg.caller,E.ledger(),amount+icp_fee);
                 return #Err(#TransferFailure);
             };
             case _ {};
@@ -162,8 +167,8 @@ actor Dex {
         // get dip20 fee
         let dip_fee = await fetch_dip_fee(token);
 
-        // remove withdrawl amount from book
-        switch (remove_from_book(msg.caller,token,amount+dip_fee)){
+        // remove withdrawal amount from book
+        switch (book.remove_tokens(msg.caller,token,amount+dip_fee)){
             case(null){
                 return #Err(#BalanceLow)
             };
@@ -176,7 +181,7 @@ actor Dex {
         switch txReceipt {
             case (#Err e) {
                 // add tokens back to user account balance
-                add_deposit_to_book(msg.caller,token,amount + dip_fee);
+                book.add_tokens(msg.caller,token,amount + dip_fee);
                 return #Err(#TransferFailure);
             };
             case _ {};
@@ -242,7 +247,7 @@ actor Dex {
         };
 
         // add transfered amount to useres balance
-        add_deposit_to_book(msg.caller,token,balance - dip_fee);
+        book.add_tokens(msg.caller,token,balance - dip_fee);
 
         // Return result
         #Ok(balance - dip_fee)
@@ -283,7 +288,7 @@ actor Dex {
         let available = { e8s = balance.e8s - (icp_fee * 2) };
 
         // keep track of deposited ICP
-        add_deposit_to_book(msg.caller,E.ledger(),available.e8s);
+        book.add_tokens(msg.caller,E.ledger(),available.e8s);
 
         // Return result
         #Ok(available.e8s)
@@ -303,71 +308,7 @@ actor Dex {
         metadata.symbol
     };
 
-    // function that adds tokens to book. Book keeps track of users deposits.
-    private func add_deposit_to_book(user: Principal, token: T.Token,amount: Nat64){
-        switch (book.get(user)) {
-            case (?token_balance) {
-                // check if user already has existing balance for this token
-                switch (token_balance.get(token)){
-                    case (?balance) {
-                        Debug.print( debug_show("User", user, "has existing balance of ", token, " new amount: ",balance+amount));
-                        token_balance.put(token, balance+amount);
-                    };
-                    case(null){
-                        Debug.print( debug_show("User", user, "has no balance of ", token, " new amount: ",amount));
-                        token_balance.put(token, amount);
-                    };
-                };
-            };
-            case (null) {
-                // user didn't exist
-                Debug.print( debug_show("User", user, "has no balance of ", token, " new amount: ",amount));
-                var x1 = M.HashMap<T.Token, Nat64>(2, Principal.equal, Principal.hash);
-                x1.put(token,amount);
-                book.put(user,x1);
-            };
-        };
 
-    };
-
-    // function that adds tokens to book. Book keeps track of users deposits.
-    private func remove_from_book(user: Principal, token: T.Token,amount: Nat64) : ?Nat64 {
-        switch (book.get(user)) {
-            case (?token_balance) {
-                // check if user already has existing balance for this token
-                switch (token_balance.get(token)){
-                    case (?balance) {
-                        Debug.print( debug_show("User", user, "has existing balance of ", token, " new amount: ",balance+amount));
-                        if (balance>=amount){
-                            token_balance.put(token, balance-amount);
-                            ?(balance-amount)
-                        } else {
-                            null
-                        }
-                    };
-                    case(null){
-                        null
-                    };
-                };
-            };
-            case (null) {
-                // user didn't exist
-                null
-            };
-        };
-    };
-
-
-    // For development only.
-    private func print_balances(){
-        for ((x, y) in book.entries()) {
-            Debug.print( debug_show("PRINCIPLE: ", x));
-            var i=0;
-            for ((key: T.Token, value: Nat64) in y.entries()) {
-                Debug.print( debug_show("Balance: ", i, "Token: ", key, " amount: ",value));
-            };
-        };
-    };
 
 
 
