@@ -35,7 +35,7 @@ shared(install) actor class DAO(init : ?Types.SystemParams) = Self {
     };
 
     /// Return the account balance of the caller
-    public query func account_balance() : async Types.Tokens {
+    public query({caller}) func account_balance() : async Types.Tokens {
         Option.get(Trie.get(accounts, Types.account_key caller, Principal.equal), Types.zeroToken)
     };
 
@@ -131,6 +131,20 @@ shared(install) actor class DAO(init : ?Types.SystemParams) = Self {
                  };
                  #ok(state)
              };
+        };
+    };
+
+    /// Update system params
+    ///
+    /// Only callable via proposal execution
+    public shared({caller}) func update_system_params(payload: Types.UpdateSystemParamsPayload) : async () {
+        if (caller != Principal.fromActor(Self)) {
+            return;
+        };
+        system_params := {
+            transfer_fee = Option.get(payload.transfer_fee, system_params.transfer_fee);
+            proposal_vote_threshold = Option.get(payload.proposal_vote_threshold, system_params.proposal_vote_threshold);
+            proposal_submission_deposit = Option.get(payload.proposal_submission_deposit, system_params.proposal_submission_deposit);
         };
     };
 
