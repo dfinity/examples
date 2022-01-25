@@ -2,6 +2,8 @@
   import { AuthClient } from "@dfinity/auth-client";
   import { onMount } from "svelte";
   import { auth, createActor } from "../store/auth";
+  import PlugWallet from '../components/PlugWallet.svelte';
+  import BalanceInfo from '../components/BalanceInfo.svelte';
 
   /** @type {AuthClient} */
   let client;
@@ -51,8 +53,12 @@
 
 <div class="container">
   {#if $auth.loggedIn}
-    <div>
+    <div class="auth-btn-container">
+      <PlugWallet />
       <button on:click={logout}>Log out</button>
+    </div>
+    <div>
+      <BalanceInfo />
     </div>
   {:else}
     <button on:click={login}>Authenticate in with Internet Identity</button>
@@ -75,6 +81,12 @@
 <style>
   .container {
     margin: 64px 0;
+  }
+
+  .auth-btn-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
   }
 
   .principal-info {

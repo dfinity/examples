@@ -5,27 +5,26 @@
     let plugWalletInstalled = window.ic ? true : false;
     let plugWalletConnected;
     let plugActor;
-    let agent;
 
     const DEX_CANISTER_ID = process.env.DEFI_DAPP_CANISTER_ID;
-    const whiteList = [DEX_CANISTER_ID];
-    const host =  "localhost:8000"
+    const LEDGER_CANISTER_ID = process.env.LEDGER_CANISTER_ID;
+    const AKITADIP20_CANISTER_ID = process.env.AKITADIP20_CANISTER_ID;
+    const GOLDENDIP20_CANISTER_ID = process.env.GOLDENDIP20_CANISTER_ID;
+    const whiteList = [DEX_CANISTER_ID, LEDGER_CANISTER_ID, AKITADIP20_CANISTER_ID, GOLDENDIP20_CANISTER_ID];
 
-    
     onMount(async () => {
         if(plugWalletInstalled) {
             if(await window.ic.plug.isConnected) {
                 plugWalletConnected = true; 
                 // create plug actor        
-                await window.ic.plug.createAgent({whiteList, host});
+                await window.ic.plug.createAgent({whiteList});
                 window.ic.plug.agent.fetchRootKey();
                 plugActor = await window.ic.plug.createActor({
                     canisterId: DEX_CANISTER_ID,
-                    interfaceFactory: idlFactory,
-                    agent: window.ic.plug.agent
+                    interfaceFactory: idlFactory
                 });
                 console.log(plugActor)
-                const test = await plugActor.whoami();
+                const test = await plugActor.list_order();
                 console.log(test)
 
             }
@@ -52,6 +51,7 @@
                        canisterId: DEX_CANISTER_ID,
                        interfaceFactory: idlFactory,
                    });
+                   const test = await plugActor.list_order();
                 }
            }
            catch {

@@ -3,7 +3,6 @@
     import { Actor, HttpAgent } from "@dfinity/agent";
     import { AuthClient } from "@dfinity/auth-client";
     import { idlFactory } from '../../../declarations/defi_dapp/defi_dapp.did.js';
-    import PlugWallet from '../components/PlugWallet.svelte';
     import { FontAwesomeIcon } from 'fontawesome-svelte';
     import { Principal } from "@dfinity/principal";
 
@@ -26,6 +25,8 @@
                 canisterId: process.env.DEFI_DAPP_CANISTER_ID
             });
             const princiapl = Principal.fromText(process.env.LEDGER_CANISTER_ID)
+            const deposit = await backendActor.deposit(princiapl)
+            console.log(deposit)
             balance = await backendActor.balance(princiapl);
             console.log(balance)
         }
@@ -63,9 +64,6 @@
                     </span>
                 </div>
             </div>
-        </div> 
-        <div class="plug-container">
-            <PlugWallet />
         </div> 
     </div>
 

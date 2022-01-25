@@ -33,7 +33,8 @@
         const authenticated = await authClient.isAuthenticated();
         if(authenticated) {
             const identity = authClient.getIdentity() || undefined;
-            const agent = new HttpAgent({identity, host: "http://localhost:8000"});
+            const host = process.env.NODE_ENV === 'production' ? 'ic0.app' : 'http://localhost:8000';
+            const agent = new HttpAgent({identity, host});
             // development only, comment out in prod
             agent.fetchRootKey();
             // end comment out in prod only
@@ -195,6 +196,11 @@
 <style>
     table {
         width: 75vw;
+    }
+
+    th {
+        font-weight: bold;
+        font-size: 20px;
     }
     .order-container {
         text-align: left !important;

@@ -1,7 +1,7 @@
 <script>
+  import Auth from './components/Auth.svelte';
   import CanisterIds from "./components/CanisterIds.svelte";
   import Links from "./components/Links.svelte";
-  import BalanceInfo from './components/BalanceInfo.svelte';
   import Orders from './components/Orders.svelte';
   import { library } from '@fortawesome/fontawesome-svg-core';
   import { faMinus, faPlus } from '@fortawesome/free-solid-svg-icons';
@@ -21,7 +21,7 @@
     <img src="images/dfinity.svg" alt="DFINITY logo" />
   </a>
   <h1>DeFi DEX Example</h1>
-  <BalanceInfo />
+  <Auth />
   <Orders />
   <Links />
   <CanisterIds />
