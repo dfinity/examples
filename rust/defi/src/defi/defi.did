@@ -8,6 +8,12 @@ type Balance = record {
   amount : nat;
 };
 
+type OwnerBalance = record {
+  owner: principal;
+  token_canister_id : principal;
+  amount : nat;
+};
+
 type Order = record {
   id : nat64;
   owner : principal;
@@ -20,9 +26,11 @@ type Order = record {
 service defi : (Conf) -> {
   get_balance : (token_canister_id : principal) -> (opt Balance) query;
   get_balances : () -> (vec Balance) query;
+  get_all_balances : () -> (vec OwnerBalance) query;
   deposit : (token_canister_id: principal, amount: nat) -> (text);
   get_order : (order_id: nat64) -> (opt Order) query;
   get_orders : () -> (vec Order) query;
+  get_all_orders : () -> (vec Order) query;
   get_from_orders : (token_canister_id : principal) -> (vec Order) query;
   get_to_orders : (token_canister_id : principal) -> (vec Order) query;
   place_order : (from_token_canister_id : principal, from_amount : nat, to_token_canister_id : principal, to_amount : nat) -> (text);

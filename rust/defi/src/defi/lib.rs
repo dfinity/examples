@@ -20,6 +20,13 @@ pub struct Balance {
     amount: Nat,
 }
 
+#[derive(CandidType)]
+pub struct OwnerBalance {
+    owner: Principal,
+    token_canister_id: Principal,
+    amount: Nat,
+}
+
 #[derive(CandidType, Clone)]
 pub struct Order {
     id: u64,
@@ -126,6 +133,20 @@ impl State {
         }
     }
 
+    fn get_all_balances(&self) -> Vec<OwnerBalance> {
+        let mut result: Vec<OwnerBalance> = Vec::new();
+        for (owner, v) in self.balances.iter() {
+            for (token_canister_id, amount) in v.iter() {
+                result.push(OwnerBalance {
+                    owner: *owner,
+                    token_canister_id: *token_canister_id,
+                    amount: (*amount).into(),
+                });
+            }
+        }
+        result
+    }
+
     fn deposit(&mut self, token_canister_id: Principal, amount: Nat) -> String {
         if !self.balances.contains_key(&caller()) {
             self.balances.insert(caller(), HashMap::new());
@@ -174,6 +195,14 @@ impl State {
     }
 
     fn get_orders(&self) -> Vec<Order> {
+        self.orders
+            .iter()
+            .filter(|(_, o)| o.owner == caller())
+            .map(|(_, o)| (*o).into())
+            .collect()
+    }
+
+    fn get_all_orders(&self) -> Vec<Order> {
         self.orders.iter().map(|(_, o)| (*o).into()).collect()
     }
 
@@ -379,6 +408,12 @@ pub fn get_balances() -> Vec<Balance> {
     STATE.with(|s| s.borrow().get_balances())
 }
 
+#[query]
+#[candid_method(query)]
+pub fn get_all_balances() -> Vec<OwnerBalance> {
+    STATE.with(|s| s.borrow().get_all_balances())
+}
+
 #[update]
 #[candid_method(update)]
 pub fn deposit(token_canister_id: Principal, amount: Nat) -> String {
@@ -395,6 +430,12 @@ pub fn get_order(order: u64) -> Option<Order> {
 #[candid_method(query)]
 pub fn get_orders() -> Vec<Order> {
     STATE.with(|s| s.borrow().get_orders())
+}
+
+#[query]
+#[candid_method(query)]
+pub fn get_all_orders() -> Vec<Order> {
+    STATE.with(|s| s.borrow().get_all_orders())
 }
 
 #[query]
