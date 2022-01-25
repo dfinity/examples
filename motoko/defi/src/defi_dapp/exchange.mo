@@ -139,7 +139,6 @@ module {
         };
 
         func execute(bid: T.Order, ask: T.Order, price: Float) {
-            Debug.print("Executing transaction");
             // TODO
             // Find volume of DIP20.
             var vol_dip : Nat = 0;
@@ -151,14 +150,34 @@ module {
                 vol_dip := ask.fromAmount;
                 vol_icp := ask.toAmount;
             };
+            Debug.print("Executing exchange of " # Nat.toText(vol_dip) # " DIP for " # Nat.toText(vol_icp) # " ICP");
 
             //let vol_dip = Nat.min(bid.toAmount, ask.fromAmount);
 
             // we transfer the icp from bid to ask and the dip from ask to bid.
-            let icp : ?Nat = book.remove_tokens(bid.owner, bid.from, vol_icp);
-            let dip : ?Nat = book.remove_tokens(ask.owner, ask.from, vol_dip);
-            book.add_tokens(bid.owner, bid.to, vol_dip);
-            book.add_tokens(ask.owner, ask.to, vol_icp);
+            switch (book.remove_tokens(bid.owner, bid.from, vol_icp)) {
+                case (?icp) {
+                    if(icp!=vol_icp) {
+                        Debug.print("Invalid volume of ICP transferred, rollbacking...");
+                        // TODO rollback
+                    } else {
+                        switch (book.remove_tokens(ask.owner, ask.from, vol_dip)) {
+                            case (?dip) {
+                                if(dip!=vol_dip) {
+                                    Debug.print("Invalid volume of DIP transferred, rollbacking...");
+                                    // TODO rollback
+                                } else {
+                                    // Numbers match, adding tokens.
+                                    book.add_tokens(bid.owner, bid.to, vol_dip);
+                                    book.add_tokens(ask.owner, ask.to, vol_icp);
+                                }
+                            };
+                            case null {}
+                        }
+                    }
+                };
+                case null {}
+            }
         }
 
         //public func transactions() : [Transaction] {}

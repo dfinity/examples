@@ -307,9 +307,6 @@ actor Dex {
     };
 
 
-
-
-
     // Required since maps cannot be stable and need to be moved to stable memory
     // Before canister upgrade book hashmap gets stored in stable memory such that it survives updates
     system func preupgrade() {
@@ -329,6 +326,7 @@ actor Dex {
         };
         upgradeMap := [var];
         orders_stable := [];
+        // TODO reload exchanges (find solution for async symbol retrieving).
         //exchange := E.Exchange(dip_tokens);
     };
 
