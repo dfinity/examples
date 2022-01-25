@@ -88,6 +88,12 @@ fn subtract_balance(m: &mut HashMap<Principal, u128>, token_canister_id: &Princi
     }
 }
 
+fn nat_to_u128(n: Nat) -> u128 {
+    let n: BigUint = n.try_into().unwrap();
+    let n: u128 = n.try_into().unwrap();
+    n
+}
+
 impl Default for State {
     fn default() -> Self {
         State {
@@ -151,16 +157,13 @@ impl State {
         if !self.balances.contains_key(&caller()) {
             self.balances.insert(caller(), HashMap::new());
         }
-        let amount: BigUint = amount.try_into().unwrap();
-        let amount: u128 = amount.try_into().unwrap();
+        let amount = nat_to_u128(amount);
         add_balance(
             self.balances.get_mut(&caller()).unwrap(),
             &token_canister_id,
             amount,
         );
         return "ok".into();
-        //let amount: BigUint = amount.try_into().unwrap();
-        //let _amount: u128 = amount.try_into().unwrap();
         /*
         let canister_id = ic_cdk::api::id();
         let account = AccountIdentifier::new(&canister_id, Subaccount::from(caller()));
@@ -235,9 +238,8 @@ impl State {
         to_amount: Nat,
     ) -> String {
         let id = self.next_id();
-        let from_amount: BigUint = from_amount.try_into().unwrap();
-        let from_amount: u128 = from_amount.try_into().unwrap();
-        let to_amount: BigUint = to_amount.try_into().unwrap();
+        let from_amount = nat_to_u128(from_amount);
+        let to_amount = nat_to_u128(to_amount);
         let balance = self.get_balance(from_token_canister_id);
         if let Some(b) = balance {
             if b.amount < from_amount {
