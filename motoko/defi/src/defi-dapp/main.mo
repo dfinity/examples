@@ -6,6 +6,7 @@ import Int64 "mo:base/Int64";
 import Iter "mo:base/Iter";
 import M "mo:base/HashMap";
 import Nat64 "mo:base/Nat64";
+import Nat32 "mo:base/Nat32";
 import Nat "mo:base/Nat";
 import Principal "mo:base/Principal";
 import Text "mo:base/Text";
@@ -21,17 +22,13 @@ import T "types";
 
 actor Dex {
 
-    type Order = T.Order;
-    type Token = T.Token;
-    type TokenBalance = T.TokenBalance;
-
     type OrderPlacementResponse = {
         status: Text;
-        order: Order;
+        order: T.Order;
     };
-    
+
     type CancelOrderResponse = {
-        order_id: Text;
+        order_id: T.OrderId;
         status: Text;
     };
 
@@ -39,32 +36,32 @@ actor Dex {
     public type BookError = { #balanceLow };
     public type WithdrawError = { #balanceLow; #transferFailure };
 
-
+    // TODO: Sort out fees
     // ----------------------------------------
     // NOTE: Initial work with a single token
     let dip_fee: Nat64 = 420;
     let icp_fee: Nat64 = 10_000;
     // ----------------------------------------
 
-    stable var orders_stable : [(Text,Order)] = [];
-    stable var lastId : Nat = 0;
+    stable var orders_stable : [(T.OrderId,T.Order)] = [];
+    stable var lastId : Nat32 = 0;
     var exchange = E.Exchange();
 
     // User balance datastructure
-    private var book = M.HashMap<Principal, M.HashMap<Token, Nat64>>(10, Principal.equal, Principal.hash);
-    private stable var upgradeMap : [var (Principal, [(Token, Nat64)])] = [var];
+    private var book = M.HashMap<Principal, M.HashMap<T.Token, Nat64>>(10, Principal.equal, Principal.hash);
+    private stable var upgradeMap : [var (Principal, [(T.Token, Nat64)])] = [var];
 
 
-    let orders = M.fromIter<Text,Order>(
-        orders_stable.vals(),10, Text.equal, Text.hash
+    let orders = M.fromIter<T.OrderId,T.Order>(
+        orders_stable.vals(),10, Nat32.equal, func(v) {v}
     );
 
 
-    public shared(msg) func place_order(from: Token, fromAmount: Nat, to: Token, toAmount: Nat) : async OrderPlacementResponse {
-        let id : Text = nextId();
-        Debug.print("Placing order "# id #"...");
+    public shared(msg) func place_order(from: T.Token, fromAmount: Nat, to: T.Token, toAmount: Nat) : async OrderPlacementResponse {
+        let id = nextId();
+        Debug.print("Placing order "# Nat32.toText(id) #"...");
         let owner=msg.caller;
-        let order : Order = {
+        let order : T.Order = {
             id;
             owner;
             from;
@@ -81,18 +78,18 @@ actor Dex {
         }
     };
 
-    func nextId() : Text {
+    func nextId() : Nat32 {
         lastId += 1;
-        Nat.toText(lastId);
+        lastId;
     };
 
     public shared(msg) func withdraw_icp(amount: Nat64) : async Result.Result<Nat64, WithdrawError> {
         Debug.print("Withdraw...");
-    
+
         // remove withdrawl amount from book
-        switch (remove_from_book(msg.caller,Principal.toText(Principal.fromActor(Ledger)),amount+icp_fee)){
+        switch (remove_from_book(msg.caller,E.ledger(),amount+icp_fee)){
             case(#err(#balanceLow)){
-                return #err(#balanceLow) 
+                return #err(#balanceLow)
             };
             case _ {};
         };
@@ -107,35 +104,35 @@ actor Dex {
             fee = { e8s = icp_fee };
             created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(Time.now())) };
         });
-        
+
         switch icp_reciept {
             case (#Err e) {
                 // add tokens back to user account balance
-                add_deposit_to_book(msg.caller,Principal.toText(Principal.fromActor(Ledger)),amount+icp_fee);
+                add_deposit_to_book(msg.caller,E.ledger(),amount+icp_fee);
                 return #err(#transferFailure);
             };
             case _ {};
         };
-        #ok(amount)  
+        #ok(amount)
     };
 
-    public shared(msg) func withdraw_dip(token: Token, amount: Nat64) : async Result.Result<Nat64, WithdrawError> {
+    public shared(msg) func withdraw_dip(token: T.Token, amount: Nat64) : async Result.Result<Nat64, WithdrawError> {
         Debug.print("Withdraw...");
 
         // cast canisterID to token interface
-        let dip20 = actor (token) : T.DIPInterface;  
+        let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
 
         // remove withdrawl amount from book
         switch (remove_from_book(msg.caller,token,amount+dip_fee)){
             case(#err(#balanceLow)){
-                return #err(#balanceLow) 
+                return #err(#balanceLow)
             };
             case _ {};
         };
 
         // Transfer amount back to user
         let txReceipt =  await dip20.transfer(msg.caller, Nat64.toNat(amount - dip_fee));
-        
+
         switch txReceipt {
             case (#Err e) {
                 // add tokens back to user account balance
@@ -147,8 +144,8 @@ actor Dex {
         return #ok(amount)
     };
 
-    public shared(msg) func cancel_order(order_id: Text) : async(CancelOrderResponse) {
-        Debug.print("Cancelling order "# order_id #"...");
+    public shared(msg) func cancel_order(order_id: T.OrderId) : async(CancelOrderResponse) {
+        Debug.print("Cancelling order "# Nat32.toText(order_id) #"...");
         switch (orders.get(order_id)) {
             case null
                 return {
@@ -171,15 +168,15 @@ actor Dex {
         };
     };
 
-    public func check_order(order_id: Text) : async(?Order) {
-        Debug.print("Checking order "# order_id #"...");
+    public func check_order(order_id: T.OrderId) : async(?T.Order) {
+        Debug.print("Checking order "# Nat32.toText(order_id) #"...");
         orders.get(order_id);
     };
 
-    public shared query (msg) func balance(token: Token) : async Nat64 {
+    public shared query (msg) func balance(token: T.Token) : async Nat64 {
 
         switch (book.get(msg.caller)) {
-            case (?token_balance) { 
+            case (?token_balance) {
                 switch (token_balance.get(token)){
                     case (?balance) {
                         return balance;
@@ -187,7 +184,7 @@ actor Dex {
                     case(null){
                         return 0;
                     };
-                };                
+                };
             };
             case (null) {
                 return 0;
@@ -195,9 +192,9 @@ actor Dex {
         };
     };
 
-    public query func list_order() : async([Order]) {
+    public query func list_order() : async([T.Order]) {
         Debug.print("List orders...");
-        let buff : Buffer.Buffer<Order> = Buffer.Buffer(orders.size());
+        let buff : Buffer.Buffer<T.Order> = Buffer.Buffer(orders.size());
         for (o in orders.vals()) {
             buff.add(o);
         };
@@ -209,7 +206,7 @@ actor Dex {
         for ((x, y) in book.entries()) {
             Debug.print( debug_show("PRINCIPLE: ", x));
             var i=0;
-            for ((key: Token, value: Nat64) in y.entries()) {      
+            for ((key: T.Token, value: Nat64) in y.entries()) {
                 Debug.print( debug_show("Balance: ", i, "Token: ", key, " amount: ",value));
             };
         };
@@ -224,10 +221,10 @@ actor Dex {
         Account.accountIdentifier(Principal.fromActor(Dex), Account.principalToSubaccount(msg.caller));
     };
 
-    // function that adds tokens to book. Book keeps track of users deposits. 
-    private func add_deposit_to_book(user: Principal, token: Token,amount: Nat64){
+    // function that adds tokens to book. Book keeps track of users deposits.
+    private func add_deposit_to_book(user: Principal, token: T.Token,amount: Nat64){
         switch (book.get(user)) {
-            case (?token_balance) { 
+            case (?token_balance) {
                 // check if user already has existing balance for this token
                 switch (token_balance.get(token)){
                     case (?balance) {
@@ -238,39 +235,39 @@ actor Dex {
                         Debug.print( debug_show("User", user, "has no balance of ", token, " new amount: ",amount));
                         token_balance.put(token, amount);
                     };
-                };                
+                };
             };
             case (null) {
                 // user didn't exist
                 Debug.print( debug_show("User", user, "has no balance of ", token, " new amount: ",amount));
-                var x1 = M.HashMap<Token, Nat64>(2, Text.equal, Text.hash);
+                var x1 = M.HashMap<T.Token, Nat64>(2, Principal.equal, Principal.hash);
                 x1.put(token,amount);
                 book.put(user,x1);
             };
         };
-        
+
     };
 
-    // function that adds tokens to book. Book keeps track of users deposits. 
-    private func remove_from_book(user: Principal, token: Token,amount: Nat64) : Result.Result<Nat64, BookError> {
+    // function that adds tokens to book. Book keeps track of users deposits.
+    private func remove_from_book(user: Principal, token: T.Token,amount: Nat64) : Result.Result<Nat64, BookError> {
 
         switch (book.get(user)) {
-            case (?token_balance) { 
+            case (?token_balance) {
                 // check if user already has existing balance for this token
                 switch (token_balance.get(token)){
                     case (?balance) {
                         Debug.print( debug_show("User", user, "has existing balance of ", token, " new amount: ",balance+amount));
                         if (balance>=amount){
-                            token_balance.put(token, balance-amount); 
+                            token_balance.put(token, balance-amount);
                             #ok(balance-amount)
                         } else {
-                            #err(#balanceLow)   
+                            #err(#balanceLow)
                         }
                     };
                     case(null){
                         #err(#balanceLow)
                     };
-                };                
+                };
             };
             case (null) {
                 // user didn't exist
@@ -279,16 +276,16 @@ actor Dex {
         };
     };
 
-     
+
     // After user transfers ICP to the target subaccount
-    public shared(msg) func deposit_dip(token: Token): async ?Text {
+    public shared(msg) func deposit_dip(token: T.Token): async ?Text {
         do ? {
             // ATTENTION!!! NOT SAFE
-            let dip20 = actor (token) : T.DIPInterface;  
+            let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
             // Check DIP20 allowance for DEX
             let balance = Nat64.fromNat(await dip20.allowance(msg.caller, Principal.fromActor(Dex))) - dip_fee;
 
-            // Transfer to account. 
+            // Transfer to account.
             let token_reciept = if (balance > dip_fee) {
                 await dip20.transferFrom(msg.caller, Principal.fromActor(Dex),Nat64.toNat(balance - dip_fee));
             } else {
@@ -307,7 +304,7 @@ actor Dex {
             //print_balances();
 
             // Return result
-            "Deposited '" # Nat64.toText(balance - dip_fee) # " " #token # "' into DEX."
+            "Deposited '" # Nat64.toText(balance - dip_fee) # " " # Principal.toText(token) # "' into DEX."
         }
     };
 
@@ -345,7 +342,7 @@ actor Dex {
             let available = { e8s = balance.e8s - (icp_fee * 2) };
 
             // keep track of deposited ICP
-            add_deposit_to_book(msg.caller,Principal.toText(Principal.fromActor(Ledger)),available.e8s);
+            add_deposit_to_book(msg.caller,E.ledger(),available.e8s);
 
             print_balances();
             // Return result
@@ -367,8 +364,8 @@ actor Dex {
     };
     // After canister upgrade book map gets reconstructed from stable array
     system func postupgrade() {
-        for ((key: Principal, value: [(Token, Nat64)]) in upgradeMap.vals()) {
-            let tmp: M.HashMap<Token, Nat64> = M.fromIter<Token, Nat64>(Iter.fromArray<(Token, Nat64)>(value), 10, Text.equal, Text.hash);
+        for ((key: Principal, value: [(T.Token, Nat64)]) in upgradeMap.vals()) {
+            let tmp: M.HashMap<T.Token, Nat64> = M.fromIter<T.Token, Nat64>(Iter.fromArray<(T.Token, Nat64)>(value), 10, Principal.equal, Principal.hash);
             book.put(key, tmp);
         };
         upgradeMap := [var];

@@ -1,19 +1,21 @@
 import Array "mo:base/Array";
 import B "mo:base/Buffer";
 import Debug "mo:base/Debug";
-import L "mo:base/List";
 import Float "mo:base/Float";
 import Iter "mo:base/Iter";
+import L "mo:base/List";
 import Nat "mo:base/Nat";
+import Principal "mo:base/Principal";
 import RBTree "mo:base/RBTree";
 
 import DIP20 "../DIP20/motoko/src/token";
+import Ledger "canister:ledger";
 
 import T "types";
 
 module {
 
-    type Order = T.Order;
+    public let ledger = func(): Principal { Principal.fromActor(Ledger) };
 
     // An exchange between ICP and a DIP20 token.
     //public class Exchange(dip: ?DIP20.Token) {
@@ -22,24 +24,24 @@ module {
         // The implicit pair will be dip/ICP (to have the price of a dip in ICP), therefore:
         // bid is for buying dip (ie selling ICP).
         // ask is for selling dip (ie buying ICP).
-        var bid = RBTree.RBTree<Float,B.Buffer<Order>>(Float.compare);
-        var ask = RBTree.RBTree<Float,B.Buffer<Order>>(Float.compare);
+        var bid = RBTree.RBTree<Float,B.Buffer<T.Order>>(Float.compare);
+        var ask = RBTree.RBTree<Float,B.Buffer<T.Order>>(Float.compare);
 
         //let dip_symbol = ?(await dip.symbol());
 
-        public func addOrders(orders: [Order]) {
+        public func addOrders(orders: [T.Order]) {
             for(o in orders.vals()) {
                 addOrder(o);
             }
         };
 
-        public func addOrder(o: Order) {
-            if(o.from == "ICP") {
+        public func addOrder(o: T.Order) {
+            if(o.from == ledger()) {
                 // convert ICP to token.
                 let price : Float = Float.fromInt(o.fromAmount) / Float.fromInt(o.toAmount);
                 switch (bid.get(price)) {
                     case null {
-                        let b = B.Buffer<Order>(1);
+                        let b = B.Buffer<T.Order>(1);
                         b.add(o);
                         bid.put(price, b);
                     };
@@ -48,12 +50,12 @@ module {
                     };
                 };
 
-            } else if (o.to == "ICP") {
+            } else if (o.to == ledger()) {
                 // convert token to ICP.
                 let price : Float = Float.fromInt(o.toAmount) / Float.fromInt(o.fromAmount);
                 switch(ask.get(price)) {
                    case null {
-                       let b = B.Buffer<Order>(1);
+                       let b = B.Buffer<T.Order>(1);
                        b.add(o);
                        ask.put(price, b);
                    };
@@ -96,7 +98,7 @@ module {
 
         };
 
-        func sum_ask_orders(orders: B.Buffer<Order>) : Nat {
+        func sum_ask_orders(orders: B.Buffer<T.Order>) : Nat {
             var nb=0;
             for(o in orders.vals()) {
                 nb += o.fromAmount;
@@ -104,7 +106,7 @@ module {
             nb;
         };
 
-        func sum_bid_orders(orders: B.Buffer<Order>) : Nat {
+        func sum_bid_orders(orders: B.Buffer<T.Order>) : Nat {
             var nb=0;
             for(o in orders.vals()) {
                 nb += o.toAmount;
@@ -137,7 +139,7 @@ module {
             // TODO continue matching
         };
 
-        func execute(order1: Order, order2: Order) {
+        func execute(order1: T.Order, order2: T.Order) {
             Debug.print("Executing transaction");
             // TODO
         }

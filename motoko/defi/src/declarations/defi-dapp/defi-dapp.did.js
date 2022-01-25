@@ -1,16 +1,16 @@
 export const idlFactory = ({ IDL }) => {
-  const Token = IDL.Text;
+  const Token = IDL.Principal;
+  const OrderId = IDL.Nat32;
   const CancelOrderResponse = IDL.Record({
     'status' : IDL.Text,
-    'order_id' : IDL.Text,
+    'order_id' : OrderId,
   });
-  const Token__1 = IDL.Text;
   const Order = IDL.Record({
-    'id' : IDL.Text,
-    'to' : Token__1,
+    'id' : OrderId,
+    'to' : Token,
     'fromAmount' : IDL.Nat,
     'owner' : IDL.Principal,
-    'from' : Token__1,
+    'from' : Token,
     'toAmount' : IDL.Nat,
   });
   const OrderPlacementResponse = IDL.Record({
@@ -24,8 +24,8 @@ export const idlFactory = ({ IDL }) => {
   const Result = IDL.Variant({ 'ok' : IDL.Nat64, 'err' : WithdrawError });
   return IDL.Service({
     'balance' : IDL.Func([Token], [IDL.Nat64], ['query']),
-    'cancel_order' : IDL.Func([IDL.Text], [CancelOrderResponse], []),
-    'check_order' : IDL.Func([IDL.Text], [IDL.Opt(Order)], []),
+    'cancel_order' : IDL.Func([OrderId], [CancelOrderResponse], []),
+    'check_order' : IDL.Func([OrderId], [IDL.Opt(Order)], []),
     'deposit_address' : IDL.Func([], [IDL.Vec(IDL.Nat8)], []),
     'deposit_dip' : IDL.Func([Token], [IDL.Opt(IDL.Text)], []),
     'deposit_icp' : IDL.Func([], [IDL.Opt(IDL.Text)], []),

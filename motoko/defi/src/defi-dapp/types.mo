@@ -3,7 +3,9 @@ import Time "mo:base/Time";
 
 module {
 
-    public type Token = Text;
+    public type Token = Principal;
+
+    public type OrderId = Nat32;
 
     public type Balance = {
         principal: Principal;
@@ -17,7 +19,7 @@ module {
     };
 
     public type Order = {
-        id: Text;
+        id: OrderId;
         owner: Principal;
         from: Token;
         fromAmount: Nat;

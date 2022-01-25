@@ -3,8 +3,7 @@ type WithdrawError =
    balanceLow;
    transferFailure;
  };
-type Token__1 = text;
-type Token = text;
+type Token = principal;
 type Result = 
  variant {
    err: WithdrawError;
@@ -15,24 +14,25 @@ type OrderPlacementResponse =
    order: Order;
    status: text;
  };
+type OrderId = nat32;
 type Order = 
  record {
-   from: Token__1;
+   from: Token;
    fromAmount: nat;
-   id: text;
+   id: OrderId;
    owner: principal;
-   to: Token__1;
+   to: Token;
    toAmount: nat;
  };
 type CancelOrderResponse = 
  record {
-   order_id: text;
+   order_id: OrderId;
    status: text;
  };
 service : {
   balance: (Token) -> (nat64) query;
-  cancel_order: (text) -> (CancelOrderResponse);
-  check_order: (text) -> (opt Order);
+  cancel_order: (OrderId) -> (CancelOrderResponse);
+  check_order: (OrderId) -> (opt Order);
   deposit_address: () -> (blob);
   deposit_dip: (Token) -> (opt text);
   deposit_icp: () -> (opt text);
