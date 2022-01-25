@@ -87,7 +87,7 @@ actor Dex {
 
         // remove withdrawl amount from book
         switch (remove_from_book(msg.caller,E.ledger(),amount+icp_fee)){
-            case(#err(#balanceLow)){
+            case(null){
                 return #err(#balanceLow)
             };
             case _ {};
@@ -126,7 +126,7 @@ actor Dex {
 
         // remove withdrawl amount from book
         switch (remove_from_book(msg.caller,token,amount+dip_fee)){
-            case(#err(#balanceLow)){
+            case(null){
                 return #err(#balanceLow)
             };
             case _ {};
@@ -259,7 +259,7 @@ actor Dex {
     };
 
     // function that adds tokens to book. Book keeps track of users deposits.
-    private func remove_from_book(user: Principal, token: T.Token,amount: Nat64) : Result.Result<Nat64, BookError> {
+    private func remove_from_book(user: Principal, token: T.Token,amount: Nat64) : ?Nat64 {
 
         switch (book.get(user)) {
             case (?token_balance) {
@@ -269,19 +269,19 @@ actor Dex {
                         Debug.print( debug_show("User", user, "has existing balance of ", token, " new amount: ",balance+amount));
                         if (balance>=amount){
                             token_balance.put(token, balance-amount);
-                            #ok(balance-amount)
+                            ?(balance-amount)
                         } else {
-                            #err(#balanceLow)
+                            null
                         }
                     };
                     case(null){
-                        #err(#balanceLow)
+                        null
                     };
                 };
             };
             case (null) {
                 // user didn't exist
-                #err(#balanceLow)
+                null
             };
         };
     };
