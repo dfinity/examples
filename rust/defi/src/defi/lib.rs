@@ -237,9 +237,6 @@ impl State {
         to_token_canister_id: Principal,
         to_amount: Nat,
     ) -> String {
-        let id = self.next_id();
-        let from_amount = nat_to_u128(from_amount);
-        let to_amount = nat_to_u128(to_amount);
         let balance = self.get_balance(from_token_canister_id);
         if let Some(b) = balance {
             if b.amount < from_amount {
@@ -248,6 +245,9 @@ impl State {
         } else {
             return "not enough from tokens".into();
         }
+        let id = self.next_id();
+        let from_amount = nat_to_u128(from_amount);
+        let to_amount = nat_to_u128(to_amount);
         self.orders.insert(
             id,
             OrderState {
