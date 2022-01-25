@@ -67,7 +67,7 @@ PRINCIPAL=$(dfx identity get-principal)
 dfx canister --no-wallet call GoldenDIP20 balanceOf '(principal '\"$PRINCIPAL\"')'
 #user balance on DEX
 dfx canister call defi_dapp  balance '(principal '\"$GOLDEN_ID\"')'
-dfx canister call defi_dapp withdraw_dip "(principal '\"$GOLDEN_ID\"',100000)"
+dfx canister call defi_dapp withdraw_dip '(principal '\"$GOLDEN_ID\"',100000)'
 # user balance
 dfx canister --no-wallet call GoldenDIP20 balanceOf '(principal '\"$PRINCIPAL\"')'
 #user balance on DEX

@@ -22,20 +22,6 @@ import T "types";
 
 actor Dex {
 
-    type OrderPlacementResponse = {
-        status: Text;
-        order: T.Order;
-    };
-
-    type CancelOrderResponse = {
-        order_id: T.OrderId;
-        status: Text;
-    };
-
-    //Errors
-    public type BookError = { #balanceLow };
-    public type WithdrawError = { #balanceLow; #transferFailure };
-
     // TODO: Sort out fees
     // ----------------------------------------
     // NOTE: Initial work with a single token
@@ -56,7 +42,8 @@ actor Dex {
     );
 
 
-    public shared(msg) func place_order(from: T.Token, fromAmount: Nat, to: T.Token, toAmount: Nat) : async OrderPlacementResponse {
+    // ===== ORDER FUNCTIONS =====
+    public shared(msg) func place_order(from: T.Token, fromAmount: Nat, to: T.Token, toAmount: Nat) : async T.OrderPlacementReceipt {
         let id = nextId();
         Debug.print("Placing order "# Nat32.toText(id) #"...");
         let owner=msg.caller;
@@ -70,11 +57,36 @@ actor Dex {
         };
         orders.put(id, order);
         exchange.addOrder(order);
-        let status = "Ok";
-        {
-            status;
-            order;
-        }
+        #Ok(order);
+    };
+
+    public shared(msg) func cancel_order(order_id: T.OrderId) : async T.CancelOrderReceipt {
+        Debug.print("Cancelling order "# Nat32.toText(order_id) #"...");
+        switch (orders.get(order_id)) {
+            case null
+                return #Err(#NotExistingOrder);
+            case (?order)
+                if(order.owner != msg.caller) {
+                    #Err(#NotAllowed)
+                } else {
+                    orders.delete(order_id);
+                    #Ok(order_id)
+                }
+        };
+    };
+
+    public func check_order(order_id: T.OrderId) : async(?T.Order) {
+        Debug.print("Checking order "# Nat32.toText(order_id) #"...");
+        orders.get(order_id);
+    };
+
+    public query func list_order() : async([T.Order]) {
+        Debug.print("List orders...");
+        let buff : Buffer.Buffer<T.Order> = Buffer.Buffer(orders.size());
+        for (o in orders.vals()) {
+            buff.add(o);
+        };
+        buff.toArray();
     };
 
     func nextId() : Nat32 {
@@ -82,13 +94,14 @@ actor Dex {
         lastId;
     };
 
-    public shared(msg) func withdraw_icp(amount: Nat64) : async Result.Result<Nat64, WithdrawError> {
+    // ===== WITHDRAW FUNCTIONS =====
+    public shared(msg) func withdraw_icp(amount: Nat64) : async T.WithdrawReceipt {
         Debug.print("Withdraw...");
 
         // remove withdrawl amount from book
         switch (remove_from_book(msg.caller,E.ledger(),amount+icp_fee)){
             case(null){
-                return #err(#balanceLow)
+                return #Err(#BalanceLow)
             };
             case _ {};
         };
@@ -108,14 +121,14 @@ actor Dex {
             case (#Err e) {
                 // add tokens back to user account balance
                 add_deposit_to_book(msg.caller,E.ledger(),amount+icp_fee);
-                return #err(#transferFailure);
+                return #Err(#TransferFailure);
             };
             case _ {};
         };
-        #ok(amount)
+        #Ok(amount)
     };
 
-    public shared(msg) func withdraw_dip(token: T.Token, amount: Nat64) : async Result.Result<Nat64, WithdrawError> {
+    public shared(msg) func withdraw_dip(token: T.Token, amount: Nat64) : async T.WithdrawReceipt {
         Debug.print("Withdraw...");
 
         // cast canisterID to token interface
@@ -127,7 +140,7 @@ actor Dex {
         // remove withdrawl amount from book
         switch (remove_from_book(msg.caller,token,amount+dip_fee)){
             case(null){
-                return #err(#balanceLow)
+                return #Err(#BalanceLow)
             };
             case _ {};
         };
@@ -139,44 +152,16 @@ actor Dex {
             case (#Err e) {
                 // add tokens back to user account balance
                 add_deposit_to_book(msg.caller,token,amount + dip_fee);
-                return #err(#transferFailure);
+                return #Err(#TransferFailure);
             };
             case _ {};
         };
-        return #ok(amount)
+        return #Ok(amount)
     };
 
-    public shared(msg) func cancel_order(order_id: T.OrderId) : async(CancelOrderResponse) {
-        Debug.print("Cancelling order "# Nat32.toText(order_id) #"...");
-        switch (orders.get(order_id)) {
-            case null
-                return {
-                    order_id;
-                    status: Text = "Not_existing";
-                };
-            case (?order)
-                if(order.owner != msg.caller) {
-                    return {
-                        order_id;
-                        status = "Not_allowed";
-                    };
-                } else {
-                    orders.delete(order_id);
-                    return {
-                        order_id;
-                        status = "Canceled";
-                    };
-                }
-        };
-    };
 
-    public func check_order(order_id: T.OrderId) : async(?T.Order) {
-        Debug.print("Checking order "# Nat32.toText(order_id) #"...");
-        orders.get(order_id);
-    };
-
+    // ===== DEX STATE FUNCTIONS =====
     public shared query (msg) func balance(token: T.Token) : async Nat64 {
-
         switch (book.get(msg.caller)) {
             case (?token_balance) {
                 switch (token_balance.get(token)){
@@ -194,41 +179,99 @@ actor Dex {
         };
     };
 
+    public shared query (msg) func whoami() : async Principal {
+        return msg.caller;
+    };
+
+    
+    // ===== DEPOSIT FUNCTIONS =====
+
+    // Return the account ID specific to this user's subaccount
+    public shared(msg) func deposit_address(): async Blob {
+        Account.accountIdentifier(Principal.fromActor(Dex), Account.principalToSubaccount(msg.caller));
+    };
+
+    // After user transfers ICP to the target subaccount
+    public shared(msg) func deposit_dip(token: T.Token): async T.DepositReceipt {
+        // ATTENTION!!! NOT SAFE
+        let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
+        
+        // get DIP fee
+        let dip_fee = await fetch_dip_fee(token);
+
+        // Check DIP20 allowance for DEX
+        let balance = Nat64.fromNat(await dip20.allowance(msg.caller, Principal.fromActor(Dex))) - dip_fee;
+
+        // Transfer to account.
+        let token_reciept = if (balance > dip_fee) {
+            await dip20.transferFrom(msg.caller, Principal.fromActor(Dex),Nat64.toNat(balance - dip_fee));
+        } else {
+            return #Err(#BalanceLow);
+        };
+
+        switch token_reciept {
+            case (#Err e) {
+                return #Err(#TransferFailure);
+            };
+            case _ {};
+        };
+
+        // add transfered amount to useres balance
+        add_deposit_to_book(msg.caller,token,balance - dip_fee);
+
+        // Return result
+        #Ok(balance - dip_fee)
+        
+    };
+
+    // After user transfers ICP to the target subaccount
+    public shared(msg) func deposit_icp(): async T.DepositReceipt {
+
+        // Calculate target subaccount
+        // NOTE: Should this be hashed first instead?
+        let source_account = Account.accountIdentifier(Principal.fromActor(Dex), Account.principalToSubaccount(msg.caller));
+
+        // Check ledger for value
+        let balance = await Ledger.account_balance({ account = source_account });
+
+        // Transfer to default subaccount
+        let icp_reciept = if (balance.e8s > icp_fee) {
+            await Ledger.transfer({
+                memo: Nat64    = 0;
+                from_subaccount = ?Account.principalToSubaccount(msg.caller);
+                to = Account.accountIdentifier(Principal.fromActor(Dex), Account.defaultSubaccount());
+                amount = { e8s = balance.e8s - icp_fee };
+                fee = { e8s = icp_fee };
+                created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(Time.now())) };
+            })
+        } else {
+            return #Err(#BalanceLow);
+        };
+
+        switch icp_reciept {
+            case ( #Err _) {
+                return #Err(#TransferFailure);
+            };
+            case _ {};
+        };
+        // (Proactively save ICP fee for second transfer)
+        let available = { e8s = balance.e8s - (icp_fee * 2) };
+
+        // keep track of deposited ICP
+        add_deposit_to_book(msg.caller,E.ledger(),available.e8s);
+
+        // Return result
+        #Ok(available.e8s)
+    };
+
+
+    // ===== INTERNAL FUNCTIONS =====
     private func fetch_dip_fee(token: T.Token) : async Nat64 {
 
         let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
         let metadata = await dip20.getMetadata();
 
         return Nat64.fromNat(metadata.fee);
-    };
-
-    public query func list_order() : async([T.Order]) {
-        Debug.print("List orders...");
-        let buff : Buffer.Buffer<T.Order> = Buffer.Buffer(orders.size());
-        for (o in orders.vals()) {
-            buff.add(o);
-        };
-        buff.toArray();
-    };
-
-    // For development only.
-    private func print_balances(){
-        for ((x, y) in book.entries()) {
-            Debug.print( debug_show("PRINCIPLE: ", x));
-            var i=0;
-            for ((key: T.Token, value: Nat64) in y.entries()) {
-                Debug.print( debug_show("Balance: ", i, "Token: ", key, " amount: ",value));
-            };
-        };
-    };
-
-    public shared query (msg) func whoami() : async Principal {
-        return msg.caller;
-    };
-
-    // Return the account ID specific to this user's subaccount
-    public shared(msg) func deposit_address(): async Blob {
-        Account.accountIdentifier(Principal.fromActor(Dex), Account.principalToSubaccount(msg.caller));
     };
 
     // function that adds tokens to book. Book keeps track of users deposits.
@@ -287,84 +330,19 @@ actor Dex {
     };
 
 
-    // After user transfers ICP to the target subaccount
-    public shared(msg) func deposit_dip(token: T.Token): async ?Text {
-        do ? {
-            // ATTENTION!!! NOT SAFE
-            let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
-            
-            // get DIP fee
-            let dip_fee = await fetch_dip_fee(token);
-
-            // Check DIP20 allowance for DEX
-            let balance = Nat64.fromNat(await dip20.allowance(msg.caller, Principal.fromActor(Dex))) - dip_fee;
-
-            // Transfer to account.
-            let token_reciept = if (balance > dip_fee) {
-                await dip20.transferFrom(msg.caller, Principal.fromActor(Dex),Nat64.toNat(balance - dip_fee));
-            } else {
-                Debug.trap("Cannot affort to transfer tokens. Balance: "# Nat64.toText(balance) );
+    // For development only.
+    private func print_balances(){
+        for ((x, y) in book.entries()) {
+            Debug.print( debug_show("PRINCIPLE: ", x));
+            var i=0;
+            for ((key: T.Token, value: Nat64) in y.entries()) {
+                Debug.print( debug_show("Balance: ", i, "Token: ", key, " amount: ",value));
             };
-
-            switch token_reciept {
-                case (#Err e) {
-                    Debug.trap("Failed to transfer tokens.") ;
-                };
-                case _ {};
-            };
-
-            // add transfered amount to useres balance
-            add_deposit_to_book(msg.caller,token,balance - dip_fee);
-            //print_balances();
-
-            // Return result
-            "Deposited '" # Nat64.toText(balance - dip_fee) # " " # Principal.toText(token) # "' into DEX."
-        }
-    };
-
-    // After user transfers ICP to the target subaccount
-    public shared(msg) func deposit_icp(): async ?Text {
-        do? {
-            // Calculate target subaccount
-            // NOTE: Should this be hashed first instead?
-            let source_account = Account.accountIdentifier(Principal.fromActor(Dex), Account.principalToSubaccount(msg.caller));
-
-            // Check ledger for value
-            let balance = await Ledger.account_balance({ account = source_account });
-
-            // Transfer to default subaccount
-            let icp_reciept = if (balance.e8s > icp_fee) {
-                await Ledger.transfer({
-                    memo: Nat64    = 0;
-                    from_subaccount = ?Account.principalToSubaccount(msg.caller);
-                    to = Account.accountIdentifier(Principal.fromActor(Dex), Account.defaultSubaccount());
-                    amount = { e8s = balance.e8s - icp_fee };
-                    fee = { e8s = icp_fee };
-                    created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(Time.now())) };
-                })
-            } else {
-                Debug.trap("Cannot afford to transfer ICP.");
-            };
-
-            switch icp_reciept {
-                case ( #Err _) {
-                    Debug.trap("Failed to transfer ICP.");
-                };
-                case _ {};
-            };
-            // (Proactively save ICP fee for second transfer)
-            let available = { e8s = balance.e8s - (icp_fee * 2) };
-
-            // keep track of deposited ICP
-            add_deposit_to_book(msg.caller,E.ledger(),available.e8s);
-
-            print_balances();
-            // Return result
-            "Deposited '" # Nat64.toText(available.e8s) # "' ICP into DEX."
-        }
+        };
     };
 
 
+    
     // Required since maps cannot be stable and need to be moved to stable memory
     // Before canister upgrade book hashmap gets stored in stable memory such that it survives updates
     system func preupgrade() {

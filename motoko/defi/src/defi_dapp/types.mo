@@ -7,17 +7,6 @@ module {
 
     public type OrderId = Nat32;
 
-    public type Balance = {
-        principal: Principal;
-        balances: [TokenBalance];
-    };
-
-    public type TokenBalance = {
-        principal: Principal;
-        token: Token;
-        amount: Nat;
-    };
-
     public type Order = {
         id: OrderId;
         owner: Principal;
@@ -26,18 +15,8 @@ module {
         to: Token;
         toAmount: Nat;
     };
-
-    // Not required, will use ledger.
-    public type Transaction = {
-        id: Nat;
-        time: Nat;
-        price: Float;
-        order1: Order;
-        order2: Order;
-    };
-
-
-
+    
+    // ledger types
     public type Operation = {
         #approve;
         #mint;
@@ -45,6 +24,7 @@ module {
         #transferFrom;
     };
 
+ 
     public type TransactionStatus = {
         #succeeded;
         #failed;
@@ -61,7 +41,6 @@ module {
         timestamp: Time.Time;
         status: TransactionStatus;
     };
-
 
     // Dip20 token interface
     public type TxReceipt = {
@@ -95,6 +74,35 @@ module {
         transferFrom : (Principal,Principal,Nat) -> async TxReceipt;
         allowance : (owner: Principal, spender: Principal) -> async Nat;
         getMetadata: () -> async Metadata;
+    };
+
+    // return types
+    public type OrderPlacementReceipt = {
+        #Ok: Order;
+        #Err: {
+            #OrderBookFull;
+        };
+    };
+    public type CancelOrderReceipt = {
+        #Ok: OrderId;
+        #Err: {
+            #NotExistingOrder;
+            #NotAllowed;
+        };
+    };
+    public type WithdrawReceipt = {
+        #Ok: Nat64;
+        #Err: {
+            #BalanceLow;
+            #TransferFailure;
+        };
+    };
+    public type DepositReceipt = {
+        #Ok: Nat64;
+        #Err: {
+            #BalanceLow;
+            #TransferFailure;
+        };
     };
 
 }
