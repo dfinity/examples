@@ -24,10 +24,7 @@ import T "types";
 actor Dex {
 
     // TODO: Sort out fees
-    // ----------------------------------------
-    // NOTE: Initial work with a single token
     let icp_fee: Nat = 10_000;
-    // ----------------------------------------
 
     stable var orders_stable : [(T.OrderId,T.Order)] = [];
     stable var lastId : Nat32 = 0;
@@ -124,11 +121,19 @@ actor Dex {
     };
 
     // ===== WITHDRAW FUNCTIONS =====
-    public shared(msg) func withdraw_icp(amount: Nat) : async T.WithdrawReceipt {
+    public shared(msg) func withdraw(token: T.Token, amount: Nat) : async T.WithdrawReceipt {
+        if (token == E.ledger()) {
+            await withdraw_icp(msg.caller, amount)
+        } else {
+            await withdraw_dip(msg.caller, token, amount)
+        }
+    };
+
+    private func withdraw_icp(caller: Principal, amount: Nat) : async T.WithdrawReceipt {
         Debug.print("Withdraw...");
 
         // remove withdrawal amount from book
-        switch (book.remove_tokens(msg.caller, E.ledger(), amount+icp_fee)){
+        switch (book.remove_tokens(caller, E.ledger(), amount+icp_fee)){
             case(null){
                 return #Err(#BalanceLow)
             };
@@ -140,7 +145,7 @@ actor Dex {
             // todo: memo relevant?
             memo: Nat64    = 0;
             from_subaccount = ?Account.defaultSubaccount();
-            to = Account.accountIdentifier(msg.caller, Account.defaultSubaccount());
+            to = Account.accountIdentifier(caller, Account.defaultSubaccount());
             amount = { e8s = Nat64.fromNat(amount) };
             fee = { e8s = Nat64.fromNat(icp_fee) };
             created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(Time.now())) };
@@ -149,7 +154,7 @@ actor Dex {
         switch icp_reciept {
             case (#Err e) {
                 // add tokens back to user account balance
-                book.add_tokens(msg.caller,E.ledger(),amount+icp_fee);
+                book.add_tokens(caller,E.ledger(),amount+icp_fee);
                 return #Err(#TransferFailure);
             };
             case _ {};
@@ -157,7 +162,7 @@ actor Dex {
         #Ok(amount)
     };
 
-    public shared(msg) func withdraw_dip(token: T.Token, amount: Nat) : async T.WithdrawReceipt {
+    private func withdraw_dip(caller: Principal, token: T.Token, amount: Nat) : async T.WithdrawReceipt {
         Debug.print("Withdraw...");
 
         // cast canisterID to token interface
@@ -167,7 +172,7 @@ actor Dex {
         let dip_fee = await fetch_dip_fee(token);
 
         // remove withdrawal amount from book
-        switch (book.remove_tokens(msg.caller,token,amount+dip_fee)){
+        switch (book.remove_tokens(caller,token,amount+dip_fee)){
             case(null){
                 return #Err(#BalanceLow)
             };
@@ -175,12 +180,12 @@ actor Dex {
         };
 
         // Transfer amount back to user
-        let txReceipt =  await dip20.transfer(msg.caller, amount - dip_fee);
+        let txReceipt =  await dip20.transfer(caller, amount - dip_fee);
 
         switch txReceipt {
             case (#Err e) {
                 // add tokens back to user account balance
-                book.add_tokens(msg.caller,token,amount + dip_fee);
+                book.add_tokens(caller,token,amount + dip_fee);
                 return #Err(#TransferFailure);
             };
             case _ {};
@@ -220,8 +225,16 @@ actor Dex {
         Account.accountIdentifier(Principal.fromActor(Dex), Account.principalToSubaccount(msg.caller));
     };
 
-    // After user transfers ICP to the target subaccount
-    public shared(msg) func deposit_dip(token: T.Token): async T.DepositReceipt {
+    public shared(msg) func deposit(token: T.Token): async T.DepositReceipt {
+        if (token == E.ledger()) {
+            await deposit_icp(msg.caller)
+        } else {
+            await deposit_dip(msg.caller, token)
+        }
+    };
+
+    // After user approves tokens to the DEX
+    private func deposit_dip(caller: Principal, token: T.Token): async T.DepositReceipt {
         // ATTENTION!!! NOT SAFE
         let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
 
@@ -229,11 +242,11 @@ actor Dex {
         let dip_fee = await fetch_dip_fee(token);
 
         // Check DIP20 allowance for DEX
-        let balance : Nat = (await dip20.allowance(msg.caller, Principal.fromActor(Dex))) - dip_fee;
+        let balance : Nat = (await dip20.allowance(caller, Principal.fromActor(Dex))) - dip_fee;
 
         // Transfer to account.
         let token_reciept = if (balance > dip_fee) {
-            await dip20.transferFrom(msg.caller, Principal.fromActor(Dex),balance - dip_fee);
+            await dip20.transferFrom(caller, Principal.fromActor(Dex),balance - dip_fee);
         } else {
             return #Err(#BalanceLow);
         };
@@ -246,18 +259,18 @@ actor Dex {
         };
 
         // add transferred amount to user balance
-        book.add_tokens(msg.caller,token,balance - dip_fee);
+        book.add_tokens(caller,token,balance - dip_fee);
 
         // Return result
         #Ok(balance - dip_fee)
     };
 
     // After user transfers ICP to the target subaccount
-    public shared(msg) func deposit_icp(): async T.DepositReceipt {
+    private func deposit_icp(caller: Principal): async T.DepositReceipt {
 
         // Calculate target subaccount
         // NOTE: Should this be hashed first instead?
-        let source_account = Account.accountIdentifier(Principal.fromActor(Dex), Account.principalToSubaccount(msg.caller));
+        let source_account = Account.accountIdentifier(Principal.fromActor(Dex), Account.principalToSubaccount(caller));
 
         // Check ledger for value
         let balance = await Ledger.account_balance({ account = source_account });
@@ -266,7 +279,7 @@ actor Dex {
         let icp_reciept = if (Nat64.toNat(balance.e8s) > icp_fee) {
             await Ledger.transfer({
                 memo: Nat64    = 0;
-                from_subaccount = ?Account.principalToSubaccount(msg.caller);
+                from_subaccount = ?Account.principalToSubaccount(caller);
                 to = Account.accountIdentifier(Principal.fromActor(Dex), Account.defaultSubaccount());
                 amount = { e8s = balance.e8s - Nat64.fromNat(icp_fee)};
                 fee = { e8s = Nat64.fromNat(icp_fee) };
@@ -286,7 +299,7 @@ actor Dex {
         let available = { e8s : Nat = Nat64.toNat(balance.e8s) - (icp_fee * 2) };
 
         // keep track of deposited ICP
-        book.add_tokens(msg.caller,E.ledger(),available.e8s);
+        book.add_tokens(caller,E.ledger(),available.e8s);
 
         // Return result
         #Ok(available.e8s)

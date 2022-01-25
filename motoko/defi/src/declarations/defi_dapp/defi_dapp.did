@@ -1,18 +1,19 @@
-type WithdrawError = 
+type WithdrawReceipt = 
  variant {
-   balanceLow;
-   transferFailure;
+   Err: variant {
+          BalanceLow;
+          TransferFailure;
+        };
+   Ok: nat;
  };
 type Token = principal;
-type Result = 
+type OrderPlacementReceipt = 
  variant {
-   err: WithdrawError;
-   ok: nat64;
- };
-type OrderPlacementResponse = 
- record {
-   order: Order;
-   status: text;
+   Err: variant {
+          InvalidOrder;
+          OrderBookFull;
+        };
+   Ok: Order;
  };
 type OrderId = nat32;
 type Order = 
@@ -24,21 +25,31 @@ type Order =
    to: Token;
    toAmount: nat;
  };
-type CancelOrderResponse = 
- record {
-   order_id: OrderId;
-   status: text;
+type DepositReceipt = 
+ variant {
+   Err: variant {
+          BalanceLow;
+          TransferFailure;
+        };
+   Ok: nat;
+ };
+type CancelOrderReceipt = 
+ variant {
+   Err: variant {
+          NotAllowed;
+          NotExistingOrder;
+        };
+   Ok: OrderId;
  };
 service : {
-  balance: (Token) -> (nat64) query;
-  cancel_order: (OrderId) -> (CancelOrderResponse);
+  balance: (Token) -> (nat) query;
+  cancel_order: (OrderId) -> (CancelOrderReceipt);
   check_order: (OrderId) -> (opt Order);
+  deposit: (Token) -> (DepositReceipt);
   deposit_address: () -> (blob);
-  deposit_dip: (Token) -> (opt text);
-  deposit_icp: () -> (opt text);
   list_order: () -> (vec Order) query;
-  place_order: (Token, nat, Token, nat) -> (OrderPlacementResponse);
+  place_order: (Token, nat, Token, nat) -> (OrderPlacementReceipt);
+  symbol: (Token) -> (text);
   whoami: () -> (principal) query;
-  withdraw_dip: (Token, nat64) -> (Result);
-  withdraw_icp: (nat64) -> (Result);
+  withdraw: (Token, nat) -> (WithdrawReceipt);
 }

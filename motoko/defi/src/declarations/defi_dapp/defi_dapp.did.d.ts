@@ -1,5 +1,8 @@
 import type { Principal } from '@dfinity/principal';
-export interface CancelOrderResponse { 'status' : string, 'order_id' : OrderId }
+export type CancelOrderReceipt = { 'Ok' : OrderId } |
+  { 'Err' : { 'NotAllowed' : null } | { 'NotExistingOrder' : null } };
+export type DepositReceipt = { 'Ok' : bigint } |
+  { 'Err' : { 'TransferFailure' : null } | { 'BalanceLow' : null } };
 export interface Order {
   'id' : OrderId,
   'to' : Token,
@@ -9,27 +12,25 @@ export interface Order {
   'toAmount' : bigint,
 }
 export type OrderId = number;
-export interface OrderPlacementResponse { 'status' : string, 'order' : Order }
-export type Result = { 'ok' : bigint } |
-  { 'err' : WithdrawError };
+export type OrderPlacementReceipt = { 'Ok' : Order } |
+  { 'Err' : { 'InvalidOrder' : null } | { 'OrderBookFull' : null } };
 export type Token = Principal;
-export type WithdrawError = { 'balanceLow' : null } |
-  { 'transferFailure' : null };
+export type WithdrawReceipt = { 'Ok' : bigint } |
+  { 'Err' : { 'TransferFailure' : null } | { 'BalanceLow' : null } };
 export interface _SERVICE {
   'balance' : (arg_0: Token) => Promise<bigint>,
-  'cancel_order' : (arg_0: OrderId) => Promise<CancelOrderResponse>,
+  'cancel_order' : (arg_0: OrderId) => Promise<CancelOrderReceipt>,
   'check_order' : (arg_0: OrderId) => Promise<[] | [Order]>,
+  'deposit' : (arg_0: Token) => Promise<DepositReceipt>,
   'deposit_address' : () => Promise<Array<number>>,
-  'deposit_dip' : (arg_0: Token) => Promise<[] | [string]>,
-  'deposit_icp' : () => Promise<[] | [string]>,
   'list_order' : () => Promise<Array<Order>>,
   'place_order' : (
       arg_0: Token,
       arg_1: bigint,
       arg_2: Token,
       arg_3: bigint,
-    ) => Promise<OrderPlacementResponse>,
+    ) => Promise<OrderPlacementReceipt>,
+  'symbol' : (arg_0: Token) => Promise<string>,
   'whoami' : () => Promise<Principal>,
-  'withdraw_dip' : (arg_0: Token, arg_1: bigint) => Promise<Result>,
-  'withdraw_icp' : (arg_0: bigint) => Promise<Result>,
+  'withdraw' : (arg_0: Token, arg_1: bigint) => Promise<WithdrawReceipt>,
 }
