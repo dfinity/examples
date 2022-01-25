@@ -15,7 +15,6 @@ jobs:
         run: |
           dfx start --background
           pushd motoko/unit_testing
-          vesel init
           make test
           popd
   motoko-unit_testing-example-linux:
@@ -28,6 +27,5 @@ jobs:
         run: |
           dfx start --background
           pushd motoko/unit_testing
-          vessel init
           make test
           popd
