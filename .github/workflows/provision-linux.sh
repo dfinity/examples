@@ -27,6 +27,7 @@ mv ./vessel-linux64 $HOME/bin/vessel
 # Install Moc
 curl --location --output motoko-linux64.tar.gz "https://github.com/dfinity/motoko/releases/download/0.6.20/motoko-linux64-0.6.20.tar.gz"
 gunzip motoko-linux64.tar.gz
+chown -R "$(whoami)" . && chmod -R +x .
 tar -xvf motoko-linux64.tar
 mv moc $HOME/bin/moc
 rm motoko-linux64.tar.gz
