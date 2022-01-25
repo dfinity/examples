@@ -25,8 +25,8 @@ rm install-dfx.sh
 # Install Vessel
 curl --location --output vessel-macos "https://github.com/dfinity/vessel/releases/download/v0.6.2/vessel-macos"
 mkdir $HOME/bin
-chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
 mv ./vessel-macos $HOME/bin/vessel
+chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
 
 # Install cmake
 brew install cmake

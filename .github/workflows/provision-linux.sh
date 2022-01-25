@@ -20,8 +20,8 @@ rm install-dfx.sh
 # Install Vessel
 curl --location --output vessel-linux64 "https://github.com/dfinity/vessel/releases/download/v0.6.2/vessel-linux64"
 mkdir $HOME/bin
-chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
 mv ./vessel-linux64 $HOME/bin/vessel
+chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
 
 # Install cmake
 sudo apt-get install --yes cmake
