@@ -24,8 +24,8 @@ rm install-dfx.sh
 
 # Install Vessel
 curl --location --output vessel-macos "https://github.com/dfinity/vessel/releases/download/v0.6.2/vessel-macos"
+mkdir $HOME/bin
 chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
-echo "$HOME/bin" >> "$GITHUB_PATH"
 mv ./vessel-macos $HOME/bin/vessel
 
 # Install cmake
@@ -35,6 +35,10 @@ brew install cmake
 curl --location --output install-rustup.sh "https://sh.rustup.rs"
 bash install-rustup.sh -y
 rustup target add wasm32-unknown-unknown
+
+# Set environment variables.
+echo "$HOME/bin" >> $GITHUB_PATH
+echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
 # Exit temporary directory.
 popd
