@@ -44,7 +44,7 @@ actor Dex {
 
     stable var orders_stable : [(T.OrderId,T.Order)] = [];
     stable var lastId : Nat32 = 0;
-    var exchange = E.Exchange();
+    var exchanges = M.HashMap<T.Token, E.Exchange>(10, Principal.equal, Principal.hash);
 
     // User balance datastructure
     private var book = M.HashMap<Principal, M.HashMap<T.Token, Nat64>>(10, Principal.equal, Principal.hash);
@@ -69,11 +69,37 @@ actor Dex {
             toAmount;
         };
         orders.put(id, order);
-        exchange.addOrder(order);
-        let status = "Ok";
-        {
-            status;
-            order;
+        // Find or create the exchange.
+        var dip : ?T.Token = null;
+        if(from==E.ledger()) {
+            dip := ?to;
+        } else if(to==E.ledger()) {
+            dip := ?from;
+        } else {
+            Debug.print("Order must be from or to ICP.");
+        };
+        switch(dip) {
+            case (?dip_token) {
+                let exchange = switch (exchanges.get(dip_token)) {
+                    case null {
+                        let exchange : E.Exchange = E.Exchange(dip_token);
+                        exchanges.put(dip_token,exchange);
+                        exchange
+                    };
+                    case (?e) e
+                };
+                exchange.addOrder(order);
+                {
+                    status: Text = "Ok";
+                    order;
+                }
+            };
+            case null {
+                {
+                    status: Text = "Error: Not an ICP order";
+                    order;
+                }
+            };
         }
     };
 

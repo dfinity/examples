@@ -18,8 +18,7 @@ module {
     public let ledger = func(): Principal { Principal.fromActor(Ledger) };
 
     // An exchange between ICP and a DIP20 token.
-    //public class Exchange(dip: ?DIP20.Token) {
-    public class Exchange() {
+    public class Exchange(dip: T.Token) {
 
         // The implicit pair will be dip/ICP (to have the price of a dip in ICP), therefore:
         // bid is for buying dip (ie selling ICP).
@@ -64,7 +63,7 @@ module {
                    };
                 };
             } else {
-                // TODO handle invalid order.
+                // TODO handle invalid order (already filtered in main but still need proper error msg here).
                 Debug.print("Invalid order");
             };
             print_book();
