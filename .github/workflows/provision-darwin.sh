@@ -5,6 +5,9 @@ set -ex
 # Enter temporary directory.
 pushd /tmp
 
+# Create folder for binaries to add to path
+mkdir $HOME/bin
+
 # Install Homebrew
 curl --location --output install-brew.sh "https://raw.githubusercontent.com/Homebrew/install/master/install.sh"
 bash install-brew.sh
@@ -24,9 +27,15 @@ rm install-dfx.sh
 
 # Install Vessel
 curl --location --output vessel-macos "https://github.com/dfinity/vessel/releases/download/v0.6.2/vessel-macos"
-mkdir $HOME/bin
 mv ./vessel-macos $HOME/bin/vessel
-chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
+
+# Install Moc
+curl --location --output motoko-macos.tar.gz "https://github.com/dfinity/motoko/releases/download/0.6.20/motoko-macos-0.6.20.tar.gz"
+gunzip motoko-macos.tar.gz
+tar -xvf motoko-macos.tar
+mv moc $HOME/bin/moc
+rm motoko-macos.tar.gz
+rm motoko-macos.tar
 
 # Install cmake
 brew install cmake
@@ -35,6 +44,9 @@ brew install cmake
 curl --location --output install-rustup.sh "https://sh.rustup.rs"
 bash install-rustup.sh -y
 rustup target add wasm32-unknown-unknown
+
+# Update permissions for binaries
+chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
 
 # Set environment variables.
 echo "$HOME/bin" >> $GITHUB_PATH

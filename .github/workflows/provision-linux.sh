@@ -5,6 +5,9 @@ set -ex
 # Enter temporary directory.
 pushd /tmp
 
+# Create folder for binaries to add to path
+mkdir $HOME/bin
+
 # Install Node.
 wget --output-document install-node.sh "https://deb.nodesource.com/setup_14.x"
 sudo bash install-node.sh
@@ -19,9 +22,15 @@ rm install-dfx.sh
 
 # Install Vessel
 curl --location --output vessel-linux64 "https://github.com/dfinity/vessel/releases/download/v0.6.2/vessel-linux64"
-mkdir $HOME/bin
 mv ./vessel-linux64 $HOME/bin/vessel
-chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
+
+# Install Moc
+curl --location --output motoko-linux64.tar.gz "https://github.com/dfinity/motoko/releases/download/0.6.20/motoko-linux64-0.6.20.tar.gz"
+gunzip motoko-linux64.tar.gz
+tar -xvf motoko-linux64.tar
+mv moc $HOME/bin/moc
+rm motoko-linux64.tar.gz
+rm motoko-linux64.tar
 
 # Install cmake
 sudo apt-get install --yes cmake
@@ -30,6 +39,9 @@ sudo apt-get install --yes cmake
 wget --output-document install-rustup.sh "https://sh.rustup.rs"
 sudo bash install-rustup.sh -y
 rustup target add wasm32-unknown-unknown
+
+# Update permissions for binaries
+chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
 
 # Set environment variables.
 echo "$HOME/bin" >> $GITHUB_PATH
