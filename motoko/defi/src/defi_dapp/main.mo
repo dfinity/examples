@@ -69,7 +69,8 @@ actor Dex {
             case (?dip_token) {
                 let exchange = switch (exchanges.get(dip_token)) {
                     case null {
-                        let exchange : E.Exchange = E.Exchange(dip_token);
+                        let dip_symbol = await symbol(dip_token);
+                        let exchange : E.Exchange = E.Exchange(dip_token, dip_symbol);
                         exchanges.put(dip_token,exchange);
                         exchange
                     };
@@ -291,11 +292,15 @@ actor Dex {
 
     // ===== INTERNAL FUNCTIONS =====
     private func fetch_dip_fee(token: T.Token) : async Nat64 {
-
         let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
         let metadata = await dip20.getMetadata();
-
         return Nat64.fromNat(metadata.fee);
+    };
+
+    public func symbol(token: T.Token) : async Text {
+        let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
+        let metadata = await dip20.getMetadata();
+        metadata.symbol
     };
 
     // function that adds tokens to book. Book keeps track of users deposits.
@@ -327,7 +332,6 @@ actor Dex {
 
     // function that adds tokens to book. Book keeps track of users deposits.
     private func remove_from_book(user: Principal, token: T.Token,amount: Nat64) : ?Nat64 {
-
         switch (book.get(user)) {
             case (?token_balance) {
                 // check if user already has existing balance for this token

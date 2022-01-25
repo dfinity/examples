@@ -18,15 +18,13 @@ module {
     public let ledger = func(): Principal { Principal.fromActor(Ledger) };
 
     // An exchange between ICP and a DIP20 token.
-    public class Exchange(dip: T.Token) {
+    public class Exchange(dip: T.Token, symbol: Text) {
 
         // The implicit pair will be dip/ICP (to have the price of a dip in ICP), therefore:
         // bid is for buying dip (ie selling ICP).
         // ask is for selling dip (ie buying ICP).
         var bid = RBTree.RBTree<Float,B.Buffer<T.Order>>(Float.compare);
         var ask = RBTree.RBTree<Float,B.Buffer<T.Order>>(Float.compare);
-
-        //let dip_symbol = ?(await dip.symbol());
 
         public func addOrders(orders: [T.Order]) {
             for(o in orders.vals()) {
@@ -72,7 +70,7 @@ module {
 
         // For debug only.
         func print_book() {
-            Debug.print("======= XXX / ICP =======");
+            Debug.print("======= " # symbol # " / ICP =======");
             Debug.print("=== BID === | === ASK ===");
 
             let nb_bid = Iter.size(bid.entries());
