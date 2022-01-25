@@ -1,6 +1,7 @@
 import Result "mo:base/Result";
 import Trie "mo:base/Trie";
 import Int "mo:base/Int";
+import List "mo:base/List";
 import Principal "mo:base/Principal";
 
 module {
@@ -9,7 +10,7 @@ module {
   public type Proposal = {
     id : Nat;
     votes_no : Tokens;
-    voters : [Principal];
+    voters : List.List<Principal>;
     state : ProposalState;
     timestamp : Int;
     proposer : Principal;
@@ -58,6 +59,7 @@ module {
   public func account_key(t: Principal) : Trie.Key<Principal> = { key = t; hash = Principal.hash t };
   
   public let oneToken = { amount_e8s = 10_000_000 };
+  public let zeroToken = { amount_e8s = 0 };  
   public let defaultSystemParams = {
       transfer_fee = { amount_e8s = 10_000 };
       proposal_vote_threshold = { amount_e8s = 1_000_000_000 };
