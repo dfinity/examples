@@ -8,7 +8,7 @@
     let agent;
 
     const DEX_CANISTER_ID = process.env.DEFI_DAPP_CANISTER_ID;
-    const whiteList = ["rwlgt-iiaaa-aaaaa-aaaaa-cai"];
+    const whiteList = [DEX_CANISTER_ID];
     const host =  "localhost:8000"
 
     

@@ -4,6 +4,7 @@
   import Links from "./components/Links.svelte";
   import PlugWallet from './components/PlugWallet.svelte';
   import UserInfo from './components/UserInfo.svelte';
+  import Orders from './components/Orders.svelte';
   
 
   let auth = localStorage.getItem('ic-identity');
@@ -24,8 +25,8 @@
     <Auth />
   {:else}
     <UserInfo />
+    <Orders />
   {/if}
-  <PlugWallet />
   <Links />
   <CanisterIds />
 </main>
