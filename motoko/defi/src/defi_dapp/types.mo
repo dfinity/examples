@@ -80,6 +80,7 @@ module {
     public type OrderPlacementReceipt = {
         #Ok: Order;
         #Err: {
+            #InvalidOrder;
             #OrderBookFull;
         };
     };

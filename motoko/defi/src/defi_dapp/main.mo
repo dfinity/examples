@@ -79,10 +79,7 @@ actor Dex {
                 #Ok(order)
             };
             case null {
-                {
-                    status: Text = "Error: Not an ICP order";
-                    order;
-                }
+                #Err(#InvalidOrder)
             };
         }
     };
