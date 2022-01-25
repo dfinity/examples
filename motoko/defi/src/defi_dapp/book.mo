@@ -11,17 +11,17 @@ module {
 
     public class Book() {
 
-        var book = M.HashMap<Principal, M.HashMap<T.Token, Nat64>>(10, Principal.equal, Principal.hash);
+        var book = M.HashMap<Principal, M.HashMap<T.Token, Nat>>(10, Principal.equal, Principal.hash);
 
-        public func get(user: Principal) : ?M.HashMap<T.Token, Nat64> {
+        public func get(user: Principal) : ?M.HashMap<T.Token, Nat> {
             book.get(user)
         };
 
-        public func put(user: Principal, userBalances: M.HashMap<T.Token, Nat64>) {
+        public func put(user: Principal, userBalances: M.HashMap<T.Token, Nat>) {
             book.put(user, userBalances);
         };
 
-        public func entries() : Iter.Iter<(Principal,M.HashMap<T.Token,Nat64>)> {
+        public func entries() : Iter.Iter<(Principal,M.HashMap<T.Token,Nat>)> {
             book.entries()
         };
 
@@ -35,14 +35,14 @@ module {
             for ((x, y) in book.entries()) {
                 Debug.print( debug_show("PRINCIPAL: ", x));
                 var i=0;
-                for ((key: T.Token, value: Nat64) in y.entries()) {
+                for ((key: T.Token, value: Nat) in y.entries()) {
                     Debug.print( debug_show("Balance: ", i, "Token: ", key, " amount: ",value));
                 };
             };
         };
 
         // function that adds tokens to book. Book keeps track of users deposits.
-        public func add_tokens(user: Principal, token: T.Token,amount: Nat64){
+        public func add_tokens(user: Principal, token: T.Token,amount: Nat){
             switch (book.get(user)) {
                 case (?token_balance) {
                     // check if user already has existing balance for this token
@@ -60,14 +60,14 @@ module {
                 case (null) {
                     // user didn't exist
                     Debug.print( debug_show("User", user, "has no balance of ", token, " new amount: ",amount));
-                    var x1 = M.HashMap<T.Token, Nat64>(2, Principal.equal, Principal.hash);
+                    var x1 = M.HashMap<T.Token, Nat>(2, Principal.equal, Principal.hash);
                     x1.put(token,amount);
                     book.put(user,x1);
                 };
             };
         };
 
-        public func remove_tokens(user: Principal, token: T.Token, amount: Nat64) : ?Nat64 {
+        public func remove_tokens(user: Principal, token: T.Token, amount: Nat) : ?Nat {
             switch (book.get(user)) {
                 case (?token_balance) {
                     // check if user already has existing balance for this token

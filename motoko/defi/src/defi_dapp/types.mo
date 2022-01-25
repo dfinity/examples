@@ -92,14 +92,14 @@ module {
         };
     };
     public type WithdrawReceipt = {
-        #Ok: Nat64;
+        #Ok: Nat;
         #Err: {
             #BalanceLow;
             #TransferFailure;
         };
     };
     public type DepositReceipt = {
-        #Ok: Nat64;
+        #Ok: Nat;
         #Err: {
             #BalanceLow;
             #TransferFailure;

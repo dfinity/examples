@@ -26,7 +26,7 @@ actor Dex {
     // TODO: Sort out fees
     // ----------------------------------------
     // NOTE: Initial work with a single token
-    let icp_fee: Nat64 = 10_000;
+    let icp_fee: Nat = 10_000;
     // ----------------------------------------
 
     stable var orders_stable : [(T.OrderId,T.Order)] = [];
@@ -34,9 +34,8 @@ actor Dex {
     var exchanges = M.HashMap<T.Token, E.Exchange>(10, Principal.equal, Principal.hash);
 
     // User balance datastructure
-    //private var book : T.Book = M.HashMap<Principal, M.HashMap<T.Token, Nat64>>(10, Principal.equal, Principal.hash);
     private var book = B.Book();
-    private stable var upgradeMap : [var (Principal, [(T.Token, Nat64)])] = [var];
+    private stable var upgradeMap : [var (Principal, [(T.Token, Nat)])] = [var];
 
 
     let orders = M.fromIter<T.OrderId,T.Order>(
@@ -125,11 +124,11 @@ actor Dex {
     };
 
     // ===== WITHDRAW FUNCTIONS =====
-    public shared(msg) func withdraw_icp(amount: Nat64) : async T.WithdrawReceipt {
+    public shared(msg) func withdraw_icp(amount: Nat) : async T.WithdrawReceipt {
         Debug.print("Withdraw...");
 
-        // remove withdrawl amount from book
-        switch (book.remove_tokens(msg.caller,E.ledger(),amount+icp_fee)){
+        // remove withdrawal amount from book
+        switch (book.remove_tokens(msg.caller, E.ledger(), amount+icp_fee)){
             case(null){
                 return #Err(#BalanceLow)
             };
@@ -142,8 +141,8 @@ actor Dex {
             memo: Nat64    = 0;
             from_subaccount = ?Account.defaultSubaccount();
             to = Account.accountIdentifier(msg.caller, Account.defaultSubaccount());
-            amount = { e8s = amount };
-            fee = { e8s = icp_fee };
+            amount = { e8s = Nat64.fromNat(amount) };
+            fee = { e8s = Nat64.fromNat(icp_fee) };
             created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(Time.now())) };
         });
 
@@ -158,7 +157,7 @@ actor Dex {
         #Ok(amount)
     };
 
-    public shared(msg) func withdraw_dip(token: T.Token, amount: Nat64) : async T.WithdrawReceipt {
+    public shared(msg) func withdraw_dip(token: T.Token, amount: Nat) : async T.WithdrawReceipt {
         Debug.print("Withdraw...");
 
         // cast canisterID to token interface
@@ -176,7 +175,7 @@ actor Dex {
         };
 
         // Transfer amount back to user
-        let txReceipt =  await dip20.transfer(msg.caller, Nat64.toNat(amount - dip_fee));
+        let txReceipt =  await dip20.transfer(msg.caller, amount - dip_fee);
 
         switch txReceipt {
             case (#Err e) {
@@ -191,7 +190,7 @@ actor Dex {
 
 
     // ===== DEX STATE FUNCTIONS =====
-    public shared query (msg) func balance(token: T.Token) : async Nat64 {
+    public shared query (msg) func balance(token: T.Token) : async Nat {
         switch (book.get(msg.caller)) {
             case (?token_balance) {
                 switch (token_balance.get(token)){
@@ -230,11 +229,11 @@ actor Dex {
         let dip_fee = await fetch_dip_fee(token);
 
         // Check DIP20 allowance for DEX
-        let balance = Nat64.fromNat(await dip20.allowance(msg.caller, Principal.fromActor(Dex))) - dip_fee;
+        let balance : Nat = (await dip20.allowance(msg.caller, Principal.fromActor(Dex))) - dip_fee;
 
         // Transfer to account.
         let token_reciept = if (balance > dip_fee) {
-            await dip20.transferFrom(msg.caller, Principal.fromActor(Dex),Nat64.toNat(balance - dip_fee));
+            await dip20.transferFrom(msg.caller, Principal.fromActor(Dex),balance - dip_fee);
         } else {
             return #Err(#BalanceLow);
         };
@@ -246,12 +245,11 @@ actor Dex {
             case _ {};
         };
 
-        // add transfered amount to useres balance
+        // add transferred amount to user balance
         book.add_tokens(msg.caller,token,balance - dip_fee);
 
         // Return result
         #Ok(balance - dip_fee)
-
     };
 
     // After user transfers ICP to the target subaccount
@@ -265,13 +263,13 @@ actor Dex {
         let balance = await Ledger.account_balance({ account = source_account });
 
         // Transfer to default subaccount
-        let icp_reciept = if (balance.e8s > icp_fee) {
+        let icp_reciept = if (Nat64.toNat(balance.e8s) > icp_fee) {
             await Ledger.transfer({
                 memo: Nat64    = 0;
                 from_subaccount = ?Account.principalToSubaccount(msg.caller);
                 to = Account.accountIdentifier(Principal.fromActor(Dex), Account.defaultSubaccount());
-                amount = { e8s = balance.e8s - icp_fee };
-                fee = { e8s = icp_fee };
+                amount = { e8s = balance.e8s - Nat64.fromNat(icp_fee)};
+                fee = { e8s = Nat64.fromNat(icp_fee) };
                 created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(Time.now())) };
             })
         } else {
@@ -285,7 +283,7 @@ actor Dex {
             case _ {};
         };
         // (Proactively save ICP fee for second transfer)
-        let available = { e8s = balance.e8s - (icp_fee * 2) };
+        let available = { e8s : Nat = Nat64.toNat(balance.e8s) - (icp_fee * 2) };
 
         // keep track of deposited ICP
         book.add_tokens(msg.caller,E.ledger(),available.e8s);
@@ -296,10 +294,10 @@ actor Dex {
 
 
     // ===== INTERNAL FUNCTIONS =====
-    private func fetch_dip_fee(token: T.Token) : async Nat64 {
+    private func fetch_dip_fee(token: T.Token) : async Nat {
         let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
         let metadata = await dip20.getMetadata();
-        return Nat64.fromNat(metadata.fee);
+        metadata.fee
     };
 
     public func symbol(token: T.Token) : async Text {
@@ -325,8 +323,8 @@ actor Dex {
     };
     // After canister upgrade book map gets reconstructed from stable array
     system func postupgrade() {
-        for ((key: Principal, value: [(T.Token, Nat64)]) in upgradeMap.vals()) {
-            let tmp: M.HashMap<T.Token, Nat64> = M.fromIter<T.Token, Nat64>(Iter.fromArray<(T.Token, Nat64)>(value), 10, Principal.equal, Principal.hash);
+        for ((key: Principal, value: [(T.Token, Nat)]) in upgradeMap.vals()) {
+            let tmp: M.HashMap<T.Token, Nat> = M.fromIter<T.Token, Nat>(Iter.fromArray<(T.Token, Nat)>(value), 10, Principal.equal, Principal.hash);
             book.put(key, tmp);
         };
         upgradeMap := [var];

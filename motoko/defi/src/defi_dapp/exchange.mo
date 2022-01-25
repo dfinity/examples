@@ -141,12 +141,24 @@ module {
         func execute(bid: T.Order, ask: T.Order, price: Float) {
             Debug.print("Executing transaction");
             // TODO
-            // Find volume.
-            let volume = Nat.min(bid.toAmount, ask.fromAmount);
-            //book.remove_tokens();
-            //book.add_tokens();
+            // Find volume of DIP20.
+            var vol_dip : Nat = 0;
+            var vol_icp : Nat = 0;
+            if (bid.toAmount < ask.fromAmount) {
+                vol_dip := bid.toAmount;
+                vol_icp := bid.fromAmount;
+            } else {
+                vol_dip := ask.fromAmount;
+                vol_icp := ask.toAmount;
+            };
 
+            //let vol_dip = Nat.min(bid.toAmount, ask.fromAmount);
 
+            // we transfer the icp from bid to ask and the dip from ask to bid.
+            let icp : ?Nat = book.remove_tokens(bid.owner, bid.from, vol_icp);
+            let dip : ?Nat = book.remove_tokens(ask.owner, ask.from, vol_dip);
+            book.add_tokens(bid.owner, bid.to, vol_dip);
+            book.add_tokens(ask.owner, ask.to, vol_icp);
         }
 
         //public func transactions() : [Transaction] {}
