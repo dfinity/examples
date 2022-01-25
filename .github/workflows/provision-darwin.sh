@@ -25,10 +25,6 @@ rm install-dfx.sh
 # Install Vessel and Alias Moc
 curl --location --output vessel-macos "https://github.com/dfinity/vessel/releases/download/v0.6.2/vessel-macos"
 chown -R "$(whoami)" ./vessel-macos && chmod -R +x ./vessel-macos
-gh alias set --shell vessel $(pwd)/vessel-macos
-gh alias set --shell moc $(vessel bin)/moc
-gh alias set --shell mo-doc $(vessel bin)/mo-doc
-gh alias set --shell mo-ide $(vessel bin)/mo-ide
 
 # Install cmake
 brew install cmake
@@ -40,3 +36,9 @@ rustup target add wasm32-unknown-unknown
 
 # Exit temporary directory.
 popd
+
+# Set aliases
+echo alias vessel="/tmp/vessel-macos" >> .bashrc
+echo alias moc="$(vessel bin)/moc" >> .bashrc
+echo alias mo-doc="$(vessel bin)/mo-doc" >> .bashrc
+echo alias mo-ide="$(vessel bin)/mo-ide" >> .bashrc
