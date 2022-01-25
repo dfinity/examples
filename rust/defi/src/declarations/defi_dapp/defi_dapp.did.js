@@ -1,8 +1,4 @@
 export const idlFactory = ({ IDL }) => {
-  const Conf = IDL.Record({
-    'withdrawl_fee' : IDL.Float32,
-    'ledger_canister_id' : IDL.Principal,
-  });
   const OwnerBalance = IDL.Record({
     'owner' : IDL.Principal,
     'token_canister_id' : IDL.Principal,
@@ -46,10 +42,4 @@ export const idlFactory = ({ IDL }) => {
       ),
   });
 };
-export const init = ({ IDL }) => {
-  const Conf = IDL.Record({
-    'withdrawl_fee' : IDL.Float32,
-    'ledger_canister_id' : IDL.Principal,
-  });
-  return [Conf];
-};
+export const init = ({ IDL }) => { return []; };

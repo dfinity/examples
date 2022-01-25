@@ -8,10 +8,52 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 use std::convert::TryInto;
 
-#[derive(CandidType, Deserialize, Serialize, Clone)]
-pub struct Conf {
-    withdrawl_fee: f32,
-    ledger_canister_id: Principal,
+#[derive(CandidType)]
+pub enum CancelOrderReceipt {
+    Ok(u64),
+    Err(CancelOrderErr),
+}
+
+#[derive(CandidType)]
+pub enum CancelOrderErr {
+    NotAllowed,
+    NotExistingOrder,
+}
+
+#[derive(CandidType)]
+pub enum DepositReceipt {
+    Ok(Nat),
+    Err(DepositErr),
+}
+
+#[derive(CandidType)]
+pub enum DepositErr {
+    BalanceLow,
+    TransferFailure,
+}
+
+#[derive(CandidType)]
+pub enum OrderPlacementReceipt {
+    Ok(Order),
+    Err(OrderPlacementErr),
+}
+
+#[derive(CandidType)]
+pub enum OrderPlacementErr {
+    InvalidOrder,
+    OrderBookFull,
+}
+
+#[derive(CandidType)]
+pub enum WithdrawReceipt {
+    Ok(Nat),
+    Err(WithdrawErr),
+}
+
+#[derive(CandidType)]
+pub enum WithdrawErr {
+    BalanceLow,
+    TransferFailure,
 }
 
 #[derive(CandidType)]
@@ -52,7 +94,6 @@ type BalancesState = HashMap<Principal, HashMap<Principal, u128>>; // owner -> t
 
 #[derive(CandidType, Clone, Deserialize, Serialize)]
 pub struct State {
-    conf: Conf,
     owner: Option<Principal>,
     next_id: u64,
     balances: BalancesState,
@@ -97,10 +138,6 @@ fn nat_to_u128(n: Nat) -> u128 {
 impl Default for State {
     fn default() -> Self {
         State {
-            conf: Conf {
-                ledger_canister_id: MAINNET_LEDGER_CANISTER_ID,
-                withdrawl_fee: 0.01,
-            },
             owner: None,
             next_id: 0,
             balances: BalancesState::new(),
@@ -110,60 +147,28 @@ impl Default for State {
 }
 
 impl State {
-    fn get_balance(&self, token_canister_id: Principal) -> Option<Balance> {
-        match self.balances.get(&caller()) {
-            None => None,
-            Some(v) => {
-                if let Some(amount) = v.get(&token_canister_id) {
-                    Some(Balance {
-                        token_canister_id,
-                        amount: (*amount).into(),
-                    })
-                } else {
-                    None
-                }
-            }
-        }
+    fn get_balance(&self, token_canister_id: Principal) -> Nat {
+        self.balances
+            .get(&caller())
+            .and_then(|v| v.get(&token_canister_id))
+            .map_or(0, |v| *v)
+            .into()
     }
 
-    fn get_balances(&self) -> Vec<Balance> {
-        match self.balances.get(&caller()) {
-            None => Vec::new(),
-            Some(v) => v
-                .iter()
-                .map(|(token_canister_id, amount)| Balance {
-                    token_canister_id: *token_canister_id,
-                    amount: (*amount).into(),
-                })
-                .collect(),
-        }
-    }
+    fn deposit(&mut self, token_canister_id: Principal) -> DepositReceipt {
+        let amount = 10;
 
-    fn get_all_balances(&self) -> Vec<OwnerBalance> {
-        let mut result: Vec<OwnerBalance> = Vec::new();
-        for (owner, v) in self.balances.iter() {
-            for (token_canister_id, amount) in v.iter() {
-                result.push(OwnerBalance {
-                    owner: *owner,
-                    token_canister_id: *token_canister_id,
-                    amount: (*amount).into(),
-                });
-            }
-        }
-        result
-    }
-
-    fn deposit(&mut self, token_canister_id: Principal, amount: Nat) -> String {
         if !self.balances.contains_key(&caller()) {
             self.balances.insert(caller(), HashMap::new());
         }
-        let amount = nat_to_u128(amount);
         add_balance(
             self.balances.get_mut(&caller()).unwrap(),
             &token_canister_id,
             amount,
         );
-        return "ok".into();
+
+        DepositReceipt::Ok(amount.into())
+
         /*
         let canister_id = ic_cdk::api::id();
         let account = AccountIdentifier::new(&canister_id, Subaccount::from(caller()));
@@ -197,32 +202,8 @@ impl State {
         }
     }
 
-    fn get_orders(&self) -> Vec<Order> {
-        self.orders
-            .iter()
-            .filter(|(_, o)| o.owner == caller())
-            .map(|(_, o)| (*o).into())
-            .collect()
-    }
-
     fn get_all_orders(&self) -> Vec<Order> {
         self.orders.iter().map(|(_, o)| (*o).into()).collect()
-    }
-
-    fn get_from_orders(&self, token_canister_id: Principal) -> Vec<Order> {
-        self.orders
-            .iter()
-            .filter(|(_, o)| o.from_token_canister_id == token_canister_id)
-            .map(|(_, o)| (*o).into())
-            .collect()
-    }
-
-    fn get_to_orders(&self, token_canister_id: Principal) -> Vec<Order> {
-        self.orders
-            .iter()
-            .filter(|(_, o)| o.to_token_canister_id == token_canister_id)
-            .map(|(_, o)| (*o).into())
-            .collect()
     }
 
     fn next_id(&mut self) -> u64 {
@@ -236,14 +217,10 @@ impl State {
         from_amount: Nat,
         to_token_canister_id: Principal,
         to_amount: Nat,
-    ) -> String {
+    ) -> OrderPlacementReceipt {
         let balance = self.get_balance(from_token_canister_id);
-        if let Some(b) = balance {
-            if b.amount < from_amount {
-                return "not enough from tokens".into();
-            }
-        } else {
-            return "not enough from tokens".into();
+        if balance < from_amount {
+            return OrderPlacementReceipt::Err(OrderPlacementErr::InvalidOrder);
         }
         let id = self.next_id();
         let from_amount = nat_to_u128(from_amount);
@@ -260,18 +237,21 @@ impl State {
             },
         );
         self.resolve_order(id);
-        "ok".into()
+
+        OrderPlacementReceipt::Ok(self.orders.get(&id).cloned().unwrap().into())
     }
 
-    fn cancel_order(&mut self, order: u64) -> String {
+    fn cancel_order(&mut self, order: u64) -> CancelOrderReceipt {
         if let Some(o) = self.orders.get(&order) {
-            if o.owner != caller() {
-                return "not owner".into();
+            if o.owner == caller() {
+                CancelOrderReceipt::Err(CancelOrderErr::NotAllowed)
+            } else {
+                self.orders.remove(&order);
+
+                CancelOrderReceipt::Ok(order)
             }
-            self.orders.remove(&order);
-            "ok".into()
         } else {
-            "no found".into()
+            CancelOrderReceipt::Err(CancelOrderErr::NotExistingOrder)
         }
     }
 
@@ -375,10 +355,9 @@ fn principal_to_subaccount(principal_id: &Principal) -> Subaccount {
 
 #[init]
 #[candid_method(init)]
-pub fn init(conf: Conf) -> () {
+pub fn init() -> () {
     ic_cdk::setup();
     STATE.with(|s| {
-        s.borrow_mut().conf = conf;
         s.borrow_mut().owner = Some(caller());
     });
 }
@@ -400,56 +379,42 @@ fn post_upgrade() {
 
 #[query]
 #[candid_method(query)]
-pub fn get_balance(token_canister_id: Principal) -> Option<Balance> {
+pub fn balance(token_canister_id: Principal) -> Nat {
     STATE.with(|s| s.borrow().get_balance(token_canister_id))
 }
 
-#[query]
-#[candid_method(query)]
-pub fn get_balances() -> Vec<Balance> {
-    STATE.with(|s| s.borrow().get_balances())
+// XXX Can we make candid use Nat64 too?
+#[update]
+#[candid_method(update)]
+pub fn cancel_order(order: u64) -> CancelOrderReceipt {
+    STATE.with(|s| s.borrow_mut().cancel_order(order))
 }
 
 #[query]
 #[candid_method(query)]
-pub fn get_all_balances() -> Vec<OwnerBalance> {
-    STATE.with(|s| s.borrow().get_all_balances())
+pub fn check_order(order: u64) -> Option<Order> {
+    STATE.with(|s| s.borrow().get_order(order))
 }
 
 #[update]
 #[candid_method(update)]
-pub fn deposit(token_canister_id: Principal, amount: Nat) -> String {
-    STATE.with(|s| s.borrow_mut().deposit(token_canister_id, amount))
+pub fn deposit(token_canister_id: Principal) -> DepositReceipt {
+    STATE.with(|s| s.borrow_mut().deposit(token_canister_id))
 }
 
 #[query]
 #[candid_method(query)]
-pub fn get_order(order: u64) -> Option<Order> {
-    STATE.with(|s| s.borrow().get_order(order))
+pub fn deposit_address() -> String {
+    let canister_id = ic_cdk::api::id();
+    let subaccount = principal_to_subaccount(&caller());
+    let account = AccountIdentifier::new(&canister_id, &subaccount).to_string();
+    account
 }
 
 #[query]
 #[candid_method(query)]
-pub fn get_orders() -> Vec<Order> {
-    STATE.with(|s| s.borrow().get_orders())
-}
-
-#[query]
-#[candid_method(query)]
-pub fn get_all_orders() -> Vec<Order> {
+pub fn list_order() -> Vec<Order> {
     STATE.with(|s| s.borrow().get_all_orders())
-}
-
-#[query]
-#[candid_method(query)]
-pub fn get_from_orders(token_canister_id: Principal) -> Vec<Order> {
-    STATE.with(|s| s.borrow().get_from_orders(token_canister_id))
-}
-
-#[query]
-#[candid_method(query)]
-pub fn get_to_orders(token_canister_id: Principal) -> Vec<Order> {
-    STATE.with(|s| s.borrow().get_to_orders(token_canister_id))
 }
 
 #[update]
@@ -459,7 +424,7 @@ pub fn place_order(
     from_amount: Nat,
     to_token_canister_id: Principal,
     to_amount: Nat,
-) -> String {
+) -> OrderPlacementReceipt {
     STATE.with(|s| {
         s.borrow_mut().place_order(
             from_token_canister_id,
@@ -472,13 +437,9 @@ pub fn place_order(
 
 #[update]
 #[candid_method(update)]
-pub fn cancel_order(order: u64) -> String {
-    STATE.with(|s| s.borrow_mut().cancel_order(order))
+pub fn symbol(_token_canister_id: Principal) -> String {
+    "XXX".to_string()
 }
-
-#[update]
-#[candid_method(update)]
-pub fn withdraw(_token_canister_id: Principal, _amount: Nat, _to_principal: Principal) -> () {}
 
 #[query]
 #[candid_method(query)]
@@ -488,18 +449,15 @@ pub fn whoami() -> Principal {
 
 #[update]
 #[candid_method(update)]
-pub fn clear() -> String {
-    STATE.with(|s| s.borrow_mut().clear())
+pub fn withdraw(_token_canister_id: Principal, _amount: Nat) -> WithdrawReceipt {
+    WithdrawReceipt::Err(WithdrawErr::TransferFailure)
 }
 
-#[query]
-#[candid_method(query)]
-pub fn icp_deposit_account() -> String {
-    let canister_id = ic_cdk::api::id();
-    let subaccount = principal_to_subaccount(&caller());
-    let account = AccountIdentifier::new(&canister_id, &subaccount).to_string();
-    account
-}
+// #[update]
+// #[candid_method(update)]
+// pub fn clear() -> String {
+//     STATE.with(|s| s.borrow_mut().clear())
+// }
 
 export_service!();
 

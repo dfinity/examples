@@ -1,8 +1,3 @@
-type Conf = record {
-  withdrawl_fee : float32;
-  ledger_canister_id : principal;
-};
-
 type Balance = record {
   token_canister_id : principal;
   amount : nat;
@@ -23,7 +18,7 @@ type Order = record {
   to_amount : nat;
 };
 
-service defi : (Conf) -> {
+service defi : () -> {
   get_balance : (token_canister_id : principal) -> (opt Balance) query;
   get_balances : () -> (vec Balance) query;
   get_all_balances : () -> (vec OwnerBalance) query;

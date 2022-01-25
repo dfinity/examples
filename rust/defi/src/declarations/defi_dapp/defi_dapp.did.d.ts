@@ -1,9 +1,5 @@
 import type { Principal } from '@dfinity/principal';
 export interface Balance { 'token_canister_id' : Principal, 'amount' : bigint }
-export interface Conf {
-  'withdrawl_fee' : number,
-  'ledger_canister_id' : Principal,
-}
 export interface Order {
   'id' : bigint,
   'from_amount' : bigint,

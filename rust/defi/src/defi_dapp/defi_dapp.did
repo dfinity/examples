@@ -1,42 +1,55 @@
-type Conf = record {
-  withdrawl_fee : float32;
-  ledger_canister_id : principal;
-};
-
-type Balance = record {
-  token_canister_id : principal;
-  amount : nat;
-};
-
-type OwnerBalance = record {
-  owner: principal;
-  token_canister_id : principal;
-  amount : nat;
-};
-
-type Order = record {
-  id : nat64;
-  owner : principal;
-  from_token_canister_id : principal;
-  from_amount : nat;
-  to_token_canister_id : principal;
-  to_amount : nat;
-};
-
-service defi : (Conf) -> {
-  get_balance : (token_canister_id : principal) -> (opt Balance) query;
-  get_balances : () -> (vec Balance) query;
-  get_all_balances : () -> (vec OwnerBalance) query;
-  deposit : (token_canister_id: principal, amount: nat) -> (text);
-  get_order : (order_id: nat64) -> (opt Order) query;
-  get_orders : () -> (vec Order) query;
-  get_all_orders : () -> (vec Order) query;
-  get_from_orders : (token_canister_id : principal) -> (vec Order) query;
-  get_to_orders : (token_canister_id : principal) -> (vec Order) query;
-  place_order : (from_token_canister_id : principal, from_amount : nat, to_token_canister_id : principal, to_amount : nat) -> (text);
-  cancel_order : (order_id: nat64) -> (text);
-  withdraw : (token_canister_id : principal, amount : nat, to_principal : principal) -> () oneway;
-  whoami : () -> (principal) query;
-  icp_deposit_account : () -> (text) query;
-  clear : () -> (text);
+type WithdrawReceipt = 
+ variant {
+   Err: variant {
+          BalanceLow;
+          TransferFailure;
+        };
+   Ok: nat;
+ };
+type Token = principal;
+type OrderPlacementReceipt = 
+ variant {
+   Err: variant {
+          InvalidOrder;
+          OrderBookFull;
+        };
+   Ok: Order;
+ };
+type OrderId = nat32;
+type Order = 
+ record {
+   from: Token;
+   fromAmount: nat;
+   id: OrderId;
+   owner: principal;
+   to: Token;
+   toAmount: nat;
+ };
+type DepositReceipt = 
+ variant {
+   Err: variant {
+          BalanceLow;
+          TransferFailure;
+        };
+   Ok: nat;
+ };
+type CancelOrderReceipt = 
+ variant {
+   Err: variant {
+          NotAllowed;
+          NotExistingOrder;
+        };
+   Ok: OrderId;
+ };
+service : {
+  balance: (Token) -> (nat) query;
+  cancel_order: (OrderId) -> (CancelOrderReceipt);
+  check_order: (OrderId) -> (opt Order);
+  deposit: (Token) -> (DepositReceipt);
+  deposit_address: () -> (blob);
+  list_order: () -> (vec Order) query;
+  place_order: (Token, nat, Token, nat) -> (OrderPlacementReceipt);
+  symbol: (Token) -> (text);
+  whoami: () -> (principal) query;
+  withdraw: (Token, nat) -> (WithdrawReceipt);
 }
