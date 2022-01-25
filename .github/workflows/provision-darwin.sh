@@ -17,17 +17,10 @@ sudo installer -pkg node.pkg -store -target /
 rm node.pkg
 
 # Install DFINITY SDK.
-version=0.8.4
+version=0.8.5
 curl --location --output install-dfx.sh "https://sdk.dfinity.org/install.sh"
 DFX_VERSION=$version bash install-dfx.sh < <(yes Y)
 rm install-dfx.sh
-
-# Install Moc
-curl --location --output motoko-macos.tar.gz "https://github.com/dfinity/motoko/releases/download/0.6.20/motoko-macos-0.6.20.tar.gz"
-gunzip motoko-macos.tar.gz
-tar -xvf motoko-macos.tar
-rm motoko-macos.tar.gz
-rm motoko-macos.tar
 
 # Install Vessel and Alias Moc
 curl --location --output vessel-macos "https://github.com/dfinity/vessel/releases/download/v0.6.2/vessel-macos"
@@ -36,6 +29,14 @@ alias vessel=$(pwd)/vessel-macos
 alias moc=$(vessel bin)/moc
 alias mo-doc=$(vessel bin)/mo-doc
 alias mo-ide=$(vessel bin)/mo-ide
+
+# Install cmake
+brew install cmake
+
+# Install rust
+curl --location --output install-rustup.sh "https://sh.rustup.rs"
+bash install-rustup.sh -y
+rustup target add wasm32-unknown-unknown
 
 # Exit temporary directory.
 popd
