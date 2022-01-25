@@ -3,6 +3,14 @@
     import { Actor, HttpAgent } from "@dfinity/agent";
     import { AuthClient } from "@dfinity/auth-client";
     import { idlFactory } from '../../../declarations/defi_dapp/defi_dapp.did.js';
+    import { Principal } from '@dfinity/principal';
+
+    const canisters = [
+        {name: 'AkitaDIP20', canisterId: process.env.AKITADIP20_CANISTER_ID},
+        {name: 'GoldenDIP20', canisterId: process.env.GOLDENDIP20_CANISTER_ID},
+        {name: 'ICP', canisterId: process.env.LEDGER_CANISTER_ID}
+    ]
+    console.log(canisters)
 
     let orders = [];
     let backendActor;
@@ -14,9 +22,9 @@
     let buyingOrder = false;
 
     const newOrder = {
-        fromAcct: "",
+        fromCanister: "",
         fromAmount: 0,
-        toAcct: "",
+        toCanister: "",
         toAmount: 0
     };
 
@@ -24,7 +32,7 @@
         authClient = await AuthClient.create();
         const authenticated = await authClient.isAuthenticated();
         if(authenticated) {
-            const identity = authClient.getIdentity();
+            const identity = authClient.getIdentity() || undefined;
             const agent = new HttpAgent({identity, host: "http://localhost:8000"});
             // development only, comment out in prod
             agent.fetchRootKey();
@@ -34,62 +42,63 @@
                 canisterId: process.env.DEFI_DAPP_CANISTER_ID
             });
 
-            // TESTING
-            const depositAdd = await backendActor.deposit_address();
             orders = await backendActor.list_order();
+            orders = [...orders.reverse()] // show latest
         }
 	});
 
     async function placeOrder() {
         addingOrder = true;
         const result = await backendActor.place_order(
-            newOrder.fromAcct,
+            Principal.fromText(newOrder.fromCanister),
             newOrder.fromAmount,
-            newOrder.toAcct,
+            Principal.fromText(newOrder.toCanister),
             newOrder.toAmount);
 
-        if(result.status === 'Ok') {
-            orders.push(result.order);
-            orders = [...orders];
-            showOrderForm = false;
+        if(result.Ok) {
+            const newOrderList = await backendActor.list_order();
+            orders = []; // clear old order list
+            orders = [...newOrderList.reverse()];
         }
-        addingOrder = false;
+        closeOrderForm();
     };
 
     async function buyOrder(order) {
         buyingOrder = true;
         // Create an order opposite of the one being bought
         const newOrder = {
-            from: order.to,
+            fromCanister: order.to,
             fromAmount: order.toAmount,
-            to: order.from,
+            toCanister: order.from,
             toAmount: order.fromAmount
         };
         const result = await backendActor.place_order(
-            newOrder.from,
+            newOrder.fromCanister,
             newOrder.fromAmount,
-            newOrder.to,
+            newOrder.toCanister,
             newOrder.toAmount
         )
-        console.log(result);
-        if(result && result.status === 'Ok') {
-            orders.push(result.order);
-            orders = [...orders];
+
+        if(result && result.Ok) {
+            const newOrderList = await backendActor.list_order();
+            orders = []; // clear old order list
+            orders = [...newOrderList.reverse()];      
         }
         buyingOrder = false;
+    };
+
+    function closeOrderForm() {
+        showOrderForm = false;
+        addingOrder = false;
     };
 
     async function cancelOrder(id) {
         cancelingOrder = true;
         const result = await backendActor.cancel_order(id);
-        if(result && result.status === 'Canceled') {
-            const orderIndex = orders.findIndex((order) => {
-                return order.id === result.order_id
-            });
-            if(orderIndex > -1) {
-                orders.splice(orderIndex, 1);
-                orders = [...orders];
-            }
+        if(result && result.Ok) {
+            const newOrderList = await backendActor.list_order();
+            orders = []; // clear old order list
+            orders = [...newOrderList.reverse()];       
         }
         cancelingOrder = false;
     };
@@ -109,10 +118,9 @@
             <table>
                 {#if orders.length}
                     <thead>
-                        <th>ID</th>
-                        <th>From Acct</th>
+                        <th>From Account</th>
                         <th>Amount</th>
-                        <th>To Acct</th>
+                        <th>To Account</th>
                         <th>Amount</th>
                         <th></th>
                     </thead>
@@ -120,10 +128,25 @@
                 <tbody>
                     {#if showOrderForm}
                     <tr>
-                        <td></td>
-                        <td><input class="input-style" placeholder="From Account..." bind:value={newOrder.fromAcct} /></td>
+                        <td>
+                            <select class="input-style" bind:value={newOrder.fromCanister}>
+                                {#each canisters as canister}
+                                    <option value={canister.canisterId}>
+                                        {canister.name}
+                                    </option>
+                                {/each}
+                            </select>
+                        </td>
                         <td><input class="input-style" bind:value={newOrder.fromAmount} type="number" /></td>
-                        <td><input class="input-style" placeholder="To Account..." bind:value={newOrder.toAcct} /></td>
+                        <td>
+                            <select class="input-style" bind:value={newOrder.toCanister}>
+                                {#each canisters as canister}
+                                    <option value={canister.canisterId}>
+                                        {canister.name}
+                                    </option>
+                                {/each}
+                            </select>
+                        </td>                       
                         <td><input class="input-style" bind:value={newOrder.toAmount} type="number" /></td>
                         <td><button class="action-btn btn-add" on:click={placeOrder}>
                             <div class="add-btn-text">
@@ -134,12 +157,11 @@
                             {/if}
                         </button>
                         </td>
-                        <td><button class="action-btn btn-cancel" on:click={() => showOrderForm = false}>Cancel</button></td>
+                        <td><button class="action-btn btn-cancel" on:click={closeOrderForm}>Cancel</button></td>
                     </tr>
                     {/if}
                     {#each orders as order}
                     <tr>
-                        <td>{order.id}</td>
                         <td>{order.from}</td>
                         <td>{order.fromAmount}</td>
                         <td>{order.to}</td>
@@ -154,7 +176,7 @@
                             {#if order.owner.toText() === authClient.getIdentity().getPrincipal().toText()}
                                 <button class="action-btn btn-cancel" on:click={() => cancelOrder(order.id)}>
                                     <div class="cancel-btn-text">
-                                        Cancel Order
+                                        Cancel
                                     </div>
                                     {#if cancelingOrder}
                                         <div class="loader cancel-btn-loader"></div>
@@ -171,6 +193,9 @@
 </div>
 
 <style>
+    table {
+        width: 75vw;
+    }
     .order-container {
         text-align: left !important;
         margin-bottom: 36px;

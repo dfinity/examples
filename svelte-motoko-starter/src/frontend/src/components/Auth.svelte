@@ -25,6 +25,7 @@
       }),
     }));
 
+    location.reload();
     whoami = $auth.actor.whoami();
   }
 
