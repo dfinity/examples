@@ -39,7 +39,6 @@ actor Dex {
     // TODO: Sort out fees
     // ----------------------------------------
     // NOTE: Initial work with a single token
-    let dip_fee: Nat64 = 420;
     let icp_fee: Nat64 = 10_000;
     // ----------------------------------------
 
@@ -122,6 +121,9 @@ actor Dex {
         // cast canisterID to token interface
         let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
 
+        // get dip20 fee
+        let dip_fee = await fetch_dip_fee(token);
+
         // remove withdrawl amount from book
         switch (remove_from_book(msg.caller,token,amount+dip_fee)){
             case(#err(#balanceLow)){
@@ -190,6 +192,14 @@ actor Dex {
                 return 0;
             };
         };
+    };
+
+    private func fetch_dip_fee(token: T.Token) : async Nat64 {
+
+        let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
+        let metadata = await dip20.getMetadata();
+
+        return Nat64.fromNat(metadata.fee);
     };
 
     public query func list_order() : async([T.Order]) {
@@ -282,6 +292,10 @@ actor Dex {
         do ? {
             // ATTENTION!!! NOT SAFE
             let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
+            
+            // get DIP fee
+            let dip_fee = await fetch_dip_fee(token);
+
             // Check DIP20 allowance for DEX
             let balance = Nat64.fromNat(await dip20.allowance(msg.caller, Principal.fromActor(Dex))) - dip_fee;
 

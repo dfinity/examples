@@ -13,7 +13,7 @@ Setup local environment. This deploys a local ledger, two DIP20 Tokens, II, and 
 
 ```bash
 git submodule update --init --recursive
-sh install.sh 
+bash install.sh 
 ```
 
 ## Development
@@ -52,8 +52,9 @@ dfx canister call ledger transfer "(record { amount = record { e8s = 1000000 }; 
 AKITA_ID=$(dfx canister --no-wallet id AkitaDIP20)
 GOLDEN_ID=$(dfx canister --no-wallet id GoldenDIP20)
 # deposit DIP. The amount that was approved
-dfx canister call defi_dapp deposit_dip "(\"$AKITA_ID\")"
-dfx canister call defi_dapp deposit_dip "(\"$GOLDEN_ID\")"
+
+dfx canister call defi_dapp deposit_dip '(principal '\"$AKITA_ID\"')'
+dfx canister call defi_dapp deposit_dip '(principal '\"$GOLDEN_ID\"')'
 # transfer ICP to DEX
 dfx canister call defi_dapp deposit_icp
 
@@ -65,12 +66,12 @@ PRINCIPAL=$(dfx identity get-principal)
 # user balance
 dfx canister --no-wallet call GoldenDIP20 balanceOf '(principal '\"$PRINCIPAL\"')'
 #user balance on DEX
-dfx canister call defi_dapp  balance "(\"$GOLDEN_ID\")"
-dfx canister call defi_dapp withdraw_dip "(\"$GOLDEN_ID\",100000)"
+dfx canister call defi_dapp  balance '(principal '\"$GOLDEN_ID\"')'
+dfx canister call defi_dapp withdraw_dip "(principal '\"$GOLDEN_ID\"',100000)"
 # user balance
 dfx canister --no-wallet call GoldenDIP20 balanceOf '(principal '\"$PRINCIPAL\"')'
 #user balance on DEX
-dfx canister call defi_dapp  balance "(\"$GOLDEN_ID\")"
+dfx canister call defi_dapp  balance '(principal '\"$GOLDEN_ID\"')'
 
 ```
 
@@ -78,11 +79,11 @@ dfx canister call defi_dapp  balance "(\"$GOLDEN_ID\")"
 
 ```bash
 # DIP tokens
-dfx canister call defi_dapp  balance "(\"$AKITA_ID\")"
-dfx canister call defi_dapp  balance "(\"$GOLDEN_ID\")"
+dfx canister call defi_dapp  balance '(principal '\"$AKITA_ID\"')'
+dfx canister call defi_dapp  balance '(principal '\"$GOLDEN_ID\"')'
 # ICP 
 ICP_ID=$(dfx canister --no-wallet id ledger)
-dfx canister call defi_dapp  balance "(\"$ICP_ID\")"
+dfx canister call defi_dapp  balance '(principal '\"$ICP_ID\"')'
 ```
 
 
