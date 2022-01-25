@@ -29,14 +29,6 @@ rm install-dfx.sh
 curl --location --output vessel-macos "https://github.com/dfinity/vessel/releases/download/v0.6.2/vessel-macos"
 mv ./vessel-macos $HOME/bin/vessel
 
-# Install Moc
-curl --location --output /tmp/motoko-macos.tar.gz "https://github.com/dfinity/motoko/releases/download/0.6.20/motoko-macos-0.6.20.tar.gz"
-gunzip motoko-macos.tar.gz
-chown -R "$(whoami)" /tmp && chmod -R +x /tmp
-mv /tmp/moc $HOME/bin/moc
-rm /tmp/motoko-macos.tar.gz
-rm /tmp/motoko-macos.tar
-
 # Install cmake
 brew install cmake
 
