@@ -30,13 +30,12 @@ curl --location --output vessel-macos "https://github.com/dfinity/vessel/release
 mv ./vessel-macos $HOME/bin/vessel
 
 # Install Moc
-curl --location --output motoko-macos.tar.gz "https://github.com/dfinity/motoko/releases/download/0.6.20/motoko-macos-0.6.20.tar.gz"
+curl --location --output /tmp/motoko-macos.tar.gz "https://github.com/dfinity/motoko/releases/download/0.6.20/motoko-macos-0.6.20.tar.gz"
 gunzip motoko-macos.tar.gz
-chown -R "$(whoami)" . && chmod -R +x .
-tar -xvf motoko-macos.tar
-mv moc $HOME/bin/moc
-rm motoko-macos.tar.gz
-rm motoko-macos.tar
+chown -R "$(whoami)" /tmp && chmod -R +x /tmp
+mv /tmp/moc $HOME/bin/moc
+rm /tmp/motoko-macos.tar.gz
+rm /tmp/motoko-macos.tar
 
 # Install cmake
 brew install cmake

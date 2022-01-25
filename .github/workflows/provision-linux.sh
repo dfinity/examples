@@ -25,13 +25,13 @@ curl --location --output vessel-linux64 "https://github.com/dfinity/vessel/relea
 mv ./vessel-linux64 $HOME/bin/vessel
 
 # Install Moc
-curl --location --output motoko-linux64.tar.gz "https://github.com/dfinity/motoko/releases/download/0.6.20/motoko-linux64-0.6.20.tar.gz"
+curl --location --output /tmp/motoko-linux64.tar.gz "https://github.com/dfinity/motoko/releases/download/0.6.20/motoko-linux64-0.6.20.tar.gz"
 gunzip motoko-linux64.tar.gz
-chown -R "$(whoami)" . && chmod -R +x .
-tar -xvf motoko-linux64.tar
-mv moc $HOME/bin/moc
-rm motoko-linux64.tar.gz
-rm motoko-linux64.tar
+chown -R "$(whoami)" /tmp && chmod -R +x /tmp
+tar -xvf ./motoko-linux64.tar
+mv /tmp/moc $HOME/bin/moc
+rm /tmp/motoko-linux64.tar.gz
+rm /tmp/motoko-linux64.tar
 
 # Install cmake
 sudo apt-get install --yes cmake
