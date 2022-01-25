@@ -1,12 +1,11 @@
 {
-  "name": "defi",
+  "name": "frontend",
   "version": "0.1.0",
-  "description": "Internet Computer defi application",
+  "description": "Example defi dapp frontend",
   "keywords": [
     "Internet Computer",
     "Rust",
     "Svelte",
-    "Defi",
     "Canister",
     "Internet Identity"
   ],
@@ -15,6 +14,6 @@
     "prebuild": "npm run copy:types",
     "dev": "cd src/frontend && npm run dev",
     "prestart": "npm run copy:types",
-    "copy:types": "rsync -avr .dfx/$(echo ${DFX_NETWORK:-'**'})/canisters/** --exclude='src/defi_assets/' --exclude='idl/' --exclude='*.wasm' --delete src/declarations"
+    "copy:types": "rsync -avr .dfx/$(echo ${DFX_NETWORK:-'**'})/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --delete src/declarations"
   }
 }

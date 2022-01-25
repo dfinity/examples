@@ -1,15 +1,27 @@
 {
   "canisters": {
-    "defi": {
-      "candid": "src/defi/defi.did",
-      "package": "defi",
+    "defi_dapp": {
+      "candid": "src/defi_dapp/defi_dapp.did",
+      "package": "defi_dapp",
       "type": "rust",
       "dependencies": ["ledger"]
     },
     "ledger": {
       "type": "custom",
-      "candid": "ledger.did",
-      "wasm": "ledger.wasm"
+      "candid": "src/ledger/ledger.did",
+      "wasm": "src/ledger/ledger.wasm"
+    },
+    "frontend" : {
+      "dependencies" : [
+        "defi_dapp"
+      ],
+      "frontend": { 
+        "entrypoint": "src/frontend/public/index.html"
+      },
+      "source" : [
+        "src/frontend/public"
+      ],
+      "type": "assets"
     },
     "AkitaDIP20": {
       "main": "src/DIP20/motoko/src/token.mo"
@@ -24,7 +36,7 @@
       "packtool": ""
     }
   },
-  "dfx": "0.8.5",
+  "dfx": "0.8.4",
   "networks": {
     "local": {
       "bind": "127.0.0.1:8000",
