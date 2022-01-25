@@ -2,7 +2,7 @@
     import { onMount } from 'svelte';
     import { Actor, HttpAgent } from "@dfinity/agent";
     import { AuthClient } from "@dfinity/auth-client";
-    import { idlFactory } from '../../../declarations/defi-dapp/defi-dapp.did.js';
+    import { idlFactory } from '../../../declarations/defi_dapp/defi_dapp.did.js';
 
     let orders = [];
     let backendActor;

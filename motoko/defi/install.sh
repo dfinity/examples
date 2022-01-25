@@ -51,7 +51,7 @@ popd
 
 ## === INSTALL FRONTEND / BACKEND ==== 
 
-dfx deploy defi-dapp
+dfx deploy defi_dapp
 
 pushd src/frontend
 npm install

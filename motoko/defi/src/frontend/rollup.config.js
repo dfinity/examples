@@ -123,11 +123,10 @@ export default {
             production ? "production" : "development"
           ),
         },
-        // replace hypens with underscore because JS does not accepts variables with hyphens
         ...Object.keys(canisterIds)
           .filter((canisterName) => canisterName !== "__Candid_UI")
           .map((canisterName) => ({
-            ["process.env." + canisterName.toUpperCase().replaceAll("-","_") + "_CANISTER_ID"]:
+            ["process.env." + canisterName.toUpperCase() + "_CANISTER_ID"]:
               JSON.stringify(canisterIds[canisterName][network]),
           }))
       )

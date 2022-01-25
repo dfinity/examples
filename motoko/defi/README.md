@@ -21,7 +21,7 @@ sh install.sh
 Reinstall backend canister
 
 ```bash
-dfx deploy defi-dapp -m reinstall
+dfx deploy defi_dapp -m reinstall
 ```
 
 Local frontend development
@@ -39,38 +39,38 @@ npm dev run
 
 ```bash
 # deploy defi app
-dfx deploy defi-dapp -m reinstall
+dfx deploy defi_dapp -m reinstall
 # set allowance on DIP20 tokens
-DEX_PRINCIPLE=$(dfx canister --no-wallet id defi-dapp)
+DEX_PRINCIPLE=$(dfx canister --no-wallet id defi_dapp)
 dfx canister --no-wallet call AkitaDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',10000000)'
 dfx canister --no-wallet call GoldenDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',10000000)'
 # get ICP deposit address (removes unnesessary comma at the end)
-ICP_DEPOSIT_ADDR=$(dfx canister call defi-dapp deposit_address |sed 's/\(.*\),/\1 /' | tr -d '\n')
+ICP_DEPOSIT_ADDR=$(dfx canister call defi_dapp deposit_address |sed 's/\(.*\),/\1 /' | tr -d '\n')
 # deposit some ICP in DEX
 dfx canister call ledger transfer "(record { amount = record { e8s = 1000000 }; to = $ICP_DEPOSIT_ADDR; fee = record { e8s = 10000}; memo = 1;})"
 # get token canister IDs
 AKITA_ID=$(dfx canister --no-wallet id AkitaDIP20)
 GOLDEN_ID=$(dfx canister --no-wallet id GoldenDIP20)
 # deposit DIP. The amount that was approved
-dfx canister call defi-dapp deposit_dip "(\"$AKITA_ID\")"
-dfx canister call defi-dapp deposit_dip "(\"$GOLDEN_ID\")"
+dfx canister call defi_dapp deposit_dip "(\"$AKITA_ID\")"
+dfx canister call defi_dapp deposit_dip "(\"$GOLDEN_ID\")"
 # transfer ICP to DEX
-dfx canister call defi-dapp deposit_icp
+dfx canister call defi_dapp deposit_icp
 
 # withdraw ICP
-dfx canister call defi-dapp withdraw_icp "(100000)"
+dfx canister call defi_dapp withdraw_icp "(100000)"
 
 # withdraw DIP 
 PRINCIPAL=$(dfx identity get-principal)
 # user balance
 dfx canister --no-wallet call GoldenDIP20 balanceOf '(principal '\"$PRINCIPAL\"')'
 #user balance on DEX
-dfx canister call defi-dapp  balance "(\"$GOLDEN_ID\")"
-dfx canister call defi-dapp withdraw_dip "(\"$GOLDEN_ID\",100000)"
+dfx canister call defi_dapp  balance "(\"$GOLDEN_ID\")"
+dfx canister call defi_dapp withdraw_dip "(\"$GOLDEN_ID\",100000)"
 # user balance
 dfx canister --no-wallet call GoldenDIP20 balanceOf '(principal '\"$PRINCIPAL\"')'
 #user balance on DEX
-dfx canister call defi-dapp  balance "(\"$GOLDEN_ID\")"
+dfx canister call defi_dapp  balance "(\"$GOLDEN_ID\")"
 
 ```
 
@@ -78,11 +78,11 @@ dfx canister call defi-dapp  balance "(\"$GOLDEN_ID\")"
 
 ```bash
 # DIP tokens
-dfx canister call defi-dapp  balance "(\"$AKITA_ID\")"
-dfx canister call defi-dapp  balance "(\"$GOLDEN_ID\")"
+dfx canister call defi_dapp  balance "(\"$AKITA_ID\")"
+dfx canister call defi_dapp  balance "(\"$GOLDEN_ID\")"
 # ICP 
 ICP_ID=$(dfx canister --no-wallet id ledger)
-dfx canister call defi-dapp  balance "(\"$ICP_ID\")"
+dfx canister call defi_dapp  balance "(\"$ICP_ID\")"
 ```
 
 
@@ -119,7 +119,7 @@ should still be in `src/DIP20/`
 
 ```bash
 #get principle ID of DEX
-DEX_PRINCIPLE=$(dfx canister --no-wallet id defi-dapp)
+DEX_PRINCIPLE=$(dfx canister --no-wallet id defi_dapp)
 # sth like this "r7inp-6aaaa-aaaaa-aaabq-cai"
 # approve dex to spend on users behalf
 HOME=$ROOT_HOME dfx canister --no-wallet call DIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',10000)'

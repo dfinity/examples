@@ -1,7 +1,7 @@
 {
   "canisters": {
-    "defi-dapp": {
-      "main": "src/defi-dapp/main.mo",
+    "defi_dapp": {
+      "main": "src/defi_dapp/main.mo",
       "dependencies": ["ledger"]
     },
     "ledger": {
@@ -11,7 +11,7 @@
     },
     "frontend" : {
       "dependencies" : [
-        "defi-dapp"
+        "defi_dapp"
       ],
       "frontend": { 
         "entrypoint": "src/frontend/public/index.html"
