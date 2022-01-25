@@ -125,11 +125,22 @@ DEX_PRINCIPLE=$(dfx canister --no-wallet id defi_dapp)
 HOME=$ROOT_HOME dfx canister --no-wallet call DIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',10000)'
 dfx canister --no-wallet call GoldenDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',1000000)'
 dfx canister --no-wallet call AkitaDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',1000000)'
-
 ``` 
 
+## Place order
 
+Buy 200 GLD tokens from 3 ICP:
+```bash
+dfx canister call defi_dapp place_order '(principal '\"$(dfx canister id ledger)\"', 3, principal '\"$(dfx canister id GoldenDIP20)\"', 200)'
+```
 
+Sell 5 AKI tokens for 2 ICP:
+```bash
+dfx canister call defi_dapp place_order '(principal '\"$(dfx canister id AkitaDIP20)\"', 5, principal '\"$(dfx canister id ledger)\"', 2)'
+```
+
+Order placement result will contain the order id
+for tracking.
 
 # Issues
 
