@@ -20,10 +20,10 @@ rm install-dfx.sh
 # Install Vessel and Alias Moc
 curl --location --output vessel-linux64 "https://github.com/dfinity/vessel/releases/download/v0.6.2/vessel-linux64"
 chown -R "$(whoami)" ./vessel-linux64 && chmod -R +x ./vessel-linux64
-gh alias set vessel $(pwd)/vessel-linux64
-gh alias set moc $(vessel bin)/moc
-gh alias set mo-doc $(vessel bin)/mo-doc
-gh alias set mo-ide $(vessel bin)/mo-ide
+gh alias set --shell vessel $(pwd)/vessel-linux64
+gh alias set --shell moc $(vessel bin)/moc
+gh alias set --shell mo-doc $(vessel bin)/mo-doc
+gh alias set --shell mo-ide $(vessel bin)/mo-ide
 
 # Install cmake
 sudo apt-get install --yes cmake
