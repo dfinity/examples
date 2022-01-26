@@ -30,10 +30,8 @@ module {
     #succeeded;
     #accepted;
   };
-  public type SubmitProposalResult = Result<Nat, Text>;
   public type Tokens = { amount_e8s : Nat };
   public type TransferArgs = { to : Principal; amount : Tokens };
-  public type TransferResult = Result<(), Text>;
   public type UpdateSystemParamsPayload = {
     transfer_fee : ?Tokens;
     proposal_vote_threshold : ?Tokens;
@@ -41,7 +39,6 @@ module {
   };
   public type Vote = { #no; #yes };
   public type VoteArgs = { vote : Vote; proposal_id : Nat };
-  public type VoteResult = Result<ProposalState, Text>;
 
   public type SystemParams = {
     transfer_fee: Tokens;
