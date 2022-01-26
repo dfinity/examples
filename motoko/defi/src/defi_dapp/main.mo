@@ -38,6 +38,7 @@ actor Dex {
     // ===== ORDER FUNCTIONS =====
     public shared(msg) func place_order(from: T.Token, fromAmount: Nat, to: T.Token, toAmount: Nat) : async T.OrderPlacementReceipt {
         let id = nextId();
+        Debug.print("");
         Debug.print("Placing order "# Nat32.toText(id) #"...");
         let owner=msg.caller;
         let submitted = Time.now();

@@ -85,7 +85,15 @@ module {
                 Debug.print("Invalid order");
             };
             print_book();
-            detect_match();
+            var m=true;
+            while(m) {
+                m:=detect_match();
+                if(m) {
+                    Debug.print("Order book after execution:");
+                    print_book();
+                }
+            };
+
         };
 
         // Print the order book in bid/ask columns.
@@ -173,7 +181,7 @@ module {
             }
         };
 
-        func detect_match() {
+        func detect_match() : Bool {
             Debug.print("Detecting orders match");
             var bids=Iter.toArray(orders_bid.vals());
             var asks=Iter.toArray(orders_ask.vals());
@@ -186,19 +194,19 @@ module {
             let it_ask = asks.vals();
 
             switch (it_bid.next()) {
-                case null return;
+                case null return false;
                 case (?bo) {
                     switch (it_ask.next()) {
-                        case null return;
+                        case null return false;
                         case (?ao) {
                             let spread = ao.price-bo.price;
                             if (spread<=0) {
                                 let price=bo.price+spread/2;
                                 Debug.print("Crossing at midspread: " # Float.toText(price));
-                                execute(bo, ao, price);
+                                return execute(bo, ao, price);
                             } else {
                                 Debug.print("No match. Spread: " # Float.toText(spread));
-                                return;
+                                return false;
                             };
                         }
                     }
@@ -208,7 +216,7 @@ module {
         };
 
         // Execute two orders with matching prices.
-        func execute(bid: T.Order, ask: T.Order, price: Float) {
+        func execute(bid: T.Order, ask: T.Order, price: Float) : Bool {
 
             // for debug.
             Debug.print("Book balances:");
@@ -217,19 +225,19 @@ module {
             // Find volume of DIP20 (min of volumes).
             var vol_dip : Nat = 0;
             if (bid.toAmount < ask.fromAmount) {
+                // complete bid order.
                 vol_dip := bid.toAmount;
             } else {
+                // complete ask order.
                 vol_dip := ask.fromAmount;
             };
             let vol_icp_int : Int = Float.toInt(Float.fromInt(vol_dip) * price);
             if(vol_icp_int < 1) {
-                Debug.print("[execution] Invalid ICP volume"); // TODO fail here.
+                Debug.print("[execution] Invalid ICP volume");
+                return false;
             };
             let vol_icp : Nat = Int.abs(vol_icp_int);
-
-            Debug.print("Executing exchange of " # Nat.toText(vol_dip) # " DIP for " # Nat.toText(vol_icp) # " ICP");
-
-            //let vol_dip = Nat.min(bid.toAmount, ask.fromAmount);
+            Debug.print("Executing exchange of " # Nat.toText(vol_dip) # " DIP for " # Nat.toText(vol_icp) # " ICP (price " # Float.toText(price) # " icp per dip)" );
 
             // we transfer the icp from bid to ask and the dip from ask to bid.
             switch (book.remove_tokens(bid.owner, bid.from, vol_icp)) {
@@ -245,22 +253,64 @@ module {
                                 Debug.print("Bid order complete");
                                 let r=orders_bid.remove(bid.id);
                             } else {
-                                Debug.print("Bid order partial");
-                                // TODO
+                                Debug.print("Bid order partially executed");
+                                switch (orders_bid.remove(bid.id)) {
+                                    case null return false; // TODO handle error
+                                    case (?r) {
+                                        Debug.print("updating bid order " # Nat32.toText(r.id));
+                                        let remainingToAmount : Nat = r.toAmount - vol_dip;
+                                        //let remainingFromAmount : Nat = r.fromAmount - vol_icp;
+                                        // reduced proportionally to the reduction in amount.
+                                        let remainingFromAmount : Nat = Int.abs(Float.toInt(1/price * Float.fromInt(remainingToAmount)));
+                                        let order : T.Order = {
+                                            id = r.id;
+                                            owner = r.owner;
+                                            from = r.from;
+                                            fromAmount = remainingFromAmount;
+                                            to = r.to;
+                                            toAmount = remainingToAmount;
+                                            dip_symbol = r.dip_symbol;
+                                            submitted = r.submitted;
+                                            price = r.price;
+                                        };
+                                        orders_bid.put(r.id, order);
+                                    }
+                                }
                             };
                             if(ask.fromAmount == vol_dip) {
                                 // ask complete.
                                 Debug.print("Ask order complete");
                                 let r=orders_ask.remove(ask.id);
                             } else {
-                                Debug.print("Ask order partial");
-                                // TODO
+                                Debug.print("Ask order partially executed");
+                                switch (orders_ask.remove(ask.id)) {
+                                    case null return false; // TODO handle error
+                                    case (?r) {
+                                        Debug.print("updating ask order " # Nat32.toText(r.id));
+                                        let remainingFromAmount : Nat = r.fromAmount - vol_dip;
+                                        // reduced proportionally to the reduction in amount.
+                                        let remainingToAmount : Nat = Int.abs(Float.toInt(price * Float.fromInt(remainingFromAmount)));
+                                        let order : T.Order = {
+                                            id = r.id;
+                                            owner = r.owner;
+                                            from = r.from;
+                                            fromAmount = remainingFromAmount;
+                                            to = r.to;
+                                            toAmount = remainingToAmount;
+                                            dip_symbol = r.dip_symbol;
+                                            submitted = r.submitted;
+                                            price = r.price;
+                                        };
+                                        orders_ask.put(r.id, order);
+                                    }
+                                }
                             };
+                            return true;
                         };
-                        case null {}
+                        case null return false;
                     }
                 };
-                case null {}
+                case null return false;
             }
         }
 

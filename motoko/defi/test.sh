@@ -29,4 +29,10 @@ place_order $GLD 10000 $ICP 5000
 place_order $GLD 10000 $ICP 6000
 
 # trigger transaction
-place_order $GLD 10000 $ICP 2500
+place_order $ICP 2000 $GLD 2500
+
+# partial order execution while selling (filling two orders and half of the last one).
+place_order $GLD 25000 $ICP 2500
+
+# partial order execution while buying
+place_order $ICP 12000 $GLD 20000
