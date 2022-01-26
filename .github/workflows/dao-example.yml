@@ -1,4 +1,4 @@
-name: hello-example
+name: dao-example
 on:
   push:
     branches:
