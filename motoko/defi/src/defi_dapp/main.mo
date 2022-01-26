@@ -1,6 +1,7 @@
 import Array "mo:base/Array";
 import Buffer "mo:base/Buffer";
 import Debug "mo:base/Debug";
+import Float "mo:base/Float";
 import Int "mo:base/Int";
 import Int64 "mo:base/Int64";
 import Iter "mo:base/Iter";
@@ -26,56 +27,55 @@ actor Dex {
     // TODO: Sort out fees
     let icp_fee: Nat = 10_000;
 
-    stable var orders_stable : [(T.OrderId,T.Order)] = [];
+    stable var orders_stable : [T.Order] = [];
     stable var lastId : Nat32 = 0;
-    var exchanges = M.HashMap<T.Token, E.Exchange>(10, Principal.equal, Principal.hash);
+    var exchanges = M.HashMap<T.Symbol, E.Exchange>(10, Text.equal, Text.hash);
 
     // User balance datastructure
     private var book = B.Book();
-    private stable var upgradeMap : [var (Principal, [(T.Token, Nat)])] = [var];
-
-
-    let orders = M.fromIter<T.OrderId,T.Order>(
-        orders_stable.vals(),10, Nat32.equal, func(v) {v}
-    );
-
+    private stable var book_stable : [var (Principal, [(T.Token, Nat)])] = [var];
 
     // ===== ORDER FUNCTIONS =====
     public shared(msg) func place_order(from: T.Token, fromAmount: Nat, to: T.Token, toAmount: Nat) : async T.OrderPlacementReceipt {
         let id = nextId();
         Debug.print("Placing order "# Nat32.toText(id) #"...");
         let owner=msg.caller;
-        let order : T.Order = {
-            id;
-            owner;
-            from;
-            fromAmount;
-            to;
-            toAmount;
-        };
+        let submitted = Time.now();
+        var price : Float = -1;
 
-        // Find or create the exchange.
+        // Find dip token and symbol.
         var dip : ?T.Token = null;
         if(from==E.ledger()) {
             dip := ?to;
+            price := Float.fromInt(fromAmount) / Float.fromInt(toAmount);
         } else if(to==E.ledger()) {
             dip := ?from;
+            price := Float.fromInt(toAmount) / Float.fromInt(fromAmount);
         } else {
             Debug.print("Order must be from or to ICP.");
         };
 
-        orders.put(id, order);
-
         switch(dip) {
             case (?dip_token) {
-                let exchange = switch (exchanges.get(dip_token)) {
+                let dip_symbol = await symbol(dip_token);
+                let exchange = switch (exchanges.get(dip_symbol)) {
                     case null {
-                        let dip_symbol = await symbol(dip_token);
                         let exchange : E.Exchange = E.Exchange(dip_token, dip_symbol, book);
-                        exchanges.put(dip_token,exchange);
+                        exchanges.put(dip_symbol,exchange);
                         exchange
                     };
                     case (?e) e
+                };
+                let order : T.Order = {
+                    id;
+                    owner;
+                    from;
+                    fromAmount;
+                    to;
+                    toAmount;
+                    dip_symbol;
+                    submitted;
+                    price;
                 };
                 exchange.addOrder(order);
                 #Ok(order)
@@ -88,29 +88,44 @@ actor Dex {
 
     public shared(msg) func cancel_order(order_id: T.OrderId) : async T.CancelOrderReceipt {
         Debug.print("Cancelling order "# Nat32.toText(order_id) #"...");
-        switch (orders.get(order_id)) {
-            case null
-                return #Err(#NotExistingOrder);
-            case (?order)
-                if(order.owner != msg.caller) {
-                    #Err(#NotAllowed)
-                } else {
-                    orders.delete(order_id);
-                    #Ok(order_id)
-                }
+        for(e in exchanges.vals()) {
+            switch (e.getOrder(order_id)) {
+                case (?order)
+                    if(order.owner != msg.caller) {
+                        return #Err(#NotAllowed);
+                    } else {
+                        let canceled=e.cancelOrder(order_id);
+                        return #Ok(order_id);
+                    };
+                case null {}
+            };
         };
+        return #Err(#NotExistingOrder);
     };
 
     public func check_order(order_id: T.OrderId) : async(?T.Order) {
         Debug.print("Checking order "# Nat32.toText(order_id) #"...");
-        orders.get(order_id);
+        //orders.get(order_id);
+        for(e in exchanges.vals()) {
+            switch (e.getOrder(order_id)) {
+                case (?order) return ?order;
+                case null {}
+            };
+        };
+        null;
     };
 
     public query func list_order() : async([T.Order]) {
         Debug.print("List orders...");
-        let buff : Buffer.Buffer<T.Order> = Buffer.Buffer(orders.size());
-        for (o in orders.vals()) {
-            buff.add(o);
+        getAllOrders()
+    };
+
+    private func getAllOrders() : [T.Order] {
+        let buff : Buffer.Buffer<T.Order> = Buffer.Buffer(10);
+        for(e in exchanges.vals()) {
+            for(o in e.getOrders().vals()) {
+                buff.add(o);
+            };
         };
         buff.toArray();
     };
@@ -323,24 +338,39 @@ actor Dex {
     // Required since maps cannot be stable and need to be moved to stable memory
     // Before canister upgrade book hashmap gets stored in stable memory such that it survives updates
     system func preupgrade() {
-        upgradeMap := Array.init(book.size(), (Principal.fromText(""), []));
+        book_stable := Array.init(book.size(), (Principal.fromText(""), []));
         var i = 0;
         for ((x, y) in book.entries()) {
-            upgradeMap[i] := (x, Iter.toArray(y.entries()));
+            book_stable[i] := (x, Iter.toArray(y.entries()));
             i += 1;
         };
-        orders_stable := Iter.toArray(orders.entries());
+        orders_stable := getAllOrders();
     };
+
     // After canister upgrade book map gets reconstructed from stable array
     system func postupgrade() {
-        for ((key: Principal, value: [(T.Token, Nat)]) in upgradeMap.vals()) {
+        // Reload book.
+        for ((key: Principal, value: [(T.Token, Nat)]) in book_stable.vals()) {
             let tmp: M.HashMap<T.Token, Nat> = M.fromIter<T.Token, Nat>(Iter.fromArray<(T.Token, Nat)>(value), 10, Principal.equal, Principal.hash);
             book.put(key, tmp);
         };
-        upgradeMap := [var];
+        // TODO Reload exchanges (find solution for async symbol retrieving).
+        for(o in orders_stable.vals()) {
+            let exchange = switch (exchanges.get(o.dip_symbol)) {
+                case null {
+                    let dip_token = if(o.from==E.ledger()) { o.to } else { o.from };
+                    let exchange : E.Exchange = E.Exchange(dip_token, o.dip_symbol, book);
+                    exchanges.put(o.dip_symbol,exchange);
+                    exchange
+                };
+                case (?e) e
+            };
+            exchange.addOrder(o);
+        };
+
+        // Clean stable memory.
+        book_stable := [var];
         orders_stable := [];
-        // TODO reload exchanges (find solution for async symbol retrieving).
-        //exchange := E.Exchange(dip_tokens);
     };
 
 }

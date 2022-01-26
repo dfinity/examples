@@ -6,6 +6,7 @@ module {
     public type Token = Principal;
 
     public type OrderId = Nat32;
+    public type Symbol = Text;
 
     public type Order = {
         id: OrderId;
@@ -14,6 +15,9 @@ module {
         fromAmount: Nat;
         to: Token;
         toAmount: Nat;
+        dip_symbol: Symbol;
+        submitted: Time.Time;
+        price: Float;
     };
     
     // ledger types

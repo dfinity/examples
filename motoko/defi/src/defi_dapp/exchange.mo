@@ -4,7 +4,10 @@ import Debug "mo:base/Debug";
 import Float "mo:base/Float";
 import Iter "mo:base/Iter";
 import L "mo:base/List";
+import M "mo:base/HashMap";
 import Nat "mo:base/Nat";
+import Nat32 "mo:base/Nat32";
+import Order "mo:base/Order";
 import Principal "mo:base/Principal";
 import RBTree "mo:base/RBTree";
 
@@ -24,43 +27,54 @@ module {
         // The implicit pair will be dip/ICP (to have the price of a dip in ICP), therefore:
         // bid is for buying dip (ie selling ICP).
         // ask is for selling dip (ie buying ICP).
-        var bid = RBTree.RBTree<Float,B.Buffer<T.Order>>(Float.compare);
-        var ask = RBTree.RBTree<Float,B.Buffer<T.Order>>(Float.compare);
+        //var bid = RBTree.RBTree<Float,B.Buffer<T.Order>>(Float.compare);
+        //var ask = RBTree.RBTree<Float,B.Buffer<T.Order>>(Float.compare);
+
+        var orders_bid = M.HashMap<T.OrderId, T.Order>(10, func(x,y){x > y}, func(x) {x});
+        var orders_ask = M.HashMap<T.OrderId, T.Order>(10, func(x,y){x > y}, func(x) {x});
+
+        public func getOrder(id: T.OrderId) : ?T.Order {
+            var r = orders_bid.get(id);
+            if(r==null) {
+                r := orders_ask.get(id);
+            };
+            r
+        };
+
+        public func getOrders() : [T.Order] {
+            Debug.print("List orders on exchange ..." # symbol);
+            let buff : B.Buffer<T.Order> = B.Buffer(10);
+            for (o in orders_bid.vals()) {
+                buff.add(o);
+            };
+            for (o in orders_ask.vals()) {
+                buff.add(o);
+            };
+            buff.toArray();
+        };
+
+        public func cancelOrder(id: T.OrderId) : ?T.Order {
+            var r = orders_bid.remove(id);
+            if(r==null) {
+                r := orders_ask.remove(id);
+            };
+            r
+        };
 
         public func addOrders(orders: [T.Order]) {
             for(o in orders.vals()) {
                 addOrder(o);
+
             }
         };
 
         public func addOrder(o: T.Order) {
             if(o.from == ledger()) {
                 // convert ICP to token.
-                let price : Float = Float.fromInt(o.fromAmount) / Float.fromInt(o.toAmount);
-                switch (bid.get(price)) {
-                    case null {
-                        let b = B.Buffer<T.Order>(1);
-                        b.add(o);
-                        bid.put(price, b);
-                    };
-                    case (?b) {
-                        b.add(o);
-                    };
-                };
-
+                orders_bid.put(o.id, o);
             } else if (o.to == ledger()) {
                 // convert token to ICP.
-                let price : Float = Float.fromInt(o.toAmount) / Float.fromInt(o.fromAmount);
-                switch(ask.get(price)) {
-                   case null {
-                       let b = B.Buffer<T.Order>(1);
-                       b.add(o);
-                       ask.put(price, b);
-                   };
-                   case (?b) {
-                        b.add(o);
-                   };
-                };
+                orders_ask.put(o.id, o);
             } else {
                 // TODO handle invalid order (already filtered in main but still need proper error msg here).
                 Debug.print("Invalid order");
@@ -69,16 +83,40 @@ module {
             detect_match();
         };
 
+        // Print the order book in bid/ask columns.
         // For debug only.
         func print_book() {
-            Debug.print("======= " # symbol # " / ICP =======");
-            Debug.print("=== BID === | === ASK ===");
+            var bid = RBTree.RBTree<Float,B.Buffer<T.Order>>(Float.compare);
+            var ask = RBTree.RBTree<Float,B.Buffer<T.Order>>(Float.compare);
+            for(o in orders_bid.vals()) {
+                switch (bid.get(o.price)) {
+                    case null {
+                        let b = B.Buffer<T.Order>(1);
+                        b.add(o);
+                        bid.put(o.price, b);
+                    };
+                    case (?b) b.add(o);
+                };
+            };
+            for(o in orders_ask.vals()) {
+                switch(ask.get(o.price)) {
+                   case null {
+                       let b = B.Buffer<T.Order>(1);
+                       b.add(o);
+                       ask.put(o.price, b);
+                   };
+                   case (?b) b.add(o);
+                };
+            };
 
             let nb_bid = Iter.size(bid.entries());
             let nb_ask = Iter.size(ask.entries());
 
             let it_bid = bid.entriesRev();
             let it_ask = ask.entries();
+
+            Debug.print("======= " # symbol # " / ICP =======");
+            Debug.print("=== BID === | === ASK ===");
             var i = 0;
             while (i < nb_bid or i < nb_ask) {
                 let sb = switch(it_bid.next()) {
@@ -90,7 +128,6 @@ module {
                     case (?(p,o)) Float.toText(p) # " " # Nat.toText(sum_ask_orders(o))
                 };
                 Debug.print(sb # " | " # sa);
-
                 i+=1;
             };
 
@@ -112,22 +149,49 @@ module {
             nb;
         };
 
+        private func asc(o1: T.Order, o2: T.Order) : Order.Order {
+            if(o1.price < o2.price) {
+                #less
+            } else if(o1.price > o2.price) {
+                #greater
+            } else {
+                #equal
+            }
+        };
+
+        private func dsc(o1: T.Order, o2: T.Order) : Order.Order {
+            if(o1.price < o2.price) {
+                #greater
+            } else if(o1.price > o2.price) {
+                #less
+            } else {
+                #equal
+            }
+        };
+
         func detect_match() {
             Debug.print("Detecting orders match");
-            let it_bid = bid.entriesRev();
-            let it_ask = ask.entries();
+            var bids=Iter.toArray(orders_bid.vals());
+            var asks=Iter.toArray(orders_ask.vals());
+            bids := Array.sort(bids,dsc);
+            asks := Array.sort(asks,asc);
+
+            //let it_bid = bid.entriesRev();
+            //let it_ask = ask.entries();
+            let it_bid = bids.vals();
+            let it_ask = asks.vals();
 
             switch (it_bid.next()) {
                 case null return;
-                case (?(bp,bo))
+                case (?bo)
                     switch (it_ask.next()) {
                         case null return;
-                        case (?(ap,ao)) {
-                            let spread = ap-bp;
+                        case (?ao) {
+                            let spread = ao.price-bo.price;
                             if (spread<=0) {
-                                let price=bp+spread/2;
+                                let price=bo.price+spread/2;
                                 Debug.print("Crossing at midspread: " # Float.toText(price));
-                                execute(bo.get(0), ao.get(0), price);
+                                execute(bo, ao, price);
                             } else {
                                 Debug.print("No match. Spread: " # Float.toText(spread));
                                 return;
@@ -170,6 +234,7 @@ module {
                                     // Numbers match, adding tokens.
                                     book.add_tokens(bid.owner, bid.to, vol_dip);
                                     book.add_tokens(ask.owner, ask.to, vol_icp);
+                                    // TODO remove executed orders.
                                 }
                             };
                             case null {}
