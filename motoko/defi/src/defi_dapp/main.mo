@@ -55,6 +55,8 @@ actor Dex {
             Debug.print("Order must be from or to ICP.");
         };
 
+        // TODO check if user balance in book is enough before creating the order.
+
         switch(dip) {
             case (?dip_token) {
                 let dip_symbol = await symbol(dip_token);
@@ -83,6 +85,12 @@ actor Dex {
             case null {
                 #Err(#InvalidOrder)
             };
+        }
+    };
+
+    public shared(msg) func cancel_all_orders() : async ()  {
+        for(o in getAllOrders().vals()) {
+            let r=cancel_order(o.id);
         }
     };
 
@@ -355,6 +363,7 @@ actor Dex {
             let tmp: M.HashMap<T.Token, Nat> = M.fromIter<T.Token, Nat>(Iter.fromArray<(T.Token, Nat)>(value), 10, Principal.equal, Principal.hash);
             book.put(key, tmp);
         };
+
         // TODO Reload exchanges (find solution for async symbol retrieving).
         for(o in orders_stable.vals()) {
             let exchange = switch (exchanges.get(o.dip_symbol)) {

@@ -2,11 +2,13 @@ import Array "mo:base/Array";
 import B "mo:base/Buffer";
 import Debug "mo:base/Debug";
 import Float "mo:base/Float";
+import Int "mo:base/Int";
 import Iter "mo:base/Iter";
 import L "mo:base/List";
 import M "mo:base/HashMap";
 import Nat "mo:base/Nat";
 import Nat32 "mo:base/Nat32";
+import Nat64 "mo:base/Nat64";
 import Order "mo:base/Order";
 import Principal "mo:base/Principal";
 import RBTree "mo:base/RBTree";
@@ -45,7 +47,7 @@ module {
         };
 
         public func getOrders() : [T.Order] {
-            Debug.print("List orders on exchange ..." # symbol);
+            Debug.print("List orders on exchange " # symbol);
             let buff : B.Buffer<T.Order> = B.Buffer(10);
             for (o in orders_bid.vals()) {
                 buff.add(o);
@@ -204,43 +206,54 @@ module {
             // TODO continue matching
         };
 
+        // Execute two orders with matching prices.
         func execute(bid: T.Order, ask: T.Order, price: Float) {
-            // TODO
-            // Find volume of DIP20.
+
+            // for debug.
+            Debug.print("Book balances:");
+            book.print_balances();
+
+            // Find volume of DIP20 (min of volumes).
             var vol_dip : Nat = 0;
-            var vol_icp : Nat = 0;
             if (bid.toAmount < ask.fromAmount) {
                 vol_dip := bid.toAmount;
-                vol_icp := bid.fromAmount;
             } else {
                 vol_dip := ask.fromAmount;
-                vol_icp := ask.toAmount;
             };
+            let vol_icp_int : Int = Float.toInt(Float.fromInt(vol_dip) * price);
+            if(vol_icp_int < 1) {
+                Debug.print("[execution] Invalid ICP volume"); // TODO fail here.
+            };
+            let vol_icp : Nat = Int.abs(vol_icp_int);
+
             Debug.print("Executing exchange of " # Nat.toText(vol_dip) # " DIP for " # Nat.toText(vol_icp) # " ICP");
 
             //let vol_dip = Nat.min(bid.toAmount, ask.fromAmount);
 
             // we transfer the icp from bid to ask and the dip from ask to bid.
             switch (book.remove_tokens(bid.owner, bid.from, vol_icp)) {
-                case (?icp) {
-                    if(icp!=vol_icp) {
-                        Debug.print("Invalid volume of ICP transferred, rollbacking...");
-                        // TODO rollback
-                    } else {
-                        switch (book.remove_tokens(ask.owner, ask.from, vol_dip)) {
-                            case (?dip) {
-                                if(dip!=vol_dip) {
-                                    Debug.print("Invalid volume of DIP transferred, rollbacking...");
-                                    // TODO rollback
-                                } else {
-                                    // Numbers match, adding tokens.
-                                    book.add_tokens(bid.owner, bid.to, vol_dip);
-                                    book.add_tokens(ask.owner, ask.to, vol_icp);
-                                    // TODO remove executed orders.
-                                }
+                case (?new_icp_balance) {
+                    switch (book.remove_tokens(ask.owner, ask.from, vol_dip)) {
+                        case (?new_dip_balance) {
+                            // Numbers match, adding tokens.
+                            book.add_tokens(bid.owner, bid.to, vol_dip);
+                            book.add_tokens(ask.owner, ask.to, vol_icp);
+                            // TODO remove executed orders.
+                            // Check if orders were complete or partial.
+                            if(bid.toAmount == vol_dip) {
+                                // bid complete.
+                                Debug.print("Bid order complete");
+                            } else {
+                                Debug.print("Bid order partial");
                             };
-                            case null {}
-                        }
+                            if(ask.fromAmount == vol_dip) {
+                                // ask complete.
+                                Debug.print("Ask order complete");
+                            } else {
+                                Debug.print("Ask order partial");
+                            };
+                        };
+                        case null {}
                     }
                 };
                 case null {}

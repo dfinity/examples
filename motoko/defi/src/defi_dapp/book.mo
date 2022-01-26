@@ -29,14 +29,12 @@ module {
             book.size()
         };
 
-
         // For development only.
         public func print_balances(){
             for ((x, y) in book.entries()) {
                 Debug.print( debug_show("PRINCIPAL: ", x));
-                var i=0;
                 for ((key: T.Token, value: Nat) in y.entries()) {
-                    Debug.print( debug_show("Balance: ", i, "Token: ", key, " amount: ",value));
+                    Debug.print( debug_show("Balance: Token: ", key, " amount: ",value));
                 };
             };
         };
@@ -67,6 +65,7 @@ module {
             };
         };
 
+        // return the new balance.
         public func remove_tokens(user: Principal, token: T.Token, amount: Nat) : ?Nat {
             switch (book.get(user)) {
                 case (?token_balance) {
