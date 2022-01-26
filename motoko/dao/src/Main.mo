@@ -25,11 +25,12 @@ shared(install) actor class DAO(init : ?Types.SystemParams) = Self {
         switch (Trie.get(accounts, Types.account_key caller, Principal.equal)) {
         case null { #err "Caller needs an account to transfer funds" };
         case (?from_tokens) {
+                 let fee = system_params.transfer_fee.amount_e8s;
                  let amount = transfer.amount.amount_e8s;
-                 if (from_tokens.amount_e8s < amount) {
+                 if (from_tokens.amount_e8s < amount + fee) {
                      #err ("Caller's account has insufficient funds to transfer " # debug_show(amount));
                  } else {
-                     let from_amount : Nat = from_tokens.amount_e8s - amount;
+                     let from_amount : Nat = from_tokens.amount_e8s - amount - fee;
                      accounts := Trie.put(accounts, Types.account_key(caller), Principal.equal, { amount_e8s = from_amount }).0;
                      let to_amount = Option.get(Trie.get(accounts, Types.account_key(transfer.to), Principal.equal), Types.zeroToken).amount_e8s + amount;
                      accounts := Trie.put(accounts, Types.account_key(transfer.to), Principal.equal, { amount_e8s = to_amount }).0;
