@@ -1,5 +1,0 @@
-#V2
-call "rno2w-sqaaa-aaaaa-aaacq-cai".account_balance
-call "rno2w-sqaaa-aaaaa-aaacq-cai".account_balance()
-assert _.amount_e8s == 0 : nat
-assert _.amount_e8s == (0 : nat)
