@@ -94,8 +94,10 @@ actor Dex {
                     if(order.owner != msg.caller) {
                         return #Err(#NotAllowed);
                     } else {
-                        let canceled=e.cancelOrder(order_id);
-                        return #Ok(order_id);
+                        switch (e.cancelOrder(order_id)) {
+                            case (?canceled) return #Ok(canceled.id);
+                            case null return #Err(#InternalError)
+                        }
                     };
                 case null {}
             };
@@ -105,7 +107,6 @@ actor Dex {
 
     public func check_order(order_id: T.OrderId) : async(?T.Order) {
         Debug.print("Checking order "# Nat32.toText(order_id) #"...");
-        //orders.get(order_id);
         for(e in exchanges.vals()) {
             switch (e.getOrder(order_id)) {
                 case (?order) return ?order;
@@ -130,7 +131,7 @@ actor Dex {
         buff.toArray();
     };
 
-    func nextId() : Nat32 {
+    private func nextId() : Nat32 {
         lastId += 1;
         lastId;
     };

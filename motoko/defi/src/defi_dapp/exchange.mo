@@ -27,18 +27,21 @@ module {
         // The implicit pair will be dip/ICP (to have the price of a dip in ICP), therefore:
         // bid is for buying dip (ie selling ICP).
         // ask is for selling dip (ie buying ICP).
-        //var bid = RBTree.RBTree<Float,B.Buffer<T.Order>>(Float.compare);
-        //var ask = RBTree.RBTree<Float,B.Buffer<T.Order>>(Float.compare);
+        let orders_bid = M.HashMap<T.OrderId, T.Order>(10, func(x,y){x == y}, func(x) {x});
+        let orders_ask = M.HashMap<T.OrderId, T.Order>(10, func(x,y){x == y}, func(x) {x});
 
-        var orders_bid = M.HashMap<T.OrderId, T.Order>(10, func(x,y){x > y}, func(x) {x});
-        var orders_ask = M.HashMap<T.OrderId, T.Order>(10, func(x,y){x > y}, func(x) {x});
+        public func getSymbol() : Text { symbol };
 
         public func getOrder(id: T.OrderId) : ?T.Order {
-            var r = orders_bid.get(id);
-            if(r==null) {
-                r := orders_ask.get(id);
-            };
-            r
+            switch (orders_bid.get(id)) {
+                case (?bid) ?bid;
+                case null {
+                    switch(orders_ask.get(id)) {
+                        case(?ask) ?ask;
+                        case null null
+                    }
+                }
+            }
         };
 
         public func getOrders() : [T.Order] {
@@ -53,6 +56,7 @@ module {
             buff.toArray();
         };
 
+        // Cancel order WITHOUT verifying ownership.
         public func cancelOrder(id: T.OrderId) : ?T.Order {
             var r = orders_bid.remove(id);
             if(r==null) {
@@ -64,7 +68,6 @@ module {
         public func addOrders(orders: [T.Order]) {
             for(o in orders.vals()) {
                 addOrder(o);
-
             }
         };
 
@@ -86,8 +89,8 @@ module {
         // Print the order book in bid/ask columns.
         // For debug only.
         func print_book() {
-            var bid = RBTree.RBTree<Float,B.Buffer<T.Order>>(Float.compare);
-            var ask = RBTree.RBTree<Float,B.Buffer<T.Order>>(Float.compare);
+            let bid = RBTree.RBTree<Float,B.Buffer<T.Order>>(Float.compare);
+            let ask = RBTree.RBTree<Float,B.Buffer<T.Order>>(Float.compare);
             for(o in orders_bid.vals()) {
                 switch (bid.get(o.price)) {
                     case null {
@@ -111,7 +114,6 @@ module {
 
             let nb_bid = Iter.size(bid.entries());
             let nb_ask = Iter.size(ask.entries());
-
             let it_bid = bid.entriesRev();
             let it_ask = ask.entries();
 

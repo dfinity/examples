@@ -93,6 +93,7 @@ module {
         #Err: {
             #NotExistingOrder;
             #NotAllowed;
+            #InternalError
         };
     };
     public type WithdrawReceipt = {
