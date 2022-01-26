@@ -266,7 +266,7 @@ actor Dex {
         let dip_fee = await fetch_dip_fee(token);
 
         // Check DIP20 allowance for DEX
-        let balance : Nat = (await dip20.allowance(caller, Principal.fromActor(Dex))) - dip_fee;
+        let balance : Nat = (await dip20.allowance(caller, Principal.fromActor(Dex)));
 
         // Transfer to account.
         let token_reciept = if (balance > dip_fee) {
