@@ -15,6 +15,11 @@ shared(install) actor class DAO(init : ?Types.SystemParams) = Self {
     stable var next_proposal_id : Nat = 0;
     stable var system_params : Types.SystemParams = Option.get(init, Types.defaultSystemParams);
 
+    system func heartbeat() : async () {
+        await execute_accepted_proposals();
+        await remove_expired_proposals();
+    };
+
     /// Transfer tokens from the caller's account to another account
     public shared({caller}) func transfer(transfer: Types.TransferArgs) : async Types.Result<(), Text> {
         switch (Trie.get(accounts, Types.account_key caller, Principal.equal)) {
@@ -163,5 +168,45 @@ shared(install) actor class DAO(init : ?Types.SystemParams) = Self {
                  };
              };
         };
+    };
+
+    /// Execute all accepted proposals
+    func execute_accepted_proposals() : async () {
+        let accepted_proposals = Trie.filter(proposals, func (_ : Nat, proposal : Types.Proposal) : Bool = proposal.state == #accepted);
+        // Update proposal state, so that it won't be picked up by the next heartbeat
+        for ((id, proposal) in Trie.iter(accepted_proposals)) {
+            update_proposal_state(proposal, #executing);
+        };
+
+        for ((id, proposal) in Trie.iter(accepted_proposals)) {
+            switch (await execute_proposal(proposal)) {
+            case (#ok) { update_proposal_state(proposal, #succeeded); };
+            case (#err(err)) { update_proposal_state(proposal, #failed(err)); };
+            };
+        };
+    };
+
+    /// Execute the given proposal
+    func execute_proposal(proposal: Types.Proposal) : async Types.Result<(), Text> {
+        // unimplemented until raw call is supported
+        #ok
+    };
+
+    /// Remove expired proposals
+    func remove_expired_proposals() : async () {
+    };
+
+    func update_proposal_state(proposal: Types.Proposal, state: Types.ProposalState) {
+        let updated = {
+            state;
+            id = proposal.id;
+            votes_yes = proposal.votes_yes;
+            votes_no = proposal.votes_no;
+            voters = proposal.voters;
+            timestamp = proposal.timestamp;
+            proposer = proposal.proposer;
+            payload = proposal.payload;
+        };
+        proposals := Trie.put(proposals, Types.proposal_key(proposal.id), Nat.equal, updated).0;
     };
 };
