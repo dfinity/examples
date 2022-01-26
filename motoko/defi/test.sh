@@ -2,25 +2,31 @@
 echo "~~~ Running DeFi test script ~~~"
 
 # Canister principals
+DEX=$(dfx canister id defi_dapp)
 ICP=$(dfx canister id ledger)
 AKI=$(dfx canister id AkitaDIP20)
 GLD=$(dfx canister id GoldenDIP20)
 
-#dfx canister install defi_dapp --mode reinstall
-#dfx canister call defi_dapp place_order '(principal '\"$(dfx canister id ledger)\"', 10, principal '\"$(dfx canister id GoldenDIP20)\"', 120)'
 #dfx canister call defi_dapp place_order '(principal '\"$(dfx canister id ledger)\"', 10, principal '\"$(dfx canister id GoldenDIP20)\"', 130)'
-#dfx canister call defi_dapp place_order '(principal '\"$(dfx canister id ledger)\"', 10, principal '\"$(dfx canister id GoldenDIP20)\"', 140)'
+#dfx canister call defi_dapp place_order '(principal '\"$(dfx canister id ledger)\"', 10, principal '\"$(dfx canister id AkitaDIP20)\"', 130)'
 
 function place_order {
   dfx canister call defi_dapp place_order '(principal '\"$1\"', '$2', principal '\"$3\"', '$4')'
 }
 
-#Fill book with orders
-place_order $ICP 10 $GLD 140
-place_order $ICP 10 $GLD 130
-place_order $ICP 10 $GLD 120
+#echo "Cancelling all standing orders..."
+#dfx canister call defi_dapp cancel_all_orders
+# => re-install instead: dfx canister install defi_dapp --mode reinstall
 
-place_order $GLD 150 $ICP 10
-place_order $GLD 160 $ICP 10
-place_order $GLD 170 $ICP 10
+# Fill book with orders
+# Bid
+place_order $ICP 3000 $GLD 10000
+place_order $ICP 2000 $GLD 10000
+place_order $ICP 1000 $GLD 10000
+# Ask
+place_order $GLD 10000 $ICP 4000
+place_order $GLD 10000 $ICP 5000
+place_order $GLD 10000 $ICP 6000
 
+# trigger transaction
+place_order $GLD 10000 $ICP 2500

@@ -187,7 +187,7 @@ module {
 
             switch (it_bid.next()) {
                 case null return;
-                case (?bo)
+                case (?bo) {
                     switch (it_ask.next()) {
                         case null return;
                         case (?ao) {
@@ -202,6 +202,7 @@ module {
                             };
                         }
                     }
+                }
             }
             // TODO continue matching
         };
@@ -238,19 +239,22 @@ module {
                             // Numbers match, adding tokens.
                             book.add_tokens(bid.owner, bid.to, vol_dip);
                             book.add_tokens(ask.owner, ask.to, vol_icp);
-                            // TODO remove executed orders.
+                            // Remove/update executed orders.
                             // Check if orders were complete or partial.
                             if(bid.toAmount == vol_dip) {
-                                // bid complete.
                                 Debug.print("Bid order complete");
+                                let r=orders_bid.remove(bid.id);
                             } else {
                                 Debug.print("Bid order partial");
+                                // TODO
                             };
                             if(ask.fromAmount == vol_dip) {
                                 // ask complete.
                                 Debug.print("Ask order complete");
+                                let r=orders_ask.remove(ask.id);
                             } else {
                                 Debug.print("Ask order partial");
+                                // TODO
                             };
                         };
                         case null {}
