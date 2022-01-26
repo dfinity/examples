@@ -6,14 +6,18 @@ export type DepositReceipt = { 'Ok' : bigint } |
 export interface Order {
   'id' : OrderId,
   'to' : Token,
+  'dip_symbol' : string,
   'fromAmount' : bigint,
+  'submitted' : Time,
   'owner' : Principal,
   'from' : Token,
+  'price' : number,
   'toAmount' : bigint,
 }
 export type OrderId = number;
 export type OrderPlacementReceipt = { 'Ok' : Order } |
   { 'Err' : { 'InvalidOrder' : null } | { 'OrderBookFull' : null } };
+export type Time = bigint;
 export type Token = Principal;
 export type WithdrawReceipt = { 'Ok' : bigint } |
   { 'Err' : { 'TransferFailure' : null } | { 'BalanceLow' : null } };

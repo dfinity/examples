@@ -7,6 +7,7 @@ type WithdrawReceipt =
    Ok: nat;
  };
 type Token = principal;
+type Time = int;
 type OrderPlacementReceipt = 
  variant {
    Err: variant {
@@ -18,10 +19,13 @@ type OrderPlacementReceipt =
 type OrderId = nat32;
 type Order = 
  record {
+   dip_symbol: text;
    from: Token;
    fromAmount: nat;
    id: OrderId;
    owner: principal;
+   price: float64;
+   submitted: Time;
    to: Token;
    toAmount: nat;
  };

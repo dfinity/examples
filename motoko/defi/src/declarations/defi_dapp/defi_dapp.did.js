@@ -8,12 +8,16 @@ export const idlFactory = ({ IDL }) => {
       'NotExistingOrder' : IDL.Null,
     }),
   });
+  const Time = IDL.Int;
   const Order = IDL.Record({
     'id' : OrderId,
     'to' : Token,
+    'dip_symbol' : IDL.Text,
     'fromAmount' : IDL.Nat,
+    'submitted' : Time,
     'owner' : IDL.Principal,
     'from' : Token,
+    'price' : IDL.Float64,
     'toAmount' : IDL.Nat,
   });
   const DepositReceipt = IDL.Variant({
