@@ -32,8 +32,8 @@ dfx build AkitaDIP20
 dfx build GoldenDIP20
 
 export ROOT_PRINCIPAL="principal \"$(dfx identity get-principal)\""
-dfx canister --no-wallet install AkitaDIP20 --argument="(\"https://dogbreedslist.com/wp-content/uploads/2019/08/Are-Golden-Retrievers-easy-to-train.png\", \"Golden Coin\", \"GLD\", 8, 10000000000000000, $ROOT_PRINCIPAL, 10000)"
-dfx canister --no-wallet install GoldenDIP20 --argument="(\"https://akitagoose.com/wp-content/uploads/2021/12/IMG_0674.png\", \"Akita Coin\", \"AKI\", 8, 10000000000000000, $ROOT_PRINCIPAL, 10000)"
+dfx canister --no-wallet install AkitaDIP20 --argument="(\"https://akitagoose.com/wp-content/uploads/2021/12/IMG_0674.png\", \"Akita Coin\", \"AKI\", 8, 10000000000000000, $ROOT_PRINCIPAL, 10000)"
+dfx canister --no-wallet install GoldenDIP20 --argument="(\"https://dogbreedslist.com/wp-content/uploads/2019/08/Are-Golden-Retrievers-easy-to-train.png\", \"Golden Coin\", \"GLD\", 8, 10000000000000000, $ROOT_PRINCIPAL, 10000)"
 
 # set fees 
 dfx canister call AkitaDIP20 setFeeTo "($ROOT_PRINCIPAL)"
