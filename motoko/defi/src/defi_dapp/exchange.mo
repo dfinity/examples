@@ -272,6 +272,7 @@ module {
                                             dip_symbol = r.dip_symbol;
                                             submitted = r.submitted;
                                             price = r.price;
+                                            status = #PartiallyExecuted;
                                         };
                                         orders_bid.put(r.id, order);
                                     }
@@ -300,6 +301,7 @@ module {
                                             dip_symbol = r.dip_symbol;
                                             submitted = r.submitted;
                                             price = r.price;
+                                            status = #PartiallyExecuted;
                                         };
                                         orders_ask.put(r.id, order);
                                     }

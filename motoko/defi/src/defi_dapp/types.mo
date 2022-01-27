@@ -8,6 +8,13 @@ module {
     public type OrderId = Nat32;
     public type Symbol = Text;
 
+    public type OrderStatus = {
+        #Submitted;
+        #Cancelled;
+        #Executed;
+        #PartiallyExecuted;
+    };
+
     public type Order = {
         id: OrderId;
         owner: Principal;
@@ -18,6 +25,7 @@ module {
         dip_symbol: Symbol;
         submitted: Time.Time;
         price: Float;
+        status: OrderStatus;
     };
     
     // ledger types

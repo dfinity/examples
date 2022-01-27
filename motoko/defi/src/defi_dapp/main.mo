@@ -79,6 +79,7 @@ actor Dex {
                     dip_symbol;
                     submitted;
                     price;
+                    status = #Submitted;
                 };
                 exchange.addOrder(order);
                 #Ok(order)
