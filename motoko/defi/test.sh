@@ -11,7 +11,7 @@ GLD=$(dfx canister id GoldenDIP20)
 #dfx canister call defi_dapp place_order '(principal '\"$(dfx canister id ledger)\"', 10, principal '\"$(dfx canister id AkitaDIP20)\"', 130)'
 
 function place_order {
-  dfx canister call defi_dapp place_order '(principal '\"$1\"', '$2', principal '\"$3\"', '$4')'
+  dfx canister call defi_dapp placeOrder '(principal '\"$1\"', '$2', principal '\"$3\"', '$4')'
 }
 
 #echo "Cancelling all standing orders..."

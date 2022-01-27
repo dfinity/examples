@@ -8,6 +8,7 @@ type WithdrawReceipt =
  };
 type Token = principal;
 type Time = int;
+type Symbol = text;
 type OrderPlacementReceipt = 
  variant {
    Err: variant {
@@ -19,7 +20,7 @@ type OrderPlacementReceipt =
 type OrderId = nat32;
 type Order = 
  record {
-   dip_symbol: text;
+   dip_symbol: Symbol;
    from: Token;
    fromAmount: nat;
    id: OrderId;
@@ -40,19 +41,20 @@ type DepositReceipt =
 type CancelOrderReceipt = 
  variant {
    Err: variant {
+          InternalError;
           NotAllowed;
           NotExistingOrder;
         };
    Ok: OrderId;
  };
 service : {
-  balance: (Token) -> (nat) query;
-  cancel_order: (OrderId) -> (CancelOrderReceipt);
-  check_order: (OrderId) -> (opt Order);
+  cancelOrder: (OrderId) -> (CancelOrderReceipt);
   deposit: (Token) -> (DepositReceipt);
-  deposit_address: () -> (blob);
-  list_order: () -> (vec Order) query;
-  place_order: (Token, nat, Token, nat) -> (OrderPlacementReceipt);
+  depositAddress: () -> (blob);
+  getBalance: (Token) -> (nat) query;
+  getOrder: (OrderId) -> (opt Order);
+  listOrders: () -> (vec Order) query;
+  placeOrder: (Token, nat, Token, nat) -> (OrderPlacementReceipt);
   symbol: (Token) -> (text);
   whoami: () -> (principal) query;
   withdraw: (Token, nat) -> (WithdrawReceipt);

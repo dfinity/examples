@@ -1,31 +1,33 @@
 export const idlFactory = ({ IDL }) => {
-  const Token = IDL.Principal;
   const OrderId = IDL.Nat32;
   const CancelOrderReceipt = IDL.Variant({
     'Ok' : OrderId,
     'Err' : IDL.Variant({
       'NotAllowed' : IDL.Null,
       'NotExistingOrder' : IDL.Null,
+      'InternalError' : IDL.Null,
     }),
   });
-  const Time = IDL.Int;
-  const Order = IDL.Record({
-    'id' : OrderId,
-    'to' : Token,
-    'dip_symbol' : IDL.Text,
-    'fromAmount' : IDL.Nat,
-    'submitted' : Time,
-    'owner' : IDL.Principal,
-    'from' : Token,
-    'price' : IDL.Float64,
-    'toAmount' : IDL.Nat,
-  });
+  const Token = IDL.Principal;
   const DepositReceipt = IDL.Variant({
     'Ok' : IDL.Nat,
     'Err' : IDL.Variant({
       'TransferFailure' : IDL.Null,
       'BalanceLow' : IDL.Null,
     }),
+  });
+  const Symbol = IDL.Text;
+  const Time = IDL.Int;
+  const Order = IDL.Record({
+    'id' : OrderId,
+    'to' : Token,
+    'dip_symbol' : Symbol,
+    'fromAmount' : IDL.Nat,
+    'submitted' : Time,
+    'owner' : IDL.Principal,
+    'from' : Token,
+    'price' : IDL.Float64,
+    'toAmount' : IDL.Nat,
   });
   const OrderPlacementReceipt = IDL.Variant({
     'Ok' : Order,
@@ -42,13 +44,13 @@ export const idlFactory = ({ IDL }) => {
     }),
   });
   return IDL.Service({
-    'balance' : IDL.Func([Token], [IDL.Nat], ['query']),
-    'cancel_order' : IDL.Func([OrderId], [CancelOrderReceipt], []),
-    'check_order' : IDL.Func([OrderId], [IDL.Opt(Order)], []),
+    'cancelOrder' : IDL.Func([OrderId], [CancelOrderReceipt], []),
     'deposit' : IDL.Func([Token], [DepositReceipt], []),
-    'deposit_address' : IDL.Func([], [IDL.Vec(IDL.Nat8)], []),
-    'list_order' : IDL.Func([], [IDL.Vec(Order)], ['query']),
-    'place_order' : IDL.Func(
+    'depositAddress' : IDL.Func([], [IDL.Vec(IDL.Nat8)], []),
+    'getBalance' : IDL.Func([Token], [IDL.Nat], ['query']),
+    'getOrder' : IDL.Func([OrderId], [IDL.Opt(Order)], []),
+    'listOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
+    'placeOrder' : IDL.Func(
         [Token, IDL.Nat, Token, IDL.Nat],
         [OrderPlacementReceipt],
         [],

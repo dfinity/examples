@@ -36,7 +36,7 @@ actor Dex {
     private stable var book_stable : [var (Principal, [(T.Token, Nat)])] = [var];
 
     // ===== ORDER FUNCTIONS =====
-    public shared(msg) func place_order(from: T.Token, fromAmount: Nat, to: T.Token, toAmount: Nat) : async T.OrderPlacementReceipt {
+    public shared(msg) func placeOrder(from: T.Token, fromAmount: Nat, to: T.Token, toAmount: Nat) : async T.OrderPlacementReceipt {
         let id = nextId();
         Debug.print("");
         Debug.print("Placing order "# Nat32.toText(id) #"...");
@@ -89,13 +89,7 @@ actor Dex {
         }
     };
 
-    public shared(msg) func cancel_all_orders() : async ()  {
-        for(o in getAllOrders().vals()) {
-            let r=cancel_order(o.id);
-        }
-    };
-
-    public shared(msg) func cancel_order(order_id: T.OrderId) : async T.CancelOrderReceipt {
+    public shared(msg) func cancelOrder(order_id: T.OrderId) : async T.CancelOrderReceipt {
         Debug.print("Cancelling order "# Nat32.toText(order_id) #"...");
         for(e in exchanges.vals()) {
             switch (e.getOrder(order_id)) {
@@ -114,7 +108,7 @@ actor Dex {
         return #Err(#NotExistingOrder);
     };
 
-    public func check_order(order_id: T.OrderId) : async(?T.Order) {
+    public func getOrder(order_id: T.OrderId) : async(?T.Order) {
         Debug.print("Checking order "# Nat32.toText(order_id) #"...");
         for(e in exchanges.vals()) {
             switch (e.getOrder(order_id)) {
@@ -125,7 +119,7 @@ actor Dex {
         null;
     };
 
-    public query func list_order() : async([T.Order]) {
+    public query func listOrders() : async([T.Order]) {
         Debug.print("List orders...");
         getAllOrders()
     };
@@ -148,13 +142,13 @@ actor Dex {
     // ===== WITHDRAW FUNCTIONS =====
     public shared(msg) func withdraw(token: T.Token, amount: Nat) : async T.WithdrawReceipt {
         if (token == E.ledger()) {
-            await withdraw_icp(msg.caller, amount)
+            await withdrawIcp(msg.caller, amount)
         } else {
-            await withdraw_dip(msg.caller, token, amount)
+            await withdrawDip(msg.caller, token, amount)
         }
     };
 
-    private func withdraw_icp(caller: Principal, amount: Nat) : async T.WithdrawReceipt {
+    private func withdrawIcp(caller: Principal, amount: Nat) : async T.WithdrawReceipt {
         Debug.print("Withdraw...");
 
         // remove withdrawal amount from book
@@ -187,7 +181,7 @@ actor Dex {
         #Ok(amount)
     };
 
-    private func withdraw_dip(caller: Principal, token: T.Token, amount: Nat) : async T.WithdrawReceipt {
+    private func withdrawDip(caller: Principal, token: T.Token, amount: Nat) : async T.WithdrawReceipt {
         Debug.print("Withdraw...");
 
         // cast canisterID to token interface
@@ -220,7 +214,7 @@ actor Dex {
 
 
     // ===== DEX STATE FUNCTIONS =====
-    public shared query (msg) func balance(token: T.Token) : async Nat {
+    public shared query (msg) func getBalance(token: T.Token) : async Nat {
         switch (book.get(msg.caller)) {
             case (?token_balance) {
                 switch (token_balance.get(token)){
@@ -246,20 +240,20 @@ actor Dex {
     // ===== DEPOSIT FUNCTIONS =====
 
     // Return the account ID specific to this user's subaccount
-    public shared(msg) func deposit_address(): async Blob {
+    public shared(msg) func depositAddress(): async Blob {
         Account.accountIdentifier(Principal.fromActor(Dex), Account.principalToSubaccount(msg.caller));
     };
 
     public shared(msg) func deposit(token: T.Token): async T.DepositReceipt {
         if (token == E.ledger()) {
-            await deposit_icp(msg.caller)
+            await depositIcp(msg.caller)
         } else {
-            await deposit_dip(msg.caller, token)
+            await depositDip(msg.caller, token)
         }
     };
 
     // After user approves tokens to the DEX
-    private func deposit_dip(caller: Principal, token: T.Token): async T.DepositReceipt {
+    private func depositDip(caller: Principal, token: T.Token): async T.DepositReceipt {
         // ATTENTION!!! NOT SAFE
         let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
 
@@ -291,7 +285,7 @@ actor Dex {
     };
 
     // After user transfers ICP to the target subaccount
-    private func deposit_icp(caller: Principal): async T.DepositReceipt {
+    private func depositIcp(caller: Principal): async T.DepositReceipt {
 
         // Calculate target subaccount
         // NOTE: Should this be hashed first instead?
