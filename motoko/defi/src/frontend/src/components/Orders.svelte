@@ -47,14 +47,14 @@
 
     async function placeOrder() {
         addingOrder = true;
-        const result = await backendActor.place_order(
+        const result = await backendActor.placeOrder(
             Principal.fromText(newOrder.fromCanister),
             newOrder.fromAmount,
             Principal.fromText(newOrder.toCanister),
             newOrder.toAmount);
 
         if(result.Ok) {
-            const orderList = await backendActor.list_order();
+            const orderList = await backendActor.listOrders();
             orders.set([]);
             orders.set(orderList.reverse());
         }
@@ -71,7 +71,7 @@
             toCanister: order.from,
             toAmount: order.fromAmount
         };
-        const result = await backendActor.place_order(
+        const result = await backendActor.placeOrder(
             newOrder.fromCanister,
             newOrder.fromAmount,
             newOrder.toCanister,
@@ -79,7 +79,7 @@
         )
 
         if(result && result.Ok) {
-            const orderList = await backendActor.list_order();
+            const orderList = await backendActor.listOrders();
             orders.set([]);
             orders.set(orderList.reverse());
         }
@@ -96,9 +96,9 @@
         cancelingOrder = true;
         const order = $orders.find((o) => o.id === id);
         currentOrder.set(order);
-        const result = await backendActor.cancel_order(id);
+        const result = await backendActor.cancelOrder(id);
         if(result && result.Ok) {
-            const orderList = await backendActor.list_order();
+            const orderList = await backendActor.listOrders();
             orders.set([]);
             orders.set(orderList.reverse()); 
         }
