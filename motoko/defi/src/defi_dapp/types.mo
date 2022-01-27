@@ -94,6 +94,7 @@ module {
         #Err: {
             #InvalidOrder;
             #OrderBookFull;
+            #InsufficientFunds
         };
     };
     public type CancelOrderReceipt = {

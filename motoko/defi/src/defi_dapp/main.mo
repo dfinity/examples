@@ -56,7 +56,10 @@ actor Dex {
             Debug.print("Order must be from or to ICP.");
         };
 
-        // TODO check if user balance in book is enough before creating the order.
+        // Check if user balance in book is enough before creating the order.
+        if(book.hasEnoughBalance(owner,from,fromAmount) == false) {
+            return #Err(#InsufficientFunds);
+        };
 
         switch(dip) {
             case (?dip_token) {
@@ -153,7 +156,7 @@ actor Dex {
         Debug.print("Withdraw...");
 
         // remove withdrawal amount from book
-        switch (book.remove_tokens(caller, E.ledger(), amount+icp_fee)){
+        switch (book.removeTokens(caller, E.ledger(), amount+icp_fee)){
             case(null){
                 return #Err(#BalanceLow)
             };
@@ -192,7 +195,7 @@ actor Dex {
         let dip_fee = await fetch_dip_fee(token);
 
         // remove withdrawal amount from book
-        switch (book.remove_tokens(caller,token,amount+dip_fee)){
+        switch (book.removeTokens(caller,token,amount+dip_fee)){
             case(null){
                 return #Err(#BalanceLow)
             };

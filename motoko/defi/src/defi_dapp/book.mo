@@ -66,7 +66,7 @@ module {
         };
 
         // return the new balance.
-        public func remove_tokens(user: Principal, token: T.Token, amount: Nat) : ?Nat {
+        public func removeTokens(user: Principal, token: T.Token, amount: Nat) : ?Nat {
             switch (book.get(user)) {
                 case (?token_balance) {
                     // check if user already has existing balance for this token
@@ -81,18 +81,31 @@ module {
                             }
                         };
                         case(null){
+                            Debug.print("User " # Principal.toText(user) # " has no balance of token " # Principal.toText(token));
                             null
                         };
                     };
                 };
                 case (null) {
                     // user didn't exist
+                    Debug.print("User " # Principal.toText(user) # " doesn't exist in book, cannot remove tokens.");
                     null
                 };
             };
         };
 
-
+        // Return true if a user has at least amount tokens in the book, false otherwise.
+        public func hasEnoughBalance(user: Principal, token: Principal, amount: Nat) : Bool {
+            switch (book.get(user)) {
+                case (?balances) {
+                    switch(balances.get(token)) {
+                        case (?balance) return balance >= amount;
+                        case null return false;
+                    }
+                };
+                case null return false;
+            };
+        }
 
     }
 
