@@ -42,7 +42,7 @@ call DAO.submit_proposal(
   record {
     canister_id = DAO;
     method = "update_system_params";
-    message = encode (update_transfer_fee);
+    message = encode DAO.update_system_params(update_transfer_fee);
   },
 );
 let alice_id = _.ok;
@@ -103,7 +103,7 @@ call DAO.submit_proposal(
   record {
     canister_id = DAO;
     method = "transfer";
-    message = encode (record { to = alice; amount = record { amount_e8s = 100 : nat } });
+    message = encode DAO.transfer(record { to = alice; amount = record { amount_e8s = 100 } });
   },
 );
 let bob1 = _.ok;
@@ -111,7 +111,7 @@ call DAO.submit_proposal(
   record {
     canister_id = DAO;
     method = "transfer";
-    message = encode (record { to = alice; amount = record { amount_e8s = 100 : nat } });
+    message = encode DAO.transfer(record { to = alice; amount = record { amount_e8s = 100 } });
   },
 );
 let bob2 = _.ok;
@@ -119,7 +119,7 @@ call DAO.submit_proposal(
   record {
     canister_id = DAO;
     method = "transfer";
-    message = encode (record { to = alice; amount = record { amount_e8s = 100 : nat } });
+    message = encode DAO.transfer(record { to = alice; amount = record { amount_e8s = 100 } });
   },
 );
 assert _.err ~= "Caller's account must have at least";
