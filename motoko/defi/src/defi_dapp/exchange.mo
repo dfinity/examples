@@ -240,9 +240,9 @@ module {
             Debug.print("Executing exchange of " # Nat.toText(vol_dip) # " DIP for " # Nat.toText(vol_icp) # " ICP (price " # Float.toText(price) # " icp per dip)" );
 
             // we transfer the icp from bid to ask and the dip from ask to bid.
-            switch (book.remove_tokens(bid.owner, bid.from, vol_icp)) {
+            switch (book.removeTokens(bid.owner, bid.from, vol_icp)) {
                 case (?new_icp_balance) {
-                    switch (book.remove_tokens(ask.owner, ask.from, vol_dip)) {
+                    switch (book.removeTokens(ask.owner, ask.from, vol_dip)) {
                         case (?new_dip_balance) {
                             // Numbers match, adding tokens.
                             book.add_tokens(bid.owner, bid.to, vol_dip);
