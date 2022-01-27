@@ -5,7 +5,7 @@ function install(wasm, args, cycle) {
   let S = id.canister_id;
   call ic.install_code(
     record {
-      arg = encode (args);
+      arg = args;
       wasm_module = wasm;
       mode = variant { install };
       canister_id = S;
@@ -17,7 +17,7 @@ function install(wasm, args, cycle) {
 function upgrade(cid, wasm, args) {
   call ic.install_code(
     record {
-      arg = encode (args);
+      arg = args;
       wasm_module = wasm;
       mode = variant { upgrade };
       canister_id = cid;

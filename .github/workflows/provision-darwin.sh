@@ -23,7 +23,7 @@ DFX_VERSION=$version bash install-dfx.sh < <(yes Y)
 rm install-dfx.sh
 
 # Install ic-repl
-version=0.1.1
+version=0.1.2
 curl --location --output ic-repl "https://github.com/chenyan2002/ic-repl/releases/download/$version/ic-repl-macos"
 mv ./ic-repl /usr/local/bin/ic-repl
 chmod a+x /usr/local/bin/ic-repl

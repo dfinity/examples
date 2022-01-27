@@ -5,7 +5,7 @@ let wasm = file "../.dfx/local/canisters/dao/dao.wasm";
 
 // Setup initial account
 identity alice;
-let DAO = install(wasm, null, null);
+let DAO = install(wasm, encode(null), null);
 call DAO.account_balance();
 assert _.amount_e8s == (1_000_000_000_000 : nat);
 
@@ -64,7 +64,7 @@ assert _.amount_e8s == (499_999_990_000 : nat);
 
 // upgrade preserves states
 identity alice;
-upgrade(DAO, wasm, null);
+upgrade(DAO, wasm, encode(null));
 let accounts = call DAO.list_accounts();
 assert accounts[0].tokens.amount_e8s == (499_999_990_000 : nat);
 assert accounts[1].tokens.amount_e8s == (499_999_990_000 : nat);

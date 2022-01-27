@@ -1,6 +1,9 @@
 #!ic-repl
 load "prelude.sh";
 
+// This won't be needed once replica supports custom section
+import fake = "2vxsx-fae" as "../.dfx/local/canisters/dao/dao.did";
+
 let wasm = file "../.dfx/local/canisters/dao/dao.wasm";
 
 identity alice;
@@ -11,11 +14,11 @@ identity eve;
 identity genesis;
 
 // init args
-let init = opt record {
-  transfer_fee = record { amount_e8s = 0 : nat };
-  proposal_vote_threshold = record { amount_e8s = 500 : nat };
-  proposal_submission_deposit = record { amount_e8s = 100 : nat };
-};
+let init = encode fake.__init_args(opt record {
+  transfer_fee = record { amount_e8s = 0 };
+  proposal_vote_threshold = record { amount_e8s = 500 };
+  proposal_submission_deposit = record { amount_e8s = 100 };
+});
 let DAO = install(wasm, init, null);
 
 // cannot update system params without proposal
@@ -138,7 +141,7 @@ assert _.amount_e8s == (100 : nat);
 
 // upgrade preserves data
 identity genesis;
-upgrade(DAO, wasm, null);
+upgrade(DAO, wasm, encode(null));
 call DAO.list_proposals();
 assert _[0].state == variant { succeeded };
 assert _[1].state == variant { rejected };
