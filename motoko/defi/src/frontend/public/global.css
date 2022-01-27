@@ -33,7 +33,7 @@ a:hover {
 button {
   padding: 8px 32px;
   color: var(--color-black);
-  background-color: white;
+  background-color: rgb(100, 100, 100);
   letter-spacing: 0.35px;
   appearance: none;
   font-size: 15px;
@@ -42,6 +42,16 @@ button {
   font-weight: 300;
   border: none;
   cursor: pointer;
+  border-radius: 5px;
+  max-width: 200px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color:white
+}
+
+button:hover {
+  background-color: rgb(154, 154, 154);
 }
 
 button.outline {

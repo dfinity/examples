@@ -49,3 +49,10 @@ export const auth = writable({
   loggedIn: false,
   actor: createActor(),
 });
+
+export const plugWallet = writable({
+  extensionInstalled: false,
+  isConnected: false,
+  principal: '',
+  plugActor: null
+})

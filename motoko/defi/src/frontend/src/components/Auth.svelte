@@ -2,13 +2,10 @@
   import { AuthClient } from "@dfinity/auth-client";
   import { onMount } from "svelte";
   import { auth, createActor } from "../store/auth";
-  import PlugWallet from '../components/PlugWallet.svelte';
   import BalanceInfo from '../components/BalanceInfo.svelte';
 
   /** @type {AuthClient} */
   let client;
-
-  let whoami = $auth.actor.whoami();
 
   onMount(async () => {
     client = await AuthClient.create();
@@ -26,8 +23,6 @@
         },
       }),
     }));
-
-    whoami = $auth.actor.whoami();
   }
 
   function login() {
@@ -46,15 +41,12 @@
       loggedIn: false,
       actor: createActor(),
     }));
-
-    whoami = $auth.actor.whoami();
   }
 </script>
 
 <div class="container">
   {#if $auth.loggedIn}
     <div class="auth-btn-container">
-      <PlugWallet />
       <button on:click={logout}>Log out</button>
     </div>
     <div>
@@ -63,19 +55,6 @@
   {:else}
     <button on:click={login}>Authenticate in with Internet Identity</button>
   {/if}
-
-  <div class="principal-info">
-    {#await whoami}
-      Querying caller identity...
-    {:then principal}
-      Your principal ID is
-      <code>{principal}</code>
-
-      {#if principal.isAnonymous()}
-        (anonymous)
-      {/if}
-    {/await}
-  </div>
 </div>
 
 <style>
@@ -87,9 +66,5 @@
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-  }
-
-  .principal-info {
-    margin-top: 32px;
   }
 </style>

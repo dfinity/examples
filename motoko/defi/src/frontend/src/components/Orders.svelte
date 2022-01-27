@@ -4,15 +4,11 @@
     import { AuthClient } from "@dfinity/auth-client";
     import { idlFactory } from '../../../declarations/defi_dapp/defi_dapp.did.js';
     import { Principal } from '@dfinity/principal';
+    import { orders, currentOrder } from '../store/order';
+    import { canisters } from '../store/store';
+    import { FontAwesomeIcon } from 'fontawesome-svelte';
+ 
 
-    const canisters = [
-        {name: 'AkitaDIP20', canisterId: process.env.AKITADIP20_CANISTER_ID},
-        {name: 'GoldenDIP20', canisterId: process.env.GOLDENDIP20_CANISTER_ID},
-        {name: 'ICP', canisterId: process.env.LEDGER_CANISTER_ID}
-    ]
-    console.log(canisters)
-
-    let orders = [];
     let backendActor;
     let authClient;
     
@@ -31,8 +27,10 @@
     onMount(async () => {
         authClient = await AuthClient.create();
         const authenticated = await authClient.isAuthenticated();
-        if(authenticated) {
-            const identity = authClient.getIdentity() || undefined;
+        let identity;
+        if(authenticated)
+            identity = authClient.getIdentity() || undefined;
+
             const host = process.env.NODE_ENV === 'production' ? 'ic0.app' : 'http://localhost:8000';
             const agent = new HttpAgent({identity, host});
             // development only, comment out in prod
@@ -42,10 +40,9 @@
                 agent,
                 canisterId: process.env.DEFI_DAPP_CANISTER_ID
             });
-
-            orders = await backendActor.list_order();
-            orders = [...orders.reverse()] // show latest
-        }
+        const orderList = await backendActor.list_order();
+        orders.set([]);
+        orders.set(orderList.reverse());
 	});
 
     async function placeOrder() {
@@ -57,9 +54,9 @@
             newOrder.toAmount);
 
         if(result.Ok) {
-            const newOrderList = await backendActor.list_order();
-            orders = []; // clear old order list
-            orders = [...newOrderList.reverse()];
+            const orderList = await backendActor.list_order();
+            orders.set([]);
+            orders.set(orderList.reverse());
         }
         closeOrderForm();
     };
@@ -67,6 +64,7 @@
     async function buyOrder(order) {
         buyingOrder = true;
         // Create an order opposite of the one being bought
+        currentOrder.set(order);
         const newOrder = {
             fromCanister: order.to,
             fromAmount: order.toAmount,
@@ -81,10 +79,11 @@
         )
 
         if(result && result.Ok) {
-            const newOrderList = await backendActor.list_order();
-            orders = []; // clear old order list
-            orders = [...newOrderList.reverse()];      
+            const orderList = await backendActor.list_order();
+            orders.set([]);
+            orders.set(orderList.reverse());
         }
+        currentOrder.set({});
         buyingOrder = false;
     };
 
@@ -95,13 +94,27 @@
 
     async function cancelOrder(id) {
         cancelingOrder = true;
+        const order = $orders.find((o) => o.id === id);
+        currentOrder.set(order);
         const result = await backendActor.cancel_order(id);
         if(result && result.Ok) {
-            const newOrderList = await backendActor.list_order();
-            orders = []; // clear old order list
-            orders = [...newOrderList.reverse()];       
+            const orderList = await backendActor.list_order();
+            orders.set([]);
+            orders.set(orderList.reverse()); 
         }
+        currentOrder.set({});
         cancelingOrder = false;
+    };
+
+    async function getTokenSymbol(principal) {
+        // Populate token symbols
+        try {
+            const symbol = await backendActor.symbol(principal);
+            return symbol;
+        }
+        catch {
+            return 'ICP';
+        }
     };
 </script>
 
@@ -112,12 +125,14 @@
                 <h2>Orders</h2>
             </div>
             <div class="adding-order-btn">
-                <button on:click={() => showOrderForm = true } title="Add new order" class="add-btn">+</button>
+                <button on:click={() => showOrderForm = true } title="Add new order" class="add-btn">
+                    <FontAwesomeIcon icon="plus" />
+                </button>
             </div>
         </div>
         <div>
             <table>
-                {#if orders.length}
+                {#if $orders.length}
                     <thead>
                         <th>From Account</th>
                         <th>Amount</th>
@@ -131,9 +146,9 @@
                     <tr>
                         <td>
                             <select class="input-style" bind:value={newOrder.fromCanister}>
-                                {#each canisters as canister}
+                                {#each $canisters as canister}
                                     <option value={canister.canisterId}>
-                                        {canister.name}
+                                        {canister.canisterName}
                                     </option>
                                 {/each}
                             </select>
@@ -141,46 +156,68 @@
                         <td><input class="input-style" bind:value={newOrder.fromAmount} type="number" /></td>
                         <td>
                             <select class="input-style" bind:value={newOrder.toCanister}>
-                                {#each canisters as canister}
+                                {#each $canisters as canister}
                                     <option value={canister.canisterId}>
-                                        {canister.name}
+                                        {canister.canisterName}
                                     </option>
                                 {/each}
                             </select>
                         </td>                       
                         <td><input class="input-style" bind:value={newOrder.toAmount} type="number" /></td>
-                        <td><button class="action-btn btn-add" on:click={placeOrder}>
-                            <div class="add-btn-text">
-                                Add
+                        <td>
+                            <div>
+                                <button class="btn-accept" on:click={placeOrder} title="Place Order" >
+                                    <div class="add-btn-text">
+                                        {#if addingOrder}
+                                            <div class="loader"></div>
+                                        {:else}
+                                            <FontAwesomeIcon icon="check" />
+                                        {/if}
+                                    </div>
+                                </button>
+                                <button class="btn-cancel" on:click={closeOrderForm} title="Cancel" >
+                                    <FontAwesomeIcon icon="times" />
+                                </button>
                             </div>
-                            {#if addingOrder}
-                                <div class="loader"></div>
-                            {/if}
-                        </button>
                         </td>
-                        <td><button class="action-btn btn-cancel" on:click={closeOrderForm}>Cancel</button></td>
                     </tr>
                     {/if}
-                    {#each orders as order}
+                    {#each $orders as order}
                     <tr>
-                        <td>{order.from}</td>
+                        <td>
+                            {#await getTokenSymbol(order.from)}
+                            <span>Loading Symbol...</span>
+                            {:then symbol}
+                            {symbol}
+                            {/await}
+                        </td>
                         <td>{order.fromAmount}</td>
-                        <td>{order.to}</td>
+                        <td>
+                            {#await getTokenSymbol(order.to)}
+                                <span>Loading Symbol...</span>
+                            {:then symbol}
+                                {symbol}
+                            {/await}
+                        </td>
                         <td>{order.toAmount}</td>
                         <td>
-                            <button class="action-btn btn-buy">
-                                <div class="buy-btn-text" on:click={() => buyOrder(order)}>Buy</div>
-                                {#if buyingOrder}
-                                    <div class="loader buy-btn-loader"></div>
+                            <button class="btn-accept">
+                                {#if buyingOrder && $currentOrder.id === order.id}
+                                <div class="loader buy-btn-loader"></div>
+                                {:else}
+                                    <div class="buy-btn-text" on:click={() => buyOrder(order)}>
+                                        <FontAwesomeIcon icon="check" />
+                                    </div>
                                 {/if}
                             </button>
                             {#if order.owner.toText() === authClient.getIdentity().getPrincipal().toText()}
-                                <button class="action-btn btn-cancel" on:click={() => cancelOrder(order.id)}>
-                                    <div class="cancel-btn-text">
-                                        Cancel
-                                    </div>
-                                    {#if cancelingOrder}
+                                <button class="btn-cancel" on:click={() => cancelOrder(order.id)}>
+                                    {#if cancelingOrder && $currentOrder.id === order.id}
                                         <div class="loader cancel-btn-loader"></div>
+                                    {:else}
+                                        <div class="cancel-btn-text">
+                                            <FontAwesomeIcon icon="times" />
+                                        </div>
                                     {/if}
                                 </button>
                             {/if}
@@ -195,7 +232,7 @@
 
 <style>
     table {
-        width: 75vw;
+        width: 100%;
     }
 
     th {
@@ -205,6 +242,9 @@
     .order-container {
         text-align: left !important;
         margin-bottom: 36px;
+        background-color: #333336;
+        padding: 10px;
+        border-radius: 10px;
     }
 
     .header-container {
@@ -243,29 +283,17 @@
         box-sizing: border-box;
     }
 
-    .action-btn {
-        padding: 5px 30px;
-        border-radius: 5px;
-    }
-
-    .btn-add {
-        display: flex;
-        background-color: green;
-    }
-    .btn-add:hover {
-        background-color: rgb(0, 169, 0);
-    }
     .btn-cancel {
         background-color: red;
     }
     .btn-cancel:hover {
         background-color: rgb(255, 48, 48);
     }
-    .btn-buy {
-        background-color: blue;
+    .btn-accept {
+        background-color: green;
     }
-    .btn-buy:hover {
-        background-color: rgb(90, 90, 255);
+    .btn-accept:hover {
+        background-color: rgb(0, 163, 0);
     }
 
     .add-btn-text {
