@@ -107,13 +107,9 @@
     };
 
     async function getTokenSymbol(principal) {
-        // Populate token symbols
-        try {
-            const symbol = await backendActor.symbol(principal);
-            return symbol;
-        }
-        catch {
-            return 'ICP';
+       const item =  $canisters.find((canister) => canister.canisterId === principal.toString())
+        if(item) {
+            return item.symbol;
         }
     };
 </script>
@@ -124,11 +120,11 @@
             <div class="title">
                 <h2>Orders</h2>
             </div>
-            <div class="adding-order-btn">
-                <button on:click={() => showOrderForm = true } title="Add new order" class="add-btn">
-                    <FontAwesomeIcon icon="plus" />
-                </button>
-            </div>
+                <div class="adding-order-btn">
+                    <button on:click={() => showOrderForm = true } title="Add new order" class="add-btn">
+                        <FontAwesomeIcon icon="plus" />
+                    </button>
+                </div>
         </div>
         <div>
             <table>
@@ -201,7 +197,7 @@
                         </td>
                         <td>{order.toAmount}</td>
                         <td>
-                            <button class="btn-accept">
+                            <button class="btn-accept" title="Buy order">
                                 {#if buyingOrder && $currentOrder.id === order.id}
                                 <div class="loader buy-btn-loader"></div>
                                 {:else}
@@ -211,7 +207,7 @@
                                 {/if}
                             </button>
                             {#if order.owner.toText() === authClient.getIdentity().getPrincipal().toText()}
-                                <button class="btn-cancel" on:click={() => cancelOrder(order.id)}>
+                                <button class="btn-cancel" on:click={() => cancelOrder(order.id)} title="Cancel order">
                                     {#if cancelingOrder && $currentOrder.id === order.id}
                                         <div class="loader cancel-btn-loader"></div>
                                     {:else}
@@ -273,21 +269,11 @@
         background-color: rgb(209, 209, 209);
     }
 
-    .input-style {
-        width: 100%;
-        padding: 12px 20px;
-        margin: 8px 0;
-        display: inline-block;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        box-sizing: border-box;
-    }
-
     .btn-cancel {
-        background-color: red;
+        background-color: white;
     }
     .btn-cancel:hover {
-        background-color: rgb(255, 48, 48);
+        background-color: rgb(169, 169, 169);
     }
     .btn-accept {
         background-color: green;
@@ -316,27 +302,5 @@
 
     .buy-btn-loader {
         vertical-align: middle;
-    }
-
-    .loader {
-        display: inline-flex;
-        border: 3px solid #f3f3f3;
-        border-radius: 50%;
-        border-top: 3px solid #3498db;
-        width: 12px;
-        height: 12px;
-        -webkit-animation: spin 2s linear infinite; /* Safari */
-        animation: spin 2s linear infinite;
-    }
-
-    /* Safari */
-    @-webkit-keyframes spin {
-      0% { -webkit-transform: rotate(0deg); }
-      100% { -webkit-transform: rotate(360deg); }
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
     }
 </style>

@@ -4,7 +4,6 @@
     import { onMount } from "svelte";
     import { auth, createActor } from "../store/auth";
     import { idlFactory } from '../../../declarations/defi_dapp/defi_dapp.did.js';
-    import { Principal } from '@dfinity/principal';
 
     
     const DEX_CANISTER_ID = process.env.DEFI_DAPP_CANISTER_ID;
@@ -30,18 +29,21 @@
         if($plugWallet.isConnected) {
             // create plug actor   
             const principal = await window.ic.plug.getPrincipal();
-            await window.ic.plug.createAgent({whiteList});
+            console.log(window.ic.plug)
+            await window.ic.plug.createAgent({whiteList, host: "localhost:8000"});
             window.ic.plug.agent.fetchRootKey();
-            plugWallet.set({...$plugWallet, principal, plugActor: await window.ic.plug.createActor({
+            const plugActor = await window.ic.plug.createActor({
                 canisterId: DEX_CANISTER_ID,
                 interfaceFactory: idlFactory
-            })});
+            });
+            console.log(plugActor)
+            plugWallet.set({...$plugWallet, principal, plugActor});
         }
 	});
 
     async function requestPlugConnection() {
         try {
-            const publicAddress = await window.ic.plug.requestConnect(whiteList, "http://localhost:5000");
+            const publicAddress = await window.ic.plug.requestConnect(whiteList, "http://localhost:8000");
             console.log(`The connected user's public key is:`, publicAddress);
             const principal = await window.ic.plug.getPrincipal();
             plugWallet.set({...$plugWallet, publicAddress, principal, isConnected: true})
@@ -100,9 +102,19 @@
       </li>
       <li>
             {#if !$plugWallet.isConnected} 
-                <button on:click={requestPlugConnection}>Connect To Plug</button>
+                <button class="top-round-rainbow" on:click={requestPlugConnection}>
+                    <span>
+                        <img class="plug-logo" src="images/plug_logo.png" alt="Plug logo" />
+                    </span>
+                    Plug
+                </button>
             {:else}
-                <button>{$plugWallet.principal}</button>
+                <button class="top-round-rainbow">
+                    <span>
+                        <img class="plug-logo" src="images/plug_logo.png" alt="Plug logo" />
+                    </span>
+                    {$plugWallet.principal}
+                </button>
             {/if}
       </li>
     </ul>
@@ -128,5 +140,16 @@
     }
     .logo {
       display: inline-block;
+    }
+
+    .plug-logo {
+        height: 16px;
+    }
+
+    .top-round-rainbow {
+        background-image: repeating-linear-gradient(to right,
+            #FFE701,#FC9770,#FB72A5,#C172DA);
+        background-size: 100% 3px;
+        background-repeat:repeat;
     }
 </style>
