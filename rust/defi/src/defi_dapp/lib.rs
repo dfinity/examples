@@ -53,6 +53,32 @@ pub fn balance(token_canister_id: Principal) -> Nat {
     })
 }
 
+#[query]
+#[candid_method(query)]
+pub async fn balances() -> Vec<(String, Nat)> {
+    // Collect all balances into a Vec
+    let balances = STATE.with(|s| {
+        let state = s.borrow();
+
+        if let Some(balances) = state.balances.get(&caller()) {
+            balances
+                .iter()
+                .map(|(token, balance)| (token.clone(), balance.clone()))
+                .collect()
+        } else {
+            Vec::new()
+        }
+    });
+
+    // Transform the Vec<Token, balance> into Vec<Symbol, balance>
+    let mut out = Vec::new();
+    for (token, balance) in balances.into_iter() {
+        out.push((symbol(token).await, balance.into()));
+    }
+
+    out
+}
+
 #[update]
 #[candid_method(update)]
 pub fn cancel_order(order: u64) -> CancelOrderReceipt {
@@ -301,7 +327,14 @@ async fn withdraw_token(
 #[update]
 #[candid_method(update)]
 pub async fn symbol(token_canister_id: Principal) -> String {
-    DIP20::new(token_canister_id).get_metadata().await.symbol
+    // let ledger_canister_id = MAINNET_LEDGER_CANISTER_ID;
+    let ledger_canister_id = Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap();
+
+    if token_canister_id == ledger_canister_id {
+        "ICP".to_string()
+    } else {
+        DIP20::new(token_canister_id).get_metadata().await.symbol
+    }
 }
 
 #[query]
