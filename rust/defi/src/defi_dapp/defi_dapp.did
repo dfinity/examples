@@ -1,55 +1,28 @@
-type WithdrawReceipt = 
- variant {
-   Err: variant {
-          BalanceLow;
-          TransferFailure;
-        };
-   Ok: nat;
- };
-type Token = principal;
-type OrderPlacementReceipt = 
- variant {
-   Err: variant {
-          InvalidOrder;
-          OrderBookFull;
-        };
-   Ok: Order;
- };
-type OrderId = nat32;
-type Order = 
- record {
-   from: Token;
-   fromAmount: nat;
-   id: OrderId;
-   owner: principal;
-   to: Token;
-   toAmount: nat;
- };
-type DepositReceipt = 
- variant {
-   Err: variant {
-          BalanceLow;
-          TransferFailure;
-        };
-   Ok: nat;
- };
-type CancelOrderReceipt = 
- variant {
-   Err: variant {
-          NotAllowed;
-          NotExistingOrder;
-        };
-   Ok: OrderId;
- };
+type CancelOrderErr = variant { NotAllowed; NotExistingOrder };
+type CancelOrderReceipt = variant { Ok : nat64; Err : CancelOrderErr };
+type DepositErr = variant { TransferFailure; BalanceLow };
+type DepositReceipt = variant { Ok : nat; Err : DepositErr };
+type Order = record {
+  id : nat64;
+  from_amount : nat;
+  from_token_canister_id : principal;
+  owner : principal;
+  to_amount : nat;
+  to_token_canister_id : principal;
+};
+type OrderPlacementErr = variant { InvalidOrder; OrderBookFull };
+type OrderPlacementReceipt = variant { Ok : Order; Err : OrderPlacementErr };
+type WithdrawErr = variant { TransferFailure; BalanceLow };
+type WithdrawReceipt = variant { Ok : nat; Err : WithdrawErr };
 service : {
-  balance: (Token) -> (nat) query;
-  cancel_order: (OrderId) -> (CancelOrderReceipt);
-  check_order: (OrderId) -> (opt Order);
-  deposit: (Token) -> (DepositReceipt);
-  deposit_address: () -> (blob);
-  list_order: () -> (vec Order) query;
-  place_order: (Token, nat, Token, nat) -> (OrderPlacementReceipt);
-  symbol: (Token) -> (text);
-  whoami: () -> (principal) query;
-  withdraw: (Token, nat) -> (WithdrawReceipt);
+  balance : (principal) -> (nat) query;
+  cancel_order : (nat64) -> (Result);
+  check_order : (nat64) -> (opt Order) query;
+  deposit : (principal) -> (DepositReceipt);
+  deposit_address : () -> (text) query;
+  list_order : () -> (vec Order) query;
+  place_order : (principal, nat, principal, nat) -> (OrderPlacementReceipt);
+  symbol : (principal) -> (text);
+  whoami : () -> (principal) query;
+  withdraw : (principal, nat) -> (WithdrawReceipt);
 }
