@@ -17,11 +17,18 @@ export const idlFactory = ({ IDL }) => {
     }),
   });
   const Symbol = IDL.Text;
+  const OrderStatus = IDL.Variant({
+    'PartiallyExecuted' : IDL.Null,
+    'Executed' : IDL.Null,
+    'Cancelled' : IDL.Null,
+    'Submitted' : IDL.Null,
+  });
   const Time = IDL.Int;
   const Order = IDL.Record({
     'id' : OrderId,
     'to' : Token,
     'dip_symbol' : Symbol,
+    'status' : OrderStatus,
     'fromAmount' : IDL.Nat,
     'submitted' : Time,
     'owner' : IDL.Principal,
@@ -34,6 +41,7 @@ export const idlFactory = ({ IDL }) => {
     'Err' : IDL.Variant({
       'InvalidOrder' : IDL.Null,
       'OrderBookFull' : IDL.Null,
+      'InsufficientFunds' : IDL.Null,
     }),
   });
   const WithdrawReceipt = IDL.Variant({

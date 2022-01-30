@@ -11,6 +11,7 @@ export interface Order {
   'id' : OrderId,
   'to' : Token,
   'dip_symbol' : Symbol,
+  'status' : OrderStatus,
   'fromAmount' : bigint,
   'submitted' : Time,
   'owner' : Principal,
@@ -20,7 +21,15 @@ export interface Order {
 }
 export type OrderId = number;
 export type OrderPlacementReceipt = { 'Ok' : Order } |
-  { 'Err' : { 'InvalidOrder' : null } | { 'OrderBookFull' : null } };
+  {
+    'Err' : { 'InvalidOrder' : null } |
+      { 'OrderBookFull' : null } |
+      { 'InsufficientFunds' : null }
+  };
+export type OrderStatus = { 'PartiallyExecuted' : null } |
+  { 'Executed' : null } |
+  { 'Cancelled' : null } |
+  { 'Submitted' : null };
 export type Symbol = string;
 export type Time = bigint;
 export type Token = Principal;

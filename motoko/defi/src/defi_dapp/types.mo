@@ -94,7 +94,7 @@ module {
         #Err: {
             #InvalidOrder;
             #OrderBookFull;
-            #InsufficientFunds
+            #InsufficientFunds;
         };
     };
     public type CancelOrderReceipt = {
@@ -102,7 +102,7 @@ module {
         #Err: {
             #NotExistingOrder;
             #NotAllowed;
-            #InternalError
+            #InternalError;
         };
     };
     public type WithdrawReceipt = {
