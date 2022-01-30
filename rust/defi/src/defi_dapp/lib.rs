@@ -313,9 +313,7 @@ impl State {
             }
         }
         for m in matches {
-            let mut a_from_amount: u128 = 0;
             let mut a_to_amount: u128 = 0;
-            let mut b_from_amount: u128 = 0;
             let mut b_to_amount: u128 = 0;
             {
                 if let Some(a) = self.orders.get(&m.0) {
