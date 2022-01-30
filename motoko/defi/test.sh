@@ -7,8 +7,8 @@ ICP=$(dfx canister id ledger)
 AKI=$(dfx canister id AkitaDIP20)
 GLD=$(dfx canister id GoldenDIP20)
 
-#dfx canister call defi_dapp place_order '(principal '\"$(dfx canister id ledger)\"', 10, principal '\"$(dfx canister id GoldenDIP20)\"', 130)'
-#dfx canister call defi_dapp place_order '(principal '\"$(dfx canister id ledger)\"', 10, principal '\"$(dfx canister id AkitaDIP20)\"', 130)'
+#dfx canister call defi_dapp placeOrder '(principal '\"$(dfx canister id ledger)\"', 10, principal '\"$(dfx canister id GoldenDIP20)\"', 130)'
+#dfx canister call defi_dapp placeOrder '(principal '\"$(dfx canister id ledger)\"', 10, principal '\"$(dfx canister id AkitaDIP20)\"', 130)'
 
 function place_order {
   dfx canister call defi_dapp placeOrder '(principal '\"$1\"', '$2', principal '\"$3\"', '$4')'

@@ -1,47 +1,21 @@
-type WithdrawReceipt = 
- variant {
-   Err: variant {
-          BalanceLow;
-          TransferFailure;
-        };
-   Ok: nat;
- };
 type Token = principal;
-type OrderPlacementReceipt = 
- variant {
-   Err: variant {
-          InvalidOrder;
-          OrderBookFull;
-        };
-   Ok: Order;
-   Executed;
- };
+type CancelOrderErr = variant { NotAllowed; NotExistingOrder };
+type CancelOrderReceipt = variant { Ok : nat64; Err : CancelOrderErr };
+type DepositErr = variant { TransferFailure; BalanceLow };
+type DepositReceipt = variant { Ok : nat; Err : DepositErr };
+type OrderPlacementErr = variant { InvalidOrder; OrderBookFull };
+type OrderPlacementReceipt = variant { Ok : opt Order; Err : OrderPlacementErr };
+type WithdrawErr = variant { TransferFailure; BalanceLow };
+type WithdrawReceipt = variant { Ok : nat; Err : WithdrawErr };
 type OrderId = nat32;
-type Order = 
- record {
-   from: Token;
-   fromAmount: nat;
-   id: OrderId;
-   owner: principal;
-   to: Token;
-   toAmount: nat;
- };
-type DepositReceipt = 
- variant {
-   Err: variant {
-          BalanceLow;
-          TransferFailure;
-        };
-   Ok: nat;
- };
-type CancelOrderReceipt = 
- variant {
-   Err: variant {
-          NotAllowed;
-          NotExistingOrder;
-        };
-   Ok: OrderId;
- };
+type Order = record {
+  id : OrderId;
+  owner : principal;
+  from : principal;
+  fromAmount : nat;
+  to : principal;
+  toAmount : nat;
+};
 type Balance = record {
   owner: principal;
   token: Token;
@@ -60,4 +34,6 @@ service : {
   getSymbol: (Token) -> (text);
   whoami: () -> (principal) query;
   withdraw: (Token, nat) -> (WithdrawReceipt);
+  credit: (principal, Token, nat) -> ();
+  clear: () -> ();
 }

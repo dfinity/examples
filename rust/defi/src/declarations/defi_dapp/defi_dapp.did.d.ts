@@ -4,27 +4,38 @@ export interface Balance {
   'owner' : Principal,
   'amount' : bigint,
 }
-export type CancelOrderReceipt = { 'Ok' : OrderId } |
-  { 'Err' : { 'NotAllowed' : null } | { 'NotExistingOrder' : null } };
+export type CancelOrderErr = { 'NotAllowed' : null } |
+  { 'NotExistingOrder' : null };
+export type CancelOrderReceipt = { 'Ok' : bigint } |
+  { 'Err' : CancelOrderErr };
+export type DepositErr = { 'TransferFailure' : null } |
+  { 'BalanceLow' : null };
 export type DepositReceipt = { 'Ok' : bigint } |
-  { 'Err' : { 'TransferFailure' : null } | { 'BalanceLow' : null } };
+  { 'Err' : DepositErr };
 export interface Order {
   'id' : OrderId,
-  'to' : Token,
+  'to' : Principal,
   'fromAmount' : bigint,
   'owner' : Principal,
-  'from' : Token,
+  'from' : Principal,
   'toAmount' : bigint,
 }
 export type OrderId = number;
-export type OrderPlacementReceipt = { 'Ok' : Order } |
-  { 'Err' : { 'InvalidOrder' : null } | { 'OrderBookFull' : null } } |
-  { 'Executed' : null };
+export type OrderPlacementErr = { 'InvalidOrder' : null } |
+  { 'OrderBookFull' : null };
+export type OrderPlacementReceipt = { 'Ok' : [] | [Order] } |
+  { 'Err' : OrderPlacementErr };
 export type Token = Principal;
+export type WithdrawErr = { 'TransferFailure' : null } |
+  { 'BalanceLow' : null };
 export type WithdrawReceipt = { 'Ok' : bigint } |
-  { 'Err' : { 'TransferFailure' : null } | { 'BalanceLow' : null } };
+  { 'Err' : WithdrawErr };
 export interface _SERVICE {
   'cancelOrder' : (arg_0: OrderId) => Promise<CancelOrderReceipt>,
+  'clear' : () => Promise<undefined>,
+  'credit' : (arg_0: Principal, arg_1: Token, arg_2: bigint) => Promise<
+      undefined
+    >,
   'deposit' : (arg_0: Token, arg_1: bigint) => Promise<DepositReceipt>,
   'getAllBalances' : () => Promise<Array<Balance>>,
   'getBalance' : (arg_0: Token) => Promise<bigint>,

@@ -1,81 +1,20 @@
 use candid::{candid_method, export_service, CandidType, Nat, Principal};
 use ic_cdk::caller;
 use ic_cdk_macros::*;
-use ic_ledger_types::{AccountIdentifier, Subaccount, MAINNET_LEDGER_CANISTER_ID};
+use ic_ledger_types::{
+    AccountIdentifier, Memo, Subaccount, Tokens, DEFAULT_SUBACCOUNT, MAINNET_LEDGER_CANISTER_ID,
+};
 use num_bigint::BigUint;
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::convert::TryInto;
+mod dip20;
+mod types;
+use dip20::*;
+use types::*;
 
-#[derive(CandidType)]
-pub enum CancelOrderReceipt {
-    Ok(OrderId),
-    Err(CancelOrderErr),
-}
-
-#[derive(CandidType)]
-pub enum CancelOrderErr {
-    NotAllowed,
-    NotExistingOrder,
-}
-
-#[derive(CandidType)]
-pub enum DepositReceipt {
-    Ok(Nat),
-    Err(DepositErr),
-}
-
-#[derive(CandidType)]
-pub enum DepositErr {
-    BalanceLow,
-    TransferFailure,
-}
-
-#[derive(CandidType)]
-pub enum OrderPlacementReceipt {
-    Ok(Order),
-    Executed,
-    Err(OrderPlacementErr),
-}
-
-#[derive(CandidType)]
-pub enum OrderPlacementErr {
-    InvalidOrder,
-    OrderBookFull,
-}
-
-#[derive(CandidType)]
-pub enum WithdrawReceipt {
-    Ok(Nat),
-    Err(WithdrawErr),
-}
-
-#[derive(CandidType)]
-pub enum WithdrawErr {
-    BalanceLow,
-    TransferFailure,
-}
-
-#[derive(CandidType)]
-pub struct Balance {
-    owner: Principal,
-    token: Principal,
-    amount: Nat,
-}
-
-type OrderId = u32;
-
-#[derive(CandidType, Clone)]
-#[allow(non_snake_case)]
-pub struct Order {
-    id: OrderId,
-    owner: Principal,
-    from: Principal,
-    fromAmount: Nat,
-    to: Principal,
-    toAmount: Nat,
-}
+const ICP_FEE: u64 = 10_000;
 
 #[derive(CandidType, Clone, Deserialize, Serialize, Copy)]
 pub struct OrderState {
@@ -90,7 +29,11 @@ pub struct OrderState {
 type OrdersState = HashMap<OrderId, OrderState>;
 type BalancesState = HashMap<Principal, HashMap<Principal, u128>>; // owner -> token_canister_id -> amount
 
-#[derive(CandidType, Clone, Deserialize, Serialize)]
+thread_local! {
+    static STATE: RefCell<State> = RefCell::new(State::default());
+}
+
+#[derive(CandidType, Clone, Deserialize, Serialize, Default)]
 pub struct State {
     owner: Option<Principal>,
     next_id: OrderId,
@@ -117,15 +60,12 @@ fn nat_to_u128(n: Nat) -> u128 {
     n
 }
 
-impl Default for State {
-    fn default() -> Self {
-        State {
-            owner: None,
-            next_id: 0,
-            balances: BalancesState::new(),
-            orders: OrdersState::new(),
-        }
-    }
+fn principal_to_subaccount(principal_id: &Principal) -> Subaccount {
+    let mut subaccount = [0; std::mem::size_of::<Subaccount>()];
+    let principal_id = principal_id.as_slice();
+    subaccount[0] = principal_id.len().try_into().unwrap();
+    subaccount[1..1 + principal_id.len()].copy_from_slice(principal_id);
+    Subaccount(subaccount)
 }
 
 impl State {
@@ -141,13 +81,23 @@ impl State {
         }
     }
 
-    fn subtract_balance(&mut self, owner: &Principal, token_canister_id: &Principal, delta: u128) {
-        let m = self.balances.get_mut(owner).unwrap();
-        let x = m.get_mut(&token_canister_id).unwrap();
-        *x -= delta;
-        if *x == 0 {
-            m.remove(token_canister_id);
+    // Returns true on success.
+    fn subtract_balance(
+        &mut self,
+        owner: &Principal,
+        token_canister_id: &Principal,
+        delta: u128,
+    ) -> bool {
+        if let Some(m) = self.balances.get_mut(owner) {
+            if let Some(x) = m.get_mut(&token_canister_id) {
+                *x -= delta;
+                if *x == 0 {
+                    m.remove(token_canister_id);
+                }
+                return true;
+            }
         }
+        return false;
     }
 
     fn get_balance(&self, token_canister_id: Principal) -> Nat {
@@ -186,38 +136,6 @@ impl State {
         result
     }
 
-    fn deposit(&mut self, token_canister_id: Principal, amount: Nat) -> DepositReceipt {
-        // let amount = 10;
-
-        self.add_balance(&caller(), &token_canister_id, nat_to_u128(amount.clone()));
-        DepositReceipt::Ok(amount.into())
-
-        /*
-        let canister_id = ic_cdk::api::id();
-        let account = AccountIdentifier::new(&canister_id, Subaccount::from(caller()));
-        println!(
-            "Deposit of {} ICP in account {:?}",
-            &amount, &token_canister_id, &account
-        );
-        let ledger_canister_id = CONF.with(|conf| conf.borrow().ledger_canister_id);
-        let transfer_args = CONF.with(|conf| {
-            let conf = conf.borrow();
-            ic_ledger_types::TransferArgs {
-                memo: Memo(0),
-                amount: args.amount,
-                fee: conf.transaction_fee,
-                from_subaccount: conf.subaccount,
-                to: AccountIdentifier::new(&args.to_principal, &to_subaccount),
-                created_at_time: None,
-            }
-        });
-        ic_ledger_types::transfer(ledger_canister_id, transfer_args)
-            .await
-            .map_err(|e| println!("failed to call ledger: {:?}", e))?
-            .map_err(|e| println!("ledger transfer error {:?}", e))
-            */
-    }
-
     fn get_order(&self, order: OrderId) -> Option<Order> {
         match self.orders.get(&order) {
             None => None,
@@ -227,11 +145,6 @@ impl State {
 
     fn get_all_orders(&self) -> Vec<Order> {
         self.orders.iter().map(|(_, o)| (*o).into()).collect()
-    }
-
-    fn next_id(&mut self) -> OrderId {
-        self.next_id += 1;
-        self.next_id
     }
 
     fn place_order(
@@ -262,21 +175,20 @@ impl State {
         );
         self.resolve_order(id);
 
-        if let Some(order) = self.orders.get(&id).cloned() {
-            OrderPlacementReceipt::Ok(order.into())
+        if let Some(o) = self.orders.get(&id).cloned() {
+            OrderPlacementReceipt::Ok(Some(o.into()))
         } else {
-            OrderPlacementReceipt::Executed
+            OrderPlacementReceipt::Ok(None)
         }
     }
 
     fn cancel_order(&mut self, order: OrderId) -> CancelOrderReceipt {
         if let Some(o) = self.orders.get(&order) {
             if o.owner == caller() {
-                CancelOrderReceipt::Err(CancelOrderErr::NotAllowed)
-            } else {
                 self.orders.remove(&order);
-
-                CancelOrderReceipt::Ok(order)
+                CancelOrderReceipt::Ok(order.into())
+            } else {
+                CancelOrderReceipt::Err(CancelOrderErr::NotAllowed)
             }
         } else {
             CancelOrderReceipt::Err(CancelOrderErr::NotExistingOrder)
@@ -319,10 +231,10 @@ impl State {
                 if let Some(a) = self.orders.get(&m.0) {
                     if let Some(b) = self.orders.get(&m.1) {
                         // Check if some orders can be completed in their entirety.
-                        if b.from_amount > a.to_amount {
+                        if b.from_amount >= a.to_amount {
                             a_to_amount = a.to_amount;
                         }
-                        if a.from_amount > b.to_amount {
+                        if a.from_amount >= b.to_amount {
                             b_to_amount = b.to_amount;
                         }
                         if a_to_amount == 0 && b_to_amount > 0 {
@@ -425,70 +337,94 @@ impl State {
         }
     }
 
-    fn withdraw(&mut self, token_canister_id: Principal, amount: Nat) -> WithdrawReceipt {
-        let amount = nat_to_u128(amount);
-        let o = self.balances.get_mut(&caller()).unwrap();
-        let left;
-        if let Some(b) = o.get(&token_canister_id) {
-            if b < &amount {
-                return WithdrawReceipt::Err(WithdrawErr::TransferFailure);
-            }
-            left = b - amount;
-        } else {
-            return WithdrawReceipt::Err(WithdrawErr::BalanceLow);
-        }
-        self.subtract_balance(&caller(), &token_canister_id, amount);
-        WithdrawReceipt::Ok(left.into())
+    fn next_id(&mut self) -> OrderId {
+        self.next_id += 1;
+        self.next_id
     }
 
-    fn clear(&mut self) -> String {
-        if let Some(owner) = self.owner {
-            if owner != caller() {
-                return "not authorized".into();
-            }
-        } else {
-            return "not initialized".into();
-        }
+    // For testing.
+    fn credit(&mut self, owner: Principal, token_canister_id: Principal, amount: Nat) {
+        ic_cdk::println!("credit {} {}", caller(), self.owner.unwrap());
+        assert!(self.owner.unwrap() == caller());
+        self.add_balance(&owner, &token_canister_id, nat_to_u128(amount.clone()));
+    }
+
+    // For testing.
+    fn clear(&mut self) {
+        assert!(self.owner.unwrap() == caller());
         self.orders.clear();
         self.balances.clear();
-        "ok".into()
     }
 }
 
-thread_local! {
-    static STATE: RefCell<State> = RefCell::new(State::default());
-}
-
-fn principal_to_subaccount(principal_id: &Principal) -> Subaccount {
-    let mut subaccount = [0; std::mem::size_of::<Subaccount>()];
-    let principal_id = principal_id.as_slice();
-    subaccount[0] = principal_id.len().try_into().unwrap();
-    subaccount[1..1 + principal_id.len()].copy_from_slice(principal_id);
-    Subaccount(subaccount)
-}
-
-#[init]
-#[candid_method(init)]
-pub fn init() -> () {
-    ic_cdk::setup();
+#[update]
+#[candid_method(update)]
+pub async fn deposit(token_canister_id: Principal) -> DepositReceipt {
+    let amount =
+        if token_canister_id == Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap() {
+            deposit_icp(caller()).await?
+        } else {
+            deposit_token(caller(), token_canister_id).await?
+        };
     STATE.with(|s| {
-        s.borrow_mut().owner = Some(caller());
+        s.borrow_mut()
+            .add_balance(&caller(), &token_canister_id, amount)
     });
+    DepositReceipt::Ok(amount.into())
 }
 
-#[pre_upgrade]
-fn pre_upgrade() {
-    let stable_state = STATE.with(|s| s.take());
-    ic_cdk::storage::stable_save((stable_state,)).expect("failed to save stable state");
+async fn deposit_icp(caller: Principal) -> Result<u128, DepositErr> {
+    let canister_id = ic_cdk::api::id();
+    // let ledger_canister_id = MAINNET_LEDGER_CANISTER_ID;
+    let ledger_canister_id = Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap();
+
+    let account = AccountIdentifier::new(&canister_id, &principal_to_subaccount(&caller));
+
+    let balance_args = ic_ledger_types::AccountBalanceArgs { account };
+    let balance = ic_ledger_types::account_balance(ledger_canister_id, balance_args)
+        .await
+        .map_err(|_| DepositErr::TransferFailure)?;
+
+    if balance.e8s() < 2 * ICP_FEE {
+        return Err(DepositErr::BalanceLow);
+    }
+
+    let transfer_args = ic_ledger_types::TransferArgs {
+        memo: Memo(0),
+        amount: balance - Tokens::from_e8s(ICP_FEE),
+        fee: Tokens::from_e8s(ICP_FEE),
+        from_subaccount: Some(principal_to_subaccount(&caller)),
+        to: AccountIdentifier::new(&canister_id, &DEFAULT_SUBACCOUNT),
+        created_at_time: None,
+    };
+    ic_ledger_types::transfer(ledger_canister_id, transfer_args)
+        .await
+        .map_err(|_| DepositErr::TransferFailure)?
+        .map_err(|_| DepositErr::TransferFailure)?;
+
+    println!(
+        "Deposit of {} ICP in account {:?}",
+        balance - Tokens::from_e8s(2 * ICP_FEE),
+        &account
+    );
+
+    Ok((balance.e8s() - 2 * ICP_FEE).into())
 }
 
-#[post_upgrade]
-fn post_upgrade() {
-    let (stable_state,) =
-        ic_cdk::storage::stable_restore().expect("failed to restore stable state");
-    STATE.with(|s| {
-        s.replace(stable_state);
-    });
+async fn deposit_token(caller: Principal, token: Principal) -> Result<u128, DepositErr> {
+    let token = DIP20::new(token);
+    let dip_fee = token.get_metadata().await.fee;
+
+    let allowance = token.allowance(caller, ic_cdk::api::id()).await;
+
+    let available = allowance - dip_fee;
+
+    token
+        .transfer_from(caller, ic_cdk::api::id(), available.to_owned())
+        .await
+        .map_err(|_| DepositErr::TransferFailure)?;
+
+    Ok(nat_to_u128(available).try_into().unwrap())
 }
 
 #[query]
@@ -536,8 +472,8 @@ pub fn getOrders() -> Vec<Order> {
 #[update]
 #[candid_method(update)]
 #[allow(non_snake_case)]
-pub fn deposit(token_canister_id: Principal, amount: Nat) -> DepositReceipt {
-    STATE.with(|s| s.borrow_mut().deposit(token_canister_id, amount))
+pub fn credit(owner: Principal, token_canister_id: Principal, amount: Nat) {
+    STATE.with(|s| s.borrow_mut().credit(owner, token_canister_id, amount))
 }
 
 #[query]
@@ -546,8 +482,7 @@ pub fn deposit(token_canister_id: Principal, amount: Nat) -> DepositReceipt {
 pub fn getDepositAddress() -> String {
     let canister_id = ic_cdk::api::id();
     let subaccount = principal_to_subaccount(&caller());
-    let account = AccountIdentifier::new(&canister_id, &subaccount).to_string();
-    account
+    AccountIdentifier::new(&canister_id, &subaccount).to_string()
 }
 
 #[update]
@@ -571,9 +506,78 @@ pub fn placeOrder(
 
 #[update]
 #[candid_method(update)]
+pub async fn withdraw(token_canister_id: Principal, amount: Nat) -> WithdrawReceipt {
+    let amount = STATE.with(|s| -> WithdrawReceipt {
+        if !s.borrow_mut().subtract_balance(
+            &caller(),
+            &token_canister_id,
+            nat_to_u128(amount.to_owned()),
+        ) {
+            Err(WithdrawErr::BalanceLow)
+        } else {
+            Ok(amount)
+        }
+    })?;
+
+    if token_canister_id == Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap() {
+        withdraw_icp(caller(), &amount).await?;
+    } else {
+        withdraw_token(caller(), token_canister_id, &amount).await?;
+    };
+
+    WithdrawReceipt::Ok(amount)
+}
+
+async fn withdraw_icp(caller: Principal, amount: &Nat) -> Result<Nat, WithdrawErr> {
+    // let ledger_canister_id = MAINNET_LEDGER_CANISTER_ID;
+    let ledger_canister_id = Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap();
+
+    let transfer_args = ic_ledger_types::TransferArgs {
+        memo: Memo(0),
+        amount: Tokens::from_e8s(nat_to_u128(amount.to_owned()).try_into().unwrap()),
+        fee: Tokens::from_e8s(ICP_FEE),
+        from_subaccount: Some(DEFAULT_SUBACCOUNT),
+        to: AccountIdentifier::new(&caller, &DEFAULT_SUBACCOUNT),
+        created_at_time: None,
+    };
+    ic_ledger_types::transfer(ledger_canister_id, transfer_args)
+        .await
+        .map_err(|_| WithdrawErr::TransferFailure)?
+        .map_err(|_| WithdrawErr::TransferFailure)?;
+
+    println!("Withdrawal of {} ICP to account {:?}", amount, &caller);
+
+    Ok(amount.to_owned())
+}
+
+async fn withdraw_token(
+    caller: Principal,
+    token: Principal,
+    amount: &Nat,
+) -> Result<Nat, WithdrawErr> {
+    let token = DIP20::new(token);
+    let dip_fee = token.get_metadata().await.fee;
+
+    token
+        .transfer(caller, amount.to_owned() - dip_fee)
+        .await
+        .map_err(|_| WithdrawErr::TransferFailure)?;
+
+    Ok(amount.to_owned())
+}
+
+#[update]
+#[candid_method(update)]
 #[allow(non_snake_case)]
-pub fn getSymbol(_token_canister_id: Principal) -> String {
-    "XXX".to_string()
+pub async fn getSymbol(token_canister_id: Principal) -> String {
+    // let ledger_canister_id = MAINNET_LEDGER_CANISTER_ID;
+    let ledger_canister_id = Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap();
+
+    if token_canister_id == ledger_canister_id {
+        "ICP".to_string()
+    } else {
+        DIP20::new(token_canister_id).get_metadata().await.symbol
+    }
 }
 
 #[query]
@@ -584,14 +588,32 @@ pub fn whoami() -> Principal {
 
 #[update]
 #[candid_method(update)]
-pub fn withdraw(token_canister_id: Principal, amount: Nat) -> WithdrawReceipt {
-    STATE.with(|s| s.borrow_mut().withdraw(token_canister_id, amount))
+pub fn clear() {
+    STATE.with(|s| s.borrow_mut().clear())
 }
 
-#[update]
-#[candid_method(update)]
-pub fn clear() -> String {
-    STATE.with(|s| s.borrow_mut().clear())
+#[init]
+#[candid_method(init)]
+pub fn init() -> () {
+    ic_cdk::setup();
+    STATE.with(|s| {
+        s.borrow_mut().owner = Some(caller());
+    });
+}
+
+#[pre_upgrade]
+fn pre_upgrade() {
+    let stable_state = STATE.with(|s| s.take());
+    ic_cdk::storage::stable_save((stable_state,)).expect("failed to save stable state");
+}
+
+#[post_upgrade]
+fn post_upgrade() {
+    let (stable_state,) =
+        ic_cdk::storage::stable_restore().expect("failed to restore stable state");
+    STATE.with(|s| {
+        s.replace(stable_state);
+    });
 }
 
 export_service!();

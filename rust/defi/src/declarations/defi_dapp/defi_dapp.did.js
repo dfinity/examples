@@ -1,20 +1,19 @@
 export const idlFactory = ({ IDL }) => {
   const OrderId = IDL.Nat32;
+  const CancelOrderErr = IDL.Variant({
+    'NotAllowed' : IDL.Null,
+    'NotExistingOrder' : IDL.Null,
+  });
   const CancelOrderReceipt = IDL.Variant({
-    'Ok' : OrderId,
-    'Err' : IDL.Variant({
-      'NotAllowed' : IDL.Null,
-      'NotExistingOrder' : IDL.Null,
-    }),
+    'Ok' : IDL.Nat64,
+    'Err' : CancelOrderErr,
   });
   const Token = IDL.Principal;
-  const DepositReceipt = IDL.Variant({
-    'Ok' : IDL.Nat,
-    'Err' : IDL.Variant({
-      'TransferFailure' : IDL.Null,
-      'BalanceLow' : IDL.Null,
-    }),
+  const DepositErr = IDL.Variant({
+    'TransferFailure' : IDL.Null,
+    'BalanceLow' : IDL.Null,
   });
+  const DepositReceipt = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : DepositErr });
   const Balance = IDL.Record({
     'token' : Token,
     'owner' : IDL.Principal,
@@ -22,29 +21,29 @@ export const idlFactory = ({ IDL }) => {
   });
   const Order = IDL.Record({
     'id' : OrderId,
-    'to' : Token,
+    'to' : IDL.Principal,
     'fromAmount' : IDL.Nat,
     'owner' : IDL.Principal,
-    'from' : Token,
+    'from' : IDL.Principal,
     'toAmount' : IDL.Nat,
   });
+  const OrderPlacementErr = IDL.Variant({
+    'InvalidOrder' : IDL.Null,
+    'OrderBookFull' : IDL.Null,
+  });
   const OrderPlacementReceipt = IDL.Variant({
-    'Ok' : Order,
-    'Err' : IDL.Variant({
-      'InvalidOrder' : IDL.Null,
-      'OrderBookFull' : IDL.Null,
-    }),
-    'Executed' : IDL.Null,
+    'Ok' : IDL.Opt(Order),
+    'Err' : OrderPlacementErr,
   });
-  const WithdrawReceipt = IDL.Variant({
-    'Ok' : IDL.Nat,
-    'Err' : IDL.Variant({
-      'TransferFailure' : IDL.Null,
-      'BalanceLow' : IDL.Null,
-    }),
+  const WithdrawErr = IDL.Variant({
+    'TransferFailure' : IDL.Null,
+    'BalanceLow' : IDL.Null,
   });
+  const WithdrawReceipt = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : WithdrawErr });
   return IDL.Service({
     'cancelOrder' : IDL.Func([OrderId], [CancelOrderReceipt], []),
+    'clear' : IDL.Func([], [], []),
+    'credit' : IDL.Func([IDL.Principal, Token, IDL.Nat], [], []),
     'deposit' : IDL.Func([Token, IDL.Nat], [DepositReceipt], []),
     'getAllBalances' : IDL.Func([], [IDL.Vec(Balance)], ['query']),
     'getBalance' : IDL.Func([Token], [IDL.Nat], ['query']),

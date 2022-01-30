@@ -1,4 +1,4 @@
-SHELL = sh -xv
+SHELL = bash -xv
 
 .PHONY: all
 all: build
@@ -29,15 +29,22 @@ test: deploy
 	dfx canister --wallet "$(wallet)" call defi_dapp clear
 	-dfx identity new test1
 	-dfx identity new test2
+	$(eval test1 := $(shell dfx identity use test1 >> /dev/null; dfx identity get-principal))
+	$(eval test2 := $(shell dfx identity use test2 >> /dev/null; dfx identity get-principal))
 	dfx identity use test1
 	dfx identity get-principal
+	echo $(principal)
 	dfx canister call defi_dapp getBalance '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai")'
-	dfx canister call defi_dapp deposit '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai", 1: nat)'
+	dfx identity use default
+	dfx canister --wallet "$(wallet)" call defi_dapp credit '(principal "$(test1)", principal "tfuft-aqaaa-aaaaa-aaaoq-cai", 1: nat)'
+	dfx identity use test1
 	dfx canister call defi_dapp getBalance '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai")'
 	dfx identity use test2
 	dfx identity get-principal
 	dfx canister call defi_dapp getBalance '(principal "tlwi3-3aaaa-aaaaa-aaapq-cai")'
-	dfx canister call defi_dapp deposit '(principal "tlwi3-3aaaa-aaaaa-aaapq-cai", 100: nat)'
+	dfx identity use default
+	dfx canister --wallet "$(wallet)" call defi_dapp credit '(principal "$(test2)", principal "tlwi3-3aaaa-aaaaa-aaapq-cai", 100: nat)'
+	dfx identity use test2
 	dfx canister call defi_dapp getBalance '(principal "tlwi3-3aaaa-aaaaa-aaapq-cai")'
 	dfx identity use test1
 	dfx canister call defi_dapp placeOrder '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai" : principal, 1: nat, principal "tlwi3-3aaaa-aaaaa-aaapq-cai", 2: nat)'
@@ -49,7 +56,9 @@ test: deploy
 	dfx canister call defi_dapp placeOrder '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai" : principal, 1: nat, principal "tlwi3-3aaaa-aaaaa-aaapq-cai", 2: nat)'
 	dfx canister call defi_dapp getOrders
 	dfx canister call defi_dapp getAllBalances
-	dfx canister call defi_dapp deposit '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai", 1: nat)'
+	dfx identity use default
+	dfx canister --wallet "$(wallet)" call defi_dapp credit '(principal "$(test1)", principal "tfuft-aqaaa-aaaaa-aaaoq-cai", 1: nat)'
+	dfx identity use test1
 	dfx canister call defi_dapp getAllBalances
 	dfx canister call defi_dapp placeOrder '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai" : principal, 1: nat, principal "tlwi3-3aaaa-aaaaa-aaapq-cai", 2: nat)'
 	echo "expect empty vec"
@@ -63,14 +72,17 @@ test: deploy
 	dfx canister call defi_dapp getAllBalances
 	echo "testing imbalanced trades"
 	dfx identity use default
-	$(eval wallet := $(shell dfx identity get-wallet))
 	dfx canister --wallet "$(wallet)" call defi_dapp clear
 	dfx identity use test1
 	dfx identity get-principal
-	dfx canister call defi_dapp deposit '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai", 9: nat)'
+	dfx identity use default
+	dfx canister --wallet "$(wallet)" call defi_dapp credit '(principal "$(test1)", principal "tfuft-aqaaa-aaaaa-aaaoq-cai", 9: nat)'
+	dfx identity use test1
 	dfx identity use test2
 	dfx identity get-principal
-	dfx canister call defi_dapp deposit '(principal "tlwi3-3aaaa-aaaaa-aaapq-cai", 2: nat)'
+	dfx identity use default
+	dfx canister --wallet "$(wallet)" call defi_dapp credit '(principal "$(test2)", principal "tlwi3-3aaaa-aaaaa-aaapq-cai", 2: nat)'
+	dfx identity use test2
 	dfx canister call defi_dapp getAllBalances
 	dfx canister call defi_dapp placeOrder '(principal "tlwi3-3aaaa-aaaaa-aaapq-cai" : principal, 2: nat, principal "tfuft-aqaaa-aaaaa-aaaoq-cai", 1: nat)'
 	dfx canister call defi_dapp getOrders
@@ -80,14 +92,17 @@ test: deploy
 	dfx canister call defi_dapp getAllBalances
 	echo "testing imbalanced trades with non-natural number trade amounts"
 	dfx identity use default
-	$(eval wallet := $(shell dfx identity get-wallet))
 	dfx canister --wallet "$(wallet)" call defi_dapp clear
 	dfx identity use test1
 	dfx identity get-principal
-	dfx canister call defi_dapp deposit '(principal "tfuft-aqaaa-aaaaa-aaaoq-cai", 9: nat)'
+	dfx identity use default
+	dfx canister --wallet "$(wallet)" call defi_dapp credit '(principal "$(test1)", principal "tfuft-aqaaa-aaaaa-aaaoq-cai", 9: nat)'
+	dfx identity use test1
 	dfx identity use test2
 	dfx identity get-principal
-	dfx canister call defi_dapp deposit '(principal "tlwi3-3aaaa-aaaaa-aaapq-cai", 2: nat)'
+	dfx identity use default
+	dfx canister --wallet "$(wallet)" call defi_dapp credit '(principal "$(test2)", principal "tlwi3-3aaaa-aaaaa-aaapq-cai", 2: nat)'
+	dfx identity use test2
 	dfx canister call defi_dapp getAllBalances
 	dfx canister call defi_dapp placeOrder '(principal "tlwi3-3aaaa-aaaaa-aaapq-cai" : principal, 2: nat, principal "tfuft-aqaaa-aaaaa-aaaoq-cai", 1: nat)'
 	dfx canister call defi_dapp getOrders

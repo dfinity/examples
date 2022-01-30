@@ -39,7 +39,7 @@ actor Dex {
     public shared(msg) func placeOrder(from: T.Token, fromAmount: Nat, to: T.Token, toAmount: Nat) : async T.OrderPlacementReceipt {
         let id = nextId();
         Debug.print("");
-        Debug.print("Placing order "# Nat32.toText(id) #"...");
+        Debug.print("Placing order "# Nat32.toText(id) #" from user " # Principal.toText(msg.caller) # " for selling " # Nat.toText(fromAmount) # " tokens " # Principal.toText(from));
         let owner=msg.caller;
         let submitted = Time.now();
         var price : Float = -1;
@@ -58,6 +58,7 @@ actor Dex {
 
         // Check if user balance in book is enough before creating the order.
         if(book.hasEnoughBalance(owner,from,fromAmount) == false) {
+            Debug.print("Not enough balance for user " # Principal.toText(owner) # " in token " # Principal.toText(from));
             return #Err(#InsufficientFunds);
         };
 
