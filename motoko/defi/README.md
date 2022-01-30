@@ -59,7 +59,7 @@ dfx canister call ledger transfer "(record { amount = record { e8s = 1000000 }; 
 # get token canister IDs
 export AKITA_ID=$(dfx canister --no-wallet id AkitaDIP20)
 export GOLDEN_ID=$(dfx canister --no-wallet id GoldenDIP20)
-export LEDGER_ID=$(dfx canister --no-wallet id GoldenDIP20)
+export LEDGER_ID=$(dfx canister --no-wallet id ledger)
 # deposit DIP. The amount that was approved
 
 dfx canister call defi_dapp deposit '(principal '\"$AKITA_ID\"')'
