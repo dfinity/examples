@@ -16,6 +16,11 @@ export const idlFactory = ({ IDL }) => {
       'BalanceLow' : IDL.Null,
     }),
   });
+  const Balance = IDL.Record({
+    'token' : Token,
+    'owner' : IDL.Principal,
+    'amount' : IDL.Nat,
+  });
   const Symbol = IDL.Text;
   const OrderStatus = IDL.Variant({
     'PartiallyExecuted' : IDL.Null,
@@ -56,6 +61,7 @@ export const idlFactory = ({ IDL }) => {
     'deposit' : IDL.Func([Token], [DepositReceipt], []),
     'depositAddress' : IDL.Func([], [IDL.Vec(IDL.Nat8)], []),
     'getBalance' : IDL.Func([Token], [IDL.Nat], ['query']),
+    'getBalances' : IDL.Func([], [IDL.Vec(Balance)], ['query']),
     'getOrder' : IDL.Func([OrderId], [IDL.Opt(Order)], []),
     'listOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
     'placeOrder' : IDL.Func(

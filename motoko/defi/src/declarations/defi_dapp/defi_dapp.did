@@ -56,11 +56,18 @@ type CancelOrderReceipt =
         };
    Ok: OrderId;
  };
+type Balance = 
+ record {
+   amount: nat;
+   owner: principal;
+   token: Token;
+ };
 service : {
   cancelOrder: (OrderId) -> (CancelOrderReceipt);
   deposit: (Token) -> (DepositReceipt);
   depositAddress: () -> (blob);
   getBalance: (Token) -> (nat) query;
+  getBalances: () -> (vec Balance) query;
   getOrder: (OrderId) -> (opt Order);
   listOrders: () -> (vec Order) query;
   placeOrder: (Token, nat, Token, nat) -> (OrderPlacementReceipt);

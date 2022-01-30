@@ -237,6 +237,24 @@ actor Dex {
         };
     };
 
+    public shared query (msg) func getBalances() : async [T.Balance] {
+        switch (book.get(msg.caller)) {
+            case (?token_balance) {
+                // placeholder will get overwritten
+                Array.map<(T.Token, Nat),T.Balance>(Iter.toArray(token_balance.entries()), func (k : T.Token, v: Nat) : T.Balance {
+                    {
+                        owner = msg.caller;
+                        token = k;
+                        amount = v;
+                    }
+                })
+            };
+            case (null) {
+                return [];
+            };
+        };
+    };
+
     public shared query (msg) func whoami() : async Principal {
         return msg.caller;
     };
@@ -250,9 +268,12 @@ actor Dex {
     };
 
     public shared(msg) func deposit(token: T.Token): async T.DepositReceipt {
+        Debug.print("Depositing Token: " # Principal.toText(token) # " LEDGER: " # Principal.toText(E.ledger()));
         if (token == E.ledger()) {
+            Debug.print("Depositing ICP");
             await depositIcp(msg.caller)
         } else {
+            Debug.print("Depositing DIP20");
             await depositDip(msg.caller, token)
         }
     };

@@ -53,21 +53,24 @@ export DEX_PRINCIPLE=$(dfx canister --no-wallet id defi_dapp)
 dfx canister --no-wallet call AkitaDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',10000000)'
 dfx canister --no-wallet call GoldenDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',10000000)'
 # get ICP deposit address (removes unnesessary comma at the end)
-export ICP_DEPOSIT_ADDR=$(dfx canister call defi_dapp deposit_address |sed 's/\(.*\),/\1 /' | tr -d '\n')
+export ICP_DEPOSIT_ADDR=$(dfx canister call defi_dapp depositAddress |sed 's/\(.*\),/\1 /' | tr -d '\n')
 # deposit some ICP in DEX
 dfx canister call ledger transfer "(record { amount = record { e8s = 1000000 }; to = $ICP_DEPOSIT_ADDR; fee = record { e8s = 10000}; memo = 1;})"
 # get token canister IDs
 export AKITA_ID=$(dfx canister --no-wallet id AkitaDIP20)
 export GOLDEN_ID=$(dfx canister --no-wallet id GoldenDIP20)
+export LEDGER_ID=$(dfx canister --no-wallet id GoldenDIP20)
 # deposit DIP. The amount that was approved
 
-dfx canister call defi_dapp deposit_dip '(principal '\"$AKITA_ID\"')'
-dfx canister call defi_dapp deposit_dip '(principal '\"$GOLDEN_ID\"')'
+dfx canister call defi_dapp deposit '(principal '\"$AKITA_ID\"')'
+dfx canister call defi_dapp deposit '(principal '\"$GOLDEN_ID\"')'
 # transfer ICP to DEX
-dfx canister call defi_dapp deposit_icp
+dfx canister call defi_dapp deposit '(principal '\"$LEDGER_ID\"')'
 
 # withdraw ICP
 dfx canister call defi_dapp withdraw_icp "(100000)"
+
+
 
 # withdraw DIP 
 PRINCIPAL=$(dfx identity get-principal)
@@ -80,7 +83,8 @@ dfx canister call defi_dapp withdraw_dip '(principal '\"$GOLDEN_ID\"',100000)'
 dfx canister --no-wallet call GoldenDIP20 balanceOf '(principal '\"$PRINCIPAL\"')'
 #user balance on DEX
 dfx canister call defi_dapp  balance '(principal '\"$GOLDEN_ID\"')'
-
+# get balances
+dfx canister call defi_dapp getBalances
 ```
 
 ### Token balance

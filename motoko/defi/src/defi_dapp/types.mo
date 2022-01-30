@@ -119,5 +119,10 @@ module {
             #TransferFailure;
         };
     };
+    public type Balance = {
+        owner: Principal;
+        token: Token;
+        amount: Nat;
+    };
 
 }

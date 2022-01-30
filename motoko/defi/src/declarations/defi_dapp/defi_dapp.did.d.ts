@@ -1,4 +1,9 @@
 import type { Principal } from '@dfinity/principal';
+export interface Balance {
+  'token' : Token,
+  'owner' : Principal,
+  'amount' : bigint,
+}
 export type CancelOrderReceipt = { 'Ok' : OrderId } |
   {
     'Err' : { 'NotAllowed' : null } |
@@ -40,6 +45,7 @@ export interface _SERVICE {
   'deposit' : (arg_0: Token) => Promise<DepositReceipt>,
   'depositAddress' : () => Promise<Array<number>>,
   'getBalance' : (arg_0: Token) => Promise<bigint>,
+  'getBalances' : () => Promise<Array<Balance>>,
   'getOrder' : (arg_0: OrderId) => Promise<[] | [Order]>,
   'listOrders' : () => Promise<Array<Order>>,
   'placeOrder' : (
