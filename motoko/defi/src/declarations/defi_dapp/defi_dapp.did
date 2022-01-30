@@ -9,9 +9,17 @@ type WithdrawReceipt =
 type Token = principal;
 type Time = int;
 type Symbol = text;
+type OrderStatus = 
+ variant {
+   Cancelled;
+   Executed;
+   PartiallyExecuted;
+   Submitted;
+ };
 type OrderPlacementReceipt = 
  variant {
    Err: variant {
+          InsufficientFunds;
           InvalidOrder;
           OrderBookFull;
         };
@@ -26,6 +34,7 @@ type Order =
    id: OrderId;
    owner: principal;
    price: float64;
+   status: OrderStatus;
    submitted: Time;
    to: Token;
    toAmount: nat;
