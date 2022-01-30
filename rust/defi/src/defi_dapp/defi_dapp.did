@@ -14,6 +14,7 @@ type OrderPlacementReceipt =
           OrderBookFull;
         };
    Ok: Order;
+   Executed;
  };
 type OrderId = nat32;
 type Order = 
@@ -41,15 +42,22 @@ type CancelOrderReceipt =
         };
    Ok: OrderId;
  };
+type Balance = record {
+  owner: principal;
+  token: Token;
+  amount: nat;
+};
 service : {
-  balance: (Token) -> (nat) query;
-  cancel_order: (OrderId) -> (CancelOrderReceipt);
-  check_order: (OrderId) -> (opt Order);
-  deposit: (Token) -> (DepositReceipt);
-  deposit_address: () -> (blob);
-  list_order: () -> (vec Order) query;
-  place_order: (Token, nat, Token, nat) -> (OrderPlacementReceipt);
-  symbol: (Token) -> (text);
+  getBalance: (Token) -> (nat) query;
+  getBalances: () -> (vec Balance) query;
+  getAllBalances: () -> (vec Balance) query;
+  cancelOrder: (OrderId) -> (CancelOrderReceipt);
+  getOrder: (OrderId) -> (opt Order);
+  getOrders: () -> (vec Order) query;
+  deposit: (Token, nat) -> (DepositReceipt);
+  getDepositAddress: () -> (blob);
+  placeOrder: (Token, nat, Token, nat) -> (OrderPlacementReceipt);
+  getSymbol: (Token) -> (text);
   whoami: () -> (principal) query;
   withdraw: (Token, nat) -> (WithdrawReceipt);
 }

@@ -1,5 +1,5 @@
-dfx stop
-dfx start --background --clean
+# dfx stop
+# dfx start --background --clean
 
 
 ### === DEPLOY LOCAL LEDGER =====

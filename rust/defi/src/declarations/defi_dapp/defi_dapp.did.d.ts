@@ -1,39 +1,44 @@
 import type { Principal } from '@dfinity/principal';
-export interface Balance { 'token_canister_id' : Principal, 'amount' : bigint }
-export interface Order {
-  'id' : bigint,
-  'from_amount' : bigint,
-  'from_token_canister_id' : Principal,
+export interface Balance {
+  'token' : Token,
   'owner' : Principal,
-  'to_amount' : bigint,
-  'to_token_canister_id' : Principal,
-}
-export interface OwnerBalance {
-  'owner' : Principal,
-  'token_canister_id' : Principal,
   'amount' : bigint,
 }
+export type CancelOrderReceipt = { 'Ok' : OrderId } |
+  { 'Err' : { 'NotAllowed' : null } | { 'NotExistingOrder' : null } };
+export type DepositReceipt = { 'Ok' : bigint } |
+  { 'Err' : { 'TransferFailure' : null } | { 'BalanceLow' : null } };
+export interface Order {
+  'id' : OrderId,
+  'to' : Token,
+  'fromAmount' : bigint,
+  'owner' : Principal,
+  'from' : Token,
+  'toAmount' : bigint,
+}
+export type OrderId = number;
+export type OrderPlacementReceipt = { 'Ok' : Order } |
+  { 'Err' : { 'InvalidOrder' : null } | { 'OrderBookFull' : null } } |
+  { 'Executed' : null };
+export type Token = Principal;
+export type WithdrawReceipt = { 'Ok' : bigint } |
+  { 'Err' : { 'TransferFailure' : null } | { 'BalanceLow' : null } };
 export interface _SERVICE {
-  'cancel_order' : (arg_0: bigint) => Promise<string>,
-  'clear' : () => Promise<string>,
-  'deposit' : (arg_0: Principal, arg_1: bigint) => Promise<string>,
-  'get_all_balances' : () => Promise<Array<OwnerBalance>>,
-  'get_all_orders' : () => Promise<Array<Order>>,
-  'get_balance' : (arg_0: Principal) => Promise<[] | [Balance]>,
-  'get_balances' : () => Promise<Array<Balance>>,
-  'get_from_orders' : (arg_0: Principal) => Promise<Array<Order>>,
-  'get_order' : (arg_0: bigint) => Promise<[] | [Order]>,
-  'get_orders' : () => Promise<Array<Order>>,
-  'get_to_orders' : (arg_0: Principal) => Promise<Array<Order>>,
-  'icp_deposit_account' : () => Promise<string>,
-  'place_order' : (
-      arg_0: Principal,
+  'cancelOrder' : (arg_0: OrderId) => Promise<CancelOrderReceipt>,
+  'deposit' : (arg_0: Token, arg_1: bigint) => Promise<DepositReceipt>,
+  'getAllBalances' : () => Promise<Array<Balance>>,
+  'getBalance' : (arg_0: Token) => Promise<bigint>,
+  'getBalances' : () => Promise<Array<Balance>>,
+  'getDepositAddress' : () => Promise<Array<number>>,
+  'getOrder' : (arg_0: OrderId) => Promise<[] | [Order]>,
+  'getOrders' : () => Promise<Array<Order>>,
+  'getSymbol' : (arg_0: Token) => Promise<string>,
+  'placeOrder' : (
+      arg_0: Token,
       arg_1: bigint,
-      arg_2: Principal,
+      arg_2: Token,
       arg_3: bigint,
-    ) => Promise<string>,
+    ) => Promise<OrderPlacementReceipt>,
   'whoami' : () => Promise<Principal>,
-  'withdraw' : (arg_0: Principal, arg_1: bigint, arg_2: Principal) => Promise<
-      undefined
-    >,
+  'withdraw' : (arg_0: Token, arg_1: bigint) => Promise<WithdrawReceipt>,
 }
