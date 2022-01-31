@@ -1,10 +1,13 @@
 <script>
     import { onMount } from 'svelte';
-    import { Actor, HttpAgent } from "@dfinity/agent";
-    import { AuthClient } from "@dfinity/auth-client";
-    import { idlFactory } from '../../../declarations/defi_dapp/defi_dapp.did.js';
+    import { Principal } from '@dfinity/principal';
+    import { orders, currentOrder } from '../store/order';
+    import { auth, plugWallet, anonymous } from '../store/auth';
+    import { canisters } from '../store/store';
+    import { FontAwesomeIcon } from 'fontawesome-svelte';
+    import { AuthClient } from '@dfinity/auth-client';
+ 
 
-    let orders = [];
     let backendActor;
     let authClient;
     
@@ -14,84 +17,117 @@
     let buyingOrder = false;
 
     const newOrder = {
-        fromAcct: "",
+        fromCanister: "",
         fromAmount: 0,
-        toAcct: "",
+        toCanister: "",
         toAmount: 0
     };
 
-    onMount(async () => {
-        authClient = await AuthClient.create();
-        const authenticated = await authClient.isAuthenticated();
-        if(authenticated) {
-            const identity = authClient.getIdentity();
-            const agent = new HttpAgent({identity, host: "http://localhost:8000"});
-            // development only, comment out in prod
-            agent.fetchRootKey();
-            // end comment out in prod only
-            backendActor = Actor.createActor(idlFactory, {
-                agent,
-                canisterId: process.env.DEFI_DAPP_CANISTER_ID
-            });
-
-            // TESTING
-            const depositAdd = await backendActor.deposit_address();
-            orders = await backendActor.list_order();
+    plugWallet.subscribe((value) => {
+        if(value.plugActor) {
+            console.log('Plug connected, using plug actor')
+            backendActor = value.plugActor;
         }
+    })
+    
+    auth.subscribe(async (value) => {
+        if(value.loggedIn) {
+            backendActor = value.actor
+            authClient = await AuthClient.create();
+        }
+    })
+
+    onMount(async () => {
+        // Use II as actor
+        if($auth.loggedIn) {
+            console.log("In orders, using II");
+            backendActor = $auth.actor;
+        }
+        else if ($plugWallet.isConnected) {
+            console.log("Using Plug for DEX actor");
+            backendActor = $plugWallet.plugActor;
+            console.log(backendActor)
+        }
+        else {
+            console.log('Using anonymous actor');
+            backendActor = $anonymous.actor;
+        }
+
+        const orderList = await backendActor.getOrders();
+        orders.set([]);
+        orders.set(orderList.reverse());
 	});
 
     async function placeOrder() {
         addingOrder = true;
-        const result = await backendActor.place_order(
-            newOrder.fromAcct,
+        const principal = Principal.fromText($canisters[2].canisterId);
+        const balance = await backendActor.getBalance(principal);
+        console.log(balance)
+        const result = await backendActor.placeOrder(
+            Principal.fromText(newOrder.fromCanister),
             newOrder.fromAmount,
-            newOrder.toAcct,
+            Principal.fromText(newOrder.toCanister),
             newOrder.toAmount);
 
-        if(result.status === 'Ok') {
-            orders.push(result.order);
-            orders = [...orders];
-            showOrderForm = false;
+        console.log(result)
+        if(result.Ok) {
+            const orderList = await backendActor.getOrders();
+            orders.set([]);
+            orders.set(orderList.reverse());
         }
-        addingOrder = false;
+        closeOrderForm();
     };
 
     async function buyOrder(order) {
         buyingOrder = true;
         // Create an order opposite of the one being bought
+        currentOrder.set(order);
         const newOrder = {
-            from: order.to,
+            fromCanister: order.to,
             fromAmount: order.toAmount,
-            to: order.from,
+            toCanister: order.from,
             toAmount: order.fromAmount
         };
-        const result = await backendActor.place_order(
-            newOrder.from,
+        const result = await backendActor.placeOrder(
+            newOrder.fromCanister,
             newOrder.fromAmount,
-            newOrder.to,
+            newOrder.toCanister,
             newOrder.toAmount
         )
-        console.log(result);
-        if(result && result.status === 'Ok') {
-            orders.push(result.order);
-            orders = [...orders];
+        console.log(result)
+        if(result && result.Ok) {
+            const orderList = await backendActor.getOrders();
+            orders.set([]);
+            orders.set(orderList.reverse());
         }
+        currentOrder.set({});
         buyingOrder = false;
+    };
+
+    function closeOrderForm() {
+        showOrderForm = false;
+        addingOrder = false;
     };
 
     async function cancelOrder(id) {
         cancelingOrder = true;
-        const result = await backendActor.cancel_order(id);
-        if(result && result.status === 'Canceled') {
-            const orderIndex = orders.findIndex((order) => {
-                return order.id === result.order_id
-            });
-            if(orderIndex > -1) {
-                orders.splice(orderIndex, 1);
-                orders = [...orders];
-            }
+        const order = $orders.find((o) => o.id === id);
+        currentOrder.set(order);
+        const result = await backendActor.cancelOrder(id);
+        if(result && result.Ok) {
+            const orderList = await backendActor.getOrders();
+            orders.set([]);
+            orders.set(orderList.reverse()); 
         }
+        currentOrder.set({});
         cancelingOrder = false;
+    };
+
+    async function getTokenSymbol(principal) {
+       const item =  $canisters.find((canister) => canister.canisterId === principal.toString())
+        if(item) {
+            return item.symbol;
+        }
     };
 </script>
 
@@ -101,18 +137,21 @@
             <div class="title">
                 <h2>Orders</h2>
             </div>
-            <div class="adding-order-btn">
-                <button on:click={() => showOrderForm = true } title="Add new order" class="add-btn">+</button>
-            </div>
+            {#if $auth.loggedIn || $plugWallet.isConnected}
+                <div class="adding-order-btn">
+                    <button on:click={() => showOrderForm = true } title="Add new order" class="add-btn">
+                        <FontAwesomeIcon icon="plus" />
+                    </button>
+                </div>
+            {/if}
         </div>
         <div>
             <table>
-                {#if orders.length}
+                {#if $orders.length}
                     <thead>
-                        <th>ID</th>
-                        <th>From Acct</th>
+                        <th>From Account</th>
                         <th>Amount</th>
-                        <th>To Acct</th>
+                        <th>To Account</th>
                         <th>Amount</th>
                         <th></th>
                     </thead>
@@ -120,44 +159,80 @@
                 <tbody>
                     {#if showOrderForm}
                     <tr>
-                        <td></td>
-                        <td><input class="input-style" placeholder="From Account..." bind:value={newOrder.fromAcct} /></td>
-                        <td><input class="input-style" bind:value={newOrder.fromAmount} type="number" /></td>
-                        <td><input class="input-style" placeholder="To Account..." bind:value={newOrder.toAcct} /></td>
-                        <td><input class="input-style" bind:value={newOrder.toAmount} type="number" /></td>
-                        <td><button class="action-btn btn-add" on:click={placeOrder}>
-                            <div class="add-btn-text">
-                                Add
-                            </div>
-                            {#if addingOrder}
-                                <div class="loader"></div>
-                            {/if}
-                        </button>
+                        <td>
+                            <select class="input-style" bind:value={newOrder.fromCanister}>
+                                {#each $canisters as canister}
+                                    <option value={canister.canisterId}>
+                                        {canister.symbol}
+                                    </option>
+                                {/each}
+                            </select>
                         </td>
-                        <td><button class="action-btn btn-cancel" on:click={() => showOrderForm = false}>Cancel</button></td>
+                        <td><input class="input-style" bind:value={newOrder.fromAmount} type="number" /></td>
+                        <td>
+                            <select class="input-style" bind:value={newOrder.toCanister}>
+                                {#each $canisters as canister}
+                                    <option value={canister.canisterId}>
+                                        {canister.symbol}
+                                    </option>
+                                {/each}
+                            </select>
+                        </td>                       
+                        <td><input class="input-style" bind:value={newOrder.toAmount} type="number" /></td>
+                        <td>
+                            <div>
+                                <button class="btn-accept" on:click={placeOrder} title="Place Order" >
+                                    <div class="add-btn-text">
+                                        {#if addingOrder}
+                                            <div class="loader"></div>
+                                        {:else}
+                                            <FontAwesomeIcon icon="check" />
+                                        {/if}
+                                    </div>
+                                </button>
+                                <button class="btn-cancel" on:click={closeOrderForm} title="Cancel" >
+                                    <FontAwesomeIcon icon="times" />
+                                </button>
+                            </div>
+                        </td>
                     </tr>
                     {/if}
-                    {#each orders as order}
+                    {#each $orders as order}
                     <tr>
-                        <td>{order.id}</td>
-                        <td>{order.from}</td>
+                        <td>
+                            {#await getTokenSymbol(order.from)}
+                            <span>Loading Symbol...</span>
+                            {:then symbol}
+                            {symbol}
+                            {/await}
+                        </td>
                         <td>{order.fromAmount}</td>
-                        <td>{order.to}</td>
+                        <td>
+                            {#await getTokenSymbol(order.to)}
+                                <span>Loading Symbol...</span>
+                            {:then symbol}
+                                {symbol}
+                            {/await}
+                        </td>
                         <td>{order.toAmount}</td>
                         <td>
-                            <button class="action-btn btn-buy">
-                                <div class="buy-btn-text" on:click={() => buyOrder(order)}>Buy</div>
-                                {#if buyingOrder}
-                                    <div class="loader buy-btn-loader"></div>
+                            <button class="btn-accept" title="Buy order">
+                                {#if buyingOrder && $currentOrder.id === order.id}
+                                <div class="loader buy-btn-loader"></div>
+                                {:else}
+                                    <div class="buy-btn-text" on:click={() => buyOrder(order)}>
+                                        <FontAwesomeIcon icon="check" />
+                                    </div>
                                 {/if}
                             </button>
-                            {#if order.owner.toText() === authClient.getIdentity().getPrincipal().toText()}
-                                <button class="action-btn btn-cancel" on:click={() => cancelOrder(order.id)}>
-                                    <div class="cancel-btn-text">
-                                        Cancel Order
-                                    </div>
-                                    {#if cancelingOrder}
+                            {#if authClient && order.owner.toText() === authClient.getIdentity().getPrincipal().toText()}
+                                <button class="btn-cancel" on:click={() => cancelOrder(order.id)} title="Cancel order">
+                                    {#if cancelingOrder && $currentOrder.id === order.id}
                                         <div class="loader cancel-btn-loader"></div>
+                                    {:else}
+                                        <div class="cancel-btn-text">
+                                            <FontAwesomeIcon icon="times" />
+                                        </div>
                                     {/if}
                                 </button>
                             {/if}
@@ -171,9 +246,20 @@
 </div>
 
 <style>
+    table {
+        width: 100%;
+    }
+
+    th {
+        font-weight: bold;
+        font-size: 20px;
+    }
     .order-container {
         text-align: left !important;
         margin-bottom: 36px;
+        background-color: #333336;
+        padding: 10px;
+        border-radius: 10px;
     }
 
     .header-container {
@@ -202,39 +288,17 @@
         background-color: rgb(209, 209, 209);
     }
 
-    .input-style {
-        width: 100%;
-        padding: 12px 20px;
-        margin: 8px 0;
-        display: inline-block;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        box-sizing: border-box;
-    }
-
-    .action-btn {
-        padding: 5px 30px;
-        border-radius: 5px;
-    }
-
-    .btn-add {
-        display: flex;
-        background-color: green;
-    }
-    .btn-add:hover {
-        background-color: rgb(0, 169, 0);
-    }
     .btn-cancel {
-        background-color: red;
+        background-color: white;
     }
     .btn-cancel:hover {
-        background-color: rgb(255, 48, 48);
+        background-color: rgb(169, 169, 169);
     }
-    .btn-buy {
-        background-color: blue;
+    .btn-accept {
+        background-color: green;
     }
-    .btn-buy:hover {
-        background-color: rgb(90, 90, 255);
+    .btn-accept:hover {
+        background-color: rgb(0, 163, 0);
     }
 
     .add-btn-text {
@@ -257,27 +321,5 @@
 
     .buy-btn-loader {
         vertical-align: middle;
-    }
-
-    .loader {
-        display: inline-flex;
-        border: 3px solid #f3f3f3;
-        border-radius: 50%;
-        border-top: 3px solid #3498db;
-        width: 12px;
-        height: 12px;
-        -webkit-animation: spin 2s linear infinite; /* Safari */
-        animation: spin 2s linear infinite;
-    }
-
-    /* Safari */
-    @-webkit-keyframes spin {
-      0% { -webkit-transform: rotate(0deg); }
-      100% { -webkit-transform: rotate(360deg); }
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
     }
 </style>

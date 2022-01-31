@@ -28,7 +28,7 @@ service : {
   cancelOrder: (OrderId) -> (CancelOrderReceipt);
   getOrder: (OrderId) -> (opt Order);
   getOrders: () -> (vec Order) query;
-  deposit: (Token, nat) -> (DepositReceipt);
+  deposit: (Token) -> (DepositReceipt);
   getDepositAddress: () -> (blob);
   placeOrder: (Token, nat, Token, nat) -> (OrderPlacementReceipt);
   getSymbol: (Token) -> (text);

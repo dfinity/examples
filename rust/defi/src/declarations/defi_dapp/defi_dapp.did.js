@@ -44,7 +44,7 @@ export const idlFactory = ({ IDL }) => {
     'cancelOrder' : IDL.Func([OrderId], [CancelOrderReceipt], []),
     'clear' : IDL.Func([], [], []),
     'credit' : IDL.Func([IDL.Principal, Token, IDL.Nat], [], []),
-    'deposit' : IDL.Func([Token, IDL.Nat], [DepositReceipt], []),
+    'deposit' : IDL.Func([Token], [DepositReceipt], []),
     'getAllBalances' : IDL.Func([], [IDL.Vec(Balance)], ['query']),
     'getBalance' : IDL.Func([Token], [IDL.Nat], ['query']),
     'getBalances' : IDL.Func([], [IDL.Vec(Balance)], ['query']),

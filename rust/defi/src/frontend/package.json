@@ -28,6 +28,9 @@
     "@dfinity/candid": "^0.10.2",
     "@dfinity/identity": "^0.10.1",
     "@dfinity/principal": "0.10.1",
+    "@fortawesome/fontawesome-svg-core": "^1.2.36",
+    "@fortawesome/free-solid-svg-icons": "^5.15.4",
+    "fontawesome-svelte": "^2.0.1",
     "sirv-cli": "^1.0.0"
   }
 }
