@@ -2,8 +2,8 @@ use candid::{CandidType, Nat, Principal};
 
 pub type OrderId = u32;
 
-#[derive(CandidType, Clone)]
 #[allow(non_snake_case)]
+#[derive(CandidType, Clone)]
 pub struct Order {
     pub id: OrderId,
     pub owner: Principal,
