@@ -72,7 +72,7 @@ module {
                     // check if user already has existing balance for this token
                     switch (token_balance.get(token)){
                         case (?balance) {
-                            Debug.print( debug_show("User", user, "has existing balance of ", token, " new amount: ",balance+amount));
+                            Debug.print( debug_show("User", user, "has existing balance of ", token, " new amount: ",balance-amount));
                             if (balance>=amount){
                                 token_balance.put(token, balance-amount);
                                 ?(balance-amount)

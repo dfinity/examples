@@ -240,7 +240,6 @@ actor Dex {
     public shared query (msg) func getBalances() : async [T.Balance] {
         switch (book.get(msg.caller)) {
             case (?token_balance) {
-                // placeholder will get overwritten
                 Array.map<(T.Token, Nat),T.Balance>(Iter.toArray(token_balance.entries()), func (k : T.Token, v: Nat) : T.Balance {
                     {
                         owner = msg.caller;
