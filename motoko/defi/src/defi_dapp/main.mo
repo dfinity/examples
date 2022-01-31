@@ -64,7 +64,7 @@ actor Dex {
 
         switch(dip) {
             case (?dip_token) {
-                let dip_symbol = await symbol(dip_token);
+                let dip_symbol = await getSymbol(dip_token);
                 let exchange = switch (exchanges.get(dip_symbol)) {
                     case null {
                         let exchange : E.Exchange = E.Exchange(dip_token, dip_symbol, book);
@@ -124,7 +124,7 @@ actor Dex {
         null;
     };
 
-    public query func listOrders() : async([T.Order]) {
+    public query func getOrders() : async([T.Order]) {
         Debug.print("List orders...");
         getAllOrders()
     };
@@ -357,7 +357,7 @@ actor Dex {
         metadata.fee
     };
 
-    public func symbol(token: T.Token) : async Text {
+    public func getSymbol(token: T.Token) : async Text {
         let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
         let metadata = await dip20.getMetadata();
         metadata.symbol

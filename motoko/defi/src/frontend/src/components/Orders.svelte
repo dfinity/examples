@@ -53,7 +53,7 @@
             backendActor = $anonymous.actor;
         }
 
-        const orderList = await backendActor.listOrders();
+        const orderList = await backendActor.getOrders();
         orders.set([]);
         orders.set(orderList.reverse());
 	});
@@ -71,7 +71,7 @@
 
         console.log(result)
         if(result.Ok) {
-            const orderList = await backendActor.listOrders();
+            const orderList = await backendActor.getOrders();
             orders.set([]);
             orders.set(orderList.reverse());
         }
@@ -96,7 +96,7 @@
         )
         console.log(result)
         if(result && result.Ok) {
-            const orderList = await backendActor.listOrders();
+            const orderList = await backendActor.getOrders();
             orders.set([]);
             orders.set(orderList.reverse());
         }
@@ -115,7 +115,7 @@
         currentOrder.set(order);
         const result = await backendActor.cancelOrder(id);
         if(result && result.Ok) {
-            const orderList = await backendActor.listOrders();
+            const orderList = await backendActor.getOrders();
             orders.set([]);
             orders.set(orderList.reverse()); 
         }

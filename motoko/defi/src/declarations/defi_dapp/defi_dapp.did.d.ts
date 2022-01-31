@@ -47,14 +47,14 @@ export interface _SERVICE {
   'getBalance' : (arg_0: Token) => Promise<bigint>,
   'getBalances' : () => Promise<Array<Balance>>,
   'getOrder' : (arg_0: OrderId) => Promise<[] | [Order]>,
-  'listOrders' : () => Promise<Array<Order>>,
+  'getOrders' : () => Promise<Array<Order>>,
+  'getSymbol' : (arg_0: Token) => Promise<string>,
   'placeOrder' : (
       arg_0: Token,
       arg_1: bigint,
       arg_2: Token,
       arg_3: bigint,
     ) => Promise<OrderPlacementReceipt>,
-  'symbol' : (arg_0: Token) => Promise<string>,
   'whoami' : () => Promise<Principal>,
   'withdraw' : (arg_0: Token, arg_1: bigint) => Promise<WithdrawReceipt>,
 }

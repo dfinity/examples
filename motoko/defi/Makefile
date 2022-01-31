@@ -1,12 +1,11 @@
+SHELL = /bin/bash
 t.PHONY: all
 all: build
 
 .PHONY: node_modules
 .SILENT: node_modules
 node_modules:
-	pushd src/frontend
-	npm install
-	popd
+	pushd src/frontend; npm install; popd
 
 .PHONY: build
 .SILENT: build

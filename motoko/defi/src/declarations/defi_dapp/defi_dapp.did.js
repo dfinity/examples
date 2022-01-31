@@ -63,13 +63,13 @@ export const idlFactory = ({ IDL }) => {
     'getBalance' : IDL.Func([Token], [IDL.Nat], ['query']),
     'getBalances' : IDL.Func([], [IDL.Vec(Balance)], ['query']),
     'getOrder' : IDL.Func([OrderId], [IDL.Opt(Order)], []),
-    'listOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
+    'getOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
+    'getSymbol' : IDL.Func([Token], [IDL.Text], []),
     'placeOrder' : IDL.Func(
         [Token, IDL.Nat, Token, IDL.Nat],
         [OrderPlacementReceipt],
         [],
       ),
-    'symbol' : IDL.Func([Token], [IDL.Text], []),
     'whoami' : IDL.Func([], [IDL.Principal], ['query']),
     'withdraw' : IDL.Func([Token, IDL.Nat], [WithdrawReceipt], []),
   });
