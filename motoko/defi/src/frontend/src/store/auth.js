@@ -29,6 +29,7 @@ export function createActor(options) {
 
   // Fetch root key for certificate validation during development
   if (process.env.NODE_ENV !== "production") {
+    console.log('fetchRootKey')
     agent.fetchRootKey().catch((err) => {
       console.warn(
         "Unable to fetch root key. Check to ensure that your local replica is running"
@@ -55,4 +56,9 @@ export const plugWallet = writable({
   isConnected: false,
   principal: '',
   plugActor: null
-})
+});
+
+export const anonymous = writable({
+  actor: createActor()
+});
+

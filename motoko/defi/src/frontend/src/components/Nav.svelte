@@ -12,47 +12,57 @@
     /** @type {AuthClient} */
     let client;
 
-// Plug wallet connection request
+    // Plug wallet connection request
     onMount(async () => {
         // Internet Identity
         client = await AuthClient.create();
+        const id = client.getIdentity();
+        console.log('in mount')
+        console.log(id.getPrincipal().toString())
         if (await client.isAuthenticated()) {
             handleAuth();
         }
 
-        // Plug wallet 
-        plugWallet.set({
-            ...$plugWallet,
-            isConnected:  await window.ic.plug.isConnected()
-        });
+        if($plugWallet.isConnected)
+            setPlugWalletInfo();
 
-        if($plugWallet.isConnected) {
-            // create plug actor   
-            const principal = await window.ic.plug.getPrincipal();
-            console.log(window.ic.plug)
-            await window.ic.plug.createAgent({whiteList, host: "localhost:8000"});
-            window.ic.plug.agent.fetchRootKey();
-            const plugActor = await window.ic.plug.createActor({
-                canisterId: DEX_CANISTER_ID,
-                interfaceFactory: idlFactory
-            });
-            console.log(plugActor)
-            plugWallet.set({...$plugWallet, principal, plugActor});
-        }
 	});
 
     async function requestPlugConnection() {
         try {
-            const publicAddress = await window.ic.plug.requestConnect(whiteList, "http://localhost:8000");
-            console.log(`The connected user's public key is:`, publicAddress);
-            const principal = await window.ic.plug.getPrincipal();
-            plugWallet.set({...$plugWallet, publicAddress, principal, isConnected: true})
+            const host = process.env.DFX_NETWORK === "ic"
+                ? `https://${process.env.DEFI_DAPP_CANISTER_ID}.ic0.app`
+                : "http://localhost:8000";
+            await window.ic.plug.requestConnect(whiteList, host);
+            setPlugWalletInfo();
         } catch (e) {
             console.log(e);
         }
     };
 
+    async function setPlugWalletInfo() {
+        // create plug actor   
+        const principal = await window.ic.plug.getPrincipal();
+        const plugOptions = {
+            whiteList,
+            host: process.env.DFX_NETWORK === "ic"
+                ? `https://${process.env.DEFI_DAPP_CANISTER_ID}.ic0.app`
+                : "http://localhost:8000",
+        }
+        await window.ic.plug.createAgent(plugOptions);
+        if(process.env.NODE_ENV !== 'production') {
+            window.ic.plug.agent.fetchRootKey();
+        }
+        const plugActor = await window.ic.plug.createActor({
+            canisterId: DEX_CANISTER_ID,
+            interfaceFactory: idlFactory
+        });
+        plugWallet.set({...$plugWallet, principal, plugActor, isConnected: true});       
+    }
+
     function handleAuth() {
+        console.log('in handle auth');
+        console.log(client.getIdentity())
         auth.update(() => ({
           loggedIn: true,
           actor: createActor({
