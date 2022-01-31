@@ -477,7 +477,7 @@ pub fn credit(owner: Principal, token_canister_id: Principal, amount: Nat) {
 
 #[query(name = "getDepositAddress")]
 #[candid_method(query, rename = "getDepositAddress")]
-pub fn get_deposit_address() -> AccountIdentifer {
+pub fn get_deposit_address() -> AccountIdentifier {
     let canister_id = ic_cdk::api::id();
     let subaccount = principal_to_subaccount(&caller());
     AccountIdentifier::new(&canister_id, &subaccount)
