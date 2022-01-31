@@ -588,6 +588,13 @@ pub fn whoami() -> Principal {
     caller()
 }
 
+#[query(name = "withdrawalAddress")]
+#[candid_method(query, rename = "withdrawalAddress")]
+pub fn withdrawal_address() -> String {
+    AccountIdentifier::new(&caller(), &DEFAULT_SUBACCOUNT).to_string()
+}
+
+
 #[update]
 #[candid_method(update)]
 pub fn clear() {

@@ -363,6 +363,9 @@ actor Dex {
         metadata.symbol
     };
 
+    public shared(msg) func withdrawalAddress(): async Blob {
+        Account.accountIdentifier(msg.caller, Account.defaultSubaccount())
+    };
 
     // Required since maps cannot be stable and need to be moved to stable memory
     // Before canister upgrade book hashmap gets stored in stable memory such that it survives updates
