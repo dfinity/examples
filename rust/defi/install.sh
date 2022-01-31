@@ -19,6 +19,7 @@ dfx deploy ledger --argument '(record  {
     initial_values = vec { record { "'${LEDGER_ACC}'"; record { e8s=100_000_000_000 } }; };
     send_whitelist = vec {}
     })'
+export LEDGER_ID=$(dfx canister id ledger)
 
 # Replace with public api
 rm src/ledger/ledger.did
@@ -51,7 +52,7 @@ popd
 
 ## === INSTALL FRONTEND / BACKEND ==== 
 
-dfx deploy defi_dapp
+dfx deploy defi_dapp --argument "(principal \"$LEDGER_ID\")"
 
 pushd src/frontend
 npm install

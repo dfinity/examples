@@ -74,4 +74,5 @@ service : {
   placeOrder: (Token, nat, Token, nat) -> (OrderPlacementReceipt);
   whoami: () -> (principal) query;
   withdraw: (Token, nat) -> (WithdrawReceipt);
+  withdrawalAddress: () -> (blob);
 }
