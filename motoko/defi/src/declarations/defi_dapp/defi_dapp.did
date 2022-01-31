@@ -65,9 +65,9 @@ type Balance =
 service : {
   cancelOrder: (OrderId) -> (CancelOrderReceipt);
   deposit: (Token) -> (DepositReceipt);
-  depositAddress: () -> (blob);
   getBalance: (Token) -> (nat) query;
   getBalances: () -> (vec Balance) query;
+  getDepositAddress: () -> (blob);
   getOrder: (OrderId) -> (opt Order);
   getOrders: () -> (vec Order) query;
   getSymbol: (Token) -> (text);

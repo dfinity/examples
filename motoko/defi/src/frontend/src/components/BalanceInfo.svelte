@@ -68,7 +68,7 @@
             console.log(iiPrincipal)
             const goldenBalance = 0; // await goldenActor.balanceOf(iiPrincipal);
             const akitaBalance = 0; //await akitaActor.balanceOf(iiPrincipal);
-            const depositAddress = await backendActor.depositAddress();
+            const depositAddress = await backendActor.getDepositAddress();
             const param = {
                 account: depositAddress
             }
@@ -102,7 +102,7 @@
             backendActor = $plugWallet.plugActor;
         }
 
-        accountAddressBlob = await backendActor.depositAddress();
+        accountAddressBlob = await backendActor.getDepositAddress();
         depositAddress = toHexString(accountAddressBlob);
         fetchingAddress = false;
     });

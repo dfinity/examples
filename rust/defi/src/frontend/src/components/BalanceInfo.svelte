@@ -102,7 +102,7 @@
             backendActor = $plugWallet.plugActor;
         }
 
-        accountAddressBlob = await backendActor.depositAddress();
+        accountAddressBlob = await backendActor.getDepositAddress();
         depositAddress = toHexString(accountAddressBlob);
         fetchingAddress = false;
     });

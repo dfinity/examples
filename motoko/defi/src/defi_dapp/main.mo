@@ -262,7 +262,7 @@ actor Dex {
     // ===== DEPOSIT FUNCTIONS =====
 
     // Return the account ID specific to this user's subaccount
-    public shared(msg) func depositAddress(): async Blob {
+    public shared(msg) func getDepositAddress(): async Blob {
         Account.accountIdentifier(Principal.fromActor(Dex), Account.principalToSubaccount(msg.caller));
     };
 

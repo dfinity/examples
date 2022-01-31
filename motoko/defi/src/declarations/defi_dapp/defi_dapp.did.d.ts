@@ -43,9 +43,9 @@ export type WithdrawReceipt = { 'Ok' : bigint } |
 export interface _SERVICE {
   'cancelOrder' : (arg_0: OrderId) => Promise<CancelOrderReceipt>,
   'deposit' : (arg_0: Token) => Promise<DepositReceipt>,
-  'depositAddress' : () => Promise<Array<number>>,
   'getBalance' : (arg_0: Token) => Promise<bigint>,
   'getBalances' : () => Promise<Array<Balance>>,
+  'getDepositAddress' : () => Promise<Array<number>>,
   'getOrder' : (arg_0: OrderId) => Promise<[] | [Order]>,
   'getOrders' : () => Promise<Array<Order>>,
   'getSymbol' : (arg_0: Token) => Promise<string>,
