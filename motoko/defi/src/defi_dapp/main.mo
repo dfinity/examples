@@ -65,7 +65,7 @@ actor Dex {
         // Check if user balance in book is enough before creating the order.
         if(book.hasEnoughBalance(owner,from,fromAmount) == false) {
             Debug.print("Not enough balance for user " # Principal.toText(owner) # " in token " # Principal.toText(from));
-            return #Err(#InsufficientFunds);
+            return #Err(#InvalidOrder);
         };
 
         let exchange = switch (exchanges.get(trading_pair)) {
@@ -99,7 +99,7 @@ actor Dex {
                     } else {
                         switch (e.cancelOrder(order_id)) {
                             case (?canceled) return #Ok(canceled.id);
-                            case null return #Err(#InternalError)
+                            case null return #Err(#NotAllowed)
                         }
                     };
                 case null {}

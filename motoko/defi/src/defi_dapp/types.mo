@@ -77,35 +77,37 @@ module {
     };
 
     // return types
+    public type OrderPlacementErr = {
+        #InvalidOrder;
+        #OrderBookFull;
+    };
     public type OrderPlacementReceipt = {
         #Ok: Order;
-        #Err: {
-            #InvalidOrder;
-            #OrderBookFull;
-            #InsufficientFunds;
-        };
+        #Err: OrderPlacementErr;
+    };
+    public type CancelOrderErr = {
+        #NotExistingOrder;
+        #NotAllowed;
     };
     public type CancelOrderReceipt = {
         #Ok: OrderId;
-        #Err: {
-            #NotExistingOrder;
-            #NotAllowed;
-            #InternalError;
-        };
+        #Err: CancelOrderErr;
+    };
+    public type WithdrawErr = {
+        #BalanceLow;
+        #TransferFailure;
     };
     public type WithdrawReceipt = {
         #Ok: Nat;
-        #Err: {
-            #BalanceLow;
-            #TransferFailure;
-        };
+        #Err: WithdrawErr;  
+    };
+    public type DepositErr = {
+        #BalanceLow;
+        #TransferFailure;
     };
     public type DepositReceipt = {
         #Ok: Nat;
-        #Err: {
-            #BalanceLow;
-            #TransferFailure;
-        };
+        #Err: DepositErr;
     };
     public type Balance = {
         owner: Principal;
