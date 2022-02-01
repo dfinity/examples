@@ -8,3 +8,5 @@ export const canisters = writable(
     ]
 );
 
+export const userBalances = writable([]);
+
