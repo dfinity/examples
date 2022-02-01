@@ -7,6 +7,7 @@ import Iter "mo:base/Iter";
 import L "mo:base/List";
 import M "mo:base/HashMap";
 import Nat "mo:base/Nat";
+import Text "mo:base/Text";
 import Nat32 "mo:base/Nat32";
 import Nat64 "mo:base/Nat64";
 import Order "mo:base/Order";
@@ -23,16 +24,16 @@ module {
 
     public let ledger = func(): Principal { Principal.fromActor(Ledger) };
 
+
+
     // An exchange between ICP and a DIP20 token.
-    public class Exchange(dip: T.Token, symbol: Text, book: Book.Book) {
+    public class Exchange(trading_pair: T.TradingPair, book: Book.Book) {
 
         // The implicit pair will be dip/ICP (to have the price of a dip in ICP), therefore:
         // bid is for buying dip (ie selling ICP).
         // ask is for selling dip (ie buying ICP).
         let orders_bid = M.HashMap<T.OrderId, T.Order>(10, func(x,y){x == y}, func(x) {x});
         let orders_ask = M.HashMap<T.OrderId, T.Order>(10, func(x,y){x == y}, func(x) {x});
-
-        public func getSymbol() : Text { symbol };
 
         public func getOrder(id: T.OrderId) : ?T.Order {
             switch (orders_bid.get(id)) {
@@ -47,7 +48,7 @@ module {
         };
 
         public func getOrders() : [T.Order] {
-            Debug.print("List orders on exchange " # symbol);
+            Debug.print("List orders on exchange " # Principal.toText(trading_pair.0) # "/" # Principal.toText(trading_pair.1));
             let buff : B.Buffer<T.Order> = B.Buffer(10);
             for (o in orders_bid.vals()) {
                 buff.add(o);
@@ -74,15 +75,10 @@ module {
         };
 
         public func addOrder(o: T.Order) {
-            if(o.from == ledger()) {
-                // convert ICP to token.
+            if(o.from == trading_pair.0) {
                 orders_bid.put(o.id, o);
-            } else if (o.to == ledger()) {
-                // convert token to ICP.
-                orders_ask.put(o.id, o);
             } else {
-                // TODO handle invalid order (already filtered in main but still need proper error msg here).
-                Debug.print("Invalid order");
+                orders_ask.put(o.id, o);
             };
             print_book();
             var m=true;
@@ -127,7 +123,7 @@ module {
             let it_bid = bid.entriesRev();
             let it_ask = ask.entries();
 
-            Debug.print("======= " # symbol # " / ICP =======");
+            Debug.print("======= " # Principal.toText(trading_pair.0) # "/" # Principal.toText(trading_pair.1) # "  =======");
             Debug.print("=== BID === | === ASK ===");
             var i = 0;
             while (i < nb_bid or i < nb_ask) {
@@ -236,8 +232,8 @@ module {
                 Debug.print("[execution] Invalid ICP volume");
                 return false;
             };
-            let vol_icp : Nat = Int.abs(vol_icp_int);
-            Debug.print("Executing exchange of " # Nat.toText(vol_dip) # " DIP for " # Nat.toText(vol_icp) # " ICP (price " # Float.toText(price) # " icp per dip)" );
+            let vol_icp : Nat = Int.abs(vol_icp_int); 
+            Debug.print("Executing exchange of " # Nat.toText(vol_dip) # " " # Principal.toText(trading_pair.1) # " for " # Nat.toText(vol_icp) # " " # Principal.toText(trading_pair.0) #  " (price " # Float.toText(price)# " " # Principal.toText(trading_pair.0) # " per " # Principal.toText(trading_pair.1)  # ")" );
 
             // we transfer the icp from bid to ask and the dip from ask to bid.
             switch (book.removeTokens(bid.owner, bid.from, vol_icp)) {
@@ -269,7 +265,6 @@ module {
                                             fromAmount = remainingFromAmount;
                                             to = r.to;
                                             toAmount = remainingToAmount;
-                                            dip_symbol = r.dip_symbol;
                                             submitted = r.submitted;
                                             price = r.price;
                                             status = #PartiallyExecuted;
@@ -298,7 +293,6 @@ module {
                                             fromAmount = remainingFromAmount;
                                             to = r.to;
                                             toAmount = remainingToAmount;
-                                            dip_symbol = r.dip_symbol;
                                             submitted = r.submitted;
                                             price = r.price;
                                             status = #PartiallyExecuted;

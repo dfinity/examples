@@ -106,7 +106,5 @@ module {
                 case null return false;
             };
         }
-
     }
-
 }

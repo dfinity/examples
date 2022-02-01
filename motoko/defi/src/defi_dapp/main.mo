@@ -1,6 +1,7 @@
 import Array "mo:base/Array";
 import Buffer "mo:base/Buffer";
 import Debug "mo:base/Debug";
+import Bool "mo:base/Debug";
 import Float "mo:base/Float";
 import Int "mo:base/Int";
 import Int64 "mo:base/Int64";
@@ -9,6 +10,7 @@ import M "mo:base/HashMap";
 import Nat64 "mo:base/Nat64";
 import Nat32 "mo:base/Nat32";
 import Nat "mo:base/Nat";
+import Hash "mo:base/Hash";
 import Principal "mo:base/Principal";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
@@ -29,7 +31,11 @@ actor Dex {
 
     stable var orders_stable : [T.Order] = [];
     stable var lastId : Nat32 = 0;
-    var exchanges = M.HashMap<T.Symbol, E.Exchange>(10, Text.equal, Text.hash);
+    var exchanges = M.HashMap<T.TradingPair, E.Exchange>(10, func (k1: T.TradingPair,k2: T.TradingPair): Bool {
+        Principal.equal(k1.0,k2.0) and Principal.equal(k1.1,k2.1)
+    }, func (k : T.TradingPair) {
+        Text.hash(Text.concat(Principal.toText(k.0),Principal.toText(k.1)))
+    });
 
     // User balance datastructure
     private var book = B.Book();
@@ -44,16 +50,28 @@ actor Dex {
         let submitted = Time.now();
         var price : Float = -1;
 
-        // Find dip token and symbol.
-        var dip : ?T.Token = null;
-        if(from==E.ledger()) {
-            dip := ?to;
+        // consturct trading pair which is used to select correct exchange
+        // following pair is constructed (X,Y) where X is less accoriding to principal compare function
+        // this is needed that buy and sell orders use the same exchange
+        var trading_pair=(from,to);
+        switch(create_trading_pair(from,to)){
+            case(?tp){
+                trading_pair:=tp;
+            };
+            case(null){
+                return #Err(#InvalidOrder);
+            }
+        };
+
+        // calculate price based on trading pair
+        // trading pair :: X/Y i.e GLD/ICP
+        // i.e ICP (from) -> GLD(to) 
+        if(from==trading_pair.0) {
             price := Float.fromInt(fromAmount) / Float.fromInt(toAmount);
-        } else if(to==E.ledger()) {
-            dip := ?from;
+        }
+        // i.e GLD (from) -> ICP(to) 
+        else {
             price := Float.fromInt(toAmount) / Float.fromInt(fromAmount);
-        } else {
-            Debug.print("Order must be from or to ICP.");
         };
 
         // Check if user balance in book is enough before creating the order.
@@ -62,36 +80,29 @@ actor Dex {
             return #Err(#InsufficientFunds);
         };
 
-        switch(dip) {
-            case (?dip_token) {
-                let dip_symbol = await symbol(dip_token);
-                let exchange = switch (exchanges.get(dip_symbol)) {
-                    case null {
-                        let exchange : E.Exchange = E.Exchange(dip_token, dip_symbol, book);
-                        exchanges.put(dip_symbol,exchange);
-                        exchange
-                    };
-                    case (?e) e
-                };
-                let order : T.Order = {
-                    id;
-                    owner;
-                    from;
-                    fromAmount;
-                    to;
-                    toAmount;
-                    dip_symbol;
-                    submitted;
-                    price;
-                    status = #Submitted;
-                };
-                exchange.addOrder(order);
-                #Ok(order)
-            };
+        let exchange = switch (exchanges.get(trading_pair)) {
             case null {
-                #Err(#InvalidOrder)
+                Debug.print("Creating Exchange for trading pair: " # Principal.toText(trading_pair.0) # "::" # Principal.toText(trading_pair.1));
+                let exchange : E.Exchange = E.Exchange(trading_pair, book);
+                exchanges.put(trading_pair,exchange);
+                exchange
             };
-        }
+            case (?e) e
+        };
+        let order : T.Order = {
+            id;
+            owner;
+            from;
+            fromAmount;
+            to;
+            toAmount;
+            trading_pair;
+            submitted;
+            price;
+            status = #Submitted;
+        };
+        exchange.addOrder(order);
+        #Ok(order)
     };
 
     public shared(msg) func cancelOrder(order_id: T.OrderId) : async T.CancelOrderReceipt {
@@ -359,10 +370,35 @@ actor Dex {
 
     public func symbol(token: T.Token) : async Text {
         let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
+        if (token==E.ledger()){
+            return "ICP"
+        };
         let metadata = await dip20.getMetadata();
         metadata.symbol
     };
 
+    private func create_trading_pair(from: T.Token, to: T.Token) : ?T.TradingPair {
+        switch(Principal.compare(from,to)){
+            case(#less){
+                ?(from,to)
+            };
+            case(#greater){
+                ?(to,from)
+            };
+            case(#equal){
+                null
+            };
+        };
+    };
+
+    private func create_trading_pair_symbol(from: T.Token, to: T.Token) : async ?T.TradingSymbol {
+        let trading_pair =  switch (create_trading_pair(from,to)){
+            // should not occur here since all orders already validated
+            case null return null;
+            case (?tp) tp;
+        };
+        ?(await symbol(trading_pair.0),await symbol(trading_pair.1))
+    };
 
     // Required since maps cannot be stable and need to be moved to stable memory
     // Before canister upgrade book hashmap gets stored in stable memory such that it survives updates
@@ -386,11 +422,15 @@ actor Dex {
 
         // TODO Reload exchanges (find solution for async symbol retrieving).
         for(o in orders_stable.vals()) {
-            let exchange = switch (exchanges.get(o.dip_symbol)) {
+            let trading_pair = switch (create_trading_pair(o.from,o.to)){
+                // should not occur here since all orders already validated
+                case null (o.from,o.to);
+                case (?tp) tp;
+            };
+            let exchange = switch (exchanges.get(trading_pair)) {
                 case null {
-                    let dip_token = if(o.from==E.ledger()) { o.to } else { o.from };
-                    let exchange : E.Exchange = E.Exchange(dip_token, o.dip_symbol, book);
-                    exchanges.put(o.dip_symbol,exchange);
+                    let exchange : E.Exchange = E.Exchange(trading_pair, book);
+                    exchanges.put(trading_pair,exchange);
                     exchange
                 };
                 case (?e) e

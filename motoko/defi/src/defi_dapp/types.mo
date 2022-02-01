@@ -7,6 +7,8 @@ module {
 
     public type OrderId = Nat32;
     public type Symbol = Text;
+    public type TradingPair = (Token,Token);
+    public type TradingSymbol = (Text,Text);
 
     public type OrderStatus = {
         #Submitted;
@@ -22,7 +24,6 @@ module {
         fromAmount: Nat;
         to: Token;
         toAmount: Nat;
-        dip_symbol: Symbol;
         submitted: Time.Time;
         price: Float;
         status: OrderStatus;
