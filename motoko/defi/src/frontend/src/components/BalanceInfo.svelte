@@ -26,6 +26,7 @@
     let withdrawing = false;
     let withdrawingAmount = false;
     let withdrawAmount = 0;
+    let withdrawAddress = '';
     let fetchingAddress = true;
     let depositBlob;
     let authClient;
@@ -177,7 +178,8 @@
     async function withdrawT(principal) {
         withdrawingAmount = true;
         currentToken = principal;
-        const result = await backendActor.withdraw(currentToken, withdrawAmount)
+        const withdrawPrincipal = Principal.fromText(withdrawAddress);
+        const result = await backendActor.withdraw(currentToken, withdrawAmount, withdrawPrincipal)
         currentToken = undefined;
         withdrawingAmount = false;
         console.log(`Result: `, result)
@@ -216,6 +218,7 @@
             }            
         }
         withdrawAmount = 0;
+        withdrawAddress = '';
     };
 
     function setBalances(canisterName, canisterBalance, dexBalance, availableLedgerBalance) {
@@ -239,6 +242,7 @@
         e.stopPropagation();
         withdrawing = false;
         withdrawAmount = 0;
+        withdrawAddress = '';
         currentToken = undefined;
     }
 
@@ -308,7 +312,10 @@
                                                     <div>
                                                         <input bind:value={withdrawAmount} style="width: 115px" type="number" class="input-style" />
                                                     </div>
-                                                    <button disabled={withdrawAmount <= 0} on:click={() => withdrawT(balance.principal)} ><FontAwesomeIcon icon="check" /></button>
+                                                    <div>
+                                                        <input bind:value={withdrawAddress} style="width: 115px" type="text" class="input-style" />
+                                                    </div>
+                                                    <button disabled={withdrawAmount <= 0 || withdrawAddress === ''} on:click={() => withdrawT(balance.principal)} ><FontAwesomeIcon icon="check" /></button>
                                                     <button on:click={(e) => (cancelWithdrawProcess(e))}><FontAwesomeIcon icon="times" /></button>
                                                 {:else}
                                                     <FontAwesomeIcon icon="arrow-left" />

@@ -514,7 +514,11 @@ pub fn place_order(
 
 #[update]
 #[candid_method(update)]
-pub async fn withdraw(token_canister_id: Principal, amount: Nat) -> WithdrawReceipt {
+pub async fn withdraw(
+    token_canister_id: Principal,
+    amount: Nat,
+    address: Principal,
+) -> WithdrawReceipt {
     let ledger_canister_id = STATE
         .with(|s| s.borrow().ledger)
         .unwrap_or(MAINNET_LEDGER_CANISTER_ID);
@@ -532,15 +536,16 @@ pub async fn withdraw(token_canister_id: Principal, amount: Nat) -> WithdrawRece
     })?;
 
     if token_canister_id == ledger_canister_id {
-        withdraw_icp(caller(), &amount).await?;
+        let account_id = AccountIdentifier::new(&address, &DEFAULT_SUBACCOUNT);
+        withdraw_icp(&amount, account_id).await?;
     } else {
-        withdraw_token(caller(), token_canister_id, &amount).await?;
+        withdraw_token(token_canister_id, &amount, address).await?;
     };
 
     WithdrawReceipt::Ok(amount)
 }
 
-async fn withdraw_icp(caller: Principal, amount: &Nat) -> Result<Nat, WithdrawErr> {
+async fn withdraw_icp(amount: &Nat, account_id: AccountIdentifier) -> Result<Nat, WithdrawErr> {
     let ledger_canister_id = STATE
         .with(|s| s.borrow().ledger)
         .unwrap_or(MAINNET_LEDGER_CANISTER_ID);
@@ -550,7 +555,7 @@ async fn withdraw_icp(caller: Principal, amount: &Nat) -> Result<Nat, WithdrawEr
         amount: Tokens::from_e8s(nat_to_u128(amount.to_owned()).try_into().unwrap()),
         fee: Tokens::from_e8s(ICP_FEE),
         from_subaccount: Some(DEFAULT_SUBACCOUNT),
-        to: AccountIdentifier::new(&caller, &DEFAULT_SUBACCOUNT),
+        to: account_id,
         created_at_time: None,
     };
     ic_ledger_types::transfer(ledger_canister_id, transfer_args)
@@ -558,21 +563,21 @@ async fn withdraw_icp(caller: Principal, amount: &Nat) -> Result<Nat, WithdrawEr
         .map_err(|_| WithdrawErr::TransferFailure)?
         .map_err(|_| WithdrawErr::TransferFailure)?;
 
-    println!("Withdrawal of {} ICP to account {:?}", amount, &caller);
+    println!("Withdrawal of {} ICP to account {:?}", amount, &account_id);
 
     Ok(amount.to_owned())
 }
 
 async fn withdraw_token(
-    caller: Principal,
     token: Principal,
     amount: &Nat,
+    address: Principal,
 ) -> Result<Nat, WithdrawErr> {
     let token = DIP20::new(token);
     let dip_fee = token.get_metadata().await.fee;
 
     token
-        .transfer(caller, amount.to_owned() - dip_fee)
+        .transfer(address, amount.to_owned() - dip_fee)
         .await
         .map_err(|_| WithdrawErr::TransferFailure)?;
 

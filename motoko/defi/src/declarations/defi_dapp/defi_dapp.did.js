@@ -71,7 +71,11 @@ export const idlFactory = ({ IDL }) => {
         [],
       ),
     'whoami' : IDL.Func([], [IDL.Principal], ['query']),
-    'withdraw' : IDL.Func([Token, IDL.Nat], [WithdrawReceipt], []),
+    'withdraw' : IDL.Func(
+        [Token, IDL.Nat, IDL.Principal],
+        [WithdrawReceipt],
+        [],
+      ),
     'withdrawalAddress' : IDL.Func([], [IDL.Vec(IDL.Nat8)], []),
   });
 };

@@ -145,15 +145,16 @@ actor Dex {
     };
 
     // ===== WITHDRAW FUNCTIONS =====
-    public shared(msg) func withdraw(token: T.Token, amount: Nat) : async T.WithdrawReceipt {
+    public shared(msg) func withdraw(token: T.Token, amount: Nat, address: Principal) : async T.WithdrawReceipt {
         if (token == E.ledger()) {
-            await withdrawIcp(msg.caller, amount)
+            let account_id = Account.accountIdentifier(address, Account.defaultSubaccount());
+            await withdrawIcp(msg.caller, amount, account_id)
         } else {
-            await withdrawDip(msg.caller, token, amount)
+            await withdrawDip(msg.caller, token, amount, address)
         }
     };
 
-    private func withdrawIcp(caller: Principal, amount: Nat) : async T.WithdrawReceipt {
+    private func withdrawIcp(caller: Principal, amount: Nat, account_id: Blob) : async T.WithdrawReceipt {
         Debug.print("Withdraw...");
 
         // remove withdrawal amount from book
@@ -169,7 +170,7 @@ actor Dex {
             // todo: memo relevant?
             memo: Nat64    = 0;
             from_subaccount = ?Account.defaultSubaccount();
-            to = Account.accountIdentifier(caller, Account.defaultSubaccount());
+            to = account_id;
             amount = { e8s = Nat64.fromNat(amount) };
             fee = { e8s = Nat64.fromNat(icp_fee) };
             created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(Time.now())) };
@@ -186,7 +187,7 @@ actor Dex {
         #Ok(amount)
     };
 
-    private func withdrawDip(caller: Principal, token: T.Token, amount: Nat) : async T.WithdrawReceipt {
+    private func withdrawDip(caller: Principal, token: T.Token, amount: Nat, address: Principal) : async T.WithdrawReceipt {
         Debug.print("Withdraw...");
 
         // cast canisterID to token interface
@@ -204,7 +205,7 @@ actor Dex {
         };
 
         // Transfer amount back to user
-        let txReceipt =  await dip20.transfer(caller, amount - dip_fee);
+        let txReceipt =  await dip20.transfer(address, amount - dip_fee);
 
         switch txReceipt {
             case (#Err e) {

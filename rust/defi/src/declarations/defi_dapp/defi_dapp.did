@@ -34,7 +34,7 @@ service : {
   placeOrder: (Token, nat, Token, nat) -> (OrderPlacementReceipt);
   getSymbol: (Token) -> (text);
   whoami: () -> (principal) query;
-  withdraw: (Token, nat) -> (WithdrawReceipt);
+  withdraw : (Token, nat, principal) -> (WithdrawReceipt);
   credit: (principal, Token, nat) -> ();
   clear: () -> ();
 }
