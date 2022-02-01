@@ -1,3 +1,7 @@
+use std::cell::RefCell;
+use std::collections::HashMap;
+use std::convert::TryInto;
+
 use candid::{candid_method, export_service, CandidType, Nat, Principal};
 use ic_cdk::caller;
 use ic_cdk_macros::*;
@@ -6,9 +10,7 @@ use ic_ledger_types::{
 };
 use num_bigint::BigUint;
 use serde::{Deserialize, Serialize};
-use std::cell::RefCell;
-use std::collections::HashMap;
-use std::convert::TryInto;
+
 mod dip20;
 mod types;
 use dip20::*;
@@ -26,8 +28,9 @@ pub struct OrderState {
     to_amount: u128,
 }
 
+#[derive(CandidType, Clone, Deserialize, Serialize, Default)]
+struct BalancesState(HashMap<Principal, HashMap<Principal, u128>>); // owner -> token_canister_id -> amount
 type OrdersState = HashMap<OrderId, OrderState>;
-type BalancesState = HashMap<Principal, HashMap<Principal, u128>>; // owner -> token_canister_id -> amount
 
 thread_local! {
     static STATE: RefCell<State> = RefCell::new(State::default());
@@ -36,6 +39,7 @@ thread_local! {
 #[derive(CandidType, Clone, Deserialize, Serialize, Default)]
 pub struct State {
     owner: Option<Principal>,
+    ledger: Option<Principal>,
     next_id: OrderId,
     balances: BalancesState,
     orders: OrdersState,
@@ -68,16 +72,14 @@ fn principal_to_subaccount(principal_id: &Principal) -> Subaccount {
     Subaccount(subaccount)
 }
 
-impl State {
+impl BalancesState {
     fn add_balance(&mut self, owner: &Principal, token_canister_id: &Principal, delta: u128) {
-        if !self.balances.contains_key(&owner) {
-            self.balances.insert(*owner, HashMap::new());
-        }
-        let m = self.balances.get_mut(&owner).unwrap();
-        if let Some(x) = m.get_mut(&token_canister_id) {
+        let balances = self.0.entry(*owner).or_insert_with(HashMap::new);
+
+        if let Some(x) = balances.get_mut(token_canister_id) {
             *x += delta;
         } else {
-            m.insert(*token_canister_id, delta);
+            balances.insert(*token_canister_id, delta);
         }
     }
 
@@ -88,20 +90,24 @@ impl State {
         token_canister_id: &Principal,
         delta: u128,
     ) -> bool {
-        if let Some(m) = self.balances.get_mut(owner) {
-            if let Some(x) = m.get_mut(&token_canister_id) {
+        if let Some(balances) = self.0.get_mut(owner) {
+            if let Some(x) = balances.get_mut(token_canister_id) {
                 *x -= delta;
                 if *x == 0 {
-                    m.remove(token_canister_id);
+                    balances.remove(token_canister_id);
                 }
                 return true;
             }
         }
-        return false;
-    }
 
+        false
+    }
+}
+
+impl State {
     fn get_balance(&self, token_canister_id: Principal) -> Nat {
         self.balances
+            .0
             .get(&caller())
             .and_then(|v| v.get(&token_canister_id))
             .map_or(0, |v| *v)
@@ -109,7 +115,7 @@ impl State {
     }
 
     fn get_balances(&self) -> Vec<Balance> {
-        match self.balances.get(&caller()) {
+        match self.balances.0.get(&caller()) {
             None => Vec::new(),
             Some(v) => v
                 .iter()
@@ -123,24 +129,21 @@ impl State {
     }
 
     fn get_all_balances(&self) -> Vec<Balance> {
-        let mut result: Vec<Balance> = Vec::new();
-        for (owner, v) in self.balances.iter() {
-            for (token_canister_id, amount) in v.iter() {
-                result.push(Balance {
+        self.balances
+            .0
+            .iter()
+            .flat_map(|(owner, balances)| {
+                balances.iter().map(move |(token, amount)| Balance {
                     owner: *owner,
-                    token: *token_canister_id,
+                    token: *token,
                     amount: (*amount).into(),
-                });
-            }
-        }
-        result
+                })
+            })
+            .collect()
     }
 
     fn get_order(&self, order: OrderId) -> Option<Order> {
-        match self.orders.get(&order) {
-            None => None,
-            Some(o) => Some((*o).into()),
-        }
+        self.orders.get(&order).map(|o| (*o).into())
     }
 
     fn get_all_orders(&self) -> Vec<Order> {
@@ -168,9 +171,9 @@ impl State {
                 id,
                 owner: caller(),
                 from_token_canister_id,
-                from_amount: from_amount,
+                from_amount,
                 to_token_canister_id,
-                to_amount: to_amount.try_into().unwrap(),
+                to_amount,
             },
         );
         self.resolve_order(id);
@@ -201,6 +204,10 @@ impl State {
         {
             let a = self.orders.get(&id).unwrap();
             for (order, b) in self.orders.iter() {
+                if *order == id {
+                    continue;
+                }
+
                 if a.from_token_canister_id == b.to_token_canister_id
                     && a.to_token_canister_id == b.from_token_canister_id
                 {
@@ -268,72 +275,67 @@ impl State {
 
     fn process_trade(&mut self, a: OrderId, b: OrderId, a_to_amount: u128, b_to_amount: u128) {
         ic_cdk::println!("process trade {} {} {} {}", a, b, a_to_amount, b_to_amount);
-        let remove_a;
-        let remove_b;
-        {
-            {
-                let a_clone;
-                let a_from_amount: u128;
-                {
-                    // Update a side.
-                    let a = self.orders.get_mut(&a).unwrap();
-                    a_from_amount = ((BigUint::from(a_to_amount) * BigUint::from(a.from_amount))
-                        / BigUint::from(a.to_amount))
-                    .try_into()
-                    .unwrap();
-                    a.from_amount -= a_from_amount;
-                    a.to_amount -= a_to_amount;
-                    remove_a = a.from_amount == 0;
-                    a_clone = a.clone();
-                }
 
-                self.subtract_balance(
-                    &a_clone.owner,
-                    &a_clone.from_token_canister_id,
-                    a_from_amount,
-                );
-                self.add_balance(&a_clone.owner, &a_clone.to_token_canister_id, a_to_amount);
-                // The DEX keeps any tokens not required to satisfy the parties.
-                let dex_amount = a_from_amount - b_to_amount;
-                if dex_amount > 0 {
-                    self.add_balance(&ic_cdk::id(), &a_clone.from_token_canister_id, dex_amount);
-                }
-            }
+        let State {
+            orders, balances, ..
+        } = self;
 
-            {
-                let b_clone;
-                let b_from_amount: u128;
-                {
-                    // Update b side.
-                    let b = self.orders.get_mut(&b).unwrap();
-                    b_from_amount = ((BigUint::from(b_to_amount) * BigUint::from(b.from_amount))
-                        / BigUint::from(b.to_amount))
-                    .try_into()
-                    .unwrap();
-                    b.from_amount -= b_from_amount;
-                    b.to_amount -= b_to_amount;
-                    remove_b = b.to_amount == 0;
-                    b_clone = b.clone();
-                }
+        let mut order_a = orders.remove(&a).unwrap();
+        let mut order_b = orders.remove(&b).unwrap();
 
-                self.subtract_balance(
-                    &b_clone.owner,
-                    &b_clone.from_token_canister_id,
-                    b_from_amount,
-                );
-                self.add_balance(&b_clone.owner, &b_clone.to_token_canister_id, b_to_amount);
-                // The DEX keeps any tokens not required to satisfy the parties.
-                let dex_amount = b_from_amount - a_to_amount;
-                if dex_amount > 0 {
-                    self.add_balance(&ic_cdk::id(), &b_clone.from_token_canister_id, dex_amount);
-                }
-            }
+        // Calculate "cost" to each
+        let a_from_amount: u128 = ((BigUint::from(a_to_amount)
+            * BigUint::from(order_a.from_amount))
+            / BigUint::from(order_a.to_amount))
+        .try_into()
+        .unwrap();
+
+        let b_from_amount: u128 = ((BigUint::from(b_to_amount)
+            * BigUint::from(order_b.from_amount))
+            / BigUint::from(order_b.to_amount))
+        .try_into()
+        .unwrap();
+
+        // Update order with remaining tokens
+        order_a.from_amount -= a_from_amount;
+        order_a.to_amount -= a_to_amount;
+
+        order_b.from_amount -= b_from_amount;
+        order_b.to_amount -= b_to_amount;
+
+        // Update DEX balances
+        balances.subtract_balance(
+            &order_a.owner,
+            &order_a.from_token_canister_id,
+            a_from_amount,
+        );
+        balances.add_balance(&order_a.owner, &order_a.to_token_canister_id, a_to_amount);
+
+        balances.subtract_balance(
+            &order_b.owner,
+            &order_b.from_token_canister_id,
+            b_from_amount,
+        );
+        balances.add_balance(&order_b.owner, &order_b.to_token_canister_id, b_to_amount);
+
+        // The DEX keeps any tokens not required to satisfy the parties.
+        let dex_amount_a = a_from_amount - b_to_amount;
+        if dex_amount_a > 0 {
+            balances.add_balance(&ic_cdk::id(), &order_a.from_token_canister_id, dex_amount_a);
         }
-        if remove_a {
-            self.orders.remove(&a);
+
+        let dex_amount_b = b_from_amount - a_to_amount;
+        if dex_amount_b > 0 {
+            balances.add_balance(&ic_cdk::id(), &order_b.from_token_canister_id, dex_amount_b);
         }
-        if remove_b {
-            self.orders.remove(&b);
+
+        // Maintain the order only if not empty
+        if order_a.from_amount != 0 {
+            orders.insert(order_a.id, order_a);
+        }
+
+        if order_b.from_amount != 0 {
+            orders.insert(order_b.id, order_b);
         }
     }
 
@@ -346,37 +348,41 @@ impl State {
     fn credit(&mut self, owner: Principal, token_canister_id: Principal, amount: Nat) {
         ic_cdk::println!("credit {} {}", caller(), self.owner.unwrap());
         assert!(self.owner.unwrap() == caller());
-        self.add_balance(&owner, &token_canister_id, nat_to_u128(amount.clone()));
+        self.balances.add_balance(&owner, &token_canister_id, nat_to_u128(amount));
     }
 
     // For testing.
     fn clear(&mut self) {
         assert!(self.owner.unwrap() == caller());
         self.orders.clear();
-        self.balances.clear();
+        self.balances.0.clear();
     }
 }
 
 #[update]
 #[candid_method(update)]
 pub async fn deposit(token_canister_id: Principal) -> DepositReceipt {
-    let amount =
-        if token_canister_id == Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap() {
-            deposit_icp(caller()).await?
-        } else {
-            deposit_token(caller(), token_canister_id).await?
-        };
+    let ledger_canister_id = STATE
+        .with(|s| s.borrow().ledger)
+        .unwrap_or(MAINNET_LEDGER_CANISTER_ID);
+
+    let amount = if token_canister_id == ledger_canister_id {
+        deposit_icp(caller()).await?
+    } else {
+        deposit_token(caller(), token_canister_id).await?
+    };
     STATE.with(|s| {
         s.borrow_mut()
-            .add_balance(&caller(), &token_canister_id, amount)
+            .balances.add_balance(&caller(), &token_canister_id, amount)
     });
     DepositReceipt::Ok(amount.into())
 }
 
 async fn deposit_icp(caller: Principal) -> Result<u128, DepositErr> {
     let canister_id = ic_cdk::api::id();
-    // let ledger_canister_id = MAINNET_LEDGER_CANISTER_ID;
-    let ledger_canister_id = Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap();
+    let ledger_canister_id = STATE
+        .with(|s| s.borrow().ledger)
+        .unwrap_or(MAINNET_LEDGER_CANISTER_ID);
 
     let account = AccountIdentifier::new(&canister_id, &principal_to_subaccount(&caller));
 
@@ -424,71 +430,62 @@ async fn deposit_token(caller: Principal, token: Principal) -> Result<u128, Depo
         .await
         .map_err(|_| DepositErr::TransferFailure)?;
 
-    Ok(nat_to_u128(available).try_into().unwrap())
+    Ok(nat_to_u128(available))
 }
 
-#[query]
-#[candid_method(query)]
-#[allow(non_snake_case)]
-pub fn getBalance(token_canister_id: Principal) -> Nat {
+#[query(name = "getBalance")]
+#[candid_method(query, rename = "getBalance")]
+pub fn get_balance(token_canister_id: Principal) -> Nat {
     STATE.with(|s| s.borrow().get_balance(token_canister_id))
 }
 
-#[query]
-#[candid_method(query)]
-#[allow(non_snake_case)]
-pub fn getBalances() -> Vec<Balance> {
+#[query(name = "getBalances")]
+#[candid_method(query, rename = "getBalances")]
+pub fn get_balances() -> Vec<Balance> {
     STATE.with(|s| s.borrow().get_balances())
 }
 
-#[query]
-#[candid_method(query)]
-#[allow(non_snake_case)]
-pub fn getAllBalances() -> Vec<Balance> {
+#[query(name = "getAllBalances")]
+#[candid_method(query, rename = "getAllBalances")]
+pub fn get_all_balances() -> Vec<Balance> {
     STATE.with(|s| s.borrow().get_all_balances())
 }
 
-#[update]
-#[candid_method(update)]
-#[allow(non_snake_case)]
-pub fn cancelOrder(order: OrderId) -> CancelOrderReceipt {
+#[update(name = "cancelOrder")]
+#[candid_method(update, rename = "cancelOrder")]
+pub fn cancel_order(order: OrderId) -> CancelOrderReceipt {
     STATE.with(|s| s.borrow_mut().cancel_order(order))
 }
 
-#[query]
-#[candid_method(query)]
-#[allow(non_snake_case)]
-pub fn getOrder(order: OrderId) -> Option<Order> {
+#[query(name = "getOrder")]
+#[candid_method(query, rename = "getOrder")]
+pub fn get_order(order: OrderId) -> Option<Order> {
     STATE.with(|s| s.borrow().get_order(order))
 }
 
-#[query]
-#[candid_method(query)]
-#[allow(non_snake_case)]
-pub fn getOrders() -> Vec<Order> {
+#[query(name = "getOrders")]
+#[candid_method(query, rename = "getOrders")]
+pub fn get_orders() -> Vec<Order> {
     STATE.with(|s| s.borrow().get_all_orders())
 }
 
 #[update]
 #[candid_method(update)]
-#[allow(non_snake_case)]
 pub fn credit(owner: Principal, token_canister_id: Principal, amount: Nat) {
     STATE.with(|s| s.borrow_mut().credit(owner, token_canister_id, amount))
 }
 
-#[query]
-#[candid_method(query)]
-#[allow(non_snake_case)]
-pub fn getDepositAddress() -> String {
+#[query(name = "getDepositAddress")]
+#[candid_method(query, rename = "getDepositAddress")]
+pub fn get_deposit_address() -> AccountIdentifier {
     let canister_id = ic_cdk::api::id();
     let subaccount = principal_to_subaccount(&caller());
-    AccountIdentifier::new(&canister_id, &subaccount).to_string()
+    AccountIdentifier::new(&canister_id, &subaccount)
 }
 
-#[update]
-#[candid_method(update)]
-#[allow(non_snake_case)]
-pub fn placeOrder(
+#[update(name = "placeOrder")]
+#[candid_method(update, rename = "placeOrder")]
+pub fn place_order(
     from_token_canister_id: Principal,
     from_amount: Nat,
     to_token_canister_id: Principal,
@@ -507,8 +504,12 @@ pub fn placeOrder(
 #[update]
 #[candid_method(update)]
 pub async fn withdraw(token_canister_id: Principal, amount: Nat) -> WithdrawReceipt {
+    let ledger_canister_id = STATE
+        .with(|s| s.borrow().ledger)
+        .unwrap_or(MAINNET_LEDGER_CANISTER_ID);
+
     let amount = STATE.with(|s| -> WithdrawReceipt {
-        if !s.borrow_mut().subtract_balance(
+        if !s.borrow_mut().balances.subtract_balance(
             &caller(),
             &token_canister_id,
             nat_to_u128(amount.to_owned()),
@@ -519,7 +520,7 @@ pub async fn withdraw(token_canister_id: Principal, amount: Nat) -> WithdrawRece
         }
     })?;
 
-    if token_canister_id == Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap() {
+    if token_canister_id == ledger_canister_id {
         withdraw_icp(caller(), &amount).await?;
     } else {
         withdraw_token(caller(), token_canister_id, &amount).await?;
@@ -529,8 +530,9 @@ pub async fn withdraw(token_canister_id: Principal, amount: Nat) -> WithdrawRece
 }
 
 async fn withdraw_icp(caller: Principal, amount: &Nat) -> Result<Nat, WithdrawErr> {
-    // let ledger_canister_id = MAINNET_LEDGER_CANISTER_ID;
-    let ledger_canister_id = Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap();
+    let ledger_canister_id = STATE
+        .with(|s| s.borrow().ledger)
+        .unwrap_or(MAINNET_LEDGER_CANISTER_ID);
 
     let transfer_args = ic_ledger_types::TransferArgs {
         memo: Memo(0),
@@ -566,12 +568,12 @@ async fn withdraw_token(
     Ok(amount.to_owned())
 }
 
-#[update]
-#[candid_method(update)]
-#[allow(non_snake_case)]
-pub async fn getSymbol(token_canister_id: Principal) -> String {
-    // let ledger_canister_id = MAINNET_LEDGER_CANISTER_ID;
-    let ledger_canister_id = Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap();
+#[update(name = "getSymbol")]
+#[candid_method(update, rename = "getSymbol")]
+pub async fn get_symbol(token_canister_id: Principal) -> String {
+    let ledger_canister_id = STATE
+        .with(|s| s.borrow().ledger)
+        .unwrap_or(MAINNET_LEDGER_CANISTER_ID);
 
     if token_canister_id == ledger_canister_id {
         "ICP".to_string()
@@ -586,6 +588,13 @@ pub fn whoami() -> Principal {
     caller()
 }
 
+#[query(name = "withdrawalAddress")]
+#[candid_method(query, rename = "withdrawalAddress")]
+pub fn withdrawal_address() -> String {
+    AccountIdentifier::new(&caller(), &DEFAULT_SUBACCOUNT).to_string()
+}
+
+
 #[update]
 #[candid_method(update)]
 pub fn clear() {
@@ -594,10 +603,11 @@ pub fn clear() {
 
 #[init]
 #[candid_method(init)]
-pub fn init() -> () {
+pub fn init(ledger: Option<Principal>) {
     ic_cdk::setup();
     STATE.with(|s| {
         s.borrow_mut().owner = Some(caller());
+        s.borrow_mut().ledger = ledger;
     });
 }
 

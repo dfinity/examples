@@ -1,12 +1,11 @@
 <script>
     import { onMount } from 'svelte';
-    import { Actor, HttpAgent } from "@dfinity/agent";
-    import { AuthClient } from "@dfinity/auth-client";
-    import { idlFactory } from '../../../declarations/defi_dapp/defi_dapp.did.js';
     import { Principal } from '@dfinity/principal';
     import { orders, currentOrder } from '../store/order';
+    import { auth, plugWallet, anonymous } from '../store/auth';
     import { canisters } from '../store/store';
     import { FontAwesomeIcon } from 'fontawesome-svelte';
+    import { AuthClient } from '@dfinity/auth-client';
  
 
     let backendActor;
@@ -24,37 +23,55 @@
         toAmount: 0
     };
 
-    onMount(async () => {
-        authClient = await AuthClient.create();
-        const authenticated = await authClient.isAuthenticated();
-        let identity;
-        if(authenticated)
-            identity = authClient.getIdentity() || undefined;
+    plugWallet.subscribe((value) => {
+        if(value.plugActor) {
+            console.log('Plug connected, using plug actor')
+            backendActor = value.plugActor;
+        }
+    })
+    
+    auth.subscribe(async (value) => {
+        if(value.loggedIn) {
+            backendActor = value.actor
+            authClient = await AuthClient.create();
+        }
+    })
 
-            const host = process.env.NODE_ENV === 'production' ? 'ic0.app' : 'http://localhost:8000';
-            const agent = new HttpAgent({identity, host});
-            // development only, comment out in prod
-            agent.fetchRootKey();
-            // end comment out in prod only
-            backendActor = Actor.createActor(idlFactory, {
-                agent,
-                canisterId: process.env.DEFI_DAPP_CANISTER_ID
-            });
-        const orderList = await backendActor.list_order();
+    onMount(async () => {
+        // Use II as actor
+        if($auth.loggedIn) {
+            console.log("In orders, using II");
+            backendActor = $auth.actor;
+        }
+        else if ($plugWallet.isConnected) {
+            console.log("Using Plug for DEX actor");
+            backendActor = $plugWallet.plugActor;
+            console.log(backendActor)
+        }
+        else {
+            console.log('Using anonymous actor');
+            backendActor = $anonymous.actor;
+        }
+
+        const orderList = await backendActor.getOrders();
         orders.set([]);
         orders.set(orderList.reverse());
 	});
 
     async function placeOrder() {
         addingOrder = true;
+        const principal = Principal.fromText($canisters[2].canisterId);
+        const balance = await backendActor.getBalance(principal);
+        console.log(balance)
         const result = await backendActor.placeOrder(
             Principal.fromText(newOrder.fromCanister),
             newOrder.fromAmount,
             Principal.fromText(newOrder.toCanister),
             newOrder.toAmount);
 
+        console.log(result)
         if(result.Ok) {
-            const orderList = await backendActor.listOrders();
+            const orderList = await backendActor.getOrders();
             orders.set([]);
             orders.set(orderList.reverse());
         }
@@ -77,9 +94,9 @@
             newOrder.toCanister,
             newOrder.toAmount
         )
-
+        console.log(result)
         if(result && result.Ok) {
-            const orderList = await backendActor.listOrders();
+            const orderList = await backendActor.getOrders();
             orders.set([]);
             orders.set(orderList.reverse());
         }
@@ -98,7 +115,7 @@
         currentOrder.set(order);
         const result = await backendActor.cancelOrder(id);
         if(result && result.Ok) {
-            const orderList = await backendActor.listOrders();
+            const orderList = await backendActor.getOrders();
             orders.set([]);
             orders.set(orderList.reverse()); 
         }
@@ -120,11 +137,13 @@
             <div class="title">
                 <h2>Orders</h2>
             </div>
+            {#if $auth.loggedIn || $plugWallet.isConnected}
                 <div class="adding-order-btn">
                     <button on:click={() => showOrderForm = true } title="Add new order" class="add-btn">
                         <FontAwesomeIcon icon="plus" />
                     </button>
                 </div>
+            {/if}
         </div>
         <div>
             <table>
@@ -144,7 +163,7 @@
                             <select class="input-style" bind:value={newOrder.fromCanister}>
                                 {#each $canisters as canister}
                                     <option value={canister.canisterId}>
-                                        {canister.canisterName}
+                                        {canister.symbol}
                                     </option>
                                 {/each}
                             </select>
@@ -154,7 +173,7 @@
                             <select class="input-style" bind:value={newOrder.toCanister}>
                                 {#each $canisters as canister}
                                     <option value={canister.canisterId}>
-                                        {canister.canisterName}
+                                        {canister.symbol}
                                     </option>
                                 {/each}
                             </select>
@@ -206,7 +225,7 @@
                                     </div>
                                 {/if}
                             </button>
-                            {#if order.owner.toText() === authClient.getIdentity().getPrincipal().toText()}
+                            {#if authClient && order.owner.toText() === authClient.getIdentity().getPrincipal().toText()}
                                 <button class="btn-cancel" on:click={() => cancelOrder(order.id)} title="Cancel order">
                                     {#if cancelingOrder && $currentOrder.id === order.id}
                                         <div class="loader cancel-btn-loader"></div>

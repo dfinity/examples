@@ -48,4 +48,5 @@ export interface _SERVICE {
     ) => Promise<OrderPlacementReceipt>,
   'whoami' : () => Promise<Principal>,
   'withdraw' : (arg_0: Token, arg_1: bigint) => Promise<WithdrawReceipt>,
+  'withdrawalAddress' : () => Promise<Array<number>>,
 }

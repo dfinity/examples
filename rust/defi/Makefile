@@ -19,7 +19,7 @@ install: build
 deploy:
 	dfx identity use default
 	$(eval ledger_canister_id := $(shell dfx canister id ledger))
-	dfx deploy defi_dapp --argument '(record { withdrawl_fee = 0.1 : float32;  ledger_canister_id = principal "$(ledger_canister_id)" } )'
+	dfx deploy defi_dapp --argument "(principal \"$(ledger_canister_id)\")"
 
 .PHONY: test
 .SILENT: test

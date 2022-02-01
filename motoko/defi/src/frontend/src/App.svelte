@@ -2,12 +2,12 @@
   import Nav from './components/Nav.svelte';
   import Orders from './components/Orders.svelte';
   import { library } from '@fortawesome/fontawesome-svg-core';
-  import { faMinus, faPlus, faCheck, faTimes, faCopy } from '@fortawesome/free-solid-svg-icons';
+  import { faMinus, faPlus, faCheck, faTimes, faCopy, faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
   import { auth, plugWallet } from './store/auth';
-import BalanceInfo from './components/BalanceInfo.svelte';
+  import BalanceInfo from './components/BalanceInfo.svelte';
 
  // Add fontawesome icons
- const icons = [faMinus, faPlus, faCheck, faTimes, faCopy];
+ const icons = [faMinus, faPlus, faCheck, faTimes, faCopy, faArrowRight, faArrowLeft];
  library.add(icons);
 </script>
 
@@ -16,7 +16,7 @@ import BalanceInfo from './components/BalanceInfo.svelte';
   <h1>DeFi DEX Example</h1>
   <div class="main-container">
     {#if $auth.loggedIn || $plugWallet.isConnected}
-    <BalanceInfo />
+     <BalanceInfo />
     {/if}
     <Orders />
   </div>

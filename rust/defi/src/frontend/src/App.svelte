@@ -1,46 +1,36 @@
 <script>
-  import Auth from "./components/Auth.svelte";
-  import CanisterIds from "./components/CanisterIds.svelte";
-  import Links from "./components/Links.svelte";
-  import PlugWallet from './components/PlugWallet.svelte';
-  import UserInfo from './components/UserInfo.svelte';
+  import Nav from './components/Nav.svelte';
   import Orders from './components/Orders.svelte';
-  
+  import { library } from '@fortawesome/fontawesome-svg-core';
+  import { faMinus, faPlus, faCheck, faTimes, faCopy, faArrowRight, faArrowLeft } from '@fortawesome/free-solid-svg-icons';
+  import { auth, plugWallet } from './store/auth';
+  import BalanceInfo from './components/BalanceInfo.svelte';
 
-  let auth = localStorage.getItem('ic-identity');
-
+ // Add fontawesome icons
+ const icons = [faMinus, faPlus, faCheck, faTimes, faCopy, faArrowRight, faArrowLeft];
+ library.add(icons);
 </script>
 
 <main>
-  <a
-    href="https://dfinity.org"
-    target="_blank"
-    rel="noopener noreferrer"
-    class="logo"
-  >
-    <img src="images/dfinity.svg" alt="DFINITY logo" />
-  </a>
+  <Nav />
   <h1>DeFi DEX Example</h1>
-  {#if !auth} 
-    <Auth />
-  {:else}
-    <UserInfo />
+  <div class="main-container">
+    {#if $auth.loggedIn || $plugWallet.isConnected}
+     <BalanceInfo />
+    {/if}
     <Orders />
-  {/if}
-  <Links />
-  <CanisterIds />
+  </div>
 </main>
 
 <style>
-  img {
-    height: 22px;
-  }
-  .logo {
-    display: inline-block;
+
+
+  .main-container {
+    align-items: left;
   }
 
   main {
-    text-align: center;
+    text-align: left;
     padding: 1em;
   }
 
@@ -51,13 +41,13 @@
     line-height: 1.09;
   }
 
-  @media (min-width: 640px) {
+  @media (max-width: 640px) {
     main {
       max-width: 800px;
       margin: 0 auto;
     }
     h1 {
-      font-size: 4em;
+      font-size: 2em;
     }
   }
 </style>

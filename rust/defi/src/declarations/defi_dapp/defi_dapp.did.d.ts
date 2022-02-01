@@ -36,7 +36,7 @@ export interface _SERVICE {
   'credit' : (arg_0: Principal, arg_1: Token, arg_2: bigint) => Promise<
       undefined
     >,
-  'deposit' : (arg_0: Token, arg_1: bigint) => Promise<DepositReceipt>,
+  'deposit' : (arg_0: Token) => Promise<DepositReceipt>,
   'getAllBalances' : () => Promise<Array<Balance>>,
   'getBalance' : (arg_0: Token) => Promise<bigint>,
   'getBalances' : () => Promise<Array<Balance>>,
