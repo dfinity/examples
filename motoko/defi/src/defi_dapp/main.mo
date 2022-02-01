@@ -249,6 +249,25 @@ actor Dex {
         };
     };
 
+
+    public shared query (msg) func getAllBalances() : async [T.Balance] {
+        
+        // could probably allocate more but this is minimum
+        let buff : Buffer.Buffer<T.Balance> = Buffer.Buffer(book.size());
+        for ((owner, user_balances) in book.entries()) {
+            let b : Buffer.Buffer<T.Balance> = Buffer.Buffer(user_balances.size());
+            for ((token, amount) in user_balances.entries()) {
+                b.add({
+                    owner;
+                    token;
+                    amount;
+                });
+            };
+            buff.append(b);
+        };
+        buff.toArray()
+    };
+
     public shared query (msg) func whoami() : async Principal {
         return msg.caller;
     };
