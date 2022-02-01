@@ -16,7 +16,10 @@
     let backendActor;
     let accountAddressBlob;
     let depositAddress = '';
-    let didCopy = false;
+    let withdrawalAddress = '';
+    let withdrawalBlob = '';
+    let didCopyDepositAddress = false;
+    let didCopyWithdrawalAddress = false;
     let balances = [];
     let currentToken;
     let depositing = false;
@@ -24,6 +27,8 @@
     let withdrawingAmount = false;
     let withdrawAmount = 0;
     let fetchingAddress = true;
+    let depositBlob;
+    let authClient;
 
     let iiPrincipal;
     let akitaActor;
@@ -41,10 +46,7 @@
     onMount(async () => {
         // Use II as actor
         if($auth.loggedIn) {
-            console.log("Using II for DEX actor");
-            // backendActor = $auth.actor;
-
-            const authClient = await AuthClient.create();
+            authClient = await AuthClient.create();
             const identity = authClient.getIdentity();
             const agent = new HttpAgent({identity, host: "http:localhost:8000"});
             agent.fetchRootKey();
@@ -68,18 +70,21 @@
             console.log(iiPrincipal)
             const goldenBalance = 0; // await goldenActor.balanceOf(iiPrincipal);
             const akitaBalance = 0; //await akitaActor.balanceOf(iiPrincipal);
-            const depositAddress = await backendActor.getDepositAddress();
-            const param = {
-                account: depositAddress
-            }
-            const response = await ledgerActor.account_balance(param);
+            depositBlob = await backendActor.getDepositAddress();
+            withdrawalBlob = await backendActor.withdrawalAddress();
+            withdrawalAddress = toHexString(withdrawalBlob);
+            const approved = await ledgerActor.account_balance({account: depositBlob});
+            const available = await ledgerActor.account_balance({account: withdrawalBlob});
             let ledgerBalance = 0;
-            if(response.e8s) {
-                ledgerBalance = response.e8s;
+            let approvedLedgerBalance = 0;
+
+            if(approved.e8s) {
+                ledgerBalance = approved.e8s;
             }
-            console.log(`Ledger Balance: `, ledgerBalance);
-            console.log(akitaBalance);
-            // console.log(goldenBalance)
+            if(available.e8s) {
+                approvedLedgerBalance = available.e8s         
+            }
+
 
             for(let i = 0; i < $canisters.length; i++) {
                 const principal = Principal.fromText($canisters[i].canisterId);
@@ -89,13 +94,16 @@
                     name: $canisters[i].canisterName,
                     symbol: $canisters[i].symbol,
                     canisterBalance: i === 0 ? akitaBalance : i === 1 ? goldenBalance : ledgerBalance,
+                    available: $canisters[i].symbol === 'ICP' ? approvedLedgerBalance : undefined,
                     dexBalance: dexBalance,
                     principal: principal
                 })
             }
             // svelte hack to update UI
             balances = [...balances];
-            console.log(balances)
+
+            const approval = await approveDIP20();
+            console.log('approval: ', approval)
         }
         else if ($plugWallet.isConnected) {
             console.log("Using Plug for DEX actor");
@@ -131,18 +139,65 @@
     async function depositT(principal) {
         depositing = true;
         currentToken = principal;
-        const akitaBalance = await akitaActor.balanceOf(iiPrincipal);
-        console.log(akitaBalance)
-        const result = await backendActor.deposit(Principal.fromText(process.env.AKITADIP20_CANISTER_ID));
+        if(currentToken.toString() === process.env.LEDGER_CANISTER_ID) {
+            const result = await backendActor.deposit(principal);
+            if(result.Ok) {
+                const canister = $canisters.find((canister) => {
+                    return canister.canisterId === principal.toString();
+                })
+                if(canister && canister.canisterName === 'ICP') {
+                    const param = {
+                        account: hexToBytes(depositAddress)
+                    }
+                    const dexBalance = await backendActor.getBalance(principal);
+                    let ledgerBalance = 0;
+                    let availableLedgerBalance = 0;
+                    const availableResponse = await ledgerActor.account_balance({account: withdrawalBlob});
+                    const response = await ledgerActor.account_balance(param);
+                    console.log(response)
+                    if(response.e8s) {
+                        ledgerBalance = response.e8s
+                    }
+                    if(availableResponse.e8s) {
+                        availableLedgerBalance = availableResponse.e8s
+                    }
+                    setBalances(canister.canisterName, ledgerBalance, dexBalance, availableLedgerBalance);
+
+                }
+                else if(canister && canister.canisterName === 'AkitaDIP20') {
+                    const dexBalance = await backendActor.getBalance(principal);
+                    const akitaBalance = await akitaActor.getBalance(principal);
+
+                    setBalances(canister.canisterName, akitaBalance, dexBalance);
+                }
+                else if(canister && canister.canisterName === 'GoldenDIP20') {
+                    const dexBalance = await backendActor.getBalance(principal);
+                    const goldenBalance = await goldenActor.getBalance(principal);
+
+                    setBalances(canister.canisterName, goldenBalance, dexBalance);
+                }
+            
+            }
+
+        }
+        else if(currentToken.toString() === process.env.AKITADIP20_CANISTER_ID) {
+
+        }
+        else if(currentToken.toString() === process.env.GOLDENDIP20_CANISTER_ID) {
+            
+        }
+        // const akitaBalance = await akitaActor.balanceOf(iiPrincipal);
+        // console.log(akitaBalance)
+        // const result = await backendActor.deposit(Principal.fromText(process.env.AKITADIP20_CANISTER_ID));
         depositing = false;
         currentToken = undefined;
-        console.log(`Result: ${JSON.stringify(result)}`);
+        // console.log(`Result: ${JSON.stringify(result)}`);
     }
 
     async function withdrawT(principal) {
         withdrawingAmount = true;
         currentToken = principal;
-        const result = await backendActor.withdraw(principal, withdrawAmount)
+        const result = await backendActor.withdraw(Principal.fromText(process.env.LEDGER_CANISTER_ID), withdrawAmount)
         currentToken = undefined;
         withdrawingAmount = false;
         console.log(`Result: `, result)
@@ -152,17 +207,19 @@
                 return canister.canisterId === principal.toString();
             })
             if(canister && canister.canisterName === 'ICP') {
-                const param = {
-                    account: hexToBytes(depositAddress)
-                }
                 const dexBalance = await backendActor.getBalance(principal);
                 let ledgerBalance = 0;
-                const response = await ledgerActor.account_balance(param);
+                let availableLedgerBalance = 0;
+                const availableResponse = await ledgerActor.account_balance({account: withdrawalBlob});
+                const response = await ledgerActor.account_balance({account: depositBlob});
                 console.log(response)
                 if(response.e8s) {
                     ledgerBalance = response.e8s
                 }
-                setBalances(canister.canisterName, ledgerBalance, dexBalance);
+                if(availableResponse.e8s) {
+                    availableLedgerBalance = availableResponse.e8s
+                }
+                setBalances(canister.canisterName, ledgerBalance, dexBalance, availableLedgerBalance);
                 
             }
             else if(canister && canister.canisterName === 'AkitaDIP20') {
@@ -176,20 +233,19 @@
                 const goldenBalance = await goldenActor.getBalance(principal);
 
                 setBalances(canister.canisterName, goldenBalance, dexBalance);
-            }
-            
+            }            
         }
         withdrawAmount = 0;
     };
 
-    function setBalances(canisterName, canisterBalance, dexBalance) {
+    function setBalances(canisterName, canisterBalance, dexBalance, availableLedgerBalance) {
         const balanceObj = balances.find((b) => {
             return b.name === canisterName
         })
         if(balanceObj) {
             balanceObj.canisterBalance = canisterBalance;
             balanceObj.dexBalance = dexBalance;
-            console.log(balanceObj)
+            balanceObj.available = availableLedgerBalance ?? ''
         }
         balances = [...balances];    
     }
@@ -207,17 +263,27 @@
     }
 
     async function approveDIP20() {
-        const result = await akitaActor.approve(Principal.fromText(process.env.DEFI_DAPP_CANISTER_ID), 10000000);
+        const result = await akitaActor.approve(Principal.fromText(process.env.DEFI_DAPP_CANISTER_ID), 100000);
         console.log(result)
     };
 
-    function copyText(text) {
+    function copyDepositAddress(text) {
         if(window.isSecureContext) {
-            didCopy = true;
+            didCopyDepositAddress = true;
             navigator.clipboard.writeText(text);
         }
         setTimeout(() => {
-            didCopy = false
+            didCopyDepositAddress = false
+        }, 1000)
+    };
+
+    function copyWithdrawalAddress(text) {
+        if(window.isSecureContext) {
+            didCopyWithdrawalAddress = true;
+            navigator.clipboard.writeText(text);
+        }
+        setTimeout(() => {
+            didCopyWithdrawalAddress = false
         }, 1000)
     };
 </script>
@@ -226,7 +292,9 @@
     <div>
         <div class="balance-container">
             <div class="title">
-                <h2>My Balances</h2>
+                <div>
+                    <h2>My Balances</h2>
+                </div>
             </div>
             <table class='balance-table'>
                 <thead>
@@ -243,6 +311,7 @@
                             </td>
                             <td>
                                 {balance && balance.canisterBalance ? balance.canisterBalance.toLocaleString() : '0'}
+                                {balance && balance.available ? ` / ${balance.available.toLocaleString()}` : ''}
                             </td>
                             <td>
                                 <div>
@@ -289,12 +358,28 @@
                     <div class="loader"></div>
                 {:else}
                     {depositAddress}
+                    <span class="copy-icon" on:click={() => copyDepositAddress(depositAddress)}>
+                        <FontAwesomeIcon icon="copy" />
+                        {#if didCopyDepositAddress}
+                            Copied!
+                        {/if}
+                    </span>
                 {/if}
             </span>
-            <span class="copy-icon" on:click={() => copyText(depositAddress)}>
-                <FontAwesomeIcon icon="copy" />
-                {#if didCopy}
-                    Copied!
+        </div>
+        <div class='deposit-address'>
+            Withdrawal Address:
+            <span class="deposit-value-text">
+                {#if !withdrawalAddress}
+                    <div class="loader"></div>
+                {:else}
+                    {withdrawalAddress}
+                    <span class="copy-icon" on:click={() => copyWithdrawalAddress(withdrawalAddress)}>
+                        <FontAwesomeIcon icon="copy" />
+                        {#if didCopyWithdrawalAddress}
+                            Copied!
+                        {/if}
+                    </span>
                 {/if}
             </span>
         </div>
@@ -325,7 +410,14 @@
     }
 
     .title {
-        display: block;
+        display: flex;
+    }
+
+    .principal-text {
+        margin-top: 28px;
+        font-size: 14px;
+        color: #a9a9a9;
+        margin-left: 10px;
     }
 
     .balance-table {
