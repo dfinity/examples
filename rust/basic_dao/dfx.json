@@ -1,0 +1,13 @@
+{
+  "canisters": {
+    "basic_dao": {
+      "build": [
+        "cargo build --target wasm32-unknown-unknown --package  basic_dao --release",
+        "ic-cdk-optimizer target/wasm32-unknown-unknown/release/basic_dao.wasm -o target/wasm32-unknown-unknown/release/basic_dao_opt.wasm"
+      ],
+      "candid": "src/basic_dao/src/basic_dao.did",
+      "wasm": "target/wasm32-unknown-unknown/release/basic_dao_opt.wasm",
+      "type": "custom"
+    }
+  }
+}
