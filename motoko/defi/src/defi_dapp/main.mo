@@ -119,7 +119,7 @@ actor Dex {
         null;
     };
 
-    public query func listOrders() : async([T.Order]) {
+    public query func getOrders() : async([T.Order]) {
         Debug.print("List orders...");
         getAllOrders()
     };
@@ -276,7 +276,7 @@ actor Dex {
     // ===== DEPOSIT FUNCTIONS =====
 
     // Return the account ID specific to this user's subaccount
-    public shared(msg) func depositAddress(): async Blob {
+    public shared(msg) func getDepositAddress(): async Blob {
         Account.accountIdentifier(Principal.fromActor(Dex), Account.principalToSubaccount(msg.caller));
     };
 
@@ -371,7 +371,7 @@ actor Dex {
         metadata.fee
     };
 
-    public func symbol(token: T.Token) : async Text {
+    public func getSymbol(token: T.Token) : async Text {
         let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
         if (token==E.ledger()){
             return "ICP"
@@ -400,7 +400,7 @@ actor Dex {
             case null return null;
             case (?tp) tp;
         };
-        ?(await symbol(trading_pair.0),await symbol(trading_pair.1))
+        ?(await getSymbol(trading_pair.0),await getSymbol(trading_pair.1))
     };
 
     // Required since maps cannot be stable and need to be moved to stable memory
