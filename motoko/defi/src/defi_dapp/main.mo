@@ -31,9 +31,9 @@ actor Dex {
 
     stable var orders_stable : [T.Order] = [];
     stable var lastId : Nat32 = 0;
-    var exchanges = M.HashMap<T.TradingPair, E.Exchange>(10, func (k1: T.TradingPair,k2: T.TradingPair): Bool {
+    var exchanges = M.HashMap<E.TradingPair, E.Exchange>(10, func (k1: E.TradingPair,k2: E.TradingPair): Bool {
         Principal.equal(k1.0,k2.0) and Principal.equal(k1.1,k2.1)
-    }, func (k : T.TradingPair) {
+    }, func (k : E.TradingPair) {
         Text.hash(Text.concat(Principal.toText(k.0),Principal.toText(k.1)))
     });
 
@@ -48,7 +48,6 @@ actor Dex {
         Debug.print("Placing order "# Nat32.toText(id) #" from user " # Principal.toText(msg.caller) # " for selling " # Nat.toText(fromAmount) # " tokens " # Principal.toText(from));
         let owner=msg.caller;
         let submitted = Time.now();
-        var price : Float = -1;
 
         // consturct trading pair which is used to select correct exchange
         // following pair is constructed (X,Y) where X is less accoriding to principal compare function
@@ -61,17 +60,6 @@ actor Dex {
             case(null){
                 return #Err(#InvalidOrder);
             }
-        };
-
-        // calculate price based on trading pair
-        // trading pair :: X/Y i.e GLD/ICP
-        // i.e ICP (from) -> GLD(to) 
-        if(from==trading_pair.0) {
-            price := Float.fromInt(fromAmount) / Float.fromInt(toAmount);
-        }
-        // i.e GLD (from) -> ICP(to) 
-        else {
-            price := Float.fromInt(toAmount) / Float.fromInt(fromAmount);
         };
 
         // Check if user balance in book is enough before creating the order.
@@ -96,11 +84,7 @@ actor Dex {
             fromAmount;
             to;
             toAmount;
-            trading_pair;
-            submitted;
-            price;
-            status = #Submitted;
-        };
+         };
         exchange.addOrder(order);
         #Ok(order)
     };
@@ -377,7 +361,7 @@ actor Dex {
         metadata.symbol
     };
 
-    private func create_trading_pair(from: T.Token, to: T.Token) : ?T.TradingPair {
+    private func create_trading_pair(from: T.Token, to: T.Token) : ?E.TradingPair {
         switch(Principal.compare(from,to)){
             case(#less){
                 ?(from,to)
@@ -391,7 +375,7 @@ actor Dex {
         };
     };
 
-    private func create_trading_pair_symbol(from: T.Token, to: T.Token) : async ?T.TradingSymbol {
+    private func create_trading_pair_symbol(from: T.Token, to: T.Token) : async ?(Text,Text) {
         let trading_pair =  switch (create_trading_pair(from,to)){
             // should not occur here since all orders already validated
             case null return null;

@@ -6,17 +6,7 @@ module {
     public type Token = Principal;
 
     public type OrderId = Nat32;
-    public type Symbol = Text;
-    public type TradingPair = (Token,Token);
-    public type TradingSymbol = (Text,Text);
-
-    public type OrderStatus = {
-        #Submitted;
-        #Cancelled;
-        #Executed;
-        #PartiallyExecuted;
-    };
-
+  
     public type Order = {
         id: OrderId;
         owner: Principal;
@@ -24,9 +14,6 @@ module {
         fromAmount: Nat;
         to: Token;
         toAmount: Nat;
-        submitted: Time.Time;
-        price: Float;
-        status: OrderStatus;
     };
     
     // ledger types
