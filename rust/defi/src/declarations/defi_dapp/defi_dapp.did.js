@@ -52,6 +52,7 @@ export const idlFactory = ({ IDL }) => {
     'getOrder' : IDL.Func([OrderId], [IDL.Opt(Order)], []),
     'getOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
     'getSymbol' : IDL.Func([Token], [IDL.Text], []),
+    'getWithdrawalAddress' : IDL.Func([], [IDL.Vec(IDL.Nat8)], []),
     'placeOrder' : IDL.Func(
         [Token, IDL.Nat, Token, IDL.Nat],
         [OrderPlacementReceipt],

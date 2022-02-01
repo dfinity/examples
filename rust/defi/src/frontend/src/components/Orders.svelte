@@ -94,7 +94,6 @@
             newOrder.toCanister,
             newOrder.toAmount
         )
-        console.log(result)
         if(result && result.Ok) {
             const orderList = await backendActor.getOrders();
             orders.set([]);
@@ -102,6 +101,10 @@
         }
         currentOrder.set({});
         buyingOrder = false;
+        
+        // TODO: Better way to handle balance updates on UI
+        // get the balance of the to, get the balance of the from
+        window.location.reload();
     };
 
     function closeOrderForm() {

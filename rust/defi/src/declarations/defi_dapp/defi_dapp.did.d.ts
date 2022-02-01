@@ -44,6 +44,7 @@ export interface _SERVICE {
   'getOrder' : (arg_0: OrderId) => Promise<[] | [Order]>,
   'getOrders' : () => Promise<Array<Order>>,
   'getSymbol' : (arg_0: Token) => Promise<string>,
+  'getWithdrawalAddress' : () => Promise<Array<number>>,
   'placeOrder' : (
       arg_0: Token,
       arg_1: bigint,

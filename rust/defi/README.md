@@ -76,8 +76,9 @@ dfx canister --no-wallet call GoldenDIP20 approve  '(principal '\"$DEX_PRINCIPLE
 dfx canister call defi_dapp deposit '(principal '\"$AKITA_ID\"')'
 dfx canister call defi_dapp deposit '(principal '\"$GOLDEN_ID\"')'
 # setup ICP balances on DEX for user1
-export ICP_DEPOSIT_ADDR_USER1=$(dfx canister call defi_dapp depositAddress |sed 's/\(.*\),/\1 /' | tr -d '\n')
-dfx canister call ledger transfer "(record { amount = record { e8s = 50000 }; to = $ICP_DEPOSIT_ADDR_USER1; fee = record { e8s = 10000}; memo = 1;})"
+export ICP_DEPOSIT_ADDR_USER1=$(dfx canister call defi_dapp getDepositAddress |sed 's/\(.*\),/\1 /' | tr -d '\n')
+dfx canister call ledge rtransfer "(record { amount = record { e8s = 50000 }; to = $ICP_DEPOSIT_ADDR_USER1; fee = record { e8s = 10000}; memo = 1;})"
+rt ICP_DEPOSIT_ADDR_USER1=$(dfx canister call defi_dapp getDepositAddress |sed 's/\(.*\),/\1 /' | tr -d '\n') jjj
 dfx canister call defi_dapp deposit '(principal '\"$LEDGER_ID\"')'
 # show balances user1
 dfx canister call defi_dapp getBalances
@@ -88,7 +89,7 @@ dfx canister --no-wallet call GoldenDIP20 approve  '(principal '\"$DEX_PRINCIPLE
 dfx canister call defi_dapp deposit '(principal '\"$AKITA_ID\"')'
 dfx canister call defi_dapp deposit '(principal '\"$GOLDEN_ID\"')'
 # setup ICP balances on DEX for user2
-export ICP_DEPOSIT_ADDR_USER2=$(dfx canister call defi_dapp depositAddress |sed 's/\(.*\),/\1 /' | tr -d '\n')
+export ICP_DEPOSIT_ADDR_USER2=$(dfx canister call defi_dapp getDepositAddress |sed 's/\(.*\),/\1 /' | tr -d '\n')
 dfx canister call ledger transfer "(record { amount = record { e8s = 50000 }; to = $ICP_DEPOSIT_ADDR_USER2; fee = record { e8s = 10000}; memo = 1;})"
 dfx canister call defi_dapp deposit '(principal '\"$LEDGER_ID\"')'
 # show balances user2
@@ -115,7 +116,7 @@ export DEX_PRINCIPLE=$(dfx canister --no-wallet id defi_dapp)
 dfx canister --no-wallet call AkitaDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',10000000)'
 dfx canister --no-wallet call GoldenDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',10000000)'
 # get ICP deposit address (removes unnesessary comma at the end)
-export ICP_DEPOSIT_ADDR=$(dfx canister call defi_dapp depositAddress |sed 's/\(.*\),/\1 /' | tr -d '\n')
+export ICP_DEPOSIT_ADDR=$(dfx canister call defi_dapp getDepositAddress |sed 's/\(.*\),/\1 /' | tr -d '\n')
 # deposit some ICP in DEX
 dfx canister call ledger transfer "(record { amount = record { e8s = 1000000 }; to = $ICP_DEPOSIT_ADDR; fee = record { e8s = 10000}; memo = 1;})"
 # get token canister IDs

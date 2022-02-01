@@ -483,6 +483,13 @@ pub fn get_deposit_address() -> AccountIdentifier {
     AccountIdentifier::new(&canister_id, &subaccount)
 }
 
+#[query(name = "getWithdrawalAddress")]
+#[candid_method(query, rename = "getWithdrawalAddress")]
+pub fn get_withdrawl_address() -> AccountIdentifier {
+    let canister_id = ic_cdk::api::id();
+    AccountIdentifier::new(&canister_id, &DEFAULT_SUBACCOUNT)
+}
+
 #[update(name = "placeOrder")]
 #[candid_method(update, rename = "placeOrder")]
 pub fn place_order(

@@ -30,6 +30,7 @@ service : {
   getOrders: () -> (vec Order) query;
   deposit: (Token) -> (DepositReceipt);
   getDepositAddress: () -> (blob);
+  getWithdrawalAddress: () -> (blob);
   placeOrder: (Token, nat, Token, nat) -> (OrderPlacementReceipt);
   getSymbol: (Token) -> (text);
   whoami: () -> (principal) query;
