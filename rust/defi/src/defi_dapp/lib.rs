@@ -362,18 +362,19 @@ impl State {
 #[update]
 #[candid_method(update)]
 pub async fn deposit(token_canister_id: Principal) -> DepositReceipt {
+    let caller = caller();
     let ledger_canister_id = STATE
         .with(|s| s.borrow().ledger)
         .unwrap_or(MAINNET_LEDGER_CANISTER_ID);
 
     let amount = if token_canister_id == ledger_canister_id {
-        deposit_icp(caller()).await?
+        deposit_icp(caller).await?
     } else {
-        deposit_token(caller(), token_canister_id).await?
+        deposit_token(caller, token_canister_id).await?
     };
     STATE.with(|s| {
         s.borrow_mut()
-            .balances.add_balance(&caller(), &token_canister_id, amount)
+            .balances.add_balance(&caller, &token_canister_id, amount)
     });
     DepositReceipt::Ok(amount.into())
 }
