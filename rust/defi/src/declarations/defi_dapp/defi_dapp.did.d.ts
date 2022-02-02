@@ -6,7 +6,7 @@ export interface Balance {
 }
 export type CancelOrderErr = { 'NotAllowed' : null } |
   { 'NotExistingOrder' : null };
-export type CancelOrderReceipt = { 'Ok' : bigint } |
+export type CancelOrderReceipt = { 'Ok' : OrderId } |
   { 'Err' : CancelOrderErr };
 export type DepositErr = { 'TransferFailure' : null } |
   { 'BalanceLow' : null };
@@ -44,6 +44,7 @@ export interface _SERVICE {
   'getOrder' : (arg_0: OrderId) => Promise<[] | [Order]>,
   'getOrders' : () => Promise<Array<Order>>,
   'getSymbol' : (arg_0: Token) => Promise<string>,
+  'getWithdrawalAddress' : () => Promise<Array<number>>,
   'placeOrder' : (
       arg_0: Token,
       arg_1: bigint,
@@ -51,5 +52,7 @@ export interface _SERVICE {
       arg_3: bigint,
     ) => Promise<OrderPlacementReceipt>,
   'whoami' : () => Promise<Principal>,
-  'withdraw' : (arg_0: Token, arg_1: bigint) => Promise<WithdrawReceipt>,
+  'withdraw' : (arg_0: Token, arg_1: bigint, arg_2: Principal) => Promise<
+      WithdrawReceipt
+    >,
 }

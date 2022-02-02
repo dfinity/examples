@@ -67,6 +67,6 @@ service : {
   getSymbol: (Token) -> (text);
   placeOrder: (Token, nat, Token, nat) -> (OrderPlacementReceipt);
   whoami: () -> (principal) query;
-  withdraw: (Token, nat) -> (WithdrawReceipt);
+  withdraw: (Token, nat, principal) -> (WithdrawReceipt);
   withdrawalAddress: () -> (blob);
 }

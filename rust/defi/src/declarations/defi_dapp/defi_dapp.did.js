@@ -5,7 +5,7 @@ export const idlFactory = ({ IDL }) => {
     'NotExistingOrder' : IDL.Null,
   });
   const CancelOrderReceipt = IDL.Variant({
-    'Ok' : IDL.Nat64,
+    'Ok' : OrderId,
     'Err' : CancelOrderErr,
   });
   const Token = IDL.Principal;
@@ -48,17 +48,22 @@ export const idlFactory = ({ IDL }) => {
     'getAllBalances' : IDL.Func([], [IDL.Vec(Balance)], ['query']),
     'getBalance' : IDL.Func([Token], [IDL.Nat], ['query']),
     'getBalances' : IDL.Func([], [IDL.Vec(Balance)], ['query']),
-    'getDepositAddress' : IDL.Func([], [IDL.Vec(IDL.Nat8)], []),
+    'getDepositAddress' : IDL.Func([], [IDL.Vec(IDL.Nat8)], ['query']),
     'getOrder' : IDL.Func([OrderId], [IDL.Opt(Order)], []),
     'getOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
     'getSymbol' : IDL.Func([Token], [IDL.Text], []),
+    'getWithdrawalAddress' : IDL.Func([], [IDL.Vec(IDL.Nat8)], []),
     'placeOrder' : IDL.Func(
         [Token, IDL.Nat, Token, IDL.Nat],
         [OrderPlacementReceipt],
         [],
       ),
     'whoami' : IDL.Func([], [IDL.Principal], ['query']),
-    'withdraw' : IDL.Func([Token, IDL.Nat], [WithdrawReceipt], []),
+    'withdraw' : IDL.Func(
+        [Token, IDL.Nat, IDL.Principal],
+        [WithdrawReceipt],
+        [],
+      ),
   });
 };
 export const init = ({ IDL }) => { return []; };

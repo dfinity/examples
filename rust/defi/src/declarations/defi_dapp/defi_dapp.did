@@ -1,13 +1,13 @@
 type Token = principal;
+type OrderId = nat32;
 type CancelOrderErr = variant { NotAllowed; NotExistingOrder };
-type CancelOrderReceipt = variant { Ok : nat64; Err : CancelOrderErr };
+type CancelOrderReceipt = variant { Ok : OrderId; Err : CancelOrderErr };
 type DepositErr = variant { TransferFailure; BalanceLow };
 type DepositReceipt = variant { Ok : nat; Err : DepositErr };
 type OrderPlacementErr = variant { InvalidOrder; OrderBookFull };
 type OrderPlacementReceipt = variant { Ok : opt Order; Err : OrderPlacementErr };
 type WithdrawErr = variant { TransferFailure; BalanceLow };
 type WithdrawReceipt = variant { Ok : nat; Err : WithdrawErr };
-type OrderId = nat32;
 type Order = record {
   id : OrderId;
   owner : principal;
@@ -29,11 +29,12 @@ service : {
   getOrder: (OrderId) -> (opt Order);
   getOrders: () -> (vec Order) query;
   deposit: (Token) -> (DepositReceipt);
-  getDepositAddress: () -> (blob);
+  getDepositAddress: () -> (blob) query;
+  getWithdrawalAddress: () -> (blob);
   placeOrder: (Token, nat, Token, nat) -> (OrderPlacementReceipt);
   getSymbol: (Token) -> (text);
   whoami: () -> (principal) query;
-  withdraw: (Token, nat) -> (WithdrawReceipt);
+  withdraw : (Token, nat, principal) -> (WithdrawReceipt);
   credit: (principal, Token, nat) -> ();
   clear: () -> ();
 }

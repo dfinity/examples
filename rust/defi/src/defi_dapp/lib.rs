@@ -189,7 +189,7 @@ impl State {
         if let Some(o) = self.orders.get(&order) {
             if o.owner == caller() {
                 self.orders.remove(&order);
-                CancelOrderReceipt::Ok(order.into())
+                CancelOrderReceipt::Ok(order)
             } else {
                 CancelOrderReceipt::Err(CancelOrderErr::NotAllowed)
             }
@@ -244,6 +244,7 @@ impl State {
                         if a.from_amount >= b.to_amount {
                             b_to_amount = b.to_amount;
                         }
+                        // Check if some orders can be completed partially.
                         if a_to_amount == 0 && b_to_amount > 0 {
                             a_to_amount = b.from_amount;
                             // Verify that we can complete the partial order with natural number tokens remaining.
@@ -348,7 +349,8 @@ impl State {
     fn credit(&mut self, owner: Principal, token_canister_id: Principal, amount: Nat) {
         ic_cdk::println!("credit {} {}", caller(), self.owner.unwrap());
         assert!(self.owner.unwrap() == caller());
-        self.balances.add_balance(&owner, &token_canister_id, nat_to_u128(amount));
+        self.balances
+            .add_balance(&owner, &token_canister_id, nat_to_u128(amount));
     }
 
     // For testing.
@@ -362,18 +364,20 @@ impl State {
 #[update]
 #[candid_method(update)]
 pub async fn deposit(token_canister_id: Principal) -> DepositReceipt {
+    let caller = caller();
     let ledger_canister_id = STATE
         .with(|s| s.borrow().ledger)
         .unwrap_or(MAINNET_LEDGER_CANISTER_ID);
 
     let amount = if token_canister_id == ledger_canister_id {
-        deposit_icp(caller()).await?
+        deposit_icp(caller).await?
     } else {
-        deposit_token(caller(), token_canister_id).await?
+        deposit_token(caller, token_canister_id).await?
     };
     STATE.with(|s| {
         s.borrow_mut()
-            .balances.add_balance(&caller(), &token_canister_id, amount)
+            .balances
+            .add_balance(&caller, &token_canister_id, amount)
     });
     DepositReceipt::Ok(amount.into())
 }
@@ -483,6 +487,13 @@ pub fn get_deposit_address() -> AccountIdentifier {
     AccountIdentifier::new(&canister_id, &subaccount)
 }
 
+#[query(name = "getWithdrawalAddress")]
+#[candid_method(query, rename = "getWithdrawalAddress")]
+pub fn get_withdrawl_address() -> AccountIdentifier {
+    let canister_id = ic_cdk::api::id();
+    AccountIdentifier::new(&canister_id, &DEFAULT_SUBACCOUNT)
+}
+
 #[update(name = "placeOrder")]
 #[candid_method(update, rename = "placeOrder")]
 pub fn place_order(
@@ -503,7 +514,11 @@ pub fn place_order(
 
 #[update]
 #[candid_method(update)]
-pub async fn withdraw(token_canister_id: Principal, amount: Nat) -> WithdrawReceipt {
+pub async fn withdraw(
+    token_canister_id: Principal,
+    amount: Nat,
+    address: Principal,
+) -> WithdrawReceipt {
     let ledger_canister_id = STATE
         .with(|s| s.borrow().ledger)
         .unwrap_or(MAINNET_LEDGER_CANISTER_ID);
@@ -521,15 +536,16 @@ pub async fn withdraw(token_canister_id: Principal, amount: Nat) -> WithdrawRece
     })?;
 
     if token_canister_id == ledger_canister_id {
-        withdraw_icp(caller(), &amount).await?;
+        let account_id = AccountIdentifier::new(&address, &DEFAULT_SUBACCOUNT);
+        withdraw_icp(&amount, account_id).await?;
     } else {
-        withdraw_token(caller(), token_canister_id, &amount).await?;
+        withdraw_token(token_canister_id, &amount, address).await?;
     };
 
     WithdrawReceipt::Ok(amount)
 }
 
-async fn withdraw_icp(caller: Principal, amount: &Nat) -> Result<Nat, WithdrawErr> {
+async fn withdraw_icp(amount: &Nat, account_id: AccountIdentifier) -> Result<Nat, WithdrawErr> {
     let ledger_canister_id = STATE
         .with(|s| s.borrow().ledger)
         .unwrap_or(MAINNET_LEDGER_CANISTER_ID);
@@ -539,7 +555,7 @@ async fn withdraw_icp(caller: Principal, amount: &Nat) -> Result<Nat, WithdrawEr
         amount: Tokens::from_e8s(nat_to_u128(amount.to_owned()).try_into().unwrap()),
         fee: Tokens::from_e8s(ICP_FEE),
         from_subaccount: Some(DEFAULT_SUBACCOUNT),
-        to: AccountIdentifier::new(&caller, &DEFAULT_SUBACCOUNT),
+        to: account_id,
         created_at_time: None,
     };
     ic_ledger_types::transfer(ledger_canister_id, transfer_args)
@@ -547,21 +563,21 @@ async fn withdraw_icp(caller: Principal, amount: &Nat) -> Result<Nat, WithdrawEr
         .map_err(|_| WithdrawErr::TransferFailure)?
         .map_err(|_| WithdrawErr::TransferFailure)?;
 
-    println!("Withdrawal of {} ICP to account {:?}", amount, &caller);
+    println!("Withdrawal of {} ICP to account {:?}", amount, &account_id);
 
     Ok(amount.to_owned())
 }
 
 async fn withdraw_token(
-    caller: Principal,
     token: Principal,
     amount: &Nat,
+    address: Principal,
 ) -> Result<Nat, WithdrawErr> {
     let token = DIP20::new(token);
     let dip_fee = token.get_metadata().await.fee;
 
     token
-        .transfer(caller, amount.to_owned() - dip_fee)
+        .transfer(address, amount.to_owned() - dip_fee)
         .await
         .map_err(|_| WithdrawErr::TransferFailure)?;
 
@@ -593,7 +609,6 @@ pub fn whoami() -> Principal {
 pub fn withdrawal_address() -> String {
     AccountIdentifier::new(&caller(), &DEFAULT_SUBACCOUNT).to_string()
 }
-
 
 #[update]
 #[candid_method(update)]
