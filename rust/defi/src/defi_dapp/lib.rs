@@ -244,6 +244,7 @@ impl State {
                         if a.from_amount >= b.to_amount {
                             b_to_amount = b.to_amount;
                         }
+                        // Check if some orders can be completed partially.
                         if a_to_amount == 0 && b_to_amount > 0 {
                             a_to_amount = b.from_amount;
                             // Verify that we can complete the partial order with natural number tokens remaining.
@@ -348,7 +349,8 @@ impl State {
     fn credit(&mut self, owner: Principal, token_canister_id: Principal, amount: Nat) {
         ic_cdk::println!("credit {} {}", caller(), self.owner.unwrap());
         assert!(self.owner.unwrap() == caller());
-        self.balances.add_balance(&owner, &token_canister_id, nat_to_u128(amount));
+        self.balances
+            .add_balance(&owner, &token_canister_id, nat_to_u128(amount));
     }
 
     // For testing.
@@ -374,7 +376,8 @@ pub async fn deposit(token_canister_id: Principal) -> DepositReceipt {
     };
     STATE.with(|s| {
         s.borrow_mut()
-            .balances.add_balance(&caller, &token_canister_id, amount)
+            .balances
+            .add_balance(&caller, &token_canister_id, amount)
     });
     DepositReceipt::Ok(amount.into())
 }
@@ -601,7 +604,6 @@ pub fn whoami() -> Principal {
 pub fn withdrawal_address() -> String {
     AccountIdentifier::new(&caller(), &DEFAULT_SUBACCOUNT).to_string()
 }
-
 
 #[update]
 #[candid_method(update)]
