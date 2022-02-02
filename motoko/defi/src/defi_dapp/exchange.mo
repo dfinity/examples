@@ -7,6 +7,7 @@ import Iter "mo:base/Iter";
 import L "mo:base/List";
 import M "mo:base/HashMap";
 import Nat "mo:base/Nat";
+import Text "mo:base/Text";
 import Nat32 "mo:base/Nat32";
 import Nat64 "mo:base/Nat64";
 import Order "mo:base/Order";
@@ -23,16 +24,18 @@ module {
 
     public let ledger = func(): Principal { Principal.fromActor(Ledger) };
 
+    // internal types
+    public type TradingPair = (T.Token,T.Token);
+
+
     // An exchange between ICP and a DIP20 token.
-    public class Exchange(dip: T.Token, symbol: Text, book: Book.Book) {
+    public class Exchange(trading_pair: TradingPair, book: Book.Book) {
 
         // The implicit pair will be dip/ICP (to have the price of a dip in ICP), therefore:
         // bid is for buying dip (ie selling ICP).
         // ask is for selling dip (ie buying ICP).
         let orders_bid = M.HashMap<T.OrderId, T.Order>(10, func(x,y){x == y}, func(x) {x});
         let orders_ask = M.HashMap<T.OrderId, T.Order>(10, func(x,y){x == y}, func(x) {x});
-
-        public func getSymbol() : Text { symbol };
 
         public func getOrder(id: T.OrderId) : ?T.Order {
             switch (orders_bid.get(id)) {
@@ -47,7 +50,7 @@ module {
         };
 
         public func getOrders() : [T.Order] {
-            Debug.print("List orders on exchange " # symbol);
+            Debug.print("List orders on exchange " # Principal.toText(trading_pair.0) # "/" # Principal.toText(trading_pair.1));
             let buff : B.Buffer<T.Order> = B.Buffer(10);
             for (o in orders_bid.vals()) {
                 buff.add(o);
@@ -74,20 +77,17 @@ module {
         };
 
         public func addOrder(o: T.Order) {
-            if(o.from == ledger()) {
-                // convert ICP to token.
+            var buy_order=true;
+            if(o.from == trading_pair.0) {
                 orders_bid.put(o.id, o);
-            } else if (o.to == ledger()) {
-                // convert token to ICP.
-                orders_ask.put(o.id, o);
             } else {
-                // TODO handle invalid order (already filtered in main but still need proper error msg here).
-                Debug.print("Invalid order");
+                orders_ask.put(o.id, o);
+                buy_order := false;
             };
             print_book();
             var m=true;
             while(m) {
-                m:=detect_match();
+                m:=detect_match(buy_order);
                 if(m) {
                     Debug.print("Order book after execution:");
                     print_book();
@@ -102,21 +102,23 @@ module {
             let bid = RBTree.RBTree<Float,B.Buffer<T.Order>>(Float.compare);
             let ask = RBTree.RBTree<Float,B.Buffer<T.Order>>(Float.compare);
             for(o in orders_bid.vals()) {
-                switch (bid.get(o.price)) {
+                let o_price = calc_order_price(trading_pair, o.from, o.fromAmount, o.toAmount);
+                switch (bid.get(o_price)) {
                     case null {
                         let b = B.Buffer<T.Order>(1);
                         b.add(o);
-                        bid.put(o.price, b);
+                        bid.put(o_price, b);
                     };
                     case (?b) b.add(o);
                 };
             };
             for(o in orders_ask.vals()) {
-                switch(ask.get(o.price)) {
+                let o_price = calc_order_price(trading_pair, o.from, o.fromAmount, o.toAmount);
+                switch(ask.get(o_price)) {
                    case null {
                        let b = B.Buffer<T.Order>(1);
                        b.add(o);
-                       ask.put(o.price, b);
+                       ask.put(o_price, b);
                    };
                    case (?b) b.add(o);
                 };
@@ -127,7 +129,7 @@ module {
             let it_bid = bid.entriesRev();
             let it_ask = ask.entries();
 
-            Debug.print("======= " # symbol # " / ICP =======");
+            Debug.print("======= " # Principal.toText(trading_pair.0) # "/" # Principal.toText(trading_pair.1) # "  =======");
             Debug.print("=== BID === | === ASK ===");
             var i = 0;
             while (i < nb_bid or i < nb_ask) {
@@ -143,6 +145,19 @@ module {
                 i+=1;
             };
 
+        };
+
+        // calculate price based on trading pair
+        // trading pair :: X/Y i.e GLD/ICP
+        // i.e ICP (from) -> GLD(to) 
+        func calc_order_price(trading_pair: TradingPair, from: Principal, fromAmount: Int, toAmount: Int) : Float{
+            if(from==trading_pair.0) {
+                Float.fromInt(fromAmount) / Float.fromInt(toAmount)
+            }
+            // i.e GLD (from) -> ICP(to) 
+            else {
+                Float.fromInt(toAmount) / Float.fromInt(fromAmount)
+            };
         };
 
         func sum_ask_orders(orders: B.Buffer<T.Order>) : Nat {
@@ -162,9 +177,11 @@ module {
         };
 
         private func asc(o1: T.Order, o2: T.Order) : Order.Order {
-            if(o1.price < o2.price) {
+            let o1_price = calc_order_price(trading_pair, o1.from, o1.fromAmount, o1.toAmount);
+            let o2_price = calc_order_price(trading_pair, o2.from, o2.fromAmount, o2.toAmount);
+            if(o1_price < o2_price) {
                 #less
-            } else if(o1.price > o2.price) {
+            } else if(o1_price > o2_price) {
                 #greater
             } else {
                 #equal
@@ -172,16 +189,18 @@ module {
         };
 
         private func dsc(o1: T.Order, o2: T.Order) : Order.Order {
-            if(o1.price < o2.price) {
+            let o1_price = calc_order_price(trading_pair, o1.from, o1.fromAmount, o1.toAmount);
+            let o2_price = calc_order_price(trading_pair, o2.from, o2.fromAmount, o2.toAmount);
+            if(o1_price < o2_price) {
                 #greater
-            } else if(o1.price > o2.price) {
+            } else if(o1_price > o2_price) {
                 #less
             } else {
                 #equal
             }
         };
 
-        func detect_match() : Bool {
+        func detect_match(buy_order: Bool) : Bool {
             Debug.print("Detecting orders match");
             var bids=Iter.toArray(orders_bid.vals());
             var asks=Iter.toArray(orders_ask.vals());
@@ -199,10 +218,20 @@ module {
                     switch (it_ask.next()) {
                         case null return false;
                         case (?ao) {
-                            let spread = ao.price-bo.price;
+                            let ao_price = calc_order_price(trading_pair, ao.from, ao.fromAmount, ao.toAmount);
+                            let bo_price = calc_order_price(trading_pair, bo.from, bo.fromAmount, bo.toAmount);
+
+                            let spread = ao_price-bo_price;
                             if (spread<=0) {
-                                let price=bo.price+spread/2;
-                                Debug.print("Crossing at midspread: " # Float.toText(price));
+                                // let price=bo_price+spread/2;
+                                var price = Float.fromInt64(0);
+                                if (buy_order){
+                                    price := ao_price;
+                                }else {
+                                    price := bo_price;
+                                };
+                                
+                                Debug.print("Crossing at midspread: " # Float.toText(price) # " " # Float.toText(ao_price)# " " # Float.toText(bo_price));
                                 return execute(bo, ao, price);
                             } else {
                                 Debug.print("No match. Spread: " # Float.toText(spread));
@@ -236,8 +265,8 @@ module {
                 Debug.print("[execution] Invalid ICP volume");
                 return false;
             };
-            let vol_icp : Nat = Int.abs(vol_icp_int);
-            Debug.print("Executing exchange of " # Nat.toText(vol_dip) # " DIP for " # Nat.toText(vol_icp) # " ICP (price " # Float.toText(price) # " icp per dip)" );
+            let vol_icp : Nat = Int.abs(vol_icp_int); 
+            Debug.print("Executing exchange of " # Nat.toText(vol_dip) # " " # Principal.toText(trading_pair.1) # " for " # Nat.toText(vol_icp) # " " # Principal.toText(trading_pair.0) #  " (price " # Float.toText(price)# " " # Principal.toText(trading_pair.0) # " per " # Principal.toText(trading_pair.1)  # ")" );
 
             // we transfer the icp from bid to ask and the dip from ask to bid.
             switch (book.removeTokens(bid.owner, bid.from, vol_icp)) {
@@ -257,11 +286,13 @@ module {
                                 switch (orders_bid.remove(bid.id)) {
                                     case null return false; // TODO handle error
                                     case (?r) {
+                                        // calculate current price to adjust amount proportionally. Since order price differs from execution price
+                                        let pre_price = calc_order_price(trading_pair, r.from, r.fromAmount,r.toAmount);
                                         Debug.print("updating bid order " # Nat32.toText(r.id));
                                         let remainingToAmount : Nat = r.toAmount - vol_dip;
                                         //let remainingFromAmount : Nat = r.fromAmount - vol_icp;
                                         // reduced proportionally to the reduction in amount.
-                                        let remainingFromAmount : Nat = Int.abs(Float.toInt(1/price * Float.fromInt(remainingToAmount)));
+                                        let remainingFromAmount : Nat = Int.abs(Float.toInt(1/pre_price * Float.fromInt(remainingToAmount)));
                                         let order : T.Order = {
                                             id = r.id;
                                             owner = r.owner;
@@ -269,10 +300,6 @@ module {
                                             fromAmount = remainingFromAmount;
                                             to = r.to;
                                             toAmount = remainingToAmount;
-                                            dip_symbol = r.dip_symbol;
-                                            submitted = r.submitted;
-                                            price = r.price;
-                                            status = #PartiallyExecuted;
                                         };
                                         orders_bid.put(r.id, order);
                                     }
@@ -287,10 +314,13 @@ module {
                                 switch (orders_ask.remove(ask.id)) {
                                     case null return false; // TODO handle error
                                     case (?r) {
-                                        Debug.print("updating ask order " # Nat32.toText(r.id));
+                                        // calculate current price to adjust amount proportionally. Since order price differs from execution price
+                                        let pre_price = calc_order_price(trading_pair, r.from, r.fromAmount,r.toAmount);
+                                        Debug.print("updating ask order "# Float.toText(pre_price) # " " # Nat32.toText(r.id)# " " # Nat.toText(r.fromAmount));
                                         let remainingFromAmount : Nat = r.fromAmount - vol_dip;
                                         // reduced proportionally to the reduction in amount.
-                                        let remainingToAmount : Nat = Int.abs(Float.toInt(price * Float.fromInt(remainingFromAmount)));
+                                        let remainingToAmount : Nat = Int.abs(Float.toInt(pre_price * Float.fromInt(remainingFromAmount)));
+                                        let post_price = calc_order_price(trading_pair, r.from, remainingFromAmount,remainingToAmount);
                                         let order : T.Order = {
                                             id = r.id;
                                             owner = r.owner;
@@ -298,10 +328,6 @@ module {
                                             fromAmount = remainingFromAmount;
                                             to = r.to;
                                             toAmount = remainingToAmount;
-                                            dip_symbol = r.dip_symbol;
-                                            submitted = r.submitted;
-                                            price = r.price;
-                                            status = #PartiallyExecuted;
                                         };
                                         orders_ask.put(r.id, order);
                                     }
@@ -315,10 +341,6 @@ module {
                 case null return false;
             }
         }
-
-        //public func transactions() : [Transaction] {}
-
-
     }
 
 }

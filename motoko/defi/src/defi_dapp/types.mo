@@ -6,15 +6,7 @@ module {
     public type Token = Principal;
 
     public type OrderId = Nat32;
-    public type Symbol = Text;
-
-    public type OrderStatus = {
-        #Submitted;
-        #Cancelled;
-        #Executed;
-        #PartiallyExecuted;
-    };
-
+  
     public type Order = {
         id: OrderId;
         owner: Principal;
@@ -22,10 +14,6 @@ module {
         fromAmount: Nat;
         to: Token;
         toAmount: Nat;
-        dip_symbol: Symbol;
-        submitted: Time.Time;
-        price: Float;
-        status: OrderStatus;
     };
     
     // ledger types
@@ -89,35 +77,37 @@ module {
     };
 
     // return types
+    public type OrderPlacementErr = {
+        #InvalidOrder;
+        #OrderBookFull;
+    };
     public type OrderPlacementReceipt = {
         #Ok: Order;
-        #Err: {
-            #InvalidOrder;
-            #OrderBookFull;
-            #InsufficientFunds;
-        };
+        #Err: OrderPlacementErr;
+    };
+    public type CancelOrderErr = {
+        #NotExistingOrder;
+        #NotAllowed;
     };
     public type CancelOrderReceipt = {
         #Ok: OrderId;
-        #Err: {
-            #NotExistingOrder;
-            #NotAllowed;
-            #InternalError;
-        };
+        #Err: CancelOrderErr;
+    };
+    public type WithdrawErr = {
+        #BalanceLow;
+        #TransferFailure;
     };
     public type WithdrawReceipt = {
         #Ok: Nat;
-        #Err: {
-            #BalanceLow;
-            #TransferFailure;
-        };
+        #Err: WithdrawErr;  
+    };
+    public type DepositErr = {
+        #BalanceLow;
+        #TransferFailure;
     };
     public type DepositReceipt = {
         #Ok: Nat;
-        #Err: {
-            #BalanceLow;
-            #TransferFailure;
-        };
+        #Err: DepositErr;
     };
     public type Balance = {
         owner: Principal;

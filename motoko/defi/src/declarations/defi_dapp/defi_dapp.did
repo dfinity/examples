@@ -1,60 +1,53 @@
 type WithdrawReceipt = 
  variant {
-   Err: variant {
-          BalanceLow;
-          TransferFailure;
-        };
+   Err: WithdrawErr;
    Ok: nat;
  };
-type Token = principal;
-type Time = int;
-type Symbol = text;
-type OrderStatus = 
+type WithdrawErr = 
  variant {
-   Cancelled;
-   Executed;
-   PartiallyExecuted;
-   Submitted;
+   BalanceLow;
+   TransferFailure;
  };
+type Token = principal;
 type OrderPlacementReceipt = 
  variant {
-   Err: variant {
-          InsufficientFunds;
-          InvalidOrder;
-          OrderBookFull;
-        };
+   Err: OrderPlacementErr;
    Ok: Order;
+ };
+type OrderPlacementErr = 
+ variant {
+   InvalidOrder;
+   OrderBookFull;
  };
 type OrderId = nat32;
 type Order = 
  record {
-   dip_symbol: Symbol;
    from: Token;
    fromAmount: nat;
    id: OrderId;
    owner: principal;
-   price: float64;
-   status: OrderStatus;
-   submitted: Time;
    to: Token;
    toAmount: nat;
  };
 type DepositReceipt = 
  variant {
-   Err: variant {
-          BalanceLow;
-          TransferFailure;
-        };
+   Err: DepositErr;
    Ok: nat;
+ };
+type DepositErr = 
+ variant {
+   BalanceLow;
+   TransferFailure;
  };
 type CancelOrderReceipt = 
  variant {
-   Err: variant {
-          InternalError;
-          NotAllowed;
-          NotExistingOrder;
-        };
+   Err: CancelOrderErr;
    Ok: OrderId;
+ };
+type CancelOrderErr = 
+ variant {
+   NotAllowed;
+   NotExistingOrder;
  };
 type Balance = 
  record {
@@ -65,6 +58,7 @@ type Balance =
 service : {
   cancelOrder: (OrderId) -> (CancelOrderReceipt);
   deposit: (Token) -> (DepositReceipt);
+  getAllBalances: () -> (vec Balance) query;
   getBalance: (Token) -> (nat) query;
   getBalances: () -> (vec Balance) query;
   getDepositAddress: () -> (blob);
