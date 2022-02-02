@@ -21,7 +21,7 @@ type Balance = record {
   token: Token;
   amount: nat;
 };
-service : {
+service : (principal) -> {
   getBalance: (Token) -> (nat) query;
   getBalances: () -> (vec Balance) query;
   getAllBalances: () -> (vec Balance) query;

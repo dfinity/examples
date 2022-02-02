@@ -1,5 +1,6 @@
-# dfx stop
-# dfx start --background --clean
+set -x
+dfx stop
+dfx start --background --clean
 
 
 ### === DEPLOY LOCAL LEDGER =====
@@ -52,9 +53,9 @@ popd
 
 ## === INSTALL FRONTEND / BACKEND ==== 
 
-dfx deploy defi_dapp --argument "(principal \"$LEDGER_ID\")"
+dfx deploy --no-wallet defi_dapp --argument "(principal \"$LEDGER_ID\")"
 
 pushd src/frontend
 npm install
 popd
-dfx deploy frontend
+dfx deploy --no-wallet frontend  --argument "(principal \"$LEDGER_ID\")"

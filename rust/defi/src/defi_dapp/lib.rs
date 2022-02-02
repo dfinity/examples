@@ -617,8 +617,7 @@ pub fn clear() {
 }
 
 #[init]
-#[candid_method(init)]
-pub fn init(ledger: Principal) {
+fn init(ledger: Principal) {
     ic_cdk::setup();
     STATE.with(|s| {
         s.borrow_mut().owner = Some(caller());
