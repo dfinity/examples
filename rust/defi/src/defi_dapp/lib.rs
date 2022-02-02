@@ -189,7 +189,7 @@ impl State {
         if let Some(o) = self.orders.get(&order) {
             if o.owner == caller() {
                 self.orders.remove(&order);
-                CancelOrderReceipt::Ok(order.into())
+                CancelOrderReceipt::Ok(order)
             } else {
                 CancelOrderReceipt::Err(CancelOrderErr::NotAllowed)
             }

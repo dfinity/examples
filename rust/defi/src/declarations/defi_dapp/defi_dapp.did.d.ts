@@ -6,7 +6,7 @@ export interface Balance {
 }
 export type CancelOrderErr = { 'NotAllowed' : null } |
   { 'NotExistingOrder' : null };
-export type CancelOrderReceipt = { 'Ok' : bigint } |
+export type CancelOrderReceipt = { 'Ok' : OrderId } |
   { 'Err' : CancelOrderErr };
 export type DepositErr = { 'TransferFailure' : null } |
   { 'BalanceLow' : null };

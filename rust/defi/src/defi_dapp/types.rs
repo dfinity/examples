@@ -20,7 +20,7 @@ pub struct Balance {
     pub amount: Nat,
 }
 
-pub type CancelOrderReceipt = Result<Nat, CancelOrderErr>;
+pub type CancelOrderReceipt = Result<OrderId, CancelOrderErr>;
 
 #[derive(CandidType)]
 pub enum CancelOrderErr {
