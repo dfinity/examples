@@ -618,11 +618,11 @@ pub fn clear() {
 
 #[init]
 #[candid_method(init)]
-pub fn init(ledger: Option<Principal>) {
+pub fn init(ledger: Principal) {
     ic_cdk::setup();
     STATE.with(|s| {
         s.borrow_mut().owner = Some(caller());
-        s.borrow_mut().ledger = ledger;
+        s.borrow_mut().ledger = Some(ledger);
     });
 }
 
