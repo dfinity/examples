@@ -1,6 +1,6 @@
 use candid::{CandidType, Deserialize, Nat, Principal};
 
-pub(crate) struct DIP20 {
+pub struct DIP20 {
     principal: Principal,
 }
 
