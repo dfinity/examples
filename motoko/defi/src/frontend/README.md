@@ -52,12 +52,12 @@ You can run the newly built app with `npm run start`. This uses [sirv](https://g
 
 ## Single-page app mode
 
-By default, sirv will only respond to requests that match files in `public`. This is to maximise compatibility with static fileservers, allowing you to deploy your app anywhere.
+By default, sirv will only respond to requests that match files in `../frontend_assets`. This is to maximise compatibility with static fileservers, allowing you to deploy your app anywhere.
 
 If you're building a single-page app (SPA) with multiple routes, sirv needs to be able to respond to requests for *any* path. You can make it so by editing the `"start"` command in package.json:
 
 ```js
-"start": "sirv public --single"
+"start": "sirv ../frontend_assets --single"
 ```
 
 ## Using TypeScript
@@ -89,7 +89,7 @@ npm install -g vercel
 Then, from within your project folder:
 
 ```bash
-cd public
+cd ../frontend_assets
 vercel deploy --name my-project
 ```
 
@@ -105,5 +105,5 @@ Then, from within your project folder:
 
 ```bash
 npm run build
-surge public my-project.surge.sh
+surge ../frontend_assets my-project.surge.sh
 ```
