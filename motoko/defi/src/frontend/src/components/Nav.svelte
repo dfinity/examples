@@ -17,8 +17,6 @@
         // Internet Identity
         client = await AuthClient.create();
         const id = client.getIdentity();
-        console.log('in mount')
-        console.log(id.getPrincipal().toString())
         if (await client.isAuthenticated()) {
             handleAuth();
         }
@@ -63,14 +61,18 @@
     function handleAuth() {
         console.log('in handle auth');
         console.log(client.getIdentity())
+        // Update Auth Store
         auth.update(() => ({
           loggedIn: true,
+          principal: client.getIdentity().getPrincipal(),
           actor: createActor({
             agentOptions: {
               identity: client.getIdentity(),
             },
           }),
         }));
+        // Create Canister Actors with II
+
     }
 
     function login() {
@@ -87,6 +89,7 @@
         await client.logout();
         auth.update(() => ({
           loggedIn: false,
+          principal: '',
           actor: createActor(),
         }));
     }

@@ -48,7 +48,8 @@ export function createActor(options) {
 
 export const auth = writable({
   loggedIn: false,
-  actor: createActor(),
+   principal: '',
+   actor: createActor(),
 });
 
 export const plugWallet = writable({

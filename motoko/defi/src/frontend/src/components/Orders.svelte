@@ -150,7 +150,7 @@
         </div>
         <div>
             <table>
-                {#if $orders.length}
+                {#if $orders.length || showOrderForm}
                     <thead>
                         <th>From Account</th>
                         <th>Amount</th>

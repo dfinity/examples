@@ -1,3 +1,4 @@
+import { Actor } from '@dfinity/agent';
 import { writable } from 'svelte/store';
 
 export const canisters = writable(
@@ -8,5 +9,13 @@ export const canisters = writable(
     ]
 );
 
+export const canisterActors = writable([]);
+
 export const userBalances = writable([]);
 
+export const createCanisterActor = (agent, idl, canisterId) => {
+    return Actor.createActor(idl, {
+        agent,
+        canisterId
+    })
+}
