@@ -65,7 +65,7 @@
             backendActor = createCanisterActor(agent, backendIDL, process.env.DEFI_DAPP_CANISTER_ID);
             akitaActor = createCanisterActor(agent, akitaIDL, process.env.AKITADIP20_CANISTER_ID);
             goldenActor = createCanisterActor(agent, goldenIDL, process.env.GOLDENDIP20_CANISTER_ID);
-            ledgerActor = createCanisterActor(agent, ledgerIDL, process.env.process.env.LEDGER_CANISTER_ID);
+            ledgerActor = createCanisterActor(agent, ledgerIDL, process.env.LEDGER_CANISTER_ID);
 
 
             const goldenBalance = await goldenActor.balanceOf($auth.principal);
