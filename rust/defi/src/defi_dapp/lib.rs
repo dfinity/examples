@@ -274,7 +274,7 @@ pub fn whoami() -> Principal {
 // For testing
 #[update]
 #[candid_method(update)]
-pub fn credit(token_canister_id: Principal, amount: Nat) {
+pub fn credit(user: Principal, token_canister_id: Principal, amount: Nat) {
     STATE.with(|s| {
         let mut state = s.borrow_mut();
         let owner = state.owner.unwrap();
@@ -284,7 +284,7 @@ pub fn credit(token_canister_id: Principal, amount: Nat) {
         state
             .exchange
             .balances
-            .add_balance(&owner, &token_canister_id, nat_to_u128(amount));
+            .add_balance(&user, &token_canister_id, nat_to_u128(amount));
     })
 }
 
