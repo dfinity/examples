@@ -1,15 +1,23 @@
-set -x
+# set -x
+set -e
+trap 'catch' ERR
+catch() {
+  echo "FAIL"
+  exit 1
+}
 # create new demo identities
-dfx identity new user1
+dfx identity new user1 || true
 dfx identity use user1
 export USER1_PRINCIPAL=$(dfx identity get-principal)
 export USER1_ACC=$(python3 -c 'print("vec{" + ";".join([str(b) for b in bytes.fromhex("'$(dfx ledger account-id)'")]) + "}")')
-dfx identity new user2
+dfx identity new user2 || true
 dfx identity use user2
 export USER2_PRINCIPAL=$(dfx identity get-principal)
 export USER2_ACC=$(python3 -c 'print("vec{" + ";".join([str(b) for b in bytes.fromhex("'$(dfx ledger account-id)'")]) + "}")')
 # transfer dip tokens to user
 dfx identity use default
+export WALLET=$(dfx identity get-wallet)
+dfx canister --wallet "${WALLET}" call defi_dapp clear
 dfx canister --no-wallet call AkitaDIP20 transfer  '(principal '\"$USER1_PRINCIPAL\"',10000000)'
 dfx canister --no-wallet call AkitaDIP20 transfer  '(principal '\"$USER2_PRINCIPAL\"',10000000)'
 dfx canister --no-wallet call GoldenDIP20 transfer  '(principal '\"$USER1_PRINCIPAL\"',10000000)'
@@ -52,5 +60,8 @@ dfx canister call defi_dapp placeOrder '(principal '\"$LEDGER_ID\"', 3, principa
 dfx identity use user2
 dfx canister call defi_dapp placeOrder '(principal '\"$GOLDEN_ID\"', 200, principal '\"$LEDGER_ID\"', 3)'
 dfx canister call defi_dapp getBalances
+dfx canister call defi_dapp getBalances | grep 999_800
 dfx identity use user1
 dfx canister call defi_dapp getBalances
+dfx canister call defi_dapp getBalances | grep 29_997
+echo "PASS"
