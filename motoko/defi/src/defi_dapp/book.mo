@@ -40,7 +40,7 @@ module {
         };
 
         // function that adds tokens to book. Book keeps track of users deposits.
-        public func add_tokens(user: Principal, token: T.Token,amount: Nat){
+        public func addTokens(user: Principal, token: T.Token, amount: Nat){
             switch (book.get(user)) {
                 case (?token_balance) {
                     // check if user already has existing balance for this token
@@ -72,7 +72,6 @@ module {
                     // check if user already has existing balance for this token
                     switch (token_balance.get(token)){
                         case (?balance) {
-                            Debug.print( debug_show("User", user, "has existing balance of ", token, " new amount: ",balance-amount));
                             if (balance>=amount){
                                 token_balance.put(token, balance-amount);
                                 ?(balance-amount)

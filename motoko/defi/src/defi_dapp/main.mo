@@ -174,7 +174,7 @@ actor Dex {
         switch icp_reciept {
             case (#Err e) {
                 // add tokens back to user account balance
-                book.add_tokens(caller,E.ledger(),amount+icp_fee);
+                book.addTokens(caller,E.ledger(),amount+icp_fee);
                 return #Err(#TransferFailure);
             };
             case _ {};
@@ -205,7 +205,7 @@ actor Dex {
         switch txReceipt {
             case (#Err e) {
                 // add tokens back to user account balance
-                book.add_tokens(caller,token,amount + dip_fee);
+                book.addTokens(caller,token,amount + dip_fee);
                 return #Err(#TransferFailure);
             };
             case _ {};
@@ -318,7 +318,7 @@ actor Dex {
         };
 
         // add transferred amount to user balance
-        book.add_tokens(caller,token,balance - dip_fee);
+        book.addTokens(caller,token,balance - dip_fee);
 
         // Return result
         #Ok(balance - dip_fee)
@@ -335,7 +335,7 @@ actor Dex {
         let balance = await Ledger.account_balance({ account = source_account });
 
         // Transfer to default subaccount
-        let icp_reciept = if (Nat64.toNat(balance.e8s) > icp_fee) {
+        let icp_receipt = if (Nat64.toNat(balance.e8s) > icp_fee) {
             await Ledger.transfer({
                 memo: Nat64    = 0;
                 from_subaccount = ?Account.principalToSubaccount(caller);
@@ -348,7 +348,7 @@ actor Dex {
             return #Err(#BalanceLow);
         };
 
-        switch icp_reciept {
+        switch icp_receipt {
             case ( #Err _) {
                 return #Err(#TransferFailure);
             };
@@ -358,7 +358,7 @@ actor Dex {
         let available = { e8s : Nat = Nat64.toNat(balance.e8s) - (icp_fee * 2) };
 
         // keep track of deposited ICP
-        book.add_tokens(caller,E.ledger(),available.e8s);
+        book.addTokens(caller,E.ledger(),available.e8s);
 
         // Return result
         #Ok(available.e8s)
