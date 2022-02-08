@@ -63,5 +63,5 @@ dfx canister call defi_dapp getBalances
 dfx canister call defi_dapp getBalances | grep 999_800
 dfx identity use user1
 dfx canister call defi_dapp getBalances
-dfx canister call defi_dapp getBalances | grep 29_997
+dfx canister call defi_dapp getBalances | grep 39_997
 echo "PASS"
