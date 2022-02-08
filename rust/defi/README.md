@@ -45,7 +45,7 @@ make test
 
 ### Demo
 
-See `demo.sh`.
+See [demo.sh](demo.sh).
 
 ### Token transfers
 
