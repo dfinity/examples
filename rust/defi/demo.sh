@@ -2,6 +2,7 @@
 set -e
 trap 'catch' ERR
 catch() {
+  dfx identity use default
   echo "FAIL"
   exit 1
 }
@@ -64,4 +65,5 @@ dfx canister call defi_dapp getBalances | grep 999_800
 dfx identity use user1
 dfx canister call defi_dapp getBalances
 dfx canister call defi_dapp getBalances | grep 39_997
+dfx identity use default
 echo "PASS"
