@@ -66,7 +66,7 @@ async fn deposit_icp(caller: Principal) -> Result<u128, DepositErr> {
         .await
         .map_err(|_| DepositErr::TransferFailure)?;
 
-    if balance.e8s() < 2 * ICP_FEE {
+    if balance.e8s() < ICP_FEE {
         return Err(DepositErr::BalanceLow);
     }
 
@@ -89,7 +89,7 @@ async fn deposit_icp(caller: Principal) -> Result<u128, DepositErr> {
         &account
     );
 
-    Ok((balance.e8s() - 2 * ICP_FEE).into())
+    Ok((balance.e8s() - ICP_FEE).into())
 }
 
 async fn deposit_token(caller: Principal, token: Principal) -> Result<u128, DepositErr> {
@@ -204,49 +204,56 @@ pub async fn withdraw(
         .with(|s| s.borrow().ledger)
         .unwrap_or(MAINNET_LEDGER_CANISTER_ID);
 
-    let amount = STATE.with(|s| -> WithdrawReceipt {
-        if !s.borrow_mut().exchange.balances.subtract_balance(
-            &caller(),
-            &token_canister_id,
-            nat_to_u128(amount.to_owned()),
-        ) {
-            Err(WithdrawErr::BalanceLow)
-        } else {
-            Ok(amount)
-        }
-    })?;
-
     if token_canister_id == ledger_canister_id {
         let account_id = AccountIdentifier::new(&address, &DEFAULT_SUBACCOUNT);
-        withdraw_icp(&amount, account_id).await?;
+        withdraw_icp(&amount, account_id).await
     } else {
-        withdraw_token(token_canister_id, &amount, address).await?;
-    };
-
-    WithdrawReceipt::Ok(amount)
+        withdraw_token(token_canister_id, &amount, address).await
+    }
 }
 
 async fn withdraw_icp(amount: &Nat, account_id: AccountIdentifier) -> Result<Nat, WithdrawErr> {
+    let caller = caller();
     let ledger_canister_id = STATE
         .with(|s| s.borrow().ledger)
         .unwrap_or(MAINNET_LEDGER_CANISTER_ID);
 
+    if !STATE.with(|s| {
+        s.borrow_mut().exchange.balances.subtract_balance(
+            &caller,
+            &ledger_canister_id,
+            nat_to_u128(amount.to_owned() + ICP_FEE),
+        )
+    }) {
+        return Err(WithdrawErr::BalanceLow);
+    }
+
     let transfer_args = ic_ledger_types::TransferArgs {
         memo: Memo(0),
-        amount: Tokens::from_e8s(nat_to_u128(amount.to_owned()).try_into().unwrap()),
+        amount: Tokens::from_e8s(nat_to_u128(amount.to_owned() + ICP_FEE).try_into().unwrap()),
         fee: Tokens::from_e8s(ICP_FEE),
         from_subaccount: Some(DEFAULT_SUBACCOUNT),
         to: account_id,
         created_at_time: None,
     };
-    ic_ledger_types::transfer(ledger_canister_id, transfer_args)
+    let icp_reciept = ic_ledger_types::transfer(ledger_canister_id, transfer_args)
         .await
-        .map_err(|_| WithdrawErr::TransferFailure)?
-        .map_err(|_| WithdrawErr::TransferFailure)?;
+        .map_err(|_| WithdrawErr::TransferFailure)
+        .and_then(|v| v.map_err(|_| WithdrawErr::TransferFailure));
+
+    if let Err(e) = icp_reciept {
+        STATE.with(|s| {
+            s.borrow_mut().exchange.balances.add_balance(
+                &caller,
+                &ledger_canister_id,
+                nat_to_u128(amount.to_owned() + ICP_FEE),
+            )
+        })
+    }
 
     ic_cdk::println!("Withdrawal of {} ICP to account {:?}", amount, &account_id);
 
-    Ok(amount.to_owned())
+    Ok(amount.to_owned() + ICP_FEE)
 }
 
 async fn withdraw_token(
@@ -254,15 +261,36 @@ async fn withdraw_token(
     amount: &Nat,
     address: Principal,
 ) -> Result<Nat, WithdrawErr> {
-    let token = DIP20::new(token);
-    let dip_fee = token.get_metadata().await.fee;
+    let caller = caller();
+    let dip = DIP20::new(token);
+    let dip_fee = dip.get_metadata().await.fee;
 
-    token
-        .transfer(address, amount.to_owned() - dip_fee)
+    if !STATE.with(|s| {
+        s.borrow_mut().exchange.balances.subtract_balance(
+            &caller,
+            &token,
+            nat_to_u128(amount.to_owned() + dip_fee.clone()),
+        )
+    }) {
+        return Err(WithdrawErr::BalanceLow);
+    }
+
+    let tx_receipt = dip
+        .transfer(address, amount.to_owned() + dip_fee.clone())
         .await
-        .map_err(|_| WithdrawErr::TransferFailure)?;
+        .map_err(|_| WithdrawErr::TransferFailure);
 
-    Ok(amount.to_owned())
+    if let Err(e) = tx_receipt {
+        STATE.with(|s| {
+            s.borrow_mut().exchange.balances.add_balance(
+                &caller,
+                &token,
+                nat_to_u128(amount.to_owned() + dip_fee.clone()),
+            )
+        })
+    }
+
+    Ok(amount.to_owned() + dip_fee)
 }
 
 #[query]

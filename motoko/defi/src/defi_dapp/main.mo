@@ -25,8 +25,6 @@ import E "exchange";
 import T "types";
 
 actor Dex {
-
-    // TODO: Sort out fees
     let icp_fee: Nat = 10_000;
 
     stable var orders_stable : [T.Order] = [];
@@ -162,11 +160,10 @@ actor Dex {
 
         // Transfer amount back to user
         let icp_reciept =  await Ledger.transfer({
-            // todo: memo relevant?
             memo: Nat64    = 0;
             from_subaccount = ?Account.defaultSubaccount();
             to = account_id;
-            amount = { e8s = Nat64.fromNat(amount) };
+            amount = { e8s = Nat64.fromNat(amount + icp_fee) };
             fee = { e8s = Nat64.fromNat(icp_fee) };
             created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(Time.now())) };
         });
@@ -200,7 +197,7 @@ actor Dex {
         };
 
         // Transfer amount back to user
-        let txReceipt =  await dip20.transfer(address, amount - dip_fee);
+        let txReceipt =  await dip20.transfer(address, amount);
 
         switch txReceipt {
             case (#Err e) {
@@ -316,12 +313,13 @@ actor Dex {
             };
             case _ {};
         };
+        let available = balance - dip_fee;
 
         // add transferred amount to user balance
-        book.addTokens(caller,token,balance - dip_fee);
+        book.addTokens(caller,token,available);
 
         // Return result
-        #Ok(balance - dip_fee)
+        #Ok(available)
     };
 
     // After user transfers ICP to the target subaccount
@@ -354,8 +352,7 @@ actor Dex {
             };
             case _ {};
         };
-        // (Proactively save ICP fee for second transfer)
-        let available = { e8s : Nat = Nat64.toNat(balance.e8s) - (icp_fee * 2) };
+        let available = { e8s : Nat = Nat64.toNat(balance.e8s) - icp_fee };
 
         // keep track of deposited ICP
         book.addTokens(caller,E.ledger(),available.e8s);
