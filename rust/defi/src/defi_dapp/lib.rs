@@ -218,13 +218,14 @@ async fn withdraw_icp(amount: &Nat, account_id: AccountIdentifier) -> Result<Nat
         .with(|s| s.borrow().ledger)
         .unwrap_or(MAINNET_LEDGER_CANISTER_ID);
 
-    if !STATE.with(|s| {
+    let sufficient_balance = STATE.with(|s| {
         s.borrow_mut().exchange.balances.subtract_balance(
             &caller,
             &ledger_canister_id,
             nat_to_u128(amount.to_owned() + ICP_FEE),
         )
-    }) {
+    });
+    if !sufficient_balance {
         return Err(WithdrawErr::BalanceLow);
     }
 
@@ -248,7 +249,9 @@ async fn withdraw_icp(amount: &Nat, account_id: AccountIdentifier) -> Result<Nat
                 &ledger_canister_id,
                 nat_to_u128(amount.to_owned() + ICP_FEE),
             )
-        })
+        });
+
+        return Err(e);
     }
 
     ic_cdk::println!("Withdrawal of {} ICP to account {:?}", amount, &account_id);
@@ -265,13 +268,14 @@ async fn withdraw_token(
     let dip = DIP20::new(token);
     let dip_fee = dip.get_metadata().await.fee;
 
-    if !STATE.with(|s| {
+    let sufficient_balance = STATE.with(|s| {
         s.borrow_mut().exchange.balances.subtract_balance(
             &caller,
             &token,
             nat_to_u128(amount.to_owned() + dip_fee.clone()),
         )
-    }) {
+    });
+    if !sufficient_balance {
         return Err(WithdrawErr::BalanceLow);
     }
 
@@ -287,7 +291,9 @@ async fn withdraw_token(
                 &token,
                 nat_to_u128(amount.to_owned() + dip_fee.clone()),
             )
-        })
+        });
+
+        return Err(e);
     }
 
     Ok(amount.to_owned() + dip_fee)
