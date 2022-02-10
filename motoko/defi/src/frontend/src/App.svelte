@@ -13,12 +13,17 @@
 
 <main>
   <Nav />
-  <h1>DeFi DEX Example</h1>
+  <h1>DeFi DEX</h1>
   <div class="main-container">
     {#if $auth.loggedIn || $plugWallet.isConnected}
      <BalanceInfo />
     {/if}
     <Orders />
+  </div>
+  <div class="footer">
+    <picture>
+      <img src="images/ic-badge.png" alt="Powered by the Internet Computer" />
+    </picture>
   </div>
 </main>
 
@@ -39,6 +44,14 @@
     font-size: 3em;
     font-weight: 400;
     line-height: 1.09;
+  }
+
+  .footer {
+    position: fixed;
+    bottom: 0;
+    width: 100vw;
+    padding: 20px;
+    text-align: center;
   }
 
   @media (max-width: 640px) {
