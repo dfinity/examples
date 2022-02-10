@@ -21,9 +21,11 @@
     <Orders />
   </div>
   <div class="footer">
-    <picture>
-      <img src="images/ic-badge.png" alt="Powered by the Internet Computer" />
-    </picture>
+    <a class="ic-badge-link" href="https://www.smartcontracts.org">
+      <picture>
+        <img src="images/ic-badge.png" alt="Powered by the Internet Computer" />
+      </picture>
+    </a>
   </div>
 </main>
 
@@ -52,6 +54,10 @@
     width: 100vw;
     padding: 20px;
     text-align: center;
+  }
+
+  .ic-badge-link {
+    cursor: pointer;
   }
 
   @media (max-width: 640px) {
