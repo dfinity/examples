@@ -401,7 +401,7 @@ actor Dex {
         ?(await getSymbol(trading_pair.0),await getSymbol(trading_pair.1))
     };
     
-    public shared(msg) func withdrawalAddress(): async Blob {
+    public shared(msg) func getWithdrawalAddress(): async Blob {
         Account.accountIdentifier(msg.caller, Account.defaultSubaccount())
     };
 

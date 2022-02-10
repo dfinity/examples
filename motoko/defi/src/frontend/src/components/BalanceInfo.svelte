@@ -71,7 +71,7 @@
             const goldenBalance = await goldenActor.balanceOf($auth.principal);
             const akitaBalance = await akitaActor.balanceOf($auth.principal);
             depositBlob = await backendActor.getDepositAddress();
-            withdrawalBlob = await backendActor.withdrawalAddress();
+            withdrawalBlob = await backendActor.getWithdrawalAddress();
             withdrawalAddress = toHexString(withdrawalBlob);
             const approved = await ledgerActor.account_balance({account: depositBlob});
             const available = await ledgerActor.account_balance({account: withdrawalBlob});
