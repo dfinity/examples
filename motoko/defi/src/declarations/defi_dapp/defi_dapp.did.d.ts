@@ -12,6 +12,32 @@ export type DepositErr = { 'TransferFailure' : null } |
   { 'BalanceLow' : null };
 export type DepositReceipt = { 'Ok' : bigint } |
   { 'Err' : DepositErr };
+export interface Dex {
+  'cancelOrder' : (arg_0: OrderId) => Promise<CancelOrderReceipt>,
+  'clear' : () => Promise<undefined>,
+  'credit' : (arg_0: Principal, arg_1: Principal, arg_2: bigint) => Promise<
+      undefined
+    >,
+  'deposit' : (arg_0: Token) => Promise<DepositReceipt>,
+  'getAllBalances' : () => Promise<Array<Balance>>,
+  'getBalance' : (arg_0: Token) => Promise<bigint>,
+  'getBalances' : () => Promise<Array<Balance>>,
+  'getDepositAddress' : () => Promise<Array<number>>,
+  'getOrder' : (arg_0: OrderId) => Promise<[] | [Order]>,
+  'getOrders' : () => Promise<Array<Order>>,
+  'getSymbol' : (arg_0: Token) => Promise<string>,
+  'getWithdrawalAddress' : () => Promise<Array<number>>,
+  'placeOrder' : (
+      arg_0: Token,
+      arg_1: bigint,
+      arg_2: Token,
+      arg_3: bigint,
+    ) => Promise<OrderPlacementReceipt>,
+  'whoami' : () => Promise<Principal>,
+  'withdraw' : (arg_0: Token, arg_1: bigint, arg_2: Principal) => Promise<
+      WithdrawReceipt
+    >,
+}
 export interface Order {
   'id' : OrderId,
   'to' : Token,
@@ -30,25 +56,4 @@ export type WithdrawErr = { 'TransferFailure' : null } |
   { 'BalanceLow' : null };
 export type WithdrawReceipt = { 'Ok' : bigint } |
   { 'Err' : WithdrawErr };
-export interface _SERVICE {
-  'cancelOrder' : (arg_0: OrderId) => Promise<CancelOrderReceipt>,
-  'deposit' : (arg_0: Token) => Promise<DepositReceipt>,
-  'getAllBalances' : () => Promise<Array<Balance>>,
-  'getBalance' : (arg_0: Token) => Promise<bigint>,
-  'getBalances' : () => Promise<Array<Balance>>,
-  'getDepositAddress' : () => Promise<Array<number>>,
-  'getOrder' : (arg_0: OrderId) => Promise<[] | [Order]>,
-  'getOrders' : () => Promise<Array<Order>>,
-  'getSymbol' : (arg_0: Token) => Promise<string>,
-  'placeOrder' : (
-      arg_0: Token,
-      arg_1: bigint,
-      arg_2: Token,
-      arg_3: bigint,
-    ) => Promise<OrderPlacementReceipt>,
-  'whoami' : () => Promise<Principal>,
-  'withdraw' : (arg_0: Token, arg_1: bigint, arg_2: Principal) => Promise<
-      WithdrawReceipt
-    >,
-  'withdrawalAddress' : () => Promise<Array<number>>,
-}
+export interface _SERVICE extends Dex {}

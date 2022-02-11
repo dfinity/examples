@@ -39,6 +39,10 @@ module {
             };
         };
 
+        public func clear() {
+            book := M.HashMap<Principal, M.HashMap<T.Token, Nat>>(10, Principal.equal, Principal.hash);
+        };
+
         // function that adds tokens to book. Book keeps track of users deposits.
         public func addTokens(user: Principal, token: T.Token, amount: Nat){
             switch (book.get(user)) {

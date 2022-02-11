@@ -59,4 +59,4 @@ dfx deploy defi_dapp --argument "(principal \"$LEDGER_ID\")"
 pushd src/frontend
 npm install
 popd
-dfx deploy frontend  --argument "(principal \"$LEDGER_ID\")"
+dfx deploy frontend

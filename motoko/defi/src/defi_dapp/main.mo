@@ -24,7 +24,7 @@ import B "book";
 import E "exchange";
 import T "types";
 
-actor Dex {
+shared(init_msg) actor class Dex() = this {
     let icp_fee: Nat = 10_000;
 
     stable var orders_stable : [T.Order] = [];
@@ -275,7 +275,7 @@ actor Dex {
 
     // Return the account ID specific to this user's subaccount
     public shared(msg) func getDepositAddress(): async Blob {
-        Account.accountIdentifier(Principal.fromActor(Dex), Account.principalToSubaccount(msg.caller));
+        Account.accountIdentifier(Principal.fromActor(this), Account.principalToSubaccount(msg.caller));
     };
 
     public shared(msg) func deposit(token: T.Token): async T.DepositReceipt {
@@ -298,11 +298,11 @@ actor Dex {
         let dip_fee = await fetch_dip_fee(token);
 
         // Check DIP20 allowance for DEX
-        let balance : Nat = (await dip20.allowance(caller, Principal.fromActor(Dex)));
+        let balance : Nat = (await dip20.allowance(caller, Principal.fromActor(this)));
 
         // Transfer to account.
         let token_reciept = if (balance > dip_fee) {
-            await dip20.transferFrom(caller, Principal.fromActor(Dex),balance - dip_fee);
+            await dip20.transferFrom(caller, Principal.fromActor(this),balance - dip_fee);
         } else {
             return #Err(#BalanceLow);
         };
@@ -327,7 +327,7 @@ actor Dex {
 
         // Calculate target subaccount
         // NOTE: Should this be hashed first instead?
-        let source_account = Account.accountIdentifier(Principal.fromActor(Dex), Account.principalToSubaccount(caller));
+        let source_account = Account.accountIdentifier(Principal.fromActor(this), Account.principalToSubaccount(caller));
 
         // Check ledger for value
         let balance = await Ledger.account_balance({ account = source_account });
@@ -337,7 +337,7 @@ actor Dex {
             await Ledger.transfer({
                 memo: Nat64    = 0;
                 from_subaccount = ?Account.principalToSubaccount(caller);
-                to = Account.accountIdentifier(Principal.fromActor(Dex), Account.defaultSubaccount());
+                to = Account.accountIdentifier(Principal.fromActor(this), Account.defaultSubaccount());
                 amount = { e8s = balance.e8s - Nat64.fromNat(icp_fee)};
                 fee = { e8s = Nat64.fromNat(icp_fee) };
                 created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(Time.now())) };
@@ -403,6 +403,25 @@ actor Dex {
     
     public shared(msg) func getWithdrawalAddress(): async Blob {
         Account.accountIdentifier(msg.caller, Account.defaultSubaccount())
+    };
+
+    // For testing
+    public shared(msg) func credit(user: Principal, token_canister_id: Principal, amount: Nat) {
+        assert (msg.caller == init_msg.caller);
+        book.addTokens(user,token_canister_id,amount);
+    };
+
+    // For testing.
+    public shared(msg) func clear() {
+        assert (msg.caller == init_msg.caller);
+        book.clear();
+
+        exchanges := M.HashMap<E.TradingPair, E.Exchange>(10, func (k1: E.TradingPair,k2: E.TradingPair): Bool {
+                Principal.equal(k1.0,k2.0) and Principal.equal(k1.1,k2.1)
+            },
+            func (k : E.TradingPair) {
+                Text.hash(Text.concat(Principal.toText(k.0),Principal.toText(k.1)))
+            });
     };
 
     // Required since maps cannot be stable and need to be moved to stable memory

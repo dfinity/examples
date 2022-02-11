@@ -29,6 +29,24 @@ type Order =
    to: Token;
    toAmount: nat;
  };
+type Dex = 
+ service {
+   cancelOrder: (OrderId) -> (CancelOrderReceipt);
+   clear: () -> () oneway;
+   credit: (principal, principal, nat) -> () oneway;
+   deposit: (Token) -> (DepositReceipt);
+   getAllBalances: () -> (vec Balance) query;
+   getBalance: (Token) -> (nat) query;
+   getBalances: () -> (vec Balance) query;
+   getDepositAddress: () -> (blob);
+   getOrder: (OrderId) -> (opt Order);
+   getOrders: () -> (vec Order) query;
+   getSymbol: (Token) -> (text);
+   getWithdrawalAddress: () -> (blob);
+   placeOrder: (Token, nat, Token, nat) -> (OrderPlacementReceipt);
+   whoami: () -> (principal) query;
+   withdraw: (Token, nat, principal) -> (WithdrawReceipt);
+ };
 type DepositReceipt = 
  variant {
    Err: DepositErr;
@@ -55,18 +73,4 @@ type Balance =
    owner: principal;
    token: Token;
  };
-service : {
-  cancelOrder: (OrderId) -> (CancelOrderReceipt);
-  deposit: (Token) -> (DepositReceipt);
-  getAllBalances: () -> (vec Balance) query;
-  getBalance: (Token) -> (nat) query;
-  getBalances: () -> (vec Balance) query;
-  getDepositAddress: () -> (blob);
-  getOrder: (OrderId) -> (opt Order);
-  getOrders: () -> (vec Order) query;
-  getSymbol: (Token) -> (text);
-  placeOrder: (Token, nat, Token, nat) -> (OrderPlacementReceipt);
-  whoami: () -> (principal) query;
-  withdraw: (Token, nat, principal) -> (WithdrawReceipt);
-  withdrawalAddress: () -> (blob);
-}
+service : () -> Dex

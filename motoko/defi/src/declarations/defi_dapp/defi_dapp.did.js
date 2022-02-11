@@ -40,8 +40,14 @@ export const idlFactory = ({ IDL }) => {
     'BalanceLow' : IDL.Null,
   });
   const WithdrawReceipt = IDL.Variant({ 'Ok' : IDL.Nat, 'Err' : WithdrawErr });
-  return IDL.Service({
+  const Dex = IDL.Service({
     'cancelOrder' : IDL.Func([OrderId], [CancelOrderReceipt], []),
+    'clear' : IDL.Func([], [], ['oneway']),
+    'credit' : IDL.Func(
+        [IDL.Principal, IDL.Principal, IDL.Nat],
+        [],
+        ['oneway'],
+      ),
     'deposit' : IDL.Func([Token], [DepositReceipt], []),
     'getAllBalances' : IDL.Func([], [IDL.Vec(Balance)], ['query']),
     'getBalance' : IDL.Func([Token], [IDL.Nat], ['query']),
@@ -50,6 +56,7 @@ export const idlFactory = ({ IDL }) => {
     'getOrder' : IDL.Func([OrderId], [IDL.Opt(Order)], []),
     'getOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
     'getSymbol' : IDL.Func([Token], [IDL.Text], []),
+    'getWithdrawalAddress' : IDL.Func([], [IDL.Vec(IDL.Nat8)], []),
     'placeOrder' : IDL.Func(
         [Token, IDL.Nat, Token, IDL.Nat],
         [OrderPlacementReceipt],
@@ -61,7 +68,7 @@ export const idlFactory = ({ IDL }) => {
         [WithdrawReceipt],
         [],
       ),
-    'withdrawalAddress' : IDL.Func([], [IDL.Vec(IDL.Nat8)], []),
   });
+  return Dex;
 };
 export const init = ({ IDL }) => { return []; };
