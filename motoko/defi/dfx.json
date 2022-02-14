@@ -9,6 +9,11 @@
       "candid": "src/ledger/ledger.did",
       "wasm": "src/ledger/ledger.wasm"
     },
+    "internet_identity": {
+      "type": "custom",
+      "candid": "src/internet_identity/internet_identity.did",
+      "wasm": "src/internet_identity/internet_identity.wasm"
+    },
     "frontend" : {
       "dependencies" : [
         "defi_dapp"
