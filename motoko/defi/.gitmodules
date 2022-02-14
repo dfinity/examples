@@ -1,6 +1,0 @@
-[submodule "DIP20"]
-	path = src/DIP20
-	url = https://github.com/Psychedelic/DIP20.git
-[submodule "internet-identity"]
-	path = src/internet-identity
-	url = https://github.com/dfinity/internet-identity
