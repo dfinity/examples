@@ -29,7 +29,7 @@ service : (principal) -> {
   getOrder: (OrderId) -> (opt Order);
   getOrders: () -> (vec Order) query;
   deposit: (Token) -> (DepositReceipt);
-  getDepositAddress: () -> (blob) query;
+  getDepositAddress: () -> (blob);
   getWithdrawalAddress: () -> (blob);
   placeOrder: (Token, nat, Token, nat) -> (OrderPlacementReceipt);
   getSymbol: (Token) -> (text);

@@ -148,7 +148,7 @@ pub fn get_deposit_address() -> AccountIdentifier {
 }
 
 #[query(name = "getWithdrawalAddress")]
-#[candid_method(query, rename = "getWithdrawalAddress")]
+#[candid_method(update, rename = "getWithdrawalAddress")]
 pub fn get_withdrawal_address() -> AccountIdentifier {
     let canister_id = ic_cdk::api::id();
 

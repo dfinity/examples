@@ -48,7 +48,7 @@ export const idlFactory = ({ IDL }) => {
     'getAllBalances' : IDL.Func([], [IDL.Vec(Balance)], ['query']),
     'getBalance' : IDL.Func([Token], [IDL.Nat], ['query']),
     'getBalances' : IDL.Func([], [IDL.Vec(Balance)], ['query']),
-    'getDepositAddress' : IDL.Func([], [IDL.Vec(IDL.Nat8)], ['query']),
+    'getDepositAddress' : IDL.Func([], [IDL.Vec(IDL.Nat8)], []),
     'getOrder' : IDL.Func([OrderId], [IDL.Opt(Order)], []),
     'getOrders' : IDL.Func([], [IDL.Vec(Order)], ['query']),
     'getSymbol' : IDL.Func([Token], [IDL.Text], []),
