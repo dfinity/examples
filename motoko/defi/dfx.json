@@ -12,7 +12,7 @@
     "internet_identity": {
       "type": "custom",
       "candid": "src/internet_identity/internet_identity.did",
-      "wasm": "src/internet_identity/internet_identity.wasm"
+      "wasm": "src/internet_identity/internet_identity_dummy.wasm"
     },
     "frontend" : {
       "dependencies" : [

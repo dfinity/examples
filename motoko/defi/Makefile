@@ -7,17 +7,16 @@ all: build
 node_modules:
 	pushd src/frontend; npm install; popd
 
-.PHONY: build
-.SILENT: build
-build: node_modules
-	dfx canister create --all
-	dfx build
 
 .PHONY: install
 .SILENT: install
-install: build
-	# XXX Should our script go here?
-	dfx canister install --all
+install: clean
+	./scripts/install.sh
+
+.PHONY: frontend
+.SILENT: frontend
+frontend: node_modules
+	cd src/frontend && npm run dev 
 
 .PHONY: upgrade
 .SILENT: upgrade
@@ -35,6 +34,7 @@ test:
 .PHONY: clean
 .SILENT: clean
 clean:
+	dfx stop
 	rm -fr .dfx
 	rm -fr src/frontend/node_modules/
 	rm -rf src/frontend/public/build/
