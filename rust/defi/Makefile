@@ -23,9 +23,10 @@ deploy:
 
 .PHONY: test
 .SILENT: test
-test: deploy
-	./demo.sh
-	./test.sh
+test:
+	./test/demo.sh
+	./test/trade.sh
+	./test/transfer.sh
 
 .PHONY: candid
 .SILENT: candid

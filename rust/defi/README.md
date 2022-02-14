@@ -45,61 +45,26 @@ make test
 
 ### Demo
 
-See [demo.sh](demo.sh).
+See [demo.sh](test/demo.sh).
+
+### Trade
+
+See [trade.sh](test/trade.sh).
 
 ### Token transfers
 
-```bash
-# deploy defi app
-dfx deploy defi_dapp -m reinstall
-# set allowance on DIP20 tokens
-export DEX_PRINCIPLE=$(dfx canister --no-wallet id defi_dapp)
-dfx canister --no-wallet call AkitaDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',10000000)'
-dfx canister --no-wallet call GoldenDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',10000000)'
-# get ICP deposit address (removes unnesessary comma at the end)
-export ICP_DEPOSIT_ADDR=$(dfx canister call defi_dapp getDepositAddress |sed 's/\(.*\),/\1 /' | tr -d '\n')
-# deposit some ICP in DEX
-dfx canister call ledger transfer "(record { amount = record { e8s = 1000000 }; to = $ICP_DEPOSIT_ADDR; fee = record { e8s = 10000}; memo = 1;})"
-# get token canister IDs
-export AKITA_ID=$(dfx canister --no-wallet id AkitaDIP20)
-export GOLDEN_ID=$(dfx canister --no-wallet id GoldenDIP20)
-export LEDGER_ID=$(dfx canister --no-wallet id ledger)
-# deposit DIP. The amount that was approved
-
-dfx canister call defi_dapp deposit '(principal '\"$AKITA_ID\"')'
-dfx canister call defi_dapp deposit '(principal '\"$GOLDEN_ID\"')'
-# transfer ICP to DEX
-dfx canister call defi_dapp deposit '(principal '\"$LEDGER_ID\"')'
-
-# withdraw ICP
-dfx canister call defi_dapp withdraw_icp "(100000)"
-
-# withdraw DIP 
-PRINCIPAL=$(dfx identity get-principal)
-# user balance
-dfx canister --no-wallet call GoldenDIP20 balanceOf '(principal '\"$PRINCIPAL\"')'
-#user balance on DEX
-dfx canister call defi_dapp  balance '(principal '\"$GOLDEN_ID\"')'
-dfx canister call defi_dapp withdraw_dip '(principal '\"$GOLDEN_ID\"',100000)'
-# user balance
-dfx canister --no-wallet call GoldenDIP20 balanceOf '(principal '\"$PRINCIPAL\"')'
-#user balance on DEX
-dfx canister call defi_dapp  balance '(principal '\"$GOLDEN_ID\"')'
-# get balances
-dfx canister call defi_dapp getBalances
-```
+See [transfer.sh](test/transfer.sh).
 
 ### Token balance
 
 ```bash
 # DIP tokens
-dfx canister call defi_dapp  balance '(principal '\"$AKITA_ID\"')'
-dfx canister call defi_dapp  balance '(principal '\"$GOLDEN_ID\"')'
+dfx canister call defi_dapp  getBalance '(principal '\"$AKITA_ID\"')'
+dfx canister call defi_dapp  getBalance '(principal '\"$GOLDEN_ID\"')'
 # ICP 
 ICP_ID=$(dfx canister --no-wallet id ledger)
-dfx canister call defi_dapp  balance '(principal '\"$ICP_ID\"')'
+dfx canister call defi_dapp  getBalance '(principal '\"$ICP_ID\"')'
 ```
-
 
 ### Deploy token
 
@@ -126,7 +91,6 @@ HOME=$ROOT_HOME dfx canister  call DIP20 setFee "(420)"
 # get balance. Congrats you are rich
 HOME=$ROOT_HOME dfx canister --no-wallet call DIP20 balanceOf "($ROOT_PUBLIC_KEY)"
 ``` 
-
 
 ## Set allowance for DEX
 

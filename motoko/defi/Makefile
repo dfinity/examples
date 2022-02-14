@@ -27,10 +27,10 @@ upgrade: build
 
 .PHONY: test
 .SILENT: test
-test: install
-	# TODO
-	# dfx canister call hello greet '("everyone")' \
-	# 	| grep '("Hello, everyone!")' && echo 'PASS'
+test:
+	./test/demo.sh
+	./test/trade.sh
+	./test/transfer.sh
 
 .PHONY: clean
 .SILENT: clean
