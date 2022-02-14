@@ -13,11 +13,8 @@
       "dependencies" : [
         "defi_dapp"
       ],
-      "frontend": { 
-        "entrypoint": "src/frontend/public/index.html"
-      },
       "source" : [
-        "src/frontend/public"
+        "src/frontend_assets"
       ],
       "type": "assets"
     },
