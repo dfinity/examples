@@ -1,0 +1,22 @@
+{
+    "canisters": {
+      "persistant_storage": {
+        "main": "src/persistant_storage/main.mo",
+        "type": "motoko"
+      }
+    },
+    "defaults": {
+      "build": {
+        "args": "",
+        "packtool": ""
+      }
+    },
+    "dfx": "0.8.4",
+    "networks": {
+      "local": {
+        "bind": "127.0.0.1:8070",
+        "type": "ephemeral"
+      }
+    },
+    "version": 1
+  }
