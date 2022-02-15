@@ -49,16 +49,16 @@ dfx canister --wallet "${WALLET}" call defi_dapp credit "(principal \"${USER1}\"
 dfx identity use user1
 dfx canister call defi_dapp getAllBalances
 dfx canister call defi_dapp placeOrder "(principal \"${AkitaDIP20}\" : principal, 1: nat, principal \"${GoldenDIP20}\", 2: nat)"
-echo "expect empty vec"
 dfx canister call defi_dapp getOrders
+echo "expect empty vec"
 dfx canister call defi_dapp getOrders | egrep "(vec ..)"
-echo "expect 4 tlwi3"
 dfx canister call defi_dapp getAllBalances
-dfx canister call defi_dapp getAllBalances | grep "amount = 4"
-dfx identity use user2
-echo "expect 96 tlwi3 and 2 tfuft"
-dfx canister call defi_dapp getAllBalances
-dfx canister call defi_dapp getAllBalances | grep "amount = 96"
+echo "expect user1 4 GoldenDIP20"
+dfx canister call defi_dapp getAllBalances | grep -B1 -A2 $GoldenDIP20 | grep -A2 $USER1 | grep "amount = 4"
+echo "expect user2 96 GoldenDIP20"
+dfx canister call defi_dapp getAllBalances | grep -B1 -A2 $GoldenDIP20 | grep -A2 $USER2 | grep "amount = 96"
+echo "expect user2 2 AkitaDIP20"
+dfx canister call defi_dapp getAllBalances | grep -B1 -A2 $AkitaDIP20 | grep -A2 $USER2 | grep "amount = 2"
 echo "testing imbalanced trades"
 dfx identity use default
 dfx canister --wallet "${WALLET}" call defi_dapp clear

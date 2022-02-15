@@ -11,7 +11,7 @@ build:
 
 .PHONY: install
 .SILENT: install
-install: build
+install:
 	./scripts/install.sh
 
 .PHONY: node_modules
