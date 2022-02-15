@@ -36,7 +36,7 @@ $ cd motoko/static-website
 There are two parts in this dapp, one is the website and the other is the `dfx.json`. Since there's no backend, there is not any benefit of using the `dfx new project_name` to setup a template, the `dfx.json` file is all there is needed.
 
 ### Website
-he website is really simple, it consists of a HTML file, CSS file and a PNG file. The content of the HTML file looks like this:
+The website is really simple. It consists of an HTML file, a CSS file and a PNG file. The content of the HTML file looks like this:
 
 ```html
 <!doctype html>
@@ -118,7 +118,7 @@ $ dfx deploy
 
 
 ## Testing
-The URL for the frontend is depending on the canister ID, the local canister IDs can be found in `.dfx/local/canister_ids.json`. When deployed, the URL will look like this:
+The URL for the frontend depends on the canister ID.  Local canister IDs can be obtained using `dfx canister id`, in this case `dfx canister id www`. When deployed, the URL will look like this:
 
 **https://<ui_canister_id>.localhost:8000**
 
