@@ -1,7 +1,7 @@
 set -x
 dfx stop
 rm -rf src/internet-identity/.dfx
-dfx start --background --clean
+dfx start --background --clean --host 127.0.0.1:8000
 
 
 ### === DEPLOY LOCAL LEDGER =====
@@ -47,10 +47,7 @@ dfx canister call GoldenDIP20 setFee "(420)"
 ### === DEPLOY INTERNET IDENTITY =====
 
 ## Follow internet identity installation steps (https://github.com/dfinity/examples/tree/master/svelte-motoko-starter#install-internet-identity)
-pushd src/internet-identity
-npm install
-II_ENV=development dfx deploy --argument '(null)'
-popd
+II_ENV=development dfx deploy internet_identity --no-wallet --argument '(null)'
 
 ## === INSTALL FRONTEND / BACKEND ==== 
 

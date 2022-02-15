@@ -38,9 +38,9 @@
     let withdrawingAmount = false;
     let fetchingAddress = true;
 
-    const host = process.env.NODE_ENV === "production"
-          ? "ic0.app"
-          : `http://localhost:8000`;
+    const host = process.env.DFX_NETWORK === "local"
+          ? `http://localhost:8000`
+          : "ic0.app";
 
     // Subscribe to plug wallet value should a user authenticate with Plug Wallet
     plugWallet.subscribe(async (value) => {
@@ -58,7 +58,7 @@
             const identity = authClient.getIdentity();
             const agent = new HttpAgent({identity, host});
 
-            if(process.env.NODE_ENV !== 'production') 
+            if(process.env.DFX_NETWORK === 'local') 
                 agent.fetchRootKey();
 
             // Create canister actors
@@ -70,10 +70,10 @@
 
             const goldenBalance = await goldenActor.balanceOf($auth.principal);
             const akitaBalance = await akitaActor.balanceOf($auth.principal);
-            depositBlob = await backendActor.getDepositAddress();
+            depositAddressBlob = await backendActor.getDepositAddress();
             withdrawalBlob = await backendActor.getWithdrawalAddress();
             withdrawalAddress = toHexString(withdrawalBlob);
-            const approved = await ledgerActor.account_balance({account: depositBlob});
+            const approved = await ledgerActor.account_balance({account: depositAddressBlob});
             const available = await ledgerActor.account_balance({account: withdrawalBlob});
             let ledgerBalance = 0;
             let approvedLedgerBalance = 0;
@@ -185,7 +185,7 @@
                 let ledgerBalance = 0;
                 let availableLedgerBalance = 0;
                 const availableResponse = await ledgerActor.account_balance({account: withdrawalBlob});
-                const response = await ledgerActor.account_balance({account: depositBlob});
+                const response = await ledgerActor.account_balance({account: depositAddressBlob});
                 console.log(response)
                 if(response.e8s) {
                     ledgerBalance = response.e8s

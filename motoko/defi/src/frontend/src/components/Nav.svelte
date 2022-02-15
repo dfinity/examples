@@ -43,12 +43,12 @@
         const principal = await window.ic.plug.getPrincipal();
         const plugOptions = {
             whiteList,
-            host: process.env.DFX_NETWORK === "ic"
+            host: process.env.DFX_NETWORK !== "local"
                 ? `https://${process.env.DEFI_DAPP_CANISTER_ID}.ic0.app`
                 : "http://localhost:8000",
         }
         await window.ic.plug.createAgent(plugOptions);
-        if(process.env.NODE_ENV !== 'production') {
+        if(process.env.DFX_NETWORK === 'local') {
             window.ic.plug.agent.fetchRootKey();
         }
         const plugActor = await window.ic.plug.createActor({

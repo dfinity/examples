@@ -12,7 +12,17 @@ build:
 .PHONY: install
 .SILENT: install
 install: build
-	dfx canister install --all
+	./scripts/install.sh
+
+.PHONY: node_modules
+.SILENT: node_modules
+node_modules:
+	pushd src/frontend; npm install; popd
+
+.PHONY: frontend
+.SILENT: frontend
+frontend: node_modules
+	cd src/frontend && npm run dev
 
 .PHONY: deploy
 .SILENT: deploy
@@ -36,4 +46,7 @@ candid: deploy
 .PHONY: clean
 .SILENT: clean
 clean:
+	dfx stop
 	rm -fr .dfx
+	rm -fr src/frontend/node_modules/
+	rm -rf src/frontend/public/build/
