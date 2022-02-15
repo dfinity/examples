@@ -7,7 +7,6 @@ all: build
 node_modules:
 	pushd src/frontend; npm install; popd
 
-
 .PHONY: install
 .SILENT: install
 install: clean
@@ -17,6 +16,13 @@ install: clean
 .SILENT: frontend
 frontend: node_modules
 	cd src/frontend && npm run dev 
+
+.PHONY: deploy
+.SILENT: deploy
+deploy:
+	dfx identity use default
+	$(eval ledger_canister_id := $(shell dfx canister id ledger))
+	dfx deploy defi_dapp --argument "(principal \"$(ledger_canister_id)\")"
 
 .PHONY: upgrade
 .SILENT: upgrade

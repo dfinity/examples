@@ -76,11 +76,15 @@ module {
                     // check if user already has existing balance for this token
                     switch (token_balance.get(token)){
                         case (?balance) {
-                            if (balance>=amount){
-                                token_balance.put(token, balance-amount);
-                                ?(balance-amount)
+                          if (balance>=amount) {
+                            if (balance==amount) {
+                              token_balance.delete(token);
                             } else {
-                                null
+                              token_balance.put(token, balance-amount);
+                            };
+                            ?(balance-amount)
+                          } else {
+                            null
                             }
                         };
                         case(null){
