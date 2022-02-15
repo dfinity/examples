@@ -28,6 +28,8 @@ These examples use a minimal front end component.
 
 - [`random_maze`](https://github.com/dfinity/examples/tree/master/motoko/random_maze) -- random maze generation, with IC-based randomness.
 - [`cert_var`](https://github.com/dfinity/examples/tree/master/motoko/cert-var) -- simple certified variable (a single 32-bit number), with client-side certificate validation.
+- [`minimal-counter-dapp`](https://github.com/dfinity/examples/tree/master/motoko/minimal-counter-dapp) -- counter dapp with minimal front end.
+
 
 ## Full stack.
 
