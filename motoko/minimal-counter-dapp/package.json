@@ -1,5 +1,5 @@
 {
-  "name": "hack_assets",
+  "name": "minimal_dapp_assets",
   "version": "0.1.0",
   "description": "Internet Computer starter application",
   "keywords": ["Internet Computer", "Motoko", "JavaScript", "Canister"],

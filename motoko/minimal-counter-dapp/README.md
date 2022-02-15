@@ -1,10 +1,10 @@
 # Minimalistic Dapp
-The example dapp shows how to build a very basic dapp with both backend and fronted, using Motoko for the backend functionality and plain HTML and JavaScript for the frontend. The dapp is a simple counter, which will increment a counter by clicking a button in the frontend. 
+The example dapp shows how to build a very basic dapp with both backend and fronted, using Motoko for the backend functionality and plain HTML and JavaScript for the frontend. The dapp is a simple counter, which will increment a counter by clicking a button in the frontend.
 
 ![Counter Frontend](README_images/frontend.png)
 
 ## Introduction
-The purpuse of this example dapp is to build a minimalistic dapp, based on the default dapp template, installed by DFX when creating a new project. The dapp is a simple website with a counter. Every time a button is pressed, a counter is incremented. 
+The purpuse of this example dapp is to build a minimalistic dapp, based on the default dapp template, installed by DFX when creating a new project. The dapp is a simple website with a counter. Every time a button is pressed, a counter is incremented.
 
 This example covers:
 
@@ -13,19 +13,19 @@ This example covers:
 - Add backend functions for a counter (count, get count and reset count)
 - Implement backend functions in the frontend
 - Deploy the canister smart contract locally
-- Test backend with Candid UI and command line using DFX, and test frontend in browser 
+- Test backend with Candid UI and command line using DFX, and test frontend in browser
 
 ## Installation
 This example project can be cloned, installed and deployed locally, for learning and testing purposes. The instructions are based on running the example on either macOS or Linux, but when using WSL2 on Windows, the instructions will be the same.
 
 ### Prerequisites
-The example project requires the following installed:
+The example project requeres the following installed:
 
-- git
+- GitHub
 - Node.js
-- DFX 
+- DFX
 
-Git and Node can be installed from various package managers. DFX can be installed following the instructions [here](https://smartcontracts.org/docs/quickstart/local-quickstart.html#download-and-install).
+GitHub and Node can be installed from various package managers. DFX can be installed following the instructions [here](https://smartcontracts.org/docs/quickstart/local-quickstart.html#download-and-install).
 
 ### Install
 Install the example dapp project:
@@ -49,7 +49,7 @@ The backend functions are located in the `src/minimal_dapp/main.mo` Motoko file.
 
 
 #### Counter variable
-Three functions are created to make the counter work: `count()`, `getCount()` and `reset()`. The current counter value is stored as a number in the actor.
+Three functions are created to make the counter work: count(), getCount() and reset(). The current counter value is stored as a number in the actor.
 
 
 ```javascript
@@ -59,7 +59,7 @@ actor {
 ```
 
 #### count()
-The `count()` function increments the counter variable. This function is invoked when the user clicks the button on the frontend, or when the function is called through the Candid interface.
+The `count()` function increments the counter variable. This function is envoked when the user is clicking the button on the frontend, or when the function is called through the Candid interface.
 
 ```javascript
 public func count() : async Nat {
@@ -68,7 +68,7 @@ public func count() : async Nat {
 };
 ```
 
-The function returns the incremented counter variable.
+The function is returning the incremented counter variable.
 
 #### getCount()
 The `getCount()` function returns the current counter value.
@@ -90,9 +90,9 @@ public func reset() : async Nat {
 ```
 
 ### Candid interface
-The Candid interface is automatically created, and it has a convienient UI, which provides an easy, user friendly way to test the backend. The UI is also automatically generated, and the canister ID can be found in the `canister_ids.json` file. 
+The Candid interface is automatically created, and it has a convienient UI, which provides an easy, user friendly way to test the backend. The UI is also automatically generated, and the canister ID can be found in the `canister_ids.json` file.
 
-The localhost version of the `canister_ids.json` file can be found in `.dfx/local/canister_ids.json` and the URL is: 
+The localhost version of the `canister_ids.json` file can be found in `.dfx/local/canister_ids.json` and the URL is:
 
 **http://<candid_canister_id>.localhost:8000/?id=<backend_canister_id>**
 
@@ -109,7 +109,7 @@ All HTML code is in the `src/minimal_dapp/_assets/index.html` file, and most of 
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width">
-        <title>hack</title>
+        <title>Minimal Dapp</title>
         <base href="/">
 
         <link type="text/css" rel="stylesheet" href="main.css" />
@@ -157,7 +157,7 @@ $ dfx deploy
 
 
 ## Testing
-The functionality of this example dapp can be tested both in the frontend and in the backend. Before the example dapp can be tested, it must be deployed (locally) like described in the above Deployment section. 
+The functionality of this example dapp can be tested both in the frontend and in the backend. Before the example dapp can be tested, it must be deployed (locally) like described in the above Deployment section.
 
 ### Test the Frontend
 The URL for the frontend is depending on the canister ID, the local canister IDs can be found in `.dfx/local/canister_ids.json`. When deployed, the URL will look like this:
@@ -188,16 +188,13 @@ $ dfx canister call minimal_dapp reset
 ```
 
 #### Candid UI
-The Candid UI provides an easy, user friendly interface for testing the backend. The UI is automatically generated, and the canister IDs can be retrieved with the following commands:
+The Candid UI provides an easy, user friendly interface for testing the backend. The UI is automatically generated, and the canister ID can be found in the `canister_ids.json` file.
 
-```bash
-$ dfx canister id __Candid_UI
-$ dfx canister id minimal_dapp
-```
+The localhost version of the `canister_ids.json` file can be found in `.dfx/local/canister_ids.json` and the URL is:
 
 **http://<candid_canister_id>.localhost:8000/?id=<backend_canister_id>**
 
 ![Candid UI](README_images/candid_ui.png)
 
 ## License
-This project is licensed under the Apache 2.0 license, see LICENSE.md for details. See CONTRIBUTE.md for details about how to contribute to this project. 
+This project is licensed under the Apache 2.0 license, see LICENSE.md for details. See CONTRIBUTE.md for details about how to contribute to this project.
