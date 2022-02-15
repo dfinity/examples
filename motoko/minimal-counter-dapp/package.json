@@ -1,0 +1,36 @@
+{
+  "name": "hack_assets",
+  "version": "0.1.0",
+  "description": "Internet Computer starter application",
+  "keywords": ["Internet Computer", "Motoko", "JavaScript", "Canister"],
+  "scripts": {
+    "build": "webpack",
+    "prebuild": "npm run copy:types",
+    "start": "webpack serve --mode development --env development",
+    "prestart": "npm run copy:types",
+    "copy:types": "rsync -avr .dfx/$(echo ${DFX_NETWORK:-'**'})/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --delete src/declarations"
+  },
+  "devDependencies": {
+    "@dfinity/agent": "0.10.1",
+    "@dfinity/candid": "0.10.1",
+    "@dfinity/principal": "0.10.1",
+    "assert": "2.0.0",
+    "buffer": "6.0.3",
+    "copy-webpack-plugin": "^9.0.1",
+    "events": "3.3.0",
+    "html-webpack-plugin": "5.3.1",
+    "process": "0.11.10",
+    "stream-browserify": "3.0.0",
+    "terser-webpack-plugin": "5.1.1",
+    "util": "0.12.3",
+    "webpack-cli": "4.5.0",
+    "webpack-dev-server": "^3.11.2",
+    "webpack": "5.24.4"
+  },
+  "browserslist": [
+    "last 2 chrome version",
+    "last 2 firefox version",
+    "last 2 safari version",
+    "last 2 edge version"
+  ]
+}

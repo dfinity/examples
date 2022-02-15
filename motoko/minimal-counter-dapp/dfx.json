@@ -1,0 +1,35 @@
+{
+  "canisters": {
+    "hack": {
+      "main": "src/hack/main.mo",
+      "type": "motoko"
+    },
+    "hack_assets": {
+      "dependencies": [
+        "hack"
+      ],
+      "frontend": {
+        "entrypoint": "src/hack_assets/src/index.html"
+      },
+      "source": [
+        "src/hack_assets/assets",
+        "dist/hack_assets/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "dfx": "0.9.0",
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
+}
