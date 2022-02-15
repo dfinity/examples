@@ -21,11 +21,11 @@ This example project can be cloned, installed and deployed locally, for learning
 ### Prerequisites
 The example project requires the following installed:
 
-- GitHub
+- git
 - Node.js
 - DFX 
 
-GitHub and Node can be installed from various package managers. DFX can be installed following the instructions [here](https://smartcontracts.org/docs/quickstart/local-quickstart.html#download-and-install).
+Git and Node can be installed from various package managers. DFX can be installed following the instructions [here](https://smartcontracts.org/docs/quickstart/local-quickstart.html#download-and-install).
 
 ### Install
 Install the example dapp project:
@@ -49,7 +49,7 @@ The backend functions are located in the `src/minimal_dapp/main.mo` Motoko file.
 
 
 #### Counter variable
-Three functions are created to make the counter work: count(), getCount() and reset(). The current counter value is stored as a number in the actor.
+Three functions are created to make the counter work: `count()`, `getCount()` and `reset()`. The current counter value is stored as a number in the actor.
 
 
 ```javascript
