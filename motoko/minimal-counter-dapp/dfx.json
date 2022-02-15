@@ -12,8 +12,8 @@
         "entrypoint": "src/minimal_dapp_assets/src/index.html"
       },
       "source": [
-        "src/minimal_dapp_assets/assets",
-        "dist/minimal_dapp_assets/"
+        "src/hminimal_dapp_assets/assets",
+        "dist/hminimal_dapp_assets/"
       ],
       "type": "assets"
     }
@@ -24,7 +24,7 @@
       "packtool": ""
     }
   },
-  "dfx": "0.9.0",
+  "dfx": "0.8.4",
   "networks": {
     "local": {
       "bind": "127.0.0.1:8000",
