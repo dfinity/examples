@@ -59,7 +59,7 @@ actor {
 ```
 
 #### count()
-The `count()` function increments the counter variable. This function is envoked when the user is clicking the button on the frontend, or when the function is called through the Candid interface.
+The `count()` function increments the counter variable. This function is invoked when the user clicks the button on the frontend, or when the function is called through the Candid interface.
 
 ```javascript
 public func count() : async Nat {
@@ -68,7 +68,7 @@ public func count() : async Nat {
 };
 ```
 
-The function is returning the incremented counter variable.
+The function returns the incremented counter variable.
 
 #### getCount()
 The `getCount()` function returns the current counter value.
@@ -188,9 +188,12 @@ $ dfx canister call minimal_dapp reset
 ```
 
 #### Candid UI
-The Candid UI provides an easy, user friendly interface for testing the backend. The UI is automatically generated, and the canister ID can be found in the `canister_ids.json` file. 
+The Candid UI provides an easy, user friendly interface for testing the backend. The UI is automatically generated, and the canister IDs can be retrieved with the following commands:
 
-The localhost version of the `canister_ids.json` file can be found in `.dfx/local/canister_ids.json` and the URL is: 
+```bash
+$ dfx canister id __Candid_UI
+$ dfx canister id minimal_dapp
+```
 
 **http://<candid_canister_id>.localhost:8000/?id=<backend_canister_id>**
 
