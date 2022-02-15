@@ -170,9 +170,9 @@ module {
 
             // Update DEX balances (book)
             let removedA=book.removeTokens(a.owner, a.from, aFromAmount);
-            book.addTokens(a.owner, a.to, a.toAmount);
+            book.addTokens(a.owner, a.to, aToAmount);
             let removedB=book.removeTokens(b.owner, b.from, bFromAmount);
-            book.addTokens(b.owner, b.to, b.toAmount);
+            book.addTokens(b.owner, b.to, bToAmount);
 
             // The DEX keeps any tokens not required to satisfy the parties.
             let dex_amount_a : Nat = aFromAmount - bToAmount;

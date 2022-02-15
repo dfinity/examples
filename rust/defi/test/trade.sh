@@ -38,9 +38,13 @@ dfx identity use user1
 dfx canister call defi_dapp placeOrder "(principal \"${AkitaDIP20}\" : principal, 1: nat, principal \"${GoldenDIP20}\", 2: nat)"
 dfx canister call defi_dapp getOrders
 dfx identity use user2
+echo "order will partially execute"
 dfx canister call defi_dapp placeOrder "(principal \"${GoldenDIP20}\" : principal, 4: nat, principal \"${AkitaDIP20}\", 2: nat)"
 dfx canister call defi_dapp getOrders
+echo "expect user2 98 GoldenDIP20 1 AkitaDIP20, user1 2 GoldenDIP20"
+dfx canister call defi_dapp getBalances
 dfx identity use user1
+echo "order will fail: not enough balance"
 dfx canister call defi_dapp placeOrder "(principal \"${AkitaDIP20}\" : principal, 1: nat, principal \"${GoldenDIP20}\", 2: nat)"
 dfx canister call defi_dapp getOrders
 dfx canister call defi_dapp getAllBalances
