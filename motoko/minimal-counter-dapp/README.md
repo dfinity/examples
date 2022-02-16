@@ -42,7 +42,7 @@ The project folder will then look like this:
 
 
 ## Documentation
-The three main parts of the example dapp is the backend, the Candid interface and the frontend. This example project is based on the default project, which is created when running the `dfx new project_name`, but most of the default project code is replaced to create the counter functionality in this project.
+The three main parts of the example dapp are the backend, the Candid interface and the frontend. This example project is based on the default project, which is created when running the `dfx new project_name` command, but most of the default project code is replaced to create the counter functionality in this project.
 
 ### Motoko backend
 The backend functions are located in the `src/minimal_dapp/main.mo` Motoko file. The backend stores the counter value, and has functions to get, increment and reset the counter value.
