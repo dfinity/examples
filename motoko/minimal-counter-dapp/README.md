@@ -21,7 +21,7 @@ This example project can be cloned, installed and deployed locally, for learning
 ### Prerequisites
 The example project requires the following installed:
 
-- GitHub
+- git
 - Node.js
 - DFX
 
