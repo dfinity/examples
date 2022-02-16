@@ -4,7 +4,7 @@ The example dapp shows how to build a simple dapp in Motoko, which will have per
 ![Counter Frontend](README_images/candid_ui.png)
 
 ## Introduction
-The purpuse of this example dapp is to build a simple counter dapp, where the counter value will persist even after the dapp has changed and been re-deployed.
+The purpose of this example dapp is to build a simple counter dapp, where the counter value will persist even after the dapp has changed and been re-deployed.
 
 This example covers:
 
