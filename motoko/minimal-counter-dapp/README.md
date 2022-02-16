@@ -38,7 +38,7 @@ $ npm install
 
 The project folder will then look like this:
 
-![Counter Frontend](README_images/project_files.png)
+![Project Files](README_images/project_files.png)
 
 
 ## Documentation
