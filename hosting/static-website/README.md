@@ -33,7 +33,7 @@ $ cd motoko/static-website
 ```
 
 ## Documentation
-There are two parts in this dapp, one is the website and the other is the `dfx.json`. Since there's no backend, there is not any benefit of using the `dfx new project_name` to setup a template, the `dfx.json` file is all there is needed.
+There are two parts in this dapp. One is the website and the other is `dfx.json`. Since there's no backend, there is not any benefit of using the `dfx new project_name` command to set up a template. The `dfx.json` file is all that is needed.
 
 ### Website
 The website is really simple. It consists of an HTML file, a CSS file and a PNG file. The content of the HTML file looks like this:
