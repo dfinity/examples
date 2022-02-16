@@ -120,7 +120,7 @@ $ dfx deploy
 ## Testing
 The URL for the frontend depends on the canister ID.  Local canister IDs can be obtained using `dfx canister id`, in this case `dfx canister id www`. When deployed, the URL will look like this:
 
-**https://<ui_canister_id>.localhost:8000**
+**http://<ui_canister_id>.localhost:8000**
 
 ![Candid UI](README_images/website.png)
 
