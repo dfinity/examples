@@ -19,7 +19,7 @@ This example covers:
 This example project can be cloned, installed and deployed locally, for learning and testing purposes. The instructions are based on running the example on either macOS or Linux, but when using WSL2 on Windows, the instructions will be the same.
 
 ### Prerequisites
-The example project requeres the following installed:
+The example project requires the following installed:
 
 - GitHub
 - Node.js
