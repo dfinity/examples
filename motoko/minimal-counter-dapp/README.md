@@ -49,7 +49,7 @@ The backend functions are located in the `src/minimal_dapp/main.mo` Motoko file.
 
 
 #### Counter variable
-Three functions are created to make the counter work: count(), getCount() and reset(). The current counter value is stored as a number in the actor.
+Three functions are created to make the counter work: `count()`, `getCount()` and `reset()`. The current counter value is stored as a number in the actor.
 
 
 ```javascript
