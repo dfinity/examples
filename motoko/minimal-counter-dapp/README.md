@@ -25,7 +25,7 @@ The example project requires the following installed:
 - Node.js
 - DFX
 
-GitHub and Node can be installed from various package managers. DFX can be installed following the instructions [here](https://smartcontracts.org/docs/quickstart/local-quickstart.html#download-and-install).
+git and Node can be installed from various package managers. DFX can be installed following the instructions [here](https://smartcontracts.org/docs/quickstart/local-quickstart.html#download-and-install).
 
 ### Install
 Install the example dapp project:
