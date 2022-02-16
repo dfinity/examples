@@ -68,7 +68,7 @@ public func count() : async Nat {
 };
 ```
 
-The function is returning the incremented counter variable.
+The function returns the incremented counter variable.
 
 #### getCount()
 The `getCount()` function returns the current counter value.
