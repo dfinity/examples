@@ -59,7 +59,7 @@ actor {
 ```
 
 #### count()
-The `count()` function increments the counter variable. This function is envoked when the user is clicking the button on the frontend, or when the function is called through the Candid interface.
+The `count()` function increments the counter variable. This function is invoked when the user clicks the button on the frontend, or when the function is called through the Candid interface.
 
 ```javascript
 public func count() : async Nat {
