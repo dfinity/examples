@@ -200,6 +200,8 @@ The Candid interface is automatically created, and it has a convenient UI, which
 ```bash
 $ dfx canister id __Candid_UI
 r7inp-6aaaa-aaaaa-aaabq-cai
+$ dfx canister id minimal_dapp
+rrkah-fqaaa-aaaaa-aaaaq-cai
 ```
 
 **http://<candid_canister_id>.localhost:8000/?id=<backend_canister_id>**
