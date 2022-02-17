@@ -133,6 +133,8 @@ $ dfx canister call persistent_storage getCount
 The Candid UI provides an easy, user friendly interface for testing the backend. The UI is automatically generated, and the canister ID can be found by using the `dfx canister id <canister_name>` command:
 
 ```bash
+$ dfx canister id __Candid_UI
+r7inp-6aaaa-aaaaa-aaabq-cai
 $ dfx canister id persistent_storage
 rrkah-fqaaa-aaaaa-aaaaq-cai
 ```
