@@ -90,15 +90,7 @@ public func reset() : async Nat {
 ```
 
 ### Candid interface
-The Candid interface is automatically created, and it has a convenient UI, which provides an easy, user-friendly way to test the backend. The UI is also automatically generated, and the canister ID can be retrieved from the `dfx canister id <canister_name>` command.
-
-```bash
-$ dfx canister id __Candid_UI
-r7inp-6aaaa-aaaaa-aaabq-cai
-```
-
-**http://<candid_canister_id>.localhost:8000/?id=<backend_canister_id>**
-
+The Candid interface is automatically created, and it has a convenient UI, which provides an easy, user-friendly way to test the backend. The UI is also automatically generated, and the canister IDs can be retrieved from the `dfx canister id <canister_name>` command once the dapp has been deployed. 
 
 ### Frontend
 The default project installed with `dfx new project_name` has an `index.html` file with page HTML and an `index.js` file with an implementation of the backend functions. These two files are modified in this example project to support the counter functionality, and the backend functions.
