@@ -29,7 +29,7 @@ Install the example dapp project:
 
 ```bash
 $ git clone https://github.com/dfinity/examples
-$ cd motoko/persistent storage
+$ cd motoko/persistent_storage
 ```
 
 ## Documentation
