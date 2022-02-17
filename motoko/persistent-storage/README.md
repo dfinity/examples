@@ -33,7 +33,7 @@ $ cd motoko/persistent storage
 ```
 
 ## Documentation
-The two main parts of the example dapp is the backend and the Candid interface. This example project does not have a frontend.
+The two main parts of the example dapp are the backend and the Candid interface. This example project does not have a frontend.
 
 ### Motoko backend
 The backend functions are located in the `src/persistent_storage/main.mo` Motoko file. The backend stores the counter value, and has functions to get, increment and reset the counter value. Furthermore the backend insures the counter value persists upgrades of the dapp.
