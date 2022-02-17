@@ -123,15 +123,15 @@ All HTML code is in the `src/minimal_dapp_assets/src/index.html` file, and most 
 Two eventlisteners are added to the JavaScript file, `src/minimal_dapp_assets/src/index.js`, the existing JavaScript file from the default project. One eventlistener is for detecting button clicks, and it's calling the `count()` function in the backend, and an eventlistener for page load is added to get the initial value of the counter with `getCount()`. The backend functions are imported through the Candid interface.
 
 ```javascript
-import { minimaldapp } from "../../declarations/minimal_dapp";
+import { minimal_dapp } from "../../declarations/minimal_dapp";
 
 document.addEventListener('DOMContentLoaded', async function () {
-  const counter = await minimaldapp.getCount();
+  const counter = await minimal_dapp.getCount();
   document.getElementById("counter").innerText = "Counter: " + counter;
 })
 
 document.getElementById("clickMeBtn").addEventListener("click", async () => {
-  const counter = await minimaldapp.count();
+  const counter = await minimal_dapp.count();
   document.getElementById("counter").innerText = "Counter: " + counter;
 });
 ```
