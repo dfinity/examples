@@ -11,7 +11,7 @@ This example covers:
 - Create new canister smart contract using Motoko
 - Add backend functions for a counter (increment, get count and reset count)
 - Deploy the canister smart contract locally
-- Test backend with Candid UI and command line using DFX 
+- Test backend with Candid UI and command line using `dfx` 
 
 ## Installation
 This example project can be cloned, installed and deployed locally, for learning and testing purposes. The instructions are based on running the example on either macOS or Linux, but when using WSL2 on Windows, the instructions will be the same.
@@ -20,9 +20,9 @@ This example project can be cloned, installed and deployed locally, for learning
 The example project requeres the following installed:
 
 - git
-- DFX
+- dfx
 
-git can be installed from various package managers. DFX can be installed following the instructions [here](https://smartcontracts.org/docs/quickstart/local-quickstart.html#download-and-install).
+git can be installed from various package managers. `dfx` can be installed following the instructions [here](https://smartcontracts.org/docs/quickstart/local-quickstart.html#download-and-install).
 
 ### Install
 Install the example dapp project:
