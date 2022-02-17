@@ -4,10 +4,10 @@
     import { Principal } from '@dfinity/principal';
     import { canisters, userBalances, createCanisterActor } from '../store/store';
     import { auth, plugWallet } from '../store/auth';
-    import { idlFactory as akitaIDL } from "../../../declarations/AkitaDIP20/AkitaDIP20.did.js";
-    import { idlFactory as goldenIDL } from "../../../declarations/GoldenDIP20/GoldenDIP20.did.js";
-    import { idlFactory as backendIDL} from '../../../declarations/defi_dapp/defi_dapp.did.js';
-    import { idlFactory as ledgerIDL} from '../../../declarations/ledger/ledger.did.js';
+    import { idlFactory as akitaIDL } from "../../declarations/AkitaDIP20/AkitaDIP20.did.js";
+    import { idlFactory as goldenIDL } from "../../declarations/GoldenDIP20/GoldenDIP20.did.js";
+    import { idlFactory as backendIDL} from '../../declarations/defi_dapp/defi_dapp.did.js';
+    import { idlFactory as ledgerIDL} from '../../declarations/ledger/ledger.did.js';
     import { toHexString, hexToBytes  } from '../utils/helpers'
     import { AuthClient } from '@dfinity/auth-client';
     import { HttpAgent } from '@dfinity/agent/lib/cjs/agent';

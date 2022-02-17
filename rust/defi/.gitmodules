@@ -1,0 +1,3 @@
+[submodule "DIP20"]
+	path = src/DIP20
+	url = https://github.com/Psychedelic/DIP20.git

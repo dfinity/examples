@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "rollup -c",
-    "dev": "HOST=0.0.0.0 rollup -c -w",
+    "build": "rollup --preserveSymlinks -c",
+    "dev": "HOST=0.0.0.0 rollup --preserveSymlinks -c -w",
     "start": "sirv ../frontend_assets --no-clear"
   },
   "devDependencies": {

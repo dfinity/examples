@@ -3,7 +3,7 @@
     import { AuthClient } from "@dfinity/auth-client";
     import { onMount } from "svelte";
     import { auth, createActor } from "../store/auth";
-    import { idlFactory } from '../../../declarations/defi_dapp/defi_dapp.did.js';
+    import { idlFactory } from '../../declarations/defi_dapp/defi_dapp.did.js';
 
     
     const DEX_CANISTER_ID = process.env.DEFI_DAPP_CANISTER_ID;
