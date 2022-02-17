@@ -1,13 +1,5 @@
 import { hack } from "../../declarations/minimal_dapp";
-/*
-async function load() {
-  const counter = await hack.getCount();
-  document.getElementById("counter").innerText = "Counter: " + counter;
-  console.log(counter);
-}
 
-window.onload = load();
-*/
 document.addEventListener('DOMContentLoaded', async function () {
   const counter = await hack.getCount();
   document.getElementById("counter").innerText = "Counter: " + counter;
