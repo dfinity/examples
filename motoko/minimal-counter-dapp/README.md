@@ -32,7 +32,7 @@ Install the example dapp project:
 
 ```bash
 $ git clone https://github.com/dfinity/examples
-$ cd motoko/minimal-dapp
+$ cd motoko/minimal-counter-dapp
 $ npm install
 ```
 
