@@ -1,12 +1,11 @@
-import { hack } from "../../declarations/minimal_dapp";
+import { minimal_dapp } from "../../declarations/minimal_dapp";
 
 document.addEventListener('DOMContentLoaded', async function () {
-  const counter = await hack.getCount();
+  const counter = await minimal_dapp.getCount();
   document.getElementById("counter").innerText = "Counter: " + counter;
 })
 
 document.getElementById("clickMeBtn").addEventListener("click", async () => {
-  const counter = await hack.count();
-  console.log(counter);
+  const counter = await minimal_dapp.count();
   document.getElementById("counter").innerText = "Counter: " + counter;
 });
