@@ -79,14 +79,7 @@ public func reset() : async Nat {
 ```
 
 ### Candid interface
-The Candid UI provides an easy, user-friendly interface for testing the backend. The UI is automatically generated, and the canister ID can be found by using the `dfx canister id <canister_name>` command:
-
-```bash
-$ dfx canister id minimal_dapp
-rrkah-fqaaa-aaaaa-aaaaq-cai
-```
-
-**http://<candid_canister_id>.localhost:8000/?id=<backend_canister_id>**
+The Candid interface is automatically created, and it has a convenient UI, which provides an easy, user-friendly way to test the backend. Learn how to access the Candid UI in the **Testing** section below. 
 
 ## Deployment
 The local network is started by running this command:
