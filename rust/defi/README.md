@@ -40,7 +40,6 @@ Run from home directory
 make test
 ```
 
-
 ## Examples
 
 ### Demo
@@ -195,9 +194,7 @@ Change the II build file
 https://github.com/dfinity/internet-identity/pull/434/files
 ```
 
-
 ### Access to localhost was denied
-
 
 Change `dev` in `package.json`
 
@@ -208,3 +205,8 @@ Change `dev` in `package.json`
     "dev": "cd src/frontend && HOST=0.0.0.0 npm run dev",
   }
 ```
+
+### Compiling takes ages
+
+Check for cycle in dependencies.
+

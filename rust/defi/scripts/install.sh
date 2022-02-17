@@ -46,7 +46,6 @@ dfx canister call GoldenDIP20 setFee "(420)"
 
 ### === DEPLOY INTERNET IDENTITY =====
 
-## Follow internet identity installation steps (https://github.com/dfinity/examples/tree/master/svelte-motoko-starter#install-internet-identity)
 II_ENV=development dfx deploy internet_identity --no-wallet --argument '(null)'
 
 ## === INSTALL FRONTEND / BACKEND ==== 

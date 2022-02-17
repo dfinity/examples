@@ -3,21 +3,21 @@ SHELL = bash -xv
 .PHONY: all
 all: build
 
-.PHONY: build
-.SILENT: build
-build:
-	dfx canister create --all
-	dfx build
+.PHONY: node_modules
+.SILENT: node_modules
+node_modules:
+	pushd src/frontend; npm install; popd
 
 .PHONY: install
 .SILENT: install
 install:
 	./scripts/install.sh
 
-.PHONY: node_modules
-.SILENT: node_modules
-node_modules:
-	pushd src/frontend; npm install; popd
+.PHONY: build
+.SILENT: build
+build:
+	dfx canister create --all
+	dfx build
 
 .PHONY: frontend
 .SILENT: frontend
@@ -30,6 +30,11 @@ deploy:
 	dfx identity use default
 	$(eval ledger_canister_id := $(shell dfx canister id ledger))
 	dfx deploy defi_dapp --argument "(principal \"$(ledger_canister_id)\")"
+
+.PHONY: upgrade
+.SILENT: upgrade
+upgrade: build
+	dfx canister install --all --mode=upgrade
 
 .PHONY: test
 .SILENT: test
