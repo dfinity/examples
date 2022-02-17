@@ -52,8 +52,10 @@ dfx deploy defi_dapp --argument "(principal \"$LEDGER_ID\")"
 
 rsync -avr .dfx/$(echo ${DFX_NETWORK:-'**'})/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --delete src/frontend/declarations
 
+dfx canister create frontend
 pushd src/frontend
 npm install
+npm run build
 popd
-# The argument is necessary because the frontend depends on defi_dapp and will deploy that as well.
-dfx deploy frontend --argument "(principal \"$LEDGER_ID\")"
+dfx build frontend
+dfx canister install frontend
