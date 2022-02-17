@@ -20,7 +20,7 @@ This example project can be cloned, installed and deployed locally, for learning
 The example project requires the following installed:
 
 - git
-- DFX 
+- dfx 
 
 git can be installed from various package managers. DFX can be installed following the instructions [here](https://smartcontracts.org/docs/quickstart/local-quickstart.html#download-and-install).
 
