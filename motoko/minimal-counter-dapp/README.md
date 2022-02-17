@@ -188,9 +188,12 @@ $ dfx canister call minimal_dapp reset
 ```
 
 #### Candid UI
-The Candid UI provides an easy, user friendly interface for testing the backend. The UI is automatically generated, and the canister ID can be found in the `canister_ids.json` file.
+The Candid UI provides an easy, user friendly interface for testing the backend. The UI is automatically generated, and the canister ID can be found by using the `dfx canister id <canister_name>` command:
 
-The localhost version of the `canister_ids.json` file can be found in `.dfx/local/canister_ids.json` and the URL is:
+```bash
+$ dfx canister id minimal_dapp
+rrkah-fqaaa-aaaaa-aaaaq-cai
+```
 
 **http://<candid_canister_id>.localhost:8000/?id=<backend_canister_id>**
 
