@@ -158,7 +158,7 @@ The functionality in this example dapp can be tested both in the frontend and in
 The URL for the frontend depends on the canister ID, which can be retrieved from the `dfx canister id <canister_name>` command.
 
 ```bash
-$ dfx canister id minimal_dapp
+$ dfx canister id minimal_dapp_assets
 ryjl3-tyaaa-aaaaa-aaaba-cai
 ```
 **https://<ui_canister_id>.localhost:8000**
