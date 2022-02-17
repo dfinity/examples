@@ -12,8 +12,8 @@
         "entrypoint": "src/minimal_dapp_assets/src/index.html"
       },
       "source": [
-        "src/hminimal_dapp_assets/assets",
-        "dist/hminimal_dapp_assets/"
+        "src/minimal_dapp_assets/assets",
+        "dist/minimal_dapp_assets/"
       ],
       "type": "assets"
     }
