@@ -79,7 +79,7 @@ public func reset() : async Nat {
 ```
 
 ### Candid interface
-The Candid UI provides an easy, user friendly interface for testing the backend. The UI is automatically generated, and the canister ID can be found by using the `dfx canister id <canister_name>` command:
+The Candid UI provides an easy, user-friendly interface for testing the backend. The UI is automatically generated, and the canister ID can be found by using the `dfx canister id <canister_name>` command:
 
 ```bash
 $ dfx canister id minimal_dapp
