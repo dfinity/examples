@@ -102,7 +102,7 @@ $ dfx deploy
 ```
 
 ## Testing
-There are two ways of testing the functionality of this example dapp. One way is by making command line requests using DFX, and the other way is to use the Candid UI. Before the example dapp can be tested, it must be deployed (locally) like described in the above Deployment section.
+There are two ways of testing the functionality of this example dapp. One way is by making command line requests using DFX, and the other way is to use the Candid UI. Before the example dapp can be tested, it must be deployed (locally) as described in the above Deployment section.
 
 ### DFX
 DFX has a subset of commands for canister operations, and one of them enables calling the public functions added to the `main.mo` file in the previous step. In the following examples the initial value is 0. `increment` will increment value and return 1, `get` will return the current value and `reset` will set the value to 0.
