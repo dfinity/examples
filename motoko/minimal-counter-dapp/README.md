@@ -101,7 +101,7 @@ The localhost version of the `canister_ids.json` file can be found in `.dfx/loca
 The default project installed with `dfx new project_name` has an `index.html` file with page HTML and an `index.js` file with an implementation of the backend functions. These two files are modified in this example project to support the counter functionality, and the backend functions.
 
 #### HTML
-All HTML code is in the `src/minimal_dapp/_assets/index.html` file, and most of the HTML is carried over from the default project. The button is kept and so is the section showing the result, just simplified.
+All HTML code is in the `src/minimal_dapp_assets/index.html` file, and most of the HTML is carried over from the default project. The button is kept and so is the section showing the result, just simplified.
 
 ```html
 <!doctype html>
@@ -125,7 +125,7 @@ All HTML code is in the `src/minimal_dapp/_assets/index.html` file, and most of 
 ```
 
 #### Javascript
-Two eventlisteners are added to the JavaScript file, `src/minimal_dapp/_assets/index.js`, the existing JavaScript file from the default project. One eventlistener is for detecting button clicks, and it's calling the `count()` function in the backend, and an eventlistener for page load is added to get the initial value of the counter with `getCount()`. The backend functions are imported through the Candid interface.
+Two eventlisteners are added to the JavaScript file, `src/minimal_dapp_assets/index.js`, the existing JavaScript file from the default project. One eventlistener is for detecting button clicks, and it's calling the `count()` function in the backend, and an eventlistener for page load is added to get the initial value of the counter with `getCount()`. The backend functions are imported through the Candid interface.
 
 ```javascript
 import { minimaldapp } from "../../declarations/minimal_dapp";
