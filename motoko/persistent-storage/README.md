@@ -124,6 +124,18 @@ $ dfx canister call persistent_storage reset
 (0 : Nat)
 ```
 
+The persistence of the stored value can be tested by calling the `increment` function again and making sure the value is larger than zero. Then make a change in the Motoko code, any minor change like changing the function name `get` to `getCount`, and then re-deploy the project and call the `getCount` function to verify that the counter value did not change back to the initial value (0).
+
+```bash
+$ dfx canister call persistent_storage increment
+(1 : Nat)
+// Make code change
+$ dfx deploy
+$ dfx canister call persistent_storage getCount
+(1 : Nat)
+```
+
+
 ### Candid UI
 The Candid UI provides an easy, user friendly interface for testing the backend. The UI is automatically generated, and the canister ID can be found by using the `dfx canister id <canister_name>` command:
 
