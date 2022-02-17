@@ -169,7 +169,7 @@ There are two ways of testing the backend. One way is by making command line req
 #### DFX
 DFX has a subset of commands for canister operations, and one of them enables calling the public functions added to the `main.mo` file in the previous step. In the following examples the initial value is 0. `count` will increment value and return 1, `getCount` will return the current value and `reset` will set the value to 0.
 
-Command usage: `dfx canister call &#60project&#62  &#60function&#62`
+Command usage: `dfx canister call <project>  <function>`
 
 ```bash
 $ dfx canister call minimal_dapp count
