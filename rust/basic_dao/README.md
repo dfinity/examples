@@ -2,7 +2,7 @@
 
 This sample project demonstrates a basic DAO 
 ([Decentralized Autonomous Organization](https://en.wikipedia.org/wiki/Decentralized_autonomous_organization)) 
-that can be deployed to the [Internet Computer](https://github.com/dfinity/ic)
+that can be deployed to the [Internet Computer](https://github.com/dfinity/ic).
 
 ## Overview
 
