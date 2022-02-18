@@ -1,4 +1,4 @@
-name: motoko-minimal-counter-dapp
+name: motoko-minimal-counter-dapp-example
 on:
   push:
     branches:
