@@ -84,7 +84,8 @@ shared(init_msg) actor class Dex() = this {
             toAmount;
          };
         exchange.addOrder(order);
-        #Ok(order)
+
+        #Ok(exchange.getOrder(id))
     };
 
     public shared(msg) func cancelOrder(order_id: T.OrderId) : async T.CancelOrderReceipt {

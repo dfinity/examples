@@ -82,7 +82,7 @@ module {
         #OrderBookFull;
     };
     public type OrderPlacementReceipt = {
-        #Ok: Order;
+        #Ok: ?Order;
         #Err: OrderPlacementErr;
     };
     public type CancelOrderErr = {
