@@ -21,7 +21,7 @@ bash install.sh
 Reinstall backend canister
 
 ```bash
-dfx deploy defi_dapp -m reinstall
+dfx deploy defi_dapp -m reinstall --argument '(null)'
 ```
 
 Local frontend development

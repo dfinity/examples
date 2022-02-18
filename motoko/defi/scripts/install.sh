@@ -48,7 +48,7 @@ II_ENV=development dfx deploy internet_identity --no-wallet --argument '(null)'
 
 ## === INSTALL FRONTEND / BACKEND ==== 
 
-dfx deploy defi_dapp --argument "(principal \"$LEDGER_ID\")"
+dfx deploy defi_dapp --argument "(opt principal \"$LEDGER_ID\")"
 
 rsync -avr .dfx/$(echo ${DFX_NETWORK:-'**'})/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --delete src/frontend/declarations
 
