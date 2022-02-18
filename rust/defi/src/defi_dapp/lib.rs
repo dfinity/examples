@@ -126,20 +126,20 @@ pub fn get_all_balances() -> Vec<Balance> {
     STATE.with(|s| s.borrow().exchange.get_all_balances())
 }
 
-#[query(name = "getOrder")]
-#[candid_method(query, rename = "getOrder")]
+#[update(name = "getOrder")]
+#[candid_method(update, rename = "getOrder")]
 pub fn get_order(order: OrderId) -> Option<Order> {
     STATE.with(|s| s.borrow().exchange.get_order(order))
 }
 
-#[query(name = "getOrders")]
-#[candid_method(query, rename = "getOrders")]
+#[update(name = "getOrders")]
+#[candid_method(update, rename = "getOrders")]
 pub fn get_orders() -> Vec<Order> {
     STATE.with(|s| s.borrow().exchange.get_all_orders())
 }
 
-#[query(name = "getDepositAddress")]
-#[candid_method(query, rename = "getDepositAddress")]
+#[update(name = "getDepositAddress")]
+#[candid_method(update, rename = "getDepositAddress")]
 pub fn get_deposit_address() -> AccountIdentifier {
     let canister_id = ic_cdk::api::id();
     let subaccount = principal_to_subaccount(&caller());
@@ -147,7 +147,7 @@ pub fn get_deposit_address() -> AccountIdentifier {
     AccountIdentifier::new(&canister_id, &subaccount)
 }
 
-#[query(name = "getWithdrawalAddress")]
+#[update(name = "getWithdrawalAddress")]
 #[candid_method(update, rename = "getWithdrawalAddress")]
 pub fn get_withdrawal_address() -> AccountIdentifier {
     let canister_id = ic_cdk::api::id();
@@ -307,7 +307,7 @@ pub fn whoami() -> Principal {
 
 // For testing
 #[update]
-#[candid_method(update)]
+#[candid_method(oneway)]
 pub fn credit(user: Principal, token_canister_id: Principal, amount: Nat) {
     STATE.with(|s| {
         let mut state = s.borrow_mut();
@@ -324,7 +324,7 @@ pub fn credit(user: Principal, token_canister_id: Principal, amount: Nat) {
 
 // For testing.
 #[update]
-#[candid_method(update)]
+#[candid_method(oneway)]
 pub fn clear() {
     STATE.with(|s| {
         let mut state = s.borrow_mut();

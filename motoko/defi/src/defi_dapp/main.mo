@@ -118,7 +118,7 @@ shared(init_msg) actor class Dex() = this {
         null;
     };
 
-    public query func getOrders() : async([T.Order]) {
+    public func getOrders() : async([T.Order]) {
         Debug.print("List orders...");
         getAllOrders()
     };
