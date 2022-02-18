@@ -13,7 +13,7 @@ const production = !process.env.ROLLUP_WATCH;
 const path = require("path");
 
 function initCanisterIds() {
-  let localCanisters, localIiCanister, prodCanisters, canisters;
+  let localCanisters, prodCanisters, canisters;
   try {
     localCanisters = require(path.resolve(
       "..",
@@ -24,19 +24,6 @@ function initCanisterIds() {
     ));
   } catch (error) {
     console.log("No local canister_ids.json found. Continuing production");
-  }
-  try {
-    localIiCanister = require(path.resolve(
-      "..",
-      "internet-identity",
-      ".dfx",
-      "local",
-      "canister_ids.json"
-    ));
-  } catch (error) {
-    console.log(
-      "No local internet-identity canister_ids.json found. Continuing production"
-    );
   }
   try {
     prodCanisters = require(path.resolve("..", "..", "canister_ids.json"));
@@ -52,7 +39,7 @@ function initCanisterIds() {
 
   const canisterIds =
     network === "local"
-      ? { ...(localCanisters || {}), ...(localIiCanister || {}) }
+      ? localCanisters
       : prodCanisters;
 
   return { canisterIds, network };
