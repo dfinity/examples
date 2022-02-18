@@ -407,7 +407,7 @@ shared(init_msg) actor class Dex() = this {
     };
 
     // For testing
-    public shared(msg) func credit(user: Principal, token_canister_id: Principal, amount: Nat) {
+    public shared(msg) func credit(user: Principal, token_canister_id: T.Token, amount: Nat) {
         assert (msg.caller == init_msg.caller);
         book.addTokens(user,token_canister_id,amount);
     };
