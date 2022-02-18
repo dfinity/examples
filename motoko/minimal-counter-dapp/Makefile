@@ -1,21 +1,28 @@
+NAME = minimal_dapp
+
 .PHONY: all
 all: build
 
+.PHONY: node_modules
+.SILENT: node_modules
+node_modules:
+	npm install
+
 .PHONY: build
 .SILENT: build
-build:
-	dfx canister create minimal_dapp
+build: node_modules
+	dfx canister create --all
 	dfx build
 
 .PHONY: install
 .SILENT: install
 install: build
-	dfx canister install minimal_dapp
+	dfx canister install --all
 
 .PHONY: upgrade
 .SILENT: upgrade
 upgrade: build
-	dfx canister install minimal_dapp --mode=upgrade
+	dfx canister install --all --mode=upgrade
 
 .PHONY: test
 .SILENT: test
@@ -24,10 +31,11 @@ test: install
 		| grep '(1 : nat)' && echo 'PASS'
 	dfx canister call minimal_dapp getCount \
 		| grep '(1 : nat)' && echo 'PASS'
-  dfx canister call minimal_dapp reset \
+        dfx canister call minimal_dapp reset \
 		| grep '(0 : nat)' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean
 clean:
 	rm -fr .dfx
+	rm -fr node_modules
