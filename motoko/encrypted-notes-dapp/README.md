@@ -100,7 +100,7 @@ _Note_: this option does not yet work on Apple M1; the combination of [DFX](http
    dfx start --clean
    ```
 7. Install a local [Internet Identity (II)](https://smartcontracts.org/docs/ic-identity-guide/what-is-ic-identity.html) canister:
-   _Note_: If you have dfx identities set up, ensure you are using the identity you intend to use with the `--identity` flag. (didn't understand)
+   _Note_: If you have dfx identities set up, ensure you are using the identity you intend to use with the `--identity` flag.
    1. To install and deploy a canister run:
       ```sh
       dfx deploy internet_identity --argument '(null)'
@@ -128,7 +128,7 @@ _Note_: this option does not yet work on Apple M1; the combination of [DFX](http
        npm run print-dfx-www
        ```
     3. Visit the URL from above
-11. To get the frontend with hot-reloading on [http://localhost:3000/](http://localhost:3000/) run:
+11. To get the frontend with hot-reloading on [http://localhost:3000/](http://localhost:3000/) run:****
     ```sh
     npm run dev
     ```
