@@ -141,6 +141,7 @@ fn users_invariant() -> bool {
 /// Returns the current number of users.
 /// Panics if [users_invariant] is violated.
 fn user_count() -> usize {
+    assert!(users_invariant());
     NOTES_BY_USER.with(|notes_ref| notes_ref.borrow().keys().len())
 }
 
@@ -288,7 +289,6 @@ fn register_device(alias: DeviceAlias, pk: PublicKey) -> bool {
         match writer.entry(caller) {
             Vacant(empty_store_entry) => {
                 // caller unknown ==> check invariants
-                // assert!(users_invariant());  // FIXME
                 // A. can we add a new user?
                 assert!(MAX_USERS.with(|mu| user_count() < mu.clone()));
                 // B. this caller does not have notes
