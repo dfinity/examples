@@ -98,15 +98,16 @@ shared({ caller = initializer }) actor class() {
 
     // Returns the current number of users.
     // Traps if [users_invariant] is violated
-    private func users_count(): Nat {
+    private func user_count(): Nat {
+        assert users_invariant();
         notesByUser.size()
     };
 
     // Check that a note identifier is sane. This is needed since Motoko integers 
     // are infinite-precision. 
-    // Note: avoid extraneous usage of async functions, hence [users_count]
+    // Note: avoid extraneous usage of async functions, hence [user_count]
     private func is_id_sane(id: Int): Bool {
-        0 <= id and id < MAX_NOTES_PER_USER * users_count()
+        0 <= id and id < MAX_NOTES_PER_USER * user_count()
     };
 
     // Returns `true` iff [store.device_list] contains the provided public key [pk].
@@ -293,7 +294,7 @@ shared({ caller = initializer }) actor class() {
             case null {
                 // caller unknown ==> check invariants
                 // A. can we add a new user?
-                assert users_count() < MAX_USERS;
+                assert user_count() < MAX_USERS;
                 // B. this caller does not have notes
                 let principalName = Principal.toText(caller);
                 assert notesByUser.get(principalName) == null;
