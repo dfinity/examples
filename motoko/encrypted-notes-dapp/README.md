@@ -252,7 +252,7 @@ Possible Remedies:
 Some errors like `Could not initialize crypto service` might occur due to browser caching issues. Redeployment of the dapp can cause such problems. In this case clear browser's _Local Storage_ and _IndexedDB_.
 
 ## dfx.json file structure
-`dfx.json` is the configuration of the project when deploying to either the local replica or to the ic, it assists in the creation of the `.dfx` directory (which contains `canister_ids.json` — which merely maps canister by name to their id on both local replica and the ic). There are various configuration options here and this is not exhaustive. This will primarily discuss target types for canisters (which all exist under the `canisters` key).
+`dfx.json` is the configuration of the project when deploying to either the local replica or to the IC, it assists in the creation of the `.dfx` directory (which contains `canister_ids.json` — which merely maps canister by name to their id on both local replica and the IC). There are various configuration options here and this is not exhaustive. This will primarily discuss target types for canisters (which all exist under the `canisters` key).
 
 ```sh
 {
@@ -291,12 +291,12 @@ Some errors like `Could not initialize crypto service` might occur due to browse
     "version": 1
 }
 ```
-<font size="5">encrypted_notes_motoko </font>
+**encrypted_notes_motoko**:
 Motoko is the IC-specific language for building and deploying Canisters. Two keys are necessary:
 `main`: The directory location of the entrypoint file of your canister.
 `type`: needs to be "motoko", informing dfx of how to properly build the canister.
 
-<font size="5">encrypted_notes_rust </font>
+**encrypted_notes_rust**:
 Rust natively supports WebAssembly — the binary format of the Internet Computer, and there is a crate ic_cdk which allows hooks into the IC. Unlike motoko, DFX does not yet have a native Rust target that infers as much as motoko canisters. So the keys that need to be provided are:
 `type`: custom (letting dfx know that it's going to need to do some user-defined work)
 `build`: whatever command needed to turn your project into a wasm binary. In this repo it's:
@@ -305,13 +305,14 @@ cargo build --package encrypted_notes_rust --target wasm32-unknown-unknown --rel
 ```
 `wasm`: wherever the wasm binary ends up at the end of the "build" command.
 `candid`: There is not yet Rust autogeneration for candid IDL built into dfx, so DFX needs to know where you candid file for the canister built by "build" resides.
-<font size="5">www</font>
+**www**:
 frontend www canister (an "asset" canister) is the way we describe a set of files or a static website that we are deploying to the IC. Our project frontend is built in [Svelte](https://svelte.dev/). The keys we used are as follows:
 `dependencies`: an array of whatever canisters are being used to serve your app, to ensure that dfx builds and deploys them before your app.
 `frontend: { entrypoint: ""}`: This set of keys tells dfx to build it as a frontend canister, and entrypoint is wherever your app entrypoint winds up residing at the end of an npm build
 `source`: where the rest of your app resides at the end of npm build
-`type`: "assets" for an assets or static canister.
-<font size="5">Binary targets</font>
+`type`: "assets" for an assets or static canister.  
+
+**Binary targets**:
 You can also just deploy arbitrary binary targets as long as they're wasm binaries. For that we use the keys:
 `wasm`: a wasm file.
 `candid`: a candidfile representing all interfaces in the wasm file.
