@@ -132,7 +132,7 @@ All HTML code is in the `src/minimal_rust_dapp_assets/src/index.html` file, and 
 ```
 
 #### Javascript
-Two eventlisteners are added to the JavaScript file, `src/minimal_dapp_assets/src/index.js`, the existing JavaScript file from the default project. One eventlistener is for detecting button clicks, and it's calling the `count()` function in the backend, and an eventlistener for page load is added to get the initial value of the counter with `get()`. The backend functions are imported through the Candid interface.
+Two eventlisteners are added to the JavaScript file, `src/minimal_rust_dapp_assets/src/index.js`, the existing JavaScript file from the default project. One eventlistener is for detecting button clicks, and it's calling the `count()` function in the backend, and an eventlistener for page load is added to get the initial value of the counter with `get()`. The backend functions are imported through the Candid interface.
 
 ```javascript
 import { minimal_rust_dapp } from "../../declarations/minimal_rust_dapp";
@@ -168,7 +168,7 @@ The functionality in this example dapp can be tested both in the frontend and in
 The URL for the frontend depends on the canister ID, which can be retrieved from the `dfx canister id <canister_name>` command.
 
 ```bash
-$ dfx canister id minimal_dapp_assets
+$ dfx canister id minimal_rust_dapp_assets
 ryjl3-tyaaa-aaaaa-aaaba-cai
 ```
 **https://<ui_canister_id>.localhost:8000**
