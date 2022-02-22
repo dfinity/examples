@@ -31,7 +31,7 @@ test: install
 		| grep '(1 : nat)' && echo 'PASS'
 	dfx canister call minimal_rust_dapp get \
 		| grep '(1 : nat)' && echo 'PASS'
-        dfx canister call minimal_rust_dapp reset \
+	dfx canister call minimal_rust_dapp reset \
 		| grep '(0 : nat)' && echo 'PASS'
 
 .PHONY: clean
