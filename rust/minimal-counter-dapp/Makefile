@@ -1,4 +1,4 @@
-NAME = minimal_dapp
+NAME = minimal_rust_dapp
 
 .PHONY: all
 all: build
@@ -27,11 +27,11 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
-	dfx canister call minimal_dapp count \
+	dfx canister call minimal_rust_dapp count \
 		| grep '(1 : nat)' && echo 'PASS'
-	dfx canister call minimal_dapp getCount \
+	dfx canister call minimal_rust_dapp getCount \
 		| grep '(1 : nat)' && echo 'PASS'
-        dfx canister call minimal_dapp reset \
+        dfx canister call minimal_rust_dapp reset \
 		| grep '(0 : nat)' && echo 'PASS'
 
 .PHONY: clean
