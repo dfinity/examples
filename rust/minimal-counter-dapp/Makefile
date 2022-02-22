@@ -27,9 +27,9 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
-	dfx canister call minimal_rust_dapp count \
+	dfx canister call minimal_rust_dapp increment \
 		| grep '(1 : nat)' && echo 'PASS'
-	dfx canister call minimal_rust_dapp getCount \
+	dfx canister call minimal_rust_dapp get \
 		| grep '(1 : nat)' && echo 'PASS'
         dfx canister call minimal_rust_dapp reset \
 		| grep '(0 : nat)' && echo 'PASS'
