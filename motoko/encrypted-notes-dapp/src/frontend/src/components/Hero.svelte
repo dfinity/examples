@@ -1,5 +1,6 @@
 <script lang="ts">
   import { AuthState, login } from '../store/auth';
+  import DisclaimerCopy from './DisclaimerCopy.svelte';
   import Spinner from './Spinner.svelte';
 
   export let auth: Extract<
@@ -15,10 +16,12 @@
   >;
 </script>
 
-<div class="hero min-h-screen">
-  <div class="text-center hero-content">
-    <div class="max-w-xl pb-16">
-      <h1 class="mb-5 text-5xl font-bold text-primary dark:text-white">
+<div class="hero min-h-screen pt-8 sm:pt-0 content-start sm:content-center">
+  <div class="text-center hero-content ">
+    <div class="max-w-xl ">
+      <h1
+        class="mb-5 text-4xl sm:text-5xl font-bold text-primary dark:text-white"
+      >
         Encrypted Notes
       </h1>
       <p class="mb-5 text-xl font-semibold">
@@ -46,9 +49,13 @@
       {:else if auth.state === 'error'}
         <div class="text-lg font-semibold mt-8">An error occurred.</div>
       {/if}
+
+      <div class="text-xs mt-8 sm:mt-12 opacity-75 mb-12 sm:mb-32">
+        <DisclaimerCopy />
+      </div>
     </div>
   </div>
-  <div class="absolute bottom-0 text-center left-0 right-0 pb-8">
+  <div class="fixed bottom-0 text-center left-0 right-0 pb-4 sm:pb-8">
     <img
       src="/img/ic-badge-powered-by-crypto_label-stripe-white-text.png"
       alt="Powered by the Internet Computer"

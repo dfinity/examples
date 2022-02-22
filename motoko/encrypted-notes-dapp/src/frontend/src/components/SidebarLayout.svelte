@@ -4,12 +4,16 @@
   import FaBook from 'svelte-icons/fa/FaBook.svelte';
   import FaMobileAlt from 'svelte-icons/fa/FaMobileAlt.svelte';
   import FaDoorOpen from 'svelte-icons/fa/FaDoorOpen.svelte';
+  import Disclaimer from './Disclaimer.svelte';
 </script>
 
 <div class="bg-base-200 drawer drawer-mobile min-h-screen">
   <input id="my-drawer-3" type="checkbox" class="drawer-toggle" />
   <div class="flex flex-col drawer-content lg:!z-[1000]">
-    <slot />
+    <div class="flex-1">
+      <slot />
+    </div>
+    <Disclaimer />
   </div>
   <div class="drawer-side">
     <label for="my-drawer-3" class="drawer-overlay" />
