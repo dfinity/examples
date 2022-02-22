@@ -1,0 +1,36 @@
+{
+  "canisters": {
+    "minimal_rust_dapp": {
+      "candid": "src/minimal_rust_dapp/minimal_rust_dapp.did",
+      "package": "minimal_rust_dapp",
+      "type": "rust"
+    },
+    "minimal_rust_dapp_assets": {
+      "dependencies": [
+        "minimal_rust_dapp"
+      ],
+      "frontend": {
+        "entrypoint": "src/minimal_rust_dapp_assets/src/index.html"
+      },
+      "source": [
+        "src/minimal_rust_dapp_assets/assets",
+        "dist/minimal_rust_dapp_assets/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "dfx": "0.8.4",
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8002",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
+}
