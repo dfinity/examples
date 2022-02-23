@@ -188,7 +188,7 @@ $ dfx canister call minimal_rust_dapp increment
 
 ```bash
 $ dfx canister call minimal_rust_dapp get
-(1 : Nat)
+(1 : Nat64)
 ```
 
 ```bash
