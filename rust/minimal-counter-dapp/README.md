@@ -183,7 +183,7 @@ Command usage: `dfx canister call <project> <function>`
 
 ```bash
 $ dfx canister call minimal_rust_dapp increment
-(1 : Nat)
+(1 : Nat64)
 ```
 
 ```bash
