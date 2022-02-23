@@ -17,16 +17,29 @@ shared(install) actor class DAO(init : ?Types.SystemParams) = Self {
 
     system func heartbeat() : async () {
         await execute_accepted_proposals();
-        await remove_expired_proposals();
     };
 
     func account_get(id : Principal) : ?Types.Tokens = Trie.get(accounts, Types.account_key(id), Principal.equal);
     func account_put(id : Principal, tokens : Types.Tokens) {
         accounts := Trie.put(accounts, Types.account_key(id), Principal.equal, tokens).0;
     };
+    func accounts_fromArray(arr: [Types.Account]) : Trie.Trie<Principal, Types.Tokens> {
+        var s = Trie.empty<Principal, Types.Tokens>();
+        for (account in arr.vals()) {
+            s := Trie.put(s, Types.account_key(account.owner), Principal.equal, account.tokens).0;
+        };
+        s
+    };
     func proposal_get(id : Nat) : ?Types.Proposal = Trie.get(proposals, Types.proposal_key(id), Nat.equal);
     func proposal_put(id : Nat, proposal : Types.Proposal) {
         proposals := Trie.put(proposals, Types.proposal_key(id), Nat.equal, proposal).0;
+    };
+    func proposals_fromArray(arr: [Types.Proposal]) : Trie.Trie<Nat, Types.Proposal> {
+        var s = Trie.empty<Nat, Types.Proposal>();
+        for (proposal in arr.vals()) {
+            s := Trie.put(s, Types.proposal_key(proposal.id), Nat.equal, proposal).0;
+        };
+        s
     };
 
     /// Transfer tokens from the caller's account to another account
@@ -62,6 +75,10 @@ shared(install) actor class DAO(init : ?Types.SystemParams) = Self {
     };
 
     /// Submit a proposal
+    ///
+    /// A proposal contains a canister ID, method name and method args. If enough users
+    /// vote "yes" on the proposal, the given method will be called with the given method
+    /// args on the given canister.
     public shared({caller}) func submit_proposal(payload: Types.ProposalPayload) : async Types.Result<Nat, Text> {
         Result.chain(deduct_proposal_submission_deposit(caller), func (()) : Types.Result<Nat, Text> {
             let proposal_id = next_proposal_id;
@@ -148,6 +165,9 @@ shared(install) actor class DAO(init : ?Types.SystemParams) = Self {
         };
     };
 
+    /// Get the current system params
+    public query func get_system_params() : async Types.SystemParams { system_params };
+
     /// Update system params
     ///
     /// Only callable via proposal execution
@@ -199,10 +219,6 @@ shared(install) actor class DAO(init : ?Types.SystemParams) = Self {
     func execute_proposal(proposal: Types.Proposal) : async Types.Result<(), Text> {
         // unimplemented until raw call is supported
         #ok
-    };
-
-    /// Remove expired proposals
-    func remove_expired_proposals() : async () {
     };
 
     func update_proposal_state(proposal: Types.Proposal, state: Types.ProposalState) {

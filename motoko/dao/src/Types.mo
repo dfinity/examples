@@ -23,12 +23,18 @@ module {
     message : Blob;
   };
   public type ProposalState = {
-    #failed : Text;
-    #open;
-    #executing;
-    #rejected;
-    #succeeded;
-    #accepted;
+      // A failure occurred while executing the proposal
+      #failed : Text;
+      // The proposal is open for voting
+      #open;
+      // The proposal is currently being executed
+      #executing;
+      // Enough "no" votes have been cast to reject the proposal, and it will not be executed
+      #rejected;
+      // The proposal has been successfully executed
+      #succeeded;
+      // Enough "yes" votes have been cast to accept the proposal, and it will soon be executed
+      #accepted;
   };
   public type Tokens = { amount_e8s : Nat };
   public type TransferArgs = { to : Principal; amount : Tokens };
@@ -50,6 +56,11 @@ module {
     // a user that submits a proposal. If the proposal is Accepted, this deposit is returned,
     // otherwise it is lost. This prevents users from submitting superfluous proposals.
     proposal_submission_deposit: Tokens;
+  };
+  public type BasicDaoStableStorage = {
+    accounts: [Account];
+    proposals: [Proposal];
+    system_params: SystemParams;
   };
 
   public func proposal_key(t: Nat) : Trie.Key<Nat> = { key = t; hash = Int.hash t };
