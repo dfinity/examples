@@ -8,12 +8,11 @@ import List "mo:base/List";
 import Time "mo:base/Time";
 import Types "./Types";
 
-shared(install) actor class DAO(init : ?Types.SystemParams) = Self {
-    stable var accounts : Trie.Trie<Principal, Types.Tokens> =
-      Trie.put(Trie.empty(), Types.account_key(install.caller), Principal.equal, { amount_e8s = 1_000_000_000_000 }).0;
-    stable var proposals : Trie.Trie<Nat, Types.Proposal> = Trie.empty();
+shared actor class DAO(init : Types.BasicDaoStableStorage) = Self {
+    stable var accounts = Types.accounts_fromArray(init.accounts);
+    stable var proposals = Types.proposals_fromArray(init.proposals);
     stable var next_proposal_id : Nat = 0;
-    stable var system_params : Types.SystemParams = Option.get(init, Types.defaultSystemParams);
+    stable var system_params : Types.SystemParams = init.system_params;
 
     system func heartbeat() : async () {
         await execute_accepted_proposals();
@@ -23,24 +22,11 @@ shared(install) actor class DAO(init : ?Types.SystemParams) = Self {
     func account_put(id : Principal, tokens : Types.Tokens) {
         accounts := Trie.put(accounts, Types.account_key(id), Principal.equal, tokens).0;
     };
-    func accounts_fromArray(arr: [Types.Account]) : Trie.Trie<Principal, Types.Tokens> {
-        var s = Trie.empty<Principal, Types.Tokens>();
-        for (account in arr.vals()) {
-            s := Trie.put(s, Types.account_key(account.owner), Principal.equal, account.tokens).0;
-        };
-        s
-    };
     func proposal_get(id : Nat) : ?Types.Proposal = Trie.get(proposals, Types.proposal_key(id), Nat.equal);
     func proposal_put(id : Nat, proposal : Types.Proposal) {
         proposals := Trie.put(proposals, Types.proposal_key(id), Nat.equal, proposal).0;
     };
-    func proposals_fromArray(arr: [Types.Proposal]) : Trie.Trie<Nat, Types.Proposal> {
-        var s = Trie.empty<Nat, Types.Proposal>();
-        for (proposal in arr.vals()) {
-            s := Trie.put(s, Types.proposal_key(proposal.id), Nat.equal, proposal).0;
-        };
-        s
-    };
+
 
     /// Transfer tokens from the caller's account to another account
     public shared({caller}) func transfer(transfer: Types.TransferArgs) : async Types.Result<(), Text> {

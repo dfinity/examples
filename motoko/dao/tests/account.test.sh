@@ -1,11 +1,24 @@
 #!ic-repl
 load "prelude.sh";
 
+import fake = "2vxsx-fae" as "../.dfx/local/canisters/dao/dao.did";
 let wasm = file "../.dfx/local/canisters/dao/dao.wasm";
+
 
 // Setup initial account
 identity alice;
-let DAO = install(wasm, encode(null), null);
+let args = encode fake.__init_args(
+  record {
+    accounts = vec { record { owner = alice; tokens = record { amount_e8s = 1_000_000_000_000 } } };
+    proposals = vec {};
+    system_params = record {
+      transfer_fee = record { amount_e8s = 10_000 };
+      proposal_vote_threshold = record { amount_e8s = 1_000_000_000 };
+      proposal_submission_deposit = record { amount_e8s = 10_000 };
+    };
+  }
+);
+let DAO = install(wasm, args, null);
 call DAO.account_balance();
 assert _.amount_e8s == (1_000_000_000_000 : nat);
 
@@ -64,7 +77,7 @@ assert _.amount_e8s == (499_999_990_000 : nat);
 
 // upgrade preserves states
 identity alice;
-upgrade(DAO, wasm, encode(null));
+upgrade(DAO, wasm, args);
 let accounts = call DAO.list_accounts();
 assert accounts[0].tokens.amount_e8s == (499_999_990_000 : nat);
 assert accounts[1].tokens.amount_e8s == (499_999_990_000 : nat);

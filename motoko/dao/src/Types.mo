@@ -1,6 +1,7 @@
 import Result "mo:base/Result";
 import Trie "mo:base/Trie";
 import Int "mo:base/Int";
+import Nat "mo:base/Nat";
 import List "mo:base/List";
 import Principal "mo:base/Principal";
 
@@ -65,12 +66,21 @@ module {
 
   public func proposal_key(t: Nat) : Trie.Key<Nat> = { key = t; hash = Int.hash t };
   public func account_key(t: Principal) : Trie.Key<Principal> = { key = t; hash = Principal.hash t };
+  public func accounts_fromArray(arr: [Account]) : Trie.Trie<Principal, Tokens> {
+      var s = Trie.empty<Principal, Tokens>();
+      for (account in arr.vals()) {
+          s := Trie.put(s, account_key(account.owner), Principal.equal, account.tokens).0;
+      };
+      s
+  };
+  public func proposals_fromArray(arr: [Proposal]) : Trie.Trie<Nat, Proposal> {
+      var s = Trie.empty<Nat, Proposal>();
+      for (proposal in arr.vals()) {
+          s := Trie.put(s, proposal_key(proposal.id), Nat.equal, proposal).0;
+      };
+      s
+  };
   
   public let oneToken = { amount_e8s = 10_000_000 };
   public let zeroToken = { amount_e8s = 0 };  
-  public let defaultSystemParams = {
-      transfer_fee = { amount_e8s = 10_000 };
-      proposal_vote_threshold = { amount_e8s = 1_000_000_000 };
-      proposal_submission_deposit = { amount_e8s = 10_000 };
-  };
 }
