@@ -52,11 +52,27 @@ export const auth = writable({
    actor: createActor(),
 });
 
+
+export const DEX_CANISTER_ID = process.env.DEFI_DAPP_CANISTER_ID;
+export const AKITA_CANISTER_ID = process.env.AKITADIP20_CANISTER_ID;
+export const GOLDENDIP20_CANISTER_ID = process.env.GOLDENDIP20_CANISTER_ID;
+export const LEDGER_CANISTER_ID = process.env.LEDGER_CANISTER_ID;
+export const whitelist = [DEX_CANISTER_ID, AKITA_CANISTER_ID, GOLDENDIP20_CANISTER_ID, LEDGER_CANISTER_ID];
+
+export const host = process.env.DFX_NETWORK === "ic"
+? `https://ic0.app`
+    : `http://localhost:8000`
+
 export const plugWallet = writable({
   extensionInstalled: false,
   isConnected: false,
+  whiteList: whitelist,
+  host: host,
   principal: '',
-  plugActor: null
+  plugActor: null,
+  plugAkitaActor: null,
+  plugGoldenActor: null,
+  plugLedgerActor: null
 });
 
 export const anonymous = writable({

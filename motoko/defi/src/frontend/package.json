@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "build": "rollup --preserveSymlinks -c",
-    "dev": "HOST=0.0.0.0 rollup --preserveSymlinks -c -w",
-    "start": "sirv ../frontend_assets --no-clear"
+    "dev": "rollup --preserveSymlinks -c -w",
+    "start": "sirv ../frontend_assets --no-clear --port 5555"
   },
   "devDependencies": {
     "@rollup/plugin-commonjs": "^17.0.0",

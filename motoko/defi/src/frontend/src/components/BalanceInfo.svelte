@@ -113,45 +113,41 @@
         else if ($plugWallet.isConnected) {
             console.log("Using Plug for DEX actor");
             authType = "Plug";
+            const principalId = await window.ic.plug.agent.getPrincipal();
 
-            // TODO
-            // Create canister actors
-            // backendActor = ...;
-            // akitaActor = ...;
-            // goldenActor = ...;
-            // ledgerActor = ...;
 
             // Fetch initial balances
-            // const goldenBalance = await goldenActor.balanceOf($auth.principal);
-            // const akitaBalance = await akitaActor.balanceOf($auth.principal);
-            // let ledgerBalance = 0;
+            const goldenBalance = await $plugWallet.plugGoldenActor.balanceOf(principalId);
+            const akitaBalance = await $plugWallet.plugAkitaActor.balanceOf(principalId);
+            let ledgerBalance = 0;
+            
 
             // When using Plug, the balance displayed should be of the Plug principal
-            // const balance = await ledgerActor.account_balance({account: XXX});
-            // if(balance.e8s) {
-            //     ledgerBalance = balance.e8s;
-            // }
+            const balance = await $plugWallet.plugLedgerActor.account_balance({account: XXX});
+            if(balance.e8s) {
+                ledgerBalance = balance.e8s;
+            }
 
             // Create a balances array and set the userBalance store object
-            // const balances = []
-            // for(let i = 0; i < $canisters.length; i++) {
-            //     const principal = Principal.fromText($canisters[i].canisterId);
-            //     const dexBalance = await backendActor.getBalance(principal);
+            const balances = []
+            for(let i = 0; i < $canisters.length; i++) {
+                const principal = Principal.fromText($canisters[i].canisterId);
+                const dexBalance = await $plugWallet.plugLedgerActor.getBalance(principal);
 
-            //     balances.push({
-            //         name: $canisters[i].canisterName,
-            //         symbol: $canisters[i].symbol,
-            //         canisterBalance: i === 0 ? akitaBalance : i === 1 ? goldenBalance : ledgerBalance,
-            //         dexBalance: dexBalance,
-            //         principal: principal
-            //     })
-            // };
+                balances.push({
+                    name: $canisters[i].canisterName,
+                    symbol: $canisters[i].symbol,
+                    canisterBalance: i === 0 ? akitaBalance : i === 1 ? goldenBalance : ledgerBalance,
+                    dexBalance: dexBalance,
+                    principal: principal
+                })
+            };
 
             // Update the store values
-            // userBalances.set([...balances]);
+            userBalances.set([...balances]);
 
             // Don't forget to set `depositAddressBlob`, which we will use later
-            // depositAddressBlob = await backendActor.getDepositAddress();
+            depositAddressBlob = await $plugWallet.plugLedgerActor.getDepositAddress();
         }
 
         fetchingAddress = false;

@@ -1,62 +1,68 @@
 <script>
-    import { plugWallet } from '../store/auth';
     import { AuthClient } from "@dfinity/auth-client";
     import { onMount } from "svelte";
-    import { auth, createActor } from "../store/auth";
-    import { idlFactory } from '../../declarations/defi_dapp/defi_dapp.did.js';
-
-    
-    const DEX_CANISTER_ID = process.env.DEFI_DAPP_CANISTER_ID;
-    const whiteList = [DEX_CANISTER_ID];
-
+    import { auth, createActor, plugWallet, whitelist, host,
+        DEX_CANISTER_ID, AKITA_CANISTER_ID, GOLDENDIP20_CANISTER_ID, LEDGER_CANISTER_ID } from "../store/auth";
+    import { idlFactory as akitaIDL } from "../../declarations/AkitaDIP20/AkitaDIP20.did.js";
+    import { idlFactory as goldenIDL } from "../../declarations/GoldenDIP20/GoldenDIP20.did.js";
+    import { idlFactory as backendIDL} from '../../declarations/defi_dapp/defi_dapp.did.js';
+    import { idlFactory as ledgerIDL} from '../../declarations/ledger/ledger.did.js';
     /** @type {AuthClient} */
     let client;
-
     // Plug wallet connection request
     onMount(async () => {
-        // Internet Identity
+        // Internet Identity:q
         client = await AuthClient.create();
         const id = client.getIdentity();
         if (await client.isAuthenticated()) {
             handleAuth();
         }
 
-        if($plugWallet.isConnected)
-            setPlugWalletInfo();
-
+        if(!await window.ic.plug.isConnected()){
+            console.log("connect to plug");
+            await requestPlugConnection();
+            console.log("finished connect to plug");
+        }
 	});
-
     async function requestPlugConnection() {
         try {
-            const host = process.env.DFX_NETWORK === "ic"
-                ? `https://${process.env.DEFI_DAPP_CANISTER_ID}.ic0.app`
-                : "http://localhost:8000";
-            await window.ic.plug.requestConnect(whiteList, host);
-            setPlugWalletInfo();
+            // Request to connect plug wallet. This request permission from user to interact with backend
+            // Local deployment whitelist will not get added correctly since Plug check with canisters deployed on IC
+            // https://github.com/Psychedelic/plug/blob/3ce6b32e9d081b90f6b5ebd2926236b8d38ecfd2/source/Background/Controller.js#L180
+            console.log(host)
+            await window.ic.plug.requestConnect({whitelist: whitelist, host: host});
+            
+            if(process.env.DFX_NETWORK === 'local') {
+                
+                await window.ic.plug.createAgent({whitelist:whitelist, host: host})
+                await window.ic.plug.agent.fetchRootKey();
+            }
+            const principal = await window.ic.plug.agent.getPrincipal();
+            const plugActor = await window.ic.plug.createActor({
+                canisterId: DEX_CANISTER_ID,
+                interfaceFactory: backendIDL
+            });
+            const plugAkitaActor = await window.ic.plug.createActor({
+                canisterId: AKITA_CANISTER_ID,
+                interfaceFactory: akitaIDL
+            });
+            const plugGoldenActor = await window.ic.plug.createActor({
+                canisterId: GOLDENDIP20_CANISTER_ID,
+                interfaceFactory: goldenIDL
+            });
+            const plugLedgerActor = await window.ic.plug.createActor({
+                canisterId: LEDGER_CANISTER_ID,
+                interfaceFactory: ledgerIDL
+            });
+            plugWallet.set({...$plugWallet, principal, plugActor, plugAkitaActor, plugGoldenActor, plugLedgerActor, isConnected: true});     
+            console.log("akita name:" , await plugAkitaActor.name());
+            console.log("golden name:" , await plugGoldenActor.name());       
+            console.log("defi balances:" , await plugActor.getBalances());       
         } catch (e) {
             console.log(e);
         }
     };
-
-    async function setPlugWalletInfo() {
-        // create plug actor   
-        const principal = await window.ic.plug.getPrincipal();
-        const plugOptions = {
-            whiteList,
-            host: process.env.DFX_NETWORK !== "local"
-                ? `https://${process.env.DEFI_DAPP_CANISTER_ID}.ic0.app`
-                : "http://localhost:8000",
-        }
-        await window.ic.plug.createAgent(plugOptions);
-        if(process.env.DFX_NETWORK === 'local') {
-            window.ic.plug.agent.fetchRootKey();
-        }
-        const plugActor = await window.ic.plug.createActor({
-            canisterId: DEX_CANISTER_ID,
-            interfaceFactory: idlFactory
-        });
-        plugWallet.set({...$plugWallet, principal, plugActor, isConnected: true});       
-    }
+        
 
     function handleAuth() {
         console.log('in handle auth');
@@ -72,9 +78,7 @@
           }),
         }));
         // Create Canister Actors with II
-
     }
-
     function login() {
         client.login({
           identityProvider:
@@ -84,7 +88,6 @@
           onSuccess: handleAuth,
         });
     }
-
     async function logout() {
         await client.logout();
         auth.update(() => ({
@@ -93,7 +96,6 @@
           actor: createActor(),
         }));
     }
-
 </script>
 
 <div id="nav-container">
