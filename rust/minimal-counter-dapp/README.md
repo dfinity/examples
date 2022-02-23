@@ -193,7 +193,7 @@ $ dfx canister call minimal_rust_dapp get
 
 ```bash
 $ dfx canister call minimal_rust_dapp reset
-(0 : Nat)
+(0 : Nat64)
 ```
 
 #### Candid UI
