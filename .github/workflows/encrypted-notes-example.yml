@@ -30,7 +30,6 @@ jobs:
           popd
       - name: Motoko Encrypted Notes Example Linux (e2e)
         run: |
-          dfx start --background
           pushd motoko/encrypted-notes-dapp
           make test BUILD_ENV=rust
           popd
