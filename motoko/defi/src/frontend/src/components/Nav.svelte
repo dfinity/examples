@@ -115,23 +115,27 @@
                 <button on:click={login}>Login</button>
             {/if}
       </li>
-      <li>
-            {#if !$plugWallet.isConnected} 
-                <button class="top-round-rainbow" on:click={requestPlugConnection}>
-                    <span>
-                        <img class="plug-logo" src="images/plug_logo.png" alt="Plug logo" />
-                    </span>
-                    Plug
-                </button>
-            {:else}
-                <button class="top-round-rainbow">
-                    <span>
-                        <img class="plug-logo" src="images/plug_logo.png" alt="Plug logo" />
-                    </span>
-                    {$plugWallet.principal}
-                </button>
-            {/if}
-      </li>
+      <!--Due to lack of support for local testing Plug wallet, Plug wallet auth button
+      will be commented out. This dapp has the foundation for plug integration within the code-->
+      <!--
+          <li>
+                {#if !$plugWallet.isConnected} 
+                    <button class="top-round-rainbow" on:click={requestPlugConnection}>
+                        <span>
+                            <img class="plug-logo" src="images/plug_logo.png" alt="Plug logo" />
+                        </span>
+                        Plug
+                    </button>
+                {:else}
+                    <button class="top-round-rainbow">
+                        <span>
+                            <img class="plug-logo" src="images/plug_logo.png" alt="Plug logo" />
+                        </span>
+                        {$plugWallet.principal}
+                    </button>
+                {/if}
+          </li>
+      -->
     </ul>
 </div>
 
