@@ -140,6 +140,27 @@ shared(init_msg) actor class Dex() = this {
 
     // ===== WITHDRAW FUNCTIONS =====
     public shared(msg) func withdraw(token: T.Token, amount: Nat, address: Principal) : async T.WithdrawReceipt {
+        // remove user submitted orders
+        for (order in getAllOrders().vals()){
+            if (order.owner == msg.caller){
+                // find trading pair of order. This is needed to select the correct exchange.
+                var trading_pair=(order.from,order.to);
+                switch(create_trading_pair(order.from,order.to)){
+                    case(?tp){
+                        trading_pair:=tp;
+                    };
+                    case _ { null };
+                };
+                switch (exchanges.get(trading_pair)) {
+                    case (?e) {
+                        e.cancelOrder(order.id);
+                    };
+                    case _ { null };
+                };
+            }
+        };
+        
+
         if (token == E.ledger()) {
             let account_id = Account.accountIdentifier(address, Account.defaultSubaccount());
             await withdrawIcp(msg.caller, amount, account_id)
