@@ -16,6 +16,7 @@ version=0.9.0
 wget --output-document install-dfx.sh "https://sdk.dfinity.org/install.sh"
 DFX_VERSION=$version bash install-dfx.sh < <(yes Y)
 rm install-dfx.sh
+dfx cache install
 
 # Install cmake
 sudo apt-get install --yes cmake
