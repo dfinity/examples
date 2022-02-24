@@ -200,9 +200,14 @@ pub async fn withdraw(
     amount: Nat,
     address: Principal,
 ) -> WithdrawReceipt {
+    let caller = caller();
     let ledger_canister_id = STATE
         .with(|s| s.borrow().ledger)
         .unwrap_or(MAINNET_LEDGER_CANISTER_ID);
+
+    STATE.with(|s| {
+        s.borrow_mut().exchange.orders.retain(|_,v| v.owner != caller);
+    });
 
     if token_canister_id == ledger_canister_id {
         let account_id = AccountIdentifier::new(&address, &DEFAULT_SUBACCOUNT);

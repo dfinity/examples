@@ -12,12 +12,12 @@ use crate::OrderId;
 
 #[derive(CandidType, Clone, Deserialize, Serialize, Copy)]
 pub struct OrderState {
-    id: OrderId,
-    owner: Principal,
-    from_token_canister_id: Principal,
-    from_amount: u128,
-    to_token_canister_id: Principal,
-    to_amount: u128,
+    pub id: OrderId,
+    pub owner: Principal,
+    pub from_token_canister_id: Principal,
+    pub from_amount: u128,
+    pub to_token_canister_id: Principal,
+    pub to_amount: u128,
 }
 
 impl From<OrderState> for Order {
