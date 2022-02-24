@@ -8,9 +8,10 @@
     import { idlFactory as goldenIDL } from "../../declarations/GoldenDIP20/GoldenDIP20.did.js";
     import { idlFactory as backendIDL} from '../../declarations/defi_dapp/defi_dapp.did.js';
     import { idlFactory as ledgerIDL} from '../../declarations/ledger/ledger.did.js';
-    import { toHexString, hexToBytes  } from '../utils/helpers'
+    import { toHexString, hexToBytes, principalToAccountDefaultIdentifier } from '../utils/helpers'
     import { AuthClient } from '@dfinity/auth-client';
     import { HttpAgent } from '@dfinity/agent/lib/cjs/agent';
+    import { Null } from '@dfinity/candid/lib/cjs/idl';
 
     // Global variables
     const host = process.env.DFX_NETWORK === "local"
@@ -87,7 +88,7 @@
             let ledgerBalance = 0;
 
             depositAddressBlob = await backendActor.getDepositAddress();
-            const approved = await ledgerActor.account_balance({account: depositAddressBlob});
+            const approved = await ledgerActor.account_balance({account: hexToBytes(principalToAccountDefaultIdentifier(iiPrincipal))});
             if(approved.e8s) {
                 ledgerBalance = approved.e8s;
             }
@@ -173,6 +174,15 @@
             	// TODO
             	// await ledgerActor.transfer(...)
             }
+            // transfer ICP correct subaccount on DEX
+            await ledgerActor.transfer({
+                        memo: BigInt(0x1),
+                        amount: { e8s: depositAmount },
+                        fee: { e8s: 10000},
+                        to: depositAddressBlob,
+                        from_subaccount: [],
+                        created_at_time: [],
+                });
 
             const result = await backendActor.deposit(principal);
             if(result.Ok) {
@@ -181,8 +191,8 @@
                 let ledgerBalance = 0;
                 let response;
                 if(authType === "II") {
-                    // When using II, display the balance in the target account
-                    response = await ledgerActor.account_balance({account: depositAddressBlob});
+                    // Update user ICP balance
+                    response = await ledgerActor.account_balance({account: hexToBytes(principalToAccountDefaultIdentifier($auth.principal))});
                 } else if (authType === "Plug") {
                     // When using Plug, display the balance in the user's account
                     // TODO
@@ -237,7 +247,7 @@
                 let response;
                 if(authType === "II") {
                     // When using II, display the balance in the target account
-                    response = await ledgerActor.account_balance({account: depositAddressBlob});
+                    response = await ledgerActor.account_balance({account: hexToBytes(principalToAccountDefaultIdentifier($auth.principal))});
                 } else if (authType === "Plug") {
                     // When using Plug, display the balance in the user's account
                     // TODO
