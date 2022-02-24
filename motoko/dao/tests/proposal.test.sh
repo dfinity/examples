@@ -30,6 +30,8 @@ let DAO = install(wasm, init, null);
 // cannot update system params without proposal
 let update_transfer_fee = record { transfer_fee = opt record { amount_e8s = 10_000 : nat } };
 call DAO.update_system_params(update_transfer_fee);
+call DAO.get_system_params();
+assert _.transfer_fee.amount_e8s == (0 : nat);
 
 // distribute tokens
 let _ = call DAO.transfer(record { to = alice; amount = record { amount_e8s = 100 } });
@@ -101,14 +103,16 @@ assert _? ~= record {
   voters = opt record { cathy; opt record { dory; opt record { bob; opt record { alice; null : opt null }}}};
 };
 
-// TODO check proposal is executed
+// check proposal is executed
+call DAO.get_system_params();
+assert _.transfer_fee.amount_e8s == (10_000 : nat);
 
 // bob makes proposals
 identity bob;
 call DAO.submit_proposal(
   record {
     canister_id = DAO;
-    method = "transfer";
+    method = "transfer2";
     message = encode DAO.transfer(record { to = alice; amount = record { amount_e8s = 100 } });
   },
 );
@@ -116,7 +120,7 @@ let bob1 = _.ok;
 call DAO.submit_proposal(
   record {
     canister_id = DAO;
-    method = "transfer";
+    method = "transfer2";
     message = encode DAO.transfer(record { to = alice; amount = record { amount_e8s = 100 } });
   },
 );
@@ -151,4 +155,4 @@ upgrade(DAO, wasm, init);
 call DAO.list_proposals();
 assert _[0].state == variant { succeeded };
 assert _[1].state == variant { rejected };
-assert _[2].state == variant { succeeded };
+assert _[2].state.failed ~= "has no update method 'transfer2'";

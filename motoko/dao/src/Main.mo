@@ -4,6 +4,8 @@ import Option "mo:base/Option";
 import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
 import Result "mo:base/Result";
+import Error "mo:base/Error";
+import ICRaw "mo:base/ExperimentalInternetComputer";
 import List "mo:base/List";
 import Time "mo:base/Time";
 import Types "./Types";
@@ -203,8 +205,12 @@ shared actor class DAO(init : Types.BasicDaoStableStorage) = Self {
 
     /// Execute the given proposal
     func execute_proposal(proposal: Types.Proposal) : async Types.Result<(), Text> {
-        // unimplemented until raw call is supported
-        #ok
+        try {
+            let payload = proposal.payload;
+            ignore await ICRaw.call(payload.canister_id, payload.method, payload.message);
+            #ok
+        }
+        catch (e) { #err(Error.message e) };
     };
 
     func update_proposal_state(proposal: Types.Proposal, state: Types.ProposalState) {
