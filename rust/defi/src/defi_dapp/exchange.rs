@@ -55,7 +55,7 @@ impl BalancesState {
         }
     }
 
-    // Returns true on success.
+    // Tries to substract balance from user account. Checks for overflows
     pub fn subtract_balance(
         &mut self,
         owner: &Principal,
@@ -64,7 +64,13 @@ impl BalancesState {
     ) -> bool {
         if let Some(balances) = self.0.get_mut(owner) {
             if let Some(x) = balances.get_mut(token_canister_id) {
-                *x -= delta;
+                match (*x).checked_sub(delta) {
+                    Some(num) => {
+                        *x = num;
+                    }
+                    None => return false,
+                }
+                // no need to keep an empty token record
                 if *x == 0 {
                     balances.remove(token_canister_id);
                 }
