@@ -25,6 +25,7 @@ jobs:
       - name: Motoko Encrypted Notes Example Linux (unit tests)
         run: |
           pushd motoko/encrypted-notes-dapp
+          export MATCHERS="$(dfx cache show)/motoko-matchers/src"
           bash ./src/encrypted_notes_motoko/test/run_tests.sh
           popd
       - name: Motoko Encrypted Notes Example Linux (e2e)

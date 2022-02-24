@@ -30,5 +30,13 @@ curl --location --output install-rustup.sh "https://sh.rustup.rs"
 bash install-rustup.sh -y
 rustup target add wasm32-unknown-unknown
 
+# Install wasmtime
+wasmtime_version=0.33.1
+curl -fsSLO "https://github.com/bytecodealliance/wasmtime/releases/download/v${wasmtime_version}/wasmtime-v${wasmtime_version}-x86_64-linux.tar.xz" 
+mkdir -p "${HOME}/bin"
+tar -xf "wasmtime-v${wasmtime_version}-x86_64-linux.tar.xz" --directory "${HOME}/bin/"
+mv "${HOME}/bin/wasmtime-v${wasmtime_version}-x86_64-linux/wasmtime" "${HOME}/bin/wasmtime"
+rm "wasmtime-v${wasmtime_version}-x86_64-linux.tar.xz"
+
 # Exit temporary directory.
 popd
