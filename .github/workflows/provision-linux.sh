@@ -26,6 +26,13 @@ wget --output-document install-rustup.sh "https://sh.rustup.rs"
 sudo bash install-rustup.sh -y
 rustup target add wasm32-unknown-unknown
 
+# Install matchers
+matchers_version=1.2.0
+curl -fsSLO "https://github.com/kritzcreek/motoko-matchers/archive/refs/tags/v${matchers_version}.tar.gz" 
+tar -xzf "v${matchers_version}.tar.gz" --directory "$(dfx cache show)"
+rm "v${matchers_version}.tar.gz"
+mv "$(dfx cache show)/motoko-matchers-${matchers_version}" "$(dfx cache show)/motoko-matchers"
+
 # Install wasmtime
 wasmtime_version=0.33.1
 curl -fsSLO "https://github.com/bytecodealliance/wasmtime/releases/download/v${wasmtime_version}/wasmtime-v${wasmtime_version}-x86_64-linux.tar.xz" 
