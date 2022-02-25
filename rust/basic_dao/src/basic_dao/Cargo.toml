@@ -1,0 +1,17 @@
+[package]
+name = "basic_dao"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+ic-cdk = "0.3"
+ic-cdk-macros = "0.3"
+ic-types = "0.2.0"
+serde = "1.0.126"
+serde_derive = "1.0.126"
+
