@@ -1,0 +1,19 @@
+[package]
+name = "dip721-nft-container"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+ic-cdk = "0.3"
+ic-cdk-macros = "0.3"
+include-base64 = "0.1"
+serde = { version = "1", features = ["derive"] }
+url = "2.2"
+percent-encoding = "2.1"
+ic-certified-map = "0.3"
+sha2 = "0.10.2"
+serde_cbor = "0.11.2"
+base64 = "0.13.0"
+
+[lib]
+crate-type = ["cdylib"]

@@ -1,0 +1,12 @@
+{
+    "version": 1,
+    "canisters": {
+        "dip721-nft-container": {
+            "type": "custom",
+            "candid": "dip721-nft-container.did",
+            "wasm": "target/wasm32-unknown-unknown/release/dip721_nft_container-opt.wasm",
+            "build": "./build.sh"
+        }
+    },
+    "dfx": "0.9.0"
+}
