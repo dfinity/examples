@@ -18,7 +18,7 @@ rustup target add wasm32-unknown-unknown
 Setup local environment. This deploys a local ledger, two DIP20 Tokens, II, and our project.
 
 ```bash
-git clone --single-branch --branch defi-example --recurse-submodules --shallow-submodules https://github.com/Bownairo/examples.git
+git clone --recurse-submodules --shallow-submodules https://github.com/Bownairo/examples.git
 # for the rust imeplementation examples/rust/defi
 cd examples/motoko/defi
 make install
@@ -26,7 +26,7 @@ make install
 
 The install scripts output the url to visit the exchange frontend or you can regenerate the url `"http://localhost:8000?canisterId=$(dfx canister id frontend)"`. To interact with the exchange you can create a local internet identity by clicking the login button. 
 
-You can give yourself some tokens and ICP by running an initalization script with your II Principal that you can copy from the frontend.
+You can give yourself some tokens and ICP by running an initalization script with your II Principal that you can copy from the frontend. After adding balanced reload the frontend.
 
 ```bash
 make init-local II_PRINCIPAL=<YOUR II PRINCIPAL>
