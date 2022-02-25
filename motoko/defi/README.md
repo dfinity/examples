@@ -1,6 +1,6 @@
 # Defi Example
 
-This repo contains a simple defi exchange that demonstrates the interaction with ICP and tokens on the IC. For a more detailed explanation checkout the [architecture.md](architecture.md) file or visit the official [documentation](https://smartcontracts.org/docs/examples/defi.html)
+This repo contains a simple defi exchange that demonstrates the interaction with ICP and tokens on the IC. For a more detailed explanation check out the [architecture.md](architecture.md) file or visit the official [documentation](https://smartcontracts.org/docs/examples/defi.html)
 
 ## Dependencies
 
@@ -8,14 +8,14 @@ This repo contains a simple defi exchange that demonstrates the interaction with
 - [cmake](https://cmake.org/)
 - [npm](https://nodejs.org/en/download/)
 
-If you want to deploy the rust version make sure you add wasm as a target:
+If you want to deploy the rust version, make sure you add wasm as a target:
 
 ```
 rustup target add wasm32-unknown-unknown
 ```
 ## Quickstart
 
-Setup local environment. This deploys a local ledger, two DIP20 Tokens, II, and our project.
+This deploys a local ledger, two DIP20 Tokens, II, and our project.
 
 ```bash
 git clone --recurse-submodules --shallow-submodules https://github.com/dfinity/examples.git
@@ -24,15 +24,15 @@ cd examples/motoko/defi
 make install
 ```
 
-The install scripts output the url to visit the exchange frontend or you can regenerate the url `"http://localhost:8000?canisterId=$(dfx canister id frontend)"`. To interact with the exchange you can create a local internet identity by clicking the login button. 
+The install scripts output the URL to visit the exchange frontend, or you can regenerate the URL `"http://localhost:8000?canisterId=$(dfx canister id frontend)"`. To interact with the exchange, you can create a local internet identity by clicking the login button. 
 
-You can give yourself some tokens and ICP by running an initalization script with your II Principal that you can copy from the frontend. After adding balanced reload the frontend.
+You can give yourself some tokens and ICP by running an initialization script with your II Principal that you can copy from the frontend. After adding balanced reload the frontend.
 
 ```bash
 make init-local II_PRINCIPAL=<YOUR II PRINCIPAL>
 ```
 
-To trade with yourself you can open a second incognito browser window. 
+To trade with yourself, you can open a second incognito browser window. 
 
 ## Development
 
@@ -81,7 +81,7 @@ See [deploy_dip20.sh](scripts/deploy_dip20.sh).
 
 ## Troubleshooting
 
-### DFX deploys canisters with same ID
+### DFX deploys canisters with the same ID
 
 Clear `.dfx` directories
 
@@ -95,7 +95,7 @@ Make sure you are logged out with II and refresh the page.
 
 ### Address already in use
 
-This is probably due to an orphant `dfx` instance. Find the PID of the orphant dfx instance
+This is probably due to an orphan `dfx` instance. Find the PID of the orphan dfx instance
 
 ```
 ps -xa | grep dfx
@@ -153,5 +153,5 @@ Debian/Ubuntu: `apt install cmake`
 
 ### Compiling takes ages
 
-Check for cycle in dependencies.
+Check for a cycle in the dependencies.
 
