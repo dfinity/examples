@@ -28,7 +28,7 @@
       "wasm": "internet_identity.wasm"
     }
   },
-  "dfx": "0.8.4",
+  "dfx": "0.9.0",
   "networks": {
     "local": {
       "bind": "0.0.0.0:8000",
