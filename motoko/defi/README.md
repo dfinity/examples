@@ -61,11 +61,11 @@ See [trade.sh](test/trade.sh).
 
 ### Token transfers
 
-See [transfer.sh](test/transfer.sh).$
+See [transfer.sh](test/transfer.sh).
 
 ### Deploy DIP20 token
 
-See [transfer.sh](scripts/deploy_dip20.sh).
+See [deploy_dip20.sh](scripts/deploy_dip20.sh).
 
 ## Troubleshooting
 
