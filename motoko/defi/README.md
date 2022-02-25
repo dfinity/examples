@@ -2,6 +2,11 @@
 
 This repo contains a simple defi exchange that demonstrates the interaction with ICP and tokens on the IC. For a more detailed explanation check out the [architecture.md](architecture.md) file or visit the official [documentation](https://smartcontracts.org/docs/examples/defi.html)
 
+This example can be seen running, here:
+- frontend: https://gzz56-daaaa-aaaal-qai2a-cai.ic0.app/
+- AkitaDIP20: `gl7kh-pqaaa-aaaal-qaiza-cai`
+- GoldenDIP20: `gm6mt-ciaaa-aaaal-qaizq-cai`
+
 ## Dependencies
 
 - [dfx](https://smartcontracts.org/docs/developers-guide/install-upgrade-remove.html)
