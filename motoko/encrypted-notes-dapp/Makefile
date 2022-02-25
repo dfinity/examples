@@ -1,7 +1,7 @@
 .PHONY: test
 test:
 	echo "BUILD_ENV is ${BUILD_ENV}"
-	sh ./pre_deploy.sh
+	bash ./pre_deploy.sh
 	echo "Pre deploy script succeeded"
 	npm install
 	rm -fr .dfx
