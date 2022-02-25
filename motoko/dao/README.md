@@ -72,7 +72,7 @@ Verify the following before running this demo:
 
 ## Rust implementation
 
-An equivalent interface is implemented in Rust as well, see [Basic DAO example in Rust](../../rust/basic-dao/).
+An equivalent interface is implemented in Rust as well, see [Basic DAO example in Rust](https://github.com/dfinity/examples/tree/master/rust/basic_dao).
 The interface is not exactly the same due to the ergonomic differences between Motoko and Rust.
 
 * Variant tags are capitalized in Rust.
