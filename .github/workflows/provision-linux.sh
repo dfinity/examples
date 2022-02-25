@@ -12,10 +12,16 @@ sudo apt-get install --yes nodejs
 rm install-node.sh
 
 # Install DFINITY SDK.
-version=0.9.0
+version=0.9.2
 wget --output-document install-dfx.sh "https://sdk.dfinity.org/install.sh"
 DFX_VERSION=$version bash install-dfx.sh < <(yes Y)
 rm install-dfx.sh
+
+# Install ic-repl
+version=0.1.2
+curl --location --output ic-repl "https://github.com/chenyan2002/ic-repl/releases/download/$version/ic-repl-linux64"
+mv ./ic-repl /usr/local/bin/ic-repl
+chmod a+x /usr/local/bin/ic-repl
 
 # Install cmake
 sudo apt-get install --yes cmake

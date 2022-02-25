@@ -1,6 +1,6 @@
 {
   "canisters": {
-    "calc": {
+    "dao": {
       "main": "src/Main.mo"
     }
   },
