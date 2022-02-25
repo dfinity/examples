@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/bash
 
 npm install
 rm -fr .dfx

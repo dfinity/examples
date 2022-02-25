@@ -565,3 +565,27 @@ fn post_upgrade() {
         })
     });
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_user_count_succeeds() {
+        assert_eq!(user_count(), 0);
+    }
+
+    #[test]
+    #[should_panic(expected = "assertion failed: users_invariant()")]
+    fn test_user_count_panics() {
+        NOTES_BY_USER.with(|notes_ref| 
+            notes_ref.borrow_mut().insert(Principal::anonymous().to_string(), vec![]));
+        user_count();
+    }
+
+    #[test]
+    fn test_is_user_registered_succeeds() {
+        let is_registered = is_user_registered(Principal::anonymous());
+        assert!(!is_registered);
+    }
+}
