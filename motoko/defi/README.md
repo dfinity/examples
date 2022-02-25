@@ -1,6 +1,6 @@
 # Defi Example
 
-This repo contains a simple defi exchange that demonstrates the interaction with ICP and tokens on the IC. For a more detailed explanation checkout the [architecture.md](architecture.md) file or visit the official [documentation](https://smartcontracts.org)
+This repo contains a simple defi exchange that demonstrates the interaction with ICP and tokens on the IC. For a more detailed explanation checkout the [architecture.md](architecture.md) file or visit the official [documentation](https://smartcontracts.org/docs/examples/defi.html)
 
 ## Dependencies
 
@@ -18,7 +18,7 @@ rustup target add wasm32-unknown-unknown
 Setup local environment. This deploys a local ledger, two DIP20 Tokens, II, and our project.
 
 ```bash
-git clone --recurse-submodules --shallow-submodules https://github.com/Bownairo/examples.git
+git clone --recurse-submodules --shallow-submodules https://github.com/dfinity/examples.git
 # for the rust imeplementation examples/rust/defi
 cd examples/motoko/defi
 make install
@@ -74,6 +74,10 @@ See [transfer.sh](test/transfer.sh).
 ### Deploy DIP20 token
 
 See [deploy_dip20.sh](scripts/deploy_dip20.sh).
+
+## Roadmap
+- Improve Plug wallet support
+- Make exchange more predictable
 
 ## Troubleshooting
 
