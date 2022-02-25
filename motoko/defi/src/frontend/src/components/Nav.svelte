@@ -5,8 +5,8 @@
         DEX_CANISTER_ID, AKITA_CANISTER_ID, GOLDENDIP20_CANISTER_ID, LEDGER_CANISTER_ID } from "../store/auth";
     import { idlFactory as akitaIDL } from "../../declarations/AkitaDIP20/AkitaDIP20.did.js";
     import { idlFactory as goldenIDL } from "../../declarations/GoldenDIP20/GoldenDIP20.did.js";
-    import { idlFactory as backendIDL} from '../../declarations/defi_dapp/defi_dapp.did.js';
-    import { idlFactory as ledgerIDL} from '../../declarations/ledger/ledger.did.js';
+    import { idlFactory as backendIDL} from "../../declarations/defi_dapp/defi_dapp.did.js";
+    import { idlFactory as ledgerIDL} from "../../declarations/ledger/ledger.did.js";
     /** @type {AuthClient} */
     let client;
     // Plug wallet connection request
@@ -17,13 +17,15 @@
         if (await client.isAuthenticated()) {
             handleAuth();
         }
-
-        if(!await window.ic.plug.isConnected()){
-            console.log("connect to plug");
-            await requestPlugConnection();
-            console.log("finished connect to plug");
-        }
+        // TODO: Support Plug wallet
+        // if(!await window.ic.plug.isConnected()){
+        //     console.log("connect to plug");
+        //     await requestPlugConnection();
+        //     console.log("finished connect to plug");
+        // }
 	});
+
+    // TODO: Support Plug wallet
     async function requestPlugConnection() {
         try {
             // Request to connect plug wallet. This request permission from user to interact with backend
@@ -62,7 +64,6 @@
             console.log(e);
         }
     };
-        
 
     function handleAuth() {
         console.log('in handle auth');
@@ -79,6 +80,7 @@
         }));
         // Create Canister Actors with II
     }
+    
     function login() {
         client.login({
           identityProvider:
@@ -88,6 +90,7 @@
           onSuccess: handleAuth,
         });
     }
+
     async function logout() {
         await client.logout();
         auth.update(() => ({

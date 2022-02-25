@@ -37,11 +37,6 @@ test:
 	./test/trade.sh
 	./test/transfer.sh
 
-.PHONY: candid
-.SILENT: candid
-candid: deploy
-	dfx canister call defi_dapp __get_candid_interface_tmp_hack 
-
 .PHONY: clean
 .SILENT: clean
 clean:

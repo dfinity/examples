@@ -1,11 +1,11 @@
-# defi-test
+# Defi Example
 
+This repo contains a simple defi exchange that demonstrates the interaction with ICP and tokens on the IC. For a more detailed explanation checkout the [architecture.md](architecture.md) file or visit the official [documentation](https://smartcontracts.org)
 
 ## Dependencies
 
 - [dfx](https://smartcontracts.org/docs/developers-guide/install-upgrade-remove.html)
 - [cmake](https://cmake.org/)
-
 
 ## Quickstart
 
@@ -13,8 +13,18 @@ Setup local environment. This deploys a local ledger, two DIP20 Tokens, II, and 
 
 ```bash
 git submodule update --init --recursive
-bash install.sh 
+make install
 ```
+
+The install scripts output the url to visit the exchange frontend or you can regenerate the url `"http://localhost:8000?canisterId=$(dfx canister id frontend)"`. To interact with the exchange you can create a local internet identity by clicking the login button. 
+
+You can give yourself some tokens and ICP by running an initalization script with your II Principal that you can copy from the frontend.
+
+```bash
+make init-local II_PRINCIPAL=<YOUR II PRINCIPAL>
+```
+
+To trade with yourself you can open a second incognito browser window. 
 
 ## Development
 
@@ -27,9 +37,7 @@ dfx deploy defi_dapp -m reinstall --argument '(null)'
 Local frontend development
 
 ```bash
-cd src/frontend
-npm install
-npm dev run
+make frontend
 ```
 
 ## Test
@@ -39,6 +47,7 @@ Run from home directory
 ```bash
 make test
 ```
+
 
 ## Examples
 
@@ -52,85 +61,21 @@ See [trade.sh](test/trade.sh).
 
 ### Token transfers
 
-See [transfer.sh](test/transfer.sh).
+See [transfer.sh](test/transfer.sh).$
 
-### Token balance
+### Deploy DIP20 token
 
-```bash
-# DIP tokens
-dfx canister call defi_dapp  getBalance '(principal '\"$AKITA_ID\"')'
-dfx canister call defi_dapp  getBalance '(principal '\"$GOLDEN_ID\"')'
-# ICP 
-ICP_ID=$(dfx canister --no-wallet id ledger)
-dfx canister call defi_dapp  getBalance '(principal '\"$ICP_ID\"')'
-```
+See [transfer.sh](scripts/deploy_dip20.sh).
 
-### Deploy token
-
-```bash
-
-cd src/DIP20/
-#remove old content
-dfx stop
-rm -rf .dfx
-#create canisters
-dfx canister --no-wallet create --all
-# create principal idea that is inital owner of tokens
-ROOT_HOME=$(mktemp -d)  
-ROOT_PUBLIC_KEY="principal \"$(HOME=$ROOT_HOME dfx identity get-principal)\""
-#build token canister
-dfx build
-# deploy token
-dfx canister --no-wallet install DIP20 --argument="(\"https://dogbreedslist.com/wp-content/uploads/2019/08/Are-Golden-Retrievers-easy-to-train.png\", \"Golden Coin\", \"DOG\", 8, 10000000000000000, $ROOT_PUBLIC_KEY, 10000)"
-
-# set fee structure. Need Home prefix since this is location of our identity
-HOME=$ROOT_HOME  dfx canister  call DIP20 setFeeTo "($ROOT_PUBLIC_KEY)"
-#deflationary
-HOME=$ROOT_HOME dfx canister  call DIP20 setFee "(420)" 
-# get balance. Congrats you are rich
-HOME=$ROOT_HOME dfx canister --no-wallet call DIP20 balanceOf "($ROOT_PUBLIC_KEY)"
-``` 
-
-## Set allowance for DEX
-
-should still be in `src/DIP20/`
-
-```bash
-#get principle ID of DEX
-DEX_PRINCIPLE=$(dfx canister --no-wallet id defi_dapp)
-# sth like this "r7inp-6aaaa-aaaaa-aaabq-cai"
-# approve dex to spend on users behalf
-HOME=$ROOT_HOME dfx canister --no-wallet call DIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',10000)'
-dfx canister --no-wallet call GoldenDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',1000000)'
-dfx canister --no-wallet call AkitaDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',1000000)'
-``` 
-
-## Place order
-
-Buy 200 GLD tokens from 3 ICP:
-```bash
-dfx canister call defi_dapp place_order '(principal '\"$(dfx canister id ledger)\"', 3, principal '\"$(dfx canister id GoldenDIP20)\"', 200)'
-```
-
-Sell 5 AKI tokens for 2 ICP:
-```bash
-dfx canister call defi_dapp place_order '(principal '\"$(dfx canister id AkitaDIP20)\"', 5, principal '\"$(dfx canister id ledger)\"', 2)'
-```
-
-Order placement result will contain the order id
-for tracking.
-
-# Issues
+## Troubleshooting
 
 ### DFX deploys canisters with same ID
 
 Clear `.dfx` directories
 
 ```
-rm -r .dfx/
-rm -r src/internet-identity/.dfx
+make clean
 ```
-
 
 ### Missing cmake
 
@@ -176,35 +121,10 @@ Caused by:
   build failed
 
 ```
--> `brew install cmake``
+Need to install cmake in your environment
 
-### broken M1 instruction link
-
-(If you're running this on an M1 Mac, make sure you follow these steps) [here](https://github.com/dfinity/examples/tree/master/svelte-motoko-starter)
-
-Do following:
-
-```
-cargo install ic-cdk-optimizer --version 0.3.1    
-
-```
-Change the II build file
-
-```
-https://github.com/dfinity/internet-identity/pull/434/files
-```
-
-### Access to localhost was denied
-
-Change `dev` in `package.json`
-
-````
-  "scripts": {
-    "build": "cd src/frontend && npm run build",
-    "prebuild": "npm run copy:types",
-    "dev": "cd src/frontend && HOST=0.0.0.0 npm run dev",
-  }
-```
+MacOS: `brew install cmake`
+Debian/Ubuntu: `apt install cmake`
 
 ### Compiling takes ages
 

@@ -149,13 +149,13 @@ shared(init_msg) actor class Dex() = this {
                     case(?tp){
                         trading_pair:=tp;
                     };
-                    case _ { null };
+                    case _ {};
                 };
                 switch (exchanges.get(trading_pair)) {
                     case (?e) {
-                        e.cancelOrder(order.id);
+                        let _ = e.cancelOrder(order.id);
                     };
-                    case _ { null };
+                    case _ {};
                 };
             }
         };

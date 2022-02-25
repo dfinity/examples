@@ -6,8 +6,8 @@
     import { auth, plugWallet } from '../store/auth';
     import { idlFactory as akitaIDL } from "../../declarations/AkitaDIP20/AkitaDIP20.did.js";
     import { idlFactory as goldenIDL } from "../../declarations/GoldenDIP20/GoldenDIP20.did.js";
-    import { idlFactory as backendIDL} from '../../declarations/defi_dapp/defi_dapp.did.js';
-    import { idlFactory as ledgerIDL} from '../../declarations/ledger/ledger.did.js';
+    import { idlFactory as backendIDL} from "../../declarations/defi_dapp/defi_dapp.did.js";
+    import { idlFactory as ledgerIDL} from "../../declarations/ledger/ledger.did.js";
     import { toHexString, hexToBytes, principalToAccountDefaultIdentifier } from '../utils/helpers'
     import { AuthClient } from '@dfinity/auth-client';
     import { HttpAgent } from '@dfinity/agent/lib/cjs/agent';
@@ -112,43 +112,44 @@
             userBalances.set([...balances]);
         }
         else if ($plugWallet.isConnected) {
-            console.log("Using Plug for DEX actor");
-            authType = "Plug";
-            const principalId = await window.ic.plug.agent.getPrincipal();
+            // TODO: Support Plug wallet
+            // console.log("Using Plug for DEX actor");
+            // authType = "Plug";
+            // const principalId = await window.ic.plug.agent.getPrincipal();
 
 
-            // Fetch initial balances
-            const goldenBalance = await $plugWallet.plugGoldenActor.balanceOf(principalId);
-            const akitaBalance = await $plugWallet.plugAkitaActor.balanceOf(principalId);
-            let ledgerBalance = 0;
+            // // Fetch initial balances
+            // const goldenBalance = await $plugWallet.plugGoldenActor.balanceOf(principalId);
+            // const akitaBalance = await $plugWallet.plugAkitaActor.balanceOf(principalId);
+            // let ledgerBalance = 0;
             
 
-            // When using Plug, the balance displayed should be of the Plug principal
-            const balance = await $plugWallet.plugLedgerActor.account_balance({account: XXX});
-            if(balance.e8s) {
-                ledgerBalance = balance.e8s;
-            }
+            // // When using Plug, the balance displayed should be of the Plug principal
+            // const balance = await $plugWallet.plugLedgerActor.account_balance({account: XXX});
+            // if(balance.e8s) {
+            //     ledgerBalance = balance.e8s;
+            // }
 
-            // Create a balances array and set the userBalance store object
-            const balances = []
-            for(let i = 0; i < $canisters.length; i++) {
-                const principal = Principal.fromText($canisters[i].canisterId);
-                const dexBalance = await $plugWallet.plugLedgerActor.getBalance(principal);
+            // // Create a balances array and set the userBalance store object
+            // const balances = []
+            // for(let i = 0; i < $canisters.length; i++) {
+            //     const principal = Principal.fromText($canisters[i].canisterId);
+            //     const dexBalance = await $plugWallet.plugLedgerActor.getBalance(principal);
 
-                balances.push({
-                    name: $canisters[i].canisterName,
-                    symbol: $canisters[i].symbol,
-                    canisterBalance: i === 0 ? akitaBalance : i === 1 ? goldenBalance : ledgerBalance,
-                    dexBalance: dexBalance,
-                    principal: principal
-                })
-            };
+            //     balances.push({
+            //         name: $canisters[i].canisterName,
+            //         symbol: $canisters[i].symbol,
+            //         canisterBalance: i === 0 ? akitaBalance : i === 1 ? goldenBalance : ledgerBalance,
+            //         dexBalance: dexBalance,
+            //         principal: principal
+            //     })
+            // };
 
-            // Update the store values
-            userBalances.set([...balances]);
+            // // Update the store values
+            // userBalances.set([...balances]);
 
-            // Don't forget to set `depositAddressBlob`, which we will use later
-            depositAddressBlob = await $plugWallet.plugLedgerActor.getDepositAddress();
+            // // Don't forget to set `depositAddressBlob`, which we will use later
+            // depositAddressBlob = await $plugWallet.plugLedgerActor.getDepositAddress();
         }
 
         fetchingAddress = false;
@@ -170,8 +171,7 @@
         })
         if(canister && canister.canisterName === 'ICP') {
             if (authType === "Plug") {
-            	// When using plug, also take care of transfering ICP to the `depositAddressBlob`
-            	// TODO
+                // TODO: Support Plug wallet
             	// await ledgerActor.transfer(...)
             }
             // transfer ICP correct subaccount on DEX
@@ -194,8 +194,7 @@
                     // Update user ICP balance
                     response = await ledgerActor.account_balance({account: hexToBytes(principalToAccountDefaultIdentifier($auth.principal))});
                 } else if (authType === "Plug") {
-                    // When using Plug, display the balance in the user's account
-                    // TODO
+                    // TODO: Support Plug wallett
                     // response = await ledgerActor.account_balance({account: XXX});
                 }
                 if(response.e8s) {
@@ -249,8 +248,7 @@
                     // When using II, display the balance in the target account
                     response = await ledgerActor.account_balance({account: hexToBytes(principalToAccountDefaultIdentifier($auth.principal))});
                 } else if (authType === "Plug") {
-                    // When using Plug, display the balance in the user's account
-                    // TODO
+                    // TODO: Support Plug wallet
                     // response = await ledgerActor.account_balance({account: XXX});
                 }
                 if(response.e8s) {

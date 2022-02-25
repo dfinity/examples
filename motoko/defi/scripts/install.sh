@@ -1,4 +1,3 @@
-set -x
 dfx start --background --clean --host 127.0.0.1:8000
 
 
@@ -59,3 +58,7 @@ npm run build
 popd
 dfx build frontend
 dfx canister install frontend
+
+echo "===== VISIT DEFI FRONTEND ====="
+echo "http://localhost:8000?canisterId=$(dfx canister id frontend)"
+echo "===== VISIT DEFI FRONTEND ====="
