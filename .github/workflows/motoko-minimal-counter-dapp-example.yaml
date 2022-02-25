@@ -1,0 +1,31 @@
+name: motoko-minimal-counter-dapp-example
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  motoko-minimal-counter-dapp-example-darwin:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Motoko Minimal Counter Dapp Example Darwin
+        run: |
+          dfx start --background
+          pushd motoko/minimal-counter-dapp
+          make test
+          popd
+  motoko-minimal-counter-dapp-example-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Motoko Minimal Counter Dapp Example Linux
+        run: |
+          dfx start --background
+          pushd motoko/minimal-counter-dapp
+          make test
+          popd
