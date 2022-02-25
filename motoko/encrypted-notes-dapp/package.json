@@ -1,11 +1,14 @@
 {
-  "name": "ic-notes",
-  "version": "0.0.1",
-  "author": {
-    "name": "Pat T.",
-    "email": "pattad@mail.com",
-    "url": "https://github.com/pattad/ic-notes"
-  },
+  "name": "encrypted-notes-dapp",
+  "version": "0.2.0",
+  "keywords": [
+    "Internet Computer",
+    "Motoko",
+    "Svelte",
+    "Canister",
+    "Docker",
+    "Rust"
+  ],
   "scripts": {
     "build": "rollup -c",
     "dev": "rollup -c -w",
