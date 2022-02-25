@@ -6,13 +6,21 @@ This repo contains a simple defi exchange that demonstrates the interaction with
 
 - [dfx](https://smartcontracts.org/docs/developers-guide/install-upgrade-remove.html)
 - [cmake](https://cmake.org/)
+- [npm](https://nodejs.org/en/download/)
 
+If you want to deploy the rust version make sure you add wasm as a target:
+
+```
+rustup target add wasm32-unknown-unknown
+```
 ## Quickstart
 
 Setup local environment. This deploys a local ledger, two DIP20 Tokens, II, and our project.
 
 ```bash
-git submodule update --init --recursive
+git clone --single-branch --branch defi-example --recurse-submodules --shallow-submodules https://github.com/Bownairo/examples.git
+# for the rust imeplementation examples/rust/defi
+cd examples/motoko/defi
 make install
 ```
 
@@ -75,6 +83,19 @@ Clear `.dfx` directories
 
 ```
 make clean
+```
+
+### Deposit address not loading 
+
+Make sure you are logged out with II and refresh the page.
+
+### Address already in use
+
+This is probably due to an orphant `dfx` instance. Find the PID of the orphant dfx instance
+
+```
+ps -xa | grep dfx
+kill <dfx PID>
 ```
 
 ### Missing cmake
