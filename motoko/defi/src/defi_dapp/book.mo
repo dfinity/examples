@@ -50,18 +50,15 @@ module {
                     // check if user already has existing balance for this token
                     switch (token_balance.get(token)){
                         case (?balance) {
-                            Debug.print( debug_show("User", user, "has existing balance of ", token, " new amount: ",balance+amount));
                             token_balance.put(token, balance+amount);
                         };
                         case(null){
-                            Debug.print( debug_show("User", user, "had no balance of ", token, " new amount: ",amount));
                             token_balance.put(token, amount);
                         };
                     };
                 };
                 case (null) {
                     // user didn't exist
-                    Debug.print( debug_show("User", user, "had no balance of ", token, " new amount: ",amount));
                     var x1 = M.HashMap<T.Token, Nat>(2, Principal.equal, Principal.hash);
                     x1.put(token,amount);
                     book.put(user,x1);

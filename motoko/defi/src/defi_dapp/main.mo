@@ -202,7 +202,6 @@ shared(init_msg) actor class Dex() = this {
     };
 
     private func withdrawDip(caller: Principal, token: T.Token, amount: Nat, address: Principal) : async T.WithdrawReceipt {
-        Debug.print("Withdraw...");
 
         // cast canisterID to token interface
         let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
@@ -294,7 +293,6 @@ shared(init_msg) actor class Dex() = this {
 
 
     // ===== DEPOSIT FUNCTIONS =====
-
     // Return the account ID specific to this user's subaccount
     public shared(msg) func getDepositAddress(): async Blob {
         Account.accountIdentifier(Principal.fromActor(this), Account.principalToSubaccount(msg.caller));
@@ -303,17 +301,15 @@ shared(init_msg) actor class Dex() = this {
     public shared(msg) func deposit(token: T.Token): async T.DepositReceipt {
         Debug.print("Depositing Token: " # Principal.toText(token) # " LEDGER: " # Principal.toText(E.ledger()));
         if (token == E.ledger()) {
-            Debug.print("Depositing ICP");
             await depositIcp(msg.caller)
         } else {
-            Debug.print("Depositing DIP20");
             await depositDip(msg.caller, token)
         }
     };
 
     // After user approves tokens to the DEX
     private func depositDip(caller: Principal, token: T.Token): async T.DepositReceipt {
-        // ATTENTION!!! NOT SAFE
+        // cast token to actor
         let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
 
         // get DIP fee
