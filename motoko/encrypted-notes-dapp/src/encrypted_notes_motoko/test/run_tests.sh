@@ -1,8 +1,9 @@
 #!/bin/bash
 
-set -x 
+set -x
 
 MOC=${MOC:-"$(dfx cache show)"/moc}
+MATCHERS=${MATCHERS:-"$(dfx cache show)"/motoko-matchers/src}
 WASMTIME=${WASMTIME:-wasmtime}
 WASMTIME_OPTIONS="--disable-cache"
 DIR="$(pwd)/$(dirname "$0")"
