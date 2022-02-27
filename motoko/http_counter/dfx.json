@@ -1,0 +1,9 @@
+{
+  "canisters": {
+    "http_counter": {
+      "main": "src/main.mo"
+    }
+  },
+  "dfx": "0.8.4",
+  "version": 1
+}
