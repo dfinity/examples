@@ -73,6 +73,7 @@ shared({ caller = initializer }) actor class() {
     // See also: [pre_upgrade], [post_upgrade]
     // TODO: replace with
     // private stable var stable_users: [UserStore.StableUserStoreEntry] = [];
+    // once https://github.com/dfinity/motoko/issues/3128 is resolved
     private stable var stable_users: [(Principal, En.PublicKey, En.DeviceAlias, ?En.Ciphertext)] = [];
 
     // The following function will soon become part of Motoko
