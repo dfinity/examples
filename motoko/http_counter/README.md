@@ -39,7 +39,7 @@ echo "http://localhost:8000/?canisterId=$CANISTER_ID"
 echo "http://$CANISTER_ID.localhost:8000/"
 ```
 
-All functionality of the crate can be exercised with the following commands:
+All functionality of the canister can be exercised with the following commands:
 
 ```bash
 CANISTER_ID=$(dfx canister id http_counter)
