@@ -26,6 +26,13 @@ Encrypted Notes is an example dapp for authoring and storing confidential inform
 
 This project serves as a simple (but not too simple) example of a dapp, which uses Motoko and Rust as backend and Svelte as frontend.
 
+<p align="center">
+  <img src="./pictures/architectural_overview.png" width="70%" height="70%"/>
+</p>
+<p align = "center">
+Fig.1. Architectural overview of the Encrypted Notes dapp using client-side end-to-end encryption.
+</p>
+
 ---
 &nbsp;
 
@@ -168,23 +175,26 @@ _Note_: Prior to starting the mainnet deployment process, ensure you have your i
 <p align="center">
   <img src="./pictures/single_user.png" width="80%" height="80%"/>
 </p>
+<p align = "center">
+Fig. 2. Basic single-device scenario for a user.
+</p>
 
 1. Open the main page of the `Encrypted Notes` dapp. You will see a _login_ button.
 
    1. If deployed locally, visit the following link: http://localhost:8000?canisterId=rkp4c-7iaaa-aaaaa-aaaca-cai
    2. If deployed to the mainnet IC, visit the corresponding canister URL.
 
-   At this moment, only one _deviceAlias_ variable is stored in the _Local Storage_ (see Pic. (a)).
+   At this moment, only one _deviceAlias_ variable is stored in the _Local Storage_ (see Fig. 2(a)).
 
    _Note_: see [Troubleshooting](#troubleshooting) in case of problems.
 
-2. Click the "Login" button. You will be redirected to the _Internet Identity_ canister (see Pic. (b)).
+2. Click the "Login" button. You will be redirected to the _Internet Identity_ canister (see Fig. 2(b)).
 
-   1. If you already have an `anchor`, you may continue with it. Click "Authenticate", then verify your identity and finally click "Proceed", see Pic. (c).
+   1. If you already have an `anchor`, you may continue with it. Click "Authenticate", then verify your identity and finally click "Proceed", see Fig. 2(c).
    2. If you do not have an anchor yet, you should [create one](https://smartcontracts.org/docs/ic-identity-guide/auth-how-to.html). Once an `anchor` is created, please follow 2.1.
 
-3. Once logged in for the first time, your notes list should be empty. At this moment, your _Local Storage_ should be populated with additional variables (see Pic. (d)): **ic-identity**, **ic-delegation**. These variables are used for storing/retrieving notes from the backend canister. In addition, another two variables are generated in the _IndexedDB_: **PrivateKey**, **PublicKey**. These two variable are used for encrypting/decrypting the shared secret key.
-1. Create/edit/delete notes and observe changes in the resulting notes list (see Pic. (e)).
+3. Once logged in for the first time, your notes list should be empty. At this moment, your _Local Storage_ should be populated with additional variables (see Fig. 2(d)): **ic-identity**, **ic-delegation**. These variables are used for storing/retrieving notes from the backend canister. In addition, another two variables are generated in the _IndexedDB_: **PrivateKey**, **PublicKey**. These two variable are used for encrypting/decrypting the shared secret key.
+4. Create/edit/delete notes and observe changes in the resulting notes list (see Fig. 2(e)).
 
 ### Scenario II: user is accessing notes from multiple devices
 
@@ -193,9 +203,12 @@ In this scenario, a user accesses the dapp using the same _Internet Identity_ an
 <p align="center">
   <img src="./pictures/multiple_devices.png" width="50%" height="50%"/>
 </p>
+<p align = "center">
+Fig. 3. Scenario for a user with multiple registered devices.
+</p>
 
 1. Perform steps 1-3 of Scenario I on Device A.
-2. Perform steps 1-3 of Scenario I on Device B. One subtle difference that you might observe on Device B is that the message "Synchronizing..." (Pic. (a)) appears for a short period of time. As Device A was the first to login, it was also the first one to generate a shared secret. Device B has to retrieve it. In order to do that, Device B first uploads its public key (pub B) to the backend canister. Device A retrieves pub B by means of periodic polling. Device A then re-encrypts the shared secret with pub B and uploads it to the backend. Afterwards, Device B can retrieve the encrypted shared secret and decrypt it with its private key.
+2. Perform steps 1-3 of Scenario I on Device B. One subtle difference that you might observe on Device B is that the message "Synchronizing..." (Fig. 3(a)) appears for a short period of time. As Device A was the first to login, it was also the first one to generate a shared secret. Device B has to retrieve it. In order to do that, Device B first uploads its public key (pub B) to the backend canister. Device A retrieves pub B by means of periodic polling. Device A then re-encrypts the shared secret with pub B and uploads it to the backend. Afterwards, Device B can retrieve the encrypted shared secret and decrypt it with its private key.
 3. Observe that the list of notes is now empty for both devices.
 4. Create a Note, e.g. "Note from Device A" on Device A, and observe it on Device B.
 5. Analogously, create a different note, e.g. "Note from Device B" on Device B.
@@ -205,6 +218,9 @@ In this scenario, a user accesses the dapp using the same _Internet Identity_ an
 
 <p align="center">
   <img src="./pictures/registered_devices.png" width="30%" height="30%"/>
+</p>
+<p align = "center">
+Fig. 4. Scenario for a user adding/removing devices.
 </p>
 
 1. Login into the dapp with the same anchor on two or more devices.
