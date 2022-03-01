@@ -73,6 +73,17 @@ impl UserStore {
 // Here we use [thread_local!] because it is simpler.
 thread_local! {
 
+    // Currently, a single canister smart contract is limited to 4 GB of storage due to WebAssembly limitations.
+    // To ensure that our canister does not exceed this limit, we restrict memory usage to at most 2 GB because 
+    // up to 2x memory may be needed for data serialization during canister upgrades. Therefore, we aim to support
+    // up to 1,000 users, each storing up to 2 MB of data. 
+    // 1) One half of this data is reserved for device management: 
+    //     DEVICES_PER_USER = (MAX_CYPHERTEXT_LENGTH + MAX_PUBLIC_KEY_LENGTH + MAX_DEVICE_ALIAS_LENGTH) x (4 bytes per char) x MAX_DEVICES_PER_USER
+    //     1 MB = 40,700 x 4 x 6 = 976,800
+    // 2) Another half is reserved for storing the notes:
+    //     NOTES_PER_USER = MAX_NOTES_PER_USER x MAX_NOTE_CHARS x (4 bytes per char)
+    //     1 MB = 500 x 500 x 4 = 1,000,000
+
     // Define dapp limits - important for security assurance
     static MAX_USERS: usize = 1_000;
     static MAX_NOTES_PER_USER: usize = 500;
