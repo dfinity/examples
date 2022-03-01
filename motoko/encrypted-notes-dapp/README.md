@@ -33,7 +33,7 @@ This project serves as a simple (but not too simple) example of a dapp, which us
 
 This is an _example dapp_ that demonstrates the potential of building _canisters_ for the IC. Please do not use this code in production and/or scenarios in which sensitive data could be involved. While this dapp illustrates end-to-end encryption, there are **several open security issues** that should be addressed before the dapp could be considered production-ready:
 
-- The frontend re-uses the generated public- and private-key pair for every identity in the same browser. This key pair should be unique per principal.
+- The frontend re-uses the generated public- and private-key pair for every identity in the same browser. In a better implementation, this key pair should be unique per principal.
 - The public/private key pair should not be managed by the web browser at all. [WebAuthn](https://en.wikipedia.org/wiki/WebAuthn) should be used to push the key management to the operating system.
 - Integer overflows are possible in the Rust canister, e.g., for `NEXT_NOTE`. 
 - Users may lose their notes if they accidentally clean the browser data (localStorage) while no other device is synced to the dapp.
