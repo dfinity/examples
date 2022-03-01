@@ -47,6 +47,7 @@ pub struct EncryptedNote {
 /// So we can serialize it to stable storage.
 #[derive(Clone, CandidType, Serialize, Deserialize)]
 struct CanisterState {
+    // During canister upgrades, this field contains a stable representation of the value stored in [NEXT_NOTE]
     counter: u128,
     // We use a BTreeMap vice a HashMap for deterministic ordering.
     notes: BTreeMap<PrincipalName, Vec<EncryptedNote>>,
