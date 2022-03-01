@@ -18,11 +18,14 @@ export class CryptoService {
     console.log('deviceAlias: ' + this.deviceAlias);
   }
 
-  private publicKeyBase64: string | null = null;
-  private privateKey: CryptoKey | null = null;
-  private publicKey: CryptoKey | null = null;
+  // Symmetric AES key, used to encrypt and decrypt the notes stored in the dapp
   private secretKey: CryptoKey | null = null;
   private secret: string | null = null;
+    // Public key associated with logged in device. Used to decrypt the symmetric secretKey, which is stored by the dapp encrypted with the the publicKey
+  private privateKey: CryptoKey | null = null;
+    // Private key associated with logged in device. Used to encrypt the symmetric secretKey for each device associated with the current principal, to be stored by the dapp in encrypted form
+  private publicKey: CryptoKey | null = null;
+  private publicKeyBase64: string | null = null;
   public readonly deviceAlias: string;
   private intervalHandler: number | null = null;
 
