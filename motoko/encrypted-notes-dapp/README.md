@@ -26,6 +26,12 @@ Encrypted Notes is an example dapp for authoring and storing confidential inform
 
 This project serves as a simple (but not too simple) example of a dapp, which uses Motoko and Rust as backend and Svelte as frontend.
 
+<object data="./pictures/architectural_overview.pdf" type="application/pdf" width="700px" height="700px">
+    <embed src="./pictures/architectural_overview.pdf">
+        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="./pictures/architectural_overview.pdf">Download PDF</a>.</p>
+    </embed>
+</object>
+
 ---
 &nbsp;
 
