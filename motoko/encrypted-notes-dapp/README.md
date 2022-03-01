@@ -36,6 +36,8 @@ This is an _example dapp_ that demonstrates the potential of building _canisters
 - The frontend re-uses the generated public- and private-key pair for every identity in the same browser. This key pair should be unique per principal.
 - The public/private key pair should not be managed by the web browser at all. [WebAuthn](https://en.wikipedia.org/wiki/WebAuthn) should be used to push the key management to the operating system.
 - Integer overflows are possible in the Rust canister, e.g., for `NEXT_NOTE`. 
+- Users may lose their notes if they accidentally clean the browser data (localStorage) while no other device is synced to the dapp.
+- Lack of key update: Given that the key used to encrypted the notes is never refreshed, the privacy of the data is no longer guaranteed if an attacker learns this key (for instance, by corrupting the local storage in one of the connected devices).
 
 ---
 &nbsp;
