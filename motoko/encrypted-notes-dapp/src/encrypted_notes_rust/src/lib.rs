@@ -75,9 +75,9 @@ thread_local! {
 
     // Define dapp limits - important for security assurance
     static MAX_USERS: usize = 1_000;
-    static MAX_NOTES_PER_USER: usize = 50_000;
-    static MAX_DEVICES_PER_USER: usize = 50;
-    static MAX_NOTE_CHARS: usize = 20_000;
+    static MAX_NOTES_PER_USER: usize = 500;
+    static MAX_DEVICES_PER_USER: usize = 6;
+    static MAX_NOTE_CHARS: usize = 500;
     static MAX_DEVICE_ALIAS_LENGTH: usize = 200;
     static MAX_PUBLIC_KEY_LENGTH: usize = 500;
     static MAX_CYPHERTEXT_LENGTH: usize = 40_000;

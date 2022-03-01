@@ -24,9 +24,9 @@ shared({ caller = initializer }) actor class() {
 
     // Define dapp limits - important for security assurance
     private let MAX_USERS = 1_000;
-    private let MAX_NOTES_PER_USER = 50_000;
-    private let MAX_DEVICES_PER_USER = 50;
-    private let MAX_NOTE_CHARS = 20_000;
+    private let MAX_NOTES_PER_USER = 500;
+    private let MAX_DEVICES_PER_USER = 6;
+    private let MAX_NOTE_CHARS = 500;
     private let MAX_DEVICE_ALIAS_LENGTH = 200;
     private let MAX_PUBLIC_KEY_LENGTH = 500;
     private let MAX_CYPHERTEXT_LENGTH = 40_000;
