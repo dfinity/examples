@@ -73,7 +73,7 @@ impl UserStore {
 // Here we use [thread_local!] because it is simpler.
 thread_local! {
 
-    // Currently, a single canister smart contract is limited to 4 GB of storage due to WebAssembly limitations.
+    // Currently, a single canister smart contract is limited to 8 GB of storage due to WebAssembly limitations.
     // To ensure that our canister does not exceed this limit, we restrict memory usage to at most 2 GB because 
     // up to 2x memory may be needed for data serialization during canister upgrades. Therefore, we aim to support
     // up to 1,000 users, each storing up to 2 MB of data. 
