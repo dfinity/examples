@@ -1,5 +1,5 @@
 [package]
-name = "dip721-nft-container"
+name = "dip721_nft_container"
 version = "0.1.0"
 edition = "2018"
 
