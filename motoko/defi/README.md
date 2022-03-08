@@ -163,7 +163,7 @@ Check for a cycle in the dependencies.
 ### Incorrect result from `bundle.js`
 
 ```
-git clone https://github.com/Bownairo/examples.git
+git clone https://github.com/dfinity/examples.git
 cd examples
 git checkout defi-example
 git submodule update --init --recursive
