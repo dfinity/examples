@@ -1,0 +1,14 @@
+dist
+**/node_modules
+**/*.dfx
+**/*.idea
+**/*.wasm
+src/declarations
+src/frontend/declarations
+src/frontend/public/build/*
+src/encrypted_notes_rust/target
+**/target
+# Generated files
+dfx.json
+src/frontend/src/lib/backend.ts
+src/frontend/src/lib/idlFactory.js

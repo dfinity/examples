@@ -1,0 +1,41 @@
+type anon_class_15_1 = 
+ service {
+   add_note: (text) -> ();
+   delete_note: (int) -> ();
+   get_notes: () -> (vec EncryptedNote);
+   get_ciphertext: (PublicKey) -> (Result);
+   get_devices: () -> (vec record {
+                             DeviceAlias;
+                             PublicKey;
+                           });
+   get_unsynced_pubkeys: () -> (vec PublicKey);
+   is_seeded: () -> (bool);
+   register_device: (DeviceAlias, PublicKey) -> (bool);
+   remove_device: (DeviceAlias) -> () oneway;
+   seed: (PublicKey, Ciphertext) -> () oneway;
+   submit_ciphertexts: (vec record {
+                              PublicKey;
+                              Ciphertext;
+                            }) -> () oneway;
+   update_note: (EncryptedNote) -> ();
+   whoami: () -> (text);
+ };
+type Result = 
+ variant {
+   err: GetCiphertextError;
+   ok: Ciphertext;
+ };
+type PublicKey = text;
+type GetCiphertextError = 
+ variant {
+   notFound;
+   notSynced;
+ };
+type EncryptedNote = 
+ record {
+   encrypted_text: text;
+   id: nat;
+ };
+type DeviceAlias = text;
+type Ciphertext = text;
+service : () -> anon_class_15_1
