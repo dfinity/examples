@@ -160,3 +160,14 @@ Debian/Ubuntu: `apt install cmake`
 
 Check for a cycle in the dependencies.
 
+### Incorrect result from `bundle.js`
+
+```
+git clone https://github.com/Bownairo/examples.git
+cd examples
+git checkout defi-example
+git submodule update --init --recursive
+cd motoko/defi
+make install
+```
+
