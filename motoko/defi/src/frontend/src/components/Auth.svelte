@@ -2,11 +2,10 @@
   import { AuthClient } from "@dfinity/auth-client";
   import { onMount } from "svelte";
   import { auth, createActor } from "../store/auth";
+  import BalanceInfo from '../components/BalanceInfo.svelte';
 
   /** @type {AuthClient} */
   let client;
-
-  let whoami = $auth.actor.whoami();
 
   onMount(async () => {
     client = await AuthClient.create();
@@ -24,9 +23,6 @@
         },
       }),
     }));
-
-    location.reload();
-    whoami = $auth.actor.whoami();
   }
 
   function login() {
@@ -45,32 +41,20 @@
       loggedIn: false,
       actor: createActor(),
     }));
-
-    whoami = $auth.actor.whoami();
   }
 </script>
 
 <div class="container">
   {#if $auth.loggedIn}
-    <div>
+    <div class="auth-btn-container">
       <button on:click={logout}>Log out</button>
+    </div>
+    <div>
+      <BalanceInfo />
     </div>
   {:else}
     <button on:click={login}>Authenticate in with Internet Identity</button>
   {/if}
-
-  <div class="principal-info">
-    {#await whoami}
-      Querying caller identity...
-    {:then principal}
-      Your principal ID is
-      <code>{principal}</code>
-
-      {#if principal.isAnonymous()}
-        (anonymous)
-      {/if}
-    {/await}
-  </div>
 </div>
 
 <style>
@@ -78,7 +62,9 @@
     margin: 64px 0;
   }
 
-  .principal-info {
-    margin-top: 32px;
+  .auth-btn-container {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
   }
 </style>

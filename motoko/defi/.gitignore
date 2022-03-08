@@ -1,5 +1,6 @@
 .dfx/
 build/
 node_modules/
-dist/
 target/
+declarations/
+ledger.did
