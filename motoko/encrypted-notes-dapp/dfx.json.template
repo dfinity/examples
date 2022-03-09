@@ -1,0 +1,39 @@
+{
+  "canisters": {
+    "encrypted_notes_motoko": {
+      "main": "src/encrypted_notes_motoko/main.mo",
+      "type": "motoko"
+    },
+    "encrypted_notes_rust": {
+      "type": "custom",
+      "build": "cargo build --target wasm32-unknown-unknown --package encrypted_notes_rust --release",
+      "wasm": "target/wasm32-unknown-unknown/release/encrypted_notes_rust.wasm",
+      "candid": "src/encrypted_notes_rust/src/encrypted_notes_rust.did"
+    },
+    "www": {
+      "dependencies": [
+        "encrypted_notes_{{ BUILD_ENV }}"
+      ],
+      "frontend": {
+        "entrypoint": "src/frontend/public/index.html"
+      },
+      "source": [
+        "src/frontend/public/"
+      ],
+      "type": "assets"
+    },
+    "internet_identity": {
+      "candid": "internet_identity.did",
+      "type": "custom",
+      "wasm": "internet_identity.wasm"
+    }
+  },
+  "dfx": "0.9.2",
+  "networks": {
+    "local": {
+      "bind": "0.0.0.0:8000",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
+}

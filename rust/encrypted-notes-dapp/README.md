@@ -1,0 +1,1 @@
+Please refer to this [doc](https://github.com/dfinity/examples/blob/master/motoko/encrypted-notes-dapp/README.md), covering both Rust and Motoko examples of **Encrypted Notes** dapp.
