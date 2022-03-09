@@ -1,0 +1,11 @@
+{
+    "version": 1,
+    "canisters": {
+        "dip721_nft_container": {
+            "type": "rust",
+            "candid": "dip721-nft-container.did",
+            "package": "dip721_nft_container"
+        }
+    },
+    "dfx": "0.9.0"
+}
