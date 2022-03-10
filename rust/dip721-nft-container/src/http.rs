@@ -112,7 +112,7 @@ fn http_request(/* req: HttpRequest */) /* -> HttpResponse */ {
 }
 
 thread_local! {
-    pub static HASHES: RefCell<RbTree<String, Hash>> = RefCell::default();
+    pub static HASHES: RefCell<RbTree<String, Hash>> = RefCell::new(RbTree::from_iter([("/".to_string(), *b"\x83\xd0\xf6\x70\x86\x5c\x36\x7c\xe9\x5f\x59\x59\x59\xab\xec\x46\xed\x7b\x64\x03\x3e\xce\xe9\xed\x77\x2e\x78\x79\x3f\x3b\xc1\x0f")]));
 }
 
 pub fn add_hash(tkid: u64) {
@@ -129,6 +129,7 @@ pub fn add_hash(tkid: u64) {
                 hashes.insert(format!("/{}", tkid), hash.into());
             }
         }
+        hashes.insert("/".to_string(), Sha256::digest(format!("Total NFTs: {}", state.nfts.len())).into());
         let cert = ic_certified_map::labeled_hash(b"http_assets", &hashes.root_hash());
         api::set_certified_data(&cert);
         Some(())
