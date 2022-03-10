@@ -70,7 +70,7 @@ fn http_request(/* req: HttpRequest */) /* -> HttpResponse */
                 "max-age=31536000; includeSubDomains".into(),
             );
         }
-        let root = path.next().unwrap_or("".into());
+        let root = path.next().unwrap_or_else(|| "".into());
         let body;
         let mut code = 200;
         if root == "" {
@@ -82,7 +82,7 @@ fn http_request(/* req: HttpRequest */) /* -> HttpResponse */
                 // /:something
                 if let Some(nft) = state.nfts.get(num) {
                     // /:nft
-                    let img = path.next().unwrap_or("".into());
+                    let img = path.next().unwrap_or_else(|| "".into());
                     if img == "" {
                         // /:nft/
                         let part = nft
