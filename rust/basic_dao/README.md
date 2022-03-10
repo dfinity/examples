@@ -22,7 +22,18 @@ made to call `update_system_params` with updated values. The below demo does exa
 
 View the [canister service definition](src/basic_dao/src/basic_dao.did) for a more details.
 
-## Prerequisites
+## Architecture
+
+The `basic_dao` has two primary data stores: `accounts` and `proposals`. The `accounts` store maps user principals to 
+their account balances. Users can view their account balances and transfer funds to other users. The `proposals` store
+maps proposal IDs to proposals. Proposals contain a proposal payload (which specifies a canister ID, method and arguments 
+for this method), the timestamp it was submitted, the number of votes case for and against it, the proposal state, etc.
+When enough `Yes` votes are cast for a proposal, the proposal state moves from `Open` to `Accepted`. All `Accepted` 
+proposals are executed during `basic_dao`'s [heartbeat](src/basic_dao/src/heartbeat.rs). This heartbeat method is called
+after each execution round, so there is little delay (on the order of seconds) between when a proposal is `Accepted`
+and when it is executed.
+
+## Demo Prerequisites
 
 Verify the following before running this demo:
 
