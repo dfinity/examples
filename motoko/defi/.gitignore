@@ -1,8 +1,6 @@
 .dfx/
 build/
 node_modules/
-dist/
-.DS_Store
-_MACOSX
-.vscode/
 target/
+declarations/
+ledger.did
