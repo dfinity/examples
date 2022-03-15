@@ -1,8 +1,9 @@
 import Option "mo:base/Option";
 import Iter "mo:base/Iter";
-import Map "mo:base/HashMap";
+import Trie "mo:base/TrieMap";
 import Buffer "mo:base/Buffer";
 import Array "mo:base/Array";
+import List "mo:base/List";
 
 import Principal "mo:base/Principal";
 import Text "mo:base/Text";
@@ -18,10 +19,10 @@ module {
 
     public class UserStore(principal: Principal, starting_buf_size: Nat) {
 
-        public let device_list = Map.HashMap<En.DeviceAlias, En.PublicKey>(starting_buf_size, Text.equal, Text.hash);
-        public let ciphertext_list = Map.HashMap<En.PublicKey, En.Ciphertext>(10, Text.equal, Text.hash);
+        public let device_list = Trie.TrieMap<En.DeviceAlias, En.PublicKey>(Text.equal, Text.hash);
+        public let ciphertext_list = Trie.TrieMap<En.PublicKey, En.Ciphertext>(Text.equal, Text.hash);
 
-        private var stable_users: [StableUserStoreEntry] = [];
+        private var stable_users: List.List<StableUserStoreEntry> = List.nil();
 
         public func get_principal(): Principal = principal;
 
@@ -69,15 +70,15 @@ module {
         }
     };
 
-    public func serializeAll(users: Map.HashMap<Principal, UserStore>): [StableUserStoreEntry] = 
+    public func serializeAll(users: Trie.TrieMap<Principal, UserStore>): [StableUserStoreEntry] = 
         Array.flatten(Iter.toArray(Iter.map(
             users.vals(), 
             func(user_store: UserStore): [StableUserStoreEntry] =
                 user_store.serialize())));
 
-    public func deserialize(serial: [StableUserStoreEntry], starting_buf_size: Nat): Map.HashMap<Principal, UserStore> {
+    public func deserialize(serial: [StableUserStoreEntry], starting_buf_size: Nat): Trie.TrieMap<Principal, UserStore> {
 
-        let users = Map.HashMap<Principal, UserStore>(starting_buf_size, Principal.equal, Principal.hash);
+        let users = Trie.TrieMap<Principal, UserStore>(Principal.equal, Principal.hash);
 
         for (entry in serial.vals()) {
             let principal: Principal = entry.0;

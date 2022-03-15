@@ -1,6 +1,7 @@
 import Map "mo:base/HashMap";
 import Text "mo:base/Text";
 import Array "mo:base/Array";
+import Trie "mo:base/TrieMap";
 import Buffer "mo:base/Buffer";
 import List "mo:base/List";
 import Iter "mo:base/Iter";
@@ -66,26 +67,11 @@ shared({ caller = initializer }) actor class() {
     // See https://smartcontracts.org/docs/developers-guide/working-with-canisters.html#upgrade-canister
     private stable var nextNoteId: Nat = 1;
     
-    // Internal representation: store each user's notes in a separate array. 
-    private var notesByUser = Map.HashMap<PrincipalName, [EncryptedNote]>(0, Text.equal, Text.hash);
+    // Internal representation: store each user's notes in a separate list. 
+    private stable var notesByUser = Trie.TrieMap<PrincipalName, List.List<EncryptedNote>>(Text.equal, Text.hash);
     
-    // While accessing data via [notesByUser] is more efficient, we use the following stable array
-    // as a buffer to preserve user notes across canister upgrades.
-    // See also: [preupgrade], [postupgrade]
-    private stable var stable_notesByUser: [(PrincipalName, [EncryptedNote])] = [];
-
     // Internal representation: associate each user with a UserStore
-    private var users = Map.HashMap<Principal, UserStore.UserStore>(10, Principal.equal, Principal.hash);
-
-    // While accessing data via hashed structures (e.g., [users]) may be more efficient, we use 
-    // the following stable array as a buffer to preserve registered users and user devices across 
-    // canister upgrades. 
-    //
-    // See also: [pre_upgrade], [post_upgrade]
-    // TODO: replace with
-    // private stable var stable_users: [UserStore.StableUserStoreEntry] = [];
-    // once https://github.com/dfinity/motoko/issues/3128 is resolved
-    private stable var stable_users: [(Principal, En.PublicKey, En.DeviceAlias, ?En.Ciphertext)] = [];
+    private stable var users = Trie.TrieMap<Principal, UserStore.UserStore>(Principal.equal, Principal.hash);
 
     // The following function will soon become part of Motoko
     // See https://github.com/dfinity/motoko-base/blob/master/src/Principal.mo
@@ -195,7 +181,7 @@ shared({ caller = initializer }) actor class() {
             encrypted_text = encrypted_text
         };
         nextNoteId += 1;
-        notesByUser.put(principalName, Array.append([newNote], userNotes));
+        notesByUser.put(principalName, List.push(newNote, userNotes));
     };
 
     // Returns (a future of) this [caller]'s notes.
@@ -220,7 +206,7 @@ shared({ caller = initializer }) actor class() {
         assert is_user_registered(caller);
 
         let principalName = Principal.toText(caller);
-        return Option.get(notesByUser.get(principalName), []);
+        return List.toArray(notesByUser.get(principalName).toArray);
     };
 
     // Update this [caller]'s note (by replacing an existing with 
@@ -245,7 +231,7 @@ shared({ caller = initializer }) actor class() {
         var existingNotes = expect(notesByUser.get(principalName), 
             "registered user (principal " # principalName # ") w/o allocated notes");
 
-        var updatedNotes = Array.map(existingNotes, func (note: EncryptedNote): EncryptedNote {
+        var updatedNotes = List.map(existingNotes, func (note: EncryptedNote): EncryptedNote {
             if (note.id == encrypted_note.id) {
                 encrypted_note
             } else {
@@ -275,7 +261,7 @@ shared({ caller = initializer }) actor class() {
 
         notesByUser.put(
             principalName,
-            Array.filter(notesOfUser, func(note: EncryptedNote): Bool { note.id != id })
+            List.filter(notesOfUser, func(note: EncryptedNote): Bool { note.id != id })
         )
     };
 
@@ -318,8 +304,8 @@ shared({ caller = initializer }) actor class() {
                 let new_store = UserStore.UserStore(caller, 10);
                 new_store.device_list.put(alias, pk);
                 users.put(caller, new_store);
-                // 2) a new [[EncryptedNote]] array in [notesByUser]
-                notesByUser.put(principalName, []);
+                // 2) a new [[EncryptedNote]] List in [notesByUser]
+                notesByUser.put(principalName, List.nil());
                 
                 // finally, indicate accept
                 true
@@ -502,29 +488,5 @@ shared({ caller = initializer }) actor class() {
         if (is_known_public_key(store, pk) and store.ciphertext_list.size() == 0) {
             store.ciphertext_list.put(pk, ctext)
         }
-    };
-
-    // Below, we implement the upgrade hooks for our canister.
-    // See https://smartcontracts.org/docs/language-guide/upgrades.html
-
-    // The work required before a canister upgrade begins.
-    // See [nextNoteId], [stable_notesByUser], [stable_users]
-    system func preupgrade() {
-        Debug.print("Starting pre-upgrade hook...");
-        stable_notesByUser := Iter.toArray(notesByUser.entries());
-        stable_users := UserStore.serializeAll(users);
-        Debug.print("pre-upgrade finished.");
-    };
-
-    // The work required after a canister upgrade ends.
-    // See [nextNoteId], [stable_notesByUser], [stable_users]
-    system func postupgrade() {
-        Debug.print("Starting post-upgrade hook...");
-        notesByUser := Map.fromIter<PrincipalName, [EncryptedNote]>(
-            stable_notesByUser.vals(), stable_notesByUser.size(), Text.equal, Text.hash);
-
-        users := UserStore.deserialize(stable_users, stable_notesByUser.size());
-        stable_notesByUser := [];
-        Debug.print("post-upgrade finished.");
     };
 };
