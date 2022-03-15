@@ -187,8 +187,8 @@ shared({ caller = initializer }) actor class() {
         let userNotes : List.List<EncryptedNote> = Option.get(notesByUser.get(principalName), List.nil<EncryptedNote>());
 
         // check that user is not going to exceed limits
-        //assert userNotes.size() < MAX_NOTES_PER_USER;
-        //TODO 
+        assert List.size(userNotes) < MAX_NOTES_PER_USER;
+        
         let newNote: EncryptedNote = {
             id = nextNoteId; 
             encrypted_text = encrypted_text
