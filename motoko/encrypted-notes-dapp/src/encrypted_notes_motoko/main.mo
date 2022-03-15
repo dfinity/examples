@@ -67,12 +67,12 @@ shared({ caller = initializer }) actor class() {
     private stable var nextNoteId: Nat = 1;
     
     // Internal representation: store each user's notes in a separate array. 
-    private var notesByUser = Map.HashMap<PrincipalName, [EncryptedNote]>(0, Text.equal, Text.hash);
+    private var notesByUser = Map.HashMap<PrincipalName, List.List<EncryptedNote>>(0, Text.equal, Text.hash);
     
     // While accessing data via [notesByUser] is more efficient, we use the following stable array
     // as a buffer to preserve user notes across canister upgrades.
     // See also: [preupgrade], [postupgrade]
-    private stable var stable_notesByUser: [(PrincipalName, [EncryptedNote])] = [];
+    private stable var stable_notesByUser: [(PrincipalName, List.List<EncryptedNote>)] = [];
 
     // Internal representation: associate each user with a UserStore
     private var users = Map.HashMap<Principal, UserStore.UserStore>(10, Principal.equal, Principal.hash);
@@ -184,18 +184,17 @@ shared({ caller = initializer }) actor class() {
         Debug.print("Adding note...");
 
         let principalName = Principal.toText(caller);
-        var userNotes = expect(notesByUser.get(principalName), 
-            "registered user (principal " # principalName # ") w/o allocated notes");
+        let userNotes : List.List<EncryptedNote> = Option.get(notesByUser.get(principalName), List.nil<EncryptedNote>());
 
         // check that user is not going to exceed limits
-        assert userNotes.size() < MAX_NOTES_PER_USER;
-        
+        //assert userNotes.size() < MAX_NOTES_PER_USER;
+        //TODO 
         let newNote: EncryptedNote = {
             id = nextNoteId; 
             encrypted_text = encrypted_text
         };
         nextNoteId += 1;
-        notesByUser.put(principalName, Array.append([newNote], userNotes));
+        notesByUser.put(principalName, List.push(newNote, userNotes));
     };
 
     // Returns (a future of) this [caller]'s notes.
@@ -220,7 +219,8 @@ shared({ caller = initializer }) actor class() {
         assert is_user_registered(caller);
 
         let principalName = Principal.toText(caller);
-        return Option.get(notesByUser.get(principalName), []);
+        let userNotes = Option.get(notesByUser.get(principalName), List.nil());
+        return List.toArray(userNotes);
     };
 
     // Update this [caller]'s note (by replacing an existing with 
@@ -245,7 +245,7 @@ shared({ caller = initializer }) actor class() {
         var existingNotes = expect(notesByUser.get(principalName), 
             "registered user (principal " # principalName # ") w/o allocated notes");
 
-        var updatedNotes = Array.map(existingNotes, func (note: EncryptedNote): EncryptedNote {
+        var updatedNotes = List.map(existingNotes, func (note: EncryptedNote): EncryptedNote {
             if (note.id == encrypted_note.id) {
                 encrypted_note
             } else {
@@ -271,11 +271,11 @@ shared({ caller = initializer }) actor class() {
         assert is_id_sane(id);
 
         let principalName = Principal.toText(caller);
-        var notesOfUser = Option.get(notesByUser.get(principalName), []);
+        var notesOfUser = Option.get(notesByUser.get(principalName), List.nil());
 
         notesByUser.put(
             principalName,
-            Array.filter(notesOfUser, func(note: EncryptedNote): Bool { note.id != id })
+            List.filter(notesOfUser, func(note: EncryptedNote): Bool { note.id != id })
         )
     };
 
@@ -319,7 +319,7 @@ shared({ caller = initializer }) actor class() {
                 new_store.device_list.put(alias, pk);
                 users.put(caller, new_store);
                 // 2) a new [[EncryptedNote]] array in [notesByUser]
-                notesByUser.put(principalName, []);
+                notesByUser.put(principalName, List.nil());
                 
                 // finally, indicate accept
                 true
@@ -520,7 +520,7 @@ shared({ caller = initializer }) actor class() {
     // See [nextNoteId], [stable_notesByUser], [stable_users]
     system func postupgrade() {
         Debug.print("Starting post-upgrade hook...");
-        notesByUser := Map.fromIter<PrincipalName, [EncryptedNote]>(
+        notesByUser := Map.fromIter<PrincipalName, List.List<EncryptedNote>>(
             stable_notesByUser.vals(), stable_notesByUser.size(), Text.equal, Text.hash);
 
         users := UserStore.deserialize(stable_users, stable_notesByUser.size());
