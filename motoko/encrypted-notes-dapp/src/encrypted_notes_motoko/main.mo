@@ -83,12 +83,6 @@ shared({ caller = initializer }) actor class() {
     // See also: [pre_upgrade], [post_upgrade]
     private stable var stable_users: [UserStore.StableUserStoreEntry] = [];
 
-    // The following function will soon become part of Motoko
-    // See https://github.com/dfinity/motoko-base/blob/master/src/Principal.mo
-  //  private func isAnonymous(caller: Principal): Bool {
-    //    Principal.equal(caller, Principal.fromText("2vxsx-fae"))
-    //};
-
     // The following invariant is preserved by [register_device].
     //
     // All the functions of this canister's public API are available only to 
@@ -314,7 +308,7 @@ shared({ caller = initializer }) actor class() {
                 let new_store = UserStore.UserStore(caller, 10);
                 new_store.device_list.put(alias, pk);
                 users.put(caller, new_store);
-                // 2) a new [[EncryptedNote]] array in [notesByUser]
+                // 2) a new [[EncryptedNote]] list in [notesByUser]
                 notesByUser.put(principalName, List.nil());
                 
                 // finally, indicate accept
