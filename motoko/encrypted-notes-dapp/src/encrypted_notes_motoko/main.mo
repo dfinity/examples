@@ -5,6 +5,7 @@ import Buffer "mo:base/Buffer";
 import List "mo:base/List";
 import Iter "mo:base/Iter";
 import Time "mo:base/Time";
+import Trie "mo:base/Trie";
 import Int "mo:base/Int";
 import Nat "mo:base/Nat";
 import Bool "mo:base/Bool";
@@ -65,9 +66,12 @@ shared({ caller = initializer }) actor class() {
     //
     // See https://smartcontracts.org/docs/developers-guide/working-with-canisters.html#upgrade-canister
     private stable var nextNoteId: Nat = 1;
+
+
+    private func key(t: PrincipalName) : Trie.Key<PrincipalName> = { key = t; hash = Text.hash t };
     
     // Internal representation: store each user's notes in a separate array. 
-    private var notesByUser = Map.HashMap<PrincipalName, List.List<EncryptedNote>>(0, Text.equal, Text.hash);
+    private var notesByUser = Trie.empty<PrincipalName, List.List<EncryptedNote>>();
     
     // While accessing data via [notesByUser] is more efficient, we use the following stable array
     // as a buffer to preserve user notes across canister upgrades.
@@ -100,7 +104,7 @@ shared({ caller = initializer }) actor class() {
     //
     // See also: [is_user_registered]
     private func users_invariant(): Bool {
-        notesByUser.size() == users.size()
+        Trie.size(notesByUser) == users.size()
     };
 
     // Check if this user has been registered 
@@ -114,7 +118,7 @@ shared({ caller = initializer }) actor class() {
     // Traps if [users_invariant] is violated
     private func user_count(): Nat {
         assert users_invariant();
-        notesByUser.size()
+        Trie.size(notesByUser)
     };
 
     // Check that a note identifier is sane. This is needed since Motoko integers 
@@ -184,17 +188,17 @@ shared({ caller = initializer }) actor class() {
         Debug.print("Adding note...");
 
         let principalName = Principal.toText(caller);
-        let userNotes : List.List<EncryptedNote> = Option.get(notesByUser.get(principalName), List.nil<EncryptedNote>());
+        let userNotes = Option.get(Trie.get(notesByUser, key principalName, Text.equal), List.nil<EncryptedNote>());
 
         // check that user is not going to exceed limits
         assert List.size(userNotes) < MAX_NOTES_PER_USER;
-        
+
         let newNote: EncryptedNote = {
             id = nextNoteId; 
             encrypted_text = encrypted_text
         };
         nextNoteId += 1;
-        notesByUser.put(principalName, List.push(newNote, userNotes));
+        notesByUser := Trie.put(notesByUser, key principalName, Text.equal, List.push(newNote, userNotes)).0;
     };
 
     // Returns (a future of) this [caller]'s notes.
@@ -219,7 +223,7 @@ shared({ caller = initializer }) actor class() {
         assert is_user_registered(caller);
 
         let principalName = Principal.toText(caller);
-        let userNotes = Option.get(notesByUser.get(principalName), List.nil());
+        let userNotes = Option.get(Trie.get(notesByUser, key principalName, Text.equal), List.nil<EncryptedNote>());
         return List.toArray(userNotes);
     };
 
@@ -242,8 +246,7 @@ shared({ caller = initializer }) actor class() {
         assert is_id_sane(encrypted_note.id);
 
         let principalName = Principal.toText(caller);
-        var existingNotes = expect(notesByUser.get(principalName), 
-            "registered user (principal " # principalName # ") w/o allocated notes");
+        let existingNotes = Option.get(Trie.get(notesByUser, key principalName, Text.equal), List.nil<EncryptedNote>());
 
         var updatedNotes = List.map(existingNotes, func (note: EncryptedNote): EncryptedNote {
             if (note.id == encrypted_note.id) {
@@ -252,7 +255,7 @@ shared({ caller = initializer }) actor class() {
                 note
             }
         });
-        notesByUser.put(principalName, updatedNotes);
+        notesByUser := Trie.put(notesByUser, key principalName, Text.equal, updatedNotes).0;
     };
 
     // Delete this [caller]'s note with given id. If none of the 
@@ -271,12 +274,11 @@ shared({ caller = initializer }) actor class() {
         assert is_id_sane(id);
 
         let principalName = Principal.toText(caller);
-        var notesOfUser = Option.get(notesByUser.get(principalName), List.nil());
+        var userNotes = Option.get(Trie.get(notesByUser, key principalName, Text.equal), List.nil<EncryptedNote>());
 
-        notesByUser.put(
-            principalName,
-            List.filter(notesOfUser, func(note: EncryptedNote): Bool { note.id != id })
-        )
+        notesByUser := Trie.put(notesByUser, key principalName, Text.equal, 
+            List.filter(userNotes, func(note: EncryptedNote): Bool { note.id != id })
+        ).0
     };
 
     // Below, we implement a decentralized key-value store. 
@@ -311,7 +313,7 @@ shared({ caller = initializer }) actor class() {
                 assert user_count() < MAX_USERS;
                 // B. this caller does not have notes
                 let principalName = Principal.toText(caller);
-                assert notesByUser.get(principalName) == null;
+                assert Trie.get(notesByUser, key principalName, Text.equal) == null;
 
                 // ... then initialize the following:
                 // 1) a new [UserStore] instance in [users]
@@ -319,7 +321,7 @@ shared({ caller = initializer }) actor class() {
                 new_store.device_list.put(alias, pk);
                 users.put(caller, new_store);
                 // 2) a new [[EncryptedNote]] array in [notesByUser]
-                notesByUser.put(principalName, List.nil());
+                notesByUser := Trie.put(notesByUser, key principalName, Text.equal, List.nil()).0;
                 
                 // finally, indicate accept
                 true
@@ -510,8 +512,8 @@ shared({ caller = initializer }) actor class() {
     // The work required before a canister upgrade begins.
     // See [nextNoteId], [stable_notesByUser], [stable_users]
     system func preupgrade() {
-        Debug.print("Starting pre-upgrade hook...");
-        stable_notesByUser := Iter.toArray(notesByUser.entries());
+        Debug.print("Startitttng pre-upgrade hook...");
+        stable_notesByUser := Iter.toArray(Trie.iter(notesByUser));
         stable_users := UserStore.serializeAll(users);
         Debug.print("pre-upgrade finished.");
     };
@@ -519,12 +521,13 @@ shared({ caller = initializer }) actor class() {
     // The work required after a canister upgrade ends.
     // See [nextNoteId], [stable_notesByUser], [stable_users]
     system func postupgrade() {
-        Debug.print("Starting post-upgrade hook...");
-        notesByUser := Map.fromIter<PrincipalName, List.List<EncryptedNote>>(
-            stable_notesByUser.vals(), stable_notesByUser.size(), Text.equal, Text.hash);
-
+        Debug.print("Ssssstarting post-upgrade hook...");
+        notesByUser := Trie.empty<PrincipalName, List.List<EncryptedNote>>();
+        for ((principalName, noteList) in stable_notesByUser.vals()) {
+            notesByUser := Trie.put(notesByUser, key principalName, Text.equal, noteList).0;
+        };
         users := UserStore.deserialize(stable_users, stable_notesByUser.size());
         stable_notesByUser := [];
-        Debug.print("post-upgrade finished.");
+        Debug.print("post-upgrade finished new.");
     };
 };
