@@ -512,7 +512,8 @@ shared({ caller = initializer }) actor class() {
     // The work required before a canister upgrade begins.
     // See [nextNoteId], [stable_notesByUser], [stable_users]
     system func preupgrade() {
-        Debug.print("Startitttng pre-upgrade hook...");
+        Debug.print("Starting pre-upgrade hook...");
+        Debug.print("User countiii: " # Nat.toText(Trie.size(notesByUser)));
         stable_notesByUser := Iter.toArray(Trie.iter(notesByUser));
         stable_users := UserStore.serializeAll(users);
         Debug.print("pre-upgrade finished.");
@@ -521,13 +522,14 @@ shared({ caller = initializer }) actor class() {
     // The work required after a canister upgrade ends.
     // See [nextNoteId], [stable_notesByUser], [stable_users]
     system func postupgrade() {
-        Debug.print("Ssssstarting post-upgrade hook...");
+        Debug.print("Starting post-upgrade hook...");
         notesByUser := Trie.empty<PrincipalName, List.List<EncryptedNote>>();
         for ((principalName, noteList) in stable_notesByUser.vals()) {
             notesByUser := Trie.put(notesByUser, key principalName, Text.equal, noteList).0;
         };
         users := UserStore.deserialize(stable_users, stable_notesByUser.size());
         stable_notesByUser := [];
-        Debug.print("post-upgrade finished new.");
+        Debug.print("Useri count: " # Nat.toText(Trie.size(notesByUser)));
+        Debug.print("post-upgrade finished.");
     };
 };
