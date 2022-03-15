@@ -66,7 +66,7 @@ shared({ caller = initializer }) actor class() {
     // See https://smartcontracts.org/docs/developers-guide/working-with-canisters.html#upgrade-canister
     private stable var nextNoteId: Nat = 1;
     
-    // Internal representation: store each user's notes in a separate array. 
+    // Internal representation: store each user's notes in a separate List. 
     private var notesByUser = Map.HashMap<PrincipalName, List.List<EncryptedNote>>(0, Text.equal, Text.hash);
     
     // While accessing data via [notesByUser] is more efficient, we use the following stable array
@@ -80,18 +80,14 @@ shared({ caller = initializer }) actor class() {
     // While accessing data via hashed structures (e.g., [users]) may be more efficient, we use 
     // the following stable array as a buffer to preserve registered users and user devices across 
     // canister upgrades. 
-    //
     // See also: [pre_upgrade], [post_upgrade]
-    // TODO: replace with
-    // private stable var stable_users: [UserStore.StableUserStoreEntry] = [];
-    // once https://github.com/dfinity/motoko/issues/3128 is resolved
-    private stable var stable_users: [(Principal, En.PublicKey, En.DeviceAlias, ?En.Ciphertext)] = [];
+    private stable var stable_users: [UserStore.StableUserStoreEntry] = [];
 
     // The following function will soon become part of Motoko
     // See https://github.com/dfinity/motoko-base/blob/master/src/Principal.mo
-    private func is_anonymous(caller: Principal): Bool {
-        Principal.equal(caller, Principal.fromText("2vxsx-fae"))
-    };
+  //  private func isAnonymous(caller: Principal): Bool {
+    //    Principal.equal(caller, Principal.fromText("2vxsx-fae"))
+    //};
 
     // The following invariant is preserved by [register_device].
     //
@@ -177,7 +173,7 @@ shared({ caller = initializer }) actor class() {
     //      [encrypted_text] exceeds [MAX_NOTE_CHARS]
     //      User already has [MAX_NOTES_PER_USER] notes
     public shared({ caller }) func add_note(encrypted_text: Text): async () {
-        assert not is_anonymous(caller);
+        assert not Principal.isAnonymous(caller);
         assert is_user_registered(caller);
         assert encrypted_text.size() <= MAX_NOTE_CHARS;
 
@@ -215,7 +211,7 @@ shared({ caller = initializer }) actor class() {
     //      [caller] is the anonymous identity
     //      [caller] is not a registered user
     public shared({ caller }) func get_notes(): async [EncryptedNote] {
-        assert not is_anonymous(caller);
+        assert not Principal.isAnonymous(caller);
         assert is_user_registered(caller);
 
         let principalName = Principal.toText(caller);
@@ -236,7 +232,7 @@ shared({ caller = initializer }) actor class() {
     //      [encrypted_note.encrypted_text] exceeds [MAX_NOTE_CHARS]
     //      [encrypted_note.id] is unreasonable; see [is_id_sane]
     public shared({ caller }) func update_note(encrypted_note: EncryptedNote): async () {
-        assert not is_anonymous(caller);
+        assert not Principal.isAnonymous(caller);
         assert is_user_registered(caller);
         assert encrypted_note.encrypted_text.size() <= MAX_NOTE_CHARS;
         assert is_id_sane(encrypted_note.id);
@@ -266,7 +262,7 @@ shared({ caller = initializer }) actor class() {
     //      [caller] is not a registered user
     //      [id] is unreasonable; see [is_id_sane]
     public shared({ caller }) func delete_note(id: Int): async () {
-        assert not is_anonymous(caller);
+        assert not Principal.isAnonymous(caller);
         assert is_user_registered(caller);
         assert is_id_sane(id);
 
@@ -299,7 +295,7 @@ shared({ caller = initializer }) actor class() {
         alias: En.DeviceAlias, pk: En.PublicKey
     ): async Bool {
         
-        assert not is_anonymous(caller);
+        assert not Principal.isAnonymous(caller);
         assert alias.size() <= MAX_DEVICE_ALIAS_LENGTH;
         assert pk.size() <= MAX_PUBLIC_KEY_LENGTH;
 
@@ -348,7 +344,7 @@ shared({ caller = initializer }) actor class() {
     //      [alias] exceeds [MAX_DEVICE_ALIAS_LENGTH]
     //      [caller] has only one registered device (which we refuse to remove)
     public shared({ caller }) func remove_device(alias: En.DeviceAlias): () {
-        assert not is_anonymous(caller);
+        assert not Principal.isAnonymous(caller);
         assert is_user_registered(caller);
         assert alias.size() <= MAX_DEVICE_ALIAS_LENGTH;
 
@@ -371,7 +367,7 @@ shared({ caller = initializer }) actor class() {
     //      [caller] is the anonymous identity
     //      [caller] is not a registered user
     public shared({ caller }) func get_devices(): async [(En.DeviceAlias, En.PublicKey)] {
-        assert not is_anonymous(caller);
+        assert not Principal.isAnonymous(caller);
         assert is_user_registered(caller);
 
         let store = switch (users.get(caller)) {
@@ -389,7 +385,7 @@ shared({ caller = initializer }) actor class() {
     //      [caller] is the anonymous identity
     //      [caller] is not a registered user
     public shared({ caller }) func get_unsynced_pubkeys(): async [En.PublicKey] {
-        assert not is_anonymous(caller);
+        assert not Principal.isAnonymous(caller);
         assert is_user_registered(caller);
 
         let store = switch (users.get(caller)) {
@@ -415,7 +411,7 @@ shared({ caller = initializer }) actor class() {
     //      [caller] is the anonymous identity
     //      [caller] is not a registered user
     public shared({ caller }) func is_seeded(): async Bool {
-        assert not is_anonymous(caller);
+        assert not Principal.isAnonymous(caller);
         assert is_user_registered(caller);
 
         switch (users.get(caller)) {
@@ -436,7 +432,7 @@ shared({ caller = initializer }) actor class() {
         pk: En.PublicKey
     ): async Result.Result<En.Ciphertext, En.GetCiphertextError> {
         
-        assert not is_anonymous(caller);
+        assert not Principal.isAnonymous(caller);
         assert is_user_registered(caller);        
         assert pk.size() <= MAX_PUBLIC_KEY_LENGTH;
                 
@@ -463,7 +459,7 @@ shared({ caller = initializer }) actor class() {
     //      Length of [ciphertexts] exceeds [MAX_DEVICES_PER_USER]
     //      User is trying to save a known device's ciphertext exceeding [MAX_CYPHERTEXT_LENGTH]
     public shared({ caller }) func submit_ciphertexts(ciphertexts: [(En.PublicKey, En.Ciphertext)]): () {
-        assert not is_anonymous(caller);
+        assert not Principal.isAnonymous(caller);
         assert is_user_registered(caller);
         assert ciphertexts.size() <= MAX_DEVICES_PER_USER;
         
@@ -490,7 +486,7 @@ shared({ caller = initializer }) actor class() {
     //      [pk] exceeds [MAX_PUBLIC_KEY_LENGTH]
     //      [ctext] exceeding [MAX_CYPHERTEXT_LENGTH]
     public shared({ caller }) func seed(pk: En.PublicKey, ctext: En.Ciphertext): () {
-        assert not is_anonymous(caller);
+        assert not Principal.isAnonymous(caller);
         assert is_user_registered(caller);
         assert pk.size() <= MAX_PUBLIC_KEY_LENGTH;
         assert ctext.size() <= MAX_CYPHERTEXT_LENGTH;
@@ -513,7 +509,7 @@ shared({ caller = initializer }) actor class() {
         Debug.print("Starting pre-upgrade hook...");
         stable_notesByUser := Iter.toArray(notesByUser.entries());
         stable_users := UserStore.serializeAll(users);
-        Debug.print("Pre-upgrade finished.");
+        Debug.print("Pre-upgrade finished successfully.");
     };
 
     // The work required after a canister upgrade ends.
@@ -525,6 +521,6 @@ shared({ caller = initializer }) actor class() {
 
         users := UserStore.deserialize(stable_users, stable_notesByUser.size());
         stable_notesByUser := [];
-        Debug.print("Post-upgrade finished.");
+        Debug.print("Post-upgrade finished successfully.");
     };
 };
