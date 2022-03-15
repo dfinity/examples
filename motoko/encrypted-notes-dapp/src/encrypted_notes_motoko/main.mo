@@ -503,7 +503,7 @@ shared({ caller = initializer }) actor class() {
         Debug.print("Starting pre-upgrade hook...");
         stable_notesByUser := Iter.toArray(notesByUser.entries());
         stable_users := UserStore.serializeAll(users);
-        Debug.print("Pre-upgrade finished successfully.");
+        Debug.print("pre-upgrade finished.");
     };
 
     // The work required after a canister upgrade ends.
@@ -515,6 +515,6 @@ shared({ caller = initializer }) actor class() {
 
         users := UserStore.deserialize(stable_users, stable_notesByUser.size());
         stable_notesByUser := [];
-        Debug.print("Post-upgrade finished successfully.");
+        Debug.print("post-upgrade finished.");
     };
 };
