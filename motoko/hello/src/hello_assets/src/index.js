@@ -2,6 +2,7 @@ import { hello } from "../../declarations/hello";
 
 document.querySelector("form").addEventListener("submit", async (e) => {
   e.preventDefault();
+  document.getElementById("greeting").innerText = "";
   const loader = document.getElementById("loader");
 
   const button = e.target.querySelector("button");

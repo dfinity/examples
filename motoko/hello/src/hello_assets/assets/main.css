@@ -52,7 +52,7 @@ button[type="submit"] {
   width: 80px;
   height: 80px;
 }
-.lds-default div {
+.lds-default .item {
   position: absolute;
   width: 6px;
   height: 6px;
