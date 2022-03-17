@@ -3,6 +3,7 @@ import Text "mo:base/Text";
 import Array "mo:base/Array";
 import Option "mo:base/Option";
 import Prim "mo:prim";
+import Prelude "mo:base/Prelude";
 
 
 actor HttpCounter {
@@ -13,10 +14,8 @@ actor HttpCounter {
   };
 
   type Token = {
-    key: Text;
-    content_encoding: Text;
-    index: Nat;
-    sha256: ?Blob;
+    // Add whatever fields you'd like
+    arbitrary_data: Text;
   };
 
   type CallbackStrategy = {
@@ -52,15 +51,27 @@ actor HttpCounter {
   stable var counter = 0;
 
   public query func http_request(req : HttpRequest) : async HttpResponse {
-    switch (req.method, not Option.isNull(Array.find(req.headers, isGzip))) {
-      case ("GET", false) {{
+    switch (req.method, not Option.isNull(Array.find(req.headers, isGzip)), req.url) {
+      case ("GET", false, "/stream") {{
         status_code = 200;
         headers = [ ("content-type", "text/plain") ];
-        body = Text.encodeUtf8("Counter is " # Nat.toText(counter) # "\n");
+        body = Text.encodeUtf8("Counter");
+        streaming_strategy = ?#Callback({
+          callback = http_streaming;
+          token = {
+            arbitrary_data = "start";
+          }
+        });
+        upgrade = ?false;
+      }};
+      case ("GET", false, _) {{
+        status_code = 200;
+        headers = [ ("content-type", "text/plain") ];
+        body = Text.encodeUtf8("Counter is " # Nat.toText(counter) # "\n" # req.url # "\n");
         streaming_strategy = null;
         upgrade = null;
       }};
-      case ("GET", true) {{
+      case ("GET", true, _) {{
         status_code = 200;
         headers = [ ("content-type", "text/plain"), ("content-encoding", "gzip") ];
         body = "\1f\8b\08\00\98\02\1b\62\00\03\2b\2c\4d\2d\aa\e4\02\00\d6\80\2b\05\06\00\00\00";
@@ -68,7 +79,7 @@ actor HttpCounter {
         upgrade = null;
       }};
 
-      case ("POST", _) {{
+      case ("POST", _, _) {{
         status_code = 204;
         headers = [];
         body = "";
@@ -115,6 +126,25 @@ actor HttpCounter {
         streaming_strategy = null;
         upgrade = null;
       }};
+    }
+  };
+
+  public query func http_streaming(token : Token) : async StreamingCallbackHttpResponse {
+    switch (token.arbitrary_data) {
+      case "start" {{
+        body = Text.encodeUtf8(" is ");
+        token = ?{arbitrary_data = "next"};
+      }};
+      case "next" {{
+        body = Text.encodeUtf8(Nat.toText(counter));
+        token = ?{arbitrary_data = "last"};
+
+      }};
+      case "last" {{
+        body = Text.encodeUtf8(" streaming\n");
+        token = null;
+      }};
+      case _ { Prelude.unreachable() };
     }
   };
 };
