@@ -15,7 +15,11 @@ use std::num::TryFromIntError;
 use std::result::Result as StdResult;
 
 use candid::{CandidType, Encode, Principal};
-use ic_cdk::{api::{self, call}, export::candid, storage};
+use ic_cdk::{
+    api::{self, call},
+    export::candid,
+    storage,
+};
 use ic_certified_map::Hash;
 use include_base64::include_base64;
 
@@ -43,7 +47,7 @@ fn pre_upgrade() {
 }
 #[post_upgrade]
 fn post_upgrade() {
-    let (StableState { state, hashes },) = storage::stable_restore().unwrap(); 
+    let (StableState { state, hashes },) = storage::stable_restore().unwrap();
     STATE.with(|state0| *state0.borrow_mut() = state);
     let hashes = hashes.into_iter().collect();
     http::HASHES.with(|hashes0| *hashes0.borrow_mut() = hashes);
@@ -92,7 +96,14 @@ type Result<T = u128, E = Error> = StdResult<T, E>;
 
 #[query(name = "balanceOfDip721")]
 fn balance_of(user: Principal) -> u64 {
-    STATE.with(|state| state.borrow().nfts.iter().filter(|n| n.owner == user).count() as u64)
+    STATE.with(|state| {
+        state
+            .borrow()
+            .nfts
+            .iter()
+            .filter(|n| n.owner == user)
+            .count() as u64
+    })
 }
 
 #[query(name = "ownerOfDip721")]
@@ -164,7 +175,8 @@ struct LogoResult {
 }
 
 #[export_name = "canister_query logoDip721"]
-fn logo() /* -> &'static LogoResult */ {
+fn logo() /* -> &'static LogoResult */
+{
     ic_cdk::setup();
     STATE.with(|state| call::reply((state.borrow().logo.as_ref().unwrap_or(&DEFAULT_LOGO),)))
 }
@@ -190,7 +202,8 @@ fn total_supply() -> u64 {
 }
 
 #[export_name = "canister_query getMetadataDip721"]
-fn get_metadata(/* token_id: u64 */) /* -> Result<&'static MetadataDesc> */ {
+fn get_metadata(/* token_id: u64 */) /* -> Result<&'static MetadataDesc> */
+{
     ic_cdk::setup();
     let token_id = call::arg_data::<(u64,)>().0;
     let res: Result<()> = STATE.with(|state| {
@@ -215,7 +228,8 @@ struct ExtendedMetadataResult<'a> {
 }
 
 #[export_name = "canister_update getMetadataForUserDip721"]
-fn get_metadata_for_user(/* user: Principal */) /* -> Vec<ExtendedMetadataResult> */ {
+fn get_metadata_for_user(/* user: Principal */) /* -> Vec<ExtendedMetadataResult> */
+{
     ic_cdk::setup();
     let user = call::arg_data::<(Principal,)>().0;
     STATE.with(|state| {
@@ -320,7 +334,8 @@ fn set_approval_for_all(operator: Principal, is_approved: bool) -> Result {
 // #[query(name = "getApprovedDip721")] // Psychedelic/DIP721#5
 fn _get_approved(token_id: u64) -> Result<Principal> {
     STATE.with(|state| {
-        let approved = state.borrow()
+        let approved = state
+            .borrow()
             .nfts
             .get(usize::try_from(token_id)?)
             .ok_or(Error::InvalidTokenId)?
@@ -333,7 +348,8 @@ fn _get_approved(token_id: u64) -> Result<Principal> {
 #[query(name = "isApprovedForAllDip721")]
 fn is_approved_for_all(operator: Principal) -> bool {
     STATE.with(|state| {
-        state.borrow()
+        state
+            .borrow()
             .operators
             .get(&api::caller())
             .map(|s| s.contains(&operator))
@@ -368,7 +384,10 @@ fn mint(
         Ok((state.next_txid(), new_id))
     })?;
     http::add_hash(tkid);
-    Ok(MintResult { id: txid, token_id: tkid })
+    Ok(MintResult {
+        id: txid,
+        token_id: tkid,
+    })
 }
 
 // --------------

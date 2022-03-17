@@ -2,9 +2,9 @@
 load "prelude.sh";
 
 // This will not be needed once replica supports custom section
-import fake = "2vxsx-fae" as "../.dfx/local/canisters/dao/dao.did";
+import fake = "2vxsx-fae" as "../.dfx/local/canisters/basic_dao/basic_dao.did";
 
-let wasm = file "../.dfx/local/canisters/dao/dao.wasm";
+let wasm = file "../.dfx/local/canisters/basic_dao/basic_dao.wasm";
 
 identity alice;
 identity bob;

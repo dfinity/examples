@@ -1,17 +1,20 @@
-use std::{collections::HashMap, cell::RefCell};
 use std::borrow::Cow;
 use std::iter::FromIterator;
+use std::{cell::RefCell, collections::HashMap};
 
-use ic_cdk::{api::{self, call}, export::candid};
 use candid::CandidType;
-use ic_certified_map::{Hash, RbTree, AsHashTree};
-use serde::{Serialize, Deserialize};
-use url::Url;
+use ic_cdk::{
+    api::{self, call},
+    export::candid,
+};
+use ic_certified_map::{AsHashTree, Hash, RbTree};
 use percent_encoding::percent_decode_str;
-use sha2::{Digest, Sha256};
+use serde::{Deserialize, Serialize};
 use serde_cbor::Serializer;
+use sha2::{Digest, Sha256};
+use url::Url;
 
-use crate::{STATE, MetadataVal, MetadataPurpose};
+use crate::{MetadataPurpose, MetadataVal, STATE};
 
 #[derive(CandidType, Deserialize)]
 struct HttpRequest {
@@ -29,7 +32,8 @@ struct HttpResponse<'a> {
 }
 
 #[export_name = "canister_query http_request"]
-fn http_request(/* req: HttpRequest */) /* -> HttpResponse */ {
+fn http_request(/* req: HttpRequest */) /* -> HttpResponse */
+{
     ic_cdk::setup();
     let req = call::arg_data::<(HttpRequest,)>().0;
     STATE.with(|state| {
@@ -42,33 +46,56 @@ fn http_request(/* req: HttpRequest */) /* -> HttpResponse */ {
         let base_url = Url::parse(&base_url).unwrap();
         let url = base_url.join(&req.url).unwrap();
         let full_path = percent_decode_str(url.path()).decode_utf8().unwrap();
-        let cert = format!("certificate=:{}:, tree=:{}:", base64::encode(api::data_certificate().unwrap()), witness(&full_path)).into();
-        let mut path = url.path_segments().unwrap().map(|segment| percent_decode_str(segment).decode_utf8().unwrap());
+        let cert = format!(
+            "certificate=:{}:, tree=:{}:",
+            base64::encode(api::data_certificate().unwrap()),
+            witness(&full_path)
+        )
+        .into();
+        let mut path = url
+            .path_segments()
+            .unwrap()
+            .map(|segment| percent_decode_str(segment).decode_utf8().unwrap());
         let mut headers = HashMap::from_iter([
-            ("Content-Security-Policy", "default-src 'self' ; script-src 'none' ; frame-src 'none' ; object-src 'none'".into()),
+            (
+                "Content-Security-Policy",
+                "default-src 'self' ; script-src 'none' ; frame-src 'none' ; object-src 'none'"
+                    .into(),
+            ),
             ("IC-Certificate", cert),
         ]);
         if cfg!(mainnet) {
-            headers.insert("Strict-Transport-Security", "max-age=31536000; includeSubDomains".into());
+            headers.insert(
+                "Strict-Transport-Security",
+                "max-age=31536000; includeSubDomains".into(),
+            );
         }
-        let root = path.next().unwrap_or("".into());
+        let root = path.next().unwrap_or_else(|| "".into());
         let body;
         let mut code = 200;
         if root == "" {
-            body = format!("Total NFTs: {}", state.nfts.len()).into_bytes().into();
+            body = format!("Total NFTs: {}", state.nfts.len())
+                .into_bytes()
+                .into();
         } else {
             if let Ok(num) = root.parse::<usize>() {
                 // /:something
                 if let Some(nft) = state.nfts.get(num) {
                     // /:nft
-                    let img = path.next().unwrap_or("".into());
+                    let img = path.next().unwrap_or_else(|| "".into());
                     if img == "" {
                         // /:nft/
-                        let part = nft.metadata.iter().find(|x| x.purpose == MetadataPurpose::Rendered).or_else(|| nft.metadata.get(0));
+                        let part = nft
+                            .metadata
+                            .iter()
+                            .find(|x| x.purpose == MetadataPurpose::Rendered)
+                            .or_else(|| nft.metadata.get(0));
                         if let Some(part) = part {
                             // default metadata: first non-preview metadata, or if there is none, first metadata
                             body = part.data.as_slice().into();
-                            if let Some(MetadataVal::TextContent(mime)) = part.key_val_data.get("contentType") {
+                            if let Some(MetadataVal::TextContent(mime)) =
+                                part.key_val_data.get("contentType")
+                            {
                                 headers.insert("Content-Type", mime.as_str().into());
                             }
                         } else {
@@ -82,7 +109,9 @@ fn http_request(/* req: HttpRequest */) /* -> HttpResponse */ {
                             if let Some(part) = nft.metadata.get(num) {
                                 // /:nft/:id
                                 body = part.data.as_slice().into();
-                                if let Some(MetadataVal::TextContent(mime)) = part.key_val_data.get("contentType") {
+                                if let Some(MetadataVal::TextContent(mime)) =
+                                    part.key_val_data.get("contentType")
+                                {
                                     headers.insert("Content-Type", mime.as_str().into());
                                 }
                             } else {
@@ -112,27 +141,34 @@ fn http_request(/* req: HttpRequest */) /* -> HttpResponse */ {
 }
 
 thread_local! {
-    pub static HASHES: RefCell<RbTree<String, Hash>> = RefCell::default();
+    // sha256("Total NFTs: 0") = 83d0f670865c367ce95f595959abec46ed7b64033ecee9ed772e78793f3bc10f
+    pub static HASHES: RefCell<RbTree<String, Hash>> = RefCell::new(RbTree::from_iter([("/".to_string(), *b"\x83\xd0\xf6\x70\x86\x5c\x36\x7c\xe9\x5f\x59\x59\x59\xab\xec\x46\xed\x7b\x64\x03\x3e\xce\xe9\xed\x77\x2e\x78\x79\x3f\x3b\xc1\x0f")]));
 }
 
 pub fn add_hash(tkid: u64) {
-    crate::STATE.with(|state| HASHES.with(|hashes| {
-        let state = state.borrow();
-        let mut hashes = hashes.borrow_mut();
-        let nft = state.nfts.get(tkid as usize)?;
-        let mut default = false;
-        for (i, metadata) in nft.metadata.iter().enumerate() {
-            let hash = Sha256::digest(&metadata.data);
-            hashes.insert(format!("/{}/{}", tkid, i), hash.into());
-            if !default && matches!(metadata.purpose, MetadataPurpose::Rendered) {
-                default = true;
-                hashes.insert(format!("/{}", tkid), hash.into());
+    crate::STATE.with(|state| {
+        HASHES.with(|hashes| {
+            let state = state.borrow();
+            let mut hashes = hashes.borrow_mut();
+            let nft = state.nfts.get(tkid as usize)?;
+            let mut default = false;
+            for (i, metadata) in nft.metadata.iter().enumerate() {
+                let hash = Sha256::digest(&metadata.data);
+                hashes.insert(format!("/{}/{}", tkid, i), hash.into());
+                if !default && matches!(metadata.purpose, MetadataPurpose::Rendered) {
+                    default = true;
+                    hashes.insert(format!("/{}", tkid), hash.into());
+                }
             }
-        }
-        let cert = ic_certified_map::labeled_hash(b"http_assets", &hashes.root_hash());
-        api::set_certified_data(&cert);
-        Some(())
-    }));
+            hashes.insert(
+                "/".to_string(),
+                Sha256::digest(format!("Total NFTs: {}", state.nfts.len())).into(),
+            );
+            let cert = ic_certified_map::labeled_hash(b"http_assets", &hashes.root_hash());
+            api::set_certified_data(&cert);
+            Some(())
+        })
+    });
 }
 
 fn witness(name: &str) -> String {

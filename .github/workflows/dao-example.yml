@@ -14,13 +14,13 @@ jobs:
       - name: Motoko DAO Example Darwin
         run: |
           dfx start --background
-          pushd motoko/dao
-          dfx canister create dao
+          pushd motoko/basic_dao
+          dfx canister create basic_dao
           dfx build
           (for f in tests/*.test.sh; do
             echo "==== Run test $f ===="
             ic-repl -r http://localhost:8000 "$f" || exit
-          done)          
+          done)
           popd
   motoko-hello-example-linux:
     runs-on: ubuntu-20.04
@@ -31,8 +31,8 @@ jobs:
       - name: Motoko DAO Example Linux
         run: |
           dfx start --background
-          pushd motoko/dao
-          dfx canister create dao
+          pushd motoko/basic_dao
+          dfx canister create basic_dao
           dfx build
           (for f in tests/*.test.sh; do
             echo "==== Run test $f ===="
