@@ -12,7 +12,6 @@ use percent_encoding::percent_decode_str;
 use serde::{Deserialize, Serialize};
 use serde_cbor::Serializer;
 use sha2::{Digest, Sha256};
-use url::Url;
 
 use crate::{MetadataPurpose, MetadataVal, STATE};
 
@@ -46,23 +45,14 @@ fn http_request(/* req: HttpRequest */) /* -> HttpResponse */
     let req = call::arg_data::<(HttpRequest,)>().0;
     STATE.with(|state| {
         let state = state.borrow();
-        let base_url = if cfg!(mainnet) {
-            format!("https://{}.raw.ic0.app", api::id())
-        } else {
-            format!("http://{}.localhost:8000", api::id())
-        };
-        let base_url = Url::parse(&base_url).unwrap();
-        let url = base_url.join(&req.url).unwrap();
-        let full_path = percent_decode_str(url.path()).decode_utf8().unwrap();
+        let url = req.url.split('?').next().unwrap_or("/");
         let cert = format!(
             "certificate=:{}:, tree=:{}:",
             base64::encode(api::data_certificate().unwrap()),
-            witness(&full_path)
+            witness(&url)
         )
         .into();
-        let mut path = url
-            .path_segments()
-            .unwrap()
+        let mut path = url[1..].split('/')
             .map(|segment| percent_decode_str(segment).decode_utf8().unwrap());
         let mut headers = HashMap::from_iter([
             (
