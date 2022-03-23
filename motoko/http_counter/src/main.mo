@@ -138,7 +138,6 @@ actor HttpCounter {
       case "next" {{
         body = Text.encodeUtf8(Nat.toText(counter));
         token = ?{arbitrary_data = "last"};
-
       }};
       case "last" {{
         body = Text.encodeUtf8(" streaming\n");
