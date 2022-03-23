@@ -31,6 +31,14 @@ struct HttpResponse<'a> {
     body: Cow<'a, [u8]>,
 }
 
+// This could reply with a lot of data. To return this data from the function would require it to be cloned,
+// because the thread_local! closure prevents us from returning data borrowed from inside it.
+// Luckily, it doesn't actually get returned from the exported WASM function, that's just an abstraction. 
+// What happens is it gets fed to call::reply, and we can do that explicitly to save the cost of cloning the data.
+// #[query] calls call::reply unconditionally, and calling it twice would trap, so we use #[export_name] directly.
+// This requires duplicating the rest of the abstraction #[query] provides for us, like setting up the panic handler with
+// ic_cdk::setup() and fetching the function parameters via call::arg_data.
+// cdk 0.5 makes this unnecessary, but it has not been released at the time of writing this example.
 #[export_name = "canister_query http_request"]
 fn http_request(/* req: HttpRequest */) /* -> HttpResponse */
 {
