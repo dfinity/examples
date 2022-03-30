@@ -1,7 +1,7 @@
 # Tokens Transfer
 
-Tokens Transfer is a canister that can transfer token from its account to other accounts.
-It is an example of a canister that uses the Ledger canister.
+Tokens Transfer shows how a canister can interact with the ledger and make transfers from its account
+to other accounts.
 
 
 ## Interface
