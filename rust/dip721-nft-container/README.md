@@ -2,7 +2,7 @@
 
 ## Summary
 
-This is an example implementation of an NFT (non-fungible token) smart contract, using the [DIP721] standard.
+This is an example implementation of an NFT (non-fungible token) smart contract, using the [DIP721] v1 standard. A future version of this example may implement v2 instead.
 
 ## Setup
 
@@ -57,6 +57,8 @@ Aside from the standard functions, it has five extra functions:
 
 The canister also supports a certified HTTP interface; going to `/<nft>/<id>` will return `nft`'s metadata file #`id`, with `/<nft>` returning the first non-preview file.
 
+Remember that query functions are uncertified; the result of functions like `ownerOfDip721` can be modified arbitrarily by a single malicious node. If queried information is depended on, for example if someone might send ICP to the owner of a particular NFT to buy it from them, those calls should be performed as update calls instead. You can force an update call by passing the `--update` flag to `dfx` or using the `Agent::update` function in `agent-rs`.
+
 ## Minting
 
 Due to size limitations on the length of a terminal command, an image- or video-based NFT would be impossible to send via `dfx`. To that end, there is an experimental [minting tool][mint] you can use to mint a single-file NFT. As an example, to mint the default logo, you would run the following command:
@@ -64,6 +66,8 @@ Due to size limitations on the length of a terminal command, an image- or video-
 ```sh
 minting-tool local "$(dfx canister id dip721-nft-container)" --owner "$(dfx identity get-principal)" --file ./logo.png --sha2-auto
 ```
+
+Minting is restricted to anyone authorized with the `custodians` parameter or the `set_custodians` function. Since the contents of `--file` are stored on-chain, it's important to prevent arbitrary users from minting tokens, or they will be able to store arbitrarily-sized data in the contract and exhaust the canister's cycles. Be careful not to upload too much data to the canister yourself, or the contract will no longer be able to be upgraded afterwards.
 
 ## Demo
 

@@ -8,7 +8,6 @@ ic-cdk = "0.3"
 ic-cdk-macros = "0.3"
 include-base64 = "0.1"
 serde = { version = "1", features = ["derive"] }
-url = "2.2"
 percent-encoding = "2.1"
 ic-certified-map = "0.3"
 sha2 = "0.10.2"

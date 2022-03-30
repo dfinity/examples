@@ -12,7 +12,6 @@ use percent_encoding::percent_decode_str;
 use serde::{Deserialize, Serialize};
 use serde_cbor::Serializer;
 use sha2::{Digest, Sha256};
-use url::Url;
 
 use crate::{MetadataPurpose, MetadataVal, STATE};
 
@@ -31,6 +30,14 @@ struct HttpResponse<'a> {
     body: Cow<'a, [u8]>,
 }
 
+// This could reply with a lot of data. To return this data from the function would require it to be cloned,
+// because the thread_local! closure prevents us from returning data borrowed from inside it.
+// Luckily, it doesn't actually get returned from the exported WASM function, that's just an abstraction. 
+// What happens is it gets fed to call::reply, and we can do that explicitly to save the cost of cloning the data.
+// #[query] calls call::reply unconditionally, and calling it twice would trap, so we use #[export_name] directly.
+// This requires duplicating the rest of the abstraction #[query] provides for us, like setting up the panic handler with
+// ic_cdk::setup() and fetching the function parameters via call::arg_data.
+// cdk 0.5 makes this unnecessary, but it has not been released at the time of writing this example.
 #[export_name = "canister_query http_request"]
 fn http_request(/* req: HttpRequest */) /* -> HttpResponse */
 {
@@ -38,23 +45,14 @@ fn http_request(/* req: HttpRequest */) /* -> HttpResponse */
     let req = call::arg_data::<(HttpRequest,)>().0;
     STATE.with(|state| {
         let state = state.borrow();
-        let base_url = if cfg!(mainnet) {
-            format!("https://{}.raw.ic0.app", api::id())
-        } else {
-            format!("http://{}.localhost:8000", api::id())
-        };
-        let base_url = Url::parse(&base_url).unwrap();
-        let url = base_url.join(&req.url).unwrap();
-        let full_path = percent_decode_str(url.path()).decode_utf8().unwrap();
+        let url = req.url.split('?').next().unwrap_or("/");
         let cert = format!(
             "certificate=:{}:, tree=:{}:",
             base64::encode(api::data_certificate().unwrap()),
-            witness(&full_path)
+            witness(&url)
         )
         .into();
-        let mut path = url
-            .path_segments()
-            .unwrap()
+        let mut path = url[1..].split('/')
             .map(|segment| percent_decode_str(segment).decode_utf8().unwrap());
         let mut headers = HashMap::from_iter([
             (

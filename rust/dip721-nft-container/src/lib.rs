@@ -255,7 +255,13 @@ fn get_metadata_for_user(/* user: Principal */) /* -> Vec<ExtendedMetadataResult
 fn transfer_from_notify(from: Principal, to: Principal, token_id: u64, data: Vec<u8>) -> Result {
     let res = transfer_from(from, to, token_id)?;
     if let Ok(arg) = Encode!(&api::caller(), &from, &token_id, &data) {
-        // raw so we don't await the future
+        // Using call_raw ensures we don't need to await the future for the call to be executed.
+        // Calling an arbitrary function like this means that a malicious recipient could call 
+        // transferFromNotifyDip721 in their onDIP721Received function, resulting in an infinite loop.
+        // This will trap eventually, but the transfer will have already been completed and the state-change persisted.
+        // That means the original transfer must reply before that happens, or the caller will be
+        // convinced that the transfer failed when it actually succeeded. So we don't await the call,
+        // so that we'll reply immediately regardless of how long the notification call takes.
         let _ = api::call::call_raw(to, "onDIP721Received", arg, 0);
     }
     Ok(res)
