@@ -1,3 +1,4 @@
+import Result "mo:base/Result";
 import Nat "mo:base/Nat";
 import Nat8 "mo:base/Nat8";
 import Nat16 "mo:base/Nat16";
@@ -16,15 +17,8 @@ module {
     #Other;
   };
 
-  public type OwnerResult = {
-    #Err: ApiError;
-    #Ok: Principal;
-  };
-
-  public type TxReceipt = {
-    #Err: ApiError;
-    #Ok: Nat;
-  };
+  public type OwnerResult = Result.Result<Principal, ApiError>;
+  public type TxReceipt = Result.Result<Nat, ApiError>;
 
   public type InterfaceId = {
     #Approval;
@@ -44,10 +38,7 @@ module {
     token_id: Nat64;
   };
 
-  public type MetadataResult = {
-    #Err: ApiError;
-    #Ok: MetadataDesc;
-  };
+  public type MetadataResult = Result.Result<MetadataDesc, ApiError>;
 
   public type MetadataDesc = List.List<MetadataPart>;
 
@@ -111,10 +102,7 @@ module {
     }
   };
 
-  public type MintReceipt = {
-    #Err: ApiError;
-    #Ok: MintReceiptPart;
-  };
+  public type MintReceipt = Result.Result<MintReceiptPart, ApiError>;
 
   public type MintReceiptPart = {
     token_id: Nat64;
@@ -143,17 +131,16 @@ module {
     token: TokenIdentifier;
   };
 
-  public type TransferResponse = {
-    #Err: {
-      #CannotNotify: AccountIdentifier;
-      #InsufficientBalance;
-      #InvalidToken: AccountIdentifier;
-      #Other: Text;
-      #Rejected;
-      #Unauthorized: AccountIdentifier;
-    };
-    #Ok: Balance;
+  public type TransferResponseError = {
+    #CannotNotify: AccountIdentifier;
+    #InsufficientBalance;
+    #InvalidToken: AccountIdentifier;
+    #Other: Text;
+    #Rejected;
+    #Unauthorized: AccountIdentifier;
   };
+
+  public type TransferResponse = Result.Result<Balance, TransferResponseError>;
 
   public type MintRequest = {
     metadata: ?MetadataContainer;
@@ -165,20 +152,11 @@ module {
     #Other: Text;
   };
 
-  public type AccountIdentifierReturn = {
-    #Err: CommonError;
-    #Ok: AccountIdentifier;
-  };
+  public type AccountIdentifierReturn = Result.Result<AccountIdentifier, CommonError>;
 
-  public type BalanceReturn = {
-    #Err: CommonError;
-    #Ok: Balance;
-  };
+  public type BalanceReturn = Result.Result<Balance, CommonError>;
 
-  public type MetadataReturn = {
-    #Err: CommonError;
-    #Ok: Metadata;
-  };
+  public type MetadataReturn = Result.Result<Metadata, CommonError>;
 
   public type TokenMetadata = {
     account_identifier: AccountIdentifier;
@@ -235,8 +213,5 @@ module {
     token: TokenIdentifier;
   };
 
-  public type TrasactionsResult = {
-    #Err: CommonError;
-    #Ok: List.List<Transaction>;
-  };
+  public type TransactionsResult = Result.Result<List.List<Transaction>, CommonError>;
 };
