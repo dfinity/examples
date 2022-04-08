@@ -1,4 +1,3 @@
-import Result "mo:base/Result";
 import Nat "mo:base/Nat";
 import Nat8 "mo:base/Nat8";
 import Nat16 "mo:base/Nat16";
@@ -17,8 +16,13 @@ module {
     #Other;
   };
 
-  public type OwnerResult = Result.Result<Principal, ApiError>;
-  public type TxReceipt = Result.Result<Nat, ApiError>;
+  public type Result<S, E> = {
+    #Ok : S;
+    #Err : E;
+  };
+
+  public type OwnerResult = Result<Principal, ApiError>;
+  public type TxReceipt = Result<Nat, ApiError>;
 
   public type InterfaceId = {
     #Approval;
@@ -38,7 +42,7 @@ module {
     token_id: Nat64;
   };
 
-  public type MetadataResult = Result.Result<MetadataDesc, ApiError>;
+  public type MetadataResult = Result<MetadataDesc, ApiError>;
 
   public type MetadataDesc = List.List<MetadataPart>;
 
@@ -102,7 +106,7 @@ module {
     }
   };
 
-  public type MintReceipt = Result.Result<MintReceiptPart, ApiError>;
+  public type MintReceipt = Result<MintReceiptPart, ApiError>;
 
   public type MintReceiptPart = {
     token_id: Nat64;
@@ -140,7 +144,7 @@ module {
     #Unauthorized: AccountIdentifier;
   };
 
-  public type TransferResponse = Result.Result<Balance, TransferResponseError>;
+  public type TransferResponse = Result<Balance, TransferResponseError>;
 
   public type MintRequest = {
     metadata: ?MetadataContainer;
@@ -152,11 +156,11 @@ module {
     #Other: Text;
   };
 
-  public type AccountIdentifierReturn = Result.Result<AccountIdentifier, CommonError>;
+  public type AccountIdentifierReturn = Result<AccountIdentifier, CommonError>;
 
-  public type BalanceReturn = Result.Result<Balance, CommonError>;
+  public type BalanceReturn = Result<Balance, CommonError>;
 
-  public type MetadataReturn = Result.Result<Metadata, CommonError>;
+  public type MetadataReturn = Result<Metadata, CommonError>;
 
   public type TokenMetadata = {
     account_identifier: AccountIdentifier;
@@ -213,5 +217,5 @@ module {
     token: TokenIdentifier;
   };
 
-  public type TransactionsResult = Result.Result<List.List<Transaction>, CommonError>;
+  public type TransactionsResult = Result<List.List<Transaction>, CommonError>;
 };

@@ -29,17 +29,17 @@ shared actor class Dip721NFT() = Self {
     let item = List.get(nfts, Nat64.toNat(token_id));
     switch (item) {
       case (null) {
-        #err(#InvalidTokenId);
+        return #Err(#InvalidTokenId);
       };
       case (?token) {
-          #ok(token.principal);
+        return #Ok(token.principal);
       };
     };
   };
 
   public shared({ caller }) func safeTransferFromDip721(from: Principal, to: Principal, token_id: Nat64) : async Types.TxReceipt {  
     if (to == null_address) {
-      return #err(#ZeroAddress);
+      return #Err(#ZeroAddress);
     } else {
       return transferFrom(from, to, token_id, caller);
     };
@@ -53,18 +53,18 @@ shared actor class Dip721NFT() = Self {
     let item = List.get(nfts, Nat64.toNat(token_id));
     switch (item) {
       case null {
-        return #err(#InvalidTokenId);
+        return #Err(#InvalidTokenId);
       };
       case (?token) {
         if (
           caller != token.principal and
           not List.some(custodians, func (custodian : Principal) : Bool { custodian == caller })
         ) {
-          return #err(#Unauthorized);
+          return #Err(#Unauthorized);
         } else if (Principal.notEqual(from, token.principal)) {
-          return #err(#Other);
+          return #Err(#Other);
         } else {
-          nfts := List.map(nfts, func (item : Types.TokenMetadata) : Types.TokenMetadata { 
+          nfts := List.map(nfts, func (item : Types.TokenMetadata) : Types.TokenMetadata {
             if (item.token_identifier == token.token_identifier) {
               let update : Types.TokenMetadata = {
                 account_identifier = token.account_identifier;
@@ -76,8 +76,8 @@ shared actor class Dip721NFT() = Self {
             } else {
               return item;
             };
-           });
-          return #ok(Nat64.toNat(token_id));   
+          });
+          return #Ok(Nat64.toNat(token_id));   
         };
       };
     };
