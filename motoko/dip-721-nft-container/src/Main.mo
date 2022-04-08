@@ -11,6 +11,7 @@ import Principal "mo:base/Principal";
 import Types "./Types";
 
 shared actor class Dip721NFT() = Self {
+  stable var transactionId : Nat = 0;
   stable var nfts = List.nil<Types.TokenMetadata>();
   stable var custodians = List.nil<Principal>();
 
@@ -77,7 +78,8 @@ shared actor class Dip721NFT() = Self {
               return item;
             };
           });
-          return #Ok(Nat64.toNat(token_id));   
+          transactionId += 1;
+          return #Ok(transactionId);   
         };
       };
     };
