@@ -23,6 +23,9 @@ module {
 
   public type OwnerResult = Result<Principal, ApiError>;
   public type TxReceipt = Result<Nat, ApiError>;
+  
+  public type TransactionId = Nat;
+  public type TokenId = Nat64;
 
   public type InterfaceId = {
     #Approval;
@@ -37,12 +40,17 @@ module {
     data: Text;
   };
 
+  public type Nft = {
+    owner: Principal;
+    id: Nat64;
+    metadata: MetadataDesc;
+    content: List.List<Nat8>;
+  };
+
   public type ExtendedMetadataResult = {
     metadata_desc: MetadataDesc;
     token_id: TokenId;
   };
-
-  public type TokenId = Nat64;
 
   public type MetadataResult = Result<MetadataDesc, ApiError>;
 
@@ -81,17 +89,17 @@ module {
 
   public type TransactionType = {
     #Transfer: {
-      token_id: Nat64;
+      token_id: TokenId;
       from: Principal;
       to: Principal;
     };
     #TransferFrom: {
-      token_id: Nat64;
+      token_id: TokenId;
       from: Principal;
       to: Principal;
     };
     #Approve: {
-      token_id: Nat64;
+      token_id: TokenId;
       from: Principal;
       to: Principal;
     };
@@ -104,120 +112,14 @@ module {
       to: Principal;
     };
     #Burn: {
-      token_id: Nat64;
+      token_id: TokenId;
     }
   };
 
   public type MintReceipt = Result<MintReceiptPart, ApiError>;
 
   public type MintReceiptPart = {
-    token_id: Nat64;
+    token_id: TokenId;
     id: Nat;
   };
-
-  public type Balance = Nat;
-  public type Memo = Blob;
-  public type SubAccount = List.List<Nat8>;
-  public type TokenIdentifier = Text;
-  public type TokenIndex = Nat32;
-  public type AccountIdentifier = Text;
-
-  public type User = {
-    #address: AccountIdentifier;
-    #principal: Principal;
-  };
-
-  public type TransferRequest = {
-    amount: Balance;
-    from: User;
-    memo: Memo;
-    notify: Bool;
-    subaccount: ?SubAccount;
-    to: User;
-    token: TokenIdentifier;
-  };
-
-  public type TransferResponseError = {
-    #CannotNotify: AccountIdentifier;
-    #InsufficientBalance;
-    #InvalidToken: AccountIdentifier;
-    #Other: Text;
-    #Rejected;
-    #Unauthorized: AccountIdentifier;
-  };
-
-  public type TransferResponse = Result<Balance, TransferResponseError>;
-
-  public type MintRequest = {
-    metadata: ?MetadataContainer;
-    to: User;
-  };
-
-  public type CommonError = {
-    #InvalidToken: TokenIdentifier;
-    #Other: Text;
-  };
-
-  public type AccountIdentifierReturn = Result<AccountIdentifier, CommonError>;
-
-  public type BalanceReturn = Result<Balance, CommonError>;
-
-  public type MetadataReturn = Result<Metadata, CommonError>;
-
-  public type TokenMetadata = {
-    account_identifier: AccountIdentifier;
-    metadata: Metadata;
-    token_identifier: TokenIdentifier;
-    principal: Principal;
-  };
-
-  public type Metadata = {
-    #fungible: {
-      name: Text;
-      symbol: Text;
-      decimals: Nat8;
-      metadata: ?MetadataContainer;
-    };
-    #nonfungible: ?MetadataContainer;
-  };
-
-  public type MetadataContainer = {
-    #data: List.List<MetadataValue>;
-    #blob: Blob;
-    #json: Text;
-  };
-
-  public type MetadataValue = {
-    text: Value;
-  };
-
-  public type Value = {
-    #text: Text;
-    #blob: Blob;
-    #nat: Nat;
-    #nat8: Nat8;
-  };
-
-  public type TransactionId = Nat;
-  public type Date = Nat64;
-
-  public type Transaction = {
-    txid: TransactionId;
-    request: TransferRequest;
-    date: Date;
-  };
-
-  public type TransactionRequestFilter = {
-    #txid: TransactionId;
-    #user: User;
-    #date: Date;
-    #page: Nat;
-  };
-
-  public type TransactionRequest = {
-    transaction_query: TransactionRequestFilter;
-    token: TokenIdentifier;
-  };
-
-  public type TransactionsResult = Result<List.List<Transaction>, CommonError>;
 };

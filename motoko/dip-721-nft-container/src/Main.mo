@@ -11,8 +11,8 @@ import Principal "mo:base/Principal";
 import Types "./Types";
 
 shared actor class Dip721NFT() = Self {
-  stable var transactionId : Nat = 0;
-  stable var nfts = List.nil<Types.TokenMetadata>();
+  stable var transactionId: Types.TransactionId = 0;
+  stable var nfts = List.nil<Types.Nft>();
   stable var custodians = List.nil<Principal>();
 
   // https://forum.dfinity.org/t/is-there-any-address-0-equivalent-at-dfinity-motoko/5445/3
@@ -21,7 +21,7 @@ shared actor class Dip721NFT() = Self {
   public query func balanceOfDip721(user: Principal) : async Nat64 {
     return Nat64.fromNat(
       List.size(
-        List.filter(nfts, func(token: Types.TokenMetadata) : Bool { token.principal == user })
+        List.filter(nfts, func(token: Types.Nft) : Bool { token.owner == user })
       )
     );
   };
@@ -33,7 +33,7 @@ shared actor class Dip721NFT() = Self {
         return #Err(#InvalidTokenId);
       };
       case (?token) {
-        return #Ok(token.principal);
+        return #Ok(token.owner);
       };
     };
   };
@@ -58,20 +58,20 @@ shared actor class Dip721NFT() = Self {
       };
       case (?token) {
         if (
-          caller != token.principal and
+          caller != token.owner and
           not List.some(custodians, func (custodian : Principal) : Bool { custodian == caller })
         ) {
           return #Err(#Unauthorized);
-        } else if (Principal.notEqual(from, token.principal)) {
+        } else if (Principal.notEqual(from, token.owner)) {
           return #Err(#Other);
         } else {
-          nfts := List.map(nfts, func (item : Types.TokenMetadata) : Types.TokenMetadata {
-            if (item.token_identifier == token.token_identifier) {
-              let update : Types.TokenMetadata = {
-                account_identifier = token.account_identifier;
+          nfts := List.map(nfts, func (item : Types.Nft) : Types.Nft {
+            if (item.id == token.id) {
+              let update : Types.Nft = {
+                owner = to;
+                id = item.id;
                 metadata = token.metadata;
-                token_identifier = token.token_identifier;
-                principal = to;
+                content = token.content;
               };
               return update;
             } else {
