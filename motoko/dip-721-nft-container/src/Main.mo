@@ -26,7 +26,7 @@ shared actor class Dip721NFT() = Self {
     );
   };
 
-  public query func ownerOfDip721(token_id: Nat64) : async Types.OwnerResult {
+  public query func ownerOfDip721(token_id: Types.TokenId) : async Types.OwnerResult {
     let item = List.get(nfts, Nat64.toNat(token_id));
     switch (item) {
       case (null) {
@@ -38,7 +38,7 @@ shared actor class Dip721NFT() = Self {
     };
   };
 
-  public shared({ caller }) func safeTransferFromDip721(from: Principal, to: Principal, token_id: Nat64) : async Types.TxReceipt {  
+  public shared({ caller }) func safeTransferFromDip721(from: Principal, to: Principal, token_id: Types.TokenId) : async Types.TxReceipt {  
     if (to == null_address) {
       return #Err(#ZeroAddress);
     } else {
@@ -46,11 +46,11 @@ shared actor class Dip721NFT() = Self {
     };
   };
 
-  public shared({ caller }) func transferFromDip721(from: Principal, to: Principal, token_id: Nat64) : async Types.TxReceipt {
+  public shared({ caller }) func transferFromDip721(from: Principal, to: Principal, token_id: Types.TokenId) : async Types.TxReceipt {
     return transferFrom(from, to, token_id, caller);
   };
 
-  func transferFrom(from: Principal, to: Principal, token_id: Nat64, caller: Principal) : Types.TxReceipt {
+  func transferFrom(from: Principal, to: Principal, token_id: Types.TokenId, caller: Principal) : Types.TxReceipt {
     let item = List.get(nfts, Nat64.toNat(token_id));
     switch (item) {
       case null {

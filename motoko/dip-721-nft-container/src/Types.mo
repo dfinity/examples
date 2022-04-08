@@ -39,8 +39,10 @@ module {
 
   public type ExtendedMetadataResult = {
     metadata_desc: MetadataDesc;
-    token_id: Nat64;
+    token_id: TokenId;
   };
+
+  public type TokenId = Nat64;
 
   public type MetadataResult = Result<MetadataDesc, ApiError>;
 
