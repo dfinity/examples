@@ -38,7 +38,7 @@ shared actor class Dip721NFT() = Self {
   };
 
   public shared({ caller }) func safeTransferFromDip721(from: Principal, to: Principal, token_id: Nat64) : async Types.TxReceipt {  
-    if (Principal.equal(to, null_address)) {
+    if (to == null_address) {
       return #err(#ZeroAddress);
     } else {
       return transferFrom(from, to, token_id, caller);
@@ -57,12 +57,8 @@ shared actor class Dip721NFT() = Self {
       };
       case (?token) {
         if (
-          Bool.logand(
-            Bool.lognot(Principal.equal(caller, token.principal)),
-            Bool.lognot(
-              List.some(custodians, func (custodian : Principal) : Bool { Principal.equal(custodian, caller) })
-            )
-          )
+          caller != token.principal and
+          not List.some(custodians, func (custodian : Principal) : Bool { custodian == caller })
         ) {
           return #err(#Unauthorized);
         } else if (Principal.notEqual(from, token.principal)) {
