@@ -6,11 +6,13 @@ import Nat64 "mo:base/Nat64";
 import List "mo:base/List";
 import Array "mo:base/Array";
 import Option "mo:base/Option";
+import Bool "mo:base/Bool";
 import Principal "mo:base/Principal";
 import Types "./Types";
 
 shared actor class Dip721NFT() = Self {
   stable var nfts = List.nil<Types.TokenMetadata>();
+  stable var custodians = List.nil<Principal>();
 
   // https://forum.dfinity.org/t/is-there-any-address-0-equivalent-at-dfinity-motoko/5445/3
   let null_address : Principal = Principal.fromText("aaaaa-aa");
@@ -35,27 +37,35 @@ shared actor class Dip721NFT() = Self {
     };
   };
 
-  public func safeTransferFromDip721(from: Principal, to: Principal, token_id: Nat64) : async Types.TxReceipt {  
+  public shared({ caller }) func safeTransferFromDip721(from: Principal, to: Principal, token_id: Nat64) : async Types.TxReceipt {  
     if (Principal.equal(to, null_address)) {
       return #err(#ZeroAddress);
     } else {
-      return transferFrom(from, to, token_id);
+      return transferFrom(from, to, token_id, caller);
     };
   };
 
   public shared({ caller }) func transferFromDip721(from: Principal, to: Principal, token_id: Nat64) : async Types.TxReceipt {
-    return transferFrom(from, to, token_id);
+    return transferFrom(from, to, token_id, caller);
   };
 
-  func transferFrom(from: Principal, to: Principal, token_id: Nat64) : Types.TxReceipt {
+  func transferFrom(from: Principal, to: Principal, token_id: Nat64, caller: Principal) : Types.TxReceipt {
     let item = List.get(nfts, Nat64.toNat(token_id));
     switch (item) {
       case null {
         return #err(#InvalidTokenId);
       };
       case (?token) {
-        // TODO: what about "custodians"?
-        if (Principal.notEqual(from, token.principal)) {
+        if (
+          Bool.logand(
+            Bool.lognot(Principal.equal(caller, token.principal)),
+            Bool.lognot(
+              List.some(custodians, func (custodian : Principal) : Bool { Principal.equal(custodian, caller) })
+            )
+          )
+        ) {
+          return #err(#Unauthorized);
+        } else if (Principal.notEqual(from, token.principal)) {
           return #err(#Other);
         } else {
           nfts := List.map(nfts, func (item : Types.TokenMetadata) : Types.TokenMetadata { 
