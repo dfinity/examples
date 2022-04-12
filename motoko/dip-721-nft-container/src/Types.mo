@@ -3,9 +3,7 @@ import Nat8 "mo:base/Nat8";
 import Nat16 "mo:base/Nat16";
 import Nat32 "mo:base/Nat32";
 import Nat64 "mo:base/Nat64";
-import List "mo:base/List";
 import Blob "mo:base/Blob";
-import Bool "mo:base/Bool";
 import Principal "mo:base/Principal";
 
 module {
@@ -51,7 +49,6 @@ module {
     owner: Principal;
     id: TokenId;
     metadata: MetadataDesc;
-    content: List.List<Nat8>;
   };
 
   public type ExtendedMetadataResult = Result<{
@@ -61,11 +58,11 @@ module {
 
   public type MetadataResult = Result<MetadataDesc, ApiError>;
 
-  public type MetadataDesc = List.List<MetadataPart>;
+  public type MetadataDesc = [MetadataPart];
 
   public type MetadataPart = {
     purpose: MetadataPurpose;
-    key_val_data: List.List<MetadataKeyVal>;
+    key_val_data: [MetadataKeyVal];
     data: Blob;
   };
 
@@ -87,40 +84,6 @@ module {
     #Nat16Content: Nat16;
     #Nat32Content: Nat32;
     #Nat64Content: Nat64;
-  };
-
-  public type TransactionResult = {
-    fee: Nat;
-    transaction_type: TransactionType;
-  };
-
-  public type TransactionType = {
-    #Transfer: {
-      token_id: TokenId;
-      from: Principal;
-      to: Principal;
-    };
-    #TransferFrom: {
-      token_id: TokenId;
-      from: Principal;
-      to: Principal;
-    };
-    #Approve: {
-      token_id: TokenId;
-      from: Principal;
-      to: Principal;
-    };
-    #SetApprovalForAll: {
-      from: Principal;
-      to: Principal;
-    };
-    #Mint: {
-      from: Principal;
-      to: Principal;
-    };
-    #Burn: {
-      token_id: TokenId;
-    }
   };
 
   public type MintReceipt = Result<MintReceiptPart, ApiError>;
