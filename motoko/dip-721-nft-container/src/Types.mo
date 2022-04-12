@@ -13,6 +13,7 @@ module {
     logo: LogoResult;
     name: Text;
     symbol: Text;
+    maxLimit : Nat16;
   };
 
   public type ApiError = {
@@ -48,15 +49,15 @@ module {
 
   public type Nft = {
     owner: Principal;
-    id: Nat64;
+    id: TokenId;
     metadata: MetadataDesc;
     content: List.List<Nat8>;
   };
 
-  public type ExtendedMetadataResult = {
+  public type ExtendedMetadataResult = Result<{
     metadata_desc: MetadataDesc;
     token_id: TokenId;
-  };
+  }, ApiError>;
 
   public type MetadataResult = Result<MetadataDesc, ApiError>;
 

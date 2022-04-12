@@ -17,6 +17,7 @@ shared actor class Dip721NFT(init : Types.Dip721NonFungibleToken) = Self {
   stable var logo : Types.LogoResult = init.logo;
   stable var name : Text = init.name;
   stable var symbol : Text = init.symbol;
+  stable var maxLimit : Nat16 = init.maxLimit;
 
   // https://forum.dfinity.org/t/is-there-any-address-0-equivalent-at-dfinity-motoko/5445/3
   let null_address : Principal = Principal.fromText("aaaaa-aa");
@@ -109,4 +110,50 @@ shared actor class Dip721NFT(init : Types.Dip721NonFungibleToken) = Self {
       List.size(nfts)
     );
   };
+
+  public query func getMetadataDip721(token_id: Types.TokenId) : async Types.MetadataResult {
+    let item = List.get(nfts, Nat64.toNat(token_id));
+    switch (item) {
+      case null {
+        return #Err(#InvalidTokenId);
+      };
+      case (?token) {
+        return #Ok(token.metadata);
+      }
+    };
+  };
+
+  public query func getMaxLimitDip721() : async Nat16 {
+    return maxLimit;
+  };
+
+  public func getMetadataForUserDip721(user: Principal) : async Types.ExtendedMetadataResult {
+    let item = List.find(nfts, func(token: Types.Nft) : Bool { token.owner == user });
+    switch (item) {
+      case null {
+        return #Err(#Other);
+      };
+      case (?token) {
+        return #Ok({
+          metadata_desc = token.metadata;
+          token_id = token.id;
+        });
+      }
+    };
+  };
+
+  public query func getTokenIdsForUserDip721(user: Principal) : async [Types.TokenId] {
+    let items = List.filter(nfts, func(token: Types.Nft) : Bool { token.owner == user });
+    let tokenIds = List.map(items, func (item : Types.Nft) : Types.TokenId { item.id });
+    return List.toArray(tokenIds);
+  };
+
+  public func mintDip721(to: Principal, metadata: Types.MetadataDesc) : async Types.MintReceipt {
+    // TODO: implement me
+    transactionId += 1;
+    return #Ok({
+      token_id = 0;
+      id = transactionId;
+    });   
+  }
 }

@@ -26,5 +26,6 @@ dfx deploy --argument "(record {
   };
   name = \"My DIP721\";
   symbol = \"DFXB\";
+  maxLimit = 10;
 })"
 ```
