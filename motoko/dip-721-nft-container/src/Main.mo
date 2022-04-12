@@ -10,10 +10,13 @@ import Bool "mo:base/Bool";
 import Principal "mo:base/Principal";
 import Types "./Types";
 
-shared actor class Dip721NFT() = Self {
+shared actor class Dip721NFT(init : Types.Dip721NonFungibleToken) = Self {
   stable var transactionId: Types.TransactionId = 0;
   stable var nfts = List.nil<Types.Nft>();
   stable var custodians = List.nil<Principal>();
+  stable var logo : Types.LogoResult = init.logo;
+  stable var name : Text = init.name;
+  stable var symbol : Text = init.symbol;
 
   // https://forum.dfinity.org/t/is-there-any-address-0-equivalent-at-dfinity-motoko/5445/3
   let null_address : Principal = Principal.fromText("aaaaa-aa");
@@ -83,5 +86,27 @@ shared actor class Dip721NFT() = Self {
         };
       };
     };
-  }
+  };
+
+  public query func supportedInterfacesDip721() : async [Types.InterfaceId] {
+    return [#TransferNotification, #Burn, #Mint];
+  };
+
+  public query func logoDip721() : async Types.LogoResult {
+    return logo;
+  };
+
+  public query func nameDip721() : async Text {
+    return name;
+  };
+
+  public query func symbolDip721() : async Text {
+    return symbol;
+  };
+
+  public query func totalSupplyDip721() : async Nat64 {
+    return Nat64.fromNat(
+      List.size(nfts)
+    );
+  };
 }

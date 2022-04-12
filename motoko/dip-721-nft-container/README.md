@@ -19,5 +19,12 @@ dfx start --background
 ## Deploy DIP721 NFT canister to your local IC
 
 ```
-dfx deploy
+dfx deploy --argument "(record {
+  logo = record {
+    logo_type = \"image/png\";
+    data = \"\";
+  };
+  name = \"My DIP721\";
+  symbol = \"DFXB\";
+})"
 ```

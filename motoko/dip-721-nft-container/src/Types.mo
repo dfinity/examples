@@ -9,6 +9,12 @@ import Bool "mo:base/Bool";
 import Principal "mo:base/Principal";
 
 module {
+  public type Dip721NonFungibleToken = {
+    logo: LogoResult;
+    name: Text;
+    symbol: Text;
+  };
+
   public type ApiError = {
     #Unauthorized;
     #InvalidTokenId;
