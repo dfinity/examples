@@ -2,8 +2,8 @@ use ic_cdk::export::{
     candid::{CandidType, Deserialize},
     Principal,
 };
-use ic_cdk::storage;
 use ic_cdk_macros::*;
+use std::cell::RefCell;
 use std::collections::BTreeMap;
 
 type SubscriberStore = BTreeMap<Principal, Subscriber>;
@@ -19,23 +19,29 @@ struct Subscriber {
     topic: String,
 }
 
+thread_local! {
+    static STORE: RefCell<SubscriberStore> = RefCell::default();
+}
+
 #[update]
 fn subscribe(subscriber: Subscriber) -> bool {
     let subscriber_principal_id = ic_cdk::caller();
-    let subscriber_store = storage::get_mut::<SubscriberStore>();
-    if !subscriber_store.contains_key(&subscriber_principal_id) {
-        subscriber_store.insert(subscriber_principal_id, subscriber);
-    }
+    STORE.with(|subscriber_store| {
+        subscriber_store
+            .borrow_mut()
+            .entry(subscriber_principal_id)
+            .or_insert(subscriber);
+    });
     true
 }
 
 #[update]
 async fn publish(counter: Counter) {
-    let subscriber_store = storage::get_mut::<SubscriberStore>();
-    for (k, v) in subscriber_store {
-        if v.topic == counter.topic {
-            let _call_result: Result<(), _> =
-                ic_cdk::api::call::call(*k, "update_count", (&counter,)).await;
+    STORE.with(|subscriber_store| {
+        for (k, v) in &*subscriber_store.borrow() {
+            if v.topic == counter.topic {
+                let _ = ic_cdk::api::call::call::<_, ()>(*k, "update_count", (&counter,));
+            }
         }
-    }
+    })
 }
