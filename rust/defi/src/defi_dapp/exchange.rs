@@ -45,14 +45,26 @@ pub struct Exchange {
 }
 
 impl BalancesState {
-    pub fn add_balance(&mut self, owner: &Principal, token_canister_id: &Principal, delta: u128) {
+    #[must_use]
+    pub fn add_balance(
+        &mut self,
+        owner: &Principal,
+        token_canister_id: &Principal,
+        delta: u128,
+    ) -> bool {
         let balances = self.0.entry(*owner).or_insert_with(HashMap::new);
 
         if let Some(x) = balances.get_mut(token_canister_id) {
-            *x += delta;
+            if let Some(v) = x.checked_add(delta) {
+                *x = v;
+            } else {
+                return false;
+            }
         } else {
             balances.insert(*token_canister_id, delta);
         }
+
+        true
     }
 
     // Tries to substract balance from user account. Checks for overflows
@@ -136,6 +148,10 @@ impl Exchange {
         to_amount: Nat,
     ) -> OrderPlacementReceipt {
         ic_cdk::println!("place order");
+        if from_amount <= 0u8 || to_amount <= 0u8 {
+            return OrderPlacementReceipt::Err(OrderPlacementErr::InvalidOrder);
+        }
+
         let balance = self.get_balance(from_token_canister_id);
         if balance < from_amount {
             return OrderPlacementReceipt::Err(OrderPlacementErr::InvalidOrder);
@@ -154,10 +170,10 @@ impl Exchange {
                 to_amount,
             },
         );
-        self.resolve_order(id);
+        self.resolve_order(id)?;
 
-        if let Some(o) = self.orders.get(&id).cloned() {
-            OrderPlacementReceipt::Ok(Some(o.into()))
+        if let Some(o) = self.orders.get(&id) {
+            OrderPlacementReceipt::Ok(Some((*o).into()))
         } else {
             OrderPlacementReceipt::Ok(None)
         }
@@ -176,83 +192,71 @@ impl Exchange {
         }
     }
 
-    fn resolve_order(&mut self, id: OrderId) {
+    fn resolve_order(&mut self, id: OrderId) -> Result<(), OrderPlacementErr> {
         ic_cdk::println!("resolve order");
         let mut matches = Vec::new();
-        {
-            let a = self.orders.get(&id).unwrap();
-            for (order, b) in self.orders.iter() {
-                if *order == id {
-                    continue;
-                }
+        let a = self.orders.get(&id).unwrap();
+        for (order, b) in self.orders.iter() {
+            if *order == id {
+                continue;
+            }
 
-                if a.from_token_canister_id == b.to_token_canister_id
-                    && a.to_token_canister_id == b.from_token_canister_id
+            if a.from_token_canister_id == b.to_token_canister_id
+                && a.to_token_canister_id == b.from_token_canister_id
+            {
+                // Simplified to use multiplication from
+                // (a.from_amount / a.to_amount) * (b.from_amount / b.to_amount) >= 1
+                // which checks that this pair of trades is profitable.
+                if BigUint::from(a.from_amount) * BigUint::from(b.from_amount)
+                    >= BigUint::from(a.to_amount) * BigUint::from(b.to_amount)
                 {
-                    // Simplified to use multiplication from
-                    // (a.from_amount / a.to_amount) * (b.from_amount / b.to_amount) >= 1
-                    // which checks that this pair of trades is profitable.
-                    if BigUint::from(a.from_amount) * BigUint::from(b.from_amount)
-                        >= BigUint::from(a.to_amount) * BigUint::from(b.to_amount)
-                    {
-                        ic_cdk::println!(
-                            "match {}: {} -> {}, {}: {} -> {}",
-                            id,
-                            a.from_amount,
-                            a.to_amount,
-                            *order,
-                            b.from_amount,
-                            b.to_amount
-                        );
-                        matches.push((id, *order));
-                    }
+                    ic_cdk::println!(
+                        "match {}: {} -> {}, {}: {} -> {}",
+                        id,
+                        a.from_amount,
+                        a.to_amount,
+                        *order,
+                        b.from_amount,
+                        b.to_amount
+                    );
+                    matches.push((a.to_owned(), b.to_owned()));
                 }
             }
         }
         for m in matches {
             let mut a_to_amount: u128 = 0;
             let mut b_to_amount: u128 = 0;
-            {
-                if let Some(a) = self.orders.get(&m.0) {
-                    if let Some(b) = self.orders.get(&m.1) {
-                        // Check if some orders can be completed in their entirety.
-                        if b.from_amount >= a.to_amount {
-                            a_to_amount = a.to_amount;
-                        }
-                        if a.from_amount >= b.to_amount {
-                            b_to_amount = b.to_amount;
-                        }
-                        // Check if some orders can be completed partially.
-                        if a_to_amount == 0 && b_to_amount > 0 {
-                            a_to_amount = b.from_amount;
-                            // Verify that we can complete the partial order with natural number tokens remaining.
-                            if ((BigUint::from(a_to_amount) * BigUint::from(a.from_amount))
-                                % BigUint::from(a.to_amount))
-                                != BigUint::from(0u32)
-                            {
-                                continue;
-                            }
-                        }
-                        if b_to_amount == 0 && a_to_amount > 0 {
-                            b_to_amount = a.from_amount;
-                            // Verify that we can complete the partial order with natural number tokens remaining.
-                            if ((BigUint::from(b_to_amount) * BigUint::from(b.from_amount))
-                                % BigUint::from(b.to_amount))
-                                != BigUint::from(0u32)
-                            {
-                                continue;
-                            }
-                        }
-                    }
-                }
+            let (a, b) = m;
+            // Check if some orders can be completed in their entirety.
+            if b.from_amount >= a.to_amount {
+                a_to_amount = a.to_amount;
             }
+            if a.from_amount >= b.to_amount {
+                b_to_amount = b.to_amount;
+            }
+            // Check if some orders can be completed partially.
+            if check_orders(a, b, &mut a_to_amount, b_to_amount) {
+                continue;
+            }
+            if check_orders(b, a, &mut b_to_amount, a_to_amount) {
+                continue;
+            }
+
             if a_to_amount > 0 && b_to_amount > 0 {
-                self.process_trade(m.0, m.1, a_to_amount, b_to_amount);
+                self.process_trade(a.id, b.id, a_to_amount, b_to_amount)?;
             }
         }
+
+        Ok(())
     }
 
-    fn process_trade(&mut self, a: OrderId, b: OrderId, a_to_amount: u128, b_to_amount: u128) {
+    fn process_trade(
+        &mut self,
+        a: OrderId,
+        b: OrderId,
+        a_to_amount: u128,
+        b_to_amount: u128,
+    ) -> Result<(), OrderPlacementErr> {
         ic_cdk::println!("process trade {} {} {} {}", a, b, a_to_amount, b_to_amount);
 
         let Exchange {
@@ -288,24 +292,32 @@ impl Exchange {
             &order_a.from_token_canister_id,
             a_from_amount,
         );
-        balances.add_balance(&order_a.owner, &order_a.to_token_canister_id, a_to_amount);
+        if !balances.add_balance(&order_a.owner, &order_a.to_token_canister_id, a_to_amount) {
+            return Err(OrderPlacementErr::IntegerOverflow);
+        }
 
         balances.subtract_balance(
             &order_b.owner,
             &order_b.from_token_canister_id,
             b_from_amount,
         );
-        balances.add_balance(&order_b.owner, &order_b.to_token_canister_id, b_to_amount);
+        if !balances.add_balance(&order_b.owner, &order_b.to_token_canister_id, b_to_amount) {
+            return Err(OrderPlacementErr::IntegerOverflow);
+        }
 
         // The DEX keeps any tokens not required to satisfy the parties.
         let dex_amount_a = a_from_amount - b_to_amount;
         if dex_amount_a > 0 {
-            balances.add_balance(&ic_cdk::id(), &order_a.from_token_canister_id, dex_amount_a);
+            if !balances.add_balance(&ic_cdk::id(), &order_a.from_token_canister_id, dex_amount_a) {
+                return Err(OrderPlacementErr::IntegerOverflow);
+            }
         }
 
         let dex_amount_b = b_from_amount - a_to_amount;
         if dex_amount_b > 0 {
-            balances.add_balance(&ic_cdk::id(), &order_b.from_token_canister_id, dex_amount_b);
+            if !balances.add_balance(&ic_cdk::id(), &order_b.from_token_canister_id, dex_amount_b) {
+                return Err(OrderPlacementErr::IntegerOverflow);
+            }
         }
 
         // Maintain the order only if not empty
@@ -316,10 +328,32 @@ impl Exchange {
         if order_b.from_amount != 0 {
             orders.insert(order_b.id, order_b);
         }
+
+        Ok(())
     }
 
     fn next_id(&mut self) -> OrderId {
         self.next_id += 1;
         self.next_id
     }
+}
+
+fn check_orders(
+    first: OrderState,
+    second: OrderState,
+    first_to_amount: &mut u128,
+    second_to_amount: u128,
+) -> bool {
+    if *first_to_amount == 0 && second_to_amount > 0 {
+        *first_to_amount = second.from_amount;
+        // Verify that we can complete the partial order with natural number tokens remaining.
+        if ((BigUint::from(*first_to_amount) * BigUint::from(first.from_amount))
+            % BigUint::from(first.to_amount))
+            != BigUint::from(0u32)
+        {
+            return true;
+        }
+    }
+
+    false
 }

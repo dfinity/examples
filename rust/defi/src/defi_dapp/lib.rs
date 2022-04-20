@@ -85,7 +85,7 @@ async fn deposit_icp(caller: Principal) -> Result<u128, DepositErr> {
 
     ic_cdk::println!(
         "Deposit of {} ICP in account {:?}",
-        balance - Tokens::from_e8s(2 * ICP_FEE),
+        balance - Tokens::from_e8s(ICP_FEE),
         &account
     );
 
@@ -147,14 +147,6 @@ pub fn get_deposit_address() -> AccountIdentifier {
     AccountIdentifier::new(&canister_id, &subaccount)
 }
 
-#[update(name = "getWithdrawalAddress")]
-#[candid_method(update, rename = "getWithdrawalAddress")]
-pub fn get_withdrawal_address() -> AccountIdentifier {
-    let canister_id = ic_cdk::api::id();
-
-    AccountIdentifier::new(&canister_id, &DEFAULT_SUBACCOUNT)
-}
-
 #[update(name = "getSymbol")]
 #[candid_method(update, rename = "getSymbol")]
 pub async fn get_symbol(token_canister_id: Principal) -> String {
@@ -205,8 +197,13 @@ pub async fn withdraw(
         .with(|s| s.borrow().ledger)
         .unwrap_or(MAINNET_LEDGER_CANISTER_ID);
 
+    // Close all currently open orders to avoid completing orders
+    // without funds.
     STATE.with(|s| {
-        s.borrow_mut().exchange.orders.retain(|_,v| v.owner != caller);
+        s.borrow_mut()
+            .exchange
+            .orders
+            .retain(|_, v| v.owner != caller);
     });
 
     if token_canister_id == ledger_canister_id {
@@ -320,10 +317,13 @@ pub fn credit(user: Principal, token_canister_id: Principal, amount: Nat) {
 
         ic_cdk::println!("credit {} {}", caller(), owner);
         assert!(owner == caller());
-        state
+        if !state
             .exchange
             .balances
-            .add_balance(&user, &token_canister_id, nat_to_u128(amount));
+            .add_balance(&user, &token_canister_id, nat_to_u128(amount))
+        {
+            ic_cdk::println!("Credit failed, would create overflow");
+        }
     })
 }
 
@@ -349,12 +349,20 @@ fn init(ledger: Option<Principal>) {
     });
 }
 
+// NOTE: Converting and storing state like this should not be used in production.
+// If the state becomes too large, it can prevent future upgrades. This
+// is left in as a tool during development. If removed, native types
+// can be used throughout, instead.
 #[pre_upgrade]
 fn pre_upgrade() {
     let stable_state = STATE.with(|s| s.take());
     ic_cdk::storage::stable_save((stable_state,)).expect("failed to save stable state");
 }
 
+// NOTE: Converting and storing state like this should not be used in production.
+// If the state becomes too large, it can prevent future upgrades. This
+// is left in as a tool during development. If removed, native types
+// can be used throughout, instead.
 #[post_upgrade]
 fn post_upgrade() {
     let (stable_state,) =

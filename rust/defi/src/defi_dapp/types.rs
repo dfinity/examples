@@ -42,6 +42,7 @@ pub type OrderPlacementReceipt = Result<Option<Order>, OrderPlacementErr>;
 pub enum OrderPlacementErr {
     InvalidOrder,
     OrderBookFull,
+    IntegerOverflow,
 }
 
 pub type WithdrawReceipt = Result<Nat, WithdrawErr>;

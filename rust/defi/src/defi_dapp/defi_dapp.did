@@ -18,6 +18,7 @@ type OrderPlacementErr =
  variant {
    InvalidOrder;
    OrderBookFull;
+   IntegerOverflow;
  };
 type OrderId = nat32;
 type Order = 
@@ -42,7 +43,6 @@ type Dex =
    getOrder: (OrderId) -> (opt Order);
    getOrders: () -> (vec Order);
    getSymbol: (Token) -> (text);
-   getWithdrawalAddress: () -> (blob);
    placeOrder: (Token, nat, Token, nat) -> (OrderPlacementReceipt);
    whoami: () -> (principal) query;
    withdraw: (Token, nat, principal) -> (WithdrawReceipt);
