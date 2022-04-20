@@ -1,0 +1,12 @@
+{
+  "version": 1,
+  "dfx": "0.8.4",
+  "canisters": {
+    "nftwallet": {
+      "type": "custom",
+      "wasm": "target/wasm32-unknown-unknown/release/nft_wallet-opt.wasm",
+      "candid": "nftwallet.did",
+      "build": "./build.sh"
+    }
+  }
+}

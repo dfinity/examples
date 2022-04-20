@@ -1,0 +1,31 @@
+{
+  "name": "testnet_app_assets",
+  "version": "0.1.0",
+  "description": "",
+  "keywords": [],
+  "scripts": {
+    "build": "webpack",
+    "start": "webpack serve"
+  },
+  "dependencies": {
+    "@dfinity/agent": "^0.9.3",
+    "@dfinity/auth-client": "^0.9.3",
+    "@dfinity/authentication": "^0.9.3",
+    "@dfinity/candid": "^0.9.3",
+    "@dfinity/identity": "^0.9.3",
+    "@dfinity/principal": "^0.9.3"
+  },
+  "devDependencies": {
+    "assert": "2.0.0",
+    "buffer": "6.0.3",
+    "events": "3.3.0",
+    "html-webpack-plugin": "5.3.1",
+    "process": "0.11.10",
+    "stream-browserify": "3.0.0",
+    "terser-webpack-plugin": "5.1.1",
+    "util": "0.12.3",
+    "webpack": "5.65.0",
+    "webpack-cli": "4.9.1",
+    "webpack-dev-server": "4.6.0"
+  }
+}

@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Internet Identity</title>
+    <link rel="shortcut icon" type="image/jpg" href="./favicon.ico" />
+  </head>
+  <body>
+    <main id="pageContent" aria-live="polite"></main>
+    <div id="notification"></div>
+    <div id="loaderContainer"></div>
+    <!--
+    Note: we cannot use a normal script tag like this
+        <script src="index.js" integrity="sha256-QKc0t+gyMRWWDNty0lxQKWpPz18K4pD8q3S0YoeQMdo=" defer></script>
+    because Firefox does not support SRI with CSP: https://bugzilla.mozilla.org/show_bug.cgi?id=1409200
+
+    DO NOT MODIFY THE INLINE SCRIPT CONTENT!
+    (or if you do, update the CSP hash)
+    -->
+    <script>
+      const scripts = ["index.js"];
+      scripts.forEach(function (scriptUrl) {
+        let s = document.createElement("script");
+        s.async = false;
+        s.src = scriptUrl;
+        document.head.appendChild(s);
+      });
+    </script>
+  </body>
+</html>

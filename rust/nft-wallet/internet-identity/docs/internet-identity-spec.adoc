@@ -1,0 +1,742 @@
+= The Internet Identity Specification
+:toc2:
+:toclevel: 4
+:sectanchors:
+
+== Introduction
+
+This document describes and specifies the Internet Identity from various angles and at various levels of abstraction, namely:
+
+ * High level goals, requirements and use cases
+ * Overview of the security and identity machinery, including the interplay of identities, keys, and delegations
+ * Interface as used by client applications frontends, i.e., our <<client-auth-protocol,client authentication protocol>>
+ * The interface of the Internet Identity Service _backend_, i.e., describing its contract at the Candid layer, as used by its frontend
+ * Important implementation notes about the Internet Identity Service backend
+ * Internal implementation notes about the Internet Identity Service frontend
+ * Notes about deployment
+
+The Internet Identity Service consists of
+
+ * its backend, a canister on the IC. More precisely, a canister on the NNS subnet with a _well-known_ canister id, and
+ * its frontend, a web application served by the backend canister.
+
+Similarly, the client applications consist of a frontend (served by a canister) and (typically) one or more backend canisters. Only the frontend interacts with the Internet Identity Service directly (via the <<client-auth-protocol,client authentication protocol>> described below).
+
+== Goals, requirements and use cases
+
+The Internet Identity service allows users to
+
+ * maintain identities on the Internet Computer
+ * log in with these identities using one out of a set of security devices
+ * manage their set of security devices
+
+Some functional requirements are
+
+ * users have separate identities (or "pseudonyms") per client application (more precisely, per client application frontend "hostname")
+ * these identities are stable, i.e., do not depend on a user's security devices
+ * the client frontends interact with any canister on the Internet Computer under the user’s identity with that frontend
+ * users do not need ever to remember secret information (but possibly per-user non-secret information)
+ * a security device does not need to be manually touched upon every interaction with a client application; a login is valid for a certain amount of time per identity
+
+Some security requirements are
+
+* The separate identities of a single user cannot be related merely based on their public key or principal ids, to impede user tracking.
+* The security of the identities does not depend on the privacy of data stored on canisters, or transmitted to and from canisters. In particular, the delegations handed out by the backend canister must not be sensitive information.
+* (many more, of course; apply common sense)
+
+Some noteworthy security assumptions are:
+
+* The delivery of frontend applications is secure. In particular, a user accessing the Internet Identity Service Frontend through a TLS-secured HTTP connection cannot be tricked into running another web application.
++
+NOTE: Just for background: At launch this means we will rely on the trustworthiness of the boundary nodes as well as the replica the boundary nodes happens to fetch the assets from. Eventually, but after launch, certification of our HTTP Gateway protocol and trustworthy client-side code (browser extensions, proxies, etc.) will improve this situation.
+
+* The security devices only allow the use of their keys from the same web application that created the key (in our case, the Internet Identity Service Frontend).
+
+* The user's browser is trustworthy, postMessage communication between different origins is authentic.
+
+* For user privacy, we also assume the Internet Identity Service backend can keep a secret (but since data is replicated, we do not rely on this assumption for other security properties). 
+
+== Identity design and data model
+
+A single canister with a well-known canister id (the _Internet Identity Canister ID_, in the following `ii_canister_id`) controls all users' identities.
+
+The Internet Computer serves this frontend under hostname `https://identity.ic0.app`.
+
+The canister maintains a salt (in the following the `salt`), a 32 byte long blob that is obtained via the Internet Computer’s source of secure randomness.
+
+NOTE: Due to replication of data in canisters, the salt should not be considered secret against a determined attacker. However, the canister will not reveal the salt directly and to the extent it is unknown to an attacker it helps maintain privacy of user identities.
+
+A user account is identified by a unique _Identity Anchor_, a smallish natural number chosen by the canister.
+
+A client application frontend is identified by its hostname (e.g., `abcde-efg.ic0.app`, `nice-name.ic0.app`, `non-ic-application.com`). Frontend application can be served by canisters or by websites that are not hosted on the Internet
+Computer.
+
+A user has a separate _user identity_ for each client application frontend (i.e., per hostname). This identity is a https://docs.dfinity.systems/public/#id-classes[_self-authenticating id_] of the form
+....
+user_id = SHA-224(|ii_canister_id| · ii_canister_id · seed) · 0x02` (29 bytes)
+....
+
+that is derived from a https://docs.dfinity.systems/public/#canister-signatures[canister signature] public “key” based on the `ii_canister_id` and a seed of the form
+....
+seed = H(|salt| · salt · |user_number| · user_number · |frontend_host| · frontend_host)
+....
+where `H` is SHA-256, `·` is concatenation, `|…|` is a single byte representing the length of `…` in bytes, `user_number` is the ASCII-encoding of the Identity Anchor as a decimal number, and `frontend_host` is the ASCII-encoding of the client application frontend’s hostname (at most 255 bytes).
+
+The Internet Identity Service Backend stores the following data in user accounts, indexed by the respective Identity Anchor:
+
+* a set of _device information_, consisting of
+- the device’s public key (DER-encoded)
+- a device _alias_, chosen by the user to recognize the device
+- an optional _credential id_, which is necessary for WebAuthN authentication
+
+When a client application frontend wants to log in as a user, it uses a _session key_ (e.g., Ed25519 or ECDSA), and by way of the authentication flow (details below) obtains a https://docs.dfinity.systems/public/#authentication[_delegation chain_] that allows the session key to sign for the user’s main identity.
+
+The delegation chain consists of one delegation, called the _client delegation_. It delegates from the user identity (for the given client application frontend) to the session key. This delegation is created by the Internet Identity Service Canister, and signed using a https://hydra.dfinity.systems/latest/dfinity-ci-build/ic-ref.pr-319/interface-spec/1/index.html#canister-signatures[canister signature]. This delegation is unscoped (valid for all canisters) and has a maximum lifetime of 8 days, with a default of 30 minutes.
+
+The Internet Identity Service Frontend also manages a _identity frontend delegation_, delegating from the security device’s public key to a session key managed by this frontend, so that it can interact with the backend without having to invoke the security device for each signature.
+
+[#client-auth-protocol]
+== Client authentication protocol
+
+This section describes the Internet Identity Service from the point of view of a client application frontend.
+
+1. The client application frontend creates a session key pair (e.g., Ed25519).
+2. It installs a `message` event handler on its own `window`.
+3. It loads the url `https://identity.ic0.app/#authorize` in a separate tab. Let `identityWindow` be the `Window` object returned from this.
+4. In the `identityWindow`, the user logs in, and the `identityWindow` invokes
++
+--
+ window.opener.postMessage(msg, "*")
+
+where `msg` is
+
+  interface InternetIdentityReady {
+    kind: "authorize-ready"
+  }
+--
+5. The client application, after receiving the `InternetIdentityReady`, invokes
++
+--
+ identityWindow.postMessage(msg, "https://identity.ic0.app")
+
+where `msg` is a value with of type
+
+ interface InternetIdentityAuthRequest {
+   kind: "authorize-client";
+   sessionPublicKey: Uint8Array;
+   maxTimeToLive?: bigint;
+ }
+
+where
+
+* the `sessionPublicKey` contains the public key of the session key pair.
+* the `maxTimeToLive`, if present, indicates the desired time span (in nanoseconds) until the requested delegation should expire. The Identity Provider frontend is free to set an earlier expiry time, but should not create a larger.
+--
+6. Now the client application window expects a message back, with data `event`.
+7. If `event.origin !== "https://identity.ic0.app"`, ignore this message.
+8. The `event.data` value is a JS object with the following type:
++
+ interface InternetIdentityAuthResponse {
+   kind: "authorize-client-success";
+   delegations: [{
+     delegation: {
+       pubkey: Uint8Array;
+       expiration: bigint;
+       targets?: Principal[];
+     };
+     signature: Uint8Array;
+   }];
+   userPublicKey: Uint8Array;
+ }
++
+where the `userPublicKey` is the user’s Identity on the given frontend and `delegations` corresponds to the CBOR-encoded delegation chain as used for https://docs.dfinity.systems/public/#authentication[_authentication on the IC_].
+9. It could also receive a failure message of the following type
++
+ interface InternetIdentityAuthResponse {
+   kind: "authorize-client-failure";
+   text: string;
+ }
++
+
+The client application frontend needs to be able to detect when any of the delegations in the chain has expired, and re-authorize the user in that case.
+
+The https://www.npmjs.com/package/@dfinity/authentication[`@dfinity/auth-client`] and
+The https://www.npmjs.com/package/@dfinity/authentication[`@dfinity/authentication`] NPM packages provide helpful functionality here.
+
+The client application frontend should support delegation chains of length more than one, and delegations with `targets`, even if the present version of this spec does not use them, to be compatible with possible future versions.
+
+[IMPORTANT]
+--
+The Internet Identity frontend will use `event.origin` as the “Frontend URL” to base the user identity on. This includes protocol, full hostname and port. This means
+
+* Changing protocol, hostname (including subdomains) or port will invalidate all user identities.
+* The frontend application must never allow any untrusted JavaScript code to be executed, on any page on that hostname. Be careful when implementing a JavaScript playground on the Internet Computer.
+--
+
+== The Internet Identity Service Backend interface
+
+This section describes the interface that the backend canister provides.
+
+This interface is currently only used by its own frontend. This tight coupling means that this interface may change, even in incompatible ways. We therefore do not have to apply Candid best practices for backward-compatibility (such as using records for arguments and results).
+
+The summary is given by the following Candid interface (exluding the methods required for the https://www.notion.so/Design-HTTP-Requests-to-Canisters-d6bc980830a947a88bf9148a25169613[HTTP Gateway interface]):
+....
+type UserNumber = nat64;
+type PublicKey = blob;
+type CredentialId = blob;
+type DeviceAlias = text;
+type DeviceKey = PublicKey;
+type UserKey = PublicKey;
+type SessionKey = PublicKey;
+type FrontendHostname = text;
+type Timestamp = nat64;
+
+type DeviceData = record {
+  pubkey : DeviceKey;
+  alias : text;
+  credential_id : opt CredentialId;
+  purpose : variant { recovery; authentication };
+  key_type : variant { unknown; platform; cross_platform; seed_phrase };
+};
+
+type Delegation = record {
+  pubkey: SessionKey;
+  expiration: Timestamp;
+  targets: opt vec principal;
+};
+
+type SignedDelegation = record {
+  delegation: Delegation;
+  signature: blob;
+};
+
+type GetDelegationResponse = variant {
+  signed_delegation: SignedDelegation;
+  no_such_delegation;
+};
+
+type ProofOfWork = record {
+  timestamp : Timestamp
+  nonce : nat64
+};
+
+service : {
+  init_salt : () -> ();
+  register : (DeviceData, ProofOfWork) -> (UserNumber);
+  add : (UserNumber, DeviceData) -> ();
+  remove : (UserNumber, DeviceKey) -> ();
+  lookup : (UserNumber) -> (vec DeviceData) query;
+  get_principal : (UserNumber, FrontendHostname) -> (principal) query;
+
+  prepare_delegation : (UserNumber, FrontendHostname, SessionKey, maxTimeToLive : opt nat64) -> (UserKey, Timestamp);
+  get_delegation: (UserNumber, FrontendHostname, SessionKey, Timestamp) -> (GetDelegationResponse) query;
+}
+....
+
+The `init_salt` method is mostly internal, see <<salt>>.
+
+=== The `register` and `create_challenge` methods
+
+The `register` method is used to create a new user. The Internet Identity Service backend creates a _fresh_ Identity Anchor, creates the account record, and adds the given device as the first device.
+
+*Authorization*: This request must be sent to the canister with `caller` that is the self-authenticating id derived from the given `DeviceKey`.
+
+In order to protect the Internet Computer from too many “free” update calls, and to protect the Internet Identity Service from too many user registrations, this call is protected using a CAPTCHA challenge. The `register` call can only succeed if the `ChallengeResult` contains a `key` for a challenge that was created with `create_challenge` (see below) in the last 5 minutes _and_ if the `chars` match the characters that the Internet Identity Service has stored internally for that `key`.
+
+In to protect the Internet Identity Service from too many expensive CAPTCHA creations, the `create_challenge` call is protected using a proof of work obligation. The `create_challenge` call can only succeed if
+
+ * the `timestamp` in the `ProofOfWork` parameter is within 5min of the current time as seen by the Canister
+ * the calculation of `H("\10ic-proof-of-work" · timestamp · nonce · |cid| · cid )` (where `H` is the https://cubehash.cr.yp.to/[CubeHash160+16/32+160-256] function, `·` is concatenation, `|…|` is a single byte encoding the length of the raw canister id in bytes, `cid` is the canister id and numbers are encoded as 8-byte little endian values), yields a hash value where leading 2 bytes are `0x00`.
+ * the canister did not recently see a registration attempt with that `nonce`.
+
+=== The `add` method
+
+The `add` method appends a new device to the given user’s record.
+
+The Internet Identity Service backend rejects the call if the user already has a device on record with the given public key.
+
+This may also fail (with a _reject_) if the user is registering too many devices.
+
+*Authorization*: This request must be sent to the canister with `caller` that is the self-authenticating id derived from any of the public keys of devices associated with the user before this call.
+
+=== The `remove` method
+
+The `remove` method removes a device, identified by its public key, from the list of devices a user has.
+
+It is allowed to remove the key that is used to sign this request. This can be useful for a panic button functionality.
+
+It is allowed to remove the last key, to completely disable a user. The canister may forget that user completely then, assuming the Identity Anchor generation algorithm prevents new users from getting the same Identity Anchor.
+
+It is the responsibility of the frontend UI to protect the user from doing these things accidentally.
+
+*Authorization*: This request must be sent to the canister with `caller` that is the self-authenticating id derived from any of the public keys of devices associated with the user before this call.
+
+=== The `lookup` query method
+
+Fetches all data associated with a user.
+
+*Authorization*: Anyone can call this
+
+=== The `get_principal` query method
+
+Fetches the principal for a given user and front end.
+
+*Authorization*: This request must be sent to the canister with `caller` that is the self-authenticating id derived from any of the public keys of devices associated with the user before this call.
+
+=== The `prepare_delegation` method
+
+The `prepare_delegation` method causes the Internet Identity Service backend to prepare a delegation from the user identity associated with the given Identity Anchor and Client Application Frontend Hostname to the given session key.
+
+This method returns the user’s identity that’s associated with the given Client Application Frontend Hostname. By returning this here, and not in the less secure `get_delegation` query, we prevent attacks that trick the user into using a wrong identity.
+
+The expiration timestamp is determined by the backend, but no more than `maxTimeToLive` (if present) nanoseconds in the future.
+
+The method returns the expiration timestamp of the delegation. This is returned purely so that the client can feed it back to the backend in `get_delegation`.
+
+The actual delegation can be fetched using `get_delegation` immediately afterwards.
+
+*Authorization*: This request must be sent to the canister with `caller` that is the self-authenticating id derived from any of the public keys of devices associated with the user before this call.
+
+
+=== The `get_delegation` query method
+
+For a certain amount of time after a call to `prepare_delegation`, a query call to `get_delegation` with the same arguments, plus the timestamp returned from `prepare_delegation`, actually fetches the delegation.
+
+Together with the `UserKey` returned by `prepare_delegation`, the result of this method is used by the Frontend to pass to the client application as per the <<client-auth-protocol,client authentication protocol>>.
+
+*Authorization*: This request must be sent to the canister with `caller` that is the self-authenticating id derived from any of the public keys of devices associated with the user before this call.
+
+== The Internet Identity Service backend internals
+
+This section, which is to be expanded, describes interesting design choices about the internals of the Internet Identity Service Canister. In particular
+
+[#salt]
+=== The salt
+
+The `salt` used to blind the hashes that form the `seed` of the Canister Signature “public keys” is obtained via a call to `aaaaa-aa.raw_rand()`. The resulting 32 byte sequence is used as-is.
+
+Since this cannot be done during `canister_init` (no calls from canister init), the randomness is fetched by someone triggering the `init_salt()` method explicitly, or just any other update call. More concretely:
+
+* Anyone can invoke `init_salt()`
+* `init_salt()` traps if  `salt != EMPTY_SALT`
+* Else, `init_salt()` calls `aaaaa-aa.raw_rand()`. When that comes back successfully, and _still_ `salt == EMPTY_SALT`, it sets the salt. Else, it traps (so that even if it is run multiple times concurrently, only the first to write the salt has an effect).
+* _all_ other update methods, at the beginning, if `salt == EMPTY_SALT`, they await `self.init_salt()`, ignoring the result (even if it is an error). Then they check if we still have `salt == EMPTY_SALT` and trap if that is the case.
+
+=== Why we do not use `canister_inspect_message`
+
+The system allows canisters to inspect ingress messages before they are actually ingressed, and decide if they want to pay for them (see https://docs.dfinity.systems/public/#system-api-inspect-message[the interface spec]). Because the Internet Identity canisters run on the NNS subnet, cycles are not actually charged, but we still want to avoid wasting resources.
+
+It seems that this implies that we should use `canister_inspect_message` to reject messages that would, for example, not pass authentication.
+
+But upon closer inspection (heh), this is not actually useful.
+
+ * One justification for this mechanism would be if we expect a high number of accidentally invalid calls. But we have no reason to expect them at the moment.
+
+ * Another is to protect against a malicious actor. But that is only useful if the malicious actor doesn’t have an equally effective attack vector anyways, and in our case they do: If they want to flood the NNS with calls, they can use calls that do authenticate (e.g. keeping removing and adding devices, or preparing delegations); these calls would pass message inspection.
+
+On the flip side, implementing `canister_inspect_message` adds code, and thus a risk for bugs. In particular it increases the risk that some engineer might wrongly assume that the authentication check in `canister_inspect_message` is sufficient and will not do it again in the actual method, which could lead to a serious bug.
+
+Therefore the Internet Identity Canister intentionally does not implement `canister_inspect_message`.
+
+=== Internal data model and data structures used
+
+The primary data structure used by the backend is a map from Identity Anchor to the list of user devices.
+Device lists are stored directly in canister stable memory.
+The total amount of storage for is limited to 2KiB bytes per user.
+With the stable memory size of 4GiB we can store around 2 * 10^6 user records in a single canister.
+
+There is also a set of recently seen proof of work nonces.
+
+==== Stable memory layout
+
+All the integers (u64, u32, u16) are encoded in Little-Endian.
+....
+Storage ::= {
+  Header
+  UserRecords
+}
+
+Header ::= {
+  magic : u8[3] = "IIC"
+  version : u8 = 1
+  number_of_user_records : u32
+  user_number_range_lo : u64
+  user_number_range_hi : u64
+  entry_size: u16
+  salt: u8[32]
+  padding : u8[454]
+}
+
+UserRecords ::= UserRecord*
+
+UserRecord ::= {
+  size : u16
+  candid_bytes: u8[510]
+}
+....
+
+User record for Identity Anchor N is stored at offset `sizeof(Header) + (N - user_number_range_lo) * sizeof(UserRecord)`.
+Each record consists of a 16 bit `size` ∈ [0..510] followed by `size` bytes of Candid-serialized list of devices.
+
+....
+type UserDeviceList = vec(record {
+  pubkey : DeviceKey;
+  alias : text;
+  credential_id : opt CredentialId;
+});
+....
+
+==== Proof of work nonces
+
+In order to implement `register` as specified above, the Canister maintains the set of `nonce` values that were used recently (last 10 minutes) in a call to `register`.
+
+The proof of work puzzle is checked both in `canister_inspect_message` as well as in the actual `register` method call. Ideally, the `register` method never traps if `canister_inspect_message` wouldn’t trap as well, so that the canister can remember seeing a certain nonce.
+
+NOTE: Even with that provision the same nonce can be used to ingress multiple messages, as `canister_inspect_message` is always run on a slightly old state. This cannot be avoided, but at least of these calls at most one can actually create a new user account.
+
+=== Initialization
+
+The Internet Identity canister is designed for sharded deployments.
+There can be many simultaneously installed instances of the canister code, each serving requests of a subset of users.
+As users are identified by their Identity Anchor, we split the range of Identity Anchors into continuous non-overlapping half-closed intervals and assign each region to one canister instance.
+The assigned range is passed to the canister as an init argument, encoded in Candid:
+
+....
+type InternetIdentityInit = record {
+  // Half-closed interval of Identity Anchors assigned to this canister, [ left_bound, right_bound )
+  assigned_user_number_range: record { nat64; nat64; };
+};
+....
+
+=== Approach to upgrades
+
+We don't need any logic recovery logic in pre/post-upgrade hooks because we place all user data to stable memory in a way that can be accessed directly.
+The signature map is simply dropped on upgrade, so users will have to re-request their delegations.
+
+=== Logic for signature/certified variable caching
+
+
+== The Internet Identity Service frontend
+
+The Internet Identity Service frontend is the user-visible part of the Internet Identity Service, and where it all comes together. It communicates with
+
+* the user
+* its backend using the Candid interface described above
+* the security devices, using the Web Authentication API
+* its past and future self, via the browser storage
+* client application frontends, via the OAUTH protocol
+
+=== Storage used
+
+The frontend only stores a single piece of local storage, namely the current
+Identity Anchor, if known under the key `user_number`.
+
+=== Flows
+
+The following flows are not prescriptive of the UI, e.g. “the frontend asks the user for X” may also mean that on the previous shown page, there is already a field for X.
+
+The possible login subflows are shared among entry points `/` and `/authorized`, and are thus described separately. At the end of a successful login subflow:
+
+* The frontend knows the `user_number` (also stored in local storage).
+* the frontend has a temporary session key
+* the frontend has a `device_identity` for the present security device
+* the frontend has a `frontend_delegation` from the security device to the session key
+
+All update calls to the Internet Identity Service Backend are made under the `device_identity` and are signed with the session key.
+
+The steps marked with 👆 are the steps where the user presses the security device.
+
+=== Subflow: Login as returning user
+
+1. The frontend notices that `user_number` is present in local storage.
+2. The frontend offers the choices
+   * Welcome <Identity Anchor>. Do you want to log in?
+   * Log in as a different user
+3. User wants to log in
+4. The frontend uses `lookup` to fetch the list of devices
+5. The frontend creates a session key.
+6. 👆 The frontend creates a delegation from the security device key to the session key, and signs it with the security key, using any of the devices listed in the user account. It notes which device was actually used.
++
+Let `device_identity` of type `WebAuthenicationIdentity` be the identity created from that, and let `frontend_delegation` be the signed delegation.
+7. The frontend configures the agent to use the session key for all further update calls.
+8. Login complete
+
+=== Subflow: Login via initial registration
+
+1. The frontend notices that no `user_number` is present in local storage.
+2. The frontend offers the choices
+   * Create new account
+   * Log into existing account with existing device
+   * Log into existing account with new device
+3. The user chooses to create a new account
+4. 👆 The frontend asks the security device to create a new public key. Let `device_identity` of type `WebAuthenicationIdentity` be the identity created from that.
+5. The frontend creates a session key.
+6. 👆 The frontend creates a delegation from the security device key to the session key, and signs it with the security key. Let `frontend_delegation` be that signed delegation.
+7. The frontend configures the agent to use the session key for all further update calls.
+8. The frontend asks the user for a device alias.
+9. The frontend calls `register()`, and obtains the `user_number`.
+10. It stores the `user_number` in local storage.
+11. The frontend insistently tells the user to write down this number.
+12. The frontend asks the user to create a recovery option (see Flow: Setup Recovery)
+13. Login complete
+
+=== Subflow: Login via existing device
+
+1. The frontend notices that no `user_number` is present in local storage.
+   (Or user said “log in as different user” in returning flow.)
+2. The frontend offers the choices
+   * Create new account
+   * Log into existing account with existing device
+   * Log into existing account with new device
+3. The user selects “Log into existing account with existing device”
+4. The frontend asks the user for their Identity Anchor, and stores that in `user_number`.
+5. Continue as in “Subflow: Login as returning user”
+
+=== Subflow: Login via new device
+
+1. The frontend notices that no `user_number` is present in local storage.
+2. The frontend offers the choices
+   * Create new account
+   * Log into existing account with existing device
+   * Log into existing account with new device
+3. The user selects “Log into existing account with new device”
+4. The frontend asks the user for their Identity Anchor, and stores that in `user_number`.
+5. 👆 Frontend asks security device for a new public key and credential id.
+6. The frontend generates a link to be opened on another device where an existing authentication device exists.
++
+--
+The link format is:
+
+  https://identity.ic0.app/#device=<userNumber>;<publicKey>[;<credentialId>]
+
+where
+
+- `userNumber` is the Identity Anchor, as a decimal number
+- `publicKey` is the hex-encoded DER-encoded WebAuth public key
+- `credentialId`, if present, is the hex-encoded credential id required for this key
+
+(See “Flow: adding devices via link” for what happens on the other device.)
+--
+7. The frontend polls the `lookup` query function until it sees that its `publicKey` has been added.
+8. The frontend (maybe) gives an indication that the login was successful.
+9. Login complete
+
+=== Flow: Direct access to the frontend
+
+This flow is the boring default
+
+1. User browses to `https://identity.ic0.app/`
+2. 👆 The appropriate login subflow happens
+3. User sees their management screen. In particular
++
+- Their Identity Anchor
+- A button to add additional devices
+- The list of their devices, with device aliases, a symbol marking recovery devices, and a button to remove
+- A “logout” button
+
+(One could imagine additional information, such as the last time a device was used, or even a list of recent client applications that the user logged into.)
+
+=== Flow: adding devices via link
+
+1. The user accesses `/#device=…`
+2. 👆 The appropriate login subflow happens
+3. The user is asked if they really want to add this device, and under what name. This interaction needs to be clear enough so that a user who inadvertently clicked on a maliciously hidden `device` link will not continue.
+4. Call `add()` to add new device
+5. The hash fragment is removed from the URL
+6. The user is told that they can go back to their other device.
++
+(This could include a button to go to the management screen, or maybe this _is_ the management screen with a info box.)
+
+=== Flow: Setup recovery
+1. The user is offered two options for recovery and the option to skip
+  * A security key
+  * A BIP-39 seed phrase
+2. Depending on their choice
+ a) If they choose the seed phrase it is generated and displayed to them with a copy button and an explanation of having to keep this phrase secure
+ b) 👆 If they choose the security key they generate new credentials for the touched device
+3. The device is added to the users account with the purpose `#recovery` set
+
+=== Flow: Use recovery
+1. On the login page the user selects "Recover my account"
+2. The user is prompted for their Identity Anchor
+3. If no `DeviceData` with the purpose `#recovery` is found for the Identity Anchor an error is displayed
+4. The user is asked to provide the seed phrase or 👆 their recovery security key
+5. The management page is shown
+
+=== Flow: authenticating client applications
+
+1. The user accesses `/#authorize`
+2. 👆 The appropriate login subflow happens
+3. The frontend listens to a `message` event (as per https://developer.mozilla.org/en-US/docs/Web/API/Window/postMessage[`postMessage` API])
+4. The `event.data` should be a message as per our <<client-auth-protocol>>.
+5. The `event.origin` is used as the Application Frontend’s hostname
+6. The front end calls `get_principal()` to obtain the user- and front-end-specific principal.
+7. The user is asked if they want to log into the client application, showing the client application frontend’s hostname and the used principal.
+8. The frontend calls `prepare_delegation()` with the client application frontend hostname, client application provided session key and desired time to live.
+9. The frontend queries `get_delegation()` to get the delegation data
+10. It posts that data to the client application, using `event.source.postMessage` and the types specified in <<client-auth-protocol>>.
+11. It shows a message indicating that the login is complete.
+
+=== Flow: Deleting devices
+
+1. The user is logged in, on the management view, and selects a device to delete.
+2. If this is the device the user is currently logged in (the current `device_identity`), the user is warned.
+3. If this is the last device of the user, the user is warned even more sternly.
+4. The device is removed via `remove()`.
+5. If this was the device that the user has logged in with, log out (as per “Flow: logging out”)
+6. Else, refresh the device view.
+
+=== Flow: Logging out
+
+1. The user is logged in, on the management view, and clicks the logout button.
+2. The `user_number` is removed from local storage
+3. The page is reloaded (to send the user back to the beginning of “Flow: Direct access”).
+
+== Deployment
+
+This section needs to describe aspects like
+
+* why and how the frontend is bundled with and served by the canister itself.
+* how the Internet Identity Service canister id stays predictable and well-known
+
+=== Installation of ic-admin
+
+You will need the `ic-admin` tool. You have various options
+
+* You can build it from source. In a checkout of `dfinity`, run:
++
+[source,bash]
+----
+cd rs
+nix-shell
+cargo build --bin ic-admin
+----
+
+* You can install it into your nix environment. In a checkout of `dfinity`, run:
++
+[source,bash]
+----
+nix-env -iA dfinity.rs.ic-admin-unwrapped -f .
+----
+
+=== Canister id reservation during NNS bootstrap
+
+The Internet Identity canister is created as an empty canister (i.e. no wasm module installed) during NNS bootstrap and its controller is set to the root canister. This is necessary to ensure that we can install/upgrade it later via a NNS proposal.
+
+=== Official build
+
+For installation or upgrade, you should build it the “official” way.
+
+In a checkout of this repository, run the following to build the official image:
+[source,bash]
+----
+./scripts/docker-build
+----
+
+The resulting `internet_identity.wasm` is ready for deployment on `mainnet`.
+
+Make note of the hash of wasm module:
+[source,bash]
+----
+shasum -a 256 internet_identity.wasm
+----
+
+Double-check that this is the same SHA256 that is observed on CI. Go to the corresponding commit, find the CI job “docker build” and look at the output of step “Run sha256sum out/internet_identity.wasm”.
+
+=== Initial installation (should happen only once)
+
+Next, you will need `didc` to be able to produce the binary encoded Candid argument needed for installation. Either download it from https://github.com/dfinity/candid/releases/[the latest candid release] or build it from source.
+
+The canister accepts a range of user ids that it's responsible for in `canister_init`. Currently, we only use one canister, so we don't really need to set a range. However, we still need to pass in some value to satisfy the interface. Run the following to get a file with the binary encoded value needed:
+[source,bash]
+----
+didc encode '(null)' | xxd -r -p > arg.in
+----
+
+==== Submitting proposal for installation and voting on mainnet
+
+(This section was removed. We have deployed to mainnet, and should not have to do it again. Please see git history if you need to know this.)
+
+=== Upgrading on Mainnet
+
+Write a proposal description like those in <https://github.com/dfinity/nns-proposals/blob/main/proposals/network_canister_management/>. Use a recent Internet Identity upgrade proposal as a template. It contains a condensed `git log` of the changes since the last release.
+
+
+You will need to get someone with authorization to submit the proposal and get enough votes for it (ping @trusted-neurons on slack). The command will look like:
+
+[source,bash]
+----
+ic-admin \
+    --use-hsm
+    --key-id "${KEY_ID}"
+    --slot 0
+    --pin "${SECRET_PIN_FOR_HSM}"
+    --nns-url "${child_nns_url}" \
+    propose-to-change-nns-canister "${PROPOSER_NEURON_INDEX}" \
+    --canister-id rdmx6-jaaaa-aaaaa-aaadq-cai \
+    --mode upgrade \
+    --wasm-module-path internet_identity.wasm
+    --summary "${SUMMARY_TO_INCLUDE_IN_PROPOSAL}"
+    --proposal-url "${URL_FOR_PROPOSAL_DOCUMENTATION}"
+----
+
+If you know the proposal number, you can observe all open proposals by running, in `…/dfinity/rs/nns`:
+
+[source,bash]
+----
+dfx --identity default canister --no-wallet --network=mercury call governance list_proposals --type=idl '(record {limit=25; include_reward_status=vec{}; exclude_topic=vec{}; include_status=vec{1}})'
+----
+
+You can check that deployment went through running
+
+[source,bash]
+----
+dfx canister --network mainnet --no-wallet info internet_identity
+----
+
+
+Once the deployment went through, tag the commit with `mainnet-<date-from-proposal-url>`.
+
+=== Deploying on testnets
+
+==== Building the canister for the identity testnet
+
+Because we need to fetch the root key for all networks that are not mainnet, we
+need to build with `II_ENV=development`:
+
+[source,bash]
+----
+didc encode '(null)' | xxd -r -p > arg.in
+II_ENV=development ./scripts/docker-build
+----
+
+This will create the Wasm file you want to use for the following deployment steps at `./internet_identity.wasm`.
+
+==== Installing on testnets
+
+Submit the proposal to install the canister on our `identity` testnet (replace for other testnets as appropriate):
+[source,bash]
+----
+ic-admin --nns-url "http://[2a00:fb01:400:42:5000:60ff:fed5:8464]:8080/" propose-to-change-nns-canister --test-neuron-proposer --canister-id rdmx6-jaaaa-aaaaa-aaadq-cai --mode reinstall --wasm-module-path internet_identity.wasm --arg arg.in
+----
+
+You can check http://[2a00:fb01:400:42:5000:60ff:fed5:8464]:8080/_/dashboard[our testnet's dashboard] to confirm the hash of the wasm installed on the canister matches the one you took note of in the previous steps.
+
+==== Upgrading on testnets
+
+Similar to the steps during initial installation. The main difference is that you need to pass in a different mode to `ic-admin` and we don't need any arguments in this case.
+[source,bash]
+----
+ic-admin --nns-url "http://[2a00:fb01:400:42:5000:60ff:fed5:8464]:8080/" propose-to-change-nns-canister --test-neuron-proposer --canister-id rdmx6-jaaaa-aaaaa-aaadq-cai --mode upgrade --wasm-module-path internet_identity.wasm
+----
+
+=== Disaster recovery
+
+If the Internet Computer goes down and has to be re-boot-strapped, or else the backend canister is lost, we can recover as long as
+
+ * we get the same canister id and
+ * we have a copy of the stable memory (`/var/lib/dfinity-node/ic_state/tip/canister_states/00000000000000070101/stable_memory.bin`)
+
+We can then install a temporary upload canister that does nothing but set the stable memory to that binary (something like `backend-tests/stable-memory-setter.wat`, but extended to allow the upload in chunks, if it is larger than 2Mb), and upgrade from that.
+
+The backend tests have a test that exercises this. See `backend-tests/test-stable-memory-rdmx6-jaaaa-aaaaa-aaadq-cai.md` for notes about that test.

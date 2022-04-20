@@ -1,0 +1,38 @@
+{
+  "canisters": {
+    "testnet_app": {
+      "main": "src/testnet_app/main.mo",
+      "type": "motoko"
+    },
+    "testnet_app_assets": {
+      "dependencies": [
+        "testnet_app"
+      ],
+      "frontend": {
+        "entrypoint": "src/testnet_app_assets/src/index.html"
+      },
+      "source": [
+        "src/testnet_app_assets/assets",
+        "dist/testnet_app_assets/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": ""
+    }
+  },
+  "dfx": "0.8.3",
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    },
+    "identity": {
+      "providers": ["http://[2a00:fb01:400:42:5000:60ff:fed5:8464]:8080"],
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
+}

@@ -1,0 +1,151 @@
+name: e2e tests
+
+on:
+  push:
+
+jobs:
+  tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        start-flag: [ '', '--emulator' ]
+        device: [ 'desktop', 'mobile' ]
+      # Make sure that one failing test does not cancel all other matrix jobs
+      fail-fast: false
+    env:
+      DFX_VERSION: 0.8.3
+      RUSTC_VERSION: 1.51.0
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/cache@v2
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-cargo-selenium-${{ hashFiles('**/Cargo.lock') }}-1
+
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: 14.x
+
+      - name: Install Rust
+        run: |
+          rustup update "$RUSTC_VERSION" --no-self-update
+          rustup default "$RUSTC_VERSION"
+          rustup target add wasm32-unknown-unknown
+
+      # This step hangs on Github actions on Darwin for some reason, that
+      # is why we run this only on Linux for now
+      - name: Install DFX
+        run: |
+          echo Install DFX Version: "$DFX_VERSION"
+          yes | sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
+
+      # Helps with debugging
+      - name: Show versions
+        run: |
+          echo dfx --version
+          dfx --version
+          echo node --version
+          node --version
+          echo npm --version
+          npm --version
+          echo rustc --version
+          rustc --version
+          echo cargo --version
+          cargo --version
+
+      - run: npm ci
+      - run: dfx start ${{ matrix.start-flag }} --background
+
+      - name: Deploy Internet Identity
+        run: |
+          export II_ENV=development
+          # we use the dummy_captcha feature which ensures the captcha string
+          # is always "a"
+          export USE_DUMMY_CAPTCHA=1
+          dfx deploy --no-wallet --argument '(null)'
+
+      - name: Deploy whoami canister
+        run: cd demos/whoami && dfx deploy --no-wallet
+
+      # We don't use the canister in the tests, but we want to make sure it
+      # can be built and deployed
+      - name: Deploy testnet_app canister
+        run: |
+          cd demos/testnet_app
+          npm ci
+          dfx deploy --no-wallet
+
+      - name: Run demo app
+        run: |
+          cd demos/sample-javascript/
+          npm ci
+          npm run build
+          npm run develop --no-live-reload --no-devtool &
+          sleep 10 # crude
+
+      - name: install selenium webdrivers
+        run: npm run install-webdrivers
+
+      - run: rm -v -f screenshots/*-${{ matrix.device }}.png
+      - run: npm test
+      - run: npm run test:e2e-${{ matrix.device }}
+      - run: dfx stop
+
+      - name: Archive test logs
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: e2e-test-log-${{ matrix.device }} ${{ matrix.start-flag }}
+          path: wdio.log
+
+      - name: Archive screenshots
+        if: ${{ always() }}
+        uses: actions/upload-artifact@v2
+        with:
+          name: e2e-screenshots-${{ matrix.device }} ${{ matrix.start-flag }}
+          path: screenshots/**/*.png
+
+  # This uploads the screenshots from both the (non-emulated) 'desktop' and
+  # 'mobile' runs.
+  upload-screenshots:
+    runs-on: ubuntu-latest
+
+    # Run after all the tests completed succesfully (and have uploaded their
+    # artifacts)
+    needs: tests
+
+    # Only run on PRs, we don't want to commit new screenshots to master
+    if: ${{ github.event_name == 'pull_request' }}
+    steps:
+      - uses: actions/checkout@v2
+
+      # Download the desktop screenshots artifacts
+      - uses: actions/download-artifact@v2
+        with:
+          name: e2e-screenshots-desktop
+
+      # Download the mobile screenshots artifacts
+      - uses: actions/download-artifact@v2
+        with:
+          name: e2e-screenshots-mobile
+
+      - run: |
+          echo the following screenshots were recovered
+          find ./screenshots -name '*.png' -maxdepth 1 -type f -print0 | sort -z | xargs -r0 shasum -a 256
+
+      - name: Commit screenshots
+        uses: EndBug/add-and-commit@v7.4.0
+        with:
+          add: screenshots
+          author_name: Screenshot Committer
+          author_email: "<nobody@example.com>"
+          message: "Update selenium ${{ matrix.device }} screenshots"
+          # do not pull: if this branch is behind, then we might as well let
+          # the pushing fail
+          pull: "NO-PULL"

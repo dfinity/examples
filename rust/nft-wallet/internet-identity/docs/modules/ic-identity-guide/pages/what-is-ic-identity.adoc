@@ -1,0 +1,42 @@
+= What is Internet Identity?
+:keywords: Internet Computer,blockchain,protocol,replica,subnet,data center,canister,developer
+:proglang: Motoko
+:platform: Internet Computer platform
+:IC: Internet Computer
+:company-id: DFINITY
+:sdk-short-name: DFINITY Canister SDK
+
+_Internet Identity_ is an anonymous blockchain authentication framework supported by the {IC}. Users can create identity "anchors" to which they assign compatible cryptographically enabled devices, such as the fingerprint sensor on a laptop, the face ID system on a phone, or a portable HSM, such as a YubiKey or Ledger wallet. Thereafter, they can signup and authenticate to any dapp running on the {IC} using any of the devices they have assigned to their anchor. This provides a high level of convenience, allowing users can authenticate to dapps they are interested in with a very low level of friction, while benefiting from the highest level of cryptographic security, but without the need to directly manage or handle cryptographic key material themselves, which prevents mistakes and the theft of their key material. The system is anonymizing towards dapps, and whenever an anchor is used to interact with a dapp, the dapp sees a specially generated _pseudonym_, which prevents users being tracked across the various dapps they use. A user can create as many identity anchors as they wish.
+
+Unlike most authentication methods, Internet Identity does not require you to set and manage passwords or provide any personal identifying information to dapps or to Internet Identity.
+
+[[id-overview]]
+== How Internet Identity works
+
+Internet Identity builds on Web Authentication (WebAuthn) API supported by modern web browsers and operating systems, and the "chain key cryptography" framework that powers the {IC}. Esssentially, the {IC} signs the list of public keys inside the devices assigned to each anchor using its master chain key, which client side code, for example running in the web browser, is aware of. 
+
+Dapps that integrate with Internet Identity prompt you to authenticate using an identity anchor. If you don't have an identity anchor yet, it is easy to create one and add authentication methods to it. For more details, see link:https://sdk.dfinity.org/docs/ic-identity-guide/auth-how-to.html[How to use Internet Identity]. For each device you add, a pair of cryptographic keys (private and public key) is generated. The public key is stored on the Internet Computer blockchain, while the private key remains locked inside the authentication device together with any biometric data that governs access to it. Adding multiple authentication devices to an identity anchor allows you to access dapps across all of your devices.
+
+When you access a dapp that uses Internet Identity for authentication, you first specify the identity anchor you want to use. After authenticating using an identity anchor using an assigned device, your browser connects to Internet Identity and generates a session key for use with that dapp.
+Finally, you are asked to authorize access to the dapp.
+
+Your browser downloads the authorization and then redirects you to the dapp. The dapp verifies the authorization from Internet Identity and grants you access as an application-specific anonymous identity that we call pseudonym. Internally, you have a different pseudonym for each dapp, but your pseudonym for any single dapp is the same across all of your devices. All of your devices just represent different methods you can use to authenticate your Internet Identity anchor. 
+
+You can register as many identity anchors as you want for redundancy, or different purposes. For example, a user might create one anchor for use with SocialFi or GameFi, and another for use with pure DeFi. They might only feel comfortable adding facial recognition to their SocialFi and GameFi anchor, say, and only use more secure portable HSM devices like YubiKeys and Ledger wallets with their pure DeFi anchor.
+
+
+== How to use Internet Identity
+To learn how to create and use Identity Anchors step-by-step, see link:https://sdk.dfinity.org/docs/ic-identity-guide/auth-how-to.html[How to use Internet Identity]. This also describes how to set up recovery mechanisms for Identity Anchors.
+
+////
+
+== Want to learn more?
+
+If you are looking for more information about authentication options and using Internet identity, check out the following related resources:
+
+* link:https://www.youtube.com/watch?v=XgsOKP224Zw[Overview of the Internet Computer (video)]
+* link:https://www.youtube.com/watch?v=jduSMHxdYD8[Building on the {IC}: Fundamentals (video)]
+* link:https://www.youtube.com/watch?v=LKpGuBOXxtQ[Introducing Canisters — An Evolution of Smart Contracts (video)]
+* link:https://dfinity.org/faq/[Frequently Asked Questions (video and short articles)]
+
+////

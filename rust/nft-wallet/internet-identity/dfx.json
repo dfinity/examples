@@ -1,0 +1,30 @@
+{
+  "canisters": {
+    "internet_identity": {
+      "type": "custom",
+      "candid": "src/internet_identity/internet_identity.did",
+      "wasm": "target/wasm32-unknown-unknown/release/internet_identity.wasm",
+      "build": "src/internet_identity/build.sh"
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": ""
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    },
+    "identity": {
+      "providers": ["http://[2a00:fb01:400:42:5000:60ff:fed5:8464]:8080"],
+      "type": "persistent"
+    },
+    "mainnet": {
+      "providers": ["https://identity.ic0.app"],
+      "type": "persistent"
+    }
+  },
+  "version": 1
+}

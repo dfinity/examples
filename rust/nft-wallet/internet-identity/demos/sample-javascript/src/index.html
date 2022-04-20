@@ -1,0 +1,52 @@
+<html>
+  <body>
+    <div>
+      <h1>Identity</h1>
+      <h2>Sign In</h2>
+      <div>
+        <label for="iiUrl" style="display: inline-block; width: 200px"
+          >Identity Provider:
+        </label>
+        <input
+          type="text"
+          id="iiUrl"
+          value="https://identity.ic0.app/"
+        />
+      </div>
+      <div>
+        <label for="maxTimeToLive" style="display: inline-block; width: 200px"
+          >Max Time to live (ms):</label>
+        <input
+          type="number"
+          id="maxTimeToLive"
+          placeholder="(use default)"
+        />
+      </div>
+      <button id="signinBtn">Sign In</button>
+      <button id="signoutBtn">Sign Out</button>
+      <h3>Principal:</h3>
+      <div id="principal"></div>
+      <h3>Delegation:</h3>
+      <pre id="delegation"></pre>
+      <h3>Expiry (ns from now)</h3>
+      <div id="expiration"></div>
+    </div>
+
+    <div>
+      <h1>Contact the IC</h1>
+      <label for="hostUrl" style="display: inline-block; width: 120px"
+        >Replica URL:
+      </label>
+      <input type="text" id="hostUrl" value="https://boundary.ic0.app/" />
+      <br />
+      <label for="canisterId" style="display: inline-block; width: 120px"
+        >Canister ID:
+      </label>
+      <input type="text" id="canisterId" value="4k2wq-cqaaa-aaaab-qac7q-cai" />
+    </div>
+    <div>
+      <button id="whoamiBtn">Who Am I?</button>
+      <div id="whoamiResponse"></div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+[workspace]
+members = [
+    "src/cubehash",
+    "src/internet_identity",
+]
+
+[profile.release]
+lto = true
+opt-level = 'z'
+
+[patch.crates-io]
+# We need a custom lodepng-rust that builds on wasm32-unknown-unknown
+# https://github.com/dfinity/internet-identity/issues/471
+lodepng = { git = 'https://github.com/kornelski/lodepng-rust', rev = '8ceb5b1ffc9c1ab1f8c7ace9bde5f01a5be0aaa2' }

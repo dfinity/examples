@@ -1,0 +1,42 @@
+cabal-version:       2.2
+name:                backend-tests
+version:             0.0.1
+author:              DFINITY
+build-type:          Simple
+
+executable backend-tests
+  main-is:             backend-tests.hs
+  default-language:    Haskell2010
+
+  ghc-options:         -threaded -with-rtsopts -N
+  ghc-options:         -rtsopts
+  ghc-options:         -Wall -Wno-name-shadowing
+  hs-source-dirs:      .
+
+  other-modules: Prometheus
+
+  build-depends: aeson
+  build-depends: attoparsec
+  build-depends: base >=4.12 && <5
+  build-depends: base64-bytestring
+  build-depends: bytestring
+  build-depends: candid
+  build-depends: case-insensitive
+  build-depends: cborg
+  build-depends: containers
+  build-depends: hex-text
+  build-depends: ic-hs
+  build-depends: MonadRandom
+  build-depends: mtl
+  build-depends: optparse-applicative
+  build-depends: regex-tdfa
+  build-depends: row-types
+  build-depends: tasty
+  build-depends: tasty-ant-xml
+  build-depends: tasty-html
+  build-depends: tasty-hunit
+  build-depends: tasty-rerun
+  build-depends: text
+  build-depends: time
+  build-depends: transformers
+  build-depends: vector

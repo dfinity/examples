@@ -1,0 +1,148 @@
+= How to use Internet Identity
+:keywords: Internet Computer,blockchain,protocol,replica,subnet,data center,canister,developer
+:proglang: Motoko
+:platform: Internet Computer platform
+:IC: Internet Computer
+:company-id: DFINITY
+:sdk-short-name: DFINITY Canister SDK
+
+If you would like to learn what Internet Identity is, see
+link:https://sdk.dfinity.org/docs/ic-identity-guide/what-is-ic-identity.html[What is Internet Identity?]
+
+If you would like to create an Internet Identity anchor, or manage your devices, go to the link:https://identity.ic0.app[Internet Identity Page].
+
+All currently supported authentication methods follow the _WebAuthn_ standard. The following restrictions apply, however:
+
+* On OS X, authentication using Safari is coupled to your browser profile. If you want to authenticate to a dapp in a different browser, or if you use multiple Safari browser profiles, you have to add the combination of your authentication method and the new browser as a new device. See: <<Add a device,`+Add a device+`>>. Note that on iOS, in contrast to OS X, authentication works across browsers.
+
+* On OS X and iOS, clearing Safari's browser history leads to the user's registered WebAuthn keys being deleted from the secure enclave, and authentication with these keys is no longer possible.
++
+WARNING: We highly recommend to set up recovery mechanisms so you won't be locked out of any dapps that require the associated identity. How a recovery mechanism can be set up is described below.
+
+* Firefox does not currently accept OS X with any device authentication method other than a security key.
+
+* Windows Hello authentication is supported in Chrome, Edge, and Firefox.
+
+== Create an Identity Anchor
+
+You can securely access dapps that run on the {IC} and use Internet Identity for authentication, provided you have created an Identity Anchor and added one or more devices to it. Based on the Identity Anchor you provide to Internet Identity for authentication, it will create a different pseudonym for each dapp that you access for you. You can create as many sets of pseudonyms as you want by creating new Identity Anchors.
+
+When you access a dapp, you are directed to Internet Identity and asked to enter an Identity Anchor to authenticate. If you do not have an Identity Anchor, you need to first create one:
+
+. Click *Create a new Internet Identity Anchor*.
+
+. Enter a name for the authentication method you would like to use to create an Identity Anchor. For example: iPhone, or YubiKey.
+
+. Create the Identity Anchor using your device as an authentication method.
++
+Choose to create the Identity Anchor using either a dedicated security key, or with an authentication method of the device you are using, if that option is available.
++
+For example, if your device has biometrics enabled to unlock it, you might see the option to use those as your authentication method. You can also use the password that unlocks your computer or a pin that unlocks your phone, depending on the device you’re using.
++
+
+NOTE: As a best practice, use at least one dedicated security key per Identity Anchor. You can then add other authentication methods, such as your phone, your computer, or a second security key you actively use. Store the first key in a safe place for the event that you are unable to to use your preferred device. When you use a dedicated security key, you can authenticate to any dapp running on the {IC} using any browser, with any device that recognizes it.
+  +
+If you do not have a security key, you can alternatively also generate a key from a seed phrase and add that key as recovery mechanism (see last step below).
+
++
+. Authenticate the device.
++ 
+Authenticate using the method you selected when prompted.
+
+. Click *Confirm*. 
++
+Your Identity Anchor is not created until you perform this step.
++
+At this point, depending on the device you are using, you might be asked to either use your device authentication method, or to use your security key. If you are registering for the first time, choose to use the device authentication.
+. Record your Identity Anchor.
++
+When your device has been added, you’ll receive an Identity Anchor.
++
+Your Identity Anchor is represented by a unique number. It is not a secret and you should store it in multiple places so you don't lose it.
+Your browser will remember your Identity Anchor, but you will need it when you authenticate on a different computer, change your browser profile, or if you clear your browser state.
++
+WARNING: If you forget your Identity Anchor and are logged out of all devices, you will no longer be able to authenticate with Internet Identity, unless you have set up account recovery using a seed phrase in the next step. So don't lose your Identity Anchor!
+
+. Click *Continue*. 
+
+. Add a recovery mechanism to an Identity Anchor
++
+In addition to adding multiple devices and using security keys, you can set up account recovery at the prompt by clicking *Add a recovery mechanism to an Identity Anchor*.
++
+On the next screen, you can select one of the following options:
+
+* *Seed Phrase*
++ 
+Select this option to generate a cryptographically-secure seed phrase that you can use to recover an Identity Anchor. Make sure you store this phrase somewhere safe and it is known only to you, as anyone who knows the seed phrase will be able to take full control of this Identity Anchor. *Note that the first string in your seed phrase is the Identity Anchor*. You will need this number to begin the recovery process.
++
+NOTE: You must click the *copy* button and then *continue* or the seed phrase will not be registered. 
+
+* *Security Key*
++
+Use a dedicated security key to recover an Identity Anchor in the event that you lose access to your authorized devices. This key must be different from the ones you actively use to authenticate to Internet Identity using the given Identity Anchor. Keep this key somewhere safe and ensure it is available only to you. As above, anyone in possession of this security key will be able to take full control of your Identity Anchor. You will need to know the Identity Anchor to begin recovery.
+
+* *Set recovery later*
++
+You can skip adding an account recovery mechanism and choose to set it up later from the Internet Identity landing page.
++
+WARNING: However, we highly recommend setting up a recovery mechanism so you don't lose access to this account.
+
+. Click *Continue*
++
+On the next screen, you will see your Identity Anchor and your registered authentication methods.
+From here, you can add and remove authentication methods, and set up additional account recovery methods.
+
+== Add a device 
+
+The workflow for adding a device can vary depending on what devices you’ve already added to an Identity Anchor. For example, if you first authorized your computer to create the Identity Anchor, and you’d like to add your phone as a second authentication method, you must be able to authenticate your phone on the authorized computer. You must always be able to authorize the device you want to add by using a device that is already authorized.
+
+NOTE: If you start the add device flow on a Windows device that supports Windows Hello authentication, the browser first asks you to add Windows Hello as the new authentication method. If you have registered the device with Windows Hello already and would like to add e.g. a security key instead, you need to cancel the Windows Hello prompt. Then the browser lets you choose a different authentication method, such as a security key.
+
+If you are adding a new device, such as a new security key, or a new browser profile using a computer or phone that has already been added as an authentication method, you can do this easily and directly from within Internet Identity Management.
+
+Other workflows can be more complex. For example, to add your phone's unlock methods as an additional authentication method using your authenticated computer, proceed as follows:
+
+. Open the Internet Identity web page in your phone’s browser. 
+
+. Click *Already have an anchor but using a new device?*
+
+. Enter the Identity Anchor you'd like to use and and click *Continue*.
+
+. Follow the instructions on screen for setting up your phone's unlock method (FaceID, TouchID, etc) with Internet Identity.
+
+. Authorize your phone.
++
+After you’ve set up the unlock method with II on your phone, you will be provided with a URL and a QR code. You must use the URL or QR code in a browser in the computer that has already been authorized. For example, you can copy the URL and email it to yourself, then paste it into a browser on the computer. 
+. In the browser on the computer that has already been authorized, open the above link, enter your Identity Anchor, click *Authenticate* and authenticate using an existing authentication method.
+. Link your phone to your identity. 
++
+If you’re sure that the link you pasted in the browser came from you, click *Yes, add new device*.
++
+WARNING: Never add authentication methods with links that were given to you or that you are not sure you can trust. If you add an attacker's device, they will be able to take over this Identity Anchor.
+. Give the device profile a name and click *Add Device*.
++
+Your phone will be redirected to the login page, and you can now use it with your Identity Anchor to authenticate.
+
+WARNING: You should add as many devices as possible to prevent you from losing access to dapps in case you lose a device. Again, the best way to deal with accidental loss is to set up a recovery method. Also, make sure to keep all added authentication methods safe and do not lose them, as a single authentication method gives access to the Identity Anchor.
+
+WARNING: If you lose a device, remove it from the authentication methods immediately and make sure that all added authentication methods are in your control, as an attacker may have added more methods in the meanwhile. Also, consider the Identity Anchor compromised starting from the time the device was lost until it was removed from the authentication methods.
+
+== How to recover a lost identity
+
+When you create an Identity Anchor, you will be prompted to copy a seed phrase or to add a dedicated security key as recovery mechanism.
+
+You can choose to do this at any time, but note that if you lose an Identity Anchor or if you no longer have access to authorized devices, you will need the seed phrase or the recovery security key to recover the Identity Anchor. Without one of these, you will be locked out of any dapps that require the associated identity.
+
+If you have set up a recovery phrase or recovery security key for an Identity Anchor, you can regain access by following these steps: 
+
+**1. Click *Lost access and want to recover?* from the Internet Identity landing page.**
+
+image::auth-how-to/welcome-to-internet-identity.png[]
+
+**2. Input your identity anchor**
+
+image::auth-how-to/recover-identity-anchor.png[]
+
+**3. Input your seed phrase**
+
+image::auth-how-to/your-seed-phrase.png[]

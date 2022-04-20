@@ -1,0 +1,19 @@
+:root {
+    font-family: sans-serif;
+    font-size: 1.2rem;
+
+    box-sizing: border-box;
+}
+
+body {
+    max-width: 20rem;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+img {
+    max-width: 100%;
+}

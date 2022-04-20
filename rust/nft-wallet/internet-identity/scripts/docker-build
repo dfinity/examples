@@ -1,0 +1,65 @@
+#!/usr/bin/env bash
+# vim: ft=bash
+# Build internet_identity.wasm inside docker. This outputs a single file, internet_identity.wasm,
+# in the top-level directory.
+
+set -euo pipefail
+
+SCRIPTS_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+cd "$SCRIPTS_DIR/.."
+
+II_ENV=${II_ENV:-}
+
+echo "II_ENV: '$II_ENV'"
+echo "PWD: $PWD"
+
+image_name="internet-identity"
+docker_build_args=( --target scratch )
+
+if [ -n "$II_ENV" ]
+then
+    docker_build_args+=( --build-arg II_ENV="$II_ENV" )
+    image_name="$image_name-$II_ENV"
+fi
+
+docker_build_args+=(--tag "$image_name" .)
+
+echo "The following image name will be used: $image_name"
+
+set -x
+docker build "${docker_build_args[@]}"
+set +x
+
+# use no-op as a command, doesn't matter since the container is never run
+container_id=$(docker create "$image_name" no-op)
+
+echo "created container with id $container_id"
+
+success=true
+
+copy() {
+    local container_id="$1"
+    local container_path="$2"
+    local local_path="$3"
+
+    if docker cp $container_id:/"$container_path" "$local_path"
+    then
+        echo "$container_path -> $local_path (from container $container_id)"
+        return 0
+    else
+        echo "could not copy $container_path from container $container_id"
+        return 1
+    fi
+}
+
+copy "$container_id" "internet_identity.wasm" "internet_identity.wasm" || success=false
+
+if [[ $success = true ]]
+then
+    echo "Removing container $container_id"
+    docker rm --volumes "$container_id"
+else
+    echo "container is left for inspection, once done run:"
+    echo "  docker rm -v $container_id"
+fi

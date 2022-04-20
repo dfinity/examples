@@ -1,0 +1,16 @@
+packages: .
+
+source-repository-package
+    type: git
+    location: https://github.com/dfinity-side-projects/winter
+    tag: 2cc31576fe029d85c37d21fc9ea4902c5c64b5a9
+
+source-repository-package
+    type: git
+    location: https://github.com/nomeata/haskell-candid
+    tag: dbf3347be73ebec914c193d68b4e563d8c881ae0
+
+source-repository-package
+    type: git
+    location: https://github.com/dfinity/ic-hs
+    tag: 258f94b9274ae69a6660b77c37324868b47ec76a

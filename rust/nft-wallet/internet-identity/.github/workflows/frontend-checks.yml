@@ -1,0 +1,26 @@
+name: Frontend checks and lints
+
+on:
+  push:
+
+jobs:
+  frontend-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: npm ci
+      - name: Run ESLint
+        run: npm run lint
+      - name: Check formatting
+        run: npm run format
+      - name: Commit Formatting changes
+        uses: EndBug/add-and-commit@v7.2.0
+        if: ${{ github.event_name == 'pull_request' }}
+        with:
+          add: src/frontend
+          author_name: Formatting Committer
+          author_email: "<nobody@example.com>"
+          message: "Updating frontend formatting"
+          # do not pull: if this branch is behind, then we might as well let
+          # the pushing fail
+          pull_strategy: "NO-PULL"
