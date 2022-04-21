@@ -1,0 +1,12 @@
+[package]
+name = "bitcoin_wallet"
+version = "0.1.0"
+edition = "2018"
+
+[lib]
+path = "lib.rs"
+crate-type = ["cdylib"]
+
+[dependencies]
+ic-cdk = "0.5"
+ic-cdk-macros = "0.5"

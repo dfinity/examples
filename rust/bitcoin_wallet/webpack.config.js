@@ -1,8 +1,6 @@
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
-const TerserPlugin = require("terser-webpack-plugin");
-const CopyPlugin = require("copy-webpack-plugin");
 
 let canisters;
 
@@ -45,8 +43,8 @@ function initCanisterIds() {
 }
 initCanisterIds();
 
-const index_html = path.join(__dirname, path.join("webapp", "index.html"));
-const index_js = path.join(__dirname, path.join("webapp", "index.js"));
+const index_html = path.join(__dirname, path.join("src", "bitcoin_wallet_assets", "src", "index.html"));
+const index_js = path.join(__dirname, path.join("src", "bitcoin_wallet_assets", "src", "index.js"));
 
 module.exports = {
   entry: { index: index_js },
@@ -55,7 +53,7 @@ module.exports = {
 
   output: {
     filename: "index.js",
-    path: path.join(__dirname, "dist"),
+    path: path.join(__dirname, "dist", "bitcoin_wallet_assets"),
   },
 
   plugins: [
@@ -66,7 +64,7 @@ module.exports = {
     }),
 
     new webpack.EnvironmentPlugin({
-      WHOAMI_CANISTER_ID: process.env.WHOAMI_CANISTER_ID,
+      BITCOIN_WALLET_CANISTER_ID: process.env.BITCOIN_WALLET_CANISTER_ID,
       II_CANISTER_ID: process.env.INTERNET_IDENTITY_CANISTER_ID,
       DFX_NETWORK: process.env.DFX_NETWORK || "local",
     }),
@@ -88,7 +86,6 @@ module.exports = {
       },
     },
     hot: true,
-    static: "./webapp",
+    static: "./src/bitcoin_wallet_assets/src/",
   },
 };
-
