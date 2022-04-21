@@ -95,9 +95,18 @@
 
             // Create a balances array and set the userBalance store object
             const balances = []
+            console.log('Fetching all Balances');
+            const allBalances = await backendActor.getAllBalances();
             for(let i = 0; i < $canisters.length; i++) {
                 const principal = Principal.fromText($canisters[i].canisterId);
-                const dexBalance = await backendActor.getBalance(principal);
+                let token;
+                if(allBalances.length) {
+                    token = allBalances.find((bal) => {
+                        return bal.token.toString() === principal.toString()
+                    });
+                }
+
+                const dexBalance = token ? token.amount : 0;
 
                 balances.push({
                     name: $canisters[i].canisterName,
