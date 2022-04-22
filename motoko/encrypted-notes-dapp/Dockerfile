@@ -11,9 +11,9 @@ RUN \
 # Install dfx; the version is picked up from the DFX_VERSION environment variable
 # Lowercase [dfx_version] is an argument of this Dockerfile (with a default value)
 # Uppercase [DFX_VERSION] is an environment variable for expected by the DFX installation script
-ARG dfx_version=0.8.4
+ARG dfx_version=0.9.3
 ENV DFX_VERSION=${dfx_version}
-RUN sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
+RUN sh -ci "$(curl -fsSL https://smartcontracts.org/install.sh)"
 ENV NODE_OPTIONS=--openssl-legacy-provider
 EXPOSE 8080 8000 3000 35729
 WORKDIR /canister
