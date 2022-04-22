@@ -63,7 +63,6 @@ shared(init_msg) actor class Dex() = this {
         // Iterate all orders to only allow one sell order per token.
         for(e in exchanges.vals()) {
             for(o in e.getOrders().vals()){
-                Debug.print("Creating Exchange for trading pair: " # Principal.toText(o.from) # "::" # Principal.toText(from));
                 if (o.from == from) {
                     return #Err(#OrderBookFull);
                 };
