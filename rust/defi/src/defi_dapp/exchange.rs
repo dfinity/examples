@@ -152,6 +152,10 @@ impl Exchange {
             return OrderPlacementReceipt::Err(OrderPlacementErr::InvalidOrder);
         }
 
+        if self.check_for_sell_orders(from_token_canister_id) {
+            return OrderPlacementReceipt::Err(OrderPlacementErr::InvalidOrder);
+        }
+
         let balance = self.get_balance(from_token_canister_id);
         if balance < from_amount {
             return OrderPlacementReceipt::Err(OrderPlacementErr::InvalidOrder);
@@ -177,6 +181,13 @@ impl Exchange {
         } else {
             OrderPlacementReceipt::Ok(None)
         }
+    }
+
+    pub fn check_for_sell_orders(&self, from_token_canister_id: Principal) -> bool {
+        self.orders
+            .values()
+            .find(|v| (v.from_token_canister_id == from_token_canister_id) && (v.owner == caller()))
+            .is_some()
     }
 
     pub fn cancel_order(&mut self, order: OrderId) -> CancelOrderReceipt {
