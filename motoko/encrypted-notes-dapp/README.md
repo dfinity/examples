@@ -24,7 +24,7 @@
 
 Encrypted Notes is an example dapp for authoring and storing confidential information on the Internet Computer (IC) in the form of short pieces of text. Users can create and access their notes via any number of automatically synchronized devices authenticated via [Internet Identity (II)](https://smartcontracts.org/docs/ic-identity-guide/what-is-ic-identity.html). Notes are stored confidentially thanks to the end-to-end encryption performed by the dapp’s frontend.
 
-This project serves as a simple (but not too simple) example of a dapp, which uses Motoko and Rust as backend and Svelte as frontend.
+This project serves as a simple (but not too simple) example of a dapp, which uses Motoko or Rust as backend and Svelte as frontend.
 
 <p align="center">
   <img src="./pictures/architectural_overview.png" width="70%" height="70%"/>
