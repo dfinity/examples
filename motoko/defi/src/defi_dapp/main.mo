@@ -60,6 +60,16 @@ shared(init_msg) actor class Dex() = this {
             }
         };
 
+        // Iterate all orders to only allow one sell order per token.
+        for(e in exchanges.vals()) {
+            for(o in e.getOrders().vals()){
+                Debug.print("Creating Exchange for trading pair: " # Principal.toText(o.from) # "::" # Principal.toText(from));
+                if (o.from == from) {
+                    return #Err(#OrderBookFull);
+                };
+            };
+        };
+                                                                       
         // Check if user balance in book is enough before creating the order.
         if(book.hasEnoughBalance(owner,from,fromAmount) == false) {
             Debug.print("Not enough balance for user " # Principal.toText(owner) # " in token " # Principal.toText(from));
