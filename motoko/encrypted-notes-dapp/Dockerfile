@@ -6,7 +6,7 @@ FROM node:17-slim as encrypted_notes_base
 # build-essential only necessary if you need to build the Rust canister.
 RUN \
     apt -yq update && \
-    apt -yqq install --no-install-recommends curl rsync ca-certificates
+    apt -yqq install --no-install-recommends curl rsync ca-certificates libdigest-sha-perl
 
 # Install dfx; the version is picked up from the DFX_VERSION environment variable
 # Lowercase [dfx_version] is an argument of this Dockerfile (with a default value)
