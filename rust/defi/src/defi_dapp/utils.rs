@@ -5,7 +5,7 @@ use ic_ledger_types::Subaccount;
 use num_bigint::BigUint;
 
 pub fn nat_to_u128(n: Nat) -> u128 {
-    let n: BigUint = n.try_into().unwrap();
+    let n: BigUint = n.into();
     let n: u128 = n.try_into().unwrap();
 
     n

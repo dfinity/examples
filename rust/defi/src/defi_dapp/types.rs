@@ -13,7 +13,7 @@ pub struct Order {
     pub toAmount: Nat,
 }
 
-#[derive(CandidType, Clone)]
+#[derive(CandidType)]
 pub struct Balance {
     pub owner: Principal,
     pub token: Principal,
