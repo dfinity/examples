@@ -16,7 +16,6 @@ import Text "mo:base/Text";
 import Time "mo:base/Time";
 import Result "mo:base/Result";
 
-import DIP20 "../DIP20/motoko/src/token";
 import Account "./Account";
 import Ledger "canister:ledger";
 

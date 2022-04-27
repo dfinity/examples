@@ -14,7 +14,6 @@ import Order "mo:base/Order";
 import Principal "mo:base/Principal";
 import RBTree "mo:base/RBTree";
 
-import DIP20 "../DIP20/motoko/src/token";
 import Ledger "canister:ledger";
 
 import Book "book";
