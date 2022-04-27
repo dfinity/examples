@@ -95,13 +95,14 @@
 
             // Create a balances array and set the userBalance store object
             const balances = []
-            console.log('Fetching all Balances');
-            const allBalances = await backendActor.getAllBalances();
+            console.log('Fetching all user balances');
+            const allUserBalances = await backendActor.getBalances();
+            console.log('User Balances: ', allUserBalances)
             for(let i = 0; i < $canisters.length; i++) {
                 const principal = Principal.fromText($canisters[i].canisterId);
                 let token;
-                if(allBalances.length) {
-                    token = allBalances.find((bal) => {
+                if(allUserBalances.length) {
+                    token = allUserBalances.find((bal) => {
                         return bal.token.toString() === principal.toString()
                     });
                 }
@@ -119,6 +120,7 @@
 
             // Update the store values
             userBalances.set([...balances]);
+            console.log('User Balnces: ', $userBalances)
         }
         else if ($plugWallet.isConnected) {
             // TODO: Support Plug wallet
@@ -180,7 +182,7 @@
         })
         if(canister && canister.canisterName === 'ICP') {
             if (authType === "Plug") {
-                // TODO: Support Plug wallet
+                // TODO: Support Plug walletl
             	// await ledgerActor.transfer(...)
             }
             // transfer ICP correct subaccount on DEX
