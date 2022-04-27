@@ -120,7 +120,7 @@
 
             // Update the store values
             userBalances.set([...balances]);
-            console.log('User Balnces: ', $userBalances)
+            console.log('User Balances: ', $userBalances)
         }
         else if ($plugWallet.isConnected) {
             // TODO: Support Plug wallet
