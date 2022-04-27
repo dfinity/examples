@@ -182,7 +182,7 @@
         })
         if(canister && canister.canisterName === 'ICP') {
             if (authType === "Plug") {
-                // TODO: Support Plug walletl
+                // TODO: Support Plug wallet
             	// await ledgerActor.transfer(...)
             }
             // transfer ICP correct subaccount on DEX
