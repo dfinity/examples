@@ -318,13 +318,10 @@ pub fn credit(user: Principal, token_canister_id: Principal, amount: Nat) {
 
         ic_cdk::println!("credit {} {}", caller(), owner);
         assert!(owner == caller());
-        if !state
+        state
             .exchange
             .balances
-            .add_balance(&user, &token_canister_id, amount)
-        {
-            ic_cdk::println!("Credit failed, would create overflow");
-        }
+            .add_balance(&user, &token_canister_id, amount);
     })
 }
 

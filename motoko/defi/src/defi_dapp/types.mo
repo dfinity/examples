@@ -80,7 +80,6 @@ module {
     public type OrderPlacementErr = {
         #InvalidOrder;
         #OrderBookFull;
-        #IntegerOverflow;
     };
     public type OrderPlacementReceipt = {
         #Ok: ?Order;

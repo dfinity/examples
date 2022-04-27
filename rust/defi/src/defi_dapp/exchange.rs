@@ -18,13 +18,7 @@ pub struct Exchange {
 }
 
 impl Balances {
-    #[must_use]
-    pub fn add_balance(
-        &mut self,
-        owner: &Principal,
-        token_canister_id: &Principal,
-        delta: Nat,
-    ) -> bool {
+    pub fn add_balance(&mut self, owner: &Principal, token_canister_id: &Principal, delta: Nat) {
         let balances = self.0.entry(*owner).or_insert_with(HashMap::new);
 
         if let Some(x) = balances.get_mut(token_canister_id) {
@@ -32,8 +26,6 @@ impl Balances {
         } else {
             balances.insert(*token_canister_id, delta);
         }
-
-        true
     }
 
     // Tries to substract balance from user account. Checks for overflows
@@ -45,12 +37,16 @@ impl Balances {
     ) -> bool {
         if let Some(balances) = self.0.get_mut(owner) {
             if let Some(x) = balances.get_mut(token_canister_id) {
-                *x -= delta;
-                // no need to keep an empty token record
-                if *x == 0u16 {
-                    balances.remove(token_canister_id);
+                if *x >= delta {
+                    *x -= delta;
+                    // no need to keep an empty token record
+                    if *x == 0u16 {
+                        balances.remove(token_canister_id);
+                    }
+                    return true;
+                } else {
+                    return false;
                 }
-                return true;
             }
         }
 
@@ -250,26 +246,20 @@ impl Exchange {
 
         // Update DEX balances
         balances.subtract_balance(&order_a.owner, &order_a.from, a_from_amount.clone());
-        if !balances.add_balance(&order_a.owner, &order_a.to, a_to_amount.clone()) {
-            return Err(OrderPlacementErr::IntegerOverflow);
-        }
+        balances.add_balance(&order_a.owner, &order_a.to, a_to_amount.clone());
 
         balances.subtract_balance(&order_b.owner, &order_b.from, b_from_amount.clone());
-        if !balances.add_balance(&order_b.owner, &order_b.to, b_to_amount.clone()) {
-            return Err(OrderPlacementErr::IntegerOverflow);
-        }
+        balances.add_balance(&order_b.owner, &order_b.to, b_to_amount.clone());
 
         // The DEX keeps any tokens not required to satisfy the parties.
         let dex_amount_a = a_from_amount - b_to_amount;
-        if dex_amount_a > 0u16 && !balances.add_balance(&ic_cdk::id(), &order_a.from, dex_amount_a)
-        {
-            return Err(OrderPlacementErr::IntegerOverflow);
+        if dex_amount_a > 0u16 {
+            balances.add_balance(&ic_cdk::id(), &order_a.from, dex_amount_a);
         }
 
         let dex_amount_b = b_from_amount - a_to_amount;
-        if dex_amount_b > 0u16 && !balances.add_balance(&ic_cdk::id(), &order_b.from, dex_amount_b)
-        {
-            return Err(OrderPlacementErr::IntegerOverflow);
+        if dex_amount_b > 0u16 {
+            balances.add_balance(&ic_cdk::id(), &order_b.from, dex_amount_b);
         }
 
         // Maintain the order only if not empty
