@@ -16,6 +16,7 @@
 - [Troubleshooting](#troubleshooting)
   - [Building/deployment problems](#buildingdeployment-problems)
   - [Login problems](#login-problems)
+  - [SSL certificate problems](#ssl-certificate-problems)
 - [dfx.json file structure](#dfxjson-file-structure)
 - [Local memory model](#local-memory-model)
 - [Further Reading](#further-reading)
@@ -267,6 +268,10 @@ Possible Remedies:
 
 ### Login problems
 Some errors like `Could not initialize crypto service` might occur due to browser caching issues. Redeployment of the dapp can cause such problems. In this case clear browser's _Local Storage_ and _IndexedDB_.
+
+### SSL certificate problems
+
+Some browsers may block local resources based on invalid SSL certificates. If while testing a locally deployed version of the Encrypted Notes dapp you observe certificate issues in your browser's console, please change the browser settings to _ignore certificates for resources loaded from localhost_. For example, this can be done in Google Chrome via [chrome://flags/#allow-insecure-localhost](chrome://flags/#allow-insecure-localhost).
 
 ## dfx.json file structure
 `dfx.json` is the configuration of the project when deploying to either the local replica or to the IC, it assists in the creation of the `.dfx` directory (which contains `canister_ids.json` — which merely maps canister by name to their id on both local replica and the IC). There are various configuration options here and this is not exhaustive. This will primarily discuss target types for canisters (which all exist under the `canisters` key).
