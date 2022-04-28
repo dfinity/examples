@@ -16,7 +16,6 @@ import Text "mo:base/Text";
 import Time "mo:base/Time";
 import Result "mo:base/Result";
 
-import DIP20 "../DIP20/motoko/src/token";
 import Account "./Account";
 import Ledger "canister:ledger";
 
@@ -428,10 +427,6 @@ shared(init_msg) actor class Dex() = this {
         ?(await getSymbol(trading_pair.0),await getSymbol(trading_pair.1))
     };
     
-    public shared(msg) func getWithdrawalAddress(): async Blob {
-        Account.accountIdentifier(msg.caller, Account.defaultSubaccount())
-    };
-
     // For testing
     public shared(msg) func credit(user: Principal, token_canister_id: T.Token, amount: Nat) {
         assert (msg.caller == init_msg.caller);

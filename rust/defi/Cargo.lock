@@ -209,6 +209,7 @@ dependencies = [
  "ic-ledger-types",
  "ic-types 0.2.2",
  "num-bigint",
+ "num-traits",
  "serde",
  "serde_derive",
  "tempfile",

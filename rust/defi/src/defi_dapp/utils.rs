@@ -3,12 +3,10 @@ use std::convert::TryInto;
 use candid::{Nat, Principal};
 use ic_ledger_types::Subaccount;
 use num_bigint::BigUint;
+use num_traits::Zero;
 
-pub fn nat_to_u128(n: Nat) -> u128 {
-    let n: BigUint = n.try_into().unwrap();
-    let n: u128 = n.try_into().unwrap();
-
-    n
+pub fn zero() -> Nat {
+    Nat(BigUint::zero())
 }
 
 pub fn principal_to_subaccount(principal_id: &Principal) -> Subaccount {
