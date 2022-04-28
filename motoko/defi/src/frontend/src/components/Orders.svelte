@@ -219,25 +219,27 @@
                         </td>
                         <td>{order.toAmount}</td>
                         <td>
-                            <button class="btn-accept" title="Buy order">
-                                {#if buyingOrder && $currentOrder.id === order.id}
-                                <div class="loader buy-btn-loader"></div>
-                                {:else}
-                                    <div class="buy-btn-text" on:click={() => buyOrder(order)}>
-                                        <FontAwesomeIcon icon="check" />
-                                    </div>
-                                {/if}
-                            </button>
-                            {#if authClient && order.owner.toText() === authClient.getIdentity().getPrincipal().toText()}
-                                <button class="btn-cancel" on:click={() => cancelOrder(order.id)} title="Cancel order">
-                                    {#if cancelingOrder && $currentOrder.id === order.id}
-                                        <div class="loader cancel-btn-loader"></div>
+                            {#if $auth.loggedIn}
+                                <button class="btn-accept" title="Buy order">
+                                    {#if buyingOrder && $currentOrder.id === order.id}
+                                    <div class="loader buy-btn-loader"></div>
                                     {:else}
-                                        <div class="cancel-btn-text">
-                                            <FontAwesomeIcon icon="times" />
+                                        <div class="buy-btn-text" on:click={() => buyOrder(order)}>
+                                            <FontAwesomeIcon icon="check" />
                                         </div>
                                     {/if}
                                 </button>
+                                {#if authClient && order.owner.toText() === authClient.getIdentity().getPrincipal().toText()}
+                                    <button class="btn-cancel" on:click={() => cancelOrder(order.id)} title="Cancel order">
+                                        {#if cancelingOrder && $currentOrder.id === order.id}
+                                            <div class="loader cancel-btn-loader"></div>
+                                        {:else}
+                                            <div class="cancel-btn-text">
+                                                <FontAwesomeIcon icon="times" />
+                                            </div>
+                                        {/if}
+                                    </button>
+                                {/if}
                             {/if}
                         </td>
                     </tr>
