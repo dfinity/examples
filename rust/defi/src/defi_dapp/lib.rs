@@ -17,7 +17,7 @@ mod utils;
 use dip20::DIP20;
 use exchange::Exchange;
 use types::*;
-use utils::{nat_to_u128, principal_to_subaccount};
+use utils::principal_to_subaccount;
 
 const ICP_FEE: u64 = 10_000;
 
@@ -49,7 +49,7 @@ pub async fn deposit(token_canister_id: Principal) -> DepositReceipt {
         s.borrow_mut()
             .exchange
             .balances
-            .add_balance(&caller, &token_canister_id, amount.clone())
+            .add_balance(&caller, &token_canister_id, amount.to_owned())
     });
     DepositReceipt::Ok(amount)
 }
@@ -232,9 +232,16 @@ async fn withdraw_icp(amount: &Nat, account_id: AccountIdentifier) -> Result<Nat
         return Err(WithdrawErr::BalanceLow);
     }
 
+    let transfer_amount = Tokens::from_e8s(
+        (amount.to_owned() + ICP_FEE)
+            .0
+            .try_into()
+            .map_err(|_| WithdrawErr::TransferFailure)?,
+    );
+
     let transfer_args = ic_ledger_types::TransferArgs {
         memo: Memo(0),
-        amount: Tokens::from_e8s(nat_to_u128(amount.to_owned() + ICP_FEE).try_into().unwrap()),
+        amount: transfer_amount,
         fee: Tokens::from_e8s(ICP_FEE),
         from_subaccount: Some(DEFAULT_SUBACCOUNT),
         to: account_id,
@@ -275,7 +282,7 @@ async fn withdraw_token(
         s.borrow_mut().exchange.balances.subtract_balance(
             &caller,
             &token,
-            amount.to_owned() + dip_fee.clone(),
+            amount.to_owned() + dip_fee.to_owned(),
         )
     });
     if !sufficient_balance {
@@ -283,7 +290,7 @@ async fn withdraw_token(
     }
 
     let tx_receipt = dip
-        .transfer(address, amount.to_owned() + dip_fee.clone())
+        .transfer(address, amount.to_owned() + dip_fee.to_owned())
         .await
         .map_err(|_| WithdrawErr::TransferFailure);
 
@@ -292,7 +299,7 @@ async fn withdraw_token(
             s.borrow_mut().exchange.balances.add_balance(
                 &caller,
                 &token,
-                amount.to_owned() + dip_fee.clone(),
+                amount.to_owned() + dip_fee.to_owned(),
             )
         });
 

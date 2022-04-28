@@ -4,7 +4,7 @@ use candid::{Nat, Principal};
 use ic_cdk::caller;
 
 use crate::types::*;
-use crate::OrderId;
+use crate::{utils, OrderId};
 
 #[derive(Default)]
 pub struct Balances(pub HashMap<Principal, HashMap<Principal, Nat>>); // owner -> token_canister_id -> amount
@@ -40,7 +40,7 @@ impl Balances {
                 if *x >= delta {
                     *x -= delta;
                     // no need to keep an empty token record
-                    if *x == 0u16 {
+                    if *x == utils::zero() {
                         balances.remove(token_canister_id);
                     }
                     return true;
@@ -60,7 +60,7 @@ impl Exchange {
             .0
             .get(&caller())
             .and_then(|v| v.get(&token_canister_id))
-            .map_or(0u16.into(), |v| v.clone())
+            .map_or(utils::zero(), |v| v.to_owned())
     }
 
     pub fn get_balances(&self) -> Vec<Balance> {
@@ -71,7 +71,7 @@ impl Exchange {
                 .map(|(token_canister_id, amount)| Balance {
                     owner: caller(),
                     token: *token_canister_id,
-                    amount: amount.clone(),
+                    amount: amount.to_owned(),
                 })
                 .collect(),
         }
@@ -85,7 +85,7 @@ impl Exchange {
                 balances.iter().map(move |(token, amount)| Balance {
                     owner: *owner,
                     token: *token,
-                    amount: amount.clone(),
+                    amount: amount.to_owned(),
                 })
             })
             .collect()
@@ -107,7 +107,7 @@ impl Exchange {
         to_amount: Nat,
     ) -> OrderPlacementReceipt {
         ic_cdk::println!("place order");
-        if from_amount <= 0u8 || to_amount <= 0u8 {
+        if from_amount <= utils::zero() || to_amount <= utils::zero() {
             return OrderPlacementReceipt::Err(OrderPlacementErr::InvalidOrder);
         }
 
@@ -172,8 +172,8 @@ impl Exchange {
                 // Simplified to use multiplication from
                 // (a.fromAmount / a.toAmount) * (b.fromAmount / b.toAmount) >= 1
                 // which checks that this pair of trades is profitable.
-                if a.fromAmount.clone() * b.fromAmount.clone()
-                    >= a.toAmount.clone() * b.toAmount.clone()
+                if a.fromAmount.to_owned() * b.fromAmount.to_owned()
+                    >= a.toAmount.to_owned() * b.toAmount.to_owned()
                 {
                     ic_cdk::println!(
                         "match {}: {} -> {}, {}: {} -> {}",
@@ -189,25 +189,35 @@ impl Exchange {
             }
         }
         for m in matches {
-            let mut a_to_amount = 0u16.into();
-            let mut b_to_amount = 0u16.into();
+            let mut a_to_amount: Nat = utils::zero();
+            let mut b_to_amount: Nat = utils::zero();
             let (a, b) = m;
             // Check if some orders can be completed in their entirety.
             if b.fromAmount >= a.toAmount {
-                a_to_amount = a.toAmount.clone();
+                a_to_amount = a.toAmount.to_owned();
             }
             if a.fromAmount >= b.toAmount {
-                b_to_amount = b.toAmount.clone();
+                b_to_amount = b.toAmount.to_owned();
             }
             // Check if some orders can be completed partially.
-            if check_orders(a.clone(), b.clone(), &mut a_to_amount, b_to_amount.clone()) {
+            if check_orders(
+                a.to_owned(),
+                b.to_owned(),
+                &mut a_to_amount,
+                b_to_amount.to_owned(),
+            ) {
                 continue;
             }
-            if check_orders(b.clone(), a.clone(), &mut b_to_amount, a_to_amount.clone()) {
+            if check_orders(
+                b.to_owned(),
+                a.to_owned(),
+                &mut b_to_amount,
+                a_to_amount.to_owned(),
+            ) {
                 continue;
             }
 
-            if a_to_amount > 0u16 && b_to_amount > 0u16 {
+            if a_to_amount > utils::zero() && b_to_amount > utils::zero() {
                 self.process_trade(a.id, b.id, a_to_amount, b_to_amount)?;
             }
         }
@@ -233,41 +243,41 @@ impl Exchange {
 
         // Calculate "cost" to each
         let a_from_amount =
-            (a_to_amount.clone() * order_a.fromAmount.clone()) / order_a.toAmount.clone();
+            (a_to_amount.to_owned() * order_a.fromAmount.to_owned()) / order_a.toAmount.to_owned();
         let b_from_amount =
-            (b_to_amount.clone() * order_b.fromAmount.clone()) / order_b.toAmount.clone();
+            (b_to_amount.to_owned() * order_b.fromAmount.to_owned()) / order_b.toAmount.to_owned();
 
         // Update order with remaining tokens
-        order_a.fromAmount -= a_from_amount.clone();
-        order_a.toAmount -= a_to_amount.clone();
+        order_a.fromAmount -= a_from_amount.to_owned();
+        order_a.toAmount -= a_to_amount.to_owned();
 
-        order_b.fromAmount -= b_from_amount.clone();
-        order_b.toAmount -= b_to_amount.clone();
+        order_b.fromAmount -= b_from_amount.to_owned();
+        order_b.toAmount -= b_to_amount.to_owned();
 
         // Update DEX balances
-        balances.subtract_balance(&order_a.owner, &order_a.from, a_from_amount.clone());
-        balances.add_balance(&order_a.owner, &order_a.to, a_to_amount.clone());
+        balances.subtract_balance(&order_a.owner, &order_a.from, a_from_amount.to_owned());
+        balances.add_balance(&order_a.owner, &order_a.to, a_to_amount.to_owned());
 
-        balances.subtract_balance(&order_b.owner, &order_b.from, b_from_amount.clone());
-        balances.add_balance(&order_b.owner, &order_b.to, b_to_amount.clone());
+        balances.subtract_balance(&order_b.owner, &order_b.from, b_from_amount.to_owned());
+        balances.add_balance(&order_b.owner, &order_b.to, b_to_amount.to_owned());
 
         // The DEX keeps any tokens not required to satisfy the parties.
         let dex_amount_a = a_from_amount - b_to_amount;
-        if dex_amount_a > 0u16 {
+        if dex_amount_a > utils::zero() {
             balances.add_balance(&ic_cdk::id(), &order_a.from, dex_amount_a);
         }
 
         let dex_amount_b = b_from_amount - a_to_amount;
-        if dex_amount_b > 0u16 {
+        if dex_amount_b > utils::zero() {
             balances.add_balance(&ic_cdk::id(), &order_b.from, dex_amount_b);
         }
 
         // Maintain the order only if not empty
-        if order_a.fromAmount != 0u16 {
+        if order_a.fromAmount != utils::zero() {
             orders.insert(order_a.id, order_a);
         }
 
-        if order_b.fromAmount != 0u16 {
+        if order_b.fromAmount != utils::zero() {
             orders.insert(order_b.id, order_b);
         }
 
@@ -286,10 +296,10 @@ fn check_orders(
     first_to_amount: &mut Nat,
     second_to_amount: Nat,
 ) -> bool {
-    if first_to_amount == &0u16 && second_to_amount > 0u16 {
+    if *first_to_amount == utils::zero() && second_to_amount > utils::zero() {
         *first_to_amount = second.fromAmount;
         // Verify that we can complete the partial order with natural number tokens remaining.
-        if ((first_to_amount.clone() * first.fromAmount) % first.toAmount) != 0u16 {
+        if ((first_to_amount.to_owned() * first.fromAmount) % first.toAmount) != utils::zero() {
             return true;
         }
     }
