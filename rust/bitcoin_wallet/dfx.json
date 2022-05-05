@@ -1,5 +1,11 @@
 {
   "canisters": {
+    "btc": {
+      "type": "custom",
+      "candid": "canister/candid.did",
+      "wasm": "target/wasm32-unknown-unknown/release/canister.wasm",
+      "build": "scripts/build-canister.sh"
+    },
     "internet_identity": {
       "type": "custom",
       "candid": "internet_identity.did",
@@ -9,7 +15,9 @@
     "bitcoin_wallet": {
       "candid": "src/bitcoin_wallet/bitcoin_wallet.did",
       "package": "bitcoin_wallet",
-      "type": "rust"
+      "type": "custom",
+      "wasm": "target/wasm32-unknown-unknown/release/bitcoin-wallet.wasm",
+      "build": "scripts/build-bitcoin-wallet.sh"
     },
     "bitcoin_wallet_assets": {
       "dependencies": [

@@ -1,3 +1,9 @@
-service : {
+type InitPayload = record {
+  bitcoin_canister_id : principal;
+};
+
+service: (InitPayload) -> {
     whoami: () -> (text) query;
+    get_principal_address_str: () -> (text);
+    get_balance: () -> (nat64);
 }

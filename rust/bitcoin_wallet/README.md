@@ -9,10 +9,14 @@ This dapp is under active development and not ready to be used yet.
 
 ## Usage
 
-The following commands will start a replica, install the development Internet Identity canister, and deploy the Bitcoin wallet webapp:
+The following commands will start a replica, install the Bitcoin canister and the development Internet Identity canister, and deploy the Bitcoin wallet webapp:
 
 ```bash
 $ dfx start --background --clean
+$ dfx deploy btc
+$ cargo run --features="tokio candid ic-agent garcon tonic tonic-build" --bin adapter-shim $(dfx canister id btc)
+
 $ npm install
-$ dfx deploy --argument '(null)'
+$ dfx deploy internet_identity --argument '(null)'
+$ dfx deploy bitcoin_wallet_assets --argument "(record { bitcoin_canister_id = principal \"$(dfx canister id btc)\" })"
 ```
