@@ -1,0 +1,41 @@
+{
+  "canisters": {
+    "internet_identity": {
+      "type": "custom",
+      "candid": "internet_identity.did",
+      "wasm": "internet_identity.wasm",
+      "build": "curl -sSL https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm -o internet_identity.wasm"
+    },
+    "bitcoin_wallet": {
+      "candid": "src/bitcoin_wallet/bitcoin_wallet.did",
+      "package": "bitcoin_wallet",
+      "type": "rust"
+    },
+    "bitcoin_wallet_assets": {
+      "dependencies": [
+        "bitcoin_wallet"
+      ],
+      "frontend": {
+        "entrypoint": "src/bitcoin_wallet_assets/src/index.html"
+      },
+      "source": [
+        "dist/bitcoin_wallet_assets/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "dfx": "0.9.3",
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
+}
