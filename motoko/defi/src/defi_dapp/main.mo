@@ -16,7 +16,6 @@ import Text "mo:base/Text";
 import Time "mo:base/Time";
 import Result "mo:base/Result";
 
-import DIP20 "../DIP20/motoko/src/token";
 import Account "./Account";
 import Ledger "canister:ledger";
 
@@ -60,6 +59,15 @@ shared(init_msg) actor class Dex() = this {
             }
         };
 
+        // Iterate all orders to only allow one sell order per token.
+        for(e in exchanges.vals()) {
+            for(o in e.getOrders().vals()){
+                if (o.from == from and o.owner == owner ) {
+                    return #Err(#OrderBookFull);
+                };
+            };
+        };
+                                                                       
         // Check if user balance in book is enough before creating the order.
         if(book.hasEnoughBalance(owner,from,fromAmount) == false) {
             Debug.print("Not enough balance for user " # Principal.toText(owner) # " in token " # Principal.toText(from));
@@ -419,10 +427,6 @@ shared(init_msg) actor class Dex() = this {
         ?(await getSymbol(trading_pair.0),await getSymbol(trading_pair.1))
     };
     
-    public shared(msg) func getWithdrawalAddress(): async Blob {
-        Account.accountIdentifier(msg.caller, Account.defaultSubaccount())
-    };
-
     // For testing
     public shared(msg) func credit(user: Principal, token_canister_id: T.Token, amount: Nat) {
         assert (msg.caller == init_msg.caller);
@@ -442,6 +446,11 @@ shared(init_msg) actor class Dex() = this {
             });
     };
 
+    // !!!! UPGRADES ONLY USED FOR DEVELOPMENT !!!!
+    // Defi apps are not upgradable and should have an empty controller list
+    // https://smartcontracts.org/docs/developers-guide/concepts/trust-in-canisters.html
+    // !!!! UPGRADES ONLY USED FOR DEVELOPMENT !!!!
+    
     // Required since maps cannot be stable and need to be moved to stable memory
     // Before canister upgrade book hashmap gets stored in stable memory such that it survives updates
     system func preupgrade() {

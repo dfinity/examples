@@ -1,51 +1,24 @@
 use std::collections::HashMap;
-use std::convert::TryInto;
 
-use candid::{CandidType, Nat, Principal};
+use candid::{Nat, Principal};
 use ic_cdk::caller;
-use num_bigint::BigUint;
-use serde::{Deserialize, Serialize};
 
 use crate::types::*;
-use crate::utils::nat_to_u128;
-use crate::OrderId;
+use crate::{utils, OrderId};
 
-#[derive(CandidType, Clone, Deserialize, Serialize, Copy)]
-pub struct OrderState {
-    pub id: OrderId,
-    pub owner: Principal,
-    pub from_token_canister_id: Principal,
-    pub from_amount: u128,
-    pub to_token_canister_id: Principal,
-    pub to_amount: u128,
-}
+#[derive(Default)]
+pub struct Balances(pub HashMap<Principal, HashMap<Principal, Nat>>); // owner -> token_canister_id -> amount
+type Orders = HashMap<OrderId, Order>;
 
-impl From<OrderState> for Order {
-    fn from(o: OrderState) -> Order {
-        Order {
-            id: o.id,
-            owner: o.owner,
-            from: o.from_token_canister_id,
-            fromAmount: o.from_amount.into(),
-            to: o.to_token_canister_id,
-            toAmount: o.to_amount.into(),
-        }
-    }
-}
-
-#[derive(CandidType, Clone, Deserialize, Serialize, Default)]
-pub struct BalancesState(pub HashMap<Principal, HashMap<Principal, u128>>); // owner -> token_canister_id -> amount
-type OrdersState = HashMap<OrderId, OrderState>;
-
-#[derive(CandidType, Clone, Deserialize, Serialize, Default)]
+#[derive(Default)]
 pub struct Exchange {
     pub next_id: OrderId,
-    pub balances: BalancesState,
-    pub orders: OrdersState,
+    pub balances: Balances,
+    pub orders: Orders,
 }
 
-impl BalancesState {
-    pub fn add_balance(&mut self, owner: &Principal, token_canister_id: &Principal, delta: u128) {
+impl Balances {
+    pub fn add_balance(&mut self, owner: &Principal, token_canister_id: &Principal, delta: Nat) {
         let balances = self.0.entry(*owner).or_insert_with(HashMap::new);
 
         if let Some(x) = balances.get_mut(token_canister_id) {
@@ -60,21 +33,20 @@ impl BalancesState {
         &mut self,
         owner: &Principal,
         token_canister_id: &Principal,
-        delta: u128,
+        delta: Nat,
     ) -> bool {
         if let Some(balances) = self.0.get_mut(owner) {
             if let Some(x) = balances.get_mut(token_canister_id) {
-                match (*x).checked_sub(delta) {
-                    Some(num) => {
-                        *x = num;
+                if *x >= delta {
+                    *x -= delta;
+                    // no need to keep an empty token record
+                    if *x == utils::zero() {
+                        balances.remove(token_canister_id);
                     }
-                    None => return false,
+                    return true;
+                } else {
+                    return false;
                 }
-                // no need to keep an empty token record
-                if *x == 0 {
-                    balances.remove(token_canister_id);
-                }
-                return true;
             }
         }
 
@@ -88,8 +60,7 @@ impl Exchange {
             .0
             .get(&caller())
             .and_then(|v| v.get(&token_canister_id))
-            .map_or(0, |v| *v)
-            .into()
+            .map_or(utils::zero(), |v| v.to_owned())
     }
 
     pub fn get_balances(&self) -> Vec<Balance> {
@@ -100,7 +71,7 @@ impl Exchange {
                 .map(|(token_canister_id, amount)| Balance {
                     owner: caller(),
                     token: *token_canister_id,
-                    amount: (*amount).into(),
+                    amount: amount.to_owned(),
                 })
                 .collect(),
         }
@@ -114,18 +85,18 @@ impl Exchange {
                 balances.iter().map(move |(token, amount)| Balance {
                     owner: *owner,
                     token: *token,
-                    amount: (*amount).into(),
+                    amount: amount.to_owned(),
                 })
             })
             .collect()
     }
 
     pub fn get_order(&self, order: OrderId) -> Option<Order> {
-        self.orders.get(&order).map(|o| (*o).into())
+        self.orders.get(&order).cloned()
     }
 
     pub fn get_all_orders(&self) -> Vec<Order> {
-        self.orders.iter().map(|(_, o)| (*o).into()).collect()
+        self.orders.iter().map(|(_, o)| o.clone()).collect()
     }
 
     pub fn place_order(
@@ -136,31 +107,43 @@ impl Exchange {
         to_amount: Nat,
     ) -> OrderPlacementReceipt {
         ic_cdk::println!("place order");
+        if from_amount <= utils::zero() || to_amount <= utils::zero() {
+            return OrderPlacementReceipt::Err(OrderPlacementErr::InvalidOrder);
+        }
+
+        if self.check_for_sell_orders(from_token_canister_id) {
+            return OrderPlacementReceipt::Err(OrderPlacementErr::InvalidOrder);
+        }
+
         let balance = self.get_balance(from_token_canister_id);
         if balance < from_amount {
             return OrderPlacementReceipt::Err(OrderPlacementErr::InvalidOrder);
         }
         let id = self.next_id();
-        let from_amount = nat_to_u128(from_amount);
-        let to_amount = nat_to_u128(to_amount);
         self.orders.insert(
             id,
-            OrderState {
+            Order {
                 id,
                 owner: caller(),
-                from_token_canister_id,
-                from_amount,
-                to_token_canister_id,
-                to_amount,
+                from: from_token_canister_id,
+                fromAmount: from_amount,
+                to: to_token_canister_id,
+                toAmount: to_amount,
             },
         );
-        self.resolve_order(id);
+        self.resolve_order(id)?;
 
-        if let Some(o) = self.orders.get(&id).cloned() {
-            OrderPlacementReceipt::Ok(Some(o.into()))
+        if let Some(o) = self.orders.get(&id) {
+            OrderPlacementReceipt::Ok(Some(o.clone()))
         } else {
             OrderPlacementReceipt::Ok(None)
         }
+    }
+
+    pub fn check_for_sell_orders(&self, from_token_canister_id: Principal) -> bool {
+        self.orders
+            .values()
+            .any(|v| (v.from == from_token_canister_id) && (v.owner == caller()))
     }
 
     pub fn cancel_order(&mut self, order: OrderId) -> CancelOrderReceipt {
@@ -176,83 +159,79 @@ impl Exchange {
         }
     }
 
-    fn resolve_order(&mut self, id: OrderId) {
+    fn resolve_order(&mut self, id: OrderId) -> Result<(), OrderPlacementErr> {
         ic_cdk::println!("resolve order");
         let mut matches = Vec::new();
-        {
-            let a = self.orders.get(&id).unwrap();
-            for (order, b) in self.orders.iter() {
-                if *order == id {
-                    continue;
-                }
+        let a = self.orders.get(&id).unwrap();
+        for (order, b) in self.orders.iter() {
+            if *order == id {
+                continue;
+            }
 
-                if a.from_token_canister_id == b.to_token_canister_id
-                    && a.to_token_canister_id == b.from_token_canister_id
+            if a.from == b.to && a.to == b.from {
+                // Simplified to use multiplication from
+                // (a.fromAmount / a.toAmount) * (b.fromAmount / b.toAmount) >= 1
+                // which checks that this pair of trades is profitable.
+                if a.fromAmount.to_owned() * b.fromAmount.to_owned()
+                    >= a.toAmount.to_owned() * b.toAmount.to_owned()
                 {
-                    // Simplified to use multiplication from
-                    // (a.from_amount / a.to_amount) * (b.from_amount / b.to_amount) >= 1
-                    // which checks that this pair of trades is profitable.
-                    if BigUint::from(a.from_amount) * BigUint::from(b.from_amount)
-                        >= BigUint::from(a.to_amount) * BigUint::from(b.to_amount)
-                    {
-                        ic_cdk::println!(
-                            "match {}: {} -> {}, {}: {} -> {}",
-                            id,
-                            a.from_amount,
-                            a.to_amount,
-                            *order,
-                            b.from_amount,
-                            b.to_amount
-                        );
-                        matches.push((id, *order));
-                    }
+                    ic_cdk::println!(
+                        "match {}: {} -> {}, {}: {} -> {}",
+                        id,
+                        a.fromAmount,
+                        a.toAmount,
+                        *order,
+                        b.fromAmount,
+                        b.toAmount
+                    );
+                    matches.push((a.to_owned(), b.to_owned()));
                 }
             }
         }
         for m in matches {
-            let mut a_to_amount: u128 = 0;
-            let mut b_to_amount: u128 = 0;
-            {
-                if let Some(a) = self.orders.get(&m.0) {
-                    if let Some(b) = self.orders.get(&m.1) {
-                        // Check if some orders can be completed in their entirety.
-                        if b.from_amount >= a.to_amount {
-                            a_to_amount = a.to_amount;
-                        }
-                        if a.from_amount >= b.to_amount {
-                            b_to_amount = b.to_amount;
-                        }
-                        // Check if some orders can be completed partially.
-                        if a_to_amount == 0 && b_to_amount > 0 {
-                            a_to_amount = b.from_amount;
-                            // Verify that we can complete the partial order with natural number tokens remaining.
-                            if ((BigUint::from(a_to_amount) * BigUint::from(a.from_amount))
-                                % BigUint::from(a.to_amount))
-                                != BigUint::from(0u32)
-                            {
-                                continue;
-                            }
-                        }
-                        if b_to_amount == 0 && a_to_amount > 0 {
-                            b_to_amount = a.from_amount;
-                            // Verify that we can complete the partial order with natural number tokens remaining.
-                            if ((BigUint::from(b_to_amount) * BigUint::from(b.from_amount))
-                                % BigUint::from(b.to_amount))
-                                != BigUint::from(0u32)
-                            {
-                                continue;
-                            }
-                        }
-                    }
-                }
+            let mut a_to_amount: Nat = utils::zero();
+            let mut b_to_amount: Nat = utils::zero();
+            let (a, b) = m;
+            // Check if some orders can be completed in their entirety.
+            if b.fromAmount >= a.toAmount {
+                a_to_amount = a.toAmount.to_owned();
             }
-            if a_to_amount > 0 && b_to_amount > 0 {
-                self.process_trade(m.0, m.1, a_to_amount, b_to_amount);
+            if a.fromAmount >= b.toAmount {
+                b_to_amount = b.toAmount.to_owned();
+            }
+            // Check if some orders can be completed partially.
+            if check_orders(
+                a.to_owned(),
+                b.to_owned(),
+                &mut a_to_amount,
+                b_to_amount.to_owned(),
+            ) {
+                continue;
+            }
+            if check_orders(
+                b.to_owned(),
+                a.to_owned(),
+                &mut b_to_amount,
+                a_to_amount.to_owned(),
+            ) {
+                continue;
+            }
+
+            if a_to_amount > utils::zero() && b_to_amount > utils::zero() {
+                self.process_trade(a.id, b.id, a_to_amount, b_to_amount)?;
             }
         }
+
+        Ok(())
     }
 
-    fn process_trade(&mut self, a: OrderId, b: OrderId, a_to_amount: u128, b_to_amount: u128) {
+    fn process_trade(
+        &mut self,
+        a: OrderId,
+        b: OrderId,
+        a_to_amount: Nat,
+        b_to_amount: Nat,
+    ) -> Result<(), OrderPlacementErr> {
         ic_cdk::println!("process trade {} {} {} {}", a, b, a_to_amount, b_to_amount);
 
         let Exchange {
@@ -263,63 +242,67 @@ impl Exchange {
         let mut order_b = orders.remove(&b).unwrap();
 
         // Calculate "cost" to each
-        let a_from_amount: u128 = ((BigUint::from(a_to_amount)
-            * BigUint::from(order_a.from_amount))
-            / BigUint::from(order_a.to_amount))
-        .try_into()
-        .unwrap();
-
-        let b_from_amount: u128 = ((BigUint::from(b_to_amount)
-            * BigUint::from(order_b.from_amount))
-            / BigUint::from(order_b.to_amount))
-        .try_into()
-        .unwrap();
+        let a_from_amount =
+            (a_to_amount.to_owned() * order_a.fromAmount.to_owned()) / order_a.toAmount.to_owned();
+        let b_from_amount =
+            (b_to_amount.to_owned() * order_b.fromAmount.to_owned()) / order_b.toAmount.to_owned();
 
         // Update order with remaining tokens
-        order_a.from_amount -= a_from_amount;
-        order_a.to_amount -= a_to_amount;
+        order_a.fromAmount -= a_from_amount.to_owned();
+        order_a.toAmount -= a_to_amount.to_owned();
 
-        order_b.from_amount -= b_from_amount;
-        order_b.to_amount -= b_to_amount;
+        order_b.fromAmount -= b_from_amount.to_owned();
+        order_b.toAmount -= b_to_amount.to_owned();
 
         // Update DEX balances
-        balances.subtract_balance(
-            &order_a.owner,
-            &order_a.from_token_canister_id,
-            a_from_amount,
-        );
-        balances.add_balance(&order_a.owner, &order_a.to_token_canister_id, a_to_amount);
+        balances.subtract_balance(&order_a.owner, &order_a.from, a_from_amount.to_owned());
+        balances.add_balance(&order_a.owner, &order_a.to, a_to_amount.to_owned());
 
-        balances.subtract_balance(
-            &order_b.owner,
-            &order_b.from_token_canister_id,
-            b_from_amount,
-        );
-        balances.add_balance(&order_b.owner, &order_b.to_token_canister_id, b_to_amount);
+        balances.subtract_balance(&order_b.owner, &order_b.from, b_from_amount.to_owned());
+        balances.add_balance(&order_b.owner, &order_b.to, b_to_amount.to_owned());
 
         // The DEX keeps any tokens not required to satisfy the parties.
         let dex_amount_a = a_from_amount - b_to_amount;
-        if dex_amount_a > 0 {
-            balances.add_balance(&ic_cdk::id(), &order_a.from_token_canister_id, dex_amount_a);
+        if dex_amount_a > utils::zero() {
+            balances.add_balance(&ic_cdk::id(), &order_a.from, dex_amount_a);
         }
 
         let dex_amount_b = b_from_amount - a_to_amount;
-        if dex_amount_b > 0 {
-            balances.add_balance(&ic_cdk::id(), &order_b.from_token_canister_id, dex_amount_b);
+        if dex_amount_b > utils::zero() {
+            balances.add_balance(&ic_cdk::id(), &order_b.from, dex_amount_b);
         }
 
         // Maintain the order only if not empty
-        if order_a.from_amount != 0 {
+        if order_a.fromAmount != utils::zero() {
             orders.insert(order_a.id, order_a);
         }
 
-        if order_b.from_amount != 0 {
+        if order_b.fromAmount != utils::zero() {
             orders.insert(order_b.id, order_b);
         }
+
+        Ok(())
     }
 
     fn next_id(&mut self) -> OrderId {
         self.next_id += 1;
         self.next_id
     }
+}
+
+fn check_orders(
+    first: Order,
+    second: Order,
+    first_to_amount: &mut Nat,
+    second_to_amount: Nat,
+) -> bool {
+    if *first_to_amount == utils::zero() && second_to_amount > utils::zero() {
+        *first_to_amount = second.fromAmount;
+        // Verify that we can complete the partial order with natural number tokens remaining.
+        if ((first_to_amount.to_owned() * first.fromAmount) % first.toAmount) != utils::zero() {
+            return true;
+        }
+    }
+
+    false
 }

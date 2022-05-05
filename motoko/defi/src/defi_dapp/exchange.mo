@@ -14,7 +14,6 @@ import Order "mo:base/Order";
 import Principal "mo:base/Principal";
 import RBTree "mo:base/RBTree";
 
-import DIP20 "../DIP20/motoko/src/token";
 import Ledger "canister:ledger";
 
 import Book "book";
@@ -60,35 +59,6 @@ module {
         public func addOrder(o: T.Order) {
             orders.put(o.id, o);
             detectMatch(o);
-        };
-
-        // calculate price based on trading pair
-        // trading pair :: X/Y i.e GLD/ICP
-        // i.e ICP (from) -> GLD(to) 
-        func calc_order_price(trading_pair: TradingPair, from: Principal, fromAmount: Int, toAmount: Int) : Float{
-            if(from==trading_pair.0) {
-                Float.fromInt(fromAmount) / Float.fromInt(toAmount)
-            }
-            // i.e GLD (from) -> ICP(to) 
-            else {
-                Float.fromInt(toAmount) / Float.fromInt(fromAmount)
-            };
-        };
-
-        func sum_ask_orders(orders: B.Buffer<T.Order>) : Nat {
-            var nb=0;
-            for(o in orders.vals()) {
-                nb += o.fromAmount;
-            };
-            nb;
-        };
-
-        func sum_bid_orders(orders: B.Buffer<T.Order>) : Nat {
-            var nb=0;
-            for(o in orders.vals()) {
-                nb += o.toAmount;
-            };
-            nb;
         };
 
         func detectMatch(order: T.Order) {
