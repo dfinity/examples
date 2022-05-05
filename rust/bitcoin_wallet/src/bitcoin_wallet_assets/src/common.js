@@ -3,7 +3,7 @@ import { AuthClient } from "@dfinity/auth-client";
 
 const webapp_id = process.env.BITCOIN_WALLET_CANISTER_ID;
 
-// The interface of the Bitcoin wallet canister
+// The interface of the Bitcoin wallet canister.
 const webapp_idl = ({ IDL }) => {
   return IDL.Service({
     whoami: IDL.Func([], [IDL.Principal], ["query"]),
@@ -25,19 +25,23 @@ export const iiUrl =
     `https://${process.env.II_CANISTER_ID}.dfinity.network`
 );
 
+// Redirects the user to another webpage.
 export function redirectTo(page = "") {
   var url = new URL(document.location.href);
   window.location.replace((page !== "" ? page + ".html" : "") + url.search);
 }
 
+// Redirects the user to the dashboard weboage.
 export function redirectToDashboard() {
   redirectTo("dashboard");
 }
 
+// Redirects the user to the login webpage.
 export function redirectToLogin() {
   redirectTo();
 }
 
+// Returns an actor that we use to call the servie methods.
 export async function getWebApp() {
   const authClient = await AuthClient.create();
   // At this point we're authenticated, and we can get the identity from the auth client:
@@ -53,6 +57,7 @@ export async function getWebApp() {
   });
 }
 
+// Redirects the user to the login webpage if the user isn't authenticated.
 export async function redirectToLoginIfUnauthenticated(webapp) {
   const whoAmI = await webapp.whoami();
   if (whoAmI.isAnonymous()) {

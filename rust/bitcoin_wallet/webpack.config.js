@@ -44,6 +44,7 @@ function initCanisterIds() {
 }
 initCanisterIds();
 
+// These are the webpages of the website.
 const files = ["index", "dashboard", "receive"];
 
 function get_src_path(file) {

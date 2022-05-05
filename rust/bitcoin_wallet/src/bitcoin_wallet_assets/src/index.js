@@ -5,14 +5,15 @@ window.onload = async () => {
   const webapp = await getWebApp();
   // Call whoami which returns the principal (user id) of the current user.
   const whoAmI = await webapp.whoami();
+  // If the user is already authenticated, then he is redirected to the dashboard webpage.
   if (!whoAmI.isAnonymous()) {
       redirectToDashboard();
   }
 };
 
+// When the user clicks the "Login" button, we start the login process.
 document.getElementById("loginBtn").addEventListener("click", async () => {
-  // When the user clicks, we start the login process.
-  // First we have to create and AuthClient.
+  // First we have to create an AuthClient.
   const authClient = await AuthClient.create();
 
   // Call authClient.login(...) to login with Internet Identity. This will open a new tab
@@ -26,5 +27,6 @@ document.getElementById("loginBtn").addEventListener("click", async () => {
     });
   });
 
+  // Once authenticated, the user is redirected to the dashboard webpage.
   redirectToDashboard();
 });
