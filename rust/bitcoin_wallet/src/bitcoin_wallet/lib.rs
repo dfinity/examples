@@ -22,14 +22,14 @@ fn whoami() -> Principal {
     caller()
 }
 
-// All other endpoints than `whoami` traps if the user isn't authenticated.
+// All other endpoints than `whoami` trap if the user isn't authenticated.
 // TODO (ER-2527) Derive Bitcoin addresses for users (have to derive multiple addresses for a given principal)
 
 /// Returns the user's `Address`.
 async fn get_principal_address() -> Address {
     let caller_principal = caller();
     if caller_principal == Principal::anonymous() {
-        trap("Caller principal wasn't obtain through Internet Identity.")
+        trap("Caller principal wasn't obtained through Internet Identity.")
     }
 
     let derivation_path = vec![caller_principal.as_slice().to_vec()];
