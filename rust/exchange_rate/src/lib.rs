@@ -1,7 +1,4 @@
 use candid::{candid_method, CandidType, Error, Principal};
-use chrono::{DateTime, NaiveDateTime, TimeZone, Utc};
-use dfn_candid::candid_one;
-use dfn_core::{over_async, print};
 use ic_cdk;
 use ic_cdk_macros;
 use queues::*;
@@ -137,6 +134,7 @@ async fn register_cron_job() -> () {
                     }
                     None => {
                         // The requested time rate isn't found in map. Send a canister get_rate call to self
+                        get_rate(valid_job);
                     }
                 });
             }
@@ -149,11 +147,9 @@ async fn register_cron_job() -> () {
     return;
 }
 
-#[ic_cdk_macros::update(name = "get_rate")]
-#[candid_method(update, rename = "get_rate")]
-async fn get_rate(key: SystemTime) {
+async fn get_rate(key: u64) {
     // prepare system http_request call
-    let request_headers = vec![];
+    let mut request_headers = vec![];
     request_headers.insert(
         0,
         HttpHeader {
@@ -166,7 +162,7 @@ async fn get_rate(key: SystemTime) {
         url: format!("https://api.binance.com/api/v3/klines?symbol=ICPUSDT&interval=1m&startTime={}&endTime={}", key * 60 * 1000, key * 60 * 1000 - 1),
         http_method: HttpMethod::GET,
         body: None,
-        transform_method_name: "", // TODO: switch to "sanitize_response" once it's created
+        transform_method_name: Some("".to_string()), // TODO: switch to "sanitize_response" once it's created
         headers: request_headers,
     };
 
@@ -182,13 +178,15 @@ async fn get_rate(key: SystemTime) {
     {
         Ok(result) => {
             // decode the result
+            let decoded_result = Rate { value: 0.0 };
 
             // put the result to hashmap
-            let stored = FETCHED.borrow_mut();
-            stored.insert(key, result);
-            REQUESTED.remove(key);
+            FETCHED.with(|fetched_lock| {
+                let mut stored = fetched_lock.borrow_mut();
+                stored.insert(key, decoded_result);
+            });
         }
-        Err() => {
+        Err(_) => {
             // log
         }
     }
