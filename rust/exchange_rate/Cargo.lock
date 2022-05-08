@@ -345,6 +345,7 @@ name = "exchange_rate"
 version = "0.1.0"
 dependencies = [
  "candid",
+ "chrono",
  "cronjob",
  "ic-cdk",
  "ic-cdk-macros",

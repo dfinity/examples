@@ -1,18 +1,12 @@
 use candid::{candid_method, CandidType, Error, Principal};
+use chrono::{DateTime, NaiveDateTime, Utc};
 use ic_cdk;
 use ic_cdk_macros;
 use queues::*;
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::collections::HashMap;
-use std::time::SystemTime;
 use tokio_cron_scheduler::{Job, JobScheduler};
-
-#[derive(CandidType, Serialize, Deserialize, Debug, Clone)]
-pub struct TimeRange {
-    pub start: SystemTime,
-    pub end: SystemTime,
-}
 
 #[derive(CandidType, Serialize, Deserialize, Debug, Clone)]
 pub struct Rate {
@@ -47,25 +41,32 @@ pub struct CanisterHttpResponsePayload {
 }
 
 thread_local! {
-    pub static FETCHED: RefCell<HashMap<u64, Rate>>  = RefCell::new(HashMap::new());
-    pub static REQUESTED: RefCell<Queue<u64>> = RefCell::new(Queue::new());
+    pub static FETCHED: RefCell<HashMap<DateTime<Utc>, Rate>>  = RefCell::new(HashMap::new());
+    pub static REQUESTED: RefCell<Queue<DateTime<Utc>>> = RefCell::new(Queue::new());
     pub static SCHEDULER: JobScheduler = JobScheduler::new().unwrap();
+
+    pub static RESPONSE_HEADERS_SANTIZATION: Vec<&'static str> = vec![
+        "x-mbx-uuid",
+        "x-mbx-used-weight",
+        "x-mbx-used-weight-1m",
+        "Date",
+        "Via",
+        "X-Amz-Cf-Id",
+    ];
 }
 
-#[ic_cdk_macros::update(name = "get_rates")]
+/*
+Get rates for a time range defined by start time and end time. This function is invokable
+as HTTP method call.
+*/
 #[candid_method(update, rename = "get_rates")]
-async fn get_rates(start: SystemTime, end: SystemTime) -> Result<Vec<Rate>, Error> {
+async fn get_rates(
+    start: DateTime<Utc>,
+    end: DateTime<Utc>,
+) -> Result<HashMap<DateTime<Utc>, Rate>, Error> {
     // round down start time and end time to the minute (chop off seconds), to be checked in the hashmap
-    let start_min = start
-        .duration_since(SystemTime::UNIX_EPOCH)
-        .unwrap()
-        .as_secs()
-        / 60;
-    let end_min = end
-        .duration_since(SystemTime::UNIX_EPOCH)
-        .unwrap()
-        .as_secs()
-        / 60;
+    let start_min = start.timestamp() / 60;
+    let end_min = end.timestamp() / 60;
 
     // compose a return structure
     let mut fetched = HashMap::new();
@@ -73,10 +74,12 @@ async fn get_rates(start: SystemTime, end: SystemTime) -> Result<Vec<Rate>, Erro
     // pull available ranges from hashmap
     FETCHED.with(|map_lock| {
         let map = map_lock.borrow();
-        for requested in start_min..end_min {
+        for requested_min in start_min..end_min {
+            let requested =
+                DateTime::from_utc(NaiveDateTime::from_timestamp(requested_min * 60, 0), Utc);
             if map.contains_key(&requested) {
                 // The fetched slot is within user requested range. Add to result for later returning.
-                fetched.insert(requested, map.get(&requested));
+                fetched.insert(requested, map.get(&requested).unwrap().clone());
             } else {
                 // asynchoronously request downloads for unavailable ranges
 
@@ -95,7 +98,7 @@ async fn get_rates(start: SystemTime, end: SystemTime) -> Result<Vec<Rate>, Erro
     // Kick off scheduler if it hasn't already been kicked off
     SCHEDULER.with(|scheduler| {
         //let mut scheduler = scheduler_lock.borrow_mut();
-        match scheduler.time_till_next_job() {
+        match scheduler.clone().time_till_next_job() {
             Err(_) => {
                 // The scheduler has not been started. Initialize it.
                 scheduler.add(
@@ -113,9 +116,15 @@ async fn get_rates(start: SystemTime, end: SystemTime) -> Result<Vec<Rate>, Erro
     });
 
     // return rates for available ranges
-    return fetched;
+    return Ok(fetched);
 }
 
+/*
+Register the cron job which take the tip of the queue, and send a canister call to self.
+Potentially, different nodes executing the canister will trigger different job during the same period.
+The idea is to gap the cron job with large enough time gap, so they won't trigger remove service side
+rate limiting.
+ */
 async fn register_cron_job() -> () {
     println!("Starting scheduler.");
 
@@ -147,7 +156,14 @@ async fn register_cron_job() -> () {
     return;
 }
 
-async fn get_rate(key: u64) {
+/*
+A function to call IC http_request function with a single minute range.
+This function is to be triggered by timer as jobs move to the tip of the queue.
+ */
+async fn get_rate(key: DateTime<Utc>) {
+    let start_time = key.timestamp_millis();
+    let end_time = key.timestamp_millis() + 60 * 1000 - 1;
+
     // prepare system http_request call
     let mut request_headers = vec![];
     request_headers.insert(
@@ -159,10 +175,10 @@ async fn get_rate(key: u64) {
     );
 
     let request = CanisterHttpRequestArgs {
-        url: format!("https://api.binance.com/api/v3/klines?symbol=ICPUSDT&interval=1m&startTime={}&endTime={}", key * 60 * 1000, key * 60 * 1000 - 1),
+        url: format!("https://api.binance.com/api/v3/klines?symbol=ICPUSDT&interval=1m&startTime={start_time}&endTime={end_time}"),
         http_method: HttpMethod::GET,
         body: None,
-        transform_method_name: Some("".to_string()), // TODO: switch to "sanitize_response" once it's created
+        transform_method_name: Some("sanitize_response".to_string()),
         headers: request_headers,
     };
 
@@ -186,31 +202,29 @@ async fn get_rate(key: u64) {
                 stored.insert(key, decoded_result);
             });
         }
-        Err(_) => {
-            // log
+        Err((r, m)) => {
+            println!("The http_request resulted into error. RejectionCode: {r:?}, Error: {m}");
         }
     }
 }
 
-#[ic_cdk_macros::query(name = "sanitize_response")]
 #[candid_method(query, rename = "sanitize_response")]
 async fn sanitize_response(
     raw: Result<CanisterHttpResponsePayload, Error>,
 ) -> Result<CanisterHttpResponsePayload, Error> {
     match raw {
-        Ok(mut r) => {
-            //
+        Ok(mut r) => RESPONSE_HEADERS_SANTIZATION.with(|response_headers_blacklist| {
             let mut processed_headers = vec![];
             for header in r.headers.iter() {
-                if header.name != "date" {
+                if !response_headers_blacklist.contains(&header.name.as_str()) {
                     processed_headers.insert(0, header.clone());
                 }
             }
             r.headers = processed_headers;
-            return Result::Ok(r);
-        }
+            return Ok(r);
+        }),
         Err(m) => {
-            return Result::Err(m);
+            return Err(m);
         }
     }
 }
