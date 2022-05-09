@@ -40,9 +40,11 @@ pub struct CanisterHttpResponsePayload {
     pub body: Vec<u8>,
 }
 
+type Timestamp = i64;
+
 thread_local! {
-    pub static FETCHED: RefCell<HashMap<DateTime<Utc>, Rate>>  = RefCell::new(HashMap::new());
-    pub static REQUESTED: RefCell<Queue<DateTime<Utc>>> = RefCell::new(Queue::new());
+    pub static FETCHED: RefCell<HashMap<Timestamp, Rate>>  = RefCell::new(HashMap::new());
+    pub static REQUESTED: RefCell<Queue<Timestamp>> = RefCell::new(Queue::new());
     pub static SCHEDULER: JobScheduler = JobScheduler::new().unwrap();
 
     pub static RESPONSE_HEADERS_SANTIZATION: Vec<&'static str> = vec![
@@ -56,17 +58,14 @@ thread_local! {
 }
 
 /*
-Get rates for a time range defined by start time and end time. This function is invokable
-as HTTP method call.
+Get rates for a time range defined by start time and end time. This function can be invoked
+as HTTP update call.
 */
 #[candid_method(update, rename = "get_rates")]
-async fn get_rates(
-    start: DateTime<Utc>,
-    end: DateTime<Utc>,
-) -> Result<HashMap<DateTime<Utc>, Rate>, Error> {
+async fn get_rates(start: Timestamp, end: Timestamp) -> Result<HashMap<Timestamp, Rate>, Error> {
     // round down start time and end time to the minute (chop off seconds), to be checked in the hashmap
-    let start_min = start.timestamp() / 60;
-    let end_min = end.timestamp() / 60;
+    let start_min = start / 60;
+    let end_min = end / 60;
 
     // compose a return structure
     let mut fetched = HashMap::new();
@@ -75,8 +74,7 @@ async fn get_rates(
     FETCHED.with(|map_lock| {
         let map = map_lock.borrow();
         for requested_min in start_min..end_min {
-            let requested =
-                DateTime::from_utc(NaiveDateTime::from_timestamp(requested_min * 60, 0), Utc);
+            let requested = requested_min * 60;
             if map.contains_key(&requested) {
                 // The fetched slot is within user requested range. Add to result for later returning.
                 fetched.insert(requested, map.get(&requested).unwrap().clone());
@@ -89,7 +87,12 @@ async fn get_rates(
                 // whether the data already exists in FETCHED map.
                 REQUESTED.with(|requested_lock| {
                     let mut queue = requested_lock.borrow_mut();
-                    queue.add(requested);
+                    match queue.add(requested) {
+                        Ok(_) => {}
+                        Err(failure) => {
+                            println!("Wasn't able to add job {requested} to queue. Receiving error {failure}");
+                        }
+                    }
                 });
             }
         }
@@ -101,12 +104,19 @@ async fn get_rates(
         match scheduler.clone().time_till_next_job() {
             Err(_) => {
                 // The scheduler has not been started. Initialize it.
-                scheduler.add(
+                match scheduler.add(
                     Job::new("1/5 * * * * *", |_, _| {
                         register_cron_job();
                     })
                     .unwrap(),
-                );
+                ) {
+                    Ok(added) => {
+                        println!("Successfully added cron job to scheduler.");
+                    }
+                    Err(failed) => {
+                        println!("Failed to add cron job to scheduler. Error: {failed}");
+                    }
+                }
                 scheduler.start();
             }
             Ok(_) => {
@@ -160,9 +170,9 @@ async fn register_cron_job() -> () {
 A function to call IC http_request function with a single minute range.
 This function is to be triggered by timer as jobs move to the tip of the queue.
  */
-async fn get_rate(key: DateTime<Utc>) {
-    let start_time = key.timestamp_millis();
-    let end_time = key.timestamp_millis() + 60 * 1000 - 1;
+async fn get_rate(key: Timestamp) {
+    let start_time = key * 1000;
+    let end_time = (key + 1) * 1000 - 1;
 
     // prepare system http_request call
     let mut request_headers = vec![];

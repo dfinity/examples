@@ -1,0 +1,33 @@
+type DateTime: nat64;
+
+type Error = variant {
+    Parse;
+    Binread;
+    Custom;
+}
+
+type SanitizationResult = variant {
+    Ok: CanisterHttpResponsePayload;
+    Err: Error;
+}
+
+type HttpHeader = record {
+    name: text;
+    value: text;
+}
+
+type CanisterHttpResponsePayload = record {
+    status: nat64;
+    headers: vec HttpHeader;
+    body: blob;
+}
+
+type RatesResult = variant {
+    Ok: vec record { DateTime, float32 };
+    Err: Error;
+}
+
+service : {
+    get_rates: (DateTime, DateTime) -> (RatesResult);
+    sanitize_response: (SanitizationResult) -> (SanitizationResult);
+}
