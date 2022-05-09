@@ -86,7 +86,7 @@ Using two terminal windows, do the following steps:
 1. Observe the following result.
 
    ```text
-   ("Hello,a everyone!")
+   ("Hello, everyone!")
    ```
 
 The previous steps use `dfx` to directly call the function on the `hello` (backend) canister.
