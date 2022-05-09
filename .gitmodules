@@ -13,4 +13,4 @@
 	url = https://github.com/Psychedelic/DIP20.git
 [submodule "rust/defi/DIP20"]
 	path = rust/defi/src/DIP20
-	url = git@github.com:Psychedelic/DIP20.git
+	url = https://github.com/Psychedelic/DIP20.git
