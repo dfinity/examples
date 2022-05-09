@@ -1,4 +1,4 @@
-type DateTime: nat64;
+type Timestamp: nat64;
 
 type Error = variant {
     Parse;
@@ -23,11 +23,11 @@ type CanisterHttpResponsePayload = record {
 }
 
 type RatesResult = variant {
-    Ok: vec record { DateTime, float32 };
+    Ok: vec record { Timestamp, float32 };
     Err: Error;
 }
 
 service : {
-    get_rates: (DateTime, DateTime) -> (RatesResult);
+    get_rates: (Timestamp, Timestamp) -> (RatesResult);
     sanitize_response: (SanitizationResult) -> (SanitizationResult);
 }
