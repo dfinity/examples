@@ -76,5 +76,5 @@ Verify the following before running this demo:
 1. Observe the following result.
 
    ```
-   (2)
+   (2 : nat64)
    ```
