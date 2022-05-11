@@ -1,0 +1,36 @@
+{
+  "canisters": {
+    "persistent_storage": {
+      "candid": "src/persistent_storage/persistent_storage.did",
+      "package": "persistent_storage",
+      "type": "rust"
+    },
+    "persistent_storage_assets": {
+      "dependencies": [
+        "persistent_storage"
+      ],
+      "frontend": {
+        "entrypoint": "src/persistent_storage_assets/src/index.html"
+      },
+      "source": [
+        "src/persistent_storage_assets/assets",
+        "dist/persistent_storage_assets/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "dfx": "0.9.3",
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
+}
