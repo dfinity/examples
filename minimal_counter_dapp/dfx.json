@@ -1,0 +1,36 @@
+{
+  "canisters": {
+    "minimal_counter_dapp": {
+      "candid": "src/minimal_counter_dapp/minimal_counter_dapp.did",
+      "package": "minimal_counter_dapp",
+      "type": "rust"
+    },
+    "minimal_counter_dapp_assets": {
+      "dependencies": [
+        "minimal_counter_dapp"
+      ],
+      "frontend": {
+        "entrypoint": "src/minimal_counter_dapp_assets/src/index.html"
+      },
+      "source": [
+        "src/minimal_counter_dapp_assets/assets",
+        "dist/minimal_counter_dapp_assets/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "dfx": "0.9.3",
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
+}
