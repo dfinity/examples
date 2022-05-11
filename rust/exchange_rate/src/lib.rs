@@ -6,6 +6,7 @@ use queues::*;
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::collections::HashMap;
+use tokio;
 use tokio_cron_scheduler::{Job, JobScheduler};
 
 #[derive(CandidType, Serialize, Deserialize, Debug, Clone)]
@@ -61,6 +62,7 @@ thread_local! {
 Get rates for a time range defined by start time and end time. This function can be invoked
 as HTTP update call.
 */
+#[allow(dead_code)]
 #[candid_method(update, rename = "get_rates")]
 async fn get_rates(start: Timestamp, end: Timestamp) -> Result<HashMap<Timestamp, Rate>, Error> {
     // round down start time and end time to the minute (chop off seconds), to be checked in the hashmap
@@ -106,18 +108,20 @@ async fn get_rates(start: Timestamp, end: Timestamp) -> Result<HashMap<Timestamp
                 // The scheduler has not been started. Initialize it.
                 match scheduler.add(
                     Job::new("1/5 * * * * *", |_, _| {
-                        register_cron_job();
+                        tokio::spawn(async move {
+                            register_cron_job().await;
+                        });
                     })
                     .unwrap(),
                 ) {
-                    Ok(added) => {
+                    Ok(_) => {
                         println!("Successfully added cron job to scheduler.");
                     }
                     Err(failed) => {
                         println!("Failed to add cron job to scheduler. Error: {failed}");
                     }
                 }
-                scheduler.start();
+                scheduler.start().unwrap();
             }
             Ok(_) => {
                 println!("Scheduler already started. Skipping initializing again.");
@@ -135,6 +139,7 @@ Potentially, different nodes executing the canister will trigger different job d
 The idea is to gap the cron job with large enough time gap, so they won't trigger remove service side
 rate limiting.
  */
+#[allow(dead_code)]
 async fn register_cron_job() -> () {
     println!("Starting scheduler.");
 
@@ -149,16 +154,17 @@ async fn register_cron_job() -> () {
                 FETCHED.with(|fetched_lock| match fetched_lock.borrow().get(&valid_job) {
                     Some(_) => {
                         // If this job has already been downloaded. Only downloading it if doesn't already exist.
+                        println!("Rate for {valid_job} is already downloaded. Skipping downloading again.");
                         return;
                     }
                     None => {
                         // The requested time rate isn't found in map. Send a canister get_rate call to self
-                        get_rate(valid_job);
+                        tokio::spawn(async move { get_rate(valid_job).await });
                     }
-                });
+                } );
             }
             Err(weird_job) => {
-                println!("Invalid job found in the request queue! Job: {weird_job}");
+                println!("Invalid job found in the request queue! The job Id should be a Unix timestamp divided by 60, e.g., represents a timestamp rounded to minute. Wrong Job Id: {weird_job}");
             }
         }
     });
@@ -170,6 +176,7 @@ async fn register_cron_job() -> () {
 A function to call IC http_request function with a single minute range.
 This function is to be triggered by timer as jobs move to the tip of the queue.
  */
+#[allow(dead_code)]
 async fn get_rate(key: Timestamp) {
     let start_time = key * 1000;
     let end_time = (key + 1) * 1000 - 1;
@@ -204,7 +211,7 @@ async fn get_rate(key: Timestamp) {
     {
         Ok(result) => {
             // decode the result
-            let decoded_result = Rate { value: 0.0 };
+            let decoded_result = candid::utils::decode_one(&result).unwrap();
 
             // put the result to hashmap
             FETCHED.with(|fetched_lock| {
@@ -218,6 +225,7 @@ async fn get_rate(key: Timestamp) {
     }
 }
 
+#[allow(dead_code)]
 #[candid_method(query, rename = "sanitize_response")]
 async fn sanitize_response(
     raw: Result<CanisterHttpResponsePayload, Error>,
@@ -239,4 +247,5 @@ async fn sanitize_response(
     }
 }
 
+#[allow(dead_code)]
 fn main() {}
