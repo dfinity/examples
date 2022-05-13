@@ -1,20 +1,7 @@
 type Timestamp = nat64;
 
-type HttpHeader = record {
-    name: text;
-    value: text;
-};
-
-type CanisterHttpResponsePayload = record {
-    status: nat64;
-    headers: vec HttpHeader;
-    body: blob;
-};
-
-type RatesMap = record { Timestamp; float32; };
+type RatesMap = vec record { Timestamp; float32; };
 
 service : {
     get_rates: (Timestamp, Timestamp) -> (RatesMap);
-    sanitize_response: (CanisterHttpResponsePayload) -> (CanisterHttpResponsePayload);
-    heartbeat: () -> ();
 }

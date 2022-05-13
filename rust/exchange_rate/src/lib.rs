@@ -1,12 +1,12 @@
-use candid::{candid_method, CandidType, Principal};
+use candid::{candid_method, CandidType, Nat, Principal};
 use ic_cdk;
-use ic_cdk_macros::{self, query, update};
+use ic_cdk_macros::{self, heartbeat, query, update};
 use queues::*;
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::collections::HashMap;
 
-type Timestamp = i64;
+type Timestamp = u64;
 type Rate = f32;
 
 #[derive(CandidType, Clone, Deserialize, Debug, Eq, Hash, PartialEq, Serialize)]
@@ -51,8 +51,10 @@ thread_local! {
 }
 
 /// Canister heartbeat. Process one item in queue
-#[export_name = "canister_heartbeat"]
+// #[export_name = "canister_heartbeat"]
+#[heartbeat]
 async fn heartbeat() {
+    ic_cdk::println!("Heartbeat method invoked.");
     get_next_rate().await;
 }
 
@@ -90,9 +92,10 @@ async fn get_rates(start: Timestamp, end: Timestamp) -> HashMap<Timestamp, Rate>
                     match queue.add(requested) {
                         Ok(_) => {}
                         Err(failure) => {
-                            println!(
+                            ic_cdk::println!(
                                 "Wasn't able to add job {} to queue. Receiving error {}",
-                                requested, failure
+                                requested,
+                                failure
                             );
                         }
                     }
@@ -112,7 +115,7 @@ The idea is to gap the cron job with large enough time gap, so they won't trigge
 rate limiting.
  */
 async fn get_next_rate() -> () {
-    let mut job_id: i64 = 0;
+    let mut job_id: u64 = 0;
 
     // Get the next downloading job
     REQUESTED.with(|requested_lock| {
@@ -131,12 +134,12 @@ async fn get_next_rate() -> () {
                     match fetched_lock.borrow().get(&valid_job) {
                         Some(_) => {
                             // If this job has already been downloaded. Only downloading it if doesn't already exist.
-                            println!("Rate for {} is already downloaded. Skipping downloading again.", valid_job);
+                            ic_cdk::println!("Rate for {} is already downloaded. Skipping downloading again.", valid_job);
                             return;
                         }
                         None => {
                             // The requested time rate isn't found in map. Send a canister get_rate call to self
-                            println!("Fetching job {valid_job} now.");
+                            ic_cdk::println!("Fetching job {valid_job} now.");
                             job_id = valid_job;
                         }
                     }
@@ -144,7 +147,7 @@ async fn get_next_rate() -> () {
 
             }
             Err(weird_job) => {
-                println!("Invalid job found in the request queue! The job Id should be a Unix timestamp divided by 60, e.g., represents a timestamp rounded to minute. Wrong Job Id: {weird_job}");
+                ic_cdk::println!("Invalid job found in the request queue! The job Id should be a Unix timestamp divided by 60, e.g., represents a timestamp rounded to minute. Wrong Job Id: {weird_job}");
                 return;
             }
         }
@@ -200,7 +203,9 @@ async fn get_rate(key: Timestamp) {
             });
         }
         Err((r, m)) => {
-            println!("The http_request resulted into error. RejectionCode: {r:?}, Error: {m}");
+            ic_cdk::println!(
+                "The http_request resulted into error. RejectionCode: {r:?}, Error: {m}"
+            );
         }
     }
 }
