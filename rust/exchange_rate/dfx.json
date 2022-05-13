@@ -1,10 +1,10 @@
 {
   "canisters": {
     "exchange_rate": {
-      "candid": "src/exchange_rate/exchange_rate.did",
+      "candid": "src/exchange_rate.did",
       "package": "exchange_rate",
       "type": "rust",
-      "wasm": "target/wasm32-unknown-unknown/exchange_rate.wasm"
+      "wasm": "wasm/exchange_rate.wasm"
     }
   },
   "defaults": {

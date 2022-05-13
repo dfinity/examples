@@ -20,8 +20,8 @@ tokio = "1.18.2"
 queues = "1.1.0"
 candid = "0.7.14"
 chrono = "0.4.19"
-getrandom = { version = "0.2.6", features = ["js"] }
-stdweb = "0.4.20"
-rand = "0.8.5"
-uuid = { version = "0.8.2", features = ["v4", "wasm-bindgen"] }
+getrandom = { version = "0.2.3" }
+rand = "0.7.3"
+# stdweb = "0.4.20"
+uuid = { version = "0.8.2", features = ["stdweb"] }
 wasm-bindgen = "0.2"
