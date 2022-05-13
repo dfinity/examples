@@ -1,16 +1,5 @@
 type Timestamp = nat64;
 
-type Error = variant {
-    Parse;
-    Binread;
-    Custom;
-};
-
-type SanitizationResult = variant {
-    Ok: CanisterHttpResponsePayload;
-    Err: Error;
-};
-
 type HttpHeader = record {
     name: text;
     value: text;
@@ -22,12 +11,10 @@ type CanisterHttpResponsePayload = record {
     body: blob;
 };
 
-type RatesResult = variant {
-    Ok: vec record { Timestamp; float32; };
-    Err: Error;
-};
+type RatesMap = record { Timestamp; float32; };
 
 service : {
-    get_rates: (Timestamp, Timestamp) -> (RatesResult);
-    sanitize_response: (SanitizationResult) -> (SanitizationResult);
+    get_rates: (Timestamp, Timestamp) -> (RatesMap);
+    sanitize_response: (CanisterHttpResponsePayload) -> (CanisterHttpResponsePayload);
+    heartbeat: () -> ();
 }
