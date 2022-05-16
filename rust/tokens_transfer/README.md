@@ -51,7 +51,7 @@ dfx deploy --argument "${ARGS}" tokens_transfer
 read -r -d '' ARGS <<EOM
 (record {
   to=${TOKENS_TRANSFER_ACCOUNT_ID_BYTES};
-  amount=record { e8s=10_000 };
+  amount=record { e8s=100_000 };
   fee=record { e8s=10_000 };
   memo=0:nat64;
 }, )
