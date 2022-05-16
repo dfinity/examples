@@ -1,7 +1,7 @@
 {
   "version": 1,
   "canisters": {
-    "tokens-transfer": {
+    "tokens_transfer": {
       "build": [
         "cargo build --target wasm32-unknown-unknown --package tokens_transfer --release"
       ],
