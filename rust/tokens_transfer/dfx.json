@@ -9,5 +9,10 @@
       "wasm": "target/wasm32-unknown-unknown/release/tokens_transfer.wasm",
       "type": "custom"
     }
+  },
+  "defaults": {
+    "replica": {
+      "subnet_type": "system"
+    }
   }
 }
