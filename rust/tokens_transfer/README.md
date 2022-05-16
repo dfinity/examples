@@ -48,10 +48,12 @@ dfx deploy --argument "${ARGS}" tokens_transfer
 4. transfer some funds to the Tokens Transfer canister
 ```bash
 # TOKENS_TRANSFER_ACCOUNT_ID_BYTES is the vec nat8 representation of the tokens transfer canister
+TOKENS_TRANSFER_ACCOUNT_ID="$(dfx ledger account-id --of-canister tokens_transfer)"
+TOKENS_TRANSFER_ACCOUNT_ID_BYTES="$(python3 -c 'print("vec{" + ";".join([str(b) for b in bytes.fromhex("'$TOKENS_TRANSFER_ACCOUNT_ID'")]) + "}")')" 
 read -r -d '' ARGS <<EOM
 (record {
   to=${TOKENS_TRANSFER_ACCOUNT_ID_BYTES};
-  amount=record { e8s=10_000 };
+  amount=record { e8s=100_000 };
   fee=record { e8s=10_000 };
   memo=0:nat64;
 }, )
