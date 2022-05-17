@@ -69,5 +69,5 @@ read -r -d '' ARGS <<EOM
   to_principal=principal "${YOUR_PRINCIPAL}"
 },)
 EOM
-dfx canister call tokens_transfer transfer '${ARGS}'
+dfx canister call tokens_transfer transfer "${ARGS}"
 ```
