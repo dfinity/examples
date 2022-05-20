@@ -19,7 +19,7 @@ Note: There are many obvious improvements (keying subscribers by topic in Publis
 Verify the following before running this demo:
 
 *  You have downloaded and installed the [DFINITY Canister
-   SDK](https://sdk.dfinity.org).
+   SDK](https://smartcontracts.org).
 
 *  You have stopped any Internet Computer or other network process that would
    create a port conflict on 8000.

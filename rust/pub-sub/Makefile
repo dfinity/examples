@@ -4,23 +4,18 @@ all: build
 .PHONY: build
 .SILENT: build
 build:
-	dfx canister --no-wallet create --all
+	dfx canister create --all
 	dfx build
 
 .PHONY: install
 .SILENT: install
 install: build
-	dfx canister --no-wallet  install --all
-
-.PHONY: upgrade
-.SILENT: upgrade
-upgrade: build
-	dfx canister --no-wallet  install --all --mode=reinstall
+	dfx canister install --all
 
 .PHONY: test
 .SILENT: test
-test: upgrade
-	$(eval publisher_id := $(shell dfx canister id publisher))
+test: install
+	$(eval publisher_id=$(shell dfx canister id publisher))
 	dfx canister call subscriber setup_subscribe '(principal "$(publisher_id)","Apples")'
 	dfx canister call subscriber get_count \
 		| grep '(0 : nat64)' && echo 'PASS'
