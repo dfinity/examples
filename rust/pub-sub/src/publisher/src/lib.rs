@@ -1,9 +1,7 @@
 use candid::{CandidType, Principal};
 use ic_cdk;
-
-use serde::Deserialize;
-
 use ic_cdk_macros::*;
+use serde::Deserialize;
 use std::cell::RefCell;
 use std::collections::BTreeMap;
 

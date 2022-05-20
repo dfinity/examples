@@ -12,9 +12,14 @@ build:
 install: build
 	dfx canister install --all
 
+.PHONY: upgrade
+.SILENT: upgrade
+upgrade: build
+	dfx canister install --all --mode=upgrade --upgrade-unchanged
+
 .PHONY: test
 .SILENT: test
-test: install
+test: upgrade
 	$(eval publisher_id=$(shell dfx canister id publisher))
 	dfx canister call subscriber setup_subscribe '(principal "$(publisher_id)","Apples")'
 	dfx canister call subscriber get_count \
