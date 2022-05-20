@@ -1,8 +1,7 @@
-use ic_cdk::export::{
-    candid::{CandidType, Deserialize},
-    Principal,
-};
+use candid::{CandidType, Principal};
+use ic_cdk;
 use ic_cdk_macros::*;
+use serde::Deserialize;
 
 static mut COUNTER: u64 = 0;
 
