@@ -1,6 +1,6 @@
 # Design Pattern: Pub/Sub
 
-This sample project demonstrates like motoko pub-sub example.
+This sample project demonstrates a simple pub-sub example.
 
 ## Overview
 
