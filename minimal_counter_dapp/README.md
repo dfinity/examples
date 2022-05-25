@@ -159,7 +159,7 @@ $ dfx deploy
 
 
 ## Testing
-The functionality of this example dapp can be tested both in the frontend and in the backend. Before the example dapp can be tested, it must be deployed (locally) like described in the above Deployment section. 
+The functionality of this example dapp can be tested both in the frontend and in the backend. Before the example dapp can be tested, it must be deployed (locally) as described in the above Deployment section. 
 
 ### Test the Frontend
 The URL for the frontend is depending on the canister ID, the local canister IDs can be found in `.dfx/local/canister_ids.json`. When deployed, the URL will look like this:
