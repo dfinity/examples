@@ -166,6 +166,8 @@ The URL for the frontend is depending on the canister ID, the local canister IDs
 
 **https://<ui_canister_id>.localhost:8000**
 
+The URLs for the frontend and for the Candid UI will also be displayed in the terminal after deployment with `dfx deploy` has been completed. 
+
 ### Test the backend
 There are two ways of testing the backend. One way is by making command line requests using DFX, and the other way is to use the Candid UI.
 
