@@ -4,7 +4,7 @@ The example dapp shows how to build a simple dapp in Rust, which will have persi
 ![Counter Frontend](README_images/frontend.png)
 
 ## Introduction
-The purpuse of this example dapp is to build a minimalistic dapp, with persistent storage, based on the default dapp template installed by DFX when creating a new project. The dapp is a simple website with a counter. Every time a button is pressed, a counter is incremented. 
+The purpose of this example dapp is to build a minimalistic dapp, with persistent storage, based on the default dapp template installed by DFX when creating a new project. The dapp is a simple website with a counter. Every time a button is pressed, a counter is incremented. 
 
 This example covers:
 
