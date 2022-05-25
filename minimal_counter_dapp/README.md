@@ -32,7 +32,7 @@ Install the example dapp project:
 
 ```bash
 $ git clone https://github.com/dfinity/examples
-$ cd rust/minimal-counter-dapp
+$ cd examples/rust/minimal_counter_dapp
 $ npm install
 ```
 
