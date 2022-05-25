@@ -92,7 +92,7 @@ fn set(input: candid::Nat) -> () {
 ```
 
 ### Candid interface
-The Candid interface is automatically created, and it has a convienient UI, which provides an easy, user friendly way to test the backend. The UI is also automatically generated, and the canister ID can be found in the `canister_ids.json` file. 
+The Candid interface is automatically created, and it has a convenient UI, which provides an easy, user-friendly way to test the backend. The UI is also automatically generated, and the canister ID can be obtained with `dfx canister id`. 
 
 The localhost version of the `canister_ids.json` file can be found in `.dfx/local/canister_ids.json` and the URL is: 
 
