@@ -37,7 +37,7 @@ $ npm install
 ```
 
 ## Documentation
-The three main parts of the example dapp is the backend, the Candid interface and the frontend. This example project is based on the default project, which is created when running the `dfx new --type=rust project_name`, but most of the default project code is replaced to create the counter functionality in this project.
+The three main parts of the example dapp are the backend, the Candid interface and the frontend. This example project is based on the default project, which is created when running the `dfx new --type=rust project_name`, but most of the default project code is replaced to create the counter functionality in this project.
 
 ### Rust backend
 The backend functions are located in the `src/minimal_rust_dapp/lib.rs` Rust file. The backend stores the counter value, and has functions to get, increment and reset the counter value.
