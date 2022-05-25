@@ -95,9 +95,19 @@
 
             // Create a balances array and set the userBalance store object
             const balances = []
+            console.log('Fetching all user balances');
+            const allUserBalances = await backendActor.getBalances();
+            console.log('User Balances: ', allUserBalances)
             for(let i = 0; i < $canisters.length; i++) {
                 const principal = Principal.fromText($canisters[i].canisterId);
-                const dexBalance = await backendActor.getBalance(principal);
+                let token;
+                if(allUserBalances.length) {
+                    token = allUserBalances.find((bal) => {
+                        return bal.token.toString() === principal.toString()
+                    });
+                }
+
+                const dexBalance = token ? token.amount : 0;
 
                 balances.push({
                     name: $canisters[i].canisterName,
@@ -110,6 +120,7 @@
 
             // Update the store values
             userBalances.set([...balances]);
+            console.log('User Balances: ', $userBalances)
         }
         else if ($plugWallet.isConnected) {
             // TODO: Support Plug wallet
