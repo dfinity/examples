@@ -162,11 +162,16 @@ $ dfx deploy
 The functionality of this example dapp can be tested both in the frontend and in the backend. Before the example dapp can be tested, it must be deployed (locally) as described in the above Deployment section. 
 
 ### Test the Frontend
-The URL for the frontend is depending on the canister ID, the local canister IDs can be found in `.dfx/local/canister_ids.json`. When deployed, the URL will look like this:
+The frontend can be tested in a browser. The frontend URL was displayed after deployment completed in the previous section, and the URL for the frontend can also be formed by retrieving the frontend canister ID. Use this command to retrieve the canister ID:
 
-**https://<ui_canister_id>.localhost:8000**
+```bash
+$ dfx canister id minimal_counter_dapp_assets
+ryjl3-tyaaa-aaaaa-aaaba-cai
+```
 
-The URLs for the frontend and for the Candid UI will also be displayed in the terminal after deployment with `dfx deploy` has been completed. 
+In this case the ID is `ryjl3-tyaaa-aaaaa-aaaba-cai` and the frontend URL will then be:
+
+**https://ryjl3-tyaaa-aaaaa-aaaba-cai.localhost:8000** or **http://localhost:8000/?canisterId=ryjl3-tyaaa-aaaaa-aaaba-cai**
 
 ### Test the backend
 There are two ways of testing the backend. One way is by making command line requests using DFX, and the other way is to use the Candid UI.
@@ -192,11 +197,21 @@ $ dfx canister call minimal_counter_dapp set '(0)'
 ```
 
 #### Candid UI
-The Candid UI provides an easy, user-friendly interface for testing the backend. The UI is automatically generated, and the canister ID can be found in the `canister_ids.json` file. 
+The Candid UI provides an easy, user-friendly interface for testing the backend. The UI is automatically generated, and the URL was displayed after deployment completed in the previous section. The URL for the Candid UI can also be formed by retrieving the backend canister ID and the Candid canister ID. Use these command to retrieve the canister IDs:
 
-The localhost version of the `canister_ids.json` file can be found in `.dfx/local/canister_ids.json` and the URL is: 
+```bash
+$ dfx canister id minimal_counter_dapp_assets
+rrkah-fqaaa-aaaaa-aaaaq-cai
+```
 
-**http://<candid_canister_id>.localhost:8000/?id=<backend_canister_id>**
+```bash
+$ dfx canister id __Candid_UI
+r7inp-6aaaa-aaaaa-aaabq-cai
+```
+
+In this case the Candid UI URL will then be:
+
+**http://r7inp-6aaaa-aaaaa-aaabq-cai.localhost:8000/?id=rrkah-fqaaa-aaaaa-aaaaq-cai**
 
 ![Candid UI](README_images/candid_ui.png)
 
