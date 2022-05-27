@@ -1,6 +1,7 @@
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
+const fs = require('fs');
 
 let canisters;
 
@@ -43,24 +44,40 @@ function initCanisterIds() {
 }
 initCanisterIds();
 
-const index_html = path.join(__dirname, path.join("src", "bitcoin_wallet_assets", "src", "index.html"));
-const index_js = path.join(__dirname, path.join("src", "bitcoin_wallet_assets", "src", "index.js"));
+// These are the webpages of the website.
+const files = ["index", "dashboard", "receive"];
+
+function get_src_path(file) {
+  return path.join(__dirname, path.join("src", "bitcoin_wallet_assets", "src", file));
+}
+
+var entries = {};
+
+files.forEach(file => {
+  entries[file] = get_src_path(file)
+});
 
 module.exports = {
-  entry: { index: index_js },
+  entry: entries,
 
   mode: "production",
 
   output: {
-    filename: "index.js",
+    filename: "[name].js",
     path: path.join(__dirname, "dist", "bitcoin_wallet_assets"),
   },
 
   plugins: [
-    // This loads index.html as template, and embeds index.js
-    new HtmlWebpackPlugin({
-      template: index_html,
-      cache: false,
+    // This loads HTML files with common.html as template.
+    ...files.map((filename) => {
+      const file = filename + ".html";
+      return new HtmlWebpackPlugin({
+        filename: file,
+        template: get_src_path("common.html"),
+        body: fs.readFileSync(get_src_path(file)),
+        cache: false,
+        chunks: [filename]
+      })
     }),
 
     new webpack.EnvironmentPlugin({
