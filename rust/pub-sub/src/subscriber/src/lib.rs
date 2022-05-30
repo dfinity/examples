@@ -2,10 +2,10 @@ use candid::{CandidType, Principal};
 use ic_cdk;
 use ic_cdk_macros::*;
 use serde::Deserialize;
-use std::cell::RefCell;
+use std::cell::Cell;
 
 thread_local! {
-    static COUNTER: RefCell<u64> = RefCell::default();
+    static COUNTER: Cell<u64> = Cell::default();
 }
 
 #[derive(Clone, Debug, CandidType, Deserialize)]
@@ -29,13 +29,13 @@ async fn setup_subscribe(publisher_id: Principal, topic: String) {
 #[update]
 fn update_count(counter: Counter) {
     COUNTER.with(|c| {
-        *c.borrow_mut() += counter.value;
+        c.set(c.get() + counter.value);
     });
 }
 
 #[query]
 fn get_count() -> u64 {
-    COUNTER.with(|counter| {
-        *counter.borrow()
+    COUNTER.with(|c| {
+        c.get()
     })
 }
