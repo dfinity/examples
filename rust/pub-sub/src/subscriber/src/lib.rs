@@ -1,11 +1,10 @@
 use candid::{CandidType, Principal};
-use ic_cdk;
 use ic_cdk_macros::*;
 use serde::Deserialize;
 use std::cell::Cell;
 
 thread_local! {
-    static COUNTER: Cell<u64> = Cell::default();
+    static COUNTER: Cell<u64> = Cell::new(0);
 }
 
 #[derive(Clone, Debug, CandidType, Deserialize)]

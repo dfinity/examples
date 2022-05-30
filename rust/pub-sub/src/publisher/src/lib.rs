@@ -1,5 +1,4 @@
 use candid::{CandidType, Principal};
-use ic_cdk;
 use ic_cdk_macros::*;
 use serde::Deserialize;
 use std::cell::RefCell;
@@ -23,7 +22,7 @@ struct Subscriber {
 }
 
 #[update]
-fn subscribe(subscriber: Subscriber) -> () {
+fn subscribe(subscriber: Subscriber) {
     let subscriber_principal_id = ic_cdk::caller();
     SUBSCRIBERS.with(|subscribers| {
         subscribers
