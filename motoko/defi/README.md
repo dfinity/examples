@@ -41,6 +41,14 @@ To trade with yourself, you can open a second incognito browser window.
 
 ## Development
 
+We deploy the canisters to a *system* subnet by specifying
+```
+    "replica": {
+      "subnet_type": "system"
+    }
+```
+in the configuration file `dfx.json` because the size of the Wasm file for the ledger canister exceeds the limit of 2MiB for the default *application* subnet.
+
 Reinstall backend canister
 
 ```bash
