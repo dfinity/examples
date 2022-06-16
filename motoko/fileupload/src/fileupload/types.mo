@@ -14,7 +14,7 @@ module {
 
     public type AssetEncoding = {
         modified       : Int;
-        content_chunks : [[Nat8]];
+        content_chunks : [Blob];
         total_length   : Nat;
         certified      : Bool;
     };
