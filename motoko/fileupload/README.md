@@ -211,7 +211,7 @@ private func create_strategy(
 
 _Streaming callback_<br>
 The callback function returns the current file chunk, where the index of the chunk is determined by the token. 
-```javascript
+```motoko
 public shared query({caller}) func http_request_streaming_callback(
   st : Types.StreamingCallbackToken,
 ) : async Types.StreamingCallbackHttpResponse {
