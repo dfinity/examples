@@ -4,7 +4,7 @@ module {
 
     public type Chunk = {
         batch_name : Text;
-        content  : [Nat8];
+        content  : Blob;
     };
 
     public type Asset = {
