@@ -88,7 +88,7 @@ public shared({caller}) func commit_batch(
   var content_chunks : [[Nat8]] = [];
 
   for (chunk_id in chunk_ids.vals()) {
-    let chunk: ?Types.Chunk = chunks.get(chunk_id);
+    let chunk : ?Types.Chunk = chunks.get(chunk_id);
 
     switch (chunk) {
       case (?{content}) {
