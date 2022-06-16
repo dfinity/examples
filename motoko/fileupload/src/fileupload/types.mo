@@ -22,7 +22,7 @@ module {
     public type HttpRequest = {
         url : Text;
         method : Text;
-        body : [Nat8];
+        body : Blob;
         headers : [HeaderField];
     };
 
