@@ -59,10 +59,10 @@ actor Assets {
     };
 
     private func create_strategy(
-        key           : Text,
-        index         : Nat,
-        asset         : Types.Asset,
-        encoding      : Types.AssetEncoding,
+        key : Text,
+        index  : Nat,
+        asset : Types.Asset,
+        encoding : Types.AssetEncoding,
     ) : ?Types.StreamingStrategy {
         switch (create_token(key, index, encoding)) {
             case (null) { null };
