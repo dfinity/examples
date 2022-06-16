@@ -47,7 +47,7 @@ module {
     };
 
     public type StreamingCallbackHttpResponse = {
-        body : [Nat8];
+        body : Blob;
         token: ?StreamingCallbackToken;
     };
 }
