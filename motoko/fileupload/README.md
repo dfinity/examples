@@ -132,9 +132,9 @@ public shared query({caller}) func http_request(
 ) : async Types.HttpResponse {
 
   if (request.method == "GET") {
-    let split: Iter.Iter<Text> = Text.split(request.url, #char '?');
-    let key: Text = Iter.toArray(split)[0];
-    let asset: ?Types.Asset = assets.get(key);
+    let split : Iter.Iter<Text> = Text.split(request.url, #char '?');
+    let key : Text = Iter.toArray(split)[0];
+    let asset : ?Types.Asset = assets.get(key);
 
       switch (asset) {
         case (?{content_type: Text; encoding: Types.AssetEncoding;}) {
