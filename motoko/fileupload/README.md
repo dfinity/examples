@@ -44,7 +44,7 @@ The project folder will then look like this:
 ## Documentation
 The three main parts of the example dapp are the backend, the Candid interface and the frontend. This example project is based on the default project, which is created when running the `dfx new project_name` command, but most of the default project code is replaced to create the upload functionality in this project.
 
-The fileupload is done in chunks, to support uploading larger files than 2MB, which is the ingress limit. Uploaded files are stored in an asset canister, which can serve assets like image files.
+The fileupload is done in chunks, to support uploading larger files than 2MB, which is the ingress message size limit. Uploaded files are stored in an asset canister, which can serve assets like image files.
 
 ### Motoko backend
 The backend functions are located in the `src/fileupload/main.mo` Motoko file. The backend can receive a batch of chunks of a file, when a file is uploaded in the frontend, and when the batch is complete, it stores the file in the asset canister. The backend also includes functionality to serve the file to the frontend.
