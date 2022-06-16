@@ -182,7 +182,7 @@ private func create_token(
     ?{
       key;
       index = chunk_index + 1;
-      content_encoding = "gzip";
+      content_encoding = "gzip"
     };
   };
 };
