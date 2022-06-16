@@ -168,7 +168,7 @@ Using a streaming strategy will return the data requested in chunks, which allow
 
 _Create token_<br>
 The function `create_token()` checks if there are remaining file chunks and returns a new token if there is. If there are not any remaining chunks, then `null` is returned.
-```javascript
+```motoko
 private func create_token(
   key : Text,
   chunk_index : Nat,
