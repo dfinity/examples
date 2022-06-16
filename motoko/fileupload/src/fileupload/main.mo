@@ -19,9 +19,8 @@ actor Assets {
     private let chunks: HashMap.HashMap<Nat, Types.Chunk> =
        HashMap.HashMap<Nat, Types.Chunk>(0, Nat.equal, Hash.hash);
 
-    private let assets: HashMap.HashMap<Text, Types.Asset> = HashMap.HashMap<Text, Types.Asset>(
-        0, Text.equal, Text.hash,
-    );
+    private let assets: HashMap.HashMap<Text, Types.Asset> =
+      HashMap.HashMap<Text, Types.Asset>(0, Text.equal, Text.hash);
 
     public shared query({caller}) func http_request(
         request : Types.HttpRequest,
