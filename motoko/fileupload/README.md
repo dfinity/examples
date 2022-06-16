@@ -79,7 +79,7 @@ private let assets: HashMap.HashMap<Text, Types.Asset> = HashMap.HashMap<Text, T
 );
 
 public shared({caller}) func commit_batch(
-  {batch_name: Text; chunk_ids: [Nat]; content_type: Text;} : {
+  {batch_name : Text; chunk_ids : [Nat]; content_type : Text} : {
     batch_name: Text;
     content_type: Text;
     chunk_ids: [Nat];
