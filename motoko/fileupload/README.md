@@ -101,7 +101,9 @@ public shared({caller}) func commit_batch(
 
   if (content_chunks.size() > 0) {
     var total_length = 0;
-    for (chunk in content_chunks.vals()) total_length += chunk.size();
+    for (chunk in content_chunks.vals()) { 
+      total_length += chunk.size();
+    };
 
     assets.put(Text.concat("/assets/", batch_name), {
       content_type = content_type;
