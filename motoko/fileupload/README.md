@@ -190,7 +190,7 @@ private func create_token(
 
 _Create strategy_<br>
 The function `create_strategy()` uses `create_token()` to check of there are file chunks left to process. If there is, a callback function is setup for the asset canister to handle file chunks. 
-```javascript
+```motoko
 private func create_strategy(
   key : Text,
   index : Nat,
