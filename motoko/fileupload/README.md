@@ -200,13 +200,9 @@ private func create_strategy(
   switch (create_token(key, index, asset, encoding)) {
     case (null) { null };
     case (? token) {
-      let self: Principal = Principal.fromActor(Assets);
-      let canisterId: Text = Principal.toText(self);
-      let canister = actor (canisterId) : actor { http_request_streaming_callback : shared () -> async () };
-
       return ?#Callback({
         token; 
-        callback = canister.http_request_streaming_callback;
+        callback = http_request_streaming_callback;
       });
     };
   };
