@@ -53,7 +53,7 @@ The backend functions are located in the `src/fileupload/main.mo` Motoko file. T
 The function `create_chunk()` takes a chunk of a file, and adds the chunk, and an ID identifying the chunk, to the `chunks` HashMap. The chunk ID is incremented before adding the chunk to `chunks`.
 
 
-```javascript
+```motoko
 private var nextChunkID: Nat = 0;
 
 private let chunks: HashMap.HashMap<Nat, Types.Chunk> = HashMap.HashMap<Nat, Types.Chunk>(
