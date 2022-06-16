@@ -74,9 +74,8 @@ public shared({caller}) func create_chunk(chunk: Types.Chunk) : async {
 The function `commit_batch()` concatenates the file chunks, and adds the content to the `assets` HashMap, with encoding data. The `assets` HashMap is used as file storage in the asset canisters. The file's name is used as `batch_name`, and the file identifier, which makes it easy to use the filename when requesting the file from the frontend.  
 
 ```motoko
-private let assets: HashMap.HashMap<Text, Types.Asset> = HashMap.HashMap<Text, Types.Asset>(
-  0, Text.equal, Text.hash,
-);
+private let assets: HashMap.HashMap<Text, Types.Asset> = 
+  HashMap.HashMap<Text, Types.Asset>(0, Text.equal, Text.hash);
 
 public shared({caller}) func commit_batch(
   {batch_name : Text; chunk_ids : [Nat]; content_type : Text} : {
