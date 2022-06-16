@@ -99,9 +99,9 @@ actor Assets {
     };
 
     private func create_token(
-        key              : Text,
-        chunk_index      : Nat,
-        encoding         : Types.AssetEncoding,
+        key : Text,
+        chunk_index : Nat,
+        encoding : Types.AssetEncoding
     ) : ?Types.StreamingCallbackToken {
 
         if (chunk_index + 1 >= encoding.content_chunks.size()) {
