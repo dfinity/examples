@@ -137,7 +137,7 @@ public shared query({caller}) func http_request(
     let asset : ?Types.Asset = assets.get(key);
 
       switch (asset) {
-        case (?{content_type: Text; encoding: Types.AssetEncoding;}) {
+        case (?{content_type : Text; encoding : Types.AssetEncoding}) {
           return {
             body = encoding.content_chunks[0];
             headers = [ ("Content-Type", content_type),
