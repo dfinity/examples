@@ -22,12 +22,12 @@
     "svelte": "^3.0.0"
   },
   "dependencies": {
-    "@dfinity/agent": "^0.10.2",
-    "@dfinity/auth-client": "^0.10.2",
-    "@dfinity/authentication": "^0.10.2",
-    "@dfinity/candid": "^0.10.2",
-    "@dfinity/identity": "^0.10.2",
-    "@dfinity/principal": "0.10.2",
+    "@dfinity/agent": "^0.10.4",
+    "@dfinity/auth-client": "^0.10.4",
+    "@dfinity/authentication": "^0.10.4",
+    "@dfinity/candid": "^0.10.4",
+    "@dfinity/identity": "^0.10.4",
+    "@dfinity/principal": "0.10.4",
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "crc": "^4.1.0",

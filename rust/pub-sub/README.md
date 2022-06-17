@@ -1,10 +1,10 @@
 # Design Pattern: Pub/Sub
 
-This sample project demonstrates like motoko pub-sub example.
+This sample project demonstrates a simple pub-sub example.
 
 ## Overview
 
-A common problem in both distributed and decentralized systems is keeping separate services (or canisters) synchronized with one another. While there are many potential solutions to this problem, a popular one is the Publisher/Subscriber pattern or "PubSub". PubSub is an especially valuable pattern on the Internet Computer as its primary drawback, message delivery failures, does not apply.
+A common problem in both distributed and decentralized systems is keeping separate services (or canisters) synchronized with one another. While there are many potential solutions to this problem, a popular one is the Publisher/Subscriber pattern or "PubSub". PubSub is an especially valuable pattern on the Internet Computer as its primary drawback, message delivery failures, does not apply. This example demonstrates the usage of one-way calls between canisters. Regular calls on the Internet Computer expect a response. If for some reason this response never arrives the canister can't be stopped and hence can't be upgraded (Read this [blog post](https://www.joachim-breitner.de/blog/789-Zero-downtime_upgrades_of_Internet_Computer_canisters) for details). In this example, the publisher uses the [`notify`](https://docs.rs/ic-cdk/0.5.1/ic_cdk/api/call/fn.notify.html) method instead of the regular `call` method to call `update_count` to implement the one-way notification pattern.
 
 ## Implementation
 
@@ -19,7 +19,7 @@ Note: There are many obvious improvements (keying subscribers by topic in Publis
 Verify the following before running this demo:
 
 *  You have downloaded and installed the [DFINITY Canister
-   SDK](https://sdk.dfinity.org).
+   SDK](https://smartcontracts.org).
 
 *  You have stopped any Internet Computer or other network process that would
    create a port conflict on 8000.
@@ -73,5 +73,5 @@ Verify the following before running this demo:
 1. Observe the following result.
 
    ```
-   (2)
+   (2 : nat64)
    ```

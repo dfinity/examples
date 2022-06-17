@@ -7,6 +7,7 @@ import css from "rollup-plugin-css-only";
 import replace from "@rollup/plugin-replace";
 import inject from "rollup-plugin-inject";
 import json from "@rollup/plugin-json";
+import sveltePreprocess from "svelte-preprocess";
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -60,6 +61,13 @@ function initCanisterIds() {
 }
 const { canisterIds, network } = initCanisterIds();
 
+// Fallback to render "undefined" in the browser in case canisters have not been deployed
+const UNDEFINED_CANISTER_IDS = {
+  "process.env.INTERNET_IDENTITY_CANISTER_ID": "undefined",
+  "process.env.BACKEND_CANISTER_ID": "undefined",
+  "process.env.FRONTEND_CANISTER_ID": "undefined"
+}
+
 function serve() {
   let server;
 
@@ -88,13 +96,16 @@ function serve() {
 export default {
   input: "src/main.js",
   output: {
-    sourcemap: true,
-    format: "iife",
+    sourcemap: !production,
+    format: "es",
     name: "app",
     file: "public/build/bundle.js",
   },
   plugins: [
     svelte({
+      preprocess: sveltePreprocess({
+        sourceMap: !production
+      }),
       compilerOptions: {
         // enable run-time checks when not in production
         dev: !production,
@@ -114,6 +125,11 @@ export default {
       browser: true,
       dedupe: ["svelte"],
     }),
+    commonjs(),
+    inject({
+      Buffer: ["buffer", "Buffer"],
+    }),
+    json(),
     // Add canister ID's & network to the environment
     replace(
       Object.assign(
@@ -122,6 +138,7 @@ export default {
           "process.env.NODE_ENV": JSON.stringify(
             production ? "production" : "development"
           ),
+          ...UNDEFINED_CANISTER_IDS
         },
         ...Object.keys(canisterIds)
           .filter((canisterName) => canisterName !== "__Candid_UI")
@@ -131,12 +148,6 @@ export default {
           }))
       )
     ),
-    commonjs(),
-    inject({
-      Buffer: ["buffer", "Buffer"],
-      process: "process/browser",
-    }),
-    json(),
 
     // In dev mode, call `npm run start` once
     // the bundle has been generated

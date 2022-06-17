@@ -1,10 +1,9 @@
 use std::cell::RefCell;
 use std::hash::Hash;
-use candid::{candid_method, CandidType};
+use candid::{candid_method, CandidType, Principal};
 
 use ic_cdk_macros::*;
 use ic_ledger_types::{AccountIdentifier, BlockIndex, DEFAULT_SUBACCOUNT, MAINNET_LEDGER_CANISTER_ID, Memo, Subaccount, Tokens};
-use ic_types::Principal;
 use serde::{Deserialize, Serialize};
 
 #[derive(CandidType, Serialize, Deserialize, Clone, Debug, Hash, PartialEq)]
