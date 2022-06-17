@@ -51,12 +51,12 @@
       var xValue = Number(item[0]);
       var yValue = item[1];
 
-      while (next < xValue) {
-        next = next + increment;
-
+      // handle missing data
+      if (next < xValue) {
         xValues.push(next);
         yValues.push(null);
 
+        next = xValue;
         missingData = true;
       }
 
@@ -64,6 +64,7 @@
       yValues.push(yValue);
       next = next + increment;
     });
+
     loading = false;
 
     chart.data.labels = xValues;
