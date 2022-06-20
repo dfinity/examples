@@ -5,7 +5,6 @@ use queues::*;
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::collections::HashMap;
-use chrono::{DateTime, NaiveDateTime, Utc};
 
 type Timestamp = u64;
 type Rate = String;
@@ -66,12 +65,13 @@ thread_local! {
     pub static HEARTBEAT_COUNT: RefCell<i32> = RefCell::new(0);
 
     pub static RESPONSE_HEADERS_SANTIZATION: Vec<&'static str> = vec![
-        "x-mbx-uuid",
-        "x-mbx-used-weight",
-        "x-mbx-used-weight-1m",
-        "Date",
-        "Via",
-        "X-Amz-Cf-Id",
+        "Date",                     // DateTime of the request is made
+        "CF-Cache-Status",          // CloudFront caching status
+        "CF-RAY",                   // CloudFront custom Id
+        "Age",                      // Age of the data object since query
+        "Content-Security-Policy",  // Long list of allowable domains for reference
+        "Last-Modified",            // Last time the object is modified
+        "Set-Cookie"                // cf-country=US;Path=/;
     ];
 }
 
@@ -79,21 +79,6 @@ thread_local! {
 // #[export_name = "canister_heartbeat"]
 #[heartbeat]
 async fn heartbeat() {
-    ic_cdk::api::print(format!("Heartbeat method invoked."));
-
-    // TODO: Remove. Below chunk is only for debugging purpose.
-    // let mut heartbeat_count = 0;
-    // HEARTBEAT_COUNT.with(|count_lock| {
-    //     let mut count = count_lock.borrow_mut();
-    //     *count += 1;
-    //     heartbeat_count = *count;
-    // });
-    // FETCHED.with(|fetched_lock| {
-    //     let mut stored = fetched_lock.borrow_mut();
-    //     let message = format!("Heartbeat invoked {} times.", heartbeat_count);
-    //     stored.insert(27540860, message);
-    // });
-
     get_next_rate().await;
 }
 
@@ -105,7 +90,6 @@ as HTTP update call.
 #[candid_method(update)]
 async fn get_rates(range: TimeRange) -> RatesWithInterval {
     // round down start time and end time to the minute (chop off seconds), to be checked in the hashmap
-    ic_cdk::api::print(format!("get_rates method invoked."));
 
     // normalize the start_time and end_time to the minute before query remote.
     let start_min = range.start / 60;
@@ -185,8 +169,8 @@ Potentially, different nodes executing the canister will trigger different job d
 The idea is to gap the cron job with large enough time gap, so they won't trigger remove service side
 rate limiting.
  */
-#[update]
-#[candid_method(update)]
+// #[update]
+// #[candid_method(update)]
 async fn get_next_rate() -> Option<String> {
     let mut job_id: u64 = 0;
 
@@ -237,24 +221,24 @@ A function to call IC http_request function with a single minute range.
 This function is to be triggered by timer as jobs move to the tip of the queue.
  */
 async fn get_rate(job: Timestamp) -> Option<String> {
-    let start_timestamp = (job * 60) as i64;
-    let end_timestamp = ((job + 1) * 60 - 1) as i64;
+    let start_timestamp = job as i64;
+    let end_timestamp = (job + 59) as i64;
 
-    let start_time = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(start_timestamp, 0), Utc);
-    let end_time = DateTime::<Utc>::from_utc(NaiveDateTime::from_timestamp(end_timestamp, 0), Utc);
-
+    let host = "pro.coinbase.com";
     // prepare system http_request call
     let mut request_headers = vec![];
     request_headers.insert(
         0,
         HttpHeader {
-            name: "Connection".to_string(),
-            value: "keep-alive".to_string(),
+            name: "Host".to_string(),
+            value: host.to_string(),
         },
     );
+    let url = format!("https://api.{host}/products/ICP-USD/candles?granularity=60&start={start_timestamp}&end={end_timestamp}");
+    ic_cdk::api::print(url.clone());
 
     let request = CanisterHttpRequestArgs {
-        url: format!("https://api.pro.coinbase.com/products/ICP-USD/candles?granularity=60&start={start_time}&end={end_time}"),
+        url: url,
         http_method: HttpMethod::GET,
         body: None,
         transform_method_name: Some("transform".to_string()),
@@ -273,7 +257,6 @@ async fn get_rate(job: Timestamp) -> Option<String> {
     .await
     {
         Ok(result) => {
-            ic_cdk::api::print("In success path.");
             // decode the result
             let decoded_result: String = candid::utils::decode_one(&result).unwrap();
             ic_cdk::api::print(format!("Got decoded result: {}", decoded_result));
