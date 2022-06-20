@@ -4,11 +4,11 @@
       "candid": "src/exchange_rate.did",
       "package": "exchange_rate",
       "type": "rust",
-      "wasm": "wasm/exchange_rate.wasm"
+      "wasm": "target/wasm32-unknown-unknown/release/exchange_rate.wasm"
     },
     "exchange_rate_assets": {
       "dependencies": [
-        "backend_dummy"
+        "exchange_rate"
       ],
       "frontend": {
         "entrypoint": "src/frontend/public/index.html"
