@@ -1,11 +1,12 @@
 type Timestamp = nat64;
+type Rate = float32;
 
 type TimeRange = record {
     start: Timestamp; 
     end: Timestamp;
 };
 
-type RatesMap = vec record { Timestamp; text; };
+type RatesMap = vec record { Timestamp; Rate; };
 
 type RatesWithInterval = record {
     interval: nat64;

@@ -6,7 +6,7 @@ use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 
 type Timestamp = u64;
-type Rate = String;
+type Rate = f32;
 
 #[derive(CandidType, Clone, Deserialize, Debug, Eq, Hash, PartialEq, Serialize)]
 pub struct TimeRange {
@@ -14,7 +14,7 @@ pub struct TimeRange {
     pub end: Timestamp,
 }
 
-#[derive(Clone, Debug, PartialEq, CandidType, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, CandidType, Serialize, Deserialize)]
 pub struct RatesWithInterval {
     pub interval: usize,
     pub rates: HashMap<Timestamp, Rate>,
@@ -49,9 +49,9 @@ pub struct CanisterHttpResponsePayload {
 
 // How many data point can be returned as maximum.
 // Given that 2MB is max-allow cansiter response size, and each <Timestamp, Rate> pair
-// should be less that 100 bytes. Maximum data points could be returned for each
-// call can be as many as 2MB / 100B = 20000.
-pub const MAX_DATA_PONTS_COUNT: usize = 20000;
+// should be less that 20 bytes. Maximum data points could be returned for each
+// call can be as many as 2MB / 20B = 1000000.
+pub const MAX_DATA_PONTS_COUNT: usize = 1000000;
 
 // Remote fetch interval is always 60 secs. It is only the canister returned interval
 // that is dynamic according to the data size needs to be returned.
@@ -68,7 +68,7 @@ pub const RESPONSE_HEADERS_SANTIZATION: [&'static str; 7] = [
 ];
 
 thread_local! {
-    pub static FETCHED: RefCell<HashMap<Timestamp, String>>  = RefCell::new(HashMap::new());
+    pub static FETCHED: RefCell<HashMap<Timestamp, Rate>>  = RefCell::new(HashMap::new());
     pub static REQUESTED: RefCell<HashSet<Timestamp>> = RefCell::new(HashSet::new());
     pub static HEARTBEAT_COUNT: RefCell<i32> = RefCell::new(0);
 }
@@ -107,7 +107,7 @@ async fn get_rates(range: TimeRange) -> RatesWithInterval {
             if map.contains_key(&requested) {
                 // The fetched slot is within user requested range. Add to result for later returning.
                 ic_cdk::api::print(format!("Found {} in map!", requested));
-                fetched.insert(requested, map.get(&requested).unwrap().clone().to_string());
+                fetched.insert(requested, map.get(&requested).unwrap().clone());
             } else {
                 ic_cdk::api::print(format!("Did not find {} in map!", requested));
                 // asynchoronously request downloads for unavailable ranges
@@ -125,7 +125,7 @@ async fn get_rates(range: TimeRange) -> RatesWithInterval {
     sample_with_interval(fetched)
 }
 
-fn sample_with_interval(fetched: HashMap<Timestamp, String>) -> RatesWithInterval {
+fn sample_with_interval(fetched: HashMap<Timestamp, Rate>) -> RatesWithInterval {
     // in order to make sure that returned data do not exceed 2MB, which is about
     // ~1M data points, calculate interval when data points count is beyond 900K.
     let interval_options = vec![
@@ -262,19 +262,16 @@ async fn get_rate(job: Timestamp) {
                 let decoded_body = String::from_utf8(decoded_result.body)
                     .expect("Remote service response is not UTF-8 encoded.");
                 ic_cdk::api::print(format!("Got decoded result: {}", decoded_body));
-                let close_rate = decoded_body.split(",").into_iter().collect::<Vec<&str>>()[4];
-                fetched.insert(job, close_rate.to_string());
+                let close_rate = decoded_body.split(",").into_iter().collect::<Vec<&str>>()[4]
+                    .parse::<Rate>()
+                    .expect("Couldn't parse the rate to float.");
+                fetched.insert(job, close_rate);
             });
         }
         Err((r, m)) => {
             let message =
                 format!("The http_request resulted into error. RejectionCode: {r:?}, Error: {m}");
             ic_cdk::api::print(message.clone());
-            // TODO - Remove this. Putting the result to hashmap for debuging purpose
-            FETCHED.with(|fetched| {
-                let mut fetched = fetched.borrow_mut();
-                fetched.insert(job, message.clone());
-            });
 
             // Since the remote request failed. Adding the de-queued job back again for retries.
             add_job_to_queue(job);
