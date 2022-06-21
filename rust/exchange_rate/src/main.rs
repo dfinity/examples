@@ -57,22 +57,22 @@ pub const MAX_DATA_PONTS_COUNT: usize = 20000;
 
 // Remote fetch interval is always 60 secs. It is only the canister returned interval
 // that is dynamic according to the data size needs to be returned.
-pub const REMOTE_FETCH_INTERVAL: i64 = 60;  
+pub const REMOTE_FETCH_INTERVAL: i64 = 60;
+
+pub const RESPONSE_HEADERS_SANTIZATION: [&'static str; 7] = [
+    "Date",                     // DateTime of the request is made
+    "CF-Cache-Status",          // CloudFront caching status
+    "CF-RAY",                   // CloudFront custom Id
+    "Age",                      // Age of the data object since query
+    "Content-Security-Policy",  // Long list of allowable domains for reference
+    "Last-Modified",            // Last time the object is modified
+    "Set-Cookie"                // cf-country=US;Path=/;
+];
 
 thread_local! {
     pub static FETCHED: RefCell<HashMap<Timestamp, String>>  = RefCell::new(HashMap::new());
     pub static REQUESTED: RefCell<Queue<Timestamp>> = RefCell::new(Queue::new());
     pub static HEARTBEAT_COUNT: RefCell<i32> = RefCell::new(0);
-
-    pub static RESPONSE_HEADERS_SANTIZATION: Vec<&'static str> = vec![
-        "Date",                     // DateTime of the request is made
-        "CF-Cache-Status",          // CloudFront caching status
-        "CF-RAY",                   // CloudFront custom Id
-        "Age",                      // Age of the data object since query
-        "Content-Security-Policy",  // Long list of allowable domains for reference
-        "Last-Modified",            // Last time the object is modified
-        "Set-Cookie"                // cf-country=US;Path=/;
-    ];
 }
 
 // Canister heartbeat. Process one item in queue
@@ -171,7 +171,7 @@ rate limiting.
  */
 // #[update]
 // #[candid_method(update)]
-async fn get_next_rate() -> Option<String> {
+async fn get_next_rate() {
     let mut job_id: u64 = 0;
 
     // Get the next downloading job
@@ -210,31 +210,33 @@ async fn get_next_rate() -> Option<String> {
         }
     });
     if job_id != 0 {
-        let rate = get_rate(job_id).await;
-        return rate;
+        get_rate(job_id).await;
     }
-    return None;
 }
 
 /*
 A function to call IC http_request function with a single minute range.
 This function is to be triggered by timer as jobs move to the tip of the queue.
  */
-async fn get_rate(job: Timestamp) -> Option<String> {
+async fn get_rate(job: Timestamp) {
     let start_timestamp = job as i64;
     let end_timestamp = (job + 59) as i64;
 
-    let host = "pro.coinbase.com";
+    let host = "api.pro.coinbase.com";
+    let mut host_header = host.clone().to_owned();
+    host_header.push_str(":443");
     // prepare system http_request call
-    let mut request_headers = vec![];
-    request_headers.insert(
-        0,
+    let request_headers = vec![
         HttpHeader {
             name: "Host".to_string(),
-            value: host.to_string(),
+            value: host_header,
         },
-    );
-    let url = format!("https://api.{host}/products/ICP-USD/candles?granularity=60&start={start_timestamp}&end={end_timestamp}");
+        HttpHeader {
+            name: "User-Agent".to_string(),
+            value: "exchange_rate_canister".to_string(),
+        },
+    ];
+    let url = format!("https://{host}/products/ICP-USD/candles?granularity=60&start={start_timestamp}&end={end_timestamp}");
     ic_cdk::api::print(url.clone());
 
     let request = CanisterHttpRequestArgs {
@@ -258,14 +260,15 @@ async fn get_rate(job: Timestamp) -> Option<String> {
     {
         Ok(result) => {
             // decode the result
-            let decoded_result: String = candid::utils::decode_one(&result).unwrap();
-            ic_cdk::api::print(format!("Got decoded result: {}", decoded_result));
+            let decoded_result: CanisterHttpResponsePayload = candid::utils::decode_one(&result).expect("IC http_request failed!");
             // put the result to hashmap
             FETCHED.with(|fetched_lock| {
                 let mut stored = fetched_lock.borrow_mut();
-                stored.insert(job, decoded_result.clone());
+                let decoded_body = String::from_utf8(decoded_result.body).expect("Remote service response is not UTF-8 encoded.");
+                ic_cdk::api::print(format!("Got decoded result: {}", decoded_body));
+                stored.insert(job, decoded_body);
+                return;
             });
-            return Some(decoded_result);
         }
         Err((r, m)) => {
             let message =
@@ -279,7 +282,6 @@ async fn get_rate(job: Timestamp) -> Option<String> {
             
             // Since the remote request failed. Adding the de-queued job back again for retries.
             add_job_to_queue(job);
-            return Some(message);
         }
     }
 }
@@ -288,17 +290,20 @@ async fn get_rate(job: Timestamp) -> Option<String> {
 #[candid_method(query)]
 #[export_name = "transform"]
 async fn transform(raw: CanisterHttpResponsePayload) -> CanisterHttpResponsePayload {
-    let mut sanitized = raw.clone();
-    RESPONSE_HEADERS_SANTIZATION.with(|response_headers_blacklist| {
-        let mut processed_headers = vec![];
-        for header in raw.headers.iter() {
-            if !response_headers_blacklist.contains(&header.name.as_str()) {
-                processed_headers.insert(0, header.clone());
-            }
-        }
-        sanitized.headers = processed_headers;
-    });
-    return sanitized;
+    let mut transformed = raw;
+    transformed.headers = vec![];
+    transformed
+    // let mut sanitized = raw.clone();
+    // RESPONSE_HEADERS_SANTIZATION.with(|response_headers_blacklist| {
+    //     let mut processed_headers = vec![];
+    //     for header in raw.headers.iter() {
+    //         if !response_headers_blacklist.contains(&header.name.as_str()) {
+    //             processed_headers.insert(0, header.clone());
+    //         }
+    //     }
+    //     sanitized.headers = processed_headers;
+    // });
+    // return sanitized;
 }
 
 fn main() {}
