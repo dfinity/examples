@@ -44,7 +44,7 @@
     const timerange = {
       start: start,
       end: end,
-    }
+    };
     const ratesWithInterval = await exchange_rate.get_rates(timerange);
 
     var interval = Number(ratesWithInterval.interval);
