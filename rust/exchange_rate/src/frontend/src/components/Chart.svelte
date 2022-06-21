@@ -30,6 +30,7 @@
   let xValues = [];
   let yValues = [];
 
+
   async function getExchangeRates(start, end) {
     console.log("getEx: start: ", start);
     console.log("getEx: end: ", end);
@@ -40,11 +41,15 @@
     xValues = [];
     yValues = [];
 
-    // TO REMOVE
-    var increment = 3600;
-    // TO REMOVE
+    const timerange = {
+      start: start,
+      end: end,
+    }
+    const ratesWithInterval = await exchange_rate.get_rates(timerange);
 
-    const rates = await exchange_rate.get_rates(start, end);
+    var interval = Number(ratesWithInterval.interval);
+    var rates = ratesWithInterval.rates;
+
     var sortedRates = rates.sort(function (a, b) {
       return Number(a[0]) - Number(b[0]);
     });
@@ -64,7 +69,7 @@
 
       xValues.push(xValue);
       yValues.push(yValue);
-      next = next + increment;
+      next = next + interval;
     });
 
     loading = false;
