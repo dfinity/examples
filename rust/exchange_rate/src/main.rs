@@ -266,8 +266,8 @@ async fn get_rate(job: Timestamp) {
                 let mut stored = fetched_lock.borrow_mut();
                 let decoded_body = String::from_utf8(decoded_result.body).expect("Remote service response is not UTF-8 encoded.");
                 ic_cdk::api::print(format!("Got decoded result: {}", decoded_body));
-                stored.insert(job, decoded_body);
-                return;
+                let close_rate = decoded_body.split(",").into_iter().collect::<Vec<&str>>()[4];
+                stored.insert(job, close_rate.to_string());
             });
         }
         Err((r, m)) => {
