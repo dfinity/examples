@@ -1,11 +1,9 @@
 use candid::{candid_method, CandidType, Principal};
 use ic_cdk::{self};
 use ic_cdk_macros::{self, heartbeat, query, update};
-use queues::*;
 use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
-use std::str::pattern::SearchStep;
 
 type Timestamp = u64;
 type Rate = String;
