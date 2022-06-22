@@ -1,6 +1,5 @@
-use bitcoin::{Address, Network};
-use ic_btc_library::{AddressType, BitcoinAgent, BitcoinCanister, BitcoinCanisterImpl};
-use ic_btc_types::Satoshi;
+use bitcoin::Address;
+use ic_btc_library::{AddressType, BitcoinAgent, BitcoinCanister, BitcoinCanisterImpl, Satoshi, Network};
 use ic_cdk::{api::caller, export::Principal, trap};
 use ic_cdk_macros::{query, update};
 use std::cell::RefCell;
@@ -9,10 +8,10 @@ thread_local! {
     // The Bitcoin wallet uses only a single Bitcoin agent to track all users' addresses.
     static BITCOIN_AGENT: RefCell<BitcoinAgent<BitcoinCanisterImpl>> =
         RefCell::new(BitcoinAgent::new(
-            BitcoinCanisterImpl::new(),
-            &Network::Regtest,
-            &AddressType::P2pkh
-        ));
+            BitcoinCanisterImpl::new(Network::Regtest),
+            &AddressType::P2pkh,
+			0
+        ).unwrap());
 }
 
 /// Returns the user's `Principal`.
@@ -32,11 +31,11 @@ async fn get_principal_address() -> Address {
         trap("Caller principal wasn't obtained through Internet Identity.")
     }
 
-    let derivation_path = vec![caller_principal.as_slice().to_vec()];
+    let derivation_path = caller_principal.as_slice();
     BITCOIN_AGENT.with(|bitcoin_agent| {
         bitcoin_agent
             .borrow_mut()
-            .add_address(derivation_path, &AddressType::P2pkh)
+            .add_address(derivation_path)
             .unwrap()
     })
 }
