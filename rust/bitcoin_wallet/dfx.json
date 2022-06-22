@@ -30,6 +30,12 @@
         "dist/bitcoin_wallet_assets/"
       ],
       "type": "assets"
+    },
+    "frontend": {
+      "source": [
+        "src/frontend/public/"
+      ],
+      "type": "assets"
     }
   },
   "defaults": {
@@ -38,7 +44,7 @@
       "packtool": ""
     }
   },
-  "dfx": "0.9.3",
+  "dfx": "0.10.0",
   "networks": {
     "local": {
       "bind": "127.0.0.1:8000",

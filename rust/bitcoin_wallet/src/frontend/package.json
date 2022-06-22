@@ -1,0 +1,39 @@
+{
+  "name": "bitcoin-wallet-frontend",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "build": "rollup -c",
+    "dev": "rollup -c -w",
+    "start": "sirv public --no-clear -s --port 3000",
+    "check": "svelte-check --tsconfig ./tsconfig.json"
+  },
+  "devDependencies": {
+    "@dfinity/agent": "^0.11.3",
+    "@dfinity/auth-client": "^0.11.3",
+    "@dfinity/identity": "^0.11.3",
+    "@dfinity/principal": "^0.11.3",
+    "@rollup/plugin-commonjs": "^17.0.0",
+    "@rollup/plugin-json": "^4.1.0",
+    "@rollup/plugin-node-resolve": "^11.0.0",
+    "@rollup/plugin-typescript": "^8.0.0",
+    "@tsconfig/svelte": "^2.0.0",
+    "autoprefixer": "^10.4.7",
+    "rollup": "^2.3.4",
+    "rollup-plugin-css-only": "^3.1.0",
+    "rollup-plugin-inject": "^3.0.2",
+    "rollup-plugin-inject-process-env": "^1.3.1",
+    "rollup-plugin-livereload": "^2.0.0",
+    "rollup-plugin-svelte": "^7.0.0",
+    "rollup-plugin-terser": "^7.0.0",
+    "svelte": "^3.0.0",
+    "svelte-check": "^2.0.0",
+    "svelte-preprocess": "^4.0.0",
+    "tailwindcss": "^3.0.24",
+    "tslib": "^2.0.0",
+    "typescript": "^4.0.0"
+  },
+  "dependencies": {
+    "sirv-cli": "^2.0.2"
+  }
+}
