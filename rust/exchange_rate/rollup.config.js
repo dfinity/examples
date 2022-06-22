@@ -1,7 +1,6 @@
 import svelte from "rollup-plugin-svelte";
 import commonjs from "@rollup/plugin-commonjs";
 import resolve from "@rollup/plugin-node-resolve";
-import livereload from "rollup-plugin-livereload";
 import { terser } from "rollup-plugin-terser";
 import css from "rollup-plugin-css-only";
 import replace from "@rollup/plugin-replace";
@@ -100,9 +99,10 @@ export default {
 		replace(
 			Object.assign(
 			  {
+				preventAssignment: false,
 				"process.env.DFX_NETWORK": JSON.stringify(network),
 				"process.env.NODE_ENV": JSON.stringify(
-				  production ? "production" : "development"
+					network === "ic" ? "production" : "development"
 				),
 			  },
 			  ...Object.keys(canisterIds)
@@ -116,16 +116,18 @@ export default {
 
 		commonjs(),
 
-		// In dev mode, call `npm run start` once
-		// the bundle has been generated
-		!production && serve(),
-
-		// Watch the `public` directory and refresh the
-		// browser on changes when not in production
-		!production && livereload('src/frontend/public'),
-
-		// If we're building for production (npm run build
-		// instead of npm run dev), minify
-		production && terser()
+		terser()
 	],
+    onwarn: function (warning) {
+      if (
+        [
+          'CIRCULAR_DEPENDENCY',
+          'THIS_IS_UNDEFINED',
+          'EVAL',
+        ].includes(warning.code)
+      ) {
+        return;
+      }
+      console.warn(warning.message);
+    },
 };
