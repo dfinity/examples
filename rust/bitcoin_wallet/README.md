@@ -79,7 +79,7 @@ If everything is setup correctly, you should see the following output:
 }
 ```
 
-6. Generate a Bitcoin address and save it in variable for later reuse:
+6. Generate a Bitcoin address and save it in a variable for later reuse:
 
 ```
 export BTC_ADDRESS=$(./bin/bitcoin-cli -conf=$(pwd)/bitcoin.conf getnewaddress)
@@ -108,7 +108,7 @@ You should see an output that looks similar to, but not exactly like, the follow
 
 ### Synchronize blocks from bitcoind and create the canister
 
-Synchronize blocks from bitcoind with the adapter and replica by executing in `bitcoin_wallet` folder:
+Synchronize blocks from bitcoind with the adapter and replica by executing the following command in the `bitcoin_wallet` folder:
 
 ```
 dfx start --enable-bitcoin --bitcoin-node 127.0.0.1:18444
