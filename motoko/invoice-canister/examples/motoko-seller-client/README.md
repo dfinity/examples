@@ -1,6 +1,6 @@
 # Example Seller Flow
 
-This is an example of a seller flow. In this example, you can use the provide invoice canister mock to test your canister that integrates with the Invoice Canister.
+This is an example of a seller flow, integrating with an invoice canister in Motoko. In this example, you can use the provided invoice canister mock to test your canister that integrates with the Invoice Canister.
 
 To install: 
 

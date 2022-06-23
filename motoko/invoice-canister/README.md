@@ -78,3 +78,16 @@ You will also need to install `wasmtime`. For macOS, you can install with `brew 
 To run unit tests, use `make test`.
 
 To run the end-to-end JavaScript tests, first install fresh with with `./install-local.sh`. Then, run `npm test`.
+
+## Caveats
+
+There are several issues you may want to consider when using the invoice canister.
+
+1. The controller of the canister can claim funds held by any account. 
+  * mitigation - you can blackhole the invoice canister or use an allowlist to prevent unauthorized accounts from creating invoices and discourage users from holding a balance in the canister.
+2. Funds can get stuck in invoice accounts
+  * If someone continues to transfer funds into a ledger subaccount for an invoice after the invoice has been verified, the funds will get stuck in the invoice account.
+  * mitigation - a new method may be added to the canister to allow the invoice creator to sweep the funds.
+3. Uncertified queries
+  * There is some degree of risk in allowing the `get_invoice`, `get_account_identifier`, and `get_balance` queries to be left as queries
+  * mitigation - you can remove the query keyword from the canister
