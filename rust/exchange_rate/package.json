@@ -7,6 +7,8 @@
     "Canister"
   ],
   "scripts": {
+    "prebuild": "dfx generate exchange_rate",
+    "prestart": "dfx generate exchange_rate",
     "build": "rollup -c",
     "dev": "rollup -c -w",
     "start": "sirv src/frontend/public --no-clear --port 5555"
