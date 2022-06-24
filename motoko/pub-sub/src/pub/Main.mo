@@ -1,6 +1,5 @@
 // Publisher
-
-import Buffer "mo:base/Buffer";
+import List "mo:base/List";
 
 actor Publisher {
 
@@ -14,17 +13,17 @@ actor Publisher {
     callback : shared Counter -> ();
   };
 
-  let subscribers = Buffer.Buffer<Subscriber>(0);
+  stable var subscribers : List.List<Subscriber> = List.nil();
 
   public func subscribe(subscriber : Subscriber) {
-    subscribers.add(subscriber);
+    subscribers := List.push(subscriber, subscribers);
   };
 
   public func publish(counter : Counter) {
-    for (subscriber in subscribers.vals()) {
+    for (subscriber in List.toArray(subscribers).vals()) {
       if (subscriber.topic == counter.topic) {
         subscriber.callback(counter);
-      };
-    };
-  };
-};
+      }
+    }
+  }
+}
