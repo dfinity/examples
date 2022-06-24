@@ -30,14 +30,14 @@ pub struct HttpHeader {
 #[derive(Clone, Debug, PartialEq, CandidType, Eq, Hash, Serialize, Deserialize)]
 pub enum HttpMethod {
     GET,
-    // POST,
-    // HEAD,
+    POST,
+    HEAD,
 }
 
 #[derive(CandidType, Deserialize, Debug)]
 pub struct CanisterHttpRequestArgs {
     pub url: String,
-    //pub max_response_bytes: Option<u64>,
+    pub max_response_bytes: Option<u64>,
     pub headers: Vec<HttpHeader>,
     pub body: Option<Vec<u8>>,
     pub http_method: HttpMethod,
@@ -267,7 +267,7 @@ async fn get_rate(job: Timestamp) {
         url: url,
         http_method: HttpMethod::GET,
         body: None,
-        //max_response_bytes: Some(MAX_RESPONSE_BYTES),
+        max_response_bytes: Some(MAX_RESPONSE_BYTES),
         transform_method_name: Some("transform".to_string()),
         headers: request_headers,
     };
