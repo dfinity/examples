@@ -7,7 +7,7 @@ import Text "mo:base/Text";
 // Define the actor
 actor Assistant {
 
-  public type ToDo = {
+  type ToDo = {
     description: Text;
     completed: Bool;
   };
@@ -32,13 +32,9 @@ actor Assistant {
   };
 
   public func completeTodo(id : Nat) : async () {
-    switch(todos.get(id)) {
-      case (?oldItem) {
-        todos.put(id, { description = oldItem.description; completed = true });
-      };
-      case null {
-        ()
-      }
+    ignore do ? {
+      let oldItem = todos.get(id)!;
+      todos.put(id, { description = oldItem.description; completed = true });
     }
   };
 
