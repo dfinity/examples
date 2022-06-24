@@ -1,3 +1,7 @@
+#!/usr/bin/env bash
+
+set -e
+
 dfx stop
 dfx start --background --clean
 
