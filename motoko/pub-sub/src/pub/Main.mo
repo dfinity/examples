@@ -13,7 +13,7 @@ actor Publisher {
     callback : shared Counter -> ();
   };
 
-  stable var subscribers : List.List<Subscriber> = List.nil();
+  stable var subscribers = List.nil<Subscriber>();
 
   public func subscribe(subscriber : Subscriber) {
     subscribers := List.push(subscriber, subscribers);
@@ -23,7 +23,7 @@ actor Publisher {
     for (subscriber in List.toArray(subscribers).vals()) {
       if (subscriber.topic == counter.topic) {
         subscriber.callback(counter);
-      }
-    }
-  }
+      };
+    };
+  };
 }

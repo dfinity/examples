@@ -51,4 +51,4 @@ actor Assistant {
     todos := Map.mapFilter<Nat, ToDo, ToDo>(todos, Nat.equal, natHash, 
               func(_, todo) { if (todo.completed) null else ?todo });
   };
-};
+}
