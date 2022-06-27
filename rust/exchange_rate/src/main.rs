@@ -99,7 +99,6 @@ thread_local! {
 }
 
 // Canister heartbeat. Process one item in queue
-// #[export_name = "canister_heartbeat"]
 #[heartbeat]
 async fn heartbeat() {
     let mut should_fetch = false;
@@ -122,8 +121,6 @@ as HTTP update call.
 #[update]
 async fn get_rates(range: TimeRange) -> RatesWithInterval {
     // round down start time and end time to the minute (chop off seconds), to be checked in the hashmap
-
-    // normalize the start_time and end_time to the minute before query remote.
     let start_min = range.start / REMOTE_FETCH_GRANULARITY;
     let end_min = range.end / REMOTE_FETCH_GRANULARITY;
 
@@ -174,7 +171,7 @@ fn sample_with_interval(fetched: HashMap<Timestamp, Rate>) -> RatesWithInterval 
             };
         }
     }
-    panic!("This shouldn't be happening! Couldn't find a inteval that can keep total data points count in {}.", MAX_DATA_PONTS_CANISTER_RESPONSE);
+    panic!("This shouldn't be happening! Couldn't find an inteval that can keep total data points count in {}.", MAX_DATA_PONTS_CANISTER_RESPONSE);
 }
 
 fn add_job_to_job_set(job: Timestamp) -> () {
@@ -190,10 +187,7 @@ fn add_job_to_job_set(job: Timestamp) -> () {
 }
 
 /*
-Register the cron job which takes the tip of the job set, and sends a canister call to self.
-Potentially, different nodes executing the canister will trigger different job during the same period.
-The idea is to gap the cron job with large enough time gap, so they won't trigger remote service side
-rate limiting.
+Triggered by heartbeat() function to pick up the next job in the pipe for remote service call.
  */
 async fn get_next_rate() {
     let mut job_id: u64 = 0;
