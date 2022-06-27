@@ -23,6 +23,6 @@ actor Subscriber {
   };
 
   public query func getCount() : async Nat {
-    return count;
+    count;
   };
-};
+}
