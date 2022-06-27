@@ -33,8 +33,8 @@ actor Assistant {
 
   public func completeTodo(id : Nat) : async () {
     ignore do ? {
-      let oldItem = todos.get(id)!;
-      todos.put(id, { description = oldItem.description; completed = true });
+      let description = todos.get(id)!.description;
+      todos.put(id, { description; completed = true });
     }
   };
 
