@@ -1,0 +1,18 @@
+<div class='container'>
+  <div class='content'>
+    <h1>Hello Motoko, meet Angular!</h1>
+    <div>
+      <h3>What is your name?</h3>
+    </div>
+  <div class="input-container">
+    <input type="text" class="name-input" (keyup.enter)="getResponse(username.value)" #username>
+    <button class="action-button" (click)="getResponse(username.value)">Get Response</button>
+  </div>
+  <div class="stats-container">
+    <h2>Reponse:</h2>
+    <h3>{{response}}</h3>
+    <h2>Round Trip Time:</h2>
+    <h3>{{duration}} ms</h3>
+  </div>
+  
+</div>
