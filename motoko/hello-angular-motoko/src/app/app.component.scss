@@ -1,0 +1,15 @@
+
+.container{
+    background-color: black;
+    color:white;
+    background-image: url('../assets/background.png');
+    height: 100%;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    .content{
+        padding-top: 300px;
+        font-family: Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+        font-size: 2em;
+    }
+}
