@@ -1,7 +1,7 @@
 ## Purpose
 This canister is created to demonstrate usage of Internet Computer's newest feature: HTTP Requests
 for Canisters, where canister can make remote HTTP calls. Currently, the feature is limited to
-access secure (HTTPS) remote services that are served by nodes with IPv6 addresses. Trying to
+access secure (HTTPS) remote services that are served by nodes with IPv6 addresses. Trying to access
 non-secure HTTP services or services with only IPv4 addresses will trigger Internet Computer errors.
 
 ## How to use the sample dapp
