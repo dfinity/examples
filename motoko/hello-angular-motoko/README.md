@@ -29,7 +29,7 @@ This is an example of a Motoko project with an Angular 14 frontend.
     ```
     Once the job completes, your application will be available at `http://localhost:4200`.
 
-    If you make any changes while in development mode, the project will recompile on both the Angular and motoko side.
+    If you make any changes while in development mode, the project will recompile on both the Angular and Motoko side.
 
 -----
 
