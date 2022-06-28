@@ -1,8 +1,8 @@
 {
   "motoko": {
-    "ic":"65yca-4yaaa-aaaak-qaqcq-cai"
+    "ic":"your-unique-canister-goes-here"
   },
   "www": {
-    "ic": "zcp5t-tqaaa-aaaaj-aijea-cai"
+    "ic": "another-unique-canister-goes-here"
   }
 }
