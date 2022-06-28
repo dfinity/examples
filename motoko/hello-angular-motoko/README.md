@@ -1,5 +1,5 @@
 # hello-angular-motoko
-This is an example of locally implementing and deploying the Internet Computer's motoko project (0.10.1) along side Angular 14.
+This is an example of a Motoko project with an Angular 14 frontend.
 
 -----------
 ## Getting started
