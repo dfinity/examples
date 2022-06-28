@@ -4,7 +4,7 @@ This is an example of a Motoko project with an Angular 14 frontend.
 -----------
 ## Getting started
 
-- [Install DFX](https://sdk.dfinity.org/docs/quickstart/local-quickstart.html). Please keep in mind the dfx cli currently only runs on Linux and Apple based PCs.
+- [Install DFX](https://internetcomputer.org/docs/current/developer-docs/quickstart/local-quickstart).
 - [Install Angular Globally](https://angular.io/guide/setup-local)
 - Install npm packages from the project root:
 
