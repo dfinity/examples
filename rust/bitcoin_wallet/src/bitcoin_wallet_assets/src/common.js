@@ -16,10 +16,16 @@ const init = ({ IDL }) => {
   return [];
 };
 
+function isLocalDFXNetwork() {
+  return process.env.DFX_NETWORK === "local" || process.env.DFX_NETWORK.startsWith("http___127_0_0_1_");
+}
+
+const port = process.env.DFX_NETWORK.startsWith("http___127_0_0_1_") ? process.env.DFX_NETWORK.replace("http___127_0_0_1_", "") : "8000";
+
 // Autofills the II Url to point to the correct canister.
 export const iiUrl =
-  (process.env.DFX_NETWORK === "local") ?
-    `http://localhost:8000/?canisterId=${process.env.II_CANISTER_ID}` : (
+  isLocalDFXNetwork() ?
+    `http://localhost:${port}/?canisterId=${process.env.II_CANISTER_ID}` : (
   (process.env.DFX_NETWORK === "ic") ?
     `https://${process.env.II_CANISTER_ID}.ic0.app` :
     `https://${process.env.II_CANISTER_ID}.dfinity.network`
@@ -48,7 +54,7 @@ export async function getWebApp() {
   const identity = authClient.getIdentity();
   // Using the identity obtained from the auth client, we can create an agent to interact with the IC.
   const agent = new HttpAgent({ identity });
-  if(process.env.DFX_NETWORK === "local")
+  if(isLocalDFXNetwork())
     await agent.fetchRootKey();
   // Using the interface description of our webapp, we create an actor that we use to call the service methods.
   return Actor.createActor(webapp_idl, {

@@ -20,8 +20,7 @@ While working on the Internet Computer does not require more configuration, work
 To deploy the development Internet Identity canister and the Bitcoin wallet canister locally.
 
 ```bash
-dfx deploy internet_identity --argument '(null)'
-dfx deploy bitcoin_wallet_assets
+dfx deploy
 ```
 
 To deploy the Bitcoin wallet canister on the Internet Computer.
