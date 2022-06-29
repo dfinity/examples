@@ -1,0 +1,18 @@
+type Timestamp = nat64;
+type Rate = float32;
+
+type TimeRange = record {
+    start: Timestamp; 
+    end: Timestamp;
+};
+
+type RatesMap = vec record { Timestamp; Rate; };
+
+type RatesWithInterval = record {
+    interval: nat64;
+    rates: RatesMap;
+}
+
+service : {
+    get_rates: (TimeRange) -> (RatesWithInterval);
+}

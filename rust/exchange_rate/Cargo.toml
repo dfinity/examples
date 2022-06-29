@@ -1,0 +1,16 @@
+[package]
+name = "exchange_rate"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[[bin]]
+name = "exchange_rate"
+path = "src/main.rs"
+
+[dependencies]
+ic-cdk = "0.5.0"
+ic-cdk-macros = "0.5.0"
+serde = "1.0.126"
+candid = "0.7.14"
+serde_json = "1.0.81"
