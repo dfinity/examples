@@ -1,0 +1,30 @@
+{
+  "canisters": {
+    "exchange_rate": {
+      "candid": "src/exchange_rate.did",
+      "package": "exchange_rate",
+      "type": "rust",
+      "wasm": "target/wasm32-unknown-unknown/release/exchange_rate.wasm"
+    },
+    "exchange_rate_assets": {
+      "dependencies": [
+        "exchange_rate"
+      ],
+      "frontend": {
+        "entrypoint": "src/frontend/public/index.html"
+      },
+      "source": [
+        "src/frontend/public"
+      ],
+      "type": "assets"
+    }
+  },
+  "dfx": "0.10.1",
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
+}
