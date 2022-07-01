@@ -1,14 +1,8 @@
 # hello-angular-motoko
 This is an example of a Motoko project with an Angular 14 frontend.
 
-<<<<<<< HEAD
 <a name="prerequesites"></a> 
 ## Prerequesites
-=======
------------
-## Getting started
-
->>>>>>> 66c0001e1dfaecc2af04f306770b65b08af22664
 - [Install DFX](https://internetcomputer.org/docs/current/developer-docs/quickstart/local-quickstart).
 - [Install Angular Globally](https://angular.io/guide/setup-local)
 - Install npm packages from the project root:
@@ -59,20 +53,16 @@ This is an example of a Motoko project with an Angular 14 frontend.
     # Deploys your canisters to the replica and generates your candid interface
     npm run init:dfx
     ```
-
------
-
-## Serving the Project Locally
-- You can use the following command:
+- Serve the project locally:
 
     ```bash
     # Starts the replica, running in the background
     # Serves Angular and dfx canisters locally with hot reloading
     npm run start
     ```
-    Once the job completes, your application will be available at `http://localhost:4200`.
+Once the job completes, your application will be available at `http://localhost:4200`.
 
-    If you make any changes while in development mode, the project will recompile on both the Angular and Motoko side.
+If you make any changes while in development mode, the project will recompile on both the Angular and Motoko side.
 
 -----
 
