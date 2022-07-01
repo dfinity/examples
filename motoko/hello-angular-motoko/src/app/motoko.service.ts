@@ -1,16 +1,23 @@
 import { Injectable } from '@angular/core';
-const ic_motoko = require('src/declarations/motoko').motoko;
+import { environment } from 'src/environments/environment';
+const motokoCreateActor = require('src/declarations/motoko').createActor;
 
 @Injectable({
   providedIn: 'root'
 })
 export class MotokoService {
+  private motokoActor = motokoCreateActor(environment.MOTOKO_CANISTER_ID, {
+    agentOptions: {
+        host: environment.MOTOKO_CANISTER_HOST
+    }
+  });
 
-  constructor() { }
-  public async greet(name:string){
-    return await ic_motoko.greet(name);
+  constructor() {}
+
+  public async greet(name:string): Promise<any>{
+    return await this.motokoActor.greet(name);
   }
-  public async test(){
-    return await ic_motoko.test();
+  public async test(): Promise<any>{
+    return await this.motokoActor.test();
   }
 }

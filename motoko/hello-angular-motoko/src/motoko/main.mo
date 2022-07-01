@@ -4,9 +4,9 @@ import Text "mo:base/Text";
 
 actor {
   public query func greet(name: Text) : async Text {
-    return "Hello, " # name # "! This is from src/motoko/main.mo";
+    return "Hello, " # name # "! This is greet() from src/motoko/main.mo";
   };
   public query func test() : async Text {
-    return "test from IC main";
+    return "test from main.mo";
   };
 };

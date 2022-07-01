@@ -2,8 +2,10 @@ const path = require("path");
 const webpack = require("webpack");
 
 const isDevelopment = process.env.NODE_ENV !== "production";
-
-let localCanisters, prodCanisters, canisters;
+const localCanisterHost = 'http://127.0.0.1:8000';
+const productionCanisterHost = 'https://ic0.app';
+const network = process.env.DFX_NETWORK || (process.env.NODE_ENV === "production" ? "ic" : "local");
+let localCanisters, prodCanisters, canisters, canisterHost;
 
 console.log("--- starting custom-webpack.config.js ---");
 
@@ -21,21 +23,23 @@ function initCanisterIds() {
     console.log("No production canister_ids.json found. Continuing with local");
   }
 
-  const network =
-    process.env.DFX_NETWORK ||
-    (process.env.NODE_ENV === "production" ? "ic" : "local");
-
   console.log("network = ",network );
 
-  canisters = network === "local" ? localCanisters : prodCanisters;
+  canisters = isDevelopment ? localCanisters : prodCanisters;
 
   for (const canister in canisters) {
-    process.env[canister.toUpperCase() + "_CANISTER_ID"] =
-      canisters[canister][network];
+    let currentCanster = canisters[canister][network];
+    process.env[canister.toUpperCase() + "_CANISTER_ID"] = currentCanster;
+    console.log('canister:', canister, currentCanster);
   }
+  
 }
 initCanisterIds();
 
+function initCanisterHost() {
+  canisterHost = isDevelopment ? localCanisterHost : productionCanisterHost;
+}
+initCanisterHost();
 //for @angular-builders/custom-webpack
 //just the Plugins and configs needed for the IC build process
 module.exports = {
@@ -43,7 +47,8 @@ module.exports = {
   plugins: [
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development',
-      MOTOKO_CANISTER_ID: canisters["motoko"]
+      MOTOKO_CANISTER_ID: canisters["motoko"],
+      MOTOKO_CANISTER_HOST: canisterHost
     }),
     new webpack.ProvidePlugin({
       Buffer: [require.resolve("buffer/"), "Buffer"],
