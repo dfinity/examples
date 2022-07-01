@@ -114,8 +114,11 @@ export default {
     injectProcessEnv({
       DFX_NETWORK,
       NODE_ENV: production ? 'production' : 'development',
-      INTERNET_IDENTITY_CANISTER_ID: canisterIds.internet_identity[DFX_NETWORK],
-      BACKEND_CANISTER_ID: canisterIds.bitcoin_wallet[DFX_NETWORK],
+      INTERNET_IDENTITY_ADDRESS: production
+        ? 'https://identity.ic0.app/#authorize'
+        : `http://${canisterIds.internet_identity['local']}.localhost:8000/#authorize`,
+      BACKEND_CANISTER_ID:
+        canisterIds.bitcoin_wallet[production ? 'ic' : 'local'],
     }),
     // In dev mode, call `npm run start` once
     // the bundle has been generated

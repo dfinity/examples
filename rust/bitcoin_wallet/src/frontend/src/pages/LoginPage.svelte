@@ -35,7 +35,7 @@
     >
   </div>
   <div class="mt-10 text-left text-sm text-gray-500 max-w-lg">
-    <strong>Disclaimer:</strong> This dapp is meant for demonstartion purposes only,
+    <strong>Disclaimer:</strong> This dapp is meant for demonstration purposes only,
     and is not suitable for holding real Bitcoin.
   </div>
   <div class="flex-1" />

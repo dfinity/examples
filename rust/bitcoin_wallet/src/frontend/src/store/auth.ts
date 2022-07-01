@@ -55,10 +55,7 @@ export function login() {
   if (currentAuth.state === 'anonymous' || currentAuth.state === 'error') {
     currentAuth.client.login({
       maxTimeToLive: BigInt(1800) * BigInt(1_000_000_000),
-      identityProvider:
-        process.env.DFX_NETWORK === 'ic'
-          ? 'https://identity.ic0.app/#authorize'
-          : `http://${process.env.INTERNET_IDENTITY_CANISTER_ID}.localhost:8000/#authorize`,
+      identityProvider: process.env.INTERNET_IDENTITY_ADDRESS,
       onSuccess: () => authenticate(currentAuth.client),
       onError: (e) => {
         addNotification({
