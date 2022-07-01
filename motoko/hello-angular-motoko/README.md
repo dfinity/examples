@@ -1,8 +1,14 @@
 # hello-angular-motoko
 This is an example of a Motoko project with an Angular 14 frontend.
 
+<<<<<<< HEAD
 <a name="prerequesites"></a> 
 ## Prerequesites
+=======
+-----------
+## Getting started
+
+>>>>>>> 66c0001e1dfaecc2af04f306770b65b08af22664
 - [Install DFX](https://internetcomputer.org/docs/current/developer-docs/quickstart/local-quickstart).
 - [Install Angular Globally](https://angular.io/guide/setup-local)
 - Install npm packages from the project root:
