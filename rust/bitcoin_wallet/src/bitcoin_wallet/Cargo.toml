@@ -10,7 +10,6 @@ crate-type = ["cdylib"]
 [dependencies]
 ic-cdk = "0.5"
 ic-cdk-macros = "0.5"
-ic-btc-types = { git = "https://github.com/dfinity/bitcoin-library" }
-ic-btc-library = { git = "https://github.com/dfinity/bitcoin-library" }
+ic-btc-library = { git = "https://github.com/dfinity/ic" }
 getrandom = { version = "0.2", features = ["custom"] }
-bitcoin = "0.27.1"
+bitcoin = "0.28.1"
