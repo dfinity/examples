@@ -1,4 +1,3 @@
-mod common;
 mod types;
 mod util;
 use bitcoin::{util::psbt::serialize::Serialize as _, Address};
@@ -61,7 +60,6 @@ async fn get_utxos(address: String) -> GetUtxosResponse {
 }
 
 /// Returns the 100 fee percentiles measured in millisatoshi/byte.
-///
 /// Percentiles are computed from the last 10,000 transactions (if available).
 ///
 /// Relies on the `bitcoin_get_current_fee_percentiles` endpoint.
@@ -77,6 +75,26 @@ async fn get_current_fee_percentiles() -> Vec<MillisatoshiPerByte> {
     .await;
 
     res.unwrap().0
+}
+
+/// Sends a (signed) transaction to the bitcoin network.
+///
+/// Relies on the `bitcoin_send_transaction` endpoint.
+/// See https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_send_transaction
+#[update]
+async fn send_transaction(transaction: Vec<u8>) {
+    let res: Result<(), _> = ic_cdk::api::call::call_with_payment(
+        Principal::management_canister(),
+        "bitcoin_send_transaction",
+        (SendTransactionRequest {
+            network: NETWORK,
+            transaction,
+        },),
+        1_000_000_000_000, // TODO: fix the fees
+    )
+    .await;
+
+    res.unwrap();
 }
 
 /// Returns the public key of this canister at derivation path [0].
@@ -115,25 +133,11 @@ async fn get_p2pkh_address() -> String {
 }
 
 #[update]
-async fn send_transaction(transaction: Vec<u8>) {
-    let res: Result<(), _> = ic_cdk::api::call::call_with_payment(
-        Principal::management_canister(),
-        "bitcoin_send_transaction",
-        (SendTransactionRequest {
-            network: NETWORK,
-            transaction,
-        },),
-        1_000_000_000_000,
-    )
-    .await;
-
-    res.unwrap();
-}
-
-#[update]
 pub async fn send(request: SendRequest) {
     let amount = request.amount_in_satoshi;
     let destination = request.destination_address;
+
+    // TODO: compute the fees from the fees api.
     let fees: u64 = 10_000;
 
     if amount <= fees {
@@ -152,7 +156,7 @@ pub async fn send(request: SendRequest) {
     // Fetch our UTXOs.
     let utxos = get_utxos(our_address.clone()).await.utxos;
 
-    let spending_transaction = crate::common::build_transaction(
+    let spending_transaction = crate::util::build_transaction(
         utxos,
         Address::from_str(&our_address).unwrap(),
         destination,
@@ -167,7 +171,7 @@ pub async fn send(request: SendRequest) {
     print(&format!("Transaction to sign: {}", hex::encode(tx_bytes)));
 
     // Sign transaction
-    let signed_transaction = crate::common::sign_transaction(
+    let signed_transaction = crate::util::sign_transaction(
         spending_transaction,
         Address::from_str(&our_address).unwrap(),
         get_public_key().await,
