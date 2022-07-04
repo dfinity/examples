@@ -5,10 +5,55 @@ const webapp_id = process.env.BITCOIN_WALLET_CANISTER_ID;
 
 // The interface of the Bitcoin wallet canister.
 const webapp_idl = ({ IDL }) => {
+
+const TransactionID = IDL.Text;
+const Satoshi = IDL.Nat64;
+const Millisatoshi = IDL.Nat64;
+const MillisatoshiPerByte = IDL.Nat64;
+
+const Network = IDL.Variant({
+    'Mainnet' : IDL.Null,
+    'Testnet' : IDL.Null,
+    'Regtest' : IDL.Null,
+});
+
+const AddressUsingPrimitives = IDL.Tuple(IDL.Text, Network);
+
+const OutPoint = IDL.Record({
+    txid : IDL.Vec(IDL.Nat8),
+    vout : IDL.Nat32,
+});
+
+const Utxo = IDL.Record({
+    outpoint : OutPoint,
+    value : Satoshi,
+    height : IDL.Nat32,
+});
+
+const TransactionInfo = IDL.Record({
+    id : TransactionID,
+    utxos_addresses : IDL.Vec(IDL.Tuple(AddressUsingPrimitives, IDL.Vec(Utxo))),
+    fee : Satoshi,
+    size : IDL.Nat32,
+    timestamp : IDL.Nat64,
+});
+
+const TransferError = IDL.Variant({
+    'InsufficientBalance' : IDL.Null,
+    'MinConfirmationsTooHigh' : IDL.Null,
+});
+
+const TransferResult = IDL.Variant({
+    'Ok' : TransactionInfo,
+    'Err' : TransferError,
+});
+
   return IDL.Service({
     whoami: IDL.Func([], [IDL.Principal], ["query"]),
     get_principal_address_str: IDL.Func([], [IDL.Text], ["update"]),
-    get_balance: IDL.Func([], [IDL.Nat64], ["update"])
+    get_balance: IDL.Func([], [Satoshi], ["update"]),
+    get_fees: IDL.Func([], [Millisatoshi, Millisatoshi, Millisatoshi], ["update"]),
+    transfer: IDL.Func([IDL.Text, Satoshi, MillisatoshiPerByte, IDL.Bool], [TransferResult], ["update"]),
   });
 };
 

@@ -1,5 +1,45 @@
+type Satoshi = nat64;
+type MillisatoshiPerByte = nat64;
+type TransactionID = text;
+
+type Network = variant {
+    Mainnet;
+    Testnet;
+    Regtest;
+};
+
+type AddressUsingPrimitives = record { text; Network };
+
+type OutPoint = record {
+    txid: blob;
+    vout: nat32;
+};
+
+type Utxo = record {
+    outpoint: OutPoint;
+    value: Satoshi;
+    height: nat32;
+};
+
+type TransactionInfo = record {
+    id: TransactionID;
+    utxos_addresses: vec record { AddressUsingPrimitives; vec Utxo };
+    fee: MillisatoshiPerByte;
+    size: nat32;
+    timestamp: nat64;
+};
+
+type TransferError = variant {
+    InsufficientBalance;
+    MinConfirmationsTooHigh;
+};
+
+type TransferResult = variant { Ok: TransactionInfo; Err: TransferError };
+
 service : {
     whoami: () -> (text) query;
     get_principal_address_str: () -> (text);
-    get_balance: () -> (nat64);
+    get_balance: () -> (Satoshi);
+    get_fees: () -> (MillisatoshiPerByte, MillisatoshiPerByte, MillisatoshiPerByte);
+    transfer: (text, Satoshi, MillisatoshiPerByte, bool) -> (TransferResult);
 }

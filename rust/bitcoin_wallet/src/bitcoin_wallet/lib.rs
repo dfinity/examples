@@ -1,16 +1,23 @@
 use bitcoin::Address;
-use ic_btc_library::{AddressType, BitcoinAgent, BitcoinCanister, BitcoinCanisterImpl, Satoshi, Network};
-use ic_cdk::{api::caller, export::Principal, trap};
+use ic_btc_library::{
+    get_current_fees_from_args, AddressType, BitcoinAgent, BitcoinCanister, BitcoinCanisterImpl,
+    Fee, Network, Satoshi, TransferError, TransactionInfo,
+};
+use ic_cdk::{api::caller, export::Principal, print, trap};
 use ic_cdk_macros::{query, update};
-use std::cell::RefCell;
+use std::{cell::RefCell, collections::HashMap, str::FromStr};
+
+const MIN_CONFIRMATIONS: u32 = 0;
+const NETWORK: Network = Network::Regtest;
+const ADDRESS_TYPE: &AddressType = &AddressType::P2pkh;
 
 thread_local! {
     // The Bitcoin wallet uses only a single Bitcoin agent to track all users' addresses.
     static BITCOIN_AGENT: RefCell<BitcoinAgent<BitcoinCanisterImpl>> =
         RefCell::new(BitcoinAgent::new(
-            BitcoinCanisterImpl::new(Network::Regtest),
-            &AddressType::P2pkh,
-			0
+            BitcoinCanisterImpl::new(NETWORK, ADDRESS_TYPE),
+            ADDRESS_TYPE,
+            MIN_CONFIRMATIONS
         ).unwrap());
 }
 
@@ -52,7 +59,50 @@ async fn get_balance() -> Satoshi {
     let principal_address = &get_principal_address().await;
     BITCOIN_AGENT
         .with(|bitcoin_agent| (*bitcoin_agent.borrow()).clone())
-        .get_balance(principal_address, 0)
+        .get_balance(principal_address, MIN_CONFIRMATIONS)
         .await
         .unwrap()
+}
+
+/// Returns 25th, 50th and 75th fees as percentiles in Satoshis/byte over the last 10,000 transactions.
+#[update]
+async fn get_fees() -> (Satoshi, Satoshi, Satoshi) {
+    let get_current_fees_args =
+        BITCOIN_AGENT.with(|bitcoin_agent| bitcoin_agent.borrow().get_current_fees_args());
+    let current_fees = get_current_fees_from_args(get_current_fees_args)
+        .await
+        .unwrap();
+    (current_fees[25], current_fees[50], current_fees[75])
+}
+
+/// Sends a transaction, transferring the specified Bitcoin amount to the provided address.
+#[update]
+async fn transfer(
+    address: String,
+    amount: Satoshi,
+    fee: Satoshi,
+    rbf: bool,
+) -> Result<TransactionInfo, TransferError> {
+    // pay attention not to use money of somebody else - don't create each time a BitcoinAgent otherwise we will always forget just spent UTXOs - before commiting, let say there is a single user
+    // or could accept that they share UTXOs
+    let principal_address = &get_principal_address().await;
+    let payouts = &HashMap::from([(Address::from_str(&address).unwrap(), amount)]);
+
+    let mut bitcoin_agent = BITCOIN_AGENT.with(|bitcoin_agent| bitcoin_agent.borrow().clone());
+    bitcoin_agent
+        .get_balance_update(principal_address)
+        .await
+        .unwrap();
+    let transfer_result = bitcoin_agent
+        .multi_transfer(payouts, principal_address, Fee::PerByte(fee), MIN_CONFIRMATIONS, rbf)
+        .await;
+    print(&format!(
+        "{:?} {:?} {:?} {}",
+        payouts,
+        Fee::PerByte(fee),
+        MIN_CONFIRMATIONS,
+        rbf
+    ));
+    BITCOIN_AGENT.with(|global_bitcoin_agent| global_bitcoin_agent.replace(bitcoin_agent));
+    transfer_result
 }
