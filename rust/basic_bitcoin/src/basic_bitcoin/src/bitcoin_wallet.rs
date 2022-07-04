@@ -163,10 +163,11 @@ pub async fn sign_transaction(
     public_key: Vec<u8>,
 ) -> Transaction {
     // Verify that the address is P2PKH. The signature algorithm below is specific to P2PKH.
-    match src_address.address_type() {
-        Some(AddressType::P2pkh) => {}
-        _ => panic!("This demo supports signing p2pkh addresses only."),
-    };
+    assert_eq!(
+        src_address.address_type(),
+        Some(AddressType::P2pkh),
+        "This example supports signing p2pkh addresses only."
+    );
 
     let txclone = transaction.clone();
 
