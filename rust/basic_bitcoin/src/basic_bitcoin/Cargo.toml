@@ -19,7 +19,3 @@ ic-cdk-macros = "0.5.1"
 ripemd = "0.1.1"
 serde = "1.0.132"
 sha2 = "0.10.2"
-tokio-test = "0.4.2"
-
-[dev-dependencies]
-#bitcoin = { version = "0.27.1", features = ["bitcoinconsensus", "rand"] }
