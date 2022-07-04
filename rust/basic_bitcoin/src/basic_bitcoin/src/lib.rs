@@ -13,16 +13,13 @@ use ic_cdk_macros::update;
 use std::str::FromStr;
 use types::*;
 
-// The bitcoin network to connect to.
-//
-// When developing locally this should be `Regtest`.
-// When deploying to the IC this should be `Testnet`.
-const NETWORK: Network = Network::Regtest;
-
 const DERIVATION_PATH: &[&[u8]] = &[&[0]];
 
-// Thin wrappers around the bitcoin API.
-use bitcoin_api::*;
+// Expose thin wrappers around the IC Bitcoin API.
+pub use bitcoin_api::get_balance;
+pub use bitcoin_api::get_current_fee_percentiles;
+pub use bitcoin_api::get_utxos;
+pub use bitcoin_api::send_transaction;
 
 /// Returns the P2PKH address of this canister at derivation path [0].
 #[update]
@@ -188,36 +185,8 @@ pub async fn sign_transaction(
 
         let signature = crate::ecdsa_api::sign_with_ecdsa(sighash.to_vec()).await;
 
-        let r: Vec<u8> = if signature[0] & 0x80 != 0 {
-            // r is negative. Prepend a zero byte.
-            let mut tmp = vec![0x00];
-            tmp.extend(signature[..32].to_vec());
-            tmp
-        } else {
-            // r is positive.
-            signature[..32].to_vec()
-        };
-
-        let s: Vec<u8> = if signature[32] & 0x80 != 0 {
-            // s is negative. Prepend a zero byte.
-            let mut tmp = vec![0x00];
-            tmp.extend(signature[32..].to_vec());
-            tmp
-        } else {
-            // s is positive.
-            signature[32..].to_vec()
-        };
-
         // Convert signature to DER.
-        let der_signature: Vec<u8> = vec![
-            vec![0x30, 4 + r.len() as u8 + s.len() as u8, 0x02, r.len() as u8],
-            r,
-            vec![0x02, s.len() as u8],
-            s,
-        ]
-        .into_iter()
-        .flatten()
-        .collect();
+        let der_signature = crate::util::sec1_to_der(signature);
 
         let mut sig_with_hashtype = der_signature;
         sig_with_hashtype.push(SIG_HASH_TYPE.as_u32() as u8);
