@@ -1,9 +1,10 @@
 use crate::types::*;
 use ic_cdk::{call, export::Principal};
 
+const KEY_NAME: &str = "test";
+
 /// Returns the ECDSA public key of this canister at the given derivation path.
-pub async fn ecdsa_public_key(derivation_path: &[&[u8]]) -> Vec<u8> {
-    // TODO: pass in the full vec.
+pub async fn ecdsa_public_key(derivation_path: Vec<Vec<u8>>) -> Vec<u8> {
     // TODO: Replace this principal with the management canister when it's available.
     //       For now, call a canister that provides a mock implementation.
     let ecdsa_canister_id = Principal::from_text("ryjl3-tyaaa-aaaaa-aaaba-cai").unwrap();
@@ -15,14 +16,10 @@ pub async fn ecdsa_public_key(derivation_path: &[&[u8]]) -> Vec<u8> {
         "ecdsa_public_key",
         (ECDSAPublicKey {
             canister_id: None,
-            derivation_path: derivation_path
-                .to_vec()
-                .iter()
-                .map(|e| e.to_vec())
-                .collect(),
+            derivation_path,
             key_id: EcdsaKeyId {
                 curve: EcdsaCurve::Secp256k1,
-                name: String::from("test"),
+                name: String::from(KEY_NAME),
             },
         },),
     )
@@ -46,7 +43,7 @@ pub async fn sign_with_ecdsa(message_hash: Vec<u8>) -> Vec<u8> {
             derivation_path: vec![vec![0]],
             key_id: EcdsaKeyId {
                 curve: EcdsaCurve::Secp256k1,
-                name: String::from("test"),
+                name: String::from(KEY_NAME),
             },
         },),
     )

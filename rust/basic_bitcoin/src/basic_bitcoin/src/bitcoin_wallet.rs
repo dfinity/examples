@@ -1,68 +1,88 @@
-use crate::types::*;
+//! A demo of a very bare-bones bitcoin "wallet".
+//!
+//! The wallet here showcases how bitcoin addresses can be be computed
+//! and how bitcoin transactions can be signed. It is missing several
+//! pieces that any production-grade wallet would have, including:
+//!
+//! * Support for address types that aren't P2PKH.
+//! * Caching spent UTXOs so that they are not reused in future transactions.
+//! * Option to set the fee.
+use crate::util::sha256;
 use crate::{bitcoin_api, ecdsa_api};
 use bitcoin::util::psbt::serialize::Serialize as _;
 use bitcoin::{
     blockdata::script::Builder, hashes::Hash, Address, AddressType, OutPoint, Script, SigHashType,
     Transaction, TxIn, TxOut, Txid,
 };
-use ic_btc_types::{Network, Utxo};
+use ic_btc_types::{Network, Utxo, Satoshi};
 use ic_cdk::{print, trap};
-use ic_cdk_macros::update;
+use sha2::Digest;
 use std::str::FromStr;
 
-const DERIVATION_PATH: &[&[u8]] = &[&[0]];
-
-/// Returns the P2PKH address of this canister at derivation path [0].
-#[update]
-async fn get_p2pkh_address() -> String {
-    // Fetch our public key.
-    let public_key = ecdsa_api::ecdsa_public_key(DERIVATION_PATH).await;
+/// Returns the P2PKH address of this canister at the given derivation path.
+pub async fn get_p2pkh_address(network: Network, derivation_path: Vec<Vec<u8>>) -> String {
+    // Fetch the public key of the given derivation path.
+    let public_key = ecdsa_api::ecdsa_public_key(derivation_path).await;
 
     // Compute the P2PKH address from our public key.
-    crate::util::p2pkh_address_from_public_key(public_key)
+    // sha256 + ripmd160
+    let mut hasher = ripemd::Ripemd160::new();
+    hasher.update(sha256(public_key));
+    let result = hasher.finalize();
+
+    let prefix = match network {
+        Network::Testnet | Network::Regtest => 0x6f,
+        Network::Mainnet => 0x00,
+    };
+    let mut data_with_prefix = vec![prefix];
+    data_with_prefix.extend(result);
+
+    let checksum = &sha256(sha256(data_with_prefix.clone()))[..4];
+
+    let mut full_address = data_with_prefix;
+    full_address.extend(checksum);
+
+    bs58::encode(full_address).into_string()
 }
 
-#[update]
-pub async fn send(request: SendRequest) {
-    let amount = request.amount_in_satoshi;
-    let destination_address = request.destination_address;
-
+pub async fn send(
+    network: Network,
+    derivation_path: Vec<Vec<u8>>,
+    dst_address: String,
+    amount: Satoshi,
+) {
     let fee_percentiles = bitcoin_api::get_current_fee_percentiles().await;
 
-    // Choose the 75th percentiles for sending fees.
-    let fees = fee_percentiles[74];
+    // Choose the 75th percentile for sending fees so that the transaction
+    // is mined relatively quickly.
+    let fee = fee_percentiles[74];
 
-    print!("Fee: {}", fees);
+    print!("Fee: {}", fee);
 
-    if amount <= fees {
+    if amount <= fee {
         trap(&format!(
             "Amount must be higher than the fee of {} satoshis",
-            fees,
+            fee,
         ));
     }
 
-    let our_address = get_p2pkh_address().await;
+    let our_address = get_p2pkh_address(network, derivation_path).await;
 
     // Fetch our UTXOs.
     let utxos = bitcoin_api::get_utxos(our_address.clone()).await.utxos;
 
-    let spending_transaction = build_transaction(
-        utxos,
-        our_address.clone(),
-        destination_address,
-        amount,
-        fees,
-    )
-    .expect("Error building transaction.");
+    let spending_transaction =
+        build_transaction(utxos, our_address.clone(), dst_address, amount, fee)
+            .expect("Error building transaction.");
 
     let tx_bytes = spending_transaction.serialize();
     print(&format!("Transaction to sign: {}", hex::encode(tx_bytes)));
 
-    // Sign transaction
+    // Sign the transaction.
     let signed_transaction = sign_transaction(
         spending_transaction,
-        Address::from_str(&our_address).unwrap(),
-        crate::ecdsa_api::ecdsa_public_key(DERIVATION_PATH).await,
+        our_address,
+        crate::ecdsa_api::ecdsa_public_key(vec![vec![0]]).await, // FIXME
     )
     .await;
 
@@ -81,17 +101,17 @@ pub async fn send(request: SendRequest) {
 const SIG_HASH_TYPE: SigHashType = SigHashType::All;
 
 // Builds a transaction that sends the given `amount` of satoshis to the `destination` address.
-pub fn build_transaction(
+fn build_transaction(
     utxos: Vec<Utxo>,
     source: String,
     destination: String,
     amount: u64,
-    fees: u64,
+    fee: u64,
 ) -> Result<Transaction, String> {
     // Assume that any amount below this threshold is dust.
     const DUST_THRESHOLD: u64 = 10_000;
 
-    let source = Address::from_str(&source).expect("Invalid destination address.");
+    let source = Address::from_str(&source).expect("Invalid source address.");
     let destination = Address::from_str(&destination).expect("Invalid destination address.");
 
     // Select which UTXOs to spend. For now, we naively spend the first available UTXOs,
@@ -101,7 +121,7 @@ pub fn build_transaction(
     for utxo in utxos.into_iter().rev() {
         total_spent += utxo.value;
         utxos_to_spend.push(utxo);
-        if total_spent >= amount + fees {
+        if total_spent >= amount + fee {
             // We have enough inputs to cover the amount we want to spend.
             break;
         }
@@ -135,7 +155,7 @@ pub fn build_transaction(
         value: amount,
     }];
 
-    let remaining_amount = total_spent - amount - fees;
+    let remaining_amount = total_spent - amount - fee;
 
     if remaining_amount >= DUST_THRESHOLD {
         outputs.push(TxOut {
@@ -157,11 +177,13 @@ pub fn build_transaction(
 /// Constraints:
 /// * All the inputs are referencing outpoints that are owned by `src_address`.
 /// * `src_address` is a P2PKH address.
-pub async fn sign_transaction(
+async fn sign_transaction(
     mut transaction: Transaction,
-    src_address: Address,
+    src_address: String,
     public_key: Vec<u8>,
 ) -> Transaction {
+    let src_address = Address::from_str(&src_address).expect("Invalid source address.");
+
     // Verify that the address is P2PKH. The signature algorithm below is specific to P2PKH.
     assert_eq!(
         src_address.address_type(),
