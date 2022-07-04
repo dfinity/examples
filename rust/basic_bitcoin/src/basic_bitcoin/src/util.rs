@@ -1,17 +1,10 @@
-use sha2::Digest;
-use crate::types::*;
 use bitcoin::{
-    blockdata::script::Builder,
-    hashes::Hash,
-    Address, AddressType, OutPoint, Script, SigHashType, Transaction, TxIn,
-    TxOut, Txid,
+    blockdata::script::Builder, hashes::Hash, Address, AddressType, OutPoint, Script, SigHashType,
+    Transaction, TxIn, TxOut, Txid,
 };
 use ic_btc_types::Utxo;
-use ic_cdk::{
-    call,
-    export::{Principal},
-    print,
-};
+use ic_cdk::print;
+use sha2::Digest;
 
 pub fn p2pkh_address_from_public_key(public_key: Vec<u8>) -> String {
     // sha256 + ripmd160
@@ -132,24 +125,9 @@ pub async fn sign_transaction(
     for (index, input) in transaction.input.iter_mut().enumerate() {
         let sighash =
             txclone.signature_hash(index, &src_address.script_pubkey(), SIG_HASH_TYPE.as_u32());
-        let ecdsa_canister_id = Principal::from_text("r7inp-6aaaa-aaaaa-aaabq-cai").unwrap();
 
-        let res: (SignWithECDSAReply,) = call(
-            ecdsa_canister_id,
-            "sign_with_ecdsa",
-            (crate::SignWithECDSA {
-                message_hash: sighash.to_vec(),
-                derivation_path: vec![vec![0]],
-                key_id: EcdsaKeyId {
-                    curve: EcdsaCurve::Secp256k1,
-                    name: String::from("test"),
-                },
-            },),
-        )
-        .await
-        .unwrap();
+        let signature = crate::ecdsa::sign_with_ecdsa(sighash.to_vec()).await;
 
-        let signature = res.0.signature;
         let r: Vec<u8> = if signature[0] & 0x80 != 0 {
             // r is negative. Prepend a zero byte.
             let mut tmp = vec![0x00];

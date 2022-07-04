@@ -1,3 +1,4 @@
+mod ecdsa;
 mod types;
 mod util;
 use bitcoin::{util::psbt::serialize::Serialize as _, Address};
@@ -5,7 +6,7 @@ use ic_btc_types::{
     GetBalanceRequest, GetCurrentFeePercentilesRequest, GetUtxosRequest, GetUtxosResponse,
     MillisatoshiPerByte, Network, SendTransactionRequest,
 };
-use ic_cdk::{api::call::call_with_payment, call, export::Principal, print, trap};
+use ic_cdk::{api::call::call_with_payment, export::Principal, print, trap};
 use ic_cdk_macros::update;
 use std::str::FromStr;
 use types::*;
@@ -16,6 +17,8 @@ const GET_CURRENT_FEE_PERCENTILES_FEE: u64 = 100_000_000;
 
 // TODO: should this be an env variable?
 const NETWORK: Network = Network::Regtest;
+
+const DERIVATION_PATH: u8 = 0;
 
 /// Returns the balance of the given bitcoin address.
 ///
@@ -97,36 +100,11 @@ async fn send_transaction(transaction: Vec<u8>) {
     res.unwrap();
 }
 
-/// Returns the public key of this canister at derivation path [0].
-#[update]
-async fn get_public_key() -> Vec<u8> {
-    let ecdsa_canister_id = Principal::from_text("r7inp-6aaaa-aaaaa-aaabq-cai").unwrap();
-
-    // Retrieve the public key of this canister at derivation path [0]
-    // from the ECDSA API.
-    let res: (ECDSAPublicKeyReply,) = call(
-        ecdsa_canister_id,
-        "ecdsa_public_key",
-        (ECDSAPublicKey {
-            canister_id: None,
-            derivation_path: vec![vec![0]],
-            key_id: EcdsaKeyId {
-                curve: EcdsaCurve::Secp256k1,
-                name: String::from("test"),
-            },
-        },),
-    )
-    .await
-    .unwrap();
-
-    res.0.public_key
-}
-
 /// Returns the P2PKH address of this canister at derivation path [0].
 #[update]
 async fn get_p2pkh_address() -> String {
     // Fetch our public key.
-    let public_key = get_public_key().await;
+    let public_key = ecdsa::ecdsa_public_key(DERIVATION_PATH).await;
 
     // Compute the P2PKH address from our public key.
     crate::util::p2pkh_address_from_public_key(public_key)
@@ -174,7 +152,7 @@ pub async fn send(request: SendRequest) {
     let signed_transaction = crate::util::sign_transaction(
         spending_transaction,
         Address::from_str(&our_address).unwrap(),
-        get_public_key().await,
+        ecdsa::ecdsa_public_key(DERIVATION_PATH).await,
     )
     .await;
 
