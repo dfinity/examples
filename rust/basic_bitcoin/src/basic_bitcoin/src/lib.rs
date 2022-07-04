@@ -2,7 +2,6 @@ mod bitcoin_api;
 mod bitcoin_wallet;
 mod ecdsa_api;
 mod types;
-mod util;
 
 use ic_btc_types::{Network, GetUtxosResponse, MillisatoshiPerByte};
 use ic_cdk_macros::update;
@@ -43,7 +42,6 @@ pub async fn get_current_fee_percentiles() -> Vec<MillisatoshiPerByte> {
 pub async fn send_transaction(transaction: Vec<u8>) {
     bitcoin_api::send_transaction(NETWORK, transaction).await
 }
-
 
 /// Returns the P2PKH address of this canister at a specific derivation path.
 #[update]

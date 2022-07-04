@@ -7,14 +7,13 @@
 //! * Support for address types that aren't P2PKH.
 //! * Caching spent UTXOs so that they are not reused in future transactions.
 //! * Option to set the fee.
-use crate::util::sha256;
 use crate::{bitcoin_api, ecdsa_api};
 use bitcoin::util::psbt::serialize::Serialize as _;
 use bitcoin::{
     blockdata::script::Builder, hashes::Hash, Address, AddressType, OutPoint, Script, SigHashType,
     Transaction, TxIn, TxOut, Txid,
 };
-use ic_btc_types::{Network, Utxo, Satoshi};
+use ic_btc_types::{Network, Satoshi, Utxo};
 use ic_cdk::{print, trap};
 use sha2::Digest;
 use std::str::FromStr;
@@ -25,26 +24,31 @@ pub async fn get_p2pkh_address(network: Network, derivation_path: Vec<Vec<u8>>) 
     let public_key = ecdsa_api::ecdsa_public_key(derivation_path).await;
 
     // Compute the P2PKH address from our public key.
-    // sha256 + ripmd160
-    let mut hasher = ripemd::Ripemd160::new();
-    hasher.update(sha256(public_key));
-    let result = hasher.finalize();
+    {
+        // sha256 + ripmd160
+        let mut hasher = ripemd::Ripemd160::new();
+        hasher.update(sha256(public_key));
+        let result = hasher.finalize();
 
-    let prefix = match network {
-        Network::Testnet | Network::Regtest => 0x6f,
-        Network::Mainnet => 0x00,
-    };
-    let mut data_with_prefix = vec![prefix];
-    data_with_prefix.extend(result);
+        let prefix = match network {
+            Network::Testnet | Network::Regtest => 0x6f,
+            Network::Mainnet => 0x00,
+        };
+        let mut data_with_prefix = vec![prefix];
+        data_with_prefix.extend(result);
 
-    let checksum = &sha256(sha256(data_with_prefix.clone()))[..4];
+        let checksum = &sha256(sha256(data_with_prefix.clone()))[..4];
 
-    let mut full_address = data_with_prefix;
-    full_address.extend(checksum);
+        let mut full_address = data_with_prefix;
+        full_address.extend(checksum);
 
-    bs58::encode(full_address).into_string()
+        bs58::encode(full_address).into_string()
+    }
 }
 
+/// Sends a transaction to the network that transfers the given amount to the
+/// given destination, where the source of the funds is the canister itself
+/// at the given derivation path.
 pub async fn send(
     network: Network,
     derivation_path: Vec<Vec<u8>>,
@@ -66,10 +70,12 @@ pub async fn send(
         ));
     }
 
-    let our_address = get_p2pkh_address(network, derivation_path).await;
+    let our_address = get_p2pkh_address(network, derivation_path.clone()).await;
 
     // Fetch our UTXOs.
-    let utxos = bitcoin_api::get_utxos(network, our_address.clone()).await.utxos;
+    let utxos = bitcoin_api::get_utxos(network, our_address.clone())
+        .await
+        .utxos;
 
     let spending_transaction =
         build_transaction(utxos, our_address.clone(), dst_address, amount, fee)
@@ -79,12 +85,8 @@ pub async fn send(
     print(&format!("Transaction to sign: {}", hex::encode(tx_bytes)));
 
     // Sign the transaction.
-    let signed_transaction = sign_transaction(
-        spending_transaction,
-        our_address,
-        crate::ecdsa_api::ecdsa_public_key(vec![vec![0]]).await, // FIXME
-    )
-    .await;
+    let signed_transaction =
+        sign_transaction(spending_transaction, our_address, derivation_path).await;
 
     let signed_transaction_bytes = signed_transaction.serialize();
     print(&format!(
@@ -180,7 +182,7 @@ fn build_transaction(
 async fn sign_transaction(
     mut transaction: Transaction,
     src_address: String,
-    public_key: Vec<u8>,
+    derivation_path: Vec<Vec<u8>>,
 ) -> Transaction {
     let src_address = Address::from_str(&src_address).expect("Invalid source address.");
 
@@ -191,16 +193,18 @@ async fn sign_transaction(
         "This example supports signing p2pkh addresses only."
     );
 
-    let txclone = transaction.clone();
+    let public_key = ecdsa_api::ecdsa_public_key(derivation_path.clone()).await;
 
+    let txclone = transaction.clone();
     for (index, input) in transaction.input.iter_mut().enumerate() {
         let sighash =
             txclone.signature_hash(index, &src_address.script_pubkey(), SIG_HASH_TYPE.as_u32());
 
-        let signature = crate::ecdsa_api::sign_with_ecdsa(sighash.to_vec()).await;
+        let signature =
+            crate::ecdsa_api::sign_with_ecdsa(derivation_path.clone(), sighash.to_vec()).await;
 
         // Convert signature to DER.
-        let der_signature = crate::util::sec1_to_der(signature);
+        let der_signature = sec1_to_der(signature);
 
         let mut sig_with_hashtype = der_signature;
         sig_with_hashtype.push(SIG_HASH_TYPE.as_u32() as u8);
@@ -212,4 +216,44 @@ async fn sign_transaction(
     }
 
     transaction
+}
+
+fn sha256(data: Vec<u8>) -> Vec<u8> {
+    let mut hasher = sha2::Sha256::new();
+    hasher.update(data);
+    hasher.finalize().to_vec()
+}
+
+// Converts a SEC1 ECDSA signature to the DER format.
+fn sec1_to_der(sec1_signature: Vec<u8>) -> Vec<u8> {
+    let r: Vec<u8> = if sec1_signature[0] & 0x80 != 0 {
+        // r is negative. Prepend a zero byte.
+        let mut tmp = vec![0x00];
+        tmp.extend(sec1_signature[..32].to_vec());
+        tmp
+    } else {
+        // r is positive.
+        sec1_signature[..32].to_vec()
+    };
+
+    let s: Vec<u8> = if sec1_signature[32] & 0x80 != 0 {
+        // s is negative. Prepend a zero byte.
+        let mut tmp = vec![0x00];
+        tmp.extend(sec1_signature[32..].to_vec());
+        tmp
+    } else {
+        // s is positive.
+        sec1_signature[32..].to_vec()
+    };
+
+    // Convert signature to DER.
+    vec![
+        vec![0x30, 4 + r.len() as u8 + s.len() as u8, 0x02, r.len() as u8],
+        r,
+        vec![0x02, s.len() as u8],
+        s,
+    ]
+    .into_iter()
+    .flatten()
+    .collect()
 }
