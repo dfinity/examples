@@ -18,6 +18,8 @@ use ic_cdk::{print, trap};
 use sha2::Digest;
 use std::str::FromStr;
 
+const SIG_HASH_TYPE: SigHashType = SigHashType::All;
+
 /// Returns the P2PKH address of this canister at the given derivation path.
 pub async fn get_p2pkh_address(network: Network, derivation_path: Vec<Vec<u8>>) -> String {
     // Fetch the public key of the given derivation path.
@@ -55,6 +57,7 @@ pub async fn send(
     dst_address: String,
     amount: Satoshi,
 ) {
+    // Get fee percentiles from previous transactions to estimate our own fee.
     let fee_percentiles = bitcoin_api::get_current_fee_percentiles(network).await;
 
     // Choose the 75th percentile for sending fees so that the transaction
@@ -70,23 +73,23 @@ pub async fn send(
         ));
     }
 
-    let our_address = get_p2pkh_address(network, derivation_path.clone()).await;
+    let src_address = get_p2pkh_address(network, derivation_path.clone()).await;
 
     // Fetch our UTXOs.
-    let utxos = bitcoin_api::get_utxos(network, our_address.clone())
+    let utxos = bitcoin_api::get_utxos(network, src_address.clone())
         .await
         .utxos;
 
-    let spending_transaction =
-        build_transaction(utxos, our_address.clone(), dst_address, amount, fee)
+    let transaction =
+        build_transaction(utxos, src_address.clone(), dst_address, amount, fee)
             .expect("Error building transaction.");
 
-    let tx_bytes = spending_transaction.serialize();
+    let tx_bytes = transaction.serialize();
     print(&format!("Transaction to sign: {}", hex::encode(tx_bytes)));
 
     // Sign the transaction.
     let signed_transaction =
-        sign_transaction(spending_transaction, our_address, derivation_path).await;
+        sign_transaction(transaction, src_address, derivation_path).await;
 
     let signed_transaction_bytes = signed_transaction.serialize();
     print(&format!(
@@ -98,9 +101,6 @@ pub async fn send(
     bitcoin_api::send_transaction(network, signed_transaction_bytes).await;
     print("Done");
 }
-
-// The signature hash type that is always used.
-const SIG_HASH_TYPE: SigHashType = SigHashType::All;
 
 // Builds a transaction that sends the given `amount` of satoshis to the `destination` address.
 fn build_transaction(
