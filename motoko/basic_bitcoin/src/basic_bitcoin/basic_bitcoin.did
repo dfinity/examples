@@ -1,0 +1,39 @@
+type satoshi = nat64;
+
+type bitcoin_network = variant {
+  mainnet;
+  testnet;
+};
+
+type bitcoin_address = text;
+
+type block_hash = blob;
+
+type outpoint = record {
+  txid : blob;
+  vout : nat32
+};
+
+type utxo = record {
+  outpoint: outpoint;
+  value: satoshi;
+  height: nat32;
+};
+
+type get_utxos_response = record {
+  utxos: vec utxo;
+  tip_block_hash: block_hash;
+  tip_height: nat32;
+  next_page: opt blob;
+};
+
+service : {
+    "get_p2pkh_address": () -> (bitcoin_address);
+    "get_balance": (address: text) -> (satoshi);
+    "get_utxos": (bitcoin_address) -> (get_utxos_response);
+    "get_current_fee_percentiles": () -> (vec nat64);
+    "send": (record {
+      destination_address: text;
+      amount_in_satoshi: nat64;
+    }) -> ();
+}
