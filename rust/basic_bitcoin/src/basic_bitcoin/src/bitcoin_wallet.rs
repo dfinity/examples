@@ -25,7 +25,7 @@ async fn get_p2pkh_address() -> String {
 #[update]
 pub async fn send(request: SendRequest) {
     let amount = request.amount_in_satoshi;
-    let destination = request.destination_address;
+    let destination_address = request.destination_address;
 
     let fee_percentiles = bitcoin_api::get_current_fee_percentiles().await;
 
@@ -41,28 +41,19 @@ pub async fn send(request: SendRequest) {
         ));
     }
 
-    let destination = match Address::from_str(&destination) {
-        Ok(destination) => destination,
-        Err(_) => trap("Invalid destination address"),
-    };
-
     let our_address = get_p2pkh_address().await;
-
-    print(&format!("BTC address: {}", our_address));
 
     // Fetch our UTXOs.
     let utxos = bitcoin_api::get_utxos(our_address.clone()).await.utxos;
 
     let spending_transaction = build_transaction(
         utxos,
-        Address::from_str(&our_address).unwrap(),
-        destination,
+        our_address.clone(),
+        destination_address,
         amount,
         fees,
     )
-    .unwrap_or_else(|err| {
-        trap(&format!("Error building transaction: {}", err));
-    });
+    .expect("Error building transaction.");
 
     let tx_bytes = spending_transaction.serialize();
     print(&format!("Transaction to sign: {}", hex::encode(tx_bytes)));
@@ -81,8 +72,7 @@ pub async fn send(request: SendRequest) {
         hex::encode(signed_transaction_bytes.clone())
     ));
 
-    print("Sending transaction");
-
+    print("Sending transaction...");
     bitcoin_api::send_transaction(signed_transaction_bytes).await;
     print("Done");
 }
@@ -93,13 +83,16 @@ const SIG_HASH_TYPE: SigHashType = SigHashType::All;
 // Builds a transaction that sends the given `amount` of satoshis to the `destination` address.
 pub fn build_transaction(
     utxos: Vec<Utxo>,
-    source: Address,
-    destination: Address,
+    source: String,
+    destination: String,
     amount: u64,
     fees: u64,
 ) -> Result<Transaction, String> {
     // Assume that any amount below this threshold is dust.
     const DUST_THRESHOLD: u64 = 10_000;
+
+    let source = Address::from_str(&source).expect("Invalid destination address.");
+    let destination = Address::from_str(&destination).expect("Invalid destination address.");
 
     // Select which UTXOs to spend. For now, we naively spend the first available UTXOs,
     // even if they were previously spent in a transaction.

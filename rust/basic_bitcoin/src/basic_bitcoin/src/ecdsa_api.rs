@@ -41,7 +41,7 @@ pub async fn sign_with_ecdsa(message_hash: Vec<u8>) -> Vec<u8> {
     let res: (SignWithECDSAReply,) = call(
         ecdsa_canister_id,
         "sign_with_ecdsa",
-        (crate::SignWithECDSA {
+        (SignWithECDSA {
             message_hash,
             derivation_path: vec![vec![0]],
             key_id: EcdsaKeyId {
