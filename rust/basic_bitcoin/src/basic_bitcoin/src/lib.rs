@@ -3,25 +3,89 @@ mod types;
 mod util;
 use bitcoin::{util::psbt::serialize::Serialize as _, Address};
 use ic_btc_types::{
-    GetBalanceRequest, GetUtxosRequest, GetUtxosResponse, Network, SendTransactionRequest,
+    GetBalanceRequest, GetCurrentFeePercentilesRequest, GetUtxosRequest, GetUtxosResponse,
+    MillisatoshiPerByte, Network, SendTransactionRequest,
 };
-use ic_cdk::{api::call::call_with_payment, call, export::Principal, print, trap, export::candid::{CandidType, Deserialize}};
+use ic_cdk::{api::call::call_with_payment, call, export::Principal, print, trap};
 use ic_cdk_macros::update;
 use std::str::FromStr;
 use types::*;
 
 const GET_BALANCE_COST_CYCLES: u64 = 100_000_000;
 const GET_UTXOS_COST_CYCLES: u64 = 100_000_000;
+const GET_CURRENT_FEE_PERCENTILES_FEE: u64 = 100_000_000;
 
 // TODO: should this be an env variable?
 const NETWORK: Network = Network::Regtest;
+
+/// Returns the balance of the given bitcoin address.
+///
+/// Relies on the `bitcoin_get_balance` endpoint.
+/// See https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_balance
+#[update]
+async fn get_balance(address: String) -> u64 {
+    let balance_res: Result<(u64,), _> = call_with_payment(
+        Principal::management_canister(),
+        "bitcoin_get_balance",
+        (GetBalanceRequest {
+            address,
+            network: NETWORK,
+            min_confirmations: None,
+        },),
+        GET_BALANCE_COST_CYCLES,
+    )
+    .await;
+
+    balance_res.unwrap().0
+}
+
+/// Returns the UTXOs of the given bitcoin address.
+///
+/// Relies on the `bitcoin_get_utxos` endpoint.
+/// See https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_utxos
+#[update]
+async fn get_utxos(address: String) -> GetUtxosResponse {
+    let utxos_res: Result<(GetUtxosResponse,), _> = call_with_payment(
+        Principal::management_canister(),
+        "bitcoin_get_utxos",
+        (GetUtxosRequest {
+            address,
+            network: NETWORK,
+            filter: None,
+        },),
+        GET_UTXOS_COST_CYCLES,
+    )
+    .await;
+
+    utxos_res.unwrap().0
+}
+
+/// Returns the 100 fee percentiles measured in millisatoshi/byte.
+///
+/// Percentiles are computed from the last 10,000 transactions (if available).
+///
+/// Relies on the `bitcoin_get_current_fee_percentiles` endpoint.
+/// See https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_current_fee_percentiles
+#[update]
+async fn get_current_fee_percentiles() -> Vec<MillisatoshiPerByte> {
+    let res: Result<(Vec<MillisatoshiPerByte>,), _> = call_with_payment(
+        Principal::management_canister(),
+        "bitcoin_get_current_fee_percentiles",
+        (GetCurrentFeePercentilesRequest { network: NETWORK },),
+        GET_CURRENT_FEE_PERCENTILES_FEE,
+    )
+    .await;
+
+    res.unwrap().0
+}
 
 /// Returns the public key of this canister at derivation path [0].
 #[update]
 async fn get_public_key() -> Vec<u8> {
     let ecdsa_canister_id = Principal::from_text("r7inp-6aaaa-aaaaa-aaabq-cai").unwrap();
 
-    #[allow(clippy::type_complexity)]
+    // Retrieve the public key of this canister at derivation path [0]
+    // from the ECDSA API.
     let res: (ECDSAPublicKeyReply,) = call(
         ecdsa_canister_id,
         "ecdsa_public_key",
@@ -43,52 +107,11 @@ async fn get_public_key() -> Vec<u8> {
 /// Returns the P2PKH address of this canister at derivation path [0].
 #[update]
 async fn get_p2pkh_address() -> String {
+    // Fetch our public key.
     let public_key = get_public_key().await;
+
+    // Compute the P2PKH address from our public key.
     crate::util::p2pkh_address_from_public_key(public_key)
-}
-
-/// Returns the balance of the given bitcoin address.
-#[update]
-async fn get_balance(address: String) -> u64 {
-    // A call to the `bitcoin_get_balance`, which retrieves the balance of a
-    // bitcoin address.
-    //
-    // https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_balance
-    let balance_res: Result<(u64,), _> = call_with_payment(
-        Principal::management_canister(),
-        "bitcoin_get_balance",
-        (GetBalanceRequest {
-            address,
-            network: NETWORK,
-            min_confirmations: None,
-        },),
-        GET_BALANCE_COST_CYCLES,
-    )
-    .await;
-
-    balance_res.unwrap().0
-}
-
-/// Returns the UTXOs of the given bitcoin address.
-#[update]
-async fn get_utxos(address: String) -> GetUtxosResponse {
-    // A call to the `bitcoin_get_utxos`, which retrieves the UTXOs of a
-    // bitcoin address.
-    //
-    // https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_utxos
-    let utxos_res: Result<(GetUtxosResponse,), _> = call_with_payment(
-        Principal::management_canister(),
-        "bitcoin_get_utxos",
-        (GetUtxosRequest {
-            address,
-            network: NETWORK,
-            filter: None,
-        },),
-        GET_UTXOS_COST_CYCLES,
-    )
-    .await;
-
-    utxos_res.unwrap().0
 }
 
 #[update]
@@ -105,12 +128,6 @@ async fn send_transaction(transaction: Vec<u8>) {
     .await;
 
     res.unwrap();
-}
-
-#[derive(CandidType, Deserialize)]
-pub struct SendRequest {
-    destination_address: String,
-    amount_in_satoshi: u64
 }
 
 #[update]

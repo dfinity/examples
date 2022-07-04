@@ -421,7 +421,7 @@ checksum = "7f24254aa9a54b5c858eaee2f5bccdb46aaf0e486a595ed5fd8f86ba55232a70"
 [[package]]
 name = "ic-btc-types"
 version = "0.1.0"
-source = "git+https://github.com/dfinity/ic?rev=cf2ad26ab0f54beb36ac902412e863e46929626a#cf2ad26ab0f54beb36ac902412e863e46929626a"
+source = "git+https://github.com/dfinity/ic?rev=0546cc21bc9260b934e93a2beccd669b5f292ff4#0546cc21bc9260b934e93a2beccd669b5f292ff4"
 dependencies = [
  "candid",
  "serde",

@@ -4,6 +4,12 @@ use ic_cdk::export::{
     Principal,
 };
 
+#[derive(CandidType, Deserialize)]
+pub struct SendRequest {
+    pub destination_address: String,
+    pub amount_in_satoshi: u64,
+}
+
 #[derive(CandidType, Serialize, Deserialize, Debug)]
 pub struct ECDSAPublicKeyReply {
     pub public_key: Vec<u8>,

@@ -13,7 +13,7 @@ hex = "0.4.3"
 bitcoin = "0.27.1"
 bs58 = "0.4.0"
 candid = "0.7.4"
-ic-btc-types = { git = "https://github.com/dfinity/ic", rev = "cf2ad26ab0f54beb36ac902412e863e46929626a" }
+ic-btc-types = { git = "https://github.com/dfinity/ic", rev = "0546cc21bc9260b934e93a2beccd669b5f292ff4" }
 ic-cdk = "0.5.1"
 ic-cdk-macros = "0.5.1"
 ripemd = "0.1.1"
