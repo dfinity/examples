@@ -1,10 +1,5 @@
 type satoshi = nat64;
 
-type bitcoin_network = variant {
-  mainnet;
-  testnet;
-};
-
 type bitcoin_address = text;
 
 type block_hash = blob;
@@ -29,9 +24,13 @@ type get_utxos_response = record {
 
 service : {
     "get_p2pkh_address": () -> (bitcoin_address);
+
     "get_balance": (address: text) -> (satoshi);
+
     "get_utxos": (bitcoin_address) -> (get_utxos_response);
+
     "get_current_fee_percentiles": () -> (vec nat64);
+
     "send": (record {
       destination_address: text;
       amount_in_satoshi: nat64;
