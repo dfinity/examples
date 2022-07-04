@@ -4,7 +4,9 @@ use ic_cdk::{call, export::Principal};
 /// Returns the ECDSA public key of this canister at the given derivation path.
 pub async fn ecdsa_public_key(derivation_path: &[&[u8]]) -> Vec<u8> {
     // TODO: pass in the full vec.
-    let ecdsa_canister_id = Principal::from_text("r7inp-6aaaa-aaaaa-aaabq-cai").unwrap(); // TODO: make this a constant somewhere.
+    // TODO: Replace this principal with the management canister when it's available.
+    //       For now, call a canister that provides a mock implementation.
+    let ecdsa_canister_id = Principal::from_text("ryjl3-tyaaa-aaaaa-aaaba-cai").unwrap();
 
     // Retrieve the public key of this canister at derivation path [0]
     // from the ECDSA API.
@@ -32,7 +34,9 @@ pub async fn ecdsa_public_key(derivation_path: &[&[u8]]) -> Vec<u8> {
 
 pub async fn sign_with_ecdsa(message_hash: Vec<u8>) -> Vec<u8> {
     // TODO: pass in the full derivation vec.
-    let ecdsa_canister_id = Principal::from_text("r7inp-6aaaa-aaaaa-aaabq-cai").unwrap();
+    // TODO: Replace this principal with the management canister when it's available.
+    //       For now, call a canister that provides a mock implementation.
+    let ecdsa_canister_id = Principal::from_text("ryjl3-tyaaa-aaaaa-aaaba-cai").unwrap();
 
     let res: (SignWithECDSAReply,) = call(
         ecdsa_canister_id,
