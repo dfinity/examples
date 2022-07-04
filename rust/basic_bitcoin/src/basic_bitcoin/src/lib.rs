@@ -11,14 +11,18 @@ use ic_cdk_macros::update;
 use std::str::FromStr;
 use types::*;
 
+// The bitcoin network to connect to.
+//
+// When developing locally this should be `Regtest`.
+// When deploying to the IC this should be `Testnet`.
+const NETWORK: Network = Network::Regtest;
+
+// The fees for the various bitcoin endpoints.
 const GET_BALANCE_COST_CYCLES: u64 = 100_000_000;
 const GET_UTXOS_COST_CYCLES: u64 = 100_000_000;
 const GET_CURRENT_FEE_PERCENTILES_FEE: u64 = 100_000_000;
 
-// TODO: should this be an env variable?
-const NETWORK: Network = Network::Regtest;
-
-const DERIVATION_PATH: u8 = 0;
+const DERIVATION_PATH: &[&[u8]]  = &[&[0]];
 
 /// Returns the balance of the given bitcoin address.
 ///
