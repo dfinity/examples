@@ -51,7 +51,7 @@ pub async fn send(
     dst_address: String,
     amount: Satoshi,
 ) {
-    let fee_percentiles = bitcoin_api::get_current_fee_percentiles().await;
+    let fee_percentiles = bitcoin_api::get_current_fee_percentiles(network).await;
 
     // Choose the 75th percentile for sending fees so that the transaction
     // is mined relatively quickly.
@@ -69,7 +69,7 @@ pub async fn send(
     let our_address = get_p2pkh_address(network, derivation_path).await;
 
     // Fetch our UTXOs.
-    let utxos = bitcoin_api::get_utxos(our_address.clone()).await.utxos;
+    let utxos = bitcoin_api::get_utxos(network, our_address.clone()).await.utxos;
 
     let spending_transaction =
         build_transaction(utxos, our_address.clone(), dst_address, amount, fee)
@@ -93,7 +93,7 @@ pub async fn send(
     ));
 
     print("Sending transaction...");
-    bitcoin_api::send_transaction(signed_transaction_bytes).await;
+    bitcoin_api::send_transaction(network, signed_transaction_bytes).await;
     print("Done");
 }
 

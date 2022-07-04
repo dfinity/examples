@@ -4,7 +4,7 @@ mod ecdsa_api;
 mod types;
 mod util;
 
-use ic_btc_types::Network;
+use ic_btc_types::{Network, GetUtxosResponse, MillisatoshiPerByte};
 use ic_cdk_macros::update;
 use std::cell::RefCell;
 
@@ -19,9 +19,35 @@ thread_local! {
     static DERIVATION_PATH: RefCell<Vec<Vec<u8>>>  = RefCell::new(vec![vec![0]]);
 }
 
+/// Returns the balance of the given bitcoin address.
+#[update]
+pub async fn get_balance(address: String) -> u64 {
+    bitcoin_api::get_balance(NETWORK, address).await
+}
+
+/// Returns the UTXOs of the given bitcoin address.
+#[update]
+pub async fn get_utxos(address: String) -> GetUtxosResponse {
+    bitcoin_api::get_utxos(NETWORK, address).await
+}
+
+/// Returns the 100 fee percentiles measured in millisatoshi/byte.
+/// Percentiles are computed from the last 10,000 transactions (if available).
+#[update]
+pub async fn get_current_fee_percentiles() -> Vec<MillisatoshiPerByte> {
+    bitcoin_api::get_current_fee_percentiles(NETWORK).await
+}
+
+/// Sends a (signed) transaction to the bitcoin network.
+#[update]
+pub async fn send_transaction(transaction: Vec<u8>) {
+    bitcoin_api::send_transaction(NETWORK, transaction).await
+}
+
+
 /// Returns the P2PKH address of this canister at a specific derivation path.
 #[update]
-async fn get_p2pkh_address() -> String {
+pub async fn get_p2pkh_address() -> String {
     let derivation_path = DERIVATION_PATH.with(|d| d.borrow().clone());
     bitcoin_wallet::get_p2pkh_address(NETWORK, derivation_path).await
 }
