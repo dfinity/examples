@@ -64,7 +64,7 @@ pub async fn send(
 
     // Build the transaction that sends `amount` to the destination address.
     let transaction = build_transaction(
-        own_public_key.clone(),
+        &own_public_key,
         &own_address,
         &own_utxos,
         &dst_address,
@@ -90,7 +90,7 @@ pub async fn send(
     let signed_transaction_bytes = signed_transaction.serialize();
     print(&format!(
         "Signed transaction: {}",
-        hex::encode(signed_transaction_bytes.clone())
+        hex::encode(&signed_transaction_bytes)
     ));
 
     print("Sending transaction...");
@@ -101,7 +101,7 @@ pub async fn send(
 // Builds a transaction to send the given `amount` of satoshis to the
 // destination address.
 async fn build_transaction(
-    own_public_key: Vec<u8>,
+    own_public_key: &[u8],
     own_address: &Address,
     own_utxos: &[Utxo],
     dst_address: &Address,
@@ -122,14 +122,14 @@ async fn build_transaction(
     loop {
         print(&format!("Trying fee: {}", total_fee));
         let transaction =
-            build_transaction_helper(&own_utxos, &own_address, &dst_address, amount, total_fee)
+            build_transaction_helper(own_utxos, own_address, dst_address, amount, total_fee)
                 .expect("Error building transaction.");
 
         // Sign the transaction. In this case, we only care about the size
         // of the signed transaction, so we use a mock signer here for efficiency.
         let signed_transaction = sign_transaction(
-            &own_public_key,
-            &own_address,
+            own_public_key,
+            own_address,
             transaction.clone(),
             vec![], // mock derivation path
             mock_signer,
