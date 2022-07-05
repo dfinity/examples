@@ -1,7 +1,6 @@
 type satoshi = nat64;
-
+type millisatoshi_per_byte = nat64;
 type bitcoin_address = text;
-
 type block_hash = blob;
 
 type outpoint = record {
@@ -25,14 +24,14 @@ type get_utxos_response = record {
 service : {
     "get_p2pkh_address": () -> (bitcoin_address);
 
-    "get_balance": (address: text) -> (satoshi);
+    "get_balance": (address: bitcoin_address) -> (satoshi);
 
     "get_utxos": (bitcoin_address) -> (get_utxos_response);
 
-    "get_current_fee_percentiles": () -> (vec nat64);
+    "get_current_fee_percentiles": () -> (vec millisatoshi_per_byte);
 
     "send": (record {
-      destination_address: text;
-      amount_in_satoshi: nat64;
+      destination_address: bitcoin_address;
+      amount_in_satoshi: satoshi;
     }) -> ();
 }

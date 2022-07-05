@@ -9,7 +9,7 @@ pub async fn ecdsa_public_key(derivation_path: Vec<Vec<u8>>) -> Vec<u8> {
     // For now, call a canister that provides a mock implementation.
     let ecdsa_canister_id = Principal::from_text("ryjl3-tyaaa-aaaaa-aaaba-cai").unwrap();
 
-    // Retrieve the public key of this canister at derivation path [0]
+    // Retrieve the public key of this canister at the given derivation path
     // from the ECDSA API.
     let res: (ECDSAPublicKeyReply,) = call(
         ecdsa_canister_id,

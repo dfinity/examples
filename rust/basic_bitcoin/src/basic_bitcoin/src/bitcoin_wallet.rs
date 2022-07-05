@@ -80,16 +80,14 @@ pub async fn send(
         .await
         .utxos;
 
-    let transaction =
-        build_transaction(utxos, src_address.clone(), dst_address, amount, fee)
-            .expect("Error building transaction.");
+    let transaction = build_transaction(utxos, src_address.clone(), dst_address, amount, fee)
+        .expect("Error building transaction.");
 
     let tx_bytes = transaction.serialize();
     print(&format!("Transaction to sign: {}", hex::encode(tx_bytes)));
 
     // Sign the transaction.
-    let signed_transaction =
-        sign_transaction(transaction, src_address, derivation_path).await;
+    let signed_transaction = sign_transaction(transaction, src_address, derivation_path).await;
 
     let signed_transaction_bytes = signed_transaction.serialize();
     print(&format!(
@@ -200,8 +198,7 @@ async fn sign_transaction(
         let sighash =
             txclone.signature_hash(index, &src_address.script_pubkey(), SIG_HASH_TYPE.as_u32());
 
-        let signature =
-            crate::ecdsa_api::sign_with_ecdsa(derivation_path.clone(), sighash.to_vec()).await;
+        let signature = ecdsa_api::sign_with_ecdsa(derivation_path.clone(), sighash.to_vec()).await;
 
         // Convert signature to DER.
         let der_signature = sec1_to_der(signature);
