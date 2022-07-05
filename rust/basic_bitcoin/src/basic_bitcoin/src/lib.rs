@@ -14,7 +14,7 @@ const NETWORK: Network = Network::Regtest;
 
 thread_local! {
     // The derivation path to use for ECDSA secp256k1.
-    static DERIVATION_PATH: Vec<Vec<u8>> = vec![vec![0]];
+    static DERIVATION_PATH: Vec<Vec<u8>> = vec![];
 }
 
 /// Returns the balance of the given bitcoin address.
