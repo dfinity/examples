@@ -127,11 +127,7 @@ fn build_transaction(
         }
     }
 
-    print(&format!("UTXOs to spend: {:?}", utxos_to_spend));
-    print(&format!(
-        "UTXO transaction id: {}",
-        Txid::from_hash(Hash::from_slice(&utxos_to_spend[0].outpoint.txid).unwrap()),
-    ));
+    print(&format!("Spending the following UTXOs: {:?}", utxos_to_spend));
 
     if total_spent < amount {
         return Err("Insufficient balance".to_string());

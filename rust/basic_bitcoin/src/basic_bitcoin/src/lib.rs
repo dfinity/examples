@@ -3,9 +3,8 @@ mod bitcoin_wallet;
 mod ecdsa_api;
 mod types;
 
-use ic_btc_types::{Network, GetUtxosResponse, MillisatoshiPerByte};
+use ic_btc_types::{GetUtxosResponse, MillisatoshiPerByte, Network};
 use ic_cdk_macros::update;
-use std::cell::RefCell;
 
 // The bitcoin network to connect to.
 //
@@ -15,7 +14,7 @@ const NETWORK: Network = Network::Regtest;
 
 thread_local! {
     // The derivation path to use for ECDSA secp256k1.
-    static DERIVATION_PATH: RefCell<Vec<Vec<u8>>>  = RefCell::new(vec![vec![0]]);
+    static DERIVATION_PATH: Vec<Vec<u8>> = vec![vec![0]];
 }
 
 /// Returns the balance of the given bitcoin address.
@@ -46,14 +45,14 @@ pub async fn send_transaction(transaction: Vec<u8>) {
 /// Returns the P2PKH address of this canister at a specific derivation path.
 #[update]
 pub async fn get_p2pkh_address() -> String {
-    let derivation_path = DERIVATION_PATH.with(|d| d.borrow().clone());
+    let derivation_path = DERIVATION_PATH.with(|d| d.clone());
     bitcoin_wallet::get_p2pkh_address(NETWORK, derivation_path).await
 }
 
 /// Sends the given amount of bitcoin from this canister to the given address.
 #[update]
 pub async fn send(request: types::SendRequest) {
-    let derivation_path = DERIVATION_PATH.with(|d| d.borrow().clone());
+    let derivation_path = DERIVATION_PATH.with(|d| d.clone());
     bitcoin_wallet::send(
         NETWORK,
         derivation_path,
