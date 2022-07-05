@@ -8,7 +8,7 @@
 //! * Caching spent UTXOs so that they are not reused in future transactions.
 //! * Option to set the fee.
 use crate::{bitcoin_api, ecdsa_api};
-use bitcoin::util::psbt::serialize::Serialize as _;
+use bitcoin::util::psbt::serialize::Serialize;
 use bitcoin::{
     blockdata::script::Builder, hashes::Hash, Address, AddressType, OutPoint, Script, SigHashType,
     Transaction, TxIn, TxOut, Txid,
@@ -115,7 +115,8 @@ fn build_transaction(
     let destination = Address::from_str(&destination).expect("Invalid destination address.");
 
     // Select which UTXOs to spend. For now, we naively spend the first available UTXOs,
-    // even if they were previously spent in a transaction.
+    // even if they were previously spent in a transaction. This isn't a problem as long
+    // as at most one transaction is created per block mined.
     let mut utxos_to_spend = vec![];
     let mut total_spent = 0;
     for utxo in utxos.into_iter().rev() {
