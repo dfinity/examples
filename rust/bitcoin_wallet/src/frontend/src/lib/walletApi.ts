@@ -9,10 +9,10 @@ export interface WalletApi {
   deriveNewAddress: () => Promise<void>;
 }
 
-export function createIcApi(client: BackendActor): WalletApi {
+export function createIcApi(actor: BackendActor): WalletApi {
   return {
-    getBalance: client.get_balance,
-    getAddress: client.get_principal_address_str,
+    getBalance: actor.get_balance,
+    getAddress: actor.get_principal_address_str,
     getFees: () =>
       sleep(1000).then(() => ({
         high: BigInt(27),

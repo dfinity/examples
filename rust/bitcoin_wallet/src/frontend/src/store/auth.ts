@@ -4,13 +4,14 @@ import { AuthClient } from '@dfinity/auth-client';
 import type { JsonnableDelegationChain } from '@dfinity/identity/lib/cjs/identity/delegation';
 import { route } from './router';
 import { addNotification } from './notifications';
-import { createMockApi, WalletApi } from '../lib/walletApi';
+import { createIcApi, createMockApi, WalletApi } from '../lib/walletApi';
 
 export type AuthenticatedState = {
   state: 'authenticated';
   actor: BackendActor;
   client: AuthClient;
   api: WalletApi;
+  bc: BroadcastChannel;
   logout: () => Promise<void>;
 };
 
@@ -77,6 +78,7 @@ async function logout() {
 
   if (currentAuth.state === 'authenticated') {
     await currentAuth.client.logout();
+    currentAuth.bc.postMessage('logout');
     auth.update(() => ({
       state: 'anonymous',
       actor: createActor(),
@@ -96,12 +98,20 @@ export async function authenticate(client: AuthClient) {
       },
     });
 
+    const logoutBc = new BroadcastChannel('btc_wallet_logout');
+    logoutBc.addEventListener('message', (e: MessageEvent<string>) => {
+      if (e.data === 'logout') {
+        logout();
+      }
+    });
+
     auth.update(() => ({
       state: 'authenticated',
       actor,
       client,
-      api: createMockApi(0.9),
+      api: process.env.USE_MOCK_API ? createMockApi(0.9) : createIcApi(actor),
       logout,
+      bc: logoutBc,
     }));
   } catch (e) {
     auth.update(() => ({

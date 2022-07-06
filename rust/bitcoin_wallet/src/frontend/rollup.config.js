@@ -9,36 +9,50 @@ import css from 'rollup-plugin-css-only';
 import inject from 'rollup-plugin-inject';
 import json from '@rollup/plugin-json';
 import path from 'path';
-import fs from 'fs';
 import injectProcessEnv from 'rollup-plugin-inject-process-env';
 
 const production = !process.env.ROLLUP_WATCH;
 
-const { DFX_NETWORK, canisterIds } = (function () {
-  if (production && fs.existsSync('../../canister_ids.json')) {
-    return {
-      DFX_NETWORK: 'ic',
-      canisterIds: require(path.resolve('../../canister_ids.json')),
-    };
-  } else {
-    return {
-      DFX_NETWORK: 'local',
-      canisterIds: require(path.resolve(
-        '../..',
-        '.dfx',
-        'local',
-        'canister_ids.json'
-      )),
-    };
-  }
-})();
+const { DFX_NETWORK, canisterIds, useIcInternetIdentity, useMockApi } =
+  (function () {
+    const DFX_NETWORK = process.env.DFX_NETWORK || 'local';
+    const useIcInternetIdentity = process.env.USE_PROD_II === 'true';
+    const useMockApi = process.env.USE_MOCK_API === 'true';
 
-// const DFX_NETWORK = production ? 'ic' : 'local';
-// const canisterIds = production
-//   ? require(path.resolve('../../canister_ids.json'))
-//   : require(path.resolve('../..', '.dfx', 'local', 'canister_ids.json'));
+    if (DFX_NETWORK === 'ic') {
+      return {
+        DFX_NETWORK,
+        canisterIds: require(path.resolve('../../canister_ids.json')),
+        useIcInternetIdentity,
+        useMockApi,
+      };
+    } else {
+      return {
+        DFX_NETWORK,
+        canisterIds: require(path.resolve(
+          '../..',
+          '.dfx',
+          'local',
+          'canister_ids.json'
+        )),
+        useIcInternetIdentity,
+        useMockApi,
+      };
+    }
+  })();
 
-console.log({ canisterIds });
+// console.warn(
+//   JSON.stringify(
+//     {
+//       DFX_NETWORK,
+//       canisterIds,
+//       useIcInternetIdentity,
+//       useMockApi,
+//     },
+//     null,
+//     2
+//   )
+// );
 
 function serve() {
   let server;
@@ -114,11 +128,11 @@ export default {
     injectProcessEnv({
       DFX_NETWORK,
       NODE_ENV: production ? 'production' : 'development',
-      INTERNET_IDENTITY_ADDRESS: production
+      INTERNET_IDENTITY_ADDRESS: useIcInternetIdentity
         ? 'https://identity.ic0.app/#authorize'
         : `http://${canisterIds.internet_identity['local']}.localhost:8000/#authorize`,
-      BACKEND_CANISTER_ID:
-        canisterIds.bitcoin_wallet[production ? 'ic' : 'local'],
+      BACKEND_CANISTER_ID: canisterIds.bitcoin_wallet[DFX_NETWORK],
+      USE_MOCK_API: useMockApi,
     }),
     // In dev mode, call `npm run start` once
     // the bundle has been generated
