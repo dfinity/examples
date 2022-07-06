@@ -1,11 +1,5 @@
 {
   "canisters": {
-    "btc": {
-      "type": "custom",
-      "candid": "canister/candid.did",
-      "wasm": "target/wasm32-unknown-unknown/release/canister.wasm",
-      "build": "scripts/build-canister.sh"
-    },
     "internet_identity": {
       "type": "custom",
       "candid": "internet_identity.did",
@@ -17,7 +11,7 @@
       "package": "bitcoin_wallet",
       "type": "custom",
       "wasm": "target/wasm32-unknown-unknown/release/bitcoin-wallet.wasm",
-      "build": "scripts/build-bitcoin-wallet.sh"
+      "build": "./build-bitcoin-wallet.sh"
     },
     "bitcoin_wallet_assets": {
       "dependencies": [
@@ -44,7 +38,7 @@
       "packtool": ""
     }
   },
-  "dfx": "0.10.0",
+  "dfx": "0.10.1",
   "networks": {
     "local": {
       "bind": "127.0.0.1:8000",

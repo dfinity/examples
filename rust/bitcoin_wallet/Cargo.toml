@@ -1,5 +1,4 @@
 [workspace]
 members = [
-    "canister",
     "src/bitcoin_wallet",
 ]
