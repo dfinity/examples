@@ -48,10 +48,10 @@ document.getElementById("sendBtn").addEventListener("click", async () => {
   const fee = parseInt(document.getElementById("feeMSatB").value) / (10 ** 3);
   const allowRBF = document.getElementById("allowRBF").checked;
   const transferResult = await window.webapp.transfer(address, amount, fee, allowRBF);
-  //alert(JSON.stringify(transferResult));
-  alert(JSON.stringify(transferResult, (key, value) =>
+  const transferResultStr = JSON.stringify(transferResult, (key, value) =>
     typeof value === 'bigint'
       ? value.toString()
-      : value // return everything else unchanged
-  ));
+      : value
+  );
+  alert(transferResultStr);
 });

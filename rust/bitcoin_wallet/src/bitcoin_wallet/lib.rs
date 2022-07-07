@@ -96,13 +96,6 @@ async fn transfer(
     let transfer_result = bitcoin_agent
         .multi_transfer(payouts, principal_address, Fee::PerByte(fee), MIN_CONFIRMATIONS, rbf)
         .await;
-    print(&format!(
-        "{:?} {:?} {:?} {}",
-        payouts,
-        Fee::PerByte(fee),
-        MIN_CONFIRMATIONS,
-        rbf
-    ));
     BITCOIN_AGENT.with(|global_bitcoin_agent| global_bitcoin_agent.replace(bitcoin_agent));
     transfer_result
 }
