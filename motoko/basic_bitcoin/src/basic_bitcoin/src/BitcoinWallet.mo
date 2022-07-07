@@ -73,6 +73,8 @@ module {
     // Fetch our public key, P2PKH address, and UTXOs.
     let own_public_key = await EcdsaApi.ecdsa_public_key(derivation_path);
     let own_address = public_key_to_p2pkh_address(network, own_public_key);
+
+    Debug.print("Fetching UTXOs...");
     let own_utxos = (await BitcoinApi.get_utxos(network, own_address)).utxos;
 
     // Build the transaction that sends `amount` to the destination address.
@@ -109,14 +111,12 @@ public func build_transaction(
     // the transaction.
     //
     // We solve this problem iteratively. We start with a fee of zero, build
-    // and sign a transaction, see what it's size is, and then update then
-    // update the fee, rebuild the transaction, until the fee is set to the
-    // correct amount.
+    // and sign a transaction, see what its size is, and then update the fee,
+    // rebuild the transaction, until the fee is set to the correct amount.
     let fee_per_byte_nat = Nat64.toNat(fee_per_byte);
     Debug.print("Building transaction...");
     var total_fee : Nat = 0;
     loop {
-        Debug.print("Trying fee: " # debug_show(total_fee));
         let transaction =
             Utils.get_ok_except(Bitcoin.buildTransaction(2, own_utxos, [(#p2pkh dst_address, amount)], #p2pkh own_address, Nat64.fromNat(total_fee)), "Error building transaction.");
 
@@ -145,7 +145,7 @@ public func build_transaction(
 
   // Sign a bitcoin transaction.
   //
-  // IMPORTANT: This method is for demonstrational purposes only and it only
+  // IMPORTANT: This method is for demonstration purposes only and it only
   // supports signing transactions if:
   //
   // 1. All the inputs are referencing outpoints that are owned by `own_address`.
