@@ -3,11 +3,7 @@
   "dfx": "0.10.2-btcbeta.0",
   "canisters": {
     "basic_bitcoin": {
-      "type": "custom",
-      "package": "basic_bitcoin",
-      "candid": "src/basic_bitcoin/basic_bitcoin.did",
-      "wasm": "target/wasm32-unknown-unknown/release/basic_bitcoin.wasm",
-      "build": "src/basic_bitcoin/build.sh"
+      "main": "src/basic_bitcoin/src/Main.mo"
     },
     "ecdsa": {
       "type": "custom",
