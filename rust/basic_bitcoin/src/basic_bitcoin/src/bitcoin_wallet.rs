@@ -55,6 +55,8 @@ pub async fn send(
     // Fetch our public key, P2PKH address, and UTXOs.
     let own_public_key = ecdsa_api::ecdsa_public_key(derivation_path.clone()).await;
     let own_address = public_key_to_p2pkh_address(network, &own_public_key);
+
+    print("Fetching UTXOs...");
     let own_utxos = bitcoin_api::get_utxos(network, own_address.clone())
         .await
         .utxos;
@@ -71,8 +73,7 @@ pub async fn send(
         amount,
         fee_per_byte,
     )
-    .await
-    .expect("Error building transaction.");
+    .await;
 
     let tx_bytes = transaction.serialize();
     print(&format!("Transaction to sign: {}", hex::encode(tx_bytes)));
@@ -105,24 +106,22 @@ async fn build_transaction(
     own_address: &Address,
     own_utxos: &[Utxo],
     dst_address: &Address,
-    amount: u64,
+    amount: Satoshi,
     fee_per_byte: MillisatoshiPerByte,
-) -> Result<Transaction, String> {
+) -> Transaction {
     // We have a chicken-and-egg problem where we need to know the length
     // of the transaction in order to compute its proper fee, but we need
     // to know the proper fee in order to figure out the inputs needed for
     // the transaction.
     //
     // We solve this problem iteratively. We start with a fee of zero, build
-    // and sign a transaction, see what it's size is, and then update then
-    // update the fee, rebuild the transaction, until the fee is set to the
-    // correct amount.
+    // and sign a transaction, see what its size is, and then update the fee,
+    // rebuild the transaction, until the fee is set to the correct amount.
     print("Building transaction...");
     let mut total_fee = 0;
     loop {
-        print(&format!("Trying fee: {}", total_fee));
         let transaction =
-            build_transaction_helper(own_utxos, own_address, dst_address, amount, total_fee)
+            build_transaction_with_fee(own_utxos, own_address, dst_address, amount, total_fee)
                 .expect("Error building transaction.");
 
         // Sign the transaction. In this case, we only care about the size
@@ -140,14 +139,14 @@ async fn build_transaction(
 
         if (signed_tx_bytes_len * fee_per_byte) / 1000 == total_fee {
             print(&format!("Transaction built with fee {}.", total_fee));
-            return Ok(transaction);
+            return transaction;
         } else {
             total_fee = (signed_tx_bytes_len * fee_per_byte) / 1000;
         }
     }
 }
 
-fn build_transaction_helper(
+fn build_transaction_with_fee(
     own_utxos: &[Utxo],
     own_address: &Address,
     dst_address: &Address,
@@ -158,8 +157,9 @@ fn build_transaction_helper(
     const DUST_THRESHOLD: u64 = 10_000;
 
     // Select which UTXOs to spend. We naively spend the oldest available UTXOs,
-    // even if they were previously spent in a transaction. This isn't a problem as long
-    // as at most one transaction is created per block.
+    // even if they were previously spent in a transaction. This isn't a
+    // problem as long as at most one transaction is created per block and
+    // we're using min_confirmations of 1.
     let mut utxos_to_spend = vec![];
     let mut total_spent = 0;
     for utxo in own_utxos.iter().rev() {
@@ -212,7 +212,7 @@ fn build_transaction_helper(
 
 // Sign a bitcoin transaction.
 //
-// IMPORTANT: This method is for demonstrational purposes only and it only
+// IMPORTANT: This method is for demonstration purposes only and it only
 // supports signing transactions if:
 //
 // 1. All the inputs are referencing outpoints that are owned by `own_address`.
@@ -287,7 +287,7 @@ fn public_key_to_p2pkh_address(network: Network, public_key: &[u8]) -> String {
 
 // A mock for rubber-stamping ECDSA signatures.
 async fn mock_signer(_derivation_path: Vec<Vec<u8>>, _message_hash: Vec<u8>) -> Vec<u8> {
-    vec![0; 64]
+    vec![1; 64]
 }
 
 // Converts a SEC1 ECDSA signature to the DER format.
