@@ -19,6 +19,7 @@ import P2pkh "../../../motoko-bitcoin/src/bitcoin/P2pkh";
 import Bitcoin "../../../motoko-bitcoin/src/bitcoin/Bitcoin";
 import Address "../../../motoko-bitcoin/src/bitcoin/Address";
 import Transaction "../../../motoko-bitcoin/src/bitcoin/Transaction";
+import Script "../../../motoko-bitcoin/src/bitcoin/Script";
 import Publickey "../../../motoko-bitcoin/src/ecdsa/Publickey";
 import Affine "../../../motoko-bitcoin/src/ec/Affine";
 import Hash "../../../motoko-bitcoin/src/Hash";
@@ -39,6 +40,7 @@ module {
   let CURVE = Types.CURVE;
   type PublicKey = EcdsaTypes.PublicKey;
   type Transaction = Transaction.Transaction;
+  type Script = Script.Script;
   type SighashType = Nat32;
 
   let SIGHASH_ALL : SighashType = 0x01;
@@ -162,29 +164,32 @@ public func build_transaction(
     switch (Address.scriptPubKey(#p2pkh own_address)) {
       case (#ok scriptPubKey) {
         let public_key = public_key_bytes_to_public_key(own_public_key);
+        let scriptSigs = Array.init<Script>(transaction.txInputs.size(), []);
+
         // Obtain scriptSigs for each Tx input.
         for (i in Iter.range(0, transaction.txInputs.size() - 1)) {
           let sighash = Hash.doubleSHA256(transaction.createSignatureHash(
               scriptPubKey, Nat32.fromIntWrap(i), SIGHASH_ALL));
-            Debug.print("sighash: " # debug_show(sighash));
 
           let signature_sec = await signer(derivation_path, sighash);
 
-            Debug.print("signature_sec: " # debug_show(signature_sec));
-            let signature = {
-              s = Common.readBE256(signature_sec, 0);
-              r = Common.readBE256(signature_sec, 32);
-            };
-            let signature_der = bitcoinTestTools.signatureToDer(signature, SIGHASH_ALL);
+          let signature = {
+            r = Common.readBE256(signature_sec, 0);
+            s = Common.readBE256(signature_sec, 32);
+          };
+          let signature_der = bitcoinTestTools.signatureToDer(signature, SIGHASH_ALL);
 
-            Debug.print("signature_der: " # debug_show(signature_der));
-
-            // Create Script Sig which looks like:
-            // ScriptSig = <Signature> <Public Key>.
-            transaction.txInputs[i].script := [
-              #data signature_der,
-              #data (Publickey.toSec1(public_key, false).0)
-            ];
+          // Create Script Sig which looks like:
+          // ScriptSig = <Signature> <Public Key>.
+          let script = [
+            #data signature_der,
+            #data (Publickey.toSec1(public_key, true).0)
+          ];
+          scriptSigs[i] := script;
+        };
+        // Assign ScriptSigs to their associated TxInputs.
+        for (i in Iter.range(0, scriptSigs.size() - 1)) {
+          transaction.txInputs[i].script := scriptSigs[i];
         };
       };
       // Verify that our own address is P2PKH.
