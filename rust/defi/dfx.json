@@ -4,7 +4,9 @@
       "candid": "src/defi_dapp/defi_dapp.did",
       "package": "defi_dapp",
       "type": "rust",
-      "dependencies": ["ledger"]
+      "dependencies": [
+        "ledger"
+      ]
     },
     "ledger": {
       "type": "custom",
@@ -16,11 +18,11 @@
       "candid": "src/internet_identity/internet_identity.did",
       "wasm": "src/internet_identity/internet_identity_dummy.wasm"
     },
-    "frontend" : {
-      "dependencies" : [
+    "frontend": {
+      "dependencies": [
         "defi_dapp"
       ],
-      "source" : [
+      "source": [
         "src/frontend_assets"
       ],
       "type": "assets"
@@ -38,7 +40,7 @@
       "packtool": ""
     }
   },
-  "dfx": "0.9.3",
+  "dfx": "0.10.1",
   "networks": {
     "local": {
       "bind": "127.0.0.1:8000",

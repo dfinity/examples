@@ -34,7 +34,7 @@ jobs:
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
         env:
-          DFX_VERSION: 0.10.0
+          DFX_VERSION: 0.10.1
       - name: Install ic-cdk-optimizer
         run: cargo install ic-cdk-optimizer
       - name: Rust Defi Example Linux
