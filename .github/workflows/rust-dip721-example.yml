@@ -17,7 +17,7 @@ jobs:
           DFX_VERSION: 0.9.3
       - name: Rust DIP-721 Example Darwin
         run: |
-          pushd rust/dip-721-nft-container
+          pushd rust/dip721-nft-container
           bash .demo.sh
           popd
   rust-dip721-example-linux:
@@ -32,6 +32,6 @@ jobs:
           DFX_VERSION: 0.9.3
       - name: Rust DIP-721 Example Linux
         run: |
-          pushd rust/dip-721-nft-container
+          pushd rust/dip721-nft-container
           bash .demo.sh
           popd
