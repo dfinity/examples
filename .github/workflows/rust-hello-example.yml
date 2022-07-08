@@ -1,4 +1,4 @@
-name: hello-example
+name: rust-hello-example
 on:
   push:
     branches:
