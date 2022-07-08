@@ -35,6 +35,7 @@ brew install cmake
 curl --location --output install-rustup.sh "https://sh.rustup.rs"
 bash install-rustup.sh -y
 rustup target add wasm32-unknown-unknown
+cargo install ic-cdk-optimizer
 
 # Install matchers
 matchers_version=1.2.0
