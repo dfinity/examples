@@ -4,7 +4,7 @@
 
 ## Install DFX
 ```
-sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
+sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
 ```
 
 ## Clone the Examples Project

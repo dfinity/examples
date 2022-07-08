@@ -13,7 +13,7 @@ rm install-node.sh
 
 # Install DFINITY SDK.
 version=0.9.2
-wget --output-document install-dfx.sh "https://sdk.dfinity.org/install.sh"
+wget --output-document install-dfx.sh "https://smartcontracts.org/install.sh"
 DFX_VERSION=$version bash install-dfx.sh < <(yes Y)
 rm install-dfx.sh
 dfx cache install
