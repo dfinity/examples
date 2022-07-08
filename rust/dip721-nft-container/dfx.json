@@ -7,5 +7,5 @@
             "package": "dip721_nft_container"
         }
     },
-    "dfx": "0.9.3"
+    "dfx": "0.10.1"
 }

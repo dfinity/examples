@@ -14,7 +14,7 @@ jobs:
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
         env:
-          DFX_VERSION: 0.9.3
+          DFX_VERSION: 0.10.1
       - name: Rust DIP-721 Example Darwin
         run: |
           pushd rust/dip721-nft-container
@@ -29,7 +29,7 @@ jobs:
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
         env:
-          DFX_VERSION: 0.9.3
+          DFX_VERSION: 0.10.1
       - name: Rust DIP-721 Example Linux
         run: |
           pushd rust/dip721-nft-container
