@@ -1,4 +1,4 @@
-name: encrypted-notes-example
+name: motoko-encrypted-notes-example
 on:
   push:
     branches:
