@@ -1,4 +1,4 @@
-name: dao-example
+name: motoko-basic-dao-example
 on:
   push:
     branches:
