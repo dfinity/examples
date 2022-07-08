@@ -1,0 +1,47 @@
+name: rust-defi-example
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  rust-defi-example-darwin:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+        env:
+          DFX_VERSION: 0.10.0
+      - name: Install ic-cdk-optimizer
+        run: cargo install ic-cdk-optimizer
+      - name: Rust Defi Example Darwin
+        run: |
+          pushd rust/defi
+          bash ./scripts/install.sh
+          bash ./test/demo.sh
+          bash ./test/trade.sh
+          bash ./test/transfer.sh
+          popd
+  rust-defi-example-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+        env:
+          DFX_VERSION: 0.10.0
+      - name: Install ic-cdk-optimizer
+        run: cargo install ic-cdk-optimizer
+      - name: Rust Defi Example Linux
+        run: |
+          pushd rust/defi
+          bash ./scripts/install.sh
+          bash ./test/demo.sh
+          bash ./test/trade.sh
+          bash ./test/transfer.sh
+          popd
