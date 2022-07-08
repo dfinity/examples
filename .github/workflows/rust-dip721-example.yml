@@ -15,11 +15,9 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
         env:
           DFX_VERSION: 0.9.3
-      - name: Install Rust Darwin
-        run: bash .github/workflows/install-rust-darwin.sh
       - name: Rust DIP-721 Example Darwin
         run: |
-          pushd rust/dip-7210nft-container
+          pushd rust/dip-721-nft-container
           bash .demo.sh
           popd
   rust-dip721-example-linux:
@@ -32,10 +30,8 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
         env:
           DFX_VERSION: 0.9.3
-      - name: Install Rust Linux
-        run: bash .github/workflows/install-rust-linux.sh
       - name: Rust DIP-721 Example Linux
         run: |
-          pushd rust/dip-7210nft-container
+          pushd rust/dip-721-nft-container
           bash .demo.sh
           popd

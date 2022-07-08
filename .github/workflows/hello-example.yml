@@ -35,8 +35,6 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
-      - name: Install Rust Darwin
-        run: bash .github/workflows/install-rust-darwin.sh
       - name: Rust Hello Example Darwin
         run: |
           dfx start --background
@@ -49,8 +47,6 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
-      - name: Install Rust Linux
-        run: bash .github/workflows/install-rust-linux.sh
       - name: Rust Hello Example Linux
         run: |
           dfx start --background
