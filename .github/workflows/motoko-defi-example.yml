@@ -12,7 +12,9 @@ jobs:
         with:
           submodules: recursive
       - name: Provision Darwin
-        run: bash DFX_VERSION=0.10.0 .github/workflows/provision-darwin.sh
+        run: bash .github/workflows/provision-darwin.sh
+        env:
+          DFX_VERSION: 0.10.0
       - name: Motoko Defi Example Darwin
         run: |
           pushd motoko/defi
@@ -28,7 +30,9 @@ jobs:
         with:
           submodules: recursive
       - name: Provision Linux
-        run: bash DFX_VERSION=0.10.0 .github/workflows/provision-linux.sh
+        run: bash .github/workflows/provision-linux.sh
+        env:
+          DFX_VERSION: 0.10.0
       - name: Motoko Defi Example Linux
         run: |
           pushd motoko/defi
