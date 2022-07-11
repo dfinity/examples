@@ -47,9 +47,8 @@ pub async fn send(
         // we use a default of 1000 millisatoshis/byte (i.e. 1 satoshi/byte)
         1000
     } else {
-        // Choose the 75th percentile for sending fees so that the transaction
-        // is mined relatively quickly.
-        fee_percentiles[74]
+        // Choose the 25th percentile for sending fees to minimize the cost.
+        fee_percentiles[24]
     };
 
     // Fetch our public key, P2PKH address, and UTXOs.
@@ -172,7 +171,10 @@ fn build_transaction_with_fee(
     }
 
     if total_spent < amount + fee {
-        return Err("Insufficient balance".to_string());
+        return Err(format!(
+            "Insufficient balance: {}, trying to transfer {} satoshi with fee {}",
+            total_spent, amount, fee
+        ));
     }
 
     let inputs: Vec<TxIn> = utxos_to_spend

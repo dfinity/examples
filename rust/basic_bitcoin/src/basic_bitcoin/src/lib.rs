@@ -36,12 +36,6 @@ pub async fn get_current_fee_percentiles() -> Vec<MillisatoshiPerByte> {
     bitcoin_api::get_current_fee_percentiles(NETWORK).await
 }
 
-/// Sends a (signed) transaction to the bitcoin network.
-#[update]
-pub async fn send_transaction(transaction: Vec<u8>) {
-    bitcoin_api::send_transaction(NETWORK, transaction).await
-}
-
 /// Returns the P2PKH address of this canister at a specific derivation path.
 #[update]
 pub async fn get_p2pkh_address() -> String {
