@@ -18,7 +18,7 @@ jobs:
       - name: Motoko Defi Example Darwin
         run: |
           pushd motoko/dip721-nft-container
-          bash ./test/demo.sh
+          bash ./demo.sh
           popd
   motoko-dip721-example-linux:
     runs-on: ubuntu-20.04
@@ -33,5 +33,5 @@ jobs:
       - name: Motoko Defi Example Linux
         run: |
           pushd motoko/dip721-nft-container
-          bash ./test/demo.sh
+          bash ./demo.sh
           popd
