@@ -45,7 +45,7 @@ function initCanisterIds() {
 initCanisterIds();
 
 // These are the webpages of the website.
-const files = ["index", "dashboard", "receive", "send"];
+const files = ["index", "dashboard", "receive"];
 
 function get_src_path(file) {
   return path.join(__dirname, path.join("src", "bitcoin_wallet_assets", "src", file));
