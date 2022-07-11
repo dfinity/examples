@@ -2,14 +2,12 @@
 
 ## Summary
 
-This example dapp shows how to build a Bitcoin wallet making use of the [Bitcoin integration](https://smartcontracts.org/docs/developers-guide/concepts/bitcoin-integration.html).
-
-This dapp is under active development and not ready to be used yet.
-<!--Once some parts of its functionality are implemented, this README will be updated accordingly with instructions on how to build and run the dapp.-->
+This example dapp shows how to build a basic Bitcoin wallet making use of the
+Internet Computer's [Bitcoin integration](https://smartcontracts.org/docs/developers-guide/concepts/bitcoin-integration.html).
 
 ## Step-by-step tutorial
 
-Install required node modules for the Bitcoin wallet webapp.
+Install the required node modules for the Bitcoin wallet webapp:
 
 ```bash
 npm install
@@ -17,14 +15,14 @@ npm install
 
 While working on the Internet Computer does not require more configuration, working locally does. The additional instructions are provided in [the next section](#testing-locally).
 
-To deploy the development Internet Identity canister and the Bitcoin wallet canister locally.
+Run the following commands to deploy the development Internet Identity canister and the Bitcoin wallet canister locally:
 
 ```bash
 dfx deploy internet_identity --argument '(null)'
 dfx deploy bitcoin_wallet_assets
 ```
 
-To deploy the Bitcoin wallet canister on the Internet Computer.
+Run the following command to deploy the Bitcoin wallet canister on the Internet Computer:
 
 ```bash
 II_CANISTER_ID=identity dfx deploy --network ic bitcoin_wallet_assets
@@ -32,13 +30,14 @@ II_CANISTER_ID=identity dfx deploy --network ic bitcoin_wallet_assets
 
 ## Testing locally
 
-The Internet Computer Bitcoin Library invokes the Bitcoin integration API through the management canister. In order to test the Bitcoin wallet locally, you have to follow the following instructions.
+The Bitcoin wallet invokes the Bitcoin integration API through the management canister.
+In order to test the Bitcoin wallet locally, follow the instructions below.
 
 ### Prerequisites
 
 - [Bitcoin Core](https://bitcoin.org/en/download). Mac users are recommended to download the `.tar.gz` version.
 
-The first step would be to setup a local Bitcoin network.
+The first step is to setup a local Bitcoin network.
 
 ### Setting up a local Bitcoin network
 
@@ -108,7 +107,7 @@ You should see an output that looks similar to, but not exactly like, the follow
 
 ### Synchronize blocks from bitcoind and create the canister
 
-Synchronize blocks from bitcoind with the adapter and replica by executing the following command in the `bitcoin_wallet` folder:
+Synchronize blocks from bitcoind with the replica by executing the following command in the `bitcoin_wallet` folder:
 
 ```
 dfx start --enable-bitcoin --bitcoin-node 127.0.0.1:18444
@@ -116,7 +115,7 @@ dfx start --enable-bitcoin --bitcoin-node 127.0.0.1:18444
 
 ### Sending bitcoin to the Bitcoin wallet canister
 
-To top up your Bitcoin wallet with bitcoins, get your address in the `Receive` tab of the website and run the following:
+To top up your Bitcoin wallet with bitcoins, get your address in the `Receive` tab of the website and run the following commands:
 
 ```
 # Send a transaction that transfers 10 BTC to the provided Bitcoin address.
