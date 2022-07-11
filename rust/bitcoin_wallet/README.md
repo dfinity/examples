@@ -110,7 +110,7 @@ You should see an output that looks similar to, but not exactly like, the follow
 Synchronize blocks from bitcoind with the adapter and replica by executing the following command in the `bitcoin_wallet` folder:
 
 ```
-dfx start --enable-bitcoin --bitcoin-node 127.0.0.1:18444
+dfx start
 ```
 
 ### Sending bitcoin to the Bitcoin wallet canister
