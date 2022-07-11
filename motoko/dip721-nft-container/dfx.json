@@ -1,9 +1,8 @@
 {
-    "canisters": {
-      "dip721_nft_container": {
-        "main": "src/Main.mo"
-      }
-    },
-    "dfx": "0.9.3"
-  }
-  
+  "canisters": {
+    "dip721_nft_container": {
+      "main": "src/Main.mo"
+    }
+  },
+  "dfx": "0.10.1"
+}
