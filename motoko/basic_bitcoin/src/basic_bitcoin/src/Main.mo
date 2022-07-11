@@ -35,13 +35,6 @@ actor BasicBitcoin {
     await BitcoinApi.get_current_fee_percentiles(NETWORK)
   };
 
-  /// Tried with https://tbtc.bitaps.com/raw/transaction/b5dd8f5c05d4e99a59291fce4965bdcd239b78aba1ce5d70e4b08c0b7c219400
-  /// but results in `bitcoin_send_transaction failed: Can't deserialize transaction because it's malformed.`
-  /// Sends a (signed) transaction to the Bitcoin network.
-  public func send_transaction(transaction : [Nat8]) : async () {
-    await BitcoinApi.send_transaction(NETWORK, transaction)
-  };
-
   /// Returns the P2PKH address of this canister at a specific derivation path.
   public func get_p2pkh_address() : async BitcoinAddress {
     await BitcoinWallet.get_p2pkh_address(NETWORK, DERIVATION_PATH)
