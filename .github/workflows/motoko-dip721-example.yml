@@ -15,7 +15,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
         env:
           DFX_VERSION: 0.10.1
-      - name: Motoko Defi Example Darwin
+      - name: Motoko DIP-721 Example Darwin
         run: |
           pushd motoko/dip721-nft-container
           bash ./demo.sh
@@ -30,7 +30,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
         env:
           DFX_VERSION: 0.10.1
-      - name: Motoko Defi Example Linux
+      - name: Motoko DIP-721 Example Linux
         run: |
           pushd motoko/dip721-nft-container
           bash ./demo.sh

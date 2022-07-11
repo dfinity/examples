@@ -23,7 +23,7 @@ Verify the following before running this demo:
 
 1. Figure out the address of your canister
    ```
-   dfx canister call ledger_transfer canisterAddress '()'
+   dfx canister call ledger_transfer canisterAccount '()'
    ```
 
 1. Transfer funds to your canister
