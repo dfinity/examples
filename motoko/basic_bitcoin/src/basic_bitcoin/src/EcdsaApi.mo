@@ -12,7 +12,7 @@ module {
       sign_with_ecdsa : SignWithECDSA -> async SignWithECDSAReply;
   };
 
-  let KEY_NAME : Text = "test";
+  let KEY_NAME : Text = "test_key_1";
 
   // TODO: Replace this principal with the management canister when it's available.
   // For now, call a canister that provides a mock implementation.
