@@ -45,7 +45,7 @@
     "whatwg-url": "^5.0.0"
   },
   "scripts": {
-    "test": "npm test --workspaces -- --verbose"
+    "test": "npm test --workspace test/e2e"
   },
   "repository": {
     "type": "git",

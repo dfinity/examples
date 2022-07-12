@@ -9,9 +9,6 @@ install: ./install-local.sh
 .SILENT: test
 test: install
 	$(shell vessel bin)/moc -r $(shell vessel sources) -wasi-system-api test/unit/Test.mo
-	./install-local.sh
-	npm ci
-	npm test
 
 .PHONY: clean
 .SILENT: clean
