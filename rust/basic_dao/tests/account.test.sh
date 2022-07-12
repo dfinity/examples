@@ -57,11 +57,11 @@ call DAO.transfer(
   record {
     to = alice;
     amount = record {
-      amount_e8s = 500_000_000_000;
+      amount_e8s = 600_000_000_000;
     };
   }
 );
-assert _.err ~= "Caller's account has insufficient funds to transfer";
+assert _ == variant { Err = "Caller's account has insufficient funds to transfer" };
 
 // transfer to self
 call DAO.transfer(
