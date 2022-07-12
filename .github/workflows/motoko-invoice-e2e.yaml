@@ -17,7 +17,7 @@ jobs:
           pushd motoko/invoice-canister
           set -x
           curl --location --output vessel-linux64 "https://github.com/dfinity/vessel/releases/download/v0.6.4/vessel-macos"
-          mkdir $HOME/bin
+          [ ! -d $HOME/bin ] && mkdir $HOME/bin
           mv ./vessel-macos $HOME/bin/vessel
           chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
           echo "$HOME/bin" >> $GITHUB_PATH
@@ -37,7 +37,7 @@ jobs:
           pushd motoko/invoice-canister
           set -x
           curl --location --output vessel-linux64 "https://github.com/dfinity/vessel/releases/download/v0.6.4/vessel-linux64"
-          mkdir $HOME/bin
+          [ ! -d $HOME/bin ] && mkdir $HOME/bin
           mv ./vessel-linux64 $HOME/bin/vessel
           chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
           echo "$HOME/bin" >> $GITHUB_PATH
