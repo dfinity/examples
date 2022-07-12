@@ -7,9 +7,6 @@
     "doc": "docs",
     "test": "test"
   },
-  "workspaces": [
-    "test/e2e"
-  ],
   "dependencies": {
     "@dfinity/agent": "^0.10.3",
     "@dfinity/candid": "^0.10.3",
@@ -45,7 +42,7 @@
     "whatwg-url": "^5.0.0"
   },
   "scripts": {
-    "test": "npm test --workspace test/e2e"
+    "test": "cd test/e2e; npm ci; npm test --verbose"
   },
   "repository": {
     "type": "git",

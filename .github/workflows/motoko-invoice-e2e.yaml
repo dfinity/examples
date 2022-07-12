@@ -24,7 +24,6 @@ jobs:
       - name: Motoko Invoice Canister Example Darwin
         run: |
           pushd motoko/invoice-canister
-          npm i -g npm
           make e2e
           dfx stop
           popd
@@ -47,7 +46,6 @@ jobs:
       - name: Motoko Invoice Canister Example Linux
         run: |
           pushd motoko/invoice-canister
-          npm i -g npm
           make e2e
           dfx stop
           popd
