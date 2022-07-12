@@ -13,7 +13,6 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Install vessel
         run: |
-          dfx start --background
           pushd motoko/invoice-canister
           set -x
           curl --location --output vessel-macos "https://github.com/dfinity/vessel/releases/download/v0.6.4/vessel-macos"
@@ -35,7 +34,6 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Install vessel
         run: |
-          dfx start --background
           pushd motoko/invoice-canister
           set -x
           curl --location --output vessel-linux64 "https://github.com/dfinity/vessel/releases/download/v0.6.4/vessel-linux64"
