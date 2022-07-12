@@ -34,7 +34,7 @@ call DAO.transfer(
     };
   }
 );
-assert _.err ~= "Caller needs an account to transfer funds";
+assert _ == variant { Err = "Caller needs an account to transfer funds" };
 
 // transfer from alice to bob
 identity alice;
