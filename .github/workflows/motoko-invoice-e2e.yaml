@@ -25,7 +25,7 @@ jobs:
       - name: Motoko Invoice Canister Example Darwin
         run: |
           pushd motoko/invoice-canister
-          make test
+          make e2e
           popd
   motoko-invoice-canister-example-linux:
     runs-on: ubuntu-20.04
@@ -47,5 +47,5 @@ jobs:
       - name: Motoko Invoice Canister Example Linux
         run: |
           pushd motoko/invoice-canister
-          make test
+          make e2e
           popd
