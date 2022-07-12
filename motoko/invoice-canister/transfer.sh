@@ -1,3 +1,7 @@
+#!/usr/bin/env bash
+
+set -e
+
 # dfx canister call invoice accountIdentifierToBlob '(variant {"text" = "F482E833ADB604E72AF08504AAA46C0BB6D51706CA9C4BB83F79A8F7393171B2"})'
 
 
