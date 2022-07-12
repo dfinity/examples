@@ -74,11 +74,3 @@ call DAO.transfer(
 );
 call DAO.account_balance();
 assert _.amount_e8s == (499_999_990_000 : nat64);
-
-// upgrade preserves states
-identity alice;
-upgrade(DAO, wasm, args);
-let accounts = call DAO.list_accounts();
-assert accounts[0].tokens.amount_e8s == (499_999_990_000 : nat64);
-assert accounts[1].tokens.amount_e8s == (499_999_990_000 : nat64);
-
