@@ -28,7 +28,7 @@ let init = encode fake.__init_args(
 let DAO = install(wasm, init, null);
 
 // cannot update system params without proposal
-let update_transfer_fee = record { transfer_fee = opt record { amount_e8s = 10_000 : nat } };
+let update_transfer_fee = record { transfer_fee = opt record { amount_e8s = 10_000 : nat64 } };
 call DAO.update_system_params(update_transfer_fee);
 call DAO.get_system_params();
 assert _.transfer_fee.amount_e8s == (0 : nat64);
