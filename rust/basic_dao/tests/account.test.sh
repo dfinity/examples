@@ -20,12 +20,12 @@ let args = encode fake.__init_args(
 );
 let DAO = install(wasm, args, null);
 call DAO.account_balance();
-assert _.amount_e8s == (1_000_000_000_000 : nat);
+assert _.amount_e8s == (1_000_000_000_000 : nat64);
 
 // destination address needs to exist
 identity bob;
 call DAO.account_balance();
-assert _.amount_e8s == (0 : nat);
+assert _.amount_e8s == (0 : nat64);
 call DAO.transfer(
   record {
     to = alice;
@@ -47,10 +47,10 @@ call DAO.transfer(
   },
 );
 call DAO.account_balance();
-assert _.amount_e8s == (499_999_990_000 : nat);
+assert _.amount_e8s == (499_999_990_000 : nat64);
 identity bob;
 call DAO.account_balance();
-assert _.amount_e8s == (500_000_000_000 : nat);
+assert _.amount_e8s == (500_000_000_000 : nat64);
 
 // not enough funds considering transfer fee
 call DAO.transfer(
@@ -73,12 +73,12 @@ call DAO.transfer(
   }
 );
 call DAO.account_balance();
-assert _.amount_e8s == (499_999_990_000 : nat);
+assert _.amount_e8s == (499_999_990_000 : nat64);
 
 // upgrade preserves states
 identity alice;
 upgrade(DAO, wasm, args);
 let accounts = call DAO.list_accounts();
-assert accounts[0].tokens.amount_e8s == (499_999_990_000 : nat);
-assert accounts[1].tokens.amount_e8s == (499_999_990_000 : nat);
+assert accounts[0].tokens.amount_e8s == (499_999_990_000 : nat64);
+assert accounts[1].tokens.amount_e8s == (499_999_990_000 : nat64);
 

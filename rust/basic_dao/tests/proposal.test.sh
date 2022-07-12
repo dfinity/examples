@@ -31,7 +31,7 @@ let DAO = install(wasm, init, null);
 let update_transfer_fee = record { transfer_fee = opt record { amount_e8s = 10_000 : nat } };
 call DAO.update_system_params(update_transfer_fee);
 call DAO.get_system_params();
-assert _.transfer_fee.amount_e8s == (0 : nat);
+assert _.transfer_fee.amount_e8s == (0 : nat64);
 
 // distribute tokens
 let _ = call DAO.transfer(record { to = alice; amount = record { amount_e8s = 100 } });
@@ -40,12 +40,12 @@ let _ = call DAO.transfer(record { to = cathy; amount = record { amount_e8s = 30
 let _ = call DAO.transfer(record { to = dory; amount = record { amount_e8s = 400 } });
 call DAO.account_balance();
 // verify no transfer fee
-assert _.amount_e8s == (999_999_999_000 : nat);
+assert _.amount_e8s == (999_999_999_000 : nat64);
 
 // alice makes a proposal
 identity alice;
 call DAO.account_balance();
-assert _.amount_e8s == (100 : nat);
+assert _.amount_e8s == (100 : nat64);
 call DAO.submit_proposal(
   record {
     canister_id = DAO;
@@ -55,7 +55,7 @@ call DAO.submit_proposal(
 );
 let alice_id = _.ok;
 call DAO.account_balance();
-assert _.amount_e8s == (0 : nat);
+assert _.amount_e8s == (0 : nat64);
 
 // voting
 call DAO.vote(record { proposal_id = alice_id; vote = variant { yes } });
@@ -94,18 +94,18 @@ assert _.err ~= "is not open for voting";
 // refunded
 identity alice;
 call DAO.account_balance();
-assert _.amount_e8s == (100 : nat);
+assert _.amount_e8s == (100 : nat64);
 
 call DAO.get_proposal(alice_id);
 assert _? ~= record {
-  votes_yes = record { amount_e8s = 500 : nat };
-  votes_no = record { amount_e8s = 400 : nat };
+  votes_yes = record { amount_e8s = 500 : nat64 };
+  votes_no = record { amount_e8s = 400 : nat64 };
   voters = opt record { cathy; opt record { dory; opt record { bob; opt record { alice; null : opt null }}}};
 };
 
 // check proposal is executed
 call DAO.get_system_params();
-assert _.transfer_fee.amount_e8s == (10_000 : nat);
+assert _.transfer_fee.amount_e8s == (10_000 : nat64);
 
 // bob makes proposals
 identity bob;
@@ -147,7 +147,7 @@ assert _.ok == variant { accepted };
 // bob gets only one refund
 identity bob;
 call DAO.account_balance();
-assert _.amount_e8s == (100 : nat);
+assert _.amount_e8s == (100 : nat64);
 
 // upgrade preserves data
 identity genesis;
