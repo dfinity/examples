@@ -1,4 +1,4 @@
-name: motoko-invoice-canister-example
+name: Unit tests Invoice Canister
 on:
   push:
     branches:
@@ -11,10 +11,18 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
-      - name: Motoko Invoice Canister Example Darwin
+      - name: Install vessel
         run: |
           dfx start --background
           pushd motoko/invoice-canister
+          set -x
+          curl --location --output vessel-linux64 "https://github.com/dfinity/vessel/releases/download/v0.6.4/vessel-macos"
+          mkdir $HOME/bin
+          mv ./vessel-macos $HOME/bin/vessel
+          chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
+          echo "$HOME/bin" >> $GITHUB_PATH
+      - name: Motoko Invoice Canister Example Darwin
+        run: |
           make test
           popd
   motoko-invoice-canister-example-linux:
@@ -23,6 +31,16 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
+      - name: Install vessel
+        run: |
+          dfx start --background
+          pushd motoko/invoice-canister
+          set -x
+          curl --location --output vessel-linux64 "https://github.com/dfinity/vessel/releases/download/v0.6.4/vessel-linux64"
+          mkdir $HOME/bin
+          mv ./vessel-linux64 $HOME/bin/vessel
+          chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
+          echo "$HOME/bin" >> $GITHUB_PATH
       - name: Motoko Invoice Canister Example Linux
         run: |
           dfx start --background
