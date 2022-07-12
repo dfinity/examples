@@ -1,0 +1,88 @@
+type VerifyInvoiceSuccess = 
+ variant {
+   AlreadyVerified: record {invoice: Invoice;};
+   Paid: record {invoice: Invoice;};
+ };
+type VerifyInvoiceResult = 
+ variant {
+   err: VerifyInvoiceErr;
+   ok: VerifyInvoiceSuccess;
+ };
+type VerifyInvoiceErr = 
+ record {
+   kind:
+    variant {
+      Expired;
+      InvalidAccount;
+      InvalidInvoiceId;
+      InvalidToken;
+      NotAuthorized;
+      NotFound;
+      NotYetPaid;
+      Other;
+      TransferError;
+    };
+   message: opt text;
+ };
+type TokenVerbose = 
+ record {
+   decimals: int;
+   meta: opt record {Issuer: text;};
+   symbol: text;
+ };
+type Permissions = 
+ record {
+   canGet: vec principal;
+   canVerify: vec principal;
+ };
+type Invoice = 
+ record {
+   amount: nat;
+   amountPaid: nat;
+   creator: principal;
+   destination: AccountIdentifier;
+   details: opt Details;
+   id: nat;
+   paid: bool;
+   permissions: opt Permissions;
+   token: TokenVerbose;
+   verifiedAtTime: opt int;
+ };
+type Details = 
+ record {
+   description: text;
+   meta: blob;
+ };
+type CreateInvoiceSuccess = record {invoice: Invoice;};
+type CreateInvoiceResult = 
+ variant {
+   err: CreateInvoiceErr;
+   ok: CreateInvoiceSuccess;
+ };
+type CreateInvoiceErr = 
+ record {
+   kind:
+    variant {
+      BadSize;
+      InvalidAmount;
+      InvalidDestination;
+      InvalidDetails;
+      InvalidToken;
+      MaxInvoicesReached;
+      Other;
+    };
+   message: opt text;
+ };
+type AccountIdentifier = 
+ variant {
+   "blob": blob;
+   "principal": principal;
+   "text": text;
+ };
+service : {
+  check_license_status: () -> (bool) query;
+  create_invoice: () -> (CreateInvoiceResult);
+  get_invoice: (nat) -> (opt Invoice) query;
+  reset_license: () -> ();
+  verify_invoice: (nat) -> (VerifyInvoiceResult);
+}

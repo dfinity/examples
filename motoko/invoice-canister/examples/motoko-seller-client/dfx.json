@@ -1,0 +1,30 @@
+{
+    "canisters": {
+        "invoice": {
+            "main": "backend/src/mocks/invoice.mo",
+            "type": "motoko",
+            "declarations": {
+                "output": "declarations/invoice"
+            }
+        },
+        "seller": {
+            "dependencies": [
+                "invoice"
+            ],
+            "type": "motoko",
+            "main": "backend/src/seller/main.mo",
+            "declarations": {
+                "output": "declarations/seller"
+            }
+        },
+        "frontend": {
+            "type": "assets",
+            "source": [
+                "frontend/src/assets",
+                "dist/frontend_assets"
+            ]
+
+        }
+    },
+    "version": 1
+}
