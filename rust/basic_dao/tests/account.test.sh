@@ -61,7 +61,7 @@ call DAO.transfer(
     };
   }
 );
-assert _ == variant { Err = "Caller's account has insufficient funds to transfer" };
+assert _.err ~= "Caller's account has insufficient funds to transfer";
 
 // transfer to self
 call DAO.transfer(
