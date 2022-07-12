@@ -21,8 +21,10 @@ jobs:
           mv ./vessel-macos $HOME/bin/vessel
           chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
           echo "$HOME/bin" >> $GITHUB_PATH
+          popd
       - name: Motoko Invoice Canister Example Darwin
         run: |
+          pushd motoko/invoice-canister
           make test
           popd
   motoko-invoice-canister-example-linux:
@@ -41,7 +43,9 @@ jobs:
           mv ./vessel-linux64 $HOME/bin/vessel
           chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
           echo "$HOME/bin" >> $GITHUB_PATH
+          popd
       - name: Motoko Invoice Canister Example Linux
         run: |
+          pushd motoko/invoice-canister
           make test
           popd
