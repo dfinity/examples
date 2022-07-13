@@ -20,9 +20,9 @@ jobs:
       - name: Rust NFT Wallet Example Darwin
         run: |
           pushd rust/nft-wallet
-          bash dfx start --background
+          dfx start --background
           bash ./deploy.sh
-          bash dfx canister call nftwallet owned_nfts
+          dfx canister call nftwallet owned_nfts
           popd
   rust-nft-wallet-example-linux:
     runs-on: ubuntu-20.04
@@ -39,7 +39,7 @@ jobs:
       - name: Rust NFT Wallet Example Linux
         run: |
           pushd rust/nft-wallet
-          bash dfx start --background
+          dfx start --background
           bash ./deploy.sh
-          bash dfx canister call nftwallet owned_nfts
+          dfx canister call nftwallet owned_nfts
           popd
