@@ -70,7 +70,7 @@ async fn get_balance() -> Satoshi {
     get_balance_from_args(get_utxos_args).await.unwrap()
 }
 
-/// Returns 25th, 50th and 75th fees as percentiles in Satoshis/byte over the last 10,000 transactions.
+/// Returns the 25th, 50th, and 75th fee percentiles in Millisatoshi/byte over the last 10,000 transactions.
 #[update]
 async fn get_fees() -> (Satoshi, Satoshi, Satoshi) {
     get_authenticated_principal();
