@@ -53,43 +53,42 @@ call DAO.submit_proposal(
     message = encode DAO.update_system_params(update_transfer_fee);
   },
 );
-let alice_id = _.ok;
+let alice_id = _.Ok;
 call DAO.account_balance();
 assert _.amount_e8s == (0 : nat64);
 
 // voting
-call DAO.vote(record { proposal_id = alice_id; vote = variant { yes } });
-assert _.ok == variant { open };
+call DAO.vote(record { proposal_id = alice_id; vote = variant { Yes } });
+assert _.Ok == variant { Open };
 identity eve;
-call DAO.vote(record { proposal_id = alice_id; vote = variant { yes } });
-assert _.err ~= "Caller does not have any tokens to vote with";
+call DAO.vote(record { proposal_id = alice_id; vote = variant { Yes } });
+assert _.Err ~= "Caller does not have any tokens to vote with";
 identity bob;
 call DAO.get_proposal(alice_id);
 assert _? ~= record {
   id = alice_id;
   proposer = alice;
-  voters = opt record { alice; null : opt null };
-  votes_yes = record { amount_e8s = 0 : nat };
-  votes_no = record { amount_e8s = 0 : nat };
-  state = variant { open };
+  votes_yes = record { amount_e8s = 0 : nat64 };
+  votes_no = record { amount_e8s = 0 : nat64 };
+  state = variant { Open };
   payload = record {
     canister_id = DAO;
     method = "update_system_params";
   };
 };
-call DAO.vote(record { proposal_id = alice_id; vote = variant { yes } });
-assert _.ok == variant { open };
-call DAO.vote(record { proposal_id = alice_id; vote = variant { no } });
-assert _.err ~= "Already voted";
+call DAO.vote(record { proposal_id = alice_id; vote = variant { Yes } });
+assert _.Ok == variant { Open };
+call DAO.vote(record { proposal_id = alice_id; vote = variant { No } });
+assert _.Err ~= "Already voted";
 identity dory;
-call DAO.vote(record { proposal_id = alice_id; vote = variant { no } });
-assert _.ok == variant { open };
+call DAO.vote(record { proposal_id = alice_id; vote = variant { No } });
+assert _.Ok == variant { Open };
 identity cathy;
-call DAO.vote(record { proposal_id = alice_id; vote = variant { yes } });
-assert _.ok == variant { accepted };
+call DAO.vote(record { proposal_id = alice_id; vote = variant { Yes } });
+assert _.Ok == variant { Accepted };
 identity genesis;
-call DAO.vote(record { proposal_id = alice_id; vote = variant { no } });
-assert _.err ~= "is not open for voting";
+call DAO.vote(record { proposal_id = alice_id; vote = variant { No } });
+assert _.Err ~= "is not open for voting";
 
 // refunded
 identity alice;
@@ -100,7 +99,6 @@ call DAO.get_proposal(alice_id);
 assert _? ~= record {
   votes_yes = record { amount_e8s = 500 : nat64 };
   votes_no = record { amount_e8s = 400 : nat64 };
-  voters = opt record { cathy; opt record { dory; opt record { bob; opt record { alice; null : opt null }}}};
 };
 
 // check proposal is executed
@@ -116,7 +114,7 @@ call DAO.submit_proposal(
     message = encode DAO.transfer(record { to = alice; amount = record { amount_e8s = 100 } });
   },
 );
-let bob1 = _.ok;
+let bob1 = _.Ok;
 call DAO.submit_proposal(
   record {
     canister_id = DAO;
@@ -124,7 +122,7 @@ call DAO.submit_proposal(
     message = encode DAO.transfer(record { to = alice; amount = record { amount_e8s = 100 } });
   },
 );
-let bob2 = _.ok;
+let bob2 = _.Ok;
 call DAO.submit_proposal(
   record {
     canister_id = DAO;
@@ -132,27 +130,19 @@ call DAO.submit_proposal(
     message = encode DAO.transfer(record { to = alice; amount = record { amount_e8s = 100 } });
   },
 );
-assert _.err ~= "Caller's account must have at least";
+assert _.Err ~= "Caller's account must have at least";
 
 // reject bob1, accept bob2
 identity cathy;
-call DAO.vote(record { proposal_id = bob1; vote = variant { no } });
-call DAO.vote(record { proposal_id = bob2; vote = variant { yes } });
+call DAO.vote(record { proposal_id = bob1; vote = variant { No } });
+call DAO.vote(record { proposal_id = bob2; vote = variant { Yes } });
 identity dory;
-call DAO.vote(record { proposal_id = bob1; vote = variant { no } });
-assert _.ok == variant { rejected };
-call DAO.vote(record { proposal_id = bob2; vote = variant { yes } });
-assert _.ok == variant { accepted };
+call DAO.vote(record { proposal_id = bob1; vote = variant { No } });
+assert _.Ok == variant { Rejected };
+call DAO.vote(record { proposal_id = bob2; vote = variant { Yes } });
+assert _.Ok == variant { Accepted };
 
 // bob gets only one refund
 identity bob;
 call DAO.account_balance();
 assert _.amount_e8s == (100 : nat64);
-
-// upgrade preserves data
-identity genesis;
-upgrade(DAO, wasm, init);
-call DAO.list_proposals();
-assert _[0].state == variant { succeeded };
-assert _[1].state == variant { rejected };
-assert _[2].state.failed ~= "has no update method 'transfer2'";
