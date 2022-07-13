@@ -1,5 +1,9 @@
+type Satoshi = nat64;
+type MillisatoshiPerByte = nat64;
+
 service : {
     whoami: () -> (text) query;
     get_principal_address_str: () -> (text);
-    get_balance: () -> (nat64);
+    get_balance: () -> (Satoshi);
+    get_fees: () -> (MillisatoshiPerByte, MillisatoshiPerByte, MillisatoshiPerByte);
 }

@@ -18,8 +18,7 @@ While working on the Internet Computer does not require more configuration, work
 Run the following commands to deploy the development Internet Identity canister and the Bitcoin wallet canister locally:
 
 ```bash
-dfx deploy internet_identity --argument '(null)'
-dfx deploy bitcoin_wallet_assets
+dfx deploy
 ```
 
 Run the following command to deploy the Bitcoin wallet canister on the Internet Computer:
@@ -110,7 +109,7 @@ You should see an output that looks similar to, but not exactly like, the follow
 Synchronize blocks from bitcoind with the replica by executing the following command in the `bitcoin_wallet` folder:
 
 ```
-dfx start --enable-bitcoin --bitcoin-node 127.0.0.1:18444
+dfx start
 ```
 
 ### Sending bitcoin to the Bitcoin wallet canister
