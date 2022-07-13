@@ -1,7 +1,6 @@
 import Cycles "mo:base/ExperimentalCycles";
 import Error "mo:base/Error";
 import Principal "mo:base/Principal";
-import Time "mo:base/Time";
 
 actor {
   // Only the ecdsa methods in the IC management canister is required here.
@@ -26,7 +25,7 @@ actor {
       let { public_key } = await ic.ecdsa_public_key({
           canister_id = null;
           derivation_path = [ caller ];
-          key_id = { curve = #secp256k1; name = "somekey" };
+          key_id = { curve = #secp256k1; name = "dfx_test_key" };
       });
       #Ok({ public_key })
     } catch (err) {
@@ -34,17 +33,20 @@ actor {
     }
   };
 
-  public shared (msg) func sign(message: Blob) : async { signature: Blob; latency: Time.Time } {
+  public shared (msg) func sign(message_hash: Blob) : async { #Ok : { signature: Blob };  #Err : Text } {
+    assert(message_hash.size() == 32);
     let caller = Principal.toBlob(msg.caller);
+    try {
       Cycles.add(10_000_000_000);
-      let start = Time.now();
-      let result = await ic.sign_with_ecdsa({
-          message_hash = message;
+      let { signature } = await ic.sign_with_ecdsa({
+          message_hash;
           derivation_path = [ caller ];
-          key_id = { curve = #secp256k1; name = "somekey" };
+          key_id = { curve = #secp256k1; name = "dfx_test_key" };
       });
-      let latency = Time.now() - start;
-      { signature = result.signature; latency }
+      #Ok({ signature })
+    } catch (err) {
+      #Err(Error.message(err))
+    }
   };
 }
 
