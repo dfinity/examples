@@ -1,5 +1,6 @@
 {
   "version": 1,
+  "dfx": "0.10.1",
   "canisters": {
     "tokens_transfer": {
       "build": [
@@ -8,6 +9,11 @@
       "candid": "src/tokens_transfer.did",
       "wasm": "target/wasm32-unknown-unknown/release/tokens_transfer.wasm",
       "type": "custom"
+    },
+    "ledger": {
+      "type": "custom",
+      "candid": "ledger.public.did",
+      "wasm": "ledger.wasm"
     }
   },
   "defaults": {
