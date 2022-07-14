@@ -1,4 +1,4 @@
-name: Unit tests Invoice Canister
+name: motoko-invoice-canister
 on:
   push:
     branches:

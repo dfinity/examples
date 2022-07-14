@@ -17,6 +17,8 @@ jobs:
           DFX_VERSION: 0.10.1
       - name: Install ic-cdk-optimizer
         run: cargo install ic-cdk-optimizer
+      - name: Install icx-asset
+        run: cargo install icx-asset
       - name: Rust NFT Wallet Example Darwin
         run: |
           pushd rust/nft-wallet
@@ -36,6 +38,8 @@ jobs:
           DFX_VERSION: 0.10.1
       - name: Install ic-cdk-optimizer
         run: cargo install ic-cdk-optimizer
+      - name: Install icx-asset
+        run: cargo install icx-asset
       - name: Rust NFT Wallet Example Linux
         run: |
           pushd rust/nft-wallet
