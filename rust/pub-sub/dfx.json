@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "dfx": "0.10.0",
+  "dfx": "0.10.1",
   "canisters": {
     "publisher": {
       "build": [

@@ -13,8 +13,6 @@ jobs:
           submodules: recursive
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
-        env:
-          DFX_VERSION: 0.10.1
       - name: Install ic-cdk-optimizer
         run: cargo install ic-cdk-optimizer
       - name: Rust Tokens Transfer Example Darwin
@@ -30,8 +28,6 @@ jobs:
           submodules: recursive
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
-        env:
-          DFX_VERSION: 0.10.1
       - name: Install ic-cdk-optimizer
         run: cargo install ic-cdk-optimizer
       - name: Rust Tokens Transfer Example Linux
