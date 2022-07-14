@@ -16,7 +16,7 @@ jobs:
       - name: Install ic-cdk-optimizer
         run: cargo install ic-cdk-optimizer
       - name: Install icx-asset
-        run: cargo install icx-asset
+        run: cargo install --locked icx-asset
       - name: Rust NFT Wallet Darwin
         run: |
           pushd rust/nft-wallet
@@ -35,7 +35,7 @@ jobs:
       - name: Install ic-cdk-optimizer
         run: cargo install ic-cdk-optimizer
       - name: Install icx-asset
-        run: cargo install icx-asset
+        run: cargo install --locked icx-asset
       - name: Rust NFT Wallet Linux
         run: |
           pushd rust/nft-wallet
