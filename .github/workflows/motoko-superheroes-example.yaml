@@ -1,29 +1,29 @@
-name: motoko-superheroes-example
+name: motoko-superheroes
 on:
   push:
     branches:
       - master
   pull_request:
 jobs:
-  motoko-superheroes-example-darwin:
+  motoko-superheroes-darwin:
     runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
-      - name: Motoko Superheroes Example Darwin
+      - name: Motoko Superheroes Darwin
         run: |
           dfx start --background
           pushd motoko/superheroes
           make test
           popd
-  motoko-superheroes-example-linux:
+  motoko-superheroes-linux:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
-      - name: Motoko Superheroes Example Linux
+      - name: Motoko Superheroes Linux
         run: |
           dfx start --background
           pushd motoko/superheroes

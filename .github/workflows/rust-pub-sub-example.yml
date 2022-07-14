@@ -1,11 +1,11 @@
-name: rust-pub-sub-example
+name: rust-pub-sub
 on:
   push:
     branches:
       - master
   pull_request:
 jobs:
-  rust-pub-sub-example-darwin:
+  rust-pub-sub-darwin:
     runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v2
@@ -15,14 +15,14 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Install ic-cdk-optimizer
         run: cargo install ic-cdk-optimizer
-      - name: Rust Pub-Sub Example Darwin
+      - name: Rust Pub-Sub Darwin
         run: |
           pushd rust/pub-sub
           dfx start --background
           make install
           make test
           popd
-  rust-pub-sub-example-linux:
+  rust-pub-sub-linux:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -32,7 +32,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Install ic-cdk-optimizer
         run: cargo install ic-cdk-optimizer
-      - name: Rust Pub-Sub Example Linux
+      - name: Rust Pub-Sub Linux
         run: |
           pushd rust/pub-sub
           dfx start --background

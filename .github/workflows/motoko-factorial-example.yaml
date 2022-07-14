@@ -1,29 +1,29 @@
-name: motoko-factorial-example
+name: motoko-factorial
 on:
   push:
     branches:
       - master
   pull_request:
 jobs:
-  motoko-factorial-example-darwin:
+  motoko-factorial-darwin:
     runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
-      - name: Motoko Factorial Example Darwin
+      - name: Motoko Factorial Darwin
         run: |
           dfx start --background
           pushd motoko/factorial
           make test
           popd
-  motoko-factorial-example-linux:
+  motoko-factorial-linux:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
-      - name: Motoko Factorial Example Linux
+      - name: Motoko Factorial Linux
         run: |
           dfx start --background
           pushd motoko/factorial

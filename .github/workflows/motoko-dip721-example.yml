@@ -1,11 +1,11 @@
-name: motoko-dip721-example
+name: motoko-dip721
 on:
   push:
     branches:
       - master
   pull_request:
 jobs:
-  motoko-dip721-example-darwin:
+  motoko-dip721-darwin:
     runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v2
@@ -13,12 +13,12 @@ jobs:
           submodules: recursive
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
-      - name: Motoko DIP-721 Example Darwin
+      - name: Motoko DIP-721 Darwin
         run: |
           pushd motoko/dip721-nft-container
           bash ./demo.sh
           popd
-  motoko-dip721-example-linux:
+  motoko-dip721-linux:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -26,7 +26,7 @@ jobs:
           submodules: recursive
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
-      - name: Motoko DIP-721 Example Linux
+      - name: Motoko DIP-721 Linux
         run: |
           pushd motoko/dip721-nft-container
           bash ./demo.sh

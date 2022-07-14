@@ -5,7 +5,7 @@ on:
       - master
   pull_request:
 jobs:
-  motoko-invoice-canister-example-darwin:
+  motoko-invoice-canister-darwin:
     runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v1
@@ -21,12 +21,12 @@ jobs:
           chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
           echo "$HOME/bin" >> $GITHUB_PATH
           popd
-      - name: Motoko Invoice Canister Example Darwin
+      - name: Motoko Invoice Canister Darwin
         run: |
           pushd motoko/invoice-canister
           make test
           popd
-  motoko-invoice-canister-example-linux:
+  motoko-invoice-canister-linux:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
@@ -42,7 +42,7 @@ jobs:
           chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
           echo "$HOME/bin" >> $GITHUB_PATH
           popd
-      - name: Motoko Invoice Canister Example Linux
+      - name: Motoko Invoice Canister Linux
         run: |
           pushd motoko/invoice-canister
           make test

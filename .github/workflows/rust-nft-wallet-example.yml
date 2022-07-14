@@ -1,11 +1,11 @@
-name: rust-nft-wallet-example
+name: rust-nft-wallet
 on:
   push:
     branches:
       - master
   pull_request:
 jobs:
-  rust-nft-wallet-example-darwin:
+  rust-nft-wallet-darwin:
     runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v2
@@ -17,14 +17,14 @@ jobs:
         run: cargo install ic-cdk-optimizer
       - name: Install icx-asset
         run: cargo install icx-asset
-      - name: Rust NFT Wallet Example Darwin
+      - name: Rust NFT Wallet Darwin
         run: |
           pushd rust/nft-wallet
           dfx start --background
           bash ./deploy.sh
           dfx canister call nftwallet owned_nfts
           popd
-  rust-nft-wallet-example-linux:
+  rust-nft-wallet-linux:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -36,7 +36,7 @@ jobs:
         run: cargo install ic-cdk-optimizer
       - name: Install icx-asset
         run: cargo install icx-asset
-      - name: Rust NFT Wallet Example Linux
+      - name: Rust NFT Wallet Linux
         run: |
           pushd rust/nft-wallet
           dfx start --background

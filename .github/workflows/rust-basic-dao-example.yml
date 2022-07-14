@@ -1,11 +1,11 @@
-name: rust-basic-dao-example
+name: rust-basic-dao
 on:
   push:
     branches:
       - master
   pull_request:
 jobs:
-  rust-dao-example-darwin:
+  rust-dao-darwin:
     runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v1
@@ -13,7 +13,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Install ic-cdk-optimizer
         run: cargo install ic-cdk-optimizer
-      - name: Rust DAO Example Darwin
+      - name: Rust DAO Darwin
         run: |
           dfx start --background
           pushd rust/basic_dao
@@ -24,7 +24,7 @@ jobs:
             ic-repl -r http://localhost:8000 "$f" || exit
           done)
           popd
-  rust-hello-example-linux:
+  rust-hello-linux:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
@@ -32,7 +32,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Install ic-cdk-optimizer
         run: cargo install ic-cdk-optimizer
-      - name: Rust DAO Example Linux
+      - name: Rust DAO Linux
         run: |
           dfx start --background
           pushd rust/basic_dao

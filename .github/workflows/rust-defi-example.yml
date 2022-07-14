@@ -1,11 +1,11 @@
-name: rust-defi-example
+name: rust-defi
 on:
   push:
     branches:
       - master
   pull_request:
 jobs:
-  rust-defi-example-darwin:
+  rust-defi-darwin:
     runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v2
@@ -15,7 +15,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Install ic-cdk-optimizer
         run: cargo install ic-cdk-optimizer
-      - name: Rust Defi Example Darwin
+      - name: Rust Defi Darwin
         run: |
           pushd rust/defi
           bash ./scripts/install.sh
@@ -23,7 +23,7 @@ jobs:
           bash ./test/trade.sh
           bash ./test/transfer.sh
           popd
-  rust-defi-example-linux:
+  rust-defi-linux:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v2
@@ -33,7 +33,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Install ic-cdk-optimizer
         run: cargo install ic-cdk-optimizer
-      - name: Rust Defi Example Linux
+      - name: Rust Defi Linux
         run: |
           pushd rust/defi
           bash ./scripts/install.sh

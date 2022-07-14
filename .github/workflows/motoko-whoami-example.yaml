@@ -1,29 +1,29 @@
-name: motoko-whoami-example
+name: motoko-whoami
 on:
   push:
     branches:
       - master
   pull_request:
 jobs:
-  motoko-whoami-example-darwin:
+  motoko-whoami-darwin:
     runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
-      - name: Motoko Who Am I Example Darwin
+      - name: Motoko Who Am I Darwin
         run: |
           dfx start --background
           pushd motoko/whoami
           make test
           popd
-  motoko-whoami-example-linux:
+  motoko-whoami-linux:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
-      - name: Motoko Who Am I Example Linux
+      - name: Motoko Who Am I Linux
         run: |
           dfx start --background
           pushd motoko/whoami
