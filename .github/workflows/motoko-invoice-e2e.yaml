@@ -1,4 +1,4 @@
-name: e2e Invoice Canister
+name: motoko-invoice-canister
 on:
   push:
     branches:

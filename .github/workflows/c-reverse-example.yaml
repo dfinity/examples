@@ -1,0 +1,37 @@
+name: c-reverse
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  c-reverse-darwin:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+        env:
+          DFX_VERSION: 0.10.1
+      - name: C Reverse Example Darwin
+        run: |
+          dfx start --background
+          pushd c/reverse
+          bash ./build.sh
+          bash ./start.sh
+          popd
+  c-reverse-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+        env:
+          DFX_VERSION: 0.10.1
+      - name: C Reverse Example Linux
+        run: |
+          dfx start --background
+          pushd c/reverse
+          bash ./build.sh
+          bash ./start.sh
+          popd
