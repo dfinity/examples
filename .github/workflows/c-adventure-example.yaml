@@ -1,0 +1,45 @@
+name: c-adventure
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  c-adventure-darwin:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+        env:
+          DFX_VERSION: 0.10.1
+      - name: C Adventure Darwin
+        run: |
+          dfx start --background
+          pushd c/adventure
+          bash ./build.sh
+          dfx canister install --all
+          dfx canister call adventure play
+          dfx canister call adventure play --type string yes
+          dfx canister call adventure play --type string east
+          dfx canister call adventure play --type string "get water"
+          popd
+  c-adventure-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+        env:
+          DFX_VERSION: 0.10.1
+      - name: C Adventure Linux
+        run: |
+          dfx start --background
+          pushd c/adventure
+          bash ./build.sh
+          dfx canister install --all
+          dfx canister call adventure play
+          dfx canister call adventure play --type string yes
+          dfx canister call adventure play --type string east
+          dfx canister call adventure play --type string "get water"
+          popd
