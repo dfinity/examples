@@ -5,7 +5,7 @@ on:
       - master
   pull_request:
 jobs:
-  motoko-hello-world-darwin:
+  motoko-hello-world-example-darwin:
     runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v1
@@ -17,7 +17,7 @@ jobs:
           pushd motoko/hello-world
           make test
           popd
-  motoko-hello-world-linux:
+  motoko-hello-world-example-linux:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1

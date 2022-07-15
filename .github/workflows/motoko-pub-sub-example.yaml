@@ -5,7 +5,7 @@ on:
       - master
   pull_request:
 jobs:
-  motoko-pub-sub-darwin:
+  motoko-pub-sub-example-darwin:
     runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v1
@@ -17,7 +17,7 @@ jobs:
           pushd motoko/pub-sub
           make test
           popd
-  motoko-pub-sub-linux:
+  motoko-pub-sub-example-linux:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1

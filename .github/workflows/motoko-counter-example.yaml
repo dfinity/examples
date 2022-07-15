@@ -5,7 +5,7 @@ on:
       - master
   pull_request:
 jobs:
-  motoko-counter-darwin:
+  motoko-counter-example-darwin:
     runs-on: macos-10.15
     steps:
       - uses: actions/checkout@v1
@@ -17,7 +17,7 @@ jobs:
           pushd motoko/counter
           make test
           popd
-  motoko-counter-linux:
+  motoko-counter-example-linux:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
