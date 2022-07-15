@@ -13,12 +13,14 @@ export function createIcApi(actor: BackendActor): WalletApi {
   return {
     getBalance: actor.get_balance,
     getAddress: actor.get_principal_address_str,
-    getFees: () =>
-      sleep(1000).then(() => ({
-        high: BigInt(27),
-        std: BigInt(22),
-        low: BigInt(16),
-      })),
+    getFees: async () => {
+      const fees = await actor.get_fees();
+      return {
+        high: fees[2] / BigInt(1000),
+        std: fees[1] / BigInt(1000),
+        low: fees[0] / BigInt(1000),
+      };
+    },
     send: () => sleep(1000).then(() => true),
     deriveNewAddress: () => sleep(1000),
   };

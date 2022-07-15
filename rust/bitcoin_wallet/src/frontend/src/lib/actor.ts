@@ -33,7 +33,7 @@ export function createActor(options?: {
 
   const agent = new HttpAgent({ ...options.agentOptions });
   // Fetch root key for certificate validation during development
-  if (process.env.NODE_ENV !== 'production') {
+  if (process.env.DFX_NETWORK !== 'ic') {
     console.log(`Dev environment - fetching root key...`);
 
     agent.fetchRootKey().catch((err) => {
