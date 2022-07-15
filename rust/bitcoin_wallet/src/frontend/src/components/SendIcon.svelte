@@ -13,7 +13,7 @@
 >
   <path
     d="M8 6H18V16M18 6L6 18L18 6Z"
-    stroke="white"
+    stroke="currentColor"
     stroke-width="2"
     stroke-linecap="round"
     stroke-linejoin="round"

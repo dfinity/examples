@@ -10,7 +10,7 @@
 
   export let auth: AuthenticatedState;
 
-  let openConfirmationDrawer = false;
+  let openSendConfirmationDrawer = false;
   let amount = 0;
   let address = '';
   let feePreset = '';
@@ -199,8 +199,8 @@
           class="btn btn-blue w-full space-x-1"
           type="button"
           disabled={address.trim().length === 0 || !amount}
-          on:click={() => send(address, amount, fee)}
-          ><SendIcon /><span>Send</span></button
+          on:click={() => (openSendConfirmationDrawer = true)}
+          ><SendIcon /><span>Confirm & Send</span></button
         >
       {:catch}
         <p class="text-xl text-red-500 mb-4">Error sending transaction.</p>
@@ -219,32 +219,31 @@
 </div>
 
 <Drawer
-  open={openConfirmationDrawer}
-  on:close={() => (openConfirmationDrawer = false)}
+  open={openSendConfirmationDrawer}
+  on:close={() => (openSendConfirmationDrawer = false)}
 >
   <div class="flex flex-col items-center">
-    <svg
-      width="72"
-      height="72"
-      viewBox="0 0 72 72"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      class="mb-2"
-    >
-      <path
-        d="M10 58L35.5 15L61 58H10ZM35.5 53.1849C36.4653 53.1849 37.2865 52.849 37.9635 52.1771C38.653 51.4928 38.9978 50.6716 38.9978 49.7135C38.9978 48.7555 38.653 47.9405 37.9635 47.2687C37.2865 46.5843 36.4653 46.2422 35.5 46.2422C34.5347 46.2422 33.7072 46.5843 33.0177 47.2687C32.3407 47.9405 32.0022 48.7555 32.0022 49.7135C32.0022 50.6716 32.3407 51.4928 33.0177 52.1771C33.7072 52.849 34.5347 53.1849 35.5 53.1849ZM33.2057 42.0243H37.7942L38.1327 29.3333H32.8673L33.2057 42.0243Z"
-        fill="black"
-      />
-    </svg>
+    <SendIcon class="text-black w-16 h-16" />
 
-    <h2 class="text-lg font-medium">Derive new address?</h2>
-    <span class="text-lg text-gray-500 mb-2"
-      >This will update the displayed address and the QR code
+    <h2 class="text-lg font-medium mb-3">Confirm transaction</h2>
+    <span class="text-lg text-gray-500 mb-12 max-w-lg text-center mx-auto"
+      >You're about to send <strong class="text-black">{amount} BTC</strong>
+      to <strong class="text-black block text-center">{address}</strong>
+      with a transaction fee of
+      <strong class="text-black">{fee} sats/b</strong>.
     </span>
-    <button
-      class="btn btn-black w-full"
-      on:click={() => (openConfirmationDrawer = false)}
-      >Derive new address</button
-    >
+    <div class="flex gap-5 w-full">
+      <button
+        class="btn btn-blue flex-1"
+        on:click={() => {
+          send(address, amount, fee);
+          openSendConfirmationDrawer = false;
+        }}>Send</button
+      >
+      <button
+        class="btn btn-gray flex-1"
+        on:click={() => (openSendConfirmationDrawer = false)}>Cancel</button
+      >
+    </div>
   </div>
 </Drawer>
