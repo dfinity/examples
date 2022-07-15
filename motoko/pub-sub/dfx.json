@@ -6,6 +6,5 @@
     "sub": {
       "main": "src/sub/Main.mo"
     }
-  },
-  "dfx": "0.10.1"
+  }
 }

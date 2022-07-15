@@ -1,6 +1,5 @@
 {
   "version": 1,
-  "dfx": "0.10.1",
   "canisters": {
     "nftwallet": {
       "type": "custom",
