@@ -33,12 +33,17 @@
     }
   },
   "defaults": {
+    "bitcoin": {
+      "enabled": true,
+      "nodes": ["127.0.0.1:18444"],
+      "log_level": "info"
+    },
     "build": {
       "args": "",
       "packtool": ""
     }
   },
-  "dfx": "0.10.1",
+  "dfx": "0.11.0-beta.1",
   "networks": {
     "local": {
       "bind": "127.0.0.1:8000",
