@@ -85,7 +85,7 @@ The DIP721 interface supports transfering an NFT to some other Principal via the
 First, create a different identity using DFX. This will become the principal that you receives the NFT
 
 ```
-dfx identity new alice
+dfx identity new --disable-encryption alice
 ALICE=$(dfx --identity alice identity get-principal)
 ```
 

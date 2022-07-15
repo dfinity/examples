@@ -33,7 +33,7 @@ Verify the following before running this demo:
 
 1. Post a message as a new user
    ```
-   dfx identity new homer
+   dfx identity new --disable-encryption homer
    dfx identity use homer
    dfx canister call ledger_transfer post "(\"Nom Nom Love Donuts\")"
    ```

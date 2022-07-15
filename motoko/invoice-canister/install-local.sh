@@ -5,7 +5,7 @@ set -e
 dfx stop
 dfx start --background --clean
 
-dfx identity new minter
+dfx identity new minter --disable-encryption
 dfx identity use minter
 export MINT_ACC=$(dfx ledger account-id)
 
