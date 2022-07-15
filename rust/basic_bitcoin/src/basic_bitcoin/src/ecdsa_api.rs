@@ -7,7 +7,7 @@ const KEY_NAME: &str = "test";
 pub async fn ecdsa_public_key(derivation_path: Vec<Vec<u8>>) -> Vec<u8> {
     // TODO: Replace this principal with the management canister when it's available.
     // For now, call a canister that provides a mock implementation.
-    let ecdsa_canister_id = Principal::from_text("b5mls-nqaaa-aaaal-aa2oq-cai").unwrap();
+    let ecdsa_canister_id = Principal::from_text("ryjl3-tyaaa-aaaaa-aaaba-cai").unwrap();
 
     // Retrieve the public key of this canister at the given derivation path
     // from the ECDSA API.
@@ -32,7 +32,7 @@ pub async fn ecdsa_public_key(derivation_path: Vec<Vec<u8>>) -> Vec<u8> {
 pub async fn sign_with_ecdsa(derivation_path: Vec<Vec<u8>>, message_hash: Vec<u8>) -> Vec<u8> {
     // TODO: Replace this principal with the management canister when it's available.
     // For now, call a canister that provides a mock implementation.
-    let ecdsa_canister_id = Principal::from_text("b5mls-nqaaa-aaaal-aa2oq-cai").unwrap();
+    let ecdsa_canister_id = Principal::from_text("ryjl3-tyaaa-aaaaa-aaaba-cai").unwrap();
 
     let res: (SignWithECDSAReply,) = call(
         ecdsa_canister_id,
