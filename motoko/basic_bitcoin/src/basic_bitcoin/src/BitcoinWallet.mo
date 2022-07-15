@@ -10,9 +10,11 @@
 
 import Debug "mo:base/Debug";
 import Array "mo:base/Array";
+import Nat8 "mo:base/Nat8";
 import Nat32 "mo:base/Nat32";
 import Nat64 "mo:base/Nat64";
 import Iter "mo:base/Iter";
+import Blob "mo:base/Blob";
 
 import EcdsaTypes "../../../motoko-bitcoin/src/ecdsa/Types";
 import P2pkh "../../../motoko-bitcoin/src/bitcoin/P2pkh";
@@ -21,10 +23,8 @@ import Address "../../../motoko-bitcoin/src/bitcoin/Address";
 import Transaction "../../../motoko-bitcoin/src/bitcoin/Transaction";
 import Script "../../../motoko-bitcoin/src/bitcoin/Script";
 import Publickey "../../../motoko-bitcoin/src/ecdsa/Publickey";
+import Der "../../../motoko-bitcoin/src/ecdsa/Der";
 import Affine "../../../motoko-bitcoin/src/ec/Affine";
-import Hash "../../../motoko-bitcoin/src/Hash";
-import Common "../../../motoko-bitcoin/src/Common";
-import bitcoinTestTools "../../../motoko-bitcoin/test/bitcoin/bitcoinTestTools";
 
 import Types "Types";
 import EcdsaApi "EcdsaApi";
@@ -48,10 +48,10 @@ module {
   /// Returns the P2PKH address of this canister at the given derivation path.
   public func get_p2pkh_address(network : Network, derivation_path : [[Nat8]]) : async BitcoinAddress {
     // Fetch the public key of the given derivation path.
-    let public_key = await EcdsaApi.ecdsa_public_key(derivation_path);
+    let public_key = await EcdsaApi.ecdsa_public_key(Array.map(derivation_path, Blob.fromArray));
 
     // Compute the address.
-    public_key_to_p2pkh_address(network, public_key)
+    public_key_to_p2pkh_address(network, Blob.toArray(public_key))
   };
 
   /// Sends a transaction to the network that transfers the given amount to the
@@ -72,7 +72,7 @@ module {
     };
 
     // Fetch our public key, P2PKH address, and UTXOs.
-    let own_public_key = await EcdsaApi.ecdsa_public_key(derivation_path);
+    let own_public_key = Blob.toArray(await EcdsaApi.ecdsa_public_key(Array.map(derivation_path, Blob.fromArray)));
     let own_address = public_key_to_p2pkh_address(network, own_public_key);
 
     Debug.print("Fetching UTXOs...");
@@ -86,7 +86,7 @@ module {
     Debug.print("Transaction to sign: " # debug_show(tx_bytes));
 
     // Sign the transaction.
-    let signed_transaction_bytes = await sign_transaction(own_public_key, own_address, transaction, derivation_path, EcdsaApi.sign_with_ecdsa);
+    let signed_transaction_bytes = await sign_transaction(own_public_key, own_address, transaction, Array.map(derivation_path, Blob.fromArray), EcdsaApi.sign_with_ecdsa);
     
     Debug.print("Signed transaction: " # debug_show(signed_transaction_bytes));
 
@@ -142,7 +142,7 @@ public func build_transaction(
     }
   };
 
-  type SignFun = ([[Nat8]], [Nat8]) -> async [Nat8];
+  type SignFun = ([Blob], Blob) -> async Blob;
 
   // Sign a bitcoin transaction.
   //
@@ -155,34 +155,38 @@ public func build_transaction(
     own_public_key : [Nat8],
     own_address : BitcoinAddress,
     transaction : Transaction,
-    derivation_path : [[Nat8]],
+    derivation_path : [Blob],
     signer : SignFun,
   ) : async [Nat8] {
     // Obtain the scriptPubKey of the source address which is also the
     // scriptPubKey of the Tx output being spent.
     switch (Address.scriptPubKey(#p2pkh own_address)) {
       case (#ok scriptPubKey) {
-        let public_key = public_key_bytes_to_public_key(own_public_key);
         let scriptSigs = Array.init<Script>(transaction.txInputs.size(), []);
 
         // Obtain scriptSigs for each Tx input.
         for (i in Iter.range(0, transaction.txInputs.size() - 1)) {
-          let sighash = Hash.doubleSHA256(transaction.createSignatureHash(
-              scriptPubKey, Nat32.fromIntWrap(i), SIGHASH_ALL));
+          let sighash = transaction.createSignatureHash(
+              scriptPubKey, Nat32.fromIntWrap(i), SIGHASH_ALL);
 
-          let signature_sec = await signer(derivation_path, sighash);
+          let signature_sec = await signer(derivation_path, Blob.fromArray(sighash));
+          let signature_der = Blob.toArray(Der.encodeSignature(signature_sec));
 
-          let signature = {
-            r = Common.readBE256(signature_sec, 0);
-            s = Common.readBE256(signature_sec, 32);
-          };
-          let signature_der = bitcoinTestTools.signatureToDer(signature, SIGHASH_ALL);
+          // Append the sighash type.
+          let encodedSignatureWithSighashType = Array.tabulate<Nat8>(
+            signature_der.size() + 1, func (n) {
+              if (n < signature_der.size()) {
+                signature_der[n]
+              } else {
+                Nat8.fromNat(Nat32.toNat(SIGHASH_ALL))
+              };
+          });
 
           // Create Script Sig which looks like:
           // ScriptSig = <Signature> <Public Key>.
           let script = [
-            #data signature_der,
-            #data (Publickey.toSec1(public_key, true).0)
+            #data encodedSignatureWithSighashType,
+            #data own_public_key
           ];
           scriptSigs[i] := script;
         };
@@ -204,12 +208,12 @@ public func build_transaction(
     let public_key = public_key_bytes_to_public_key(public_key_bytes);
 
     // Compute the P2PKH address from our public key.
-    P2pkh.deriveAddress(network, public_key, true)
+    P2pkh.deriveAddress(network, Publickey.toSec1(public_key, true))
   };
 
   // A mock for rubber-stamping ECDSA signatures.
-  func mock_signer(_derivation_path : [[Nat8]], _message_hash : [Nat8]) : async [Nat8] {
-      Array.freeze(Array.init<Nat8>(64, 1))
+  func mock_signer(_derivation_path : [Blob], _message_hash : Blob) : async Blob {
+      Blob.fromArray(Array.freeze(Array.init<Nat8>(64, 1)))
   };
 
   func public_key_bytes_to_public_key(public_key_bytes : [Nat8]) : PublicKey {

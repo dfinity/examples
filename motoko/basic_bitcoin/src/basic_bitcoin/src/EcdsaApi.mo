@@ -19,7 +19,7 @@ module {
   let ecdsa_canister_actor : EcdsaCanisterActor = actor("rrkah-fqaaa-aaaaa-aaaaq-cai");
 
   /// Returns the ECDSA public key of this canister at the given derivation path.
-  public func ecdsa_public_key(derivation_path : [[Nat8]]) : async [Nat8] {
+  public func ecdsa_public_key(derivation_path : [Blob]) : async Blob {
     // Retrieve the public key of this canister at derivation path
     // from the ECDSA API.
     let res = await ecdsa_canister_actor.ecdsa_public_key({
@@ -34,7 +34,7 @@ module {
     res.public_key
   };
 
-  public func sign_with_ecdsa(derivation_path : [[Nat8]], message_hash : [Nat8]) : async [Nat8] {
+  public func sign_with_ecdsa(derivation_path : [Blob], message_hash : Blob) : async Blob {
     let res = await ecdsa_canister_actor.sign_with_ecdsa({
         message_hash;
         derivation_path;

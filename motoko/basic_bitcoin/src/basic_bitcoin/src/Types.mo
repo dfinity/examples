@@ -7,8 +7,8 @@ module Types {
     };
 
     public type ECDSAPublicKeyReply = {
-        public_key : [Nat8];
-        chain_code : [Nat8];
+        public_key : Blob;
+        chain_code : Blob;
     };
 
     public type EcdsaKeyId = {
@@ -21,18 +21,18 @@ module Types {
     };
 
     public type SignWithECDSAReply = {
-        signature : [Nat8];
+        signature : Blob;
     };
 
     public type ECDSAPublicKey = {
         canister_id : ?Principal;
-        derivation_path : [[Nat8]];
+        derivation_path : [Blob];
         key_id : EcdsaKeyId;
     };
 
     public type SignWithECDSA = {
-        message_hash : [Nat8];
-        derivation_path : [[Nat8]];
+        message_hash : Blob;
+        derivation_path : [Blob];
         key_id : EcdsaKeyId;
     };
 
