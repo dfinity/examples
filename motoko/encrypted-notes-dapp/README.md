@@ -303,7 +303,6 @@ Some browsers may block local resources based on invalid SSL certificates. If wh
             "wasm": "internet_identity.wasm"
         }
     },
-    "dfx": "0.8.4",
     "networks": {
         "local": {
             "bind": "0.0.0.0:8000",

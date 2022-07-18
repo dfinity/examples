@@ -1,4 +1,4 @@
-name: motoko-counter-example
+name: motoko-counter
 on:
   push:
     branches:
@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
-      - name: Motoko Counter Example Darwin
+      - name: Motoko Counter Darwin
         run: |
           dfx start --background
           pushd motoko/counter
@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
-      - name: Motoko Counter Example Linux
+      - name: Motoko Counter Linux
         run: |
           dfx start --background
           pushd motoko/counter

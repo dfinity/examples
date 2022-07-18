@@ -1,0 +1,43 @@
+name: rust-encrypted-notes
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  rust-encrypted-notes-darwin:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Install ic-cdk-optimizer
+        run: cargo install ic-cdk-optimizer
+      - name: Rust Encrypted Notes Darwin (unit tests)
+        run: |
+          pushd motoko/encrypted-notes-dapp
+          make test-unit BUILD_ENV=rust
+          popd
+      - name: Rust Encrypted Notes Darwin (e2e)
+        run: |
+          pushd motoko/encrypted-notes-dapp
+          make test-e2e BUILD_ENV=rust
+          popd
+  rust-encrypted-notes-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Install ic-cdk-optimizer
+        run: cargo install ic-cdk-optimizer
+      - name: Rust Encrypted Notes Linux (unit tests)
+        run: |
+          pushd motoko/encrypted-notes-dapp
+          make test-unit BUILD_ENV=rust
+          popd
+      - name: Rust Encrypted Notes Linux (e2e)
+        run: |
+          pushd motoko/encrypted-notes-dapp
+          make test-e2e BUILD_ENV=rust
+          popd

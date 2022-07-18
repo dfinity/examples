@@ -1,0 +1,37 @@
+name: rust-tokens_transfer
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  rust-tokens_transfer-darwin:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Install ic-cdk-optimizer
+        run: cargo install ic-cdk-optimizer
+      - name: Rust Tokens Transfer Darwin
+        run: |
+          pushd rust/tokens_transfer
+          bash ./demo.sh
+          popd
+  rust-tokens_transfer-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Install ic-cdk-optimizer
+        run: cargo install ic-cdk-optimizer
+      - name: Rust Tokens Transfer Linux
+        run: |
+          pushd rust/tokens_transfer
+          bash ./demo.sh
+          popd

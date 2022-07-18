@@ -1,6 +1,6 @@
 # NFT WALLET
 
-This is the NFT Wallet example dapp that runs utilizing minted NFTs from the Rust dip721-nft-container. Among some of its essential features, the wallet can register NTS, transfer out NFTs and check how many NFTs it owns.
+This is the NFT Wallet example dapp that runs utilizing minted NFTs from the Rust dip721-nft-container. Among some of its essential features, the wallet can register NFTs, transfer out NFTs and check how many NFTs it owns.
 
 NFT Wallet dapp has a frontend UI available!
 
