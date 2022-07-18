@@ -273,7 +273,7 @@ async fn get_rate(job: Timestamp) {
         Principal::management_canister(),
         "http_request",
         &body[..],
-        0,
+        2_000_000_000,
     )
     .await
     {
