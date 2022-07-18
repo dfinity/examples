@@ -10,7 +10,7 @@
       "package": "ecdsa",
       "candid": "ecdsa.did",
       "wasm": "ecdsa.wasm",
-      "build": ""
+      "build": []
     }
   },
   "defaults": {
