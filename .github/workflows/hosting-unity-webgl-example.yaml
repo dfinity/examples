@@ -1,0 +1,31 @@
+name: hosting-unity-webgl
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  hosting-unity-webgl-darwin:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Hosting Unity Webgl Darwin
+        run: |
+          dfx start --background
+          pushd hosting/unity-webgl-template
+          dfx deploy
+          popd
+  hosting-unity-webgl-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Hosting Unity Webgl Linux
+        run: |
+          dfx start --background
+          pushd hosting/unity-webgl-template
+          dfx deploy
+          popd

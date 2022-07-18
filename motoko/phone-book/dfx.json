@@ -7,7 +7,7 @@
       "frontend": {
         "entrypoint": "src/www/public/index.html"
       },
-	"source": [
+      "source": [
         "src/www/assets",
         "dist/www/"
       ],
@@ -16,6 +16,5 @@
       ],
       "type": "assets"
     }
-  },
-  "dfx": "0.9.2"
+  }
 }
