@@ -1,0 +1,35 @@
+name: rust-hello
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  rust-hello-darwin:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Install ic-cdk-optimizer
+        run: cargo install ic-cdk-optimizer
+      - name: Rust Hello Darwin
+        run: |
+          dfx start --background
+          pushd rust/hello
+          make test
+          popd
+  rust-hello-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Install ic-cdk-optimizer
+        run: cargo install ic-cdk-optimizer
+      - name: Rust Hello Linux
+        run: |
+          dfx start --background
+          pushd rust/hello
+          make test
+          popd

@@ -12,8 +12,8 @@ echo AkitaDIP20 "${AkitaDIP20}"
 export GoldenDIP20=$(dfx canister id GoldenDIP20)
 echo GoldenDIP20 "${GoldenDIP20}"
 dfx canister call defi_dapp clear
-dfx identity new user1 || true
-dfx identity new user2 || true
+dfx identity new user1 --disable-encryption || true
+dfx identity new user2 --disable-encryption || true
 dfx identity use user1
 dfx identity get-principal
 export USER1=$(dfx identity get-principal)

@@ -1,0 +1,70 @@
+body, :root {
+    --footer-height: 7rem;
+    font-family: sans-serif;
+    font-size: 1.25rem;
+    margin: 0;
+}
+
+img {
+    max-width: 50vw;
+    max-height: 25vw;
+    display: block;
+    margin: auto;
+}
+
+form {
+    display: flex;
+    justify-content: center;
+    gap: 0.5em;
+    flex-flow: row wrap;
+    max-width: 40vw;
+    margin: auto;
+    align-items: baseline;
+}
+
+button[type="submit"] {
+    padding: 5px 20px;
+    margin: 10px auto;
+    float: right;
+}
+
+#greeting {
+    margin: 10px auto;
+    padding: 10px 60px;
+    border: 1px solid #222;
+}
+
+#greeting:empty {
+    display: none;
+}
+
+footer {
+    height: var(--footer-height);
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+}
+
+#reset {
+    margin-top: auto;
+}
+
+footer section {
+    padding: 1rem;
+}
+
+footer img {
+    margin-left: 0;
+    margin-bottom: 1rem;
+}
+
+main {
+    min-height: calc(100vh - var(--footer-height) - 2rem);
+    padding: 1rem;
+    display: grid;
+    grid-template-rows: auto 1fr;
+}
+
+h1 {
+    margin-top: 0;
+}

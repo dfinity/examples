@@ -1,0 +1,37 @@
+name: rust-dip721
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  rust-dip721-darwin:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Install ic-cdk-optimizer
+        run: cargo install ic-cdk-optimizer
+      - name: Rust DIP-721 Darwin
+        run: |
+          pushd rust/dip721-nft-container
+          bash ./demo.sh
+          popd
+  rust-dip721-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Install ic-cdk-optimizer
+        run: cargo install ic-cdk-optimizer
+      - name: Rust DIP-721 Linux
+        run: |
+          pushd rust/dip721-nft-container
+          bash ./demo.sh
+          popd
