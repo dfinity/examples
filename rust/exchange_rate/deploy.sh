@@ -25,10 +25,12 @@ dfx identity new $IDENTITY --disable-encryption
 echo "Created new identity $IDENTITY"
 
 # Deploys testnet
+echo "Cloning IC and deploy testnet"
 git clone git@gitlab.com:dfinity-lab/public/ic.git
 TESTNET_LOG="$WORKSPACE/testnet_deployment.log"
-./ic/testnet/tools/icos_deploy.sh $TESTNET --git-revision "$GIT_REVISION" --no-boundary-nodes > "$TESTNET_LOG"
+./ic/testnet/tools/icos_deploy.sh $TESTNET --git-revision "$GIT_REVISION" --no-boundary-nodes &> "$TESTNET_LOG"
 rm -rf ic
+echo "Testnet $TESTNET deployed."
 
 # Obtains app_node URL
 APP_URL=$(grep "$TESTNET-1-" "$TESTNET_LOG" | tail -1 | grep -o -P '(?<=http).*(?=8080)' | sed 's/$/8080/' | sed 's/^/http/')
@@ -44,14 +46,17 @@ jq ".networks.$TESTNET = { \
 mv dfx.json.new dfx.json
 echo "Estabilished $TESTNET address in dfx.json file."
 
+# Clean up canister_ids.json
+rm -f canister_ids.json
+
 # Deploys exchange_rate to app_node
 CANISTER_LOG="$WORKSPACE/canister_deployment.log"
-dfx deploy --network $TESTNET > "$CANISTER_LOG"
+dfx identity use $IDENTITY
+dfx deploy --network $TESTNET &> "$CANISTER_LOG"
 echo "Deployed canisters to $TESTNET"
 
 # Obtains canisters URLs
 for map in $(jq -c '. | to_entries | .[]' canister_ids.json); do
-    echo "Map is $map"
     canister_name=$(echo $map | jq -r '.key')
     canister_id=$(echo $map| jq -r ".value.$TESTNET")
     echo "$canister_name URL: https://$canister_id.$TESTNET.dfinity.network"
