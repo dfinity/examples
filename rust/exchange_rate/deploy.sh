@@ -49,10 +49,19 @@ echo "Estabilished $TESTNET address in dfx.json file."
 # Clean up canister_ids.json
 rm -f canister_ids.json
 
+# Generate declarations with loca DFX
+dfx start --background
+dfx deploy
+dfx stop
+
+# remove prebuild script in package.json before deploying to remote testnet
+jq 'del(.scripts.prebuild)' package.json > package.json.new
+mv package.json.new package.json
+
 # Deploys exchange_rate to app_node
 CANISTER_LOG="$WORKSPACE/canister_deployment.log"
 dfx identity use $IDENTITY
-dfx deploy --network $TESTNET &> "$CANISTER_LOG"
+dfx deploy --network $TESTNET --with-cycles=200000000000 &> "$CANISTER_LOG"
 echo "Deployed canisters to $TESTNET"
 
 # Obtains canisters URLs
