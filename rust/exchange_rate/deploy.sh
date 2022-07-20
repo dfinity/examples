@@ -29,12 +29,21 @@ echo "Cloning IC and deploy testnet"
 git clone git@gitlab.com:dfinity-lab/public/ic.git
 TESTNET_LOG="$WORKSPACE/testnet_deployment.log"
 ./ic/testnet/tools/icos_deploy.sh $TESTNET --git-revision "$GIT_REVISION" --no-boundary-nodes &> "$TESTNET_LOG"
-rm -rf ic
 echo "Testnet $TESTNET deployed."
+
+# Obtains nns_node URL
+NNS_URL=$(grep "$TESTNET-0-" "$TESTNET_LOG" | tail -1 | grep -o -P '(?<=http).*(?=8080)' | sed 's/$/8080/' | sed 's/^/http/')
+echo "Obtained application subnet URL at $NNS_URL"
 
 # Obtains app_node URL
 APP_URL=$(grep "$TESTNET-1-" "$TESTNET_LOG" | tail -1 | grep -o -P '(?<=http).*(?=8080)' | sed 's/$/8080/' | sed 's/^/http/')
 echo "Obtained application subnet URL at $APP_URL"
+
+# Enables the http_request feature on application subnet 1
+cd ic/rs
+cargo run --bin ic-admin -- --nns-url=$NNS_URL propose-to-update-subnet --features http_requests --subnet 1 --test-neuron-proposer
+cd ../../
+rm -rf ic
 
 # Updates dfx.json to app_node URL
 jq ".networks.$TESTNET = { \
@@ -70,3 +79,6 @@ for map in $(jq -c '. | to_entries | .[]' canister_ids.json); do
     canister_id=$(echo $map| jq -r ".value.$TESTNET")
     echo "$canister_name URL: https://$canister_id.$TESTNET.dfinity.network"
 done
+
+# A brief test on the backend
+dfx canister --network $TESTNET call exchange_rate get_rates '(record {start=1658351172; end=1658358172;})'
