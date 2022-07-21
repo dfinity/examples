@@ -1,7 +1,16 @@
 type satoshi = nat64;
+
 type millisatoshi_per_byte = nat64;
+
 type bitcoin_address = text;
+
 type block_hash = blob;
+
+type network = variant {
+    Regtest;
+    Testnet;
+    Mainnet;
+};
 
 type outpoint = record {
   txid : blob;
@@ -21,7 +30,7 @@ type get_utxos_response = record {
   next_page: opt blob;
 };
 
-service : {
+service : (network) -> {
     "get_p2pkh_address": () -> (bitcoin_address);
 
     "get_balance": (address: bitcoin_address) -> (satoshi);

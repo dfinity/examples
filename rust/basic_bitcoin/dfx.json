@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "dfx": "0.11.0",
+  "dfx": "0.11.1-beta.0",
   "canisters": {
     "basic_bitcoin": {
       "type": "custom",
@@ -8,13 +8,6 @@
       "candid": "src/basic_bitcoin/basic_bitcoin.did",
       "wasm": "target/wasm32-unknown-unknown/release/basic_bitcoin.wasm",
       "build": "src/basic_bitcoin/build.sh"
-    },
-    "ecdsa": {
-      "type": "custom",
-      "package": "ecdsa",
-      "candid": "ecdsa.did",
-      "wasm": "ecdsa.wasm",
-      "build": ""
     }
   },
   "defaults": {

@@ -21,9 +21,13 @@ use std::str::FromStr;
 const SIG_HASH_TYPE: SigHashType = SigHashType::All;
 
 /// Returns the P2PKH address of this canister at the given derivation path.
-pub async fn get_p2pkh_address(network: Network, derivation_path: Vec<Vec<u8>>) -> String {
+pub async fn get_p2pkh_address(
+    network: Network,
+    key_name: String,
+    derivation_path: Vec<Vec<u8>>,
+) -> String {
     // Fetch the public key of the given derivation path.
-    let public_key = ecdsa_api::ecdsa_public_key(derivation_path).await;
+    let public_key = ecdsa_api::ecdsa_public_key(key_name, derivation_path).await;
 
     // Compute the address.
     public_key_to_p2pkh_address(network, &public_key)
@@ -35,9 +39,10 @@ pub async fn get_p2pkh_address(network: Network, derivation_path: Vec<Vec<u8>>) 
 pub async fn send(
     network: Network,
     derivation_path: Vec<Vec<u8>>,
+    key_name: String,
     dst_address: String,
     amount: Satoshi,
-) {
+) -> Txid {
     // Get fee percentiles from previous transactions to estimate our own fee.
     let fee_percentiles = bitcoin_api::get_current_fee_percentiles(network).await;
 
@@ -52,7 +57,8 @@ pub async fn send(
     };
 
     // Fetch our public key, P2PKH address, and UTXOs.
-    let own_public_key = ecdsa_api::ecdsa_public_key(derivation_path.clone()).await;
+    let own_public_key =
+        ecdsa_api::ecdsa_public_key(key_name.clone(), derivation_path.clone()).await;
     let own_address = public_key_to_p2pkh_address(network, &own_public_key);
 
     print("Fetching UTXOs...");
@@ -82,6 +88,7 @@ pub async fn send(
         &own_public_key,
         &own_address,
         transaction,
+        key_name,
         derivation_path,
         ecdsa_api::sign_with_ecdsa,
     )
@@ -96,6 +103,8 @@ pub async fn send(
     print("Sending transaction...");
     bitcoin_api::send_transaction(network, signed_transaction_bytes).await;
     print("Done");
+
+    signed_transaction.txid()
 }
 
 // Builds a transaction to send the given `amount` of satoshis to the
@@ -129,6 +138,7 @@ async fn build_transaction(
             own_public_key,
             own_address,
             transaction.clone(),
+            String::from(""), // mock key name
             vec![], // mock derivation path
             mock_signer,
         )
@@ -153,7 +163,7 @@ fn build_transaction_with_fee(
     fee: u64,
 ) -> Result<Transaction, String> {
     // Assume that any amount below this threshold is dust.
-    const DUST_THRESHOLD: u64 = 10_000;
+    const DUST_THRESHOLD: u64 = 1_000;
 
     // Select which UTXOs to spend. We naively spend the oldest available UTXOs,
     // even if they were previously spent in a transaction. This isn't a
@@ -223,11 +233,12 @@ async fn sign_transaction<SignFun, Fut>(
     own_public_key: &[u8],
     own_address: &Address,
     mut transaction: Transaction,
+    key_name: String,
     derivation_path: Vec<Vec<u8>>,
     signer: SignFun,
 ) -> Transaction
 where
-    SignFun: Fn(Vec<Vec<u8>>, Vec<u8>) -> Fut,
+    SignFun: Fn(String, Vec<Vec<u8>>, Vec<u8>) -> Fut,
     Fut: std::future::Future<Output = Vec<u8>>,
 {
     // Verify that our own address is P2PKH.
@@ -242,7 +253,7 @@ where
         let sighash =
             txclone.signature_hash(index, &own_address.script_pubkey(), SIG_HASH_TYPE.as_u32());
 
-        let signature = signer(derivation_path.clone(), sighash.to_vec()).await;
+        let signature = signer(key_name.clone(), derivation_path.clone(), sighash.to_vec()).await;
 
         // Convert signature to DER.
         let der_signature = sec1_to_der(signature);
@@ -288,7 +299,7 @@ fn public_key_to_p2pkh_address(network: Network, public_key: &[u8]) -> String {
 }
 
 // A mock for rubber-stamping ECDSA signatures.
-async fn mock_signer(_derivation_path: Vec<Vec<u8>>, _message_hash: Vec<u8>) -> Vec<u8> {
+async fn mock_signer(_key_name: String, _derivation_path: Vec<Vec<u8>>, _message_hash: Vec<u8>) -> Vec<u8> {
     vec![1; 64]
 }
 
