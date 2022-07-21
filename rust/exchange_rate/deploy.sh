@@ -86,3 +86,5 @@ done
 
 # A brief test on the backend
 dfx canister --network $TESTNET call exchange_rate get_rates '(record {start=1658351172; end=1658358172;})'
+sleep 20
+dfx canister --network $TESTNET call exchange_rate get_rates '(record {start=1658351172; end=1658358172;})'
