@@ -22,6 +22,7 @@ IDENTITY=$(echo $RANDOM | md5sum | head -c 20)
 
 # Create a new identity without passphrase
 dfx identity new $IDENTITY --disable-encryption
+echo $IDENTITY > $WORKSPACE/identity.log
 echo "Created new identity $IDENTITY"
 
 # Deploys testnet
@@ -60,8 +61,9 @@ echo "Estabilished $TESTNET address in dfx.json file."
 rm -f canister_ids.json
 
 # Generate declarations with loca DFX
+rm -rf .dfx
 dfx start --background
-dfx deploy
+dfx deploy--with-cycles=200000000000 
 dfx stop
 
 # remove prebuild script in package.json before deploying to remote testnet
