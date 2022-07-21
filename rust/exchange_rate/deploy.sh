@@ -34,18 +34,15 @@ echo "Testnet $TESTNET deployed."
 # Obtains nns_node URL
 NNS_URL=$(grep "$TESTNET-0-" "$TESTNET_LOG" | tail -1 | grep -o -P '(?<=http).*(?=8080)' | sed 's/$/8080/' | sed 's/^/http/')
 echo $NNS_URL > $WORKSPACE/nns_url.log
-echo "Obtained application subnet URL at $NNS_URL"
+echo "Obtained NNS subnet URL: $NNS_URL"
 
 # Obtains app_node URL
 APP_URL=$(grep "$TESTNET-1-" "$TESTNET_LOG" | tail -1 | grep -o -P '(?<=http).*(?=8080)' | sed 's/$/8080/' | sed 's/^/http/')
-echo "Obtained application subnet URL at $APP_URL"
+echo "Obtained application subnet URL: $APP_URL"
 
 # Enables the http_request feature on application subnet 1
 cd ic/rs
-nix-shell
-NNS_URL=$(cat ../../deployment_logs/nns_url.log)
-cargo run --bin ic-admin -- --nns-url=$NNS_URL propose-to-update-subnet --features http_requests --subnet 1 --test-neuron-proposer
-exit
+nix-shell --run "NNS_URL=$(cat ../../deployment_logs/nns_url.log); cargo run --bin ic-admin -- --nns-url=$NNS_URL propose-to-update-subnet --features http_requests --subnet 1 --test-neuron-proposer;"
 cd ../../
 rm -rf ic
 
