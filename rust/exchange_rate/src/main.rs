@@ -82,16 +82,6 @@ pub const DATA_POINTS_PER_API: u64 = 200;
 // 10 (bytes per field) * 6 (fields per timestamp) * 200 (timestamps)
 pub const MAX_RESPONSE_BYTES: u64 = 10 * 6 * DATA_POINTS_PER_API;
 
-pub const RESPONSE_HEADERS_SANTIZATION: [&'static str; 7] = [
-    "Date",                    // DateTime of the request is made
-    "CF-Cache-Status",         // CloudFront caching status
-    "CF-RAY",                  // CloudFront custom Id
-    "Age",                     // Age of the data object since query
-    "Content-Security-Policy", // Long list of allowable domains for reference
-    "Last-Modified",           // Last time the object is modified
-    "Set-Cookie",              // cf-country=US;Path=/;
-];
-
 thread_local! {
     pub static FETCHED: RefCell<HashMap<Timestamp, Rate>>  = RefCell::new(HashMap::new());
     pub static REQUESTED: RefCell<HashSet<Timestamp>> = RefCell::new(HashSet::new());
@@ -313,14 +303,8 @@ fn decode_body_to_rates(body: &str, fetched: &mut RefMut<HashMap<u64, f32>>) {
 #[query]
 async fn transform(raw: CanisterHttpResponsePayload) -> CanisterHttpResponsePayload {
     let mut sanitized = raw.clone();
-    let mut processed_headers = vec![];
-    for header in raw.headers.iter() {
-        if !RESPONSE_HEADERS_SANTIZATION.contains(&header.name.as_str()) {
-            processed_headers.insert(0, header.clone());
-        }
-    }
-    sanitized.headers = processed_headers;
-    return sanitized;
+    sanitized.headers = vec![];
+    sanitized
 }
 
 #[pre_upgrade]
