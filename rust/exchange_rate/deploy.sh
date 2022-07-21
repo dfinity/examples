@@ -17,14 +17,6 @@ if [ -d "$WORKSPACE" ]; then
 fi
 mkdir $WORKSPACE
 
-# Get a random string as identity name
-IDENTITY=$(echo $RANDOM | md5sum | head -c 20)
-
-# Create a new identity without passphrase
-dfx identity new $IDENTITY --disable-encryption
-echo $IDENTITY > $WORKSPACE/identity.log
-echo "Created new identity $IDENTITY"
-
 # Deploys testnet
 echo "Cloning IC and deploy testnet"
 git clone git@gitlab.com:dfinity-lab/public/ic.git
@@ -43,7 +35,7 @@ echo "Obtained application subnet URL: $APP_URL"
 
 # Enables the http_request feature on application subnet 1
 cd ic/rs
-nix-shell --run "NNS_URL=$(cat ../../deployment_logs/nns_url.log); cargo run --bin ic-admin -- --nns-url=$NNS_URL propose-to-update-subnet --features http_requests --subnet 1 --test-neuron-proposer;"
+nix-shell --run "NNS_URL=$(cat ../../deployment_logs/nns_url.log); cargo run --bin ic-admin -- --nns-url=$NNS_URL propose-to-update-subnet --features http_requests --subnet 1 --test-neuron-proposer; cargo run --bin ic-admin -- --nns-url=$NNS_URL propose-xdr-icp-conversion-rate --xdr-permyriad-per-icp 4000000 --test-neuron-proposer;"
 cd ../../
 rm -rf ic
 
@@ -60,10 +52,22 @@ echo "Estabilished $TESTNET address in dfx.json file."
 # Clean up canister_ids.json
 rm -f canister_ids.json
 
-# Generate declarations with loca DFX
+# Get a random string as identity name
+IDENTITY=$(echo $RANDOM | md5sum | head -c 20)
+
+# Create a new identity without passphrase
+dfx identity new $IDENTITY --disable-encryption
+echo $IDENTITY > $WORKSPACE/identity.log
+echo "Created new identity $IDENTITY"
+
+# Generate declarations with local DFX
 rm -rf .dfx
+npm install minimist
+npm install rollup
+dfx identity use $IDENTITY
 dfx start --background
-dfx deploy --with-cycles=200000000000 
+dfx deploy exchange_rate --with-cycles=40000000000000
+dfx deploy exchange_rate_assets --with-cycles=40000000000000 
 dfx stop
 
 # remove prebuild script in package.json before deploying to remote testnet
@@ -73,7 +77,7 @@ mv package.json.new package.json
 # Deploys exchange_rate to app_node
 CANISTER_LOG="$WORKSPACE/canister_deployment.log"
 dfx identity use $IDENTITY
-dfx deploy --network $TESTNET --with-cycles=200000000000 &> "$CANISTER_LOG"
+dfx deploy --network $TESTNET --with-cycles=40000000000000 &> "$CANISTER_LOG"
 echo "Deployed canisters to $TESTNET"
 
 # Obtains canisters URLs
