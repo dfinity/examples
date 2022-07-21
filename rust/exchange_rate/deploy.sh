@@ -63,7 +63,7 @@ rm -f canister_ids.json
 # Generate declarations with loca DFX
 rm -rf .dfx
 dfx start --background
-dfx deploy--with-cycles=200000000000 
+dfx deploy --with-cycles=200000000000 
 dfx stop
 
 # remove prebuild script in package.json before deploying to remote testnet
