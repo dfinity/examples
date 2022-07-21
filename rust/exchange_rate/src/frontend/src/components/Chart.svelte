@@ -90,6 +90,7 @@
           {
             borderColor: "#d3d3d3",
             data: yValues,
+            pointRadius: 0,
           },
         ],
       },
@@ -139,7 +140,7 @@
   function timestampToString(timestamp) {
     var date = new Date(timestamp * 1000);
     var year = date.getFullYear();
-    var month = date.getMonth();
+    var month = date.getMonth() + 1;
     var day = date.getDate();
     var hours = date.getHours();
     var minutes = "0" + date.getMinutes();
