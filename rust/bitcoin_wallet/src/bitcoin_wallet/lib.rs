@@ -1,7 +1,7 @@
 use bitcoin::Address;
 use ic_btc_library::{
-    get_balance_from_args, get_current_fees_from_args, AddressType, BitcoinAgent,
-    ManagementCanister, ManagementCanisterImpl, Network, Satoshi,
+    get_balance_from_args, get_current_fees_from_args, get_initialization_parameters_from_args,
+    AddressType, BitcoinAgent, ManagementCanister, ManagementCanisterImpl, Network, Satoshi,
 };
 use ic_cdk::{api::caller, export::Principal, trap};
 use ic_cdk_macros::{query, update};
@@ -19,6 +19,23 @@ thread_local! {
             ADDRESS_TYPE,
             MIN_CONFIRMATIONS
         ).unwrap());
+}
+
+/// Initializes the Bitcoin agent.
+/// This custom endpoint needs to be called once. This endpoint can then be removed in a canister upgrade.
+#[update]
+async fn initialize() {
+    let get_initialization_parameters_args = BITCOIN_AGENT
+        .with(|bitcoin_agent| bitcoin_agent.borrow().get_initialization_parameters_args());
+    let initialization_parameters =
+        get_initialization_parameters_from_args(get_initialization_parameters_args)
+            .await
+            .unwrap();
+    BITCOIN_AGENT.with(|bitcoin_agent| {
+        bitcoin_agent
+            .borrow_mut()
+            .initialize(initialization_parameters)
+    });
 }
 
 /// Returns the user's `Principal`.
