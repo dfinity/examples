@@ -15,16 +15,18 @@ npm install
 
 While working on the Internet Computer does not require more configuration, working locally does. The additional instructions are provided in [the next section](#testing-locally).
 
-Run the following commands to deploy the development Internet Identity canister and the Bitcoin wallet canister locally:
+Run the following commands to deploy and initialize the development Internet Identity canister and the Bitcoin wallet canister locally:
 
 ```bash
 dfx deploy
+dfx canister call bitcoin_wallet initialize
 ```
 
-Run the following command to deploy the Bitcoin wallet canister on the Internet Computer:
+Run the following commands to deploy and initialize the Bitcoin wallet canister on the Internet Computer:
 
 ```bash
 II_CANISTER_ID=identity dfx deploy --network ic bitcoin_wallet_assets
+dfx canister --network ic call bitcoin_wallet initialize
 ```
 
 ## Testing locally
