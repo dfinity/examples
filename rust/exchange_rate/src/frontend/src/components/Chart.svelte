@@ -16,7 +16,7 @@
   // icons
   import Fa from "svelte-fa";
   import { faSync } from "@fortawesome/free-solid-svg-icons";
-  import { faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
+  import { faCircleInfo, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
 
   let ctx;
   let chart;
@@ -24,7 +24,8 @@
   let startTime = 1654034400;
   let endTime = 1654812000;
 
-  let loading = true;
+  let loading = false;
+  let startup = true;
   let missingData = false;
 
   let xValues = [];
@@ -32,11 +33,10 @@
 
 
   async function getExchangeRates(start, end) {
-    console.log("getEx: start: ", start);
-    console.log("getEx: end: ", end);
-
     loading = true;
     missingData = false;
+
+    startup = false;
 
     xValues = [];
     yValues = [];
@@ -80,8 +80,6 @@
   }
 
   onMount(async () => {
-    getExchangeRates(startTime, endTime);
-
     chart = new chartjs(ctx, {
       type: "line",
       data: {
@@ -174,9 +172,6 @@
         startTime = Math.floor(selectedDates[0].getTime() / 1000);
         endTime = Math.floor(selectedDates[1].getTime() / 1000);
       }
-
-      console.log("startTime: ", startTime);
-      console.log("endTime: ", endTime);
     },
   };
 
@@ -189,9 +184,15 @@
 <canvas bind:this={ctx} id="myChart" />
 
 {#if missingData}
-  <div class="warning">
+  <div class="alert warning">
     <Fa icon={faTriangleExclamation} /> Parts of the data are missing and are still
     being fetched. Retry a bit later...
+  </div>
+{/if}
+
+{#if startup}
+  <div class="alert info">
+    <Fa icon={faCircleInfo} /> Select a time range and update the chart to get started.
   </div>
 {/if}
 
@@ -225,14 +226,23 @@
     justify-content: center;
   }
 
-  .warning {
+  .alert {
     margin-top: 30px;
     display: inline-block;
     padding: 16px 16px;
+    border-radius: 5px;
+  }
+
+  .warning {
     color: #842029;
     border-color: #f5c2c7;
-    border-radius: 5px;
     background-color: #f8d7da;
+  }
+
+  .info {
+    color: #055160;
+    border-color: #cff4fc;
+    background-color: #b6effb;
   }
 
   .date-picker {
