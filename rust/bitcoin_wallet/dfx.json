@@ -26,6 +26,9 @@
       "type": "assets"
     },
     "frontend": {
+      "dependencies": [
+        "bitcoin_wallet"
+      ],
       "source": [
         "src/frontend/public/"
       ],
