@@ -16,7 +16,10 @@
   // icons
   import Fa from "svelte-fa";
   import { faSync } from "@fortawesome/free-solid-svg-icons";
-  import { faCircleInfo, faTriangleExclamation } from "@fortawesome/free-solid-svg-icons";
+  import {
+    faCircleInfo,
+    faTriangleExclamation,
+  } from "@fortawesome/free-solid-svg-icons";
 
   let ctx;
   let chart;
@@ -26,11 +29,11 @@
 
   let loading = false;
   let startup = true;
+  let enableWarning = false;
   let missingData = false;
 
   let xValues = [];
   let yValues = [];
-
 
   async function getExchangeRates(start, end) {
     loading = true;
@@ -183,7 +186,7 @@
 
 <canvas bind:this={ctx} id="myChart" />
 
-{#if missingData}
+{#if enableWarning && missingData}
   <div class="alert warning">
     <Fa icon={faTriangleExclamation} /> Parts of the data are missing and are still
     being fetched. Retry a bit later...
