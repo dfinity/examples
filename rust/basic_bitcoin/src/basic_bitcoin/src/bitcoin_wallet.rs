@@ -52,8 +52,8 @@ pub async fn send(
         // we use a default of 1000 millisatoshis/byte (i.e. 1 satoshi/byte)
         1000
     } else {
-        // Choose the 25th percentile for sending fees to minimize the cost.
-        fee_percentiles[24]
+        // Choose the 50th percentile for sending fees.
+        fee_percentiles[49]
     };
 
     // Fetch our public key, P2PKH address, and UTXOs.

@@ -42,5 +42,5 @@ service : (network) -> {
     "send": (record {
       destination_address: bitcoin_address;
       amount_in_satoshi: satoshi;
-    }) -> ();
+    }) -> (text);
 }

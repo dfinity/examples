@@ -1,5 +1,5 @@
 use crate::types::*;
-use ic_cdk::{call, export::Principal};
+use ic_cdk::{api::call::call_with_payment, call, export::Principal};
 
 /// Returns the ECDSA public key of this canister at the given derivation path.
 pub async fn ecdsa_public_key(key_name: String, derivation_path: Vec<Vec<u8>>) -> Vec<u8> {
@@ -28,7 +28,7 @@ pub async fn sign_with_ecdsa(
     derivation_path: Vec<Vec<u8>>,
     message_hash: Vec<u8>,
 ) -> Vec<u8> {
-    let res: (SignWithECDSAReply,) = call(
+    let res: (SignWithECDSAReply,) = call_with_payment(
         Principal::management_canister(),
         "sign_with_ecdsa",
         (SignWithECDSA {
@@ -39,6 +39,7 @@ pub async fn sign_with_ecdsa(
                 name: key_name,
             },
         },),
+        10_000_000_000,
     )
     .await
     .unwrap();

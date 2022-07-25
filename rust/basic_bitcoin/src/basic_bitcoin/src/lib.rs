@@ -4,8 +4,8 @@ mod ecdsa_api;
 mod types;
 
 use ic_btc_types::{GetUtxosResponse, MillisatoshiPerByte, Network};
-use ic_cdk_macros::{init, update};
-use std::cell::{RefCell, Cell};
+use ic_cdk_macros::{init, post_upgrade, pre_upgrade, update};
+use std::cell::{Cell, RefCell};
 
 thread_local! {
     // The bitcoin network to connect to.
@@ -84,4 +84,19 @@ pub async fn send(request: types::SendRequest) -> String {
     .await;
 
     tx_id.to_string()
+}
+
+#[pre_upgrade]
+fn pre_upgrade() {
+    let network = NETWORK.with(|n| n.get());
+    ic_cdk::storage::stable_save((network,)).expect("Saving network to stable store must succeed.");
+}
+
+#[post_upgrade]
+fn post_upgrade() {
+    let network = ic_cdk::storage::stable_restore::<(Network,)>()
+        .expect("Failed to read network from stable memory.")
+        .0;
+
+    init(network);
 }
