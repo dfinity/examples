@@ -16,7 +16,7 @@ jobs:
           dfx start --background
           pushd motoko/threshold-ecdsa
           dfx deploy
-          bash test.sh
+          bash test.sh hello
   motoko-threshold-ecdsa-linux:
     runs-on: ubuntu-20.04
     steps:
@@ -28,4 +28,4 @@ jobs:
           dfx start --background
           pushd motoko/threshold-ecdsa
           dfx deploy
-          bash test.sh
+          bash test.sh hello
