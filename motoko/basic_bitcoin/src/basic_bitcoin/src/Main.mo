@@ -18,7 +18,7 @@ actor class BasicBitcoin(_network : Types.Network) {
   // When developing locally this should be `Regtest`.
   // When deploying to the IC this should be `Testnet`.
   // `Mainnet` is currently unsupported.
-  let NETWORK : Network = _network;
+  stable let NETWORK : Network = _network;
 
   // The derivation path to use for ECDSA secp256k1.
   let DERIVATION_PATH : [[Nat8]] = [];
