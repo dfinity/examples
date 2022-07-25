@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 function tohex() {
-    printf "$(echo "$1" | sed -e 's/^[^"]*"//' -e 's/".*//g' -e 's/%/%%/g' -e 's/\\/\\x/g')" | od -An -tx1 -w64 | sed -e 's/ //g'
+    printf "$(echo "$1" | sed -e 's/^[^"]*"//' -e 's/".*//g' -e 's/%/%%/g' -e 's/\\/\\x/g')" | od -An -tx1 | tr -d '[:space:]'
 }
 
 test -z "$1" && echo "USAGE: $0 <message to sign and verify>" && exit 1
