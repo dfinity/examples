@@ -1,0 +1,22 @@
+<h2>Send bitcoin</h2>
+<button id="backToDashboardBtn">Back to dashboard</button>
+<section>
+  Address: <input type="text" id="address"></input><br/>
+  Amount: <input type="number" id="amount" min="0" step="0.00000001"></input><button id="setMaxAmountBtn">max</button><br/>
+
+  Fee: <input type="number" id="feeMSatB"></input> msat/B<br/>
+
+  <label for="low">low</label>
+  <input type="radio" id="low" name="feeLevel" value="low"><br/>
+
+  <label for="std">std</label>
+  <input type="radio" id="std" name="feeLevel" value="std" checked><br/>
+
+  <label for="high">high</label>
+  <input type="radio" id="high" name="feeLevel" value="high"><br/>
+
+  <label for="allowRBF">Allow RBF</label>
+  <input type="checkbox" id="allowRBF"></input><br/>
+
+  <button id="sendBtn">Send</button>
+</section>
