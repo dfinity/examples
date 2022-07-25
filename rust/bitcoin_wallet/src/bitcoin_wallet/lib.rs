@@ -1,11 +1,13 @@
 use bitcoin::Address;
 use ic_btc_library::{
     get_balance_from_args, get_current_fees_from_args, get_initialization_parameters_from_args,
-    AddressType, BitcoinAgent, ManagementCanister, ManagementCanisterImpl, Network, Satoshi,
+    get_utxos_from_args, multi_transfer_from_args, AddressType, BitcoinAgent, Fee,
+    ManagementCanister, ManagementCanisterImpl, MillisatoshiPerByte, MultiTransferError, Network,
+    Satoshi, TransactionInfo,
 };
 use ic_cdk::{api::caller, export::Principal, trap};
 use ic_cdk_macros::{query, update};
-use std::cell::RefCell;
+use std::{cell::RefCell, collections::BTreeMap, str::FromStr};
 
 const MIN_CONFIRMATIONS: u32 = 0;
 const NETWORK: Network = Network::Regtest;
@@ -97,4 +99,49 @@ async fn get_fees() -> (Satoshi, Satoshi, Satoshi) {
         .await
         .unwrap();
     (current_fees[25], current_fees[50], current_fees[75])
+}
+
+/// Sends a transaction, transferring the specified Bitcoin amounts to the provided address.
+#[update]
+async fn transfer(
+    address: String,
+    amount: Satoshi,
+    fee: MillisatoshiPerByte,
+    allow_rbf: bool,
+) -> Result<TransactionInfo, MultiTransferError> {
+    // TODO: distinguish UTXOs of each user
+    let principal_address = &get_principal_address().await;
+    let address = Address::from_str(&address).unwrap();
+    let payouts = BTreeMap::from([(address, amount)]);
+
+    let get_utxos_args = BITCOIN_AGENT.with(|bitcoin_agent| {
+        bitcoin_agent
+            .borrow()
+            .get_utxos_args(principal_address, MIN_CONFIRMATIONS)
+    });
+    let get_utxos_result = get_utxos_from_args(get_utxos_args).await.unwrap();
+    BITCOIN_AGENT.with(|bitcoin_agent| bitcoin_agent.borrow_mut().apply_utxos(get_utxos_result));
+    BITCOIN_AGENT.with(|bitcoin_agent| {
+        bitcoin_agent
+            .borrow_mut()
+            .get_balance_update(principal_address)
+            .unwrap()
+    });
+
+    let multi_transfer_args = BITCOIN_AGENT.with(|bitcoin_agent| {
+        bitcoin_agent.borrow().get_multi_transfer_args(
+            &payouts,
+            principal_address,
+            Fee::PerByte(fee),
+            MIN_CONFIRMATIONS,
+            allow_rbf,
+        )
+    });
+    let multi_transfer_result = multi_transfer_from_args(multi_transfer_args).await?;
+    BITCOIN_AGENT.with(|bitcoin_agent| {
+        bitcoin_agent
+            .borrow_mut()
+            .apply_multi_transfer_result(&multi_transfer_result)
+    });
+    Ok(multi_transfer_result)
 }
