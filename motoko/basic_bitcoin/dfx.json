@@ -1,16 +1,9 @@
 {
   "version": 1,
-  "dfx": "0.11.0",
+  "dfx": "0.11.1-beta.0",
   "canisters": {
     "basic_bitcoin": {
       "main": "src/basic_bitcoin/src/Main.mo"
-    },
-    "ecdsa": {
-      "type": "custom",
-      "package": "ecdsa",
-      "candid": "ecdsa.did",
-      "wasm": "ecdsa.wasm",
-      "build": []
     }
   },
   "defaults": {

@@ -1,8 +1,11 @@
+import Text "mo:base/Text";
+
 import BitcoinWallet "BitcoinWallet";
 import BitcoinApi "BitcoinApi";
 import Types "Types";
+import Utils "Utils";
 
-actor BasicBitcoin {
+actor class BasicBitcoin(_network : Types.Network) {
   type GetUtxosResponse = Types.GetUtxosResponse;
   type MillisatoshiPerByte = Types.MillisatoshiPerByte;
   type SendRequest = Types.SendRequest;
@@ -13,11 +16,20 @@ actor BasicBitcoin {
   // The Bitcoin network to connect to.
   //
   // When developing locally this should be `Regtest`.
-  // When deploying to the IC this should be `Testnet` or `Mainnet`.
-  let NETWORK : Network = #Regtest;
+  // When deploying to the IC this should be `Testnet`.
+  // `Mainnet` is currently unsupported.
+  let NETWORK : Network = _network;
 
   // The derivation path to use for ECDSA secp256k1.
   let DERIVATION_PATH : [[Nat8]] = [];
+
+  // The ECDSA key name.
+  let KEY_NAME : Text = switch NETWORK {
+    // For local development, we use a special test key with dfx.
+    case (#Regtest) "dfx_test_key";
+    // On the IC we're using a test ECDSA key.
+    case _ "test_key_1"
+  };
 
   /// Returns the balance of the given Bitcoin address.
   public func get_balance(address : BitcoinAddress) : async Satoshi {
@@ -37,11 +49,12 @@ actor BasicBitcoin {
 
   /// Returns the P2PKH address of this canister at a specific derivation path.
   public func get_p2pkh_address() : async BitcoinAddress {
-    await BitcoinWallet.get_p2pkh_address(NETWORK, DERIVATION_PATH)
+    await BitcoinWallet.get_p2pkh_address(NETWORK, KEY_NAME, DERIVATION_PATH)
   };
 
   /// Sends the given amount of bitcoin from this canister to the given address.
-  public func send(request : SendRequest) : async () {
-    await BitcoinWallet.send(NETWORK, DERIVATION_PATH, request.destination_address, request.amount_in_satoshi)
+  /// Returns the transaction ID.
+  public func send(request : SendRequest) : async Text {
+    Utils.bytesToText(await BitcoinWallet.send(NETWORK, DERIVATION_PATH, KEY_NAME, request.destination_address, request.amount_in_satoshi))
   };
 };

@@ -12,14 +12,10 @@ module {
       sign_with_ecdsa : SignWithECDSA -> async SignWithECDSAReply;
   };
 
-  let KEY_NAME : Text = "test_key_1";
-
-  // TODO: Replace this principal with the management canister when it's available.
-  // For now, call a canister that provides a mock implementation.
-  let ecdsa_canister_actor : EcdsaCanisterActor = actor("rrkah-fqaaa-aaaaa-aaaaq-cai");
+  let ecdsa_canister_actor : EcdsaCanisterActor = actor("aaaaa-aa");
 
   /// Returns the ECDSA public key of this canister at the given derivation path.
-  public func ecdsa_public_key(derivation_path : [Blob]) : async Blob {
+  public func ecdsa_public_key(key_name : Text, derivation_path : [Blob]) : async Blob {
     // Retrieve the public key of this canister at derivation path
     // from the ECDSA API.
     let res = await ecdsa_canister_actor.ecdsa_public_key({
@@ -27,20 +23,20 @@ module {
         derivation_path;
         key_id = {
             curve = #Secp256k1;
-            name = KEY_NAME;
+            name = key_name;
         };
     });
         
     res.public_key
   };
 
-  public func sign_with_ecdsa(derivation_path : [Blob], message_hash : Blob) : async Blob {
+  public func sign_with_ecdsa(key_name : Text, derivation_path : [Blob], message_hash : Blob) : async Blob {
     let res = await ecdsa_canister_actor.sign_with_ecdsa({
         message_hash;
         derivation_path;
         key_id = {
             curve = #Secp256k1;
-            name = KEY_NAME;
+            name = key_name;
         };
     });
         

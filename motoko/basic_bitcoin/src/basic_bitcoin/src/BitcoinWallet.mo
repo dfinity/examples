@@ -46,9 +46,9 @@ module {
   let SIGHASH_ALL : SighashType = 0x01;
 
   /// Returns the P2PKH address of this canister at the given derivation path.
-  public func get_p2pkh_address(network : Network, derivation_path : [[Nat8]]) : async BitcoinAddress {
+  public func get_p2pkh_address(network : Network, key_name : Text, derivation_path : [[Nat8]]) : async BitcoinAddress {
     // Fetch the public key of the given derivation path.
-    let public_key = await EcdsaApi.ecdsa_public_key(Array.map(derivation_path, Blob.fromArray));
+    let public_key = await EcdsaApi.ecdsa_public_key(key_name, Array.map(derivation_path, Blob.fromArray));
 
     // Compute the address.
     public_key_to_p2pkh_address(network, Blob.toArray(public_key))
@@ -57,7 +57,7 @@ module {
   /// Sends a transaction to the network that transfers the given amount to the
   /// given destination, where the source of the funds is the canister itself
   /// at the given derivation path.
-  public func send(network : Network, derivation_path : [[Nat8]], dst_address : BitcoinAddress, amount : Satoshi) : async () {
+  public func send(network : Network, derivation_path : [[Nat8]], key_name : Text, dst_address : BitcoinAddress, amount : Satoshi) : async [Nat8] {
     // Get fee percentiles from previous transactions to estimate our own fee.
     let fee_percentiles = await BitcoinApi.get_current_fee_percentiles(network);
 
@@ -72,7 +72,7 @@ module {
     };
 
     // Fetch our public key, P2PKH address, and UTXOs.
-    let own_public_key = Blob.toArray(await EcdsaApi.ecdsa_public_key(Array.map(derivation_path, Blob.fromArray)));
+    let own_public_key = Blob.toArray(await EcdsaApi.ecdsa_public_key(key_name, Array.map(derivation_path, Blob.fromArray)));
     let own_address = public_key_to_p2pkh_address(network, own_public_key);
 
     Debug.print("Fetching UTXOs...");
@@ -86,13 +86,16 @@ module {
     Debug.print("Transaction to sign: " # debug_show(tx_bytes));
 
     // Sign the transaction.
-    let signed_transaction_bytes = await sign_transaction(own_public_key, own_address, transaction, Array.map(derivation_path, Blob.fromArray), EcdsaApi.sign_with_ecdsa);
-    
+    let signed_transaction_bytes = await sign_transaction(own_public_key, own_address, transaction, key_name, Array.map(derivation_path, Blob.fromArray), EcdsaApi.sign_with_ecdsa);
+    let signed_transaction = Utils.get_ok(Transaction.fromBytes(Iter.fromArray(signed_transaction_bytes)));
+
     Debug.print("Signed transaction: " # debug_show(signed_transaction_bytes));
 
     Debug.print("Sending transaction...");
     await BitcoinApi.send_transaction(network, signed_transaction_bytes);
     Debug.print("Done");
+
+    signed_transaction.id()
   };
 
 
@@ -127,6 +130,7 @@ public func build_transaction(
             own_public_key,
             own_address,
             transaction,
+            "", // mock key name
             [], // mock derivation path
             mock_signer,
         );
@@ -142,7 +146,7 @@ public func build_transaction(
     }
   };
 
-  type SignFun = ([Blob], Blob) -> async Blob;
+  type SignFun = (Text, [Blob], Blob) -> async Blob;
 
   // Sign a bitcoin transaction.
   //
@@ -155,6 +159,7 @@ public func build_transaction(
     own_public_key : [Nat8],
     own_address : BitcoinAddress,
     transaction : Transaction,
+    key_name : Text,
     derivation_path : [Blob],
     signer : SignFun,
   ) : async [Nat8] {
@@ -169,7 +174,7 @@ public func build_transaction(
           let sighash = transaction.createSignatureHash(
               scriptPubKey, Nat32.fromIntWrap(i), SIGHASH_ALL);
 
-          let signature_sec = await signer(derivation_path, Blob.fromArray(sighash));
+          let signature_sec = await signer(key_name, derivation_path, Blob.fromArray(sighash));
           let signature_der = Blob.toArray(Der.encodeSignature(signature_sec));
 
           // Append the sighash type.
@@ -212,7 +217,7 @@ public func build_transaction(
   };
 
   // A mock for rubber-stamping ECDSA signatures.
-  func mock_signer(_derivation_path : [Blob], _message_hash : Blob) : async Blob {
+  func mock_signer(_key_name : Text, _derivation_path : [Blob], _message_hash : Blob) : async Blob {
       Blob.fromArray(Array.freeze(Array.init<Nat8>(64, 1)))
   };
 
