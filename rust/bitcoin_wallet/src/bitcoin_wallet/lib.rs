@@ -64,9 +64,20 @@ fn get_authenticated_principal() -> Principal {
 /// Returns the principal's `Address`.
 fn get_principal_address(principal: Principal) -> Address {
     let derivation_path = &[principal.as_slice().to_vec()];
-    BITCOIN_AGENT.with(|bitcoin_agent| {
-        bitcoin_agent
+    BITCOIN_AGENT_USERS.with(|bitcoin_agent_users| {
+        if bitcoin_agent_users.borrow().get(&principal).is_none() {
+            BITCOIN_AGENT.with(|bitcoin_agent| {
+                bitcoin_agent_users
+                    .borrow_mut()
+                    .insert(principal, bitcoin_agent.borrow().clone());
+            })
+        }
+    });
+    BITCOIN_AGENT_USERS.with(|bitcoin_agent_users| {
+        bitcoin_agent_users
             .borrow_mut()
+            .get_mut(&principal)
+            .unwrap()
             .add_address(derivation_path)
             .unwrap()
     })
@@ -116,28 +127,22 @@ async fn transfer(
     fee: MillisatoshiPerByte,
     allow_rbf: bool,
 ) -> Result<TransactionInfo, MultiTransferError> {
-    // TODO: distinguish UTXOs of each user
     let principal = get_authenticated_principal();
     let principal_address = &get_principal_address(principal);
     let address = Address::from_str(&address).unwrap();
     let payouts = BTreeMap::from([(address, amount)]);
 
-    let get_utxos_args = BITCOIN_AGENT.with(|bitcoin_agent| {
-        bitcoin_agent
-            .borrow()
+    let get_utxos_args = BITCOIN_AGENT_USERS.with(|bitcoin_agent_users| {
+        bitcoin_agent_users.borrow_mut()[&principal]
             .get_utxos_args(principal_address, MIN_CONFIRMATIONS)
     });
     let get_utxos_result = get_utxos_from_args(get_utxos_args).await.unwrap();
-    BITCOIN_AGENT.with(|bitcoin_agent| bitcoin_agent.borrow_mut().apply_utxos(get_utxos_result));
-    BITCOIN_AGENT.with(|bitcoin_agent| {
-        bitcoin_agent
-            .borrow_mut()
-            .get_balance_update(principal_address)
-            .unwrap()
-    });
-
-    let multi_transfer_args = BITCOIN_AGENT.with(|bitcoin_agent| {
-        bitcoin_agent.borrow().get_multi_transfer_args(
+    let multi_transfer_args = BITCOIN_AGENT_USERS.with(|bitcoin_agent_users| {
+        let mut bitcoin_agent_users_mut = bitcoin_agent_users.borrow_mut();
+        let bitcoin_agent = bitcoin_agent_users_mut.get_mut(&principal).unwrap();
+        bitcoin_agent.apply_utxos(get_utxos_result);
+        bitcoin_agent.get_balance_update(principal_address).unwrap();
+        bitcoin_agent.get_multi_transfer_args(
             &payouts,
             principal_address,
             Fee::PerByte(fee),
@@ -146,9 +151,11 @@ async fn transfer(
         )
     });
     let multi_transfer_result = multi_transfer_from_args(multi_transfer_args).await?;
-    BITCOIN_AGENT.with(|bitcoin_agent| {
-        bitcoin_agent
+    BITCOIN_AGENT_USERS.with(|bitcoin_agent_users| {
+        bitcoin_agent_users
             .borrow_mut()
+            .get_mut(&principal)
+            .unwrap()
             .apply_multi_transfer_result(&multi_transfer_result)
     });
     Ok(multi_transfer_result)

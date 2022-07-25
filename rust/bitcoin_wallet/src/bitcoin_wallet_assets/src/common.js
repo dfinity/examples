@@ -62,7 +62,7 @@ const webapp_idl = ({ IDL }) => {
 
   return IDL.Service({
     whoami: IDL.Func([], [IDL.Principal], ["query"]),
-    get_principal_address_str: IDL.Func([], [IDL.Text], ["update"]),
+    get_user_address_str: IDL.Func([], [IDL.Text], ["update"]),
     get_balance: IDL.Func([], [Satoshi], ["update"]),
     get_fees: IDL.Func([], [MillisatoshiPerByte, MillisatoshiPerByte, MillisatoshiPerByte], ["update"]),
     transfer: IDL.Func([IDL.Text, Satoshi, MillisatoshiPerByte, IDL.Bool], [TransferResult], ["update"]),
