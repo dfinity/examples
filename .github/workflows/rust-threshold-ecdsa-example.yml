@@ -16,6 +16,7 @@ jobs:
           dfx start --background
           pushd rust/threshold-ecdsa
           dfx deploy
+          npm install
           bash test.sh hello
   rust-threshold-ecdsa-linux:
     runs-on: ubuntu-20.04
@@ -28,4 +29,5 @@ jobs:
           dfx start --background
           pushd rust/threshold-ecdsa
           dfx deploy
+          npm install
           bash test.sh hello
