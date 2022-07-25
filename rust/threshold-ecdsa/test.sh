@@ -9,11 +9,11 @@ test -z "$1" && echo "USAGE: $0 <message to sign and verify>" && exit 1
 sha256=$(echo "$1" | shasum -a 256 | sed -e 's/ .*//g')
 echo sha256="$sha256"
 
-public_key=$(tohex "$(dfx canister call ecdsa_example_motoko public_key | grep public_key)")
+public_key=$(tohex "$(dfx canister call ecdsa_example_rust public_key | grep public_key)")
 echo public_key="$public_key"
 
 args="(blob \"$(echo $sha256 | sed -e 's/\(..\)/\\\1/g')\")"
-signature=$(tohex "$(dfx canister call ecdsa_example_motoko sign "$args" | grep signature)")
+signature=$(tohex "$(dfx canister call ecdsa_example_rust sign "$args" | grep signature)")
 echo signature=$signature
 
 node <<END

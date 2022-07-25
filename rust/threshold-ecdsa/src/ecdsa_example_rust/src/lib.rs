@@ -70,11 +70,10 @@ async fn public_key() -> Result<PublicKeyReply, String> {
         derivation_path: vec![caller],
         key_id: key_id.clone(),
     };
-    ic_cdk::println!("Sending signature request = {:?}", request);
     let (res,): (ECDSAPublicKeyReply,) = ic_cdk::call(ic, "ecdsa_public_key", (request,))
         .await
         .map_err(|e| format!("Failed to call ecdsa_public_key {}", e.1))?;
-    ic_cdk::println!("Got response = {:?}", res);
+
     Ok(PublicKeyReply {
         public_key: res.public_key,
     })
@@ -83,6 +82,7 @@ async fn public_key() -> Result<PublicKeyReply, String> {
 #[update]
 async fn sign(message: Vec<u8>) -> Result<SignatureReply, String> {
     assert!(message.len() == 32);
+
     let key_id = EcdsaKeyId {
         curve: EcdsaCurve::Secp256k1,
         name: "dfx_test_key".to_string(),
@@ -91,21 +91,17 @@ async fn sign(message: Vec<u8>) -> Result<SignatureReply, String> {
     let ic = CanisterId::from_str(&ic_canister_id).unwrap();
 
     let caller = ic_cdk::caller().as_slice().to_vec();
-    let signature: Vec<u8> = {
-        let request = SignWithECDSA {
-            message_hash: message.clone(),
-            derivation_path: vec![caller],
-            key_id,
-        };
-        ic_cdk::println!("Sending signature request = {:?}", request);
-        let (res,): (SignWithECDSAReply,) =
-            ic_cdk::api::call::call_with_payment(ic, "sign_with_ecdsa", (request,), 10_000_000_000)
-                .await
-                .map_err(|e| format!("Failed to call sign_with_ecdsa {}", e.1))?;
-
-        ic_cdk::println!("Got response = {:?}", res);
-        res.signature
+    let request = SignWithECDSA {
+        message_hash: message.clone(),
+        derivation_path: vec![caller],
+        key_id,
     };
+    let (res,): (SignWithECDSAReply,) =
+        ic_cdk::api::call::call_with_payment(ic, "sign_with_ecdsa", (request,), 10_000_000_000)
+            .await
+            .map_err(|e| format!("Failed to call sign_with_ecdsa {}", e.1))?;
 
-    Ok(SignatureReply { signature })
+    Ok(SignatureReply {
+        signature: res.signature,
+    })
 }
