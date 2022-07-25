@@ -35,7 +35,7 @@ The installation requires SDK version 0.11 or above. Simply run `dfx deploy` to 
 There is also an script showing how to make calls to the canister to request a signature, and then verify the signature using the canister's public key.
 It requires [Node.js] to be installed in your local environment.
 
-Here is an example usage:
+Here is an example of installing node dependencies and running `test.sh`:
 
 ```
 $ npm install
