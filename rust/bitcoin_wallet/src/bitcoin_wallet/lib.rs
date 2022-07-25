@@ -16,7 +16,7 @@ const ADDRESS_TYPE: &AddressType = &AddressType::P2pkh;
 thread_local! {
     // The Bitcoin wallet uses a Bitcoin agent per user.
     static BITCOIN_AGENT_USERS: RefCell<BTreeMap<Principal, BitcoinAgent<ManagementCanisterImpl>>> = RefCell::new(BTreeMap::default());
-    // Initialized default Bitcoin agent for each user.
+    // Default Bitcoin agent used to setup a Bitcoin agent instance for each user.
     static BITCOIN_AGENT: RefCell<BitcoinAgent<ManagementCanisterImpl>> =
         RefCell::new(BitcoinAgent::new(
             ManagementCanisterImpl::new(NETWORK),
@@ -98,7 +98,7 @@ async fn get_user_address_str() -> String {
 /// Returns the user's balance in `Satoshi`s.
 #[update]
 async fn get_balance() -> Satoshi {
-    let principal_address = &get_user_address();
+    let user_address = &get_user_address();
     let get_utxos_args = BITCOIN_AGENT.with(|bitcoin_agent| {
         bitcoin_agent
             .borrow()
@@ -119,7 +119,7 @@ async fn get_fees() -> (Satoshi, Satoshi, Satoshi) {
     (current_fees[25], current_fees[50], current_fees[75])
 }
 
-/// Sends a transaction, transferring the specified Bitcoin amounts to the provided address.
+/// Sends a transaction, transferring the specified Bitcoin amount to the provided address.
 #[update]
 async fn transfer(
     address: String,
