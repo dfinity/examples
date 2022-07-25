@@ -14,7 +14,9 @@ const NETWORK: Network = Network::Regtest;
 const ADDRESS_TYPE: &AddressType = &AddressType::P2pkh;
 
 thread_local! {
-    // The Bitcoin wallet uses only a single Bitcoin agent to track all users' addresses.
+    // The Bitcoin wallet uses a Bitcoin agent per user.
+    static BITCOIN_AGENT_USERS: RefCell<BTreeMap<Principal, BitcoinAgent<ManagementCanisterImpl>>> = RefCell::new(BTreeMap::default());
+    // Initialized default Bitcoin agent for each user.
     static BITCOIN_AGENT: RefCell<BitcoinAgent<ManagementCanisterImpl>> =
         RefCell::new(BitcoinAgent::new(
             ManagementCanisterImpl::new(NETWORK),
@@ -59,10 +61,9 @@ fn get_authenticated_principal() -> Principal {
     caller_principal
 }
 
-/// Returns the user's `Address`.
-async fn get_principal_address() -> Address {
-    let caller_principal = get_authenticated_principal();
-    let derivation_path = &[caller_principal.as_slice().to_vec()];
+/// Returns the principal's `Address`.
+fn get_principal_address(principal: Principal) -> Address {
+    let derivation_path = &[principal.as_slice().to_vec()];
     BITCOIN_AGENT.with(|bitcoin_agent| {
         bitcoin_agent
             .borrow_mut()
@@ -71,16 +72,22 @@ async fn get_principal_address() -> Address {
     })
 }
 
+/// Returns the user's `Address`.
+fn get_user_address() -> Address {
+    let caller_principal = get_authenticated_principal();
+    get_principal_address(caller_principal)
+}
+
 /// Returns the user's address as a `String`.
 #[update]
-async fn get_principal_address_str() -> String {
-    get_principal_address().await.to_string()
+async fn get_user_address_str() -> String {
+    get_user_address().to_string()
 }
 
 /// Returns the user's balance in `Satoshi`s.
 #[update]
 async fn get_balance() -> Satoshi {
-    let principal_address = &get_principal_address().await;
+    let principal_address = &get_user_address();
     let get_utxos_args = BITCOIN_AGENT.with(|bitcoin_agent| {
         bitcoin_agent
             .borrow()
@@ -110,7 +117,8 @@ async fn transfer(
     allow_rbf: bool,
 ) -> Result<TransactionInfo, MultiTransferError> {
     // TODO: distinguish UTXOs of each user
-    let principal_address = &get_principal_address().await;
+    let principal = get_authenticated_principal();
+    let principal_address = &get_principal_address(principal);
     let address = Address::from_str(&address).unwrap();
     let payouts = BTreeMap::from([(address, amount)]);
 
