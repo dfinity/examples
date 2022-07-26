@@ -47,7 +47,8 @@ const webapp_idl = ({ IDL }) => {
       'Unknown' : IDL.Null,
   });
 
-  const MultiTransferError = IDL.Variant({
+  const TransferError = IDL.Variant({
+      'MalformedDestinationAddress' : IDL.Null,
       'InvalidPercentile' : IDL.Null,
       'InsufficientBalance' : IDL.Null,
       'MinConfirmationsTooHigh' : IDL.Null,
@@ -57,7 +58,7 @@ const webapp_idl = ({ IDL }) => {
 
   const TransferResult = IDL.Variant({
       'Ok' : TransactionInfo,
-      'Err' : MultiTransferError,
+      'Err' : TransferError,
   });
 
   return IDL.Service({
