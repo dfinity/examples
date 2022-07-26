@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
 function tohex() {
-    echo "$1" > /dev/stderr 
     printf "$(echo "$1" | sed -e 's/^[^"]*"//' -e 's/".*//g' -e 's/%/%%/g' -e 's/\\/\\x/g')" | od -An -tx1 | tr -d '[:space:]'
 }
 
@@ -10,7 +9,6 @@ test -z "$1" && echo "USAGE: $0 <message to sign and verify>" && exit 1
 sha256=$(echo "$1" | shasum -a 256 | sed -e 's/ .*//g')
 echo sha256="$sha256"
 
-dfx canister call ecdsa_example_motoko public_key 
 public_key=$(tohex "$(dfx canister call ecdsa_example_motoko public_key | grep public_key)")
 echo public_key="$public_key"
 

@@ -12,7 +12,7 @@ jobs:
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
         env:
-          DFX_VERSION: 0.11.0
+          DFX_VERSION: 0.11.1-beta.2
       - name: Motoko Threshold ECDSA Darwin
         run: |
           dfx start --background
@@ -28,7 +28,7 @@ jobs:
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
         env:
-          DFX_VERSION: 0.11.0
+          DFX_VERSION: 0.11.1-beta.2
       - name: Motoko Threshold ECDSA Linux
         run: |
           dfx start --background
