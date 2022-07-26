@@ -30,7 +30,7 @@ This call requires that the ECDSA feature is enabled, the caller is a canister, 
 
 **Usage**
 
-The installation requires SDK version 0.11 or above. Simply run `dfx deploy` to deploy the example canister to to a locally running dfx instance.
+The installation requires SDK version 0.11.1 or above. Simply run `dfx deploy` to deploy the example canister to to a locally running dfx instance.
 
 There is also an script showing how to make calls to the canister to request a signature, and then verify the signature using the canister's public key.
 It requires [Node.js] to be installed in your local environment.
