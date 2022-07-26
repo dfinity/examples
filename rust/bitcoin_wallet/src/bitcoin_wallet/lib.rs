@@ -98,11 +98,10 @@ async fn get_user_address_str() -> String {
 /// Returns the user's balance in `Satoshi`s.
 #[update]
 async fn get_balance() -> Satoshi {
-    let user_address = &get_user_address();
-    let get_utxos_args = BITCOIN_AGENT.with(|bitcoin_agent| {
-        bitcoin_agent
-            .borrow()
-            .get_utxos_args(user_address, MIN_CONFIRMATIONS)
+    let principal = get_authenticated_principal();
+    let principal_address = &get_principal_address(principal);
+    let get_utxos_args = BITCOIN_AGENT_USERS.with(|bitcoin_agent_users| {
+        bitcoin_agent_users.borrow()[&principal].get_utxos_args(principal_address, MIN_CONFIRMATIONS)
     });
     get_balance_from_args(get_utxos_args).await.unwrap()
 }
