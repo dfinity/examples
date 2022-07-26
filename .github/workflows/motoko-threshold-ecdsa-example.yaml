@@ -19,6 +19,7 @@ jobs:
           pushd motoko/threshold-ecdsa
           dfx deploy
           npm install
+          sleep 60
           bash test.sh hello
   motoko-threshold-ecdsa-linux:
     runs-on: ubuntu-20.04
@@ -34,4 +35,5 @@ jobs:
           pushd motoko/threshold-ecdsa
           dfx deploy
           npm install
+          sleep 60
           bash test.sh hello
