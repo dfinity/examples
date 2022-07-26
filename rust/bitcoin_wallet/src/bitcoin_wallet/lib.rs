@@ -5,7 +5,11 @@ use ic_btc_library::{
     ManagementCanister, ManagementCanisterImpl, MillisatoshiPerByte, MultiTransferError, Network,
     Satoshi, TransactionInfo,
 };
-use ic_cdk::{api::caller, export::Principal, trap};
+use ic_cdk::{
+    api::{call::RejectionCode, caller},
+    export::{candid::CandidType, Principal},
+    trap,
+};
 use ic_cdk_macros::{query, update};
 use std::{cell::RefCell, collections::BTreeMap, str::FromStr};
 
@@ -101,7 +105,8 @@ async fn get_balance() -> Satoshi {
     let principal = get_authenticated_principal();
     let principal_address = &get_principal_address(principal);
     let get_utxos_args = BITCOIN_AGENT_USERS.with(|bitcoin_agent_users| {
-        bitcoin_agent_users.borrow()[&principal].get_utxos_args(principal_address, MIN_CONFIRMATIONS)
+        bitcoin_agent_users.borrow()[&principal]
+            .get_utxos_args(principal_address, MIN_CONFIRMATIONS)
     });
     get_balance_from_args(get_utxos_args).await.unwrap()
 }
@@ -125,10 +130,10 @@ async fn transfer(
     amount: Satoshi,
     fee: MillisatoshiPerByte,
     allow_rbf: bool,
-) -> Result<TransactionInfo, MultiTransferError> {
+) -> Result<TransactionInfo, TransferError> {
     let principal = get_authenticated_principal();
     let principal_address = &get_principal_address(principal);
-    let address = Address::from_str(&address).unwrap();
+    let address = Address::from_str(&address)?;
     let payouts = BTreeMap::from([(address, amount)]);
 
     let get_utxos_args = BITCOIN_AGENT_USERS.with(|bitcoin_agent_users| {
@@ -158,4 +163,37 @@ async fn transfer(
             .apply_multi_transfer_result(&multi_transfer_result)
     });
     Ok(multi_transfer_result.transaction_info)
+}
+
+/// Errors when processing a `transfer` request.
+#[derive(CandidType, Debug)]
+pub enum TransferError {
+    MalformedDestinationAddress,
+    InvalidPercentile,
+    InsufficientBalance,
+    MinConfirmationsTooHigh,
+    UnsupportedSourceAddressType,
+    ManagementCanisterReject(RejectionCode, String),
+}
+
+impl From<MultiTransferError> for TransferError {
+    fn from(multi_transfer_error: MultiTransferError) -> Self {
+        match multi_transfer_error {
+            MultiTransferError::InvalidPercentile => TransferError::InvalidPercentile,
+            MultiTransferError::InsufficientBalance => TransferError::InsufficientBalance,
+            MultiTransferError::MinConfirmationsTooHigh => TransferError::MinConfirmationsTooHigh,
+            MultiTransferError::UnsupportedSourceAddressType => {
+                TransferError::UnsupportedSourceAddressType
+            }
+            MultiTransferError::ManagementCanisterReject(rejection_code, message) => {
+                TransferError::ManagementCanisterReject(rejection_code, message)
+            }
+        }
+    }
+}
+
+impl From<bitcoin::util::address::Error> for TransferError {
+    fn from(_: bitcoin::util::address::Error) -> Self {
+        TransferError::MalformedDestinationAddress
+    }
 }
