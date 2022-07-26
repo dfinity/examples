@@ -158,5 +158,5 @@ async fn transfer(
             .unwrap()
             .apply_multi_transfer_result(&multi_transfer_result)
     });
-    Ok(multi_transfer_result)
+    Ok(multi_transfer_result.transaction_info)
 }
