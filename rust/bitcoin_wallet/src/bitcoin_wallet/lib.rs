@@ -168,23 +168,21 @@ async fn transfer(
 /// Errors when processing a `transfer` request.
 #[derive(CandidType, Debug)]
 pub enum TransferError {
+    FeeTooLow,
     MalformedDestinationAddress,
     InvalidPercentile,
     InsufficientBalance,
     MinConfirmationsTooHigh,
-    UnsupportedSourceAddressType,
     ManagementCanisterReject(RejectionCode, String),
 }
 
 impl From<MultiTransferError> for TransferError {
     fn from(multi_transfer_error: MultiTransferError) -> Self {
         match multi_transfer_error {
+            MultiTransferError::FeeTooLow => TransferError::FeeTooLow,
             MultiTransferError::InvalidPercentile => TransferError::InvalidPercentile,
             MultiTransferError::InsufficientBalance => TransferError::InsufficientBalance,
             MultiTransferError::MinConfirmationsTooHigh => TransferError::MinConfirmationsTooHigh,
-            MultiTransferError::UnsupportedSourceAddressType => {
-                TransferError::UnsupportedSourceAddressType
-            }
             MultiTransferError::ManagementCanisterReject(rejection_code, message) => {
                 TransferError::ManagementCanisterReject(rejection_code, message)
             }
