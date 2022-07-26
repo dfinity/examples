@@ -11,6 +11,8 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
+        env:
+          DFX_VERSION: 0.11.0
       - name: Rust Threshold ECDSA Darwin
         run: |
           dfx start --background
@@ -18,14 +20,14 @@ jobs:
           dfx deploy
           npm install
           bash test.sh hello
-        env:
-          DFX_VERSION: 0.11.0
   rust-threshold-ecdsa-linux:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
+        env:
+          DFX_VERSION: 0.11.0
       - name: Rust Threshold ECDSA Linux
         run: |
           dfx start --background
@@ -33,5 +35,3 @@ jobs:
           dfx deploy
           npm install
           bash test.sh hello
-        env:
-          DFX_VERSION: 0.11.0
