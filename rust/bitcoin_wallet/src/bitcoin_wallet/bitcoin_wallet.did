@@ -1,9 +1,62 @@
+type TransactionID = text;
 type Satoshi = nat64;
 type MillisatoshiPerByte = nat64;
+
+type Network = variant {
+    Mainnet : null,
+    Testnet : null,
+    Regtest : null,
+};
+
+type AddressUsingPrimitives = record { text; Network };
+
+type OutPoint = record {
+    txid : vec nat8,
+    vout : nat32,
+};
+
+type Utxo = record {
+    outpoint : OutPoint,
+    value : Satoshi,
+    height : nat32,
+};
+
+type TransactionInfo = record {
+    id : TransactionID,
+    utxos_addresses : vec (record { AddressUsingPrimitives; vec Utxo }),
+    fee : Satoshi,
+    size : nat32,
+    timestamp : nat64,
+};
+
+type RejectionCode = variant {
+    NoError : null,
+    SysFatal : null,
+    SysTransient : null,
+    DestinationInvalid : null,
+    CanisterReject : null,
+    CanisterError : null,
+    Unknown : null,
+};
+
+type TransferError = variant {
+    MalformedDestinationAddress : null,
+    InvalidPercentile : null,
+    InsufficientBalance : null,
+    MinConfirmationsTooHigh : null,
+    UnsupportedSourceAddressType : null,
+    ManagementCanisterReject : record { RejectionCode; text },
+};
+
+type TransferResult = variant {
+    Ok : TransactionInfo,
+    Err : TransferError,
+};
 
 service : {
     whoami: () -> (text) query;
     get_principal_address_str: () -> (text);
     get_balance: () -> (Satoshi);
     get_fees: () -> (MillisatoshiPerByte, MillisatoshiPerByte, MillisatoshiPerByte);
+    transfer: (text, Satoshi, MillisatoshiPerByte, bool) -> (TransferResult)
 }

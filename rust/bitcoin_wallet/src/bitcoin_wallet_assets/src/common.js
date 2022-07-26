@@ -7,7 +7,6 @@ const webapp_id = process.env.BITCOIN_WALLET_CANISTER_ID;
 const webapp_idl = ({ IDL }) => {
   const TransactionID = IDL.Text;
   const Satoshi = IDL.Nat64;
-  const Millisatoshi = IDL.Nat64;
   const MillisatoshiPerByte = IDL.Nat64;
 
   const Network = IDL.Variant({
