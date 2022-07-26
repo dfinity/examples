@@ -18,6 +18,8 @@ jobs:
           dfx deploy
           npm install
           bash test.sh hello
+        env:
+          DFX_VERSION: 0.11.0
   motoko-threshold-ecdsa-linux:
     runs-on: ubuntu-20.04
     steps:
@@ -31,3 +33,5 @@ jobs:
           dfx deploy
           npm install
           bash test.sh hello
+        env:
+          DFX_VERSION: 0.11.0
