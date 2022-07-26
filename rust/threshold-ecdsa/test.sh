@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 export LC_ALL=C
 function tohex() {
-    printf \ "$(echo -n "$1" | sed -e 's/^[^"]*"//' -e 's/".*//g' -e 's/%/%%/g' -e 's/\\/\\x/g')" | sed -e 's/^ //' | od -An -tx1 | tr -d '[:space:]'
+    printf \ "$(echo "$1" | sed -e 's/^[^"]*"//' -e 's/".*//g' -e 's/%/%%/g' -e 's/\\/\\x/g')" | sed -e 's/^ //' | od -N64 -An -tx1 | tr -d '[:space:]'
 }
 
 test -z "$1" && echo "USAGE: $0 <message to sign and verify>" && exit 1
