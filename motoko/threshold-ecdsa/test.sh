@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 function tohex() {
+    echo "$1" > /dev/stderr 
     printf "$(echo "$1" | sed -e 's/^[^"]*"//' -e 's/".*//g' -e 's/%/%%/g' -e 's/\\/\\x/g')" | od -An -tx1 | tr -d '[:space:]'
 }
 
