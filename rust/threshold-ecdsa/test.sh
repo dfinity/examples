@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-
+export LC_ALL=C
 function tohex() {
     printf \ "$(echo "$1" | sed -e 's/^[^"]*"//' -e 's/".*//g' -e 's/%/%%/g' -e 's/\\/\\x/g')" | sed -e 's/^ //' | od -An -tx1 | tr -d '[:space:]'
 }
