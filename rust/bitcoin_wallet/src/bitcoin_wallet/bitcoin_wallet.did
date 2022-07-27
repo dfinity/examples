@@ -55,7 +55,7 @@ type TransferResult = variant {
 
 service : {
     whoami: () -> (text) query;
-    get_principal_address_str: () -> (text);
+    get_user_address_str: () -> (text);
     get_balance: () -> (Satoshi);
     get_fees: () -> (MillisatoshiPerByte, MillisatoshiPerByte, MillisatoshiPerByte);
     transfer: (text, Satoshi, MillisatoshiPerByte, bool) -> (TransferResult)
