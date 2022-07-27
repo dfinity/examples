@@ -47,11 +47,11 @@ const webapp_idl = ({ IDL }) => {
   });
 
   const TransferError = IDL.Variant({
+      'FeeTooLow' : IDL.Null,
       'MalformedDestinationAddress' : IDL.Null,
       'InvalidPercentile' : IDL.Null,
       'InsufficientBalance' : IDL.Null,
       'MinConfirmationsTooHigh' : IDL.Null,
-      'UnsupportedSourceAddressType' : IDL.Null,
       'ManagementCanisterReject' : IDL.Tuple(RejectionCode, IDL.Text),
   });
 
