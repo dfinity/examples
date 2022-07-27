@@ -5,7 +5,7 @@ export interface WalletApi {
   getBalance: () => Promise<bigint>;
   getAddress: () => Promise<string>;
 
-  getFees: () => Promise<{ low: bigint; std: bigint; high: bigint }>;
+  getFees: () => Promise<{ low: number; std: number; high: number }>;
   send: (
     address: string,
     amount: bigint,
@@ -21,9 +21,9 @@ export function createIcApi(actor: BackendActor): WalletApi {
     getFees: async () => {
       const fees = await actor.get_fees();
       return {
-        high: fees[2] / BigInt(1000),
-        std: fees[1] / BigInt(1000),
-        low: fees[0] / BigInt(1000),
+        high: Number(fees[2]) / 1000,
+        std: Number(fees[1]) / 1000,
+        low: Number(fees[0]) / 1000,
       };
     },
     send: (address: string, amount: bigint, fee: bigint) => {
@@ -57,9 +57,9 @@ export function createMockApi(successRate = 1): WalletApi {
       sleep(1000, successRate).then(() => 'thisisamockbitcoinaddress'),
     getFees: () =>
       sleep(1000, successRate).then(() => ({
-        high: BigInt(27),
-        std: BigInt(22),
-        low: BigInt(16),
+        high: 27,
+        std: 22.5,
+        low: 16,
       })),
     send: (_address: string, _amount: bigint, fee: bigint) =>
       sleep(1000, 1.0).then(() => {

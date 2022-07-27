@@ -37,7 +37,7 @@
         setTimeout(() => {
           // wait a tick until the options are in the DOM
           feePreset = 'std';
-          fee = Number(fees[feePreset]);
+          fee = fees[feePreset];
         });
         return fees;
       })
