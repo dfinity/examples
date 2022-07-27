@@ -23,8 +23,8 @@ const { DFX_NETWORK, canisterIds, useIcInternetIdentity, useMockApi } =
       return {
         DFX_NETWORK,
         canisterIds: require(path.resolve('../../canister_ids.json')),
-        useIcInternetIdentity,
-        useMockApi,
+        useIcInternetIdentity: true,
+        useMockApi: false,
       };
     } else {
       return {
