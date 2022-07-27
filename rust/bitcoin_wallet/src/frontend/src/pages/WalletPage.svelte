@@ -4,6 +4,7 @@
   import MenuIcon from '../components/MenuIcon.svelte';
   import ReceiveIcon from '../components/ReceiveIcon.svelte';
   import SendIcon from '../components/SendIcon.svelte';
+  import TextSpinner from '../components/TextSpinner.svelte';
   import { formatSats } from '../lib/formatting';
   import type { AuthenticatedState } from '../store/auth';
   import { showError } from '../store/notifications';
@@ -51,9 +52,7 @@
     >
     <div class="text-5xl md:text-6xl mt-2">
       {#await balance}
-        <span class="animate-pulse w-72 md:w-80 block bg-gray-300 rounded-md"
-          >&nbsp;</span
-        >
+        <span class="">Loading balance<TextSpinner /></span>
       {:then b}
         {formatSats(b)}
       {:catch}

@@ -1,5 +1,6 @@
 <script lang="ts">
   import BackIcon from '../components/BackIcon.svelte';
+  import DotsSpinner from '../components/DotsSpinner.svelte';
   import Drawer from '../components/Drawer.svelte';
   import SendIcon from '../components/SendIcon.svelte';
   import SpinnerIcon from '../components/SpinnerIcon.svelte';
@@ -12,7 +13,7 @@
   export let auth: AuthenticatedState;
 
   let openSendConfirmationDrawer = false;
-  let amount = 0;
+  let amount: number | null = null;
   let address = '';
   let feePreset = '';
 
@@ -129,9 +130,7 @@
         <label for="amount" class="text-lg font-medium ">Amount</label>
         <div class="text-xs self-center">
           {#await balance}
-            <span class="animate-pulse w-36 inline-block bg-gray-300 rounded"
-              >&nbsp;</span
-            >
+            <DotsSpinner class="relative -left-7" />
           {:then balance}
             Available:
             <button
@@ -164,9 +163,7 @@
         <label for="network-fee" class="text-lg font-medium">Network fee</label>
         <div class="text-right text-xs self-center">
           {#await networkFees}
-            <span class="animate-pulse w-20 inline-block bg-gray-300 rounded"
-              >&nbsp;</span
-            >
+            <DotsSpinner class="relative -left-7" />
           {:then}
             {fee} sat/b
           {:catch}
@@ -222,7 +219,7 @@
         <button
           class="btn btn-blue w-full space-x-1"
           type="button"
-          disabled={address.trim().length === 0 || !amount}
+          disabled={address.trim().length === 0 || !amount || fee == 0}
           on:click={() => (openSendConfirmationDrawer = true)}
           ><SendIcon /><span>Confirm & Send</span></button
         >

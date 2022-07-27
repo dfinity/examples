@@ -1,9 +1,11 @@
 <script lang="ts">
   import BackIcon from '../components/BackIcon.svelte';
   import CopyIcon from '../components/CopyIcon.svelte';
-  import DeriveIcon from '../components/DeriveIcon.svelte';
+  // import DeriveIcon from '../components/DeriveIcon.svelte';
+  import DotsSpinner from '../components/DotsSpinner.svelte';
   import Drawer from '../components/Drawer.svelte';
   import SpinnerIcon from '../components/SpinnerIcon.svelte';
+  import TextSpinner from '../components/TextSpinner.svelte';
   import QrCode from '../lib/qrcode';
   import type { AuthenticatedState } from '../store/auth';
   import { route } from '../store/router';
@@ -41,27 +43,34 @@
     <button class="btn-icon btn-black " on:click={() => route.navigate('')}>
       <BackIcon />
     </button>
-    <button
+    <!-- <button
       class="btn-icon btn-gray "
       on:click={() => (openConfirmationDrawer = true)}
     >
       <DeriveIcon />
-    </button>
+    </button> -->
   </nav>
 
   <h1 class="font-bold text-4xl mt-5 md:text-7xl md:mt-8 relative">
     Receive Bitcoin
   </h1>
 
-  <div class="text-center mt-12">
+  <div class="text-center mt-12 flex justify-center">
     {#await address}
       <div
-        class="w-48 h-48 animate-pulse rounded-md bg-gray-300 inline-block"
-      />
+        class="w-48 h-48 border-black border-solid border bg-white flex flex-col justify-center items-center gap-4"
+      >
+        <DotsSpinner />
+        Loading QR code
+      </div>
     {:then address}
-      <canvas class="w-48 inline-block" use:qrcode={address} />
+      <canvas class="w-48 h-48" use:qrcode={address} />
     {:catch}
-      <div class="w-48 h-48 inline-block" />
+      <div
+        class="w-48 h-48 p-4 border-black border-solid border bg-white flex flex-col justify-center items-center gap-4"
+      >
+        Could not load address.
+      </div>
     {/await}
   </div>
 
@@ -69,10 +78,8 @@
   <div class="flex items-center mt-3 space-x-6">
     {#await address}
       <div class="flex-1">
-        <span
-          class="text-xl block rounded animate-pulse bg-gray-300 font-medium"
-        >
-          &nbsp;
+        <span class="text-xl font-medium">
+          Loading address<TextSpinner />
         </span>
       </div>
     {:then address}
