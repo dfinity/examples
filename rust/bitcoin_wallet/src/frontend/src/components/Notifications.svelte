@@ -13,7 +13,7 @@
 </script>
 
 <div
-  class="absolute right-4 bottom-4 flex flex-col left-4 md:left-auto md:w-80 space-y-4"
+  class="absolute right-4 bottom-4 flex flex-col left-4 md:left-auto md:w-96 space-y-4"
 >
   {#each $notifications as n (n.id)}
     <div
@@ -46,6 +46,7 @@
           viewBox="0 0 32 32"
           fill="none"
           xmlns="http://www.w3.org/2000/svg"
+          class="shrink-0"
         >
           <rect width="32" height="32" rx="4" fill="#E3F7ED" />
           <path
@@ -57,11 +58,17 @@
         </svg>
       {/if}
 
-      <p class="ml-2 text-gray-500 flex-1">{n.message}</p>
+      <p class="ml-2 text-gray-500 flex-1 notification">{n.message}</p>
       <button
-        class="text-2xl text-gray-400 w-8 h-8"
+        class="text-2xl text-gray-400 w-8 h-8 shrink-0 ml-2"
         on:click={() => dismissNotification(n.id)}>&times;</button
       >
     </div>
   {/each}
 </div>
+
+<style>
+  .notification {
+    word-break: break-word;
+  }
+</style>

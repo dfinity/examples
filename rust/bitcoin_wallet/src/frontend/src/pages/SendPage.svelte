@@ -3,6 +3,7 @@
   import Drawer from '../components/Drawer.svelte';
   import SendIcon from '../components/SendIcon.svelte';
   import SpinnerIcon from '../components/SpinnerIcon.svelte';
+  import { enumIs } from '../lib/enums';
   import { formatSats } from '../lib/formatting';
   import type { AuthenticatedState } from '../store/auth';
   import { addNotification, showError } from '../store/notifications';
@@ -53,18 +54,41 @@
 
     sending = auth.api
       .send(address, BigInt(Math.round(amount * 10 ** 8)), BigInt(fee))
-      .then(() => {
-        addNotification({
-          message: 'Transaction sent!',
-          type: 'success',
-        });
-        route.navigate('');
+      .then((result) => {
+        console.log(result);
+        if (enumIs(result, 'Ok')) {
+          addNotification(
+            {
+              message: 'Transaction sent with id ' + result.Ok.id,
+              type: 'success',
+            },
+            0
+          );
+          route.navigate('');
+        } else {
+          if (enumIs(result.Err, 'InsufficientBalance')) {
+            throw new Error('Insufficient balance');
+          } else if (enumIs(result.Err, 'InvalidPercentile')) {
+            throw new Error('Invalid Percentile');
+          } else if (enumIs(result.Err, 'MalformedDestinationAddress')) {
+            throw new Error('Malformed Destination Address');
+          } else if (enumIs(result.Err, 'ManagementCanisterReject')) {
+            throw new Error('Management Canister Reject');
+          } else if (enumIs(result.Err, 'MinConfirmationsTooHigh')) {
+            throw new Error('Min Confirmations Too High');
+          } else if (enumIs(result.Err, 'UnsupportedSourceAddressType')) {
+            throw new Error('Unsupported Source Address Type');
+          }
+        }
       })
       .catch((e) =>
-        addNotification({
-          message: 'Error sending transaction: ' + e.message,
-          type: 'error',
-        })
+        addNotification(
+          {
+            message: 'Error sending transaction: ' + e.message,
+            type: 'error',
+          },
+          0
+        )
       );
   }
 
