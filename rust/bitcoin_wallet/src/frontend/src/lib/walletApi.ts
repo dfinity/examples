@@ -17,7 +17,7 @@ export interface WalletApi {
 export function createIcApi(actor: BackendActor): WalletApi {
   return {
     getBalance: actor.get_balance,
-    getAddress: actor.get_principal_address_str,
+    getAddress: actor.get_user_address_str,
     getFees: async () => {
       const fees = await actor.get_fees();
       return {
@@ -51,7 +51,8 @@ function sample<T>(arr: T[]): T {
 
 export function createMockApi(successRate = 1): WalletApi {
   return {
-    getBalance: () => sleep(1000, successRate).then(() => BigInt(123456789)),
+    getBalance: () =>
+      sleep(1000, successRate).then(() => BigInt(10 ** 8 + 1234)),
     getAddress: () =>
       sleep(1000, successRate).then(() => 'thisisamockbitcoinaddress'),
     getFees: () =>

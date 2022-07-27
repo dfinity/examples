@@ -16,10 +16,15 @@
   let amount: number | null = null;
   let address = '';
   let feePreset = '';
+  let maxAmount: number | null = null;
 
   function loadBalance() {
     return auth.api
       .getBalance()
+      .then((b) => {
+        maxAmount = Number(b) / 10 ** 8;
+        return b;
+      })
       .catch((e) => showError(e, 'Could not load wallet balance.'));
   }
 
@@ -32,7 +37,7 @@
         setTimeout(() => {
           // wait a tick until the options are in the DOM
           feePreset = 'std';
-          fee = fees[feePreset];
+          fee = Number(fees[feePreset]);
         });
         return fees;
       })
@@ -43,7 +48,7 @@
   }
 
   let networkFees = loadFees();
-  let fee = 0;
+  let fee: number = 0;
 
   let sending: Promise<void> | null = null;
   function send(address: string, amount: number, fee: number) {
@@ -54,7 +59,7 @@
     });
 
     sending = auth.api
-      .send(address, BigInt(Math.round(amount * 10 ** 8)), BigInt(fee))
+      .send(address, BigInt(Math.round(amount * 10 ** 8)), BigInt(fee * 1000))
       .then((result) => {
         console.log(result);
         if (enumIs(result, 'Ok')) {
@@ -152,6 +157,8 @@
       <input
         type="number"
         step="0.00000001"
+        min="0.00001"
+        max={maxAmount}
         id="amount"
         placeholder="Amount in BTC"
         class="h-12 border border-gray-500 rounded text-right px-3"
@@ -219,7 +226,10 @@
         <button
           class="btn btn-blue w-full space-x-1"
           type="button"
-          disabled={address.trim().length === 0 || !amount || fee == 0}
+          disabled={address.trim().length === 0 ||
+            amount < 0.00001 ||
+            amount > maxAmount ||
+            fee == 0}
           on:click={() => (openSendConfirmationDrawer = true)}
           ><SendIcon /><span>Confirm & Send</span></button
         >
