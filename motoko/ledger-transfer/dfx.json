@@ -1,7 +1,9 @@
 {
   "canisters": {
     "ledger_transfer": {
-      "dependencies": ["ledger"],
+      "dependencies": [
+        "ledger"
+      ],
       "main": "src/ledger_transfer/main.mo",
       "type": "motoko"
     },
@@ -17,7 +19,6 @@
       "packtool": ""
     }
   },
-  "dfx": "0.9.2",
   "networks": {
     "local": {
       "bind": "127.0.0.1:8000",
