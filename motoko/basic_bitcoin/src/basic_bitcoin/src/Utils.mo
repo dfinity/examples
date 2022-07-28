@@ -75,3 +75,4 @@ module {
         Text.join("", Iter.map<Nat8, Text>(Iter.fromArray(bytes), func (n) { nat8ToText(n) }))
     };
 }
+
