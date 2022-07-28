@@ -1,6 +1,6 @@
 name: rust-basic-bitcoin
 env:
-  DFX_VERSION=0.11.1-beta.2
+  DFX_VERSION: 0.11.1-beta.2
 on:
   push:
     branches:
