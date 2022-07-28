@@ -49,8 +49,8 @@ pub async fn send(
     let fee_per_byte = if fee_percentiles.is_empty() {
         // There are no fee percentiles. This case can only happen on a regtest
         // network where there are no non-coinbase transactions. In this case,
-        // we use a default of 1000 millisatoshis/byte (i.e. 1 satoshi/byte)
-        1000
+        // we use a default of 2000 millisatoshis/byte (i.e. 2 satoshi/byte)
+        2000
     } else {
         // Choose the 50th percentile for sending fees.
         fee_percentiles[49]
