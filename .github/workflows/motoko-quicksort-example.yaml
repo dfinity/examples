@@ -1,4 +1,4 @@
-name: motoko-quicksort-example
+name: motoko-quicksort
 on:
   push:
     branches:
@@ -11,7 +11,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
-      - name: Motoko Quicksort Example Darwin
+      - name: Motoko Quicksort Darwin
         run: |
           dfx start --background
           pushd motoko/quicksort
@@ -23,7 +23,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
-      - name: Motoko Quicksort Example Linux
+      - name: Motoko Quicksort Linux
         run: |
           dfx start --background
           pushd motoko/quicksort

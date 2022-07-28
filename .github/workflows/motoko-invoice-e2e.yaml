@@ -1,0 +1,51 @@
+name: motoko-invoice-canister
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  motoko-invoice-canister-darwin:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Install vessel
+        run: |
+          pushd motoko/invoice-canister
+          set -x
+          curl --location --output vessel-macos "https://github.com/dfinity/vessel/releases/download/v0.6.4/vessel-macos"
+          [ ! -d $HOME/bin ] && mkdir $HOME/bin
+          mv ./vessel-macos $HOME/bin/vessel
+          chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
+          echo "$HOME/bin" >> $GITHUB_PATH
+          popd
+      - name: Motoko Invoice Canister Darwin
+        run: |
+          pushd motoko/invoice-canister
+          make e2e
+          dfx stop
+          popd
+  motoko-invoice-canister-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Install vessel
+        run: |
+          pushd motoko/invoice-canister
+          set -x
+          curl --location --output vessel-linux64 "https://github.com/dfinity/vessel/releases/download/v0.6.4/vessel-linux64"
+          [ ! -d $HOME/bin ] && mkdir $HOME/bin
+          mv ./vessel-linux64 $HOME/bin/vessel
+          chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
+          echo "$HOME/bin" >> $GITHUB_PATH
+          popd
+      - name: Motoko Invoice Canister Linux
+        run: |
+          pushd motoko/invoice-canister
+          make e2e
+          dfx stop
+          popd
