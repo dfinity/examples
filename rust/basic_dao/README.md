@@ -55,8 +55,8 @@ Verify the following before running this demo:
 4. Create test identities
 
    ```text
-   $ dfx identity new Alice; dfx identity use Alice; export ALICE=$(dfx identity get-principal); 
-   $ dfx identity new Bob; dfx identity use Bob; export BOB=$(dfx identity get-principal); 
+   $ dfx identity new --disable-encryption Alice; dfx identity use Alice; export ALICE=$(dfx identity get-principal); 
+   $ dfx identity new --disable-encryption Bob; dfx identity use Bob; export BOB=$(dfx identity get-principal); 
    ```
 
 5. Deploy `basic_dao` with initial accounts.

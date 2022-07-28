@@ -1,0 +1,31 @@
+name: hosting-static-website
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  hosting-unity-static-website-darwin:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Hosting Static Website Darwin
+        run: |
+          dfx start --background
+          pushd hosting/static-website
+          dfx deploy
+          popd
+  hosting-static-website-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Hosting Static Website Linux
+        run: |
+          dfx start --background
+          pushd hosting/static-website
+          dfx deploy
+          popd

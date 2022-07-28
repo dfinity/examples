@@ -55,10 +55,9 @@ triggering remote HTTP calls again.
 ## Building the canister into wasm
 `cd rust/exchange_rate`
 `cargo build --target wasm32-unknown-unknown --release --p exchange_rate`
+
 ## Deploy the canister locally
-`dfx deploy`
-
-# Mainnet exchange_rate canister Id
-mfwph-oqaaa-aaaam-qafsq-cai
-
-Check the status of the canister: `dfx canister --network=ic status mfwph-oqaaa-aaaam-qafsq-cai`
+- `dfx start --enable-canister-http` to start a local IC instance with Canister HTTP feature enabled
+- `dfx deploy --with-cycles 100000000000` to deploy the `exchange_rate` and `exchange_rate_assets`
+  canisters to local IC
+- `dfx canister status {canister_id}` to check the status of the canister

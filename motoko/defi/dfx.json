@@ -2,7 +2,9 @@
   "canisters": {
     "defi_dapp": {
       "main": "src/defi_dapp/main.mo",
-      "dependencies": ["ledger"]
+      "dependencies": [
+        "ledger"
+      ]
     },
     "ledger": {
       "type": "custom",
@@ -14,11 +16,11 @@
       "candid": "src/internet_identity/internet_identity.did",
       "wasm": "src/internet_identity/internet_identity_dummy.wasm"
     },
-    "frontend" : {
-      "dependencies" : [
+    "frontend": {
+      "dependencies": [
         "defi_dapp"
       ],
-      "source" : [
+      "source": [
         "src/frontend_assets"
       ],
       "type": "assets"
@@ -39,7 +41,6 @@
       "subnet_type": "system"
     }
   },
-  "dfx": "0.10.0",
   "networks": {
     "local": {
       "bind": "127.0.0.1:8000",

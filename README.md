@@ -15,7 +15,7 @@ To get started:
 1. Download the DFINITY Canister SDK, if needed:
 
     ```
-    sh -ci "$(curl -fsSL https://sdk.dfinity.org/install.sh)"
+    sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
     ```
 
 1. Select a language—for example, `c` or `motoko`—to explore the examples available in the language of your choice.

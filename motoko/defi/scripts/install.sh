@@ -1,8 +1,9 @@
-dfx start --background --clean --host 127.0.0.1:8000
+set -e
+dfx stop && dfx start --background --clean --host 127.0.0.1:8000
 
 
 ### === DEPLOY LOCAL LEDGER =====
-dfx identity new minter
+dfx identity new minter --disable-encryption || true
 dfx identity use minter
 export MINT_ACC=$(dfx ledger account-id)
 
