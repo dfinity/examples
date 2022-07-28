@@ -15,6 +15,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko Basic Bitcoin Darwin
         run: |
+          git submodule update --init --recursive
           pushd motoko/basic_bitcoin
           dfx build --check
           popd
@@ -26,6 +27,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko Basic Bitcoin Linux
         run: |
+          git submodule update --init --recursive
           pushd motoko/basic_bitcoin
           dfx build --check
           popd
