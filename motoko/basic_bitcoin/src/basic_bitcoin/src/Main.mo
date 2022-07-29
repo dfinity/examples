@@ -58,3 +58,4 @@ actor class BasicBitcoin(_network : Types.Network) {
     Utils.bytesToText(await BitcoinWallet.send(NETWORK, DERIVATION_PATH, KEY_NAME, request.destination_address, request.amount_in_satoshi))
   };
 };
+
