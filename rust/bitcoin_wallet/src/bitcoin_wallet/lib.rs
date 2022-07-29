@@ -1,10 +1,24 @@
-use bitcoin::Address;
-use ic_btc_library::{
+pub mod address_management;
+mod agent;
+mod bip32_extended_derivation;
+mod canister_common;
+mod canister_implementation;
+mod ecdsa;
+mod transaction_management;
+mod types;
+mod upgrade_management;
+mod utxo_management;
+
+use crate::agent::{
     get_balance_from_args, get_current_fees_from_args, get_initialization_parameters_from_args,
-    get_utxos_from_args, multi_transfer_from_args, AddressType, BitcoinAgent, Fee,
-    ManagementCanister, ManagementCanisterImpl, MillisatoshiPerByte, MultiTransferError, Network,
-    Satoshi, TransactionInfo,
+    get_utxos_from_args, multi_transfer_from_args, BitcoinAgent,
 };
+use crate::canister_common::ManagementCanister;
+use crate::canister_implementation::ManagementCanisterImpl;
+use crate::types::{AddressType, Fee, MultiTransferError, Network, TransactionInfo};
+use bitcoin::Address;
+use ic_btc_types::{MillisatoshiPerByte, Satoshi};
+
 use ic_cdk::{
     api::{call::RejectionCode, caller},
     export::{candid::CandidType, Principal},
