@@ -1,0 +1,9 @@
+{
+  "canisters": {
+    "ecdsa_example_rust": {
+      "candid": "src/ecdsa_example_rust/ecdsa_example.did",
+      "package": "ecdsa_example",
+      "type": "rust"
+    }
+  }
+}
