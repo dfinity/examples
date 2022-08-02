@@ -1,0 +1,35 @@
+name: motoko-basic-bitcoin
+env:
+  DFX_VERSION: 0.11.1-beta.2
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  rust-basic-bitcoin-darwin:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Motoko Basic Bitcoin Darwin
+        run: |
+          pushd motoko/basic_bitcoin
+          dfx build --check
+          popd
+  rust-basic-bitcoin-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Motoko Basic Bitcoin Linux
+        run: |
+          pushd motoko/basic_bitcoin
+          dfx build --check
+          popd
