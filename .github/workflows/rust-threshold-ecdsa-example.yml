@@ -1,0 +1,39 @@
+name: rust-threshold-ecdsa
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  rust-threshold-ecdsa-darwin:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+        env:
+          DFX_VERSION: 0.11.1-beta.2
+      - name: Rust Threshold ECDSA Darwin
+        run: |
+          dfx start --background
+          pushd rust/threshold-ecdsa
+          dfx deploy
+          npm install
+          sleep 10
+          bash test.sh hello
+  rust-threshold-ecdsa-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+        env:
+          DFX_VERSION: 0.11.1-beta.2
+      - name: Rust Threshold ECDSA Linux
+        run: |
+          dfx start --background
+          pushd rust/threshold-ecdsa
+          dfx deploy
+          npm install
+          sleep 10
+          bash test.sh hello
