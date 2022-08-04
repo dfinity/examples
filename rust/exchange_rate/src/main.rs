@@ -52,10 +52,10 @@ pub struct CanisterHttpResponsePayload {
 }
 
 // How many data point can be returned as maximum.
-// Given that 2MB is max-allow cansiter response size, and each <Timestamp, Rate> pair
+// Given that 2MB is max-allow canister response size, and each <Timestamp, Rate> pair
 // should be less that 20 bytes. Maximum data points could be returned for each
-// call can be as many as 2MB / 20B = 1000000.
-pub const MAX_DATA_PONTS_CANISTER_RESPONSE: usize = 1000000;
+// call can be as many as 2MB / 20B = 100000.
+pub const MAX_DATA_PONTS_CANISTER_RESPONSE: usize = 100000;
 
 // Remote fetch interval in secs. It is only the canister returned interval
 // that is dynamic according to the data size needs to be returned.
