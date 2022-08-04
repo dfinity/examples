@@ -16,7 +16,7 @@ thread_local! {
     static NETWORK: Cell<Network> = Cell::new(Network::Testnet);
 
     // The derivation path to use for ECDSA secp256k1.
-    static DERIVATION_PATH: Vec<Vec<u8>> = vec![vec![9]];
+    static DERIVATION_PATH: Vec<Vec<u8>> = vec![];
 
     // The ECDSA key name.
     static KEY_NAME: RefCell<String> = RefCell::new(String::from(""));
