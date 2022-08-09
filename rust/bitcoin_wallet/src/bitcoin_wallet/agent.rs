@@ -259,6 +259,8 @@ fn get_utxos_from_args_common(
                 if utxo.height > utxo_occurrence.height {
                     utxos_occurrences.insert(utxo.outpoint.clone(), utxo);
                 }
+            } else {
+                utxos_occurrences.insert(utxo.outpoint.clone(), utxo);
             }
         });
         utxos_occurrences.values().cloned().collect()

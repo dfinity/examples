@@ -3,6 +3,7 @@ use crate::{
         GET_CURRENT_FEE_PERCENTILES_COST_CYCLES, SEND_TRANSACTION_BASE_COST_CYCLES,
         SEND_TRANSACTION_COST_CYCLES_PER_BYTE,
     },
+    ecdsa::sign_with_ecdsa,
     types::{
         from_bitcoin_network_to_ic_btc_types_network, from_types_network_to_bitcoin_network,
         BuiltTransaction,
