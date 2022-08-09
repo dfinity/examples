@@ -18,7 +18,7 @@ rm node.pkg
 
 # Install DFINITY SDK.
 curl --location --output install-dfx.sh "https://internetcomputer.org/install.sh"
-DFX_VERSION=${DFX_VERSION:=0.10.1} bash install-dfx.sh < <(yes Y)
+DFX_VERSION=${DFX_VERSION:=0.11.1} bash install-dfx.sh < <(yes Y)
 rm install-dfx.sh
 dfx cache install
 
