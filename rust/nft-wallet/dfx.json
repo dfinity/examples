@@ -4,7 +4,7 @@
     "nftwallet": {
       "type": "rust",
       "candid": "nftwallet.did",
-      "package": "nft-wallet"
+      "package": "nftwallet"
     },
     "internet_identity": {
       "type": "custom",
