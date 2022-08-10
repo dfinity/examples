@@ -1,4 +1,3 @@
-import { Actor, HttpAgent } from '@dfinity/agent';
 import { random_maze } from '../../declarations'
 
 document.getElementById("generateBtn").addEventListener("click", async () => {
