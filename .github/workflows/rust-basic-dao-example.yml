@@ -11,8 +11,6 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
-      - name: Install ic-cdk-optimizer
-        run: cargo install ic-cdk-optimizer
       - name: Rust DAO Darwin
         run: |
           dfx start --background
@@ -30,8 +28,6 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
-      - name: Install ic-cdk-optimizer
-        run: cargo install ic-cdk-optimizer
       - name: Rust DAO Linux
         run: |
           dfx start --background

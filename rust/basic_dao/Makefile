@@ -4,8 +4,8 @@ all: build
 .PHONY: build
 .SILENT: build
 build:
-	cargo build --target wasm32-unknown-unknown --package  basic_dao --release
-	ic-cdk-optimizer target/wasm32-unknown-unknown/release/basic_dao.wasm -o target/wasm32-unknown-unknown/release/basic_dao_opt.wasm
+	dfx canister create --all
+	dfx build
 
 .PHONY: clean
 .SILENT: clean
