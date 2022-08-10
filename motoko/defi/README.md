@@ -153,7 +153,6 @@ Caused by:
   build script failed, must exit now', /Users/timgretler/.cargo/registry/src/github.com-1ecc6299db9ec823/cmake-0.1.48/src/lib.rs:975:5
   note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 warning: build failed, waiting for other jobs to finish...
-error: failed to compile `ic-cdk-optimizer v0.3.1`, intermediate artifacts can be found at `/var/folders/81/cvnmgym54z15l8469p4k0yc40000gn/T/cargo-installQ7mfnX`
 
 Caused by:
   build failed
