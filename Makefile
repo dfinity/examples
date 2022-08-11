@@ -1,13 +1,13 @@
 SHELL = /bin/bash
 
 .PHONY: all
-all: motoko
+all: test
 
-.ONESHELL: motoko
-.PHONY: motoko
-.SILENT: motoko
-motoko:
-	for dir in $$(ls -d motoko/*/); do
+.ONESHELL: test
+.PHONY: test
+.SILENT: test
+test:
+	for dir in $$(ls -d (motoko|c)/*/); do
 		pushd $$dir
 		make test
 		popd
@@ -17,7 +17,7 @@ motoko:
 .PHONY: clean
 .SILENT: clean
 clean:
-	for dir in $$(ls -d motoko/*/); do
+	for dir in $$(ls -d (motoko|c)/*/); do
 		pushd $$dir
 		make clean
 		popd

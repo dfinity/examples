@@ -1,0 +1,3 @@
+service : {
+    go : (text) -> (text);
+}

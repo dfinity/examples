@@ -51,5 +51,9 @@ tar -xf "wasmtime-v${wasmtime_version}-x86_64-macos.tar.xz" --directory "${HOME}
 mv "${HOME}/bin/wasmtime-v${wasmtime_version}-x86_64-macos/wasmtime" "${HOME}/bin/wasmtime"
 rm "wasmtime-v${wasmtime_version}-x86_64-macos.tar.xz"
 
+# Install LLVM
+llvm_version=14
+brew install llvm@${llvm_version}
+
 # Exit temporary directory.
 popd

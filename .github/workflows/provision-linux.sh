@@ -46,6 +46,13 @@ tar -xf "wasmtime-v${wasmtime_version}-x86_64-linux.tar.xz" --directory "${HOME}
 mv "${HOME}/bin/wasmtime-v${wasmtime_version}-x86_64-linux/wasmtime" "${HOME}/bin/wasmtime"
 rm "wasmtime-v${wasmtime_version}-x86_64-linux.tar.xz"
 
+# Install LLVM
+llvm_version=14
+wget https://apt.llvm.org/llvm.sh
+chmod +x llvm.sh
+sudo bash llvm.sh ${llvm_version}
+rm llvm.sh
+
 # Set environment variables.
 echo "$HOME/bin" >> $GITHUB_PATH
 echo "$HOME/.cargo/bin" >> $GITHUB_PATH

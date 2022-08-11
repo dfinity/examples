@@ -1,0 +1,31 @@
+name: c-adventure
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  c-adventure-darwin:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: C Adventure Darwin
+        run: |
+          dfx start --background
+          pushd c/adventure
+          make test
+          popd
+  c-adventure-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: C Adventure Linux
+        run: |
+          dfx start --background
+          pushd c/adventure
+          make test
+          popd

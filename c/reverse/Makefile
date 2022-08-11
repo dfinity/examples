@@ -1,14 +1,9 @@
 .PHONY: all
 all: build
 
-.PHONY: node_modules
-.SILENT: node_modules
-node_modules:
-	npm install
-
 .PHONY: build
 .SILENT: build
-build: node_modules
+build:
 	dfx canister create --all
 	dfx build
 
@@ -25,10 +20,10 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
-	dfx canister call hello greet '("everyone")' \
-		| grep '("Hello, everyone!")' && echo 'PASS'
+	dfx canister call reverse go '("repaid")' \
+		| grep '("diaper")' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean
 clean:
-	rm -fr .dfx
+	rm -fr .dfx build

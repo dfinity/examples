@@ -1,4 +1,4 @@
-= Adventure =
+# Adventure
 
 A port of
 http://www.ifarchive.org/if-archive/games/source/Adventure2.5.tar.gz[a
@@ -12,10 +12,12 @@ Build with `./build.sh`.
 
 Run `dfx start` in another terminal, then:
 
-  $ dfx canister install --all
-  $ dfx canister call adventure play
-  $ dfx canister call adventure play --type string yes
-  $ dfx canister call adventure play --type string east
-  $ dfx canister call adventure play --type string "get water"
+```
+$ dfx canister install --all
+$ dfx canister call adventure play
+$ dfx canister call adventure play --type string yes
+$ dfx canister call adventure play --type string east
+$ dfx canister call adventure play --type string "get water"
+```
 
 and so on.

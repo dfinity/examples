@@ -1,0 +1,14 @@
+{
+  "canisters": {
+    "reverse": {
+      "candid": "src/reverse/reverse.did",
+      "build": [
+        "mkdir -p build",
+        "clang --target=wasm32 -fno-stack-protector -w -c -O3 src/reverse/reverse.c -o build/reverse.wasm",
+        "wasm-ld --no-entry --export-dynamic --allow-undefined build/reverse.wasm -o build/reverse.o"
+      ],
+      "wasm": "build/reverse.wasm",
+      "type": "custom"
+    }
+  }
+}

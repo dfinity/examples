@@ -1,0 +1,19 @@
+{
+    "canisters": {
+      "adventure": {
+        "candid": "src/adventure/adventure.did",
+        "build": [
+          "mkdir -p build/include",
+          "tar xfz Adventure2.5.tar.gz -C build/include",
+          "patch < adv.patch -d build/include",
+          "(echo \"char*textFile(){static char s[]=\" ; cat build/include/adventure.text | sed 's/\"/\\\"/g' | sed 's/.*/\"&\\n\"/'; echo \";return s;}\") > build/include/adventure.text.c",
+          "pushd build",
+          "clang --target=wasm32 -c -O3 -Wno-everything ../**/*.c",
+          "wasm-ld --no-entry --export-dynamic --allow-undefined *.o -o adventure.wasm",
+          "popd"
+        ],
+        "wasm": "build/adventure.wasm",
+        "type": "custom"
+      }
+    }
+  }

@@ -1,0 +1,31 @@
+name: c-qr
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  c-qr-darwin:
+    runs-on: macos-10.15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: C QR Darwin
+        run: |
+          dfx start --background
+          pushd c/qr
+          make test
+          popd
+  c-qr-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: C QR Linux
+        run: |
+          dfx start --background
+          pushd c/qr
+          make test
+          popd

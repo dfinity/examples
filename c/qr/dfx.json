@@ -1,0 +1,16 @@
+{
+  "canisters": {
+    "qr": {
+      "candid": "src/qr/qr.did",
+      "build": [
+        "mkdir -p build",
+        "pushd build",
+        "clang --target=wasm32 -c -O3 -DNDEBUG -I ../QR-Code-generator/c ../QR-Code-generator/c/qrcodegen.c ../src/qr/qr.c",
+        "wasm-ld --no-entry --export-dynamic --allow-undefined qrcodegen.o qr.o -o qr.wasm",
+        "popd"
+      ],
+      "wasm": "build/qr.wasm",
+      "type": "custom"
+    }
+  }
+}
