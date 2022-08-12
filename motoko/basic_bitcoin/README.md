@@ -8,5 +8,5 @@ and [Bitcoin API](https://internetcomputer.org/docs/current/references/ic-interf
 
 This example is extensively documented in the following tutorials:
 
-* [Deploying Your First Bitcoin Dapp](https://internetcomputer.org/docs/current/developer-docs/functionality/bitcoin/deploying-your-first-bitcoin-dapp/)
+* [Deploying Your First Bitcoin Dapp](https://internetcomputer.org/docs/current/samples/deploying-your-first-bitcoin-dapp/)
 * [Developing Bitcoin Dapps Locally](https://internetcomputer.org/docs/current/developer-docs/functionality/bitcoin/local-development/)

@@ -52,10 +52,10 @@ pub struct CanisterHttpResponsePayload {
 }
 
 // How many data point can be returned as maximum.
-// Given that 2MB is max-allow cansiter response size, and each <Timestamp, Rate> pair
+// Given that 2MB is max-allow canister response size, and each <Timestamp, Rate> pair
 // should be less that 20 bytes. Maximum data points could be returned for each
-// call can be as many as 2MB / 20B = 1000000.
-pub const MAX_DATA_PONTS_CANISTER_RESPONSE: usize = 1000000;
+// call can be as many as 2MB / 20B = 100000.
+pub const MAX_DATA_PONTS_CANISTER_RESPONSE: usize = 100000;
 
 // Remote fetch interval in secs. It is only the canister returned interval
 // that is dynamic according to the data size needs to be returned.
@@ -81,16 +81,6 @@ pub const DATA_POINTS_PER_API: u64 = 200;
 // Each field of this sub-arry takes less than 10 bytes. Then,
 // 10 (bytes per field) * 6 (fields per timestamp) * 200 (timestamps)
 pub const MAX_RESPONSE_BYTES: u64 = 10 * 6 * DATA_POINTS_PER_API;
-
-pub const RESPONSE_HEADERS_SANTIZATION: [&'static str; 7] = [
-    "Date",                    // DateTime of the request is made
-    "CF-Cache-Status",         // CloudFront caching status
-    "CF-RAY",                  // CloudFront custom Id
-    "Age",                     // Age of the data object since query
-    "Content-Security-Policy", // Long list of allowable domains for reference
-    "Last-Modified",           // Last time the object is modified
-    "Set-Cookie",              // cf-country=US;Path=/;
-];
 
 thread_local! {
     pub static FETCHED: RefCell<HashMap<Timestamp, Rate>>  = RefCell::new(HashMap::new());
@@ -313,14 +303,8 @@ fn decode_body_to_rates(body: &str, fetched: &mut RefMut<HashMap<u64, f32>>) {
 #[query]
 async fn transform(raw: CanisterHttpResponsePayload) -> CanisterHttpResponsePayload {
     let mut sanitized = raw.clone();
-    let mut processed_headers = vec![];
-    for header in raw.headers.iter() {
-        if !RESPONSE_HEADERS_SANTIZATION.contains(&header.name.as_str()) {
-            processed_headers.insert(0, header.clone());
-        }
-    }
-    sanitized.headers = processed_headers;
-    return sanitized;
+    sanitized.headers = vec![];
+    sanitized
 }
 
 #[pre_upgrade]
