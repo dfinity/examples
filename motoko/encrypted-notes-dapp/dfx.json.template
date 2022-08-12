@@ -5,13 +5,9 @@
       "type": "motoko"
     },
     "encrypted_notes_rust": {
-      "type": "custom",
-      "build": [
-        "cargo build --target wasm32-unknown-unknown --package  encrypted_notes_rust --release",
-        "ic-cdk-optimizer target/wasm32-unknown-unknown/release/encrypted_notes_rust.wasm -o target/wasm32-unknown-unknown/release/encrypted_notes_rust.wasm"
-      ],
-      "wasm": "target/wasm32-unknown-unknown/release/encrypted_notes_rust.wasm",
-      "candid": "src/encrypted_notes_rust/src/encrypted_notes_rust.did"
+      "type": "rust",
+      "candid": "src/encrypted_notes_rust/src/encrypted_notes_rust.did",
+      "package": "encrypted_notes_rust"
     },
     "www": {
       "dependencies": [

@@ -20,15 +20,15 @@ If you prefer to manually deploy
 dfx start --background
 cd internet-identity
 npm install
-II_ENV=development dfx deploy --no-wallet --argument null
+II_ENV=development dfx deploy
 cd ..
-./deploy.sh --no-wallet --argument null
+./deploy.sh
 ```
 
 If you'd like to deploy on the IC network run
 
 ```bash
-./deploy.sh --no-wallet --network ic --argument null
+./deploy.sh --network ic
 ```
 
 ## Make calls against NFT wallet canister

@@ -13,8 +13,6 @@ jobs:
           submodules: recursive
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
-      - name: Install ic-cdk-optimizer
-        run: cargo install ic-cdk-optimizer
       - name: Install icx-asset
         run: cargo install --locked icx-asset
       - name: Rust NFT Wallet Darwin
@@ -32,8 +30,6 @@ jobs:
           submodules: recursive
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
-      - name: Install ic-cdk-optimizer
-        run: cargo install ic-cdk-optimizer
       - name: Install icx-asset
         run: cargo install --locked icx-asset
       - name: Rust NFT Wallet Linux
