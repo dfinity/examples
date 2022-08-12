@@ -2,10 +2,9 @@
   "version": 1,
   "canisters": {
     "nftwallet": {
-      "type": "custom",
-      "wasm": "target/wasm32-unknown-unknown/release/nft_wallet-opt.wasm",
+      "type": "rust",
       "candid": "nftwallet.did",
-      "build": "./build.sh"
+      "package": "nftwallet"
     },
     "internet_identity": {
       "type": "custom",

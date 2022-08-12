@@ -13,8 +13,6 @@ jobs:
           submodules: recursive
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
-      - name: Install ic-cdk-optimizer
-        run: cargo install ic-cdk-optimizer
       - name: Rust Defi Darwin
         run: |
           pushd rust/defi
@@ -31,8 +29,6 @@ jobs:
           submodules: recursive
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
-      - name: Install ic-cdk-optimizer
-        run: cargo install ic-cdk-optimizer
       - name: Rust Defi Linux
         run: |
           pushd rust/defi

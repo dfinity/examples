@@ -39,28 +39,16 @@ Verify the following before running this demo:
 
 1. Open a new terminal window.
 
-1. Reserve an identifier for your canister.
-
-   ```text
-   dfx canister create --all
-   ```
-
-1. Build your front-end.
+1. Install front-end dependencies.
 
    ```text
    npm install
    ```
 
-1. Build your canister.
+1. Deploy your canister to the local internet computer.
 
    ```text
-   dfx build
-   ```
-
-1. Deploy your canister.
-
-   ```text
-   dfx canister install --all
+   dfx deploy
    ```
 
 1. Take note of the URL at which the phone book is accessible.

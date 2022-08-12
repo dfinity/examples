@@ -1,5 +1,5 @@
 [package]
-name = "nft-wallet"
+name = "nftwallet"
 version = "0.1.0"
 edition = "2021"
 

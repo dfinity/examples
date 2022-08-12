@@ -1,6 +1,5 @@
 {
   "version": 1,
-  "dfx": "0.11.1-beta.2",
   "canisters": {
     "basic_bitcoin": {
       "main": "src/basic_bitcoin/src/Main.mo"
@@ -9,7 +8,9 @@
   "defaults": {
     "bitcoin": {
       "enabled": true,
-      "nodes": ["127.0.0.1:18444"],
+      "nodes": [
+        "127.0.0.1:18444"
+      ],
       "log_level": "info"
     },
     "build": {
