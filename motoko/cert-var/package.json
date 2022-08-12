@@ -21,7 +21,6 @@
     "@dfinity/principal": "0.10.1",
     "assert": "2.0.0",
     "buffer": "6.0.3",
-    "copy-webpack-plugin": "^9.0.1",
     "css-loader": "^6.0.0",
     "events": "3.3.0",
     "html-webpack-plugin": "5.3.1",
