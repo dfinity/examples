@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "dfx": "0.11.1-beta.2",
+  "dfx": "0.11.1",
   "canisters": {
     "basic_bitcoin": {
       "type": "custom",
