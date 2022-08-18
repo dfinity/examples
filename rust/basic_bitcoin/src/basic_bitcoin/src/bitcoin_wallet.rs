@@ -10,7 +10,7 @@
 use crate::{bitcoin_api, ecdsa_api};
 use bitcoin::util::psbt::serialize::Serialize;
 use bitcoin::{
-    blockdata::script::Builder, hashes::Hash, Address, AddressType, OutPoint, Script, SigHashType,
+    blockdata::{script::Builder, witness::Witness}, hashes::Hash, Address, AddressType, OutPoint, Script, EcdsaSighashType,
     Transaction, TxIn, TxOut, Txid,
 };
 use ic_btc_types::{MillisatoshiPerByte, Network, Satoshi, Utxo};
@@ -18,7 +18,7 @@ use ic_cdk::print;
 use sha2::Digest;
 use std::str::FromStr;
 
-const SIG_HASH_TYPE: SigHashType = SigHashType::All;
+const SIG_HASH_TYPE: EcdsaSighashType = EcdsaSighashType::All;
 
 /// Returns the P2PKH address of this canister at the given derivation path.
 pub async fn get_p2pkh_address(
@@ -195,7 +195,7 @@ fn build_transaction_with_fee(
                 vout: utxo.outpoint.vout,
             },
             sequence: 0xffffffff,
-            witness: Vec::new(),
+            witness: Witness::new(),
             script_sig: Script::new(),
         })
         .collect();
@@ -218,7 +218,7 @@ fn build_transaction_with_fee(
         input: inputs,
         output: outputs,
         lock_time: 0,
-        version: 2,
+        version: 1,
     })
 }
 
@@ -251,7 +251,7 @@ where
     let txclone = transaction.clone();
     for (index, input) in transaction.input.iter_mut().enumerate() {
         let sighash =
-            txclone.signature_hash(index, &own_address.script_pubkey(), SIG_HASH_TYPE.as_u32());
+            txclone.signature_hash(index, &own_address.script_pubkey(), SIG_HASH_TYPE.to_u32());
 
         let signature = signer(key_name.clone(), derivation_path.clone(), sighash.to_vec()).await;
 
@@ -259,7 +259,7 @@ where
         let der_signature = sec1_to_der(signature);
 
         let mut sig_with_hashtype = der_signature;
-        sig_with_hashtype.push(SIG_HASH_TYPE.as_u32() as u8);
+        sig_with_hashtype.push(SIG_HASH_TYPE.to_u32() as u8);
         input.script_sig = Builder::new()
             .push_slice(sig_with_hashtype.as_slice())
             .push_slice(own_public_key)
