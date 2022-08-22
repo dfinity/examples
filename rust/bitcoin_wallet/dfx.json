@@ -24,6 +24,15 @@
         "dist/bitcoin_wallet_assets/"
       ],
       "type": "assets"
+    },
+    "frontend": {
+      "dependencies": [
+        "bitcoin_wallet"
+      ],
+      "source": [
+        "src/frontend/public/"
+      ],
+      "type": "assets"
     }
   },
   "defaults": {

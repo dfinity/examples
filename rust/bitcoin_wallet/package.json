@@ -3,7 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "webpack"
+    "build": "cd src/frontend && npm run build",
+    "build-vanilla": "webpack",
+    "dev": "cd src/frontend && npm run dev",
+    "postinstall": "cd src/frontend && npm install"
   },
   "devDependencies": {
     "@dfinity/agent": "^0.9.3",
