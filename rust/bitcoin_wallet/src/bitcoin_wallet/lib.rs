@@ -1,21 +1,20 @@
 pub mod address_management;
-mod wallet;
 mod bip32_extended_derivation;
 mod canister_common;
 mod canister_implementation;
 mod ecdsa;
 mod transaction_management;
 mod types;
-mod upgrade_management;
 mod utxo_management;
+mod wallet;
 
+use crate::canister_common::ManagementCanister;
+use crate::canister_implementation::ManagementCanisterImpl;
+use crate::types::{AddressType, Fee, MultiTransferError, Network, TransactionInfo};
 use crate::wallet::{
     get_balance_from_args, get_current_fees_from_args, get_initialization_parameters_from_args,
     get_utxos_from_args, multi_transfer_from_args, BitcoinWallet,
 };
-use crate::canister_common::ManagementCanister;
-use crate::canister_implementation::ManagementCanisterImpl;
-use crate::types::{AddressType, Fee, MultiTransferError, Network, TransactionInfo};
 use bitcoin::Address;
 use ic_btc_types::{MillisatoshiPerByte, Satoshi};
 
@@ -165,7 +164,9 @@ async fn transfer(
         let mut bitcoin_wallet_users_mut = bitcoin_wallet_users.borrow_mut();
         let bitcoin_wallet = bitcoin_wallet_users_mut.get_mut(&principal).unwrap();
         bitcoin_wallet.apply_utxos(get_utxos_result);
-        bitcoin_wallet.get_balance_update(principal_address).unwrap();
+        bitcoin_wallet
+            .get_balance_update(principal_address)
+            .unwrap();
         bitcoin_wallet.get_multi_transfer_args(
             &payouts,
             principal_address,

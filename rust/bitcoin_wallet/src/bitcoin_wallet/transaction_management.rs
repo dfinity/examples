@@ -1,4 +1,5 @@
 use crate::{
+    address_management::get_address_using_primitives,
     canister_common::{
         GET_CURRENT_FEE_PERCENTILES_COST_CYCLES, SEND_TRANSACTION_BASE_COST_CYCLES,
         SEND_TRANSACTION_COST_CYCLES_PER_BYTE,
@@ -13,7 +14,6 @@ use crate::{
         ManagementCanisterReject, MultiTransferArgs, MultiTransferError, MultiTransferResult,
         TransactionInfo, MIN_CONFIRMATIONS_UPPER_BOUND,
     },
-    upgrade_management::get_address_using_primitives,
     utxo_management::{get_utxos, has_utxo_min_confirmations},
 };
 use bitcoin::{

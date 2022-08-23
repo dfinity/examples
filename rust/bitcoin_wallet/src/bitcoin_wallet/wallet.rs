@@ -1,5 +1,6 @@
 use crate::{
     address_management,
+    address_management::get_address_from_string,
     address_management::get_main_address,
     canister_common::ManagementCanister,
     ecdsa::{get_btc_ecdsa_public_key, get_key_name_from_network},
@@ -13,7 +14,6 @@ use crate::{
         MultiTransferArgs, MultiTransferError, MultiTransferResult, UtxosArgs, UtxosResult,
         UtxosState, UtxosUpdate, MIN_CONFIRMATIONS_UPPER_BOUND,
     },
-    upgrade_management::get_address,
     utxo_management,
     utxo_management::{get_balance_from_utxos, get_utxos},
 };
@@ -190,7 +190,7 @@ impl<C: ManagementCanister> BitcoinWallet<C> {
             .clone()
             .into_iter()
             .for_each(|(address_using_primitives, utxos)| {
-                let address = get_address(address_using_primitives);
+                let address = get_address_from_string(address_using_primitives);
                 utxos.iter().for_each(|utxo| {
                     self.utxos_state_addresses
                         .get_mut(&address)
@@ -205,7 +205,7 @@ impl<C: ManagementCanister> BitcoinWallet<C> {
             .clone()
             .into_iter()
             .for_each(|(address_using_primitives, mut utxos)| {
-                let address = get_address(address_using_primitives);
+                let address = get_address_from_string(address_using_primitives);
                 if self.utxos_state_addresses.get(&address).is_none() {
                     self.utxos_state_addresses
                         .insert(address.clone(), UtxosState::new(0));
