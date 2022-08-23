@@ -3,8 +3,7 @@
     "internet_identity": {
       "type": "custom",
       "candid": "internet_identity.did",
-      "wasm": "internet_identity.wasm",
-      "build": "curl -sSL https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm -o internet_identity.wasm"
+      "wasm": "internet_identity.wasm"
     },
     "bitcoin_wallet": {
       "candid": "src/bitcoin_wallet/bitcoin_wallet.did",

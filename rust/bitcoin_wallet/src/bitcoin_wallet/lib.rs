@@ -136,7 +136,11 @@ async fn get_fees() -> (Satoshi, Satoshi, Satoshi) {
     let current_fees = get_current_fees_from_args(get_current_fees_args)
         .await
         .unwrap();
-    (current_fees[24], current_fees[49], current_fees[74])
+    if !current_fees.is_empty() {
+        (current_fees[24], current_fees[49], current_fees[74])
+    } else {
+        (1000, 1000, 1000)
+    }
 }
 
 /// Sends a transaction, transferring the specified Bitcoin amount to the provided address.

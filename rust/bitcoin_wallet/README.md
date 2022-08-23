@@ -11,6 +11,8 @@ Install the required node modules for the Bitcoin wallet webapp:
 
 ```bash
 npm install
+npm run build
+npm run build-vanilla
 ```
 
 While working on the Internet Computer does not require more configuration, working locally does. The additional instructions are provided in [the next section](#testing-locally).
