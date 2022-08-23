@@ -26,6 +26,14 @@ use ic_cdk::{
 use ic_cdk_macros::{query, update};
 use std::{cell::RefCell, collections::BTreeMap, str::FromStr};
 
+// The Bitcoin wallet uses zero confirmations, which means that the current
+// balance is updated after transferring some bitcoins before the corresponding
+// transaction is processed in a block.
+// While this approach is fine to show the current balance, production-level code
+// should use a larger number of confirmations particularly for confirming the receipt
+// of bitcoins.
+// In order to keep this demo code simple, the zero-confirmation parameter is used throughout
+// this sample dapp.
 const MIN_CONFIRMATIONS: u32 = 0;
 const NETWORK: Network = Network::Regtest;
 const ADDRESS_TYPE: &AddressType = &AddressType::P2pkh;
