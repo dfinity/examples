@@ -1,5 +1,5 @@
 use crate::{
-    agent::BitcoinAgent,
+    wallet::BitcoinWallet,
     bip32_extended_derivation::extended_bip32_derivation,
     canister_common::ManagementCanister,
     types::{
@@ -16,7 +16,7 @@ use bitcoin::{
     Address, AddressType, Network, PublicKey, ScriptHash,
 };
 
-/// Returns the public key from a given Bitcoin ECDSA public key.
+/// Returns the Bitcoin public key from a given ECDSA public key.
 pub(crate) fn get_btc_public_key_from_ecdsa_public_key(
     ecdsa_public_key: &EcdsaPubKey,
 ) -> Result<PublicKey, bitcoin::util::key::Error> {
@@ -27,7 +27,7 @@ pub(crate) fn get_btc_public_key_from_ecdsa_public_key(
 /// A minimum number of confirmations must further be specified, which is used when calling `get_utxos` and `get_balance`.
 /// Returns the derived address if the operation is successful and an error otherwise.
 pub(crate) fn add_address_with_parameters(
-    bitcoin_agent: &mut BitcoinAgent<impl ManagementCanister>,
+    bitcoin_wallet: &mut BitcoinWallet<impl ManagementCanister>,
     derivation_path: &[Vec<u8>],
     address_type: &crate::AddressType,
     min_confirmations: u32,
@@ -39,7 +39,7 @@ pub(crate) fn add_address_with_parameters(
         return Err(AddAddressWithParametersError::DerivationPathTooLong);
     }
     let address = add_address_from_extended_path(
-        bitcoin_agent,
+        bitcoin_wallet,
         derivation_path,
         address_type,
         min_confirmations,
@@ -47,7 +47,8 @@ pub(crate) fn add_address_with_parameters(
     Ok(address)
 }
 
-/// Returns the public key and address of the derived child from the given public key, chain code, derivation path, address type and network.
+/// Returns the public key and address of the derived child from the given
+/// public key, chain code, derivation path, address type, and network.
 pub(crate) fn derive_ecdsa_public_key_and_address_from_extended_path(
     derivation_path: &[Vec<u8>],
     address_type: &crate::AddressType,
@@ -70,15 +71,17 @@ pub(crate) fn derive_ecdsa_public_key_and_address_from_extended_path(
             .chain(derivation_path.iter().cloned())
             .collect(),
     };
-    let address = get_address(network, address_type, &child_ecdsa_public_key).unwrap();
+    let child_address = get_address(network, address_type, &child_ecdsa_public_key).unwrap();
 
-    (child_ecdsa_public_key, address)
+    (child_ecdsa_public_key, child_address)
 }
 
-/// Adds the address for the given extended derivation path and address type to the given BitcoinAgent if the derived address is not already managed.
-/// This function assumes that the passed derivation path is an extended path. This assumption has to be checked in the caller function.
+/// Adds the address for the given extended derivation path and address type to the given
+/// Bitcoin wallet if the derived address is not already managed.
+/// This function assumes that the passed derivation path is an extended path.
+/// This assumption has to be checked in the caller function.
 pub(crate) fn add_address_from_extended_path(
-    bitcoin_agent: &mut BitcoinAgent<impl ManagementCanister>,
+    bitcoin_wallet: &mut BitcoinWallet<impl ManagementCanister>,
     derivation_path: &[Vec<u8>],
     address_type: &crate::AddressType,
     min_confirmations: u32,
@@ -86,15 +89,15 @@ pub(crate) fn add_address_from_extended_path(
     let (ecdsa_public_key, address) = derive_ecdsa_public_key_and_address_from_extended_path(
         derivation_path,
         address_type,
-        &bitcoin_agent.management_canister.get_network(),
-        &bitcoin_agent.management_canister.get_ecdsa_public_key(),
+        &bitcoin_wallet.management_canister.get_network(),
+        &bitcoin_wallet.management_canister.get_ecdsa_public_key(),
     );
-    if !bitcoin_agent.ecdsa_pub_key_addresses.contains_key(&address) {
-        bitcoin_agent
+    if !bitcoin_wallet.ecdsa_pub_key_addresses.contains_key(&address) {
+        bitcoin_wallet
             .ecdsa_pub_key_addresses
             .insert(address.clone(), ecdsa_public_key);
         let utxos_state = UtxosState::new(min_confirmations);
-        bitcoin_agent
+        bitcoin_wallet
             .utxos_state_addresses
             .insert(address.clone(), utxos_state);
     }
@@ -161,8 +164,7 @@ fn get_address(
         AddressType::P2pkh => Ok(get_p2pkh_address(network, ecdsa_public_key)?),
         AddressType::P2sh => get_p2sh_address_for_pub_key(network, ecdsa_public_key),
         AddressType::P2wpkh => get_p2wpkh_address(network, ecdsa_public_key),
-        // TODO (ER-2639): Add more address types (especially P2wsh)
-        // Other cases can't happen see BitcoinAgent::new
+        // Other cases can't happen, see BitcoinWallet::new.
         _ => panic!(),
     }
 }

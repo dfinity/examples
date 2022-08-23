@@ -61,7 +61,8 @@ pub(crate) async fn ecdsa_public_key(
     }
 }
 
-/// Returns the signature of the given `message_hash` associated with the ECDSA public key of this canister at the given derivation path.
+/// Returns the signature of the given `message_hash` associated with the ECDSA public key
+/// of this canister at the given derivation path.
 pub(crate) async fn sign_with_ecdsa(
     key_name: String,
     derivation_path: Vec<Vec<u8>>,

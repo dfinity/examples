@@ -23,7 +23,7 @@ use bitcoin::Address;
 use std::collections::{BTreeMap, HashMap};
 
 #[derive(Clone)]
-pub struct BitcoinAgent<C: ManagementCanister> {
+pub struct BitcoinWallet<C: ManagementCanister> {
     pub(crate) management_canister: C,
     pub(crate) main_address_type: AddressType,
     pub(crate) ecdsa_pub_key_addresses: BTreeMap<Address, EcdsaPubKey>,
@@ -31,7 +31,7 @@ pub struct BitcoinAgent<C: ManagementCanister> {
     pub(crate) utxos_state_addresses: BTreeMap<Address, UtxosState>,
 }
 
-impl<C: ManagementCanister> BitcoinAgent<C> {
+impl<C: ManagementCanister> BitcoinWallet<C> {
     /// Creates a new Bitcoin agent using the given management canister.
     pub fn new(
         management_canister: C,
@@ -81,12 +81,12 @@ impl<C: ManagementCanister> BitcoinAgent<C> {
         ) {
             Err(AddAddressWithParametersError::DerivationPathTooLong) => Err(DerivationPathTooLong),
             Ok(address) => Ok(address),
-            // Other case AddAddressWithParameters::MinConfirmationsTooHigh can't happen see BitcoinAgent::new
+            // Other case AddAddressWithParameters::MinConfirmationsTooHigh can't happen see BitcoinWallet::new
             _ => panic!(),
         }
     }
 
-    /// Returns the difference in the balance of an address controlled by the `BitcoinAgent` between the current state and the seen state when the function was last called, considering only transactions with the specified number of confirmations.
+    /// Returns the difference in the balance of an address controlled by the `BitcoinWallet` between the current state and the seen state when the function was last called, considering only transactions with the specified number of confirmations.
     /// The returned `BalanceUpdate` contains the information on how much balance was added and subtracted in total. If the function is called for the first time, the current balance of the address is returned.
     /// It is equivalent to calling `get_utxos_update` and summing up the balances in the returned UTXOs.
     pub fn get_balance_update(

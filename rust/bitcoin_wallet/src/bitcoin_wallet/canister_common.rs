@@ -43,14 +43,15 @@ pub trait ManagementCanister {
     /// Returns fees as percentiles in millisatoshis/byte over the last 10,000 transactions.
     async fn get_current_fees(&self) -> Result<Vec<MillisatoshiPerByte>, ManagementCanisterReject>;
 
-    /// Returns the signature of the given `message_hash` associated with the ECDSA public key of this canister at the given derivation path.
+    /// Returns the signature of the given `message_hash` associated with the ECDSA public key
+    /// of this canister at the given derivation path.
     async fn sign_with_ecdsa(
         &self,
         derivation_path: &[Vec<u8>],
         message_hash: &[u8],
     ) -> Result<Vec<u8>, ManagementCanisterReject>;
 
-    /// Sends the given transaction to the network the management canister interacts with.
+    /// Sends the given transaction to the network that the management canister interacts with.
     async fn send_transaction(
         &mut self,
         transaction: Vec<u8>,

@@ -1,5 +1,5 @@
 use crate::{
-    agent::BitcoinAgent,
+    wallet::BitcoinWallet,
     canister_common::{ManagementCanister, GET_UTXOS_COST_CYCLES},
     types::{
         from_bitcoin_network_to_ic_btc_types_network, AddressNotTracked, BalanceUpdate,
@@ -66,32 +66,32 @@ pub(crate) async fn get_utxos(
 /// The last seen state for an address is updated to the current unseen state by calling `update_state` or implicitly when invoking `get_utxos_update`.
 /// If there are no changes to the UTXO set since the last call, the returned `UtxosUpdate` will be identical.
 pub(crate) fn peek_utxos_update<C: ManagementCanister>(
-    bitcoin_agent: &BitcoinAgent<C>,
+    bitcoin_wallet: &BitcoinWallet<C>,
     address: &Address,
 ) -> Result<UtxosUpdate, AddressNotTracked> {
-    if !bitcoin_agent.utxos_state_addresses.contains_key(address) {
+    if !bitcoin_wallet.utxos_state_addresses.contains_key(address) {
         return Err(AddressNotTracked);
     }
-    let utxos_state_address = bitcoin_agent.utxos_state_addresses.get(address).unwrap();
+    let utxos_state_address = bitcoin_wallet.utxos_state_addresses.get(address).unwrap();
     Ok(UtxosUpdate::from_state(
         &utxos_state_address.seen_state,
         &utxos_state_address.unseen_state,
     ))
 }
 
-/// Updates the state of the `BitcoinAgent` for the given `address`.
+/// Updates the state of the `BitcoinWallet` for the given `address`.
 /// This function doesn't invoke a Bitcoin integration API function.
 pub(crate) fn update_state<C: ManagementCanister>(
-    bitcoin_agent: &mut BitcoinAgent<C>,
+    bitcoin_wallet: &mut BitcoinWallet<C>,
     address: &Address,
 ) -> Result<(), AddressNotTracked> {
-    if !bitcoin_agent.utxos_state_addresses.contains_key(address) {
+    if !bitcoin_wallet.utxos_state_addresses.contains_key(address) {
         return Err(AddressNotTracked);
     }
-    let unseen_state = bitcoin_agent.utxos_state_addresses[address]
+    let unseen_state = bitcoin_wallet.utxos_state_addresses[address]
         .unseen_state
         .clone();
-    bitcoin_agent
+    bitcoin_wallet
         .utxos_state_addresses
         .get_mut(address)
         .unwrap()
@@ -99,15 +99,15 @@ pub(crate) fn update_state<C: ManagementCanister>(
     Ok(())
 }
 
-/// Returns the difference in the set of UTXOs of an address controlled by the `BitcoinAgent` between the current state and the seen state when the function was last called, considering only UTXOs with the number of confirmations specified when adding the given address.
+/// Returns the difference in the set of UTXOs of an address controlled by the `BitcoinWallet` between the current state and the seen state when the function was last called, considering only UTXOs with the number of confirmations specified when adding the given address.
 /// The returned `UtxosUpdate` contains the information which UTXOs were added and removed. If the function is called for the first time, the current set of UTXOs is returned.
-/// Note that the function changes the state of the `BitcoinAgent`: A subsequent call will return changes to the UTXO set that have occurred since the last call.
+/// Note that the function changes the state of the `BitcoinWallet`: A subsequent call will return changes to the UTXO set that have occurred since the last call.
 pub(crate) fn get_utxos_update<C: ManagementCanister>(
-    bitcoin_agent: &mut BitcoinAgent<C>,
+    bitcoin_wallet: &mut BitcoinWallet<C>,
     address: &Address,
 ) -> Result<UtxosUpdate, AddressNotTracked> {
-    let utxos_update = peek_utxos_update(bitcoin_agent, address)?;
-    update_state(bitcoin_agent, address).unwrap();
+    let utxos_update = peek_utxos_update(bitcoin_wallet, address)?;
+    update_state(bitcoin_wallet, address).unwrap();
     Ok(utxos_update)
 }
 
@@ -116,14 +116,14 @@ pub(crate) fn get_balance_from_utxos(utxos: &[Utxo]) -> Satoshi {
     utxos.iter().map(|utxo| utxo.value).sum()
 }
 
-/// Returns the difference in the balance of an address controlled by the `BitcoinAgent` between the current state and the seen state when the function was last called, considering only transactions with the specified number of confirmations.
+/// Returns the difference in the balance of an address controlled by the `BitcoinWallet` between the current state and the seen state when the function was last called, considering only transactions with the specified number of confirmations.
 /// The returned `BalanceUpdate` contains the information on how much balance was added and subtracted in total. If the function is called for the first time, the current balance of the address is returned.
 /// It is equivalent to calling `get_utxos_update` and summing up the balances in the returned UTXOs.
 pub(crate) fn get_balance_update<C: ManagementCanister>(
-    bitcoin_agent: &mut BitcoinAgent<C>,
+    bitcoin_wallet: &mut BitcoinWallet<C>,
     address: &Address,
 ) -> Result<BalanceUpdate, AddressNotTracked> {
-    let utxos_update = get_utxos_update(bitcoin_agent, address)?;
+    let utxos_update = get_utxos_update(bitcoin_wallet, address)?;
     Ok(BalanceUpdate::from(utxos_update))
 }
 

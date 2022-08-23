@@ -236,7 +236,7 @@ pub type AddressUsingPrimitives = (String, Network);
 
 /// Represents the Bitcoin agent state used for canister upgrades.
 #[derive(CandidType, Debug, Deserialize, PartialEq, Clone)]
-pub struct BitcoinAgentState {
+pub struct BitcoinWalletState {
     pub network: Network,
     pub main_address_type: AddressType,
     pub ecdsa_pub_key_addresses: BTreeMap<AddressUsingPrimitives, EcdsaPubKey>,

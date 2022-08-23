@@ -14,7 +14,7 @@ use ic_btc_types::MillisatoshiPerByte;
 use async_trait::async_trait;
 use bitcoin::{Address, Network};
 
-/// The real management canister is used to provide actual interaction with Bitcoin.
+/// The real management canister is used to provide actual interaction with the Bitcoin integration.
 #[derive(Clone)]
 pub struct ManagementCanisterImpl {
     network: Network,
