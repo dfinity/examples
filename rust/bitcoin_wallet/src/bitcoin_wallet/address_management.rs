@@ -1,11 +1,12 @@
 use crate::{
-    wallet::BitcoinWallet,
     bip32_extended_derivation::extended_bip32_derivation,
     canister_common::ManagementCanister,
     types::{
-        AddAddressWithParametersError, BitcoinAddressError, EcdsaPubKey, UtxosState,
-        MIN_CONFIRMATIONS_UPPER_BOUND,
+        from_bitcoin_network_to_types_network, from_types_network_to_bitcoin_network,
+        AddAddressWithParametersError, AddressUsingPrimitives, BitcoinAddressError, EcdsaPubKey,
+        UtxosState, MIN_CONFIRMATIONS_UPPER_BOUND,
     },
+    wallet::BitcoinWallet,
 };
 use bitcoin::{
     blockdata::{opcodes, script::Builder},
@@ -15,6 +16,7 @@ use bitcoin::{
     util::address::Payload,
     Address, AddressType, Network, PublicKey, ScriptHash,
 };
+use std::str::FromStr;
 
 /// Returns the Bitcoin public key from a given ECDSA public key.
 pub(crate) fn get_btc_public_key_from_ecdsa_public_key(
@@ -92,7 +94,10 @@ pub(crate) fn add_address_from_extended_path(
         &bitcoin_wallet.management_canister.get_network(),
         &bitcoin_wallet.management_canister.get_ecdsa_public_key(),
     );
-    if !bitcoin_wallet.ecdsa_pub_key_addresses.contains_key(&address) {
+    if !bitcoin_wallet
+        .ecdsa_pub_key_addresses
+        .contains_key(&address)
+    {
         bitcoin_wallet
             .ecdsa_pub_key_addresses
             .insert(address.clone(), ecdsa_public_key);
@@ -189,4 +194,25 @@ pub(crate) fn get_bitcoin_address_type(address_type: &crate::AddressType) -> Add
         crate::AddressType::P2sh => AddressType::P2sh,
         crate::AddressType::P2wpkh => AddressType::P2wpkh,
     }
+}
+
+/// Returns the `AddressUsingPrimitives` associated with a given `bitcoin::Address`.
+pub(crate) fn get_address_using_primitives(address: &Address) -> AddressUsingPrimitives {
+    (
+        address.to_string(),
+        from_bitcoin_network_to_types_network(address.network),
+    )
+}
+
+/// Returns the `bitcoin::Address` associated with a given `AddressUsingPrimitives`.
+pub(crate) fn get_address_from_string(
+    (address_string, address_network): AddressUsingPrimitives,
+) -> Address {
+    let mut address = Address::from_str(&address_string).unwrap();
+    address.network = if cfg!(all(not(test), locally)) {
+        Network::Regtest
+    } else {
+        from_types_network_to_bitcoin_network(address_network)
+    };
+    address
 }

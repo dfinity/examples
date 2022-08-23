@@ -1,10 +1,10 @@
 use crate::{
-    wallet::BitcoinWallet,
     canister_common::{ManagementCanister, GET_UTXOS_COST_CYCLES},
     types::{
         from_bitcoin_network_to_ic_btc_types_network, AddressNotTracked, BalanceUpdate,
         GetUtxosError, GetUtxosResponse, UtxosUpdate, MIN_CONFIRMATIONS_UPPER_BOUND,
     },
+    wallet::BitcoinWallet,
 };
 use bitcoin::{Address, Network};
 use ic_btc_types::{

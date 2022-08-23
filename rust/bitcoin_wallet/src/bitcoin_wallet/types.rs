@@ -231,7 +231,8 @@ pub(crate) fn from_bitcoin_network_to_types_network(network: bitcoin::Network) -
     }
 }
 
-/// Needs to use `(String, Network)` to describe an address otherwise there is an ambiguity between testnet and regtest because of the same address prefix.
+/// Needs to use `(String, Network)` to describe an address otherwise there is an ambiguity
+/// between testnet and regtest because of the same address prefix.
 pub type AddressUsingPrimitives = (String, Network);
 
 /// Represents the Bitcoin agent state used for canister upgrades.
