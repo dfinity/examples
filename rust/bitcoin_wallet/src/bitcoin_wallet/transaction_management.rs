@@ -529,7 +529,7 @@ async fn mock_signer(
     _derivation_path: Vec<Vec<u8>>,
     _message_hash: Vec<u8>,
 ) -> Result<Vec<u8>, ManagementCanisterReject> {
-    Ok(vec![1; 64])
+    Ok(vec![255; 64])
 }
 
 // Converts a SEC1 ECDSA signature to the DER format.
