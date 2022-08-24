@@ -4,24 +4,25 @@
 //! and how bitcoin transactions can be signed. It is missing several
 //! pieces that any production-grade wallet would have, including:
 //!
-//! * Support for address types that aren't P2PKH.
+//! * Support for address types that aren't P2WPKH.
 //! * Caching spent UTXOs so that they are not reused in future transactions.
 //! * Option to set the fee.
 use crate::{bitcoin_api, ecdsa_api};
+use bech32::{u5, Variant};
 use bitcoin::util::psbt::serialize::Serialize;
 use bitcoin::{
-    blockdata::script::Builder, hashes::Hash, Address, AddressType, OutPoint, Script, SigHashType,
-    Transaction, TxIn, TxOut, Txid,
+    blockdata::witness::Witness, hashes::Hash, util::sighash, Address, AddressType,
+    EcdsaSighashType, OutPoint, Script, Transaction, TxIn, TxOut, Txid,
 };
 use ic_btc_types::{MillisatoshiPerByte, Network, Satoshi, Utxo};
 use ic_cdk::print;
 use sha2::Digest;
 use std::str::FromStr;
 
-const SIG_HASH_TYPE: SigHashType = SigHashType::All;
+const SIG_HASH_TYPE: EcdsaSighashType = EcdsaSighashType::All;
 
-/// Returns the P2PKH address of this canister at the given derivation path.
-pub async fn get_p2pkh_address(
+/// Returns the P2WPKH address of this canister at the given derivation path.
+pub async fn get_p2wpkh_address(
     network: Network,
     key_name: String,
     derivation_path: Vec<Vec<u8>>,
@@ -30,7 +31,7 @@ pub async fn get_p2pkh_address(
     let public_key = ecdsa_api::ecdsa_public_key(key_name, derivation_path).await;
 
     // Compute the address.
-    public_key_to_p2pkh_address(network, &public_key)
+    public_key_to_p2wpkh_address(network, &public_key)
 }
 
 /// Sends a transaction to the network that transfers the given amount to the
@@ -56,10 +57,10 @@ pub async fn send(
         fee_percentiles[49]
     };
 
-    // Fetch our public key, P2PKH address, and UTXOs.
+    // Fetch our public key, P2WPKH address, and UTXOs.
     let own_public_key =
         ecdsa_api::ecdsa_public_key(key_name.clone(), derivation_path.clone()).await;
-    let own_address = public_key_to_p2pkh_address(network, &own_public_key);
+    let own_address = public_key_to_p2wpkh_address(network, &own_public_key);
 
     print("Fetching UTXOs...");
     let own_utxos = bitcoin_api::get_utxos(network, own_address.clone())
@@ -87,6 +88,7 @@ pub async fn send(
     let signed_transaction = sign_transaction(
         &own_public_key,
         &own_address,
+        &own_utxos,
         transaction,
         key_name,
         derivation_path,
@@ -137,9 +139,10 @@ async fn build_transaction(
         let signed_transaction = sign_transaction(
             own_public_key,
             own_address,
+            own_utxos,
             transaction.clone(),
             String::from(""), // mock key name
-            vec![], // mock derivation path
+            vec![],           // mock derivation path
             mock_signer,
         )
         .await;
@@ -195,7 +198,7 @@ fn build_transaction_with_fee(
                 vout: utxo.outpoint.vout,
             },
             sequence: 0xffffffff,
-            witness: Vec::new(),
+            witness: Witness::new(),
             script_sig: Script::new(),
         })
         .collect();
@@ -214,12 +217,28 @@ fn build_transaction_with_fee(
         });
     }
 
+    for utxo in own_utxos {
+        print(&format!("Consuming an output with value: {}", utxo.value));
+    }
+
     Ok(Transaction {
         input: inputs,
         output: outputs,
         lock_time: 0,
-        version: 2,
+        version: 1,
     })
+}
+
+fn get_value(input: &TxIn, utxos: &[Utxo]) -> u64 {
+    let used_utxo = utxos
+        .iter()
+        .find(|utxo| {
+            Txid::from_hash(Hash::from_slice(&utxo.outpoint.txid).unwrap())
+                == input.previous_output.txid
+                && utxo.outpoint.vout == input.previous_output.vout
+        })
+        .unwrap();
+    used_utxo.value
 }
 
 // Sign a bitcoin transaction.
@@ -228,10 +247,11 @@ fn build_transaction_with_fee(
 // supports signing transactions if:
 //
 // 1. All the inputs are referencing outpoints that are owned by `own_address`.
-// 2. `own_address` is a P2PKH address.
+// 2. `own_address` is a P2WPKH address.
 async fn sign_transaction<SignFun, Fut>(
     own_public_key: &[u8],
     own_address: &Address,
+    own_utxos: &[Utxo],
     mut transaction: Transaction,
     key_name: String,
     derivation_path: Vec<Vec<u8>>,
@@ -241,17 +261,21 @@ where
     SignFun: Fn(String, Vec<Vec<u8>>, Vec<u8>) -> Fut,
     Fut: std::future::Future<Output = Vec<u8>>,
 {
-    // Verify that our own address is P2PKH.
+    // Verify that our own address is P2WPKH.
     assert_eq!(
         own_address.address_type(),
-        Some(AddressType::P2pkh),
-        "This example supports signing p2pkh addresses only."
+        Some(AddressType::P2wpkh),
+        "This example supports signing p2wpkh addresses only."
     );
 
     let txclone = transaction.clone();
+    let mut hash_cache = sighash::SighashCache::new(&txclone);
     for (index, input) in transaction.input.iter_mut().enumerate() {
-        let sighash =
-            txclone.signature_hash(index, &own_address.script_pubkey(), SIG_HASH_TYPE.as_u32());
+        let value = get_value(input, own_utxos);
+        print(&format!("Input spent with value: {}", value));
+        let sighash = hash_cache
+            .segwit_signature_hash(index, &own_address.script_pubkey(), value, SIG_HASH_TYPE)
+            .expect("Creating the segwit signature hash failed.");
 
         let signature = signer(key_name.clone(), derivation_path.clone(), sighash.to_vec()).await;
 
@@ -259,12 +283,10 @@ where
         let der_signature = sec1_to_der(signature);
 
         let mut sig_with_hashtype = der_signature;
-        sig_with_hashtype.push(SIG_HASH_TYPE.as_u32() as u8);
-        input.script_sig = Builder::new()
-            .push_slice(sig_with_hashtype.as_slice())
-            .push_slice(own_public_key)
-            .into_script();
-        input.witness.clear();
+        sig_with_hashtype.push(SIG_HASH_TYPE.to_u32() as u8);
+        print(&format!("Public key length: {}", own_public_key.len()));
+        let witness_bytes = vec![sig_with_hashtype, own_public_key.to_vec()];
+        input.witness = Witness::from_vec(witness_bytes);
     }
 
     transaction
@@ -276,30 +298,32 @@ fn sha256(data: &[u8]) -> Vec<u8> {
     hasher.finalize().to_vec()
 }
 
-// Converts a public key to a P2PKH address.
-fn public_key_to_p2pkh_address(network: Network, public_key: &[u8]) -> String {
-    // sha256 + ripmd160
-    let mut hasher = ripemd::Ripemd160::new();
-    hasher.update(sha256(public_key));
-    let result = hasher.finalize();
-
-    let prefix = match network {
-        Network::Testnet | Network::Regtest => 0x6f,
-        Network::Mainnet => 0x00,
+// Converts a public key to a P2WPKH address.
+fn public_key_to_p2wpkh_address(network: Network, public_key: &[u8]) -> String {
+    let data: [u8; 20] = ripemd::Ripemd160::digest(sha256(public_key)).into();
+    let witness_version: u5 = u5::try_from_u8(0).unwrap();
+    let data: Vec<u5> = std::iter::once(witness_version)
+        .chain(
+            bech32::convert_bits(&data[..], 8, 5, true)
+                .unwrap()
+                .into_iter()
+                .map(|b| u5::try_from_u8(b).unwrap()),
+        )
+        .collect();
+    let hrp = match network {
+        ic_btc_types::Network::Mainnet => "bc",   // mainnet
+        ic_btc_types::Network::Testnet => "tb",   // testnet
+        ic_btc_types::Network::Regtest => "bcrt", // regtest
     };
-    let mut data_with_prefix = vec![prefix];
-    data_with_prefix.extend(result);
-
-    let checksum = &sha256(&sha256(&data_with_prefix.clone()))[..4];
-
-    let mut full_address = data_with_prefix;
-    full_address.extend(checksum);
-
-    bs58::encode(full_address).into_string()
+    bech32::encode(hrp, data, Variant::Bech32).unwrap()
 }
 
 // A mock for rubber-stamping ECDSA signatures.
-async fn mock_signer(_key_name: String, _derivation_path: Vec<Vec<u8>>, _message_hash: Vec<u8>) -> Vec<u8> {
+async fn mock_signer(
+    _key_name: String,
+    _derivation_path: Vec<Vec<u8>>,
+    _message_hash: Vec<u8>,
+) -> Vec<u8> {
     vec![1; 64]
 }
 

@@ -58,13 +58,13 @@ pub async fn get_current_fee_percentiles() -> Vec<MillisatoshiPerByte> {
     bitcoin_api::get_current_fee_percentiles(network).await
 }
 
-/// Returns the P2PKH address of this canister at a specific derivation path.
+/// Returns the P2WPKH address of this canister at a specific derivation path.
 #[update]
-pub async fn get_p2pkh_address() -> String {
+pub async fn get_p2wpkh_address() -> String {
     let derivation_path = DERIVATION_PATH.with(|d| d.clone());
     let key_name = KEY_NAME.with(|kn| kn.borrow().to_string());
     let network = NETWORK.with(|n| n.get());
-    bitcoin_wallet::get_p2pkh_address(network, key_name, derivation_path).await
+    bitcoin_wallet::get_p2wpkh_address(network, key_name, derivation_path).await
 }
 
 /// Sends the given amount of bitcoin from this canister to the given address.
