@@ -117,7 +117,7 @@ async fn build_transaction(
     own_utxos: &[Utxo],
     dst_address: &Address,
     amount: Satoshi,
-    fee_per_byte: MillisatoshiPerByte,
+    fee_per_vbyte: MillisatoshiPerByte,
 ) -> Transaction {
     // We have a chicken-and-egg problem where we need to know the length
     // of the transaction in order to compute its proper fee, but we need
@@ -147,13 +147,14 @@ async fn build_transaction(
         )
         .await;
 
-        let signed_tx_bytes_len = signed_transaction.serialize().len() as u64;
+        // The virtual size is a quarter of the transaction weight rounded up.
+        let tx_vsize = ((Transaction::weight(&signed_transaction) +3) / 4) as u64;
 
-        if (signed_tx_bytes_len * fee_per_byte) / 1000 == total_fee {
+        if (tx_vsize * fee_per_vbyte) / 1000 == total_fee {
             print(&format!("Transaction built with fee {}.", total_fee));
             return transaction;
         } else {
-            total_fee = (signed_tx_bytes_len * fee_per_byte) / 1000;
+            total_fee = (tx_vsize * fee_per_vbyte) / 1000;
         }
     }
 }
