@@ -8,14 +8,7 @@ use crate::{
     },
     wallet::BitcoinWallet,
 };
-use bitcoin::{
-    blockdata::{opcodes, script::Builder},
-    hashes,
-    hashes::Hash,
-    util,
-    util::address::Payload,
-    Address, AddressType, Network, PublicKey, ScriptHash,
-};
+use bitcoin::{util, Address, AddressType, Network, PublicKey};
 use std::str::FromStr;
 
 /// Returns the Bitcoin public key from a given ECDSA public key.
@@ -120,45 +113,6 @@ pub(crate) fn get_p2pkh_address(
     ))
 }
 
-/// Returns the P2SH address from a given network and script hash.
-pub(crate) fn get_p2sh_address(
-    network: &Network,
-    script_hash: &[u8],
-) -> Result<Address, hashes::error::Error> {
-    Ok(Address {
-        network: *network,
-        payload: Payload::ScriptHash(ScriptHash::from_slice(script_hash)?),
-    })
-}
-
-/// Returns the P2SH address from a given network and public key.
-pub(crate) fn get_p2sh_address_for_pub_key(
-    network: &Network,
-    ecdsa_public_key: &EcdsaPubKey,
-) -> Result<Address, BitcoinAddressError> {
-    let public_key = get_btc_public_key_from_ecdsa_public_key(ecdsa_public_key)?;
-    let public_key_hash = public_key.pubkey_hash();
-    let script = Builder::new()
-        .push_slice(&public_key_hash[..])
-        .push_opcode(opcodes::all::OP_CHECKSIG)
-        .into_script();
-    Ok(get_p2sh_address(
-        network,
-        &script.script_hash().to_ascii_lowercase(),
-    )?)
-}
-
-/// Returns the P2WPKH address from a given network and public key.
-pub(crate) fn get_p2wpkh_address(
-    network: &Network,
-    ecdsa_public_key: &EcdsaPubKey,
-) -> Result<Address, BitcoinAddressError> {
-    Ok(Address::p2wpkh(
-        &get_btc_public_key_from_ecdsa_public_key(ecdsa_public_key)?,
-        *network,
-    )?)
-}
-
 /// Returns the Bitcoin address from a given network, address type and ECDSA public key.
 fn get_address(
     network: &Network,
@@ -167,9 +121,7 @@ fn get_address(
 ) -> Result<Address, BitcoinAddressError> {
     match get_bitcoin_address_type(address_type) {
         AddressType::P2pkh => Ok(get_p2pkh_address(network, ecdsa_public_key)?),
-        AddressType::P2sh => get_p2sh_address_for_pub_key(network, ecdsa_public_key),
-        AddressType::P2wpkh => get_p2wpkh_address(network, ecdsa_public_key),
-        // Other cases can't happen, see BitcoinWallet::new.
+        // Other address types are not supported in this sample dapp.
         _ => panic!(),
     }
 }
