@@ -218,7 +218,7 @@ public func build_transaction(
 
   // A mock for rubber-stamping ECDSA signatures.
   func mock_signer(_key_name : Text, _derivation_path : [Blob], _message_hash : Blob) : async Blob {
-      Blob.fromArray(Array.freeze(Array.init<Nat8>(64, 1)))
+      Blob.fromArray(Array.freeze(Array.init<Nat8>(64, 255)))
   };
 
   func public_key_bytes_to_public_key(public_key_bytes : [Nat8]) : PublicKey {
