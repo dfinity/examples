@@ -39,7 +39,7 @@ Verify the following before running this demo:
 
 1. Start a local internet computer.
 
-   ```text
+   ```sh
    dfx start
    ```
 
@@ -47,38 +47,39 @@ Verify the following before running this demo:
 
 1. Reserve an identifier for your canister.
 
-   ```text
+   ```sh
    dfx canister create counter
    ```
 
-1. Build your canister.
+1. Test and Build your canister.
 
-   ```text
+   ```sh
+   cargo test
    dfx build
    ```
 
 1. Deploy your canister.
 
-   ```text
+   ```sh
    dfx canister install counter
    dfx deploy
    ```
 
 1. Set the value of the counter.
 
-   ```text
+   ```sh
    dfx canister call counter set '(7 : nat)'
    ```
 
 1. Increment the value of the counter.
 
-   ```text
+   ```sh
    dfx canister call counter inc
    ```
 
 1. Get the value of the counter.
 
-   ```text
+   ```sh
    dfx canister call counter get
    ```
 
