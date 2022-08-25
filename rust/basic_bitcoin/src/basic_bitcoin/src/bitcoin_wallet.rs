@@ -300,7 +300,7 @@ fn public_key_to_p2pkh_address(network: Network, public_key: &[u8]) -> String {
 
 // A mock for rubber-stamping ECDSA signatures.
 async fn mock_signer(_key_name: String, _derivation_path: Vec<Vec<u8>>, _message_hash: Vec<u8>) -> Vec<u8> {
-    vec![1; 64]
+    vec![255; 64]
 }
 
 // Converts a SEC1 ECDSA signature to the DER format.
