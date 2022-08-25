@@ -1,11 +1,11 @@
 {
   "version": 1,
   "canisters": {
-    "Map": {
+    "map": {
       "type": "motoko",
       "main": "src/map/Map.mo"
     },
-    "Test": {
+    "test": {
       "type": "motoko",
       "main": "src/test/Test.mo"
     }
