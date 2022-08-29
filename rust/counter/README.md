@@ -1,36 +1,49 @@
 # Counter
 
-This is a Rust / Yew port of the Mokoto Counter example. 
+This is a Rust port of the Mokoto Counter example. 
 
 This example demonstrates a counter application. It uses an orthogonally
 persistent `counter` variable to store an arbitrary precision natural number
 that represents the current value of the counter.
 
-By using the Motoko keyword `stable` when declaring the `counter` variable,
-the value of this variable will automatically be preserved whenever your canister code is
-upgraded. Without the `stable` keyword, a variable is deemed `flexible`, and its value
-is reinitialized on every canister upgrade, i.e. whenever new code is deployed to the canister.
+Canisters in Rust are single-threaded, thus it is safe (and simplest) to
+declare global state variable within a `thread_local!` block
+and wrapping `COUNTER` in a `RefCell` pointer.
 
-To learn more about these features of Motoko, see:
-* https://sdk.dfinity.org/docs/language-guide/motoko.html#_orthogonal_persistence
-* https://sdk.dfinity.org/docs/language-guide/upgrades.html#_declaring_stable_variables
+This is the equivalent of the `static` keyword in Mokoto, and the value of 
+such variables will automatically be preserved whenever the canister code is
+upgraded.
+
+The `counter.did` file represents the published API interface for the counter
+canister, and must be expressed using Candid syntax and Candid types. 
+Exposed functions in the Rust implementation should have equivalent types
+and be annotated with a `#[ic_cdk_macros::query]`or `#[ic_cdk_macros::update]` macro.
+
+To learn more about Candid, see:
+- https://internetcomputer.org/docs/current/developer-docs/build/candid/candid-concepts
+- https://internetcomputer.org/docs/current/references/candid-ref/#supported-types
+- https://docs.rs/candid/latest/candid/
+
+To learn more about programming the Internet Computer in Rust, see:
+- https://internetcomputer.org/docs/current/developer-docs/build/cdks/cdk-rs-dfinity/rust-counter
+
 
 ## Introduction
 
 The application provides an interface that exposes the following methods:
 
-*  `set`, which sets the value of the counter;
+*  `set`, which sets the value of the counter (update)
 
-*  `inc`, which increments the value of the counter; and
+*  `inc`, which increments the value of the counter (update)
 
-*  `get`, which gets the value of the counter.
+*  `get`, which gets the value of the counter (query)
 
 ## Prerequisites
 
 Verify the following before running this demo:
 
 *  You have downloaded and installed the [DFINITY Canister
-   SDK](https://sdk.dfinity.org).
+   SDK](https://internetcomputer.org/docs/current/developer-docs/build/install-upgrade-remove).
 
 *  You have stopped any Internet Computer or other network process that would
    create a port conflict on 8000.
@@ -58,17 +71,18 @@ Verify the following before running this demo:
    dfx build
    ```
 
-1. Deploy your canister.
+1. Install your canister.
 
    ```sh
    dfx canister install counter
-   dfx deploy
    ```
 
-1. Set the value of the counter.
-
+1. All in one command
    ```sh
-   dfx canister call counter set '(7 : nat)'
+   # dfx canister create --all
+   # dfx build
+   # dfx canister install --all   
+   dfx deploy
    ```
 
 1. Increment the value of the counter.
