@@ -35,8 +35,11 @@ pub struct HttpHeader {
 
 #[derive(Clone, Debug, PartialEq, CandidType, Eq, Hash, Serialize, Deserialize)]
 pub enum HttpMethod {
+    #[serde(rename = "get")]
     GET,
+    #[serde(rename = "post")]
     POST,
+    #[serde(rename = "head")]
     HEAD,
 }
 
