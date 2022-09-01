@@ -58,6 +58,7 @@ triggering remote HTTP calls again.
 
 ## Deploy the canister locally
 - `dfx start --enable-canister-http` to start a local IC instance with Canister HTTP feature enabled
-- `dfx deploy --with-cycles 100000000000` to deploy the `exchange_rate` and `exchange_rate_assets`
+- `npm i svelte` to prepare needed UI canister dependencies
+- `dfx deploy --with-cycles=40000000000000` to deploy the `exchange_rate` and `exchange_rate_assets`
   canisters to local IC
 - `dfx canister status {canister_id}` to check the status of the canister

@@ -9,6 +9,12 @@ use std::collections::{HashMap, HashSet};
 type Timestamp = u64;
 type Rate = f32;
 
+#[derive(Clone, Debug, CandidType, Deserialize)]
+pub enum TransformType {
+    #[serde(rename = "function")]
+    Function(candid::Func),
+}
+
 #[derive(CandidType, Clone, Deserialize, Debug, Eq, Hash, PartialEq, Serialize)]
 pub struct TimeRange {
     pub start: Timestamp,
@@ -34,19 +40,19 @@ pub enum HttpMethod {
     HEAD,
 }
 
-#[derive(CandidType, Deserialize, Debug)]
+#[derive(CandidType, Deserialize, Debug, Clone)]
 pub struct CanisterHttpRequestArgs {
     pub url: String,
     pub max_response_bytes: Option<u64>,
     pub headers: Vec<HttpHeader>,
     pub body: Option<Vec<u8>>,
-    pub http_method: HttpMethod,
-    pub transform_method_name: Option<String>,
+    pub method: HttpMethod,
+    pub transform: Option<TransformType>,
 }
 
 #[derive(CandidType, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct CanisterHttpResponsePayload {
-    pub status: u64,
+    pub status: u128,
     pub headers: Vec<HttpHeader>,
     pub body: Vec<u8>,
 }
@@ -249,10 +255,13 @@ async fn get_rate(job: Timestamp) {
 
     let request = CanisterHttpRequestArgs {
         url: url,
-        http_method: HttpMethod::GET,
+        method: HttpMethod::GET,
         body: None,
         max_response_bytes: Some(MAX_RESPONSE_BYTES),
-        transform_method_name: Some("transform".to_string()),
+        transform: Some(TransformType::Function(candid::Func {
+            principal: ic_cdk::api::id(),
+            method: "transform".to_string(),
+        })),
         headers: request_headers,
     };
 
