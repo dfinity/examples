@@ -1,4 +1,5 @@
-import M "mo:base/HashMap";
+import HashMap "mo:base/HashMap";
+import Principal "mo:base/Principal";
 
 
 module Types {
@@ -12,7 +13,7 @@ module Types {
 
     public type RatesWithInterval = {
         interval: Nat8;
-        rates: HashMap<Timestamp, Rate>;
+        rates: HashMap.HashMap<Timestamp, Rate>;
     };
 
     public type HttpHeader = {
@@ -21,9 +22,18 @@ module Types {
     };
 
     public type HttpMethod = {
-        GET;
-        POST;
-        HEAD;
+        #get;
+        #post;
+        #head;
+    };
+
+    public type Func = {
+        principal: Principal;
+        method: Text;
+    };
+
+    public type TransformType = {
+        #function: Func; 
     };
 
     public type CanisterHttpRequestArgs = {
@@ -36,7 +46,7 @@ module Types {
     };
 
     public type CanisterHttpResponsePayload = {
-        status: Nat128;
+        status: Nat;
         headers: [HttpHeader];
         body: [Nat8];
     };
