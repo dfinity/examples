@@ -27,13 +27,8 @@ module Types {
         #head;
     };
 
-    public type Func = {
-        principal: Principal;
-        method: Text;
-    };
-
     public type TransformType = {
-        #function: Func; 
+        #function: shared CanisterHttpResponsePayload -> async CanisterHttpResponsePayload;
     };
 
     public type CanisterHttpRequestArgs = {
@@ -42,7 +37,10 @@ module Types {
         headers: [HttpHeader];
         body: ?[Nat8];
         method: HttpMethod;
-        transform: ?TransformType;
+        transform: {
+            #function: shared query CanisterHttpResponsePayload -> async CanisterHttpResponsePayload;
+            // #function: shared query () -> async ();
+        };
     };
 
     public type CanisterHttpResponsePayload = {
