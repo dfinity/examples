@@ -10,7 +10,7 @@ Canisters in Rust are single-threaded, thus it is safe (and simplest) to
 declare global state variable within a `thread_local!` block
 and wrapping `COUNTER` in a `RefCell` pointer.
 
-This is the equivalent of the `static` keyword in Mokoto, and the value of 
+This is the equivalent of the `stable` keyword in Mokoto, and the value of 
 such variables will automatically be preserved whenever the canister code is
 upgraded.
 
