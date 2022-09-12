@@ -1,4 +1,7 @@
-use candid::{CandidType, Principal};
+use candid::{
+    types::{reference::FuncVisitor, Function, Serializer, Type},
+    CandidType, Func, Principal,
+};
 use ic_cdk::storage;
 use ic_cdk_macros::{self, heartbeat, post_upgrade, pre_upgrade, query, update};
 use serde::{Deserialize, Serialize};
@@ -9,10 +12,52 @@ use std::collections::{HashMap, HashSet};
 type Timestamp = u64;
 type Rate = f32;
 
-#[derive(Clone, Debug, CandidType, Deserialize)]
+#[derive(Debug, Clone, PartialEq)]
+pub struct TransformFunc(pub candid::Func);
+
+impl CandidType for TransformFunc {
+    fn _ty() -> Type {
+        Type::Func(Function {
+            modes: Vec::new(),
+            args: vec![CanisterHttpResponsePayload::ty()],
+            rets: vec![CanisterHttpResponsePayload::ty()],
+        })
+    }
+
+    fn idl_serialize<S: Serializer>(&self, serializer: S) -> Result<(), S::Error> {
+        serializer.serialize_function(
+            candid::Func::from(self.clone()).principal.as_slice(),
+            &candid::Func::from(self.clone()).method,
+        )
+    }
+
+    fn id() -> candid::types::TypeId {
+        candid::types::TypeId::of::<Self>()
+    }
+}
+
+impl<'de> Deserialize<'de> for TransformFunc {
+    fn deserialize<D: serde::de::Deserializer<'de>>(deserializer: D) -> Result<Self, D::Error> {
+        deserializer.deserialize_ignored_any(FuncVisitor).map(Self)
+    }
+}
+
+impl From<Func> for TransformFunc {
+    fn from(f: candid::Func) -> Self {
+        Self(f)
+    }
+}
+
+impl From<TransformFunc> for candid::Func {
+    fn from(c: TransformFunc) -> Self {
+        c.0
+    }
+}
+
+#[derive(Clone, Debug, CandidType, Deserialize, PartialEq)]
 pub enum TransformType {
     #[serde(rename = "function")]
-    Function(candid::Func),
+    Function(TransformFunc),
 }
 
 #[derive(CandidType, Clone, Deserialize, Debug, Eq, Hash, PartialEq, Serialize)]
@@ -261,10 +306,10 @@ async fn get_rate(job: Timestamp) {
         method: HttpMethod::GET,
         body: None,
         max_response_bytes: Some(MAX_RESPONSE_BYTES),
-        transform: Some(TransformType::Function(candid::Func {
+        transform: Some(TransformType::Function(TransformFunc::from(candid::Func {
             principal: ic_cdk::api::id(),
             method: "transform".to_string(),
-        })),
+        }))),
         headers: request_headers,
     };
 
