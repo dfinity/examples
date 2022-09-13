@@ -22,13 +22,9 @@ module Types {
     };
 
     public type HttpMethod = {
-        #get;
-        #post;
-        #head;
-    };
-
-    public type TransformType = {
-        #function: shared CanisterHttpResponsePayload -> async CanisterHttpResponsePayload;
+        #GET;
+        #POST;
+        #HEAD;
     };
 
     public type CanisterHttpRequestArgs = {
@@ -36,15 +32,12 @@ module Types {
         max_response_bytes: ?Nat64;
         headers: [HttpHeader];
         body: ?[Nat8];
-        method: HttpMethod;
-        // transform: ?{
-        //     #function: shared query CanisterHttpResponsePayload -> async CanisterHttpResponsePayload;
-        // };
-        transform: shared query CanisterHttpResponsePayload -> async CanisterHttpResponsePayload;
+        http_method: HttpMethod;
+        transform_method_name: ?Text;
     };
 
     public type CanisterHttpResponsePayload = {
-        status: Nat;
+        status: Nat64;
         headers: [HttpHeader];
         body: [Nat8];
     };

@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "exchange_rate": {
+      "package": "exchange_rate",
+      "type": "motoko",
+      "main": "src/Main.mo",
+      "wasm": "target/wasm32-unknown-unknown/release/exchange_rate.wasm"
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
+}

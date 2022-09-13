@@ -27,8 +27,8 @@ actor class ExchangeRate() = this {
             max_response_bytes = null;
             headers = [];
             body = null;
-            method = #get;
-            transform = transform;
+            http_method = #GET;
+            transform_method_name = ?"transform";
         };
         try {
             Cycles.add(300_000_000_000);
