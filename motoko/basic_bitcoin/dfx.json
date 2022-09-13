@@ -1,5 +1,6 @@
 {
   "version": 1,
+  "dfx": "0.11.2",
   "canisters": {
     "basic_bitcoin": {
       "main": "src/basic_bitcoin/src/Main.mo"
