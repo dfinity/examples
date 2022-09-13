@@ -24,7 +24,7 @@ module {
         canister_id = null;
         derivation_path;
         key_id = {
-            curve = #Secp256k1;
+            curve = #secp256k1;
             name = key_name;
         };
     });
@@ -38,7 +38,7 @@ module {
         message_hash;
         derivation_path;
         key_id = {
-            curve = #Secp256k1;
+            curve = #secp256k1;
             name = key_name;
         };
     });
