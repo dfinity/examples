@@ -45,7 +45,7 @@
     "js-base64": "^3.7.2",
     "mime": "^3.0.0",
     "multiformats": "^9.6.2",
-    "node-sass": "^7.0.1",
+    "node-sass": "^7.0.3",
     "page": "^1.11.6",
     "postcss": "^8.4.8",
     "rollup-plugin-postcss": "^4.0.2",
