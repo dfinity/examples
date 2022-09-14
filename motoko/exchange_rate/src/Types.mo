@@ -37,10 +37,9 @@ module Types {
         headers: [HttpHeader];
         body: ?[Nat8];
         method: HttpMethod;
-        // transform: ?{
-        //     #function: shared query CanisterHttpResponsePayload -> async CanisterHttpResponsePayload;
-        // };
-        transform: shared query CanisterHttpResponsePayload -> async CanisterHttpResponsePayload;
+        transform: ?{
+            #function: shared query CanisterHttpResponsePayload -> async CanisterHttpResponsePayload;
+        };
     };
 
     public type CanisterHttpResponsePayload = {

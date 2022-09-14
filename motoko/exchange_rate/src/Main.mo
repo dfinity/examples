@@ -28,7 +28,7 @@ actor class ExchangeRate() = this {
             headers = [];
             body = null;
             method = #get;
-            transform = transform;
+            transform = ?(#function(transform));
         };
         try {
             Cycles.add(300_000_000_000);
