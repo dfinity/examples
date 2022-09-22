@@ -11,13 +11,13 @@ module Types {
     };
 
     public type RatesWithInterval = {
-        interval: Nat8;
-        rates: HashMap.HashMap<Timestamp, Rate>;
+        interval : Nat8;
+        rates : [(Timestamp, Rate)];
     };
 
     public type HttpHeader = {
-        name: Text;
-        value: Text;
+        name : Text;
+        value : Text;
     };
 
     public type HttpMethod = {
@@ -27,23 +27,23 @@ module Types {
     };
 
     public type TransformType = {
-        #function: shared CanisterHttpResponsePayload -> async CanisterHttpResponsePayload;
+        #function : shared CanisterHttpResponsePayload -> async CanisterHttpResponsePayload;
     };
 
     public type CanisterHttpRequestArgs = {
-        url: Text;
-        max_response_bytes: ?Nat64;
-        headers: [HttpHeader];
-        body: ?[Nat8];
-        method: HttpMethod;
-        transform: ?{
-            #function: shared query CanisterHttpResponsePayload -> async CanisterHttpResponsePayload;
+        url : Text;
+        max_response_bytes : ?Nat64;
+        headers : [HttpHeader];
+        body : ?[Nat8];
+        method : HttpMethod;
+        transform : ?{
+            #function : shared query CanisterHttpResponsePayload -> async CanisterHttpResponsePayload;
         };
     };
 
     public type CanisterHttpResponsePayload = {
-        status: Nat;
-        headers: [HttpHeader];
-        body: [Nat8];
+        status : Nat;
+        headers : [HttpHeader];
+        body : [Nat8];
     };
-}
+};
