@@ -244,21 +244,7 @@ shared actor class ExchangeRate() = this {
         let url = "https://" # host # "/products/ICP-USD/candles?granularity=" # Nat64.toText(REMOTE_FETCH_GRANULARITY) # "&start=" # Nat64.toText(start_timestamp) # "&end=" # Nat64.toText(end_timestamp);
         Debug.print(url);
 
-        let request : Types.CanisterHttpRequestArgs = {
-            url = url;
-            max_response_bytes = null;
-            headers = request_headers;
-            body = null;
-            method = #get;
-            transform = ?(#function(transform));
-        };
-        try {
-            Cycles.add(300_000_000_000);
-            let response = await ic.http_request(request);
-            #Ok({ response });
-        } catch (err) {
-            #Err(Error.message(err));
-        };
+        return await call_http(url);
     };
 
     public shared (msg) func call_http(url : Text) : async {
