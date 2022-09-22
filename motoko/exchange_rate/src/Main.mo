@@ -10,9 +10,13 @@ import Iter "mo:base/Iter";
 import Cycles "mo:base/ExperimentalCycles";
 import Debug "mo:base/Debug";
 import Nat64 "mo:base/Nat64";
+import Nat32 "mo:base/Nat32";
 import Nat8 "mo:base/Nat8";
 import Text "mo:base/Text";
+import Blob "mo:base/Blob";
 import Nat "mo:base/Nat";
+import Float "mo:base/Float";
+import Char "mo:base/Char";
 
 shared actor class ExchangeRate() = this {
     // How many data point can be returned as maximum.
@@ -126,7 +130,7 @@ shared actor class ExchangeRate() = this {
             },
         );
         // pull available ranges from hashmap
-        let requested_min : Nat64 = start_min;
+        var requested_min : Nat64 = start_min;
         while (requested_min <= end_min) {
             let requested : Nat64 = requested_min * REMOTE_FETCH_GRANULARITY;
             switch (FETCHED.get(requested)) {
@@ -141,6 +145,7 @@ shared actor class ExchangeRate() = this {
                     fetched.put(requested, rate);
                 };
             };
+            requested_min += 1;
         };
 
         // return sampled rates for available ranges
@@ -174,6 +179,7 @@ shared actor class ExchangeRate() = this {
                     interval = Nat8.fromNat(i * Nat64.toNat(REMOTE_FETCH_GRANULARITY));
                     rates = List.toArray(rates);
                 };
+                return abc;
             };
         };
         Debug.trap("This shouldn't be happening! Couldn't find an inteval that can keep total data points count in " # Nat.toText(MAX_DATA_PONTS_CANISTER_RESPONSE));
@@ -185,6 +191,7 @@ shared actor class ExchangeRate() = this {
         // we normalize the job to the beginning of 5 hours.
         let normalized_job = job / (REMOTE_FETCH_GRANULARITY * DATA_POINTS_PER_API) * (REMOTE_FETCH_GRANULARITY * DATA_POINTS_PER_API);
         REQUESTED.put(normalized_job, 0);
+        Debug.print("Job " # Nat64.toText(normalized_job) # " added to request queue");
     };
 
     /*
@@ -197,11 +204,10 @@ shared actor class ExchangeRate() = this {
             return;
         };
 
-        let job_id = REQUESTED.keys().next();
         switch (REQUESTED.keys().next()) {
             case (?job_id) {
-                if (REQUESTED.remove(job_id) != null) {
-                    Debug.print("Item not found in job set.");
+                if (REQUESTED.remove(job_id) == null) {
+                    Debug.print("Item " # Nat64.toText(job_id) # " not found in job set.");
                     return;
                 };
 
@@ -209,6 +215,7 @@ shared actor class ExchangeRate() = this {
                     case null {
                         // The requested time rate isn't found in map. Send a canister get_rate call to self
                         Debug.print("Fetching job " # Nat64.toText(job_id) # " now.");
+                        await get_rate(job_id);
                     };
                     case (?_) {
                         // If this job has already been downloaded. Only downloading it if doesn't already exist.
@@ -217,10 +224,6 @@ shared actor class ExchangeRate() = this {
                         );
                         return;
                     };
-                };
-
-                if (job_id != 0) {
-                    await get_rate(job_id);
                 };
             };
             case null {};
@@ -244,10 +247,68 @@ shared actor class ExchangeRate() = this {
         let url = "https://" # host # "/products/ICP-USD/candles?granularity=" # Nat64.toText(REMOTE_FETCH_GRANULARITY) # "&start=" # Nat64.toText(start_timestamp) # "&end=" # Nat64.toText(end_timestamp);
         Debug.print(url);
 
-        return await call_http(url);
+        let request : Types.CanisterHttpRequestArgs = {
+            url = url;
+            max_response_bytes = null;
+            headers = request_headers;
+            body = null;
+            method = #get;
+            transform = ?(#function(transform));
+        };
+        try {
+            Cycles.add(300_000_000_000);
+            let response : Types.CanisterHttpResponsePayload = await ic.http_request(request);
+            let rates = decode_body_to_rates(response);
+            for (rate in rates.entries()) {
+                Debug.print("Timestamp: " # Nat64.toText(rate.0) # " , Rate: " # rate.1);
+            };
+        } catch (err) {
+            Debug.print(Error.message(err));
+        };
     };
 
-    public shared (msg) func call_http(url : Text) : async {
+    private func decode_body_to_rates(
+        result : Types.CanisterHttpResponsePayload,
+    ) : HashMap.HashMap<Types.Timestamp, Types.Rate> {
+        switch (Text.decodeUtf8(Blob.fromArray(result.body))) {
+            case null {};
+            case (?decoded) {
+                for (entry in Text.split(decoded, #text "[")) {
+                    Debug.print(entry);
+                    var i = 0;
+                    var timestamp : Types.Timestamp = 0;
+                    var close_rate : Types.Rate = "";
+                    for (element in Text.split(entry, #text ",")) {
+                        if (i == 0) {
+                            timestamp := textToNat64(element);
+                        };
+                        if (i == 4) {
+                            close_rate := element;
+                            FETCHED.put(timestamp, close_rate);
+                        };
+                        i += 1;
+                    };
+                };
+            };
+        };
+        return FETCHED;
+    };
+
+    private func textToNat64(txt : Text) : Nat64 {
+        Debug.print("Converting " # txt # " to Nat64");
+        assert (txt.size() > 0);
+        let chars = txt.chars();
+
+        var num : Nat64 = 0;
+        for (v in chars) {
+            let charToNum = Nat64.fromNat(Nat32.toNat(Char.toNat32(v) -48));
+            assert (charToNum >= 0 and charToNum <= 9);
+            num := num * 10 + charToNum;
+        };
+        num;
+    };
+
+    public shared (msg) func call_random_http(url : Text) : async {
         #Ok : { response : Types.CanisterHttpResponsePayload };
         #Err : Text;
     } {
@@ -261,7 +322,8 @@ shared actor class ExchangeRate() = this {
         };
         try {
             Cycles.add(300_000_000_000);
-            let response = await ic.http_request(request);
+            let response : Types.CanisterHttpResponsePayload = await ic.http_request(request);
+            let _ = decode_body_to_rates(response);
             #Ok({ response });
         } catch (err) {
             #Err(Error.message(err));

@@ -3,7 +3,7 @@ import Principal "mo:base/Principal";
 
 module Types {
     public type Timestamp = Nat64;
-    public type Rate = Float;
+    public type Rate = Text;
 
     public type TimeRange = {
         start : Timestamp;
