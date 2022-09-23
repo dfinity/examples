@@ -11,7 +11,7 @@ module Types {
     };
 
     public type RatesWithInterval = {
-        interval : Nat8;
+        interval : Nat64;
         rates : [(Timestamp, Rate)];
     };
 
@@ -45,5 +45,9 @@ module Types {
         status : Nat;
         headers : [HttpHeader];
         body : [Nat8];
+    };
+
+    public type IC = actor {
+        http_request : Types.CanisterHttpRequestArgs -> async Types.CanisterHttpResponsePayload;
     };
 };

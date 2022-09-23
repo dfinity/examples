@@ -70,12 +70,6 @@ shared actor class ExchangeRate() = this {
     );
     var RATE_COUNTER : Nat = 0;
 
-    type IC = actor {
-        http_request : Types.CanisterHttpRequestArgs -> async Types.CanisterHttpResponsePayload;
-    };
-
-    let ic : IC = actor ("aaaaa-aa");
-
     public query func transform(raw : Types.CanisterHttpResponsePayload) : async Types.CanisterHttpResponsePayload {
         let transformed : Types.CanisterHttpResponsePayload = {
             status = raw.status;
@@ -135,9 +129,8 @@ shared actor class ExchangeRate() = this {
             let requested : Nat64 = requested_min * REMOTE_FETCH_GRANULARITY;
             switch (FETCHED.get(requested)) {
                 case (null) {
-                    Debug.print("Did not find " # Nat64.toText(requested) # " in map!");
                     // asynchoronously request downloads for unavailable ranges
-                    add_job_to_job_set(requested);
+                    await add_job_to_job_set(requested);
                 };
                 case (?rate) {
                     // The fetched slot is within user requested range. Add to result for later returning.
@@ -176,7 +169,7 @@ shared actor class ExchangeRate() = this {
                     rates := List.push((pair.0, pair.1), rates);
                 };
                 let abc : Types.RatesWithInterval = {
-                    interval = Nat8.fromNat(i * Nat64.toNat(REMOTE_FETCH_GRANULARITY));
+                    interval = Nat64.fromNat(i) * REMOTE_FETCH_GRANULARITY;
                     rates = List.toArray(rates);
                 };
                 return abc;
@@ -185,7 +178,7 @@ shared actor class ExchangeRate() = this {
         Debug.trap("This shouldn't be happening! Couldn't find an inteval that can keep total data points count in " # Nat.toText(MAX_DATA_PONTS_CANISTER_RESPONSE));
     };
 
-    public func add_job_to_job_set(job : Types.Timestamp) : () {
+    public func add_job_to_job_set(job : Nat64) : async () {
         // Since Coinbase API allows DATA_POINTS_PER_API data points (5 hours of data) per API call,
         // and the response size is roughly 14KB, which is way below max_response_size,
         // we normalize the job to the beginning of 5 hours.
@@ -257,6 +250,7 @@ shared actor class ExchangeRate() = this {
         };
         try {
             Cycles.add(300_000_000_000);
+            let ic : Types.IC = actor ("aaaaa-aa");
             let response : Types.CanisterHttpResponsePayload = await ic.http_request(request);
             let rates = decode_body_to_rates(response);
             for (rate in rates.entries()) {
@@ -295,7 +289,6 @@ shared actor class ExchangeRate() = this {
     };
 
     private func textToNat64(txt : Text) : Nat64 {
-        Debug.print("Converting " # txt # " to Nat64");
         assert (txt.size() > 0);
         let chars = txt.chars();
 
@@ -309,7 +302,7 @@ shared actor class ExchangeRate() = this {
     };
 
     public shared (msg) func call_random_http(url : Text) : async {
-        #Ok : { response : Types.CanisterHttpResponsePayload };
+        #Ok : Text;
         #Err : Text;
     } {
         let request : Types.CanisterHttpRequestArgs = {
@@ -322,9 +315,16 @@ shared actor class ExchangeRate() = this {
         };
         try {
             Cycles.add(300_000_000_000);
+            let ic : Types.IC = actor ("aaaaa-aa");
             let response : Types.CanisterHttpResponsePayload = await ic.http_request(request);
-            let _ = decode_body_to_rates(response);
-            #Ok({ response });
+            switch (Text.decodeUtf8(Blob.fromArray(response.body))) {
+                case null {
+                    #Err("Remote response had no body.");
+                };
+                case (?body) {
+                    #Ok(body);
+                };
+            };
         } catch (err) {
             #Err(Error.message(err));
         };
