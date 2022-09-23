@@ -178,7 +178,7 @@ shared actor class ExchangeRate() = this {
         Debug.trap("This shouldn't be happening! Couldn't find an inteval that can keep total data points count in " # Nat.toText(MAX_DATA_PONTS_CANISTER_RESPONSE));
     };
 
-    public func add_job_to_job_set(job : Nat64) : async () {
+    private func add_job_to_job_set(job : Nat64) : async () {
         // Since Coinbase API allows DATA_POINTS_PER_API data points (5 hours of data) per API call,
         // and the response size is roughly 14KB, which is way below max_response_size,
         // we normalize the job to the beginning of 5 hours.
@@ -190,7 +190,7 @@ shared actor class ExchangeRate() = this {
     /*
     Triggered by heartbeat() function to pick up the next job in the pipe for remote service call.
     */
-    public func get_next_rate() : async () {
+    private func get_next_rate() : async () {
         // Get the next downloading job
         if (REQUESTED.size() == 0) {
             Debug.print("Request set is empty, no more jobs to fetch.");
@@ -227,7 +227,7 @@ shared actor class ExchangeRate() = this {
     A function to call IC http_request function with sample interval of REMOTE_FETCH_GRANULARITY seconds. Each API
     call fetches DATA_POINTS_PER_API data points, which is equivalent of DATA_POINTS_PER_API minutes of data.
     */
-    public func get_rate(job : Types.Timestamp) : async () {
+    private func get_rate(job : Types.Timestamp) : async () {
         let start_timestamp : Types.Timestamp = job;
         let end_timestamp : Types.Timestamp = job + REMOTE_FETCH_GRANULARITY * DATA_POINTS_PER_API;
 
