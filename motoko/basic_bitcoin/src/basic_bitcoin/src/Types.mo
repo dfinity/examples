@@ -17,7 +17,7 @@ module Types {
     };
 
     public type EcdsaCurve = {
-        #Secp256k1;
+        #secp256k1;
     };
 
     public type SignWithECDSAReply = {

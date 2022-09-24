@@ -1,7 +1,7 @@
 {
   "canisters": {
     "random_maze": {
-      "main": "src/random_maze/main.mo",
+      "main": "src/random_maze/Main.mo",
       "type": "motoko"
     },
     "random_maze_assets": {

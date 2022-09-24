@@ -29,7 +29,7 @@
     "isomorphic-fetch": "^3.0.0",
     "js-sha256": "^0.9.0",
     "json-text-sequence": "^0.1.1",
-    "node-fetch": "^3.1.1",
+    "node-fetch": "^3.2.10",
     "readable-stream": "^3.6.0",
     "safe-buffer": "^5.2.1",
     "simple-cbor": "^0.4.1",
