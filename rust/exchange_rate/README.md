@@ -58,7 +58,7 @@ triggering remote HTTP calls again.
 
 ## Deploy the canister locally
 - `cargo install cargo-audit` to install vulnerability inspection tool
-- `npm i svelte` to prepare needed UI canister dependencies
+- `npm install` to prepare needed UI canister dependencies
 - `dfx start --enable-canister-http` to start a local IC instance with Canister HTTP feature enabled
 - `dfx deploy --with-cycles=40000000000000` to deploy the `exchange_rate` and `exchange_rate_assets`
   canisters to local IC
