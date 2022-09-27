@@ -1,85 +1,13 @@
-use candid::{
-    parser::types::FuncMode,
-    types::{Function, Serializer, Type},
-    CandidType, Principal,
+use candid::Principal;
+use exchange_rate::{Rate, RatesWithInterval, TimeRange, Timestamp};
+use ic_cdk::api::management_canister::http_request::{
+    CanisterHttpRequestArgument, HttpHeader, HttpMethod, HttpResponse, TransformFunc, TransformType,
 };
 use ic_cdk::storage;
 use ic_cdk_macros::{self, heartbeat, post_upgrade, pre_upgrade, query, update};
-use serde::{Deserialize, Serialize};
 use serde_json::{self, Value};
 use std::cell::{RefCell, RefMut};
 use std::collections::{HashMap, HashSet};
-
-type Timestamp = u64;
-type Rate = f32;
-
-#[derive(Debug, Clone, Deserialize)]
-pub struct TransformFunc(pub candid::Func);
-
-impl CandidType for TransformFunc {
-    fn _ty() -> Type {
-        Type::Func(Function {
-            modes: vec![FuncMode::Query],
-            args: vec![CanisterHttpResponsePayload::ty()],
-            rets: vec![CanisterHttpResponsePayload::ty()],
-        })
-    }
-
-    fn idl_serialize<S: Serializer>(&self, serializer: S) -> Result<(), S::Error> {
-        serializer.serialize_function(self.0.principal.as_slice(), &self.0.method)
-    }
-}
-
-#[derive(Clone, Debug, CandidType, Deserialize)]
-pub enum TransformType {
-    #[serde(rename = "function")]
-    Function(TransformFunc),
-}
-
-#[derive(CandidType, Clone, Deserialize, Debug, Eq, Hash, PartialEq, Serialize)]
-pub struct TimeRange {
-    pub start: Timestamp,
-    pub end: Timestamp,
-}
-
-#[derive(Clone, Debug, PartialEq, CandidType, Serialize, Deserialize)]
-pub struct RatesWithInterval {
-    pub interval: usize,
-    pub rates: HashMap<Timestamp, Rate>,
-}
-
-#[derive(CandidType, Clone, Deserialize, Debug, Eq, Hash, PartialEq, Serialize)]
-pub struct HttpHeader {
-    pub name: String,
-    pub value: String,
-}
-
-#[derive(Clone, Debug, PartialEq, CandidType, Eq, Hash, Serialize, Deserialize)]
-pub enum HttpMethod {
-    #[serde(rename = "get")]
-    GET,
-    #[serde(rename = "post")]
-    POST,
-    #[serde(rename = "head")]
-    HEAD,
-}
-
-#[derive(CandidType, Deserialize, Debug, Clone)]
-pub struct CanisterHttpRequestArgs {
-    pub url: String,
-    pub max_response_bytes: Option<u64>,
-    pub headers: Vec<HttpHeader>,
-    pub body: Option<Vec<u8>>,
-    pub method: HttpMethod,
-    pub transform: Option<TransformType>,
-}
-
-#[derive(CandidType, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct CanisterHttpResponsePayload {
-    pub status: u128,
-    pub headers: Vec<HttpHeader>,
-    pub body: Vec<u8>,
-}
 
 // How many data point can be returned as maximum.
 // Given that 2MB is max-allow canister response size, and each <Timestamp, Rate> pair
@@ -277,7 +205,7 @@ async fn get_rate(job: Timestamp) {
     let url = format!("https://{host}/products/ICP-USD/candles?granularity={REMOTE_FETCH_GRANULARITY}&start={start_timestamp}&end={end_timestamp}");
     ic_cdk::api::print(url.clone());
 
-    let request = CanisterHttpRequestArgs {
+    let request = CanisterHttpRequestArgument {
         url: url,
         method: HttpMethod::GET,
         body: None,
@@ -302,7 +230,7 @@ async fn get_rate(job: Timestamp) {
     {
         Ok(result) => {
             // decode the result
-            let decoded_result: CanisterHttpResponsePayload =
+            let decoded_result: HttpResponse =
                 candid::utils::decode_one(&result).expect("IC http_request failed!");
             // put the result to hashmap
             FETCHED.with(|fetched| {
@@ -334,7 +262,7 @@ fn decode_body_to_rates(body: &str, fetched: &mut RefMut<HashMap<u64, f32>>) {
 }
 
 #[query]
-async fn transform(raw: CanisterHttpResponsePayload) -> CanisterHttpResponsePayload {
+async fn transform(raw: HttpResponse) -> HttpResponse {
     let mut sanitized = raw.clone();
     sanitized.headers = vec![
         HttpHeader {
