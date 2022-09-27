@@ -1,0 +1,44 @@
+.App-wrapper {
+    overflow: hidden;
+    width: calc(100% - 10px);
+    position: relative;
+}
+
+.App-masonry {
+    margin: 10px 0 0 10px;
+    width: 100%;
+}
+
+.App-upload {
+    background: #222222;
+    color: #ffffff;
+    font-family: sans-serif;
+    font-weight: 600;
+    height: 200px;
+    cursor: pointer;
+}
+
+.App-upload:hover {
+    background: #333333;
+}
+
+.App-image, .App-upload {
+    width: calc(25% - 10px);
+    margin-bottom: 10px;
+}
+
+.App-progress {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin: -30px 0 0 -50px;
+    width: 100px;
+    height: 60px;
+    background: #222222;
+    font-family: sans-serif;
+    text-align: center;
+    line-height: 60px;
+    font-weight: 600;
+    color: #ffffff;
+    box-shadow: 0 0 0 9999px rgba(255, 255, 255, 0.8);
+}
