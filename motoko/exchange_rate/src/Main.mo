@@ -59,6 +59,7 @@ shared actor class ExchangeRate() = this {
             Text.hash(Nat64.toText(t));
         },
     );
+
     var REQUESTED = HashMap.HashMap<Types.Timestamp, Nat>(
         10,
         func(t1 : Types.Timestamp, t2 : Types.Timestamp) : Bool {
@@ -69,6 +70,25 @@ shared actor class ExchangeRate() = this {
         },
     );
     var RATE_COUNTER : Nat = 0;
+
+    stable var RATES_FOR_UPGRADE : [(Types.Timestamp, Types.Rate)] = [];
+
+    system func preupgrade() {
+        RATES_FOR_UPGRADE := Iter.toArray(FETCHED.entries());
+    };
+
+    system func postupgrade() {
+        FETCHED := HashMap.fromIter(
+            Iter.fromArray(RATES_FOR_UPGRADE),
+            RATES_FOR_UPGRADE.size(),
+            func(t1 : Types.Timestamp, t2 : Types.Timestamp) : Bool {
+                t1 == t2;
+            },
+            func(t : Types.Timestamp) : Hash.Hash {
+                Text.hash(Nat64.toText(t));
+            },
+        );
+    };
 
     public query func transform(raw : Types.CanisterHttpResponsePayload) : async Types.CanisterHttpResponsePayload {
         let transformed : Types.CanisterHttpResponsePayload = {
@@ -242,14 +262,14 @@ shared actor class ExchangeRate() = this {
 
         let request : Types.CanisterHttpRequestArgs = {
             url = url;
-            max_response_bytes = null;
+            max_response_bytes = ?MAX_RESPONSE_BYTES;
             headers = request_headers;
             body = null;
             method = #get;
             transform = ?(#function(transform));
         };
         try {
-            Cycles.add(300_000_000_000);
+            Cycles.add(2_000_000_000);
             let ic : Types.IC = actor ("aaaaa-aa");
             let response : Types.CanisterHttpResponsePayload = await ic.http_request(request);
             let rates = decode_body_to_rates(response);
@@ -301,20 +321,20 @@ shared actor class ExchangeRate() = this {
         num;
     };
 
-    public shared (msg) func call_random_http(url : Text) : async {
+    public shared (msg) func test_random_http_with_transform(url : Text) : async {
         #Ok : Text;
         #Err : Text;
     } {
         let request : Types.CanisterHttpRequestArgs = {
             url = url;
-            max_response_bytes = null;
+            max_response_bytes = ?MAX_RESPONSE_BYTES;
             headers = [];
             body = null;
             method = #get;
             transform = ?(#function(transform));
         };
         try {
-            Cycles.add(300_000_000_000);
+            Cycles.add(2_000_000_000);
             let ic : Types.IC = actor ("aaaaa-aa");
             let response : Types.CanisterHttpResponsePayload = await ic.http_request(request);
             switch (Text.decodeUtf8(Blob.fromArray(response.body))) {
@@ -322,7 +342,11 @@ shared actor class ExchangeRate() = this {
                     #Err("Remote response had no body.");
                 };
                 case (?body) {
-                    #Ok(body);
+                    var headers : Text = "";
+                    for (header in response.headers.vals()) {
+                        headers := headers # header.name # ": " # header.value # ";";
+                    };
+                    #Ok("Headers: " # headers # "; Body: " # body # "; Status: " # Nat.toText(response.status));
                 };
             };
         } catch (err) {
