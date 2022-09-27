@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@dfinity/assets": "file:../../../agent-js/packages/assets",
-    "@dfinity/agent": "file:../../../agent-js/packages/agent",
-    "@dfinity/identity": "file:../../../agent-js/packages/identity",
+    "@dfinity/assets": "^0.13.4",
+    "@dfinity/agent": "^0.13.4",
+    "@dfinity/identity": "^0.13.4",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "react-masonry-component": "^6.3.0",
