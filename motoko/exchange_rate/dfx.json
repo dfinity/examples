@@ -3,8 +3,7 @@
     "exchange_rate": {
       "package": "exchange_rate",
       "type": "motoko",
-      "main": "src/Main.mo",
-      "wasm": "target/wasm32-unknown-unknown/release/exchange_rate.wasm"
+      "main": "src/Main.mo"
     },
     "exchange_rate_assets": {
       "dependencies": [
@@ -23,6 +22,10 @@
     "local": {
       "bind": "127.0.0.1:4943",
       "type": "ephemeral"
+    },
+    "ic": {
+      "bind": "https://ic0.app",
+      "type": "persistent"
     }
   },
   "version": 1
