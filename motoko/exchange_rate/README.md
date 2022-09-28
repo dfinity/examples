@@ -11,3 +11,9 @@ will create local replica environment before deploying the dapp onto it.
 
 With more background already covered in `/rust/exchange_rate/README.md`, the README file is
 intentionally kept short.
+
+## Dependencies
+- [ic-cdk v0.5.7](https://crates.io/crates/ic-cdk/0.5.7) or above
+- [dfx v0.12.0-beta.3](https://github.com/dfinity/sdk/releases/tag/0.12.0-beta.3) or above.
+Use below command to install:
+```DFX_VERSION=0.12.0-beta.3 sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"```
