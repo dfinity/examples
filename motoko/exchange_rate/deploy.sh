@@ -10,6 +10,11 @@ fi
 
 ENV=$1
 
+# Clean up directory to start new replica instance clean
+if [[ $ENV == "local" ]]; then
+    sh ./clean_up_local.sh
+fi
+
 # Copy UI assets from rust folder to here
 cp -r ../../rust/exchange_rate/src/frontend src/frontend
 cp ../../rust/exchange_rate/rollup.config.js .
@@ -19,6 +24,7 @@ cargo install cargo-audit
 npm install
 
 if [[ $ENV == "local" ]]; then
+
     # Check DFX version
     version=$(dfx -V | sed 's/dfx\ //g' | sed 's/-.*$//g')
     if [[ "$version" < "0.12.0" ]]; then
