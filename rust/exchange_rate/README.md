@@ -57,9 +57,5 @@ triggering remote HTTP calls again.
 `cargo build --target wasm32-unknown-unknown --release --p exchange_rate`
 
 ## Deploy the canister locally
-- `cargo install cargo-audit` to install vulnerability inspection tool
-- `npm install` to prepare needed UI canister dependencies
-- `dfx start --enable-canister-http` to start a local IC instance with Canister HTTP feature enabled
-- `dfx deploy --with-cycles=40000000000000` to deploy the `exchange_rate` and `exchange_rate_assets`
-  canisters to local IC
-- `dfx canister status {canister_id}` to check the status of the canister
+- Simply do `./deploy.sh {env}` where env is your targetted network defined in `dfx.json`.
+E.g. `local`, `ic`, etc.

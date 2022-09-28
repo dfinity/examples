@@ -12,11 +12,6 @@ ENV=$1
 
 bash ./cleanup.sh $ENV
 
-# Copy UI assets from rust folder to here
-cp -r ../../rust/exchange_rate/src/frontend src/frontend
-cp ../../rust/exchange_rate/rollup.config.js .
-cp ../../rust/exchange_rate/package.json .
-
 cargo install cargo-audit
 npm install
 
