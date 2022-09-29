@@ -23,10 +23,6 @@
     "local": {
       "bind": "127.0.0.1:4943",
       "type": "ephemeral"
-    },
-    "ic": {
-      "bind": "https://ic0.app",
-      "type": "persistent"
     }
   },
   "version": 1
