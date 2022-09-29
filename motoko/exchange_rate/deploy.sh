@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Call the script with deploy.sh {testnet} {git_revision}
+# Call the script with deploy.sh {network}
 if [[ $# -lt 1 ]]; then
     echo "Number of arguments supplied not correct. Call this script: \
     ./deploy.sh {env} \
