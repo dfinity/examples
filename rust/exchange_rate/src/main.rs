@@ -1,55 +1,13 @@
-use candid::{CandidType, Principal};
+use candid::Principal;
+use exchange_rate::{Rate, RatesWithInterval, TimeRange, Timestamp};
+use ic_cdk::api::management_canister::http_request::{
+    CanisterHttpRequestArgument, HttpHeader, HttpMethod, HttpResponse, TransformFunc, TransformType,
+};
 use ic_cdk::storage;
 use ic_cdk_macros::{self, heartbeat, post_upgrade, pre_upgrade, query, update};
-use serde::{Deserialize, Serialize};
 use serde_json::{self, Value};
 use std::cell::{RefCell, RefMut};
 use std::collections::{HashMap, HashSet};
-
-type Timestamp = u64;
-type Rate = f32;
-
-#[derive(CandidType, Clone, Deserialize, Debug, Eq, Hash, PartialEq, Serialize)]
-pub struct TimeRange {
-    pub start: Timestamp,
-    pub end: Timestamp,
-}
-
-#[derive(Clone, Debug, PartialEq, CandidType, Serialize, Deserialize)]
-pub struct RatesWithInterval {
-    pub interval: usize,
-    pub rates: HashMap<Timestamp, Rate>,
-}
-
-#[derive(CandidType, Clone, Deserialize, Debug, Eq, Hash, PartialEq, Serialize)]
-pub struct HttpHeader {
-    pub name: String,
-    pub value: String,
-}
-
-#[derive(Clone, Debug, PartialEq, CandidType, Eq, Hash, Serialize, Deserialize)]
-pub enum HttpMethod {
-    GET,
-    POST,
-    HEAD,
-}
-
-#[derive(CandidType, Deserialize, Debug)]
-pub struct CanisterHttpRequestArgs {
-    pub url: String,
-    pub max_response_bytes: Option<u64>,
-    pub headers: Vec<HttpHeader>,
-    pub body: Option<Vec<u8>>,
-    pub http_method: HttpMethod,
-    pub transform_method_name: Option<String>,
-}
-
-#[derive(CandidType, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct CanisterHttpResponsePayload {
-    pub status: u64,
-    pub headers: Vec<HttpHeader>,
-    pub body: Vec<u8>,
-}
 
 // How many data point can be returned as maximum.
 // Given that 2MB is max-allow canister response size, and each <Timestamp, Rate> pair
@@ -247,12 +205,15 @@ async fn get_rate(job: Timestamp) {
     let url = format!("https://{host}/products/ICP-USD/candles?granularity={REMOTE_FETCH_GRANULARITY}&start={start_timestamp}&end={end_timestamp}");
     ic_cdk::api::print(url.clone());
 
-    let request = CanisterHttpRequestArgs {
+    let request = CanisterHttpRequestArgument {
         url: url,
-        http_method: HttpMethod::GET,
+        method: HttpMethod::GET,
         body: None,
         max_response_bytes: Some(MAX_RESPONSE_BYTES),
-        transform_method_name: Some("transform".to_string()),
+        transform: Some(TransformType::Function(TransformFunc(candid::Func {
+            principal: ic_cdk::api::id(),
+            method: "transform".to_string(),
+        }))),
         headers: request_headers,
     };
 
@@ -269,7 +230,7 @@ async fn get_rate(job: Timestamp) {
     {
         Ok(result) => {
             // decode the result
-            let decoded_result: CanisterHttpResponsePayload =
+            let decoded_result: HttpResponse =
                 candid::utils::decode_one(&result).expect("IC http_request failed!");
             // put the result to hashmap
             FETCHED.with(|fetched| {
@@ -301,9 +262,34 @@ fn decode_body_to_rates(body: &str, fetched: &mut RefMut<HashMap<u64, f32>>) {
 }
 
 #[query]
-async fn transform(raw: CanisterHttpResponsePayload) -> CanisterHttpResponsePayload {
+async fn transform(raw: HttpResponse) -> HttpResponse {
     let mut sanitized = raw.clone();
-    sanitized.headers = vec![];
+    sanitized.headers = vec![
+        HttpHeader {
+            name: "Content-Security-Policy".to_string(),
+            value: "default-src 'self'".to_string(),
+        },
+        HttpHeader {
+            name: "Referrer-Policy".to_string(),
+            value: "strict-origin".to_string(),
+        },
+        HttpHeader {
+            name: "Permissions-Policy".to_string(),
+            value: "geolocation=(self)".to_string(),
+        },
+        HttpHeader {
+            name: "Strict-Transport-Security".to_string(),
+            value: "max-age=63072000".to_string(),
+        },
+        HttpHeader {
+            name: "X-Frame-Options".to_string(),
+            value: "DENY".to_string(),
+        },
+        HttpHeader {
+            name: "X-Content-Type-Options".to_string(),
+            value: "nosniff".to_string(),
+        },
+    ];
     sanitized
 }
 
