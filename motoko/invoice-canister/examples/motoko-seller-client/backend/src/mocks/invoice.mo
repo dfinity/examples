@@ -277,15 +277,6 @@ actor InvoiceMock {
         });
       };
       case (?i) {
-        // Return if already verified
-        if (i.verifiedAtTime != null) {
-          return #ok(
-            #AlreadyVerified {
-              invoice = i;
-            },
-          );
-        };
-
         if (i.creator != caller) {
           switch (i.permissions) {
             case null {
@@ -311,6 +302,15 @@ actor InvoiceMock {
               };
             };
           };
+        };
+
+        // Return if already verified
+        if (i.verifiedAtTime != null) {
+          return #ok(
+            #AlreadyVerified {
+              invoice = i;
+            },
+          );
         };
 
         switch (i.token.symbol) {
