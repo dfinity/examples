@@ -39,6 +39,10 @@ actor Invoice {
   stable var invoiceCounter : Nat = 0;
   let invoices : HashMap.HashMap<Nat, Invoice> = HashMap.fromIter(Iter.fromArray(entries), entries.size(), Nat.equal, Hash.hash);
   entries := [];
+
+  // Magic Numbers
+  let SMALL_CONTENT_SIZE = 256;
+  let LARGE_CONTENT_SIZE = 32_000;
   let MAX_INVOICES = 30_000;
   // #endregion
 
@@ -135,10 +139,10 @@ actor Invoice {
     switch (args.details) {
       case null {};
       case (?details) {
-        if (details.meta.size() > 32_000) {
+        if (details.meta.size() > MEDIUM_CONTENT_SIZE) {
           isValid := false;
         };
-        if (details.description.size() > 256) {
+        if (details.description.size() > SMALL_CONTENT_SIZE) {
           isValid := false;
         };
       };
@@ -147,7 +151,7 @@ actor Invoice {
     switch (args.permissions) {
       case null {};
       case (?permissions) {
-        if (permissions.canGet.size() > 256 or permissions.canVerify.size() > 256) {
+        if (permissions.canGet.size() > SMALL_CONTENT_SIZE or permissions.canVerify.size() > SMALL_CONTENT_SIZE) {
           isValid := false;
         };
       };
