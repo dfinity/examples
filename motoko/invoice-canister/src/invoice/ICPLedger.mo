@@ -1,18 +1,18 @@
-import Ledger     "canister:ledger";
+import Ledger "canister:ledger";
 
-import A          "./Account";
-import CRC32      "./CRC32";
-import Hex        "./Hex";
-import SHA224     "./SHA224";
-import T          "./Types";
-import U          "./Utils";
+import A "./Account";
+import CRC32 "./CRC32";
+import Hex "./Hex";
+import SHA224 "./SHA224";
+import T "./Types";
+import U "./Utils";
 
-import Blob       "mo:base/Blob";
-import Nat        "mo:base/Nat";
-import Nat64      "mo:base/Nat64";
-import Principal  "mo:base/Principal";
-import Result     "mo:base/Result";
-import Time       "mo:base/Time";
+import Blob "mo:base/Blob";
+import Nat "mo:base/Nat";
+import Nat64 "mo:base/Nat64";
+import Principal "mo:base/Principal";
+import Result "mo:base/Result";
+import Time "mo:base/Time";
 
 module {
   public type Memo = Nat64;
@@ -48,7 +48,7 @@ module {
         duplicate_of : BlockIndex;
       };
       #Other;
-    }
+    };
   };
 
   public type TransferArgs = {
@@ -62,11 +62,11 @@ module {
 
   public type TransferResult = Result.Result<T.TransferSuccess, TransferError>;
 
-  public func transfer (args : TransferArgs) : async TransferResult {
+  public func transfer(args : TransferArgs) : async TransferResult {
     let result = await Ledger.transfer(args);
     switch result {
       case (#Ok index) {
-        #ok({blockHeight = index});
+        #ok({ blockHeight = index });
       };
       case (#Err err) {
         switch err {
@@ -74,35 +74,35 @@ module {
             let expected_fee = kind.expected_fee;
             #err({
               message = ?("Bad Fee. Expected fee of " # Nat64.toText(expected_fee.e8s) # " but got " # Nat64.toText(args.fee.e8s));
-              kind = #BadFee({expected_fee});
+              kind = #BadFee({ expected_fee });
             });
           };
           case (#InsufficientFunds kind) {
             let balance = kind.balance;
             #err({
               message = ?("Insufficient balance. Current balance is " # Nat64.toText(balance.e8s));
-              kind = #InsufficientFunds({balance});
-            })
+              kind = #InsufficientFunds({ balance });
+            });
           };
           case (#TxTooOld kind) {
             let allowed_window_nanos = kind.allowed_window_nanos;
             #err({
               message = ?("Error - Tx Too Old. Allowed window of " # Nat64.toText(allowed_window_nanos));
-              kind = #TxTooOld({allowed_window_nanos});
-            })
+              kind = #TxTooOld({ allowed_window_nanos });
+            });
           };
           case (#TxCreatedInFuture) {
             #err({
               message = ?"Error - Tx Created In Future";
               kind = #TxCreatedInFuture;
-            })
+            });
           };
           case (#TxDuplicate kind) {
             let duplicate_of = kind.duplicate_of;
             #err({
               message = ?("Error - Duplicate transaction. Duplicate of " # Nat64.toText(duplicate_of));
-              kind = #TxDuplicate({duplicate_of});
-            })
+              kind = #TxDuplicate({ duplicate_of });
+            });
           };
         };
       };
@@ -136,7 +136,9 @@ module {
         });
       };
       case (#ok account) {
-        let balance = await Ledger.account_balance({account = Blob.fromArray(account)});
+        let balance = await Ledger.account_balance({
+          account = Blob.fromArray(account);
+        });
         #ok({
           balance = Nat64.toNat(balance.e8s);
         });
@@ -171,15 +173,15 @@ module {
         });
       };
       case (#ok destination) {
-        let balanceResult = await balance({account = destination});
+        let balanceResult = await balance({ account = destination });
         switch balanceResult {
           case (#err err) {
             #err(err);
           };
           case (#ok b) {
             let balance = b.balance;
-            // If balance is less than invoice amount, return error
-            if (balance < i.amount) {
+            // If balance is less than invoice amount plus fee, return error
+            if (balance < i.amount + 10000) {
               return #err({
                 message = ?("Insufficient balance. Current Balance is " # Nat.toText(balance));
                 kind = #NotYetPaid;
@@ -189,7 +191,10 @@ module {
             let verifiedAtTime : ?Time.Time = ?Time.now();
 
             // TODO Transfer funds to default subaccount of invoice creator
-            let subaccount : SubAccount = U.generateInvoiceSubaccount({ caller = i.creator; id = i.id });
+            let subaccount : SubAccount = U.generateInvoiceSubaccount({
+              caller = i.creator;
+              id = i.id;
+            });
 
             let transferResult = await transfer({
               memo = 0;
@@ -225,9 +230,11 @@ module {
                   destination = i.destination;
                 };
 
-                #ok(#Paid {
-                  invoice = verifiedInvoice;
-                });
+                #ok(
+                  #Paid {
+                    invoice = verifiedInvoice;
+                  },
+                );
               };
               case (#err err) {
                 switch (err.kind) {
@@ -248,13 +255,13 @@ module {
                       message = ?"Could not transfer funds to invoice creator.";
                       kind = #TransferError;
                     });
-                  }
+                  };
                 };
               };
             };
           };
         };
-      }
+      };
     };
   };
-}
+};
