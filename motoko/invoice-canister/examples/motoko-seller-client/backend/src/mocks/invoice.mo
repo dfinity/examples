@@ -1,81 +1,85 @@
-import A          "../../../../../src/invoice/Account";   
-import Hex        "../../../../../src/invoice/Hex";
-import T          "../../../../../src/invoice/Types";
-import U          "../../../../../src/invoice/Utils";
+import A "../../../../../src/invoice/Account";
+import Hex "../../../../../src/invoice/Hex";
+import T "../../../../../src/invoice/Types";
+import U "../../../../../src/invoice/Utils";
 
-import Array      "mo:base/Array";
-import Blob       "mo:base/Blob";
-import Debug      "mo:base/Debug";
-import Hash       "mo:base/Hash";
-import HashMap    "mo:base/HashMap";
-import Iter       "mo:base/Iter";
-import Nat        "mo:base/Nat";
-import Nat64      "mo:base/Nat64";
-import Option     "mo:base/Option";
-import Principal  "mo:base/Principal";
-import Result     "mo:base/Result";
-import Text       "mo:base/Text";
-import Time       "mo:base/Time";
+import Array "mo:base/Array";
+import Blob "mo:base/Blob";
+import Debug "mo:base/Debug";
+import Hash "mo:base/Hash";
+import HashMap "mo:base/HashMap";
+import Iter "mo:base/Iter";
+import Nat "mo:base/Nat";
+import Nat64 "mo:base/Nat64";
+import Option "mo:base/Option";
+import Principal "mo:base/Principal";
+import Result "mo:base/Result";
+import Text "mo:base/Text";
+import Time "mo:base/Time";
 
 actor InvoiceMock {
-// #region Types
+  // #region Types
   type Details = T.Details;
   type Token = T.Token;
   type TokenVerbose = T.TokenVerbose;
   type AccountIdentifier = T.AccountIdentifier;
   type Invoice = T.Invoice;
-// #endregion
+  // #endregion
 
   let errInvalidToken = #err({
     message = ?"This token is not yet supported. Currently, this canister supports ICP.";
     kind = #InvalidToken;
   });
 
-/**
+  /**
 * Application State
 */
 
-// #region State
+  // #region State
   stable var entries : [(Nat, Invoice)] = [];
   stable var invoiceCounter : Nat = 0;
-  let invoices: HashMap.HashMap<Nat, Invoice> = HashMap.fromIter(Iter.fromArray(entries), entries.size(), Nat.equal, Hash.hash);
+  let invoices : HashMap.HashMap<Nat, Invoice> = HashMap.fromIter(Iter.fromArray(entries), entries.size(), Nat.equal, Hash.hash);
 
   var icpBlockHeight : Nat = 0;
   var icpLedgerMock : HashMap.HashMap<Blob, Nat> = HashMap.HashMap(16, Blob.equal, Blob.hash);
+
+  // Magic Numbers
+  let SMALL_CONTENT_SIZE = 256;
+  let LARGE_CONTENT_SIZE = 32_000;
   let MAX_INVOICES = 30_000;
-// #endregion
+  // #endregion
 
-/**
+  /**
 * Application Interface
-*/    
+*/
 
-// #region Create Invoice
-  public shared ({caller}) func create_invoice (args: T.CreateInvoiceArgs) : async T.CreateInvoiceResult {
+  // #region Create Invoice
+  public shared ({ caller }) func create_invoice(args : T.CreateInvoiceArgs) : async T.CreateInvoiceResult {
     let id : Nat = invoiceCounter;
     // increment counter
     invoiceCounter += 1;
     let inputsValid = areInputsValid(args);
-    if(not inputsValid) {
+    if (not inputsValid) {
       return #err({
         message = ?"Bad size: one or more of your inputs exceeds the allowed size.";
         kind = #BadSize;
       });
     };
 
-    if(id > MAX_INVOICES){
+    if (id > MAX_INVOICES) {
       return #err({
         message = ?"The maximum number of invoices has been reached.";
         kind = #MaxInvoicesReached;
       });
     };
 
-    let destinationResult : T.GetDestinationAccountIdentifierResult = getDestinationAccountIdentifier({ 
+    let destinationResult : T.GetDestinationAccountIdentifierResult = getDestinationAccountIdentifier({
       token = args.token;
       invoiceId = id;
-      caller 
+      caller;
     });
 
-    switch(destinationResult){
+    switch (destinationResult) {
       case (#err result) {
         return #err({
           message = ?"Invalid destination account identifier";
@@ -98,23 +102,23 @@ actor InvoiceMock {
           paid = false;
           destination;
         };
-    
+
         invoices.put(id, invoice);
 
-        return #ok({invoice});
+        return #ok({ invoice });
       };
     };
   };
 
-  func getTokenVerbose(token: Token) : TokenVerbose { 
-    switch(token.symbol){
+  func getTokenVerbose(token : Token) : TokenVerbose {
+    switch (token.symbol) {
       case ("ICP") {
         return {
           symbol = "ICP";
           decimals = 8;
           meta = ?{
             Issuer = "e8s";
-          }
+          };
         };
 
       };
@@ -124,8 +128,8 @@ actor InvoiceMock {
           decimals = 1;
           meta = ?{
             Issuer = "";
-          }
-        }
+          };
+        };
       };
     };
   };
@@ -135,22 +139,22 @@ actor InvoiceMock {
 
     var isValid = true;
 
-    switch (args.details){
+    switch (args.details) {
       case null {};
-      case (? details){
-        if (details.meta.size() > 32_000) {
+      case (?details) {
+        if (details.meta.size() > MEDIUM_CONTENT_SIZE) {
           isValid := false;
         };
-        if (details.description.size() > 256) {
+        if (details.description.size() > SMALL_CONTENT_SIZE) {
           isValid := false;
         };
       };
     };
 
-    switch (args.permissions){
+    switch (args.permissions) {
       case null {};
-      case (? permissions){
-        if (permissions.canGet.size() > 256 or permissions.canVerify.size() > 256) {
+      case (?permissions) {
+        if (permissions.canGet.size() > SMALL_CONTENT_SIZE or permissions.canVerify.size() > SMALL_CONTENT_SIZE) {
           isValid := false;
         };
       };
@@ -159,37 +163,37 @@ actor InvoiceMock {
     return isValid;
   };
 
-// #region Get Destination Account Identifier
-  func getDestinationAccountIdentifier (args: T.GetDestinationAccountIdentifierArgs) : T.GetDestinationAccountIdentifierResult {
+  // #region Get Destination Account Identifier
+  func getDestinationAccountIdentifier(args : T.GetDestinationAccountIdentifierArgs) : T.GetDestinationAccountIdentifierResult {
     let token = args.token;
-    switch(token.symbol){
-      case("ICP"){
+    switch (token.symbol) {
+      case ("ICP") {
         let canisterId = Principal.fromActor(InvoiceMock);
 
         let account = U.getICPAccountIdentifier({
           principal = canisterId;
-          subaccount = U.generateInvoiceSubaccount({ 
+          subaccount = U.generateInvoiceSubaccount({
             caller = args.caller;
             id = args.invoiceId;
           });
         });
         let hexEncoded = Hex.encode(Blob.toArray(account));
-        let result: AccountIdentifier = #text(hexEncoded);
-        return #ok({accountIdentifier = result});
+        let result : AccountIdentifier = #text(hexEncoded);
+        return #ok({ accountIdentifier = result });
       };
-      case(_){
+      case (_) {
         return errInvalidToken;
       };
     };
   };
-// #endregion
-// #endregion
+  // #endregion
+  // #endregion
 
-// #region Get Invoice
-  public shared query ({caller}) func get_invoice (args: T.GetInvoiceArgs) : async T.GetInvoiceResult {
+  // #region Get Invoice
+  public shared query ({ caller }) func get_invoice(args : T.GetInvoiceArgs) : async T.GetInvoiceResult {
     let invoice = invoices.get(args.id);
-    switch(invoice){
-      case(null){
+    switch (invoice) {
+      case (null) {
         return #err({
           message = ?"Invoice not found";
           kind = #NotFound;
@@ -197,7 +201,7 @@ actor InvoiceMock {
       };
       case (?i) {
         if (i.creator == caller) {
-          return #ok({invoice = i});
+          return #ok({ invoice = i });
         };
         // If additional permissions are provided
         switch (i.permissions) {
@@ -210,12 +214,12 @@ actor InvoiceMock {
           case (?permissions) {
             let hasPermission = Array.find<Principal>(
               permissions.canGet,
-              func (x : Principal) : Bool {
+              func(x : Principal) : Bool {
                 return x == caller;
-              }
+              },
             );
             if (Option.isSome(hasPermission)) {
-              return #ok({invoice = i});
+              return #ok({ invoice = i });
             } else {
               return #err({
                 message = ?"You do not have permission to view this invoice";
@@ -224,60 +228,62 @@ actor InvoiceMock {
             };
           };
         };
-        #ok({invoice = i});
+        #ok({ invoice = i });
       };
     };
   };
-// #endregion
+  // #endregion
 
-// #region Get Balance
-  public shared ({caller}) func get_balance (args: T.GetBalanceArgs) : async T.GetBalanceResult {
+  // #region Get Balance
+  public shared ({ caller }) func get_balance(args : T.GetBalanceArgs) : async T.GetBalanceResult {
     let token = args.token;
     let canisterId = Principal.fromActor(InvoiceMock);
-    switch(token.symbol){
-      case("ICP"){
+    switch (token.symbol) {
+      case ("ICP") {
         let defaultAccount = U.getDefaultAccount({
           canisterId;
           principal = caller;
         });
         let balance = icpLedgerMock.get(defaultAccount);
-        switch(balance){
-          case(null){
+        switch (balance) {
+          case (null) {
             return #err({
               message = ?"Could not get balance";
               kind = #NotFound;
             });
           };
-          case(? b){
-            return #ok({balance = b});
+          case (?b) {
+            return #ok({ balance = b });
           };
         };
       };
-      case(_){
+      case (_) {
         return errInvalidToken;
       };
     };
   };
-// #endregion
+  // #endregion
 
-// #region Verify Invoice
-  public shared ({caller}) func verify_invoice (args: T.VerifyInvoiceArgs) : async T.VerifyInvoiceResult {
+  // #region Verify Invoice
+  public shared ({ caller }) func verify_invoice(args : T.VerifyInvoiceArgs) : async T.VerifyInvoiceResult {
     let invoice = invoices.get(args.id);
     let canisterId = Principal.fromActor(InvoiceMock);
 
-    switch(invoice){
-      case(null){
+    switch (invoice) {
+      case (null) {
         return #err({
           message = ?"Invoice not found";
           kind = #NotFound;
         });
       };
-      case(? i){
+      case (?i) {
         // Return if already verified
-        if (i.verifiedAtTime != null){
-          return #ok(#AlreadyVerified{
-            invoice = i;
-          });
+        if (i.verifiedAtTime != null) {
+          return #ok(
+            #AlreadyVerified {
+              invoice = i;
+            },
+          );
         };
 
         if (i.creator != caller) {
@@ -291,9 +297,9 @@ actor InvoiceMock {
             case (?permissions) {
               let hasPermission = Array.find<Principal>(
                 permissions.canVerify,
-                func (x : Principal) : Bool {
+                func(x : Principal) : Bool {
                   return x == caller;
-                }
+                },
               );
               if (Option.isSome(hasPermission)) {
                 // May proceed
@@ -307,36 +313,36 @@ actor InvoiceMock {
           };
         };
 
-        switch (i.token.symbol){
-          case("ICP"){
+        switch (i.token.symbol) {
+          case ("ICP") {
             let destinationResult = U.accountIdentifierToBlob({
               accountIdentifier = i.destination;
               canisterId = ?canisterId;
-              });
-            switch(destinationResult){
-              case(#err err){
+            });
+            switch (destinationResult) {
+              case (#err err) {
                 return #err({
                   kind = #InvalidAccount;
                   message = ?"Invalid destination account";
                 });
               };
-              case (#ok destination){
+              case (#ok destination) {
                 let destinationBalance = icpLedgerMock.get(destination);
-                switch(destinationBalance){
-                  case (null){
+                switch (destinationBalance) {
+                  case (null) {
                     return #err({
                       message = ?"Insufficient balance. Current Balance is 0";
                       kind = #NotYetPaid;
                     });
                   };
-                  case (? balance){
-                    if(balance < i.amount){
+                  case (?balance) {
+                    if (balance < i.amount) {
                       return #err({
                         message = ?Text.concat("Insufficient balance. Current Balance is ", Nat.toText(balance));
                         kind = #NotYetPaid;
                       });
                     };
-                    let verifiedAtTime: ?Time.Time = ?Time.now();
+                    let verifiedAtTime : ?Time.Time = ?Time.now();
                     // Otherwise, update with latest balance and mark as paid
                     let verifiedInvoice = {
                       id = i.id;
@@ -355,7 +361,10 @@ actor InvoiceMock {
                     };
 
                     // TODO Transfer funds to default subaccount of invoice creator
-                    let subaccount = U.generateInvoiceSubaccount({ caller = i.creator; id = i.id });
+                    let subaccount = U.generateInvoiceSubaccount({
+                      caller = i.creator;
+                      id = i.id;
+                    });
                     let transfer = await mockICPTransfer({
                       amount = {
                         e8s = Nat64.fromNat(balance - 10_000);
@@ -365,52 +374,46 @@ actor InvoiceMock {
                       };
                       memo = 0;
                       from_subaccount = ?subaccount;
-                      to = #blob(U.getDefaultAccount({
-                        canisterId;
-                        principal = i.creator;
-                      }));
+                      to = #blob(U.getDefaultAccount({ canisterId; principal = i.creator }));
                       token = i.token;
                       canisterId = ?canisterId;
                       created_at_time = null;
                     });
                     let replaced = invoices.replace(i.id, verifiedInvoice);
-                    return #ok(#Paid({
-                      invoice = verifiedInvoice;
-                    }));
+                    return #ok(#Paid({ invoice = verifiedInvoice }));
                   };
                 };
 
               };
-            }
+            };
           };
-          case(_){
+          case (_) {
             return errInvalidToken;
           };
         };
       };
     };
   };
-// #endregion
+  // #endregion
 
-// #region Transfer
-  public shared ({caller}) func transfer (args: T.TransferArgs) : async T.TransferResult {
+  // #region Transfer
+  public shared ({ caller }) func transfer(args : T.TransferArgs) : async T.TransferResult {
     let token = args.token;
     let accountResult = U.accountIdentifierToBlob({
       accountIdentifier = args.destination;
       canisterId = ?Principal.fromActor(InvoiceMock);
     });
-    switch (accountResult){
-      case (#err err){
+    switch (accountResult) {
+      case (#err err) {
         return #err({
           message = err.message;
           kind = #InvalidDestination;
         });
       };
-      case (#ok destination){
-        switch(token.symbol){
-          case("ICP"){
+      case (#ok destination) {
+        switch (token.symbol) {
+          case ("ICP") {
             let now = Nat64.fromIntWrap(Time.now());
-            
 
             let transferResult = await mockICPTransfer({
               memo = 0;
@@ -431,30 +434,30 @@ actor InvoiceMock {
                 return #ok(result);
               };
               case (#err err) {
-                switch (err.kind){
-                  case (#BadFee _){
+                switch (err.kind) {
+                  case (#BadFee _) {
                     return #err({
                       message = err.message;
                       kind = #BadFee;
                     });
                   };
-                  case (#InsufficientFunds _){
+                  case (#InsufficientFunds _) {
                     return #err({
                       message = err.message;
                       kind = #InsufficientFunds;
                     });
                   };
-                  case (_){
+                  case (_) {
                     return #err({
                       message = err.message;
                       kind = #Other;
                     });
-                  }
+                  };
                 };
               };
             };
           };
-          case(_){
+          case (_) {
             return #err({
               message = ?"Token not supported";
               kind = #InvalidToken;
@@ -464,76 +467,76 @@ actor InvoiceMock {
       };
     };
   };
-// #endregion
+  // #endregion
 
-// #region get_account_identifier
+  // #region get_account_identifier
   /*
     * Get Caller Identifier
     * Allows a caller to the accountIdentifier for a given principal
     * for a specific token.
     */
-  public query func get_account_identifier (args: T.GetAccountIdentifierArgs) : async T.GetAccountIdentifierResult {
+  public query func get_account_identifier(args : T.GetAccountIdentifierArgs) : async T.GetAccountIdentifierResult {
     let token = args.token;
     let principal = args.principal;
     let canisterId = Principal.fromActor(InvoiceMock);
-    switch(token.symbol){
-      case("ICP"){
-        let subaccount = U.getDefaultAccount({principal; canisterId;});
+    switch (token.symbol) {
+      case ("ICP") {
+        let subaccount = U.getDefaultAccount({ principal; canisterId });
         let hexEncoded = Hex.encode(
-          Blob.toArray(subaccount)
+          Blob.toArray(subaccount),
         );
-        let result: AccountIdentifier = #text(hexEncoded);
-        return #ok({accountIdentifier = result});
+        let result : AccountIdentifier = #text(hexEncoded);
+        return #ok({ accountIdentifier = result });
       };
-      case(_){
+      case (_) {
         return errInvalidToken;
       };
     };
   };
-// #endregion
+  // #endregion
 
-// #region Utils
-  public func accountIdentifierToBlob (accountIdentifier: AccountIdentifier) : async T.AccountIdentifierToBlobResult {
+  // #region Utils
+  public func accountIdentifierToBlob(accountIdentifier : AccountIdentifier) : async T.AccountIdentifierToBlobResult {
     return U.accountIdentifierToBlob({
       accountIdentifier;
       canisterId = ?Principal.fromActor(InvoiceMock);
     });
   };
-  
-  func mockICPTransfer (args: T.ICPTransferArgs) : async T.ICPTransferResult {
+
+  func mockICPTransfer(args : T.ICPTransferArgs) : async T.ICPTransferResult {
     let FEE = 10_000;
     let amount = args.amount;
-    switch(args.from_subaccount){
-      case(? subaccount){
+    switch (args.from_subaccount) {
+      case (?subaccount) {
         let fromAccount = U.getICPAccountIdentifier({
           subaccount;
           principal = Principal.fromActor(InvoiceMock);
         });
         let balance = icpLedgerMock.get(fromAccount);
-        switch(balance){
-          case(? b){
-            if(b < Nat64.toNat(amount.e8s) + FEE){
+        switch (balance) {
+          case (?b) {
+            if (b < Nat64.toNat(amount.e8s) + FEE) {
               Debug.trap("InsufficientFunds");
             };
             let newBalance = Nat.sub(Nat.sub(b, Nat64.toNat(amount.e8s)), FEE);
             icpLedgerMock.put(fromAccount, newBalance);
-            
+
             let destinationResult = U.accountIdentifierToBlob({
               accountIdentifier = args.to;
               canisterId = ?Principal.fromActor(InvoiceMock);
             });
-            switch(destinationResult){
-              case(#err err){
-                switch(err.message){
-                  case (null){
+            switch (destinationResult) {
+              case (#err err) {
+                switch (err.message) {
+                  case (null) {
                     Debug.trap("InvalidDestination");
                   };
-                  case(? message){
+                  case (?message) {
                     Debug.trap(message);
                   };
-                }
+                };
               };
-              case (#ok destination){
+              case (#ok destination) {
                 let destinationBalance = icpLedgerMock.get(destination);
                 let newDestinationBalance = newBalance + Nat64.toNat(amount.e8s);
                 icpLedgerMock.put(destination, newDestinationBalance);
@@ -545,12 +548,12 @@ actor InvoiceMock {
               };
             };
           };
-          case(_){
+          case (_) {
             Debug.trap("InsufficientFunds");
           };
         };
       };
-      case(null){
+      case (null) {
         Debug.trap("InvalidSubaccount");
       };
     };
@@ -558,38 +561,38 @@ actor InvoiceMock {
 
   // Useful for testing
   type FreeMoneyArgs = {
-    amount: Nat;
-    accountIdentifier: AccountIdentifier;
+    amount : Nat;
+    accountIdentifier : AccountIdentifier;
   };
   type FreeMoneyResult = Result.Result<Nat, FreeMoneyError>;
   type FreeMoneyError = {
-    message: ?Text;
-    kind: {
+    message : ?Text;
+    kind : {
       #InvalidDestination;
     };
   };
-  public func deposit_free_money (args: FreeMoneyArgs) : async FreeMoneyResult {
+  public func deposit_free_money(args : FreeMoneyArgs) : async FreeMoneyResult {
     let amount = args.amount;
     let accountBlob = U.accountIdentifierToBlob({
       accountIdentifier = args.accountIdentifier;
       canisterId = ?Principal.fromActor(InvoiceMock);
     });
-    
-    switch(accountBlob){
-      case(#err err){
+
+    switch (accountBlob) {
+      case (#err err) {
         return #err({
           message = err.message;
           kind = #InvalidDestination;
         });
       };
-      case(#ok account){
+      case (#ok account) {
         let balanceResult = icpLedgerMock.get(account);
-        switch(balanceResult){
-          case(null){
+        switch (balanceResult) {
+          case (null) {
             icpLedgerMock.put(account, amount);
             return #ok(amount);
           };
-          case (? balance){
+          case (?balance) {
             let newBalance = balance + amount;
             icpLedgerMock.put(account, newBalance);
             return #ok(newBalance);
@@ -598,11 +601,11 @@ actor InvoiceMock {
       };
     };
   };
-// #endregion
+  // #endregion
 
-// #region Upgrade Hooks
+  // #region Upgrade Hooks
   system func preupgrade() {
-      entries := Iter.toArray(invoices.entries());
+    entries := Iter.toArray(invoices.entries());
   };
-// #endregion
-}
+  // #endregion
+};
