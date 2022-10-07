@@ -15,9 +15,14 @@ test: install
 clean:
 	rm -fr .dfx
 
+# fetch_ledger
+
+
 e2e:
-	./install-local.sh
 	npm ci
+	dfx stop
+	dfx start --background --clean
+	node ./install-local.mjs
 	npm test
 
 watch:
