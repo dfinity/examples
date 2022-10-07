@@ -1,4 +1,4 @@
-import Ledger "canister:ledger";
+import Ledger "canister:nns-ledger";
 
 import A "./Account";
 import CRC32 "./CRC32";

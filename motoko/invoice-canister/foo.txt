@@ -1,0 +1,2 @@
+COMMAND     PID USER   FD   TYPE             DEVICE SIZE/OFF NODE NAME
+icx-proxy 47839 kyle    9u  IPv4 0xe64eddf3de98ac15      0t0  TCP localhost:4943 (LISTEN)
