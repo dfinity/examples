@@ -17,7 +17,7 @@ The example project requires the following installed:
 - dfx
 - npm
 
-git can be installed from various package managers. DFX can be installed following the
+git and npm can be installed from various package managers. DFX can be installed following the
 instructions [here](https://internetcomputer.org/docs/current/developer-docs/build/install-upgrade-remove).
 
 ### Download the code
