@@ -3,12 +3,14 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@dfinity/assets": "^0.13.4",
-    "@dfinity/agent": "^0.13.4",
-    "@dfinity/identity": "^0.13.4",
+    "@dfinity/agent": "^0.14.0",
+    "@dfinity/assets": "^0.14.0",
+    "@dfinity/candid": "^0.14.0",
+    "@dfinity/identity": "^0.14.0",
+    "@dfinity/principal": "^0.14.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
-    "react-masonry-component": "^6.3.0",
+    "react-masonry-css": "^1.0.16",
     "react-scripts": "5.0.1"
   },
   "scripts": {
