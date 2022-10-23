@@ -1,10 +1,9 @@
 {
   "canisters": {
     "exchange_rate": {
-      "candid": "src/exchange_rate.did",
       "package": "exchange_rate",
-      "type": "rust",
-      "wasm": "target/wasm32-unknown-unknown/release/exchange_rate.wasm"
+      "type": "motoko",
+      "main": "src/Main.mo"
     },
     "exchange_rate_assets": {
       "dependencies": [
@@ -23,6 +22,10 @@
     "local": {
       "bind": "127.0.0.1:4943",
       "type": "ephemeral"
+    },
+    "ic": {
+      "bind": "https://ic0.app",
+      "type": "persistent"
     }
   },
   "version": 1

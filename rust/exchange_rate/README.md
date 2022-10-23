@@ -52,12 +52,16 @@ mentioned above, that the number of calls costs much more than call size.
 On top of that, we cache data that's already fetched, to save from future user requests
 triggering remote HTTP calls again.
 
+## Dependencies
+- [ic-cdk v0.5.7](https://crates.io/crates/ic-cdk/0.5.7) or above
+- [dfx v0.12.0-beta.3](https://github.com/dfinity/sdk/releases/tag/0.12.0-beta.3) or above.
+Use below command to install:
+```DFX_VERSION=0.12.0-beta.3 sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"```
+
 ## Building the canister into wasm
 `cd rust/exchange_rate`
 `cargo build --target wasm32-unknown-unknown --release --p exchange_rate`
 
 ## Deploy the canister locally
-- `dfx start --enable-canister-http` to start a local IC instance with Canister HTTP feature enabled
-- `dfx deploy --with-cycles 100000000000` to deploy the `exchange_rate` and `exchange_rate_assets`
-  canisters to local IC
-- `dfx canister status {canister_id}` to check the status of the canister
+- Simply do `./deploy.sh {env}` where env is your targetted network defined in `dfx.json`.
+E.g. `local`, `ic`, etc.
