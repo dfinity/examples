@@ -1,7 +1,8 @@
 use candid::Principal;
 use exchange_rate::{Rate, RatesWithInterval, TimeRange, Timestamp};
 use ic_cdk::api::management_canister::http_request::{
-    CanisterHttpRequestArgument, HttpHeader, HttpMethod, HttpResponse, TransformFunc, TransformType,
+    /*CanisterHttpRequestArgument,*/ HttpHeader, HttpMethod,
+    HttpResponse, /*TransformFunc, TransformType,*/
 };
 use ic_cdk::storage;
 use ic_cdk_macros::{self, heartbeat, post_upgrade, pre_upgrade, query, update};
@@ -205,15 +206,18 @@ async fn get_rate(job: Timestamp) {
     let url = format!("https://{host}/products/ICP-USD/candles?granularity={REMOTE_FETCH_GRANULARITY}&start={start_timestamp}&end={end_timestamp}");
     ic_cdk::api::print(url.clone());
 
-    let request = CanisterHttpRequestArgument {
+    let request = exchange_rate::CanisterHttpRequestArgs {
         url: url,
         method: HttpMethod::GET,
         body: None,
         max_response_bytes: Some(MAX_RESPONSE_BYTES),
-        transform: Some(TransformType::Function(TransformFunc(candid::Func {
-            principal: ic_cdk::api::id(),
-            method: "transform".to_string(),
-        }))),
+        transform: Some(exchange_rate::TransformContext {
+            function: exchange_rate::TransformFunc(candid::Func {
+                principal: ic_cdk::api::id(),
+                method: "transform".to_string(),
+            }),
+            context: vec![0, 1, 2],
+        }),
         headers: request_headers,
     };
 
@@ -262,8 +266,8 @@ fn decode_body_to_rates(body: &str, fetched: &mut RefMut<HashMap<u64, f32>>) {
 }
 
 #[query]
-async fn transform(raw: HttpResponse) -> HttpResponse {
-    let mut sanitized = raw.clone();
+async fn transform(raw: exchange_rate::TransformArgs) -> HttpResponse {
+    let mut sanitized = raw.response.clone();
     sanitized.headers = vec![
         HttpHeader {
             name: "Content-Security-Policy".to_string(),

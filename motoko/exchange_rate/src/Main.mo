@@ -90,10 +90,10 @@ shared actor class ExchangeRate() = this {
         );
     };
 
-    public query func transform(raw : Types.CanisterHttpResponsePayload) : async Types.CanisterHttpResponsePayload {
+    public query func transform(raw : Types.TransformArgs) : async Types.CanisterHttpResponsePayload {
         let transformed : Types.CanisterHttpResponsePayload = {
-            status = raw.status;
-            body = raw.body;
+            status = raw.response.status;
+            body = raw.response.body;
             headers = [
                 {
                     name = "Content-Security-Policy";
@@ -260,13 +260,18 @@ shared actor class ExchangeRate() = this {
         let url = "https://" # host # "/products/ICP-USD/candles?granularity=" # Nat64.toText(REMOTE_FETCH_GRANULARITY) # "&start=" # Nat64.toText(start_timestamp) # "&end=" # Nat64.toText(end_timestamp);
         Debug.print(url);
 
+        let transform_context : Types.TransformContext = {
+            function = transform;
+            context = Blob.fromArray([]);
+        };
+
         let request : Types.CanisterHttpRequestArgs = {
             url = url;
             max_response_bytes = ?MAX_RESPONSE_BYTES;
             headers = request_headers;
             body = null;
             method = #get;
-            transform = ?(#function(transform));
+            transform = ?transform_context;
         };
         try {
             Cycles.add(2_000_000_000);
@@ -325,13 +330,17 @@ shared actor class ExchangeRate() = this {
         #Ok : Text;
         #Err : Text;
     } {
+        let transform_context : Types.TransformContext = {
+            function = transform;
+            context = Blob.fromArray([]);
+        };
         let request : Types.CanisterHttpRequestArgs = {
             url = url;
             max_response_bytes = ?MAX_RESPONSE_BYTES;
             headers = [];
             body = null;
             method = #get;
-            transform = ?(#function(transform));
+            transform = ?transform_context;
         };
         try {
             Cycles.add(2_000_000_000);
