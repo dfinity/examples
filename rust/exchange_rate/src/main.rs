@@ -1,8 +1,7 @@
-use candid::Principal;
 use exchange_rate::{Rate, RatesWithInterval, TimeRange, Timestamp};
 use ic_cdk::api::management_canister::http_request::{
-    /*CanisterHttpRequestArgument,*/ HttpHeader, HttpMethod,
-    HttpResponse, /*TransformFunc, TransformType,*/
+    http_request, CanisterHttpRequestArgument, HttpHeader, HttpMethod, HttpResponse, TransformArgs,
+    TransformContext,
 };
 use ic_cdk::storage;
 use ic_cdk_macros::{self, heartbeat, post_upgrade, pre_upgrade, query, update};
@@ -206,40 +205,21 @@ async fn get_rate(job: Timestamp) {
     let url = format!("https://{host}/products/ICP-USD/candles?granularity={REMOTE_FETCH_GRANULARITY}&start={start_timestamp}&end={end_timestamp}");
     ic_cdk::api::print(url.clone());
 
-    let request = exchange_rate::CanisterHttpRequestArgs {
+    ic_cdk::api::print(format!("Making IC http_request call {} now.", job));
+    let request = CanisterHttpRequestArgument {
         url: url,
         method: HttpMethod::GET,
         body: None,
         max_response_bytes: Some(MAX_RESPONSE_BYTES),
-        transform: Some(exchange_rate::TransformContext {
-            function: exchange_rate::TransformFunc(candid::Func {
-                principal: ic_cdk::api::id(),
-                method: "transform".to_string(),
-            }),
-            context: vec![0, 1, 2],
-        }),
+        transform: Some(TransformContext::new(transform, vec![])),
         headers: request_headers,
     };
-
-    let body = candid::utils::encode_one(&request).unwrap();
-    ic_cdk::api::print(format!("Making IC http_request call {} now.", job));
-
-    match ic_cdk::api::call::call_raw(
-        Principal::management_canister(),
-        "http_request",
-        &body[..],
-        2_000_000_000,
-    )
-    .await
-    {
-        Ok(result) => {
-            // decode the result
-            let decoded_result: HttpResponse =
-                candid::utils::decode_one(&result).expect("IC http_request failed!");
+    match http_request(request).await {
+        Ok((response,)) => {
             // put the result to hashmap
             FETCHED.with(|fetched| {
                 let mut fetched = fetched.borrow_mut();
-                let decoded_body = String::from_utf8(decoded_result.body)
+                let decoded_body = String::from_utf8(response.body)
                     .expect("Remote service response is not UTF-8 encoded.");
                 decode_body_to_rates(&decoded_body, &mut fetched);
             });
@@ -266,7 +246,7 @@ fn decode_body_to_rates(body: &str, fetched: &mut RefMut<HashMap<u64, f32>>) {
 }
 
 #[query]
-async fn transform(raw: exchange_rate::TransformArgs) -> HttpResponse {
+fn transform(raw: TransformArgs) -> HttpResponse {
     let mut sanitized = raw.response.clone();
     sanitized.headers = vec![
         HttpHeader {
