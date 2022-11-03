@@ -18,6 +18,13 @@ This example consists of the following functions (see [src/hello_cycles/main.mo]
 
   (_Beware_: the wallet's `wallet_receive` return type differs from `hello_cycle`'s `wallet_receive`.)
 
+## Security Considerations and Security Best Practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+
+For example, the following aspect is particularly relevant for this app:
+* [Protect against draining the cycles balance](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#protect-against-draining-the-cycles-balance), since this canister consumes cycles that are being transferred to other canisters. 
+
 ## Prerequisites
 
 Verify the following before running this demo:
