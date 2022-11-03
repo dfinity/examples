@@ -16,6 +16,10 @@ Verify the following before running this demo:
 *  You have stopped any Internet Computer or other network process that would
    create a port conflict on 8000.
 
+## Security Considerations and Security Best Practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+
 ## Demo
 
 1. Start a local internet computer.
