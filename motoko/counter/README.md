@@ -13,8 +13,8 @@ upgraded. Without the `stable` keyword, a variable is deemed `flexible`, and its
 is reinitialized on every canister upgrade, i.e. whenever new code is deployed to the canister.
 
 To learn more about these features of Motoko, see:
-* https://sdk.dfinity.org/docs/language-guide/motoko.html#_orthogonal_persistence
-* https://sdk.dfinity.org/docs/language-guide/upgrades.html#_declaring_stable_variables
+* https://internetcomputer.org/docs/current/developer-docs/build/cdks/motoko-dfinity/motoko/#orthogonal-persistence
+* https://internetcomputer.org/docs/current/developer-docs/build/cdks/motoko-dfinity/upgrades#declaring-stable-variables
 
 ## Introduction
 
@@ -26,12 +26,16 @@ The application provides an interface that exposes the following methods:
 
 *  `get`, which gets the value of the counter.
 
+## Security Considerations and Security Best Practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+
 ## Prerequisites
 
 Verify the following before running this demo:
 
 *  You have downloaded and installed the [DFINITY Canister
-   SDK](https://sdk.dfinity.org).
+   SDK](https://internetcomputer.org/docs/current/developer-docs/build/install-upgrade-remove).
 
 *  You have stopped any Internet Computer or other network process that would
    create a port conflict on 8000.
