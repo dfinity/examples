@@ -18,7 +18,7 @@ jobs:
       - name: Rust NFT Wallet Darwin
         run: |
           pushd rust/nft-wallet
-          dfx start --background --bind 127.0.0.1:8000
+          dfx start --background --host 127.0.0.1:8000
           bash ./deploy.sh
           dfx canister call nftwallet owned_nfts
           popd
@@ -35,7 +35,7 @@ jobs:
       - name: Rust NFT Wallet Linux
         run: |
           pushd rust/nft-wallet
-          dfx start --background --bind 127.0.0.1:8000
+          dfx start --background --host 127.0.0.1:8000
           bash ./deploy.sh
           dfx canister call nftwallet owned_nfts
           popd

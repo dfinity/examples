@@ -3,7 +3,7 @@
 set -e
 
 dfx stop
-dfx start --background --clean --bind 127.0.0.1:8000
+dfx start --background --clean --host 127.0.0.1:8000
 
 dfx identity new minter --disable-encryption
 dfx identity use minter
