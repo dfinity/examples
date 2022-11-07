@@ -4,6 +4,7 @@ all: test
 .PHONY: install
 .SILENT: install
 install:
+	npm ci
 	node ./install-local.mjs
 
 .PHONY: test
