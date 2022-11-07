@@ -17,6 +17,13 @@ The application provides an interface that exposes the following methods:
         * otherwise returning the new counter value
     * Returns `400` all other requests
 
+## Security Considerations and Security Best Practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+
+For example, the following aspect is particularly relevant for this app:
+* [Use HTTP asset certification and avoid serving your dApp through raw.ic0.app](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#use-http-asset-certification-and-avoid-serving-your-dapp-through-rawic0app), in case the HTTP responses should come with authenticity guarantees.  
+
 ## Running the project locally
 
 If you want to test your project locally, you can use the following commands:
