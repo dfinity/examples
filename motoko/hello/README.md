@@ -14,6 +14,10 @@ This example is based on the default project created by running `dfx new hello` 
 
 A version of this example with a Rust implementation of canister `hello` can be found [here](../../rust/hello/README.md).
 
+## Security Considerations and Security Best Practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+
 ## Interface
 
 Canister `hello` is defined as a Motoko actor:

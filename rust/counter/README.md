@@ -38,6 +38,10 @@ The application provides an interface that exposes the following methods:
 
 *  `get`, which gets the value of the counter (query)
 
+## Security Considerations and Security Best Practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+
 ## Prerequisites
 
 Verify the following before running this demo:
