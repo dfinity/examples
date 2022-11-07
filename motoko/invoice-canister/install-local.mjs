@@ -30,7 +30,7 @@ const TEST_ACC =
 
 await $`
 # Use private api for install
-rm src/ledger/ledger.did || true
+rm src/ledger/ledger.did
 cp src/ledger/ledger.private.did src/ledger/ledger.did`;
 
 try {
@@ -42,7 +42,7 @@ try {
 
   // # Replace with public api
   await $`
-rm src/ledger/ledger.did || true
+rm src/ledger/ledger.did
 cp src/ledger/ledger.public.did src/ledger/ledger.did
 
 dfx deploy invoice
