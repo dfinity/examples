@@ -3,7 +3,7 @@ all: test
 
 .PHONY: install
 .SILENT: install
-install: ./install-local.sh
+install: node ./install-local.mjs
 
 .PHONY: test
 .SILENT: test
