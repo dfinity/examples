@@ -11,7 +11,7 @@ dfx identity use default
 export LEDGER_ACC=$(dfx ledger account-id)
 
 # Use private api for install
-rm src/ledger/ledger.did
+rm src/ledger/ledger.did || true
 cp src/ledger/ledger.private.did src/ledger/ledger.did
 
 dfx deploy ledger --argument '(record  {

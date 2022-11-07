@@ -30,23 +30,23 @@ const TEST_ACC =
 
 await $`
 # Use private api for install
-rm src/ledger/ledger.did
+rm src/ledger/ledger.did || true
 cp src/ledger/ledger.private.did src/ledger/ledger.did`;
 
 try {
-    
 
-await $`dfx deploy ledger --argument '(record {minting_account = "'${MINT_ACC}'"; initial_values = vec { record { "'${LEDGER_ACC}'"; record { e8s=100_000_000_000 } }; record { "'${TEST_ACC}'"; record { e8s=100_000_000_000 } }; }; send_whitelist = vec {}})'`;
 
-// dfx deploy ledger --argument '(record {minting_account = "'${MINT_ACC}'"; initial_values = vec { record { "'${LEDGER_ACC}'"; record { e8s=100_000_000_000 } }; record { "'${TEST_ACC}'"; record { e8s=100_000_000_000 } }; }; send_whitelist = vec {}})'
+  await $`dfx deploy ledger --argument '(record {minting_account = "'${MINT_ACC}'"; initial_values = vec { record { "'${LEDGER_ACC}'"; record { e8s=100_000_000_000 } }; record { "'${TEST_ACC}'"; record { e8s=100_000_000_000 } }; }; send_whitelist = vec {}})'`;
 
-// # Replace with public api
-await $`
+  // dfx deploy ledger --argument '(record {minting_account = "'${MINT_ACC}'"; initial_values = vec { record { "'${LEDGER_ACC}'"; record { e8s=100_000_000_000 } }; record { "'${TEST_ACC}'"; record { e8s=100_000_000_000 } }; }; send_whitelist = vec {}})'
+
+  // # Replace with public api
+  await $`
 rm src/ledger/ledger.did
 cp src/ledger/ledger.public.did src/ledger/ledger.did
 
 dfx deploy invoice
 `;
 } catch (error) {
-    console.error(error);
+  console.error(error);
 }
