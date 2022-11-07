@@ -42,7 +42,7 @@ try {
 
   // # Replace with public api
   await $`
-rm src/ledger/ledger.did
+rm src/ledger/ledger.did || true
 cp src/ledger/ledger.public.did src/ledger/ledger.did
 
 dfx deploy invoice

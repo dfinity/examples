@@ -17,9 +17,6 @@ test: install
 clean:
 	rm -fr .dfx
 
-# fetch_ledger
-
-
 e2e:
 	npm ci
 	dfx stop
