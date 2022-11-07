@@ -29,8 +29,6 @@ jobs:
           chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
           echo "$HOME/bin" >> $GITHUB_PATH
           popd
-      - name: Install node
-        run: brew install node
       - name: Motoko Invoice Canister Darwin
         run: |
           pushd motoko/invoice-canister
@@ -53,8 +51,6 @@ jobs:
           chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
           echo "$HOME/bin" >> $GITHUB_PATH
           popd
-      - name: Install node
-        run: brew install node
       - name: Motoko Invoice Canister Linux
         run: |
           pushd motoko/invoice-canister
