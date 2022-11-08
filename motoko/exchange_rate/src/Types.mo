@@ -26,8 +26,9 @@ module Types {
         #head;
     };
 
-    public type TransformType = {
-        #function : shared CanisterHttpResponsePayload -> async CanisterHttpResponsePayload;
+    public type TransformContext = {
+        function : shared query TransformArgs -> async CanisterHttpResponsePayload;
+        context : Blob;
     };
 
     public type CanisterHttpRequestArgs = {
@@ -36,15 +37,18 @@ module Types {
         headers : [HttpHeader];
         body : ?[Nat8];
         method : HttpMethod;
-        transform : ?{
-            #function : shared query CanisterHttpResponsePayload -> async CanisterHttpResponsePayload;
-        };
+        transform : ?TransformContext;
     };
 
     public type CanisterHttpResponsePayload = {
         status : Nat;
         headers : [HttpHeader];
         body : [Nat8];
+    };
+
+    public type TransformArgs = {
+        response : CanisterHttpResponsePayload;
+        context : Blob;
     };
 
     public type IC = actor {

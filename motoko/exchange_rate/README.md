@@ -20,7 +20,7 @@ For example, the following aspect is particularly relevant for this app:
 * [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since this is essential when e.g. displaying important financial data (in this case exchange rates) in the frontend that may be used by users to decide on future transactions (based on the rate information).
 
 ## Dependencies
-- [ic-cdk v0.5.7](https://crates.io/crates/ic-cdk/0.5.7) or above
-- [dfx v0.12.0-beta.3](https://github.com/dfinity/sdk/releases/tag/0.12.0-beta.3) or above.
+- [ic-cdk v0.6.5](https://crates.io/crates/ic-cdk/0.6.5) or above
+- [dfx v0.12.0-beta.6](https://github.com/dfinity/sdk/releases/tag/0.12.0-beta.6) or above.
 Use below command to install:
-```DFX_VERSION=0.12.0-beta.3 sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"```
+```DFX_VERSION=0.12.0-beta.6 sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"```
