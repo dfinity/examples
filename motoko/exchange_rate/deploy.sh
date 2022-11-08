@@ -25,7 +25,7 @@ if [[ $ENV == "local" ]]; then
     # Check DFX version
     version=$(dfx -V | sed 's/dfx\ //g' | sed 's/-.*$//g')
     if [[ "$version" < "0.12.0" ]]; then
-        echo "dfx 0.12.0-beta.6 or above required. Please do: DFX_VERSION=0.12.0-beta.6 sh -ci \"$(curl -fsSL https://internetcomputer.org/install.sh)\""
+        echo "dfx 0.12.0 or above required. Please run dfx upgrade"
         exit 1
     fi
     
