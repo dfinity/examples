@@ -28,6 +28,15 @@ This call requires that the ECDSA feature is enabled, and the `canister_id` meet
 The signatures are encoded as the concatenation of the SEC1 encodings of the two values `r` and `s`. For curve `secp256k1`, this corresponds to 32-byte big-endian encoding.<br/>
 This call requires that the ECDSA feature is enabled, the caller is a canister, and `message_hash` is 32 bytes long. Otherwise it will be rejected.
 
+**Security Considerations and Security Best Practices**
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+
+For example, the following aspects are particularly relevant for this app, since it makes inter-canister calls:
+* [Be aware that state may change during inter-canister calls](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#be-aware-that-state-may-change-during-inter-canister-calls)
+* [Only make inter-canister calls to trustworthy canisters](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#only-make-inter-canister-calls-to-trustworthy-canisters)
+* [Don’t panic after await and don’t lock shared resources across await boundaries](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#dont-panic-after-await-and-dont-lock-shared-resources-across-await-boundaries)
+
 **Usage**
 
 The installation requires SDK version 0.11.1 or above. Simply run `dfx deploy` to deploy the example canister to to a locally running dfx instance.
