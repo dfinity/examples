@@ -37,4 +37,7 @@ To get started:
     ```
     dfx build
     ```
-    
+
+## Security Considerations and Security Best Practices
+
+If you base your application on one of these examples, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. The examples provided here may not implement all the best practices.
