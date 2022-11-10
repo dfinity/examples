@@ -9,7 +9,7 @@ import { Base64 } from "js-base64";
 import mime from "mime/lite";
 
 const hostOptions = {
-  host: isMainnet() ? "https://ic0.app" : "http://localhost:8000",
+  host: isMainnet() ? "https://ic0.app" : "http://localhost:4943",
 };
 
 let dipCanister = dipCanisterFactory(hostOptions);
@@ -87,9 +87,8 @@ export async function fetchNft(principal, index, checkOwner) {
         url = `https://${cid.toString()}.ipfs.ipfs.io`;
         break;
       case 2:
-        url = `https://${location.TextContent}.raw.ic0.app/${index}.${
-          mime.getExtension(contentType) || "bin"
-        }`;
+        url = `https://${location.TextContent}.raw.ic0.app/${index}.${mime.getExtension(contentType) || "bin"
+          }`;
         break;
       case 3:
         url = location.TextContent;
@@ -218,7 +217,7 @@ export async function authenticate(onSuccess) {
     },
     identityProvider: isMainnet()
       ? "https://identity.ic0.app/#authorize"
-      : `http://${process.env.INTERNET_IDENTITY_CANISTER_ID}.localhost:8000/#authorize`,
+      : `http://${process.env.INTERNET_IDENTITY_CANISTER_ID}.localhost:4943/#authorize`,
   });
 }
 
