@@ -188,7 +188,7 @@ async fn get_rate(job: Timestamp) {
     let start_timestamp = job;
     let end_timestamp = job + REMOTE_FETCH_GRANULARITY * DATA_POINTS_PER_API;
 
-    let host = "api.coinbase.com";
+    let host = "api.pro.coinbase.com";
     let mut host_header = host.clone().to_owned();
     host_header.push_str(":443");
     // prepare system http_request call
