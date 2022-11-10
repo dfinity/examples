@@ -17,7 +17,6 @@ cp -r ../../rust/exchange_rate/src/frontend src/frontend
 cp ../../rust/exchange_rate/rollup.config.js .
 cp ../../rust/exchange_rate/package.json .
 
-cargo install cargo-audit
 npm install
 
 if [[ $ENV == "local" ]]; then
@@ -30,7 +29,7 @@ if [[ $ENV == "local" ]]; then
     fi
     
     # Start local replica
-    dfx start --background
+    dfx start --background --clean
 fi
 
 # Deploy exchange_rate and exchange_rate_assets

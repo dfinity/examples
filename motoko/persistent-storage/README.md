@@ -13,6 +13,14 @@ This example covers:
 - Deploy the canister smart contract locally
 - Test backend with Candid UI and command line using `dfx` 
 
+## Security Considerations and Security Best Practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+
+For example, the following aspects are particularly relevant for this app:
+* [Consider using stable memory, version it, test it](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#consider-using-stable-memory-version-it-test-it), since this canister uses stable memory. 
+* [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since this canister provides query calls.
+
 ## Installation
 This example project can be cloned, installed and deployed locally, for learning and testing purposes. The instructions are based on running the example on either macOS or Linux, but when using WSL2 on Windows, the instructions will be the same.
 

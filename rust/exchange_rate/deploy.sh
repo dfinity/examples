@@ -25,7 +25,7 @@ if [[ $ENV == "local" ]]; then
     fi
     
     # Start local replica
-    dfx start --background
+    dfx start --background --clean
 fi
 
 # Deploy exchange_rate and exchange_rate_assets
