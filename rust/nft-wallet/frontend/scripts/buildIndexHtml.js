@@ -28,5 +28,5 @@ function main(key, replacement) {
   fs.writeFileSync(pathToFinalIndexHtml, updatedContent);
 }
 
-const replacement = isNetworkLocal ? "localhost:4943" : "ic0.app";
+const replacement = isNetworkLocal ? "localhost:8000" : "ic0.app";
 main("ROLLUP_CONNECT_SRC_DOMAIN", replacement);
