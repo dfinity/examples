@@ -19,7 +19,7 @@ jobs:
           dfx build
           (for f in tests/*.test.sh; do
             echo "==== Run test $f ===="
-            ic-repl -r http://localhost:8000 "$f" || exit
+            ic-repl -r "http://localhost:$(dfx info webserver-port)" "$f" || exit
           done)
           popd
   motoko-hello-linux:
@@ -36,6 +36,6 @@ jobs:
           dfx build
           (for f in tests/*.test.sh; do
             echo "==== Run test $f ===="
-            ic-repl -r http://localhost:8000 "$f" || exit
+            ic-repl -r "http://localhost:$(dfx info webserver-port)" "$f" || exit
           done)
           popd

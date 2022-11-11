@@ -87,9 +87,8 @@ export async function fetchNft(principal, index, checkOwner) {
         url = `https://${cid.toString()}.ipfs.ipfs.io`;
         break;
       case 2:
-        url = `https://${location.TextContent}.raw.ic0.app/${index}.${
-          mime.getExtension(contentType) || "bin"
-        }`;
+        url = `https://${location.TextContent}.raw.ic0.app/${index}.${mime.getExtension(contentType) || "bin"
+          }`;
         break;
       case 3:
         url = location.TextContent;

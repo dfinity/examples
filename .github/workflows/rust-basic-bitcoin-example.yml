@@ -10,9 +10,9 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
-        run: bash .github/workflows/provision-darwin.sh
-      - name: Install LLVM
-        run: brew install llvm
+        run: |
+          bash .github/workflows/provision-darwin.sh
+          brew install llvm
       - name: Rust Basic Bitcoin Darwin
         run: |
           pushd rust/basic_bitcoin

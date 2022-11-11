@@ -26,7 +26,7 @@ const run = async () => {
       agentOptions: {
         identity,
         fetch: fetch,
-        host: "http://localhost:8000",
+        host: "http://localhost:4943",
       },
     });
     return actor;
