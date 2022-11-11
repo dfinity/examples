@@ -63,6 +63,16 @@ export const idlFactory = ({ IDL }) => {
 	const Time = IDL.Int;
 	return IDL.Service({
 		authorize: IDL.Func([IDL.Principal], [], []),
+		certified_tree: IDL.Func(
+			[IDL.Record({})],
+			[
+				IDL.Record({
+					certificate: IDL.Vec(IDL.Nat8),
+					tree: IDL.Vec(IDL.Nat8)
+				})
+			],
+			['query']
+		),
 		clear: IDL.Func([ClearArguments], [], []),
 		commit_batch: IDL.Func(
 			[

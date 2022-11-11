@@ -118,6 +118,13 @@ service : {
 		}
 	) query;
 
+	certified_tree : (record {}) -> (
+		record {
+			certificate : blob;
+			tree : blob;
+		}
+	) query;
+
 	create_batch : (record {}) -> (record { batch_id : BatchId });
 
 	create_chunk : (record { batch_id : BatchId; content : blob }) -> (record { chunk_id : ChunkId });

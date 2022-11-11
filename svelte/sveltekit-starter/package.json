@@ -18,8 +18,8 @@
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --plugin-search-dir . --check . && eslint .",
 		"format": "prettier --plugin-search-dir . --write .",
-		"prebuild": "npm run copy:types",
-		"copy:types": "node ./copy.types.mjs && npm run format"
+		"prebuild": "npm run generate",
+		"generate": "dfx generate && node ./update.types.mjs && npm run format"
 	},
 	"devDependencies": {
 		"@rollup/plugin-inject": "^5.0.2",

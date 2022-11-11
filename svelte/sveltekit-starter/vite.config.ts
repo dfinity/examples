@@ -69,15 +69,9 @@ const config: UserConfig = {
 };
 
 export default defineConfig(({ mode }: UserConfig): UserConfig => {
-	// The auto generated types of dfx loads the root key certificate if NODE_ENV !== production
-	// However, npm run build, which is called by dfx deploy, obviously is a production build
-	// Therefore we have to reset this and consider production only if the network is the IC
-	const NODE_ENV = network === 'ic' ? 'production' : 'development';
-
 	// Expand environment - .env files - with canister IDs
 	process.env = {
 		...process.env,
-		NODE_ENV,
 		...loadEnv(mode ?? 'development', process.cwd()),
 		...readCanisterIds({ prefix: 'VITE_' })
 	};
@@ -88,7 +82,6 @@ export default defineConfig(({ mode }: UserConfig): UserConfig => {
 		define: {
 			'process.env': {
 				...readCanisterIds({}),
-				NODE_ENV,
 				DFX_NETWORK: network
 			}
 		}
