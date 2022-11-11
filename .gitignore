@@ -7,3 +7,4 @@ _MACOSX
 .vscode/
 target/
 *.old.did
+.idea
