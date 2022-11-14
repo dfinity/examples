@@ -10,6 +10,7 @@ import { defineConfig, loadEnv } from 'vite';
 // dfx deploy = local
 // dfx deploy --network ic = ic
 const network = process.env.DFX_NETWORK ?? 'local';
+const host = network === 'local' ? 'http://localhost:8000' : 'https://ic0.app';
 
 const readCanisterIds = ({ prefix }: { prefix?: string }): Record<string, string> => {
 	const canisterIdsJsonFile =
@@ -59,12 +60,6 @@ const config: UserConfig = {
 				global: 'globalThis'
 			}
 		}
-	},
-	// proxy /api to port 8000 during development
-	server: {
-		proxy: {
-			'/api': 'http://localhost:8000'
-		}
 	}
 };
 
@@ -73,7 +68,9 @@ export default defineConfig(({ mode }: UserConfig): UserConfig => {
 	process.env = {
 		...process.env,
 		...loadEnv(mode ?? 'development', process.cwd()),
-		...readCanisterIds({ prefix: 'VITE_' })
+		...readCanisterIds({ prefix: 'VITE_' }),
+		VITE_DFX_NETWORK: network,
+		VITE_HOST: host
 	};
 
 	return {
