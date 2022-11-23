@@ -1,8 +1,10 @@
 # React Native greet_app
 
 This is a simple React Native project that seeks to communicate with a backend canister (dapp) deployed on the Internet Computer.
-For the sake of demonstration, we are using a simplified Greet dapp -- which you can go to git submodule folder or this link [here:](https://github.com/wackyleo459/greet_dapp.git/).
-Please git clone, and follow instructions to deploy.
+
+For the sake of demonstration, we are using a simplified `Greet dapp` -- which you can go to this link [here](https://github.com/wackyleo459/greet_dapp.git/).
+
+Please git clone, and follow instructions to deploy the backend canister first.
 
 ## Environment Setup
 Plese refer to this document for details:

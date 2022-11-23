@@ -1,3 +1,0 @@
-[submodule "greet_app"]
-	path = greet_app
-	url = https://github.com/wackyleo459/greet_dapp.git
