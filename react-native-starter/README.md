@@ -73,4 +73,8 @@ Ensure following are installed
 ## Troubleshoot
 
 If you have trouble running the application, try resetting the metro cache
-by running `npm run reset`. 
+by running `npm run reset`.
+
+# Started app
+
+<img src="./src/assets/simulator_screenshot.png?raw=true" width="400">
