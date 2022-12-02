@@ -1,5 +1,11 @@
 import React from "react";
-import { TouchableOpacity, Text, View, StyleSheet, GestureResponderEvent } from "react-native";
+import {
+  TouchableOpacity,
+  Text,
+  View,
+  StyleSheet,
+  GestureResponderEvent,
+} from "react-native";
 
 interface customButtonInput {
   title: string;
@@ -9,10 +15,21 @@ interface customButtonInput {
   fontSize?: number;
 }
 
-function CustomButton({ title, onPress, width, color, fontSize }: customButtonInput) {
+function CustomButton({
+  title,
+  onPress,
+  width,
+  color,
+  fontSize,
+}: customButtonInput) {
   return (
     <TouchableOpacity onPress={onPress}>
-      <View style={[styles.buttonContainer, { width: width, backgroundColor: color }]}>
+      <View
+        style={[
+          styles.buttonContainer,
+          { width: width, backgroundColor: color },
+        ]}
+      >
         <Text style={[styles.title, { fontSize: fontSize }]}>{title}</Text>
       </View>
     </TouchableOpacity>

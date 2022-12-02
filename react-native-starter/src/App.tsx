@@ -21,11 +21,11 @@ import {
   Linking,
 } from "react-native";
 
-import { greet_dapp } from "../declarations/greet_dapp";
+import { greet_dapp } from "./declarations/greet_dapp";
 import Input from "./components/Input";
 import CustomButton from "./components/CustomButton";
 import "react-native-polyfill-globals/auto";
-//import Config from "react-native-config";
+import Accordian from "./components/Accordian";
 
 const App = () => {
   const [showText, setShowText] = React.useState(true);
@@ -58,30 +58,25 @@ const App = () => {
     return () => clearInterval(interval);
   }, [blink]);
 
+  const aboutRN = {
+    title: "A React Native Starter",
+    data: "React Native uses React and Javascript to build native components for mobile devices. \n\nThis React Native app makes calls to a deployed backend canister on the IC.",
+  }
+  
   return (
     <SafeAreaView style={{flex: 1}}>
       <StatusBar barStyle="dark-content" backgroundColor={'beige'} />
-      <ScrollView contentContainerStyle={{flexGrow: 1}}>
+      <ScrollView contentContainerStyle={{ flexGrow: 1 }}>
         <View style={styles.container}>
-          <View
-            style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              flexDirection: 'row',
-              padding: 10,
-            }}>
-            <Image
-              source={require('./assets/icon-192x192.png')}
-              style={{width: 60, height: 60}}
-            />
-            <Text>Build for the IC</Text>
-          </View>
+          <View style={{ padding: 20 }}>
+            <Accordian title={aboutRN.title} data={aboutRN.data} />
+        </View>
           <View style={styles.header}>
             <Text style={styles.headerText}>Greet App</Text>
+            
           </View>
           <View style={styles.greetForm}>
-            <Input
+            <Input color='#dfe3f5'
               placeholder={'Enter your name here'}
               onChange={text => setValue(text)}
               title={'Enter your Name'}
@@ -117,6 +112,10 @@ const App = () => {
             </View>
           </View>
           <View style={styles.bottom}>
+          <Image
+              source={require('./assets/icon-192x192.png')}
+              style={{width: 60, height: 60, margin: 'auto'}}
+            />
             <Text
               style={{
                 fontSize: 14,
@@ -193,6 +192,7 @@ const styles = StyleSheet.create({
     display: 'flex',
     justifyContent: 'flex-end',
     paddingBottom: 10,
+    alignItems: 'center',
   }
 });
 

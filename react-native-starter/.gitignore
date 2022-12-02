@@ -62,3 +62,8 @@ buck-out/
 # Ruby / CocoaPods
 /ios/Pods/
 /vendor/bundle/
+
+# dfx temporary files
+.dfx/
+# generated files
+src/declarations/

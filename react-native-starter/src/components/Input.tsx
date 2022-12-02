@@ -5,16 +5,22 @@ const Input = ({
   placeholder,
   onChange,
   title,
+  color,
 }: {
   placeholder: string;
   onChange: (text: string) => void;
   title: string;
+  color?: string;
 }) => {
   return (
     <View style={styles.container}>
       <Text>{title}</Text>
-      <View style={styles.inputBox}>
-        <TextInput style={styles.input} placeholder={placeholder} onChangeText={onChange} />
+      <View style={[styles.inputBox, { backgroundColor: color }]}>
+        <TextInput
+          style={styles.input}
+          placeholder={placeholder}
+          onChangeText={onChange}
+        />
       </View>
     </View>
   );

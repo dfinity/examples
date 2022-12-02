@@ -1,12 +1,15 @@
 # React Native greet_app
 
-This is a simple React Native project that seeks to communicate with a backend canister (dapp) deployed on the Internet Computer.
+This is a simple React Native IOS project that seeks to communicate with a backend canister (dapp) deployed on the Internet Computer.
 
-For the sake of demonstration, we are using a simplified `Greet dapp` -- which you can go to this link [here](https://github.com/wackyleo459/greet_dapp.git/).
+## Deploy Canister
+Please follow instructions to deploy the backend canister first.
+For the sake of demonstration, we are using a simplified `Greet dapp` which you can deploy directly at the root of this project. You can always choose to deploy a different canister and use that instead.
 
-Please git clone, and follow instructions to deploy the backend canister first.
+- `dfx deploy` the greet_dapp canister or your own canister, which can live separately outside this project.
+- Once your canister is deployed, type in the terminal `dfx generate` to generate canister type declarations.
 
-## Environment Setup
+## Environment Setup for React Native
 Plese refer to this document for details:
 https://reactnative.dev/docs/environment-setup
 
@@ -22,22 +25,52 @@ Ensure following are installed
 
 2. `npm run postinstall` to patch packages
 
-3. Copy and paste the declared files from the `declarations` folder <em>of your DFX project</em> to the declarations folder in the root of this project. (For demonstration purpose this step is already done.)
+3. Copy and paste the declared files from the `declarations` folder <em>of your DFX project</em> to `/src/declarations/greet_dapp` folder. 
 
-4. From the dfx project `.dfx/local/canister_ids.json`, copy your canister id.
+   If you've dfx generated the given template `greet_dapp` from this project, this step will already be done for you.
 
-5. Paste that id into this project's `declarations/greet_dapp/index.js` file
+4. Inside `index.js` file of declarations, create an exported actor with following `agentOptions` settings. The `./greet_dapp/reference_index.js` has the same pattern as referece:
+    ``` js
+    export const greet_dapp = createActor(canisterId, {
+      agentOptions: {
+        fetchOptions: {
+          reactNative: {
+            __nativeResponseType: "base64",
+          },
+        },
+        callOptions: {
+          reactNative: {
+            textStreaming: true,
+          },
+        },
+        host: "http://localhost:4943",
+      },
+    });
+    ```
+
+5. From the dfx project `.dfx/local/canister_ids.json`, copy your canister id.
+
+6. Paste that id into the .env file like so:
+    ```js
+    GREET_DAPP_CANISTER_ID=rkp4c-7iaaa-aaaaa-aaaca-cai
+    ```
+    or paste into this project's `src/declarations/greet_dapp/index.js` file
     ```js 
     export const canisterId = <copied canisterId>
     ```
 
 ## React Native CLI with Metro
+
+7. Pod installation
 - `cd ios`
 - `bundle install` to install Bundler
-- `bundle exec pod install` to install iOS dependencies OR `pod install`
+- `bundle exec pod install` OR `pod install` to install iOS dependencies 
 
-To start Metro bundler, have your Xcode open
-- `cd ..`    to go back to root directory 
+8. To start Metro bundler, have your Xcode open
 - `npm run ios` to build and start simulator for ios device
 
 
+## Troubleshoot
+
+If you have trouble running the application, try resetting the metro cache
+by running `npm run reset`. 
