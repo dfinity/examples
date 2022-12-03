@@ -65,9 +65,7 @@ verified =  true
 
 The same code also works when deployed to the main Internet Computer network.
 But please note you must edit the `key_id` name in the source code to refer to a key that exists on the main network.
-As of writing, a test key called "`test_key_1`" can be used for testing purpose on the main network.
-
-Later in 2022, as part of the General Availability (GA) release of the feature, a production ECDSA key on the `secp256k1` elliptic curve will be deployed to be used for integration with Bitcoin mainnet and other use cases of interest.
+As of writing, a test key called "`test_key_1`" can be used for testing purpose on the main network, and a production key `key_1` can be used for real integrations with Bitcoin mainnet and other use cases of interest.
 
 [Node.js]: https://nodejs.org
 [Threshold ECDSA]: https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-ecdsa_public_key

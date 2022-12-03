@@ -97,7 +97,7 @@ async fn sign(message: Vec<u8>) -> Result<SignatureReply, String> {
         key_id,
     };
     let (res,): (SignWithECDSAReply,) =
-        ic_cdk::api::call::call_with_payment(ic, "sign_with_ecdsa", (request,), 10_000_000_000)
+        ic_cdk::api::call::call_with_payment(ic, "sign_with_ecdsa", (request,), 25_000_000_000)
             .await
             .map_err(|e| format!("Failed to call sign_with_ecdsa {}", e.1))?;
 
