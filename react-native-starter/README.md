@@ -29,7 +29,7 @@ Ensure following are installed
 
    If you've dfx generated the given template `greet_dapp` from this project, this step will already be done for you.
 
-4. Inside `index.js` file of declarations, create an exported actor with following `agentOptions` settings. The `./greet_dapp/reference_index.js` has the same pattern as referece:
+4. Inside `index.js` file of declarations, create an exported actor with following `agentOptions` settings. The `./greet_dapp/reference_index.js` has the same pattern as reference:
     ``` js
     export const greet_dapp = createActor(canisterId, {
       agentOptions: {
@@ -74,6 +74,17 @@ Ensure following are installed
 
 If you have trouble running the application, try resetting the metro cache
 by running `npm run reset`.
+
+## Note on compatibility
+
+There are a few libraries needed to make RN work with agent-js, including `react-native-fetch-api` and `fast-text-encoding`. You can simply import them into your entry file `index.js`:
+```js
+import "react-native-polyfill-globals/auto";
+import "react-native-fetch-api";
+import "fast-text-encoding";
+```
+
+Also, please modify the backend canister actor with agentOptions of `fetchOptions` and `callOptions` as shown above in step 4.
 
 # Started app
 
