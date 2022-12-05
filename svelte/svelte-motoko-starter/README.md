@@ -1,5 +1,5 @@
 <p align="left" >
-  <img width="240"  src="./assets/logo.png">
+  <img width="240"  src="assets/logo.png">
 </p>
 
 # Svelte Dapp with Motoko & Internet Identity
