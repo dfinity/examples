@@ -37,7 +37,7 @@ actor {
     assert(message_hash.size() == 32);
     let caller = Principal.toBlob(msg.caller);
     try {
-      Cycles.add(10_000_000_000);
+      Cycles.add(25_000_000_000);
       let { signature } = await ic.sign_with_ecdsa({
           message_hash;
           derivation_path = [ caller ];
