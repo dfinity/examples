@@ -10,7 +10,7 @@ on:
       - .github/workflows/provision-linux.sh
       - .github/workflows/rust-pub-sub-example.yml
 concurrency:
-  group: ${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   rust-pub-sub-darwin:

@@ -10,7 +10,7 @@ on:
       - .github/workflows/provision-linux.sh
       - .github/workflows/rust-exchange-rate-example.yaml
 concurrency:
-  group: ${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
   rust-exchange-rate-example-darwin:
