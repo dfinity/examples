@@ -11,7 +11,7 @@ on:
       - .github/workflows/motoko-basic-bitcoin.yaml
 jobs:
   rust-basic-bitcoin-darwin:
-    runs-on: macos-12
+    runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
         with:

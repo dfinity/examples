@@ -11,7 +11,7 @@ on:
       - .github/workflows/motoko-defi-example.yml
 jobs:
   motoko-defi-darwin:
-    runs-on: macos-12
+    runs-on: macos-11
     steps:
       - uses: actions/checkout@v2
         with:

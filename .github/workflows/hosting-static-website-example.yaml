@@ -11,7 +11,7 @@ on:
       - .github/workflows/hosting-static-website-example.yaml
 jobs:
   hosting-unity-static-website-darwin:
-    runs-on: macos-12
+    runs-on: macos-11
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
