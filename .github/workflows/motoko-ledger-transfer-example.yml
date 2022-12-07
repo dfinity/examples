@@ -9,6 +9,9 @@ on:
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/motoko-ledger-transfer-example.yml
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   motoko-ledger-transfer-darwin:
     runs-on: macos-12

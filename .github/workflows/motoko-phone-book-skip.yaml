@@ -9,6 +9,9 @@ on:
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/motoko-phone-book-example.yaml
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   motoko-phone-book-example-darwin:
     runs-on: ubuntu-latest

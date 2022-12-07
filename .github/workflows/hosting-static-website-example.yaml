@@ -9,6 +9,9 @@ on:
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/hosting-static-website-example.yaml
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   hosting-unity-static-website-darwin:
     runs-on: macos-12

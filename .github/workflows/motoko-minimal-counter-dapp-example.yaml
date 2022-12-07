@@ -9,6 +9,9 @@ on:
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/motoko-minimal-counter-dapp-example.yaml
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   motoko-minimal-counter-dapp-darwin:
     runs-on: macos-12

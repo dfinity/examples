@@ -9,6 +9,9 @@ on:
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/rust-hello-example.yml
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   rust-hello-darwin:
     runs-on: macos-12

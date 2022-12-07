@@ -9,6 +9,9 @@ on:
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/motoko-hello_cycles-example.yaml
+concurrency:
+  group: ${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   motoko-hello_cycles-darwin:
     runs-on: macos-12
