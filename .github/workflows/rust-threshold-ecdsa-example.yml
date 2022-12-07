@@ -4,7 +4,6 @@ on:
     branches:
       - master
   pull_request:
-  pull_request:
     paths:
       - rust/threshold-ecdsa/**
 jobs:
