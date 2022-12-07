@@ -6,6 +6,8 @@ on:
   pull_request:
     paths:
       - rust/exchange_rate/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
 jobs:
   rust-exchange-rate-example-darwin:
     runs-on: macos-10.15

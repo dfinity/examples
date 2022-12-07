@@ -6,6 +6,8 @@ on:
   pull_request:
     paths-ignore:
       - motoko/counter/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
 jobs:
   motoko-counter-example-darwin:
     runs-on: ubuntu-latest

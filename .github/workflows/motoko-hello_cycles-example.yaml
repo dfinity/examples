@@ -6,6 +6,8 @@ on:
   pull_request:
     paths:
       - motoko/hello_cycles/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
 jobs:
   motoko-hello_cycles-darwin:
     runs-on: macos-10.15

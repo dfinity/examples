@@ -6,6 +6,8 @@ on:
   pull_request:
     paths:
       - motoko/dip721-nft-container/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
 jobs:
   motoko-dip721-darwin:
     runs-on: macos-10.15

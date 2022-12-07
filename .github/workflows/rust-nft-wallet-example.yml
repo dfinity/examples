@@ -6,6 +6,8 @@ on:
   pull_request:
     paths:
       - rust/nft-wallet/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
 jobs:
   rust-nft-wallet-darwin:
     runs-on: macos-10.15

@@ -6,6 +6,8 @@ on:
   pull_request:
     paths:
       - rust/threshold-ecdsa/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
 jobs:
   rust-threshold-ecdsa-darwin:
     runs-on: macos-10.15

@@ -6,6 +6,8 @@ on:
   pull_request:
     paths-ignore:
       - motoko/echo/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
 jobs:
   motoko-echo-example-darwin:
     runs-on: ubuntu-latest

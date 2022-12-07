@@ -6,6 +6,8 @@ on:
   pull_request:
     paths:
       - rust/basic_bitcoin/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
 jobs:
   rust-basic-bitcoin-darwin:
     runs-on: macos-10.15

@@ -6,6 +6,8 @@ on:
   pull_request:
     paths-ignore:
       - motoko/simple-to-do/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
 jobs:
   motoko-simple-to-do-example-darwin:
     runs-on: ubuntu-latest

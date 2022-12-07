@@ -6,6 +6,8 @@ on:
   pull_request:
     paths-ignore:
       - motoko/superheroes/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
 jobs:
   motoko-superheroes-example-darwin:
     runs-on: ubuntu-latest

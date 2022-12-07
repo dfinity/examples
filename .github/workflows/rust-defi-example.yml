@@ -6,6 +6,8 @@ on:
   pull_request:
     paths:
       - rust/defi/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
 jobs:
   rust-defi-darwin:
     runs-on: macos-10.15

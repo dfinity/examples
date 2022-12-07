@@ -6,6 +6,8 @@ on:
   pull_request:
     paths:
       - motoko/minimal-counter-dapp/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
 jobs:
   motoko-minimal-counter-dapp-darwin:
     runs-on: macos-10.15

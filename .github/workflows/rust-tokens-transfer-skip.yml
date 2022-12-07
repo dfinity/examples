@@ -6,6 +6,8 @@ on:
   pull_request:
     paths-ignore:
       - rust/tokens_transfer/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
 jobs:
   build:
     runs-on: ubuntu-latest

@@ -6,6 +6,8 @@ on:
   pull_request:
     paths:
       - motoko/persistent-storage/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
 jobs:
   motoko-persistent-storage-darwin:
     runs-on: macos-10.15

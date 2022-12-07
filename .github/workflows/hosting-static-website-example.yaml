@@ -6,6 +6,8 @@ on:
   pull_request:
     paths:
       - hosting/static-website/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
 jobs:
   hosting-unity-static-website-darwin:
     runs-on: macos-10.15

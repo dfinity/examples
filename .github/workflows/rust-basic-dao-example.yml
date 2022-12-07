@@ -6,6 +6,8 @@ on:
   pull_request:
     paths:
       - rust/basic_dao/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
 jobs:
   rust-dao-darwin:
     runs-on: macos-10.15

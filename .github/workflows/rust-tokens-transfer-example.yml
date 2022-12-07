@@ -6,6 +6,8 @@ on:
   pull_request:
     paths:
       - rust/tokens_transfer/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
 jobs:
   rust-tokens_transfer-darwin:
     runs-on: macos-10.15
