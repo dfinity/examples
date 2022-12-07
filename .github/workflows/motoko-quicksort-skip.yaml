@@ -7,7 +7,11 @@ on:
     paths-ignore:
       - motoko/quicksort/**
 jobs:
-  build:
+  motoko-quicksort-example-darwin:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Not needed - relevant folder not touched'
+  motoko-quicksort-example-linux:
     runs-on: ubuntu-latest
     steps:
       - run: echo 'Not needed - relevant folder not touched'

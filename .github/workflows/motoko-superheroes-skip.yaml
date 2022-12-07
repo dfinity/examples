@@ -7,7 +7,11 @@ on:
     paths-ignore:
       - motoko/superheroes/**
 jobs:
-  build:
+  motoko-superheroes-example-darwin:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Not needed - relevant folder not touched'
+  motoko-superheroes-example-linux:
     runs-on: ubuntu-latest
     steps:
       - run: echo 'Not needed - relevant folder not touched'

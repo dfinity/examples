@@ -7,7 +7,11 @@ on:
     paths-ignore:
       - motoko/calc/**
 jobs:
-  build:
+  motoko-calc-example-darwin:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Not needed - relevant folder not touched'
+  motoko-calc-example-linux:
     runs-on: ubuntu-latest
     steps:
       - run: echo 'Not needed - relevant folder not touched'

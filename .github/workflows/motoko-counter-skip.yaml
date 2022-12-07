@@ -7,7 +7,11 @@ on:
     paths-ignore:
       - motoko/counter/**
 jobs:
-  build:
+  motoko-counter-example-darwin:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Not needed - relevant folder not touched'
+  motoko-counter-example-linux:
     runs-on: ubuntu-latest
     steps:
       - run: echo 'Not needed - relevant folder not touched'

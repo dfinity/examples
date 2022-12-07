@@ -7,7 +7,11 @@ on:
     paths-ignore:
       - motoko/simple-to-do/**
 jobs:
-  build:
+  motoko-simple-to-do-example-darwin:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Not needed - relevant folder not touched'
+  motoko-simple-to-do-example-linux:
     runs-on: ubuntu-latest
     steps:
       - run: echo 'Not needed - relevant folder not touched'

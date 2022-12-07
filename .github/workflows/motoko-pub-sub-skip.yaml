@@ -7,7 +7,11 @@ on:
     paths-ignore:
       - motoko/pub-sub/**
 jobs:
-  build:
+  motoko-pub-sub-example-darwin:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Not needed - relevant folder not touched'
+  motoko-pub-sub-example-linux:
     runs-on: ubuntu-latest
     steps:
       - run: echo 'Not needed - relevant folder not touched'

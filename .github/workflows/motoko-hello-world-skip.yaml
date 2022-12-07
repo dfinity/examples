@@ -7,7 +7,11 @@ on:
     paths-ignore:
       - motoko/hello-world/**
 jobs:
-  build:
+  motoko-hello-world-example-darwin:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Not needed - relevant folder not touched'
+  motoko-hello-world-example-linux:
     runs-on: ubuntu-latest
     steps:
       - run: echo 'Not needed - relevant folder not touched'

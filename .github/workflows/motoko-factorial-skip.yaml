@@ -7,7 +7,11 @@ on:
     paths-ignore:
       - motoko/factorial/**
 jobs:
-  build:
+  motoko-factorial-example-darwin:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Not needed - relevant folder not touched'
+  motoko-factorial-example-linux:
     runs-on: ubuntu-latest
     steps:
       - run: echo 'Not needed - relevant folder not touched'

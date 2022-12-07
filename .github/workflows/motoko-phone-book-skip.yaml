@@ -7,7 +7,11 @@ on:
     paths-ignore:
       - motoko/phone-book/**
 jobs:
-  build:
+  motoko-phone-book-example-darwin:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Not needed - relevant folder not touched'
+  motoko-phone-book-example-linux:
     runs-on: ubuntu-latest
     steps:
       - run: echo 'Not needed - relevant folder not touched'
