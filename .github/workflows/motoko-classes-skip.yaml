@@ -1,0 +1,13 @@
+name: motoko-classes
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths-ignore:
+      - motoko/classes/**
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Not needed - relevant folder not touched'

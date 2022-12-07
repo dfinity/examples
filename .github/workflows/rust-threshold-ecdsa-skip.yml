@@ -1,0 +1,13 @@
+name: rust-threshold-ecdsa
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths-ignore:
+      - rust/threshold-ecdsa/**
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Not needed - relevant folder not touched'

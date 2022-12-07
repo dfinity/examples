@@ -1,0 +1,13 @@
+name: motoko-minimal-counter-dapp
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths-ignore:
+      - motoko/minimal-counter-dapp/**
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Not needed - relevant folder not touched'

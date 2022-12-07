@@ -1,0 +1,13 @@
+name: motoko-actor-reference
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths-ignore:
+      - motoko/actor_reference/**
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Not needed - relevant folder not touched'

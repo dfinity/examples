@@ -1,0 +1,13 @@
+name: motoko-phone-book
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths-ignore:
+      - motoko/phone-book/**
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Not needed - relevant folder not touched'
