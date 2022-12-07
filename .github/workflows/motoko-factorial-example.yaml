@@ -4,6 +4,8 @@ on:
     branches:
       - master
   pull_request:
+    paths:
+      - motoko/factorial/**
 jobs:
   motoko-factorial-example-darwin:
     runs-on: macos-10.15

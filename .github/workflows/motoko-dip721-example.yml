@@ -4,6 +4,8 @@ on:
     branches:
       - master
   pull_request:
+    paths:
+      - motoko/dip721-nft-container/**
 jobs:
   motoko-dip721-darwin:
     runs-on: macos-10.15

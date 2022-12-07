@@ -4,6 +4,9 @@ on:
     branches:
       - master
   pull_request:
+  pull_request:
+    paths:
+      - rust/threshold-ecdsa/**
 jobs:
   rust-threshold-ecdsa-darwin:
     runs-on: macos-10.15

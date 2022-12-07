@@ -4,6 +4,8 @@ on:
     branches:
       - master
   pull_request:
+    paths:
+      - rust/exchange_rate/**
 jobs:
   rust-exchange-rate-example-darwin:
     runs-on: macos-10.15

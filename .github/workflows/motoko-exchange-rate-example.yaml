@@ -4,6 +4,8 @@ on:
     branches:
       - master
   pull_request:
+    paths:
+      - motoko/exchange_rate/**
 jobs:
   motoko-exchange-rate-example-darwin:
     runs-on: macos-10.15

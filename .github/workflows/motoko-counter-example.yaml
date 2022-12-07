@@ -4,6 +4,8 @@ on:
     branches:
       - master
   pull_request:
+    paths:
+      - motoko/counter/**
 jobs:
   motoko-counter-example-darwin:
     runs-on: macos-10.15

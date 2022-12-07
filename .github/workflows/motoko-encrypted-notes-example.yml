@@ -4,6 +4,8 @@ on:
     branches:
       - master
   pull_request:
+    paths:
+      - motoko/encrypted-notes-dapp/**
 jobs:
   motoko-encrypted-notes-darwin:
     runs-on: macos-10.15

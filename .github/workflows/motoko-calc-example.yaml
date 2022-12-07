@@ -4,6 +4,8 @@ on:
     branches:
       - master
   pull_request:
+    paths:
+      - motoko/calc/**
 jobs:
   motoko-calc-example-darwin:
     runs-on: macos-10.15

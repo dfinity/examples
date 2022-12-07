@@ -4,6 +4,8 @@ on:
     branches:
       - master
   pull_request:
+    paths:
+      - rust/defi/**
 jobs:
   rust-defi-darwin:
     runs-on: macos-10.15

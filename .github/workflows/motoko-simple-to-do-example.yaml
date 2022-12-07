@@ -4,6 +4,8 @@ on:
     branches:
       - master
   pull_request:
+    paths:
+      - motoko/simple-to-do/**
 jobs:
   motoko-simple-to-do-example-darwin:
     runs-on: macos-10.15

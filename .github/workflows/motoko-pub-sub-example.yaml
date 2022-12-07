@@ -4,6 +4,8 @@ on:
     branches:
       - master
   pull_request:
+    paths:
+      - motoko/pub-sub/**
 jobs:
   motoko-pub-sub-example-darwin:
     runs-on: macos-10.15

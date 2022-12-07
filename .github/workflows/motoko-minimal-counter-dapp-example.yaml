@@ -4,6 +4,8 @@ on:
     branches:
       - master
   pull_request:
+    paths:
+      - motoko/minimal-counter-dapp/**
 jobs:
   motoko-minimal-counter-dapp-darwin:
     runs-on: macos-10.15

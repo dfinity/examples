@@ -4,6 +4,8 @@ on:
     branches:
       - master
   pull_request:
+    paths:
+      - rust/dip721-nft-container/**
 jobs:
   rust-dip721-darwin:
     runs-on: macos-10.15

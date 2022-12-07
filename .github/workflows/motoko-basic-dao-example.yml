@@ -4,6 +4,8 @@ on:
     branches:
       - master
   pull_request:
+    paths:
+      - motoko/basic_dao/**
 jobs:
   motoko-dao-darwin:
     runs-on: macos-10.15

@@ -4,6 +4,8 @@ on:
     branches:
       - master
   pull_request:
+    paths:
+      - motoko/random_maze/**
 jobs:
   motoko-random_maze-darwin:
     runs-on: macos-10.15

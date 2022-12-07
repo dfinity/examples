@@ -4,6 +4,8 @@ on:
     branches:
       - master
   pull_request:
+    paths:
+      - motoko/whoami/**
 jobs:
   motoko-whoami-darwin:
     runs-on: macos-10.15

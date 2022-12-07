@@ -4,6 +4,8 @@ on:
     branches:
       - master
   pull_request:
+    paths:
+      - motoko/phone-book/**
 jobs:
   motoko-phone-book-example-darwin:
     runs-on: macos-10.15
