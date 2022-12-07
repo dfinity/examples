@@ -1,0 +1,19 @@
+name: motoko-minimal-counter-dapp
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths-ignore:
+      - motoko/minimal-counter-dapp/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-minimal-counter-dapp-example.yaml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Not needed - relevant folder not touched'
