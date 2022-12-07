@@ -8,6 +8,7 @@ on:
       - motoko/pub-sub/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-pub-sub-example.yaml
 jobs:
   motoko-pub-sub-example-darwin:
     runs-on: ubuntu-latest

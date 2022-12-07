@@ -8,6 +8,7 @@ on:
       - motoko/encrypted-notes-dapp/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-encrypted-notes-example.yml
 jobs:
   build:
     runs-on: ubuntu-latest

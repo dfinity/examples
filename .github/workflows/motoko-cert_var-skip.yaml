@@ -8,6 +8,7 @@ on:
       - motoko/cert-var/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-cert_var-example.yaml
 jobs:
   build:
     runs-on: ubuntu-latest

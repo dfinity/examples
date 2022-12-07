@@ -8,6 +8,7 @@ on:
       - motoko/counter/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-counter-example.yaml
 jobs:
   motoko-counter-example-darwin:
     runs-on: ubuntu-latest

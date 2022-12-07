@@ -8,6 +8,7 @@ on:
       - motoko/calc/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-calc-example.yaml
 jobs:
   motoko-calc-example-darwin:
     runs-on: macos-10.15

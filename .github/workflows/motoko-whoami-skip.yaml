@@ -8,6 +8,7 @@ on:
       - motoko/whoami/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-whoami-example.yaml
 jobs:
   build:
     runs-on: ubuntu-latest

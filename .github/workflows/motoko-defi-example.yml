@@ -8,6 +8,7 @@ on:
       - motoko/defi/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-defi-example.yml
 jobs:
   motoko-defi-darwin:
     runs-on: macos-10.15

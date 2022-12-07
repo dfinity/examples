@@ -8,6 +8,7 @@ on:
       - motoko/exchange_rate/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-exchange-rate-example.yaml
 jobs:
   motoko-exchange-rate-example-darwin:
     runs-on: macos-10.15

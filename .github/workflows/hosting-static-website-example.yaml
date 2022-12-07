@@ -8,6 +8,7 @@ on:
       - hosting/static-website/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/hosting-static-website-example.yaml
 jobs:
   hosting-unity-static-website-darwin:
     runs-on: macos-10.15

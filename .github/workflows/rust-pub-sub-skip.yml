@@ -8,6 +8,7 @@ on:
       - rust/pub-sub/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-pub-sub-example.yml
 jobs:
   build:
     runs-on: ubuntu-latest

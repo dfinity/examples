@@ -8,6 +8,7 @@ on:
       - motoko/basic_bitcoin/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-basic-bitcoin.yaml
 jobs:
   build:
     runs-on: ubuntu-latest

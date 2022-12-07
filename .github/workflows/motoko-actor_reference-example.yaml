@@ -8,6 +8,7 @@ on:
       - motoko/actor_reference/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-actor_reference-example.yaml
 jobs:
   motoko-actor-reference-darwin:
     runs-on: macos-10.15

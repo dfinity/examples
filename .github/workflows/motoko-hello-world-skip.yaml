@@ -8,6 +8,7 @@ on:
       - motoko/hello-world/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-hello-world-example.yaml
 jobs:
   motoko-hello-world-example-darwin:
     runs-on: ubuntu-latest

@@ -8,6 +8,7 @@ on:
       - motoko/minimal-counter-dapp/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-minimal-counter-dapp-example.yaml
 jobs:
   build:
     runs-on: ubuntu-latest

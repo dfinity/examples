@@ -8,6 +8,7 @@ on:
       - rust/hello/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-hello-example.yml
 jobs:
   rust-hello-darwin:
     runs-on: macos-10.15

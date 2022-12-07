@@ -8,6 +8,7 @@ on:
       - rust/dip721-nft-container/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-dip721-example.yml
 jobs:
   rust-dip721-darwin:
     runs-on: macos-10.15

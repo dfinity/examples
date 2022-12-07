@@ -8,6 +8,7 @@ on:
       - rust/exchange_rate/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-exchange-rate-example.yaml
 jobs:
   build:
     runs-on: ubuntu-latest

@@ -8,6 +8,7 @@ on:
       - motoko/classes/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-classes-example.yaml
 jobs:
   motoko-classes-darwin:
     runs-on: macos-10.15

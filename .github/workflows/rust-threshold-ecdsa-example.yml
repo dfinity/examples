@@ -8,6 +8,7 @@ on:
       - rust/threshold-ecdsa/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-threshold-ecdsa-example.yml
 jobs:
   rust-threshold-ecdsa-darwin:
     runs-on: macos-10.15

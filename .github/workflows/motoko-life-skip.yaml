@@ -8,6 +8,7 @@ on:
       - motoko/life/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-life-example.yaml
 jobs:
   build:
     runs-on: ubuntu-latest

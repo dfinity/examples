@@ -8,6 +8,7 @@ on:
       - motoko/unity-webgl-template/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/hosting-unity-webgl-example.yaml
 jobs:
   hosting-unity-webgl-darwin:
     runs-on: macos-10.15

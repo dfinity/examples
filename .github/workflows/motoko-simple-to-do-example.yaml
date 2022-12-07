@@ -8,6 +8,7 @@ on:
       - motoko/simple-to-do/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-simple-to-do-example.yaml
 jobs:
   motoko-simple-to-do-example-darwin:
     runs-on: macos-10.15

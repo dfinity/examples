@@ -8,6 +8,7 @@ on:
       - motoko/factorial/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-factorial-example.yaml
 jobs:
   motoko-factorial-example-darwin:
     runs-on: macos-10.15

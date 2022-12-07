@@ -8,6 +8,7 @@ on:
       - rust/encrypted-notes-dapp/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-encrypted-notes-example.yml
 jobs:
   build:
     runs-on: ubuntu-latest

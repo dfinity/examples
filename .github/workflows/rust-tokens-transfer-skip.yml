@@ -8,6 +8,7 @@ on:
       - rust/tokens_transfer/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-tokens-transfer-example.yml
 jobs:
   build:
     runs-on: ubuntu-latest

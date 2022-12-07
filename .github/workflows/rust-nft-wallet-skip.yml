@@ -8,6 +8,7 @@ on:
       - rust/nft-wallet/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-nft-wallet-example.yml
 jobs:
   build:
     runs-on: ubuntu-latest

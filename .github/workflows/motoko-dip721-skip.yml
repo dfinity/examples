@@ -8,6 +8,7 @@ on:
       - motoko/dip721-nft-container/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-dip721-example.yml
 jobs:
   build:
     runs-on: ubuntu-latest
