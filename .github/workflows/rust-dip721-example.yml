@@ -11,7 +11,7 @@ on:
       - .github/workflows/rust-dip721-example.yml
 jobs:
   rust-dip721-darwin:
-    runs-on: macos-10.15
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v2
         with:
