@@ -11,7 +11,7 @@ on:
       - .github/workflows/rust-threshold-ecdsa-example.yml
 jobs:
   rust-threshold-ecdsa-darwin:
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin

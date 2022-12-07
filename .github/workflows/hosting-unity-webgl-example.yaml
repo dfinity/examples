@@ -11,7 +11,7 @@ on:
       - .github/workflows/hosting-unity-webgl-example.yaml
 jobs:
   hosting-unity-webgl-darwin:
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin

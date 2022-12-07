@@ -11,7 +11,7 @@ on:
       - .github/workflows/motoko-hello-world-example.yaml
 jobs:
   motoko-hello-world-example-darwin:
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin

@@ -11,7 +11,7 @@ on:
       - .github/workflows/motoko-minimal-counter-dapp-example.yaml
 jobs:
   motoko-minimal-counter-dapp-darwin:
-    runs-on: macos-11
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
