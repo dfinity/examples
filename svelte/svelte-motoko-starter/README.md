@@ -111,7 +111,7 @@ When the repository is cloned, switch to its directory and install it:
 ```
 cd internet-identity
 npm install
-II_ENV=development dfx deploy --no-wallet --argument '(null)'
+II_FETCH_ROOT_KEY=1 dfx deploy --no-wallet --argument '(null)'
 ```
 
 This will take several minutes to complete.
