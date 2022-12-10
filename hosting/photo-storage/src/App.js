@@ -10,7 +10,7 @@ import './App.css';
 const identity = Ed25519KeyIdentity.generate(new Uint8Array(Array.from({length: 32}).fill(0)));
 const isLocal = !window.location.host.endsWith('ic0.app');
 const agent = new HttpAgent({
-    host: isLocal ? 'http://127.0.0.1:8000' : 'https://ic0.app', identity,
+    host: isLocal ? `http://127.0.0.1:${window.location.port}` : 'https://ic0.app', identity,
 });
 if (isLocal) {
     agent.fetchRootKey();

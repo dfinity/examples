@@ -1,0 +1,49 @@
+name: hosting-photo-storage
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - hosting/photo-storage/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-basic-bitcoin-example.yml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rust-basic-bitcoin-darwin:
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: |
+          bash .github/workflows/provision-darwin.sh
+          brew install llvm
+      - name: Hosting Photo Storage Darwin
+        run: |
+          pushd hosting/photo-storage
+        # verify frontend deps install and build
+          npm ci
+          npm run build
+        # verify that frontend asset canister deploys
+          dfx start --background
+          dfx deploy
+          popd
+  rust-basic-bitcoin-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Hosting Photo Storage Linux
+        run: |
+          pushd hosting/photo-storage
+        # verify frontend deps install and build
+          npm ci
+          npm run build
+        # verify that frontend asset canister deploys
+          dfx start --background
+          dfx deploy
+          popd
