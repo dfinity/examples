@@ -39,3 +39,7 @@ These examples use a "conventional" front end component (via `React.Component`).
 - [`life`](https://github.com/dfinity/examples/tree/master/motoko/life) -- demonstrates upgrades among three versions and stable state migration.
 - [`phone-book`](https://github.com/dfinity/examples/tree/master/motoko/phone-book) -- CRUD-like demo service.
 - [`superheroes`](https://github.com/dfinity/examples/tree/master/motoko/superheroes) -- CRUD-like demo service.
+
+## Security Considerations and Security Best Practices
+
+If you base your application on one of these examples, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. The examples provided here may not implement all the best practices.

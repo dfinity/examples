@@ -16,7 +16,7 @@ module {
 
   // The fees for the various Bitcoin endpoints.
   let GET_BALANCE_COST_CYCLES : Cycles = 100_000_000;
-  let GET_UTXOS_COST_CYCLES : Cycles = 100_000_000;
+  let GET_UTXOS_COST_CYCLES : Cycles = 10_000_000_000;
   let GET_CURRENT_FEE_PERCENTILES_COST_CYCLES : Cycles = 100_000_000;
   let SEND_TRANSACTION_BASE_COST_CYCLES : Cycles = 5_000_000_000;
   let SEND_TRANSACTION_COST_CYCLES_PER_BYTE : Cycles = 20_000_000;

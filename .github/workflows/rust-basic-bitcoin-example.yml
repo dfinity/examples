@@ -4,13 +4,23 @@ on:
     branches:
       - master
   pull_request:
+    paths:
+      - rust/basic_bitcoin/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-basic-bitcoin-example.yml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
   rust-basic-bitcoin-darwin:
-    runs-on: macos-10.15
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
-        run: bash .github/workflows/provision-darwin.sh
+        run: |
+          bash .github/workflows/provision-darwin.sh
+          brew install llvm
       - name: Rust Basic Bitcoin Darwin
         run: |
           pushd rust/basic_bitcoin

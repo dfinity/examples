@@ -4,6 +4,13 @@ for Canisters, where canisters can make remote HTTP calls. Currently, the featur
 access secure (HTTPS) remote services that are served by nodes with IPv6 addresses. Trying to access
 non-secure HTTP services or services with only IPv4 addresses will trigger Internet Computer errors.
 
+## Security Considerations and Security Best Practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+
+For example, the following aspect is particularly relevant for this app:
+* [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since this is essential when e.g. displaying important financial data (in this case exchange rates) in the frontend that may be used by users to decide on future transactions (based on the rate information).
+
 ## How to use the sample dapp
 There are two parts to the sample dapp, the frontend UI canister `exchange_rate_assets`, and the
 backend provider canister `exchange_rate`. Users should be able to interact with only the frontend
@@ -53,10 +60,8 @@ On top of that, we cache data that's already fetched, to save from future user r
 triggering remote HTTP calls again.
 
 ## Dependencies
-- [ic-cdk v0.5.7](https://crates.io/crates/ic-cdk/0.5.7) or above
-- [dfx v0.12.0-beta.3](https://github.com/dfinity/sdk/releases/tag/0.12.0-beta.3) or above.
-Use below command to install:
-```DFX_VERSION=0.12.0-beta.3 sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"```
+- [ic-cdk v0.6.5](https://crates.io/crates/ic-cdk/0.6.5) or above
+- [dfx v0.12.0](https://github.com/dfinity/sdk/releases/tag/0.12.0) or above.
 
 ## Building the canister into wasm
 `cd rust/exchange_rate`

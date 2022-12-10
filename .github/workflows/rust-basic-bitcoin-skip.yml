@@ -1,0 +1,19 @@
+name: rust-basic-bitcoin
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths-ignore:
+      - rust/basic_bitcoin/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-basic-bitcoin-example.yml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Not needed - relevant folder not touched'
