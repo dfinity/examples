@@ -13,25 +13,23 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  rust-basic-bitcoin-darwin:
+  hosting-photo-storage-darwin:
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
-        run: |
-          bash .github/workflows/provision-darwin.sh
-          brew install llvm
+        run: bash .github/workflows/provision-darwin.sh
       - name: Hosting Photo Storage Darwin
         run: |
           pushd hosting/photo-storage
         # verify frontend deps install and build
-          npm ci
+          npm install
           npm run build
         # verify that frontend asset canister deploys
           dfx start --background
           dfx deploy
           popd
-  rust-basic-bitcoin-linux:
+  hosting-photo-storage-linux:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
@@ -41,7 +39,7 @@ jobs:
         run: |
           pushd hosting/photo-storage
         # verify frontend deps install and build
-          npm ci
+          npm install
           npm run build
         # verify that frontend asset canister deploys
           dfx start --background
