@@ -1,8 +1,5 @@
 name: motoko-counter
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - motoko/counter/**

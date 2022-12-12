@@ -1,8 +1,5 @@
 name: motoko-defi
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - motoko/defi/**

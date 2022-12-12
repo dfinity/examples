@@ -1,8 +1,5 @@
 name: motoko-encrypted-notes
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - motoko/encrypted-notes-dapp/**

@@ -1,8 +1,5 @@
 name: motoko-actor-reference
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - motoko/actor_reference/**

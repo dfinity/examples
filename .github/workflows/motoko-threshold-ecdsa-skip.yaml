@@ -1,8 +1,5 @@
 name: motoko-threshold-ecdsa
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - motoko/threshold-ecdsa/**

@@ -1,8 +1,5 @@
 name: rust-nft-wallet
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - rust/nft-wallet/**

@@ -1,8 +1,5 @@
 name: rust-basic-bitcoin
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - rust/basic_bitcoin/**
