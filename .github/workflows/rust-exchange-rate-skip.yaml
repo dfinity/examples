@@ -1,8 +1,5 @@
 name: rust-exchange-rate
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - rust/exchange_rate/**

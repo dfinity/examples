@@ -1,8 +1,5 @@
 name: rust-pub-sub
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - rust/pub-sub/**

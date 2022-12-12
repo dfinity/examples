@@ -1,8 +1,5 @@
 name: rust-tokens_transfer
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - rust/tokens_transfer/**

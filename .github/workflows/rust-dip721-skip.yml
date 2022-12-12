@@ -1,8 +1,5 @@
 name: rust-dip721
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - rust/dip721-nft-container/**
