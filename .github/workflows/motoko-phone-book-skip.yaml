@@ -1,8 +1,5 @@
 name: motoko-phone-book
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - motoko/phone-book/**

@@ -1,8 +1,5 @@
 name: motoko-classes
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - motoko/classes/**

@@ -1,8 +1,5 @@
 name: motoko-invoice-canister
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - motoko/invoice-canister/**

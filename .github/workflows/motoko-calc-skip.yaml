@@ -1,8 +1,5 @@
 name: motoko-calc
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - motoko/calc/**

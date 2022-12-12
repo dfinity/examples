@@ -1,8 +1,5 @@
 name: rust-threshold-ecdsa
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - rust/threshold-ecdsa/**

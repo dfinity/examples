@@ -1,8 +1,5 @@
 name: motoko-cert-var
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - motoko/cert-var/**

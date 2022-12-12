@@ -1,8 +1,5 @@
 name: motoko-ledger-transfer
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - motoko/ledger-transfer/**

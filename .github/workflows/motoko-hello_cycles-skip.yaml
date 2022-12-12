@@ -1,8 +1,5 @@
 name: motoko-hello_cycles
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - motoko/hello_cycles/**
