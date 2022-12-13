@@ -1,5 +1,5 @@
 <p align="left" >
-  <img width="240"  src="./assets/logo.png">
+  <img width="240"  src="assets/logo.png">
 </p>
 
 # Svelte Dapp with Motoko & Internet Identity
@@ -111,7 +111,7 @@ When the repository is cloned, switch to its directory and install it:
 ```
 cd internet-identity
 npm install
-II_ENV=development dfx deploy --no-wallet --argument '(null)'
+II_FETCH_ROOT_KEY=1 dfx deploy --no-wallet --argument '(null)'
 ```
 
 This will take several minutes to complete.

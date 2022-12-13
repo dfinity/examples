@@ -44,7 +44,7 @@ dfx canister call GoldenDIP20 setFee "(420)"
 
 ### === DEPLOY INTERNET IDENTITY =====
 
-II_ENV=development dfx deploy internet_identity --no-wallet --argument '(null)'
+II_FETCH_ROOT_KEY=1 dfx deploy internet_identity --no-wallet --argument '(null)'
 
 ## === INSTALL FRONTEND / BACKEND ==== 
 

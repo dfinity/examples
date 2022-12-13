@@ -1,0 +1,16 @@
+name: hosting-static-website
+on:
+  pull_request:
+    paths-ignore:
+      - hosting/static-website/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/hosting-static-website-example.yaml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Not needed - relevant folder not touched'
