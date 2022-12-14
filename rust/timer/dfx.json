@@ -1,0 +1,16 @@
+{
+  "canisters": {
+    "timer": {
+      "candid": "timer.did",
+      "package": "timer",
+      "type": "rust"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "version": 1
+}

@@ -1,0 +1,15 @@
+[package]
+name = "timer"
+version = "1.0.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+candid = "0.8.4"
+# Note: the Canister Timers functionality must be explicitly enabled
+ic-cdk = { version = "0.6.8", features = ["timers"] }
+ic-cdk-macros = "0.6.8"
