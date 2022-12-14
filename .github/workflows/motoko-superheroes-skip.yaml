@@ -1,8 +1,5 @@
 name: motoko-superheroes
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - motoko/superheroes/**

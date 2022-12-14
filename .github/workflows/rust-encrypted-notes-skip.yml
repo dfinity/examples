@@ -1,8 +1,5 @@
 name: rust-encrypted-notes
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - rust/encrypted-notes-dapp/**

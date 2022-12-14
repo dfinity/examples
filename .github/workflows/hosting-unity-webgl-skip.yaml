@@ -1,8 +1,5 @@
 name: hosting-unity-webgl
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - motoko/unity-webgl-template/**

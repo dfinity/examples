@@ -1,8 +1,5 @@
 name: motoko-simple-to-do
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - motoko/simple-to-do/**

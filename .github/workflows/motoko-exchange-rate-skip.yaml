@@ -1,8 +1,5 @@
 name: motoko-exchange-rate
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - motoko/exchange_rate/**

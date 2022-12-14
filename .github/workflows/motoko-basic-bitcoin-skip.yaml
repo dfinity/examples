@@ -1,8 +1,5 @@
 name: motoko-basic-bitcoin
 on:
-  push:
-    branches:
-      - master
   pull_request:
     paths-ignore:
       - motoko/basic_bitcoin/**
