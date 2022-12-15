@@ -1,7 +1,7 @@
 # Photo storage example
 
 The example shows how to store photos on the IC in an asset canister with the `@dfinity/assets` package. The photo
-storage app is deployed as frontend in an assets canister which is also used for photo upload.
+storage app is deployed as a frontend in an asset canister which is also used for photo upload.
 
 ## Installation
 
