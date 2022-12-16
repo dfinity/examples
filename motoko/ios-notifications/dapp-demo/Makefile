@@ -5,14 +5,13 @@ all: build
 .SILENT: build
 build:
 	dfx start --clean --background
-	npm i
-	dfx canister create --all
+	dfx canister create ios_notifications_api
 	dfx build
 
 .PHONY: install
 .SILENT: install
 install: build
-	dfx canister install --all --mode=auto
+	dfx canister install ios_notifications_api --mode=auto
 
 .PHONY: test
 .SILENT: test
