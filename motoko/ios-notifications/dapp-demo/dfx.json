@@ -1,0 +1,34 @@
+{
+  "canisters": {
+    "ios_notifications_api": {
+      "main": "src/api/main.mo",
+      "type": "motoko"
+    },
+    "internet_identity": {
+      "type": "custom",
+      "candid": "internet_identity.did",
+      "wasm": "internet_identity.wasm",
+      "build": "bash -c 'test -f internet_identity.wasm || curl -sSL https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm -o internet_identity.wasm; test -f internet_identity.did || curl -sSL https://raw.githubusercontent.com/dfinity/internet-identity/main/src/internet_identity/internet_identity.did -o internet_identity.did'",
+      "remote": {
+        "candid": "internet_identity.did",
+        "id": {
+          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+        }
+      }
+    },
+    "ios_notifications_www": {
+      "dependencies": [
+        "ios_notifications_api"
+      ],
+      "frontend": {
+        "entrypoint": "src/www/src/index.html"
+      },
+      "source": [
+        "src/www/assets",
+        "dist/www/src"
+      ],
+      "type": "assets"
+    }
+  },
+  "version": 1
+}
