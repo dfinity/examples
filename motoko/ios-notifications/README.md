@@ -61,7 +61,7 @@ You can now access the app at `http://localhost:4943/?canisterId={YOUR_LOCAL_CAN
 
 ## Internet Identity
 
-The integration of this dapp with the [internet identity]((https://internetcomputer.org/docs/current/developer-docs/integrations/internet-identity/integrate-identity)) enables authentication. 
+The integration of this dapp with the [internet identity](https://internetcomputer.org/docs/current/developer-docs/integrations/internet-identity/integrate-identity) enables authentication. 
 
 To support the IOS integration it uses the `delegation` and `key` made available in the browser IndexedDB. 
 
@@ -73,6 +73,32 @@ The steps for IOS authentication are:
 1. After authentication happens a local callback that only happens inside the device with the custom [app scheme](https://developer.apple.com/documentation/xcode/defining-a-custom-url-scheme-for-your-app) is made
 1. App receives this callback and injects the `delegation` and `key` into the local [WKWebView](https://developer.apple.com/documentation/webkit/wkwebview) 
 1. The webview reloads and the user is now authenticated, since authentication uses indexeddb it continuous to work after the user closes the app (respecting the expiration time of the session, max is 30 days)
+
+**Example of how this can be handled:**
+
+```ts
+async handleMultiPlatformLogin(): Promise<void> {
+    const key = await this.storage.get(KEY_STORAGE_KEY) ?? undefined;
+    const delegation = await this.storage.get(KEY_STORAGE_DELEGATION) ?? undefined;
+    const identityParam: IdentityParam = { key, delegation };
+    const preloadParam = Buffer.from(JSON.stringify(identityParam), "ascii").toString("base64");
+    const url = Auth.currentURL();
+
+    switch(this.loginType()) {
+        case AuthLoginType.Ios:
+            const iosCallback = new URL(url.searchParams.get(AuthLoginType.Ios) ?? "");
+            iosCallback.searchParams.append(Auth.identityPreloadProp, preloadParam);
+            // the redirect here triggers the custom app scheme
+            // such as dappexample://auth?_identity=...
+            // and this is what the app intercepts and handles
+            window.location.href = iosCallback.toString();
+            break;
+        default:
+            // desktop is enabled by default and doesn't need a special condition
+            break;
+    }
+}
+```
 
 ## Notifications
 
