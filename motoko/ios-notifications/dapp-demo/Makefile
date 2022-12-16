@@ -6,7 +6,7 @@ all: build
 build:
 	dfx start --clean --background
 	dfx canister create ios_notifications_api
-	dfx build
+	dfx build ios_notifications_api
 
 .PHONY: install
 .SILENT: install
