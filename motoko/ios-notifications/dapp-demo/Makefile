@@ -4,25 +4,19 @@ all: build
 .PHONY: build
 .SILENT: build
 build:
-	dfx canister create ios_notifications_api
+	dfx canister create --all
 	dfx build
 
 .PHONY: install
 .SILENT: install
 install: build
-	dfx canister install ios_notifications_api
-
-.PHONY: upgrade
-.SILENT: upgrade
-upgrade: build
-	dfx canister install ios_notifications_api --mode=upgrade
+	dfx canister install --all --mode=auto
 
 .PHONY: test
 .SILENT: test
 test: install
-	dfx canister call ios_notifications_api whoami
 	sh test_api.sh
-	echo "IOS NOTIFICATION TESTS PASSED"
+	echo "IOS NOTIFICATIONS TESTS PASSED"
 
 .PHONY: clean
 .SILENT: clean

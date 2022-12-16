@@ -32,6 +32,6 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko iOS Notifications Linux
         run: |
-          pushd motoko/ios-notifications-dapp/dapp-demo
+          pushd motoko/ios-notifications/dapp-demo
           make test
           popd
