@@ -4,6 +4,8 @@ all: build
 .PHONY: build
 .SILENT: build
 build:
+	dfx start --clean --background
+	npm i
 	dfx canister create --all
 	dfx build
 
