@@ -6,11 +6,10 @@
     },
     "internet_identity": {
       "type": "custom",
-      "candid": "internet_identity.did",
-      "wasm": "internet_identity.wasm",
-      "build": "bash -c 'test -f internet_identity.wasm || curl -sSL https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm -o internet_identity.wasm; test -f internet_identity.did || curl -sSL https://raw.githubusercontent.com/dfinity/internet-identity/main/src/internet_identity/internet_identity.did -o internet_identity.did'",
+      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm",
+      "shrink": false,
       "remote": {
-        "candid": "internet_identity.did",
         "id": {
           "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
         }
@@ -28,6 +27,11 @@
         "dist/www/src"
       ],
       "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": ""
     }
   },
   "version": 1
