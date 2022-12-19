@@ -72,7 +72,7 @@ The steps for IOS authentication are:
     1. This show's a confirmation dialog, informing the user that the app would like to authenticate using the internet identity domain  
 1. After authentication happens a local callback that only happens inside the device with the custom [app scheme](https://developer.apple.com/documentation/xcode/defining-a-custom-url-scheme-for-your-app) is made
 1. App receives this callback and injects the `delegation` and `key` into the local [WKWebView](https://developer.apple.com/documentation/webkit/wkwebview) 
-1. The webview reloads and the user is now authenticated, since authentication uses indexeddb it continuous to work after the user closes the app (respecting the expiration time of the session, max is 30 days)
+1. The webview reloads and the user is now authenticated, since authentication uses indexeddb it continues to work after the user closes the app (expiration time of the session is kept, max is 30 days)
 
 **Example of how this can be handled:**
 
@@ -123,4 +123,10 @@ For specific implementation details defer to:
 
 ## Disclaimer
 
-This is an example dapp that demonstrates the potential of integrating a dapp with native apps. Please be mindful when considering this code for production, specially about your APN Certificate Key provided by apple and how to store this information.
+This is an example dapp that demonstrates the potential of integrating a dapp with native apps. 
+
+Please be mindful when considering this code for production and be mindful of:
+
+1. The integration with II in this example is using a local app scheme:// which is known to be vulnerable to App-in-the-Middle attacks where multiple app's would try to claim the same scheme. To prevent this in your production code you should look at setting up [universal links](https://developer.apple.com/documentation/xcode/supporting-universal-links-in-your-app).
+1. APN Certificate Key provided by apple needs to be safely stored to avoid a malicious actor from being able to send notitications to your app users.
+
