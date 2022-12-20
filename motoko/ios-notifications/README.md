@@ -127,6 +127,5 @@ This is an example dapp that demonstrates the potential of integrating a dapp wi
 
 Please be mindful when considering this code for production and be mindful of:
 
-1. The integration with II in this example is using a local app scheme:// which is known to be vulnerable to App-in-the-Middle attacks where multiple app's would try to claim the same scheme. To prevent this in your production code you should look at setting up [universal links](https://developer.apple.com/documentation/xcode/supporting-universal-links-in-your-app).
+1. The integration with II in this example is using a universal links which is known to be safer than custom app schemes that are not bound to the appID. To enable this in your production code you should look at setting up [universal links](https://developer.apple.com/documentation/xcode/supporting-universal-links-in-your-app).
 1. APN Certificate Key provided by apple needs to be safely stored to avoid a malicious actor from being able to send notitications to your app users.
-
