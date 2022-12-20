@@ -24,7 +24,7 @@ The example dapp used for this example is hosted under [https://ptf55-faaaa-aaaa
 
 ### Demo
 
-https://user-images.githubusercontent.com/119848388/207932222-1baa754c-58f2-4ba7-94a7-a0948344dc3f.mov
+https://user-images.githubusercontent.com/119848388/208689656-02a3e25e-260d-4c00-b2b0-553afa0fdfea.mov
 
 ## Development
 
