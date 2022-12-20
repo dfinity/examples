@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-class LoadingScreen: UIViewController {
+public class LoadingScreen: UIViewController {
     var loadingActivityIndicator: UIActivityIndicatorView = {
         let indicator = UIActivityIndicatorView()
         
@@ -34,7 +34,7 @@ class LoadingScreen: UIViewController {
         return blurEffectView
     }()
     
-    override func viewDidLoad() {
+    override public func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = UIColor.black.withAlphaComponent(0.5)

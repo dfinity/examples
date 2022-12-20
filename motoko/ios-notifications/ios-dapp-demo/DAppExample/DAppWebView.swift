@@ -13,14 +13,13 @@ import AuthenticationServices
 /// A container for using a WKWebView in SwiftUI
 public struct DAppWebView: UIViewRepresentable {
     /// The dapp to display
-    private let url: URL
-    private let webView: WKWebView
-    private let appScheme: String
-    private let loading: LoadingScreen
+    public let dapp: DappConfig
+    public let webView: WKWebView
+    public let loading: LoadingScreen
+    public var loginSession: LoginSession?
   
     public init(dapp: DappConfig) {
-        self.url = dapp.url
-        self.appScheme = dapp.scheme
+        self.dapp = dapp
 
         let configuration = WKWebViewConfiguration()
         configuration.limitsNavigationsToAppBoundDomains = true
@@ -39,7 +38,7 @@ public struct DAppWebView: UIViewRepresentable {
     public func updateUIView(_ uiView: WKWebView, context: UIViewRepresentableContext<DAppWebView>) {
         uiView.window?.rootViewController?.present(self.loading, animated: true)
 
-        let request = URLRequest(url: self.url)
+        let request = URLRequest(url: self.dapp.url)
         uiView.load(request)
     }
     
@@ -48,7 +47,7 @@ public struct DAppWebView: UIViewRepresentable {
     }
     
     public class WebViewCoordinator: NSObject, WKUIDelegate, WKNavigationDelegate {
-        let parent: DAppWebView
+        var parent: DAppWebView
         
         init(_ parent: DAppWebView) {
             self.parent = parent
@@ -74,58 +73,11 @@ public struct DAppWebView: UIViewRepresentable {
             return view
         }
         
-        public class LoginSession: NSObject, ObservableObject, ASWebAuthenticationPresentationContextProviding {
-            private let parent: DAppWebView
-            // callback used by the dapp to login the user
-            private let authCallback: String
-            private let authQueryHandleParam = "ioshandle"
-            private let identityProp = "_identity"
-            
-            init(_ parent: DAppWebView) {
-                self.parent = parent
-                self.authCallback = parent.appScheme + "://auth"
-
-                super.init()
-            }
-
-            public func presentationAnchor(for session: ASWebAuthenticationSession) -> ASPresentationAnchor {
-                return ASPresentationAnchor()
-            }
-
-            public func start() {
-                var loginUrl = parent.url
-                loginUrl.append(queryItems: [URLQueryItem(name: authQueryHandleParam, value: authCallback)])
-
-                let authSession = ASWebAuthenticationSession(url: loginUrl, callbackURLScheme: parent.appScheme, completionHandler: { (callbackURL, error) in
-                    guard error == nil, let successURL = callbackURL else {
-                      print("Failed to authenticate")
-                      return
-                    }
-
-                    let identityToken = NSURLComponents(string: (successURL.absoluteString))?.queryItems?.filter({$0.name == self.identityProp}).first?.value ?? ""
-                    
-                    DispatchQueue.main.async {
-                        let identityScript = """
-                            window['\(self.identityProp)'] = '\(identityToken)';
-                        """
-                        let userScript = WKUserScript(source: identityScript, injectionTime: .atDocumentStart, forMainFrameOnly: true)
-                        self.parent.webView.configuration.userContentController.addUserScript(userScript)
-
-                        self.parent.webView.window?.rootViewController?.present(self.parent.loading, animated: true)
-                        self.parent.webView.reload()
-                    }
-                })
-                
-                authSession.prefersEphemeralWebBrowserSession = false
-                authSession.presentationContextProvider = self
-                authSession.start()
-            }
-        }
-        
         public func webView(_ webView: WKWebView, createWebViewWith configuration: WKWebViewConfiguration, for navigationAction: WKNavigationAction, windowFeatures: WKWindowFeatures) -> WKWebView? {
             if (navigationAction.targetFrame == nil) {
-                LoginSession(self.parent).start()
-                
+                parent.loginSession = LoginSession(self.parent)
+                parent.loginSession?.start()
+
                 return nil
             }
             

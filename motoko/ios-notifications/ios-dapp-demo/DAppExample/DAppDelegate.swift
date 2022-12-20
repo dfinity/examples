@@ -55,6 +55,6 @@ class DAppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDel
         dapp.deviceToken = deviceToken.hexString
         // for this example we print the device token to the console to be used in send-notification.sh, however, in a real
         // use case the token should be stored in a canister associated with the authenticated user
-        print(deviceToken.hexString)
+        print("device id: " + deviceToken.hexString)
     }
 }

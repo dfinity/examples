@@ -14,18 +14,9 @@ struct ContentView: View {
     var body: some View {
         DAppWebView(dapp: dapp)
             .onOpenURL{ url in
-                guard url.scheme?.hasPrefix(dapp.scheme) ?? false else { return }
+                guard url.path().hasPrefix(URL(string: dapp.authCallbackURL)!.path()) else { return }
                 
-                let components = URLComponents(string: url.absoluteString)
-                if (components?.host == "navigate") {
-                    let navigateTo = components?.queryItems?.filter({$0.name == "to"}).first?.value
-                    guard navigateTo != nil else { return }
-                    
-                    let deepLink = URL(string: navigateTo!)!
-                    if dapp.isAllowedDeepLink(url: deepLink) {
-                        dapp.url = deepLink
-                    }
-                }
+                dapp.loginSession?.identityCallbackHook(successURL: url)
             }
     }
 }
