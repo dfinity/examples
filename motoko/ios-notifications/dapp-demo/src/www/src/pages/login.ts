@@ -5,12 +5,12 @@ import { Page, PageOptions } from "../types";
 
 enum LoginPlatform {
   Desktop,
-  Ios
+  Mobile
 }
 
 const content = (platform: LoginPlatform) => {
   switch (platform) {
-    case LoginPlatform.Ios:
+    case LoginPlatform.Mobile:
       return html`<div class="container">
         <button type="button" id="loginButton">continue</button>
       </div>`;
@@ -27,8 +27,8 @@ const content = (platform: LoginPlatform) => {
 export class LoginPage implements Page {
   async render({ auth, router }: PageOptions): Promise<void> {
     let platform = LoginPlatform.Desktop;
-    if (auth.loginType() === AuthLoginType.Ios) {
-      platform = LoginPlatform.Ios;
+    if (auth.loginType() === AuthLoginType.Mobile) {
+      platform = LoginPlatform.Mobile;
     }
 
     render(content(platform), document.getElementById("pageContent") as HTMLElement);

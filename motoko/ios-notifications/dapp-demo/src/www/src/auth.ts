@@ -9,7 +9,7 @@ import {
 
 export enum AuthLoginType {
   Desktop,
-  Ios = "ioshandle",
+  Mobile = "callback_url",
 }
 
 export type IdentityParam = {
@@ -18,7 +18,7 @@ export type IdentityParam = {
 }
 
 export class Auth {
-  private static identityPreloadProp = "_identity";
+  private static identityQueryItem = "_identity";
   private storage!: AuthClientStorage;
   private authClient!: AuthClient;
   private days = BigInt(1);
@@ -53,8 +53,8 @@ export class Auth {
   }
 
   public loginType(): AuthLoginType {
-    if (Auth.currentURL().searchParams.has(AuthLoginType.Ios)) {
-      return AuthLoginType.Ios;
+    if (Auth.currentURL().searchParams.has(AuthLoginType.Mobile)) {
+      return AuthLoginType.Mobile;
     }
 
     return AuthLoginType.Desktop;
@@ -99,11 +99,11 @@ export class Auth {
     storage: AuthClientStorage
   ): Promise<void> {
     const url = Auth.currentURL();
-    if (!window[Auth.identityPreloadProp]) {
+    if (!window[Auth.identityQueryItem]) {
         return;
     }
 
-    const identityBase64 = String(window[Auth.identityPreloadProp] ?? "");
+    const identityBase64 = String(window[Auth.identityQueryItem] ?? "");
     const identityParam = Buffer.from(identityBase64, "base64").toString("ascii");
     const preload: IdentityParam = JSON.parse(identityParam);
 
@@ -124,10 +124,17 @@ export class Auth {
     const url = Auth.currentURL();
 
     switch(this.loginType()) {
-        case AuthLoginType.Ios:
-            const iosCallback = new URL(url.searchParams.get(AuthLoginType.Ios) ?? "");
-            iosCallback.searchParams.append(Auth.identityPreloadProp, preloadParam);
-            window.location.href = iosCallback.toString();
+        case AuthLoginType.Mobile:
+            const callback = url.searchParams.get(AuthLoginType.Mobile);
+            const authCallback = new URL(url.searchParams.get(AuthLoginType.Mobile) ?? "");
+            if (!callback?.length || authCallback.protocol !== "https:") {
+              throw new Error("Invalid callback url");
+            }
+
+            authCallback.searchParams.append(Auth.identityQueryItem, preloadParam);
+
+            // apple universal links require the user to tap to trigger the native app to handle the url
+            document.write(`<a href="${authCallback.toString()}" class="button">back to app</a>`);
             break;
         default:
             // desktop is enabled by default and doesn't need a special condition
