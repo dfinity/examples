@@ -14,7 +14,8 @@
   "devDependencies": {
     "@babel/core": "^7.16.12",
     "@babel/preset-env": "^7.16.11",
-    "@dfinity/principal": "^0.10.2",
+    "@dfinity/principal": "^0.15.1",
+    "@dfinity/identity": "^0.15.1",
     "babel-jest": "^27.4.6",
     "babel-loader": "^8.2.3",
     "eslint": "^8.7.0",
@@ -28,7 +29,6 @@
     "webpack-dev-server": "^4.7.3"
   },
   "dependencies": {
-    "@dfinity/identity": "^0.10.2",
     "sha256": "^0.2.0"
   }
 }
