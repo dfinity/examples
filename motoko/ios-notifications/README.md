@@ -70,7 +70,7 @@ The steps for IOS authentication are:
 1. User clicks to authenticate (this triggers the window.open to be called)
 1. App intercepts the request and opens a new [ASWebAuthenticationSession](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession)
     1. This show's a confirmation dialog, informing the user that the app would like to authenticate using the internet identity domain  
-1. After authentication happens a local callback that only happens inside the device with the custom [app scheme](https://developer.apple.com/documentation/xcode/defining-a-custom-url-scheme-for-your-app) is made
+1. After authentication happens a local callback that only happens inside the device with the [universal link](https://developer.apple.com/documentation/xcode/supporting-universal-links-in-your-app) is made
 1. App receives this callback and injects the `delegation` and `key` into the local [WKWebView](https://developer.apple.com/documentation/webkit/wkwebview) 
 1. The webview reloads and the user is now authenticated, since authentication uses indexeddb it continues to work after the user closes the app (expiration time of the session is kept, max is 30 days)
 
@@ -88,7 +88,7 @@ async handleMultiPlatformLogin(): Promise<void> {
         case AuthLoginType.Ios:
             const iosCallback = new URL(url.searchParams.get(AuthLoginType.Ios) ?? "");
             iosCallback.searchParams.append(Auth.identityPreloadProp, preloadParam);
-            // the redirect here triggers the custom app scheme
+            // the redirect here triggers the app universal link
             // such as dappexample://auth?_identity=...
             // and this is what the app intercepts and handles
             window.location.href = iosCallback.toString();
