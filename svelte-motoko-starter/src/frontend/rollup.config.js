@@ -4,9 +4,9 @@ import resolve from "@rollup/plugin-node-resolve";
 import livereload from "rollup-plugin-livereload";
 import { terser } from "rollup-plugin-terser";
 import css from "rollup-plugin-css-only";
-import replace from "@rollup/plugin-replace";
 import inject from "rollup-plugin-inject";
 import json from "@rollup/plugin-json";
+import injectProcessEnv from "rollup-plugin-inject-process-env";
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -48,8 +48,6 @@ function initCanisterIds() {
   const network =
     process.env.DFX_NETWORK ||
     (process.env.NODE_ENV === "production" ? "ic" : "local");
-
-  console.log(network);
 
   const canisterIds =
     network === "local"
@@ -114,29 +112,25 @@ export default {
       browser: true,
       dedupe: ["svelte"],
     }),
-    // Add canister ID's & network to the environment
-    replace(
-      Object.assign(
-        {
-          "process.env.DFX_NETWORK": JSON.stringify(network),
-          "process.env.NODE_ENV": JSON.stringify(
-            production ? "production" : "development"
-          ),
-        },
+
+    commonjs(),
+    json(),
+    inject({
+      Buffer: ["buffer", "Buffer"],
+    }),
+    injectProcessEnv({
+      DFX_NETWORK: network,
+      NODE_ENV: production ? "production" : "development",
+      ...Object.assign(
+        {},
         ...Object.keys(canisterIds)
           .filter((canisterName) => canisterName !== "__Candid_UI")
           .map((canisterName) => ({
-            ["process.env." + canisterName.toUpperCase() + "_CANISTER_ID"]:
-              JSON.stringify(canisterIds[canisterName][network]),
+            [canisterName.toUpperCase() + "_CANISTER_ID"]:
+              canisterIds[canisterName][network],
           }))
-      )
-    ),
-    commonjs(),
-    inject({
-      Buffer: ["buffer", "Buffer"],
-      process: "process/browser",
+      ),
     }),
-    json(),
 
     // In dev mode, call `npm run start` once
     // the bundle has been generated
@@ -152,5 +146,18 @@ export default {
   ],
   watch: {
     clearScreen: false,
+  },
+  onwarn: function (warning) {
+    if (
+      [
+        "CIRCULAR_DEPENDENCY",
+        "THIS_IS_UNDEFINED",
+        "EVAL",
+        "NAMESPACE_CONFLIC",
+      ].includes(warning.code)
+    ) {
+      return;
+    }
+    console.warn(warning.message);
   },
 };

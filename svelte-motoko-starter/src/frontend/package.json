@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
+    "build": "NODE_ENV=production rollup -c",
+    "dev": "NODE_ENV=development rollup -c -w",
     "start": "sirv public --no-clear"
   },
   "devDependencies": {
@@ -22,9 +22,9 @@
     "svelte": "^3.0.0"
   },
   "dependencies": {
-    "@dfinity/agent": "^0.10.1",
-    "@dfinity/auth-client": "^0.10.1",
-    "@dfinity/identity": "^0.10.1",
+    "@dfinity/agent": "^0.15.1",
+    "@dfinity/auth-client": "^0.15.1",
+    "@dfinity/identity": "^0.15.1",
     "sirv-cli": "^1.0.0"
   }
 }

@@ -9,10 +9,18 @@
     "Canister",
     "Internet Identity"
   ],
+  "workspaces": [
+    "src/frontend"
+  ],
+  "engines": {
+    "node": "^12 || ^14 || ^16",
+    "npm": "^7.17"
+  },
   "scripts": {
-    "build": "cd src/frontend && npm run build",
+    "build": "npm run build --workspaces",
     "prebuild": "npm run copy:types",
-    "dev": "cd src/frontend && npm run dev",
+    "dev": "npm run dev --workspace src/frontend",
+    "start": "npm run dev --workspace src/frontend",
     "prestart": "npm run copy:types",
     "copy:types": "rsync -avr .dfx/$(echo ${DFX_NETWORK:-'**'})/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --delete src/declarations"
   }
