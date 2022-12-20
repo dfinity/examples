@@ -1,0 +1,22 @@
+{
+  "canisters": {
+    "counter": {
+      "candid": "counter.did",
+      "package": "counter",
+      "type": "rust"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
+}

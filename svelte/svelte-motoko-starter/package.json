@@ -1,0 +1,27 @@
+{
+  "name": "svelte-motoko-starter",
+  "version": "0.1.0",
+  "description": "Internet Computer starter application",
+  "keywords": [
+    "Internet Computer",
+    "Motoko",
+    "Svelte",
+    "Canister",
+    "Internet Identity"
+  ],
+  "workspaces": [
+    "src/frontend"
+  ],
+  "engines": {
+    "node": "^12 || ^14 || ^16",
+    "npm": "^7.17"
+  },
+  "scripts": {
+    "build": "npm run build --workspaces",
+    "prebuild": "npm run copy:types",
+    "dev": "npm run dev --workspace src/frontend",
+    "start": "npm run dev --workspace src/frontend",
+    "prestart": "npm run copy:types",
+    "copy:types": "rsync -avr .dfx/$(echo ${DFX_NETWORK:-'**'})/canisters/** --exclude='assets' --exclude='idl/' --exclude='*.wasm' --delete src/declarations"
+  }
+}

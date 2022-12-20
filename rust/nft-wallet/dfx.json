@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "canisters": {
+    "nftwallet": {
+      "type": "rust",
+      "candid": "nftwallet.did",
+      "package": "nftwallet"
+    },
+    "internet_identity": {
+      "type": "custom",
+      "candid": "internet-identity/internet_identity.did",
+      "wasm": "internet-identity/internet_identity.wasm"
+    }
+  }
+}

@@ -1,7 +1,7 @@
 {
   "canisters": {
     "random_maze": {
-      "main": "src/random_maze/main.mo",
+      "main": "src/random_maze/Main.mo",
       "type": "motoko"
     },
     "random_maze_assets": {
@@ -21,13 +21,6 @@
   "defaults": {
     "build": {
       "packtool": ""
-    }
-  },
-  "dfx": "0.8.5",
-  "networks": {
-    "local": {
-      "bind": "127.0.0.1:8000",
-      "type": "ephemeral"
     }
   },
   "version": 1

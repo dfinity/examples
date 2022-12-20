@@ -23,6 +23,10 @@ Each new `Bucket` must be provisioned with enough cycles to pay for its installa
 The [Test.mo](./src/test/Test.mo) actor imports the (installed) `Map` canister, using `Maps` Candid interface to determine its Motoko type.
 `Test`'s `run` method simply `put`s 24 consecutive entries into `Map`. These entries are distributed evenly amongst the buckets making up the key-value store. Adding the first entry to a bucket take longer than adding a subsequent one, since the bucket needs to be installed on first use.
 
+## Security Considerations and Security Best Practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+
 ## Prerequisites
 
 Verify the following before running this demo:

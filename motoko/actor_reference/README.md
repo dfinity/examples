@@ -90,3 +90,7 @@ General background:
 - [Developer's Guide](https://sdk.dfinity.org/developers-guide)
 - [Language Guide](https://sdk.dfinity.org/language-guide)
 - [Interface Computer Interface Specification, The IC management canister](https://sdk.dfinity.org/docs/interface-spec/index.html#ic-management-canister)
+
+# Security Considerations and Security Best Practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.

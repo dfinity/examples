@@ -1,0 +1,199 @@
+type VerifyInvoiceSuccess = 
+ variant {
+   AlreadyVerified: record {invoice: Invoice;};
+   Paid: record {invoice: Invoice;};
+ };
+type VerifyInvoiceResult = 
+ variant {
+   err: VerifyInvoiceErr;
+   ok: VerifyInvoiceSuccess;
+ };
+type VerifyInvoiceErr = 
+ record {
+   kind:
+    variant {
+      Expired;
+      InvalidAccount;
+      InvalidInvoiceId;
+      InvalidToken;
+      NotAuthorized;
+      NotFound;
+      NotYetPaid;
+      Other;
+      TransferError;
+    };
+   message: opt text;
+ };
+type VerifyInvoiceArgs = record {id: nat;};
+type TransferSuccess = record {blockHeight: nat64;};
+type TransferResult = 
+ variant {
+   err: TransferError;
+   ok: TransferSuccess;
+ };
+type TransferError = 
+ record {
+   kind:
+    variant {
+      BadFee;
+      InsufficientFunds;
+      InvalidDestination;
+      InvalidToken;
+      Other;
+    };
+   message: opt text;
+ };
+type TransferArgs = 
+ record {
+   amount: nat;
+   destination: AccountIdentifier;
+   token: Token;
+ };
+type TokenVerbose = 
+ record {
+   decimals: int;
+   meta: opt record {Issuer: text;};
+   symbol: text;
+ };
+type Token = record {symbol: text;};
+type Time = int;
+type Permissions = 
+ record {
+   canGet: vec principal;
+   canVerify: vec principal;
+ };
+type Invoice = 
+ record {
+   amount: nat;
+   amountPaid: nat;
+   creator: principal;
+   destination: AccountIdentifier;
+   details: opt Details;
+   id: nat;
+   paid: bool;
+   permissions: opt Permissions;
+   token: TokenVerbose;
+   verifiedAtTime: opt Time;
+ };
+type GetInvoiceSuccess = record {invoice: Invoice;};
+type GetInvoiceResult = 
+ variant {
+   err: GetInvoiceErr;
+   ok: GetInvoiceSuccess;
+ };
+type GetInvoiceErr = 
+ record {
+   kind: variant {
+           InvalidInvoiceId;
+           NotAuthorized;
+           NotFound;
+           Other;
+         };
+   message: opt text;
+ };
+type GetInvoiceArgs = record {id: nat;};
+type GetBalanceSuccess = record {balance: nat;};
+type GetBalanceResult = 
+ variant {
+   err: GetBalanceErr;
+   ok: GetBalanceSuccess;
+ };
+type GetBalanceErr = 
+ record {
+   kind: variant {
+           InvalidToken;
+           NotFound;
+           Other;
+         };
+   message: opt text;
+ };
+type GetBalanceArgs = record {token: Token;};
+type GetAccountIdentifierSuccess = record {
+                                     accountIdentifier: AccountIdentifier;};
+type GetAccountIdentifierResult = 
+ variant {
+   err: GetAccountIdentifierErr;
+   ok: GetAccountIdentifierSuccess;
+ };
+type GetAccountIdentifierErr = 
+ record {
+   kind: variant {
+           InvalidToken;
+           Other;
+         };
+   message: opt text;
+ };
+type GetAccountIdentifierArgs = 
+ record {
+   "principal": principal;
+   token: Token;
+ };
+type Details = 
+ record {
+   description: text;
+   meta: blob;
+ };
+type CreateInvoiceSuccess = record {invoice: Invoice;};
+type CreateInvoiceResult = 
+ variant {
+   err: CreateInvoiceErr;
+   ok: CreateInvoiceSuccess;
+ };
+type CreateInvoiceErr = 
+ record {
+   kind:
+    variant {
+      BadSize;
+      InvalidAmount;
+      InvalidDestination;
+      InvalidDetails;
+      InvalidToken;
+      MaxInvoicesReached;
+      Other;
+    };
+   message: opt text;
+ };
+type CreateInvoiceArgs = 
+ record {
+   amount: nat;
+   details: opt Details;
+   permissions: opt Permissions;
+   token: Token;
+ };
+type AccountIdentifier__1 = 
+ variant {
+   "blob": blob;
+   "principal": principal;
+   "text": text;
+ };
+type AccountIdentifierToBlobSuccess = blob;
+type AccountIdentifierToBlobResult = 
+ variant {
+   err: AccountIdentifierToBlobErr;
+   ok: AccountIdentifierToBlobSuccess;
+ };
+type AccountIdentifierToBlobErr = 
+ record {
+   kind: variant {
+           InvalidAccountIdentifier;
+           Other;
+         };
+   message: opt text;
+ };
+type AccountIdentifier = 
+ variant {
+   "blob": blob;
+   "principal": principal;
+   "text": text;
+ };
+service : {
+  accountIdentifierToBlob: (AccountIdentifier__1) ->
+   (AccountIdentifierToBlobResult);
+  create_invoice: (CreateInvoiceArgs) -> (CreateInvoiceResult);
+  get_account_identifier: (GetAccountIdentifierArgs) ->
+   (GetAccountIdentifierResult) query;
+  get_balance: (GetBalanceArgs) -> (GetBalanceResult);
+  get_invoice: (GetInvoiceArgs) -> (GetInvoiceResult) query;
+  transfer: (TransferArgs) -> (TransferResult);
+  verify_invoice: (VerifyInvoiceArgs) -> (VerifyInvoiceResult);
+}

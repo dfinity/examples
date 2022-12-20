@@ -1,0 +1,21 @@
+{
+  "canisters": {
+    "www": {
+      "frontend": {
+        "entrypoint": "assets/src/index.html"
+      },
+      "source": [
+        "assets/assets",
+        "assets/src"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "version": 1
+}

@@ -1,6 +1,5 @@
 // Publisher
-
-import Array "mo:base/Array";
+import List "mo:base/List";
 
 actor Publisher {
 
@@ -14,17 +13,17 @@ actor Publisher {
     callback : shared Counter -> ();
   };
 
-  var subscribers : [Subscriber] = [];
+  stable var subscribers = List.nil<Subscriber>();
 
   public func subscribe(subscriber : Subscriber) {
-    subscribers := Array.append<Subscriber>(subscribers, [subscriber]);
+    subscribers := List.push(subscriber, subscribers);
   };
 
   public func publish(counter : Counter) {
-    for (subscriber in subscribers.vals()) {
+    for (subscriber in List.toArray(subscribers).vals()) {
       if (subscriber.topic == counter.topic) {
         subscriber.callback(counter);
       };
     };
   };
-};
+}

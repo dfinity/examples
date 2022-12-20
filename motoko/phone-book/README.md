@@ -17,6 +17,14 @@ The application is built from the following Motoko source code files:
 *  `Main.mo`, which contains the actor definition and methods exposed by this
    canister.
 
+## Security Considerations and Security Best Practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+
+For example, the following aspects are particularly relevant for this app:
+* [Use HTTP asset certification and avoid serving your dApp through raw.ic0.app](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#use-http-asset-certification-and-avoid-serving-your-dapp-through-rawic0app), since this app serves a frontend.
+* [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since the canister serves query calls and the frontend uses them.
+
 ## Prerequisites
 
 Verify the following before running this demo:
@@ -39,28 +47,16 @@ Verify the following before running this demo:
 
 1. Open a new terminal window.
 
-1. Reserve an identifier for your canister.
-
-   ```text
-   dfx canister create --all
-   ```
-
-1. Build your front-end.
+1. Install front-end dependencies.
 
    ```text
    npm install
    ```
 
-1. Build your canister.
+1. Deploy your canister to the local internet computer.
 
    ```text
-   dfx build
-   ```
-
-1. Deploy your canister.
-
-   ```text
-   dfx canister install --all
+   dfx deploy
    ```
 
 1. Take note of the URL at which the phone book is accessible.

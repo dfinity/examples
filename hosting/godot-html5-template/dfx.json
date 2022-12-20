@@ -1,0 +1,15 @@
+{
+  "canisters": {
+    "godot_html5_assets": {
+      "frontend": {
+        "entrypoint": "src/godot_html5_assets/src/index.html"
+      },
+      "source": [
+        "src/godot_html5_assets/assets",
+        "src/godot_html5_assets/src"
+      ],
+      "type": "assets"
+    }
+  },
+  "version": 1
+}

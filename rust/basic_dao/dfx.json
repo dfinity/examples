@@ -1,0 +1,9 @@
+{
+  "canisters": {
+    "basic_dao": {
+      "candid": "src/basic_dao/src/basic_dao.did",
+      "type": "rust",
+      "package": "basic_dao"
+    }
+  }
+}

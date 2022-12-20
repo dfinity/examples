@@ -1,0 +1,62 @@
+{
+  "name": "invoice-canister",
+  "version": "1.0.0",
+  "description": "This project will provide an example and simplified experience for accepting payments in smart contracts.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "test"
+  },
+  "dependencies": {
+    "@dfinity/agent": "^0.10.3",
+    "@dfinity/candid": "^0.10.3",
+    "@dfinity/principal": "^0.10.3",
+    "@dfinity/identity": "^0.10.3",
+    "base64-arraybuffer": "^0.2.0",
+    "base64-js": "^1.5.1",
+    "bignumber.js": "^9.0.2",
+    "borc": "^2.1.2",
+    "buffer": "^5.7.1",
+    "cli-progress": "^3.10.0",
+    "commander": "^2.20.3",
+    "data-uri-to-buffer": "^4.0.0",
+    "delimit-stream": "^0.1.0",
+    "fetch-blob": "^3.1.3",
+    "formdata-polyfill": "^4.0.10",
+    "ieee754": "^1.2.1",
+    "inherits": "^2.0.4",
+    "iso-url": "^0.4.7",
+    "isomorphic-fetch": "^3.0.0",
+    "js-sha256": "^0.9.0",
+    "json-text-sequence": "^0.1.1",
+    "node-fetch": "^3.2.10",
+    "readable-stream": "^3.6.0",
+    "safe-buffer": "^5.2.1",
+    "simple-cbor": "^0.4.1",
+    "string_decoder": "^1.3.0",
+    "tr46": "^0.0.3",
+    "util-deprecate": "^1.0.2",
+    "web-streams-polyfill": "^3.2.0",
+    "webidl-conversions": "^3.0.1",
+    "whatwg-fetch": "^3.6.2",
+    "whatwg-url": "^5.0.0"
+  },
+  "scripts": {
+    "test": "cd test/e2e; npm ci; npm test --verbose"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dfinity/invoice-canister.git"
+  },
+  "keywords": [],
+  "author": "Kyle Peacock",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dfinity/invoice-canister/issues"
+  },
+  "homepage": "https://github.com/dfinity/invoice-canister#readme",
+  "devDependencies": {
+    "@babel/core": "^7.17.5",
+    "@babel/node": "^7.16.8"
+  }
+}

@@ -1,6 +1,5 @@
 {
   "version": 1,
-  "dfx": "0.8.5",
   "canisters": {
     "actor_reference": {
       "type": "motoko",
@@ -10,12 +9,6 @@
   "defaults": {
     "build": {
       "packtool": ""
-    }
-  },
-  "networks": {
-    "local": {
-      "bind": "127.0.0.1:8000",
-      "type": "ephemeral"
     }
   }
 }
