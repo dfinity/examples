@@ -16,3 +16,6 @@ dist/
 .env
 
 src/declarations
+
+internet_identity.did
+internet_identity.wasm
