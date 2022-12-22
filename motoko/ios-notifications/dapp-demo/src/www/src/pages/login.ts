@@ -1,11 +1,11 @@
 import { html, render } from "lit-html";
 import { RouteName } from ".";
-import { AuthLoginType } from "../auth";
+import { AuthLoginType, MultiPlatformLoggedInAction } from "../auth";
 import { Page, PageOptions } from "../types";
 
 enum LoginPlatform {
   Desktop,
-  Mobile
+  Mobile,
 }
 
 const content = (platform: LoginPlatform) => {
@@ -31,12 +31,18 @@ export class LoginPage implements Page {
       platform = LoginPlatform.Mobile;
     }
 
-    render(content(platform), document.getElementById("pageContent") as HTMLElement);
+    render(
+      content(platform),
+      document.getElementById("pageContent") as HTMLElement
+    );
 
-    (document.getElementById("loginButton") as HTMLButtonElement).onclick = 
+    (document.getElementById("loginButton") as HTMLButtonElement).onclick =
       async () => {
         auth.login(async () => {
-          await auth.handleMultiPlatformLogin();
+          const action = await auth.handleMultiPlatformLogin();
+          if (action === MultiPlatformLoggedInAction.Redirecting) {
+            return;
+          }
 
           router.renderPage(RouteName.home, { auth, router });
         });

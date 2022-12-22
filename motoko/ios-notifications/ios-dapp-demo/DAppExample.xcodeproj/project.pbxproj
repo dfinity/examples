@@ -10,7 +10,9 @@
 		6B3307F3294A26F000C2289D /* DappConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3307F2294A26F000C2289D /* DappConfig.swift */; };
 		6B3307F5294B2C3000C2289D /* DAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3307F4294B2C3000C2289D /* DAppDelegate.swift */; };
 		6B3307F7294B42A100C2289D /* LoadingScreen.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6B3307F6294B42A100C2289D /* LoadingScreen.swift */; };
+		6B393F8C295445CE0033FC6D /* Sodium in Frameworks */ = {isa = PBXBuildFile; productRef = 6B393F8B295445CE0033FC6D /* Sodium */; };
 		6BB55FB52951F63B00313F2B /* LoginSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BB55FB42951F63B00313F2B /* LoginSession.swift */; };
+		6BC56F742953669300FD4DA5 /* IdentityKeyPair.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BC56F732953669300FD4DA5 /* IdentityKeyPair.swift */; };
 		6BFF4B502941D38C0058917C /* DApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BFF4B4F2941D38C0058917C /* DApp.swift */; };
 		6BFF4B522941D38C0058917C /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6BFF4B512941D38C0058917C /* ContentView.swift */; };
 		6BFF4B542941D38D0058917C /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 6BFF4B532941D38D0058917C /* Assets.xcassets */; };
@@ -24,6 +26,7 @@
 		6B3307F4294B2C3000C2289D /* DAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DAppDelegate.swift; sourceTree = "<group>"; };
 		6B3307F6294B42A100C2289D /* LoadingScreen.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadingScreen.swift; sourceTree = "<group>"; };
 		6BB55FB42951F63B00313F2B /* LoginSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginSession.swift; sourceTree = "<group>"; };
+		6BC56F732953669300FD4DA5 /* IdentityKeyPair.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdentityKeyPair.swift; sourceTree = "<group>"; };
 		6BFF4B4C2941D38C0058917C /* DAppExample.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DAppExample.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		6BFF4B4F2941D38C0058917C /* DApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DApp.swift; sourceTree = "<group>"; };
 		6BFF4B512941D38C0058917C /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -39,17 +42,26 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6B393F8C295445CE0033FC6D /* Sodium in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		6B393F8129537D130033FC6D /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		6BFF4B432941D38C0058917C = {
 			isa = PBXGroup;
 			children = (
 				6BFF4B4E2941D38C0058917C /* DAppExample */,
 				6BFF4B4D2941D38C0058917C /* Products */,
+				6B393F8129537D130033FC6D /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -71,6 +83,7 @@
 				6BFF4B792941D5C20058917C /* DAppWebView.swift */,
 				6B3307F6294B42A100C2289D /* LoadingScreen.swift */,
 				6BB55FB42951F63B00313F2B /* LoginSession.swift */,
+				6BC56F732953669300FD4DA5 /* IdentityKeyPair.swift */,
 				6BFF4B532941D38D0058917C /* Assets.xcassets */,
 				6BFF4B552941D38D0058917C /* Preview Content */,
 				6BFF4B7C2941E9D70058917C /* DAppExample.entitlements */,
@@ -103,6 +116,9 @@
 			dependencies = (
 			);
 			name = DAppExample;
+			packageProductDependencies = (
+				6B393F8B295445CE0033FC6D /* Sodium */,
+			);
 			productName = WebViewNotification;
 			productReference = 6BFF4B4C2941D38C0058917C /* DAppExample.app */;
 			productType = "com.apple.product-type.application";
@@ -131,6 +147,9 @@
 				Base,
 			);
 			mainGroup = 6BFF4B432941D38C0058917C;
+			packageReferences = (
+				6B393F8A295445CE0033FC6D /* XCRemoteSwiftPackageReference "swift-sodium" */,
+			);
 			productRefGroup = 6BFF4B4D2941D38C0058917C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -163,6 +182,7 @@
 				6BFF4B522941D38C0058917C /* ContentView.swift in Sources */,
 				6B3307F3294A26F000C2289D /* DappConfig.swift in Sources */,
 				6B3307F5294B2C3000C2289D /* DAppDelegate.swift in Sources */,
+				6BC56F742953669300FD4DA5 /* IdentityKeyPair.swift in Sources */,
 				6BFF4B502941D38C0058917C /* DApp.swift in Sources */,
 				6B3307F7294B42A100C2289D /* LoadingScreen.swift in Sources */,
 			);
@@ -379,6 +399,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		6B393F8A295445CE0033FC6D /* XCRemoteSwiftPackageReference "swift-sodium" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/jedisct1/swift-sodium";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.9.1;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		6B393F8B295445CE0033FC6D /* Sodium */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 6B393F8A295445CE0033FC6D /* XCRemoteSwiftPackageReference "swift-sodium" */;
+			productName = Sodium;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 6BFF4B442941D38C0058917C /* Project object */;
 }

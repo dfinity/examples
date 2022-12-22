@@ -16,6 +16,7 @@ public class DappConfig: ObservableObject {
     @Published open var url = URL(string: "https://ptf55-faaaa-aaaag-qbd6q-cai.ic0.app")!
     @Published open var authCallbackURL = "https://ptf55-faaaa-aaaag-qbd6q-cai.raw.ic0.app/mobile-auth-token"
     @Published open var deviceToken: String?
+
     open var loginSession: LoginSession?
     
     private let deeplinkAllowedURLs = [

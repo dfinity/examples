@@ -2,7 +2,7 @@ import { Page, PageOptions } from "./types";
 import { LoginPage } from "./pages/login";
 import { HomePage } from "./pages/home";
 import { RouteName } from "./pages";
-import { Auth } from "./auth";
+import { Auth, MultiPlatformLoggedInAction } from "./auth";
 import { AboutPage } from "./pages/about";
 
 export class Router {
@@ -21,7 +21,10 @@ export class Router {
     const isAuthenticated = await auth.client().isAuthenticated();
 
     if (isAuthenticated) {
-        await auth.handleMultiPlatformLogin();
+        const action = await auth.handleMultiPlatformLogin();
+        if (action === MultiPlatformLoggedInAction.Redirecting) {
+          return;
+        }
 
         const url = new URL(window.location.href);
         let routeName = url.searchParams.get(this.routeParam) ?? "";

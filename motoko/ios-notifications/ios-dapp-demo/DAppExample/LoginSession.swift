@@ -14,8 +14,10 @@ public class LoginSession: NSObject, ObservableObject, ASWebAuthenticationPresen
     private let parent: DAppWebView
     // callback used by the dapp to login the user
     private let authCallback: String
-    private let authQueryHandleParam = "callback_url" // https://ptf55-faaaa-aaaag-qbd6q-cai.ic0.app
-    private let identityProp = "_identity"
+    private let callbackUrlParam = "callback_url" // https://ptf55-faaaa-aaaag-qbd6q-cai.ic0.app
+    private let sessionKeyParam = "session" // the public key to be used
+    private let restoreKey = "__ii"
+    private let keypair = IdentityKeyPair.create()
     
     // Store for the open authentication session window, enabling interaction with the universal link
     open var session: ASWebAuthenticationSession?
@@ -32,8 +34,8 @@ public class LoginSession: NSObject, ObservableObject, ASWebAuthenticationPresen
     }
 
     public func start() {
-        var loginUrl = parent.dapp.url
-        loginUrl.append(queryItems: [URLQueryItem(name: authQueryHandleParam, value: authCallback), URLQueryItem(name: "btn", value: "true")])
+        var loginUrl = URL(string: parent.dapp.url.absoluteString)!
+        loginUrl.append(queryItems: [URLQueryItem(name: callbackUrlParam, value: authCallback), URLQueryItem(name: sessionKeyParam, value: keypair.publicKey())])
         
         self.parent.dapp.loginSession = self
         session = ASWebAuthenticationSession(url: loginUrl, callbackURLScheme: nil, completionHandler: { (callbackURL, error) in
@@ -49,13 +51,17 @@ public class LoginSession: NSObject, ObservableObject, ASWebAuthenticationPresen
     }
     
     public func identityCallbackHook(successURL: URL) {
-        let identityToken = NSURLComponents(string: (successURL.absoluteString))?.queryItems?.filter({$0.name == self.identityProp}).first?.value ?? ""
+        let delegationsValue = NSURLComponents(string: (successURL.absoluteString))?.queryItems?.filter({$0.name == self.restoreKey}).first?.value ?? ""
 
         DispatchQueue.main.async {
-            let identityScript = """
-                window['\(self.identityProp)'] = '\(identityToken)';
+            let restoreAuthScript = """
+                window["\(self.restoreKey)"] = {
+                    delegation: "\(delegationsValue)",
+                    key: JSON.stringify(["\(self.keypair.publicKey())", "\(self.keypair.secret())"]),
+                };
             """
-            let userScript = WKUserScript(source: identityScript, injectionTime: .atDocumentStart, forMainFrameOnly: true)
+            
+            let userScript = WKUserScript(source: restoreAuthScript, injectionTime: .atDocumentStart, forMainFrameOnly: true)
             self.parent.webView.configuration.userContentController.addUserScript(userScript)
 
             self.parent.webView.window?.rootViewController?.present(self.parent.loading, animated: true)
