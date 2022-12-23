@@ -51,7 +51,7 @@ public class LoginSession: NSObject, ObservableObject, ASWebAuthenticationPresen
     }
     
     public func identityCallbackHook(successURL: URL) {
-        let delegationsValue = NSURLComponents(string: (successURL.absoluteString))?.queryItems?.filter({$0.name == self.restoreKey}).first?.value ?? ""
+        let delegationsValue = successURL.fragment()?.split(separator: self.restoreKey + "=")[0] ?? "";
 
         DispatchQueue.main.async {
             let restoreAuthScript = """

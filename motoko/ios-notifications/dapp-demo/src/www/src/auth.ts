@@ -188,10 +188,8 @@ export class Auth {
           throw new Error("Missing delegations");
         }
 
-        authCallback.searchParams.set(
-          Auth.restoreKey,
-          Buffer.from(delegations, "ascii").toString("base64")
-        );
+        const base64Delegation = Buffer.from(delegations, "ascii").toString("base64");
+        authCallback.hash = `${Auth.restoreKey}=${base64Delegation}`;
 
         // apple universal links require the user to tap to trigger the native app to handle the url
         document.write(
