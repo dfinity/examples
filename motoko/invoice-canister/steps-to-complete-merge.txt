@@ -1,0 +1,79 @@
+This file just explains what was done to get things working for finishing the current pull request. 
+I'll delete it in subsequent commits/transfer relevant info to documentation then. 
+
+////////////////////////////////////////////////////// tldr
+
+The pull request has two main parts:
+ 1) the last development work Kyle did for the invoice canister 
+    (mostly access rights, allocation limits and their corresponding tests)
+ 2) transitioning from installing and deploying a local ICP ledger 
+    "manually" to doing so using the new dfx nns plugin (dfx nns install/import)
+
+Completing part 1 requires some minor code edits so the E2E tests will succeed. 
+
+Completing part 2 requires changing the install-local.sh script as well as changing the configuration for how dfx initalizes its networking*
+
+////////////////////////////////////////////////////// start with part 2, details
+
+*Dfx projects will no longer use project-specific network configurations as set in dfx.json, instead a system wide configuration will be read from
+    ~/home/<user>/.config/dfx/networks.json (view this path with `dfx info networks-json-path`)
+
+To use the nns canisters locally installed by `dfx nns install`, the networks.json is to be configured:
+
+$ cat ~/.config/dfx/networks.json
+{
+  "local": {
+    "bind": "127.0.0.1:8080",
+    "type": "ephemeral",
+    "replica": {
+      "subnet_type": "system"
+    }
+  }
+}
+
+Details on using dfx nns plugin can be found here:
+https://github.com/dfinity/sdk/blob/master/docs/cli-reference/dfx-nns.md
+Or in the release notes here:
+https://internetcomputer.org/docs/current/developer-docs/updates/release-notes/#feat-deploy-nns-canisters
+https://internetcomputer.org/docs/current/developer-docs/updates/release-notes/#feat-initialise-the-nns-with-an-account-controlled-by-a-secp256k1-key
+
+The last link shows the the ICP ledger installed by `dfx nns install` is initiallized with two identities funded with ICP and provides the pem file for creating one of them. 
+
+Updating install-local.sh is renamed redeploy.sh and refactored to use `dfx nns install`. 
+
+One of those funded ICP identities is in the newly added ident-1.pem file and in redeploy.sh it is added as an identity, switched to after the ICP nns-ledger is deployed, and transfers ICP funds to the balance holder identity used in the E2E testing (note the address used corresponds to the principal subaccount of the invoice canister for that identity, this is how the previous install-loca.sh script worked), and it is then removed from `dfx identity` to keep things clean.
+
+Afaik there's no other simple way at this time to reset the state of the nns-ledger canister without rerunning `dfx nns install`. 
+
+(Note that `redeploy.sh` doesn't include running `dfx nns import` as it only needs to be run the first time after `dfx nns install` is initially run to configure dfx.json)
+
+Currently there's no way to specify `dfx nns install` only installs the nns-ledger canister, so all 8 of them are installed each time. 
+
+Also note at the end of the redeploy.sh script, `dfx deploy invoice` is called twice as, I'm guessing, the nns-ledger import into Motoko invoice canister isn't correctly registered (as another Motoko canister typically created and deployed would be) and causes a compilation failure the first time around--however simply running it again resolves this error. Creating, building, and installing was tried but also produced the same error that is fixed if just ran twice in a row. This could be my own error, but I could not find a way to resolve this otherwise (so you are aware of it in the console output when running deploy.sh).
+
+In dfx.json the canister declaration for the previous ledger canister used has been removed, and the new nns-ledger canister is added as a dependency to the invoice canister (the other `dfx nns install`'d canisters added by `dfx nns import` were also removed). Note the networks section is also removed as it is moved to the global config. One last note is that `dfx nns import` also sets up the linking of the nns-ledger canister to its local or remote typing definitions (a "new" feature of dfx).
+
+////////////////////////////////////////////////////// part 1 details
+
+The other change to dfx.json is modifying the declarations output to include `invoice` as a directory path suffix so they are put into their own invoice subdirectory.
+
+A simple pre-test script (`make-nodecompat.mjs`) was added to the E2E testing to automatically comment out the last line of the generated declarations invoice actor index.js file to make it compatible with node (the invoice canister declarations are also used by non-node projects such as in the examples subdirectory).
+
+On that note, note that the existing ledger declarations in the E2E testing were not used and removed for keeping things clean.
+
+Additionally for E2E testing, three agent declarations (2 in identity.js and 1 in maxCapacity.js) had their http agent's updated to reflect the new network configuration (localhost:8000 -> 127.0.0.1:8080). 
+
+Finally in the E2E testing, in `icp.test.js` the principal-subaccount derived account-identifiers corresponding to the identities used changed and were updated to reflect their new values.
+
+In `invoice.mo` there was a mismatch between MEDIUM_CONTENT_SIZE and LARGE_CONTENT_SIZE when used to validate invoice creation args for metadata, which was fixed. 
+The same bug in the examples/motoko-seller-client...mocks/invoice.mo was also fixed. (The metadata cannot exceed the LARGE_CONTENT_SIZE value as according to the readme doc). 
+
+Finally one piece of the code was reverted to its previousily working logic in `ICPLedger.mo`. It concerns the task "Check account for transfer fee during transfer" from Invoice Canister Cleanup Tasks (https://github.com/dfinity/examples/issues/292) which is also related to (https://github.com/dfinity/invoice-canister/issues/35). 
+
+A quick explanation of why I reverted it and this should be considered valid at this time:
+
+The process for an invoice to be verified is checking whether the balance of the account identifier corresponding to the invoice-subaccount destination address created for that invoice equals (or exceeds) the amount due set when the invoice was created (`amount` in the invoice's type). If it is paid, that amount (less the cost of a transfer fee) is transfered, as part of the verification process, to the account identifier address corresponding to the principal-subaccount of that invoice's creator's principal (in this way, the total positive balance of the invoice canister is consolidated into a "single" value assuming there's just one invoice creator per canister which is the base use case or default configuration at this time). In addition to this, there's a transfer method that can be called on the invoice canister to transfer funds out of that principal-subaccount address. 
+
+Note that the current code logic only concerns the transfer that happens automatically if an invoice is verified to be paid--it does not address when the transfer method is explicitly called by a user. To solve the current problem, where the transfer is called implicitly as part of a successful verification but there's not enough to cover the fee, invoices should be prevented from being created if they have an amount due any less than twice the transfer fee (checking this at the time of verification will just mean it's too late and funds are effectively stuck). The current code doesn't resolve this issue and only breaks the existing working test implementations. I requested this task be added to the future bounty completion instead of this PR (including it with the 2 other clean-up tasks already part of the bounty). If invoices with no amount due are needed, future work could include those as a special case since they'd bypass the typical invoice life-cycle.
+
+Other than that, everything should work as long as it's alright all 8 of the nns canisters are unavoidably deployed. They have not caused me any problem while doing development for the bounty. If this is a problem, the other method of installing and deploying the ICP ledger canister be reinstated. 
