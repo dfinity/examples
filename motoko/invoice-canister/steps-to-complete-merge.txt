@@ -13,7 +13,7 @@ Completing part 1 requires some minor code edits so the E2E tests will succeed.
 
 Completing part 2 requires changing the install-local.sh script** as well as changing the configuration for how dfx initalizes its networking*
 
-**Now using the zx js-bash scripting package instead of the usual bash script, install-local.sh becomes redeploy.mjs
+**Now using the zx js-bash scripting package instead of the usual bash script, install-local.sh becomes install-local.mjs
 
 ////////////////////////////////////////////////////// start with part 2, details
 
@@ -44,17 +44,17 @@ The last link shows the the ICP ledger installed by `dfx nns install` is initial
 
 Zx is added to npm package list. 
 
-install-local.sh now becomes redeploy.mjs and is refactored to use `dfx nns install`. install-local.sh and transfer.sh are removed.
+install-local.sh now becomes install-local.mjs and is refactored to use `dfx nns install`. install-local.sh and transfer.sh are removed.
 
-One of those funded ICP identities is in the newly added ident-1.pem file and in redeploy.mjs it is added as an identity, switched to after the ICP nns-ledger is deployed, and transfers ICP funds to the balance holder identity used in the E2E testing (note the address used corresponds to the principal subaccount of the invoice canister for that identity, this is how the previous install-loca.sh script worked), and it is then removed from `dfx identity` to keep things clean.
+One of those funded ICP identities is in the newly added ident-1.pem file and in install-local.mjs it is added as an identity, switched to after the ICP nns-ledger is deployed, and transfers ICP funds to the balance holder identity used in the E2E testing (note the address used corresponds to the principal subaccount of the invoice canister for that identity, this is how the previous install-loca.sh script worked), and it is then removed from `dfx identity` to keep things clean.
 
 Afaik there's no other simple way at this time to reset the state of the nns-ledger canister without rerunning `dfx nns install`. 
 
-(Note that `redeploy.mjs` doesn't include running `dfx nns import` as it only needs to be run the first time after `dfx nns install` is initially run to configure dfx.json)
+(Note that `install-local.mjs` doesn't include running `dfx nns import` as it only needs to be run the first time after `dfx nns install` is initially run to configure dfx.json)
 
 Currently there's no way to specify `dfx nns install` only installs the nns-ledger canister, so all 8 of them are installed each time. 
 
-Also note at the end of the redeploy.mjs script, `dfx deploy invoice` is called twice as, I'm guessing, the nns-ledger import into Motoko invoice canister isn't correctly registered (as another Motoko canister typically created and deployed would be) and causes a compilation failure the first time around--however simply running it again resolves this error. Creating, building, and installing was tried but also produced the same error that is fixed if just ran twice in a row. This could be my own error, but I could not find a way to resolve this otherwise (so you are aware of it in the console output when running deploy.sh).
+Also note at the end of the install-local.mjs script, `dfx deploy invoice` is called twice as, I'm guessing, the nns-ledger import into Motoko invoice canister isn't correctly registered (as another Motoko canister typically created and deployed would be) and causes a compilation failure the first time around--however simply running it again resolves this error. Creating, building, and installing was tried but also produced the same error that is fixed if just ran twice in a row. This could be my own error, but I could not find a way to resolve this otherwise (so you are aware of it in the console output when running deploy.sh).
 
 In dfx.json the canister declaration for the previous ledger canister used has been removed, and the new nns-ledger canister is added as a dependency to the invoice canister (the other `dfx nns install`'d canisters added by `dfx nns import` were also removed). Note the networks section is also removed as it is moved to the global config. One last note is that `dfx nns import` also sets up the linking of the nns-ledger canister to its local or remote typing definitions (a "new" feature of dfx).
 

@@ -23,7 +23,7 @@ spawnSync(
 await $`dfx nns install`
 
 // ident-1.pem is one of two identities nns ledger initiallized by sending ICP funds to, going to remove after transfering
-// funds to E2E test account identity, balanceHolder. E2E tests are atm simplified so that ICP is transfered back and forth
+// funds to E2E test account identity, balanceHolder. E2E tests are atm streamlined so that ICP is transfered back and forth
 // between subaccounts controlled by the invoice canister, as opposed to explicitly invoking the ICP ledger canister
 await $`dfx identity import invoice-nns-initiallized-icp-funded-identity test/e2e/src/utils/ident-1.pem --disable-encryption`
 await $`dfx identity use invoice-nns-initiallized-icp-funded-identity`
