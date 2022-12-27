@@ -32,7 +32,7 @@ const defaultActor = createActor(canisterId, {
   agentOptions: {
     identity: defaultIdentity,
     fetch,
-    host: "http://localhost:8000",
+    host: "http://127.0.0.1:8080",
   },
 });
 
@@ -44,7 +44,7 @@ const balanceHolder = createActor(canisterId, {
   agentOptions: {
     identity: balanceHolderIdentity,
     fetch,
-    host: "http://localhost:8000",
+    host: "http://127.0.0.1:8080",
   },
 });
 

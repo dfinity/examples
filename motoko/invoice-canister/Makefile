@@ -19,8 +19,6 @@ clean:
 
 e2e:
 	npm ci
-	dfx stop
-	dfx start --background --clean
 	node ./install-local.mjs
 	npm test
 

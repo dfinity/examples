@@ -4,6 +4,7 @@
   "description": "End to end tests for the Invoice Canister",
   "main": "src/index.js",
   "scripts": {
+    "pretest": "node make-nodecompat.mjs src/declarations/invoice/index.js",
     "test": "jest"
   },
   "jest": {
