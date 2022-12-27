@@ -181,7 +181,7 @@ module {
           case (#ok b) {
             let balance = b.balance;
             // If balance is less than invoice amount plus fee, return error
-            if (balance < i.amount + 10000) {
+            if (balance < i.amount) {
               return #err({
                 message = ?("Insufficient balance. Current Balance is " # Nat.toText(balance));
                 kind = #NotYetPaid;
