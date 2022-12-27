@@ -142,7 +142,7 @@ actor InvoiceMock {
     switch (args.details) {
       case null {};
       case (?details) {
-        if (details.meta.size() > MEDIUM_CONTENT_SIZE) {
+        if (details.meta.size() > LARGE_CONTENT_SIZE) {
           isValid := false;
         };
         if (details.description.size() > SMALL_CONTENT_SIZE) {
