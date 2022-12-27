@@ -45,7 +45,7 @@ const resetBalance = async () => {
           symbol: "ICP",
         },
         destination: {
-          text: "cd60093cef12e11d7b8e791448023348103855f682041e93f7d0be451f48118b",
+          text: "675d3f2043c6bf5d642454cf0890b467673f0bacfd1c85882c0d650d4c6d2abb",
         },
       });
       return result;
@@ -84,7 +84,7 @@ describe("ICP Tests", () => {
       if ("ok" in identifier) {
         expect(identifier.ok.accountIdentifier).toStrictEqual({
           // prettier-ignore
-          "text": "f834bd307422e47225d915888092810b3eae9daea5e54b67dfc99799698f8eea",
+          "text": "289c5ef2c85f8f6109562f1d175f97d80a4d13aa58f2d2cfaa30f5dc7947ce1d",
         });
       } else {
         throw new Error(identifier.err.message);
@@ -257,7 +257,7 @@ describe("ICP Tests", () => {
           symbol: "ICP",
         },
         destination: {
-          text: "cd60093cef12e11d7b8e791448023348103855f682041e93f7d0be451f48118b",
+          text: "675d3f2043c6bf5d642454cf0890b467673f0bacfd1c85882c0d650d4c6d2abb",
         },
       });
       expect(transferResult.err).toBeTruthy();

@@ -2,7 +2,7 @@
     "canisters": {
         "invoice": {
             "declarations": {
-                "output": "test/e2e/src/declarations"
+                "output": "test/e2e/src/declarations/invoice"
             },
             "dependencies": [
                 "nns-ledger"
