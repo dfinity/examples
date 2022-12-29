@@ -90,5 +90,5 @@ dist
 test/_out
 .vessel
 
-src/declarations
-test/e2e/src/declarations
+src/declarations/
+
