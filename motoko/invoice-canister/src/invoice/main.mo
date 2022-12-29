@@ -44,8 +44,9 @@ actor Invoice {
   let SMALL_CONTENT_SIZE = 256;
   let LARGE_CONTENT_SIZE = 32_000;
   let MAX_INVOICES = 30_000;
-  // #endregion
+  let MINIMUM_BILLABLE_AMOUNT : Nat = 2 * 10000;
 
+  // #endregion
   /**
 * Application Interface
 */
@@ -55,18 +56,25 @@ actor Invoice {
     let id : Nat = invoiceCounter;
     // increment counter
     invoiceCounter += 1;
+    if (id > MAX_INVOICES) {
+      return #err({
+        message = ?"The maximum number of invoices has been reached.";
+        kind = #MaxInvoicesReached;
+      });
+    };
+
+    if (args.amount < MINIMUM_BILLABLE_AMOUNT) {
+      return #err({
+        message = ?"The amount is less than what is required to internally transfer funds if the invoice is successfully verified.";
+        kind = #InvalidAmount;
+      });
+    };
+
     let inputsValid = areInputsValid(args);
     if (not inputsValid) {
       return #err({
         message = ?"Bad size: one or more of your inputs exceeds the allowed size.";
         kind = #BadSize;
-      });
-    };
-
-    if (id > MAX_INVOICES) {
-      return #err({
-        message = ?"The maximum number of invoices has been reached.";
-        kind = #MaxInvoicesReached;
       });
     };
 
