@@ -63,6 +63,14 @@ const excessiveCanVerify = {
     },
   ],
 };
+const lessThanMinimumBillableAmount = {
+  amount: (FEE*2n)-1n,
+  token: {
+    symbol: "ICP",
+  },
+  details: [],
+  permissions: [],
+}
 
 describe("Testing the creation of invoices", () => {
   it("should handle a correct invoice", async () => {
@@ -92,5 +100,9 @@ describe("Testing the creation of invoices", () => {
     const createResult = await defaultActor.create_invoice(excessiveCanVerify);
     createResult;
     expect(createResult.err.kind).toStrictEqual({ BadSize: null });
+  });
+  it("should return an error if the billable amount is less than the minimum required to internally transfer", async () => {
+    const createResult = await defaultActor.create_invoice(lessThanMinimumBillableAmount);
+    expect(createResult.err.kind).toStrictEqual({ InvalidAmount: null });
   });
 });
