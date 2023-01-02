@@ -44,7 +44,7 @@ actor Invoice {
   let SMALL_CONTENT_SIZE = 256;
   let LARGE_CONTENT_SIZE = 32_000;
   let MAX_INVOICES = 30_000;
-  let MINIMUM_BILLABLE_AMOUNT : Nat = 2 * 10000;
+  let MINIMUM_BILLABLE_AMOUNT = 2 * 10_000;
 
   // #endregion
   /**
