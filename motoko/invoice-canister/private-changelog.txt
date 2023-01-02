@@ -1,0 +1,34 @@
+this is for personal use in case changes have to be redone manually, points aren't mapped to existing commits but often do correspond to specific commits
+
+! for completing the existing PR 
+    install-local.sh -> install-local.mjs
+        ☀ add zx to package.json
+        ☀ congifure networks.json in "($dfx networks-json-path)" to use 8080 port and subnet type (add check to verify this is how networks.json is configured? if there's no way to declare multiple networks)
+        ☀ add ident-1.pem (and remove from dfx identity) to transfer funds to account id of balance holder
+        ☀ wrap first build/deploy of invoice in try/catch as for now nns-ledger import in invoice canister code doesn't link correctly the first time when using dfx start --clean (does work immediatly if run build/deploy again)
+    dfx.json
+        ☀ remove existing ledger canister
+        ☀ can use dfx nns import and configure, remove all but nns-ledger, add as a dependency to invoice canister
+        ☀ add invoice subdirectory to declarations output path
+    tests
+        ☀ comment out last line of generated declaration index actor(s) so node testing works (or use node-compat in dfx json if declarations not end up being used otherwise)
+        ☀ update http agents to point to 127.0.0.1:8080 (2 in icptests, 1 in maxCapacity)
+        ☀ remove unused ledger declarations
+        ☀ recompute account identifiers for identities used in e2e (which was also necessary for the icp transfer in the install script) as they've changed with newer versions of @dfinity/identity and @dfinity/principal
+    canister code
+        ☀ invoice.mo (and the mock invoice in examples) has undefined MEDIUM_CONTENT_SIZE usage which should be replaced with LARGE_CONTENT_SIZE which corresponds to the value according to the readme for meta constraints
+        ☀ invoice.mo transfer fee check during verification revert existing, add error during invoice creation if invoice is created with an amount less than a minimum amount (ie 2x the transfer fee, since each paid invoice must have a balance of at least the transfer fee for the transfer to the invoice creator principal subaccount during verification to work), add E2E test demonstrating this works
+    ☀ update readme to reflect changes using dfx nns ledger and zx install-local.mjs js bash script, and minimum amount due constraint
+
+//The above marks all changes necessary for the existing PR to be finished. The rest is all of the edits to complete the RFP-BNT-2 bounty. 
+
+! for the bounty itself 
+    SEC-F12
+        ☀ update pack-set.dhall to include aviate labs' ICOS (Internet Computer Open Services) so both the official dfinity and ICOS package sets are included (from ICOS array, crypto, encoding, hash, and principal as added dependencies)
+        ☀ update vessel.dhall to reflect this ie: [ "base", "matchers", "base-0.7.3", "array", "crypto", "hash", "encoding", "principal" ]
+        ☀ add new module with equivalent ICP related utility functions for account identifiers and subaccounts
+        ☀ update unit tests to show equivalence works
+        ☀ refactor unit tests to just use the new utility functions
+        ☀ refactor module declarations to just use new library integrated utility functions
+        ☀ refactor invoice.mo to use new ICP utilities module
+        ☀ refactor E2E tests to use new ICP utilities module
