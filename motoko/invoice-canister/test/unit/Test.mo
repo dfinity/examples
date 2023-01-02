@@ -24,11 +24,11 @@ let success = run([
   describe("ICP Tests", [
     describe("Account Identifiers Transformations", [
       it("should generate a valid account identifier with the default subaccount", do {
-        let account =  NewUtils.toAccountIdentifierAddress(testPrincipal, defaultSubaccount);
-        assertTrue(NewUtils.validateAccountIdentifier(account));
+        let account = NewUtils.toAccountIdentifierAddress(testPrincipal, defaultSubaccount);
+        assertTrue(NewUtils.accountIdentifierIsValid(account));
       }),
       it("should create a valid subaccount from a principal", do {
-        let subaccount =  NewUtils.subaccountForPrincipal(testCaller);
+        let subaccount = NewUtils.subaccountForPrincipal(testCaller);
         // Subaccounts should have a length of 32
         assertTrue(subaccount.size() == 32);
       }),
@@ -37,17 +37,17 @@ let success = run([
         // Subaccounts should have a length of 32
         assertTrue(subaccount.size() == 32);
       }),
-      it("should generate a valid account identifier from a principal and subaccount based on a principal, ie of a caller", do {
+      it("should create a valid account identifier from a principal and subaccount based on a principal", do {
         let subaccount = NewUtils.subaccountForPrincipal(testCaller);
         let accountIdentifier = NewUtils.toAccountIdentifierAddress(testPrincipal, subaccount);
-        assertTrue(NewUtils.validateAccountIdentifier(accountIdentifier));
+        assertTrue(NewUtils.accountIdentifierIsValid(accountIdentifier));
       }),
-      it("should generate a valid account identifier from a principal and subaccount based on an invoice", do {
+      it("should create a valid account identifier from a principal and subaccount based on an invoice", do {
         let subaccount = NewUtils.subaccountForInvoice(0, testCaller);
         let accountIdentifier = NewUtils.toAccountIdentifierAddress(testPrincipal, subaccount);
-        assertTrue(NewUtils.validateAccountIdentifier(accountIdentifier));
+        assertTrue(NewUtils.accountIdentifierIsValid(accountIdentifier));
       }),
-      it("should convert a valid default subaccount account identifier blob into human readable form", do {
+      it("should convert a valid account identifier blob into human readable form", do {
         let account = NewUtils.toHumanReadableForm(NewUtils.toAccountIdentifierAddress(testPrincipal, defaultSubaccount));
         assertTrue("082ecf2e3f647ac600f43f38a68342fba5b8e68b085f02592b77f39808a8d2b5" == account);
       }),
@@ -63,24 +63,18 @@ let success = run([
       }),
       it("should convert a valid textual account identifier to a valid account identifier blob", do {
         switch (NewUtils.accountIdentifierFromValidText("082ecf2e3f647ac600f43f38a68342fba5b8e68b085f02592b77f39808a8d2b5")) {
-          case (#ok blob) { 
-            assertTrue(NewUtils.validateAccountIdentifier(blob)); 
-          };
-          case (#err msg) { assertTrue(false); };
+          case (#ok blob) { assertTrue(NewUtils.accountIdentifierIsValid(blob)) };
+          case (#err msg) { assertTrue(false) };
         };
       }),
       it("should reject an invalid blob form account identifier", do {
-        assertTrue(not NewUtils.validateAccountIdentifier(Text.encodeUtf8("not valid")));
+        assertTrue(not NewUtils.accountIdentifierIsValid(Text.encodeUtf8("not valid")));
       }),
       it("should reject an invalid textual form account identifier", do {
         switch (NewUtils.accountIdentifierFromValidText("not valid")) {
-          case (#err msg) {
-            assertTrue(true);
-          }; 
-          case (#ok err) {
-            assertTrue(false);
-          }
-        }
+          case (#err msg) { assertTrue(true) }; 
+          case (#ok err) { assertTrue(false) };
+        };
       }),
     ]),
   ]),
