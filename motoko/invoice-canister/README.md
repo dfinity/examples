@@ -13,33 +13,71 @@ For example, the following aspects are particularly relevant for this app:
 
 ## Integrating with the Invoice Canister
 
-To simply add the Invoice Canister to your project, copy the source code from the `src/invoice` directory to your project. For the sake of this example, we'll say the directory you place them in is also `src/invoice`. Do the same with `src/ledger`.
+To simply add the Invoice Canister to your project, copy the source code from the `src/invoice` directory to your project. For the sake of this example, we'll say the directory you place them in is also `src/invoice`. 
 
 Then, add the following to your `dfx.json`:
 
-```json
+```diff
 "canisters": [
     // ...
-    "ledger": {
-        "type": "custom",
-        "candid": "src/ledger/ledger.did",
-        "wasm": "src/ledger/ledger.wasm",
++    "invoice": {
++        "main": "src/invoice/main.mo",
++        "type": "motoko"
++    },
+]
+```
+
+At this stage, the invoice canister processes invoices with ICP transactions which requires an ICP ledger. You can download and deploy a local ICP ledger following [Ledger Local Setup](https://internetcomputer.org/docs/current/developer-docs/integrations/ledger/ledger-local-setup/) instructions from the Developer Docs or you can alternatively use the `dfx nns` command. 
+
+This repository and the rest of this guide uses the `dfx nns` command to locally install an ICP ledger. 
+
+In your project's root directory, run `dfx nns install` to automatically download and deploy a local ICP ledger. When that is complete run `dfx nns import` which will add the automatically configured declaration for this installed ledger named as `nns-ledger`. Note running `dfx nns import` will also add declarations for the other nns related canisters, which you can remove from `dfx.json` if you are not using them in your project. 
+
+Then edit `dfx.json` to add the `nns-ledger` as a dependency to the invoice canister's declaration: 
+
+```diff
+"canisters": [
+    // ... 
+    // running dfx nns import will automatically add the following declaration 
+    "nns-ledger": {
+        "build": "",
+        "candid": "candid/nns-ledger.did",
         "remote": {
-            "candid": "src/ledger/ledger.did",
             "id": {
-                "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+                "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai",
+                "local": "ryjl3-tyaaa-aaaaa-aaaba-cai"
             }
-        }
+        },
+        "type": "custom",
+        "wasm": ""
     },
     "invoice": {
-        "dependencies": [
-            "ledger"
-        ],
++        "dependencies": [
++            "nns-ledger"
++        ],
         "main": "src/invoice/main.mo",
         "type": "motoko"
     },
 ]
 ```
+
+The last step is checking if your system wide dfx networks configuration file is set correctly.
+
+Run `cat "$(dfx info networks-json-path)"` to confirm it matches:
+
+```json
+{
+  "local": {
+    "bind": "127.0.0.1:8080",
+    "type": "ephemeral",
+    "replica": {
+      "subnet_type": "system"
+    }
+  }
+}
+```
+
+If not, modify it so it does as this the network configuration required by `dfx nns` installed canisters. More details about using the `dfx nns` command can be found [here](https://github.com/dfinity/sdk/blob/master/docs/cli-reference/dfx-nns.md). 
 
 If you have a canister that will make calls to the invoice canister, you can now add it as a dependency and make calls to it from your own canister. The typical payment workflow will be as follows:
 
@@ -67,6 +105,7 @@ In order to keep the size of the state predictable we set constraints on the siz
 
 Given these constraints, we can estimate that the canister can safely hold 30,000 invoices. This is a reasonable upper bound for the number of invoices that can be stored in the canister until we add in the ability to archive and scale the provider automatically.
 
+Additionally invoices must be created with a minimum billable amount due that is currently set as twice the transfer fee (for ICP transactions this equals 20,000 e8s). This is to at least be able to cover the cost of transferring the proceeds of a paid invoice, when successfully verified, from that invoice's subaccount to the subaccount associated with that invoice creator's principal. 
 
 For security, the canister will only allow the invoice creator to read the status of an invoice or to verify it. If your flow requires a different principal, of say the customer, to make those requests, you can specify that in the `Permissions` configuration at the time the invoice is created.
 
@@ -74,7 +113,9 @@ For security, the canister will only allow the invoice creator to read the statu
 
 Make sure you have followed the DFX installation instructions from https://smartcontracts.org.
 
-Run the `install-local.sh` script to install the ICP ledger and and the invoice canister on your device. You can make calls using the `dfx` sdk, or you can see test cases running through the flows under the `test` directory.
+This project uses the `dfx nns` command to install a local ICP ledger so verify your `networks.json` is configured accordingly. 
+
+Run `node install-local.mjs` which uses the `zx` library to run a Javascript based bash script to install the ICP ledger and and the invoice canister on your device. You can make calls using the `dfx` sdk, or you can see test cases running through the flows under the `test` directory.
 
 ## Testing
 
@@ -86,7 +127,7 @@ You will also need to install `wasmtime`. For macOS, you can install with `brew 
 
 To run unit tests, use `make test`.
 
-To run the end-to-end JavaScript tests, first install fresh with with `./install-local.sh`. Then, run `npm test`.
+To run the end-to-end JavaScript tests, use `make e2e`. 
 
 ## Caveats
 
