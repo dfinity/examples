@@ -21,7 +21,16 @@
             },
             "type": "custom",
             "wasm": ""
+        },
+        "the_test": {
+            "main": "src/invoice/Test.mo",
+            "type": "motoko"
         }
     },
-    "version": 1
+    "version": 1,
+    "defaults": {
+        "build": {
+          "packtool": "vessel sources"
+        }
+      }
 }
