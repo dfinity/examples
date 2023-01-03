@@ -16,11 +16,6 @@ module {
       Issuer : Text;
     };
   };
-  public type AccountIdentifier = {
-    #text : Text;
-    #principal : Principal;
-    #blob : Blob;
-  };
   public type Details = {
     description : Text;
     meta : Blob;
@@ -39,8 +34,7 @@ module {
     token : TokenVerbose;
     verifiedAtTime : ?Time.Time;
     paid : Bool;
-    destination : AccountIdentifier;
-    //paymentAddress : Text;
+    paymentAddress : Text;
   };
 // #endregion
 
@@ -143,8 +137,7 @@ module {
   public type TransferArgs = {
     amount : Nat;
     token : Token;
-    //destination : Text;
-    destination : AccountIdentifier;
+    destinationAddress : Text; 
   };
   public type TransferResult = Result.Result<TransferSuccess, TransferError>;
   public type TransferSuccess = {
@@ -162,16 +155,15 @@ module {
   };
 // #endregion
 
-// #region get_caller_identifier
-  public type GetAccountIdentifierArgs = {
+// #region get_caller_consolidation_address
+  public type GetCallersConsolidationAddressArgs = {
     token : Token;
-    principal : Principal;
   };
-  public type GetAccountIdentifierResult = Result.Result<GetAccountIdentifierSuccess, GetAccountIdentifierErr>;
-  public type GetAccountIdentifierSuccess = {
-    accountIdentifier : AccountIdentifier
+  public type GetCallersConsolidationAddressResult = Result.Result<GetCallersConsolidationAddressSuccess, GetCallersConsolidationAddressErr>;
+  public type GetCallersConsolidationAddressSuccess = {
+    consolidationAddress : Text
   };
-  public type GetAccountIdentifierErr = {
+  public type GetCallersConsolidationAddressErr = {
     message : ?Text;
     kind : {
       #InvalidToken;
@@ -180,39 +172,7 @@ module {
   };
 // #endregion
 
-// #region accountIdentifierToBlob
-  public type AccountIdentifierToBlobArgs = {
-    accountIdentifier : AccountIdentifier;
-    canisterId : ?Principal;
-  };
-  public type AccountIdentifierToBlobResult = Result.Result<AccountIdentifierToBlobSuccess, AccountIdentifierToBlobErr>;
-  public type AccountIdentifierToBlobSuccess = Blob;
-  public type AccountIdentifierToBlobErr = {
-    message : ?Text;
-    kind : {
-      #InvalidAccountIdentifier;
-      #Other;
-    };
-  };
-// #endregion
-
-// #region accountIdentifierToText
-  public type AccountIdentifierToTextArgs = {
-    accountIdentifier : AccountIdentifier;
-    canisterId : ?Principal;
-  };
-  public type AccountIdentifierToTextResult = Result.Result<AccountIdentifierToTextSuccess, AccountIdentifierToTextErr>;
-  public type AccountIdentifierToTextSuccess = Text;
-  public type AccountIdentifierToTextErr = {
-    message : ?Text;
-    kind : {
-      #InvalidAccountIdentifier;
-      #Other;
-    };
-  };
-// #endregion
-
-// #region ICP Transfer
+// #region ICP Transfer -> Note not used. 
   public type Memo = Nat64;
   public type SubAccount = Blob;
   public type TimeStamp = {
@@ -239,15 +199,6 @@ module {
       };
       #Other;
     }
-  };
-
-  public type ICPTransferArgs = {
-    memo : Memo;
-    amount : ICPTokens;
-    fee : ICPTokens;
-    from_subaccount : ?SubAccount;
-    to : AccountIdentifier;
-    created_at_time : ?TimeStamp;
   };
 
   public type ICPTransferResult = Result.Result<TransferSuccess, ICPTransferError>;

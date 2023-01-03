@@ -41,12 +41,10 @@ const resetBalance = async () => {
       // Transfer full balance back to the balance holder
       let result = await defaultActor.transfer({
         amount,
+        destinationAddress: "675d3f2043c6bf5d642454cf0890b467673f0bacfd1c85882c0d650d4c6d2abb",
         token: {
           symbol: "ICP",
-        },
-        destination: {
-          text: "675d3f2043c6bf5d642454cf0890b467673f0bacfd1c85882c0d650d4c6d2abb",
-        },
+        }
       });
       return result;
     }
@@ -75,17 +73,15 @@ describe("ICP Tests", () => {
       expect(balanceResult).toStrictEqual({ ok: { balance: 0n } });
     });
     it("should fetch the account of the different principals", async () => {
-      let identifier = await defaultActor.get_account_identifier({
+      let identifier = await defaultActor.get_callers_consolidation_address({
         token: {
           symbol: "ICP",
-        },
-        principal: defaultIdentity.getPrincipal(),
+        }
       });
       if ("ok" in identifier) {
-        expect(identifier.ok.accountIdentifier).toStrictEqual({
-          // prettier-ignore
-          "text": "289c5ef2c85f8f6109562f1d175f97d80a4d13aa58f2d2cfaa30f5dc7947ce1d",
-        });
+        expect(identifier.ok.consolidationAddress).toStrictEqual(
+          "289c5ef2c85f8f6109562f1d175f97d80a4d13aa58f2d2cfaa30f5dc7947ce1d"
+        );
       } else {
         throw new Error(identifier.err.message);
       }
@@ -147,10 +143,10 @@ describe("ICP Tests", () => {
       // Transfer balance to the balance holder
       await balanceHolder.transfer({
         amount: createResult.ok.invoice.amount + FEE,
+        destinationAddress: createResult.ok?.invoice?.paymentAddress,
         token: {
           symbol: "ICP",
         },
-        destination: createResult.ok?.invoice?.destination,
       });
 
       // Verify the invoice
@@ -213,16 +209,15 @@ describe("ICP Tests", () => {
   describe("Transfer Tests", () => {
     it("should increase a caller's icp balance after transferring to that account", async () => {
       resetBalance(); //?
-      let destination = await defaultActor.get_account_identifier({
+      let destination = await defaultActor.get_callers_consolidation_address({
         token: { symbol: "ICP" },
-        principal: defaultIdentity.getPrincipal(),
       });
       let transferResult = await balanceHolder.transfer({
         amount: 1000000n,
+        destinationAddress: destination.ok.consolidationAddress,
         token: {
           symbol: "ICP",
-        },
-        destination: destination.ok.accountIdentifier,
+        }
       });
       if ("ok" in transferResult) {
         let newBalance = await defaultActor.get_balance({
@@ -236,12 +231,10 @@ describe("ICP Tests", () => {
     it("should not allow a caller to transfer to an invalid account", async () => {
       let transferResult = await balanceHolder.transfer({
         amount: 1000000n,
+        destinationAddress: "abc123",
         token: {
           symbol: "ICP",
-        },
-        destination: {
-          text: "abc123",
-        },
+        }
       });
       expect(transferResult).toStrictEqual({
         err: {
@@ -253,12 +246,10 @@ describe("ICP Tests", () => {
     it("should not allow a caller to transfer more than their balance", async () => {
       let transferResult = await defaultActor.transfer({
         amount: 1000000n,
+        destinationAddress: "675d3f2043c6bf5d642454cf0890b467673f0bacfd1c85882c0d650d4c6d2abb",
         token: {
           symbol: "ICP",
-        },
-        destination: {
-          text: "675d3f2043c6bf5d642454cf0890b467673f0bacfd1c85882c0d650d4c6d2abb",
-        },
+        }
       });
       expect(transferResult.err).toBeTruthy();
     });

@@ -149,10 +149,7 @@ module {
   public func verifyInvoice(args : ICPVerifyInvoiceArgs) : async T.VerifyInvoiceResult {
     let i = args.invoice;
 
-    // is going to be "fixed" the commit after this one
-    let invoiceSubaccountAddress = switch(i.destination) { case (#text(identifier)) { identifier }; case _ { "" /* not needed atm just for showing equivalence while refactoring*/ }; };
-
-    let balanceResult = await balance({ account = invoiceSubaccountAddress });
+    let balanceResult = await balance({ account = i.paymentAddress });
     switch (balanceResult) {
       case (#ok b) {
         let currentInvoiceSubaccountBalance = b.balance;
@@ -191,7 +188,7 @@ module {
               verifiedAtTime;
               // update paid
               paid = true; // since transfer has succeeded
-              destination = i.destination;
+              paymentAddress = i.paymentAddress;
             };
             return #ok(#Paid({ invoice = verifiedInvoice; }));
           };

@@ -13,13 +13,13 @@ import Option "mo:base/Option";
 import Principal "mo:base/Principal";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
+import Result "mo:base/Result";
 
 actor Invoice {
   // #region Types
   type Details = T.Details;
   type Token = T.Token;
   type TokenVerbose = T.TokenVerbose;
-  type AccountIdentifier = T.AccountIdentifier;
   type Invoice = T.Invoice;
   // #endregion
 
@@ -106,8 +106,7 @@ actor Invoice {
       token = getTokenVerbose(args.token);
       verifiedAtTime = null;
       paid = false;
-      //paymentAddress;
-      destination = #text(paymentAddress)
+      paymentAddress;
     };
 
     invoices.put(id, invoice);
@@ -292,9 +291,7 @@ actor Invoice {
   public shared ({ caller }) func transfer(args : T.TransferArgs) : async T.TransferResult {
     switch (args.token.symbol) {
       case "ICP" {
-        // going to "fix" in commit after this one
-        let dest = switch(args.destination) { case (#text(identifier)) { identifier }; case _ { "" /* temporary while refactoring */ }; };
-        switch (ICPUtils.accountIdentifierFromValidText(dest)) {
+        switch (ICPUtils.accountIdentifierFromValidText(args.destinationAddress)) {
           case (#ok accountIdentifer) {
             let transferResult = await ICP.transfer({
               memo = 0;
@@ -337,22 +334,21 @@ actor Invoice {
   };
   // #endregion
 
-  // #region get_account_identifier
+  // #region get_callers_consolidation_address
   /*
-    * Get Caller Identifier
-    * Allows a caller to the accountIdentifier for a given principal
-    * for a specific token.
+    * Get Caller's Consolidation Address
+    * Returns the human readable address of the caller's consolidation subaccount for the specified token
     */
-  public query func get_account_identifier(args : T.GetAccountIdentifierArgs) : async T.GetAccountIdentifierResult {
+  public shared ({ caller }) func get_callers_consolidation_address(args : T.GetCallersConsolidationAddressArgs) : async T.GetCallersConsolidationAddressResult {
     switch (args.token.symbol) {
       case "ICP" {
         let principalSubaccountAddress = ICPUtils.toHumanReadableForm(
           ICPUtils.toAccountIdentifierAddress(
             getInvoiceCanisterPrincipal(),
-            ICPUtils.subaccountForPrincipal(args.principal)
+            ICPUtils.subaccountForPrincipal(caller)
           )
         );
-        return #ok({ accountIdentifier = #text(principalSubaccountAddress) });
+        return #ok({ consolidationAddress = principalSubaccountAddress });
       };
       case _ { return errInvalidToken };
     };
@@ -360,28 +356,10 @@ actor Invoice {
   // #endregion
 
   // #region Utils
-  public func accountIdentifierToBlob(accountIdentifier : AccountIdentifier) : async T.AccountIdentifierToBlobResult {
-    switch (accountIdentifier) {
-      case (#text textAccountIdentifier) {
-        switch (ICPUtils.accountIdentifierFromValidText(textAccountIdentifier)) {
-          case (#ok blob) { return #ok(blob) };
-          case (#err msg) { return #err({ message = ?"Invalid account identifier"; kind = #InvalidAccountIdentifier }) };
-        };
-      };
-      case (#blob blobAccountIdentifier) {
-        if (ICPUtils.accountIdentifierIsValid(blobAccountIdentifier)) {
-          return #ok(blobAccountIdentifier); 
-        } else {
-          return #err({ message = ?"Invalid account identifier"; kind = #InvalidAccountIdentifier });
-        };
-      };
-      case (#principal principalAccountIdentifier) {
-        let blob = ICPUtils.toAccountIdentifierAddress(
-            getInvoiceCanisterPrincipal(),
-            ICPUtils.subaccountForPrincipal(principalAccountIdentifier)
-        );
-        return #ok(blob);
-      };
+  public func getAccountIdentifierFromText(address : Text) : async Result.Result<Blob, Text> {
+    switch (ICPUtils.accountIdentifierFromValidText(address)) {
+      case (#ok blob) { return #ok(blob) };
+      case (#err msg) { return #err("Invalid account identifier") };
     };
   };
 
