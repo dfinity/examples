@@ -29,7 +29,7 @@ this is for personal use in case changes have to be redone manually, points aren
         ☀ add new module with equivalent ICP related utility functions for account identifiers and subaccounts
         ☀ update unit tests to show equivalence works
         ☀ refactor unit tests to just use the new utility functions
-        // phase one ( commit cedeb82dc6db02e9939bd2015ada7a68dd0dc6a2 )
+        // phase one ( commit cedeb82dc6db02e9939bd2015ada7a68dd0dc6a2)
         ☀ update dfx json to include ~ defaults build packtools vessel sources 
         ☀ refactor invoice/main.mo to use new ICP utilities module 
             - can drop getdestinationaccountidentifier (also from Types.mo)
@@ -41,9 +41,9 @@ this is for personal use in case changes have to be redone manually, points aren
             - accountIdentifierToBlob use switch to convert each account identifier variant type into blob form (with validation)
         ☀ refactor invoice/ICPLedger.mo to parse new (temporary) verify_invoice args
         -> NOTE: no other changes necessary (as of the commit) and E2E still work as is. 
-        // phase two 
+        // phase two (commit 64bf54b44366bfd0a0540411785854d8f87cbedd )
         * refactor main.mo and ICPLedger.mo to remove added arguments for letting ICPLedger.mo work without refactor for tests
             - in ICPLedger.mo balance can use ICPUtils.accountIdentifierFromValidText 
             - in ICPLedger.mo verifyInvoice can directly recreate the principalSubaccountAccountIdentifier and invoiceSubaccount from the invoice in args
         * drop Account/CRC32/Hex/Utils modules and remove imports from ICPLedger and main.mo
-        
+        -> NOTE: no other changes necessary (as of the commit) and E2E still work as is. 
