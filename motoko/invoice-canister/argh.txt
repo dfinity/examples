@@ -46,7 +46,7 @@ actor Invoice {
   let SMALL_CONTENT_SIZE = 256;
   let LARGE_CONTENT_SIZE = 32_000;
   let MAX_INVOICES = 30_000;
-  let MINIMUM_BILLABLE_AMOUNT = 2 * 10_000;
+  let MINIMUM_BILLABLE_AMOUNT : Nat = 2 * 10000;
 
   // #endregion
   /**
@@ -56,7 +56,7 @@ actor Invoice {
   // #region Create Invoice
   public shared ({ caller }) func create_invoice(args : T.CreateInvoiceArgs) : async T.CreateInvoiceResult {
 
-    if (invoiceCounter >= MAX_INVOICES) {
+    if ((invoiceCounter + 1) > MAX_INVOICES) {
       return #err({
         message = ?"The maximum number of invoices has been reached.";
         kind = #MaxInvoicesReached;
@@ -97,9 +97,9 @@ actor Invoice {
           )
         )
       };
-      case _ { assert(false); /* already checked this case above */ "";  };
+      case _ { /* already checked */ };
     };
-
+      
     let invoice : Invoice = {
       id;
       creator = caller;
@@ -110,8 +110,7 @@ actor Invoice {
       token = getTokenVerbose(args.token);
       verifiedAtTime = null;
       paid = false;
-      //paymentAddress;
-      destination = #text(paymentAddress)
+      destination;
     };
 
     invoices.put(id, invoice);
@@ -196,13 +195,13 @@ actor Invoice {
     let token = args.token;
     switch (token.symbol) {
       case "ICP" {
-        let subaccountAddress = ICPUtils.toHumanReadableForm(
+        let textualPrincipalSubaccountAddress = ICPUtils.toHumanReadableForm(
           ICPUtils.toAccountIdentifierAddress(
             getInvoiceCanisterPrincipal(),
             ICPUtils.subaccountForPrincipal(caller)
           )
         );
-        let balance = await ICP.balance({ account = subaccountAddress });
+        let balance = await ICP.balance({ account = textualPrincipalSubaccountAddress });
         switch (balance) {
           case (#err err) {
             return #err({
@@ -266,24 +265,10 @@ actor Invoice {
 
         switch (i.token.symbol) {
           case "ICP" {
-            // passing these two like this is temporary work-around while refactoring code to use new libraries...
-            // so changes to this specific file work still work correctly with tests to show the rest of the 
-            // code base is still equivalently functioning. will be refactored once library integration is
-            // complete prior to the f12 merge into the main bounty branch
-            let principalSubaccountAccountId = ICPUtils.toAccountIdentifierAddress(
-              getInvoiceCanisterPrincipal(),
-              ICPUtils.subaccountForPrincipal(i.creator)
-            );
-            let invoiceSubaccount = ICPUtils.subaccountForInvoice(
-              i.id, 
-              i.creator
-            );
             let result : T.VerifyInvoiceResult = await ICP.verifyInvoice({
               invoice = i;
               caller;
               canisterId = getInvoiceCanisterPrincipal();
-              principalSubaccountAccountId;
-              invoiceSubaccount
             });
             switch result {
               case (#ok value) {
@@ -296,9 +281,11 @@ actor Invoice {
               };
               case (#err _) {};
             };
-            return result;
+            result;
           };
-          case _ { return errInvalidToken };
+          case _ {
+            errInvalidToken;
+          };
         };
       };
     };
@@ -309,45 +296,40 @@ actor Invoice {
   public shared ({ caller }) func transfer(args : T.TransferArgs) : async T.TransferResult {
     switch (args.token.symbol) {
       case "ICP" {
-        // see note above in verify_invoice, using this as a work-around while refactoring code base to use new libraries but show
-        // equivalence in functionality with testing. will be "fixed" when finished refactoring for the sec-f12 branch merge
-        let dest = switch(args.destination) { case (#text(identifier)) { identifier }; case _ { "" /* temporary while refactoring */ }; };
-        switch (ICPUtils.accountIdentifierFromValidText(dest)) {
-          case (#ok accountIdentifer) {
-            let transferResult = await ICP.transfer({
-              memo = 0;
-              fee = { e8s = 10000 };
-              amount = { // Total amount, minus the fee
-                e8s = Nat64.sub(Nat64.fromNat(args.amount), 10000);
-              };
-              from_subaccount = ?ICPUtils.subaccountForPrincipal(caller);
-              to = accountIdentifer;
-              created_at_time = null; // use Nat64.fromIntWrap(Time.now()); ?
-            });
+        if (ICPUtils.accountIdentifierIsValid(args.destination)) {
+          // the caller passed a valid account identifier address to send ICP funds to, proceed
+          let transferResult = await ICP.transfer({
+            memo = 0;
+            fee = { e8s = 10000 };
+            amount = { // Total amount, minus the fee
+              e8s = Nat64.sub(Nat64.fromNat(args.amount), 10000);
+            };
+            from_subaccount = ?ICPUtils.subaccountForPrincipal(caller);
+            to = destination;
+            created_at_time = null; // use Nat64.fromIntWrap(Time.now()); ?
+          });
 
-            switch (transferResult) {
-              case (#ok result) { return #ok(result) };
-              case (#err err) {
-                switch (err.kind) {
-                  case (#BadFee _) { 
-                    return #err({ message = err.message; kind = #BadFee; }); 
-                  };
-                  case (#InsufficientFunds _) { 
-                    return #err({ message = err.message; kind = #InsufficientFunds; }); 
-                  };
-                  case _ { 
-                    return #err({ message = err.message; kind = #Other; }); 
-                  }; 
+          switch (transferResult) {
+            case (#ok result) { return #ok(result) };
+            case (#err err) {
+              switch (err.kind) {
+                case (#BadFee _) { 
+                  return #err({ message = err.message; kind = #BadFee; }); 
                 };
+                case (#InsufficientFunds _) { 
+                  return #err({ message = err.message; kind = #InsufficientFunds; }); 
+                };
+                case _ { 
+                  return #err({ message = err.message; kind = #Other; }); 
+                }; 
               };
             };
-          }; 
-          case (#err err) { 
-            return #err({
-              message = ?"Invalid account identifier";
-              kind = #InvalidDestination;
-            });
           };
+        } else {
+          return #err({
+            message = err.message;
+            kind = #InvalidDestination;
+          });
         };
       };
       case _ { return errInvalidToken };
@@ -364,13 +346,13 @@ actor Invoice {
   public query func get_account_identifier(args : T.GetAccountIdentifierArgs) : async T.GetAccountIdentifierResult {
     switch (args.token.symbol) {
       case "ICP" {
-        let principalSubaccountAddress = ICPUtils.toHumanReadableForm(
+        let textualPrincipalSubaccountAddress = ICPUtils.toHumanReadableForm(
           ICPUtils.toAccountIdentifierAddress(
             getInvoiceCanisterPrincipal(),
-            ICPUtils.subaccountForPrincipal(args.principal)
+            ICPUtils.subaccountForPrincipal(caller)
           )
         );
-        return #ok({ accountIdentifier = #text(principalSubaccountAddress) });
+        return #ok({ accountIdentifier = textualPrincipalSubaccountAddress });
       };
       case _ { return errInvalidToken };
     };
@@ -380,23 +362,25 @@ actor Invoice {
   // #region Utils
   public func accountIdentifierToBlob(accountIdentifier : AccountIdentifier) : async T.AccountIdentifierToBlobResult {
     switch (accountIdentifier) {
-      case (#text textAccountIdentifier) {
-        switch (ICPUtils.accountIdentifierFromValidText(textAccountIdentifier)) {
+      case (#text tAid) {
+        switch (ICPUtils.accountIdentifierFromValidText(tAid)) {
           case (#ok blob) { return #ok(blob) };
-          case (#err msg) { return #err({ message = ?"Invalid account identifier"; kind = #InvalidAccountIdentifier }) };
+          case (#err msg) { return #err({ message = null; kind = #InvalidAccountIdentifier }) };
         };
       };
-      case (#blob blobAccountIdentifier) {
-        if (ICPUtils.accountIdentifierIsValid(blobAccountIdentifier)) {
-          return #ok(blobAccountIdentifier); 
+      case (#blob bAid) {
+        if (ICPUtils.accountIdentifierIsValid(bAid)) {
+          return #ok(blob); 
         } else {
-          return #err({ message = ?"Invalid account identifier"; kind = #InvalidAccountIdentifier });
+          return #err({ message = null; kind = #InvalidAccountIdentifier });
         };
       };
-      case (#principal principalAccountIdentifier) {
-        let blob = ICPUtils.toAccountIdentifierAddress(
+      case (#principal pAid) {
+        let blob = ICPUtils.toHumanReadableForm(
+          ICPUtils.toAccountIdentifierAddress(
             getInvoiceCanisterPrincipal(),
-            ICPUtils.subaccountForPrincipal(principalAccountIdentifier)
+            ICPUtils.subaccountForPrincipal(pAid)
+          )
         );
         return #ok(blob);
       };
@@ -413,6 +397,7 @@ actor Invoice {
             Issuer = "e8s";
           };
         };
+
       };
       case (_) {
         {

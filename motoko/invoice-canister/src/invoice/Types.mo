@@ -40,6 +40,7 @@ module {
     verifiedAtTime : ?Time.Time;
     paid : Bool;
     destination : AccountIdentifier;
+    //paymentAddress : Text;
   };
 // #endregion
 
@@ -68,26 +69,6 @@ module {
       #InvalidDetails;
       #MaxInvoicesReached;
       #Other;
-    };
-  };
-// #endregion
-
-// #region Get Destination Account Identifier
-  public type GetDestinationAccountIdentifierArgs = {
-    token : Token;
-    caller : Principal;
-    invoiceId : Nat;
-  };
-  public type GetDestinationAccountIdentifierResult = Result.Result<GetDestinationAccountIdentifierSuccess, GetDestinationAccountIdentifierErr>;
-  public type GetDestinationAccountIdentifierSuccess = {
-    accountIdentifier : AccountIdentifier;
-  };
-  public type GetDestinationAccountIdentifierErr = {
-    message : ?Text;
-    kind : {
-        #InvalidToken;
-        #InvalidInvoiceId;
-        #Other;
     };
   };
 // #endregion
@@ -162,6 +143,7 @@ module {
   public type TransferArgs = {
     amount : Nat;
     token : Token;
+    //destination : Text;
     destination : AccountIdentifier;
   };
   public type TransferResult = Result.Result<TransferSuccess, TransferError>;
@@ -187,7 +169,7 @@ module {
   };
   public type GetAccountIdentifierResult = Result.Result<GetAccountIdentifierSuccess, GetAccountIdentifierErr>;
   public type GetAccountIdentifierSuccess = {
-    accountIdentifier : AccountIdentifier;
+    accountIdentifier : AccountIdentifier
   };
   public type GetAccountIdentifierErr = {
     message : ?Text;

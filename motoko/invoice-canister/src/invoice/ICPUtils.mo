@@ -97,12 +97,15 @@ module {
   public func accountIdentifierFromValidText(accountId : Text) : Result.Result<Blob, Text> {
     switch (AccountIdentifierBlob.fromText(accountId)) {
       case (#ok(aid)) {
-        if (accountIdentifierIsValid(aid)) return #ok(aid) else {
-          return #err("Textual account identifier was invalid: CRC32 hash did not match.")
+        if (accountIdentifierIsValid(aid)) { 
+          return #ok(aid); 
+        } 
+        else {
+          return #err("Textual account identifier was invalid: CRC32 hash did not match.");
         };
       };
       case _ { /* proceed to return error */ };
     };
-    #err("Textual account identifier was not valid account identifier.");
+    return #err("Textual account identifier was not valid account identifier.");
   };
 }
