@@ -47,3 +47,22 @@ this is for personal use in case changes have to be redone manually, points aren
             - in ICPLedger.mo verifyInvoice can directly recreate the principalSubaccountAccountIdentifier and invoiceSubaccount from the invoice in args
         * drop Account/CRC32/Hex/Utils modules and remove imports from ICPLedger and main.mo
         -> NOTE: no other changes necessary (as of the commit) and E2E still work as is. 
+    (post-sec-f12_refactor)
+        // phase three ( commit bf968c57c8df39855b510d898fa092fba4b538c7 )
+        ☀ refactor Types.mo 
+            - in Invoice type rename destination to paymentAddress and set type to Text
+            - in TransferArgs rename destination to destinationAddress and set type to Text
+            - rename GetAccountIdentifier*Typings to GetCallersConsolidationAddress* and drop principal from its Args, rename return ok arg consolidationAddress
+            - drop unused Account Identifier variant, AccountIdentifierToBlob* Typings, AccountIdentifierToText* Typings
+        ☀ refactor ICPLedger.mo verifyInvoice to use paymentAddressp instead of destination
+        ☀ refactor main.mo 
+            - drop AccountIdentifier type
+            - create_invoice can now use paymentAddress
+            - transfer drop account identifier variant switch and use args.destinationAddress
+            - refactor get_account_identifier to shared function named get_callers_consolidation_address using corresponding types just created, return human readable form
+            - refactor accountIdentifierToBlob as getAccountIdentifierFromText with address:Text as argument to convert returned as simple Result<Blob, Text>
+        ☀ refactor test/e2e/src/icp.test.js
+            - all transfer calls to use destinationAddress field instead of destination record (resetBalance, invalid account, increase a callers balance, should not more than)
+            - "fetch different principals", "should increase a callers icp balance" -> to use get_callers_consolidation_address 
+            - "mark an invoice verified -> transfer call to use destinationaddress with invoice?.paymentAddress 
+        -> Note: as of phase 3 commit hash (unit tests unchanged, work as well) E2E does successfully work
