@@ -1,10 +1,6 @@
-import A "./Account";
-import Hex "./Hex";
 import ICP "./ICPLedger";
-import T "./Types";
-import U "./Utils";
-
 import ICPUtils "./ICPUtils";
+import T "./Types";
 
 import Array "mo:base/Array";
 import Blob "mo:base/Blob";
@@ -196,6 +192,7 @@ actor Invoice {
     let token = args.token;
     switch (token.symbol) {
       case "ICP" {
+        // necessary to pass as text? 
         let subaccountAddress = ICPUtils.toHumanReadableForm(
           ICPUtils.toAccountIdentifierAddress(
             getInvoiceCanisterPrincipal(),
@@ -266,24 +263,10 @@ actor Invoice {
 
         switch (i.token.symbol) {
           case "ICP" {
-            // passing these two like this is temporary work-around while refactoring code to use new libraries...
-            // so changes to this specific file work still work correctly with tests to show the rest of the 
-            // code base is still equivalently functioning. will be refactored once library integration is
-            // complete prior to the f12 merge into the main bounty branch
-            let principalSubaccountAccountId = ICPUtils.toAccountIdentifierAddress(
-              getInvoiceCanisterPrincipal(),
-              ICPUtils.subaccountForPrincipal(i.creator)
-            );
-            let invoiceSubaccount = ICPUtils.subaccountForInvoice(
-              i.id, 
-              i.creator
-            );
             let result : T.VerifyInvoiceResult = await ICP.verifyInvoice({
               invoice = i;
               caller;
               canisterId = getInvoiceCanisterPrincipal();
-              principalSubaccountAccountId;
-              invoiceSubaccount
             });
             switch result {
               case (#ok value) {
@@ -309,8 +292,7 @@ actor Invoice {
   public shared ({ caller }) func transfer(args : T.TransferArgs) : async T.TransferResult {
     switch (args.token.symbol) {
       case "ICP" {
-        // see note above in verify_invoice, using this as a work-around while refactoring code base to use new libraries but show
-        // equivalence in functionality with testing. will be "fixed" when finished refactoring for the sec-f12 branch merge
+        // going to "fix" in commit after this one
         let dest = switch(args.destination) { case (#text(identifier)) { identifier }; case _ { "" /* temporary while refactoring */ }; };
         switch (ICPUtils.accountIdentifierFromValidText(dest)) {
           case (#ok accountIdentifer) {

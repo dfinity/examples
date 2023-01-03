@@ -1,11 +1,7 @@
 import Ledger "canister:nns-ledger";
 
-import A "./Account";
-import CRC32 "./CRC32";
-import Hex "./Hex";
-import SHA224 "./SHA224";
+import ICPUtils "./ICPUtils";
 import T "./Types";
-import U "./Utils";
 
 import Blob "mo:base/Blob";
 import Nat "mo:base/Nat";
@@ -66,40 +62,40 @@ module {
     let result = await Ledger.transfer(args);
     switch result {
       case (#Ok index) {
-        #ok({ blockHeight = index });
+        return #ok({ blockHeight = index });
       };
       case (#Err err) {
         switch err {
           case (#BadFee kind) {
             let expected_fee = kind.expected_fee;
-            #err({
+            return #err({
               message = ?("Bad Fee. Expected fee of " # Nat64.toText(expected_fee.e8s) # " but got " # Nat64.toText(args.fee.e8s));
               kind = #BadFee({ expected_fee });
             });
           };
           case (#InsufficientFunds kind) {
             let balance = kind.balance;
-            #err({
+            return #err({
               message = ?("Insufficient balance. Current balance is " # Nat64.toText(balance.e8s));
               kind = #InsufficientFunds({ balance });
             });
           };
           case (#TxTooOld kind) {
             let allowed_window_nanos = kind.allowed_window_nanos;
-            #err({
+            return #err({
               message = ?("Error - Tx Too Old. Allowed window of " # Nat64.toText(allowed_window_nanos));
               kind = #TxTooOld({ allowed_window_nanos });
             });
           };
           case (#TxCreatedInFuture) {
-            #err({
+            return #err({
               message = ?"Error - Tx Created In Future";
               kind = #TxCreatedInFuture;
             });
           };
           case (#TxDuplicate kind) {
             let duplicate_of = kind.duplicate_of;
-            #err({
+            return #err({
               message = ?("Error - Duplicate transaction. Duplicate of " # Nat64.toText(duplicate_of));
               kind = #TxDuplicate({ duplicate_of });
             });
@@ -128,18 +124,16 @@ module {
     };
   };
   public func balance(args : AccountArgs) : async BalanceResult {
-    switch (Hex.decode(args.account)) {
+    switch (ICPUtils.accountIdentifierFromValidText(args.account)) {
       case (#err err) {
-        #err({
+        return #err({
           kind = #InvalidAccount;
           message = ?"Invalid account";
         });
       };
       case (#ok account) {
-        let balance = await Ledger.account_balance({
-          account = Blob.fromArray(account);
-        });
-        #ok({
+        let balance = await Ledger.account_balance({ account });
+        return #ok({
           balance = Nat64.toNat(balance.e8s);
         });
       };
@@ -150,16 +144,12 @@ module {
     invoice : T.Invoice;
     caller : Principal;
     canisterId : Principal;
-    principalSubaccountAccountId : Blob;
-    invoiceSubaccount : Blob;
   };
 
   public func verifyInvoice(args : ICPVerifyInvoiceArgs) : async T.VerifyInvoiceResult {
     let i = args.invoice;
-    // see notes in main.mo about why these args exist currently, they will be removed before merge of sec-f12 branch
-    let principalSubaccountAccountId = args.principalSubaccountAccountId;
-    let invoiceSubaccount = args.invoiceSubaccount;
 
+    // is going to be "fixed" the commit after this one
     let invoiceSubaccountAddress = switch(i.destination) { case (#text(identifier)) { identifier }; case _ { "" /* not needed atm just for showing equivalence while refactoring*/ }; };
 
     let balanceResult = await balance({ account = invoiceSubaccountAddress });
@@ -179,8 +169,11 @@ module {
           amount = { // Total amount, minus the fee
             e8s = Nat64.sub(Nat64.fromNat(currentInvoiceSubaccountBalance), 10000);
           };
-          from_subaccount = ?args.invoiceSubaccount;
-          to = principalSubaccountAccountId;
+          from_subaccount = ?ICPUtils.subaccountForInvoice(i.id, i.creator);
+          to = ICPUtils.toAccountIdentifierAddress(
+            args.canisterId,
+            ICPUtils.subaccountForPrincipal(i.creator)
+          );
           created_at_time = null; // use Nat64.fromIntWrap(Time.now()); ?
         });
         switch (transferResult) {

@@ -29,6 +29,21 @@ this is for personal use in case changes have to be redone manually, points aren
         ☀ add new module with equivalent ICP related utility functions for account identifiers and subaccounts
         ☀ update unit tests to show equivalence works
         ☀ refactor unit tests to just use the new utility functions
-        ☀ refactor module declarations to just use new library integrated utility functions
-        ☀ refactor invoice.mo to use new ICP utilities module
-        ☀ refactor E2E tests to use new ICP utilities module
+        // phase one ( commit cedeb82dc6db02e9939bd2015ada7a68dd0dc6a2 )
+        ☀ update dfx json to include ~ defaults build packtools vessel sources 
+        ☀ refactor invoice/main.mo to use new ICP utilities module 
+            - can drop getdestinationaccountidentifier (also from Types.mo)
+            - create_invoice check token is valid at beginning then after other checks create payment address for invoice
+            - get_balance create textual account identifier for principal subaccount
+            - verify_invoice pass invoice subaccount and textual account identifier for principal subaccount as extra args (temporary)
+            - transfer pull out textual account identifier of destination and create its blob form; create subaccount for transfer
+            - get_account_identifier create textual account identifier of principal subaccount and return as text variant of account identifier type
+            - accountIdentifierToBlob use switch to convert each account identifier variant type into blob form (with validation)
+        ☀ refactor invoice/ICPLedger.mo to parse new (temporary) verify_invoice args
+        -> NOTE: no other changes necessary (as of the commit) and E2E still work as is. 
+        // phase two 
+        * refactor main.mo and ICPLedger.mo to remove added arguments for letting ICPLedger.mo work without refactor for tests
+            - in ICPLedger.mo balance can use ICPUtils.accountIdentifierFromValidText 
+            - in ICPLedger.mo verifyInvoice can directly recreate the principalSubaccountAccountIdentifier and invoiceSubaccount from the invoice in args
+        * drop Account/CRC32/Hex/Utils modules and remove imports from ICPLedger and main.mo
+        
