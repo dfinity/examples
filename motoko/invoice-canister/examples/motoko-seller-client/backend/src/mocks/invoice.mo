@@ -47,6 +47,8 @@ actor InvoiceMock {
   let SMALL_CONTENT_SIZE = 256;
   let LARGE_CONTENT_SIZE = 32_000;
   let MAX_INVOICES = 30_000;
+  let MINIMUM_BILLABLE_AMOUNT = 2 * 10000;
+
   // #endregion
 
   /**
@@ -56,6 +58,21 @@ actor InvoiceMock {
   // #region Create Invoice
   public shared ({ caller }) func create_invoice(args : T.CreateInvoiceArgs) : async T.CreateInvoiceResult {
     let id : Nat = invoiceCounter;
+
+    if (id > MAX_INVOICES) {
+      return #err({
+        message = ?"The maximum number of invoices has been reached.";
+        kind = #MaxInvoicesReached;
+      });
+    };
+
+    if (args.amount < MINIMUM_BILLABLE_AMOUNT) {
+      return #err({
+        message = ?"The amount is less than what is required to internally transfer funds if the invoice is successfully verified.";
+        kind = #InvalidAmount;
+      });
+    };
+
     // increment counter
     invoiceCounter += 1;
     let inputsValid = areInputsValid(args);
@@ -63,13 +80,6 @@ actor InvoiceMock {
       return #err({
         message = ?"Bad size: one or more of your inputs exceeds the allowed size.";
         kind = #BadSize;
-      });
-    };
-
-    if (id > MAX_INVOICES) {
-      return #err({
-        message = ?"The maximum number of invoices has been reached.";
-        kind = #MaxInvoicesReached;
       });
     };
 
