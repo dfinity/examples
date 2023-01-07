@@ -1,6 +1,14 @@
+
 import { Principal } from "@dfinity/principal";
 const identityUtils = require("./utils/identity");
-const { defaultActor, defaultIdentity, balanceHolder } = identityUtils;
+const { 
+  defaultActor, 
+  defaultIdentity, 
+  balanceHolder, 
+  delegatedAdministrator,
+  anonymousActor,
+  getRandomActor
+} = identityUtils;
 
 const encoder = new TextEncoder();
 
@@ -72,20 +80,44 @@ const lessThanMinimumBillableAmount = {
   permissions: [],
 }
 
+jest.setTimeout(60000);
+
+beforeAll(async () => {
+  // need to make sure these default identity has permission to create invoices
+  let result = await delegatedAdministrator.get_allowed_creators_list();
+  for (let p of result.ok.allowed) {
+    await delegatedAdministrator.remove_allowed_creator({ who: p });
+  }
+  let defaultIdentityPrincipal = defaultIdentity.getPrincipal();
+  result = await delegatedAdministrator.add_allowed_creator({ who: defaultIdentityPrincipal });
+  if (result?.err) {  
+    throw new Error("Couldn't add default identity to creators allowed list necessary for testing!")
+  }
+});
+
 describe("Testing the creation of invoices", () => {
   it("should handle a correct invoice", async () => {
-    const createResult = await defaultActor.create_invoice(testInvoice);
-    if ("ok" in createResult) {
-      // Test invoice exists
-      expect(createResult.ok.invoice).toBeTruthy();
-
-      // Test decoding invoice details
-      let metaBlob = Uint8Array.from(createResult.ok.invoice.details[0].meta);
-      let decodedMeta = JSON.parse(String.fromCharCode(...metaBlob));
-      expect(decodedMeta).toStrictEqual(testMeta);
-    } else {
-      throw new Error(createResult.err.message);
+    const checkResult = (result) => {
+      if ("ok" in result) {
+        // Test invoice exists
+        expect(result.ok.invoice).toBeTruthy();
+  
+        // Test decoding invoice details
+        let metaBlob = Uint8Array.from(result.ok.invoice.details[0].meta);
+        let decodedMeta = JSON.parse(String.fromCharCode(...metaBlob));
+        expect(decodedMeta).toStrictEqual(testMeta);
+      } else {
+        throw new Error(result.err.message);
+      }
     }
+    checkResult(await defaultActor.create_invoice(testInvoice));
+    checkResult(await delegatedAdministrator.create_invoice(testInvoice));
+  });
+  it("should return an error if the caller is unauthorized to create an invoice", async () => {
+    let createResult = await anonymousActor.create_invoice(testInvoice);
+    expect(createResult.err.kind).toStrictEqual({ NotAuthorized: null });
+    createResult = await getRandomActor().create_invoice(testInvoice);
+    expect(createResult.err.kind).toStrictEqual({ NotAuthorized: null });
   });
   it("should return an error if the description is too large", async () => {
     const createResult = await defaultActor.create_invoice(excessiveMeta);
