@@ -28,7 +28,7 @@ This was created to make it easier for someone to quickly verify everything has 
     https://github.com/dfinity/examples/issues/292
 
     - Add access control for creating new invoices 
-        to do ☑️
+        ☑️ check
     - Refactor permission checks to a method 
         to do ☑️
     - Fix check account for transfer fee during transfer (during invoice verification)
