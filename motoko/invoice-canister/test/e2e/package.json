@@ -5,7 +5,8 @@
   "main": "src/index.js",
   "scripts": {
     "pretest": "node make-nodecompat.mjs src/declarations/invoice/index.js",
-    "test": "jest"
+    "//first_comment": "refactoring unit tests to avoid needing to tests sequentially, necessary for now due to permissions changing overlap",
+    "test": "jest --maxWorkers=1"
   },
   "jest": {
     "verbose": true
