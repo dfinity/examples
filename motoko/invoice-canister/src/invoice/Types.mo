@@ -62,6 +62,7 @@ module {
       #InvalidDestination;
       #InvalidDetails;
       #MaxInvoicesReached;
+      #NotAuthorized;
       #Other;
     };
   };
@@ -169,6 +170,48 @@ module {
       #InvalidToken;
       #Other;
     };
+  };
+// #endregion
+
+// #region CreatorsAllowedList types 
+  public type AddAllowedCreatorArgs = {
+    who : Principal
+  };
+  public type AddAllowedCreatorResult = Result.Result<AddAllowedCreatorSuccess, AddAllowedCreatorErr>;
+  public type AddAllowedCreatorSuccess = {
+    message : Text;
+  };
+  public type AddAllowedCreatorErr = {
+    message : ?Text;
+    kind : {
+      #NotAuthorized;
+      #AlreadyAdded; 
+      #AnonymousIneligible;
+      #MaxAllowed;
+    }
+  };
+  public type RemoveAllowedCreatorArgs = {
+    who : Principal
+  };
+  public type RemoveAllowedCreatorResult = Result.Result<RemoveAllowedCreatorSuccess, RemoveAllowedCreatorErr>;
+  public type RemoveAllowedCreatorSuccess = {
+    message : Text;
+  };
+  public type RemoveAllowedCreatorErr = {
+    message : ?Text;
+    kind : {
+      #NotAuthorized;
+      #NotFound; 
+    }
+  };
+  public type GetAllowedCreatorsListResult = Result.Result<GetAllowedCreatorsListSuccess, GetAllowedCreatorsListErr>;
+  public type GetAllowedCreatorsListSuccess = {
+    allowed : [Principal];
+  };
+  public type GetAllowedCreatorsListErr = {
+    kind : {
+      #NotAuthorized;
+    }
   };
 // #endregion
 
