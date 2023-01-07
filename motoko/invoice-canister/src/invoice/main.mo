@@ -15,7 +15,8 @@ import Text "mo:base/Text";
 import Time "mo:base/Time";
 import Result "mo:base/Result";
 
-actor Invoice {
+//dfx deploy invoice --argument '( opt principal"jg6qm-uw64t-m6ppo-oluwn-ogr5j-dc5pm-lgy2p-eh6px-hebcd-5v73i-nqe"  )'
+shared ({ caller = installer_ }) actor class Invoice(delegatedAdminstrator : ?Principal) = this {
   // #region Types
   type Details = T.Details;
   type Token = T.Token;
@@ -33,6 +34,9 @@ actor Invoice {
 */
 
   // #region State
+  // if specified when deployed also has the ability to add/remove from creators allow list and transfer from any subaccount 
+  let delegatedAdmin_ = Option.get(delegatedAdminstrator, installer_);
+  stable var creatorsAllowedList: [Principal] = [];
   stable var entries : [(Nat, Invoice)] = [];
   stable var invoiceCounter : Nat = 0;
   let invoices : HashMap.HashMap<Nat, Invoice> = HashMap.fromIter(Iter.fromArray(entries), entries.size(), Nat.equal, Hash.hash);
@@ -42,6 +46,7 @@ actor Invoice {
   let SMALL_CONTENT_SIZE = 256;
   let LARGE_CONTENT_SIZE = 32_000;
   let MAX_INVOICES = 30_000;
+  let MAX_INVOICE_CREATORS = 256;
   let MINIMUM_BILLABLE_AMOUNT = 2 * 10_000;
 
   // #endregion
@@ -49,8 +54,91 @@ actor Invoice {
 * Application Interface
 */
 
+  // #region add_allowed_creator
+  public shared ({ caller }) func add_allowed_creator(args : T.AddAllowedCreatorArgs) : async T.AddAllowedCreatorResult {
+    if (creatorsAllowedList.size() < MAX_INVOICE_CREATORS) {
+      if (caller == installer_ or caller == delegatedAdmin_) {
+        if (isAnonymous(args.who)) {
+          return #err({
+            message = ?"The anonymous caller is not elgible to be on the creators allowed list.";
+            kind = #AnonymousIneligible;
+          });
+        };
+        if (not Option.isSome(Array.find<Principal>(creatorsAllowedList, func (x : Principal) { x == args.who; }))) {
+          creatorsAllowedList := Array.flatten<Principal>([creatorsAllowedList, [args.who]]);
+          return #ok({
+            message = "Successfully added " # Principal.toText(args.who) # " to creators allowed list.";
+          });
+        } else {
+          return #err({
+            message = ?("The principal " # Principal.toText(args.who) # " is already present on the creators allowed list.");
+            kind = #AlreadyAdded;
+          });
+        }
+      } else {
+        return #err({
+          message = ?"You are not authorized to modify the creators allowed list.";
+          kind = #NotAuthorized;
+        });
+      };
+    } else {
+      return #err({
+        message = ?("Creators allowed list is at maximum capacity of " # Nat.toText(MAX_INVOICE_CREATORS) # " principals.");
+        kind = #MaxAllowed;
+      });
+    };
+  };
+  // #endregion
+
+  // #region remote_allowed_creator
+  public shared ({ caller }) func remove_allowed_creator(args: T.RemoveAllowedCreatorArgs) : async T.RemoveAllowedCreatorResult {
+    if (caller == installer_ or caller == delegatedAdmin_) {
+      if (Option.isSome(Array.find<Principal>(creatorsAllowedList, func (x : Principal) { x == args.who; }))) {
+        creatorsAllowedList := Array.filter<Principal>(creatorsAllowedList, func (x : Principal) { x != args.who; }); 
+          return #ok({
+            message = ("Successfully removed principal " # Principal.toText(args.who) # " from the creators allowed list.");
+          })
+      } else {
+          return #err({
+            message = ?("Could not remove " # Principal.toText(args.who) # ", principal not found in creators allowed list.");
+            kind = #NotFound;
+        });
+      };
+    } else {
+      return #err({
+        message = ?"You are not authorized to modify the creators allowed list.";
+        kind = #NotAuthorized;
+      });
+    };
+  };
+  // #endregion 
+
+  // #region get_allowed_creators_list
+  public shared ({ caller }) func get_allowed_creators_list() : async T.GetAllowedCreatorsListResult { 
+    if (caller == installer_ or caller == delegatedAdmin_) {
+        return #ok({ allowed = creatorsAllowedList });
+    } else {
+        return #err({ kind = #NotAuthorized });
+    };
+  };
+  // #endregion 
+  
+  // #region hasPermissionToCreate 
+  func hasPermissionToCreate(who: Principal) : Bool {
+    (installer_ == who or delegatedAdmin_ == who) or Option.isSome(
+      Array.find<Principal>(creatorsAllowedList, func (x : Principal) { x == who; }))
+  }; 
+  // #endregion 
+
   // #region Create Invoice
   public shared ({ caller }) func create_invoice(args : T.CreateInvoiceArgs) : async T.CreateInvoiceResult {
+
+    if (not hasPermissionToCreate(caller)) { 
+      return #err({
+        message = ?"Not authorized to create invoices. Request add_allowed_creator to be called with your principal.";
+        kind = #NotAuthorized;
+      });
+    };
 
     if (invoiceCounter >= MAX_INVOICES) {
       return #err({
@@ -88,7 +176,7 @@ actor Invoice {
       case "ICP" { 
           ICPUtils.toHumanReadableForm(
             ICPUtils.toAccountIdentifierAddress(
-            getInvoiceCanisterPrincipal(),
+            getInvoiceCanisterPrinciple(),
             ICPUtils.subaccountForInvoice(id, caller)
           )
         )
@@ -194,7 +282,7 @@ actor Invoice {
         // necessary to pass as text? 
         let subaccountAddress = ICPUtils.toHumanReadableForm(
           ICPUtils.toAccountIdentifierAddress(
-            getInvoiceCanisterPrincipal(),
+            getInvoiceCanisterPrinciple(),
             ICPUtils.subaccountForPrincipal(caller)
           )
         );
@@ -265,7 +353,7 @@ actor Invoice {
             let result : T.VerifyInvoiceResult = await ICP.verifyInvoice({
               invoice = i;
               caller;
-              canisterId = getInvoiceCanisterPrincipal();
+              canisterId = getInvoiceCanisterPrinciple();
             });
             switch result {
               case (#ok value) {
@@ -344,7 +432,7 @@ actor Invoice {
       case "ICP" {
         let principalSubaccountAddress = ICPUtils.toHumanReadableForm(
           ICPUtils.toAccountIdentifierAddress(
-            getInvoiceCanisterPrincipal(),
+            getInvoiceCanisterPrinciple(),
             ICPUtils.subaccountForPrincipal(caller)
           )
         );
@@ -386,7 +474,8 @@ actor Invoice {
     };
   };
 
-  func getInvoiceCanisterPrincipal(): Principal { Principal.fromActor(Invoice) };
+  func isAnonymous(p : Principal) : Bool { Blob.equal(Principal.toBlob(p), Blob.fromArray([0x04])) };
+  func getInvoiceCanisterPrinciple() : Principal { Principal.fromActor(this) };
   // #endregion
 
   // #region Upgrade Hooks
