@@ -23,46 +23,65 @@ this is for personal use in case changes have to be redone manually, points aren
 //The above marks all changes necessary for the existing PR to be finished. The rest is all of the edits to complete the RFP-BNT-2 bounty. 
 
 ! for the bounty itself 
-    SEC-F12
-        ☀ update pack-set.dhall to include aviate labs' ICOS (Internet Computer Open Services) so both the official dfinity and ICOS package sets are included (from ICOS array, crypto, encoding, hash, and principal as added dependencies)
-        ☀ update vessel.dhall to reflect this ie: [ "base", "matchers", "base-0.7.3", "array", "crypto", "hash", "encoding", "principal" ]
-        ☀ add new module with equivalent ICP related utility functions for account identifiers and subaccounts
-        ☀ update unit tests to show equivalence works
-        ☀ refactor unit tests to just use the new utility functions
+  SEC-F12 (complete with all working tests @ commit 6f77272e365e228e3bcc023f0b4cbb896220286e)
+    ☀ update pack-set.dhall to include aviate labs' ICOS (Internet Computer Open Services) so both the official dfinity and ICOS package sets are included (from ICOS array, crypto, encoding, hash, and principal as added dependencies)
+    ☀ update vessel.dhall to reflect this ie: [ "base", "matchers", "base-0.7.3", "array", "crypto", "hash", "encoding", "principal" ]
+    ☀ add new module with equivalent ICP related utility functions for account identifiers and subaccounts
+    ☀ update unit tests to show equivalence works
+    ☀ refactor unit tests to just use the new utility functions
         // phase one ( commit cedeb82dc6db02e9939bd2015ada7a68dd0dc6a2)
-        ☀ update dfx json to include ~ defaults build packtools vessel sources 
-        ☀ refactor invoice/main.mo to use new ICP utilities module 
-            - can drop getdestinationaccountidentifier (also from Types.mo)
-            - create_invoice check token is valid at beginning then after other checks create payment address for invoice
-            - get_balance create textual account identifier for principal subaccount
-            - verify_invoice pass invoice subaccount and textual account identifier for principal subaccount as extra args (temporary)
-            - transfer pull out textual account identifier of destination and create its blob form; create subaccount for transfer
-            - get_account_identifier create textual account identifier of principal subaccount and return as text variant of account identifier type
-            - accountIdentifierToBlob use switch to convert each account identifier variant type into blob form (with validation)
-        ☀ refactor invoice/ICPLedger.mo to parse new (temporary) verify_invoice args
-        -> NOTE: no other changes necessary (as of the commit) and E2E still work as is. 
+    ☀ update dfx json to include ~ defaults build packtools vessel sources 
+    ☀ refactor invoice/main.mo to use new ICP utilities module 
+      - can drop getdestinationaccountidentifier (also from Types.mo)
+      - create_invoice check token is valid at beginning then after other checks create payment address for invoice
+      - get_balance create textual account identifier for principal subaccount
+      - verify_invoice pass invoice subaccount and textual account identifier for principal subaccount as extra args (temporary)
+      - transfer pull out textual account identifier of destination and create its blob form; create subaccount for transfer
+      - get_account_identifier create textual account identifier of principal subaccount and return as text variant of account identifier type
+      - accountIdentifierToBlob use switch to convert each account identifier variant type into blob form (with validation)
+    ☀ refactor invoice/ICPLedger.mo to parse new (temporary) verify_invoice args
+      -> NOTE: no other changes necessary (as of the commit) and E2E still work as is. 
         // phase two (commit 64bf54b44366bfd0a0540411785854d8f87cbedd )
-        * refactor main.mo and ICPLedger.mo to remove added arguments for letting ICPLedger.mo work without refactor for tests
-            - in ICPLedger.mo balance can use ICPUtils.accountIdentifierFromValidText 
-            - in ICPLedger.mo verifyInvoice can directly recreate the principalSubaccountAccountIdentifier and invoiceSubaccount from the invoice in args
-        * drop Account/CRC32/Hex/Utils modules and remove imports from ICPLedger and main.mo
-        -> NOTE: no other changes necessary (as of the commit) and E2E still work as is. 
-    (post-sec-f12_refactor)
+    * refactor main.mo and ICPLedger.mo to remove added arguments for letting ICPLedger.mo work without refactor for tests
+      - in ICPLedger.mo balance can use ICPUtils.accountIdentifierFromValidText 
+      - in ICPLedger.mo verifyInvoice can directly recreate the principalSubaccountAccountIdentifier and invoiceSubaccount from the invoice in args
+    * drop Account/CRC32/Hex/Utils modules and remove imports from ICPLedger and main.mo
+      -> NOTE: no other changes necessary (as of the commit) and E2E still work as is. 
+  (post-sec-f12_refactor)
         // phase three ( commit bf968c57c8df39855b510d898fa092fba4b538c7 )
-        ☀ refactor Types.mo 
-            - in Invoice type rename destination to paymentAddress and set type to Text
-            - in TransferArgs rename destination to destinationAddress and set type to Text
-            - rename GetAccountIdentifier*Typings to GetCallersConsolidationAddress* and drop principal from its Args, rename return ok arg consolidationAddress
-            - drop unused Account Identifier variant, AccountIdentifierToBlob* Typings, AccountIdentifierToText* Typings
-        ☀ refactor ICPLedger.mo verifyInvoice to use paymentAddressp instead of destination
-        ☀ refactor main.mo 
-            - drop AccountIdentifier type
-            - create_invoice can now use paymentAddress
-            - transfer drop account identifier variant switch and use args.destinationAddress
-            - refactor get_account_identifier to shared function named get_callers_consolidation_address using corresponding types just created, return human readable form
-            - refactor accountIdentifierToBlob as getAccountIdentifierFromText with address:Text as argument to convert returned as simple Result<Blob, Text>
-        ☀ refactor test/e2e/src/icp.test.js
-            - all transfer calls to use destinationAddress field instead of destination record (resetBalance, invalid account, increase a callers balance, should not more than)
-            - "fetch different principals", "should increase a callers icp balance" -> to use get_callers_consolidation_address 
-            - "mark an invoice verified -> transfer call to use destinationaddress with invoice?.paymentAddress 
-        -> Note: as of phase 3 commit hash (unit tests unchanged, work as well) E2E does successfully work
+    ☀ refactor Types.mo 
+      - in Invoice type rename destination to paymentAddress and set type to Text
+      - in TransferArgs rename destination to destinationAddress and set type to Text
+      - rename GetAccountIdentifier*Typings to GetCallersConsolidationAddress* and drop principal from its Args, rename return ok arg consolidationAddress
+      - drop unused Account Identifier variant, AccountIdentifierToBlob* Typings, AccountIdentifierToText* Typings
+    ☀ refactor ICPLedger.mo verifyInvoice to use paymentAddressp instead of destination
+    ☀ refactor main.mo 
+      - drop AccountIdentifier type
+      - create_invoice can now use paymentAddress
+      - transfer drop account identifier variant switch and use args.destinationAddress
+      - refactor get_account_identifier to shared function named get_callers_consolidation_address using corresponding types just created, return human readable form
+      - refactor accountIdentifierToBlob as getAccountIdentifierFromText with address:Text as argument to convert returned as simple Result<Blob, Text>
+    ☀ refactor test/e2e/src/icp.test.js
+      - all transfer calls to use destinationAddress field instead of destination record (resetBalance, invalid account, increase a callers balance, should not more than)
+      - "fetch different principals", "should increase a callers icp balance" -> to use get_callers_consolidation_address 
+      - "mark an invoice verified -> transfer call to use destinationaddress with invoice?.paymentAddress 
+  SEC-F20 (complete and all working tests @ commit hash 2f697db8d71be6198dee4735acf6dee8394098b2)
+    ☀ update Types to include get_allowed_creators_list, add_allowed_creator, remove_allowed_creator and corresponding Args/Results, also add NotAuthorized to create_invoice error kind
+    ☀ update main.mo
+      -convert actor declaration to explicit class to get _installer and have arg of ?Principal for delegatedAdmin 
+      -add get_allowed_creators_list, add_allowed_creator, remove_allowed_creator, hasPermissionToCreate
+      -add let delegatedAdmin_ = Option.get(delegatedAdminstrator, installer_); stable var creatorsAllowedList: [Principal] = []; MAX_INVOICE_CREATORS = 256
+      -add func isAnonymous(p : Principal) : Bool { Blob.equal(Principal.toBlob(p), Blob.fromArray([0x04])) }; func getInvoiceCanisterPrinciple() : Principal { Principal.fromActor(this) 
+      -update create_invoice to return error if not authorized
+    ☀ update install-local.mjs to cleaner output for that initial error, add flag for deployWDelegation 
+    ☀ update Makefile to reflect this 
+    * update E2E tests 
+      - updated package.json to make test suits run sequentially so creators allowed list permission changes don't conflict (temporary workaround until refactoring of identities is done) 
+      - update/refactor utils/identity.js to use exports as module.exports = {defaultActor,defaultIdentity,balanceHolder,balanceHolderIdentity,delegatedAdministrator,anonymousActor,getRandomActor,getActorByPrincipal,getRandomPrincipal,anonymousPrincipal}; 
+      - add new creatorsAllowedList.test.js with necessary tests, remember settimeout and beforeeach to confirm all have been dropped each time 
+      - update createInvoice.test.js 
+        * update beforeall to make sure defaultActor has permission to create 
+        * add delegatedAdminstrator to "should handle a correct invoice" test
+        * add test for checking unauthorized callers can't create invoices 
+      - update icp.test.js to add beforeall to make sure defaultActor has permission to create and edit which it tests' titles to designate it is of invoice's  permission 
+      - update maxCapacity.js to include check for maxing out creators invoice list capacity 
