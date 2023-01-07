@@ -1,5 +1,11 @@
 const identityUtils = require("./utils/identity");
-const { defaultActor, defaultIdentity, balanceHolder } = identityUtils;
+const { 
+  defaultActor, 
+  defaultIdentity, 
+  balanceHolder,
+  balanceHolderIdentity,
+  delegatedAdministrator
+} = identityUtils;
 
 const encoder = new TextEncoder();
 
@@ -26,6 +32,15 @@ const testInvoice = {
 let createResult;
 
 beforeAll(async () => {
+  // need to make sure default identity has permission to create invoices
+  let defaultIdentityPrincipal = defaultIdentity.getPrincipal();
+  let result = await delegatedAdministrator.add_allowed_creator({ who: defaultIdentityPrincipal });
+  if (result.err) {
+    if (Object.keys(result.err.kind)[0] !== "AlreadyAdded") {
+       // ...should AlreadyAdded really an error to return?
+      throw new Error("Couldn't add default identity to creators allowed list necessary for testing!")
+    }
+  } // else ok & can proceed
   createResult = await defaultActor.create_invoice(testInvoice);
 });
 
@@ -112,7 +127,7 @@ describe("ICP Tests", () => {
         message: ["You do not have permission to view this invoice"],
       });
     });
-    it("should allow get_invoice to be called by authorized callers", async () => {
+    it("should allow get_invoice to be called by authorized callers in the invoice's permission list", async () => {
       const invoice = await defaultActor.create_invoice({
         ...testInvoice,
         permissions: [
@@ -155,7 +170,7 @@ describe("ICP Tests", () => {
       });
       expect(verifyResult.ok?.Paid?.invoice?.paid).toBe(true);
     });
-    it("should not allow a caller to verify an invoice if they are not the creator or on the allowlist", async () => {
+    it("should not allow a caller to verify an invoice if they are not the creator or on the invoice's permission verify allowlist", async () => {
       const invoice = await defaultActor.create_invoice(testInvoice);
       const result = await balanceHolder.verify_invoice({
         id: invoice.ok.invoice.id,
@@ -167,7 +182,7 @@ describe("ICP Tests", () => {
         message: ["You do not have permission to verify this invoice"],
       });
     });
-    it("should not allow a caller to verify an invoice if they are not the creator or on the allowlist", async () => {
+    it("should not allow a caller to verify an invoice if they are not the creator or on the invoice's permission verify allowlist", async () => {
       const invoice = await defaultActor.create_invoice(testInvoice);
       const result = await balanceHolder.verify_invoice({
         id: invoice.ok.invoice.id,
@@ -179,7 +194,7 @@ describe("ICP Tests", () => {
         message: ["You do not have permission to verify this invoice"],
       });
     });
-    it("should allow a non-creator caller to verify an invoice if they are on the allowlist", async () => {
+    it("should allow a non-creator caller to verify an invoice if they are on the invoice's permission verify allowlist", async () => {
       const invoice = await defaultActor.create_invoice({
         ...testInvoice,
         permissions: [
