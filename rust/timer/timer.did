@@ -1,3 +1,0 @@
-service : {
-    "get": ()    -> (nat) query;
-}
