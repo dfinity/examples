@@ -9,7 +9,7 @@ To install:
 To run:
 Open up Candid UI by running
 ```
-open http://localhost:8000\?canisterId\=$(dfx canister id __Candid_UI)
+open http://127.0.0.1:8080\?canisterId\=$(dfx canister id __Candid_UI)
 ```
 
 Enter in the canister id for Seller (`dfx canister id seller`) and click on the `Go` button.
