@@ -86,14 +86,6 @@ module.exports = {
       template: path.join(__dirname, asset_entry),
       cache: false,
     }),
-    new CopyPlugin({
-      patterns: [
-        {
-          from: path.join(__dirname, "frontend", "src", "assets"),
-          to: path.join(__dirname, "dist", frontendDirectory),
-        },
-      ],
-    }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: "development",
       ...canisterEnvVariables,
