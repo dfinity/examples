@@ -1,12 +1,15 @@
-import { canisterId, createActor } from "../../declarations/seller";
-import { Secp256k1KeyIdentity } from "@dfinity/identity";
+import {
+    createActor as createSellerActor,
+    canisterId as sellerCanister
+} from "../../declarations/seller";
+import { Secp256k1KeyIdentity } from "@dfinity/identity-secp256k1";
 
 const base = new TextEncoder().encode("lorem-ipsum-dolor-sit-amet");
 const seed = new Uint8Array([...base, ...new Uint8Array(32 - base.byteLength)]);
 
 const userFromSeed = Secp256k1KeyIdentity.generate(seed);
 
-const actor = createActor(canisterId, {
+const actor = createSellerActor(sellerCanister, {
   agentOptions: {
     identity: userFromSeed,
   },
