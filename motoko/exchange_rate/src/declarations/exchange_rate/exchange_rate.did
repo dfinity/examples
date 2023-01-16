@@ -1,0 +1,41 @@
+type TransformArgs = 
+ record {
+   context: blob;
+   response: CanisterHttpResponsePayload;
+ };
+type Timestamp = nat64;
+type TimeRange = 
+ record {
+   end: Timestamp;
+   start: Timestamp;
+ };
+type RatesWithInterval = 
+ record {
+   interval: nat64;
+   rates: vec record {
+                Timestamp;
+                Rate;
+              };
+ };
+type Rate = text;
+type HttpHeader = 
+ record {
+   name: text;
+   value: text;
+ };
+type ExchangeRate = 
+ service {
+   get_rates: (TimeRange) -> (RatesWithInterval);
+   test_random_http_with_transform: (text) -> (variant {
+                                                 Err: text;
+                                                 Ok: text;
+                                               });
+   transform: (TransformArgs) -> (CanisterHttpResponsePayload) query;
+ };
+type CanisterHttpResponsePayload = 
+ record {
+   body: vec nat8;
+   headers: vec HttpHeader;
+   status: nat;
+ };
+service : () -> ExchangeRate

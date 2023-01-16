@@ -11,7 +11,7 @@ pub struct TimeRange {
     pub end: Timestamp,
 }
 
-#[derive(Clone, Debug, PartialEq, CandidType, Serialize, Deserialize)]
+#[derive(CandidType, Clone, Debug, PartialEq, Serialize, Deserialize)]
 pub struct RatesWithInterval {
     pub interval: usize,
     pub rates: HashMap<Timestamp, Rate>,

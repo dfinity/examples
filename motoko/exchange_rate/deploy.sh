@@ -17,7 +17,6 @@ cp -r ../../rust/exchange_rate/src/frontend src/frontend
 cp ../../rust/exchange_rate/rollup.config.js .
 cp ../../rust/exchange_rate/package.json .
 
-cargo install cargo-audit
 npm install
 
 if [[ $ENV == "local" ]]; then
@@ -25,12 +24,12 @@ if [[ $ENV == "local" ]]; then
     # Check DFX version
     version=$(dfx -V | sed 's/dfx\ //g' | sed 's/-.*$//g')
     if [[ "$version" < "0.12.0" ]]; then
-        echo "dfx 0.12.0 or above required. Please do: dfx upgrade"
+        echo "dfx 0.12.0 or above required. Please run dfx upgrade"
         exit 1
     fi
     
     # Start local replica
-    dfx start --background
+    dfx start --background --clean
 fi
 
 # Deploy exchange_rate and exchange_rate_assets

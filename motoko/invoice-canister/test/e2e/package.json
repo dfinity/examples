@@ -17,7 +17,7 @@
     "@babel/preset-env": "^7.16.11",
     "@dfinity/principal": "^0.10.2",
     "babel-jest": "^27.4.6",
-    "babel-loader": "^8.2.3",
+    "babel-loader": "^8.3.0",
     "eslint": "^8.7.0",
     "eslint-plugin-jest": "^26.0.0",
     "isomorphic-fetch": "^3.0.0",

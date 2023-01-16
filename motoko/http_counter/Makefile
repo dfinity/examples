@@ -10,7 +10,7 @@ build:
 .PHONY: install
 .SILENT: install
 install: build
-	dfx canister install http_counter
+	dfx canister install http_counter --mode reinstall --yes
 
 .PHONY: upgrade
 .SILENT: upgrade
@@ -21,10 +21,9 @@ upgrade: build
 .SILENT: test
 test: install
 	sh -c 'export CANISTER_ID=$$(dfx canister id http_counter); \
-	(curl -s "$$CANISTER_ID.localhost:8000/" --resolve "$$CANISTER_ID.localhost:8000:127.0.0.1" \
-	 	| grep "Counter is 0") && \
-	(curl -s --compressed "$$CANISTER_ID.localhost:8000/" --resolve "$$CANISTER_ID.localhost:8000:127.0.0.1" \
-		| grep "query") && echo "PASS"'
+	export WEBSERVER_PORT=$$(dfx info webserver-port); \
+	(curl -s "$$CANISTER_ID.localhost:$$WEBSERVER_PORT/" --resolve "$$CANISTER_ID.localhost:$$WEBSERVER_PORT:127.0.0.1" | grep "Counter is 0") && \
+	(curl -s --compressed "$$CANISTER_ID.localhost:$$WEBSERVER_PORT/" --resolve "$$CANISTER_ID.localhost:$$WEBSERVER_PORT:127.0.0.1" | grep "query") && echo "PASS"'
 
 .PHONY: clean
 .SILENT: clean
