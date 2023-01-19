@@ -9,7 +9,7 @@ This repository is meant to give [Svelte](https://svelte.dev/) developers an eas
 This template contains
 
 - a Svelte frontend app under `src/frontend` to be hosted on-chain, with support for authentication using Internet Identity
-- a Mokoto dapp under `src/backend` to serve as a backend to the Svelte frontend
+- a Motoko dapp under `src/backend` to serve as a backend to the Svelte frontend
 
 You can see a deployed version of this template here: https://zixfv-4yaaa-aaaam-aaatq-cai.ic0.app/
 
@@ -23,7 +23,7 @@ Coupled with super fast execution the Internet Computer provides the worlds firs
 
 Dapps on the Internet Computer live in canisters, which are special smart contracts that run WebAssembly, and can respond to regular HTTP requests, among other capabilities.
 
-This repository uses Svelte for the frontend running in the browser, and the backend dapp is written in Mokoto, it serves as the business logic of your dapp.
+This repository uses Svelte for the frontend running in the browser, and the backend dapp is written in Motoko, it serves as the business logic of your dapp.
 
 You will build and deploy the following _canisters_:
 
