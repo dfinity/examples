@@ -18,7 +18,8 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
-        run: bash .github/workflows/provision-darwin.sh
+        run: |
+          bash .github/workflows/provision-darwin.sh
       - name: Hosting Photo Storage Darwin
         run: |
           pushd hosting/photo-storage
