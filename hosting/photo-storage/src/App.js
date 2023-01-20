@@ -1,3 +1,4 @@
+import React from 'react';
 import {Ed25519KeyIdentity} from '@dfinity/identity';
 import {HttpAgent} from '@dfinity/agent';
 import {AssetManager} from '@dfinity/assets';
