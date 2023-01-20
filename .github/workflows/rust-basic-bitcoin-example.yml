@@ -24,7 +24,7 @@ jobs:
       - name: Rust Basic Bitcoin Darwin
         run: |
           pushd rust/basic_bitcoin
-          make
+          make deploy
           popd
   rust-basic-bitcoin-linux:
     runs-on: ubuntu-20.04
