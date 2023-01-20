@@ -79,7 +79,6 @@ export default (config) => {
     input: 'src/frontend/src/main.ts',
     output: {
       sourcemap: true,
-      format: 'iife',
       name: 'app',
       file: 'src/frontend/public/build/bundle.js',
     },
