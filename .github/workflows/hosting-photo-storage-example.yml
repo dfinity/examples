@@ -22,10 +22,10 @@ jobs:
       - name: Hosting Photo Storage Darwin
         run: |
           pushd hosting/photo-storage
-        # verify frontend deps install and build
+          # verify frontend deps install and build
           npm install
           npm run build
-        # verify that frontend asset canister deploys
+          # verify that frontend asset canister deploys
           dfx start --background
           dfx deploy
           popd
@@ -38,10 +38,10 @@ jobs:
       - name: Hosting Photo Storage Linux
         run: |
           pushd hosting/photo-storage
-        # verify frontend deps install and build
+          # verify frontend deps install and build
           npm install
           npm run build
-        # verify that frontend asset canister deploys
+          # verify that frontend asset canister deploys
           dfx start --background
           dfx deploy
           popd
