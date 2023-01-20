@@ -16,5 +16,7 @@ else
   cargo build --target $TARGET --release
 fi
 
+gzip -n -f "../../target/$TARGET/release/basic_bitcoin.wasm"
+
 popd
 
