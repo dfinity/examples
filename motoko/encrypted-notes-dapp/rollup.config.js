@@ -80,7 +80,7 @@ export default (config) => {
     output: {
       sourcemap: true,
       name: 'app',
-      file: 'src/frontend/public/build/bundle.js',
+      dir: 'src/frontend/public/build',
     },
     plugins: [
       svelte({
