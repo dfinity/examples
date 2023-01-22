@@ -32,19 +32,14 @@
       "main": "src/DIP20/motoko/src/token.mo"
     }
   },
-  "defaults": {
-    "build": {
-      "args": "",
-      "packtool": ""
-    },
-    "replica": {
-      "subnet_type": "system"
-    }
-  },
   "networks": {
     "local": {
-      "bind": "127.0.0.1:8000",
-      "type": "ephemeral"
+      "bind": "127.0.0.1:8000"
+    }
+  },
+  "defaults": {
+    "replica": {
+      "subnet_type": "system"
     }
   },
   "version": 1

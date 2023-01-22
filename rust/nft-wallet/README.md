@@ -20,7 +20,7 @@ If you prefer to manually deploy
 dfx start --background
 cd internet-identity
 npm install
-II_ENV=development dfx deploy
+II_FETCH_ROOT_KEY=1 dfx deploy
 cd ..
 ./deploy.sh
 ```

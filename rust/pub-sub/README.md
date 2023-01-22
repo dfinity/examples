@@ -6,6 +6,15 @@ This sample project demonstrates a simple pub-sub example.
 
 A common problem in both distributed and decentralized systems is keeping separate services (or canisters) synchronized with one another. While there are many potential solutions to this problem, a popular one is the Publisher/Subscriber pattern or "PubSub". PubSub is an especially valuable pattern on the Internet Computer as its primary drawback, message delivery failures, does not apply. This example demonstrates the usage of one-way calls between canisters. Regular calls on the Internet Computer expect a response. If for some reason this response never arrives the canister can't be stopped and hence can't be upgraded (Read this [blog post](https://www.joachim-breitner.de/blog/789-Zero-downtime_upgrades_of_Internet_Computer_canisters) for details). In this example, the publisher uses the [`notify`](https://docs.rs/ic-cdk/0.5.1/ic_cdk/api/call/fn.notify.html) method instead of the regular `call` method to call `update_count` to implement the one-way notification pattern.
 
+## Security Considerations and Security Best Practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+
+For example, the following aspects are particularly relevant for this app, since it makes inter-canister calls:
+* [Be aware that state may change during inter-canister calls](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#be-aware-that-state-may-change-during-inter-canister-calls)
+* [Only make inter-canister calls to trustworthy canisters](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#only-make-inter-canister-calls-to-trustworthy-canisters)
+* [Don’t panic after await and don’t lock shared resources across await boundaries](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#dont-panic-after-await-and-dont-lock-shared-resources-across-await-boundaries)
+
 ## Implementation
 
 The first canister (Publisher) exposes a `subscribe` method that other canisters can call to register a callback to be executed whenever its other method `publish` is called with an event matching the subscribed topic.

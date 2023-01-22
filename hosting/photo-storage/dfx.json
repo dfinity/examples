@@ -1,0 +1,20 @@
+{
+  "canisters": {
+    "photo-storage": {
+      "frontend": {
+        "entrypoint": "build/index.html"
+      },
+      "source": [
+        "build"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "version": 1
+}

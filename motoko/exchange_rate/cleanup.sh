@@ -21,7 +21,6 @@ fi
 
 # Remove copied and generated UI assets
 rm -rf src/frontend
-rm -rf src/declarations
 rm rollup.config.js
 rm -rf node_modules
 

@@ -60,10 +60,8 @@ On top of that, we cache data that's already fetched, to save from future user r
 triggering remote HTTP calls again.
 
 ## Dependencies
-- [ic-cdk v0.5.7](https://crates.io/crates/ic-cdk/0.5.7) or above
-- [dfx v0.12.0-beta.3](https://github.com/dfinity/sdk/releases/tag/0.12.0-beta.3) or above.
-Use below command to install:
-```DFX_VERSION=0.12.0-beta.3 sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"```
+- [ic-cdk v0.6.5](https://crates.io/crates/ic-cdk/0.6.5) or above
+- [dfx v0.12.0](https://github.com/dfinity/sdk/releases/tag/0.12.0) or above.
 
 ## Building the canister into wasm
 `cd rust/exchange_rate`
