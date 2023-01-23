@@ -70,9 +70,8 @@ export default {
 	input: 'src/frontend/src/main.js',
 	output: {
 		sourcemap: true,
-		format: 'iife',
 		name: 'app',
-		file: 'src/frontend/public/build/bundle.js'
+		dir: 'src/frontend/public/build'
 	},
 	plugins: [
 		svelte({
