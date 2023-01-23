@@ -1,4 +1,5 @@
-import type {ActorMethod} from '@dfinity/agent';
+import type { Principal } from '@dfinity/principal';
+import type { ActorMethod } from '@dfinity/agent';
 
 export type List = [] | [[string, List]];
 export interface Superhero { 'superpowers' : List, 'name' : string }
