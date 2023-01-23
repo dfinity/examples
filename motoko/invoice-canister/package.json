@@ -8,10 +8,10 @@
     "test": "test"
   },
   "dependencies": {
-    "@dfinity/agent": "^0.10.3",
-    "@dfinity/candid": "^0.10.3",
-    "@dfinity/principal": "^0.10.3",
-    "@dfinity/identity": "^0.10.3",
+    "@dfinity/agent": "^0.15.1",
+    "@dfinity/candid": "^0.15.1",
+    "@dfinity/principal": "^0.15.1",
+    "@dfinity/identity": "^0.15.1",
     "base64-arraybuffer": "^0.2.0",
     "base64-js": "^1.5.1",
     "bignumber.js": "^9.0.2",
