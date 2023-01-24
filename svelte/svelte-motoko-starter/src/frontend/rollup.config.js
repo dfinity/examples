@@ -97,7 +97,6 @@ export default {
   input: "src/main.js",
   output: {
     sourcemap: !production,
-    format: "es",
     name: "app",
     dir: "public/build",
   },
