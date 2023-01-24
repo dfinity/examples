@@ -65,8 +65,8 @@ const { canisterIds, network } = initCanisterIds();
 const UNDEFINED_CANISTER_IDS = {
   "process.env.INTERNET_IDENTITY_CANISTER_ID": "undefined",
   "process.env.BACKEND_CANISTER_ID": "undefined",
-  "process.env.FRONTEND_CANISTER_ID": "undefined"
-}
+  "process.env.FRONTEND_CANISTER_ID": "undefined",
+};
 
 function serve() {
   let server;
@@ -97,14 +97,13 @@ export default {
   input: "src/main.js",
   output: {
     sourcemap: !production,
-    format: "es",
     name: "app",
-    file: "public/build/bundle.js",
+    dir: "public/build",
   },
   plugins: [
     svelte({
       preprocess: sveltePreprocess({
-        sourceMap: !production
+        sourceMap: !production,
       }),
       compilerOptions: {
         // enable run-time checks when not in production
@@ -138,7 +137,7 @@ export default {
           "process.env.NODE_ENV": JSON.stringify(
             production ? "production" : "development"
           ),
-          ...UNDEFINED_CANISTER_IDS
+          ...UNDEFINED_CANISTER_IDS,
         },
         ...Object.keys(canisterIds)
           .filter((canisterName) => canisterName !== "__Candid_UI")
