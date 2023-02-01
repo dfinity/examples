@@ -15,12 +15,16 @@ build: node_modules
 .PHONY: install
 .SILENT: install
 install: build
-	dfx canister install --all --argument '(null)'
+	dfx canister install internet_identity --argument '(null)'
+	dfx canister install greet_backend
+	dfx canister install greet_frontend
 
 .PHONY: upgrade
 .SILENT: upgrade
 upgrade: build
-	dfx canister install --all --mode=upgrade  --argument '(null)'
+	dfx canister install internet_identity --argument '(null)' --mode=upgrade
+	dfx canister install greet_backend --mode=upgrade
+	dfx canister install greet_frontend --mode=upgrade
 
 .PHONY: test
 .SILENT: test
