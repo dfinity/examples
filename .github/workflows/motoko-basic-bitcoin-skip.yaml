@@ -1,0 +1,16 @@
+name: motoko-basic-bitcoin
+on:
+  pull_request:
+    paths-ignore:
+      - motoko/basic_bitcoin/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-basic-bitcoin.yaml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Not needed - relevant folder not touched'

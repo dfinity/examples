@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "canisters": {
+    "basic_bitcoin": {
+      "main": "src/basic_bitcoin/src/Main.mo"
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": "",
+      "args": ""
+    }
+  }
+}

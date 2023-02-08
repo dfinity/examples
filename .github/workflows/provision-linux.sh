@@ -12,9 +12,8 @@ sudo apt-get install --yes nodejs
 rm install-node.sh
 
 # Install DFINITY SDK.
-version=0.9.2
-wget --output-document install-dfx.sh "https://sdk.dfinity.org/install.sh"
-DFX_VERSION=$version bash install-dfx.sh < <(yes Y)
+wget --output-document install-dfx.sh "https://internetcomputer.org/install.sh"
+DFX_VERSION=${DFX_VERSION:=0.12.0} bash install-dfx.sh < <(yes Y)
 rm install-dfx.sh
 dfx cache install
 

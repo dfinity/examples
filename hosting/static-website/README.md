@@ -92,7 +92,6 @@ The `dfx.json` file is a configuration file which specifies the canister used fo
             "packtool": ""
         }
     },
-    "dfx": "0.8.4",
     "networks": {
         "local": {
             "bind": "127.0.0.1:8000",

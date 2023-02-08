@@ -15,6 +15,14 @@ This example covers:
 - Deploy the canister smart contract locally
 - Test backend with Candid UI and command line using DFX, and test frontend in browser
 
+## Security Considerations and Security Best Practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+
+For example, the following aspects are particularly relevant for this app:
+* [Use HTTP asset certification and avoid serving your dApp through raw.ic0.app](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#use-http-asset-certification-and-avoid-serving-your-dapp-through-rawic0app), since this app serves a frontend. 
+* [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since this app uses query calls.
+
 ## Installation
 This example project can be cloned, installed and deployed locally, for learning and testing purposes. The instructions are based on running the example on either macOS or Linux, but when using WSL2 on Windows, the instructions will be the same.
 
@@ -125,10 +133,10 @@ Two eventlisteners are added to the JavaScript file, `src/minimal_dapp_assets/sr
 ```javascript
 import { minimal_dapp } from "../../declarations/minimal_dapp";
 
-document.addEventListener('DOMContentLoaded', async function () {
+document.addEventListener("DOMContentLoaded", async () => {
   const counter = await minimal_dapp.getCount();
   document.getElementById("counter").innerText = "Counter: " + counter;
-})
+});
 
 document.getElementById("clickMeBtn").addEventListener("click", async () => {
   const counter = await minimal_dapp.count();

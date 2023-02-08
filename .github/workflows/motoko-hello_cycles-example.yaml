@@ -1,29 +1,37 @@
-name: motoko-hello_cycles-example
+name: motoko-hello_cycles
 on:
   push:
     branches:
       - master
   pull_request:
+    paths:
+      - motoko/hello_cycles/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-hello_cycles-example.yaml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  motoko-hello_cycles-example-darwin:
-    runs-on: macos-10.15
+  motoko-hello_cycles-darwin:
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
-      - name: Motoko Hello Cycles Example Darwin
+      - name: Motoko Hello Cycles Darwin
         run: |
           dfx start --background
           pushd motoko/hello_cycles
           make test
           popd
-  motoko-hello_cycles-example-linux:
+  motoko-hello_cycles-linux:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
-      - name: Motoko Hello Cycles Example Linux
+      - name: Motoko Hello Cycles Linux
         run: |
           dfx start --background
           pushd motoko/hello_cycles

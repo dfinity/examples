@@ -67,7 +67,7 @@ impl UserStore {
     }
 }
 
-// WASM is single-threaded by nature. [RefCell] and [thread_local!] is used vice unsafe.
+// WASM is single-threaded by nature. [RefCell] and [thread_local!] are used despite being not totally safe primitives.
 // This is to ensure that the canister state can be used throughout.
 // Your other option here is to avoid [thread_local!] and use a [RefCell<RwLock/Mutex/Atomic>].
 // Here we use [thread_local!] because it is simpler.

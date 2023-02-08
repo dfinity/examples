@@ -16,6 +16,7 @@
 - [Troubleshooting](#troubleshooting)
   - [Building/deployment problems](#buildingdeployment-problems)
   - [Login problems](#login-problems)
+  - [SSL certificate problems](#ssl-certificate-problems)
 - [dfx.json file structure](#dfxjson-file-structure)
 - [Local memory model](#local-memory-model)
 - [Further Reading](#further-reading)
@@ -48,6 +49,15 @@ This is an _example dapp_ that demonstrates the potential of building _canisters
 
 ---
 &nbsp;
+
+## Security Considerations and Security Best Practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices, see also the [disclaimer](#disclaimer-please-read-carefully) above.  
+
+For example, the following aspects are particularly relevant for this app: 
+* [Make sure any action that only a specific user should be able to do requires authentication](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#make-sure-any-action-that-only-a-specific-user-should-be-able-to-do-requires-authentication), since a user should only be able to manage their own notes.
+* [Protect key material against XSS using Web Crypto API](https://internetcomputer.org/docs/current/references/security/web-app-development-security-best-practices#crypto-protect-key-material-against-xss-using-web-crypto-api), since this app stores private keys in the browser. 
+* [Use secure cryptographic schemes](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#use-secure-cryptographic-schemes), since notes are being encrypted.
 
 ## Deployment
 ### Selecting backend canister deployment option
@@ -268,6 +278,10 @@ Possible Remedies:
 ### Login problems
 Some errors like `Could not initialize crypto service` might occur due to browser caching issues. Redeployment of the dapp can cause such problems. In this case clear browser's _Local Storage_ and _IndexedDB_.
 
+### SSL certificate problems
+
+Some browsers may block local resources based on invalid SSL certificates. If while testing a locally deployed version of the Encrypted Notes dapp you observe certificate issues in your browser's console, please change the browser settings to _ignore certificates for resources loaded from localhost_. For example, this can be done in Google Chrome via [chrome://flags/#allow-insecure-localhost](chrome://flags/#allow-insecure-localhost).
+
 ## dfx.json file structure
 `dfx.json` is the configuration of the project when deploying to either the local replica or to the IC, it assists in the creation of the `.dfx` directory (which contains `canister_ids.json` — which merely maps canister by name to their id on both local replica and the IC). There are various configuration options here and this is not exhaustive. This will primarily discuss target types for canisters (which all exist under the `canisters` key).
 
@@ -298,7 +312,6 @@ Some errors like `Could not initialize crypto service` might occur due to browse
             "wasm": "internet_identity.wasm"
         }
     },
-    "dfx": "0.8.4",
     "networks": {
         "local": {
             "bind": "0.0.0.0:8000",

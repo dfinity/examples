@@ -1,0 +1,50 @@
+{
+  "name": "frontend_assets",
+  "version": "0.1.0",
+  "description": "Internet Computer starter application",
+  "keywords": [
+    "Internet Computer",
+    "Motoko",
+    "JavaScript",
+    "Canister"
+  ],
+  "scripts": {
+    "build": "webpack",
+    "start": "webpack serve --mode development --env development",
+    "generate": "dfx generate invoice; dfx generate seller"
+  },
+  "devDependencies": {
+    "@dfinity/agent": "0.10.3",
+    "@dfinity/candid": "0.10.3",
+    "@dfinity/principal": "0.10.3",
+    "assert": "2.0.0",
+    "buffer": "6.0.3",
+    "copy-webpack-plugin": "^9.0.1",
+    "css-loader": "^6.6.0",
+    "events": "3.3.0",
+    "html-webpack-plugin": "5.5.0",
+    "process": "0.11.10",
+    "stream-browserify": "3.0.0",
+    "style-loader": "^3.3.1",
+    "terser-webpack-plugin": "5.2.5",
+    "ts-loader": "^9.2.6",
+    "util": "0.12.4",
+    "webpack": "5.63.0",
+    "webpack-cli": "4.9.1",
+    "webpack-dev-server": "^4.4.0"
+  },
+  "browserslist": [
+    "last 2 chrome version",
+    "last 2 firefox version",
+    "last 2 safari version",
+    "last 2 edge version"
+  ],
+  "dependencies": {
+    "@adobe/react-spectrum": "^3.16.3",
+    "@dfinity/auth-client": "^0.10.3",
+    "local-storage": "^2.0.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "styled-components": "^5.3.3"
+  }
+}
