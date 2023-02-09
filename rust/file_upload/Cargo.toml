@@ -1,0 +1,24 @@
+[package]
+name = "fileupload"
+version = "0.1.0"
+edition = "2021"
+authors = ["victorcastro89@hotmail.com"]
+
+[[bin]]
+name="fileupload"
+path= "src/fileupload/main.rs"
+
+
+
+[dependencies]
+candid = "0.7.4"
+ic-cdk = "0.5.0"
+ic-cdk-macros = "0.5.0"
+serde =   { version = "1.0.137", features = ["derive"] } 
+num-traits = "0.2.14"
+serde_bytes = "0.11.5"
+types = { path = "./src/fileupload/types" }
+utils = { path = "./src/fileupload/utils" }
+percent-encoding = "2.1"
+matchit="0.6.0"
+

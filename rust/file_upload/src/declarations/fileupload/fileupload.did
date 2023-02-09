@@ -1,0 +1,45 @@
+type ChunkArgs = record {
+  chunk_index : nat64;
+  chunk : vec nat8;
+  filename : text;
+};
+type HttpRequest = record {
+  url : text;
+  method : text;
+  body : vec nat8;
+  headers : vec record { text; text };
+};
+type HttpResponse = record {
+  body : vec nat8;
+  headers : vec record { text; text };
+  upgrade : opt bool;
+  streaming_strategy : opt StreamingStrategy;
+  status_code : nat16;
+};
+type StreamingCallbackHttpResponse = record {
+  token : opt StreamingCallbackToken;
+  body : vec nat8;
+};
+type StreamingCallbackToken = record {
+  key : text;
+  index : nat64;
+  content_encoding : text;
+};
+type StreamingStrategy = variant {
+  Callback : record {
+    token : StreamingCallbackToken;
+    callback : func () -> ();
+  };
+};
+service : () -> {
+  commit_batch : (text, vec text, text) -> (text);
+  create_chunk : (ChunkArgs) -> (text);
+  http_request : (HttpRequest) -> (HttpResponse) query;
+  http_request_streaming_callback : (StreamingCallbackToken) -> (
+      StreamingCallbackHttpResponse,
+    ) query;
+  list_chunks : () -> (vec text) query;
+  read : (nat64, nat64) -> (vec nat8) query;
+  stablegrow : (nat64) -> (nat64);
+  stablesize : () -> (nat64) query;
+}
