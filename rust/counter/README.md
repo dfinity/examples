@@ -1,6 +1,6 @@
 # Counter
 
-This is a Rust port of the Mokoto Counter example. 
+This is a Rust port of the Motoko Counter example.
 
 This example demonstrates a counter application. It uses an orthogonally
 persistent `counter` variable to store an arbitrary precision natural number
@@ -10,7 +10,7 @@ Canisters in Rust are single-threaded, thus it is safe (and simplest) to
 declare global state variable within a `thread_local!` block
 and wrapping `COUNTER` in a `RefCell` pointer.
 
-This is the equivalent of the `stable` keyword in Mokoto, and the value of 
+This is the equivalent of the `stable` keyword in Motoko, and the value of
 such variables will automatically be preserved whenever the canister code is
 upgraded.
 

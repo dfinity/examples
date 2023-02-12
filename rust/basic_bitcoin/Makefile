@@ -1,10 +1,11 @@
 .PHONY: all
-all: build
+all: deploy
 
-.PHONY: build
-.SILENT: build
-build:
-	./src/basic_bitcoin/build.sh
+.PHONY: deploy
+.SILENT: deploy
+deploy:
+	dfx deploy basic_bitcoin --argument '(variant { Regtest })'
+
 .PHONY: clean
 .SILENT: clean
 clean:

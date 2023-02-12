@@ -1,5 +1,11 @@
 # Basic Bitcoin Example
 
+## Local deployment
+Instructions on how to deploy this example locally can be found [here](https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/local-development)
+
+## Production deployment
+Instructions on how to deploy this example on mainnet can be found [here](https://internetcomputer.org/docs/current/samples/deploying-your-first-bitcoin-dapp)
+
 This project showcases a very basic example of how to write a canister
 that can receive and send Bitcoin.
 

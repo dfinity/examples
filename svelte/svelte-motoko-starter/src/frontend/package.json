@@ -23,9 +23,11 @@
     "svelte-preprocess": "^4.10.7"
   },
   "dependencies": {
-    "@dfinity/agent": "^0.10.1",
-    "@dfinity/auth-client": "^0.10.1",
-    "@dfinity/identity": "^0.10.1",
+    "@dfinity/agent": "^0.15.1",
+    "@dfinity/principal": "^0.15.1",
+    "@dfinity/candid": "^0.15.1",
+    "@dfinity/auth-client": "^0.15.1",
+    "@dfinity/identity": "^0.15.1",
     "sirv-cli": "^1.0.0"
   }
 }
