@@ -15,8 +15,13 @@
     },
     "internet_identity": {
       "type": "custom",
-      "candid": "src/internet_identity/internet_identity.did",
-      "wasm": "src/internet_identity/internet_identity_dummy.wasm"
+      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm",
+      "remote": {
+        "id": {
+          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+        }
+      }
     },
     "frontend": {
       "dependencies": [
