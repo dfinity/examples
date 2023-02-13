@@ -1,6 +1,6 @@
 {
   "name": "invoice-canister",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "This project will provide an example and simplified experience for accepting payments in smart contracts.",
   "main": "index.js",
   "directories": {

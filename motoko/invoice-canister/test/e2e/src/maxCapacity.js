@@ -60,6 +60,64 @@ const maxCapacity = {
 const bar1 = new cliProgress.SingleBar({}, cliProgress.Presets.shades_classic);
 
 const run = async () => {
+  const canisterId = await new Promise((resolve, reject) => {
+    exec("dfx canister id invoice", (err, result) => {
+      if (err) {
+        reject(err);
+      }
+      resolve(result.trim());
+    });
+  });
+  // const canisterId = "r7inp-6aaaa-aaaaa-aaabq-cai";
+  const randomActor = async () => {
+    const identity = Secp256k1KeyIdentity.generate();
+    const actor = createActor(canisterId, {
+      agentOptions: {
+        identity,
+        fetch: fetch,
+        host: "http://127.0.0.1:8080",
+      },
+    });
+    return actor;
+  };
+
+  const excessiveCanGet = {
+    amount: 1_000_000n,
+    token: {
+      symbol: "ICP",
+    },
+    details: [
+      {
+        description: new Array(256).fill("a").join(""),
+        meta: new Array(320).fill(0),
+      },
+    ],
+    permissions: [
+      {
+        canGet: new Array(256).fill(Principal.fromText("aaaaa-aa")),
+        canVerify: [],
+      },
+    ],
+  };
+  const maxCapacity = {
+    amount: 1_000_000n,
+    token: {
+      symbol: "ICP",
+    },
+    details: [
+      {
+        description: new Array(256).fill("a").join(""),
+        meta: new Array(32_000).fill(0),
+      },
+    ],
+    permissions: [
+      {
+        canGet: new Array(256).fill(Principal.fromText("aaaaa-aa")),
+        canVerify: new Array(256).fill(Principal.fromText("aaaaa-aa")),
+      },
+    ],
+  };
+
   bar1.start(7_500, 0);
 
   try {
