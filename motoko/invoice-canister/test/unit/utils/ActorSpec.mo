@@ -1,7 +1,7 @@
-import Debug "mo:base/Debug";
 import Array "mo:base/Array";
-import Iter "mo:base/Iter";
+import Debug "mo:base/Debug";
 import Int "mo:base/Int";
+import Iter "mo:base/Iter";
 import Nat "mo:base/Nat";
 import Text "mo:base/Text";
 
@@ -11,7 +11,6 @@ module {
     groups : [Group];
     status : Status;
   };
-
 
   type Status = {
     failed : Nat;
@@ -43,7 +42,6 @@ module {
   func printStatus(status : Status) : Text {
     "Failed: " # Int.toText(status.failed) # ", Passed: " # Int.toText(status.passed) # ", Pending: " # Int.toText(status.pending) # ", Skipped: " # Int.toText(status.skipped);
   };
-
 
   public func run(groups_ : [Group]) : Bool {
     let (groups, status) = getGroups(groups_);
@@ -84,20 +82,19 @@ module {
         let passed = status.passed;
         let pending = status.pending;
         let skipped = status.skipped;
-        switch(failed, passed, pending, skipped) {
-          case (0, 0, 0, 0) { ""; };
-          case (1, 0, 0, 0) { ": Failed"; };
-          case (0, 1, 0, 0) { ": Passed"; };
-          case (0, 0, 1, 0) { ": Pending"; };
-          case (0, 0, 0, 1) { ": Skipped"; };
-          case (_, _, _, _) { ":" # printStatus(status); };
+        switch (failed, passed, pending, skipped) {
+          case (0, 0, 0, 0) { "" };
+          case (1, 0, 0, 0) { ": Failed" };
+          case (0, 1, 0, 0) { ": Passed" };
+          case (0, 0, 1, 0) { ": Pending" };
+          case (0, 0, 0, 1) { ": Skipped" };
+          case (_, _, _, _) { ":" # printStatus(status) };
         };
       };
       Debug.print(newline # indent # group.name # statusText # "\n");
       printGroups(group.groups, indent # "  ");
     };
   };
-
 
   public func describe(name_ : Text, groups_ : [Group]) : Group {
     {
@@ -166,4 +163,4 @@ module {
     };
     allTrue;
   };
-}
+};
