@@ -1,65 +1,63 @@
-//const Principal = require("@dfinity/principal");
-import { Principal } from "@dfinity/principal";
+import { Secp256k1KeyIdentity } from '@dfinity/identity-secp256k1';
+import { Principal } from '@dfinity/principal';
+import { createActor } from '../declarations/invoice/index.js';
+import fetch from 'isomorphic-fetch';
+import pemfile from 'pem-file';
+import { aPriori } from './constants';
 
-const Identity = require("@dfinity/identity");
-const { Secp256k1KeyIdentity, Ed25519KeyIdentity } = Identity;
+// This is only valid because the invoice canister id MUST be the 
+// same expected value for these tests to work based on how
+// the addressing computations are defined. Normally this should be
+// imported as an enviromental variable or parsed from ids.json in /.dfx. 
+const canisterId = aPriori.invoiceCanister.canisterId.principal.asText;
 
-const sha256 = require("sha256");
-const fs = require("fs");
-const Path = require("path");
+// Dfx nns install requires this port. 
+const host = 'http://127.0.0.1:8080';
 
-const localCanisterIds = require("../../../../.dfx/local/canister_ids.json");
-const canisterId = localCanisterIds.invoice.local;
-const host = "http://127.0.0.1:8080";
-
-const fetch = require("isomorphic-fetch");
-
-const declarations = require("../declarations/invoice");
-const { createActor } = declarations;
-
-const parseIdentity = (keyPath) => {
-  const rawKey = fs
-    .readFileSync(Path.join(__dirname, keyPath))
-    .toString()
-    .replace("-----BEGIN EC PRIVATE KEY-----", "")
-    .replace("-----END EC PRIVATE KEY-----", "")
-    .trim();
-  const rawBuffer = Uint8Array.from(rawKey).buffer;
-  const privKey = Uint8Array.from(sha256(rawBuffer, { asBytes: true }));
-  // Initialize an identity from the secret key
-  return Secp256k1KeyIdentity.fromSecretKey(Uint8Array.from(privKey).buffer);
+// Secp256k1KeyIdentity that the NNS ICP ledger deployed by
+// `dfx nns install` is initialized sending funds to; has principal:
+//    hpikg-6exdt-jn33w-ndty3-fc7jc-tl2lr-buih3-cs3y7-tftkp-sfp62-gqe
+// Is used as the invoice canister installer and balance holder in E2E testing.
+const getNNSICPLedgerInitializedFundedSecp256k1KeyIdentity = () => {
+  return Secp256k1KeyIdentity.fromSecretKey(
+    pemfile
+      .decode(
+        // Included as a literal for relative import convience.
+        // Same as contents of the nnsFundedSecp256k1.pem file.
+        `
+  -----BEGIN EC PRIVATE KEY-----
+  MHQCAQEEICJxApEbuZznKFpV+VKACRK30i6+7u5Z13/DOl18cIC+oAcGBSuBBAAK
+  oUQDQgAEPas6Iag4TUx+Uop+3NhE6s3FlayFtbwdhRVjvOar0kPTfE/N8N6btRnd
+  74ly5xXEBNSXiENyxhEuzOZrIWMCNQ==
+  -----END EC PRIVATE KEY-----
+  `.replace(/(\n)\s+/g, '$1'),
+    // replace(<regex>) makes template literal multiline to be ok for pemfile.
+      ) 
+      .slice(7, 39),
+  );
 };
 
-const defaultIdentity = parseIdentity("test-ec-secp256k1-priv-key.pem");
-const defaultActor = createActor(canisterId, {
-  agentOptions: {
-    identity: defaultIdentity,
-    fetch,
-    host: "http://127.0.0.1:8080",
-  },
-});
+const nnsFundedSecp256k1Identity = getNNSICPLedgerInitializedFundedSecp256k1KeyIdentity();
 
-// Account that will receive a large balance of ICP for testing from install.sh
-const balanceHolderIdentity = parseIdentity(
-  "test-ec-secp256k1-priv-key-balanceholder.pem"
-);
-const balanceHolder = createActor(canisterId, {
-  agentOptions: {
-    identity: balanceHolderIdentity,
-    fetch,
-    host: "http://127.0.0.1:8080",
-  },
-});
+const getActor = (identity = Secp256k1KeyIdentity.generate()) => {
+  return createActor(canisterId, { agentOptions: { identity, fetch, host } });
+};
 
-module.exports = {
-  defaultActor,
-  defaultIdentity,
-  balanceHolder,
-  balanceHolderIdentity,
-  delegatedAdministrator,
+const nnsFundedSecp256k1Actor = getActor(nnsFundedSecp256k1Identity);
+
+const anonymousActor = getActor(null);
+const anonymousPrincipal = Principal.anonymous();
+
+const getRandomActor = () => getActor();
+const getActorByIdentity = i => getActor(i);
+const getRandomIdentity = () => Secp256k1KeyIdentity.generate();
+
+export {
+  nnsFundedSecp256k1Actor,
+  nnsFundedSecp256k1Identity,
   anonymousActor,
+  anonymousPrincipal,
   getRandomActor,
-  getActorByPrincipal,
-  getRandomPrincipal,
-  anonymousPrincipal
+  getActorByIdentity,
+  getRandomIdentity,
 };
