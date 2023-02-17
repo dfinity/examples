@@ -24,7 +24,7 @@ jobs:
       - name: Motoko Basic Bitcoin Darwin
         run: |
           pushd motoko/basic_bitcoin
-          dfx build --check
+          dfx deploy basic_bitcoin --argument '(variant { Regtest })'
           popd
   rust-basic-bitcoin-linux:
     runs-on: ubuntu-20.04
@@ -37,5 +37,5 @@ jobs:
       - name: Motoko Basic Bitcoin Linux
         run: |
           pushd motoko/basic_bitcoin
-          dfx build --check
+          dfx deploy basic_bitcoin --argument '(variant { Regtest })'
           popd
