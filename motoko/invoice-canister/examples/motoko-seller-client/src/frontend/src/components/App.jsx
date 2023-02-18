@@ -5,9 +5,15 @@ import InvoiceManager from "./InvoiceManager";
 import { get, clear } from "local-storage";
 import { sellerActor } from "../identity";
 
+/* If you want to make it easier to debug:
+(console.log(JSON.stringify(BigInt will throw error otherwise)))
+BigInt.prototype.toJSON = function () {
+  return this.toString();
+};
+*/
+
 const App = () => {
   const [status, setStatus] = React.useState(null);
-
   React.useEffect(() => {
     const savedId = get("invoice-id");
     if (savedId)
@@ -32,7 +38,7 @@ const App = () => {
           <h1>Invoice Payment Flow</h1>
           <p>
             This dapp illustrates a basic flow for a canister selling a simple
-            license, in exchange for payment in ICP.
+            license, in exchange for payment in ICP or a token using the ICRC1 standard.
           </p>
           <Status status={status} />
           <InvoiceManager status={status} setStatus={setStatus} />

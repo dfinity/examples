@@ -18,7 +18,7 @@ const Status = ({ status }) => {
     () => (status ? ["/happy.png", "licensed!"] : ["/sad.png", "not licensed"]),
     [status]
   );
-
+  
   if (status === null) return null;
 
   return (

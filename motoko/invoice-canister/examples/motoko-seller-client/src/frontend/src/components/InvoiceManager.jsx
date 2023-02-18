@@ -1,24 +1,37 @@
 import React, { memo } from "react";
-import { Button } from "@adobe/react-spectrum";
 import { sellerActor } from "../identity";
 import InvoicePayDialog from "./InvoicePayDialog";
 import { get, set } from "local-storage";
 
 function InvoiceManager(props) {
+
   const [invoice, setInvoice] = React.useState(null);
   const { status, setStatus } = props;
 
   if (status === null) return null;
 
-  const generateInvoice = async () => {
-    const savedId = get("license-id");
+  const clearInvoice = () => {
+    // Otherwise the previous invoice will show in the dialog
+    // until the new invoice is returned and loaded.
+    setInvoice(null);
+  };
+
+  const generateInvoice = async (paymentTokenType) => {
+    if (!paymentTokenType) {
+      throw new Error("Cannot generate invoice without specifying type of token.");
+    }
+    const savedId = get("license-id");      
     if (savedId) {
-      const result = await sellerActor.get_invoice(BigInt(Number(savedId)));
-      setInvoice(result[0]);
+      // Invoice been created, get it from the seller actor.
+      await sellerActor.get_invoice(BigInt(Number(savedId)));
+      setInvoice(getCallResult[0]);
     } else {
-      const result = await sellerActor.create_invoice();
-      setInvoice(result.ok.invoice);
-      set("invoice-id", result.ok.invoice.id.toString());
+      // Invoice has not yet been created, trigger seller actor to create one to use.
+      const createCallResult = await sellerActor.create_invoice(
+        [ paymentTokenType === 'ICP' ? { ICP: null} : { ICRC1 : null} ]
+      );
+      setInvoice(createCallResult.ok.invoice);
+      set("invoice-id", createCallResult.ok.invoice.id.toString());
     }
   };
 
@@ -31,6 +44,7 @@ function InvoiceManager(props) {
       {status ? null : (
         <InvoicePayDialog
           generateInvoice={generateInvoice}
+          clearInvoice={clearInvoice}
           invoice={invoice}
           onPaid={onPaid}
         />

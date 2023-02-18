@@ -21,36 +21,70 @@ const Grid = styled.div`
   }
   textarea {
     width: 274px;
-    height: 32px;
   }
 `;
-
-// invoice:
-// amount: 1000000000n
-// amountPaid: 0n
-// creator: Principal {_arr: Uint8Array(10), _isPrincipal: true}
-// destination: {text: 'a79f2628a7934b78e0c8b227b92e5bb8bad7e09666152cd33a1bf898b0698598'}
-// details: [{…}]
-// expiration: 1645475804024331000n
-// id: 52n
-// paid: false
-// permissions: []
-// refundAccount: []
-// refunded: false
-// refundedAtTime: []
-// token: {decimals: 8n, meta: Array(1), symbol: 'ICP'}
-// verifiedAtTime: []
+/*
+Invoice from invoice canister in motoko-seller-client as it'll appear in the browser's enviroment: 
+{
+  "id": "7",
+  "permissions": [],
+  "creator": {
+    "_arr": { <ommited> }
+    "_isPrincipal": true
+  },
+  "token": {        // or this would also be "ICR1 : null"
+    "ICP": null
+  },
+  "tokenVerbose": {
+    "fee": "10000",
+    "decimals": "8",
+    "meta": [
+      {
+        "Url": "https//internetcomputer.org",
+        "Issuer": "e8s - For Demonstration Purposes"
+      }
+    ],
+    "name": "_Internet Computer Protocol Token Seller Example Edition",
+    "symbol": "_MICP"
+  },
+  "verifiedPaidAtTime": [],
+  "paid": false,
+  "paymentAddress": "84153d7052741d8a386afbe8141f911b3b5206cdbea00dc58350642836c5ef84",
+  "amountPaid": "0",
+  "details": [ < there are details when running the example but I was debugging something when I copied this> ],
+  "amountDue": "1000000000"
+}
+*/
 
 function Invoice({ invoice }) {
-  const decimals = Number(invoice.token.decimals);
+
+  // Recall token is the unit type variant 
+  // so it'll be formed in JS as:
+  // invoice.token = { ICP: null } or 
+  // invoice.token = { ICRC1: null }. 
+ 
+  // One way to get the variant's tag literal.
+  // (Requires it not to be undefined).
+  const token = Object.keys(invoice.token)[0];
+
+  const getUnitsReminder = () => {
+    // Just a reminder, while ICP <> e8s is well known amoung (at least ICP developers?),
+    // this may not be the case for users new to the Internet Computer or when using a 
+    // newly minted ICRC1 token with a non-typical decimals value. 
+    switch (token) {
+      case 'ICP': 
+        return `(or ${invoice.amountDue} e8s)`
+      case 'ICRC1':
+        return `(or ${invoice.amountDue} total ICRC1 tokens)`
+    }
+  }
+
+  // Format the amount. 
+  const decimals = Number(invoice.tokenVerbose.decimals);
+  const amountInToken = Number(invoice.amountDue) / Math.pow(10, decimals);
   const locale = navigator.language;
-  const amountInToken = Number(invoice.amount) / Math.pow(10, decimals);
-
-  console.log(amountInToken);
-
-  const formatted = new Intl.NumberFormat(locale, {
-    maximumSignificantDigits: decimals,
-  }).format(amountInToken);
+  const formatted = new Intl.NumberFormat(locale, {maximumSignificantDigits: decimals}).format(amountInToken); 
+  
   return (
     <Grid>
       <h2>Invoice #{Number(invoice.id)}</h2>
@@ -61,17 +95,18 @@ function Invoice({ invoice }) {
         <dd>1 license for Example Dapp Premium</dd>
         <dt>Price:</dt>
         <dd>
-          {formatted} {invoice.token.symbol}
+          {formatted} {token} { getUnitsReminder() }
         </dd>
-        <dt>Destination address:</dt>
+        <dt>Payment address:</dt>
         <dd>
           <textarea
             name="destination"
             id="destination"
             cols="30"
-            rows="1"
+            rows={token === 'ICP' ? "3" : "4"}
+            resize="none"
             readOnly
-            defaultValue={invoice.destination.text}
+            defaultValue={invoice.paymentAddress}
           />
         </dd>
       </dl>
@@ -80,3 +115,4 @@ function Invoice({ invoice }) {
 }
 
 export default memo(Invoice);
+
