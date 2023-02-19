@@ -25,7 +25,7 @@ In addition to these bounty tasks, two other non-trivial changes include using t
       - [x] `clean-spinup.mjs::disburse_funds_to_nnsFundedSecp256k1Identity_creator_subaccounts()` (lines 250-270, 377).  
   
 - [x] **Adding the required ICRC1 token-ledger canister typings:**  
-    ✶ `src/invoice/modules/SupportedToken.mo::TokenSpecific.ICRC1` (lines 197-235).  
+    ✶ `src/invoice/modules/SupportedToken.mo::TokenSpecific.ICRC1` (lines 194-234).  
 
 - [x] **For consistency and integration adding an ICRC1 token-ledger canister actor supertype:**  
     ✶ `src/invoice/modules/SupportedToken.mo::TokenSpecific.ICRC1.Supertype` (lines 238-243).  
@@ -44,9 +44,9 @@ In addition to these bounty tasks, two other non-trivial changes include using t
       ✶ `describe("ICRC1 Adapter Account and Subaccount Computations"...` (lines 268-420).  
 
 - [x] **Adding the logic connecting those addressing transformations to the invoice canister's API methods:**
-  - [x] `src/invoice/modules/SupportedToken.mo` (lines 525-975).  
+  - [x] `src/invoice/modules/SupportedToken.mo` (lines 515-977).  
         _ㅤㅤㅤRelated `SupportedToken`'s fields:_  
-    - [x] `SupportedToken<T1, T2>` (`#ICRC1_ExampleToken` & `#ICRC1_ExampleToken2` (lines 528-529).  
+    - [x] `SupportedToken<T1, T2>` (`#ICRC1_ExampleToken` & `#ICRC1_ExampleToken2` (lines 529-530).  
     - [x] `UnitType = SupportedToken<(), ()>`  
     - [x] `Amount = SupportedToken<TokenSpecific.ICP.Tokens, TokenSpecific.ICRC1.Tokens>`  
     - [x] `Address = SupportedToken<TokenSpecific.ICP.AccountIdentifier, TokenSpecific.ICRC1.Account>`  
@@ -72,7 +72,7 @@ In addition to these bounty tasks, two other non-trivial changes include using t
 
   - [x] **Unit testing for each of the above methods in `test/unit/Test.mo`.**  
           _ㅤEach includes its own subsuite-set of test cases ("describe">"it") for each token type._  
-      - [x] `describe("Supported Token Types' and Methods"...` (full set omitted here, lines 421-1651).  
+      - [x] `describe("Supported Token Types' and Methods"...` (full set omitted here, lines 423-1651).  
 
   - [x] **Implementing the actual use of the above methods in the invoice canister's API methods in `src/invoice/Invoice.mo`:**  
     - [x] `create_invoice()`  
@@ -102,7 +102,7 @@ In addition to these bounty tasks, two other non-trivial changes include using t
       ✶ `examples/motoko-seller-client/src/backend/modules/MockTokenLedgerCanisters.mo...`  
           _ㅤShould correctly return every #Ok/#Err result of balance/transfer except ICRC1's Generic/TempUnavailable Err._   
       - [x] `...ICP.MockLedger` (lines 96-238; also with `deposity_free_money`).  
-      - [x] `...ICRC1.MockLedger` (lines 96-238; also with `deposity_free_money`).  
+      - [x] `...ICRC1.MockLedger` (lines 315-450; also with `deposity_free_money`).  
 
     - [x] **Updating the backend**
       - [x] Updating `examples/motoko-seller-client/src/backend/modules/SupportedToken.mo`:   
@@ -121,8 +121,9 @@ In addition to these bounty tasks, two other non-trivial changes include using t
       ✶ `examples/motoko-seller-client/src/frontend/...`:  
         - [x] Adding the needed known identities `.../src/identity.js` to correctly create actor types.  
         - [x] Updating `.../src/components/Invoice.jsx`:   
-          - [x] to handle accepting both ICP and ICRC1 token types (lines 68-80, 98).   
-          - [x] to display payment address correctly (line 106).  
+          - [x] to handle accepting both ICP and ICRC1 token types (lines 95-140).   
+          - [x] to display payment address correctly (line 147).  
+          - [x] to display creation timestamp decoded from ULID (lines 62-91, 123, 153-156). 
         - [x] Updating `.../src/components/InvoicePayDialog.jsx`: (lines 68, 71).
           - [x] to allow selection of payment token type (lines 14, 15, 17-24, 28-39, 43-50). 
         - [x] Updating `.../src/components/InvoiceManager.jsx`:  
@@ -136,7 +137,7 @@ In addition to these bounty tasks, two other non-trivial changes include using t
     ㅤPre-existing issues that remained to be resolved. In particular:  
     - [x] Add access control for creating new invoices (see [SEC-F20] & [SEC-F21] below).    
     - [x] Refactor permission checks to a method.  
-      ✶ `src/invoice/Invoice.mo` line 98 (`getInvoiceIfAuthorized`).  
+      ✶ `src/invoice/Invoice.mo::getInvoiceIfAuthorized()` (lines 100-142).  
     - [x] Additionally, when first starting this bounty independently of any work I was doing, the startup scripting was being migrated to use zx which coincidentally at the time I had just become interested in. There's likely an ideal niche for dfx cli and zx for example in making dynamic canister deployment easier particularly as the javascript can console log out the arg as a literal without the explicit need of using it with zx. In any case as a result this migration was completed in the form of `clean-spinup.mjs`.  
   
 ### Prevent arithmetic overflow when amount in TransferArgs is below 10_000 #35 ###  
@@ -150,16 +151,16 @@ In addition to these bounty tasks, two other non-trivial changes include using t
     ㅤTo account for the first two cases the `#err kind #InsufficientTransferAmount` is added; to account for the third `#err kind #InsufficientAmountDue` is added since proceeds of invoices with an amount due less than the transfer fee are effectively irrecoverable[^2] if each invoice has it's own subaccount as a payment address. _Although ICRC1 token-ledger canisters can handle the fee automatically (as an opt transfer arg), it was easier to normalize preventing the error than handling its return which, in addition to also including the necessary support for ICP ledgers, provides a more uniform API for the user._   
     ㅤAs this issue is specifically resolved in the code:  
     - [x] **`create_invoice()`:**  
-        ✶ `src/Invoice/modules/Types.mo` line 187  (`#InsufficientAmountDue;`).  
-        ✶ `src/Invoice/Invoice.mo` (line 202).  
+        ✶ `src/Invoice/modules/Types.mo` (line 190: `#InsufficientAmountDue;`).  
+        ✶ `src/Invoice/Invoice.mo` (lines 229-235).  
         ✶ `test/e2e/src/tests/create_invoice.test.js` (lines 520-549 all four token types tested).  
     - [x] **`transfer()`:**  
-        ✶ `src/Invoice/modules/Types.mo` (line 373: `#InsufficientTransferAmount;`).  
-        ✶ `src/Invoice/Invoice.mo` (line 541).  
+        ✶ `src/Invoice/modules/Types.mo` (line 376: `#InsufficientTransferAmount;`).  
+        ✶ `src/Invoice/Invoice.mo` (lines 661-667).  
         ✶ `test/e2e/src/tests/transfer.test.js` (lines 308-356, all four token types tested).  
     - [x] **`recover_invoice_subaccount_balance()`:**  
-        ✶ `src/Invoice/modules/Types.mo` (line 433: `#InsufficientTransferAmount;`).  
-        ✶ `src/Invoice/Invoice.mo` (line 672).  
+        ✶ `src/Invoice/modules/Types.mo` (line 436: `#InsufficientTransferAmount;`).  
+        ✶ `src/Invoice/Invoice.mo` (lines 825-832).  
         ✶ `test/e2e/src/tests/transfer.test.js`:  
         ㅤ✶ lines 313-349 (#ICP).  
         ㅤ✶ lines 539-575 (#ICP_nns).  
@@ -173,51 +174,51 @@ In addition to these bounty tasks, two other non-trivial changes include using t
       ✶ `src/invoice/modules/SupportedToken.mo::TokenSpecific.ICP.Adapter.computeCreatorSubaccount()` (line 157).  
       ㅤㅤ↳was previousily `src/invoice/Account.mo::principalToSubaccount()` 
     - [x] ICRC1:  
-      ✶ `src/invoice/modules/SupportedToken.mo::TokenSpecific.ICRC1.Adapter.computeCreatorSubaccount()` (line 335).  
+      ✶ `src/invoice/modules/SupportedToken.mo::TokenSpecific.ICRC1.Adapter.computeCreatorSubaccount()` (line 336).  
  
 ### [SEC-F21] Anonymous principal has an account #25 ###  
   - [x] https://github.com/dfinity/invoice-canister/issues/25  
     ㅤRepresented by the logic of three different methods, depending on where the check is occuring; all the canister's API methods checks against the anonymous principal by calling at least one of the following:  
     - [x] Preventing the canister installer from adding an allowed creator as the anonymous principal.  
-      ✶ `src/invoice/Invoice.mo` (line 237 and `src/invoice/modules/Types.mo` line 90).  
+      ✶ `src/invoice/Invoice.mo` (line 286 and `src/invoice/modules/Types.mo` line 93).  
       _ㅤ(which in turn prevents the anonymous principal from calling any other method, specifically because checks done in all the other methods by one or the other of the following two then prevent)_  
     - [x] Unauthorized calls by principals not on allowed creators list when the call is not invoice specific.  
-      ✶ `src/invoice/Invoice.mo::hasCallPermission_()` (line 91).    
+      ✶ `src/invoice/Invoice.mo::hasCallPermission_()` (lines 92-94).    
       _ㅤㅤ(and if it is)_  
-      ✶ `src/invoice/Invoice.mo::getInvoiceIfAuthorized_()` (lines 98-135).  
+      ✶ `src/invoice/Invoice.mo::getInvoiceIfAuthorized_()` (lines 100-142).  
       _ㅤㅤ(which uses the previous `hasCallPermission_()` method)_   
 
     ✶ `test/e2e/src/tests/disallowAnonymous.test.js` (entire file) demonstrates verified coverage for each API method.  
 
 ### [SEC-F05] TOCTOU in verify_invoice #21 ###  
   - [x] https://github.com/dfinity/invoice-canister/issues/21  
-    ㅤThis does not have an explicit test at this time. That being said, a means to resolving this issue is implemented by a lock synchronizing access of an invoice by its id when either the `verify_invoice` or `recover_invoice_subaccount_balance` is called. In turn either method could trigger a transfer from that invoice's subaccount which with ungaurded concurrent access could lead to problems as discussed in that issue (and potentially more with the added recovery of funds functionality).  
+    ㅤThis does not have an explicit test at this time. That being said, a means to resolving this issue is implemented by a lock synchronizing access of an invoice by its id when either the `verify_invoice()` or `recover_invoice_subaccount_balance()` is called. In turn either method could trigger a transfer from that invoice's subaccount which with ungaurded concurrent access could lead to problems as discussed in that issue (and potentially more with the added recovery of funds functionality).  
     ㅤTo ensure the lock itself does not become a problem, it is implemented with an auto-expiring timeout; all inter-canister calls are wrapped with a try/catch; other code in the scope of the lock has been tested and accounted for (preventing trapping from subtracting amounts less than a transfer fee, for example). This means of resolution was brought up on the forums as well, and this approach given tentantive approval (the timeout may itself prevent problems, but if either method takes longer than  ten minutes--the currently set expiration time--either method would likely need to be called again); while there might be a better built-in solution available for Motoko, it is not yet available.  
     ㅤAs invoices are already access controlled (only callers on verify permission list could call either method for a given invoice) and are only linked as a sender from their own subaccount, this issue is even more of an edge case. The auto-expiring lock prevents it and other potential issues from concurrent calls to verify and recover causing problems. To see the specific code:  
-      ✶ `src/invoice/Invoice.mo` (map and timeout declarations line 75 & 76).  
-      ✶ `src/invoice/Invoice.mo::verify_invoice` (each branch covered lines 390-508).  
-      ✶ `src/invoice/Invoice.mo::recover_invoice_subaccount_balance()` (each branch covered lines 631-722).  
+      ✶ `src/invoice/Invoice.mo` (map and timeout declarations line 74 & 78).  
+      ✶ `src/invoice/Invoice.mo::verify_invoice()` (each branch covered lines 472-629).  
+      ✶ `src/invoice/Invoice.mo::recover_invoice_subaccount_balance()` (each branch covered lines 773-894).  
 
 ### [SEC-F12] Copied libraries #20 ###  
   - [x] https://github.com/dfinity/invoice-canister/issues/20  
     ㅤUpgrading the invoice canister to use libraries as opposed to hard-coded copying of sha256, crc32, and hex libraries. This is done by adding [Aviate Labs](https://github.com/aviate-labs) [Internet Computer Open Services](https://github.com/internet-computer/) package set as an additional upstream in `package-set.dhall` to make the `"array", "crypto", "hash", "encoding", "principal"` dependencies available in `vessel.dhall`. The existing addressing computations for account identifiers is updated as well as 1-1 Motoko unit tests with existing tests to show equivalence between the two implementations (added a tag to jump to that commit which is no longer a part of visible code base)[^3]. Most of those same methods as they are now:
      
-    - [x] `src/invoice/modules/SupportedToken.mo::TokenSpecific.ICP.Adapter.computeInvoiceSubaccount` (lines 121-136).    
+    - [x] `src/invoice/modules/SupportedToken.mo::TokenSpecific.ICP.Adapter.computeInvoiceSubaccount()` (lines 122-136).    
          ㅤ↳was previousily `src/invoice/Utils.mo::generateInvoiceSubaccount()`  
 
-    - [x] `src/invoice/modules/SupportedToken.mo::TokenSpecific.ICP.Adapter.computeCreatorSubaccount` (lines 152-164).  
+    - [x] `src/invoice/modules/SupportedToken.mo::TokenSpecific.ICP.Adapter.computeCreatorSubaccount()` (lines 152-164).  
          ㅤ↳was previousily `src/invoice/Account.mo::principalToSubaccount()`  
 
-    - [x] `src/invoice/modules/SupportedToken.mo::computeInvoiceSubaccountAddress` (lines 140-144).  
+    - [x] `src/invoice/modules/SupportedToken.mo::computeInvoiceSubaccountAddress()` (lines 140-149).  
          ㅤ↳was previousily `src/invoice/Account.mo::accountIdentifier()`   
 
-    - [x] `src/invoice/modules/SupportedToken.mo::computeCreatorSubaccountAddress` (lines 168-).  
+    - [x] `src/invoice/modules/SupportedToken.mo::computeCreatorSubaccountAddress()` (lines 168-177).  
          ㅤ↳was previousily `src/invoice/Account.mo::accountIdentifier()`   
 
-    - [x] `src/invoice/modules/SupportedToken.mo::TokenSpecific.ICP.Adapter.isValidAddress`) (lines 94-).  
+    - [x] `src/invoice/modules/SupportedToken.mo::TokenSpecific.ICP.Adapter.isValidAddress()`) (lines 94-102).  
          ㅤ↳was previousily `src/invoice/Account.mo::validateAccountIdentifier()`   
 
-    ㅤNote that the `ICRC1.Adapter` module also uses these libraries for its `computeCreatorSubaccount` method.  
+    ㅤNote that the `ICRC1.Adapter` module also uses these libraries for its `computeCreatorSubaccount()` method.  
     There's also coverage of the entire `ICP.Adapter` module (same as `ICRC1.Adapter` above) using these library dependencies at:  
     - [x] `test/unit/Test.mo` (lines 107-267).  
       ㅤ✶ `describe("ICP Adapter AccountIdentifier and Subaccount Computations")` (entire set of tests omitted).   
@@ -226,30 +227,30 @@ In addition to these bounty tasks, two other non-trivial changes include using t
   - [x] https://github.com/dfinity/invoice-canister/issues/16  
     ㅤWhile adding the `CertifiedMap` library is a potential option for future development, all the calls have been made update calls (as well as discussion regarding why in the non-generated developer docs):   
      
-    - [x] `src/Invoice.mo::get_invoice()` (line 292).  
-    - [x] `src/Invoice.mo::get_caller_balance()` (line 311, previousily `get_balance`).  
-    - [x] `src/Invoice.mo::get_caller_address()` (line 292, previousily `get_account_identifier`).  
-    - [x] `src/Invoice.mo::to_other_address_format()` (line 750).  
+    - [x] `src/Invoice.mo::get_invoice()` (line 347).  
+    - [x] `src/Invoice.mo::get_caller_balance()` (line 3369, previousily `get_balance`).  
+    - [x] `src/Invoice.mo::get_caller_address()` (line 422, previousily `get_account_identifier`).  
+    - [x] `src/Invoice.mo::to_other_address_format()` (line 922).  
 
 ### [SEC-F30] Funds can get stuck in invoice accounts #13 ###  
   - [x] https://github.com/dfinity/invoice-canister/issues/13  
-    ㅤNow any amount more than the transfer fee cost can be transferred out of an invoice subaccount by its creator or those on its verify permission list. If the invoice has not yet been verified, this could serve as a refund; if the invoice has already been verified, this method can be used to recover those funds. It should be noted this is not a refund for invoices already verified as those funds are moved to the creator's subaccount when the balance paid is confirmed to be greater or equal to the invoice's amount due. Since the verification and balance recovery methods are synchronized by invoice id, a call to recover funds will only happen after the invoice verification is complete (see [SEC-F05] above). The `recover_invoice_subaccount_balance` also has extensive E2E testing.  
-    - [x] `src/Invoice.mo::recover_invoice_subaccount_balance()` (lines 613-738).  
-    - [x] `src/modules/Types.mo::recover_invoice_subaccount_balance` (lines 399-441).   
+    ㅤNow any amount more than the transfer fee cost can be transferred out of an invoice subaccount by its creator or those on its verify permission list. If the invoice has not yet been verified, this could serve as a refund; if the invoice has already been verified, this method can be used to recover those funds. It should be noted this is not a refund for invoices already verified as those funds are moved to the creator's subaccount when the balance paid is confirmed to be greater or equal to the invoice's amount due. Since the verification and balance recovery methods are synchronized by invoice id, a call to recover funds will only happen after the invoice verification is complete (see [SEC-F05] above). The `recover_invoice_subaccount_balance()` also has extensive E2E testing and demonstrates testing of nearly all the invoice canister's functionality. 
+    - [x] `src/Invoice.mo::recover_invoice_subaccount_balance()` (lines 751-910).  
+    - [x] `src/modules/Types.mo::recover_invoice_subaccount_balance` (lines 402-442).   
     - [x] `test/e2e/src/tests/recover_invoice_subaccount_balance.test.js.mo` 
      ㅤ✶ (entire file, each token has its own test subsuite, in addition to non-token specific tests).  
 
 ### [SEC-F20] Controller of canister could take all funds by upgrading 12 ###  
   - [x] https://github.com/dfinity/invoice-canister/issues/12  
-    ㅤImplementating access control can get very complicated, particularly if the objective is to use the invoice canister for managing the finances of a DAO. While not impossible, it is beyond the scope of this bounty. That being said an allowed creators list is added such that the original invoice canister installer has the unique right to add or remove principals from the allowed creators list. It should be noted other than this (and the fact they are the original installer) they have no special rights: for instance if they are not an invoice's creator or on its get or verify permissions list, they cannot get or verify or recover funds of that invoice by calling the canister's API; similarly they cannot arbitrarily transfer funds out of any subaccount with the code base as it is. As for principals on the allowed creators list, they too can call every method of the invoice canister API except adding, removing or getting the allowed creators list.  
+    ㅤImplementating access control can get very complicated, particularly if the objective is to use the invoice canister for managing the finances of a DAO. While not impossible, it is beyond the scope of this bounty. That being said an allowed creators list is added such that the original invoice canister installer has the unique right to add or remove principals from the allowed creators list. It should be noted other than this (and the fact they are the original installer) they have no special rights: for instance if they are not an invoice's creator or on its get or verify permissions list, they cannot get or verify or recover funds of that invoice by calling the canister's API; similarly they cannot arbitrarily transfer funds out of any subaccount with the code base as it is. As for principals on the allowed creators list, they too can call every method of the invoice canister API except adding, removing or getting the allowed creators list. In addition to the logic added in code there is extension dicussion of this in the `docs/DesignDocs.md` (lines 33-54). 
     _ㅤThere is a simple implementation of adding a 'delegatedAdministrator' who would also have the ability to add and remove allowed creators, originally as an optional deployment argument and then with an "official" getter and setter in the API list, as this might be a useful feature for the invoice canister to have (a developer could setup and maintain the canister for a storefront, and give the storefront the "administrator" access control while still being able to do DX tech support/dev ops; or for blackholing the canister), but this is left as an exercise for the developer to implement as there are libraries that can do that and much more out there if that is a needed feature (that code is tag commited[^4])._   
 
     ㅤTo see all the related code:  
-    - [x] `src/module/Types.mo` (lines 65-133, add/remove/get allowed creators list API types).  
-    - [x] `src/Invoice.mo::allowedCreatorsList_` (line 66, stable principal array).  
-    - [x] `src/Invoice.mo::add_allowed_creator()` (lines 232-252).  
-    - [x] `src/Invoice.mo::remove_allowed_creator()` (lines 539-575). 
-    - [x] `src/Invoice.mo::get_allowed_creators_list()` (lines 769-805). 
+    - [x] `src/module/Types.mo` (lines 68-147, add/remove/get allowed creators list API types).  
+    - [x] `src/Invoice.mo::allowedCreatorsList_` (line 65, stable principal array).  
+    - [x] `src/Invoice.mo::add_allowed_creator()` (lines 278-307).  
+    - [x] `src/Invoice.mo::remove_allowed_creator()` (lines 311-334). 
+    - [x] `src/Invoice.mo::get_allowed_creators_list()` (lines 338-343). 
     - [x] `test/e2e/src/tests/allowedCreatorsList.test.js.mo` (entire file, test subsuites for all the above methods).
     - [x] `test/e2e/src/tests/*.test.js` (used by most other test suites as well).
 
@@ -257,11 +258,11 @@ In addition to these bounty tasks, two other non-trivial changes include using t
   - [x] https://github.com/dfinity/invoice-canister/issues/19
     - [x] Extensive Motokodoc and in-method-body comments literally everywhere / generated `dev docs`.
     - [x] All testing is also extensively commented:
-    - [x] Standalone (non-generated) developer docs in `docs/`.  
+    - [x] Standalone (non-generated) developer doc `docs/DesignDocs.md` covering specifications, API, security and critical aspects.    
 
 ### [SEC-F22] Potentially sensitive invoice details are stored in plain text on the canister #26 ###
   - [x] https://github.com/dfinity/invoice-canister/issues/26  
-    ㅤThreshold encryption for E2E processing in Motoko not yet available; implications of this documented in Motokodoc and discussed in developer docs in `docs/`.  
+    ㅤThreshold encryption for E2E processing in Motoko not yet reliably available; implications of this aspect of canister memory documented in Motokodoc and discussed in developer docs in `docs/DesignDocs.mo` (lines 55-58).  
 
 ### [SEC Cleanup] Incomplete design documentation #29 ###  
   - [x] https://github.com/dfinity/invoice-canister/issues/29  
