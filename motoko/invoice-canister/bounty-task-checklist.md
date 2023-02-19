@@ -8,7 +8,7 @@ This was created to make it easier to know what needed to be done as to verify e
 
 *line numbers should be correct, but TO DO verify before pushing for PR. 
 
-Note that in addition to these bounty tasks, two other non-trivial changes include using the literal of a generated ULID for an invoice's id (instead of the invoice creation counter value). ULID was chosen for its human friendly format and lack of dashes, and the counter is still available if needed. The other change was upgrading from the volatile Motoko base hashmap to the stable hashmap by ZhenyaUsenko to remove the need for using the pre and postupgrade system hooks. 
+In addition to these bounty tasks, two other non-trivial changes include using the literal of a generated ULID for an invoice's id (instead of the invoice creation counter value). ULID was chosen for its timestamp encoding and human copy and paste friendly dash-lacking format; there's an example of decoding the timestamp from an invoice's ulid in the frontend of the `motoko-seller-client` example. Also note a monotonic invoice creation counter is still used and available if needed for an invoice record. The other change was upgrading from the volatile hashmap to the stable compatible trie to remove the need for using the pre and postupgrade system hooks. 
 
 ---
 

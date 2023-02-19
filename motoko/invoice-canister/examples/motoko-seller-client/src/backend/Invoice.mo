@@ -11,6 +11,7 @@ import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
+import Trie "mo:base/Trie";
 import XorShift "mo:rand/XorShift";
 import Source "mo:ulid/Source";
 import ULID "mo:ulid/ULID";
@@ -119,18 +120,10 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
     public let MAX_INVOICE_CREATORS = 256;
   };
 
-  // Consider using stable compatible such as trie or newer stable map libraries more recently available.
-  stable var entries_ : [(Text, Types.Invoice_)] = [];
-
-  /** `Invoice_` collection map with the key an invoice's id.  
+  /** Stores `Invoice_` records in a stable trie representation. 
     _Note invoices as they are returned to a caller are first decorated by `toCallerExpectedInvoice`  
     to add the `paid : Bool` and `tokenVerbose : VerboseToken` fields.  */
-  let invoices_ : HashMap.HashMap<Text, Types.Invoice_> = HashMap.fromIter(
-    Iter.fromArray(entries_),
-    entries_.size(),
-    Text.equal,
-    Text.hash,
-  );
+  stable var invoices_ : Trie.Trie<Types.InvoiceId, Types.Invoice_> = Trie.empty();
 
   /** Source of entropy for substantiating ULID invoice ids. */
   let idCreationEntropy_ = Source.Source(XorShift.toReader(XorShift.XorShift64(null)), 0);
@@ -161,6 +154,9 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
   /** The classic canister principal getter.  */
   func getInvoiceCanisterId_() : Principal { Principal.fromActor(this) };
 
+  /** Gets the key used by the trie storing `Invoice_` records.  */
+  func key_(t : Text) : Trie.Key<Text> { { hash = Text.hash(t); key = t } };
+
   /** Checks if a principal is in an array of principals.  */
   func includesPrincipal_(p : Principal, ps : [Principal]) : Bool {
     Option.isSome(Array.find<Principal>(ps, func(x : Principal) : Bool { x == p }));
@@ -171,7 +167,7 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
     (caller == installer_) or includesPrincipal_(caller, allowedCreatorsList_);
   };
 
-  /** Returns the opt unwrapped `Invoice_` value from the `invoices_` hashmap if an invoice  
+  /** Returns the opt unwrapped `Invoice_` value from the `invoices_` trie if an invoice  
     exists for a given id or #NotFound if it doesn't, if the caller is authorized; or  
     #NotAuthorized otherwise and even if it doesn't exist if the caller is not authorized.  
     _Used by `get_invoice`, `verify_invoice` and `recover_invoice_subaccount_balance_`. */
@@ -183,7 +179,7 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
       #Verify;
     },
   ) : Result.Result<Types.Invoice_, { kind : { #NotAuthorized; #NotFound } }> {
-    switch (invoices_.get(id)) {
+    switch (Trie.get(invoices_, key_(id), Text.equal)) {
       case null {
         if (not hasCallPermission_(caller)) {
           #err({ kind = #NotAuthorized });
@@ -304,7 +300,12 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
       verifiedPaidAtTime = null;
     };
     invoiceCounter_ += 1;
-    invoices_.put(createdInvoice.id, createdInvoice);
+    invoices_ := Trie.put(
+      invoices_,
+      key_(id),
+      Text.equal,
+      createdInvoice,
+    ).0;
     #ok({ invoice = toCallerExpectedInvoice_(createdInvoice) });
   };
 
@@ -435,7 +436,7 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
     or exceeds the amount due for that invoice. If an invoice is verified as paid the total amount of  
     balance in that invoice's subaccount is transferred to the principal subaccount address of that  
     invoice's creator (less the cost of that token type's transfer fee). Additionally the invoice's  
-    hashmap record is updated to include the time of verification and returned to the caller. If no  
+    stored record is updated to include the time of verification and returned to the caller. If no  
     payment has been made the invoice will not be verified and this will return `#Unpaid`; if there's  
     only been partial payment the invoice will also not be verified and this will return `#IncompletePayment`  
     with the `partialAmountPaid`. If this is called after an invoice has already been verified, it will  
@@ -535,9 +536,9 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
                       // also be returned to caller or sent to a logger if indexing
                       // invoice transactions is needed.
                       let updated = {
-                        token = invoice.token;
-                        id = invoice.id;
-                        creator = invoice.creator;
+                        token;
+                        id;
+                        creator;
                         details = invoice.details;
                         permissions = invoice.permissions;
                         paymentAddress = invoice.paymentAddress;
@@ -545,7 +546,12 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
                         amountPaid = bal;
                         verifiedPaidAtTime = ?Time.now();
                       };
-                      invoices_.put(id, updated);
+                      invoices_ := Trie.replace(
+                        invoices_,
+                        key_(id),
+                        Text.equal,
+                        ?updated,
+                      ).0;
                       isAlreadyProcessingLookup_.delete(id);
                       #ok(#VerifiedPaid { invoice = toCallerExpectedInvoice_(updated) });
                     };
@@ -804,10 +810,4 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
       };
     };
   };
-
-  /*--------------------------------------------------------------------------- 
-  */ // Canister System Hooks
-
-  system func preupgrade() { entries_ := Iter.toArray(invoices_.entries()) };
-  system func postupgrade() { entries_ := [] };
 };
