@@ -83,7 +83,8 @@ module SupportedToken {
       };
 
       /****Set of addressing computations the invoice canister uses for processing ICP transactions.***/
-      module Adapter {
+      public module Adapter {
+        // This module was made public to make it indexable for docs generation.
 
         /****Returns whether it is a valid account identifier's (the optional) subaccount.***/
         public func isValidSubaccount(s : Subaccount) : Bool {
@@ -242,7 +243,9 @@ module SupportedToken {
       };
 
       /****Set of addressing computations the invoice canister uses for processing ICRC1 transactions.***/
-      module Adapter {
+      public module Adapter {
+        // This module was made public to make it indexable for docs generation.
+
         // CRC32 hash omitted from creating icrc1 invoice subaccounts.
         let leadingPadding = [0 : Nat8, 0 : Nat8, 0 : Nat8, 0 : Nat8];
 
