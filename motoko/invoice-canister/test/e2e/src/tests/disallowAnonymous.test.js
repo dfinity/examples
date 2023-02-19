@@ -48,7 +48,7 @@ describe('Test Anonymous Principal is Disallowed as a Caller', async () => {
     expect(result?.err?.kind).toStrictEqual({ NotAuthorized: null });
   });
   it('should reject anonymous caller | get_invoice -> err #NotAuthorized', async () => {
-    const result = await anonymousActor.get_invoice({ id: 0n });
+    const result = await anonymousActor.get_invoice({ id: "6GNGGRXAKGTXG070DV4GW2JKCJ" });
     expect(result?.err?.kind).toStrictEqual({ NotAuthorized: null });
   });
   it('should reject anonymous caller | get_caller_balance -> err #NotAuthorized', async () => {
@@ -88,7 +88,7 @@ describe('Test Anonymous Principal is Disallowed as a Caller', async () => {
     expect(result?.err?.kind).toStrictEqual({ NotAuthorized: null });
   });
   it('should reject anonymous caller | verify_invoice -> err #NotAuthorized', async () => {
-    const result = await anonymousActor.verify_invoice({ id: 0n });
+    const result = await anonymousActor.verify_invoice({ id: "6GNGGRXAKGTXG070DV4GW2JKCJ" });
     expect(result?.err?.kind).toStrictEqual({ NotAuthorized: null });
   });
   it('should reject anonymous caller | transfer (all token kinds) -> err #NotAuthorized', async () => {
@@ -138,7 +138,7 @@ describe('Test Anonymous Principal is Disallowed as a Caller', async () => {
   });
   it('should reject anonymous caller | recover_invoice_subaccount_balance -> err #NotAuthorized', async () => {
     const result = await anonymousActor.recover_invoice_subaccount_balance({
-      id: 0n,
+      id: "6GNGGRXAKGTXG070DV4GW2JKCJ",
       destination: {
         HumanReadable: aPriori.nnsFundedSecp256k1Identity.asDefaultSubaccount.icp.asText,
       },

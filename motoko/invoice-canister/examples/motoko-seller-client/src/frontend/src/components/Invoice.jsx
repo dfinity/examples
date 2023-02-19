@@ -13,10 +13,12 @@ const Grid = styled.div`
     display: inline-grid;
   }
   dt {
+    margin-top: 2px;
     grid-column: 1;
   }
   dd {
     margin: 0;
+    margin-top: 2px;
     grid-column: 2;
   }
   textarea {
@@ -26,7 +28,7 @@ const Grid = styled.div`
 /*
 Invoice from invoice canister in motoko-seller-client as it'll appear in the browser's enviroment: 
 {
-  "id": "7",
+  "id": "6GNGGRXAKGTXG070DV4GW2JKCJ",
   "permissions": [],
   "creator": {
     "_arr": { <ommited> }
@@ -55,6 +57,38 @@ Invoice from invoice canister in motoko-seller-client as it'll appear in the bro
   "amountDue": "1000000000"
 }
 */
+
+// Copied from https://github.com/extrawurst/ulid/blob/master/lib/index.umd.js#L84
+const ULID_time_decoder = () => {
+  const ENCODING = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+  const ENCODING_LEN = ENCODING.length;
+  const TIME_MAX = Math.pow(2, 48) - 1;
+  const TIME_LEN = 10;
+  const RANDOM_LEN = 16;
+
+  const decodeTime = (id) => {
+    if (id.length !== TIME_LEN + RANDOM_LEN) {
+        throw createError("malformed ulid");
+    }
+    const time = id.substr(0, TIME_LEN).split("").reverse().reduce((carry, char, index) => {
+        const encodingIndex = ENCODING.indexOf(char);
+        if (encodingIndex === -1) {
+            throw createError("invalid character found: " + char);
+        }
+        return carry += encodingIndex * Math.pow(ENCODING_LEN, index);
+    }, 0);
+    if (time > TIME_MAX) {
+        throw createError("malformed ulid, timestamp too large");
+    }
+    return time;
+  }
+
+  return {
+    decodeTime: (id) => decodeTime(id)
+  }
+}
+// To decode the built-in timestamp of the invoice's ULID id. 
+const ulidTimeDecoder = ULID_time_decoder();
 
 function Invoice({ invoice }) {
 
@@ -85,14 +119,21 @@ function Invoice({ invoice }) {
   const locale = navigator.language;
   const formatted = new Intl.NumberFormat(locale, {maximumSignificantDigits: decimals}).format(amountInToken); 
   
+  // Get the creation timestamp from the invoice's ULID.
+  const creationTime = new Date(ulidTimeDecoder.decodeTime(invoice.id)).toLocaleString();
+
   return (
     <Grid>
-      <h2>Invoice #{Number(invoice.id)}</h2>
+      <h2>Invoice Statement</h2>
       <dl>
+        <dt>
+          Id:
+        </dt>
+        <dd>{invoice.id}</dd>
         <dt>
           <h3>Items:</h3>
         </dt>
-        <dd>1 license for Example Dapp Premium</dd>
+        <dd>License for Example Dapp Premium</dd>
         <dt>Price:</dt>
         <dd>
           {formatted} {token} { getUnitsReminder() }
@@ -108,6 +149,10 @@ function Invoice({ invoice }) {
             readOnly
             defaultValue={invoice.paymentAddress}
           />
+        </dd>
+        <dt>Created:</dt>
+        <dd>
+          {creationTime}
         </dd>
       </dl>
     </Grid>

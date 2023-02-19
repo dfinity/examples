@@ -18,9 +18,9 @@ To ensure the canister ids remain the same, restart dfx clean:
 
 `dfx start --clean --background`
 
-`npm deploy`
+`npm run deploy`
 
-`npm generate`
+`npm run generate`
 
 Open up Candid UI by running
 ```

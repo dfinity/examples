@@ -26,10 +26,13 @@ module Types {
     canVerify : [Principal];
   };
 
+  /****ULID generated literal no longer than 26 characters.***/
+  public type InvoiceId = Text;
+
   /****Invoice type used by the invoice canister used to store invoices.**  
     Has fields:  
       -`token : SupportedToken.UnitType`  
-      -`id : Nat;`  
+      -`id : InvoiceId;`  
       -`creator : Principal;`  
       -`details : ?Details;`  
       -`permissions : ?Permissions;`  
@@ -43,7 +46,7 @@ module Types {
     as `verifiedPaidAtTime` not null but the time of verification in ns.  */
   public type Invoice_ = {
     token : SupportedToken.UnitType;
-    id : Nat;
+    id : InvoiceId;
     creator : Principal;
     details : ?Details;
     permissions : ?Permissions;
@@ -193,9 +196,9 @@ module Types {
   };
 
   /****Args of method `get_invoice`.**  
-    Has field `id : Nat` which is which invoice with this id to get.  */
+    Has field `id : InvoiceId` which is which invoice with this id to get.  */
   public type GetInvoiceArgs = {
-    id : Nat;
+    id : InvoiceId;
   };
 
   /****Result types of method `get_invoice`.**  
@@ -285,9 +288,9 @@ module Types {
   };
 
   /****Args of method `verify_invoice`.**  
-    Has field `id : Nat` which is which invoice with this id to verify.  */
+    Has field `id : InvoiceId` which is which invoice with this id to verify.  */
   public type VerifyInvoiceArgs = {
-    id : Nat;
+    id : InvoiceId;
   };
 
   /****Result types of method `verify_invoice`.**  
@@ -379,16 +382,16 @@ module Types {
 
   /****Args of method `recover_invoice_subaccount_balance`.**  
     Has fields:  
-     -`id : Nat`  
+     -`id : InvoiceId`  
      -`destination : SupportedToken.RecipientAddress`  
     An example looks like:  
     `{`  
-    `  id = 1;`  
+    `  id = "6GNGGRXAKGTXG070DV4GW2JKCJ";`  
     `  destination = #HumanReadable("904a62f479c999d141c3c3d98d1066dfbc1864ec92dce98ed9f33d0f951479d1");`  
     `}`  
     or  
     `{`  
-    `  id = 101;`  
+    `  id = "6GNGGRXAKGTXG070DV4GW2JKCJ";`  
     `  destination = #CanisterExpected(#ICRC1_ExampleToken({`  
     `    owner = Principal.fromText("q4eej-kyaaa-aaaaa-aaaha-cai");`  
     `    subaccount = null;`  
@@ -397,7 +400,7 @@ module Types {
     Note if `CanisterExpected` `RecipientAddress` is passed it must match the  
     token type of the invoice or err kind #InvalidDestination is returned.  */
   public type RecoverInvoiceSubaccountBalanceArgs = {
-    id : Nat;
+    id : InvoiceId;
     destination : SupportedToken.RecipientAddress;
   };
 

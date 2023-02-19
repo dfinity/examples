@@ -10,7 +10,9 @@ import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
-import Map "mo:map_6_0_0/Map";
+import XorShift "mo:rand/XorShift";
+import Source "mo:ulid/Source";
+import ULID "mo:ulid/ULID";
 
 import SupportedToken "./modules/SupportedToken";
 import Types "./modules/Types";
@@ -44,17 +46,20 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
   let Ledger_ICRC1_Ex2 : SupportedToken.Supertype_ICRC1_Actor = actor (CANISTER_IDS.icrc1_ledger_canister_ex2);
 
   // Consider using stable compatible such as trie or newer stable map libraries more recently available.
-  stable var entries_ : [(Nat, Types.Invoice_)] = [];
+  stable var entries_ : [(Text, Types.Invoice_)] = [];
 
   /** `Invoice_` collection map with the key an invoice's id.  
     _Note invoices as they are returned to a caller are first decorated by `toCallerExpectedInvoice`  
     to add the `paid : Bool` and `tokenVerbose : VerboseToken` fields.  */
-  let invoices_ : HashMap.HashMap<Nat, Types.Invoice_> = HashMap.fromIter(
+  let invoices_ : HashMap.HashMap<Text, Types.Invoice_> = HashMap.fromIter(
     Iter.fromArray(entries_),
     entries_.size(),
-    Nat.equal,
-    Hash.hash,
+    Text.equal,
+    Text.hash,
   );
+
+  /** Source of entropy for substantiating ULID invoice ids. */
+  let idCreationEntropy_ = Source.Source(XorShift.toReader(XorShift.XorShift64(null)), 0);
 
   /** Monotonic counter used to compute each next created invoice id.  */
   stable var invoiceCounter_ : Nat = 0;
@@ -73,7 +78,7 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
     automatically be released (see `isAlreadyProcessing_` method below).  
     _Note the tuple with `Principal` is used in case developer would need to inspect  
     whose been calling._  */
-  let isAlreadyProcessingLookup_ = HashMap.HashMap<Nat, (Time.Time, Principal)>(32, Nat.equal, Hash.hash);
+  let isAlreadyProcessingLookup_ = HashMap.HashMap<Text, (Time.Time, Principal)>(32, Text.equal, Text.hash);
   let isAlreadyProcessingTimeout_ : Nat = 600_000_000_000; // "10 minutes ns"
 
   /*--------------------------------------------------------------------------- 
@@ -97,14 +102,14 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
     `#NotAuthorized` otherwise even if the invoice doesn't exist.  
     _Used by `get_invoice`, `verify_invoice` and `recover_invoice_subaccount_balance_`. */
   func getInvoiceIfAuthorized_(
-    getInvoiceHashMapValue : ?Types.Invoice_,
+    id : Types.InvoiceId,
     caller : Principal,
     permission : {
       #Get;
       #Verify;
     },
   ) : Result.Result<Types.Invoice_, { kind : { #NotAuthorized; #NotFound } }> {
-    switch getInvoiceHashMapValue {
+    switch (invoices_.get(id)) {
       case null {
         // No invoice exists for given id, determine if caller has authorization.
         if (not hasCallPermission_(caller)) {
@@ -143,7 +148,7 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
   /** Checks whether the invoice of the given id is already in the process of being verified or  
     having its subaccount balance recovered. Automatically removes any lock if enough time has  
     passed between checks for the same id.  */
-  func isAlreadingProcessing_(id : Nat, caller : Principal) : Bool {
+  func isAlreadingProcessing_(id : Types.InvoiceId, caller : Principal) : Bool {
     switch (isAlreadyProcessingLookup_.get(id)) {
       // No concurrent access of this invoice is taking place.
       case null return false;
@@ -181,13 +186,12 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
     scheme (see developer docs for more details) for the creation of invoices.  
     _Only authorized for canister's `installer_` and those on allowed creators list._  */
   public shared ({ caller }) func create_invoice(
-    args : Types.CreateInvoiceArgs,
+    { details; permissions; tokenAmount } : Types.CreateInvoiceArgs,
   ) : async Types.CreateInvoiceResult {
     // Confirm the caller is an allowed invoice creator.
     if (not hasCallPermission_(caller)) {
       return #err({ kind = #NotAuthorized });
     };
-    let { details; permissions; tokenAmount } = args;
     // Confirm there's still space to create another invoice.
     if (invoiceCounter_ >= MagicNumbers.MAX_INVOICES) {
       return #err({ kind = #MaxInvoicesCreated });
@@ -226,18 +230,20 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
     };
     // The invoice's given amount due is either of the ICP form ({ e8s : Nat64 }) or ICRC1 form (Nat);
     // so unwrap these values into normalized Nat base units & corresponding SupportedToken variant tag.
-    let (token, amount) = SupportedToken.unwrapTokenAmount(args.tokenAmount);
+    let (token, amount) = SupportedToken.unwrapTokenAmount(tokenAmount);
     // Verify the amount due is at least enough to cover the transfer of any proceeds from the
     // invoice's subaccount to the subaccount of its creator upon successful verification of payment.
     if (amount < (2 * SupportedToken.getTransactionFee(token))) {
       // Ie if the invoice uses ICP, the given amount due was less than 10000 e8s.
       return #err({ kind = #InsufficientAmountDue });
     };
-    // Caller provided acceptable create_invoice input args! Proceed to creating the invoice...
+    // Caller provided acceptable create_invoice input args! Proceed with invoice creation...
+    // Substantiate the invoice's ULID.
+    let id = ULID.toText(idCreationEntropy_.new());
     // Get the human readable format of address for payment this invoice will use.
     let paymentAddress : Text = SupportedToken.getEncodedInvoiceSubaccountAddress({
       token;
-      id = invoiceCounter_;
+      id;
       creator = caller;
       canisterId = getInvoiceCanisterId_();
     });
@@ -246,10 +252,10 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
     // `tokenVerbose : TokenVerbose` fields as well.
     let createdInvoice : Types.Invoice_ = {
       token;
-      id = invoiceCounter_;
+      id;
       creator = caller;
-      details = args.details;
-      permissions = args.permissions;
+      details = details;
+      permissions = permissions;
       paymentAddress;
       amountDue = amount;
       amountPaid = 0;
@@ -341,7 +347,7 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
     { id } : Types.GetInvoiceArgs,
   ) : async Types.GetInvoiceResult {
     // Get the invoice for the given id if it exists and if the caller is authorized.
-    switch (getInvoiceIfAuthorized_(invoices_.get(id), caller, #Get)) {
+    switch (getInvoiceIfAuthorized_(id, caller, #Get)) {
       // Caller is either not authorized or an invoice for that id doesn't exist.
       case (#err err) return #err(err);
       // Invoice for that id existed, return it to the caller as the record type they expect.
@@ -449,7 +455,7 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
     { id } : Types.VerifyInvoiceArgs,
   ) : async Types.VerifyInvoiceResult {
     // Check if an invoice for the given id exists and if the caller is authorized to verify it.
-    switch (getInvoiceIfAuthorized_(invoices_.get(id), caller, #Verify)) {
+    switch (getInvoiceIfAuthorized_(id, caller, #Verify)) {
       case (#err err) {
         // Caller is either not authorized or an invoice for that id doesn't exist.
         #err(err);
@@ -741,7 +747,7 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
   ) : async Types.RecoverInvoiceSubaccountBalanceResult {
     // Check if an invoice for the given id exists and if the
     // caller is its creator on its verify permissions list.
-    switch (getInvoiceIfAuthorized_(invoices_.get(id), caller, #Verify)) {
+    switch (getInvoiceIfAuthorized_(id, caller, #Verify)) {
       case (#err err) {
         // Caller is either not authorized or an invoice for that id doesn't exist.
         #err(err);

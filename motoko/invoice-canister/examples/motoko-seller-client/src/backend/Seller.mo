@@ -66,7 +66,7 @@ actor Seller {
     await invoiceCanister.create_invoice(createArgs);
   };
 
-  public shared ({ caller }) func get_invoice(id : Nat) : async ?Types.Invoice {
+  public shared ({ caller }) func get_invoice(id : Types.InvoiceId) : async ?Types.Invoice {
     switch (await invoiceCanister.get_invoice({ id })) {
       case (#err getInvoiceErr) return null;
       case (#ok invoice) {
@@ -75,7 +75,7 @@ actor Seller {
     };
   };
 
-  public shared ({ caller }) func verify_invoice(id : Nat) : async Types.VerifyInvoiceResult {
+  public shared ({ caller }) func verify_invoice(id : Types.InvoiceId) : async Types.VerifyInvoiceResult {
     let verifyCallResult = await invoiceCanister.verify_invoice({ id });
     switch verifyCallResult {
       case (#err _) {};

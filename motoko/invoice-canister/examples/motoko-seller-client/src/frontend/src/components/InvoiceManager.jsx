@@ -23,7 +23,7 @@ function InvoiceManager(props) {
     const savedId = get("license-id");      
     if (savedId) {
       // Invoice been created, get it from the seller actor.
-      await sellerActor.get_invoice(BigInt(Number(savedId)));
+      const getCallResult = await sellerActor.get_invoice(savedId);
       setInvoice(getCallResult[0]);
     } else {
       // Invoice has not yet been created, trigger seller actor to create one to use.
@@ -31,7 +31,7 @@ function InvoiceManager(props) {
         [ paymentTokenType === 'ICP' ? { ICP: null} : { ICRC1 : null} ]
       );
       setInvoice(createCallResult.ok.invoice);
-      set("invoice-id", createCallResult.ok.invoice.id.toString());
+      set("invoice-id", createCallResult.ok.invoice.id);
     }
   };
 

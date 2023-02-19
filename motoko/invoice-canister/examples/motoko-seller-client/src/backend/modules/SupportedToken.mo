@@ -118,15 +118,14 @@ module SupportedToken {
         };
 
         /****Computes an invoice's subaccount blob from the given invoice id and creator's principal.***/
-        public func computeInvoiceSubaccount(id : Nat, p : Principal) : Subaccount {
+        public func computeInvoiceSubaccount(id : Text, p : Principal) : Subaccount {
           let hash = SHA224.New();
           // Length of domain separator.
           hash.write([0x0A]);
           // Domain separator.
           hash.write(Blob.toArray(Text.encodeUtf8("invoice-id")));
-          // Counter as nonce.
-          let idBytes = Binary.BigEndian.fromNat32(Nat32.fromNat(id));
-          hash.write(idBytes);
+          // Invoice id.
+          hash.write(Blob.toArray(Text.encodeUtf8(id)));
           // Creator's principal.
           hash.write(Blob.toArray(Principal.toBlob(p)));
           let hashSum = hash.sum([]);
@@ -138,7 +137,7 @@ module SupportedToken {
         /****Computes an invoice's subaccount account identifier from the given 
           invoice id, creator's principal and invoice canister id.***/
         public func computeInvoiceSubaccountAddress(
-          id : Nat,
+          id : Text,
           creator : Principal,
           canisterId : Principal,
         ) : AccountIdentifier {
@@ -294,15 +293,14 @@ module SupportedToken {
         };
 
         /****Computes an invoice's subaccount blob from the given invoice id and creator's principal.***/
-        public func computeInvoiceSubaccount(id : Nat, invoiceCreator : Principal) : Subaccount {
+        public func computeInvoiceSubaccount(id : Text, invoiceCreator : Principal) : Subaccount {
           let hash = SHA224.New();
           // Length of domain separator.
           hash.write([0x0A]);
           // Domain separator.
           hash.write(Blob.toArray(Text.encodeUtf8("invoice-id")));
-          // Counter as nonce.
-          let idBytes = Binary.BigEndian.fromNat32(Nat32.fromNat(id));
-          hash.write(idBytes);
+          // Invoice id.
+          hash.write(Blob.toArray(Text.encodeUtf8(id)));
           // Creator's principal.
           hash.write(Blob.toArray(Principal.toBlob(invoiceCreator)));
           Blob.fromArray(Array.flatten<Nat8>([leadingPadding, hash.sum([])]));
@@ -311,7 +309,7 @@ module SupportedToken {
         /****Computes an invoice's subaccount icrc1 account from the given 
           invoice id, creator's principal and invoice canister id.***/
         public func computeInvoiceSubaccountAddress(
-          id : Nat,
+          id : Text,
           creator : Principal,
           canisterId : Principal,
         ) : Account {
@@ -697,7 +695,7 @@ module SupportedToken {
   /****Returns the corresponding token address for an invoice subaccount.***/
   public func getInvoiceSubaccountAddress({
     token : UnitType;
-    id : Nat;
+    id : Text;
     creator : Principal;
     canisterId : Principal;
   }) : Address {
@@ -712,7 +710,7 @@ module SupportedToken {
     _Specifically used when creating an invoice._  */
   public func getEncodedInvoiceSubaccountAddress({
     token : UnitType;
-    id : Nat;
+    id : Text;
     creator : Principal;
     canisterId : Principal;
   }) : Text {
@@ -741,7 +739,7 @@ module SupportedToken {
     to : Address;
     amountLessTheFee : Nat;
     fee : Nat;
-    id : Nat;
+    id : Text;
     creator : Principal;
   }) : TransferArgs {
     switch (to) {

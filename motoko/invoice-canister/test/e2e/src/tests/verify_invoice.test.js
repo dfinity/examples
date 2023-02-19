@@ -42,14 +42,14 @@ describe('Test verify_invoice Functionality', async () => {
   describe('Test Token-Non Specific #err Results Return From verify_invoice', () => {
     // Confirm No Invoice Found for invoice ids that have not been created.
     it('should reject and return err kind #NotFound if no invoice for given id exists and caller authorized', async () => {
-      const verifyResult = await invoiceCanisterInstaller.verify_invoice({ id: 10000000000n });
+      const verifyResult = await invoiceCanisterInstaller.verify_invoice({ id: "invalidId" });
       expect(verifyResult?.err?.kind).toStrictEqual({ NotFound: null });
     });
 
     // Confirm if the caller is not authorized (not the original invoice canister deployer or on the
     // allowed creators list) they cannot determine if an invoice exists for a given id.
     it('should reject and return err kind #NotAuthorized if no invoice for given id exists and caller not authorized', async () => {
-      const verifyResult = await getRandomActor().verify_invoice({ id: 10000000000n });
+      const verifyResult = await getRandomActor().verify_invoice({ id: "invalidId" });
       expect(verifyResult?.err?.kind).toStrictEqual({ NotAuthorized: null });
     });
   });

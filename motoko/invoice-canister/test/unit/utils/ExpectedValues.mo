@@ -1,6 +1,7 @@
 import Array "mo:base/Array";
 import Blob "mo:base/Blob";
 import Debug "mo:base/Debug";
+import Nat64 "mo:base/Nat64";
 import Option "mo:base/Option";
 import Principal "mo:base/Principal";
 import Text "mo:base/Text";
@@ -24,20 +25,19 @@ module {
   public class Expected() {
     let emptyBlob = Blob.fromArray([]);
     let excessiveBlob = Blob.fromArrayMut(Array.init(33, 0 : Nat8));
-
     let defaultSubaccountBlob = Blob.fromArrayMut(Array.init(32, 0 : Nat8));
 
-    // Principal matches the NnsFundedSecpk256k1Identity
-    // used as the common test caller as the invoice creator.
-    let testCaller = Principal.fromText("hpikg-6exdt-jn33w-ndty3-fc7jc-tl2lr-buih3-cs3y7-tftkp-sfp62-gqe");
-    // Principal acting as the invoice canister's id.
-    let testInvoiceCanisterId = Principal.fromText("q4eej-kyaaa-aaaaa-aaaha-cai");
-
-    let originalVerboseToken = {
-      symbol = "ICP";
-      decimals = 8;
-      meta = ?{
-        Issuer = "e8s";
+    let testInputs = {
+      caller = Principal.fromText("hpikg-6exdt-jn33w-ndty3-fc7jc-tl2lr-buih3-cs3y7-tftkp-sfp62-gqe");
+      invoiceCanisterId = Principal.fromText("q4eej-kyaaa-aaaaa-aaaha-cai");
+      amountDueNatBaseUnits = 23456789;
+      invoiceULID = "6GNGGRXAKGTXG070DV4GW2JKCJ";
+      originalTokenVerbose = {
+        symbol = "ICP";
+        decimals = 8;
+        meta = ?{
+          Issuer = "e8s";
+        };
       };
     };
 
@@ -105,16 +105,16 @@ module {
         Ok = {
           ICP = {
             AccountIdentifier = {
-              asAccountIdentifier = AccountIdentifierBlob.fromPrincipal(testCaller, null);
+              asAccountIdentifier = AccountIdentifierBlob.fromPrincipal(testInputs.caller, null);
               asText = "2b8fbde99de881f695f279d2a892b1137bfe81a42d7694e064b1be58701e1138";
               subaccount = defaultSubaccountBlob;
-              principal = testCaller;
+              principal : Principal = testInputs.caller;
             };
           };
           ICRC1 = {
             Account = {
               asAccount = {
-                owner = testCaller;
+                owner : Principal = testInputs.caller;
                 subaccount = null;
               };
               asText = "hpikg-6exdt-jn33w-ndty3-fc7jc-tl2lr-buih3-cs3y7-tftkp-sfp62-gqe";
@@ -123,13 +123,13 @@ module {
           };
           Invoice = {
             ICP = {
-              canisterId = testInvoiceCanisterId;
-              creator = testCaller;
-              id = 10001;
+              canisterId : Principal = testInputs.invoiceCanisterId;
+              creator : Principal = testInputs.caller;
+              id : Text = testInputs.invoiceULID;
               InvoiceSubaccount = {
-                asAccountIdentifier : Blob = decodeTextAsBlob("235510f80a7d67ce19f332f7880ea5ab2e5cf62984c10e02f96a1dc3f7e0c25c");
-                asAccountIdentifierText = "235510f80a7d67ce19f332f7880ea5ab2e5cf62984c10e02f96a1dc3f7e0c25c";
-                asFromSubaccount : Blob = decodeTextAsBlob("3cad7458ad4998506dfdc449ddd6e8e92cd00a5bad6765608ab5525049adca79");
+                asAccountIdentifier : Blob = decodeTextAsBlob("3f766d9137db4ff58575dabbf0ce858251d3fd8104a6023b53f61f91005ddb98");
+                asAccountIdentifierText = "3f766d9137db4ff58575dabbf0ce858251d3fd8104a6023b53f61f91005ddb98";
+                asFromSubaccount : Blob = decodeTextAsBlob("36d8ffb07f052f9c91d33096018cd17dd5f2dda8eb21078277f2a5b481fb156e");
               };
               CreatorSubaccount = {
                 asAccountIdentifier : Blob = decodeTextAsBlob("5bea0a832af66531a1c2dda9e4f027f6c31dd943af039ff509ae492841b8b980");
@@ -138,21 +138,21 @@ module {
               };
             };
             ICRC1 = {
-              canisterId = testInvoiceCanisterId;
-              creator = testCaller;
-              id = 10002;
+              canisterId : Principal = testInputs.invoiceCanisterId;
+              creator : Principal = testInputs.caller;
+              id : Text = testInputs.invoiceULID;
               InvoiceSubaccount = {
                 asAccount = {
-                  owner = testInvoiceCanisterId;
-                  subaccount : ?Blob = ?decodeTextAsBlob("000000004aa1c7563b7c6c79ceac949c1aed4842b6b8d80a53d5aaf9cd6d71a1");
+                  owner : Principal = testInputs.invoiceCanisterId;
+                  subaccount : ?Blob = ?decodeTextAsBlob("000000007f052f9c91d33096018cd17dd5f2dda8eb21078277f2a5b481fb156e");
                 };
-                asText = "3vzsd-5yaaa-aaaaa-aaaha-cakku-hdvmo-34nr4-45leu-tqno2-sccw2-4nqcs-t2wvp-ttlno-gqry7-y";
+                asText = "mlgfs-3qaaa-aaaaa-aaaha-cal7a-uxzze-otgcl-addgr-pxk7f-xni5m-qqpat-x6ks3-jap3c-vxby7-y";
                 // When the from transfer arg.
-                asFromSubaccount : Blob = decodeTextAsBlob("000000004aa1c7563b7c6c79ceac949c1aed4842b6b8d80a53d5aaf9cd6d71a1");
+                asFromSubaccount : Blob = decodeTextAsBlob("000000007f052f9c91d33096018cd17dd5f2dda8eb21078277f2a5b481fb156e");
               };
               CreatorSubaccount = {
                 asAccount = {
-                  owner = testInvoiceCanisterId;
+                  owner : Principal = testInputs.invoiceCanisterId;
                   subaccount : ?Blob = ?decodeTextAsBlob("00000000373b6c51e09a47261efbbf49c295bd538808de32f8bceba3625a6c60");
                 };
                 asText = "6bcdq-baaaa-aaaaa-aaaha-cajxh-nwfdy-e2i4t-b5657-jhbjl-pktra-en4mx-yxtv2-gys2n-rqby7-y";
@@ -177,11 +177,11 @@ module {
             excessiveLengthSubaccount = excessiveBlob;
             Account = {
               asEmptySubaccount = {
-                owner = testInvoiceCanisterId;
+                owner : Principal = testInputs.invoiceCanisterId;
                 subaccount = ?emptyBlob;
               };
               asExcessiveSubaccount = {
-                owner = testInvoiceCanisterId;
+                owner : Principal = testInputs.invoiceCanisterId;
                 subaccount = ?excessiveBlob;
               };
               asText = {
@@ -194,17 +194,17 @@ module {
       };
       TransferArgs = {
         Inputs = {
-          canisterId = testInvoiceCanisterId;
-          creator = testCaller;
-          id = 638318;
-          amountLessTheFee = 9_999_999_999_991;
+          canisterId : Principal = testInputs.invoiceCanisterId;
+          creator : Principal = testInputs.caller;
+          id : Text = testInputs.invoiceULID;
+          amountLessTheFee : Nat = testInputs.amountDueNatBaseUnits;
           to = {
             ICP = {
               accountIdentifier : Blob = decodeTextAsBlob("2b8fbde99de881f695f279d2a892b1137bfe81a42d7694e064b1be58701e1138");
             };
             ICRC1 = {
               account = {
-                owner = testCaller;
+                owner : Principal = testInputs.invoiceCanisterId;
                 subaccount = null;
               };
             };
@@ -215,52 +215,56 @@ module {
             // #ICP and #ICP_nns share same transfer args if inputs are the same.
             ICP = {
               toInvoiceCreatorPrincipalSubaccountResult = {
-                amount = { e8s = 9_999_999_999_991 : Nat64 };
+                amount = {
+                  e8s = Nat64.fromNat(testInputs.amountDueNatBaseUnits);
+                };
                 created_at_time = null;
                 fee = { e8s = 10_000 : Nat64 };
                 memo = 1;
-                from_subaccount : ?Blob = ?decodeTextAsBlob("58733b7b022f1b657c6d35c8000dcb279a8340e02b1754c7cf9afc2b307e0d6a");
+                from_subaccount : ?Blob = ?decodeTextAsBlob("36d8ffb07f052f9c91d33096018cd17dd5f2dda8eb21078277f2a5b481fb156e");
                 to : Blob = decodeTextAsBlob("5bea0a832af66531a1c2dda9e4f027f6c31dd943af039ff509ae492841b8b980");
               };
               toArbitaryValidICPAccountIdentifierResult = {
-                amount = { e8s = 9_999_999_999_991 : Nat64 };
+                amount = {
+                  e8s = Nat64.fromNat(testInputs.amountDueNatBaseUnits);
+                };
                 created_at_time = null;
                 fee = { e8s = 10_000 : Nat64 };
                 memo = 1;
-                from_subaccount : ?Blob = ?decodeTextAsBlob("58733b7b022f1b657c6d35c8000dcb279a8340e02b1754c7cf9afc2b307e0d6a");
+                from_subaccount : ?Blob = ?decodeTextAsBlob("36d8ffb07f052f9c91d33096018cd17dd5f2dda8eb21078277f2a5b481fb156e");
                 to : Blob = decodeTextAsBlob("2b8fbde99de881f695f279d2a892b1137bfe81a42d7694e064b1be58701e1138");
               };
             };
             // #ICRC1_ExampleToken and #ICRC1_ExampleToken2 share same transfer args if inputs are the same.
             ICRC1 = {
               toInvoiceCreatorPrincipalSubaccountResult = {
-                amount = 9_999_999_999_991;
+                amount : Nat = testInputs.amountDueNatBaseUnits;
                 created_at_time = null;
                 fee = ?10_000;
                 memo = ?Blob.fromArray([1]);
-                from_subaccount : ?Blob = ?decodeTextAsBlob("00000000022f1b657c6d35c8000dcb279a8340e02b1754c7cf9afc2b307e0d6a");
+                from_subaccount : ?Blob = ?decodeTextAsBlob("000000007f052f9c91d33096018cd17dd5f2dda8eb21078277f2a5b481fb156e");
                 to = {
-                  owner = testInvoiceCanisterId;
+                  owner : Principal = testInputs.invoiceCanisterId;
                   subaccount = ?decodeTextAsBlob("00000000373b6c51e09a47261efbbf49c295bd538808de32f8bceba3625a6c60") : ?Blob;
                 };
               };
               toArbitaryValidICRC1AccountResult = {
-                amount = 9_999_999_999_991;
+                amount : Nat = testInputs.amountDueNatBaseUnits;
                 created_at_time = null;
                 fee = ?10_000;
                 memo = ?Blob.fromArray([1]);
-                from_subaccount : ?Blob = ?decodeTextAsBlob("00000000022f1b657c6d35c8000dcb279a8340e02b1754c7cf9afc2b307e0d6a");
+                from_subaccount : ?Blob = ?decodeTextAsBlob("000000007f052f9c91d33096018cd17dd5f2dda8eb21078277f2a5b481fb156e");
                 to = {
-                  owner = testCaller;
+                  owner : Principal = testInputs.invoiceCanisterId;
                   subaccount = null;
                 };
               };
             };
           };
           SenderAsInvoiceCreatorSubaccount = {
-            // #ICP will be refactored to #ICP_nns so there's only one ICP kind.
+            // #ICP and #ICP_nns share same transfer args if inputs are the same.
             icpResult = {
-              amount = { e8s = 9_999_999_999_991 : Nat64 };
+              amount = { e8s = Nat64.fromNat(testInputs.amountDueNatBaseUnits) };
               created_at_time = null;
               fee = { e8s = 10_000 : Nat64 };
               memo = 1;
@@ -269,13 +273,13 @@ module {
             };
             // #ICRC1_ExampleToken and #ICRC1_ExampleToken2 share same transfer args if inputs are the same.
             icrc1Result = {
-              amount = 9_999_999_999_991;
+              amount : Nat = testInputs.amountDueNatBaseUnits;
               created_at_time = null;
               fee = ?10_000;
               memo = ?Blob.fromArray([1]);
               from_subaccount : ?Blob = ?decodeTextAsBlob("00000000373b6c51e09a47261efbbf49c295bd538808de32f8bceba3625a6c60");
               to = {
-                owner = testCaller;
+                owner : Principal = testInputs.invoiceCanisterId;
                 subaccount = null;
               };
             };
@@ -361,30 +365,38 @@ module {
         Inputs = {
           invoiceA = {
             id : Nat = 10001;
-            creator = testCaller;
+            creator : Principal = testInputs.caller;
             details = null;
             permissions = null;
             amount = 1987654321;
             amountPaid = 0;
-            token = originalVerboseToken;
+            token : {
+              symbol : Text;
+              decimals : Int;
+              meta : ?{ Issuer : Text };
+            } = testInputs.originalTokenVerbose;
             verifiedAtTime = null;
             paid = false;
             destination : Blob = decodeTextAsBlob("235510f80a7d67ce19f332f7880ea5ab2e5cf62984c10e02f96a1dc3f7e0c25c");
           };
           invoiceB = {
             id : Nat = 10001;
-            creator = testCaller;
+            creator : Principal = testInputs.caller;
             details = ?{
               meta = Text.encodeUtf8("Here's some meta details about this invoice");
               description = "Here's a non-specific detail.";
             };
             permissions = ?{
-              canGet = [testCaller, testInvoiceCanisterId];
-              canVerify = [testCaller, testInvoiceCanisterId];
+              canGet = [testInputs.caller : Principal, testInputs.invoiceCanisterId : Principal];
+              canVerify = [testInputs.caller : Principal, testInputs.invoiceCanisterId : Principal];
             };
             amount = 1987654321;
             amountPaid = 1987754321;
-            token = originalVerboseToken;
+            token : {
+              symbol : Text;
+              decimals : Int;
+              meta : ?{ Issuer : Text };
+            } = testInputs.originalTokenVerbose;
             verifiedAtTime = ?(1_676_022_826_720_541_855 : Int);
             paid = true;
             destination : Blob = decodeTextAsBlob("235510f80a7d67ce19f332f7880ea5ab2e5cf62984c10e02f96a1dc3f7e0c25c");
@@ -392,35 +404,178 @@ module {
         };
         Outputs = {
           invoiceA = {
-            id : Nat = 10001;
-            creator = testCaller;
+            id : Text = "10001";
+            creator : Principal = testInputs.caller;
             details = null;
             permissions = null;
             amountDue = 1987654321;
             amountPaid = 0;
             token = #ICP;
             verifiedPaidAtTime = null;
-            paymentAddress = "235510f80a7d67ce19f332f7880ea5ab2e5cf62984c10e02f96a1dc3f7e0c25c";
+            paymentAddress = "af3196de20c04e7bbe6c7cd370b4f8838d28749093312ebfe108f0729ab26c40";
           };
           invoiceB = {
-            id : Nat = 10001;
-            creator = testCaller;
+            id : Text = "10001";
+            creator : Principal = testInputs.caller;
             details = ?{
               meta = Text.encodeUtf8("Here's some meta details about this invoice");
               description = "Here's a non-specific detail.";
             };
             permissions = ?{
-              canGet = [testCaller, testInvoiceCanisterId];
-              canVerify = [testCaller, testInvoiceCanisterId];
+              canGet = [testInputs.caller : Principal, testInputs.invoiceCanisterId : Principal];
+              canVerify = [testInputs.caller : Principal, testInputs.invoiceCanisterId : Principal];
             };
             amountDue = 1987654321;
             amountPaid = 1987754321;
             token = #ICP;
             verifiedPaidAtTime = ?(1_676_022_826_720_541_855 : Int);
-            paymentAddress = "235510f80a7d67ce19f332f7880ea5ab2e5cf62984c10e02f96a1dc3f7e0c25c";
+            paymentAddress = "af3196de20c04e7bbe6c7cd370b4f8838d28749093312ebfe108f0729ab26c40";
           };
         };
       };
     };
   };
+
+  /*
+  While creating Motoko snapshot should likely be done from scratch so that necessary 
+  expected values can be scrutinized when they end up changing unexpectantly, saving 
+  this here so it does not need to be written, again, in the event these values are 
+  once again needed. 
+
+  public func generate() : async {
+    nnsFundedSecp256k1Identity : {
+      ICP : {
+        defaultSubaccount : {
+          accountIdentifier : Blob;
+          asText : Text;
+        };
+        InvoiceSubaccount : {
+          subaccount : Blob;
+          subaccountAsText : Text;
+          address : Blob;
+          asText : Text;
+        };
+        CreatorSubaccount : {
+          subaccount : Blob;
+          subaccountAsText : Text;
+          address : Blob;
+          asText : Text;
+        };
+      };
+      ICRC1 : {
+        InvoiceSubaccount : {
+          subaccount : Blob;
+          subaccountAsText : Text;
+          address : { owner : Principal; subaccount : ?Blob };
+          asText : Text;
+        };
+        CreatorSubaccount : {
+          subaccount : Blob;
+          subaccountAsText : Text;
+          address : { owner : Principal; subaccount : ?Blob };
+          asText : Text;
+        };
+      };
+    };
+  } {
+    public func getMigratedUlidId() : async Text {
+      let { creator; canisterId; id } = testInputs;
+      let invoiceIdIn : Nat = 10001;
+      SupportedToken.ICP_Adapter.encodeAddress(SupportedToken.ICP_Adapter.computeInvoiceSubaccountAddress(Nat.toText(invoiceIdIn), creator, canisterId));
+    };
+    // As the ICRC1 Specification for its text encoding strategy
+    // may change, this would need to be updated when it does.
+    func icrc1_account_to_text(acc : { owner : Principal; subaccount : ?Blob }) : Text {
+      switch (acc.subaccount) {
+        case (null) { Principal.toText(acc.owner) };
+        case (?blob) {
+          assert (blob.size() == 32);
+          var zeroCount = 0;
+          label l for (byte in blob.vals()) {
+            if (byte == 0) { zeroCount += 1 } else break l;
+          };
+          if (zeroCount == 32) {
+            Principal.toText(acc.owner);
+          } else {
+            let principalBytes = Principal.toBlob(acc.owner);
+            let buf = Buffer.Buffer<Nat8>(principalBytes.size() + blob.size() - zeroCount + 2);
+            for (b in principalBytes.vals()) {
+              buf.add(b);
+            };
+            var j = 0;
+            label l for (b in blob.vals()) {
+              j += 1;
+              if (j <= zeroCount) {
+                continue l;
+              };
+              buf.add(b);
+            };
+            buf.add(Nat8.fromNat(32 - zeroCount));
+            buf.add(Nat8.fromNat(0x7f));
+            Principal.toText(Principal.fromBlob(Blob.fromArray(Buffer.toArray(buf))));
+          };
+        };
+      };
+    };
+
+    let defaultSubaccountBlob = Blob.fromArrayMut(Array.init(32, 0 : Nat8));
+
+    let testInputs = {
+      creator = Principal.fromText("hpikg-6exdt-jn33w-ndty3-fc7jc-tl2lr-buih3-cs3y7-tftkp-sfp62-gqe");
+      canisterId = Principal.fromText("q4eej-kyaaa-aaaaa-aaaha-cai");
+      id = "6GNGGRXAKGTXG070DV4GW2JKCJ";
+      amountDue = 23456789;
+    };
+
+    let { creator; canisterId; id } = testInputs;
+    // ICP invoice subaccount
+    let icp_invoiceSubaccount = SupportedToken.ICP_Adapter.computeInvoiceSubaccount(id, creator);
+    let icp_invoiceSubaccountAddress = SupportedToken.ICP_Adapter.computeInvoiceSubaccountAddress(id, creator, canisterId);
+    // ICP creator subaccount
+    let icp_creatorSubaccount = SupportedToken.ICP_Adapter.computeCreatorSubaccount(creator);
+    let icp_creatorSubaccountAddress = SupportedToken.ICP_Adapter.computeCreatorSubaccountAddress(creator, canisterId);
+    // ICRC1 invoice subaccount
+    let icrc1_invoiceSubaccount = SupportedToken.ICRC1_Adapter.computeInvoiceSubaccount(id, creator);
+    let icrc1_invoiceSubaccountAddress = SupportedToken.ICRC1_Adapter.computeInvoiceSubaccountAddress(id, creator, canisterId);
+    // ICRC1 creator subaccount
+    let icrc1_creatorSubaccount = SupportedToken.ICRC1_Adapter.computeCreatorSubaccount(creator);
+    let icrc1_creatorSubaccountAddress = SupportedToken.ICRC1_Adapter.computeCreatorSubaccountAddress(creator, canisterId);
+    return {
+      nnsFundedSecp256k1Identity = {
+        ICP = {
+          defaultSubaccount = {
+            accountIdentifier = AccountIdentifierBlob.fromPrincipal(creator, null);
+            asText = Hex.encode(Blob.toArray(AccountIdentifierBlob.fromPrincipal(creator, null)));
+          };
+          InvoiceSubaccount = {
+            subaccount = icp_invoiceSubaccount;
+            subaccountAsText = Hex.encode(Blob.toArray(icp_invoiceSubaccount));
+            address = icp_invoiceSubaccountAddress;
+            asText = Hex.encode(Blob.toArray(icp_invoiceSubaccountAddress));
+          };
+          CreatorSubaccount = {
+            subaccount = icp_creatorSubaccount;
+            subaccountAsText = Hex.encode(Blob.toArray(icp_creatorSubaccount));
+            address = icp_creatorSubaccountAddress;
+            asText = Hex.encode(Blob.toArray(icp_creatorSubaccountAddress));
+          };
+        };
+        ICRC1 = {
+          InvoiceSubaccount = {
+            subaccount = icrc1_invoiceSubaccount;
+            subaccountAsText = Hex.encode(Blob.toArray(icrc1_invoiceSubaccount));
+            address = icrc1_invoiceSubaccountAddress;
+            asText = icrc1_account_to_text(icrc1_invoiceSubaccountAddress);
+          };
+          CreatorSubaccount = {
+            subaccount = icrc1_creatorSubaccount;
+            subaccountAsText = Hex.encode(Blob.toArray(icrc1_creatorSubaccount));
+            address = icrc1_creatorSubaccountAddress;
+            asText = icrc1_account_to_text(icrc1_creatorSubaccountAddress);
+          };
+        };
+      };
+    };
+  };
+  */ //
 };

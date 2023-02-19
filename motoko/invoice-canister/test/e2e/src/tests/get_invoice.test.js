@@ -20,11 +20,11 @@ describe('Test get_invoice Functionality', async () => {
       });
       expect(addResult?.ok).toBeTruthy();
       const allowedCreator = getActorByIdentity(allowedCreatorIdentity);
-      const getResult = await allowedCreator.get_invoice({ id: 1000000000n });
+      const getResult = await allowedCreator.get_invoice({ id: "invalidId" });
       expect(getResult?.err?.kind).toStrictEqual({ NotFound: null });
     });
     it('should reject if caller not authorized | -> #NotAuthorized', async () => {
-      const getResult = await getRandomActor().get_invoice({ id: 1000000000n });
+      const getResult = await getRandomActor().get_invoice({ id: "invalidId" });
       expect(getResult?.err?.kind).toStrictEqual({ NotAuthorized: null });
     });
   });

@@ -134,10 +134,10 @@ describe('Test recover_invoice_subaccount_balance Functionality', async () => {
     throw new Error("Couldn't present known acceptable address values before E2E transfer tests");
   }
   describe('Test Token Non-Specific #err Results Returned From recover_invoice_subaccount_balance', async () => {
-    it('should return invoice not found if no invoice exists for given id and caller is authorized | -> err #NotAuthorized', async () => {
+    it('should return invoice not found if no invoice exists for given id and caller is authorized | -> err #NotFound', async () => {
       // For consistency use a valid destination.
       const result = await invoiceCreator.recover_invoice_subaccount_balance({
-        id: 1000000000n,
+        id: "invalidId",
         destination: { HumanReadable: recipientAddressii.icpTextAddress },
       });
       // Check returned err as expected.
@@ -146,7 +146,7 @@ describe('Test recover_invoice_subaccount_balance Functionality', async () => {
     it('should reject and return err kind #NotAuthorized if caller not authorized | -> err #NotAuthorized', async () => {
       // For consistency use a valid destination.
       const result = await getRandomActor().recover_invoice_subaccount_balance({
-        id: 1000000000n,
+        id: "invalidId",
         destination: { HumanReadable: recipientAddressii.icpTextAddress },
       });
       // Check returned err as expected.
