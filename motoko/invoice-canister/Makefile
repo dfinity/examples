@@ -14,10 +14,10 @@ docs:
 test:
 	$(shell vessel bin)/moc -r $(shell vessel sources) -wasi-system-api test/unit/Test.mo
 
-#npm run deploy4Testing also runs dfx generate invoice
+#npm run deployForTesting also runs dfx generate invoice
 #npm run test triggers `cd test/e2e; npm ci; npm test` which in turn triggers `vitest run`
 e2e:
-	npm run deploy4Testing
+	npm run deployForTesting
 	npm run test 
 
 watch:

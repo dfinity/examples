@@ -250,6 +250,8 @@ which will run the `clean-spinup.mjs` script with the different flags for either
 [How to audit an Internet Computer canister](https://www.joachim-breitner.de/blog/788-How_to_audit_an_Internet_Computer_canister)  
 [Frontend Architecture and Authentication](https://kyle-peacock.com/blog/dfinity/motoko-bootcamp-authentication)  
 [Canistergeek Motoko Library](https://github.com/usergeek/canistergeek-ic-motoko)  
+[Security Best Practices](https://internetcomputer.org/docs/current/references/security/)  
+[Inter-Canister Calls and Rollbacks](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices/#inter-canister-calls-and-rollbacks)  
 [Internet Computer Wiki](https://wiki.internetcomputer.org/wiki/Internet_Computer_wiki)  
 
 [^1]: Note that the installer's principal is not by default put on the allowed creators list.   

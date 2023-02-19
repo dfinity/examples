@@ -46,7 +46,7 @@
   "scripts": {
     "test": "cd test/e2e; npm ci; npm test",
     "deployAll": "node clean-spinup.mjs",
-    "deploy4Testing": "node clean-spinup.mjs --deployForTesting --quiet; dfx generate invoice"
+    "deployForTesting": "node clean-spinup.mjs --deployForTesting --quiet; dfx generate invoice"
   },
   "repository": {
     "type": "git",
