@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html><head title="Motoko docs"><meta charset="UTF-8"/><link href="styles.css" rel="stylesheet"/></head><div class="index-container"><h1 class="index-header">Index of modules</h1><ul class="index-listing"><li class="index-item"><a class="index-item-link" href="invoice/modules/Migration.html">invoice/modules/Migration</a><div class="index-item-comment"></div></li><li class="index-item"><a class="index-item-link" href="invoice/modules/SupportedToken.html">invoice/modules/SupportedToken</a><div class="index-item-comment"><p>If adding more ICRC1 token-ledger canisters, the <strong>only</strong> edits necessary in this file are the methods 
+ declared after the <code>SupportedToken&lt;T1, T2&gt;</code> variant (ie in the <code>SupportedToken</code> module's outermost 
+ scope). Add a new tag in this variant for each additional ICRC1 token-ledger canister to support, and 
+ then update the corresponding switches in the methods that follow until all the cases are covered. The 
+ only other changes necessary are the corresponding switch cases to be added in <code>Invoice.mo</code>. 
+ Note that once the variant tag is added to <code>SupportedToken&lt;T1, T2&gt;</code> , this will cause the Motoko 
+ VScode extension to indicate where all switches need to be updated to include the required cases 
+ for supporting that token.<br/> Also note the <code>Supertype_ICRC1_Actor</code> type declaration can be reused in <code>Invoice.mo</code> as different
+ instances to perform the corresponding intercanister calls to the token-ledger canisters of
+ the additional ICRC1 tokens to support.</p>
+</div></li><li class="index-item"><a class="index-item-link" href="invoice/modules/Types.html">invoice/modules/Types</a><div class="index-item-comment"></div></li></ul></div></html>

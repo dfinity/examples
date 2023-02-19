@@ -1,4 +1,5 @@
-// Note about how to edit this file to add support for additional ICRC1 token-ledger canisters:
+// Note about how to edit this file to add
+// support for additional ICRC1 token-ledger canisters:
 /** If adding more ICRC1 token-ledger canisters, the **only** edits necessary in this file are the methods 
   declared after the `SupportedToken<T1, T2>` variant (ie in the `SupportedToken` module's outermost 
   scope). Add a new tag in this variant for each additional ICRC1 token-ledger canister to support, and 
@@ -10,7 +11,6 @@
   Also note the `Supertype_ICRC1_Actor` type declaration can be reused in `Invoice.mo` as different
   instances to perform the corresponding intercanister calls to the token-ledger canisters of
   the additional ICRC1 tokens to support.                                                               */
-
 import Array "mo:base/Array";
 import Blob "mo:base/Blob";
 import Buffer "mo:base/Buffer";
@@ -494,7 +494,7 @@ module SupportedToken {
         };
       };
 
-      /****Externally accessible "record literal" of ICRC1 `Adapter`***/
+      /****Externally accessible "record literal" of `ICRC1.Adapter`***/
       public let icrc1Adapter = {
         isValidSubaccount = Adapter.isValidSubaccount;
         isValidAddress = Adapter.isValidAddress;
@@ -508,13 +508,16 @@ module SupportedToken {
     };
   };
 
-  // These two redeclared to make accessible outside of `SupportedToken`:
+  /****Externally accessible ICP ledger canister supertype actor included for consistency.***/
   public type Supertype_ICP_Actor = TokenSpecific.ICP.Supertype.Actor;
+
+  /****Externally accessible ICRC1 token-canister supertype actor included for consistency.***/
   public type Supertype_ICRC1_Actor = TokenSpecific.ICRC1.Supertype.Actor;
 
-  // These two used internally in `SupportedToken`,
-  // (but made public to be available in unit testing):
+  /****Externally accessible "record literal" of `ICP.Adapter` module's methods.***/
   public let { icpAdapter = ICP_Adapter } = TokenSpecific.ICP;
+
+  /****Externally accessible "record literal" of `ICRC1.Adapter` module's methods.***/
   public let { icrc1Adapter = ICRC1_Adapter } = TokenSpecific.ICRC1;
 
   /****Some type that makes the rest possible.**  

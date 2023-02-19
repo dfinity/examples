@@ -44,9 +44,9 @@ In addition to these bounty tasks, two other non-trivial changes include using t
       ✶ `describe("ICRC1 Adapter Account and Subaccount Computations"...` (lines 268-420).  
 
 - [x] **Adding the logic connecting those addressing transformations to the invoice canister's API methods:**
-  - [x] `src/invoice/modules/SupportedToken.mo` (lines 515-977).  
+  - [x] `src/invoice/modules/SupportedToken.mo` (lines 517-977).  
         _ㅤㅤㅤRelated `SupportedToken`'s fields:_  
-    - [x] `SupportedToken<T1, T2>` (`#ICRC1_ExampleToken` & `#ICRC1_ExampleToken2` (lines 529-530).  
+    - [x] `SupportedToken<T1, T2>` (`#ICRC1_ExampleToken` & `#ICRC1_ExampleToken2` (lines 532-533).  
     - [x] `UnitType = SupportedToken<(), ()>`  
     - [x] `Amount = SupportedToken<TokenSpecific.ICP.Tokens, TokenSpecific.ICRC1.Tokens>`  
     - [x] `Address = SupportedToken<TokenSpecific.ICP.AccountIdentifier, TokenSpecific.ICRC1.Account>`  
