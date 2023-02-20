@@ -23,7 +23,7 @@ import { spawnSync } from 'child_process';
       icrc1_token_ledger_canister_ex2   > #ICRC1_ExampleToken2
 
   Example of calling the script:
-    $ node ./clean-spinup.mjs --deployForTesting 
+    $ node ./clean-startup.mjs --deployForTesting 
 
     By default, `deployForTesting` is set to false. To limit the console output to 
   explicit calls made to the console logger, the `--quiet` flag can also be passed.

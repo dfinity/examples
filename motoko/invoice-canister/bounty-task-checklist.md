@@ -21,8 +21,8 @@ In addition to these bounty tasks, two other non-trivial changes include using t
     - [x] `src/token-ledger-canisters/icrc1/` (`icrc1.did` & `ledger.wasm`) (template shell script also provided).  
     - [x] Updated `dfx.json` `icrc1_token_ledger_canister_ex1` & `..._ex2` (lines [29](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/dfx.json#L29)-40).  
     - [x] Update the install script to deploy both and prepare for E2E testing. 
-      - [x] `clean-spinup.mjs::deploy_icrc1_token_canister()` (lines [189](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/clean-spinup.mjs#L189)-214, [370](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/clean-spinup.mjs#L370)-374).  
-      - [x] `clean-spinup.mjs::disburse_funds_to_nnsFundedSecp256k1Identity_creator_subaccounts()` (lines [250](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/clean-spinup.mjs#L250)-270, 377).  
+      - [x] `clean-startup.mjs::deploy_icrc1_token_canister()` (lines [189](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/clean-startup.mjs#L189)-214, [370](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/clean-startup.mjs#L370)-374).  
+      - [x] `clean-startup.mjs::disburse_funds_to_nnsFundedSecp256k1Identity_creator_subaccounts()` (lines [250](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/clean-startup.mjs#L250)-270, 377).  
   
 - [x] **Adding the required ICRC1 token-ledger canister typings:**  
     ✶ `src/invoice/modules/SupportedToken.mo::TokenSpecific.ICRC1` (lines [194](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/SupportedToken.mo#L194)-234).  
@@ -136,7 +136,7 @@ In addition to these bounty tasks, two other non-trivial changes include using t
     - [x] Add access control for creating new invoices (see [SEC-F20] & [SEC-F21] below).    
     - [x] Refactor permission checks to a method.  
       ✶ `src/invoice/Invoice.mo::getInvoiceIfAuthorized()` ([lines 100-142](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/Invoice.mo#L100)).  
-    - [x] Additionally, when first starting this bounty independently of any work I was doing, the startup scripting was being migrated to use zx which coincidentally at the time I had just become interested in. There's likely an ideal niche for dfx cli and zx for example in making dynamic canister deployment easier particularly as the javascript can console log out the arg as a literal without the explicit need of using it with zx. In any case as a result this migration was completed in the form of [`clean-spinup.mjs`](./clean-spinup.mjs).  
+    - [x] Additionally, when first starting this bounty independently of any work I was doing, the startup scripting was being migrated to use zx which coincidentally at the time I had just become interested in. There's likely an ideal niche for dfx cli and zx for example in making dynamic canister deployment easier particularly as the javascript can console log out the arg as a literal without the explicit need of using it with zx. In any case as a result this migration was completed in the form of [`clean-startup.mjs`](./clean-startup.mjs).  
   
 ### Prevent arithmetic overflow when amount in TransferArgs is below 10_000 #35 ###  
   - [x] https://github.com/dfinity/invoice-canister/issues/35  

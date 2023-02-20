@@ -1,7 +1,7 @@
 {
   "name": "invoice-canister",
   "version": "2.0.0",
-  "description": "This project will provide an example and simplified experience for accepting payments in smart contracts.",
+  "description": "This project will provide a standardized and simplified experience for accepting payments in ICP smart contracts.",
   "main": "index.js",
   "directories": {
     "doc": "docs",
@@ -45,8 +45,8 @@
   },
   "scripts": {
     "test": "cd test/e2e; npm ci; npm test",
-    "deployAll": "node clean-spinup.mjs",
-    "deployForTesting": "node clean-spinup.mjs --deployForTesting --quiet; dfx generate invoice"
+    "deployAll": "node clean-startup.mjs",
+    "deployForTesting": "node clean-startup.mjs --deployForTesting --quiet; dfx generate invoice"
   },
   "repository": {
     "type": "git",

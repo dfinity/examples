@@ -210,16 +210,16 @@ To run both tests use the command `make all`
 To run unit tests run `make test`
 To run E2E tests run `make e2e`
 
-ㅤAs there are a lot of E2E tests, it might be more convient run `npm run deploy4Testing`, and once complete navigate to the `test/e2e/` directory and run `npm run test:ui` which will display the results in web browser in a more organized way so they are easier to peruse.  
+ㅤAs there are a lot of E2E tests, it might be more convient run `npm run deployForTesting`, and once complete navigate to the `test/e2e/` directory and run `npm run test:ui` which will display the results in web browser in a more organized way so they are easier to peruse.  
 
 ## Deploying 
 
 ㅤZx is used to script the dfx cli required to get the local replica up and running configured correctly with all the correct canisters deployed and other actions necessary. For ease of use two npm run scripts have been added:
 
 `npm run deployAll` 
-`npm run deploy4Testing`  
+`npm run deployForTesting`  
 
-which will run the `clean-spinup.mjs` script with the different flags for either running for testing or not. 
+which will run the `clean-startup.mjs` script with the different flags for either running for testing or not. 
 
 ## Non-goals  
 
