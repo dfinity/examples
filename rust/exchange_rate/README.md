@@ -62,7 +62,7 @@ triggering remote HTTP calls again.
 ## Dependencies
 - [ic-cdk v0.7.0](https://crates.io/crates/ic-cdk) or above
 - [dfx v0.12.0](https://github.com/dfinity/sdk/releases) or above.
-- 'wasm32-unknown-unknown' targets. Can be installed with 'rustup target add wasm32-unknown-unknown'.
+- `wasm32-unknown-unknown` targets. Can be installed with `rustup target add wasm32-unknown-unknown`.
 
 ## Building the canister into wasm
 `cd rust/exchange_rate`
