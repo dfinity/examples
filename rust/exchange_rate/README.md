@@ -65,7 +65,8 @@ triggering remote HTTP calls again.
 
 ## Building the canister into wasm
 `cd rust/exchange_rate`
-`cargo build --target wasm32-unknown-unknown --release --p exchange_rate`
+
+`cargo build --target wasm32-unknown-unknown --release`
 
 ## Deploy the canister locally
 - Simply do `./deploy.sh {env}` where env is your targetted network defined in `dfx.json`.
