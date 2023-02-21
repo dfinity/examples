@@ -96,6 +96,6 @@ As stated earlier, there are a few points that must be considered when deploying
 
 1) Funds held by the Invoice Canister are subject to the control of the installer and/or its current specified controller(s) and may be lost or otherwise unrecoverable. 
 2) Details of stored invoices are not encrypted by default and could be physically inspected by a node provider. 
-3) While measures have been implemented to reliably process transactions, there are certain conditions such as a malevolent token ledger-canister intentionally endlessly looping a call instead of returning or the Invoice Canister's message queue reaching capacity, which cannot always be anticipated and may effect it's expected operation. Espicially when deploying to mainnet, user a logger is encouraged. 
+3) While measures have been implemented to reliably process transactions, there are certain conditions such as a malevolent token ledger-canister intentionally endlessly looping a call instead of returning or the Invoice Canister's message queue reaching capacity, which cannot always be anticipated and may effect it's expected operation. Particularly when deploying to mainnet, using a dedicated logger is strongly encouraged. 
 
 _See the [Design Doc](./docs/DesignDoc.md) and [Security Best Practices] https://internetcomputer.org/docs/current/developer-docs/security/ for more details._
