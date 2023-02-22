@@ -19,5 +19,6 @@
       "type": "assets"
     }
   },
-  "version": 1
+  "version": 1,
+  "output_env_file": "src/frontend/.env"
 }

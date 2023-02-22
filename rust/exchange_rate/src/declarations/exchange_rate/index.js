@@ -5,7 +5,7 @@ import { idlFactory } from "./exchange_rate.did.js";
 export { idlFactory } from "./exchange_rate.did.js";
 
 // CANISTER_ID is replaced by webpack based on node environment
-export const canisterId = process.env.EXCHANGE_RATE_CANISTER_ID;
+export const canisterId = process.env.CANISTER_ID_exchange_rate;
 
 export const createActor = (canisterId, options = {}) => {
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
