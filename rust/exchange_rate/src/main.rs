@@ -179,10 +179,8 @@ async fn get_next_rate() {
     }
 }
 
-/*
-A function to call IC http_request function with sample interval of REMOTE_FETCH_GRANULARITY seconds. Each API
-call fetches DATA_POINTS_PER_API data points, which is equivalent of DATA_POINTS_PER_API minutes of data.
- */
+/// Calls the IC 'http_request' function with sample interval of REMOTE_FETCH_GRANULARITY seconds.
+/// Each API fetches DATA_POINTS_PER_API data points, which is equivalent of DATA_POINTS_PER_API minutes of data.
 async fn get_rate(job: Timestamp) {
     let start_timestamp = job;
     let end_timestamp = job + REMOTE_FETCH_GRANULARITY * DATA_POINTS_PER_API;
