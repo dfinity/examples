@@ -19,8 +19,8 @@ pub const MAX_DATA_PONTS_CANISTER_RESPONSE: usize = 100000;
 // that is dynamic according to the data size needs to be returned.
 pub const REMOTE_FETCH_GRANULARITY: u64 = 60;
 
-// For how many rounds of heartbeat, make a http_request call.
-pub const RATE_LIMIT_FACTOR: usize = 5;
+/// The period we wait before issuing a new external HTTPS request.
+pub const TRY_FETCH_HEARTBEAT_PERIOD: usize = 5;
 
 // How many data points in each Coinbase API call. Maximum allowed is 300
 pub const DATA_POINTS_PER_API: u64 = 200;
@@ -46,16 +46,16 @@ thread_local! {
     pub static RATE_COUNTER: RefCell<usize> = RefCell::new(0);
 }
 
-// Canister heartbeat. Process one item in queue
+/// On every 'TRY_FETCH_HEARTBEAT_PERIOD' heartbeat, issuing a new HTTPS outcall.
 #[heartbeat]
 async fn heartbeat() {
     let mut should_fetch = false;
     RATE_COUNTER.with(|counter| {
-        let state = counter.clone().into_inner();
-        if state == 0 {
+        let mut count = counter.borrow_mut();
+        if *count == 0 {
             should_fetch = true;
         }
-        counter.replace((state + 1) % RATE_LIMIT_FACTOR);
+        *count = (*count + 1) % TRY_FETCH_HEARTBEAT_PERIOD;
     });
     if should_fetch {
         get_next_rate().await;
@@ -134,9 +134,8 @@ fn add_job_to_job_set(job: Timestamp) -> () {
     });
 }
 
-/*
-Triggered by heartbeat() function to pick up the next job in the pipe for remote service call.
- */
+/// Triggered by the 'heartbeat()' function, picks up the next job in the pipe for
+/// executing a remote HTTPS outcall.
 async fn get_next_rate() {
     let mut job_id: u64 = 0;
 
