@@ -1,6 +1,8 @@
 <script>
   // agent to connect to backend canister
-  import { exchange_rate } from "../../../declarations/exchange_rate/index.js";
+  import {createActor}  from '../../declarations/exchange_rate';
+  const canisterId = process.env.CANISTER_ID_exchange_rate;
+  const exchange_rate = createActor(canisterId);
 
   // loading spinner
   import OverlayLoading from "svelte-overlay-loading";
