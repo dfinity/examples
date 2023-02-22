@@ -496,4 +496,46 @@ module Types {
       #InvalidDestination;
     };
   };
+
+  /****Interface for instantiating an invoice canister  
+    actor in another canister using the Invoice Canister API.**  
+    When using the invoice canister in another canister an actor declaration of  
+    the invoice canister's actor type will be needed, which is this type declaration.  
+    _Remember to add that canister as an allowed creator so it is authorized to make calls._  
+    An example of using of this:  
+    
+    `
+    import Types "./modules/Types.mo"
+    // Other imports.
+
+    actor CanisterRequiringPaymentProcessing {
+
+      /// Other state, type and method declarations.
+
+      let invoiceCanister : Types.InvoiceCanisterAPI = fromActor("<invoice canister id>");
+
+      // Now the API methods can be called such as
+      // await invoiceCanister.create_invoice(<CreateInvoiceArgs>);
+
+      // rest of canister's code...
+    };
+    ` */
+  public type InvoiceCanisterAPI = {
+    // The following three methods are only permitted for the invoice canister installer.
+    add_allowed_creator : shared AddAllowedCreatorArgs -> async AddAllowedCreatorResult;
+    remove_allowed_creator : shared RemoveAllowedCreatorArgs -> async RemoveAllowedCreatorResult;
+    get_allowed_creators_list : shared () -> async GetAllowedCreatorsListResult;
+    // The following methods are permitted for any caller whose principal is on the
+    // allowed creators list, and the invoice canister installer
+    create_invoice : shared CreateInvoiceArgs -> async CreateInvoiceResult;
+    get_caller_balance : shared GetCallerBalanceArgs -> async GetCallerBalanceResult;
+    get_caller_address : shared GetCallerAddressArgs -> async GetCallerAddressResult;
+    transfer : shared TransferArgs -> async TransferResult;
+    to_other_address_format : shared ToOtherAddressFormatArgs -> async ToOtherAddressFormatResult;
+    // The following three methods are only authorized for the invoice's creator and
+    // those on its get or verify permission list (recover is permitted by `canVerify` permission).
+    get_invoice : shared GetInvoiceArgs -> async GetInvoiceResult;
+    verify_invoice : shared VerifyInvoiceArgs -> async VerifyInvoiceArgs;
+    recover_invoice_subaccount_balance : shared RecoverInvoiceSubaccountBalanceArgs -> async RecoverInvoiceSubaccountBalanceResult;
+  };
 };

@@ -70,14 +70,176 @@ This script will check if the system wide networks configuration file is correct
 _For more details be sure to check out the introductory comment of [clean-startup.mjs](./clean-startup.mjs)._ 
 ## Integrating the Invoice Canister
 
-To integrate the invoice canister in another project, review the [Design Doc](./docs/DesignDoc.md), [Invoice.mo](./src/invoice/Invoice.mo) and [SupportedToken.mo](./src/invoice/modules/SupportedToken.mo). Determine which tokens are to be supported, as configuring a single invoice canister to support adding new ICRC1 tokens after it has already been deployed requires extra initial configuration of the variant's references used to map the supported tokens. See "Future Proofing" in the [Design Doc](./docs/DesignDoc.md) for more details. Both the `Invoice.mo` and `SupportedToken.mo` files will need to be edited to reflect support for the tokens to be supported as outlined in the [Design Doc](./docs/DesignDoc.md) and explained [SupportedToken.mo](./src/invoice/modules/SupportedToken.mo). 
+To integrate the invoice canister in another project, review the [Design Doc](./docs/DesignDoc.md), [Invoice.mo](./src/invoice/Invoice.mo) and [SupportedToken.mo](./src/invoice/modules/SupportedToken.mo). To summarize, both the `Invoice.mo` and `SupportedToken.mo` files need to be edited according to which tokens are to be supported. While this project uses four tokens, it may be easier to start from the `motoko-seller-client` example as only two tokens (one for ICP and one for ICRC1) are integrated in that project. While the following may seem like a lot of work, in reality it can take as little as 15 minutes using this project's code as a reference to copy.
 
-To summarize, an additional `SupportedToken` variant tag is needed for each token to be supported and their corresponding cases in each of the switches the `SupportedToken` variant is used must be updated to include that added variant tag: these switches are only found in the methods at the file scope of `SupportedToken.mo` and in the API methods of `Invoice.mo`. The API methods involve the actual calls that are made to the corresponding `ICP` ledger and `ICRC1` token-ledgers, which can instantiated with their canister id using the `ICP` and `ICRC1` supertype actors in `SupportedToken.mo`. An easy way to see where all of the edits are needed is modify the original `SupportedToken` variant (line 529 in `SupportedToken.mo`) to add or remove a tag, and see where the VSCode Motoko extension indicates the impacted switches are. 
+The preliminary step is to determine which tokens are to be supported, as configuring a single invoice canister to support adding new ICRC1 tokens after it has already been deployed requires extra initial configuration of the `SupportedToken` variant's references (see "Future Proofing" near the end in the [Design Doc](./docs/DesignDoc.md) for more details). If only adding support for a fixed number of tokens, or deploying each invoice canister with only a fixed number of supported tokens, no additional configuration other than the following (for each token to support) is needed:
 
-While updating the `SupportedToken` variant's references, also get the canister ids of the token-ledger canisters to be supported and set them as the canister ids used to instantiate the supertype actors representing these token-ledger canisters in `Invoice.mo`. Once `Invoice.mo` and `SupportedToken.mo` are finished being updated, add them with `Types.mo` to the project. The last two steps are updating `dfx.json` and adding the invoice canister to the canister in the project using it. Update `dfx.json` adding the `Invoice.mo` as the file reference of the Motoko canister to deploy as the invoice canister--it **does not need to be added as a dependency** to the other canister's entry, because as the invoice canister is now a class actor, it can only be imported by instantiation with its canister id. See how the `Invoice.mo` is "imported" in the [motoko-seller-client Seller canister](./examples/motoko-seller-client/src/backend/Seller.mo) for a concrete example of how to do this.
+The first step is adding an entry for a new tag in the `SupportedToken` variant found in `SupportedToken.mo` at line 529. For example to add support for the ICRC1 ckTESTBTC token: 
+```diff
+public type SupportedToken<T1, T2> = {
+  // Other supported token tag entries.
+  // T1 is used for any tokens using the ICP specification, while T2 for any of the ICRC1 specification.
+  // So adding a tag for ICRC1 ckTESTBTC token would look like:
++  #ICRC1_ckTESTBTC : T2; 
+};
+```
+Note that the generic type `T1` is used for ICP (or any token using the associated types of the ICP specification), while `T2` is used for any token that is based on the ICRC1 standard. Each token to be supported will need its own tag entry, and here the tag added for ckTESTBTC is prefixed with "ICRC1_" just to keep things clear. 
 
-As stated earlier, the `motoko-seller-client` project is an example of integration with only two tokens, one for ICP and one for ICRC1 mapped to the variant tags `#ICP` and `#ICRC1` respectively, along with their two corresponding [class based mock ledgers](./examples/motoko-seller-client/src/backend/modules/MockTokenLedgerCanisters.mo) that can be used to develop more quickly returning all the same `Ok` and `Err` results, except for the two of the ICRC1 specification `#Generic Error` and `#TemporarilyUnavailable`. 
+Observe also that once this variant's declaration is modified by adding (or removing) a tag, the Motoko VSCode extension will automatically indicate all the other places in the code that need to be edited. This consists of all the switches that will need an additional case for the tag that is added. These switches are only found in the methods at the file scope of `SupportedToken.mo` and in some of the API methods of `Invoice.mo` (all relevant methods are listed here). 
 
+The methods to update in `SupportedToken.mo` are: 
+``` 
+getTokenVerbose()
+unwrapTokenAmount()
+wrapAsTokenAmount()  
+encodeAddress()  
+encodeAddressOrUnitErr()  
+getAddressOrUnitErr()  
+getInvoiceSubaccountAddress()  
+getEncodedInvoiceSubaccountAddress()  
+getCreatorSubaccountAddress()  
+getTransferArgsFromInvoiceSubaccount()  
+getTransferArgsFromCreatorSubaccount()  
+rewrapTransferResults()  
+getDefaultSubaccountAddress() 
+```
+For all these methods except `getTokenVerbose()`, adding the additional case in its switch can be done by simply copying the example given in this project's implementation corresponding to whether the token to support is ICP or ICRC1. Be sure to update each reference of the tag. For the `#ICRC1_ckTESTBTC` tag that was added above, updating the switch in `getEncodedInvoiceSubaccountAddress()` would look like:
+
+```diff
+public func getEncodedInvoiceSubaccountAddress({
+  token : UnitType;
+  id : Text;
+  creator : Principal;
+  canisterId : Principal;
+}) : Text {
+  switch token {
+    // Other cases.
++   case (#ICRC1_ckTESTBTC) {
++      ICRC1_Adapter.encodeAddress(ICRC1_Adapter.computeInvoiceSubaccountAddress(id, creator, canisterId));
++    };
+  };
+};
+```
+or for `rewrapTransferResults()`:
+```diff
+public func rewrapTransferResults(sttransferResult : TransferResult) : Result.Result<TransferSuccess, TransferErr> {
+  switch (sttransferResult) {
+    // Other cases.
++    case (#ICRC1_ckBTC transferResult) {
++      switch transferResult {
++        case (#Ok txIndex) #ok(#ICRC1_ckBTC(txIndex));
++        case (#Err transferErr) #err(#ICRC1_ckBTC(transferErr));
++    };
+  };
+};
+```
+Each method requires a similar simple update of its switch. As mentioned before `getTokenVerbose()` requires unique attention in particular the correct transfer fee must be defined. As the `TokenVerbose` is part of the invoice record returned to the caller, correctly defining the other fields is also strongly encouraged (particularly the URL so further inquiry of the token-ledger canister can be easily made if needed). For the example of adding support for the ckTESTBTC token, this would look like:
+
+```diff
+public func getTokenVerbose<T1, T2>(supportedToken : SupportedToken<T1, T2>) : TokenVerbose {
+  switch supportedToken {
+    // Other cases.
++    case (#ICRC1_ckTESTBTC T1) {
++      return {
++        symbol = "ckTESTBTC";
++        name = "Chain key testnet Bitcoin";
++        decimals = 8 : Int;
++        fee = 10;
++        meta = ?{
++          Issuer = "NNS - For Testing Purposes Only";
++          Url = "https://dashboard.internetcomputer.org/canister/mc6ru-gyaaa-aaaar-qaaaq-cai";
++        };
++      };
++    };
+  };
+};
+```
+Note that the URL here to the dashboard for the ckTESTBTC ledger could be another URL all together; the dashboard URL is used since it is a standard and official web interface--for instance the correct values of fee, decimals, symbol or title for other ICRC1 token-ledger canisters could be found by visiting its dashboard URL. Once each of these methods has its switch updated to include the case for the tag for the token to support, this can be confirmed with the Motoko VSCode extension as it should report no warnings in any of these switches if done correctly.  
+
+The next step is updating `Invoice.mo` to add the declaration for the token ledger-canister's actor type and updating the relevant API methods. As these API methods (except for `to_other_address_format()`) involve the actual calls that are made to the corresponding `ICP` ledger and `ICRC1` token-ledgers, their actor type can be instantiated with their canister id reusing the `ICP` and `ICRC1` supertype actor type declarations found in the `SupportedToken.mo` module. For the ckTESTBTC token example, this would look like:
+
+```diff
+shared ({ caller = installer_ }) actor class Invoice() = this {
+
+  // Other private state and function declarations.   
+
+  // The canister id is being directly used in the actor's constructor, 
+  // but it could be added as a separate declaration, passed as a deployment argument,
+  // or even be passed in a method to be called later to dynamically create this actor type. 
++ let Ledger_ICRC1_ckTESTBTC : SupportedToken.Supertype_ICRC1_Actor = actor ("mc6ru-gyaaa-aaaar-qaaaq-cai");
+
+  // Rest of invoice canister's code.
+};
+```
+Once the token-ledger canister's actor's declaration is added, the next step is to update the corresponding switches in the four API methods that make the actual calls to this actor's canister. These API methods are:
+```
+get_caller_balance()
+transfer()
+verify_invoice()
+recovery_invoice_subaccount_balance()
+```
+It should be noted `verify_invoice()` and `recover_invoice_subaccount_balance()` each have two switch statements to be updated while `get_caller_balance()` and `transfer()` only have a single switch statement to be updated.
+
+Like the methods from `SupportedToken`, updating each switch with an added case for the new tag can be copied from this project's code, just using the correct tag and actor declaration being used. For the example of adding support for the ckTESTBTC token, updating the `get_caller_balance()` method would look like:
+
+```diff
+public shared ({ caller }) func get_caller_balance(
+  { token } : Types.GetCallerBalanceArgs,
+) : async Types.GetCallerBalanceResult {
+  // Beginning method code omitted.
+  try {
+    switch subaccountAddress {
+      // Other cases.
++     case (#ICRC1_ckTESTBTC account) {
++       let balance = #ICRC1_ckTESTBTC(await Ledger_ICRC1_ckTESTBTC.icrc1_balance_of(account));
++       #ok({ balance });
++     };
+    };
+  } catch e {
+  // Rest of method's code omitted.
+};
+```
+Updating these methods' switch statements after adding the constructed actor type(s) declaration, **are the only** other changes needed in these two files. As mentioned, once this is done correctly it can also be confirmed with the Motoko VSCode extension not indicating any warnings or errors about these switches. 
+
+At this point integrating support for an additional token is complete.
+
+As stated earlier, the `motoko-seller-client` project is an example of integration with only two tokens, one for ICP and one for ICRC1 mapped to the variant tags `#ICP` and `#ICRC1` respectively, along with their two corresponding [class based mock ledgers](./examples/motoko-seller-client/src/backend/modules/MockTokenLedgerCanisters.mo) that can be used to develop more quickly. They should return all the same `Ok` and `Err` results, except for the two of the ICRC1 specification `#Generic Error` and `#TemporarilyUnavailable`. 
+
+Once the above files are configured correctly, the next step is adding them to the project's file structure (if this has not already been done, be sure to also include the `Types.mo` module) and updating `dfx.json`. Add the invoice canister to the canisters list as a Motoko type canister with its main pointing to the `Invoice.mo` file (in this example snippet named "invoice", with `Invoice.mo` in the project's `src` directory, and without a declarations output field):
+```diff
+{
+  "canisters": {
+  // Other canisters. 
++    "invoice": {
++      "main": "src/Invoice.mo",
++      "type": "motoko",
++
++    },
+}
+```
+As the Invoice Canister `Invoice.mo` is now a class actor, **it is not necessary** to add its canister entry in `dfx.json` as a dependency in the other canister's entry that uses it. Instead an invoice canister actor reference can be instantiated with the actor class constructor passing in the canister id of the deployed invoice canister; the type reference of this actor class can be included in two ways.
+
+One way is demonstrated in the [motoko-seller-client Seller canister](./examples/motoko-seller-client/src/backend/Seller.mo) which imports the type directly as the `Invoice.mo` file. The other way to do this, which can be used when creating an invoice canister actor in a separate project, is to copy the `Types.mo` file into that project and using the `InvoiceCanisterAPI` type declaration (at the bottom of `Types.mo`) as the type reference for constructing the invoice canister actor in that project's canister's code.
+
+For example if `CanisterRequiringPaymentProcessing` was the name of a canister in another project that uses the Invoice Canister this way, after copying all the types from `Type.mo` into its `Types.mo` file and getting the deployed invoice canister id, this would look like:
+
+```diff
+// Other imports.
+import Types "./Types.mo"
+
+actor CanisterRequiringPaymentProcessing {
+   // Other state, type and method declarations.
++  let invoiceCanister : Types.InvoiceCanisterAPI = fromActor("<invoice canister id>");
+
+  // Now the API methods can be called such as
+  // await invoiceCanister.create_invoice(<CreateInvoiceArgs>);
+  // rest of canister's code...
+};
+```
+
+After deploying the invoice canister, its canister id can be found with the [`dfx canister id` command](https://github.com/dfinity/sdk/blob/master/docs/cli-reference/dfx-canister.md#dfx-canister-id).
+
+_This completes covering all the needed steps for integrating the Invoice Canister in another project. While much of this was reiterating what was already written elsewhere in this project, for more details be sure to review [Design Doc](./docs/DesignDoc.md), [Invoice.mo](./src/invoice/Invoice.mo), [Types.mo](./src/modules/Types.mo) and [SupportedToken.mo](./src/invoice/modules/SupportedToken.mo) as well as [clean-startup.mjs](./clean-startup.mjs) for further explanation of how to deploy the invoice canister and token ledger-canisters however may be needed._
 ## Testing
 
 To test, you will need to install `moc` from the latest `motoko-<system>-<version>.tar.gz` release. https://github.com/dfinity/motoko/releases.
@@ -96,6 +258,6 @@ As stated earlier, there are a few points that must be considered when deploying
 
 1) Funds held by the Invoice Canister are subject to the control of the installer and/or its current specified controller(s) and may be lost or otherwise unrecoverable. 
 2) Details of stored invoices are not encrypted by default and could be physically inspected by a node provider. 
-3) While measures have been implemented to reliably process transactions, there are certain conditions such as a malevolent token ledger-canister intentionally endlessly looping a call instead of returning or the Invoice Canister's message queue reaching capacity, which cannot always be anticipated and may effect it's expected operation. Particularly when deploying to mainnet, using a dedicated logger is strongly encouraged. 
+3) While measures have been implemented to reliably process transactions, there are certain conditions such as a malevolent token ledger-canister intentionally endlessly looping a call instead of returning; or the Invoice Canister's message queue reaching capacity, which cannot always be anticipated and may effect it's expected operation. When deploying to mainnet, using a dedicated logger is strongly encouraged. 
 
-_See the [Design Doc](./docs/DesignDoc.md) and [Security Best Practices] https://internetcomputer.org/docs/current/developer-docs/security/ for more details._
+_See the [Design Doc](./docs/DesignDoc.md) and [Security Best Practices](https://internetcomputer.org/docs/current/developer-docs/security/) for more details._
