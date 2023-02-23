@@ -216,9 +216,13 @@ async fn get_rate(job: Timestamp) {
             // put the result to hashmap
             FETCHED.with(|fetched| {
                 let mut fetched = fetched.borrow_mut();
-                let decoded_body = String::from_utf8(response.body)
+                let str_body = String::from_utf8(response.body)
                     .expect("Remote service response is not UTF-8 encoded.");
-                decode_body_to_rates(&decoded_body, &mut fetched);
+                for bucket in str_body.split("\n") {
+                    let ts_and_rate: Vec<String> = *bucket.split(" ").collect::<String>();
+                    assert!(ts_and_rate.len() == 2);
+                    fetched.insert(ts_and_rate[0].parse::<u64>().unwrap(), ts_and_rate[1].parse::<f32>().unwrap());
+                }
             });
         }
         Err((r, m)) => {
@@ -232,46 +236,28 @@ async fn get_rate(job: Timestamp) {
     }
 }
 
-fn decode_body_to_rates(body: &str, fetched: &mut RefMut<HashMap<u64, f32>>) {
+fn keep_only_ts_and_rate(body: &Vec<u8>) -> Vec<u8> {
     //ic_cdk::api::print(format!("Got decoded result: {}", body));
-    let rates_array: Vec<Vec<Value>> = serde_json::from_str(&body).unwrap();
+    let rates_array: Vec<Vec<Value>> = serde_json::from_slice(body).unwrap();
+    let mut res = vec![];
     for rate in rates_array {
-        let timestamp = rate[0].as_u64().expect("Couldn't parse the timestamp.");
-        let close_rate = rate[4].as_f64().expect("Couldn't parse the rate.");
-        fetched.insert(timestamp as Timestamp, close_rate as Rate);
+        let bucket_start_time = rate[0].as_u64().expect("Couldn't parse the time.");
+        let closing_price = rate[4].as_f64().expect("Couldn't parse the rate.");
+        res.append(&mut format!("{} {}\n", bucket_start_time, closing_price).as_bytes().to_vec());
     }
+    res
 }
 
 #[query]
 fn transform(raw: TransformArgs) -> HttpResponse {
-    let mut sanitized = raw.response.clone();
-    sanitized.headers = vec![
-        HttpHeader {
-            name: "Content-Security-Policy".to_string(),
-            value: "default-src 'self'".to_string(),
-        },
-        HttpHeader {
-            name: "Referrer-Policy".to_string(),
-            value: "strict-origin".to_string(),
-        },
-        HttpHeader {
-            name: "Permissions-Policy".to_string(),
-            value: "geolocation=(self)".to_string(),
-        },
-        HttpHeader {
-            name: "Strict-Transport-Security".to_string(),
-            value: "max-age=63072000".to_string(),
-        },
-        HttpHeader {
-            name: "X-Frame-Options".to_string(),
-            value: "DENY".to_string(),
-        },
-        HttpHeader {
-            name: "X-Content-Type-Options".to_string(),
-            value: "nosniff".to_string(),
-        },
-    ];
-    sanitized
+    let mut res = HttpResponse {
+        status: raw.response.status,
+        ..Default::default()
+    };
+    if res.status == 200 {
+        res.body = keep_only_ts_and_rate(&raw.response.body)
+    }
+    res
 }
 
 #[pre_upgrade]
