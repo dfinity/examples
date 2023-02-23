@@ -254,6 +254,7 @@ fn keep_only_bucket_start_time_and_closing_price(body: &[u8]) -> Vec<u8> {
     res
 }
 
+/// Strips all data that is not needed from the original response.
 #[query]
 fn transform(raw: TransformArgs) -> HttpResponse {
     let mut res = HttpResponse {
