@@ -117,15 +117,14 @@ const restart_dfx_clean_in_background = async () => {
   });
 };
 
-
-// Confirm local replica network is configured correctly for `dfx nns install`.
+// Confirm system wide networks.json is configured correctly for `dfx nns install`.
 const check_correct_system_network_config = async () => {
   try {
     const networks = `${await $`dfx info networks-json-path`}`.trim();
     const { local } = JSON.parse(fs.readFileSync(networks, 'utf8'));
     return (local.bind === '127.0.0.1:8080' && local?.replica?.subnet_type === 'system');
   } catch (e) {
-    // If for some reason, reading and parsing network throws, definitely return false. 
+    // If for some reason, reading and parsing networks.json throws, definitely return false. 
     return false;
   }
 }
