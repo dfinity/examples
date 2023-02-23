@@ -112,6 +112,9 @@ all other API calls work the same for each authorized caller. This is even true 
 
 ㅤAnytime after an invoice has been created, `verify_invoice()` can be called by its creator or someone on its verify permission list to trigger the Invoice Canister to query the balance of that invoice's subaccount address ("payment address"--note often times "subaccount" is used synonymousily to represent its associated address, however address is always added in this code base to keep things unambigious as possible). If the balance is confirmed to be greater or equal to that invoice's amount due, then the Invoice Canister proceeds by transferring the balance from that invoice's subaccount address to the subaccount address created for that invoice's creator. Because of this, it is required that all invoices be created with an amount due at least twice the transfer fee cost of that token type's ledger canister (as mentioned before). Note that the invoice is locked by its id during verification to prevent concurrent calls to verification (or invoice subaccount balance recovery) from interfering with eachother. If the transfer succeeds, a new invoice record will be created as a copy of the existing invoice except its `verifiedPaidAtTime` will be updated as a non-null opt `Time` stamp as well as updating the `amountPaid` which will be the amount received (note that the amount deposited into the invoice creator's subaccount address will be less by one transfer fee as defined by that token ledger's canister). Also note if partial payment has been paid, `verify_invoice()` will return this information to the caller but take no other action. 
 
+Here's a diagram showing the generalized payment flow:
+![Generalized successful payment flow](./invoice-payment-flow.png)
+
 ##### `transfer()`   
 
 ㅤNow the proceeds are available to the invoice's creator and available to be transferred from out of the custody of the Invoice Canister whenever the creator calls the `transfer()` method. All the subaccount addresses discussed so far belong to the invoice canister, so it should be understood the invoice canister processes its invoices by custody and is the custodian of any funds sent for payment until the creator transfers funds out of their subaccount address. 
@@ -246,7 +249,7 @@ which will run the `clean-startup.mjs` script with the different flags for eithe
 
 [Payments - Invoice Canister Design Review](https://forum.dfinity.org/t/payments-invoice-canister-design-review/)  
 [ICRC-1 Official Dfinity Repository](https://github.com/dfinity/ICRC-1)  
-[Fungible Tokens 101](https://mmapped.blog/posts/09-fungible-tokens-101.html)  
+[Fungible tokens: payment flows](https://mmapped.blog/posts/10-payment-flows.html)  
 [How to audit an Internet Computer canister](https://www.joachim-breitner.de/blog/788-How_to_audit_an_Internet_Computer_canister)  
 [Frontend Architecture and Authentication](https://kyle-peacock.com/blog/dfinity/motoko-bootcamp-authentication)  
 [Canistergeek Motoko Library](https://github.com/usergeek/canistergeek-ic-motoko)  
