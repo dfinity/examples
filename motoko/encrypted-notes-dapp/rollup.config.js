@@ -80,7 +80,10 @@ export default (config) => {
     output: {
       sourcemap: true,
       name: 'app',
-      dir: 'src/frontend/public/build',
+      format: 'iife',
+      
+      file: 'src/frontend/public/build/main.js',
+      inlineDynamicImports: true,
     },
     plugins: [
       svelte({
