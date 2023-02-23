@@ -238,7 +238,7 @@ async fn get_rate(job: Timestamp) {
     }
 }
 
-fn keep_only_ts_and_rate(body: &Vec<u8>) -> Vec<u8> {
+fn keep_only_bucket_start_time_and_closing_price(body: &[u8]) -> Vec<u8> {
     //ic_cdk::api::print(format!("Got decoded result: {}", body));
     let rates_array: Vec<Vec<Value>> = serde_json::from_slice(body).unwrap();
     let mut res = vec![];
@@ -257,11 +257,13 @@ fn keep_only_ts_and_rate(body: &Vec<u8>) -> Vec<u8> {
 #[query]
 fn transform(raw: TransformArgs) -> HttpResponse {
     let mut res = HttpResponse {
-        status: raw.response.status,
+        status: raw.response.status.clone(),
         ..Default::default()
     };
     if res.status == 200 {
-        res.body = keep_only_ts_and_rate(&raw.response.body)
+        res.body = keep_only_bucket_start_time_and_closing_price(&raw.response.body)
+    } else {
+        ic_cdk::api::print(format!("Received an error from coinbase: err = {:?}", raw));
     }
     res
 }
@@ -313,10 +315,8 @@ mod tests {
     ]
 ]
         ";
-        let results = RefCell::new(HashMap::<Timestamp, Rate>::new());
-        let mut fetched = results.borrow_mut();
-        decode_body_to_rates(body, &mut fetched);
-        assert!(fetched.len() == 3);
-        assert!(fetched.get(&1652454180) == Some(&(9.56 as f32)));
+        let res = keep_only_bucket_start_time_and_closing_price(body.as_bytes());
+        let expected = "1652454300 9.51\n1652454240 9.52\n1652454180 9.56\n";
+        assert_eq!(res, expected.as_bytes().to_vec());
     }
 }
