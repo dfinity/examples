@@ -256,6 +256,7 @@ To run unit tests, use `make test`.
 
 To run the end-to-end JavaScript tests, use `make e2e`. 
 
+_For understanding how the Invoice Canister works, reviewing the E2E test suite [recover_invoice_subaccount_balance.test.js](./test/e2e/src/tests/recover_invoice_subaccount_balance.test.js) is useful as it demonstrates almost all the functionality of the Invoice Canister. Additionally, an example of all the unit and E2E tests' output can be found in the [Testing Glossary](./docs/TestingGlossay.md)._
 ## Security Concerns
 
 As stated earlier, there are a few points that must be considered when deploying the Invoice Canister in production. Unless further modification of the code base is performed to prevent or otherwise manage these, these are:
