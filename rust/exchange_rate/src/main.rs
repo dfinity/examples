@@ -6,7 +6,7 @@ use ic_cdk::api::management_canister::http_request::{
 use ic_cdk::storage;
 use ic_cdk_macros::{self, heartbeat, post_upgrade, pre_upgrade, query, update};
 use serde_json::{self, Value};
-use std::cell::{RefCell, RefMut};
+use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 
 // How many data point can be returned as maximum.
@@ -218,10 +218,12 @@ async fn get_rate(job: Timestamp) {
                 let mut fetched = fetched.borrow_mut();
                 let str_body = String::from_utf8(response.body)
                     .expect("Remote service response is not UTF-8 encoded.");
-                for bucket in str_body.split("\n") {
-                    let ts_and_rate: Vec<String> = *bucket.split_ascii_whitespace().collect::<String>();
-                    assert!(ts_and_rate.len() == 2);
-                    fetched.insert(ts_and_rate[0].parse::<u64>().unwrap(), ts_and_rate[1].parse::<f32>().unwrap());
+                for bucket in str_body.lines() {
+                    let mut iter = bucket.split_whitespace();
+                    let ts = iter.next().unwrap().parse::<u64>().unwrap();
+                    let rate = iter.next().unwrap().parse::<f32>().unwrap();
+                    assert!(iter.next().is_none());
+                    fetched.insert(ts, rate);
                 }
             });
         }
@@ -243,7 +245,11 @@ fn keep_only_ts_and_rate(body: &Vec<u8>) -> Vec<u8> {
     for rate in rates_array {
         let bucket_start_time = rate[0].as_u64().expect("Couldn't parse the time.");
         let closing_price = rate[4].as_f64().expect("Couldn't parse the rate.");
-        res.append(&mut format!("{} {}\n", bucket_start_time, closing_price).as_bytes().to_vec());
+        res.append(
+            &mut format!("{} {}\n", bucket_start_time, closing_price)
+                .as_bytes()
+                .to_vec(),
+        );
     }
     res
 }
