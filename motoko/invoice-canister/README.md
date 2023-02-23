@@ -34,6 +34,10 @@ Any caller authorized to verify an invoice can also call on the Invoice Canister
 
 An invoice creator can call `get_caller_balance` to view the current balance of any proceeds that have not yet been transferred out. Calling `get_caller_address` will return the address associated with this balance. Calling `to_other_address_format` will return both the canister expected type and the text encoded form of an address or text given, or the default subaccount of the principal for the token type given. 
 
+Here is a diagram of the generalized successful payment flow of an invoice life cycle:
+![Generalized successful payment flow](./docs//invoice-payment-flow.png)
+
+
 _This is only a summary description of the general functionality of the Invoice Canister, review the [Design Doc](./docs/DesignDoc.md) for more details in particular being aware of the security concerns such as regarding an invoice's data privacy. Additionally, there is extensive commentary in the [Invoice.mo](./src/invoice/Invoice.mo), [Types.mo](./src/invoice/modules/Types.mo) and [SupportedToken.mo](./src/invoice/modules/SupportedToken.mo) files._
 ## Getting Started - Development
 
