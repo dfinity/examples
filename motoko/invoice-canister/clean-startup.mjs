@@ -117,13 +117,14 @@ const restart_dfx_clean_in_background = async () => {
   });
 };
 
+/*
 // Confirm local replica network is configured correctly for `dfx nns install`.
 const check_correct_system_network_config = async () => {
   const networks = `${await $`dfx info networks-json-path`}`.trim();
   const { local } = JSON.parse(fs.readFileSync(networks, 'utf8'));
   return (local.bind === '127.0.0.1:8080' && local?.replica?.subnet_type === 'system');
 }
-
+*/
 // Add the identity initialized with funds by `dfx nns install` that
 // will be used to deploy the invoice ledger during E2E testing.
 const use_nnsFundedSecp256k1Identity_and_add_if_needed = async () => {
@@ -338,7 +339,7 @@ const run = async (testing = false) => {
     ),
   );
   await restart_dfx_clean_in_background();
-
+/*
   if (!(await check_correct_system_network_config())) {
     console.info(
       chalk.red(
@@ -347,6 +348,7 @@ const run = async (testing = false) => {
     );
     return;
   }
+  */
   if (testing) {
     // Add of need and switch to the identity `dfx nns install` 
     // initially sends one hundred quadrillion ICP e8s to.
