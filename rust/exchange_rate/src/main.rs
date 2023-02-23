@@ -219,7 +219,7 @@ async fn get_rate(job: Timestamp) {
                 let str_body = String::from_utf8(response.body)
                     .expect("Remote service response is not UTF-8 encoded.");
                 for bucket in str_body.split("\n") {
-                    let ts_and_rate: Vec<String> = *bucket.split(" ").collect::<String>();
+                    let ts_and_rate: Vec<String> = *bucket.split_ascii_whitespace().collect::<String>();
                     assert!(ts_and_rate.len() == 2);
                     fetched.insert(ts_and_rate[0].parse::<u64>().unwrap(), ts_and_rate[1].parse::<f32>().unwrap());
                 }
