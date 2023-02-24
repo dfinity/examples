@@ -6,7 +6,9 @@ import Principal "mo:base/Principal";
 import Text "mo:base/Text";
 
 import Migration "../../src/invoice/modules/Migration";
-import SupportedToken "../../src/invoice/modules/SupportedToken";
+import SupportedToken "../../src/invoice/modules/supported-token/SupportedToken";
+import { icpAdapter } "../../src/invoice/modules/supported-token/token-specific/icp/Adapter";
+import { icrc1Adapter } "../../src/invoice/modules/supported-token/token-specific/icrc1/Adapter";
 import ActorSpec "./utils/ActorSpec";
 import ExpectedValues "./utils/ExpectedValues";
 
@@ -16,8 +18,8 @@ import ExpectedValues "./utils/ExpectedValues";
 
 // Redeclaring to make it simpler to read.
 let sTokens = SupportedToken;
-let Adapter_ICP = SupportedToken.ICP_Adapter;
-let Adapter_ICRC1 = SupportedToken.ICRC1_Adapter;
+let Adapter_ICP = icpAdapter;
+let Adapter_ICRC1 = icrc1Adapter;
 let Vals = ExpectedValues.Expected().Vals;
 
 type Group = ActorSpec.Group;
@@ -39,7 +41,7 @@ let run = ActorSpec.run;
       1. The ICP Adapter which uses the AccountIdentifier and Subaccount types  
       2. the ICRC1 Adapter which uses the Account and Subaccount types  
     -Common transformations included that may or may not share type annotions  
-      (ie those at the SupportedToken file scope/outermost module)  
+      (ie those at the SupportedToken file scope)  
     -Migration for upgrading saved record types from the previous invoice canister's implementation.  
 
   --Glossary of methods tested--  

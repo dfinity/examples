@@ -2,7 +2,7 @@ import Nat "mo:base/Nat";
 import Result "mo:base/Result";
 import Time "mo:base/Time";
 
-import SupportedToken "./SupportedToken";
+import SupportedToken "./supported-token/SupportedToken";
 import Types "./Types";
 
 /****Module for migrating invoice record type be compatible with SupportedToken.**  

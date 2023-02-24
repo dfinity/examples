@@ -7,7 +7,7 @@ import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Time "mo:base/Time";
 
-import SupportedToken "./SupportedToken";
+import SupportedToken "./supported-token/SupportedToken";
 
 /****Types Module of types that are a part of the canister's API.***/
 module Types {
@@ -504,13 +504,13 @@ module Types {
     _Remember to add that canister as an allowed creator so it is authorized to make calls._  
     An example of using of this:  
     
-    `
+    ```
     import Types "./modules/Types.mo"
     // Other imports.
 
     actor CanisterRequiringPaymentProcessing {
 
-      /// Other state, type and method declarations.
+      // Other state, type and method declarations.
 
       let invoiceCanister : Types.InvoiceCanisterAPI = fromActor("<invoice canister id>");
 
@@ -519,7 +519,7 @@ module Types {
 
       // rest of canister's code...
     };
-    ` */
+    ``` */
   public type InvoiceCanisterAPI = {
     // The following three methods are only permitted for the invoice canister installer.
     add_allowed_creator : shared AddAllowedCreatorArgs -> async AddAllowedCreatorResult;
