@@ -16,8 +16,6 @@ import Source "mo:ulid/Source";
 import ULID "mo:ulid/ULID";
 
 import SupportedToken "./modules/supported-token/SupportedToken";
-import Supertype_ICP "./modules/supported-token/token-specific/icp/ActorSupertype";
-import Supertype_ICRC1 "./modules/supported-token/token-specific/icrc1/ActorSupertype";
 import Types "./modules/Types";
 
 shared ({ caller = installer_ }) actor class Invoice() = this {
@@ -43,10 +41,10 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
   };
 
   // Invoice canister only uses transfer and balance methods of ledger canisters; these are those supertypes:
-  let Ledger_ICP : Supertype_ICP.Actor = actor (CANISTER_IDS.icp_ledger_canister);
-  let Ledger_ICP_nns : Supertype_ICP.Actor = actor (CANISTER_IDS.nns_ledger);
-  let Ledger_ICRC1_Ex1 : Supertype_ICRC1.Actor = actor (CANISTER_IDS.icrc1_ledger_canister_ex1);
-  let Ledger_ICRC1_Ex2 : Supertype_ICRC1.Actor = actor (CANISTER_IDS.icrc1_ledger_canister_ex2);
+  let Ledger_ICP : SupportedToken.Actor_Supertype_ICP = actor (CANISTER_IDS.icp_ledger_canister);
+  let Ledger_ICP_nns : SupportedToken.Actor_Supertype_ICP = actor (CANISTER_IDS.nns_ledger);
+  let Ledger_ICRC1_Ex1 : SupportedToken.Actor_Supertype_ICRC1 = actor (CANISTER_IDS.icrc1_ledger_canister_ex1);
+  let Ledger_ICRC1_Ex2 : SupportedToken.Actor_Supertype_ICRC1 = actor (CANISTER_IDS.icrc1_ledger_canister_ex2);
 
   /** Stores `Invoice_` records in a stable trie representation. 
     _Note invoices as they are returned to a caller are first decorated by `toCallerExpectedInvoice`  

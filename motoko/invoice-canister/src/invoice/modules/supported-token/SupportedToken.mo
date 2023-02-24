@@ -3,8 +3,10 @@ import Nat64 "mo:base/Nat64";
 import Result "mo:base/Result";
 import AccountIdentifierBlob "mo:principal/blob/AccountIdentifier";
 
+import Supertype_ICP "./token-specific/icp/ActorSupertype";
 import { icpAdapter } "./token-specific/icp/Adapter";
 import ICP "./token-specific/icp/Types";
+import Supertype_ICRC1 "./token-specific/icrc1/ActorSupertype";
 import { icrc1Adapter } "./token-specific/icrc1/Adapter";
 import ICRC1 "./token-specific/icrc1/Types";
 
@@ -34,6 +36,12 @@ import ICRC1 "./token-specific/icrc1/Types";
   complete integration for support of that token. After the methods in this file have been completed,  
   the last changes to make are the four relevant API methods in `Invoice.mo`.  */
 module SupportedToken {
+
+  /** Redeclared actor supertype of an ICP ledger canister for importing convenience.  */
+  public type Actor_Supertype_ICP = Supertype_ICP.Actor;
+
+  /** Redeclared actor supertype of an ICRC1 token-ledger canister for importing convenience.  */
+  public type Actor_Supertype_ICRC1 = Supertype_ICRC1.Actor;
 
   // Redeclared to visually distinguish the code below.
   let ICP_Adapter = icpAdapter;
