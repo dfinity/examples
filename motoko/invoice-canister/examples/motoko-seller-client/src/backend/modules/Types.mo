@@ -13,14 +13,28 @@ import SupportedToken "./SupportedToken";
 module Types {
 
   /****Detail types of an invoice.**  
-    Includes fields `description : Text` and `meta : Blob`.  */
+    Includes fields `description : Text` and `meta : Blob`.  
+    The meta blob could be a JSON object encoded as UTF-8, providing 
+    the particular details related to this invoice such as buyer's 
+    contact information, delivery instructions, or the line items 
+    this invoice is responsible for rendering as a service or 
+    payment. Note that by default neither the description nor the
+    meta blob is encrypted, so be aware unless it is encrypted before
+    being included as an argument of `create_invoice()` these details 
+    could be physically inspected by a node provider. If privacy is 
+    needed, encrypt this data before it reaches the invoice canister.  */
   public type Details = {
     description : Text;
     meta : Blob;
   };
 
   /****Permissions types of an invoice.**  
-    Includes fields `canGet : [Principal]` and `canVerify : [Principal]`.  */
+    Includes fields `canGet : [Principal]` and `canVerify : [Principal]`.  
+    Either array can be no longer than 256 principals. Callers with their principals  
+    in the `canGet` list have permission to call `get_invoice()` for this invoice  
+    while callers with their principals in the `canVerify` list have permission to  
+    call either `verify_invoice()` or `recover_invoice_subaccount_balance()` for  
+    this invoice.  */
   public type Permissions = {
     canGet : [Principal];
     canVerify : [Principal];
