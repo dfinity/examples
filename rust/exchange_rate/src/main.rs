@@ -217,11 +217,11 @@ async fn get_rate(job: Timestamp) {
             FETCHED.with(|fetched| {
                 let mut fetched = fetched.borrow_mut();
                 let str_body = String::from_utf8(response.body)
-                    .expect("Remote service response is not UTF-8 encoded.");
+                    .expect("Transformed response is not UTF-8 encoded.");
                 for bucket in str_body.lines() {
                     let mut iter = bucket.split_whitespace();
-                    let ts = iter.next().unwrap().parse::<u64>().unwrap();
-                    let rate = iter.next().unwrap().parse::<f32>().unwrap();
+                    let ts = iter.next().unwrap().parse::<Timestamp>().unwrap();
+                    let rate = iter.next().unwrap().parse::<Rate>().unwrap();
                     assert!(iter.next().is_none());
                     fetched.insert(ts, rate);
                 }
@@ -238,7 +238,7 @@ async fn get_rate(job: Timestamp) {
     }
 }
 
-fn keep_only_bucket_start_time_and_closing_price(body: &[u8]) -> Vec<u8> {
+fn keep_bucket_start_time_and_closing_price(body: &[u8]) -> Vec<u8> {
     //ic_cdk::api::print(format!("Got decoded result: {}", body));
     let rates_array: Vec<Vec<Value>> = serde_json::from_slice(body).unwrap();
     let mut res = vec![];
@@ -262,7 +262,7 @@ fn transform(raw: TransformArgs) -> HttpResponse {
         ..Default::default()
     };
     if res.status == 200 {
-        res.body = keep_only_bucket_start_time_and_closing_price(&raw.response.body)
+        res.body = keep_bucket_start_time_and_closing_price(&raw.response.body)
     } else {
         ic_cdk::api::print(format!("Received an error from coinbase: err = {:?}", raw));
     }
@@ -316,7 +316,7 @@ mod tests {
     ]
 ]
         ";
-        let res = keep_only_bucket_start_time_and_closing_price(body.as_bytes());
+        let res = keep_bucket_start_time_and_closing_price(body.as_bytes());
         let expected = "1652454300 9.51\n1652454240 9.52\n1652454180 9.56\n";
         assert_eq!(res, expected.as_bytes().to_vec());
     }
