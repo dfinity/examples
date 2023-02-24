@@ -23,7 +23,6 @@ Goals for this project are as follows:
 
 ## Getting to Know the Invoice Canister  
 #### and the Choices of its Design  
-
 ##### Premise   
 
 ㅤThe goal here is to design a flow where a client application such as a webpage could initiate a payment flow that could be used to gate services or transfer ownership of assets with as few canister calls as possible. 
@@ -83,6 +82,7 @@ all other API calls work the same for each authorized caller. This is even true 
    
 ##### How to Address the Life Cycle of an Invoice    
 
+  The [invoice.did](../invoice.did) also contains commentary for understanding how to interact the Invoice Canister. 
 ##### `create_invoice()`    
  
 ㅤThe Invoice Canister is designed to consolidate the proceeds of invoices it successfully verifies as paid from the address it creates for payment for each invoice created to the address it creates for that invoice's creator.  That is, when an authorized caller successfully creates an invoice having called `create_invoice()` with acceptable inputs (see above), a payment address is created for that invoice by computing a subaccount from the invoice's id and that caller's principal; when that invoice subaccount is combined with the Invoice's Canister own id, the actual address of an ICP account identifier or ICRC1 account is created. While each invoice has its own payment address, there is only one address created for each invoice creator. Also note that the Invoice Canister does not store any token specific address types except for the text encoded payment address of each invoice in its stored record type. 
