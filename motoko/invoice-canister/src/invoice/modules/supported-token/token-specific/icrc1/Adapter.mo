@@ -126,9 +126,9 @@ module Adapter {
   };
 
   /** Prevents unsanitized text input causing `Principal.fromText` to trap when decoding  
-          the given text into an icrc1 account. Returns false if any character in the Text's  
-          string isn't an alphanumeric character except for every sixth character which must  
-          be a dash which also cannot be the last character of the string.  */
+    the given text into an icrc1 account. Returns false if any character in the Text's  
+    string isn't an alphanumeric character except for every sixth character which must  
+    be a dash which also cannot be the last character of the string.  */
   func simpleAccountTextInputCheck(t : Text) : Bool {
     // Minimum principal length with crc and last char not being '-'.
     if (t.size() < 6) return false;

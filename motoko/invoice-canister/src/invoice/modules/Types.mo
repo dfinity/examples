@@ -51,7 +51,7 @@ module Types {
       -`details : ?Details;`  
       -`permissions : ?Permissions;`  
       -`paymentAddress : Text;`  
-      -`amountDue : Nat;`  // Is always in base units (ie for ICP is the e8s value). 
+      -`amountDue : Nat;`  // Is always in base units (ie for ICP is the e8s value).  
       -`amountPaid : Nat;`  
       -`verifiedPaidAtTime : ?Time.Time;`  
     **Note** this is not the record type returned to a caller, that type  
@@ -127,8 +127,8 @@ module Types {
   };
 
   /****`err` result type of method `remove_allowed_creator`.**    
-    Has field:
-    -`kind : {` 
+    Has field:  
+    -`kind : {`  
       `#NotAuthorized`  
       `#NotFound`  
     `}`  */
@@ -325,7 +325,7 @@ module Types {
   };
 
   /****`err` result type of method `verify_invoice`.**    
-    Has field:
+    Has field:  
     -`kind : {`                       
       `#InProgress;`  
       `#IncompletePayment : { partialAmountPaid : SupportedToken.Amount };`  
@@ -364,7 +364,7 @@ module Types {
     `    subaccount = null;`  
     `   }))`  
     `}`  
-    Note if `CanisterExpected` `RecipientAddress` is passed it must match the 
+    Note if `CanisterExpected` `RecipientAddress` is passed it must match the  
     token type `tokenAmount` is or err kind #InvalidDestination is returned. */
   public type TransferArgs = {
     tokenAmount : SupportedToken.Amount;
@@ -497,7 +497,7 @@ module Types {
   };
 
   /****`err` result type of method `to_other_address_format`.**  
-    Has fields:  
+    Has field:  
     -`kind : {`                  
       `#NotAuthorized;`  
       `#MissingTokenType;`  
@@ -511,7 +511,7 @@ module Types {
     };
   };
 
-  /****Interface for instantiating an invoice canister  
+  /****Interface for instantiating an invoice canister
     actor in another canister using the Invoice Canister API.**  
     When using the invoice canister in another canister an actor declaration of  
     the invoice canister's actor type will be needed, which is this type declaration.  

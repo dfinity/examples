@@ -20,7 +20,7 @@ module ICRC1 {
   /** Sequence number of transactions processed by the ICRC1 token-ledger canister.  */
   public type TxIndex = Nat;
 
-  /** Amount of tokens, measured 10^<decimal number> defined by the ICRC1 token-ledger canister interface.  */
+  /** Amount of tokens, measured 10^(decimal number) defined by the ICRC1 token-ledger canister interface.  */
   public type Tokens = Nat;
 
   /** Arguments for the `icrc1_balance_of` call.  */

@@ -14,18 +14,21 @@ import ICRC1 "./token-specific/icrc1/Types";
   actors to types processed for and expected by the invoice canister caller.**  
   \
   If adding support for more ICP based or ICRC1 standard tokens, first add a new tag that will
-  correspond to the token to support in the `SupportedToken<T1, T2>` variant declaration below.
+  correspond to the token to support in the `SupportedToken<T1, T2>` variant declaration below.  
   \
   When this declaration is modified, it will trigger the Motoko VSCode extension to indicate  
   all the other places that need to be edited to complete integration for support of that token.   
-  These include all the methods of this module and the four relevant Invoice Canister API methods 
-  (`get_caller_balance()`, `verify_invoice()`, `transfer()` and  `recover_invoice_subaccount_balance()`). 
+  These include all the methods of this module and the four relevant Invoice Canister API methods:   
+    `get_caller_balance()`,  
+    `verify_invoice()`,  
+    `transfer()` and   
+    `recover_invoice_subaccount_balance()`.  
   \
   Each method of `./SupportedToken.mo` contains a switch that will need an added case  
   for the new tag; the four API methods in `Invoice.mo` also have switches that need an added case,   
   however the logic of those cases involve adding the correct actor supertype calls. In all cases,  
   the existing implementation can be used as a guide to copy the logic from just be sure to   
-  correctly update all references to the new tag.
+  correctly update all references to the new tag.  
   \
   It is recomended to first start by adding the case to `getTokenVerbose()` as the transfer fee  
   assigned in that tag's TokenVerbose will be used to execute transactions correctly by the   
@@ -48,23 +51,23 @@ module SupportedToken {
   let ICRC1_Adapter = icrc1Adapter;
 
   /****Some type that makes the rest possible.**  
-    Entries of this variant are all the token-ledger canisters this invoice canister supports.  
+    Tag entries of this variant are all the tokens this invoice canister supports.  
     The generic arguments are the distinct types each token uses and may be shared: additional  
     ICRC1 standard tokens can reuse the generic type T2. Adding or removing a tag entry will  
     trigger the VSCode Motoko extension to indicate all the methods' switches' cases that need  
     to be edited to add or remove support for a particular token (the methods of this module  
     and the four of `Invoice.mo`).  */
-  public type SupportedToken<T1, T2> = {
-    #ICP : T1;
-    #ICP_nns : T1;
-    #ICRC1_ExampleToken : T2;
-    #ICRC1_ExampleToken2 : T2;
+  public type SupportedToken<ICP, ICRC1> = {
+    #ICP : ICP;
+    #ICP_nns : ICP;
+    #ICRC1_ExampleToken : ICRC1;
+    #ICRC1_ExampleToken2 : ICRC1;
     //  #ICRC1_xdr       : T2;
     //  #ICRC1_ckbtc     : T2;
     //  etc
   };
 
-  /** Corresponding supported token "base" types. Used as a parameter to specify which token. */
+  /** Corresponding supported token "base" types: the tag is used a parameter to specify which token. */
   public type UnitType = SupportedToken<(), ()>;
 
   /** Corresponding supported token type canister expected amount types. */
@@ -92,9 +95,9 @@ module SupportedToken {
   };
 
   /****Hard coded token specific information record.**  
-    At least the fee must be correctly defined for additional tokens in `getTokenVerbose` below.  
+    At least the fee must be correctly defined for additional tokens in `getTokenVerbose()` below.  
     It is strongly encouraged to set the other fields correctly as well, in particular the `Url` 
-    can point to the token-ledger canister's url of the ICP dashboard. */
+    can point to the token-ledger canister's url of the ICP dashboard.  */
   public type TokenVerbose = {
     symbol : Text;
     name : Text;
