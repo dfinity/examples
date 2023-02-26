@@ -4,9 +4,9 @@
 
 They can be originally found at [BNT-2: Invoice Canister #2](https://github.com/dfinity/grant-rfps/issues/2).
 
-This was created to make it easier to know what needed to be done as to verify everything has been completed. 
+This was created to make it easier to know what needed to be done as to verify everything has been completed. It should probably be removed before merging. 
 
-*line numbers should be correct, but TO DO verify before pushing for PR. 
+All the referenced line numbers should be correct to within one or two lines (some revisions were completed after this was "finally" drafted). 
 
 In addition to these bounty tasks, two other non-trivial changes include using the literal of a generated ULID for an invoice's id (instead of the invoice creation counter value). ULID was chosen for its timestamp encoding and human copy and paste friendly dash-lacking format; there's an example of decoding the timestamp from an invoice's ulid in the frontend of the `motoko-seller-client` example. Also note a monotonic invoice creation counter is still used and available if needed for an invoice record. The other change was upgrading from the volatile hashmap to the stable compatible trie to remove the need for using the pre and postupgrade system hooks. 
 
@@ -25,13 +25,13 @@ In addition to these bounty tasks, two other non-trivial changes include using t
       - [x] `clean-startup.mjs::disburse_funds_to_nnsFundedSecp256k1Identity_creator_subaccounts()` (lines [250](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/clean-startup.mjs#L250)-270, 377).  
   
 - [x] **Adding the required ICRC1 token-ledger canister typings:**  
-    ✶ `src/invoice/modules/SupportedToken.mo::TokenSpecific.ICRC1` (lines [194](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/SupportedToken.mo#L194)-234).  
+    ✶ [src/invoice/modules/supported-token/token-specific/icrc1/Types.mo](./src/invoice/modules/supported-token/token-specific/icrc1/Types.mo)  
 
 - [x] **For consistency and integration adding an ICRC1 token-ledger canister actor supertype:**  
-    ✶ `src/invoice/modules/SupportedToken.mo::TokenSpecific.ICRC1.Supertype` (lines [238](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/SupportedToken.mo#L238)-243).  
+    ✶ [src/invoice/modules/supported-token/token-specific/icrc1/ActorSupertype.mo](./src/invoice/modules/supported-token/token-specific/icrc1/ActorSupertype.mo)  
 
 - [x] **Adding the logic for ICRC1 addressing computations:**  
-  - [x] `src/invoice/modules/SupportedToken.mo::TokenSpecific.ICRC1.Adapter` (lines [246](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/SupportedToken.mo#L246)-494).  
+  - [x] [src/invoice/modules/supported-token/token-specific/icrc1/Adapter.mo](./src/invoice/modules/supported-token/token-specific/icrc1/Adapter.mo)  
      - [x] `isValidSubaccount()`  
      - [x] `isValidAddress()`  
      - [x] `encodeAddress()`  
@@ -41,12 +41,13 @@ In addition to these bounty tasks, two other non-trivial changes include using t
      - [x] `computeCreatorSubaccount()`  
      - [x] `computeCreatorSubaccountAddress()`  
   - [x] Each has at least one unit test in `test/unit/Test.mo`  
-      ✶ `describe("ICRC1 Adapter Account and Subaccount Computations"...` (lines [268](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/unit/Test.mo#L268)-420).  
+      ✶ `describe("ICRC1 Adapter Account and Subaccount Computations"...` (lines [270](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/unit/Test.mo#L270)-422).  
 
 - [x] **Adding the logic connecting those addressing transformations to the invoice canister's API methods:**
-  - [x] [`src/invoice/modules/SupportedToken.mo`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/SupportedToken.mo) (lines [517](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/SupportedToken.mo#L517)-977).  
-        _ㅤㅤㅤRelated `SupportedToken`'s fields:_  
-    - [x] `SupportedToken<T1, T2>` (`#ICRC1_ExampleToken` & `#ICRC1_ExampleToken2` (lines [532](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/SupportedToken.mo#L532)-533).  
+  - [x] [src/invoice/modules/supported-token/SupportedToken.mo](./src/invoice/modules/supported-token/SupportedToken.mo).  
+        _ㅤVariant tags mapping the two ICRC1 tokens:_  
+    - [x] `SupportedToken<T1, T2>` (`#ICRC1_ExampleToken` & `#ICRC1_ExampleToken2` (lines [63](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/supported-token/SupportedToken.mo#L63)-64).  
+        _ㅤRelated `SupportedToken`'s types each with corresponding ICRC1 type:_  
     - [x] `UnitType = SupportedToken<(), ()>`  
     - [x] `Amount = SupportedToken<TokenSpecific.ICP.Tokens, TokenSpecific.ICRC1.Tokens>`  
     - [x] `Address = SupportedToken<TokenSpecific.ICP.AccountIdentifier, TokenSpecific.ICRC1.Account>`  
@@ -72,9 +73,9 @@ In addition to these bounty tasks, two other non-trivial changes include using t
 
   - [x] **Unit testing for each of the above methods in `test/unit/Test.mo`.**  
           _ㅤEach includes its own subsuite-set of test cases ("describe">"it") for each token type._  
-      - [x] `describe("Supported Token Types' and Methods"...` (full set omitted here, lines [423](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/unit/Test.mo#L423)-1651).  
+      - [x] `describe("Supported Token Types' and Methods"...` (full set omitted here, lines [426](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/unit/Test.mo#L426)-1651).  
 
-  - [x] **Implementing the actual use of the above methods in the invoice canister's API methods in `src/invoice/Invoice.mo`:**  
+  - [x] **Implementing the actual use of the above methods in the invoice canister's API methods in [src/invoice/Invoice.mo](./src/invoice/Invoice.mo):**  
     - [x] `create_invoice()`  
     - [x] `get_caller_address()`  
     - [x] `get_caller_balance()`  
@@ -86,14 +87,14 @@ In addition to these bounty tasks, two other non-trivial changes include using t
   
   - [x] **E2E testing for each above the methods in `test/e2e/src/tests/`:**  
         _ㅤEach of the following includes its own subsuite-sets of test cases ("describe">"it") for each token type and other test case conditions where appropiate (full set omitted here, it's a long list)._  
-    - [x] [`create_invoice.test.js`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/create_invoice.test.js)   
-    - [x] [`get_caller_address.test.js`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/get_caller_address.test.js)   
-    - [x] [`get_caller_balance.test.js`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/get_caller_balance.test.js)   
-    - [x] [`get_invoice.test.js`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/get_invoice.testjs)  
-    - [x] [`verify_invoice.test.js`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/verify_invoice.test.js)  
-    - [x] [`transfer.test.js`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/transfer.test.js)  
-    - [x] [`recover_invoice_subaccount_balance.test.js`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/recover_invoice_subaccount_balance.test.js)  
-    - [x] [`to_other_address_format.test.js`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/to_other_address_format.test.js)  
+    - [x] [create_invoice.test.js](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/create_invoice.test.js)   
+    - [x] [get_caller_address.test.js](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/get_caller_address.test.js)   
+    - [x] [get_caller_balance.test.js](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/get_caller_balance.test.js)   
+    - [x] [get_invoice.test.js](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/get_invoice.testjs)  
+    - [x] [verify_invoice.test.js](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/verify_invoice.test.js)  
+    - [x] [transfer.test.js](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/transfer.test.js)  
+    - [x] [recover_invoice_subaccount_balance.test.js](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/recover_invoice_subaccount_balance.test.js)  
+    - [x] [to_other_address_format.test.js](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/to_other_address_format.test.js)  
   
 - [x] **Updating `motoko-seller-client` project to demonstrate seller flow also integrating ICRC1 compatable invoice canister:**  
         _ㅤProject scope change: instead of four, only two two tokens and corresponding `SupportedToken` variant tags are used: `#ICP` and `#ICRC1`._  
@@ -101,23 +102,23 @@ In addition to these bounty tasks, two other non-trivial changes include using t
     - [x] **Adding mock token-canister ledgers[^6].**   
       ✶ `examples/motoko-seller-client/src/backend/modules/MockTokenLedgerCanisters.mo...`  
           _ㅤShould correctly return every #Ok/#Err result of balance/transfer except ICRC1's Generic/TempUnavailable Err._   
-      - [x] [`...ICP.MockLedger`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/modules/MockTokenLedgerCanisters.mo#L96) (lines 96-238; also with [`deposity_free_money()`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/modules/MockTokenLedgerCanisters.mo#L211)).  
-      - [x] [`...ICRC1.MockLedger`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/modules/MockTokenLedgerCanisters.mo#L315) (lines 315-450; also with [`deposity_free_money()`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/modules/MockTokenLedgerCanisters.mo#L433)).  
+      - [x] [...ICP.MockLedger](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/modules/MockTokenLedgerCanisters.mo#L96) (lines 96-238; also with [deposity_free_money()](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/modules/MockTokenLedgerCanisters.mo#L211)).  
+      - [x] [...ICRC1.MockLedger](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/modules/MockTokenLedgerCanisters.mo#L315) (lines 315-450; also with [deposity_free_money()](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/modules/MockTokenLedgerCanisters.mo#L433)).  
 
     - [x] **Updating the backend**
-      - [x] Updating [`examples/motoko-seller-client/src/backend/modules/SupportedToken.mo`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/modules/SupportedToken.mo):   
-        - [x] For each corresponding methods (and [`SupportedToken<>` variant](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/modules/SupportedToken.mo#L523)) two cases instead of the previous four.  
-      - [x] Updating [`examples/motoko-seller-client/src/backend/Invoice.mo`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/Invoice.mo):  
+      - [x] Updating [examples/motoko-seller-client/src/backend/modules/SupportedToken.mo](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/modules/SupportedToken.mo):   
+        - [x] For each corresponding methods (and [SupportedToken<> variant](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/modules/SupportedToken.mo#L523)) two cases instead of the previous four.  
+      - [x] Updating [examples/motoko-seller-client/src/backend/Invoice.mo](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/Invoice.mo):  
         - [x] Editing to do two instead of four cases for each API method.  
         - [x] Adding the seller as an authorized allowed creator.  
         - [x] Updating the `deposit_free_money` logic to handle both ICP and ICRC1 token types.  
-      - [x] Updatting [`examples/motoko-seller-client/src/backend/Seller.mo`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/Seller.mo):  
+      - [x] Updatting [examples/motoko-seller-client/src/backend/Seller.mo](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/Seller.mo):  
         - [x] Correctly importing `Invoice` canister now that it's a class actor.  
         - [x] Updating each method to still do expected functionality.  
   
     - [x] **Updating the frontend**  
       ✶ `examples/motoko-seller-client/src/frontend/...`:  
-        - [x] Adding the needed known identities [`.../src/identity.js`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/frontend/src/identity.js) to correctly create actor types.  
+        - [x] Adding the needed known identities [.../src/identity.js](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/frontend/src/identity.js) to correctly create actor types.  
         - [x] Updating `.../src/components/Invoice.jsx`:   
           - [x] to handle accepting both ICP and ICRC1 token types (lines [93](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/frontend/src/components/Invoice.jsx#L93)-140).   
           - [x] to display payment address correctly (line [147](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/frontend/src/components/Invoice.jsx#L147)).  
@@ -149,11 +150,11 @@ In addition to these bounty tasks, two other non-trivial changes include using t
     ㅤTo account for the first two cases the `#err kind #InsufficientTransferAmount` is added; to account for the third `#err kind #InsufficientAmountDue` is added since proceeds of invoices with an amount due less than the transfer fee are effectively irrecoverable[^2] if each invoice has it's own subaccount as a payment address. _Although ICRC1 token-ledger canisters can handle the fee automatically (as an opt transfer arg), it was easier to normalize preventing the error than handling its return which, in addition to also including the necessary support for ICP ledgers, provides a more uniform API for the user._   
     ㅤAs this issue is specifically resolved in the code:  
     - [x] **`create_invoice()`:**  
-        ✶ `src/Invoice/modules/Types.mo` ([line 190: `#InsufficientAmountDue;`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/Types.mo#L190)).  
+        ✶ `src/Invoice/modules/Types.mo` ([line 204: `#InsufficientAmountDue;`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/Types.mo#L204)).  
         ✶ `src/Invoice/Invoice.mo` ([lines 229-235](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/Invoice.mo#L232)).  
         ✶ `test/e2e/src/tests/create_invoice.test.js` ([lines 520-549 all four token types tested](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/create_invoice.test.js#L520)).  
     - [x] **`transfer()`:**  
-        ✶ `src/Invoice/modules/Types.mo` ([line 376: `#InsufficientTransferAmount;`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/Types.mo#L376)).  
+        ✶ `src/Invoice/modules/Types.mo` ([line 390: `#InsufficientTransferAmount;`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/Types.mo#L390)).  
         ✶ `src/Invoice/Invoice.mo` ([lines 661-667](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/Invoice.mo#L665)).  
         ✶ `test/e2e/src/tests/transfer.test.js` ([lines 308-356, all four token types tested](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/transfer.test.js#L308)).  
     - [x] **`recover_invoice_subaccount_balance()`:**  
@@ -169,16 +170,16 @@ In addition to these bounty tasks, two other non-trivial changes include using t
   - [x] https://github.com/dfinity/invoice-canister/issues/28  
     For both ICP and ICRC1 computed subaccounts:  
     - [x] ICP:  
-      ✶ `src/invoice/modules/SupportedToken.mo::TokenSpecific.ICP.Adapter.computeCreatorSubaccount()` ([line 157](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/SupportedToken.mo#L157)).  
+      ✶ `src/invoice/modules/supported-token/token-specific/icp/Adapter.computeCreatorSubaccount()` ([line 99](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/supported-token/token-specific/icp/Adapter#L99)).  
       ㅤㅤ↳was previousily `src/invoice/Account.mo::principalToSubaccount()` 
     - [x] ICRC1:  
-      ✶ `src/invoice/modules/SupportedToken.mo::TokenSpecific.ICRC1.Adapter.computeCreatorSubaccount()` ([line 336](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/SupportedToken.mo#L336)).  
+      ✶ `src/invoice/modules/supported-token/token-specific/icrc1/Adapter.computeCreatorSubaccount()` ([line 114](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/supported-token/token-specific/icp/Adapter#L114)).  
  
 ### [SEC-F21] Anonymous principal has an account #25 ###  
   - [x] https://github.com/dfinity/invoice-canister/issues/25  
     ㅤRepresented by the logic of three different methods, depending on where the check is occuring; all the canister's API methods checks against the anonymous principal by calling at least one of the following:  
     - [x] Preventing the canister installer from adding an allowed creator as the anonymous principal.  
-      ✶ `src/invoice/Invoice.mo` ([line 286](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/Invoice.mo#L286) and `src/invoice/modules/Types.mo` [line 93](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/Types.mo#L93)).  
+      ✶ `src/invoice/Invoice.mo` ([line 286](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/Invoice.mo#L286) and `src/invoice/modules/Types.mo` [line 107](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/Types.mo#L107)).  
       _ㅤ(which in turn prevents the anonymous principal from calling any other method, specifically because checks done in all the other methods by one or the other of the following two then prevent)_  
     - [x] Unauthorized calls by principals not on allowed creators list when the call is not invoice specific.  
       ✶ `src/invoice/Invoice.mo::hasCallPermission_()` ([lines 92-94](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/Invoice.mo#L92).    
@@ -186,7 +187,7 @@ In addition to these bounty tasks, two other non-trivial changes include using t
       ✶ `src/invoice/Invoice.mo::getInvoiceIfAuthorized_()` ([lines 100-142](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/Invoice.mo#L100)).  
       _ㅤㅤ(which uses the previous `hasCallPermission_()` method)_   
 
-    ✶ [`test/e2e/src/tests/disallowAnonymous.test.js`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/disallowAnonymous.test.js) (entire file) demonstrates verified coverage for each API method.  
+    ✶ [test/e2e/src/tests/disallowAnonymous.test.js](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/disallowAnonymous.test.js) (entire file) demonstrates verified coverage for each API method.  
 
 ### [SEC-F05] TOCTOU in verify_invoice #21 ###  
   - [x] https://github.com/dfinity/invoice-canister/issues/21  
@@ -201,25 +202,26 @@ In addition to these bounty tasks, two other non-trivial changes include using t
   - [x] https://github.com/dfinity/invoice-canister/issues/20  
     ㅤUpgrading the invoice canister to use libraries as opposed to hard-coded copying of sha256, crc32, and hex libraries. This is done by adding [Aviate Labs](https://github.com/aviate-labs) [Internet Computer Open Services](https://github.com/internet-computer/) package set as an additional upstream in `package-set.dhall` to make the `"array", "crypto", "hash", "encoding", "principal"` dependencies available in `vessel.dhall`. The existing addressing computations for account identifiers is updated as well as 1-1 Motoko unit tests with existing tests to show equivalence between the two implementations (added a tag to jump to that commit which is no longer a part of visible code base)[^3]. Most of those same methods as they are now:
      
-    - [x] `src/invoice/modules/SupportedToken.mo::TokenSpecific.ICP.Adapter.computeInvoiceSubaccount()` ([lines 122-136](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/SupportedToken.mo#L123)).    
+    - [x] `src/invoice/modules/supported-token/token-specific/icp/Adapter.computeInvoiceSubaccount()` ([lines 64-78](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/supported-token/token-specific/icp/Adapter.mo#L64)).    
          ㅤ↳was previousily `src/invoice/Utils.mo::generateInvoiceSubaccount()`  
 
-    - [x] `src/invoice/modules/SupportedToken.mo::TokenSpecific.ICP.Adapter.computeCreatorSubaccount()` ([lines 152-164](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/SupportedToken.mo#L152)).  
+    - [x] `src/invoice/modules/supported-token/token-specific/icp/Adapter.computeCreatorSubaccount()` ([lines 94-106](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/supported-token/token-specific/icp/Adapter.mo#L94)).  
          ㅤ↳was previousily `src/invoice/Account.mo::principalToSubaccount()`  
 
-    - [x] `src/invoice/modules/SupportedToken.mo::computeInvoiceSubaccountAddress()` ([lines 140-149](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/SupportedToken.mo#L140)).  
+    - [x] `src/invoice/modules/supported-token/token-specific/icp/Adapter.computeInvoiceSubaccountAddress()` ([lines 82-91](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/supported-token/token-specific/icp/Adapter.mo#L82)).  
          ㅤ↳was previousily `src/invoice/Account.mo::accountIdentifier()`   
 
-    - [x] `src/invoice/modules/SupportedToken.mo::computeCreatorSubaccountAddress()` ([lines 168-177](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/SupportedToken.mo#L168)).  
+    - [x] `src/invoice/modules/supported-token/token-specific/icp/Adapter.computeCreatorSubaccountAddress()` ([lines 110-118](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/supported-token/token-specific/icp/Adapter.mo#L110)).  
          ㅤ↳was previousily `src/invoice/Account.mo::accountIdentifier()`   
 
-    - [x] `src/invoice/modules/SupportedToken.mo::TokenSpecific.ICP.Adapter.isValidAddress()`) ([lines 94-102](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/SupportedToken.mo#L94)).  
+    - [x] `src/invoice/modules/supported-token/token-specific/icp/Adapter.isValidAddress()`) ([lines 37-44](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/supported-token/token-specific/icp/Adapter.mo#L37)).  
          ㅤ↳was previousily `src/invoice/Account.mo::validateAccountIdentifier()`   
 
     ㅤNote that the `ICRC1.Adapter` module also uses these libraries for its `computeCreatorSubaccount()` method.  
     There's also coverage of the entire `ICP.Adapter` module (same as `ICRC1.Adapter` above) using these library dependencies at:  
-    - [x] `test/unit/Test.mo` ([lines 107-267](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/unit/Test.mo#L107)).  
-      ㅤ✶ `describe("ICP Adapter AccountIdentifier and Subaccount Computations")` ([lines 107-268](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/unit/Test.mo#L107)).   
+    - [x] `test/unit/Test.mo`  
+      ㅤ✶ `describe("ICP Adapter AccountIdentifier and Subaccount Computations")` ([lines 109-269](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/unit/Test.mo#L109)).   
+    ✶ There's also a git tag (816165a-LibrariesEquivalence) showing equivalence between previous implementation and current implementation (although creator subaccount addresses changed as a result of adding the new separator).
 
 ### [SEC-F17] Uncertified Queries #16 ###  
   - [x] https://github.com/dfinity/invoice-canister/issues/16  
@@ -234,8 +236,8 @@ In addition to these bounty tasks, two other non-trivial changes include using t
   - [x] https://github.com/dfinity/invoice-canister/issues/13  
     ㅤNow any amount more than the transfer fee cost can be transferred out of an invoice subaccount by its creator or those on its verify permission list. If the invoice has not yet been verified, this could serve as a refund; if the invoice has already been verified, this method can be used to recover those funds. It should be noted this is not a refund for invoices already verified as those funds are moved to the creator's subaccount when the balance paid is confirmed to be greater or equal to the invoice's amount due. Since the verification and balance recovery methods are synchronized by invoice id, a call to recover funds will only happen after the invoice verification is complete (see [SEC-F05] above). The `recover_invoice_subaccount_balance()` also has extensive E2E testing and demonstrates testing of nearly all the invoice canister's functionality. 
     - [x] `src/Invoice.mo::recover_invoice_subaccount_balance()` ([lines 751-910](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/Invoice.mo#L751)).  
-    - [x] Related `src/modules/Types.mo` declarations ([lines 402-442](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/Types.mo#L402)).   
-    - [x] [`recover_invoice_subaccount_balance.test.js`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/recover_invoice_subaccount_balance.test.js) 
+    - [x] Related `src/modules/Types.mo` declarations ([lines 416-458](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/Types.mo#L402)).   
+    - [x] [recover_invoice_subaccount_balance.test.js](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/recover_invoice_subaccount_balance.test.js) 
      ㅤ✶ (entire file, each token has its own test subsuite, in addition to non-token specific tests).  
 
 ### [SEC-F20] Controller of canister could take all funds by upgrading 12 ###  
@@ -244,23 +246,26 @@ In addition to these bounty tasks, two other non-trivial changes include using t
     _ㅤThere is a simple implementation of adding a 'delegatedAdministrator' who would also have the ability to add and remove allowed creators, originally as an optional deployment argument and then with an "official" getter and setter in the API list, as this might be a useful feature for the invoice canister to have (a developer could setup and maintain the canister for a storefront, and give the storefront the "administrator" access control while still being able to do DX tech support/dev ops; or for blackholing the canister), but this is left as an exercise for the developer to implement as there are libraries that can do that and much more out there if that is a needed feature (that code is tag commited[^4])._   
 
     ㅤTo see all the related code:  
-    - [x] `src/module/Types.mo` ([lines 68-147, add/remove/get allowed creators list API types](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/Types.mo#L68)).  
+    - [x] `src/module/Types.mo` ([lines 82-161, add/remove/get allowed creators list API types](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/Types.mo#L68)).  
     - [x] `src/Invoice.mo::allowedCreatorsList_` ([line 65, stable principal array](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/Invoice.mo#L65)).  
     - [x] `src/Invoice.mo::add_allowed_creator()` ([lines 278-307](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/Invoice.mo#L278)).  
     - [x] `src/Invoice.mo::remove_allowed_creator()` ([lines 311-334](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/Invoice.mo#L311)). 
     - [x] `src/Invoice.mo::get_allowed_creators_list()` ([lines 338-343](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/Invoice.mo#L338)). 
-    - [x] [`test/e2e/src/tests/allowedCreatorsList.test.js`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/allowedCreatorsList.test.js) (entire file, test subsuites for all the above methods).
+    - [x] [test/e2e/src/tests/allowedCreatorsList.test.js](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/e2e/src/tests/allowedCreatorsList.test.js) (entire file, test subsuites for all the above methods).
     - [x] `test/e2e/src/tests/*.test.js` (used by most other test suites as well).
 
 ### [SEC-F29] Incomplete design documentation #19 ###
   - [x] https://github.com/dfinity/invoice-canister/issues/19
     - [x] Extensive Motokodoc and in-method-body comments literally everywhere / generated `dev docs`.
-    - [x] All testing is also extensively commented:
-    - [x] Standalone (non-generated) developer doc [`docs/DesignDoc.md`](./docs/DesignDoc.md) covering specifications, API, security and critical aspects.    
+    - [x] All testing is also extensively commented.
+    - [x] Standalone (non-generated) developer doc [DesignDoc.md](./docs/DesignDoc.md) covering specifications, API, security and critical aspects.  
+    - [x] Commented [invoice.did](./invoice.did) at project's root.  
+    - [x] Coverage in [README](./README.md) including integration of invoice canister.   
+    - [x] [Diagram flow chart](./docs/invoice-payment-flow.png) of typical "ok" invoice lifecycle.  
 
 ### [SEC-F22] Potentially sensitive invoice details are stored in plain text on the canister #26 ###
   - [x] https://github.com/dfinity/invoice-canister/issues/26  
-    ㅤThreshold encryption for E2E processing in Motoko not yet reliably available; implications of this aspect of canister memory documented in Motokodoc and discussed in developer doc in [`docs/DesignDoc.mo`](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/docs/DesignDoc.md#the-extent-of-an-invoices-privacy).  
+    ㅤThreshold encryption for E2E processing in Motoko not yet reliably available; implications of this aspect of canister memory documented in Motokodoc and discussed in developer doc in [DesignDoc.mo](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/docs/DesignDoc.md#the-extent-of-an-invoices-privacy).  
 
 ### [SEC Cleanup] Incomplete design documentation #29 ###  
   - [x] https://github.com/dfinity/invoice-canister/issues/29  

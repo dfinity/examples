@@ -24,6 +24,7 @@ import Types "./modules/Types";
 //  -Only two SupportedToken variant members: #ICP and #ICRC1.
 //  -seller canister id is hard-coded and added to the allowed creator's list.
 //  -deposit_free_money to transfer an amount to either of the mock ledgers.
+//  -All distinct modules of `SupportedToken` are contained in `SupportedToken.mo`.
 
 shared ({ caller = installer_ }) actor class Invoice() = this {
 
@@ -37,8 +38,7 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
     Normally actual actors would be used (commented out below in "Application State" section), 
   but for this example the mock ICP and ICRC1 token-ledger canisters are used instead.
   Note this deposit is for testing purposes, deposit_free_money is called again by the seller
-  when mocking an invoice payment (after an invoice is generated and confirm is clicked).
-  */
+  when mocking an invoice payment (after an invoice is generated and confirm is clicked).  */
   let Ledger_ICP : MockTokenLedgerCanisters.ICP.MockLedger = MockTokenLedgerCanisters.ICP.MockLedger(
     {
       who = installer_;
@@ -54,16 +54,16 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
     ?true,
   );
 
-  /** Args of deposit_free_money utility method. */
+  /** Args of deposit_free_money utility method.  */
   public type FreeMoneyArgs = {
     tokenAmount : SupportedToken.Amount;
     destination : SupportedToken.RecipientAddress;
   };
 
-  /** Results of deposit_free_money utility method. */
+  /** Results of deposit_free_money utility method.  */
   public type FreeMoneyResult = Result.Result<SupportedToken.TransferSuccess, FreeMoneyError>;
 
-  /** err results of deposit_free_money utility method. */
+  /** err results of deposit_free_money utility method.  */
   public type FreeMoneyError = {
     kind : {
       #InvalidDestination;
@@ -72,7 +72,7 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
   };
 
   /** Utility method to easily deposit funds into an ICP or ICRC1 address (account, account identifier or
-    address encoded as text). If text is passed, it must match the token type of `tokenAmount`. */
+    address encoded as text). If text is passed, it must match the token type of `tokenAmount`.  */
   public func deposit_free_money({ tokenAmount; destination } : FreeMoneyArgs) : async FreeMoneyResult {
     let (token, amount) = SupportedToken.unwrapTokenAmount(tokenAmount);
     switch (SupportedToken.getAddressOrUnitErr(token, destination)) {
@@ -111,7 +111,7 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
   /*--------------------------------------------------------------------------- 
   */ // Application State
 
-  /** Compulsory constants this canister must adhere to. */
+  /** Compulsory constants this canister must adhere to.  */
   module MagicNumbers {
     // Invoice Canister Constraints:
     public let SMALL_CONTENT_SIZE = 256;

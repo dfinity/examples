@@ -57,11 +57,11 @@ module SupportedToken {
     trigger the VSCode Motoko extension to indicate all the methods' switches' cases that need  
     to be edited to add or remove support for a particular token (the methods of this module  
     and the four of `Invoice.mo`).  */
-  public type SupportedToken<ICP, ICRC1> = {
-    #ICP : ICP;
-    #ICP_nns : ICP;
-    #ICRC1_ExampleToken : ICRC1;
-    #ICRC1_ExampleToken2 : ICRC1;
+  public type SupportedToken<T1, T2> = {
+    #ICP : T1;
+    #ICP_nns : T1;
+    #ICRC1_ExampleToken : T2;
+    #ICRC1_ExampleToken2 : T2;
     //  #ICRC1_xdr       : T2;
     //  #ICRC1_ckbtc     : T2;
     //  etc

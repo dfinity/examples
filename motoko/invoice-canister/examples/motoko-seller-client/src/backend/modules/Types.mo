@@ -51,7 +51,7 @@ module Types {
       -`details : ?Details;`  
       -`permissions : ?Permissions;`  
       -`paymentAddress : Text;`  
-      -`amountDue : Nat;`  // Is always in base units (ie for ICP is the e8s value). 
+      -`amountDue : Nat;`  // Is always in base units (ie for ICP is the e8s value).  
       -`amountPaid : Nat;`  
       -`verifiedPaidAtTime : ?Time.Time;`  
     **Note** this is not the record type returned to a caller, that type  
