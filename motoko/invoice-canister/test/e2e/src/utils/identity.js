@@ -22,7 +22,7 @@ const getNNSICPLedgerInitializedFundedSecp256k1KeyIdentity = () => {
   return Secp256k1KeyIdentity.fromSecretKey(
     pemfile
       .decode(
-        // Included as a literal for relative import convience.
+        // Included as a literal for relative import convenience.
         // Same as contents of the nnsFundedSecp256k1.pem file.
         `
   -----BEGIN EC PRIVATE KEY-----
