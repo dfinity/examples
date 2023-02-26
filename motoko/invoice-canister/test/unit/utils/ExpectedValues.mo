@@ -79,7 +79,7 @@ module {
           };
           ICRC1_ExampleToken = {
             symbol = "_1ICRC1EX";
-            name = "Internet Computer Random Curency One Example Token";
+            name = "Internet Computer Random Currency One Example Token";
             decimals = 8 : Int;
             fee = 10_000;
             meta = ?{
@@ -89,7 +89,7 @@ module {
           };
           ICRC1_ExampleToken2 = {
             symbol = "_2ICRC1EX";
-            name = "Two Internet Computer Random Curency One Example Token";
+            name = "Two Internet Computer Random Currency One Example Token";
             decimals = 8 : Int;
             fee = 10_000;
             meta = ?{

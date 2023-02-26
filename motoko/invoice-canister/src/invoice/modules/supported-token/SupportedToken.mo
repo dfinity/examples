@@ -10,7 +10,7 @@ import Supertype_ICRC1 "./token-specific/icrc1/ActorSupertype";
 import { icrc1Adapter } "./token-specific/icrc1/Adapter";
 import ICRC1 "./token-specific/icrc1/Types";
 
-/****Core module composing the uniform interface between types adapating token-ledger canister 
+/****Core module composing the uniform interface between types adapting token-ledger canister 
   actors to types processed for and expected by the invoice canister caller.**  
   \
   If adding support for more ICP based or ICRC1 standard tokens, first add a new tag that will
@@ -30,7 +30,7 @@ import ICRC1 "./token-specific/icrc1/Types";
   the existing implementation can be used as a guide to copy the logic from just be sure to   
   correctly update all references to the new tag.  
   \
-  It is recomended to first start by adding the case to `getTokenVerbose()` as the transfer fee  
+  It is recommended to first start by adding the case to `getTokenVerbose()` as the transfer fee  
   assigned in that tag's TokenVerbose will be used to execute transactions correctly by the   
   Invoice Canister.  
   \
@@ -139,7 +139,7 @@ module SupportedToken {
       case (#ICRC1_ExampleToken T2) {
         return {
           symbol = "_1ICRC1EX";
-          name = "Internet Computer Random Curency One Example Token";
+          name = "Internet Computer Random Currency One Example Token";
           decimals = 8 : Int;
           fee = 10_000;
           meta = ?{
@@ -151,7 +151,7 @@ module SupportedToken {
       case (#ICRC1_ExampleToken2 T2) {
         return {
           symbol = "_2ICRC1EX";
-          name = "Two Internet Computer Random Curency One Example Token";
+          name = "Two Internet Computer Random Currency One Example Token";
           decimals = 8 : Int;
           fee = 10_000;
           meta = ?{
@@ -192,7 +192,7 @@ module SupportedToken {
   };
 
   /****Encodes a given address into text **without** validation.**  
-    _For addresses computed by the invoice canister in a way **known** to be rigorousily tested._  */
+    _For addresses computed by the invoice canister in a way **known** to be rigorously tested._  */
   public func encodeAddress(a : Address) : Text {
     switch a {
       case (#ICP accountIdentifier) ICP_Adapter.encodeAddress(accountIdentifier);
@@ -231,7 +231,7 @@ module SupportedToken {
 
   /****Returns an address decoded from given text or returns a given address if valid.**  
     **Validation occurs in either case.** Also note in either case whether text or address is  
-    given the correct matching token type must given as the passed `token` argument.  
+    given the correct matching token type must be given as the passed `token` argument.  
     _For addresses supplied by a caller that **are not** necessarily known to be valid._  */
   public func getAddressOrUnitErr(
     token : UnitType,

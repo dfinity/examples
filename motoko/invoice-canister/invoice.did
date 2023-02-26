@@ -60,14 +60,14 @@ type Invoice =
    // These two methods can be called by invoice's creator or those whose principal is on its canVerify permission list.
 
    // Method to call to verify if an invoice can be marked as successfully paid. If successfully verified, the 
-   // balance of the invoice's subaccount (payment address) will be transferred to address of that invoice's creator's 
+   // balance of the invoice's subaccount (payment address) will be transferred to address of that invoice creator's 
    // subaccount. An invoice can only be successfully verified as paid once, and if so its saved record type will be 
    // updated with the timestamp of verification. 
    verify_invoice: (VerifyInvoiceArgs) -> (VerifyInvoiceResult);
 
    // Method to call to transfer funds from an invoice's subaccount (payment address) in the event of a partial 
    // refund before an invoice has been successfully verified as paid or transfer funds from that same address 
-   // anytime after successfull verification. In either case, will not change the status of the saved invoice 
+   // anytime after successful verification. In either case, will not change the status of the saved invoice 
    // record, and if the transfer is successful, will always transfer the full balance of the invoice subaccount.
    recover_invoice_subaccount_balance:
     (RecoverInvoiceSubaccountBalanceArgs) ->
@@ -249,7 +249,7 @@ type VerifyInvoiceSuccess =
    // and resulted in success for this invoice. 
    VerifiedAlready: record {invoice: Invoice__1;};
    // If the invoice was successfully verified as paid; ie the balance of 
-   // its subaccount payment address was equal or exceeded the its amount due. 
+   // its subaccount payment address was equal or exceeded its amount due. 
    VerifiedPaid: record {invoice: Invoice__1;};
  };
 
@@ -277,9 +277,9 @@ type VerifyInvoiceErr = record {
      // No invoice for the given id could be found (and caller was authorized). 
      NotFound;
      // The call to transfer the balance of the invoice subaccount (payment address), ie 
-     // to transfer the proceeds to the invoice's creator's subaccount address resutled in 
+     // to transfer the proceeds to the invoice's creator's subaccount address resulted in 
      // that token-ledger canister's Transfer error #Err type. Note this should be an edge-case 
-     // and technically the buyer has actually paid/transfered (at least) the amount due 
+     // and technically the buyer has actually paid/transferred (at least) the amount due 
      // to the payment address.
      SupportedTokenTransferErr: TransferErr;
      // The invoice's subaccount (payment address) balance was found to be zero; ie 
@@ -452,7 +452,7 @@ type GetCallerAddressSuccess =
    // argument of the token's SupportedToken.Address tag.
    asAddress: Address;
    // The address of the caller as an invoice 
-   // creator encoded in text/hexidecimal format.
+   // creator encoded in text format.
    asText: text;
  };
 
@@ -531,7 +531,7 @@ type TokenVerbose =
    fee: nat;
    // Optional meta details (strongly encouraged to use).
    meta: opt record {
-     // Deployer, creator or whose responsible for the token. 
+     // Deployer, creator or who is responsible for the token. 
      Issuer: text;
      // Canister id or other website for this token. 
      Url: text;
@@ -619,7 +619,7 @@ type RecipientAddress =
  variant {
    // The type expected by a canister (ie for ICP AccountIdentifier).
    CanisterExpected: Address;
-   // The address encoded as text/hexidecimal format type.
+   // The address encoded as text format type.
    HumanReadable: text;
  };
 

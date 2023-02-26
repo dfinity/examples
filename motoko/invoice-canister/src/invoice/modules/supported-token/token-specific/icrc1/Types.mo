@@ -42,14 +42,14 @@ module ICRC1 {
   /** Result type returned from a `icrc1_transfer call.  */
   public type TransferResult = Result<Tokens, TransferError>;
 
-  /** Set of err result types returned from an unsuccessful `transfer call due duplicated transfer requests.  */
+  /** Set of err result types returned from an unsuccessful `transfer` call due duplicated transfer requests.  */
   public type DeduplicationError = {
     #TooOld;
     #Duplicate : { duplicate_of : TxIndex };
     #CreatedInFuture : { ledger_time : Timestamp };
   };
 
-  /** Set of err result types returned from an unsuccessful `transfer call due to usual problems.  */
+  /** Set of err result types returned from an unsuccessful `transfer` call due to usual problems.  */
   public type CommonError = {
     #InsufficientFunds : { balance : Tokens };
     #BadFee : { expected_fee : Tokens };
@@ -57,7 +57,7 @@ module ICRC1 {
     #GenericError : { error_code : Nat; message : Text };
   };
 
-  /** Error Err type returned from an unsuccessful `transfer call.  */
+  /** Error Err type returned from an unsuccessful `transfer` call.  */
   public type TransferError = DeduplicationError or CommonError or {
     // In case the invoice canister would be used to directly manage a token-ledger canister.
     #BadBurn : { min_burn_amount : Tokens };

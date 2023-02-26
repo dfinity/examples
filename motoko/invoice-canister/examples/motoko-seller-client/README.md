@@ -31,7 +31,7 @@ Enter in the canister id for Seller (`dfx canister id seller`) and click on the 
 
 Do the same thing in another tab and enter in the canister id for Invoice Canister (`dfx canister id invoice`) and click on the `Go` button.
 
-You can also use the links provided at the end of the `dfx deploy` output which include a link to vieiwing the front-end client in the browser.
+You can also use the links provided at the end of the `dfx deploy` output which include a link to viewing the front-end client in the browser.
 
 ## Frontend 
 
@@ -44,7 +44,7 @@ which will start a development server hosting the client available in your brows
 ## Example workflow
 
 * Create an invoice to buy a credential from the seller
-* Use `deposit_free_money` from the invoice cansiter to complete payment to the invoice's `paymentAddress`
+* Use `deposit_free_money` from the invoice canister to complete payment to the invoice's `paymentAddress`
 * Return to the seller and verify the invoice is paid
 * Check to see that your credential has been awarded by calling the seller's `check_license_status`
 

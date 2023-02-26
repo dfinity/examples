@@ -258,7 +258,7 @@ describe('Test create_invoice Functionality', async () => {
         expect(amountPaid).toStrictEqual(0n);
         expect(tokenVerbose?.fee).toStrictEqual(10000n);
         expect(
-          tokenVerbose?.name.includes('Internet Computer Random Curency One Example Token'),
+          tokenVerbose?.name.includes('Internet Computer Random Currency One Example Token'),
         ).toBe(true);
         expect(`${tokenVerbose?.decimals}`).toStrictEqual('8');
       });
@@ -289,7 +289,7 @@ describe('Test create_invoice Functionality', async () => {
         expect(amountPaid).toStrictEqual(0n);
         expect(tokenVerbose?.fee).toStrictEqual(10000n);
         expect(
-          tokenVerbose?.name.includes('Internet Computer Random Curency One Example Token'),
+          tokenVerbose?.name.includes('Internet Computer Random Currency One Example Token'),
         ).toBe(true);
         expect(`${tokenVerbose?.decimals}`).toStrictEqual('8');
         expect(permissions).toBeTruthy();
@@ -323,7 +323,7 @@ describe('Test create_invoice Functionality', async () => {
         expect(amountPaid).toStrictEqual(0n);
         expect(tokenVerbose?.fee).toStrictEqual(10000n);
         expect(
-          tokenVerbose?.name.includes('Internet Computer Random Curency One Example Token'),
+          tokenVerbose?.name.includes('Internet Computer Random Currency One Example Token'),
         ).toBe(true);
         expect(`${tokenVerbose?.decimals}`).toStrictEqual('8');
         expect(details).toBeTruthy();
@@ -348,7 +348,7 @@ describe('Test create_invoice Functionality', async () => {
         expect(amountPaid).toStrictEqual(0n);
         expect(tokenVerbose?.fee).toStrictEqual(10000n);
         expect(
-          tokenVerbose?.name.includes('Internet Computer Random Curency One Example Token'),
+          tokenVerbose?.name.includes('Internet Computer Random Currency One Example Token'),
         ).toBe(true);
         expect(`${tokenVerbose?.decimals}`).toStrictEqual('8');
       });
@@ -371,7 +371,7 @@ describe('Test create_invoice Functionality', async () => {
         expect(amountPaid).toStrictEqual(0n);
         expect(tokenVerbose?.fee).toStrictEqual(10000n);
         expect(
-          tokenVerbose?.name.includes('Internet Computer Random Curency One Example Token'),
+          tokenVerbose?.name.includes('Internet Computer Random Currency One Example Token'),
         ).toBe(true);
         expect(`${tokenVerbose?.decimals}`).toStrictEqual('8');
       });
@@ -402,7 +402,7 @@ describe('Test create_invoice Functionality', async () => {
         expect(amountPaid).toStrictEqual(0n);
         expect(tokenVerbose?.fee).toStrictEqual(10000n);
         expect(
-          tokenVerbose?.name.includes('Internet Computer Random Curency One Example Token'),
+          tokenVerbose?.name.includes('Internet Computer Random Currency One Example Token'),
         ).toBe(true);
         expect(`${tokenVerbose?.decimals}`).toStrictEqual('8');
         expect(permissions).toBeTruthy();
@@ -436,7 +436,7 @@ describe('Test create_invoice Functionality', async () => {
         expect(amountPaid).toStrictEqual(0n);
         expect(tokenVerbose?.fee).toStrictEqual(10000n);
         expect(
-          tokenVerbose?.name.includes('Internet Computer Random Curency One Example Token'),
+          tokenVerbose?.name.includes('Internet Computer Random Currency One Example Token'),
         ).toBe(true);
         expect(`${tokenVerbose?.decimals}`).toStrictEqual('8');
         expect(details).toBeTruthy();
@@ -461,7 +461,7 @@ describe('Test create_invoice Functionality', async () => {
         expect(amountPaid).toStrictEqual(0n);
         expect(tokenVerbose?.fee).toStrictEqual(10000n);
         expect(
-          tokenVerbose?.name.includes('Internet Computer Random Curency One Example Token'),
+          tokenVerbose?.name.includes('Internet Computer Random Currency One Example Token'),
         ).toBe(true);
         expect(`${tokenVerbose?.decimals}`).toStrictEqual('8');
       });

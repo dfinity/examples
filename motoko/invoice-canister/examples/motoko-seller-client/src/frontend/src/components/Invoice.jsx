@@ -26,7 +26,7 @@ const Grid = styled.div`
   }
 `;
 /*
-Invoice from invoice canister in motoko-seller-client as it'll appear in the browser's enviroment: 
+Invoice from invoice canister in motoko-seller-client as it would appear in the browser's enviroment: 
 {
   "id": "6GNGGRXAKGTXG070DV4GW2JKCJ",
   "permissions": [],

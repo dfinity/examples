@@ -140,11 +140,11 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
 
   /** Lock lookup map to synchronize invoice's verification and subaccount balance  
     recovery by invoice id. To prevent edge cases of lock not being released due to  
-    unforseen bug in this canister's code, if the elapsed time between locking the  
+    unforeseen bug in this canister's code, if the elapsed time between locking the  
     same invoice id is greater than the `isAlreadyProcessingTimeout_` the lock will  
     automatically be released (see `isAlreadyProcessing_` method below).  
     _Note the tuple with `Principal` is used in case developer would need to inspect  
-    whose been calling._  */
+    who's been calling._  */
   let isAlreadyProcessingLookup_ = HashMap.HashMap<Text, (Time.Time, Principal)>(32, Text.equal, Text.hash);
   let isAlreadyProcessingTimeout_ : Nat = 600_000_000_000; // "10 minutes ns"
 

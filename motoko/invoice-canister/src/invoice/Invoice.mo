@@ -66,11 +66,11 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
 
   /** Lock lookup map to synchronize invoice's verification and subaccount balance  
     recovery by invoice id. To prevent edge cases of lock not being released due to  
-    unforseen bug in this canister's code, if the elapsed time between locking the  
+    unforeseen bug in this canister's code, if the elapsed time between locking the  
     same invoice id is greater than the `isAlreadyProcessingTimeout_` the lock will  
     automatically be released (see `isAlreadyProcessing_` method below).  
     _Note the tuple with `Principal` is used in case developer would need to inspect  
-    whose been calling._  */
+    who's been calling._  */
   let isAlreadyProcessingLookup_ = HashMap.HashMap<Text, (Time.Time, Principal)>(32, Text.equal, Text.hash);
   let isAlreadyProcessingTimeout_ : Nat = 600_000_000_000; // "10 minutes ns"
 
@@ -93,7 +93,7 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
     (caller == installer_) or includesPrincipal_(caller, allowedCreatorsList_);
   };
 
-  /** Returns the opt unwrapped `Invoice_` value from the `invoices_` store if an invoice  
+  /** Returns the opt unwrapped `Invoice_` value from the `invoices_` trie if an invoice  
     exists for a given id (or `#NotFound` if it doesn't) if the caller is authorized; or  
     `#NotAuthorized` otherwise even if the invoice doesn't exist.  
     _Used by `get_invoice`, `verify_invoice` and `recover_invoice_subaccount_balance_`. */
@@ -148,7 +148,7 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
     switch (isAlreadyProcessingLookup_.get(id)) {
       // No concurrent access of this invoice is taking place.
       case null return false;
-      // Parallel access could be occuring, check if enough time
+      // Parallel access could be occurring, check if enough time
       // has elapsed to automatically release the lock.
       case (?(atTime, who)) {
         if ((Time.now() - atTime) >= isAlreadyProcessingTimeout_) {
@@ -510,7 +510,7 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
         };
         switch balanceCallResponse {
           case (#err err) {
-            // Call resulted in caught error, unlock and inform the caller.
+            // Call resulted in a caught error, unlock and inform the caller.
             isAlreadyProcessingLookup_.delete(id);
             #err({ kind = #CaughtException(err) });
           };
@@ -521,7 +521,7 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
               if (bal > 0) {
                 // Some payment was made, convert it back to that token's expected amount type.
                 let partialAmountPaid : SupportedToken.Amount = SupportedToken.wrapAsTokenAmount(token, bal);
-                // Unlock and inform caller of partial payment.
+                // Unlock and inform the caller of partial payment.
                 isAlreadyProcessingLookup_.delete(id);
                 return #err({
                   kind = (#IncompletePayment { partialAmountPaid });
@@ -553,7 +553,7 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
               });
               // Make the actual transfer call to the corresponding token-ledger
               // canister wrapped as a try/catch setting a result type so it can be
-              // further processed or returned if an error occured.
+              // further processed or returned if an error occurred.
               let transferCallResponse : Result.Result<SupportedToken.TransferResult, Text> = try {
                 switch stTransferArgs {
                   case (#ICP transferArgs) {
@@ -580,11 +580,11 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
               };
               switch transferCallResponse {
                 case (#err errMsg) {
-                  // Call resulted in caught error, unlock and inform the caller.
+                  // Call resulted in a caught error, unlock and inform the caller.
                   isAlreadyProcessingLookup_.delete(id);
                   #err({ kind = #CaughtException(errMsg) });
                 };
-                // Transfer call occured without failure.
+                // Transfer call occurred without failure.
                 case (#ok stTransferResult) {
                   // Rewrap transfer results to the type signature the caller expects.
                   switch (SupportedToken.rewrapTransferResults(stTransferResult)) {
@@ -661,7 +661,7 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
     let (tokenType, amount) = SupportedToken.unwrapTokenAmount(tokenAmount);
     let fee = SupportedToken.getTransactionFee(tokenType);
     // Verify amount to transfer is enough not to trigger the
-    // canister trappin' and will end up transfer at least one token.
+    // canister a trappin' and instead will end up transferring at least one token.
     if (amount <= fee) {
       return #err({ kind = #InsufficientTransferAmount });
     };
@@ -702,11 +702,11 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
             };
           };
         } catch e {
-          // If the inter-canister call failed, set result as the error's literal message.
+          // If the inter-canister call fails, set result as the error's literal message.
           #err(Error.message(e));
         };
         switch transferCallResponse {
-          // Transfer call occured without failure.
+          // Transfer call occurred without failure.
           case (#ok stTransferResult) {
             // Rewrap transfer results to the signature caller expects.
             switch (SupportedToken.rewrapTransferResults(stTransferResult)) {
@@ -717,12 +717,12 @@ shared ({ caller = installer_ }) actor class Invoice() = this {
               };
               case (#err stTransferErr) #err({
                 // stTransferErr would be #InsufficientFunds (both ICP and
-                // ICRC1 share this transfer error result) for instance.
+                // ICRC1 shares this transfer error result) for instance.
                 kind = #SupportedTokenTransferErr(stTransferErr);
               });
             };
           };
-          // Transfer call resulted in caught error, inform the caller.
+          // Transfer call resulted in a caught error, inform the caller.
           case (#err errMsg) #err({ kind = #CaughtException(errMsg) });
         };
       };

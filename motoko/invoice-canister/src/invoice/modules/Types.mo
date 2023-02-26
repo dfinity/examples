@@ -144,7 +144,7 @@ module Types {
   public type GetAllowedCreatorsListResult = Result.Result<GetAllowedCreatorsListSuccess, GetAllowedCreatorsListErr>;
 
   /****`ok` result type of method `get_allowed_creators_list`.**  
-    Has field `allowed : [Principal]` is list of principals allowed to create invoices.  */
+    Has field `allowed : [Principal]` is the list of principals allowed to create invoices.  */
   public type GetAllowedCreatorsListSuccess = {
     allowed : [Principal];
   };

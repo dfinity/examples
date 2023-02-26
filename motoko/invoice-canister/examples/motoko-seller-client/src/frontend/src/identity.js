@@ -14,7 +14,7 @@ import {
 // These are well known identities used by the `dfx nns` command. 
 // Do not use in production. One is the Ed25519KeyIdentity and the other
 // is the Secp256k1KeyIdentity. Typically you'd use the Ed25519KeyIdentity
-// in node/js enviroments, but since the Secp256k1KeyIdentity was already
+// in node/js environments, but since the Secp256k1KeyIdentity was already
 // added in JS for E2E and two identities are needed, they are used here:
 
 // Copied from E2E testing (hence the inline key content)
@@ -24,7 +24,7 @@ const nnsFundedSecp256k1Identity = () => {
   return Secp256k1KeyIdentity.fromSecretKey(
     pemfile
       .decode(
-        // Included as a literal for relative import convience.
+        // Included as a literal for relative import convenience.
         // Same as contents of the nnsFundedSecp256k1.pem file.
         `
   -----BEGIN EC PRIVATE KEY-----

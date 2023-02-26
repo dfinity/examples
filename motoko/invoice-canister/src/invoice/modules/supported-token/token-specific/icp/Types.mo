@@ -41,10 +41,10 @@ module ICP {
   /** ICP Ledger specific Result type, note the o and e of Ok and Err are capitalized.  */
   public type Result<T, E> = { #Ok : T; #Err : E };
 
-  /** Result type returned from a `transfer call.  */
+  /** Result type returned from a `transfer` call.  */
   public type TransferResult = Result<BlockIndex, TransferError>;
 
-  /** Error Err type returned from an unsuccessful `transfer call.  */
+  /** Error Err type returned from an unsuccessful `transfer` call.  */
   public type TransferError = {
     #BadFee : { expected_fee : Tokens };
     #InsufficientFunds : { balance : Tokens };

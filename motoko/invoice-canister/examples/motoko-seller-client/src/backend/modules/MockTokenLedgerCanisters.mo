@@ -17,7 +17,7 @@ import Hex "mo:encoding/Hex";
 import CRC32 "mo:hash/CRC32";
 import AccountIdentifierBlob "mo:principal/blob/AccountIdentifier";
 
-/****Containts classes ICP.MockLedger and ICRC1.MockLedger.**
+/****Contains classes ICP.MockLedger and ICRC1.MockLedger.**
     To initialize either class with an initial deposit, 
   pass the not-null initialDeposit record:
     -`ICP.MockLedger(?{ amount : { e8s : Nat64 }; who : Principal })`
@@ -297,7 +297,7 @@ module MockTokenLedgerCanisters {
       };
       switch (a.subaccount) {
         case (null) {
-          // No subaccount verify it's not only a reservered principal.
+          // No subaccount so verify it's not only a reserved principal.
           let pbArr = Blob.toArray(Principal.toBlob(a.owner));
           if (pbArr[pbArr.size() - 1] == 127) {
             // Ends in x7F and thus is a reserved principal, so it is required

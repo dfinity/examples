@@ -9,7 +9,8 @@
   for supporting that token.\
   Also note the `Supertype_ICRC1_Actor` type declaration can be reused in `Invoice.mo` as different
   instances to perform the corresponding intercanister calls to the token-ledger canisters of
-  the additional ICRC1 tokens to support.                                                               */
+  the additional ICRC1 tokens to support.          
+  See main's project files and readme for explanation. */
 
 import Array "mo:base/Array";
 import Blob "mo:base/Blob";
@@ -29,7 +30,7 @@ import Hex "mo:encoding/Hex";
 import CRC32 "mo:hash/CRC32";
 import AccountIdentifierBlob "mo:principal/blob/AccountIdentifier";
 
-/****Core module composing the uniform interface between types adapating token-ledger canister 
+/****Core module composing the uniform interface between types adapting token-ledger canister 
   actors to types processed for and expected by the invoice canister caller.***/
 module SupportedToken {
 
@@ -258,7 +259,7 @@ module SupportedToken {
           };
           switch (a.subaccount) {
             case (null) {
-              // No subaccount verify it's not only a reservered principal.
+              // No subaccount so verify it's not only a reserved principal.
               let pbArr = Blob.toArray(Principal.toBlob(a.owner));
               if (pbArr[pbArr.size() - 1] == 127) {
                 // Ends in x7F and thus is a reserved principal, so it is required
@@ -583,7 +584,7 @@ module SupportedToken {
       case (#ICRC1 T2) {
         return {
           symbol = "_MICRC1";
-          name = "_Internet Computer Random Curency One Example Token Seller Example Edition";
+          name = "_Internet Computer Random Currency One Example Token Seller Example Edition";
           decimals = 8 : Int;
           fee = 10_000;
           meta = ?{
@@ -623,7 +624,7 @@ module SupportedToken {
   };
 
   /****Encodes a given address into text **without** validation.**  
-    _For addresses computed by the invoice canister in a way **known** to be rigorousily tested._  */
+    _For addresses computed by the invoice canister in a way **known** to be rigorously tested._  */
   public func encodeAddress(a : Address) : Text {
     switch a {
       case (#ICP accountIdentifier) ICP_Adapter.encodeAddress(accountIdentifier);
@@ -650,7 +651,7 @@ module SupportedToken {
 
   /****Returns an address decoded from given text or returns a given address if valid.**  
     **Validation occurs in either case.** Also note in either case whether text or address is  
-    given the correct matching token type must given as the passed `token` argument.  
+    given the correct matching token type must also be given as the passed `token` argument.  
     _For addresses supplied by a caller that **are not** necessarily known to be valid._  */
   public func getAddressOrUnitErr(
     token : UnitType,

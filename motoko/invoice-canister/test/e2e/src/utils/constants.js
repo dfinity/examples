@@ -1,4 +1,4 @@
-// Commonly values known before hand used throughout E2E tests.
+// Values known beforehand commonly used throughout E2E tests.
 // In the future, will also use snapshots.
 export const aPriori = {
   invoiceCanister: {
