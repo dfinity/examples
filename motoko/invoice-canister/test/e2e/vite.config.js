@@ -17,8 +17,9 @@ export default defineConfig({
     //  share the same context).
     globalSetup: [ ],
     */
-    //  beforeAll, afterAll, etc hooks:
-    setupFiles: ['./src/utils/setup-teardown-hooks.js'],
+    //  beforeAll, afterAll, etc hooks: (was only necessary to easily json stringify nat)
+    //setupFiles: ['./src/utils/setup-teardown-hooks.js'],
+
     // Since each test suite does not deploy its own invoice
     // canister to use, this is to run suites sequentially:
     threads: false,
