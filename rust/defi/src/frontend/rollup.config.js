@@ -75,7 +75,8 @@ export default {
     sourcemap: true,
     format: "iife",
     name: "app",
-    dir: "../frontend_assets/build",
+    file: "../frontend_assets/build/main.js",
+    inlineDynamicImports: true,
   },
   plugins: [
     svelte({
