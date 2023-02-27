@@ -6,7 +6,7 @@ use ic_cdk::api::management_canister::http_request::{
 use ic_cdk::storage;
 use ic_cdk_macros::{self, heartbeat, post_upgrade, pre_upgrade, query, update};
 use serde_json::{self, Value};
-use std::cell::{RefCell, RefMut};
+use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
 
 // How many data point can be returned as maximum.
@@ -19,8 +19,8 @@ pub const MAX_DATA_PONTS_CANISTER_RESPONSE: usize = 100000;
 // that is dynamic according to the data size needs to be returned.
 pub const REMOTE_FETCH_GRANULARITY: u64 = 60;
 
-// For how many rounds of heartbeat, make a http_request call.
-pub const RATE_LIMIT_FACTOR: usize = 5;
+/// The period we wait before issuing a new external HTTPS request.
+pub const TRY_FETCH_HEARTBEAT_PERIOD: usize = 5;
 
 // How many data points in each Coinbase API call. Maximum allowed is 300
 pub const DATA_POINTS_PER_API: u64 = 200;
@@ -46,16 +46,16 @@ thread_local! {
     pub static RATE_COUNTER: RefCell<usize> = RefCell::new(0);
 }
 
-// Canister heartbeat. Process one item in queue
+/// On every 'TRY_FETCH_HEARTBEAT_PERIOD' heartbeat, issuing a new HTTPS outcall.
 #[heartbeat]
 async fn heartbeat() {
     let mut should_fetch = false;
     RATE_COUNTER.with(|counter| {
-        let state = counter.clone().into_inner();
-        if state == 0 {
+        let mut count = counter.borrow_mut();
+        if *count == 0 {
             should_fetch = true;
         }
-        counter.replace((state + 1) % RATE_LIMIT_FACTOR);
+        *count = (*count + 1) % TRY_FETCH_HEARTBEAT_PERIOD;
     });
     if should_fetch {
         get_next_rate().await;
@@ -134,9 +134,8 @@ fn add_job_to_job_set(job: Timestamp) -> () {
     });
 }
 
-/*
-Triggered by heartbeat() function to pick up the next job in the pipe for remote service call.
- */
+/// Triggered by the 'heartbeat()' function, picks up the next job in the pipe for
+/// executing a remote HTTPS outcall.
 async fn get_next_rate() {
     let mut job_id: u64 = 0;
 
@@ -180,10 +179,8 @@ async fn get_next_rate() {
     }
 }
 
-/*
-A function to call IC http_request function with sample interval of REMOTE_FETCH_GRANULARITY seconds. Each API
-call fetches DATA_POINTS_PER_API data points, which is equivalent of DATA_POINTS_PER_API minutes of data.
- */
+/// Calls the IC 'http_request' function with sample interval of REMOTE_FETCH_GRANULARITY seconds.
+/// Each API fetches DATA_POINTS_PER_API data points, which is equivalent of DATA_POINTS_PER_API minutes of data.
 async fn get_rate(job: Timestamp) {
     let start_timestamp = job;
     let end_timestamp = job + REMOTE_FETCH_GRANULARITY * DATA_POINTS_PER_API;
@@ -219,9 +216,15 @@ async fn get_rate(job: Timestamp) {
             // put the result to hashmap
             FETCHED.with(|fetched| {
                 let mut fetched = fetched.borrow_mut();
-                let decoded_body = String::from_utf8(response.body)
-                    .expect("Remote service response is not UTF-8 encoded.");
-                decode_body_to_rates(&decoded_body, &mut fetched);
+                let str_body = String::from_utf8(response.body)
+                    .expect("Transformed response is not UTF-8 encoded.");
+                for bucket in str_body.lines() {
+                    let mut iter = bucket.split_whitespace();
+                    let ts = iter.next().unwrap().parse::<Timestamp>().unwrap();
+                    let rate = iter.next().unwrap().parse::<Rate>().unwrap();
+                    assert!(iter.next().is_none());
+                    fetched.insert(ts, rate);
+                }
             });
         }
         Err((r, m)) => {
@@ -235,46 +238,35 @@ async fn get_rate(job: Timestamp) {
     }
 }
 
-fn decode_body_to_rates(body: &str, fetched: &mut RefMut<HashMap<u64, f32>>) {
+fn keep_bucket_start_time_and_closing_price(body: &[u8]) -> Vec<u8> {
     //ic_cdk::api::print(format!("Got decoded result: {}", body));
-    let rates_array: Vec<Vec<Value>> = serde_json::from_str(&body).unwrap();
+    let rates_array: Vec<Vec<Value>> = serde_json::from_slice(body).unwrap();
+    let mut res = vec![];
     for rate in rates_array {
-        let timestamp = rate[0].as_u64().expect("Couldn't parse the timestamp.");
-        let close_rate = rate[4].as_f64().expect("Couldn't parse the rate.");
-        fetched.insert(timestamp as Timestamp, close_rate as Rate);
+        let bucket_start_time = rate[0].as_u64().expect("Couldn't parse the time.");
+        let closing_price = rate[4].as_f64().expect("Couldn't parse the rate.");
+        res.append(
+            &mut format!("{} {}\n", bucket_start_time, closing_price)
+                .as_bytes()
+                .to_vec(),
+        );
     }
+    res
 }
 
+/// Strips all data that is not needed from the original response.
 #[query]
 fn transform(raw: TransformArgs) -> HttpResponse {
-    let mut sanitized = raw.response.clone();
-    sanitized.headers = vec![
-        HttpHeader {
-            name: "Content-Security-Policy".to_string(),
-            value: "default-src 'self'".to_string(),
-        },
-        HttpHeader {
-            name: "Referrer-Policy".to_string(),
-            value: "strict-origin".to_string(),
-        },
-        HttpHeader {
-            name: "Permissions-Policy".to_string(),
-            value: "geolocation=(self)".to_string(),
-        },
-        HttpHeader {
-            name: "Strict-Transport-Security".to_string(),
-            value: "max-age=63072000".to_string(),
-        },
-        HttpHeader {
-            name: "X-Frame-Options".to_string(),
-            value: "DENY".to_string(),
-        },
-        HttpHeader {
-            name: "X-Content-Type-Options".to_string(),
-            value: "nosniff".to_string(),
-        },
-    ];
-    sanitized
+    let mut res = HttpResponse {
+        status: raw.response.status.clone(),
+        ..Default::default()
+    };
+    if res.status == 200 {
+        res.body = keep_bucket_start_time_and_closing_price(&raw.response.body)
+    } else {
+        ic_cdk::api::print(format!("Received an error from coinbase: err = {:?}", raw));
+    }
+    res
 }
 
 #[pre_upgrade]
@@ -324,10 +316,8 @@ mod tests {
     ]
 ]
         ";
-        let results = RefCell::new(HashMap::<Timestamp, Rate>::new());
-        let mut fetched = results.borrow_mut();
-        decode_body_to_rates(body, &mut fetched);
-        assert!(fetched.len() == 3);
-        assert!(fetched.get(&1652454180) == Some(&(9.56 as f32)));
+        let res = keep_bucket_start_time_and_closing_price(body.as_bytes());
+        let expected = "1652454300 9.51\n1652454240 9.52\n1652454180 9.56\n";
+        assert_eq!(res, expected.as_bytes().to_vec());
     }
 }

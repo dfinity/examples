@@ -98,7 +98,9 @@ export default {
   output: {
     sourcemap: !production,
     name: "app",
-    dir: "public/build",
+    format: "iife",
+    file: "public/build/main.js",
+		inlineDynamicImports: true,
   },
   plugins: [
     svelte({

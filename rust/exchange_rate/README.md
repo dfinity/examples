@@ -60,12 +60,16 @@ On top of that, we cache data that's already fetched, to save from future user r
 triggering remote HTTP calls again.
 
 ## Dependencies
-- [ic-cdk v0.6.5](https://crates.io/crates/ic-cdk/0.6.5) or above
-- [dfx v0.12.0](https://github.com/dfinity/sdk/releases/tag/0.12.0) or above.
+- [ic-cdk v0.7.0](https://crates.io/crates/ic-cdk) or above
+- [ic-cdk-macros v0.6.8](https://crates.io/crates/ic-cdk-macros) or above
+- [candid v0.8.4](https://crates.io/crates/candid) or above
+- [dfx v0.12.0](https://github.com/dfinity/sdk/releases) or above.
+- `wasm32-unknown-unknown` targets. Can be installed with `rustup target add wasm32-unknown-unknown`.
 
 ## Building the canister into wasm
 `cd rust/exchange_rate`
-`cargo build --target wasm32-unknown-unknown --release --p exchange_rate`
+
+`cargo build --target wasm32-unknown-unknown --release`
 
 ## Deploy the canister locally
 - Simply do `./deploy.sh {env}` where env is your targetted network defined in `dfx.json`.

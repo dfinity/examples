@@ -37,5 +37,5 @@ jobs:
         run: |
           dfx start --background
           pushd rust/basic_bitcoin
-          make
+          make deploy
           popd
