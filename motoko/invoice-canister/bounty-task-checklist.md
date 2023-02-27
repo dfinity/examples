@@ -10,6 +10,8 @@ All the referenced line numbers should be correct to within one or two lines (so
 
 In addition to these bounty tasks, two other non-trivial changes include using the literal of a generated ULID for an invoice's id (instead of the invoice creation counter value). ULID was chosen for its timestamp encoding and human copy and paste friendly dash-lacking format; there's an example of decoding the timestamp from an invoice's ulid in the frontend of the `motoko-seller-client` example. Also note a monotonic invoice creation counter is still used and available if needed for an invoice record. The other change was upgrading from the volatile hashmap to the stable compatible trie to remove the need for using the pre and postupgrade system hooks. 
 
+In addition to this, there's also a [Testing Glossary](./docs/TestingGlossay.md) showing an example output of all the unit and E2E tests, as well as an example of the [startup script's output](./docs/clean-startup-console-output.md) showing a shell running the `clean-startup-mjs` script with the `deployForTesting` flag.
+
 ---
 
 ### Support for ICRC-1 fungible token standard ###  
