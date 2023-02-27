@@ -41,24 +41,19 @@ For example, the following aspects are particularly relevant for this app, since
 
 The installation requires SDK version 0.11.1 or above. Simply run `dfx deploy` to deploy the example canister to to a locally running dfx instance.
 
-There is also an script showing how to make calls to the canister to request a signature, and then verify the signature using the canister's public key.
-It requires [Node.js] to be installed in your local environment.
+There is also a script (`test.sh`) showing how to make calls to the canister to request a signature, and then verify the signature using the canister's public key.
 
-Here is an example of installing node dependencies and running `test.sh`:
+Here is an example of running `test.sh`:
 
 ```
-$ npm install
-added 11 packages, and audited 12 packages in 544ms
-found 0 vulnerabilities
-
 $ ./test.sh
 USAGE: ./test.sh <message to sign and verify>
 
-$ ./test.sh "Hello World!"
-sha256=d2a84f4b8b650937ec8f73cd8be2c74add5a911ba64df27458ed8229da804a26
-public_key=03ec3675640ad25bbc2b84e8d21c35ce8d885be68e0d7a0447705c39021e53705e
-signature=afacff613eb2af5ce7dd2db3564585a2f25122a04b08476f0df19371bd7681c068945ca56971d6fa896f137ffb4ea2e4add9eb3c67561fea4ea7a97c1186211d
-verified =  true
+$ ./test.sh "Hello World"
+message=Hello World
+signature_hex=1fb92c4b2f91e379f346cc5e684c38ec85fd4096b82f276afd20af1d363c64165e515d0cf0d49b1841c69cc19e2e039deb75c2dcf7201c63ce6c1f344f5a27bd
+public_key_hex=03496ef41032cb2345a0f1379f607989691d2bd2d508183135e1916919c7ee4f92
+verification_result=true
 ```
 
 **Deploy to Internet Computer**
