@@ -43,9 +43,21 @@ Here is a diagram of the generalized successful payment flow of an invoice life 
 _This is only a summary description of the general functionality of the Invoice Canister, review the [Design Doc](./docs/DesignDoc.md) for more details in particular being aware of the security concerns such as regarding an invoice's data privacy. Additionally, there is extensive commentary in this [invoice.did](./invoice.did), or the [Invoice.mo](./src/invoice/Invoice.mo), [Types.mo](./src/invoice/modules/Types.mo) and the associated modules of the [SupportedToken.mo](./src/invoice/modules/supported-token/SupportedToken.mo) files._
 ## Getting Started - Development
 
-Once the repository is locally cloned, run `npm install` to install the project's required dependencies. 
+This project requires the Internet Computer's dfx SDK and Vessel package manager to be installed.  
 
-As support for four tokens requires four token-ledger canisters, three of these are installed by the downloaded wasm and did files provided by the [Dfinity Rosetta-API repository](https://github.com/dfinity/ic/tree/master/rs/rosetta-api). These files can be found in the [src/token-ledger-canisters](./src//token-ledger-canisters/) directory with an accompanying shell script for downloading them independently of this project. The ICRC1 token-ledger canister wasm and did is deployed twice, once for each of the two ICRC1 tokens integrated. The ICP ledger wasm and did is only deployed once as the other ICP based token has its ledger canister deployed by running the `dfx nns install` command. This to demonstrate the multiple ways of integrating token-ledger canisters.
+If the dfx SDK is not installed already, follow the [Installing the SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/) instructions. Please keep in mind the dfx SDK currently only runs on Linux and Apple based PCs. To install Vessel follow the [Getting Started]( https://github.com/dfinity/vessel) guide.  
+
+With the dfx SDK and Vessel installed, clone this repository into a local directory:
+
+`mkdir ic-dfinity && cd ic-dfinity`  
+`git clone https://github.com/dfinity/examples.git`  
+
+Once the repository is finished being downloaded, navigate to the Motoko invoice-canister subdirectory and install the project's required dependencies:
+
+`cd examples/motoko/invoice-canister`  
+`npm install`  
+
+At this point the project is ready to be deployed to a local replica. As support for four tokens requires four token-ledger canisters, three of these are installed by the downloaded wasm and did files provided by the [Dfinity Rosetta-API repository](https://github.com/dfinity/ic/tree/master/rs/rosetta-api). These files can be found in the [src/token-ledger-canisters](./src//token-ledger-canisters/) directory with an accompanying shell script for downloading them independently of this project. The ICRC1 token-ledger canister wasm and did is deployed twice, once for each of the two ICRC1 tokens integrated. The ICP ledger wasm and did is only deployed once as the other ICP based token has its ledger canister deployed by running the `dfx nns install` command. This to demonstrate the multiple ways of integrating token-ledger canisters into your own projects.
 
 Before running this project, it is necessary to check the system wide network configuration is set according to what the canisters installed by `dfx nns install` require.
 
@@ -62,23 +74,23 @@ Run `cat "$(dfx info networks-json-path)"` to confirm it matches:
   }
 }
 ```
-If it does not, make a backup of the original file. Once the original has been backed up or if the `networks.json` file does not exist, use a text editor or `cat` command to set the `networks.json` to match the above. More details about using the `dfx nns` command can be found [here](https://github.com/dfinity/sdk/blob/master/docs/cli-reference/dfx-nns.md). 
+If it does not, make a backup of the original file. Once the original has been backed up or if the `networks.json` file does not exist, use a text editor such as [nano](https://www.nano-editor.org/download.php) or the `cat` command to set the `networks.json` to match the above. More details about using the `dfx nns` command can be found [here](https://github.com/dfinity/sdk/blob/master/docs/cli-reference/dfx-nns.md). Note that when using `dfx nns install` for the first time, `dfx nns import` is also used afterward to correctly install the associated did files and configure `dfx.json`. As this project has already been configured, this step is skipped in the startup script. 
 
-Once completed, this project's startup script can be run. This script uses the [zx](https://github.com/google/zx) command line scripting library to start up a local replica correctly configured with the four token-ledger canisters this project uses. This is the [clean-startup.mjs](./clean-startup.mjs) which contains documentation explaining how it restarts dfx, runs `dfx nns install`, adds an identity used for testing if needed, deploys the invoice and other token-ledger canisters, and finally, if testing, disbursing funds to that identity used in the E2E testing.
+Once the system-wide `networks.json` is set as above, this project's startup script can be run. This script uses the [zx](https://github.com/google/zx) command line scripting library to start up a local replica correctly configured with the four token-ledger canisters this project uses. This is the [clean-startup.mjs](./clean-startup.mjs) which contains documentation explaining how it restarts dfx, runs `dfx nns install`, adds an identity used for testing if needed, deploys the invoice and other token-ledger canisters, and finally, if testing, disbursing funds to that identity used in the E2E testing.
 
 For convenience, two npm scripts have been added to initiate this script:  
 
 `npm run deployAll`  
 `npm run deployForTesting`  
 
-If deployed for testing, the Secp256k1 identity the `dfx nns install` uses as one its two initial deposit identities is added and switched to as the current user. Whether testing or not, the current identity is used as the minting account for all four token-ledger canisters. See the [clean-startup.mjs](./clean-startup.mjs) for more details. 
+If deployed for testing, the Secp256k1 identity the `dfx nns install` uses as one its two initial deposit identities is added and switched to as the current user. Whether testing or not, the current identity is used as the minting account for all four token-ledger canisters. See the [clean-startup.mjs](./clean-startup.mjs) for more details. To see an example of the console output of running this script for testing, the [clean-startup-console-output](./docs/clean-startup-console-output.md) can be reviewed in the docs folder. 
 
-This script will check if the system wide networks configuration file is correctly set before running. If correctly set, either of the two above commands can be used to start a local replica with all the deployed canisters ready. Note the command line arguments used with `dfx` in this script are first made a variable that can be logged to the console to be manually used as a `dfx` command and modified with custom fields if need be.  
+This script will check if the system wide networks configuration file is correctly set before running. If correctly set, either of the two above commands can be used to start a local replica with all the deployed canisters ready. Note the command line arguments used with `dfx` in this script are first made a variable that can be logged to the console to be manually used as a `dfx` command and modified with custom values if need be.  
 
-_For more details be sure to check out the introductory comment of [clean-startup.mjs](./clean-startup.mjs)._ 
+_For more details be sure to check out the introductory comment of [clean-startup.mjs](./clean-startup.mjs) or review the [clean-startup-console-output](./docs/clean-startup-console-output.md) example._ 
 ## Integrating the Invoice Canister
 
-To integrate the invoice canister in another project, review the [Design Doc](./docs/DesignDoc.md), [Invoice.mo](./src/invoice/Invoice.mo) and [SupportedToken.mo](./src/invoice/modules/supported-token/SupportedToken.mo). To summarize, both the `Invoice.mo` and `SupportedToken.mo` files need to be edited according to which tokens are to be supported. While this project uses four tokens, it may be easier to start from the `motoko-seller-client` example as only two tokens (one for ICP and one for ICRC1) are integrated in that project. While the following may seem like a lot of work, in reality it can take as little as 15 minutes using this project's code as a reference to copy.
+To integrate the invoice canister in another project, review the [Design Doc](./docs/DesignDoc.md), [Invoice.mo](./src/invoice/Invoice.mo) and [SupportedToken.mo](./src/invoice/modules/supported-token/SupportedToken.mo). To summarize, both the `Invoice.mo` and `SupportedToken.mo` files need to be edited according to which tokens are to be supported. While this project uses four tokens, it may be easier to start from the `motoko-seller-client` example as only two tokens (one for ICP and one for ICRC1) are integrated in that project. To add support for an additional token, it can take as little as 15 minutes using this project's code as a reference to copy.
 
 The preliminary step is to determine which tokens are to be supported, as configuring a single invoice canister to support adding new ICRC1 tokens after it has already been deployed requires extra initial configuration of the `SupportedToken` variant's references (see "Future Proofing" near the end in the [Design Doc](./docs/DesignDoc.md) for more details). If only adding support for a fixed number of tokens, or deploying each invoice canister with only a fixed number of supported tokens, no additional configuration other than the following (for each token to support) is needed:
 
@@ -91,9 +103,9 @@ public type SupportedToken<T1, T2> = {
 +  #ICRC1_ckTESTBTC : T2; 
 };
 ```
-Note that the generic type `T1` is used for ICP (or any token using the associated types of the ICP specification), while `T2` is used for any token that is based on the ICRC1 standard. Each token to be supported will need its own tag entry, and here the tag added for ckTESTBTC is prefixed with "ICRC1_" just to keep things clear. 
+Note that the generic type `T1` is used for ICP (or any token using the associated types of the ICP specification), while `T2` is used for any token that is based on the ICRC1 standard. Each token to be supported will need its own tag entry, and here the tag added for ckTESTBTC is prefixed with "ICRC1_" to keep things clearer. 
 
-Observe also that once this variant's declaration is modified by adding (or removing) a tag, the Motoko VSCode extension will automatically indicate all the other places in the code that need to be edited. This consists of all the switches that will need an additional case for the tag that is added. These switches are only found in the methods of `SupportedToken.mo` and in some of the API methods of `Invoice.mo` (all relevant methods are listed here). 
+Observe also that once this variant's declaration is modified by adding (or removing) a tag, the Motoko VSCode extension will automatically indicate all the other places in the code that need to be edited (or if not using VSCode the `moc` compiler warnings). This consists of all the switches that will need an additional case for the tag that is added. These switches are only found in the methods of `SupportedToken.mo` and in some of the API methods of `Invoice.mo` (all relevant methods are listed here). 
 
 The methods to update in `SupportedToken.mo` are: 
 ``` 
@@ -141,7 +153,7 @@ public func rewrapTransferResults(sttransferResult : TransferResult) : Result.Re
   };
 };
 ```
-Each method requires a similar simple update of its switch. As mentioned before `getTokenVerbose()` requires unique attention--in particular the correct transfer fee must be defined. As the `TokenVerbose` is part of the invoice record returned to the caller, correctly defining the other fields is also strongly encouraged (particularly the URL so further inquiry of the token-ledger canister can be easily made if needed). For the example of adding support for the ckTESTBTC token, this would look like:
+Each method requires a similar simple update of its switch. As mentioned before `getTokenVerbose()` requires unique attention--in particular the correct transfer fee must be defined. As the `TokenVerbose` is part of the invoice record returned to the caller, correctly defining the other fields is also strongly encouraged (particularly the URL so further inquiry of the token-ledger canister can be easily made if needed). For the example of adding support for the ckTESTBTC token, this could look like:
 
 ```diff
 public func getTokenVerbose<T1, T2>(supportedToken : SupportedToken<T1, T2>) : TokenVerbose {
@@ -211,13 +223,13 @@ public shared ({ caller }) func get_caller_balance(
   // Rest of method's code omitted.
 };
 ```
-Updating these methods' switch statements after adding the constructed actor type(s) declaration, **are the only** other changes needed in these two files. As mentioned, once this is done correctly it can also be confirmed with the Motoko VSCode extension not indicating any warnings or errors about these switches. 
+Updating these methods' switch statements after adding the constructed actor type(s) declaration, **are the only** other changes needed in these two files. As mentioned, once this is done correctly it can also be confirmed with the Motoko VSCode extension (or `moc` compiler) not indicating any warnings or errors about these switches. 
 
 At this point integrating support for an additional token is complete.
 
 As stated earlier, the `motoko-seller-client` project is an example of integration with only two tokens, one for ICP and one for ICRC1 mapped to the variant tags `#ICP` and `#ICRC1` respectively, along with their two corresponding [class based mock ledgers](./examples/motoko-seller-client/src/backend/modules/MockTokenLedgerCanisters.mo) that can be used to develop more quickly. They should return all the same `Ok` and `Err` results, except for the two of the ICRC1 specification `#Generic Error` and `#TemporarilyUnavailable`. 
 
-Once the above files are configured correctly, the next step is adding them to the project's file structure (if this has not already been done, be sure to also include the `Types.mo` module) and updating `dfx.json`. Add the invoice canister to the canisters list as a Motoko type canister with its main pointing to the `Invoice.mo` file (in this example snippet named "invoice", with `Invoice.mo` in the project's `src` directory, and without a declarations output field):
+Once the above files are configured correctly, the next step is adding these files to the project's file structure (if this has not already been done, be sure to also include the `Types.mo` module) and updating `dfx.json` to include the invoice canister. Add the invoice canister to the canisters list as a Motoko type canister with its main pointing to the `Invoice.mo` file (in this example snippet named "invoice", with `Invoice.mo` in the project's `src` directory, and without a declarations output field):
 ```diff
 {
   "canisters": {
@@ -229,7 +241,7 @@ Once the above files are configured correctly, the next step is adding them to t
 +    },
 }
 ```
-As the Invoice Canister `Invoice.mo` is now a class actor, **it is not necessary** to add its canister entry in `dfx.json` as a dependency in the other canister's entry that uses it. Instead an invoice canister actor reference can be instantiated with the actor class constructor passing in the canister id of the deployed invoice canister; the type reference of this actor class can be included in two ways.
+As the Invoice Canister `Invoice.mo` is now a class actor, **it is not necessary** to add its canister entry in `dfx.json` as a dependency in the other canister's entry that uses it. Instead an invoice canister actor reference can be instantiated with the actor class constructor passing in the canister id of the deployed invoice canister. The type reference of this actor class can be included in two ways.
 
 One way is demonstrated in the [motoko-seller-client Seller canister](./examples/motoko-seller-client/src/backend/Seller.mo) which imports the type directly as the `Invoice.mo` file. The other way to do this, which can be used when creating an invoice canister actor in a separate project, is to copy the `Types.mo` file into that project and using the `InvoiceCanisterAPI` type declaration (at the bottom of `Types.mo`) as the type reference for constructing the invoice canister actor in that project's canister's code.
 
@@ -265,12 +277,22 @@ To run unit tests, use `make test`.
 To run the end-to-end JavaScript tests, use `make e2e`. 
 
 _For understanding how the Invoice Canister works, reviewing the E2E test suite [recover_invoice_subaccount_balance.test.js](./test/e2e/src/tests/recover_invoice_subaccount_balance.test.js) is useful as it demonstrates almost all the functionality of the Invoice Canister. Additionally, an example of all the unit and E2E tests' output can be found in the [Testing Glossary](./docs/TestingGlossay.md)._
-## Security Concerns
+## Disclaimer - Security Considerations 
 
-As stated earlier, there are a few points that must be considered when deploying the Invoice Canister in production. Unless further modification of the code base is performed to prevent or otherwise manage these, these are:
+This and the `motoko-seller-client` projects are _educational examples_ demonstrating how invoice based payment processing on the Internet Computer can work. They are not intended to be used in a production environment, with sensitive data or real world financial value. As stated earlier, there are known security issues that must be considered when deploying an Invoice Canister to mainnet:
 
-1) Funds held by the Invoice Canister are subject to the control of the installer and/or its current specified controller(s) and may be lost or otherwise unrecoverable. 
-2) Details of stored invoices are not encrypted by default and could be physically inspected by a node provider. 
-3) While measures have been implemented to reliably process transactions, there are certain conditions such as a malevolent token ledger-canister intentionally endlessly looping a call instead of returning; or the Invoice Canister's message queue reaching capacity, which cannot always be anticipated and may affect it's expected operation. When deploying to mainnet, using a dedicated logger is strongly encouraged. 
+1) Funds held by the Invoice Canister are subject to the control of the installer and/or its current specified controller(s) and may be lost or otherwise unrecoverable.  
+2) Details of stored invoice records are not encrypted by default and could be physically inspected by a node provider.  
+3) While measures have been implemented to reliably process transactions, there are certain conditions such as an inter-canister call intentionally looping instead of returning; or the Invoice Canister's message queue reaching capacity while there are still incoming calls that would then be dropped, which cannot always be anticipated and may affect it's expected operation.  
+4) Additional details per invoice may be necessary to adequately represent them as a servicing a financial transaction.  
+5) This project uses a local replica configured to be a system subnet and therefore requires no cycles to process computation, which is not typical of mainnet canisters particularly those on a fiduciary subnet. When deploying an invoice canister to mainnet, keep track of its cycles balance is critical for its continued operation.
+6) While all the API calls have been made update to automatically return them as certified by the consensus of a subnet, if any of the three API methods that can be made query calls are converted into query calls, their results will not have this certification by default. To deliver query call results that can be certified, they must be returned as [CertifiedData](https://internetcomputer.org/docs/current/references/motoko-ref/certifieddata/).  
 
-_See the [Design Doc](./docs/DesignDoc.md) and [Security Best Practices](https://internetcomputer.org/docs/current/developer-docs/security/) for more details._
+When getting ready to deploy for production, thoroughly review the guides:
+* [Running in production](https://internetcomputer.org/docs/current/developer-docs/production/)  
+* [Security Best Practices](https://internetcomputer.org/docs/current/developer-docs/security/)  
+* [How to audit an Internet Computer canister](https://www.joachim-breitner.de/blog/788-How_to_audit_an_Internet_Computer_canister)
+
+and proceed with enough caution and preparation.
+
+_See the [Design Doc](./docs/DesignDoc.md) for more details._
