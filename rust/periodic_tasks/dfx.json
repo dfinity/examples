@@ -1,0 +1,15 @@
+{
+  "canisters": {
+    "timer": {
+      "candid": "timer/timer.did",
+      "package": "timer",
+      "type": "rust"
+    },
+    "heartbeat": {
+      "candid": "heartbeat/heartbeat.did",
+      "package": "heartbeat",
+      "type": "rust"
+    }
+  },
+  "version": 1
+}
