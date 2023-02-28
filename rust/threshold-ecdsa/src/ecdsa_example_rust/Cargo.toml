@@ -10,6 +10,10 @@ crate-type = ["cdylib"]
 
 [dependencies]
 serde = "1"
-candid = "0.7.4"
-ic-cdk = "0.5"
-ic-cdk-macros = "0.5"
+candid = "0.8.4"
+ic-cdk = "0.7.1"
+hex = "0.4.3"
+sha2 = "0.10.6"
+k256 = { version = "0.12.0", features = ["ecdsa"] }
+# Enable `custom` feature of k256's getrandom dependency. See lib.rs for more details.
+getrandom = { version = "0.2", features = ["custom"] }

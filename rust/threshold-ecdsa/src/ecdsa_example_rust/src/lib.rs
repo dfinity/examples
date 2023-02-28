@@ -3,17 +3,23 @@ use ic_cdk::export::{
     serde::{Deserialize, Serialize},
     Principal,
 };
-use ic_cdk_macros::*;
+use ic_cdk::{query, update};
+use std::convert::TryFrom;
 use std::str::FromStr;
 
 #[derive(CandidType, Serialize, Debug)]
 struct PublicKeyReply {
-    pub public_key: Vec<u8>,
+    pub public_key_hex: String,
 }
 
 #[derive(CandidType, Serialize, Debug)]
 struct SignatureReply {
-    pub signature: Vec<u8>,
+    pub signature_hex: String,
+}
+
+#[derive(CandidType, Serialize, Debug)]
+struct SignatureVerificationReply {
+    pub is_signature_valid: bool,
 }
 
 type CanisterId = Principal;
@@ -57,51 +63,109 @@ pub enum EcdsaCurve {
 
 #[update]
 async fn public_key() -> Result<PublicKeyReply, String> {
-    let key_id = EcdsaKeyId {
-        curve: EcdsaCurve::Secp256k1,
-        name: "dfx_test_key".to_string(),
-    };
-    let ic_canister_id = "aaaaa-aa";
-    let ic = CanisterId::from_str(&ic_canister_id).unwrap();
-
-    let caller = ic_cdk::caller().as_slice().to_vec();
     let request = ECDSAPublicKey {
         canister_id: None,
-        derivation_path: vec![caller],
-        key_id: key_id.clone(),
+        derivation_path: vec![],
+        key_id: EcdsaKeyIds::TestKeyLocalDevelopment.to_key_id(),
     };
-    let (res,): (ECDSAPublicKeyReply,) = ic_cdk::call(ic, "ecdsa_public_key", (request,))
-        .await
-        .map_err(|e| format!("Failed to call ecdsa_public_key {}", e.1))?;
+
+    let (res,): (ECDSAPublicKeyReply,) =
+        ic_cdk::call(mgmt_canister_id(), "ecdsa_public_key", (request,))
+            .await
+            .map_err(|e| format!("ecdsa_public_key failed {}", e.1))?;
 
     Ok(PublicKeyReply {
-        public_key: res.public_key,
+        public_key_hex: hex::encode(&res.public_key),
     })
 }
 
 #[update]
-async fn sign(message: Vec<u8>) -> Result<SignatureReply, String> {
-    assert!(message.len() == 32);
-
-    let key_id = EcdsaKeyId {
-        curve: EcdsaCurve::Secp256k1,
-        name: "dfx_test_key".to_string(),
-    };
-    let ic_canister_id = "aaaaa-aa";
-    let ic = CanisterId::from_str(&ic_canister_id).unwrap();
-
-    let caller = ic_cdk::caller().as_slice().to_vec();
+async fn sign(message: String) -> Result<SignatureReply, String> {
     let request = SignWithECDSA {
-        message_hash: message.clone(),
-        derivation_path: vec![caller],
-        key_id,
+        message_hash: sha256(&message).to_vec(),
+        derivation_path: vec![],
+        key_id: EcdsaKeyIds::TestKeyLocalDevelopment.to_key_id(),
     };
-    let (res,): (SignWithECDSAReply,) =
-        ic_cdk::api::call::call_with_payment(ic, "sign_with_ecdsa", (request,), 25_000_000_000)
-            .await
-            .map_err(|e| format!("Failed to call sign_with_ecdsa {}", e.1))?;
+
+    let (response,): (SignWithECDSAReply,) = ic_cdk::api::call::call_with_payment(
+        mgmt_canister_id(),
+        "sign_with_ecdsa",
+        (request,),
+        25_000_000_000,
+    )
+    .await
+    .map_err(|e| format!("sign_with_ecdsa failed {}", e.1))?;
 
     Ok(SignatureReply {
-        signature: res.signature,
+        signature_hex: hex::encode(&response.signature),
     })
+}
+
+#[query]
+async fn verify(
+    signature_hex: String,
+    message: String,
+    public_key_hex: String,
+) -> Result<SignatureVerificationReply, String> {
+    let signature_bytes = hex::decode(&signature_hex).expect("failed to hex-decode signature");
+    let pubkey_bytes = hex::decode(&public_key_hex).expect("failed to hex-decode public key");
+    let message_bytes = message.as_bytes();
+
+    use k256::ecdsa::signature::Verifier;
+    let signature = k256::ecdsa::Signature::try_from(signature_bytes.as_slice())
+        .expect("failed to deserialize signature");
+    let is_signature_valid= k256::ecdsa::VerifyingKey::from_sec1_bytes(&pubkey_bytes)
+        .expect("failed to deserialize sec1 encoding into public key")
+        .verify(message_bytes, &signature)
+        .is_ok();
+
+    Ok(SignatureVerificationReply{
+        is_signature_valid
+    })
+}
+
+fn mgmt_canister_id() -> CanisterId {
+    CanisterId::from_str(&"aaaaa-aa").unwrap()
+}
+
+fn sha256(input: &String) -> [u8; 32] {
+    use sha2::Digest;
+    let mut hasher = sha2::Sha256::new();
+    hasher.update(input.as_bytes());
+    hasher.finalize().into()
+}
+
+enum EcdsaKeyIds {
+    #[allow(unused)]
+    TestKeyLocalDevelopment,
+    #[allow(unused)]
+    TestKey1,
+    #[allow(unused)]
+    ProductionKey1,
+}
+
+impl EcdsaKeyIds {
+    fn to_key_id(&self) -> EcdsaKeyId {
+        EcdsaKeyId {
+            curve: EcdsaCurve::Secp256k1,
+            name: match self {
+                Self::TestKeyLocalDevelopment => "dfx_test_key",
+                Self::TestKey1 => "test_key_1",
+                Self::ProductionKey1 => "key_1",
+            }
+            .to_string(),
+        }
+    }
+}
+
+// In the following, we register a custom getrandom implementation because
+// otherwise getrandom (which is a dependency of k256) fails to compile.
+// This is necessary because getrandom by default fails to compile for the
+// wasm32-unknown-unknown target (which is required for deploying a canister).
+// Our custom implementation always fails, which is sufficient here because
+// we only use the k256 crate for verifying secp256k1 signatures, and such
+// signature verification does not require any randomness.
+getrandom::register_custom_getrandom!(always_fail);
+pub fn always_fail(_buf: &mut [u8]) -> Result<(), getrandom::Error> {
+    Err(getrandom::Error::UNSUPPORTED)
 }
