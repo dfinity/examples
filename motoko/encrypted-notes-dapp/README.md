@@ -14,6 +14,8 @@
   - [Scenario II: user is accessing notes from multiple devices](#scenario-ii-user-is-accessing-notes-from-multiple-devices)
   - [Scenario III: device management](#scenario-iii-device-management)
 - [Unit testing](#unit-testing)
+  - [Motoko Unit Tests](#motoko-unit-tests)
+  - [Rust Unit Tests](#rust-unit-tests)
 - [Troubleshooting](#troubleshooting)
   - [Building/deployment problems](#buildingdeployment-problems)
   - [Login problems](#login-problems)
@@ -91,7 +93,7 @@ _Note_: this option does not yet work on Apple M1; the combination of [DFX](http
    ```sh
    sh ./deploy_locally.sh
    ```
-   ⚠️ If this fails, please ensure that the Docker daemon is running on your system.
+   ⚠️ If this fails with `No such container`, please ensure that the Docker daemon is running on your system.
 
 4. To open the frontend, go to http://localhost:3000/
 
@@ -143,6 +145,7 @@ _Note_: this option does not yet work on Apple M1; the combination of [DFX](http
    ```sh
    dfx deploy "encrypted_notes_$BUILD_ENV"
    ```
+   ⚠️ Before deploying the Rust canister, you should first run `rustup target add wasm32-unknown-unknown`.
 9. Update the generated canister interface bindings: 
    ```sh
    dfx generate "encrypted_notes_$BUILD_ENV"
@@ -258,21 +261,48 @@ Fig. 4. Scenario for a user adding/removing devices.
 
 ## Unit testing
 
-This project demonstrates how one can write unit tests in Motoko. The unit tests are implemented in `src/encrypted_notes_motoko/test/test.mo` using the [Motoko Matchers](https://kritzcreek.github.io/motoko-matchers/) library. 
+This project also demonstrates how one can write unit tests for Motoko and Rust canisters.
 
-The easiest way to run all tests involves three steps: 
-1. Follow the [above instructions](#option-1-docker-deployment) for Deployment via Docker.
-2. Open a new console, type `docker ps`, and copy the `"CONTAINER ID"` of the `encrypted_notes` image; save it into `DOCKER_IMAGE`.
-3. Run: 
-   ```sh
-   docker exec $DOCKER_IMAGE sh src/encrypted_notes_motoko/test/run_tests.sh
-   ```
+### Motoko Unit Tests
 
-One can also run unit tests locally via:
+The unit tests are implemented in `src/encrypted_notes_motoko/test/test.mo` using the [Motoko Matchers](https://kritzcreek.github.io/motoko-matchers/) library. 
+
+The easiest way to run all tests involves the following steps:
+
+1. Follow the [above instructions](#option-1-docker-deployment) for Deployment via Docker with `BUILD_ENV=motoko`.
+2. Open a new console, type `docker ps`, and copy the _`<CONTAINER ID>`_ of the `encrypted_notes` image.
+3. Run: `docker exec `_`<CONTAINER ID>`_` sh src/encrypted_notes_motoko/test/run_tests.sh`
+4. Observer `All tests passed.` at the end of the output.
+
+Alternatively, one can also run unit tests after a local deployment via:
 ```sh
 src/encrypted_notes_motoko/test/run_tests.sh
 ```
-However, this requires installing [`wasmtime`](https://wasmtime.dev/) and [`motoko-matchers`](https://github.com/kritzcreek/motoko-matchers). See the contents of `src/encrypted_notes_motoko/test/run_tests.sh` for more detail. 
+However, this requires installing [`wasmtime`](https://wasmtime.dev/) and [`motoko-matchers`](https://github.com/kritzcreek/motoko-matchers):
+
+```sh
+git clone https://github.com/kritzcreek/motoko-matchers $(dfx cache show)/motoko-matchers
+chmod +x src/encrypted_notes_motoko/test/run_tests.sh
+src/encrypted_notes_motoko/test/run_tests.sh
+```
+
+Observer `All tests passed.` at the end of the output.
+
+### Rust Unit Tests
+
+The unit tests are implemented in `src/encrypted_notes_rust/src/lib.rs` at the bottom.
+
+The easiest way to run all tests involves the following steps:
+
+1. Follow the [above instructions](#option-1-docker-deployment) for Deployment via Docker with `BUILD_ENV=rust`.
+2. Open a new console, type `docker ps`, and copy the _`<CONTAINER ID>`_ of the `encrypted_notes` image.
+3. Run: `docker exec `_`<CONTAINER ID>`_` cargo test`
+4. Observer `test result: ok.` at the end of the output.
+
+Alternatively, one can also run unit tests after a local deployment via:
+```sh
+cargo test
+```
 
 ---
 &nbsp;
