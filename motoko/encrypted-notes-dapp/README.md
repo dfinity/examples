@@ -89,7 +89,7 @@ _Note_: this option does not yet work on Apple M1; the combination of [DFX](http
    ```sh
    export BUILD_ENV=motoko
    ```
-3. Run the following Bash script that builds a Docker image, compiles the canister, and deploys this dapp (all inside the Docker instance):
+3. Run the following Bash script that builds a Docker image, compiles the canister, and deploys this dapp (all inside the Docker instance). Execution can take some minutes:
    ```sh
    sh ./deploy_locally.sh
    ```
