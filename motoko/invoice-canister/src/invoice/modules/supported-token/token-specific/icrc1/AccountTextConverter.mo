@@ -8,9 +8,11 @@ import Text "mo:base/Text";
 
 import Types "./Types";
 
-/****!!Important!! Should be updated if ICRC1 Accounting encoding/decoding spec changes.**    
+/****!!Important!! Should be updated if ICRC1 Accounting encoding/decoding spec changes.**  
+  For more information on the current specification see:
+  https://github.com/dfinity/ICRC-1/issues/70    
   Encodes an ICRC1 account into its text form and decodes valid text into an ICRC1 account.  
-  Copied from original work by @roman-kashitsyn https://github.com/dfinity/ICRC-1/blob/main/ref/Account.mo */
+  Copied from code produced by the Ledger and Tokenization Working Group.  */
 module AccountTextConverter {
 
   public type Account = Types.Account;

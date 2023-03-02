@@ -244,8 +244,6 @@ module SupportedToken {
 
       /****Set of addressing computations the invoice canister uses for processing ICRC1 transactions.***/
       module Adapter {
-        // CRC32 hash omitted from creating icrc1 invoice subaccounts.
-        let leadingPadding = [0 : Nat8, 0 : Nat8, 0 : Nat8, 0 : Nat8];
 
         /****Returns whether it is a valid icrc1 account's subaccount.***/
         public func isValidSubaccount(s : Subaccount) : Bool {
@@ -296,15 +294,13 @@ module SupportedToken {
         /****Computes an invoice's subaccount blob from the given invoice id and creator's principal.***/
         public func computeInvoiceSubaccount(id : Text, invoiceCreator : Principal) : Subaccount {
           let hash = SHA224.New();
-          // Length of domain separator.
           hash.write([0x0A]);
-          // Domain separator.
           hash.write(Blob.toArray(Text.encodeUtf8("invoice-id")));
-          // Invoice id.
           hash.write(Blob.toArray(Text.encodeUtf8(id)));
-          // Creator's principal.
           hash.write(Blob.toArray(Principal.toBlob(invoiceCreator)));
-          Blob.fromArray(Array.flatten<Nat8>([leadingPadding, hash.sum([])]));
+          let hashSum = hash.sum([]);
+          let crc32bytes = Binary.BigEndian.fromNat32(CRC32.checksum(hashSum));
+          Blob.fromArray(Array.flatten<Nat8>([crc32bytes, hashSum]));
         };
 
         /****Computes an invoice's subaccount icrc1 account from the given 
@@ -328,13 +324,12 @@ module SupportedToken {
         /****Computes an invoice creator's subaccount blob from their given principal.***/
         public func computeCreatorSubaccount(p : Principal) : Subaccount {
           let hash = SHA224.New();
-          // Length of domain separator.
           hash.write([0x0A]);
-          // Domain separator.
           hash.write(Blob.toArray(Text.encodeUtf8("creator-id")));
-          // Creator's principal.
           hash.write(Blob.toArray(Principal.toBlob(p)));
-          Blob.fromArray(Array.flatten<Nat8>([leadingPadding, hash.sum([])]));
+          let hashSum = hash.sum([]);
+          let crc32bytes = Binary.BigEndian.fromNat32(CRC32.checksum(hashSum));
+          Blob.fromArray(Array.flatten<Nat8>([crc32bytes, hashSum]));
         };
 
         /****Computes an invoice creator's subaccount icrc1 account from their given principal and invoice canister id.***/
@@ -412,8 +407,9 @@ module SupportedToken {
           };
         };
 
-        /** !!Important!! Should be updated if ICRC1 Accounting encoding/decoding spec changes.\
-          Copied from original work by @roman-kashitsyn https://github.com/dfinity/ICRC-1/blob/main/ref/Account.mo */
+        /****!!Important!! Should be updated if ICRC1 Accounting encoding/decoding spec changes.**    
+          Encodes an ICRC1 account into its text form and decodes valid text into an ICRC1 account.  
+          Copied from code of the Ledger and Tokenization Working Group.  */
         module AccountTextConverter {
           public type Account = { owner : Principal; subaccount : ?Blob };
           public type DecodeError = {
