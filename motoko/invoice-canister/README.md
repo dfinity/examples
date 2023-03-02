@@ -6,6 +6,7 @@ The main project demonstrates support of four different tokens, two of which use
 
 That example project uses two class based mock ledgers instead of the four deployed token-ledger canisters this main project uses as well as featuring the deployed invoice canister functioning in another canister to process purchases.  Additionally, all the distinct module files associated with the `SupportedToken` that are found in the main project's [supported-token](./src/invoice/modules/supported-token/) directory are compacted into a single `SupportedToken.mo` module file, and the example project's code base has in-body comments omitted. Otherwise the codebase is the same. 
 
+Be aware mainnet ICP Ledger now supports the ICRC1 standard, and if deploying an invoice canister integrating with the mainnet ICP Ledger that token can be done with either the generic ICP or ICRC1 type of `SupportedToken.mo`. However it is advised to use ICRC1 as the ICRC1 standard is the basis for future tokenization standards on the Internet Computer. This project includes both ICP and ICRC1 for demonstration and reference purposes. 
 
 ## API Overview
 
@@ -37,8 +38,7 @@ Any caller authorized to verify an invoice can also call on the Invoice Canister
 An invoice creator can call `get_caller_balance()` to view the current balance of any proceeds that have not yet been transferred out. Calling `get_caller_address()` will return the address associated with this balance. Calling `to_other_address_format()` will return both the canister expected type and the text encoded form of an address or text given, or the default subaccount of the principal for the token type given. 
 
 Here is a diagram of the generalized successful payment flow of an invoice life cycle:
-![Generalized successful payment flow](./docs//invoice-payment-flow.png)
-
+![Generalized successful payment flow](./docs//invoice-payment-flow.png)  
 
 _This is only a summary description of the general functionality of the Invoice Canister, review the [Design Doc](./docs/DesignDoc.md) for more details in particular being aware of the security concerns such as regarding an invoice's data privacy. Additionally, there is extensive commentary in this [invoice.did](./invoice.did), or the [Invoice.mo](./src/invoice/Invoice.mo), [Types.mo](./src/invoice/modules/Types.mo) and the associated modules of the [SupportedToken.mo](./src/invoice/modules/supported-token/SupportedToken.mo) files._
 ## Getting Started - Development
@@ -283,10 +283,11 @@ This and the `motoko-seller-client` projects are _educational examples_ demonstr
 
 1) Funds held by the Invoice Canister are subject to the control of the installer and/or its current specified controller(s) and may be lost or otherwise unrecoverable.  
 2) Details of stored invoice records are not encrypted by default and could be physically inspected by a node provider.  
-3) While measures have been implemented to reliably process transactions, there are certain conditions such as an inter-canister call intentionally looping instead of returning; or the Invoice Canister's message queue reaching capacity while there are still incoming calls that would then be dropped, which cannot always be anticipated and may affect its expected operation.  
-4) Additional details per invoice may be necessary to adequately represent them for servicing financial transactions.  
-5) This project uses a local replica configured to be a system subnet and therefore requires no cycles to process computation, which is not typical of mainnet canisters particularly those on a fiduciary subnet. When deploying an invoice canister to mainnet, keep track of its cycles balance is critical for its continued operation.
-6) While all the API calls have been made update to automatically return them as certified by the consensus of a subnet, if any of the three API methods that can be made query calls are converted into query calls, their results will not have this certification by default. To deliver query call results that can be certified, they must be returned as [CertifiedData](https://internetcomputer.org/docs/current/references/motoko-ref/certifieddata/).  
+3) While measures have been implemented to reliably process transactions, there are certain conditions such as an inter-canister call intentionally looping instead of returning; or the Invoice Canister's message queue reaching capacity while there are still incoming calls that could then be dropped, which cannot always be anticipated and may affect its expected operation.  
+4) This project uses a local replica configured to be a system subnet and therefore requires no cycles to process computation, which is not typical of mainnet canisters particularly those on a fiduciary subnet. When deploying an invoice canister to mainnet, keep track of its cycles balance is critical for its continued operation.
+5) While all the API calls have been made update to automatically return them as certified by the consensus of a subnet, if any of the three API methods that can be made query calls are converted into query calls, their results will not have this certification by default. To deliver query call results that can be certified, they must be returned as [CertifiedData](https://internetcomputer.org/docs/current/references/motoko-ref/certifieddata/).  
+
+Additionally, the encoding and decoding of ICRC1 accounts may require being updated if the specification is finalized different than the current implementation of the [AccountTextConverter](./src/invoice/modules/supported-token/token-specific/icrc1/AccountTextConverter.mo) used for ICRC1 accounts in this project.  
 
 When getting ready to deploy for production, thoroughly review the guides:
 * [Running in production](https://internetcomputer.org/docs/current/developer-docs/production/)  

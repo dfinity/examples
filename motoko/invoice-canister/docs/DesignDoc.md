@@ -171,6 +171,8 @@ public func encodeAddress(a : Address) : Text { /* ... */ };
 
 ㅤAlso note that the implementation of `Invoice.mo` in the `motoko-seller-client` and its `SupportedToken.mo` module only uses two tag entries for this generic variant: `#ICP` and `#ICRC1`. This, the use of the `MockTokenLedgerCanister.mo` mock ledgers, the added `deposit_free_money()` API method and the adding of the hard coded seller canister id as an allowed creator is the only functional difference between these two copies of `Invoice.mo`. There's also a significant semantic difference that may be preferable which is that the `motoko-seller-client` copy of `Invoice.mo` contains almost no in-body comments. For these reasons it may be easier to use that project's version as a starting point for further development.
 
+ㅤAs the mainnet ICP Ledger now supports the ICRC1 standard, it may also be easier to remove the ICP generic type (`T1`) and only use a single generic type unless other token standards are needed which can be added accordingly as ICRC1 types was added in addition to the ICP types. 
+
 ##### An Important Functionality Implication     
 
 ㅤAs mentioned earlier, while the Invoice Canister itself uses `Nat` as a normalized base unit for all token type's amounts, whenever this value is returned to the caller it is always returned as the type as it is defined in the specification of its token-ledger canister as the argument of the `SupportedToken` variant tag for that token type. In other words, when querying an ICP creator subaccount balance, the returned result (in Motoko syntax) would be:  
