@@ -898,7 +898,9 @@ let success = run([
                   switch (sTokens.getInvoiceSubaccountAddress({ token = #ICRC1_ExampleToken; id; creator; canisterId })) {
                     case (#ICP _) {};
                     case (#ICP_nns _) {};
-                    case (#ICRC1_ExampleToken address) ircrc1ET1Equals := icrc1AccountsEqual(address, InvoiceSubaccount.asAccount);
+                    case (#ICRC1_ExampleToken address) {
+                      ircrc1ET1Equals := icrc1AccountsEqual(address, InvoiceSubaccount.asAccount);
+                    };
                     case (#ICRC1_ExampleToken2 _) {};
                   };
                   assertTrue(ircrc1ET1Equals);

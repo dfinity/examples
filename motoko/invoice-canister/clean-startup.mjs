@@ -75,7 +75,7 @@ const constants = {
       icpAccountIdentifierLiteral:
         '5bea0a832af66531a1c2dda9e4f027f6c31dd943af039ff509ae492841b8b980',
       icpAccountIdentifierBlobLiteral: `[\\ea\\0a\\83*\\f6e1\\a1\\c2\\dd\\a9\\e4\\f0\\27\\f6\\c3\\1d\\d9C\\af\\03\\9f\\f5\\09\\aeI(A\\b8\\b9\\80`,
-      icrc1SubaccountBlobLiteral: `\\00\\00\\00\\007;lQ\\e0\\9aG&\\1e\\fb\\bfI\\c2\\95\\bdS\\88\\08\\de2\\f8\\bc\\eb\\a3bZl\\60`,
+      icrc1SubaccountBlobLiteral: `\\dc\\f6(N7;lQ\\e0\\9aG&\\1e\\fb\\bfI\\c2\\95\\bdS\\88\\08\\de2\\f8\\bc\\eb\\a3bZl\\60`
     },
   },
   invoiceCanisterId: 'q4eej-kyaaa-aaaaa-aaaha-cai',

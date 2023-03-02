@@ -6,6 +6,7 @@ import Option "mo:base/Option";
 import Principal "mo:base/Principal";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
+import Hex "mo:encoding/Hex";
 import AccountIdentifierBlob "mo:principal/blob/AccountIdentifier";
 
 // Values known a priori used as unit tests' inputs.
@@ -14,9 +15,9 @@ module {
 
   public func decodeTextAsBlob(t : Text) : Blob {
     var res = Text.encodeUtf8("�");
-    switch (AccountIdentifierBlob.fromText(t)) {
-      case (#ok blob) res := blob;
-      case (#err _) assert (false);
+    switch (Hex.decode(t)) {
+      case (#err(e)) assert (false);
+      case (#ok(bs)) res := Blob.fromArray(bs);
     };
     res;
   };
@@ -144,20 +145,20 @@ module {
               InvoiceSubaccount = {
                 asAccount = {
                   owner : Principal = testInputs.invoiceCanisterId;
-                  subaccount : ?Blob = ?decodeTextAsBlob("000000007f052f9c91d33096018cd17dd5f2dda8eb21078277f2a5b481fb156e");
+                  subaccount : ?Blob = ?decodeTextAsBlob("36d8ffb07f052f9c91d33096018cd17dd5f2dda8eb21078277f2a5b481fb156e");
                 };
-                asText = "mlgfs-3qaaa-aaaaa-aaaha-cal7a-uxzze-otgcl-addgr-pxk7f-xni5m-qqpat-x6ks3-jap3c-vxby7-y";
+                asText = "2flje-eiaaa-aaaaa-aaaha-cajw3-d73a7-yff6o-jduzq-syayz-ul52x-zn3kh-leedy-e57su-w2id6-yvnyq-h6";
                 // When the from transfer arg.
-                asFromSubaccount : Blob = decodeTextAsBlob("000000007f052f9c91d33096018cd17dd5f2dda8eb21078277f2a5b481fb156e");
+                asFromSubaccount : Blob = decodeTextAsBlob("36d8ffb07f052f9c91d33096018cd17dd5f2dda8eb21078277f2a5b481fb156e");
               };
               CreatorSubaccount = {
                 asAccount = {
                   owner : Principal = testInputs.invoiceCanisterId;
-                  subaccount : ?Blob = ?decodeTextAsBlob("00000000373b6c51e09a47261efbbf49c295bd538808de32f8bceba3625a6c60");
+                  subaccount : ?Blob = ?decodeTextAsBlob("dcf6284e373b6c51e09a47261efbbf49c295bd538808de32f8bceba3625a6c60");
                 };
-                asText = "6bcdq-baaaa-aaaaa-aaaha-cajxh-nwfdy-e2i4t-b5657-jhbjl-pktra-en4mx-yxtv2-gys2n-rqby7-y";
+                asText = "743p4-2qaaa-aaaaa-aaaha-cao46-yue4n-z3nri-6bgsh-eyppx-p2jyk-k32u4-ibdpd-f6f45-orwew-tmmaq-h6";
                 // When the from transfer arg.
-                asFromSubaccount : Blob = decodeTextAsBlob("00000000373b6c51e09a47261efbbf49c295bd538808de32f8bceba3625a6c60");
+                asFromSubaccount : Blob = decodeTextAsBlob("dcf6284e373b6c51e09a47261efbbf49c295bd538808de32f8bceba3625a6c60");
               };
             };
           };
@@ -242,10 +243,10 @@ module {
                 created_at_time = null;
                 fee = ?10_000;
                 memo = ?Blob.fromArray([1]);
-                from_subaccount : ?Blob = ?decodeTextAsBlob("000000007f052f9c91d33096018cd17dd5f2dda8eb21078277f2a5b481fb156e");
+                from_subaccount : ?Blob = ?decodeTextAsBlob("36d8ffb07f052f9c91d33096018cd17dd5f2dda8eb21078277f2a5b481fb156e");
                 to = {
                   owner : Principal = testInputs.invoiceCanisterId;
-                  subaccount = ?decodeTextAsBlob("00000000373b6c51e09a47261efbbf49c295bd538808de32f8bceba3625a6c60") : ?Blob;
+                  subaccount = ?decodeTextAsBlob("dcf6284e373b6c51e09a47261efbbf49c295bd538808de32f8bceba3625a6c60") : ?Blob;
                 };
               };
               toArbitaryValidICRC1AccountResult = {
@@ -253,7 +254,7 @@ module {
                 created_at_time = null;
                 fee = ?10_000;
                 memo = ?Blob.fromArray([1]);
-                from_subaccount : ?Blob = ?decodeTextAsBlob("000000007f052f9c91d33096018cd17dd5f2dda8eb21078277f2a5b481fb156e");
+                from_subaccount : ?Blob = ?decodeTextAsBlob("36d8ffb07f052f9c91d33096018cd17dd5f2dda8eb21078277f2a5b481fb156e");
                 to = {
                   owner : Principal = testInputs.invoiceCanisterId;
                   subaccount = null;
@@ -277,7 +278,7 @@ module {
               created_at_time = null;
               fee = ?10_000;
               memo = ?Blob.fromArray([1]);
-              from_subaccount : ?Blob = ?decodeTextAsBlob("00000000373b6c51e09a47261efbbf49c295bd538808de32f8bceba3625a6c60");
+              from_subaccount : ?Blob = ?decodeTextAsBlob("dcf6284e373b6c51e09a47261efbbf49c295bd538808de32f8bceba3625a6c60");
               to = {
                 owner : Principal = testInputs.invoiceCanisterId;
                 subaccount = null;

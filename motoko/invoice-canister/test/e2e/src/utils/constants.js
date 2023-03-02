@@ -10,9 +10,9 @@ export const aPriori = {
     // Used in to_other_address_form for non-trivial subaccount ICRC1 account case.
     icrc1Subaccount: {
       asText:
-        '3vzsd-5yaaa-aaaaa-aaaha-cakku-hdvmo-34nr4-45leu-tqno2-sccw2-4nqcs-t2wvp-ttlno-gqry7-y',
+        '743p4-2qaaa-aaaaa-aaaha-cao46-yue4n-z3nri-6bgsh-eyppx-p2jyk-k32u4-ibdpd-f6f45-orwew-tmmaq-h6',
       subaccount: {
-        asText: '000000004aa1c7563b7c6c79ceac949c1aed4842b6b8d80a53d5aaf9cd6d71a1',
+        asText: 'dcf6284e373b6c51e09a47261efbbf49c295bd538808de32f8bceba3625a6c60',
       },
     },
   },
@@ -23,7 +23,7 @@ export const aPriori = {
     // aka "asInvoiceCreatorPrincipalSubaccount"
     asInvoicePrincipalSubaccount: {
       icrc1: {
-        asText: `6bcdq-baaaa-aaaaa-aaaha-cajxh-nwfdy-e2i4t-b5657-jhbjl-pktra-en4mx-yxtv2-gys2n-rqby7-y`,
+        asText: `743p4-2qaaa-aaaaa-aaaha-cao46-yue4n-z3nri-6bgsh-eyppx-p2jyk-k32u4-ibdpd-f6f45-orwew-tmmaq-h6`,
       },
       icp: {
         asText: `5bea0a832af66531a1c2dda9e4f027f6c31dd943af039ff509ae492841b8b980`,
