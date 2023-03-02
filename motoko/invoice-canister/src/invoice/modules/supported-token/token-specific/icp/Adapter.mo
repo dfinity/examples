@@ -74,6 +74,7 @@ module Adapter {
     let hashSum = hash.sum([]);
     // Crc32Bytes in the subaccount blob are not strictly required.
     let crc32bytes = Binary.BigEndian.fromNat32(CRC32.checksum(hashSum));
+    // Create the subaccount blob.
     Blob.fromArray(Array.flatten<Nat8>([crc32bytes, hashSum]));
   };
 
@@ -102,6 +103,7 @@ module Adapter {
     let hashSum = hash.sum([]);
     // CRC32 bytes are required for valid account identifiers.
     let crc32bytes = Binary.BigEndian.fromNat32(CRC32.checksum(hashSum));
+    // Create the subaccount blob.
     Blob.fromArray(Array.flatten<Nat8>([crc32bytes, hashSum]));
   };
 
