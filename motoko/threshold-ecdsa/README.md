@@ -54,10 +54,10 @@ found 0 vulnerabilities
 $ ./test.sh
 USAGE: ./test.sh <message to sign and verify>
 
-$ ./test.sh "Hello World!"
-sha256=d2a84f4b8b650937ec8f73cd8be2c74add5a911ba64df27458ed8229da804a26
-public_key=03ec3675640ad25bbc2b84e8d21c35ce8d885be68e0d7a0447705c39021e53705e
-signature=afacff613eb2af5ce7dd2db3564585a2f25122a04b08476f0df19371bd7681c068945ca56971d6fa896f137ffb4ea2e4add9eb3c67561fea4ea7a97c1186211d
+$ ./test.sh "Hello World"
+message=Hello World
+signature_hex=334fa100f68367aa2892d75b614c2915ae573895922cc5e6a196984d65df25753e756cb1ae4d406dcebccdd23151545b960c2a9c92f35e885ccdd188fd513bb0
+public_key_hex=02d98815741cae65d8bde06739e083584d3d83962ba623d8edd813656156f4c18a
 verified =  true
 ```
 
