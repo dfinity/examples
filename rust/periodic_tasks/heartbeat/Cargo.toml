@@ -1,0 +1,12 @@
+[package]
+name = "heartbeat"
+version = "1.0.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+candid = "0.8.4"
+ic-cdk = "0.7.0"
+ic-cdk-macros = "0.6.8"

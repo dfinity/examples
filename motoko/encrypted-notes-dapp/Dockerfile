@@ -25,17 +25,23 @@ FROM encrypted_notes_base as encrypted_notes_motoko
 ONBUILD RUN apt -yqq install --no-install-recommends xz-utils
 
 ONBUILD ARG matchers_version=1.2.0
-ONBUILD RUN curl -fsSLO "https://github.com/kritzcreek/motoko-matchers/archive/refs/tags/v${matchers_version}.tar.gz" && tar -xzf "v${matchers_version}.tar.gz" && rm "v${matchers_version}.tar.gz"
+ONBUILD RUN curl -fsSLO "https://github.com/kritzcreek/motoko-matchers/archive/refs/tags/v${matchers_version}.tar.gz" && \
+    tar -xzf "v${matchers_version}.tar.gz" && \
+    rm "v${matchers_version}.tar.gz"
 ONBUILD ENV MATCHERS="/canister/motoko-matchers-${matchers_version}/src"
 
 ONBUILD ARG wasmtime_version=0.33.1
-ONBUILD RUN curl -fsSLO "https://github.com/bytecodealliance/wasmtime/releases/download/v${wasmtime_version}/wasmtime-v${wasmtime_version}-x86_64-linux.tar.xz" && tar -xf "wasmtime-v${wasmtime_version}-x86_64-linux.tar.xz" && rm -f /bin/wasmtime && ln -s "$(pwd)/wasmtime-v${wasmtime_version}-x86_64-linux/wasmtime" /bin/wasmtime && rm "wasmtime-v${wasmtime_version}-x86_64-linux.tar.xz"
+ONBUILD RUN curl -fsSLO "https://github.com/bytecodealliance/wasmtime/releases/download/v${wasmtime_version}/wasmtime-v${wasmtime_version}-x86_64-linux.tar.xz" && \
+    tar -xf "wasmtime-v${wasmtime_version}-x86_64-linux.tar.xz" && \
+    rm -f /bin/wasmtime && \
+    ln -s "/canister/wasmtime-v${wasmtime_version}-x86_64-linux/wasmtime" /bin/wasmtime && \
+    rm "wasmtime-v${wasmtime_version}-x86_64-linux.tar.xz"
 
 # Install Rust and Cargo in /opt
 # Specify the Rust toolchain version
 # This is necessary only if you are going to be running the Rust version of the canister.
 
-# Building the Rust image requires additional steps
+# Rust image is the base image plus build-essential, plus rustup
 FROM encrypted_notes_base as encrypted_notes_rust
 
 # The ONBUILD instructions ensure that the Rust-specific commands are only executed if this
