@@ -1,9 +1,3 @@
-import Blob "mo:base/Blob";
-import Error "mo:base/Error";
-import Nat "mo:base/Nat";
-import Nat64 "mo:base/Nat64";
-import Option "mo:base/Option";
-import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Time "mo:base/Time";
 

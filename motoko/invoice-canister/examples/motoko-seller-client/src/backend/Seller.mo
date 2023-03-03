@@ -1,10 +1,6 @@
-import Debug "mo:base/Debug";
-import Hash "mo:base/Hash";
 import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
-import Nat "mo:base/Nat";
 import Nat64 "mo:base/Nat64";
-import Option "mo:base/Option";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Text "mo:base/Text";

@@ -15,15 +15,12 @@
 import Array "mo:base/Array";
 import Blob "mo:base/Blob";
 import Buffer "mo:base/Buffer";
-import Debug "mo:base/Debug";
-import Nat32 "mo:base/Nat32";
 import Nat64 "mo:base/Nat64";
 import Nat8 "mo:base/Nat8";
 import Principal "mo:base/Principal";
 import Result "mo:base/Result";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
-import SHA2 "mo:crypto/SHA/SHA2";
 import SHA224 "mo:crypto/SHA/SHA224";
 import Binary "mo:encoding/Binary";
 import Hex "mo:encoding/Hex";

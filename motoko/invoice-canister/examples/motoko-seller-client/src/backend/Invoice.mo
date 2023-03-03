@@ -1,10 +1,7 @@
 import Array "mo:base/Array";
-import Debug "mo:base/Debug";
 import Error "mo:base/Error";
-import Hash "mo:base/Hash";
 import HashMap "mo:base/HashMap";
 import Iter "mo:base/Iter";
-import Nat "mo:base/Nat";
 import Nat64 "mo:base/Nat64";
 import Option "mo:base/Option";
 import Principal "mo:base/Principal";
