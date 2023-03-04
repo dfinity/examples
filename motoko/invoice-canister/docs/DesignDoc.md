@@ -95,13 +95,13 @@ all other API calls work the same for each authorized caller. This is even true 
 
 ㅤA subaccount is any sequence of 32 bytes; for both ICP and ICRC1 there is no other condition for what determines a valid subaccount. An account identifier is also a sequence of 32 bytes, such that the first 4 bytes are the CRC32 encoded checksum of the remaining 28 bytes, which are the SHA224 hash of the length of the domain separator concatenated with the domain separator literal "account-id", concatenated with the bytes of the caller's principal, and finally concatenated with the subaccount. In the event there is no subaccount (which is a valid option) what's called the "default subaccount" is used, which is a sequence of 32 zeros.  
 
-##### `Invoice subaccounts and addressing computations`     
+##### `Addressing computations of invoice, creator subaccounts and ICRC1 accounts`     
 
 ㅤThe Invoice Canister uses a similar convention, computing the subaccount for an invoice as SHA224 hash of the sequence of bytes of the length of domain separator concatenated with the domain separator literal "invoice-id", followed by the bytes of the id, followed by the bytes of the principal of the creator. Then the CRC32 checksum is computed and prefixed to the SHA224 hash. In this way each created invoice has its own created payment address. 
 
-ㅤAs mentioned before, the Invoice Canister also creates an address for each authorized caller aka invoice creator. It is much the same computation as for invoices, except it is only with the length of the domain separator, the domain separator literal being "creator-id" (coincidentally the same length as the previous two), finally concatenated with the creator's principal bytes. 
+ㅤAs mentioned before, the Invoice Canister also creates an address for each authorized caller aka invoice creator. It is much the same computation as for invoices, except it is only with the length of the domain separator, the domain separator literal being "creator-id" (coincidentally the same length as that used for account identifiers and invoice subaccounts), finally concatenated with the creator's principal bytes: this creates the creator's subaccount. 
 
-ㅤNote that the CRC32 checksum hash is dropped when computing ICRC1 subaccounts and four leading padding zeros are used instead; this will likely change when as the ICRC1 specification becomes formalized. Otherwise the process is the same for how the Invoice Canister computes ICP and ICRC1 based addresses. While ICP addresses use account identifiers, an ICRC1 address is a record of the two fields: the principal of an `owner` and an optional `subaccount`. Like ICP, a null subaccount is functionally evaluated as the default subaccount of 32 zeros.  
+ㅤInvoice and creator subaccounts are created in the same way for both ICP and ICRC1 (in accordance with the mainnet ICP Ledger supporting the ICRC1 standard). When the subaccount is combined with a principal, it creates the actual address. While ICP addresses use account identifiers, an ICRC1 address is a record of the two fields: the principal of an `owner` and an optional `subaccount`. Like ICP, a null subaccount is functionally evaluated as the default subaccount of 32 zeros. It is recomended to use the ICRC1 standard when creating invoices for the ICP mainnet ledger as ICRC1 is the basis for future tokenization standards, and that now the ICP mainnet ledger supports the ICRC1 standard.
 
 ㅤFinally on the topic of address computations, as addresses are recomputed as they are needed, in the event more security through redundancy is required, consider using dedicated fields to store the computed addresses and subaccounts of invoices and creators. For example a stable hashmap or trie would be needed to link the principals of invoice creators to each of their token specific address types and their related `from_subaccount` subaccounts, and another would be needed to do the same for invoices addresses and their `from_subaccount` subaccounts. The set of transformations in the `ICP` and `ICRC` `Adapter`s can be reused for this purpose.
 ##### `get_invoice()`   
@@ -144,8 +144,8 @@ Here's a diagram showing the generalized payment flow:
 type SupportedToken<T1, T2> = {
 #ICP : T1;
 #ICP_nns : T1;
-#ICRC1_A : T2;
-#ICRC1_B : T2;
+#ICRC1_ExampleToken : T2;
+#ICRC1_ExampleToken2 : T2;
 // etc
 }
 ```
@@ -171,7 +171,7 @@ public func encodeAddress(a : Address) : Text { /* ... */ };
 
 ㅤAlso note that the implementation of `Invoice.mo` in the `motoko-seller-client` and its `SupportedToken.mo` module only uses two tag entries for this generic variant: `#ICP` and `#ICRC1`. This, the use of the `MockTokenLedgerCanister.mo` mock ledgers, the added `deposit_free_money()` API method and the adding of the hard coded seller canister id as an allowed creator is the only functional difference between these two copies of `Invoice.mo`. There's also a significant semantic difference that may be preferable which is that the `motoko-seller-client` copy of `Invoice.mo` contains almost no in-body comments. For these reasons it may be easier to use that project's version as a starting point for further development.
 
-ㅤAs the mainnet ICP Ledger now supports the ICRC1 standard, it may also be easier to remove the ICP generic type (`T1`) and only use a single generic type unless other token standards are needed which can be added accordingly as ICRC1 types was added in addition to the ICP types. 
+ㅤAs the mainnet ICP Ledger now supports the ICRC1 standard, it may also be easier to remove the ICP generic type (`T1`) and only use a single generic type unless other token standards are needed which can be added accordingly as ICRC1 types was added in addition to the ICP types. As mentioned before, if deploying an Invoice Canister supporting the mainnet ICP Ledger, it is recomended to use the `T2` generic parameter to add the token representing the mainnet ICP Ledger using the ICRC1 types as the mainnet ICP Ledger supports the ICRC1 standard.
 
 ##### An Important Functionality Implication     
 
