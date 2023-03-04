@@ -1,4 +1,4 @@
-# Basic referral feature for IC Sustainations DAO
+# Basic referral feature for [IC Sustainations DAO](https://github.com/triipme/sustainations_dao)
 
 Welcome to our Basic referral feature for Sustainations DAO project and to the internet computer development community.
 
