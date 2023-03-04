@@ -1,0 +1,31 @@
+{
+  "canisters": {
+    "ledger": {
+      "type": "custom",
+      "candid": "src/ledger/ledger.did",
+      "wasm": "src/ledger/ledger.wasm"
+    },
+    "basic_referral": {
+      "main": "src/backend/main.mo",
+      "type": "motoko",
+      "dependencies": ["ledger"]
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": "vessel sources"
+    },
+    "replica": {
+      "subnet_type":"system"
+    }
+  },
+  "dfx": "0.12.0",
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8080",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
+}

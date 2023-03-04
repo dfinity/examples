@@ -1,0 +1,27 @@
+# Various IDEs and Editors
+.vscode/
+.idea/
+**/*~
+
+# Mac OSX temporary files
+.DS_Store
+**/.DS_Store
+
+# dfx temporary files
+.dfx/
+canister_ids.json
+.vessel/
+src/backend/env.mo
+
+# generated files
+src/declarations/
+
+# environment file
+src/backend/.env.mo
+
+# frontend code
+node_modules/
+dist/
+
+# genrated coed
+src/declarations
