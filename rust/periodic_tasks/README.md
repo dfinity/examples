@@ -206,7 +206,7 @@ Make sure the [Canister SDK](https://internetcomputer.org/docs/current/developer
    (4_545_326 : nat64)
    ```
 
-For periodic tasks with 10 sec interval the `heartbeat` canister uses *less* cycles than the `timer` canister.
+For periodic tasks with 1 sec interval the `heartbeat` canister uses *less* cycles than the `timer` canister.
 
 Despite the `heartbeat` uses less cycles in this case, this solution is hard to compose within a big project. If there are two libraries using heartbeats internally, they won't even compile together, as they both would be trying to export the global `canister_heartbeat`  method required for the heartbeats.
 
