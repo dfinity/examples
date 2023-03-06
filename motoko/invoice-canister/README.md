@@ -92,9 +92,7 @@ _For more details be sure to check out the introductory comment of [clean-startu
 
 To integrate the invoice canister in another project, review the [Design Doc](./docs/DesignDoc.md), [Invoice.mo](./src/invoice/Invoice.mo) and [SupportedToken.mo](./src/invoice/modules/supported-token/SupportedToken.mo). To summarize, both the `Invoice.mo` and `SupportedToken.mo` files need to be edited according to which tokens are to be supported. While this project uses four tokens, it may be easier to start from the `motoko-seller-client` example as only two tokens (one for ICP and one for ICRC1) are integrated in that project. To add support for an additional token, it can take as little as 15 minutes using this project's code as a reference to copy.
 
-The preliminary step is to determine which tokens are to be supported, as configuring a single invoice canister to support adding new ICRC1 tokens after it has already been deployed requires extra initial configuration of the `SupportedToken` variant's references (see "Future Proofing" near the end in the [Design Doc](./docs/DesignDoc.md) for more details). If only adding support for a fixed number of tokens, or deploying each invoice canister with only a fixed number of supported tokens, no additional configuration other than the following (for each token to support) is needed:
-
-The first step is adding an entry for a new tag in the `SupportedToken` variant found in [SupportedToken.mo](./src/invoice/modules/supported-token/SupportedToken.mo) at line 49. For example to add support for the ICRC1 ckTESTBTC token: 
+The preliminary step is to decide which tokens are to be supported by the operations of the Invoice Canister. For each token, choose the label or text to represent the token as a new tag in the `SupportedToken` variant found in [SupportedToken.mo](./src/invoice/modules/supported-token/SupportedToken.mo) at line 49. For example to add support for the ICRC1 ckTESTBTC token: 
 ```diff
 public type SupportedToken<T1, T2> = {
   // Other supported token tag entries.
