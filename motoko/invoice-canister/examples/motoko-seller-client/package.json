@@ -12,7 +12,6 @@
   "scripts": {
     "build": "webpack",
     "start": "webpack serve --mode development --env development",
-    "deploy": "dfx deploy invoice; dfx deploy seller; dfx deploy frontend",
     "generate": "dfx generate invoice; dfx generate seller"
   },
   "devDependencies": {
