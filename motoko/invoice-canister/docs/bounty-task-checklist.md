@@ -4,7 +4,7 @@
 
 They can be originally found at [BNT-2: Invoice Canister #2](https://github.com/dfinity/grant-rfps/issues/2).
 
-This was created to make it easier to know what needed to be done as to verify everything has been completed. It should probably be removed before merging. 
+This was created to make it easier to know what needed to be done as to verify everything has been completed.
 
 All the referenced line numbers should be correct to within one or two lines (some revisions were completed after this was "finally" drafted). 
 
