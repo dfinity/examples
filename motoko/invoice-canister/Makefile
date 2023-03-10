@@ -17,6 +17,7 @@ test:
 #npm run deployForTesting also runs dfx generate invoice
 #npm run test triggers `cd test/e2e; npm ci; npm test` which in turn triggers `vitest run`
 e2e:
+	npm ci
 	npm run deployForTesting
 	npm run test 
 
