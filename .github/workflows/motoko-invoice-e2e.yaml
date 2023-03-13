@@ -29,7 +29,7 @@ jobs:
           chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
           echo "$HOME/bin" >> $GITHUB_PATH
           popd
-      - name: Motoko Invoice Canister Darwin
+      - name: Set configured networks.json 
         run: |
           cat > ~/.config/dfx/networks.json << EOF
           {
@@ -42,10 +42,14 @@ jobs:
             }
           }
           EOF
+      - name: Motoko Invoice Canister Darwin
+        run: |
           pushd motoko/invoice-canister
           make e2e
           dfx stop
           popd
+      - name: Remove networks.json
+        run: rm ~/.config/dfx/networks.json
   motoko-invoice-canister-linux:
     runs-on: ubuntu-20.04
     steps:
@@ -62,7 +66,7 @@ jobs:
           chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
           echo "$HOME/bin" >> $GITHUB_PATH
           popd
-      - name: Motoko Invoice Canister Linux
+      - name: Set configured networks.json 
         run: |
           cat > ~/.config/dfx/networks.json << EOF
           {
@@ -75,7 +79,11 @@ jobs:
             }
           }
           EOF
+      - name: Motoko Invoice Canister Linux
+        run: |
           pushd motoko/invoice-canister
           make e2e
           dfx stop
           popd
+      - name: Remove networks.json 
+        run: rm ~/.config/dfx/networks.json
