@@ -1,12 +1,13 @@
 {
-  "name": "frontend_assets",
-  "version": "0.1.0",
-  "description": "Internet Computer starter application",
+  "name": "motoko_seller_client",
+  "version": "2.0.0",
+  "description": "an example of showing how to use the invoice canister to provide licensing powered by the Internet Computer",
   "keywords": [
     "Internet Computer",
     "Motoko",
     "JavaScript",
-    "Canister"
+    "Canister",
+    "Invoice"
   ],
   "scripts": {
     "build": "webpack",
@@ -14,24 +15,31 @@
     "generate": "dfx generate invoice; dfx generate seller"
   },
   "devDependencies": {
-    "@dfinity/agent": "0.10.3",
-    "@dfinity/candid": "0.10.3",
-    "@dfinity/principal": "0.10.3",
+    "@dfinity/agent": "^0.15.3",
+    "@dfinity/candid": "^0.15.3",
+    "@dfinity/identity": "^0.15.3",
+    "@dfinity/identity-secp256k1": "^0.15.3",
+    "@dfinity/principal": "^0.15.3",
     "assert": "2.0.0",
     "buffer": "6.0.3",
-    "copy-webpack-plugin": "^9.0.1",
-    "css-loader": "^6.6.0",
+    "copy-webpack-plugin": "^11.0.0",
+    "crypto-browserify": "^3.12.0",
+    "css-loader": "^6.7.3",
     "events": "3.3.0",
     "html-webpack-plugin": "5.5.0",
-    "process": "0.11.10",
+    "pem-file": "^1.0.1",
+    "process": "^0.11.10",
     "stream-browserify": "3.0.0",
     "style-loader": "^3.3.1",
-    "terser-webpack-plugin": "5.2.5",
-    "ts-loader": "^9.2.6",
+    "terser-webpack-plugin": "^5.3.3",
+    "ts-loader": "^9.4.2",
     "util": "0.12.4",
-    "webpack": "5.63.0",
-    "webpack-cli": "4.9.1",
-    "webpack-dev-server": "^4.4.0"
+    "webpack": "^5.73.0",
+    "webpack-cli": "^4.10.0",
+    "webpack-dev-server": "^4.8.1"
+  },
+  "engines": {
+    "node": "^12 || ^14 || ^16 || ^18"
   },
   "browserslist": [
     "last 2 chrome version",
@@ -40,11 +48,11 @@
     "last 2 edge version"
   ],
   "dependencies": {
-    "@adobe/react-spectrum": "^3.16.3",
-    "@dfinity/auth-client": "^0.10.3",
+    "@adobe/react-spectrum": "^3.24.1",
     "local-storage": "^2.0.0",
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2",
-    "styled-components": "^5.3.3"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-stately": "^3.20.0",
+    "styled-components": "^5.3.6"
   }
 }

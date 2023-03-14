@@ -1,24 +1,25 @@
-.PHONY: all
-all: test
+.PHONY: check docs test e2e 
 
-.PHONY: install
-.SILENT: install
-install: ./install-local.sh
+check:
+	find src -type f -name '*.mo' -print0 | xargs -0 $(shell vessel bin)/moc $(shell vessel sources) --check
 
-.PHONY: test
-.SILENT: test
-test: install
+all: check-strict docs test e2e
+
+check-strict:
+	find src -type f -name '*.mo' -print0 | xargs -0 $(shell vessel bin)/moc $(shell vessel sources) -Werror --check
+
+docs:
+	$(shell vessel bin)/mo-doc --output docs/generated
+
+test:
 	$(shell vessel bin)/moc -r $(shell vessel sources) -wasi-system-api test/unit/Test.mo
 
-.PHONY: clean
-.SILENT: clean
-clean:
-	rm -fr .dfx
-
+#npm run deployForTesting also runs dfx generate invoice
+#npm run test triggers `cd test/e2e; npm ci; npm test` which in turn triggers `vitest run`
 e2e:
-	./install-local.sh
 	npm ci
-	npm test
+	npm run deployForTesting
+	npm run test 
 
 watch:
 	while true; do \

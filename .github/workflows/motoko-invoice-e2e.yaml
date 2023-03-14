@@ -29,12 +29,27 @@ jobs:
           chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
           echo "$HOME/bin" >> $GITHUB_PATH
           popd
+      - name: Set configured networks.json 
+        run: |
+          cat > ~/.config/dfx/networks.json << EOF
+          {
+            "local": {
+              "bind": "127.0.0.1:8080",
+              "type": "ephemeral",
+              "replica": {
+                "subnet_type": "system"
+              }
+            }
+          }
+          EOF
       - name: Motoko Invoice Canister Darwin
         run: |
           pushd motoko/invoice-canister
           make e2e
           dfx stop
           popd
+      - name: Remove networks.json
+        run: rm ~/.config/dfx/networks.json
   motoko-invoice-canister-linux:
     runs-on: ubuntu-20.04
     steps:
@@ -51,9 +66,24 @@ jobs:
           chown -R "$(whoami)" $HOME/bin && chmod -R +x $HOME/bin
           echo "$HOME/bin" >> $GITHUB_PATH
           popd
+      - name: Set configured networks.json 
+        run: |
+          cat > ~/.config/dfx/networks.json << EOF
+          {
+            "local": {
+              "bind": "127.0.0.1:8080",
+              "type": "ephemeral",
+              "replica": {
+                "subnet_type": "system"
+              }
+            }
+          }
+          EOF
       - name: Motoko Invoice Canister Linux
         run: |
           pushd motoko/invoice-canister
           make e2e
           dfx stop
           popd
+      - name: Remove networks.json 
+        run: rm ~/.config/dfx/networks.json

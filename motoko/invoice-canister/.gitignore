@@ -89,3 +89,6 @@ dist
 .dfx
 test/_out
 .vessel
+
+/src/declarations/
+

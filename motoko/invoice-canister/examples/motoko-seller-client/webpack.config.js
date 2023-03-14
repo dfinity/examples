@@ -38,17 +38,18 @@ const canisterEnvVariables = initCanisterEnv();
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
-const frontendDirectory = "frontend_assets";
+const frontendDirectory = "frontend";
 
-const asset_entry = path.join("frontend", "src", "index.html");
+const frontend_entry = path.join("src", frontendDirectory, "src", "index.html");
 
 module.exports = {
+  
   target: "web",
   mode: isDevelopment ? "development" : "production",
   entry: {
     // The frontend.entrypoint points to the HTML file for this build, so we need
     // to replace the extension to `.js`.
-    index: path.join(__dirname, asset_entry).replace(/\.html$/, ".jsx"),
+    index: path.join(__dirname, frontend_entry).replace(/\.html$/, ".jsx"),
   },
   devtool: isDevelopment ? "source-map" : false,
   optimization: {
@@ -63,6 +64,8 @@ module.exports = {
       events: require.resolve("events/"),
       stream: require.resolve("stream-browserify/"),
       util: require.resolve("util/"),
+      "crypto": false,
+      "crypto-browserify":require.resolve('crypto-browserify')
     },
   },
   output: {
@@ -83,16 +86,8 @@ module.exports = {
   },
   plugins: [
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, asset_entry),
+      template: path.join(__dirname, frontend_entry),
       cache: false,
-    }),
-    new CopyPlugin({
-      patterns: [
-        {
-          from: path.join(__dirname, "frontend", "src", "assets"),
-          to: path.join(__dirname, "dist", frontendDirectory),
-        },
-      ],
     }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: "development",
@@ -100,19 +95,32 @@ module.exports = {
     }),
     new webpack.ProvidePlugin({
       Buffer: [require.resolve("buffer/"), "Buffer"],
+      process: require.resolve("process/browser"),
+    }),
+    new CopyPlugin({
+      patterns: [
+        {
+          from: `src/${frontendDirectory}/src/.ic-assets.json*`,
+          to: ".ic-assets.json5",
+          noErrorOnMissing: true
+        },
+      ],
     }),
   ],
-  // proxy /api to port 4943 during development
+  // proxy /api to port 8080 during development.
+  // currently the root invoice project uses dfx nns which requires the system wide network.json configuration to bind to port 8080
+  // if you edit dfx.json to define a project-specific local network, change the port to match.
   devServer: {
     proxy: {
       "/api": {
-        target: "http://localhost:4943",
+        target: "http://127.0.0.1:8080",
         changeOrigin: true,
         pathRewrite: {
           "^/api": "/api",
         },
       },
     },
+    static: path.resolve(__dirname, "src", frontendDirectory, "assets"),
     hot: true,
     watchFiles: [path.resolve(__dirname, "src", frontendDirectory)],
     liveReload: true,
