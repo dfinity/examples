@@ -7,7 +7,7 @@
     let _isAuthorized = nftAgent.isAuthorized();
     async function getCommand() {
         const principal = await nftAgent.getPrincipal();
-        return `dfx canister --no-wallet${nftAgent.isMainnet() ? ' --network ic' : ''} call '${nftAgent.getCanisterId()}' set_authorized '(principal "${principal}", true)'`;
+        return `dfx canister ${nftAgent.isMainnet() ? ' --network ic' : ''} call '${nftAgent.getCanisterId()}' set_authorized '(principal "${principal}", true)'`;
     }
     function retry() {
         _isAuthenticated = nftAgent.isAuthenticated();
