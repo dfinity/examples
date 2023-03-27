@@ -14,7 +14,7 @@ PATH="$PATH:$PWD/target/bin"
 if ! command -v icx-asset &> /dev/null ; then
     echo 'icx-asset is not installed; installing it locally. Install it globally to skip this step'
     echo 'This may take a while'
-    cargo install --root target icx-asset --version 0.12.1 2> /dev/null
+    cargo install --root target icx-asset --version 0.20.0 2> /dev/null
 fi
 identity=$(dfx identity whoami)
 pemfile="$HOME/.config/dfx/identity/${identity:-default}/identity.pem"
