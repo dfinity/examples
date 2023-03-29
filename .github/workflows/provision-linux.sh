@@ -6,7 +6,7 @@ set -ex
 pushd /tmp
 
 # Install Node.
-wget --output-document install-node.sh "https://deb.nodesource.com/setup_14.x"
+wget --output-document install-node.sh "https://deb.nodesource.com/setup_16.x"
 sudo bash install-node.sh
 sudo apt-get install --yes nodejs
 rm install-node.sh
