@@ -91,7 +91,7 @@ To do so we make an environment variable `II_URL` available using `webpack`.
 1. Move the `const network` variable outside the function `initCanisterEnv` to make it accessible in the whole file
 2. Define the Internet Identity URL:
    ```
-   const internetIdentityUrl = network === "local" ? `http://localhost:4943/?canisterId=${canisterEnvVariables["INTERNET_IDENTITY_CANISTER_ID"]}` : `https://identity.ic0.app
+   const internetIdentityUrl = network === "local" ? `http://localhost:4943/?canisterId=${canisterEnvVariables["INTERNET_IDENTITY_CANISTER_ID"]}` : `https://identity.ic0.app`
    ```
 3. Add the URL to the environment variables:
    ```js
