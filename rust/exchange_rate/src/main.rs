@@ -246,11 +246,6 @@ fn keep_bucket_start_time_and_closing_price(body: &[u8], context: &Vec<u8>) -> V
     let rates_array: Vec<Vec<Value>> = serde_json::from_slice(body).unwrap();
     let bucket_start_time_index = context[0] as usize;
     let closing_price_index = context[1] as usize;
-    ic_cdk::api::print(format!(
-        "TEST: {} {}",
-        bucket_start_time_index,
-        closing_price_index
-    ));
     let mut res = vec![];
     for rate in rates_array {
         let bucket_start_time = rate[bucket_start_time_index].as_u64().expect("Couldn't parse the time.");
