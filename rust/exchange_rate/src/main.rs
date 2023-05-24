@@ -203,12 +203,15 @@ async fn get_rate(job: Timestamp) {
     ic_cdk::api::print(url.clone());
 
     ic_cdk::api::print(format!("Making IC http_request call {} now.", job));
+
+    let bucket_start_time_index = 0;
+    let closing_price_index = 4;
     let request = CanisterHttpRequestArgument {
         url: url,
         method: HttpMethod::GET,
         body: None,
         max_response_bytes: Some(MAX_RESPONSE_BYTES),
-        transform: Some(TransformContext::new(transform, vec![])),
+        transform: Some(TransformContext::new(transform, vec![bucket_start_time_index, closing_price_index])),
         headers: request_headers,
     };
     match http_request(request).await {
@@ -238,13 +241,20 @@ async fn get_rate(job: Timestamp) {
     }
 }
 
-fn keep_bucket_start_time_and_closing_price(body: &[u8]) -> Vec<u8> {
+fn keep_bucket_start_time_and_closing_price(body: &[u8], context: &Vec<u8>) -> Vec<u8> {
     //ic_cdk::api::print(format!("Got decoded result: {}", body));
     let rates_array: Vec<Vec<Value>> = serde_json::from_slice(body).unwrap();
+    let bucket_start_time_index = context[0] as usize;
+    let closing_price_index = context[1] as usize;
+    ic_cdk::api::print(format!(
+        "TEST: {} {}",
+        bucket_start_time_index,
+        closing_price_index
+    ));
     let mut res = vec![];
     for rate in rates_array {
-        let bucket_start_time = rate[0].as_u64().expect("Couldn't parse the time.");
-        let closing_price = rate[4].as_f64().expect("Couldn't parse the rate.");
+        let bucket_start_time = rate[bucket_start_time_index].as_u64().expect("Couldn't parse the time.");
+        let closing_price = rate[closing_price_index].as_f64().expect("Couldn't parse the rate.");
         res.append(
             &mut format!("{} {}\n", bucket_start_time, closing_price)
                 .as_bytes()
@@ -262,7 +272,7 @@ fn transform(raw: TransformArgs) -> HttpResponse {
         ..Default::default()
     };
     if res.status == 200 {
-        res.body = keep_bucket_start_time_and_closing_price(&raw.response.body)
+        res.body = keep_bucket_start_time_and_closing_price(&raw.response.body, &raw.context)
     } else {
         ic_cdk::api::print(format!("Received an error from coinbase: err = {:?}", raw));
     }
