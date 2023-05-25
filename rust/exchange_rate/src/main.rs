@@ -43,7 +43,8 @@ pub const MAX_RESPONSE_BYTES: u64 = 10 * 6 * DATA_POINTS_PER_API;
 
 #[derive(Serialize, Deserialize)]
 struct Context {
-    indexes: Vec<u8>,
+    bucket_start_time_index: usize,
+    closing_price_index: usize,
 }
 
 thread_local! {
@@ -210,10 +211,9 @@ async fn get_rate(job: Timestamp) {
 
     ic_cdk::api::print(format!("Making IC http_request call {} now.", job));
 
-    let bucket_start_time_index = 0;
-    let closing_price_index = 4;
     let context = Context {
-        indexes: vec![bucket_start_time_index, closing_price_index]
+        bucket_start_time_index: 0,
+        closing_price_index: 4,
     };
     let request = CanisterHttpRequestArgument {
         url: url,
@@ -255,12 +255,10 @@ fn keep_bucket_start_time_and_closing_price(body: &[u8], context: &Vec<u8>) -> V
     let rates_array: Vec<Vec<Value>> = serde_json::from_slice(body).unwrap();
 
     let context: Context = serde_json::from_slice(context).unwrap();
-    let bucket_start_time_index = context.indexes[0] as usize;
-    let closing_price_index = context.indexes[1] as usize;
     let mut res = vec![];
     for rate in rates_array {
-        let bucket_start_time = rate[bucket_start_time_index].as_u64().expect("Couldn't parse the time.");
-        let closing_price = rate[closing_price_index].as_f64().expect("Couldn't parse the rate.");
+        let bucket_start_time = rate[context.bucket_start_time_index].as_u64().expect("Couldn't parse the time.");
+        let closing_price = rate[context.closing_price_index].as_f64().expect("Couldn't parse the rate.");
         res.append(
             &mut format!("{} {}\n", bucket_start_time, closing_price)
                 .as_bytes()
@@ -333,7 +331,8 @@ mod tests {
 ]
         ";
         let context = Context {
-            indexes: vec![0, 4],
+            bucket_start_time_index: 0,
+            closing_price_index: 4,
         };
         let serialized_context = serde_json::to_vec(&context).unwrap();
         let res = keep_bucket_start_time_and_closing_price(body.as_bytes(), &serialized_context);
