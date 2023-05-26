@@ -250,7 +250,7 @@ async fn get_rate(job: Timestamp) {
     }
 }
 
-fn keep_bucket_start_time_and_closing_price(body: &[u8], context: &Vec<u8>) -> Vec<u8> {
+fn keep_bucket_start_time_and_closing_price(body: &[u8], context: &[u8]) -> Vec<u8> {
     //ic_cdk::api::print(format!("Got decoded result: {}", body));
     let rates_array: Vec<Vec<Value>> = serde_json::from_slice(body).unwrap();
 
