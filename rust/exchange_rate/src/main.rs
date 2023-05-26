@@ -5,6 +5,7 @@ use ic_cdk::api::management_canister::http_request::{
 };
 use ic_cdk::storage;
 use ic_cdk_macros::{self, heartbeat, post_upgrade, pre_upgrade, query, update};
+use serde::{Serialize, Deserialize};
 use serde_json::{self, Value};
 use std::cell::RefCell;
 use std::collections::{HashMap, HashSet};
@@ -39,6 +40,12 @@ pub const DATA_POINTS_PER_API: u64 = 200;
 // Each field of this sub-arry takes less than 10 bytes. Then,
 // 10 (bytes per field) * 6 (fields per timestamp) * 200 (timestamps)
 pub const MAX_RESPONSE_BYTES: u64 = 10 * 6 * DATA_POINTS_PER_API;
+
+#[derive(Serialize, Deserialize)]
+struct Context {
+    bucket_start_time_index: usize,
+    closing_price_index: usize,
+}
 
 thread_local! {
     pub static FETCHED: RefCell<HashMap<Timestamp, Rate>>  = RefCell::new(HashMap::new());
@@ -203,12 +210,17 @@ async fn get_rate(job: Timestamp) {
     ic_cdk::api::print(url.clone());
 
     ic_cdk::api::print(format!("Making IC http_request call {} now.", job));
+
+    let context = Context {
+        bucket_start_time_index: 0,
+        closing_price_index: 4,
+    };
     let request = CanisterHttpRequestArgument {
         url: url,
         method: HttpMethod::GET,
         body: None,
         max_response_bytes: Some(MAX_RESPONSE_BYTES),
-        transform: Some(TransformContext::new(transform, vec![])),
+        transform: Some(TransformContext::new(transform, serde_json::to_vec(&context).unwrap())),
         headers: request_headers,
     };
     match http_request(request).await {
@@ -238,13 +250,15 @@ async fn get_rate(job: Timestamp) {
     }
 }
 
-fn keep_bucket_start_time_and_closing_price(body: &[u8]) -> Vec<u8> {
+fn keep_bucket_start_time_and_closing_price(body: &[u8], context: &[u8]) -> Vec<u8> {
     //ic_cdk::api::print(format!("Got decoded result: {}", body));
     let rates_array: Vec<Vec<Value>> = serde_json::from_slice(body).unwrap();
+
+    let context: Context = serde_json::from_slice(context).unwrap();
     let mut res = vec![];
     for rate in rates_array {
-        let bucket_start_time = rate[0].as_u64().expect("Couldn't parse the time.");
-        let closing_price = rate[4].as_f64().expect("Couldn't parse the rate.");
+        let bucket_start_time = rate[context.bucket_start_time_index].as_u64().expect("Couldn't parse the time.");
+        let closing_price = rate[context.closing_price_index].as_f64().expect("Couldn't parse the rate.");
         res.append(
             &mut format!("{} {}\n", bucket_start_time, closing_price)
                 .as_bytes()
@@ -262,7 +276,7 @@ fn transform(raw: TransformArgs) -> HttpResponse {
         ..Default::default()
     };
     if res.status == 200 {
-        res.body = keep_bucket_start_time_and_closing_price(&raw.response.body)
+        res.body = keep_bucket_start_time_and_closing_price(&raw.response.body, &raw.context)
     } else {
         ic_cdk::api::print(format!("Received an error from coinbase: err = {:?}", raw));
     }
@@ -316,7 +330,12 @@ mod tests {
     ]
 ]
         ";
-        let res = keep_bucket_start_time_and_closing_price(body.as_bytes());
+        let context = Context {
+            bucket_start_time_index: 0,
+            closing_price_index: 4,
+        };
+        let serialized_context = serde_json::to_vec(&context).unwrap();
+        let res = keep_bucket_start_time_and_closing_price(body.as_bytes(), &serialized_context);
         let expected = "1652454300 9.51\n1652454240 9.52\n1652454180 9.56\n";
         assert_eq!(res, expected.as_bytes().to_vec());
     }
