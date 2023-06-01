@@ -1,5 +1,5 @@
 [package]
-name = "data_patition"
+name = "data_partition"
 version = "1.0.0"
 edition = "2021"
 

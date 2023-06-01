@@ -7,7 +7,7 @@ const NUM_PARTITIONS: usize = 1;
 // Add canister IDs later
 // Maybe later, we could add partitions dynamically from the kv-frontend canister
 // We could add an explicit method to add more partitions.
-const CANISTER_IDS: [&str; NUM_PARTITIONS] = ["FILL_ME"];
+const CANISTER_IDS: [&str; NUM_PARTITIONS] = ["bkyz2-fmaaa-aaaaa-qaaaq-cai"];
 
 #[update]
 async fn put(key: u128, value: u128) -> Option<u128> {
@@ -36,5 +36,5 @@ async fn get(key: u128) -> Option<u128> {
 
 #[query]
 fn lookup(key: u128) -> u128 {
-    (key % NUM_PARTITIONS as u128)
+    key % NUM_PARTITIONS as u128
 }
