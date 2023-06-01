@@ -1,0 +1,13 @@
+[package]
+name = "kv_frontend"
+version = "1.0.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+path = "lib.rs"
+
+[dependencies]
+candid = "0.7.14"
+ic-cdk = "0.5.2"
+ic-cdk-macros = "0.5.2"

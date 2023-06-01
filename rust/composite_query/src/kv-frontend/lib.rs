@@ -1,0 +1,40 @@
+use ic_cdk::api::call::{call};
+use ic_cdk_macros::{query, update};
+use candid::Principal;
+
+const NUM_PARTITIONS: usize = 1;
+
+// Add canister IDs later
+// Maybe later, we could add partitions dynamically from the kv-frontend canister
+// We could add an explicit method to add more partitions.
+const CANISTER_IDS: [&str; NUM_PARTITIONS] = ["FILL_ME"];
+
+#[update]
+async fn put(key: u128, value: u128) -> Option<u128> {
+    let p: Principal = Principal::from_text(CANISTER_IDS[lookup(key)]).unwrap();
+    match call(p, "put", (key, value), ).await {
+        Ok(r) => {
+            let (res,): (Option<u128>,) = r;
+            res
+        },
+        Err(_) => None,
+    }
+}
+
+// Make this a composite query call later
+#[update]
+async fn get(key: u128) -> Option<u128> {
+    let p: Principal = Principal::from_text(CANISTER_IDS[lookup(key)]).unwrap();
+    match call(p, "get", (key, ), ).await {
+        Ok(r) => {
+            let (res,): (Option<u128>,) = r;
+            res
+        },
+        Err(_) => None,
+    }
+}
+
+#[query]
+fn lookup(key: u128) -> usize {
+    (key % NUM_PARTITIONS as u128) as usize
+}
