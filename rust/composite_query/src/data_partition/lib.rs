@@ -8,11 +8,11 @@ thread_local! {
 }
 
 #[update]
-fn insert(key: u128, value: u128) -> Option<u128> {
+fn put(key: u128, value: u128) -> Option<u128> {
     STORE.with(|store| store.borrow_mut().insert(key, value))
 }
 
 #[query]
-fn lookup(key: u128) -> Option<u128> {
+fn get(key: u128) -> Option<u128> {
     STORE.with(|store| store.borrow().get(&key))
 }
