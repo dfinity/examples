@@ -21,8 +21,7 @@ async fn put(key: u128, value: u128) -> Option<u128> {
     }
 }
 
-// Make this a composite query call later
-#[update]
+#[query(composite = true)]
 async fn get(key: u128) -> Option<u128> {
     let p: Principal = Principal::from_text(CANISTER_IDS[lookup(key) as usize]).unwrap();
     match call(p, "get", (key, ), ).await {
@@ -34,7 +33,19 @@ async fn get(key: u128) -> Option<u128> {
     }
 }
 
-#[query]
+#[update]
+async fn get_update(key: u128) -> Option<u128> {
+    let p: Principal = Principal::from_text(CANISTER_IDS[lookup(key) as usize]).unwrap();
+    match call(p, "get", (key, ), ).await {
+        Ok(r) => {
+            let (res,): (Option<u128>,) = r;
+            res
+        },
+        Err(_) => None,
+    }
+}
+
+#[query(composite = true)]
 fn lookup(key: u128) -> u128 {
     key % NUM_PARTITIONS as u128
 }
