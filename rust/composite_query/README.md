@@ -29,6 +29,12 @@ Of course, we can now overwrite it via the frontend:
 ```
 $ dfx canister call kv_frontend put '(1:nat, 1337:nat)'
 (opt (42 : nat))
-$ dfx canister call kv_frontend get '(1:nat)'
+$ time dfx canister call kv_frontend get '(1:nat)'
+(opt (1_337 : nat))
+```
+
+We can also query it via a (duplicate) method doing update calls
+```
+$ time dfx canister call kv_frontend get_update '(1:nat)'
 (opt (1_337 : nat))
 ```
