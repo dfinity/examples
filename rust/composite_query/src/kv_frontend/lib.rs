@@ -1,7 +1,7 @@
 use ic_cdk::api::call::{call};
 use ic_cdk::api::management_canister::main::{CreateCanisterArgument, create_canister, InstallCodeArgument, install_code, CanisterInstallMode};
 use ic_cdk::api::management_canister::provisional::CanisterSettings;
-use ic_cdk_macros::{query, update, init};
+use ic_cdk_macros::{query, update};
 use candid::Principal;
 
 use std::sync::Arc;
@@ -19,6 +19,17 @@ thread_local! {
 }
 #[update]
 async fn put(key: u128, value: u128) -> Option<u128> {
+
+    // Create partitions if they don't exist yet
+    if CANISTER_IDS.with(|canister_ids| {
+        let canister_ids = canister_ids.read().unwrap();
+        canister_ids.len() == 0
+    }) {
+        for _ in 0..NUM_PARTITIONS {
+            create_data_partition_canister_from_wasm().await;
+        }
+    }
+
     let canister_id = get_partition_for_key(key);
     match call(canister_id, "put", (key, value), ).await {
         Ok(r) => {
@@ -79,6 +90,8 @@ async fn create_data_partition_canister_from_wasm() {
     let canister_record = create_canister(create_args).await.unwrap();
     let canister_id = canister_record.0.canister_id;
 
+    ic_cdk::println!("Created canister {}", canister_id);
+
     let install_args = InstallCodeArgument {
         mode: CanisterInstallMode::Install,
         canister_id,
@@ -92,12 +105,4 @@ async fn create_data_partition_canister_from_wasm() {
         let mut canister_ids = canister_ids.write().unwrap();
         canister_ids.push(canister_id);
     });
-}
-
-#[update]
-async fn init() {
-    ic_cdk::print("Initializing kv_frontend");
-    for _ in 0..NUM_PARTITIONS {
-        create_data_partition_canister_from_wasm().await;
-    }
 }
