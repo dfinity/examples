@@ -1,42 +1,43 @@
-# Http Counter
+# HTTP counter
 
-The example demonstrates a counter application and an http interface. It is essentially an iteration on the [Counter canister](../Counter/README.md) which adds native HTTP interfaces.
+## Overview
 
-# Introduction
+The example demonstrates a counter dapp and an HTTP interface. It is essentially an iteration on the [counter canister](../Counter/README.md) which adds native HTTP interfaces.
 
-The application provides an interface that exposes the following methods:
+This sample dapp provides an interface that exposes the following methods:
 
 *  `http_request`, which can:
-    * `GET` some static `gzip`ed data if `gzip` is accepted
-    * `GET` the counter otherwise
-    * Refer `POST`s to call `http_request_update`
-    * Returns `400` all other requests
+    * `GET` some static `gzip`ed data if `gzip` is accepted.
+    * `GET` the counter otherwise.
+    * Refer `POST`s to call `http_request_update`.
+    * Returns `400` all other requests.
 * `http_request_update`, which can:
-    * `POST` to increment the counter
-        * returning some static `gzip`ed data if `gzip` is accepted
-        * otherwise returning the new counter value
-    * Returns `400` all other requests
+    * `POST` to increment the counter.
+        * returning some static `gzip`ed data if `gzip` is accepted.
+        * otherwise returning the new counter value.
+    * Returns `400` all other requests.
 
-## Security Considerations and Security Best Practices
 
-If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+## Prerequisites 
 
-For example, the following aspect is particularly relevant for this app:
-* [Use HTTP asset certification and avoid serving your dApp through raw.ic0.app](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#use-http-asset-certification-and-avoid-serving-your-dapp-through-rawic0app), in case the HTTP responses should come with authenticity guarantees.  
+This example requires an installation of:
 
-## Running the project locally
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 
-If you want to test your project locally, you can use the following commands:
+Begin by opening a terminal window.
 
-```bash
-# Starts the replica, running in the background
-dfx start --background
+### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-# Deploys your canisters to the replica and generates your candid interface
+`cd examples/motoko/http_counter`
+`dfx start --background`
+
+### Step 2: Deploy the canister:
+
+```
 dfx deploy
 ```
 
-Take note of canister id to form URLs at which the `http_counter` is accessible.
+### Step 3: Take note of canister ID to form URLs at which the `http_counter` is accessible.
 
 ```bash
 CANISTER_ID=$(dfx canister id http_counter)
@@ -46,7 +47,7 @@ echo "http://localhost:8000/?canisterId=$CANISTER_ID"
 echo "http://$CANISTER_ID.localhost:8000/"
 ```
 
-All functionality of the canister can be exercised with the following commands:
+### Step 4: All functionality of the canister can be exercised with the following commands:
 
 ```bash
 CANISTER_ID=$(dfx canister id http_counter)
@@ -63,3 +64,11 @@ curl -X POST "$CANISTER_ID.localhost:8000/" --resolve "$CANISTER_ID.localhost:80
 # Increment the counter and get the static gziped update content
 curl --compressed -X POST "$CANISTER_ID.localhost:8000/" --resolve "$CANISTER_ID.localhost:8000:127.0.0.1"
 ```
+
+
+## Security considerations and security best practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+
+For example, the following aspect is particularly relevant for this app:
+* [Use HTTP asset certification and avoid serving your dApp through raw.ic0.app](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#use-http-asset-certification-and-avoid-serving-your-dapp-through-rawic0app), in case the HTTP responses should come with authenticity guarantees.  

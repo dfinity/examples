@@ -3,59 +3,38 @@
 ![Compatibility](https://img.shields.io/badge/compatibility-0.6.25-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-echo-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-echo-example)
 
-This example demonstrates a simple echo effect, where an application sends back
-the data it receives.
+## Overview
+
+This example demonstrates a simple echo effect, where an application sends back the data it receives.
+
+This is a Motoko example that does not currently have a Rust variant. 
+
 
 ## Prerequisites
+This example requires an installation of:
 
-Verify the following before running this demo:
+- [x] Install the [IC SDK](../developer-docs/setup/install/index.mdx).
 
-*  You have downloaded and installed the [DFINITY Canister
-   SDK](https://sdk.dfinity.org).
+Begin by opening a terminal window.
 
-*  You have stopped any Internet Computer or other network process that would
-   create a port conflict on 8000.
+### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-## Security Considerations and Security Best Practices
+`cd examples/motoko/echo`
+`dfx start --background`
 
-If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+### Step 2: Deploy the canisters `Map` and `Test`:
 
-## Demo
+```
+dfx deploy
+```
 
-1. Start a local internet computer.
+### Step 3: Invoke the say method:
 
-   ```text
-   dfx start
-   ```
+`dfx canister call echo say '("This is a test.")'`
 
-1. Open a new terminal window.
 
-1. Reserve an identifier for your canister.
+The following output will be returned: 
 
-   ```text
-   dfx canister create echo
-   ```
-
-1. Build your canister.
-
-   ```text
-   dfx build
-   ```
-
-1. Deploy your canister.
-
-   ```text
-   dfx canister install echo
-   ```
-
-1. Invoke the `say` method.
-
-   ```text
-   dfx canister call echo say '("This is a test.")'
-   ```
-
-1. Observe the following result.
-
-   ```text
-   ("This is a test.")
-   ```
+```
+("This is a test.")
+```

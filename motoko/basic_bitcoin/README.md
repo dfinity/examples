@@ -7,20 +7,20 @@ This tutorial will walk you through how to deploy a sample [canister smart contr
 
 ## Architecture
 
-THis example internally leverages the [ECDSA API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-ecdsa_public_key)
+This example internally leverages the [ECDSA API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-ecdsa_public_key)
 and [Bitcoin API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin-api) of the Internet Computer.
 
 For deeper understanding of the ICP < > BTC integration, see the IC wiki article on [Bitcoin integration](https://wiki.internetcomputer.org/wiki/Bitcoin_Integration).
 
 ## Prerequisites
 
-* [x] Install the [IC SDK](../developer-docs/setup/install/index.mdx).
+* [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 
 ## Step 1: Building and deploying sample code
 
 ### Clone the smart contract
 
-This tutorial has the **same smart contract** written in different programming languages: in [Motoko](../developer-docs/backend/motoko/index.md) and [Rust](../developer-docs/backend/rust/index.md).
+This tutorial has the **same smart contract** written in different programming languages: in [Motoko](https://internetcomputer.org/docs/current/developer-docs/backend/motoko/index.md) and [Rust](https://internetcomputer.org/docs/current/developer-docs/backend/rust/index.md).
 
 You can clone and deploy either one, as they both function in the same way.
 
@@ -45,7 +45,7 @@ git submodule update --init --recursive
 
 ### Acquire cycles to deploy
 
-Deploying to the Internet Computer requires [cycles](../developer-docs/setup/cycles) (the equivalent of "gas" in other blockchains). You can get free cycles from the [cycles faucet](/developer-docs/setup/cycles/cycles-faucet.md).
+Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/setup/cycles) (the equivalent of "gas" in other blockchains). You can get free cycles from the [cycles faucet](https://internetcomputer.org/docs/current/developer-docs/setup/cycles/cycles-faucet.md).
 
 ### Deploy the smart contract to the Internet Computer
 
@@ -80,7 +80,7 @@ In the output above, to see the Candid Web UI for your bitcoin canister, you wou
 * `public_key`
 * `sign`
 
-![Candid web UI for bitcoin canister](_attachments/candid-web-ui-bitcoin-canister.webp)
+![Candid web UI for bitcoin canister](../../_attachments/candid-web-ui-bitcoin-canister.webp)
 
 ## Step 2: Generating a Bitcoin address
 
@@ -91,7 +91,7 @@ showcases how your canister can generate a [P2PKH address](https://en.bitcoin.it
 On the Candid UI of your canister, click the "Call" button under `get_p2pkh_address` to
 generate a P2PKH Bitcoin address:
 
-![Generating a P2PKH Bitcoin Address](_attachments/generate-ecdsa-key.png)
+![Generating a P2PKH Bitcoin Address](../../_attachments/generate-ecdsa-key.png)
 
 Or, if you prefer the command line:
 
@@ -114,11 +114,11 @@ to receive some bitcoin.
 
 Enter your address and click on "Send testnet Bitcoins". In the example below we will use bitcoin address `n31eU1K11m1r58aJMgTyxGonu7wSMoUYe7`, but you would use your own address. The canister will be receiving 0.011 test BTC on the Bitcoin Testnet.
 
-![Bitcoin Testnet Faucet](_attachments/bitcoin-testnet-faucet.png)
+![Bitcoin Testnet Faucet](../../_attachments/bitcoin-testnet-faucet.png)
 
 You should see something similar to this:
 
-![Bitcoin Testnet Faucet](_attachments/bitcoin-testnet-faucet-received.png)
+![Bitcoin Testnet Faucet](../../_attachments/bitcoin-testnet-faucet-received.png)
 
 
 Once the transaction has at least one confirmation, which can take a few minutes,
@@ -130,7 +130,7 @@ You can check a Bitcoin address's balance by using the `get_balance` endpoint on
 
 In the Candid UI, paste in your canister's address, and click on "Call":
 
-![Checking Bitcoin Balance](_attachments/bitcoin-received-funds.png)
+![Checking Bitcoin Balance](../../_attachments/bitcoin-received-funds.png)
 
 Alternatively, make the call using the command line. Be sure to replace `mheyfRsAQ1XrjtzjfU1cCH2B6G1KmNarNL` with your own generated P2PKH address:
 
@@ -145,7 +145,7 @@ You can send Bitcoin using the `send` endpoint on your canister.
 In the Candid UI, add a destination address and an amount to send. In the example
 below, we're sending 4'321 Satoshi (0.00004321 BTC) back to the testnet faucet.
 
-![Sending Bitcoin](_attachments/bitcoin-send-transaction.png)
+![Sending Bitcoin](../../_attachments/bitcoin-send-transaction.png)
 
 Via command line, the same call would look like this:
 
@@ -181,7 +181,7 @@ This example is extensively documented in the following tutorials:
 * [Deploying your first Bitcoin dapp](https://internetcomputer.org/docs/current/samples/deploying-your-first-bitcoin-dapp).
 * [Developing Bitcoin dapps locally](https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/local-development).
 
-## Security Considerations and Security Best Practices
+## Security considerations and security best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 

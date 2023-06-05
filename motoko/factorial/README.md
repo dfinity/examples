@@ -3,59 +3,41 @@
 ![Compatibility](https://img.shields.io/badge/compatibility-0.6.25-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-factorial-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-factorial-example)
 
-This example demonstrates a recursive mathematical function that calculates the
-product of all positive integers less than or equal to its input.
+## Overview
+
+This example demonstrates a recursive mathematical function that calculates the product of all positive integers less than or equal to its input.
+
+This is a Motoko example that does not currently have a Rust variant. 
+
 
 ## Prerequisites
+This example requires an installation of:
 
-Verify the following before running this demo:
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 
-*  You have downloaded and installed the [DFINITY Canister
-   SDK](https://sdk.dfinity.org).
+Begin by opening a terminal window.
 
-*  You have stopped any Internet Computer or other network process that would
-   create a port conflict on 8000.
+### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-## Security Considerations and Security Best Practices
+`cd examples/motoko/factorial`
+`dfx start --background`
 
-If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+### Step 2: Deploy the canister:
 
-## Demo
+```
+dfx deploy
+```
 
-1. Start a local internet computer.
+### Step 3: Calculate the factorial of 20:
 
-   ```text
-   dfx start
-   ```
+`dfx canister call factorial fac '(20)'`
 
-1. Open a new terminal window.
+The following output will be returned: 
 
-1. Reserve an identifier for your canister.
+```
+(2_432_902_008_176_640_000 : nat)
+```
 
-   ```text
-   dfx canister create factorial
-   ```
+## Security considerations and security best practices
 
-1. Build your canister.
-
-   ```text
-   dfx build
-   ```
-
-1. Deploy your canister.
-
-   ```text
-   dfx canister install factorial
-   ```
-
-1. Calculate the factorial of 20.
-
-   ```text
-   dfx canister call factorial fac '(20)'
-   ```
-
-1. Observe the following result.
-
-   ```text
-   (2_432_902_008_176_640_000)
-   ```
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.

@@ -1,81 +1,66 @@
-# IOS DApp integration
+# IOS integration
 
-This example project exists to showcase a possible solution for integrating a DApp hosted in the [Internet Computer](https://internetcomputer.org/) with multiple platforms, for this example we've created a native ios app.
+## Overview
+[IOS integration](https://github.com/dfinity/examples/tree/master/motoko/ios-notifications) is an experimental dapp with a native app integration that showcases a possible solution for integrating a dapp hosted in the Internet Computer with multiple platforms. For this example we've created an iOS app.
 
-## Table of contents
+We aimed to create an example of a simple integration of a dapp running purely on the IC and is using [Internet Identity](https://internetcomputer.org/docs/current/docs/current/references/ii-spec) with a native iOS application that can let the user have a native feel such as authenticating and receive push notifications.
 
-- [About](#about)
-    - [Demo](#demo)
-- [Development](#development)
-    - [Setting up for local development](#setting-up-for-local-development)
-- [Internet identity](#internet-identity)
-- [Notifications](#notifications)
-- [Secutiry considerations](#security-considerations)
-- [References](#references)
-- [Disclaimer](#disclaimer)
+## Architecture 
 
-## About
+The basic functionality of the IOS integration consists of four main components:
 
-The example dapp used for this example is hosted under [https://ptf55-faaaa-aaaag-qbd6q-cai.ic0.app](https://ptf55-faaaa-aaaag-qbd6q-cai.ic0.app) and has the following features:
+- First, we created a dapp that is integrated with [Internet Identity](https://internetcomputer.org/docs/current/docs/current/references/ii-spec) and has a basic routing functionality. While the user is not authenticated it can only see the login page and when authenticated can navigate between the about and home page.
 
-- Show's a login screen if the user is not authenticated with it's [internet identity](https://internetcomputer.org/docs/current/developer-docs/integrations/internet-identity/integrate-identity).
-- A user can authenticate with internet identity both within the browser or within the native ios app integration.
-- The app accepts multiple routes for navigation. We've only included a `home` page and `about` for this purpose.
-- A notification can be sent to the ios app that will load the specified `url` in the notification inside the app. 
+- Second, we created a new IOS native application that serves as a wrapper for the dapp and creates a native feel for the user.
 
-### Demo
+- Third, a proxy page was added in the dapp to enable the user to securely authenticate using [Internet Identity](https://internetcomputer.org/docs/current/docs/current/references/ii-spec) and keep the authenticated session in the webview until it expires, even when the user exits the app and re-opens it the session persists.
 
-https://user-images.githubusercontent.com/119848388/208689656-02a3e25e-260d-4c00-b2b0-553afa0fdfea.mov
+- Fourth, the dapp is configured to receive push notifications from the system and open a specified URL, this allows for notifications to be sent serving as a mechanism to deep link into a specific section of the dapp. 
 
-## Development
+## Prerequisites
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Install [Node.js](https://nodejs.org/en/download/).
+- [x] [xcode](https://apps.apple.com/us/app/xcode/id497799835).
 
-To get started, you might want to explore the project directory structure and the default [dfx configuration file](dapp-demo/dfx.json). Working with this project in your development environment will not affect any production deployment or identity tokens.
+### Step 1: Local development.
 
-To learn more before you start working with it, see the following documentation available online:
-
-- [Quick Start](https://internetcomputer.org/docs/current/developer-docs/ic-overview)
-- [Developer Tools](https://internetcomputer.org/tooling)
-- [Motoko Programming Language Guide](https://internetcomputer.org/docs/current/developer-docs/build/cdks/motoko-dfinity/motoko)
-
-### Setting up for local development
-
-Before you start make sure the requirements are meet.
-
-#### Requirements
-- [nodejs](https://nodejs.org/en/download/)
-- [xcode](https://apps.apple.com/us/app/xcode/id497799835)
-- [dfx](https://internetcomputer.org/docs/current/developer-docs/ic-overview)
-
-#### Local development
-
-To get started, start a local dfx development environment with the following steps:
+To get started, start a local `dfx` development environment with the following steps:
 
 ```bash
-cd dapp-demo
+cd examples/motoko/ios-notifications/dapp-demo
 dfx start --background --clean
-dfx deploy
 ```
 
-You can now access the app at `http://localhost:4943/?canisterId={YOUR_LOCAL_CANISTER_ID}`.
+### Step 2: Install the dependency packages:
 
-> `YOUR_LOCAL_CANISTER_ID` will be made available to you after `dfx deploy`
+`npm install`
 
-## Internet Identity
+### Step 3: Deploy your canisters:
 
-The integration of this dapp with the [internet identity](https://internetcomputer.org/docs/current/developer-docs/integrations/internet-identity/integrate-identity) enables authentication. 
+`dfx deploy`
 
-To support the IOS integration it uses the `delegation` and `key` made available in the browser IndexedDB. 
+### Step 4: Start the front-end:
+
+`npm start`
+
+You can now access the dapp at `http://localhost:4943/?canisterId={YOUR_LOCAL_CANISTER_ID}`.
+
+> `YOUR_LOCAL_CANISTER_ID` will be made available to you in the output of the `dfx deploy` command.
+
+### Step 5: Using Internet Identity.
+
+The integration of this dapp with the [Internet Identity](https://internetcomputer.org/docs/current/developer-docs/integrations/internet-identity/integrate-identity) enables authentication. To support the IOS integration,  it uses the `delegation` and `key` made available in the browser IndexedDB. 
 
 The steps for IOS authentication are:
 
-1. User clicks to authenticate (this triggers the window.open to be called)
-1. App intercepts the request and opens a new [ASWebAuthenticationSession](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession)
-    1. This show's a confirmation dialog, informing the user that the app would like to authenticate using the internet identity domain  
-1. After authentication happens a local callback that only happens inside the device with the [universal link](https://developer.apple.com/documentation/xcode/supporting-universal-links-in-your-app) is made
-1. App receives this callback and injects the `delegation` and `key` into the local [WKWebView](https://developer.apple.com/documentation/webkit/wkwebview) 
-1. The webview reloads and the user is now authenticated, since authentication uses indexeddb it continues to work after the user closes the app (expiration time of the session is kept, max is 30 days)
+1. User clicks to authenticate (this triggers the `window.open` to be called).
+2. The dapp intercepts the request and opens a new [ASWebAuthenticationSession](https://developer.apple.com/documentation/authenticationservices/aswebauthenticationsession).
+    - This show's a confirmation dialog, informing the user that the dapp would like to authenticate using the Internet Identity domain.
+3. After authentication happens, a local callback that only happens inside the device with the [universal link](https://developer.apple.com/documentation/xcode/supporting-universal-links-in-your-app) is made.
+4. The dapp receives this callback and injects the `delegation` and `key` into the local [WKWebView](https://developer.apple.com/documentation/webkit/wkwebview).
+5. The webview reloads and the user is now authenticated, since authentication uses IndexedDB, it continues to work after the user closes the dapp (expiration time of the session is kept, max is 30 days).
 
-**Example of how this can be handled:**
+#### An example of how this can be handled:
 
 ```ts
 async handleMultiPlatformLogin(): Promise<void> {
@@ -101,31 +86,29 @@ async handleMultiPlatformLogin(): Promise<void> {
 }
 ```
 
-## Notifications
+### Step 6: Notifications
 
-The ios app is prepared to receive notifications from remote APN servers. For the scope of this example we haven't setup our own notification server, instead, you can use the [send-notification.sh](send-notification.sh) script to trigger the notification with your own apple developer keys.
+The IOS app is prepared to receive notifications from remote APN servers. For the scope of this example we haven't setup our own notification server. Instead, you can use the `send-notification.sh` script to trigger the notification with your own apple developer keys.
 
 These are the steps to show an IOS notification:
 
-1. When the app starts we use UNUserNotificationCenter to request the user for push notification permissions 
-1. With granted permissions a request to register for remote notifications is made
-1. A device id is made available with the remote call
-    1. for development purposes we print this value to the xcode console
-1. Execute the [send-notification.sh](send-notification.sh) script with the correct env variables and the notification will appear in your device
-    1. A physical ios device is required for this step since the simulator can't register remotely
-1. By clicking the notification the app will open in the about page
+1. When the app starts we use UNUserNotificationCenter to request the user for push notification permissions.
+2. With granted permissions a request to register for remote notifications is made.
+3. A device ID is made available with the remote call.
+    - For development purposes we print this value to the xcode console.
+4. Execute the `send-notification.sh` script with the correct `env` variables and the notification will appear in your device.
+    - A physical IOS device is required for this step since the simulator can't register remotely.
+5. By clicking the notification the dapp will open in the about page.
 
 ## Security considerations
 
-1. When integrating with internet identity make sure to setup and use universal links, other forms of passing the delegation such as a custom app scheme is known to have security risks such as allowing others to impersonate your dapp.
-1. For this example we are generating the keypair in the native app but the private key is still available there since the signing of the request happens on the dapp, in your production application make sure this is generated by your native app and stored in a [secure enclave](https://developer.apple.com/documentation/security/certificate_key_and_trust_services/keys/protecting_keys_with_the_secure_enclave), and expose a `sign` method to the dapp through webkit, this will ensure that your dapp does not have access to your private key.
+- When integrating with Internet Identity make sure to setup and use universal links, other forms of passing the delegation such as a custom app scheme is known to have security risks such as allowing others to impersonate your dapp.
+-  For this example we are generating the keypair in the native app but the private key is still available there since the signing of the request happens on the dapp, in your production application make sure this is generated by your native app and stored in a [secure enclave](https://developer.apple.com/documentation/security/certificate_key_and_trust_services/keys/protecting_keys_with_the_secure_enclave), and expose a `sign` method to the dapp through webkit, this will ensure that your dapp does not have access to your private key.
 
 ## References
 
-For specific implementation details defer to:
+For further details, please refer to the [README file](https://github.com/dfinity/examples/blob/master/motoko/ios-notifications/README.md).
 
-- [Readme: dapp-demo](dapp-demo/README.md)
-- [Readme: ios-dapp-demo](ios-dapp-demo/README.md) 
 
 ## Disclaimer
 
@@ -134,4 +117,4 @@ This is an example dapp that demonstrates the potential of integrating a dapp wi
 Please be mindful when considering this code for production and be mindful of:
 
 1. The integration with II in this example is using a universal links which is known to be safer than custom app schemes that are not bound to the appID. To enable this in your production code you should look at setting up [universal links](https://developer.apple.com/documentation/xcode/supporting-universal-links-in-your-app).
-1. APN Certificate Key provided by apple needs to be safely stored to avoid a malicious actor from being able to send notitications to your app users.
+1. APN Certificate Key provided by apple needs to be safely stored to avoid a malicious actor from being able to send notifications to your app users.
