@@ -1,7 +1,15 @@
 # Installing
 
 ```
+cd rust/composite_query/src
 dfx start
+dfx canister create data_partition
+```
+
+Take not of the canister ID of the `data_partition` canister and put it in `kv_frontend/src/main.rs` file in constant `CANISTER_IDS`.
+
+```
+dfx canister create kv_frontend
 dfx build --all
 dfx canister install --all
 ```
