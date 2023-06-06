@@ -5,7 +5,7 @@ on:
       - master
   pull_request:
     paths:
-      - motoko/hello-world/**
+      - motoko/hello/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/motoko-hello-world-example.yaml
@@ -22,7 +22,7 @@ jobs:
       - name: Motoko Hello World Darwin
         run: |
           dfx start --background
-          pushd motoko/hello-world
+          pushd motoko/hello
           make test
           popd
   motoko-hello-world-example-linux:
