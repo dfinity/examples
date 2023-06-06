@@ -65,16 +65,20 @@ async fn get_update(key: u128) -> Option<u128> {
 }
 
 fn get_partition_for_key(key: u128) -> Principal {
-    let canister_id = CANISTER_IDS.with(|canister_id| {
-        let canister_id = canister_id.read().unwrap();
-        canister_id[lookup(key) as usize]
+    let canister_id = CANISTER_IDS.with(|canister_ids| {
+        let canister_ids = canister_ids.read().unwrap();
+        canister_ids[lookup(key).0 as usize]
     });
     canister_id
 }
 
 #[query(composite = true)]
-fn lookup(key: u128) -> u128 {
-    key % NUM_PARTITIONS as u128
+fn lookup(key: u128) -> (u128, String) {
+    let r = key % NUM_PARTITIONS as u128;
+    (r, CANISTER_IDS.with(|canister_ids| {
+        let canister_ids = canister_ids.read().unwrap();
+        canister_ids[r as usize].to_text()
+    }))
 }
 
 async fn create_data_partition_canister_from_wasm() {
