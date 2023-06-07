@@ -25,8 +25,10 @@ Begin by opening a terminal window.
 
 ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-`cd examples/motoko/simple-to-do`
-`dfx start --background`
+```
+cd examples/motoko/simple-to-do
+dfx start --background
+```
 
 ### Step 2: Deploy the canister:
 
@@ -60,11 +62,15 @@ ___TO-DOs___
 
 ### Step 6: Complete a to-do checklist item by invoking the completeTodo method:
 
-`dfx canister call simple_to_do completeTodo '(1)'`
+```
+dfx canister call simple_to_do completeTodo '(1)'
+```
 
 ### Step 7: Display the to-do checklist by invoking the showTodos method.
 
-`dfx canister call simple_to_do showTodos`
+```
+dfx canister call simple_to_do showTodos
+```
 
 ### Step 8: Verify the return value matches what you would expect.
 

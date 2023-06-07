@@ -54,8 +54,10 @@ Begin by opening a terminal window.
 
 ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-`cd examples/motoko/cert-var`
-`dfx start --background`
+```
+cd examples/motoko/cert-var
+dfx start --background
+```
 
 ### Step 2: Install the front-end dependencies:
 
@@ -227,12 +229,16 @@ app.listen(8000, function () {
 
 ### Step 7: Start a local web server that hosts the front-end.
 
-`npm start`
+```
+npm start
+```
 
 
 ### Step 8: Visit the frontend, and interact with the demo there:
 
-`http://localhost:8080/`
+```
+http://localhost:8080/
+```
 
 This should present an entry for "New value of variable", and a button to "Set and get!".
 

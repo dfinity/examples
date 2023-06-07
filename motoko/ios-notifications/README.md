@@ -33,15 +33,21 @@ dfx start --background --clean
 
 ### Step 2: Install the dependency packages:
 
-`npm install`
+```
+npm install
+```
 
 ### Step 3: Deploy your canisters:
 
-`dfx deploy`
+```
+dfx deploy
+```
 
 ### Step 4: Start the front-end:
 
-`npm start`
+```
+npm start
+```
 
 You can now access the dapp at `http://localhost:4943/?canisterId={YOUR_LOCAL_CANISTER_ID}`.
 

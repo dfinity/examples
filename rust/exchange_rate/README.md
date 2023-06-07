@@ -63,18 +63,27 @@ This sample dapp minimizes the total number of HTTPS outcalls at the cost of big
 
  ### Step 1: Clone the sample dapp's GitHub repo:
 
-`git clone https://github.com/dfinity/examples.git`
+```
+git clone https://github.com/dfinity/examples.git
+```
 
  ### Step 2: Navigate into the Rust example directory for this project:
 
-`cd examples/rust/exchange_rate`
+```
+cd examples/rust/exchange_rate
+```
 
  ### Step 3: Build the canister into Wasm:
 
-`cargo build --target wasm32-unknown-unknown --release`
+```
+cargo build --target wasm32-unknown-unknown --release
+```
 
  ### Step 4: Deploy the canister locally:
-`./deploy.sh local`
+ 
+```
+./deploy.sh local
+```
 
 The output of this script will resemble the following:
 

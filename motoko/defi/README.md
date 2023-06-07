@@ -107,9 +107,7 @@ or you can regenerate the URL "http://127.0.0.1:4943?canisterId=$(dfx canister i
 
 ## Step 2: To interact with the exchange, you can create a local Internet Identity by clicking the login button.
 
-:::caution
-This sample project uses a local test version of Internet Identity. **Do not** use your mainnet Internet Identity, and this testnet Internet Identity will not work on the mainnet.
-:::
+This sample project uses a local test version of Internet Identity. Do not use your mainnet Internet Identity, and this testnet Internet Identity will not work on the mainnet. 
 
 ![DEX II Login](../../_attachments/dex-ii.png)
 

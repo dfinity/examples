@@ -17,8 +17,10 @@ Begin by opening a terminal window.
 
 ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-`cd examples/rust/pub-sub`
-`dfx start --background`
+```
+cd examples/rust/pub-sub
+dfx start --background
+```
 
 ### Step 2: Deploy the canister:
 
@@ -28,15 +30,21 @@ dfx deploy
 
 ### Step 3: Subscribe to the "Apples" topic:
 
-`dfx canister call sub init '("Apples")'`
+```
+dfx canister call sub init '("Apples")'
+```
 
 ### Step 4: Publish to the "Apples" topic:
 
-`dfx canister call pub publish '(record { "topic" = "Apples"; "value" = 2 })'`
+```
+dfx canister call pub publish '(record { "topic" = "Apples"; "value" = 2 })'
+```
 
 ### Step 5: Receive your subscription:
 
-`dfx canister call sub getCount`
+```
+dfx canister call sub getCount
+```
 
 The output should resemble the following:
 

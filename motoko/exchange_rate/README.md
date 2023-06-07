@@ -58,14 +58,21 @@ This sample dapp minimizes the total number of HTTPS outcalls at the cost of big
 
  ### Step 1: Clone the sample dapp's GitHub repo:
 
-`git clone https://github.com/dfinity/examples.git`
+```
+git clone https://github.com/dfinity/examples.git
+```
 
  ### Step 2: Navigate into the Motoko example directory for this project:
 
-`cd examples/motoko/exchange_rate`
+```
+cd examples/motoko/exchange_rate
+```
 
  ### Step 3: Deploy the canister locally:
-`./deploy.sh local`
+
+```
+./deploy.sh local
+```
 
 The output of this script will resemble the following:
 

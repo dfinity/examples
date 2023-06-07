@@ -27,8 +27,10 @@ Begin by opening a terminal window.
 
 ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-`cd examples/motoko/life`
-`dfx start --background`
+```
+cd examples/motoko/life
+dfx start --background
+```
 
 ### Step 2: Deploy the canister:
 
@@ -40,7 +42,9 @@ The deployment step should report a canister id for the life_assets canister.
 
 Take note of the URL at which the life_assets is accessible using the command:
 
-`echo "http://127.0.0.1:4943/?canisterId=$(dfx canister id life_assets)"`
+```
+echo "http://127.0.0.1:4943/?canisterId=$(dfx canister id life_assets)"
+```
 
 ### Step 3: Open the frontend in your browser by clicking on the link returned in the output of the previous command.
 

@@ -1,5 +1,3 @@
-# Hello Example
-
 # Hello, world!
 
 ## Overview 
@@ -49,35 +47,49 @@ This example requires an installation of:
 
 If you haven't already, create a default project with the command:
 
-`dfx new --type=rust hello`
-`cd hello`
+```
+dfx new --type=rust hello
+cd hello
+```
 
  ### Step 2: Start a local canister execution environment:
 
-`dfx start --background`
+```
+dfx start --background
+```
 
  ### Step 3: Ensure that the required node modules are available in your project directory, if needed, by running the following command:
 
-`npm install`
+```
+npm install
+```
 
  ### Step 4: Register, build and deploy the project with the command:
 
-`dfx deploy`
-`npm start`
+```
+dfx deploy
+npm start
+```
 
  ### Step 5: Call the hello canister's greet function:
 
-`dfx canister call hello_backend greet everyone`
+```
+dfx canister call hello_backend greet everyone
+```
 
  ### Step 6: Observe the following result:
 
-`("Hello, everyone!")`
+```
+("Hello, everyone!")
+```
 
 The previous steps use dfx to directly call the function on the hello (backend) canister. To access the web user interface of the dapp, that is served by canister hello_assets, do the following:
 
  ### Step 7: Determine the URL of the hello_frontend asset canister.
 
-`echo "http://localhost:8000/?canisterId=$(dfx canister id hello_frontend)"`
+```
+echo "http://localhost:8000/?canisterId=$(dfx canister id hello_frontend)"
+```
 
  ### Step 8: Navigate to the URL in your browser.
 The browser should display a simple HTML page with a sample asset image file, an input field, and a button.

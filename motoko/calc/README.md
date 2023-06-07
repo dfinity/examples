@@ -1,9 +1,7 @@
-# Calc
+# Calculator 
 
 ![Compatibility](https://img.shields.io/badge/compatibility-0.6.25-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-calc-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-calc-example)
-
-# Calculator 
 
 ## Overview
 
@@ -29,12 +27,16 @@ Begin by opening a terminal window.
 
 ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-`cd examples/motoko/calc`
-`dfx start --background`
+```
+cd examples/motoko/calc
+dfx start --background
+```
 
 ### Step 2: Deploy the canister with the command:
 
-`dfx deploy`
+```
+dfx deploy
+```
 
 ### Step 3: Run a calculator function. For example, to multiple 2 by 3:
 

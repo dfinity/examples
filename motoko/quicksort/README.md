@@ -3,8 +3,6 @@
 ![Compatibility](https://img.shields.io/badge/compatibility-0.6.25-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-quicksort-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-quicksort-example)
 
-# Quick sort
-
 ## Overview
 This example implements the quick sort algorithm.
 
@@ -19,8 +17,10 @@ Begin by opening a terminal window.
 
 ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-`cd examples/motoko/quicksort`
-`dfx start --background`
+```
+cd examples/motoko/quicksort
+dfx start --background
+```
 
 ### Step 2: Deploy the canister:
 

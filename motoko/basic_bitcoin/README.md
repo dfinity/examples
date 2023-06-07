@@ -24,7 +24,7 @@ This tutorial has the **same smart contract** written in different programming l
 
 You can clone and deploy either one, as they both function in the same way.
 
-- **Option 1:** clone and build the smart contract in **Motoko**:
+To clone and build the smart contract in **Motoko**:
 
 ```bash
 git clone https://github.com/dfinity/examples
@@ -32,16 +32,6 @@ cd examples/motoko/basic_bitcoin
 git submodule update --init --recursive
 ```
 
-- **Option 2:** clone and build the smart contract in **Rust**:
-
-```bash
-git clone https://github.com/dfinity/examples
-cd examples/rust/basic_bitcoin
-git submodule update --init --recursive
-```
-
-
-**If you choose Rust and are using MacOS, you'll need to install Homebrew and run `brew install llvm` to be able to compile the example.**
 
 ### Acquire cycles to deploy
 

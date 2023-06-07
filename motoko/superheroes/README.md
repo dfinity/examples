@@ -18,12 +18,16 @@ Begin by opening a terminal window.
 
 ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-`cd examples/motoko/superheros`
-`dfx start --background`
+```
+cd examples/motoko/superheros
+dfx start --background
+```
 
 ### Step 2: Build the front-end of the application:
 
-`npm install` 
+```
+npm install
+``` 
 
 ### Step 3: Deploy the canister:
 
@@ -33,7 +37,9 @@ dfx deploy
 
 ### Step 4: Take note of the URL at which the canister is accessible.
 
-`echo "http://127.0.0.1:4943/?canisterId=$(dfx canister id www)"`
+```
+echo "http://127.0.0.1:4943/?canisterId=$(dfx canister id www)"
+```
 
 ### Step 5: Open the aforementioned URL in your web browser.
 You will see the following interface that you can interact with:

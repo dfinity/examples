@@ -28,8 +28,10 @@ Begin by opening a terminal window.
 
 ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-`cd examples/motoko/http_counter`
-`dfx start --background`
+```
+cd examples/motoko/http_counter
+dfx start --background
+```
 
 ### Step 2: Deploy the canister:
 
@@ -42,9 +44,9 @@ dfx deploy
 ```bash
 CANISTER_ID=$(dfx canister id http_counter)
 
-echo "http://localhost:8000/?canisterId=$CANISTER_ID"
+echo "http://localhost:4943/?canisterId=$CANISTER_ID"
 
-echo "http://$CANISTER_ID.localhost:8000/"
+echo "http://$CANISTER_ID.localhost:4943/"
 ```
 
 ### Step 4: All functionality of the canister can be exercised with the following commands:
@@ -53,16 +55,16 @@ echo "http://$CANISTER_ID.localhost:8000/"
 CANISTER_ID=$(dfx canister id http_counter)
 
 # Get the counter
-curl "$CANISTER_ID.localhost:8000/" --resolve "$CANISTER_ID.localhost:8000:127.0.0.1"
+curl "$CANISTER_ID.localhost:4943/" --resolve "$CANISTER_ID.localhost:4943:127.0.0.1"
 
 # Get the static gziped query content
-curl --compressed "$CANISTER_ID.localhost:8000/" --resolve "$CANISTER_ID.localhost:8000:127.0.0.1"
+curl --compressed "$CANISTER_ID.localhost:4943/" --resolve "$CANISTER_ID.localhost:4943:127.0.0.1"
 
 # Increment the counter
-curl -X POST "$CANISTER_ID.localhost:8000/" --resolve "$CANISTER_ID.localhost:8000:127.0.0.1"
+curl -X POST "$CANISTER_ID.localhost:4943/" --resolve "$CANISTER_ID.localhost:4943:127.0.0.1"
 
 # Increment the counter and get the static gziped update content
-curl --compressed -X POST "$CANISTER_ID.localhost:8000/" --resolve "$CANISTER_ID.localhost:8000:127.0.0.1"
+curl --compressed -X POST "$CANISTER_ID.localhost:4943/" --resolve "$CANISTER_ID.localhost:4943:127.0.0.1"
 ```
 
 

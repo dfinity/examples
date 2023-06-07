@@ -105,9 +105,7 @@ cd examples/motoko/dip-721-nft-container
 dfx start --background 
 ```
 
-:::info
-If this is not a new installation, you may need to run `start` with the `--clean` flag.
-:::
+**If this is not a new installation, you may need to run `start` with the `--clean` flag.**
 
 ```
 dfx start --clean --background
@@ -217,6 +215,7 @@ Transfer the NFT from from `ALICE` back to the default user.
 ```
 dfx canister call dip721_nft_container safeTransferFromDip721 "(principal\"$ALICE\", principal\"$(dfx identity get-principal)\", 0)"
 ```
+
 Note the second transfer works because the caller is in the list of custodians, i.e. the default user has admin rights to modify the NFT collection.
 
 ### Other methods
@@ -433,6 +432,6 @@ For example, the following aspects are particularly relevant for this app:
 * [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#use-a-decentralized-governance-system-like-sns-to-make-a-canister-have-a-decentralized-controller), since decentralizing control is a fundamental aspect when dealing with NFTs.
 
 ## Resources
-[Rust]: https://rustup.rs
-[DIP721]: https://github.com/Psychedelic/DIP721
-[mint]: https://github.com/dfinity/experimental-minting-tool
+[Rust](https://rustup.rs).
+[DIP721](https://github.com/Psychedelic/DIP721).
+[Minting tool](https://github.com/dfinity/experimental-minting-tool).

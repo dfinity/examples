@@ -117,20 +117,28 @@ Follow the steps below to deploy this sample project.
 
 ### Step 1. Navigate inside of the project's folder:
 
-`cd examples/motoko/encrypted-notes-dapp`
+```
+cd examples/motoko/encrypted-notes-dapp
+```
 
 or
 
-`cd examples/rust/encrypted-notes-dapp`
+```
+cd examples/rust/encrypted-notes-dapp
+```
 
 ### Step 2: Set an environmental variable reflecting which backend canister you'll be using:
 For Motoko deployment run:
 
-`export BUILD_ENV=motoko`
+```
+export BUILD_ENV=motoko
+```
 
 For Rust deployment run:
 
-`export BUILD_ENV=rust`
+```
+export BUILD_ENV=rust
+```
 
 **Building the Rust canister requires either the Rust toolchain installed on your system or Docker-backed deployment (see below).**
  
@@ -141,13 +149,18 @@ For Rust deployment run:
 
 - #### Step 1: Install and start Docker by following the instructions.
 - #### Step 2: For Motoko build/deployment set environmental variable:
-        export BUILD_ENV=motoko
+        
+```
+export BUILD_ENV=motoko
+```
 
 - #### Step 3: Run the following Bash script that builds a Docker image, compiles the canister, and deploys this dapp (all inside the Docker instance). 
 
 Execution can take a few minutes:
 
-`sh ./deploy_locally.sh`
+```
+sh ./deploy_locally.sh
+```
 
 
 **If this fails with "No such container", please ensure that the Docker daemon is running on your system.**
@@ -162,19 +175,27 @@ Execution can take a few minutes:
 ### Option 2: Manual deployment
 - #### Step 1: For Motoko deployment set environmental variable:
 
-`export BUILD_ENV=motoko`
+```
+export BUILD_ENV=motoko
+```
 
 - #### Step 2: To generate $BUILD_ENV-specific files (i.e., Motoko or Rust) run:
 
-`sh ./pre_deploy.sh`
+```
+sh ./pre_deploy.sh
+```
 
 - #### Step 3: Install `npm` packages from the project root:
 
-`npm install`
+```
+npm install
+```
 
 - #### Step 4: Start `dfx`:
 
-`dfx start`
+```
+dfx start
+```
 
 
 **If you see an error "Failed to set socket of tcp builder to 0.0.0.0:8000", make sure that the port 8000 is not occupied, e.g., by the previously run Docker command (you might want to stop the Docker daemon whatsoever for this step).**
@@ -185,36 +206,50 @@ Execution can take a few minutes:
 
 To install and deploy a canister run:
 
-`dfx deploy internet_identity --argument '(null)'`
+```
+dfx deploy internet_identity --argument '(null)'
+```
 
 - #### Step 6: To print the Internet Identity URL, run:
 
-`npm run print-dfx-ii`
+```
+npm run print-dfx-ii
+```
 
 Visit the URL from above and create at least one local Internet Identity.
 
 - #### Step 7: Deploy the encrypted notes backend canister:
 
-`dfx deploy "encrypted_notes_$BUILD_ENV"`
+```
+dfx deploy "encrypted_notes_$BUILD_ENV"
+```
 
 **If you are deploying the Rust canister, you should first run `rustup target add wasm32-unknown-unknown`.**
 
 - #### Step 8: Update the generated canister interface bindings:
 
-`dfx generate "encrypted_notes_$BUILD_ENV"`
+```
+dfx generate "encrypted_notes_$BUILD_ENV"
+```
 
 - #### Step 9: Deploy the frontend canister.
 To install and deploy the canister run:
 
-`dfx deploy www`
+```
+dfx deploy www
+```
 
 - #### Step 10: To print the frontend canister's URL, run:
 
-`npm run print-dfx-www`
+```
+npm run print-dfx-www
+```
 
 Visit the URL from above in a web browser. To run the frontend with hot-reloading on `http://localhost:3000/`, run:
 
-`npm run dev`
+```
+npm run dev
+```
 
 
 **If you have opened this page previously, please remove all local store data for this page from your web browser, and hard-reload the page. For example in Chrome, go to Inspect → Application → Local Storage → http://localhost:3000/ → Clear All, and then reload.**
@@ -263,16 +298,18 @@ For example, the following aspects are particularly relevant for this app:
 ## Deployment
 ### Selecting backend canister deployment option
 * For **Motoko** deployment run:
-  ```sh
-  export BUILD_ENV=motoko
-  ```
+
+```sh
+export BUILD_ENV=motoko
+```
 
 * For **Rust** deployment run:
-  ```sh
-  export BUILD_ENV=rust
-  ```
 
-   _Note_: Building the Rust canister requires either the Rust toolchain installed on your system or Docker-backed deployment (see below). 
+```sh
+export BUILD_ENV=rust
+```
+
+**Note:** Building the Rust canister requires either the Rust toolchain installed on your system or Docker-backed deployment (see below). 
 
 ---
 &nbsp;
@@ -280,7 +317,7 @@ For example, the following aspects are particularly relevant for this app:
 ### Local deployment
 #### Option 1: Docker deployment
 
-_Note_: this option does not yet work on Apple M1; the combination of [DFX](https://smartcontracts.org/docs/developers-guide/cli-reference/dfx-parent.html) and Docker do not currently support the required architecture.
+**Note:** this option does not yet work on Apple M1; the combination of [DFX](https://smartcontracts.org/docs/developers-guide/cli-reference/dfx-parent.html) and Docker do not currently support the required architecture.
 
 1. Install and start Docker by following the [instructions](https://docs.docker.com/get-docker/).
 2. For **Motoko** build/deployment set environmental variable:
@@ -367,7 +404,7 @@ _Note_: this option does not yet work on Apple M1; the combination of [DFX](http
 &nbsp;
 
 ### Mainnet deployment
-_Note_: Prior to starting the mainnet deployment process, ensure you have your identities and wallets set up for controlling the canisters correctly. This guide assumes that this work has been done in advance. [More info here](https://smartcontracts.org/docs/developers-guide/cli-reference/dfx-identity.html).
+**Note:** Prior to starting the mainnet deployment process, ensure you have your identities and wallets set up for controlling the canisters correctly. This guide assumes that this work has been done in advance. [More info here](https://smartcontracts.org/docs/developers-guide/cli-reference/dfx-identity.html).
 
 1. Create the canisters:
    ```sh
@@ -409,7 +446,7 @@ Fig. 2. Basic single-device scenario for a user.
 
    At this moment, only one _deviceAlias_ variable is stored in the _Local Storage_ (see Fig. 2(a)).
 
-   _Note_: see [Troubleshooting](#troubleshooting) in case of problems.
+   **Note:** see [Troubleshooting](#troubleshooting) in case of problems.
 
 2. Click the "Login" button. You will be redirected to the _Internet Identity_ canister (see Fig. 2(b)).
 

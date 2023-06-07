@@ -19,8 +19,10 @@ This example requires an installation of:
 
 ### Step 1: Create a new `dfx` project and navigate into the project's directory.
 
-`dfx new ledger_transfer`
-`cd ledger_transfer`
+```
+dfx new ledger_transfer
+cd ledger_transfer
+```
 
 ### Step 2: Download a pre-built ledger canister module and Candid interface files:
 
@@ -87,7 +89,9 @@ This download should result in 3 files:
 
 ### Step 5: Start a local replica:
 
-`dfx start --background`
+```
+dfx start --background
+```
 
 ### Step 6: Create a new identity that will work as a minting account:
 

@@ -3,15 +3,13 @@
 ![Compatibility](https://img.shields.io/badge/compatibility-0.7.0-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-random_maze-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-random_maze-example)
 
-# Random maze
-
 ## Overview
 
 The example generates a random maze using cryptographic randomness.
 
 It illustrates:
 
-- Importing library Random to use cryptographic randomness.
+- Importing library `Random` to use cryptographic randomness.
 - Make asynchronous requests for entropy using shared function `Random.blob()`.
 - Generating bounded, discrete random numbers using helper class `Random.Finite(entropy: blob)`. Each instance, f, of this class consumes its initially supplied entropy as it is called to sample from various distributions. Calls to, for example `f.coin()` can fail by returning `null`, requiring `f` to be discarded in favour of a fresh instance of the Finite class, constructed from a fresh blob of entropy obtained from a new call to `Random.blob()` (for example `f := Finite(await Random.blob())`).
 
@@ -34,12 +32,16 @@ Begin by opening a terminal window.
 
 ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-`cd examples/motoko/random_maze`
-`dfx start --background`
+```
+cd examples/motoko/random_maze
+dfx start --background
+```
 
 ### Step 2: Install front-end dependencies:
 
-`npm install`
+```
+npm install
+```
 
 ### Step 3: Deploy the canister:
 
@@ -49,7 +51,9 @@ dfx deploy
 
 ### Step 4: Take note of the URL at which the user interface is accessible.
 
-`echo "http://127.0.0.1:4943/?canisterId=$(dfx canister id random_maze_assets)"`
+```
+echo "http://127.0.0.1:4943/?canisterId=$(dfx canister id random_maze_assets)"
+```
 
 ![Maze interface](../../_attachments/maze1.png)
 

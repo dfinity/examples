@@ -32,12 +32,16 @@ Begin by opening a terminal window.
 
 * #### Step 1: Build the `basic_dao` canister:
 
-`make clean; make`
+```
+make clean; make
+```
 
  ### Step 2: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-`cd basic_dao`
-`dfx start --background`
+```
+cd basic_dao
+dfx start --background
+```
 
  ### Step 3: Create test identities with the commands:
 
@@ -63,7 +67,9 @@ dfx deploy --argument "(record {
 
  ### Step 5: List accounts and confirm you see the two test accounts:
 
-`dfx canister call basic_dao list_accounts '()'`
+```
+dfx canister call basic_dao list_accounts '()'
+```
 
 Output:
 
@@ -84,15 +90,21 @@ Output:
 
  ### Step 6: Call `account_balance` as Bob:
 
-`dfx canister call basic_dao account_balance '()'`
+```
+dfx canister call basic_dao account_balance '()'
+```
 
 You should see the output:
 
-`(record { amount_e8s = 100_000_000 : nat64 })`
+```
+(record { amount_e8s = 100_000_000 : nat64 })
+```
 
  ### Step 7: Transfer tokens to Alice:
 
-`dfx canister call basic_dao transfer "(record { to = principal \"$ALICE\"; amount = record { amount_e8s = 90_000_000:nat;};})";`
+```
+dfx canister call basic_dao transfer "(record { to = principal \"$ALICE\"; amount = record { amount_e8s = 90_000_000:nat;};})";
+```
 
 Output:
 
@@ -100,7 +112,9 @@ Output:
 
  ### Step 8: List accounts and see that the transfer was made:
 
-`dfx canister call basic_dao list_accounts '()'`
+```
+dfx canister call basic_dao list_accounts '()'
+```
 
 Output:
 
@@ -125,7 +139,9 @@ Note that the transfer fee was deducted from Bob's account.
 
  ### Step 9: Let's make a proposal to change the transfer fee. We can call `get_system_params` to learn the current transfer fee:
 
-`dfx canister call basic_dao get_system_params '()';`
+```
+dfx canister call basic_dao get_system_params '()';
+```
 
 Output:
 
@@ -167,41 +183,59 @@ message = blob "DIDL\03l\01\f2\c7\94\ae\03\01n\02l\01\b9\ef\93\80\08x\01\00\01 N
 
 Note the output proposal ID:
 
-`(variant { Ok = 0 : nat64 })`
+```
+(variant { Ok = 0 : nat64 })
+```
 
  ### Step 11: Confirm the proposal was created:
 
-`dfx canister call basic_dao get_proposal '(0:nat64)'`
+```
+dfx canister call basic_dao get_proposal '(0:nat64)'
+```
 
 You should see `state = variant { Open };` in the output.
 
  ### Step 12: Vote on the proposal:
 
-`dfx canister call basic_dao vote '(record { proposal_id = 0:nat64; vote = variant { Yes };})'`
+```
+dfx canister call basic_dao vote '(record { proposal_id = 0:nat64; vote = variant { Yes };})'
+```
 
 You should see the following output:
 
-`(variant { Ok = variant { Open } })`
+```
+(variant { Ok = variant { Open } })
+```
 
 Because we voted as Bob, and Bob does not have enough voting power to pass proposals, the proposal remains Open. To get the proposal accepted, we can vote with Alice:
 
-`dfx identity use Alice; dfx canister call basic_dao vote '(record { proposal_id = 0:nat64; vote = variant { Yes };})';`
+```
+dfx identity use Alice; dfx canister call basic_dao vote '(record { proposal_id = 0:nat64; vote = variant { Yes };})';
+```
 
 You should see the following output:
 
-`(variant { Ok = variant { Accepted } })`
+```
+(variant { Ok = variant { Accepted } })
+```
 
 Query the proposal again:
 
-`dfx canister call basic_dao get_proposal '(0:nat64)'`
+```
+dfx canister call basic_dao get_proposal '(0:nat64)'
+```
 
 And see that the state is `Succeeded`:
 
-`state = variant { Succeeded };`
+```
+state = variant { Succeeded };
+```
 
 Query the system params again and see that transfer_fee has been updated:
 
-`dfx canister call basic_dao get_system_params '()'`
+```
+dfx canister call basic_dao get_system_params '()'
+```
 
 Output:
 

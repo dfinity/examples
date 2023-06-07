@@ -22,8 +22,10 @@ This is a Motoko example that does not currently have a Rust variant.
 
 ### Step 1: Navigate into the examples folder for this sample and then generate a new project with `dfx new`:
 
-`cd examples/motoko/internet_identity_integration`
-`dfx new greet`
+```
+cd examples/motoko/internet_identity_integration
+dfx new greet
+```
 
 
 You should have a starter project generated with the following file structure:
@@ -232,7 +234,9 @@ module.exports = {
 ### Step 5: Add the auth-client library to the front-end.
 The auth-client is a library provided by DFINITY to make integration with Internet Identity easy. Run:
 
-`npm install @dfinity/auth-client @dfinity/identity --save-dev`
+```
+npm install @dfinity/auth-client @dfinity/identity --save-dev
+```
 
 ### Step 6: Add a login button to the front-end.
 Open the `index.html` file and replace the content with the following:

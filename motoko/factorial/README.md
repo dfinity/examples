@@ -19,8 +19,10 @@ Begin by opening a terminal window.
 
 ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-`cd examples/motoko/factorial`
-`dfx start --background`
+```
+cd examples/motoko/factorial
+dfx start --background
+```
 
 ### Step 2: Deploy the canister:
 
@@ -30,7 +32,9 @@ dfx deploy
 
 ### Step 3: Calculate the factorial of 20:
 
-`dfx canister call factorial fac '(20)'`
+```
+dfx canister call factorial fac '(20)'
+```
 
 The following output will be returned: 
 

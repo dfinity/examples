@@ -117,20 +117,28 @@ Follow the steps below to deploy this sample project.
 
 ### Step 1. Navigate inside of the project's folder:
 
-`cd examples/motoko/encrypted-notes-dapp`
+```
+cd examples/motoko/encrypted-notes-dapp
+```
 
 or
 
-`cd examples/rust/encrypted-notes-dapp`
+```
+cd examples/rust/encrypted-notes-dapp
+```
 
 ### Step 2: Set an environmental variable reflecting which backend canister you'll be using:
 For Motoko deployment run:
 
-`export BUILD_ENV=motoko`
+```
+export BUILD_ENV=motoko
+```
 
 For Rust deployment run:
 
-`export BUILD_ENV=rust`
+```
+export BUILD_ENV=rust
+```
 
 **Building the Rust canister requires either the Rust toolchain installed on your system or Docker-backed deployment (see below).**
  
@@ -141,13 +149,18 @@ For Rust deployment run:
 
 - #### Step 1: Install and start Docker by following the instructions.
 - #### Step 2: For Motoko build/deployment set environmental variable:
-        export BUILD_ENV=motoko
+
+```
+export BUILD_ENV=motoko
+```
 
 - #### Step 3: Run the following Bash script that builds a Docker image, compiles the canister, and deploys this dapp (all inside the Docker instance). 
 
 Execution can take a few minutes:
 
-`sh ./deploy_locally.sh`
+```
+sh ./deploy_locally.sh
+```
 
 
 **If this fails with "No such container", please ensure that the Docker daemon is running on your system.**
@@ -162,19 +175,27 @@ Execution can take a few minutes:
 ### Option 2: Manual deployment
 - #### Step 1: For Motoko deployment set environmental variable:
 
-`export BUILD_ENV=motoko`
+```
+export BUILD_ENV=motoko
+```
 
 - #### Step 2: To generate $BUILD_ENV-specific files (i.e., Motoko or Rust) run:
 
-`sh ./pre_deploy.sh`
+```
+sh ./pre_deploy.sh
+```
 
 - #### Step 3: Install `npm` packages from the project root:
 
-`npm install`
+```
+npm install
+```
 
 - #### Step 4: Start `dfx`:
 
-`dfx start`
+```
+dfx start
+```
 
 
 **If you see an error "Failed to set socket of tcp builder to 0.0.0.0:8000", make sure that the port 8000 is not occupied, e.g., by the previously run Docker command (you might want to stop the Docker daemon whatsoever for this step).**
@@ -185,17 +206,23 @@ Execution can take a few minutes:
 
 To install and deploy a canister run:
 
-`dfx deploy internet_identity --argument '(null)'`
+```
+dfx deploy internet_identity --argument '(null)'
+```
 
 - #### Step 6: To print the Internet Identity URL, run:
 
-`npm run print-dfx-ii`
+```
+npm run print-dfx-ii
+```
 
 Visit the URL from above and create at least one local Internet Identity.
 
 - #### Step 7: Deploy the encrypted notes backend canister:
 
-`dfx deploy "encrypted_notes_$BUILD_ENV"`
+```
+dfx deploy "encrypted_notes_$BUILD_ENV"
+```
 
 **If you are deploying the Rust canister, you should first run `rustup target add wasm32-unknown-unknown`.**
 
@@ -457,20 +484,20 @@ You can also just deploy arbitrary binary targets as long as they're wasm binari
 `wasm`: a wasm file.
 `candid`: a candidfile representing all interfaces in the wasm file.
 
-_Note_: If there is a mismatch between "wasm" and "candid" interface definitions, your canister will not deploy.
+**Note**: If there is a mismatch between "wasm" and "candid" interface definitions, your canister will not deploy.
 
 ---
 &nbsp;
 
 ## Local memory model
 
-_Note_: This dapp uses the web browser's _Local Storage_ and _IndexedDB_ for storing the following data:
+**Note**: This dapp uses the web browser's **Local Storage** and **IndexedDB** for storing the following data:
 
 - Device name.
 - User identity info.
 - A private/public key pair.
 
-A symmetric key for encrypting/decrypting the notes is stored in RAM (this key is shared between multiple devices). For a better understanding of the mechanics of the dapp, please see the _Local Storage_/_IndexedDB_ windows in your web browser. In Chrome, go to: _Developer Tools→Application→Local Storage_/_IndexedDB_.
+A symmetric key for encrypting/decrypting the notes is stored in RAM (this key is shared between multiple devices). For a better understanding of the mechanics of the dapp, please see the **Local Storage**/**IndexedDB** windows in your web browser. In Chrome, go to: **Developer Tools→Application→Local Storage**/**IndexedDB**.
 
 ---
 &nbsp;
