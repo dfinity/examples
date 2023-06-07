@@ -12,8 +12,8 @@
     "build": "webpack",
     "prebuild": "npm run generate",
     "start": "webpack serve --mode development --env development",
-    "prestart": "npm run copy:types",
-    "generate": "dfx generate"
+    "prestart": "npm run generate",
+    "generate": "dfx generate minimal_dapp"
   },
   "devDependencies": {
     "@dfinity/agent": "0.15.1",
