@@ -1,189 +1,167 @@
-# Defi Example
+# Decentralized exchange (DEX) sample
 
-This repo contains a simple defi exchange that demonstrates the interaction with ICP and tokens on the IC. For a more detailed explanation check out the [architecture.md](architecture.md) file or visit the official [documentation]([https://internetcomputer.org/docs/current/samples/dex])
+## Overview
 
-This example can be seen running, here:
-- frontend: https://gzz56-daaaa-aaaal-qai2a-cai.ic0.app/
-- AkitaDIP20: `gl7kh-pqaaa-aaaal-qaiza-cai`
-- GoldenDIP20: `gm6mt-ciaaa-aaaal-qaizq-cai`
+To enable DeFi applications on the IC, canisters need to interact with token canisters and the ledger canister. This sample dapp illustrates how to facilitate these interactions. You can see a quick introduction on [YouTube](https://youtu.be/fLbaOmH24Gs).
 
-## Security Considerations and Security Best Practices
+The sample exchange is implemented in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/defi) and [Rust](https://github.com/dfinity/examples/tree/master/rust/defi) and can be seen [running on the IC](https://gzz56-daaaa-aaaal-qai2a-cai.ic0.app/).
 
-If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+## Architecture
 
-For example, the following aspects are particularly relevant for this app:
-* [Inter-Canister Calls and Rollbacks](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices/#inter-canister-calls-and-rollbacks), since issues around inter-canister calls can e.g. lead to time-of-check time-of-use or double spending security bugs. 
-* [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since this is essential when e.g. displaying important financial data in the frontend that may be used by users to decide on future transactions.
-* [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#use-a-decentralized-governance-system-like-sns-to-make-a-canister-have-a-decentralized-controller), since decentralizing control is a fundamental aspect of decentralized finance applications.
+The design of the IC allows for more complex on-chain computation. In combination with cheap storage, it is possible to have on-chain order books. This sample code takes advantage of these features and stores user balances and orders inside the exchange canister. The sample exchange functionality can be condensed into the following steps:
 
-## Dependencies
+-   Exchange takes custody of funds (different mechanism for tokens and ICP, see below).
 
-- [dfx](https://smartcontracts.org/docs/developers-guide/install-upgrade-remove.html)
-- [cmake](https://cmake.org/)
-- [npm](https://nodejs.org/en/download/)
+-   Exchange updates internal balance book.
 
-If you want to deploy the rust version, make sure you add wasm as a target:
+-   Users trade on exchange causing the exchange to update its internal balance book.
+
+-   Withdrawing funds from the exchange gives custody back to the user.
+
+### Interface
+
+Request user-specific ledger account identifier from the exchange. This unique account identifier represents a user-specific subaccount in the exchange’s ledger account, allowing it to differentiate between user deposits.
+
+    getDepositAddress: () -> (blob);
+
+Initiate user deposit to exchange. If the user wants to deposit ICP, the exchange moves the funds from the user-specific deposit address to its default subaddress and adjusts the user’s ICP balance on the DEX. If the user wants to deposit a DIP token, the exchange tries to move the approved funds to its token account and adjusts the user’s balance.
+
+    deposit: (Token) -> (DepositReceipt);
+
+Withdraw request to the exchange. The exchange will send funds back to the user if the user has a sufficient balance.
+
+    withdraw: (Token, nat, principal) -> (WithdrawReceipt);
+
+Place new order to exchange. If the order matches an existing order, it will get executed.
+
+    placeOrder: (Token, nat, Token, nat) -> (OrderPlacementReceipt);
+
+Allows the user to cancel submitted orders.
+
+    cancelOrder: (OrderId) -> (CancelOrderReceipt);
+
+Request user’s balance on exchange for a specific token.
+
+    getBalance: (Token) -> (nat) query;
+
+### Fee
+
+It is the responsibility of the exchange to subtract fees from the trades. This is important because the exchange must pay fees for withdrawals and internal transfers.
+
+## Token exchange walkthrough
+
+This section contains a detailed walkthrough of the core exchange functionalities. Most interactions require multiple steps and are simplified by using the provided frontend. Since the exchange canister functions are public, advanced users can use `dfx` to interact with the exchange.
+
+### Depositing ICP
+
+The ledger canister provides a unique interface so that interactions with ICP need to be resolved separately.
+
+-   The user calls the `getDepositAddress` function. The response contains a unique account identifier representing a user-specific subaccount controlled by the exchange. The exchange can identify the user responsible for deposits through this address.
+
+-   User transfers ICP to the fetched deposit address and waits for the transfer to complete.
+
+-   To notify the exchange, the user calls `deposit` with the ICP token principal. The exchange will look into the user’s subaccount and adjust the user’s balance on the exchange. In a second step, the exchange will transfer the funds from the user subaccount to its default subaccount, where the exchange keeps all of its ICP.
+
+### Depositing tokens
+
+There are a number of token standards in development (e.g. IS20, DFT, and DRC20); This sample uses DIP20.
+
+-   The user calls the `approve` function of the token canister. This gives the exchange the ability to transfer funds to itself on behalf of the user.
+
+-   Similar to the ICP depositing, the user calls the `deposit` function of the exchange. The exchange then transfers the approved token funds to itself and adjusts the user’s exchange balance.
+
+### Placing orders
+
+After depositing funds to the exchange, the user can place orders. An order consists of two tuples. `from: (Token1, amount1)` and `to: (Token2, amount2)`. These orders get added to the exchange. What happens to these orders is specific to the exchange implementation. This sample provides a simple exchange that only executes exactly matching orders. Be aware this is just a toy exchange, and the exchange functionality is just for completeness. 
+
+### Withdrawing funds
+
+Compared to depositing funds, withdrawing funds is simpler. Since the exchange has custody of the funds, the exchange will send funds back to the user on `withdraw` requests. The internal exchange balances are adjusted accordingly.
+
+## Prerequisites
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Download [cmake](https://cmake.org/).
+- [x] Download [npm](https://nodejs.org/en/download/).
+- [x] If you want to deploy the Rust version, make sure you add Wasm as a target:
+    `rustup target add wasm32-unknown-unknown`
+
+
+## Step 1: Download the project's GitHub repo and install the dependencies:
 
 ```
-rustup target add wasm32-unknown-unknown
-```
-## Quickstart
-
-This deploys a local ledger, two DIP20 Tokens, II, and our project.
-
-```bash
 git clone --recurse-submodules --shallow-submodules https://github.com/dfinity/examples.git
-# for the rust imeplementation examples/rust/defi
+# for the rust implementation examples/rust/defi
 cd examples/motoko/defi
 make install
 ```
 
-The install scripts output the URL to visit the exchange frontend, or you can regenerate the URL `"http://localhost:8000?canisterId=$(dfx canister id frontend)"`. To interact with the exchange, you can create a local internet identity by clicking the login button. 
-
-You can give yourself some tokens and ICP by running an initialization script with your II Principal that you can copy from the frontend. After adding balanced reload the frontend.
-
-```bash
-make init-local II_PRINCIPAL=<YOUR II PRINCIPAL>
-```
-
-To trade with yourself, you can open a second incognito browser window. 
-
-## Development
-
-We deploy the canisters to a *system* subnet by specifying
-```
-    "replica": {
-      "subnet_type": "system"
-    }
-```
-in the configuration file `dfx.json` because the size of the Wasm file for the ledger canister exceeds the limit of 2MiB for the default *application* subnet.
-
-Reinstall backend canister
-
-```bash
-dfx deploy defi_dapp -m reinstall --argument '(null)'
-```
-
-Local frontend development
-
-```bash
-make frontend
-```
-
-## Test
-
-Run from home directory
-
-```bash
-make test
-```
-
-
-## Examples
-
-### Demo
-
-See [demo.sh](test/demo.sh).
-
-### Trade
-
-See [trade.sh](test/trade.sh).
-
-### Token transfers
-
-See [transfer.sh](test/transfer.sh).
-
-### Deploy DIP20 token
-
-See [deploy_dip20.sh](scripts/deploy_dip20.sh).
-
-## Roadmap
-- Improve Plug wallet support
-- Make exchange more predictable
-
-## Troubleshooting
-
-### DFX deploys canisters with the same ID
-
-Clear `.dfx` directories
+The install scripts output the URL to visit the exchange frontend:
 
 ```
-make clean
+===== VISIT DEFI FRONTEND =====
+http://127.0.0.1:4943?canisterId=by6od-j4aaa-aaaaa-qaadq-cai
+===== VISIT DEFI FRONTEND =====
 ```
 
-### Deposit address not loading 
+or you can regenerate the URL "http://127.0.0.1:4943?canisterId=$(dfx canister id frontend)". Open this URL in a web browser.
 
-Make sure you are logged out with II and refresh the page.
+## Step 2: To interact with the exchange, you can create a local Internet Identity by clicking the login button.
 
-### Address already in use
+:::caution
+This sample project uses a local test version of Internet Identity. **Do not** use your mainnet Internet Identity, and this testnet Internet Identity will not work on the mainnet.
+:::
 
-This is probably due to an orphan `dfx` instance. Find the PID of the orphan dfx instance
+![DEX II Login](../../_attachments/dex-ii.png)
 
-```
-ps -xa | grep dfx
-kill <dfx PID>
-```
+## Step 3: When prompted, select **Create Internet Identity**.
 
-### Missing cmake
+![II Step 1](../../_attachments/II1.png)
 
-```
-   Compiling tempfile v3.3.0
-   Compiling quote v1.0.14
-error: failed to run custom build command for `wabt-sys v0.8.0`
+## Step 4: Then select **Create Passkey**.
 
-Caused by:
-  process didn't exit successfully: `/var/folders/81/cvnmgym54z15l8469p4k0yc40000gn/T/cargo-installQ7mfnX/release/build/wabt-sys-8ee9fea2b803bc94/build-script-build` (exit code: 101)
-  --- stdout
-  cargo:rerun-if-env-changed=WABT_CXXSTDLIB
-  cargo:rerun-if-env-changed=CXXSTDLIB
-  CMAKE_TOOLCHAIN_FILE_aarch64-apple-darwin = None
-  CMAKE_TOOLCHAIN_FILE_aarch64_apple_darwin = None
-  HOST_CMAKE_TOOLCHAIN_FILE = None
-  CMAKE_TOOLCHAIN_FILE = None
-  CMAKE_GENERATOR_aarch64-apple-darwin = None
-  CMAKE_GENERATOR_aarch64_apple_darwin = None
-  HOST_CMAKE_GENERATOR = None
-  CMAKE_GENERATOR = None
-  CMAKE_PREFIX_PATH_aarch64-apple-darwin = None
-  CMAKE_PREFIX_PATH_aarch64_apple_darwin = None
-  HOST_CMAKE_PREFIX_PATH = None
-  CMAKE_PREFIX_PATH = None
-  CMAKE_aarch64-apple-darwin = None
-  CMAKE_aarch64_apple_darwin = None
-  HOST_CMAKE = None
-  CMAKE = None
-  running: "cmake" "/Users/timgretler/.cargo/registry/src/github.com-1ecc6299db9ec823/wabt-sys-0.8.0/wabt" "-DBUILD_TESTS=OFF" "-DBUILD_TOOLS=OFF" "-DCMAKE_INSTALL_PREFIX=/var/folders/81/cvnmgym54z15l8469p4k0yc40000gn/T/cargo-installQ7mfnX/release/build/wabt-sys-f412d7d66c1e351f/out" "-DCMAKE_C_FLAGS= -ffunction-sections -fdata-sections -fPIC -arch arm64" "-DCMAKE_C_COMPILER=/usr/bin/cc" "-DCMAKE_CXX_FLAGS= -ffunction-sections -fdata-sections -fPIC -arch arm64" "-DCMAKE_CXX_COMPILER=/usr/bin/c++" "-DCMAKE_ASM_FLAGS= -ffunction-sections -fdata-sections -fPIC -arch arm64" "-DCMAKE_ASM_COMPILER=/usr/bin/cc" "-DCMAKE_BUILD_TYPE=Release"
+![II Step 2](../../_attachments/II2.png)
 
-  --- stderr
-  thread 'main' panicked at '
-  failed to execute command: No such file or directory (os error 2)
-  is `cmake` not installed?
+## Step 5: Complete the CAPTCHA.
 
-  build script failed, must exit now', /Users/timgretler/.cargo/registry/src/github.com-1ecc6299db9ec823/cmake-0.1.48/src/lib.rs:975:5
-  note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
-warning: build failed, waiting for other jobs to finish...
+![II Step 3](../../_attachments/II3.png)
 
-Caused by:
-  build failed
+## Step 6: Save the II number and click **I saved it, continue**.
 
-```
-Need to install cmake in your environment
+![II Step 4](../../_attachments/II4.png)
 
-MacOS: `brew install cmake`
-Debian/Ubuntu: `apt install cmake`
+## Step 7: You will be redirected to the exchange's frontend webpage.
 
-### Compiling takes ages
+![II Step 5](../../_attachments/II5.png)
 
-Check for a cycle in the dependencies.
+## Step 8: You can give yourself some tokens and ICP by running an initialization script with your II principal that you can copy from the frontend.
 
-### Incorrect result from `bundle.js`
+![II Principal](../../_attachments/II-principal.png)
 
-```
-git clone https://github.com/dfinity/examples.git
-cd examples
-git checkout defi-example
-git submodule update --init --recursive
-cd motoko/defi
-make install
-```
+## Step 9: Then run the following command:
+
+`make init-local II_PRINCIPAL=<YOUR II PRINCIPAL>`
+
+## Step 10: Refresh the web browser to verify that your tokens were deposited. 
+
+![II Deposit](../../_attachments/II-deposit.png)
+
+To trade tokens with yourself, you can open a second incognito browser window.
+
+## Common mistakes and troubleshooting
+
+-   Concurrent execution: if canister functions have `await` statements, it is possible that execution is interleaved. To avoid bugs, it is necessary to carefully consider the placement of data structure updates to prevent double-spend attacks.
+
+-   Floating points: more advanced exchanges should take care of floating points and make sure to limit decimals.
+
+-   No panics after await: when a panic happens, the state gets rolled back. This can cause issues with the correctness of the exchange.
+
+
+## Security considerations and security best practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+
+For example, the following aspects are particularly relevant for this app:
+* [Inter-canister calls and rollbacks](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices/#inter-canister-calls-and-rollbacks), since issues around inter-canister calls can e.g. lead to time-of-check time-of-use or double spending security bugs. 
+* [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since this is essential when e.g. displaying important financial data in the frontend that may be used by users to decide on future transactions.
+* [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#use-a-decentralized-governance-system-like-sns-to-make-a-canister-have-a-decentralized-controller), since decentralizing control is a fundamental aspect of decentralized finance applications.
 
