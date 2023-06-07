@@ -3,7 +3,7 @@ mod bitcoin_wallet;
 mod ecdsa_api;
 mod types;
 
-use ic_btc_types::{GetUtxosResponse, MillisatoshiPerByte, Network};
+use ic_btc_interface::{GetUtxosResponse, MillisatoshiPerByte, Network};
 use ic_cdk_macros::{init, post_upgrade, pre_upgrade, update};
 use std::cell::{Cell, RefCell};
 
