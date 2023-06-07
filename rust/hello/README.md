@@ -1,133 +1,101 @@
 # Hello Example
 
-## Summary
+# Hello, world!
+
+## Overview 
+This sample demonstrates a simple dapp consisting of two canisters:
+
+-   A simple backend canister, `hello`, implementing the logic of the application.
+
+-   A simple frontend asset canister, `hello_assets`, serving the assets of the dapp’s web user interface.
+
+It is the dapp equivalent of the ubiquitous 'Hello, world!' and can be seen running [here on the IC](https://6lqbm-ryaaa-aaaai-qibsa-cai.ic0.app/).
+
+## Architecture
+
+This sample is based on the default project created by running `dfx new` as described in the quick start documents.
+
+The sample code is available from the [samples](https://github.com/dfinity/examples) repository in both [Motoko](https://github.com/dfinity/examples/tree/master/motoko/hello) and [Rust](https://github.com/dfinity/examples/tree/master/rust/hello).
+
+Canister `hello`, whether implemented in Motoko or Rust, presents the same Candid interface:
+
+    service : {
+      greet: (text) -> (text);
+    }
+
+The frontend canister, `hello_assets`, displays an HTML page with a text box for the argument and a button for calling the function greet with that argument. The result of the call is displayed in a message box.
+
+![hello frontend](_attachments/hello.png)
+
+The frontend canister is a generic canister provided by `dfx` but the assets it serves to browsers are determined by the dfx project settings and project files.
+
+The frontend canister and its assets are identical for both projects.
 
 This example demonstrates a dead simple dapp consisting of two canister smart contracts:
 
-* a simple backend canister, `hello`, implementing the logic of the application in Rust, and
-* a simple frontend asset canister, `hello_assets` serving the assets of the dapp's web user interface.
+- A simple backend canister, hello, implementing the logic of the application in Motoko.
+- A simple frontend asset canister, hello_assets serving the assets of the dapp's web user interface.
 
-This example is based on the default project created by running
-`dfx new --type=rust hello` as described more fully
-[here](https://smartcontracts.org/docs/rust-guide/rust-quickstart.html).
+This example is based on the default project created by running `dfx new hello`.
 
-### Motoko variant
+This example is based on the default project created by running `dfx new --type=rust hello`.
 
-A version of this example with a Motoko implementation of canister `hello` can be found [here](../../motoko/hello/README.md).
+### Prerequisites 
+This example requires an installation of:
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Install `node.js` (to build the web frontend).
 
-## Security Considerations and Security Best Practices
+ ### Step 1: Open a terminal window.
 
-If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+If you haven't already, create a default project with the command:
 
-## Interface
+`dfx new --type=rust hello`
+`cd hello`
 
-Canister `hello` is defined as a Rust library:
+ ### Step 2: Start a local canister execution environment:
 
-* [src/hello/lib.rs](src/hello/lib.rs)
+`dfx start --background`
 
-with the Candid interface:
+ ### Step 3: Ensure that the required node modules are available in your project directory, if needed, by running the following command:
 
-```
-service : {
-  greet: (text) -> (text);
-}
-```
+`npm install`
 
-The frontend displays a page with an HTML text box for the argument and a button for calling the function greet with that argument. The result of the call is displayed in a message box.
+ ### Step 4: Register, build and deploy the project with the command:
 
-The relevant frontend code is:
+`dfx deploy`
+`npm start`
 
-* [src/hello_assets/src/index.html](src/hello_assets/src/index.html)
-* [src/hello_assets/src/index.jsx](src/hello_assets/src/index.jsx)
+ ### Step 5: Call the hello canister's greet function:
 
+`dfx canister call hello_backend greet everyone`
 
-## Requirements
+ ### Step 6: Observe the following result:
 
-The example requires an installation of:
+`("Hello, everyone!")`
 
-* [DFINITY Canister SDK](https://sdk.dfinity.org).
-* `node.js` (to build the web frontend).
-* a suitable installaton of `rust` and `cmake` (see [here](https://smartcontracts.org/docs/rust-guide/rust-quickstart.html#before-you-begin)).
+The previous steps use dfx to directly call the function on the hello (backend) canister. To access the web user interface of the dapp, that is served by canister hello_assets, do the following:
 
-## Setup
+ ### Step 7: Determine the URL of the hello_frontend asset canister.
 
-Check, you have stopped any local canister execution environment (i.e. `replica`) or other network process that would create a port conflict on 8000.
+`echo "http://localhost:8000/?canisterId=$(dfx canister id hello_frontend)"`
 
-## Running Locally
+ ### Step 8: Navigate to the URL in your browser.
+The browser should display a simple HTML page with a sample asset image file, an input field, and a button.
 
-Using two terminal windows, do the following steps:
+ ### Step 9: Enter the text "everyone" and click the button to see the greeting returned by the backend hello canister.
 
-1. Open the first terminal window.
-
-1. Start a local canister execution environment
-
-   ```text
-   dfx start
-   ```
-
-   This command produces a lot of distracting diagnostic output which is best ignored by continuing in a second terminal.
-
-1. Open the second terminal window.
-
-1. Ensure that the required `node` modules are available in your project directory, if needed, by running the following command:
-
-   ```text
-   npm install
-   ```
-
-1. Register, build and deploy the project.
-
-   ```text
-   dfx deploy
-   ```
-
-1. Call the hello canister's greet function:
-
-   ```text
-   dfx canister call hello greet '("everyone")'
-   ```
-
-1. Observe the following result.
-
-   ```text
-   ("Hello, everyone!")
-   ```
-
-The previous steps use `dfx` to directly call the function on the `hello` (backend) canister.
-
-To access the web user interface of the dapp, that is served by canister `hello_assets`, do the following:
-
-1. Determine the URL of the `hello_assets` asset canister.
-
-   ```text
-   echo "http://localhost:8000/?canisterId=$(dfx canister id hello_assets)"
-   ```
-
-1. Navigate to the URL in your browser.
-
-2. The browser should display a simple HTML page with a sample asset image file, an input field, and a button.
-
-3. Enter the text `everyone` and click the button to see the greeting returned by the backend `hello` canister.
-
-## Troubleshooting
-
-If the web page doesn't display properly, or displays the wrong contents,
-you may need to clear your browser cache.
+### Troubleshooting
+If the web page doesn't display properly, or displays the wrong contents, you may need to clear your browser cache.
 
 Alternatively, open the URL in a fresh, in-private browser window to start with a clean cache.
 
-## Links
-
-For instructions on how to create this example from scratch as well as a more detailed walkthrough see:
-
-- [Hello, World! Rust CDK Quick Start](https://smartcontracts.org/docs/rust-guide/rust-quickstart.html)
-
-Other related links you might find useful are:
-
-- [Rust Canister Development Guide](https://smartcontracts.org/docs/rust-guide/rust-intro.html)
-- [ic-cdk](https://docs.rs/ic-cdk)
+### Resources
+- [ic-cdk](https://docs.rs/ic-cdk/latest/ic_cdk/)
 - [ic-cdk-macros](https://docs.rs/ic-cdk-macros)
-- [Candid Introduction](https://smartcontracts.org/docs/candid-guide/candid-intro.html)
-- [JavaScript API Reference](https://erxue-5aaaa-aaaab-qaagq-cai.raw.ic0.app)
-- [Troubleshoot issues](https://smartcontracts.org/docs/developers-guide/troubleshooting.html)
+- [JavaScript API Reference](https://erxue-5aaaa-aaaab-qaagq-cai.ic0.app/)
+
+
+## Security considerations and security best practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 
