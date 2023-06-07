@@ -1,5 +1,3 @@
-# Hello Example
-
 # Hello, world!
 
 ## Overview 
