@@ -4,15 +4,16 @@ export const aPriori = {
   invoiceCanister: {
     canisterId: {
       principal: {
-        asText: 'q4eej-kyaaa-aaaaa-aaaha-cai',
+        asText: "bkyz2-fmaaa-aaaaa-qaaaq-cai",
       },
     },
     // Used in to_other_address_form for non-trivial subaccount ICRC1 account case.
     icrc1Subaccount: {
       asText:
-        '743p4-2qaaa-aaaaa-aaaha-cao46-yue4n-z3nri-6bgsh-eyppx-p2jyk-k32u4-ibdpd-f6f45-orwew-tmmaq-h6',
+        "743p4-2qaaa-aaaaa-aaaha-cao46-yue4n-z3nri-6bgsh-eyppx-p2jyk-k32u4-ibdpd-f6f45-orwew-tmmaq-h6",
       subaccount: {
-        asText: 'dcf6284e373b6c51e09a47261efbbf49c295bd538808de32f8bceba3625a6c60',
+        asText:
+          "dcf6284e373b6c51e09a47261efbbf49c295bd538808de32f8bceba3625a6c60",
       },
     },
   },
@@ -32,10 +33,12 @@ export const aPriori = {
     // Account or account identifier with subaccount of 32 zeros.
     asDefaultSubaccount: {
       icp: {
-        asText: '2b8fbde99de881f695f279d2a892b1137bfe81a42d7694e064b1be58701e1138',
+        asText:
+          "2b8fbde99de881f695f279d2a892b1137bfe81a42d7694e064b1be58701e1138",
       },
       icrc1: {
-        asText: 'hpikg-6exdt-jn33w-ndty3-fc7jc-tl2lr-buih3-cs3y7-tftkp-sfp62-gqe',
+        asText:
+          "hpikg-6exdt-jn33w-ndty3-fc7jc-tl2lr-buih3-cs3y7-tftkp-sfp62-gqe",
       },
     },
   },
