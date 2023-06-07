@@ -34,6 +34,6 @@ jobs:
       - name: Motoko Hello World Linux
         run: |
           dfx start --background
-          pushd motoko/hello-world
+          pushd motoko/hello
           make test
           popd
