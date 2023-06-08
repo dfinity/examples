@@ -3,6 +3,7 @@ dist
 **/*.dfx
 **/*.idea
 **/*.wasm
+!vetkd_user_lib/*.wasm
 src/declarations
 src/frontend/declarations
 src/frontend/public/build/*

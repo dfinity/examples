@@ -2,13 +2,14 @@ import svelte from 'rollup-plugin-svelte';
 import commonjs from '@rollup/plugin-commonjs';
 import resolve from '@rollup/plugin-node-resolve';
 import livereload from 'rollup-plugin-livereload';
-import { terser } from 'rollup-plugin-terser';
+import terser from '@rollup/plugin-terser';
 import sveltePreprocess from 'svelte-preprocess';
 import typescript from '@rollup/plugin-typescript';
 import css from 'rollup-plugin-css-only';
 import inject from 'rollup-plugin-inject';
 import json from '@rollup/plugin-json';
 import injectProcessEnv from 'rollup-plugin-inject-process-env';
+import { wasm } from '@rollup/plugin-wasm';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -112,7 +113,12 @@ export default (config) => {
         browser: true,
         dedupe: ['svelte'],
       }),
-
+      wasm({
+        // Without setting targetEnv to auto-inline, we run into
+        // a HTTP 404 on the respective .wasm file. See also
+        // https://github.com/rollup/plugins/issues/1025
+        targetEnv: "auto-inline",
+      }),
       commonjs(),
       typescript({
         sourceMap: !production,

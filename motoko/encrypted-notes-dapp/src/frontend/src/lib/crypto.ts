@@ -6,6 +6,10 @@ import { v4 as uuidv4 } from 'uuid';
 import type { BackendActor } from './actor';
 import { clearKeys, loadKey, storeKey } from './keyStorage';
 
+// Usage of the imported bindings only works if the respective .wasm was loaded, which is done in main.ts.
+// See also https://github.com/rollup/plugins/tree/master/packages/wasm#using-with-wasm-bindgen-and-wasm-pack
+import * as vetkd from "../../../../vetkd_user_lib/ic_vetkd.js";
+
 export class CryptoService {
   constructor(private actor: BackendActor) {
     const deviceAlias = window.localStorage.getItem('deviceAlias');
@@ -36,6 +40,14 @@ export class CryptoService {
    * 2. Register this browser (i.e. "device") with the public key generated in step 1.
    */
   public async init(): Promise<boolean> {
+    // Showcase that the integration of the vetkd user library works
+    const seed = window.crypto.getRandomValues(new Uint8Array(32));
+    const tsk = new vetkd.TransportSecretKey(seed);
+    console.log("Successfully used vetKD user library via WASM to create new transport secret key");
+    console.log(tsk);
+    const tpk = tsk.public_key();
+    console.log(tpk);
+
     this.publicKey = await loadKey('public');
     this.privateKey = await loadKey('private');
 
