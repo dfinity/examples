@@ -16,7 +16,7 @@
       "candid": "src/ledger/ledger.did",
       "wasm": "src/ledger/ledger.wasm",
       "declarations": {
-        "output": "src/ledger/ledger"
+        "output": "src/frontend/declarations/ledger"
       }
     },
     "internet_identity": {

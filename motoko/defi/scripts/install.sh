@@ -51,6 +51,13 @@ II_FETCH_ROOT_KEY=1 dfx deploy internet_identity --no-wallet --argument '(null)'
 dfx deploy defi_dapp --argument "(opt principal \"$LEDGER_ID\")"
 
 dfx generate defi_dapp
+dfx build defi_dapp
+dfx build AkitaDIP20
+dfx build GoldenDIP20
+dfx generate defi_dapp
+dfx generate AkitaDIP20
+dfx generate GoldenDIP20
+dfx generate ledger
 
 dfx canister create frontend
 pushd src/frontend

@@ -23,11 +23,7 @@ init-local:
 .SILENT: build
 build:
 	dfx canister create --all
-	dfx build defi_dapp
-	dfx build AkitaDIP20
-	dfx build GoldenDIP20
-	dfx generate
-	dfx build frontend
+	dfx build
 
 .PHONY: frontend
 .SILENT: frontend
