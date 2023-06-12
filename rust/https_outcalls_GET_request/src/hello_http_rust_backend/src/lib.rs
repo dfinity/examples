@@ -16,7 +16,7 @@ async fn get_icp_usd_exchange() -> String {
     let start_timestamp : Timestamp = 1682978460; //May 1, 2023 22:01:00 GMT
     let seconds_of_time : u64 = 60; //we start with 60 seconds
     let host = "api.pro.coinbase.com";
-    let url = format!("https://{}/products/ICP-USD/candles?start={}&end={}&granularity={}", host, start_timestamp.to_string(), start_timestamp.to_string(),seconds_of_time.to_string());
+    let url = format!("https://{host}/products/ICP-USD/candles?start={start_timestamp}&end={start_timestamp}&granularity={seconds_of_time}");
 
     // 2.2 prepare headers for the system http_request call
     //Note that `HttpHeader` is declared in line 4
