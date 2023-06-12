@@ -16,7 +16,6 @@ import Text "mo:base/Text";
 import Time "mo:base/Time";
 import Result "mo:base/Result";
 
-import DIP20 "../DIP20/motoko/src/token";
 import Account "./Account";
 import Ledger "canister:ledger";
 
@@ -25,6 +24,7 @@ import E "exchange";
 import T "types";
 
 shared(init_msg) actor class Dex() = this {
+    let ledger : Principal = Principal.fromActor(Ledger);
     let icp_fee: Nat = 10_000;
 
     stable var orders_stable : [T.Order] = [];
@@ -60,6 +60,15 @@ shared(init_msg) actor class Dex() = this {
             }
         };
 
+        // Iterate all orders to only allow one sell order per token.
+        for(e in exchanges.vals()) {
+            for(o in e.getOrders().vals()){
+                if (o.from == from and o.owner == owner ) {
+                    return #Err(#OrderBookFull);
+                };
+            };
+        };
+                                                                       
         // Check if user balance in book is enough before creating the order.
         if(book.hasEnoughBalance(owner,from,fromAmount) == false) {
             Debug.print("Not enough balance for user " # Principal.toText(owner) # " in token " # Principal.toText(from));
@@ -83,7 +92,7 @@ shared(init_msg) actor class Dex() = this {
             to;
             toAmount;
          };
-        exchange.addOrder(order);
+        exchange.addOrder(Principal.fromActor(this), order);
 
         #Ok(exchange.getOrder(id))
     };
@@ -161,7 +170,7 @@ shared(init_msg) actor class Dex() = this {
         };
         
 
-        if (token == E.ledger()) {
+        if (token == ledger) {
             let account_id = Account.accountIdentifier(address, Account.defaultSubaccount());
             await withdrawIcp(msg.caller, amount, account_id)
         } else {
@@ -173,7 +182,7 @@ shared(init_msg) actor class Dex() = this {
         Debug.print("Withdraw...");
 
         // remove withdrawal amount from book
-        switch (book.removeTokens(caller, E.ledger(), amount+icp_fee)){
+        switch (book.removeTokens(caller, ledger, amount+icp_fee)){
             case(null){
                 return #Err(#BalanceLow)
             };
@@ -193,7 +202,7 @@ shared(init_msg) actor class Dex() = this {
         switch icp_reciept {
             case (#Err e) {
                 // add tokens back to user account balance
-                book.addTokens(caller,E.ledger(),amount+icp_fee);
+                book.addTokens(caller,ledger,amount+icp_fee);
                 return #Err(#TransferFailure);
             };
             case _ {};
@@ -299,8 +308,8 @@ shared(init_msg) actor class Dex() = this {
     };
 
     public shared(msg) func deposit(token: T.Token): async T.DepositReceipt {
-        Debug.print("Depositing Token: " # Principal.toText(token) # " LEDGER: " # Principal.toText(E.ledger()));
-        if (token == E.ledger()) {
+        Debug.print("Depositing Token: " # Principal.toText(token) # " LEDGER: " # Principal.toText(ledger));
+        if (token == ledger) {
             await depositIcp(msg.caller)
         } else {
             await depositDip(msg.caller, token)
@@ -373,7 +382,7 @@ shared(init_msg) actor class Dex() = this {
         let available = { e8s : Nat = Nat64.toNat(balance.e8s) - icp_fee };
 
         // keep track of deposited ICP
-        book.addTokens(caller,E.ledger(),available.e8s);
+        book.addTokens(caller,ledger,available.e8s);
 
         // Return result
         #Ok(available.e8s)
@@ -389,7 +398,7 @@ shared(init_msg) actor class Dex() = this {
 
     public func getSymbol(token: T.Token) : async Text {
         let dip20 = actor (Principal.toText(token)) : T.DIPInterface;
-        if (token==E.ledger()){
+        if (token==ledger){
             return "ICP"
         };
         let metadata = await dip20.getMetadata();
@@ -419,10 +428,6 @@ shared(init_msg) actor class Dex() = this {
         ?(await getSymbol(trading_pair.0),await getSymbol(trading_pair.1))
     };
     
-    public shared(msg) func getWithdrawalAddress(): async Blob {
-        Account.accountIdentifier(msg.caller, Account.defaultSubaccount())
-    };
-
     // For testing
     public shared(msg) func credit(user: Principal, token_canister_id: T.Token, amount: Nat) {
         assert (msg.caller == init_msg.caller);
@@ -442,6 +447,11 @@ shared(init_msg) actor class Dex() = this {
             });
     };
 
+    // !!!! UPGRADES ONLY USED FOR DEVELOPMENT !!!!
+    // Defi apps are not upgradable and should have an empty controller list
+    // https://smartcontracts.org/docs/developers-guide/concepts/trust-in-canisters.html
+    // !!!! UPGRADES ONLY USED FOR DEVELOPMENT !!!!
+    
     // Required since maps cannot be stable and need to be moved to stable memory
     // Before canister upgrade book hashmap gets stored in stable memory such that it survives updates
     system func preupgrade() {
@@ -477,7 +487,7 @@ shared(init_msg) actor class Dex() = this {
                 };
                 case (?e) e
             };
-            exchange.addOrder(o);
+            exchange.addOrder(Principal.fromActor(this), o);
         };
 
         // Clean stable memory.

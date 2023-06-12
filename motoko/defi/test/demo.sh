@@ -7,34 +7,33 @@ catch() {
   exit 1
 }
 # create new demo identities
-dfx identity new user1 || true
+dfx identity new user1 --disable-encryption || true
 dfx identity use user1
 export USER1_PRINCIPAL=$(dfx identity get-principal)
 export USER1_ACC=$(python3 -c 'print("vec{" + ";".join([str(b) for b in bytes.fromhex("'$(dfx ledger account-id)'")]) + "}")')
-dfx identity new user2 || true
+dfx identity new user2 --disable-encryption || true
 dfx identity use user2
 export USER2_PRINCIPAL=$(dfx identity get-principal)
 export USER2_ACC=$(python3 -c 'print("vec{" + ";".join([str(b) for b in bytes.fromhex("'$(dfx ledger account-id)'")]) + "}")')
 # transfer dip tokens to user
 dfx identity use default
-export WALLET=$(dfx identity get-wallet)
-dfx canister --wallet "${WALLET}" call defi_dapp clear
-dfx canister --no-wallet call AkitaDIP20 transfer  '(principal '\"$USER1_PRINCIPAL\"',10000000)'
-dfx canister --no-wallet call AkitaDIP20 transfer  '(principal '\"$USER2_PRINCIPAL\"',10000000)'
-dfx canister --no-wallet call GoldenDIP20 transfer  '(principal '\"$USER1_PRINCIPAL\"',10000000)'
-dfx canister --no-wallet call GoldenDIP20 transfer  '(principal '\"$USER2_PRINCIPAL\"',10000000)'
+dfx canister call defi_dapp clear
+dfx canister call AkitaDIP20 transfer  '(principal '\"$USER1_PRINCIPAL\"',10000000)'
+dfx canister call AkitaDIP20 transfer  '(principal '\"$USER2_PRINCIPAL\"',10000000)'
+dfx canister call GoldenDIP20 transfer  '(principal '\"$USER1_PRINCIPAL\"',10000000)'
+dfx canister call GoldenDIP20 transfer  '(principal '\"$USER2_PRINCIPAL\"',10000000)'
 # transfer ICP tokens to users
 dfx canister call ledger transfer "(record { amount = record { e8s = 100000 }; to = $USER1_ACC; fee = record { e8s = 10000}; memo = 1;})"
 dfx canister call ledger transfer "(record { amount = record { e8s = 100000 }; to = $USER2_ACC; fee = record { e8s = 10000}; memo = 1;})"
 # get canister IDs
-export DEX_PRINCIPLE=$(dfx canister --no-wallet id defi_dapp)
-export AKITA_ID=$(dfx canister --no-wallet id AkitaDIP20)
-export GOLDEN_ID=$(dfx canister --no-wallet id GoldenDIP20)
-export LEDGER_ID=$(dfx canister --no-wallet id ledger)
+export DEX_PRINCIPLE=$(dfx canister id defi_dapp)
+export AKITA_ID=$(dfx canister id AkitaDIP20)
+export GOLDEN_ID=$(dfx canister id GoldenDIP20)
+export LEDGER_ID=$(dfx canister id ledger)
 # setup DIP20 balances on DEX for user1
 dfx identity use user1
-dfx canister --no-wallet call AkitaDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',1000000)'
-dfx canister --no-wallet call GoldenDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',1000000)'
+dfx canister call AkitaDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',1000000)'
+dfx canister call GoldenDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',1000000)'
 dfx canister call defi_dapp deposit '(principal '\"$AKITA_ID\"')'
 dfx canister call defi_dapp deposit '(principal '\"$GOLDEN_ID\"')'
 # setup ICP balances on DEX for user1
@@ -45,8 +44,8 @@ dfx canister call defi_dapp deposit '(principal '\"$LEDGER_ID\"')'
 dfx canister call defi_dapp getBalances
 # setup DIP20 balances on DEX for user2
 dfx identity use user2
-dfx canister --no-wallet call AkitaDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',1000000)'
-dfx canister --no-wallet call GoldenDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',1000000)'
+dfx canister call AkitaDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',1000000)'
+dfx canister call GoldenDIP20 approve  '(principal '\"$DEX_PRINCIPLE\"',1000000)'
 dfx canister call defi_dapp deposit '(principal '\"$AKITA_ID\"')'
 dfx canister call defi_dapp deposit '(principal '\"$GOLDEN_ID\"')'
 # setup ICP balances on DEX for user2

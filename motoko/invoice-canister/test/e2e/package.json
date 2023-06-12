@@ -1,0 +1,27 @@
+{
+  "name": "dfn-invoice-e2e-tests",
+  "version": "2.0.0",
+  "description": "End to end tests for the Invoice Canister",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "vitest run",
+    "test:ui": "vitest --ui"
+  },
+  "author": "Ashton Engberg",
+  "contributors": [
+    "Kyle Peacock"
+  ],
+  "license": "ISC",
+  "devDependencies": {
+    "@dfinity/identity-secp256k1": "^0.15.3",
+    "@dfinity/principal": "^0.15.3",
+    "@vitest/coverage-c8": "^0.28.4",
+    "@vitest/ui": "^0.28.4",
+    "chalk": "^5.2.0",
+    "isomorphic-fetch": "^3.0.0",
+    "pem-file": "^1.0.1",
+    "vite": "^4.1.1",
+    "vitest": "^0.28.4"
+  }
+}

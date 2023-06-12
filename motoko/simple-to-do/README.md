@@ -18,6 +18,14 @@ The application is built from the following Motoko source code files:
 *  `Main.mo`, which contains the actor definition and methods exposed by this
    canister.
 
+## Security Considerations and Security Best Practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+
+For example, the following aspect is particularly relevant for this app:
+* [Validate inputs](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#validate-inputs), since this canister processes user-provided input. 
+
+
 ## Prerequisites
 
 Verify the following before running this demo:

@@ -1,8 +1,16 @@
 # Tokens Transfer
 
-Tokens Transfer is a canister that can transfer token from its account to other accounts.
-It is an example of a canister that uses the Ledger canister.
+Tokens Transfer shows how a canister can interact with the ledger and make transfers from its account
+to other accounts.
 
+## Security Considerations and Security Best Practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+
+For example, the following aspects are particularly relevant for this app, since it is a finance application that makes inter-canister calls to the ledger:
+* [Be aware that state may change during inter-canister calls](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#be-aware-that-state-may-change-during-inter-canister-calls)
+* [Only make inter-canister calls to trustworthy canisters](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#only-make-inter-canister-calls-to-trustworthy-canisters)
+* [Don’t panic after await and don’t lock shared resources across await boundaries](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#dont-panic-after-await-and-dont-lock-shared-resources-across-await-boundaries)
 
 ## Interface
 
@@ -48,10 +56,12 @@ dfx deploy --argument "${ARGS}" tokens_transfer
 4. transfer some funds to the Tokens Transfer canister
 ```bash
 # TOKENS_TRANSFER_ACCOUNT_ID_BYTES is the vec nat8 representation of the tokens transfer canister
+TOKENS_TRANSFER_ACCOUNT_ID="$(dfx ledger account-id --of-canister tokens_transfer)"
+TOKENS_TRANSFER_ACCOUNT_ID_BYTES="$(python3 -c 'print("vec{" + ";".join([str(b) for b in bytes.fromhex("'$TOKENS_TRANSFER_ACCOUNT_ID'")]) + "}")')" 
 read -r -d '' ARGS <<EOM
 (record {
   to=${TOKENS_TRANSFER_ACCOUNT_ID_BYTES};
-  amount=record { e8s=10_000 };
+  amount=record { e8s=100_000 };
   fee=record { e8s=10_000 };
   memo=0:nat64;
 }, )
@@ -67,5 +77,5 @@ read -r -d '' ARGS <<EOM
   to_principal=principal "${YOUR_PRINCIPAL}"
 },)
 EOM
-dfx canister call tokens_transfer transfer '${ARGS}'
+dfx canister call tokens_transfer transfer "${ARGS}"
 ```

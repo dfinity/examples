@@ -1,0 +1,747 @@
+// Invoice Canister API. 
+service : () -> Invoice
+type Invoice = 
+ service {
+
+   // These 3 methods can only be called by the invoice canister's installer:
+
+   // Adds a principal to the allowed creators list. 
+   add_allowed_creator: (AddAllowedCreatorArgs) -> (AddAllowedCreatorResult);
+   
+   // Removes a principal from the allowed creators list.
+   remove_allowed_creator: (RemoveAllowedCreatorArgs) ->
+    (RemoveAllowedCreatorResult);
+
+   // Returns the allowed creators list. 
+   get_allowed_creators_list: () -> (GetAllowedCreatorsListResult);
+
+
+
+   // These 4 methods can only be called by the invoice canister installer or 
+   // any caller whose principal is on the allowed creators list:
+   
+   // Method to call to create an invoice. 
+   create_invoice: (CreateInvoiceArgs) -> (CreateInvoiceResult);
+
+   // Method to call for an invoice creator to get the address of their creator subaccount address.
+   // The balance of this address corresponds to their current profits: by profits it is meant 
+   // proceeds deposited from each invoice subaccount (an invoice's payment address) when that 
+   // invoice is successfully verified paid (ie when verify_invoice results in success). This 
+   // is also the address from which funds are withdrawn when the caller makes a transfer() call.
+   get_caller_address: (GetCallerAddressArgs) -> (GetCallerAddressResult);
+
+   // Method to call for an invoice creator to get the balance of their creator subaccount address.
+   // In other words, to get the current amount of their profits. By profits it is meant 
+   // proceeds deposited from each invoice subaccount (an invoice's payment address) when that 
+   // invoice is successfully verified paid (ie when verify_invoice results in success). This 
+   // is also the balance from which funds are withdrawn when the caller makes a transfer() call.
+   get_caller_balance: (GetCallerBalanceArgs) -> (GetCallerBalanceResult);
+
+   // Method to call for an invoice creator to transfer from their creator subaccount address.
+   transfer: (TransferArgs) -> (TransferResult);
+
+   // Method to call to convert an address or text into text or an address: if an address is 
+   // given, if it is valid it will be encoded as text; if text and a token type (`SupportedToken.UnitType`)
+   // is given, if valid decoded as an address of that token type; if only a token type is given, 
+   // the default subaccount of the caller's principal will be computed. If an ok result is returned, 
+   // in all cases both `asText` and `asAddress` fields will be included; note that `asAddress` is the 
+   // `SupportedToken.Address` type (ie, the token-specific address type as the argument of that 
+   // specific token's `SupportedToken` tag).
+   to_other_address_format: (ToOtherAddressFormatArgs) ->
+    (ToOtherAddressFormatResult);
+   
+
+
+   // This method can be called by invoice's creator or those whose principal is on its canGet permission list.
+   // Method to call to get an invoice by its id. 
+   get_invoice: (GetInvoiceArgs) -> (GetInvoiceResult);
+
+
+   // These two methods can be called by invoice's creator or those whose principal is on its canVerify permission list.
+
+   // Method to call to verify if an invoice can be marked as successfully paid. If successfully verified, the 
+   // balance of the invoice's subaccount (payment address) will be transferred to address of that invoice creator's 
+   // subaccount. An invoice can only be successfully verified as paid once, and if so its saved record type will be 
+   // updated with the timestamp of verification. 
+   verify_invoice: (VerifyInvoiceArgs) -> (VerifyInvoiceResult);
+
+   // Method to call to transfer funds from an invoice's subaccount (payment address) in the event of a partial 
+   // refund before an invoice has been successfully verified as paid or transfer funds from that same address 
+   // anytime after successful verification. In either case, will not change the status of the saved invoice 
+   // record, and if the transfer is successful, will always transfer the full balance of the invoice subaccount.
+   recover_invoice_subaccount_balance:
+    (RecoverInvoiceSubaccountBalanceArgs) ->
+    (RecoverInvoiceSubaccountBalanceResult);
+ };
+
+// The argument of an add_allowed_creator() call specifying 
+// the principal of who to add as an allowed creator.
+type AddAllowedCreatorArgs = record {who: principal;};
+
+// The ok/err result of an add_allowed_creator() call.
+type AddAllowedCreatorResult = 
+ variant {
+   err: AddAllowedCreatorErr;
+   ok: AddAllowedCreatorSuccess;
+ };
+
+// The ok result of an add_allowed_creator() call; for 
+// confirmation the message text will contain the principal added.
+type AddAllowedCreatorSuccess = record {message: text;};
+
+// The err result of an add_allowed_creator() call.
+type AddAllowedCreatorErr = record {
+  kind:
+    variant {
+      // Principal to add was already on the list.
+      AlreadyAdded;
+      // Anonymous principal cannot be an allowed creator.
+      AnonymousIneligible;
+      // The list is at its capacity (currently 256 principals).
+      MaxAllowed;
+      // Caller is not authorized ie not the canister's installer.
+      NotAuthorized;
+    };
+};
+
+
+// The argument of a remove_allowed_creator() call specifying 
+// the principal of who to remove as an allowed creator.
+type RemoveAllowedCreatorArgs = record {who: principal;};
+
+// The ok/err result of a remove_allowed_creator() call.
+type RemoveAllowedCreatorResult = 
+ variant {
+   err: RemoveAllowedCreatorErr;
+   ok: RemoveAllowedCreatorSuccess;
+ };
+
+// The ok result of a remove_allowed_creator() call; for 
+// confirmation the message text will contain the principal removed.
+type RemoveAllowedCreatorSuccess = record {message: text;};
+
+// The err result returned from an unsuccessful remove_allowed_creator() call.
+type RemoveAllowedCreatorErr = record {
+  kind: variant {
+    // The caller was not authorized ie is not the canister's installer.
+    NotAuthorized;
+    // The principal to remove was not in the allowed creators list.
+    NotFound;
+  };
+};
+
+
+// The ok/err result returned from a get_allowed_creators_list() call.
+type GetAllowedCreatorsListResult = 
+ variant {
+   err: GetAllowedCreatorsListErr;
+   ok: GetAllowedCreatorsListSuccess;
+ };
+
+// The `allowed` list of principals is authorized to make calls to the Invoice 
+// Canister's API methods. Note the canister's installer is not explicitly
+// on this list and their authorization check is handled specifically,
+// even though other than mutating this list the installer has equivalent 
+// access permission.
+type GetAllowedCreatorsListSuccess = record {allowed: vec principal;};
+
+// If the get_allowed_creators_list caller was not authorized, 
+// ie was not the canister's installer. 
+type GetAllowedCreatorsListErr = record {kind: variant {NotAuthorized;};};
+
+
+
+// The arguments for creating an invoice passed when making a create_invoice() call.
+type CreateInvoiceArgs = 
+ record {
+   // Optional details include description literal and meta blob. 
+   details: opt Details;
+   // Optional permissions include canGet permission list 
+   // determining who can call get_invoice() for the invoice
+   // to be created; and canVerify permission list determining 
+   // who can call verify_invoice() and recover_invoice_subaccount_balance() 
+   // for the invoice to be created.
+   permissions: opt Permissions;
+   // The specific SupportedToken variant tag with its argument 
+   // the token's canister expected amount type. 
+   tokenAmount: Amount;
+ };
+
+// The ok/err result returned from a create_invoice() call.
+type CreateInvoiceResult = 
+ variant {
+   err: CreateInvoiceErr;
+   ok: CreateInvoiceSuccess;
+ };
+
+// The ok result returned when calling create_invoice() is 
+// a success and includes the fully decorated record type of 
+// the invoice successfully created (ie, with TokenVerbose and paid).
+type CreateInvoiceSuccess = record {invoice: Invoice__1;};
+
+// The err result of a create_invoice() call.
+type CreateInvoiceErr = record {
+ kind:
+   variant {
+     // The details description cannot be longer than 256 chars.
+     DescriptionTooLarge;
+     // An invoice's amount due cannot be less than twice 
+     // the transfer fee of its token of payment.
+     InsufficientAmountDue;
+     // No more than 30k invoices can be created in a single invoice canister.
+     MaxInvoicesCreated;
+     // The details meta blob cannot be larger than 2KB.
+     MetaTooLarge;
+     // Caller was not authorized, ie not the canister's 
+     // installer nor on the allowed creators list.
+     NotAuthorized;
+     // Caller included more than 256 canGet or canVerify permitted principals.
+     TooManyPermissions;
+   };
+};
+
+
+
+// The argument passed when making a get_invoice() 
+// call to specify the id of which invoice to get. 
+type GetInvoiceArgs = record {id: InvoiceId;};
+
+// The ok/err result returned from a get_invoice() call.
+type GetInvoiceResult = 
+ variant {
+   err: GetInvoiceErr;
+   ok: GetInvoiceSuccess;
+ };
+
+// The ok result returned from a successful call to get_invoice() 
+// including the fully decorated invoice record matching the id given.
+type GetInvoiceSuccess = record {invoice: Invoice__1;};
+
+// The err result returned from an unsuccessful call to get_invoice(). 
+type GetInvoiceErr = record {kind: variant {
+   // Caller was not authorized, ie not the invoice's 
+   // creator nor on its canGet permission list.
+   NotAuthorized;
+   // No saved invoice record for the given id could be found. 
+   NotFound;
+   };
+};
+
+
+
+// The argument passed when making a verify_invoice() 
+// call to specify the id of which invoice to verify.
+type VerifyInvoiceArgs = record {id: InvoiceId;};
+
+// The ok/err result returned from a verify_invoice() call.
+type VerifyInvoiceResult = 
+ variant {
+   err: VerifyInvoiceErr;
+   ok: VerifyInvoiceSuccess;
+ };
+
+// The ok result returned from a successful call to verify_invoice() 
+// including the fully decorated invoice record matching the id given
+// that was successfully verified as paid.
+type VerifyInvoiceSuccess = 
+ variant {
+   // If verify_invoice() was already called
+   // and resulted in success for this invoice. 
+   VerifiedAlready: record {invoice: Invoice__1;};
+   // If the invoice was successfully verified as paid; ie the balance of 
+   // its subaccount payment address was equal or exceeded its amount due. 
+   VerifiedPaid: record {invoice: Invoice__1;};
+ };
+
+// The err result returned from an unsuccessful call to verify_invoice(). 
+type VerifyInvoiceErr = record {
+ kind:
+   variant {
+     // The await call to query the invoice subaccount (payment address) balance 
+     // failed as a caught exception; or the await call to transfer proceeds from 
+     // the invoice subaccount to the creator's subaccount address failed 
+     // as a caught exception. In either case, that caught error is literalized 
+     // as its message and prefixed to distinguish if it was the balance or 
+     // transfer call that failed. 
+     CaughtException: text;
+     // This invoice is currently being verified or 
+     // having its subaccount balance recovered. 
+     InProgress;
+     // This invoice's subaccount (payment address) balance was found to be 
+     // non-zero but not greater or equal to the invoice's amount due. 
+     IncompletePayment:
+       // Amount as the current balance of the invoice's subaccount (payment address).
+       record {partialAmountPaid: Amount;};
+     // Caller was not authorized, ie not its creator nor on its canVerify permission list.
+     NotAuthorized;
+     // No invoice for the given id could be found (and caller was authorized). 
+     NotFound;
+     // The call to transfer the balance of the invoice subaccount (payment address), ie 
+     // to transfer the proceeds to the invoice's creator's subaccount address resulted in 
+     // that token-ledger canister's Transfer error #Err type. Note this should be an edge-case 
+     // and technically the buyer has actually paid/transferred (at least) the amount due 
+     // to the payment address.
+     SupportedTokenTransferErr: TransferErr;
+     // The invoice's subaccount (payment address) balance was found to be zero; ie 
+     // no payment at all has been paid for this invoice. 
+     Unpaid;
+   };
+};
+
+
+
+// The arguments passed when making a transfer() call.
+type TransferArgs = 
+ record {
+   // Can either be canister expected address type or 
+   // text encoded address format but must be valid and 
+   // match the token type of the tokenAmount given. 
+   destination: RecipientAddress;
+   // SupportedToken.Amount type with argument as token specific 
+   // amount type, must match the token type of the given destination. 
+   // Must also be at least the transfer fee. Funds are withdrawn from the 
+   // caller's creator subaccount address (ie address returned when caller uses 
+   // get_caller_address()).
+   tokenAmount: Amount;
+ };
+
+// The ok/err result returned from a transfer() call.
+type TransferResult = 
+ variant {
+   err: TransferError__2;
+   ok: TransferSuccess;
+ };
+
+// The err result returned from an unsuccessful call to transfer(). 
+type TransferError__2 = record {
+ kind:
+   variant {
+     // The actual transfer await call made to the token-ledger canister failed as 
+     // as a caught exception. The caught error is literalized as its message.
+     CaughtException: text;
+     // Caller gave an amount to transfer less than the transfer fee defined 
+     // for the token type being processed. 
+     InsufficientTransferAmount;
+     // Given destination was invalid or its token type did not match the 
+     // token type of the amount given. 
+     InvalidDestination;
+     // Caller was not authorized, ie caller was not the canister's installer 
+     // nor has their principal on the allowed creators list. 
+     NotAuthorized;
+     // The actual transfer call resulted in returning the #Err result type. 
+     // The specific #Err variant type is this tag's argument.
+     SupportedTokenTransferErr: TransferErr;
+   };
+};
+
+
+
+// The arguments passed when making a recover_invoice_subaccount_balance() call.
+type RecoverInvoiceSubaccountBalanceArgs = 
+ record {
+   // Can either be canister expected address type or 
+   // text encoded address format but must be valid and 
+   // match the token type of the invoice's token type.
+   destination: RecipientAddress;
+   // Id of the invoice to recover its subaccount balance of. 
+   id: InvoiceId;
+ }; 
+
+// The ok/err result returned from a recover_invoice_subaccount_balance() call. 
+type RecoverInvoiceSubaccountBalanceResult = 
+ variant {
+   err: RecoverInvoiceSubacccountBalanceErr;
+   ok: RecoverInvoiceSubacccountBalanceSuccess;
+ };
+
+// The ok result returned from a successful recover_invoice_subaccount_balance() call. 
+// The balance recovered will be the amount less the cost of a transfer fee, and the 
+// transferSuccess is either the blockIndex or txIndex of the successful transfer call.
+type RecoverInvoiceSubacccountBalanceSuccess = 
+ record {
+   balanceRecovered: Amount;
+   transferSuccess: TransferSuccess;
+ };
+
+// The err result returned from an unsuccessful call to recover_invoice_subaccount_balance(). 
+type RecoverInvoiceSubacccountBalanceErr = record {
+ kind:
+   variant {
+     // The await call to query the invoice subaccount (payment address) balance 
+     // failed as a caught exception; or the await call to transfer proceeds from 
+     // the invoice subaccount to the given destination failed as a caught exception. 
+     // In either case, that caught error is literalized as its message and prefixed 
+     // to distinguish if it was the balance or transfer call that failed. 
+     CaughtException: text;
+     // This invoice is currently being verified or having its subaccount balance recovered. 
+     InProgress;
+     // The invoice subaccount balance was found to be less than the transfer fee for 
+     // this invoice's token type, ie the funds are effectively irrecoverable without 
+     // more than it would cost to recover these funds to transfer them at this time.
+     InsufficientTransferAmount;
+     // Given destination was invalid or its token type did not match that of the invoice.
+     InvalidDestination;
+     // Invoice subaccount (payment address) balance was found to be zero. Nothing to recover.
+     NoBalance;
+     // Caller was not authorized, ie not its creator nor on its canVerify permission list.
+     NotAuthorized;
+     // No invoice for the given id could be found (and caller was authorized). 
+     NotFound;
+     // The actual transfer call resulted in returning the #Err result type. 
+     // The specific #Err variant type is this tag's argument.
+     SupportedTokenTransferErr:
+       TransferErr;
+   };
+};
+
+
+
+// The argument passed when making a get_caller_balance() call to specify 
+// which token type to get the (caller's) creator's subaccount balance of.
+type GetCallerBalanceArgs = record {token: UnitType;};
+
+// The ok/err result returned from a get_caller_balance() call. 
+type GetCallerBalanceResult = 
+ variant {
+   err: GetCallerBalanceErr;
+   ok: GetCallerBalanceSuccess;
+ };
+
+// The balance of the caller as an invoice creator's current profits. That is, the amount 
+// returned would equal the sum of all invoice's amount due that were successfully verified 
+// paid (less the transfer fee times the number of invoices) if the caller never used the 
+// transfer() call (otherwise it would be the difference of whatever was transferred from 
+// out of this address of this balance). 
+type GetCallerBalanceSuccess = record {balance: Amount;};
+
+// The err result returned from an unsuccessful call to get_caller_address() 
+// because the caller was not authorized, ie not the canister's installer nor 
+// a caller whose principal is on the allowed creators list; or the actual 
+// call to query the balance failed as a caught exception. 
+type GetCallerBalanceErr = record {
+ kind:
+   variant {
+     // The actual balance await call made to the token-ledger canister failed as 
+     // as a caught exception. The caught error is literalized as its message.
+     CaughtException: text;
+     // Caller was not authorized.
+     NotAuthorized;
+   };
+};
+
+
+
+// The argument passed when making a get_caller_address() call to specify 
+// which token type to get the (caller's) creator's subaccount address of.
+type GetCallerAddressArgs = record {token: UnitType;};
+
+// The ok/err result returned from a get_caller_address() call. 
+type GetCallerAddressResult = 
+ variant {
+   err: GetCallerAddressErr;
+   ok: GetCallerAddressSuccess;
+ };
+
+// The ok result returned from a successful get_caller_address() call. The 
+// caller's as an invoice creator subaccount address is returned in both its 
+// "canister expected" (as the argument of a SupportedToken.Address tag) form 
+// and text encoded. 
+type GetCallerAddressSuccess = 
+ record {
+   // The address of the caller as an invoice creator as the 
+   // argument of the token's SupportedToken.Address tag.
+   asAddress: Address;
+   // The address of the caller as an invoice 
+   // creator encoded in text format.
+   asText: text;
+ };
+
+// The err result returned from an unsuccessful call to get_caller_address() 
+// because the caller was not authorized, ie not the canister's installer nor 
+// a caller whose principal is on the allowed creators list. 
+type GetCallerAddressErr = record {kind: variant {NotAuthorized;};};
+
+
+
+// The arguments passed when making a to_other_address_format() call. As 
+// RecipientAddress is either CanisterExpected SupportedToken.Address or 
+// HumanReadable text string, if text is passed in so to must the token 
+// type as the non-null optional SupportedToken UnitType (ie the SupportedToken 
+// tag corresponding to that token) to decode the address into. If the only 
+// passed argument is non-null token type, then the caller's principal will be
+// converted into the corresponding address of its default subaccount. In all 
+// cases, both the address and its text encoded form will be returned if inputs 
+// are valid. 
+type ToOtherAddressFormatArgs = 
+ record {
+   // Address or text to convert; if null the caller's 
+   // principal will be converted to default subaccount. 
+   address: opt RecipientAddress;
+   // Necessary if address is HumanReadable or caller wants 
+   // their default subaccount address.
+   token: opt UnitType;
+ };
+
+// The ok/err result returned from a to_other_address_format() call. 
+type ToOtherAddressFormatResult = 
+ variant {
+   err: ToOtherAddressFormatErr;
+   ok: ToOtherAddressFormatSuccess;
+ };
+
+// The ok result of a successful call to to_other_address_format(). 
+type ToOtherAddressFormatSuccess = 
+ record {
+   // The token-specific address type is the argument of the 
+   // `SupportedToken.Address` tag. 
+   asAddress: Address;
+   // The address text encoded. 
+   asText: text;
+ };
+
+// The err result returned from an unsuccessful call to to_other_address_format(). 
+type ToOtherAddressFormatErr = record {
+ kind:
+   variant {
+    // Given text or address was not valid. 
+    InvalidDestination;
+    // Caller did not pass in which token type to decode given text into its address of 
+    // or gave no arguments when making this call. 
+    MissingTokenType;
+    // Caller was not authorized, ie not the canister's installer nor has their 
+    // principal on the creator's allowed list. 
+    NotAuthorized;
+  };
+};
+
+
+
+// Verbose record type defining the details of a token of payment. 
+// Is assigned in SupportedToken.getTokenVerbose() and must have the 
+// correct transfer fee for each token that the Invoice Canister supports
+// set; should also have the other fields set as they are returned by the 
+// corresponding token-ledger canister, except for the URL which can 
+// either be the token-ledger canister's id or URL as it appears in the 
+// Internet Computer dashboard (https://dashboard.internetcomputer.org/).
+type TokenVerbose = 
+ record {
+   // Number of decimals this token uses.
+   decimals: int;
+   // Must be correctly set ie as the value returned by the token's ledger canister.
+   fee: nat;
+   // Optional meta details (strongly encouraged to use).
+   meta: opt record {
+     // Deployer, creator or who is responsible for the token. 
+     Issuer: text;
+     // Canister id or other website for this token. 
+     Url: text;
+   };
+   // Name title this token uses. 
+   name: text;
+   // Symbol literal this token uses. 
+   symbol: text;
+ };
+
+// The ULID literal used as an invoice's id. 
+type InvoiceId = text;
+
+// Details parameters that an invoice can be created with.
+type Details = 
+ record {
+   // A literal description no longer than 256 characters.
+   description: text;
+   // A meta blob, such as UTF-8 encoded JSON, no larger than 32KB.
+   meta: blob;
+ };
+
+// Permissions parameters that an invoice can be created with. 
+type Permissions = 
+ record {
+   // A list of no more than 256 principals that can 
+   // also call get_invoice() for this invoice. 
+   canGet: vec principal;
+   // A list of no more than 256 principals that can also call 
+   // verify_invoice() and recover_invoice_subaccount_balance() 
+   // for this invoice. 
+   canVerify: vec principal;
+ };
+
+// Canister timestamp in nanoseconds.
+type Time = int;
+
+// The fully decorated record type of an invoice as it is 
+// returned to a caller: the additional fields of paid
+// and tokenVerbose are added before actually returning the
+// invoice record to the caller.
+type Invoice__1 = 
+ record {
+   // ULID literal of this invoice. 
+   id: InvoiceId;
+   // The caller of create_invoice() responsible for creating this invoice.
+   creator: principal;
+   // Amount due to complete payment for this invoice in token non-specific base 
+   // Nat units. An invoice cannot be created with this set less than twice the 
+   // transfer fee of this invoice's token of payment (as the fee is defined in 
+   // the corresponding TokenVerbose case of SupportedToken.getTokenVerbose()).
+   amountDue: nat;
+   // Optional details invoice was created with. 
+   details: opt Details;
+   // Optionals permissions invoice was created with.
+   permissions: opt Permissions;
+   // Text encoded address of this invoice's subaccount used for fulfilling payment.
+   paymentAddress: text;
+   // Balance of the invoice subaccount associated with this 
+   // invoice's payment address when this invoice was successfully 
+   // verified paid; ie the amount actually transferred to complete 
+   // payment by the buyer. Is transferred to the invoice creator's 
+   // subaccount address (less the cost a transfer fee) at the end of 
+   // a verify_invoice() call when verification is successful. 
+   amountPaid: nat;
+   // Non-null iff call to verify_invoice() for this invoice was a success;
+   // if non-null is the timestamp of successful verification. 
+   verifiedPaidAtTime: opt Time;
+   // True iff call to verify_invoice() for this invoice was a success.
+   paid: bool;
+   // SupportedToken.UnitType is the specific variant tag (argumentless)
+   // corresponding to this invoice's token of payment. Set when invoice 
+   // is created by the corresponding tag of the tokenAmount passed in 
+   // as the amountDue.
+   token: UnitType;
+   // The verbose record of this invoice's token of payment. 
+   tokenVerbose: TokenVerbose;
+ };
+
+
+
+// The variant parameter used to select which address format; for  
+// example the destination/to argument of a transfer call's args.
+type RecipientAddress = 
+ variant {
+   // The type expected by a canister (ie for ICP AccountIdentifier).
+   CanisterExpected: Address;
+   // The address encoded as text format type.
+   HumanReadable: text;
+ };
+
+// SupportedToken.UnitType is the `SupportedToken` variant token 
+// tag with no argument, used as a parameter for specifying which
+// token type. 
+type UnitType = 
+ variant {
+   ICP;
+   ICP_nns;
+   ICRC1_ExampleToken;
+   ICRC1_ExampleToken2;
+ };
+
+// SupportedToken.Amount is a `SupportedToken` variant token 
+// tag with an argument of that token's specific amount type.
+type Amount = 
+ variant {
+   // Equivalent to #ICP { e8s }.
+   ICP: Tokens;
+   // Equivalent to #ICP_nns { e8s }.
+   ICP_nns: Tokens;
+   // Equivalent to #ICRC1_ExampleToken Nat.
+   ICRC1_ExampleToken: Tokens__1;
+   // Equivalent to #ICRC1_ExampleToken2 Nat.
+   ICRC1_ExampleToken2: Tokens__1;
+ };
+
+// SupportedToken.Address is a `SupportedToken` variant token 
+// tag with an argument of that token's specific address type.
+// Note this type is what is returned whenever a 'canister expected' 
+// address type is returned to a caller; for example, in a call to
+// to_other_address_format() with the argument of the call only specifying 
+// the token type to be #ICP, the account identifier of the default subaccount 
+// of the caller's principal (as the argument of the #ICP tag) would be
+// the `asAddress` field of the returned record type (the other field  
+// named `asText` being the text encoded format of this address).
+type Address = 
+ variant {
+   ICP: AccountIdentifier;
+   ICP_nns: AccountIdentifier;
+   ICRC1_ExampleToken: Account;
+   ICRC1_ExampleToken2: Account;
+ };
+
+// SupportedToken.TransferSuccess is a `SupportedToken` variant token 
+// tag with an argument of that token's specific transfer success result type.
+// Part of what is returned when a call to the Invoice Canister's API methods
+// transfer() or recover_invoice_subaccount_balance() results in success.
+type TransferSuccess = 
+ variant {
+   ICP: BlockIndex;
+   ICP_nns: BlockIndex;
+   ICRC1_ExampleToken: TxIndex;
+   ICRC1_ExampleToken2: TxIndex;
+ };
+
+// SupportedToken.TransferErr is a `SupportedToken` variant token 
+// tag with an argument of that token's specific transfer error result type.
+// Returned when a call to the Invoice Canister's API methods: transfer(), 
+// verify_invoice(), or recover_invoice_subaccount_balance() is not successful 
+// as the argument of err kind #SupportedTokenTransferErr. 
+type TransferErr = 
+ variant {
+   ICP: TransferError;
+   ICP_nns: TransferError;
+   ICRC1_ExampleToken: TransferError__1;
+   ICRC1_ExampleToken2: TransferError__1;
+ };
+
+
+
+// The ICP Ledger canister expected address type.
+type AccountIdentifier = blob;
+// The ICRC1 token-ledger canister expected address type.
+type Account = 
+ record {
+   owner: principal;
+   subaccount: opt Subaccount;
+ };
+
+// Type used by both ICP and ICRC1 to determine subaccount addressing; in 
+// other words when combined with a principal generates the actual address. 
+type Subaccount = blob;
+
+// The ICP Ledger amount type.
+type Tokens = record {e8s: nat64;};
+// The ICRC1 token-ledger amount type. 
+type Tokens__1 = nat;
+
+// The ICP Ledger transfer success type.
+type BlockIndex = nat64;
+// The ICRC1 token-ledger transfer success type.
+type TxIndex = nat;
+
+// The timestamp type used by both ICP Ledger and ICRC1 token-ledger canisters.
+type Timestamp = nat64;
+
+// The ICP Ledger #Err result type returned when a transfer() 
+// call (to that ICP ledger canister) is not successful.
+type TransferError = 
+ variant {
+   BadFee: record {expected_fee: Tokens;};
+   InsufficientFunds: record {balance: Tokens;};
+   TxCreatedInFuture;
+   TxDuplicate: record {duplicate_of: BlockIndex;};
+   TxTooOld: record {allowed_window_nanos: nat64;};
+ };
+
+// The ICRC1 token-ledger #Err result type returned 
+// when an icrc1_transfer() call is not successful.
+type TransferError__1 = 
+ variant {
+   BadBurn: record {min_burn_amount: Tokens__1;};
+   BadFee: record {expected_fee: Tokens__1;};
+   CreatedInFuture: record {ledger_time: Timestamp;};
+   Duplicate: record {duplicate_of: TxIndex;};
+   GenericError: record {
+     error_code: nat;
+     message: text;
+   };
+   InsufficientFunds: record {balance: Tokens__1;};
+   TemporarilyUnavailable;
+   TooOld;
+ };

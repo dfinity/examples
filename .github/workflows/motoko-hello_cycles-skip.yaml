@@ -1,0 +1,16 @@
+name: motoko-hello_cycles
+on:
+  pull_request:
+    paths-ignore:
+      - motoko/hello_cycles/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-hello_cycles-example.yaml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Not needed - relevant folder not touched'

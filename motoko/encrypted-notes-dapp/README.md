@@ -2,6 +2,7 @@
 
 - [Encrypted notes](#encrypted-notes)
 - [Disclaimer: please read carefully](#disclaimer-please-read-carefully)
+- [Security Considerations and Security Best Practices](#security-considerations-and-security-best-practices)
 - [Deployment](#deployment)
   - [Selecting backend canister deployment option](#selecting-backend-canister-deployment-option)
   - [Local deployment](#local-deployment)
@@ -13,9 +14,12 @@
   - [Scenario II: user is accessing notes from multiple devices](#scenario-ii-user-is-accessing-notes-from-multiple-devices)
   - [Scenario III: device management](#scenario-iii-device-management)
 - [Unit testing](#unit-testing)
+  - [Motoko Unit Tests](#motoko-unit-tests)
+  - [Rust Unit Tests](#rust-unit-tests)
 - [Troubleshooting](#troubleshooting)
   - [Building/deployment problems](#buildingdeployment-problems)
   - [Login problems](#login-problems)
+  - [SSL certificate problems](#ssl-certificate-problems)
 - [dfx.json file structure](#dfxjson-file-structure)
 - [Local memory model](#local-memory-model)
 - [Further Reading](#further-reading)
@@ -49,6 +53,15 @@ This is an _example dapp_ that demonstrates the potential of building _canisters
 ---
 &nbsp;
 
+## Security Considerations and Security Best Practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices, see also the [disclaimer](#disclaimer-please-read-carefully) above.  
+
+For example, the following aspects are particularly relevant for this app: 
+* [Make sure any action that only a specific user should be able to do requires authentication](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#make-sure-any-action-that-only-a-specific-user-should-be-able-to-do-requires-authentication), since a user should only be able to manage their own notes.
+* [Protect key material against XSS using Web Crypto API](https://internetcomputer.org/docs/current/references/security/web-app-development-security-best-practices#crypto-protect-key-material-against-xss-using-web-crypto-api), since this app stores private keys in the browser. 
+* [Use secure cryptographic schemes](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#use-secure-cryptographic-schemes), since notes are being encrypted.
+
 ## Deployment
 ### Selecting backend canister deployment option
 * For **Motoko** deployment run:
@@ -76,12 +89,21 @@ _Note_: this option does not yet work on Apple M1; the combination of [DFX](http
    ```sh
    export BUILD_ENV=motoko
    ```
-3. Run the following Bash script that builds a Docker image, compiles the canister, and deploys this dapp (all inside the Docker instance):
+3. Run the following Bash script that builds a Docker image, compiles the canister, and deploys this dapp (all inside the Docker instance). Execution can take some minutes:
    ```sh
    sh ./deploy_locally.sh
    ```
+   ⚠️ If this fails with `No such container`, please ensure that the Docker daemon is running on your system.
+
 4. To open the frontend, go to http://localhost:3000/
 
+5. To stop the docker instance:
+
+   5.1. Hit `Ctrl+C` on your keyboard to abort the running process.
+
+   5.2. Run `docker ps` and find the _`<CONTAINER ID>`_ of `encrypted_notes`.
+
+   5.3. Run `docker rm -f `_`<CONTAINER ID>`_.
 
 #### Option 2: Manual deployment
 1. For **Motoko** deployment set environmental variable:
@@ -92,13 +114,13 @@ _Note_: this option does not yet work on Apple M1; the combination of [DFX](http
    ```sh
    sh ./pre_deploy.sh
    ```
-3. [Install DFX](https://sdk.dfinity.org/docs/quickstart/local-quickstart.html). Please keep in mind the dfx cli currently only runs on Linux and Apple based PCs.
+3. [Install DFX](https://sdk.dfinity.org/docs/quickstart/local-quickstart.html). Please keep in mind the dfx cli currently only runs on Linux and macOS.
 4. Install npm packages from the project root:
    ```sh
    npm install
    ```
    _Note_: see [Troubleshooting](#troubleshooting) in case of problems
-5. In case DFX was already started before run the following:
+5. In case DFX was already started before, run the following:
    ```sh
    dfx stop
    rm -rf .dfx
@@ -107,13 +129,14 @@ _Note_: this option does not yet work on Apple M1; the combination of [DFX](http
    ```sh
    dfx start --clean
    ```
+   ⚠️ If you see an error `Failed to set socket of tcp builder to 0.0.0.0:8000`, make sure that the port `8000` is not occupied, e.g., by the previously run Docker command (you might want to stop the Docker deamon whatsoever for this step).
 7. Install a local [Internet Identity (II)](https://smartcontracts.org/docs/ic-identity-guide/what-is-ic-identity.html) canister:
    _Note_: If you have multiple dfx identities set up, ensure you are using the identity you intend to use with the `--identity` flag.
    1. To install and deploy a canister run:
       ```sh
       dfx deploy internet_identity --argument '(null)'
       ```
-   2. To print a URL run:
+   2. To print the Internet Identity URL, run:
       ```sh
       npm run print-dfx-ii
       ```
@@ -122,6 +145,7 @@ _Note_: this option does not yet work on Apple M1; the combination of [DFX](http
    ```sh
    dfx deploy "encrypted_notes_$BUILD_ENV"
    ```
+   ⚠️ Before deploying the Rust canister, you should first run `rustup target add wasm32-unknown-unknown`.
 9. Update the generated canister interface bindings: 
    ```sh
    dfx generate "encrypted_notes_$BUILD_ENV"
@@ -131,15 +155,16 @@ _Note_: this option does not yet work on Apple M1; the combination of [DFX](http
        ```sh
        dfx deploy www
        ```
-    2. To print a URL run: 
+    2. To print the frontend canister's URL, run:
        ```sh
        npm run print-dfx-www
        ```
     3. Visit the URL from above
-11. To get the frontend with hot-reloading on [http://localhost:3000/](http://localhost:3000/) run:****
+11. To get the frontend with hot-reloading on [http://localhost:3000/](http://localhost:3000/), run:
     ```sh
     npm run dev
     ```
+    ⚠️ If you have opened this page previously, please remove all local store data for this page from your web browser, and hard-reload the page. For example in Chrome, go to Inspect → Application → Local Storage → `http://localhost:3000/` → Clear All, and then reload.
 ---
 &nbsp;
 
@@ -236,21 +261,48 @@ Fig. 4. Scenario for a user adding/removing devices.
 
 ## Unit testing
 
-This project demonstrates how one can write unit tests in Motoko. The unit tests are implemented in `src/encrypted_notes_motoko/test/test.mo` using the [Motoko Matchers](https://kritzcreek.github.io/motoko-matchers/) library. 
+This project also demonstrates how one can write unit tests for Motoko and Rust canisters.
 
-The easiest way to run all tests involves three steps: 
-1. Follow the [above instructions](#option-1-docker-deployment) for Deployment via Docker.
-2. Open a new console, type `docker ps`, and copy the `"CONTAINER ID"` of the `encrypted_notes` image; save it into `DOCKER_IMAGE`.
-3. Run: 
-   ```sh
-   docker exec $DOCKER_IMAGE sh src/encrypted_notes_motoko/test/run_tests.sh
-   ```
+### Motoko Unit Tests
 
-One can also run unit tests locally via:
+The unit tests are implemented in `src/encrypted_notes_motoko/test/test.mo` using the [Motoko Matchers](https://kritzcreek.github.io/motoko-matchers/) library. 
+
+The easiest way to run all tests involves the following steps:
+
+1. Follow the [above instructions](#option-1-docker-deployment) for Deployment via Docker with `BUILD_ENV=motoko`.
+2. Open a new console, type `docker ps`, and copy the _`<CONTAINER ID>`_ of the `encrypted_notes` image.
+3. Run: `docker exec `_`<CONTAINER ID>`_` sh src/encrypted_notes_motoko/test/run_tests.sh`
+4. Observer `All tests passed.` at the end of the output.
+
+Alternatively, one can also run unit tests after a local deployment via:
 ```sh
 src/encrypted_notes_motoko/test/run_tests.sh
 ```
-However, this requires installing [`wasmtime`](https://wasmtime.dev/) and [`motoko-matchers`](https://github.com/kritzcreek/motoko-matchers). See the contents of `src/encrypted_notes_motoko/test/run_tests.sh` for more detail. 
+However, this requires installing [`wasmtime`](https://wasmtime.dev/) and [`motoko-matchers`](https://github.com/kritzcreek/motoko-matchers):
+
+```sh
+git clone https://github.com/kritzcreek/motoko-matchers $(dfx cache show)/motoko-matchers
+chmod +x src/encrypted_notes_motoko/test/run_tests.sh
+src/encrypted_notes_motoko/test/run_tests.sh
+```
+
+Observer `All tests passed.` at the end of the output.
+
+### Rust Unit Tests
+
+The unit tests are implemented in `src/encrypted_notes_rust/src/lib.rs` at the bottom.
+
+The easiest way to run all tests involves the following steps:
+
+1. Follow the [above instructions](#option-1-docker-deployment) for Deployment via Docker with `BUILD_ENV=rust`.
+2. Open a new console, type `docker ps`, and copy the _`<CONTAINER ID>`_ of the `encrypted_notes` image.
+3. Run: `docker exec `_`<CONTAINER ID>`_` cargo test`
+4. Observer `test result: ok.` at the end of the output.
+
+Alternatively, one can also run unit tests after a local deployment via:
+```sh
+cargo test
+```
 
 ---
 &nbsp;
@@ -267,6 +319,10 @@ Possible Remedies:
 
 ### Login problems
 Some errors like `Could not initialize crypto service` might occur due to browser caching issues. Redeployment of the dapp can cause such problems. In this case clear browser's _Local Storage_ and _IndexedDB_.
+
+### SSL certificate problems
+
+Some browsers may block local resources based on invalid SSL certificates. If while testing a locally deployed version of the Encrypted Notes dapp you observe certificate issues in your browser's console, please change the browser settings to _ignore certificates for resources loaded from localhost_. For example, this can be done in Google Chrome via [chrome://flags/#allow-insecure-localhost](chrome://flags/#allow-insecure-localhost).
 
 ## dfx.json file structure
 `dfx.json` is the configuration of the project when deploying to either the local replica or to the IC, it assists in the creation of the `.dfx` directory (which contains `canister_ids.json` — which merely maps canister by name to their id on both local replica and the IC). There are various configuration options here and this is not exhaustive. This will primarily discuss target types for canisters (which all exist under the `canisters` key).
@@ -298,7 +354,6 @@ Some errors like `Could not initialize crypto service` might occur due to browse
             "wasm": "internet_identity.wasm"
         }
     },
-    "dfx": "0.8.4",
     "networks": {
         "local": {
             "bind": "0.0.0.0:8000",

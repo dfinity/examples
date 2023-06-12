@@ -29,6 +29,13 @@ The bits of these blobs are consumed to generate
 samples from a variety of discrete distributions using some of
 the other classes and functions of library `Random.mo`.
 
+## Security Considerations and Security Best Practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+
+For example, the following aspects are particularly relevant for this app, since it employs cryptographic algorithms:
+* [Don’t implement crypto yourself](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#dont-implement-crypto-yourself)
+* [Use secure cryptographic schemes](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#use-secure-cryptographic-schemes)
 
 ## Prerequisites
 

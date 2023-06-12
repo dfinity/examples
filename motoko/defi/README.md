@@ -1,11 +1,20 @@
 # Defi Example
 
-This repo contains a simple defi exchange that demonstrates the interaction with ICP and tokens on the IC. For a more detailed explanation check out the [architecture.md](architecture.md) file or visit the official [documentation](https://smartcontracts.org/docs/examples/defi.html)
+This repo contains a simple defi exchange that demonstrates the interaction with ICP and tokens on the IC. For a more detailed explanation check out the [architecture.md](architecture.md) file or visit the official [documentation]([https://internetcomputer.org/docs/current/samples/dex])
 
 This example can be seen running, here:
 - frontend: https://gzz56-daaaa-aaaal-qai2a-cai.ic0.app/
 - AkitaDIP20: `gl7kh-pqaaa-aaaal-qaiza-cai`
 - GoldenDIP20: `gm6mt-ciaaa-aaaal-qaizq-cai`
+
+## Security Considerations and Security Best Practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+
+For example, the following aspects are particularly relevant for this app:
+* [Inter-Canister Calls and Rollbacks](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices/#inter-canister-calls-and-rollbacks), since issues around inter-canister calls can e.g. lead to time-of-check time-of-use or double spending security bugs. 
+* [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since this is essential when e.g. displaying important financial data in the frontend that may be used by users to decide on future transactions.
+* [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#use-a-decentralized-governance-system-like-sns-to-make-a-canister-have-a-decentralized-controller), since decentralizing control is a fundamental aspect of decentralized finance applications.
 
 ## Dependencies
 
@@ -40,6 +49,14 @@ make init-local II_PRINCIPAL=<YOUR II PRINCIPAL>
 To trade with yourself, you can open a second incognito browser window. 
 
 ## Development
+
+We deploy the canisters to a *system* subnet by specifying
+```
+    "replica": {
+      "subnet_type": "system"
+    }
+```
+in the configuration file `dfx.json` because the size of the Wasm file for the ledger canister exceeds the limit of 2MiB for the default *application* subnet.
 
 Reinstall backend canister
 
@@ -145,7 +162,6 @@ Caused by:
   build script failed, must exit now', /Users/timgretler/.cargo/registry/src/github.com-1ecc6299db9ec823/cmake-0.1.48/src/lib.rs:975:5
   note: run with `RUST_BACKTRACE=1` environment variable to display a backtrace
 warning: build failed, waiting for other jobs to finish...
-error: failed to compile `ic-cdk-optimizer v0.3.1`, intermediate artifacts can be found at `/var/folders/81/cvnmgym54z15l8469p4k0yc40000gn/T/cargo-installQ7mfnX`
 
 Caused by:
   build failed

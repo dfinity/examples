@@ -1,0 +1,23 @@
+# Various IDEs and Editors
+.vscode/
+.idea/
+**/*~
+
+# dotenv environment variables file
+.env
+.env.test
+
+# Mac OSX temporary files
+.DS_Store
+**/.DS_Store
+
+# dfx temporary files
+.dfx/
+
+# generated files
+src/declarations/
+
+# frontend code
+node_modules/
+dist/
+

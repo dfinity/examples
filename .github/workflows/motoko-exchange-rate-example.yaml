@@ -1,0 +1,39 @@
+name: motoko-exchange-rate
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - motoko/exchange_rate/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-exchange-rate-example.yaml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  motoko-exchange-rate-example-darwin:
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Motoko Exchange Rate Darwin
+        run: |
+          pushd motoko/exchange_rate
+          ./deploy.sh local
+          popd
+  motoko-exchange-rate-example-linux:
+    runs-on: ubuntu-20.04
+    env:
+      DFX_VERSION: 0.12.0
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Motoko Exchange Rate Linux
+        run: |
+          pushd motoko/exchange_rate
+          ./deploy.sh local
+          popd

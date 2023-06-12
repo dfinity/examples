@@ -19,15 +19,15 @@
     "rollup-plugin-polyfill-node": "^0.7.0",
     "rollup-plugin-svelte": "^7.0.0",
     "rollup-plugin-terser": "^7.0.0",
-    "svelte": "^3.0.0"
+    "svelte": "^3.49.0"
   },
   "dependencies": {
-    "@dfinity/agent": "^0.10.1",
-    "@dfinity/auth-client": "^0.10.1",
-    "@dfinity/authentication": "^0.10.2",
-    "@dfinity/candid": "^0.10.2",
-    "@dfinity/identity": "^0.10.1",
-    "@dfinity/principal": "0.10.1",
+    "@dfinity/agent": "^0.10.4",
+    "@dfinity/auth-client": "^0.10.4",
+    "@dfinity/authentication": "^0.10.4",
+    "@dfinity/candid": "^0.10.4",
+    "@dfinity/identity": "^0.10.4",
+    "@dfinity/principal": "0.10.4",
     "@fortawesome/fontawesome-svg-core": "^1.2.36",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "crc": "^4.1.0",

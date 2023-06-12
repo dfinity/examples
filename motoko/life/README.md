@@ -25,6 +25,13 @@ deployed canister.
 (To make upgrades apparent, each version uses a different digit
  to display live cells (`0`,`1`,`2`))
 
+## Security Considerations and Security Best Practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+
+For example, the following aspect is particularly relevant for this app:
+* [Consider using stable memory, version it, test it](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#consider-using-stable-memory-version-it-test-it), since this example is about using stable memory. The best practice focuses on Rust, but are partly also applicable to Motoko. 
+
 ## Initial deployment of Version `v0`
 
 We start with version `v0` already checked out in

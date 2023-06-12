@@ -1,0 +1,33 @@
+type Nft = record {
+    canister : principal;
+    index : TokenIndex;
+};
+
+type TokenIndex = nat64;
+
+type Error = variant {
+    CanisterError : record { 
+        message : text;
+    };
+    CannotNotify;
+    NoSuchToken;
+    NotOwner;
+    Unauthorized;
+};
+
+type ManageResult = variant {
+    Ok;
+    Err : Error;
+};
+
+service : (custodians : opt vec principal) -> {
+    is_authorized : () -> (bool) query;
+    owned_nfts : () -> (vec Nft) query;
+    set_authorized : (principal, bool) -> (ManageResult);
+    transfer : (Nft, principal, notify: opt bool) -> (ManageResult);
+    register : (Nft) -> (ManageResult);
+
+    // callbacks
+    onDIP721Received : (principal, principal, TokenIndex, blob) -> ();
+    tokenTransferNotification : (text, variant { address : text; "principal" : principal; }, nat, blob) -> (opt nat);
+}
