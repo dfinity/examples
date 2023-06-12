@@ -3,19 +3,6 @@
     "hello_http_backend": {
       "main": "src/hello_http_backend/main.mo",
       "type": "motoko"
-    },
-    "hello_http_frontend": {
-      "dependencies": [
-        "hello_http_backend"
-      ],
-      "frontend": {
-        "entrypoint": "src/hello_http_frontend/src/index.html"
-      },
-      "source": [
-        "src/hello_http_frontend/assets",
-        "dist/hello_http_frontend/"
-      ],
-      "type": "assets"
     }
   },
   "defaults": {
