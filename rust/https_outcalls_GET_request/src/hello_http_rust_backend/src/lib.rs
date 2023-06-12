@@ -1,5 +1,5 @@
-//1. DECLARE IC MANAGEMENT CANISTER
-//This also includes methods and types needed
+//1. IMPORT IC MANAGEMENT CANISTER
+//This includes all methods and types needed
 use ic_cdk::api::management_canister::http_request::{
     http_request, CanisterHttpRequestArgument, HttpHeader, HttpMethod, HttpResponse, TransformArgs,
     TransformContext,
@@ -15,6 +15,7 @@ async fn get_icp_usd_exchange() -> String {
     let start_timestamp: Timestamp = 1682978460; //May 1, 2023 22:01:00 GMT
     let seconds_of_time: u64 = 60; //we start with 60 seconds
     let host = "api.pro.coinbase.com";
+    let url = format!("https://{host}/products/ICP-USD/candles?start={start_timestamp}&end={start_timestamp}&granularity={seconds_of_time}");
     let url = format!(
         "https://{}/products/ICP-USD/candles?start={}&end={}&granularity={}",
         host,
@@ -28,7 +29,7 @@ async fn get_icp_usd_exchange() -> String {
     let request_headers = vec![
         HttpHeader {
             name: "Host".to_string(),
-            value: format!("{}:443", host),
+            value: format!("{host}:443"),
         },
         HttpHeader {
             name: "User-Agent".to_string(),

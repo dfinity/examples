@@ -4,19 +4,6 @@
       "candid": "src/hello_http_rust_backend/hello_http_rust_backend.did",
       "package": "hello_http_rust_backend",
       "type": "rust"
-    },
-    "hello_http_rust_frontend": {
-      "dependencies": [
-        "hello_http_rust_backend"
-      ],
-      "frontend": {
-        "entrypoint": "src/hello_http_rust_frontend/src/index.html"
-      },
-      "source": [
-        "src/hello_http_rust_frontend/assets",
-        "dist/hello_http_rust_frontend/"
-      ],
-      "type": "assets"
     }
   },
   "defaults": {
