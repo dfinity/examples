@@ -11,6 +11,9 @@ sudo bash install-node.sh
 sudo apt-get install --yes nodejs
 rm install-node.sh
 
+# Set openssl flag for consistency
+export NODE_OPTIONS=--openssl-legacy-provider
+
 # Install DFINITY SDK.
 wget --output-document install-dfx.sh "https://internetcomputer.org/install.sh"
 DFX_VERSION=${DFX_VERSION:=0.14.1} bash install-dfx.sh < <(yes Y)
