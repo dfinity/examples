@@ -21,7 +21,7 @@ async fn get_icp_usd_exchange() -> String {
     // 2.2 prepare headers for the system http_request call
     //Note that `HttpHeader` is declared in line 4
     let request_headers = vec![
-        HttpHeader { name: "Host".to_string(), value: format!("{}:443",host) }, 
+        HttpHeader { name: "Host".to_string(), value: format!("{host}:443") }, 
         HttpHeader { name: "User-Agent".to_string(), value: "exchange_rate_canister".to_string() },
     ];
 
