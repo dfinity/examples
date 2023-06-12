@@ -1,5 +1,5 @@
-//1. DECLARE IC MANAGEMENT CANISTER
-//This also includes methods and types needed
+//1. IMPORT IC MANAGEMENT CANISTER
+//This includes all methods and types needed
 use ic_cdk::api::management_canister::http_request::{
     http_request, CanisterHttpRequestArgument, HttpHeader, HttpMethod, HttpResponse, TransformArgs,
     TransformContext,
