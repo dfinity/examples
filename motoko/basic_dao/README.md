@@ -61,3 +61,4 @@ dfx deploy --argument "(record {
 ic-repl tests/account.test.sh
 ic-repl tests/proposal.test.sh
 ```
+
