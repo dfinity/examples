@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "hello_http_rust_backend": {
+      "candid": "src/hello_http_rust_backend/hello_http_rust_backend.did",
+      "package": "hello_http_rust_backend",
+      "type": "rust"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
