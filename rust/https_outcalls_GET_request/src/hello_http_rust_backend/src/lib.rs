@@ -37,14 +37,33 @@ async fn get_icp_usd_exchange() -> String {
         },
     ];
 
-    //note "CanisterHttpRequestArgument" and "HttpMethod" are declared in line 4
+    //note "CanisterHttpRequestArgument" and "HttpMethod" are declared in line 4. 
+    //CanisterHttpRequestArgument has the following types:
+
+    // pub struct CanisterHttpRequestArgument {
+    //     pub url: String,
+    //     pub max_response_bytes: Option<u64>,
+    //     pub method: HttpMethod,
+    //     pub headers: Vec<HttpHeader>,
+    //     pub body: Option<Vec<u8>>,
+    //     pub transform: Option<TransformContext>,
+    // }
+    //see: https://docs.rs/ic-cdk/latest/ic_cdk/api/management_canister/http_request/struct.CanisterHttpRequestArgument.html
+
+    //Where "HttpMethod" has structure:
+    // pub enum HttpMethod {
+    //     GET,
+    //     POST,
+    //     HEAD,
+    // }
+    //See: https://docs.rs/ic-cdk/latest/ic_cdk/api/management_canister/http_request/enum.HttpMethod.html
     let request = CanisterHttpRequestArgument {
         url: url.to_string(),
-        method: HttpMethod::GET,
-        body: None,               //optional for request
         max_response_bytes: None, //optional for request
-        transform: None,          //optional for request
+        method: HttpMethod::GET,
         headers: request_headers,
+        body: None,               //optional for request
+        transform: None,          //optional for request
     };
 
     //3. MAKE HTTPS REQUEST AND WAIT FOR RESPONSE
