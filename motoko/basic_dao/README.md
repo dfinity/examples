@@ -30,10 +30,8 @@ Begin by opening a terminal window.
 
  ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-```
-cd basic_dao
-dfx start --background
-```
+`cd basic_dao`
+`dfx start --background`
 
  ### Step 2: Create test identities with the commands:
 
@@ -63,4 +61,3 @@ dfx deploy --argument "(record {
 ic-repl tests/account.test.sh
 ic-repl tests/proposal.test.sh
 ```
-
