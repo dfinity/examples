@@ -11,7 +11,15 @@ node_modules:
 build: node_modules
 	dfx canister create --all
 	# Set openssl flag for consistency
-	NODE_OPTIONS=--openssl-legacy-provider dfx build
+	ifeq ($(shell uname), Linux)
+		# Commands to run on Linux
+		NODE_OPTIONS=--openssl-legacy-provider dfx build
+	else ifeq ($(shell uname), Darwin)
+		# Commands to run on Darwin (macOS)
+		dfx build
+	else
+		$(error Unsupported platform: $(shell uname))
+	endif
 
 .PHONY: install
 .SILENT: install
