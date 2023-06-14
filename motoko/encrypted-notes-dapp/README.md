@@ -26,7 +26,7 @@
 - [Acknowledgments](#acknowledgments)
 ## Encrypted notes
 
-Encrypted Notes is an example dapp for authoring and storing confidential information on the Internet Computer (IC) in the form of short pieces of text. Users can create and access their notes via any number of automatically synchronized devices authenticated via [Internet Identity (II)](https://smartcontracts.org/docs/ic-identity-guide/what-is-ic-identity.html). Notes are stored confidentially thanks to the end-to-end encryption performed by the dapp’s frontend.
+Encrypted Notes is an example dapp for authoring and storing confidential information on the Internet Computer (IC) in the form of short pieces of text. Users can create and access their notes via any number of automatically synchronized devices authenticated via [Internet Identity (II)](https://wiki.internetcomputer.org/wiki/What_is_Internet_Identity). Notes are stored confidentially thanks to the end-to-end encryption performed by the dapp’s frontend.
 
 This project serves as a simple (but not too simple) example of a dapp, which uses Motoko and Rust as backend and Svelte as frontend.
 
@@ -82,7 +82,7 @@ For example, the following aspects are particularly relevant for this app:
 ### Local deployment
 #### Option 1: Docker deployment
 
-_Note_: this option does not yet work on Apple M1; the combination of [DFX](https://smartcontracts.org/docs/developers-guide/cli-reference/dfx-parent.html) and Docker do not currently support the required architecture.
+_Note_: this option does not yet work on Apple M1; the combination of [DFX](https://internetcomputer.org/docs/current/references/cli-reference/dfx-parent) and Docker do not currently support the required architecture.
 
 1. Install and start Docker by following the [instructions](https://docs.docker.com/get-docker/).
 2. For **Motoko** build/deployment set environmental variable:
@@ -130,7 +130,7 @@ _Note_: this option does not yet work on Apple M1; the combination of [DFX](http
    dfx start --clean
    ```
    ⚠️ If you see an error `Failed to set socket of tcp builder to 0.0.0.0:8000`, make sure that the port `8000` is not occupied, e.g., by the previously run Docker command (you might want to stop the Docker deamon whatsoever for this step).
-7. Install a local [Internet Identity (II)](https://smartcontracts.org/docs/ic-identity-guide/what-is-ic-identity.html) canister:
+7. Install a local [Internet Identity (II)](https://wiki.internetcomputer.org/wiki/What_is_Internet_Identity) canister:
    _Note_: If you have multiple dfx identities set up, ensure you are using the identity you intend to use with the `--identity` flag.
    1. To install and deploy a canister run:
       ```sh
@@ -169,7 +169,7 @@ _Note_: this option does not yet work on Apple M1; the combination of [DFX](http
 &nbsp;
 
 ### Mainnet deployment
-_Note_: Prior to starting the mainnet deployment process, ensure you have your identities and wallets set up for controlling the canisters correctly. This guide assumes that this work has been done in advance. [More info here](https://smartcontracts.org/docs/developers-guide/cli-reference/dfx-identity.html).
+_Note_: Prior to starting the mainnet deployment process, ensure you have your identities and wallets set up for controlling the canisters correctly. This guide assumes that this work has been done in advance. [More info here](https://internetcomputer.org/docs/current/references/cli-reference/dfx-identity).
 
 1. Create the canisters:
    ```sh
@@ -184,7 +184,7 @@ _Note_: Prior to starting the mainnet deployment process, ensure you have your i
       ```
 
 3.  Deploy to mainnet:
-      _Note_: In the commands below, `--mode` could also be `reinstall` to reset the [stable memory](https://smartcontracts.org/docs/language-guide/upgrades.html).
+      _Note_: In the commands below, `--mode` could also be `reinstall` to reset the [stable memory](https://internetcomputer.org/docs/current/motoko/main/upgrades/).
 
       ```sh
       dfx canister --network ic install "encrypted_notes_${BUILD_ENV}" --mode=upgrade
@@ -216,7 +216,7 @@ Fig. 2. Basic single-device scenario for a user.
 2. Click the "Login" button. You will be redirected to the _Internet Identity_ canister (see Fig. 2(b)).
 
    1. If you already have an `anchor`, you may continue with it. Click "Authenticate", then verify your identity and finally click "Proceed", see Fig. 2(c).
-   2. If you do not have an anchor yet, you should [create one](https://smartcontracts.org/docs/ic-identity-guide/auth-how-to.html). Once an `anchor` is created, please follow 2.1.
+   2. If you do not have an anchor yet, you should [create one](https://internetcomputer.org/how-it-works/web-authentication-identity/). Once an `anchor` is created, please follow 2.1.
 
 3. Once logged in for the first time, your notes list should be empty. At this moment, your _Local Storage_ should be populated with additional variables (see Fig. 2(d)): **ic-identity**, **ic-delegation**. These variables are used for storing/retrieving notes from the backend canister. In addition, another two variables are generated in the _IndexedDB_: **PrivateKey**, **PublicKey**. These two variable are used for encrypting/decrypting the shared secret key.
 4. Create/edit/delete notes and observe changes in the resulting notes list (see Fig. 2(e)).

@@ -9,7 +9,7 @@ This example demonstrates a dead simple dapp consisting of two canister smart co
 
 This example is based on the default project created by running
 `dfx new --type=rust hello` as described more fully
-[here](https://smartcontracts.org/docs/rust-guide/rust-quickstart.html).
+[here](https://internetcomputer.org/docs/current/developer-docs/backend/rust/rust-quickstart).
 
 ### Motoko variant
 
@@ -47,7 +47,7 @@ The example requires an installation of:
 
 * [DFINITY Canister SDK](https://sdk.dfinity.org).
 * `node.js` (to build the web frontend).
-* a suitable installaton of `rust` and `cmake` (see [here](https://smartcontracts.org/docs/rust-guide/rust-quickstart.html#before-you-begin)).
+* a suitable installaton of `rust` and `cmake` (see [here](https://internetcomputer.org/docs/current/developer-docs/backend/rust/rust-quickstart#prerequisites)).
 
 ## Setup
 
@@ -120,14 +120,14 @@ Alternatively, open the URL in a fresh, in-private browser window to start with 
 
 For instructions on how to create this example from scratch as well as a more detailed walkthrough see:
 
-- [Hello, World! Rust CDK Quick Start](https://smartcontracts.org/docs/rust-guide/rust-quickstart.html)
+- [Hello, World! Rust CDK Quick Start](https://internetcomputer.org/docs/current/developer-docs/backend/rust/rust-quickstart)
 
 Other related links you might find useful are:
 
-- [Rust Canister Development Guide](https://smartcontracts.org/docs/rust-guide/rust-intro.html)
+- [Rust Canister Development Guide](https://internetcomputer.org/docs/current/developer-docs/backend/rust/)
 - [ic-cdk](https://docs.rs/ic-cdk)
 - [ic-cdk-macros](https://docs.rs/ic-cdk-macros)
-- [Candid Introduction](https://smartcontracts.org/docs/candid-guide/candid-intro.html)
+- [Candid Introduction](https://internetcomputer.org/docs/current/developer-docs/backend/candid/)
 - [JavaScript API Reference](https://erxue-5aaaa-aaaab-qaagq-cai.raw.ic0.app)
-- [Troubleshoot issues](https://smartcontracts.org/docs/developers-guide/troubleshooting.html)
+- [Troubleshoot issues](https://internetcomputer.org/docs/current/developer-docs/backend/troubleshooting)
 

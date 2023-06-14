@@ -83,7 +83,7 @@ Minting is restricted to anyone authorized with the `custodians` parameter or th
 
 This example comes with a demo script, `demo.sh`, which runs through an example workflow with minting and trading an NFT between a few users. Meant primarily to be read rather than run, you can use it to see how basic NFT operations are done. For a more in-depth explanation, read the [standard][DIP721].
 
-[DFX]: https://smartcontracts.org/docs/developers-guide/install-upgrade-remove.html
+[DFX]: https://internetcomputer.org/docs/current/developer-docs/setup/install/
 [Rust]: https://rustup.rs
 [DIP721]: https://github.com/Psychedelic/DIP721
 [mint]: https://github.com/dfinity/experimental-minting-tool

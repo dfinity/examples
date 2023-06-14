@@ -8,7 +8,7 @@ This example demonstrates a dead simple dapp consisting of two canister smart co
 * a simple frontend asset canister, `hello_assets` serving the assets of the dapp's web user interface.
 
 This example is based on the default project created by running `dfx new hello` as described
-[here](https://smartcontracts.org/docs/quickstart/local-quickstart.html).
+[here](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-locally).
 
 ### Rust variant
 
@@ -121,12 +121,12 @@ Alternatively, open the URL in a fresh, in-private browser window to start with 
 
 For instructions on how to create this example from scratch as well as a more detailed walkthrough and some tips on frontend development using a development server, see:
 
-- [Local Development](https://smartcontracts.org/docs/quickstart/local-quickstart.html)
+- [Local Development](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-locally)
 
 Other related links you might find useful are:
 
 - [Motoko Programming Language Guide](https://sdk.dfinity.org/docs/language-guide/motoko.html)
 - [Motoko Language Quick Reference](https://sdk.dfinity.org/docs/language-guide/language-manual.html)
-- [Candid Introduction](https://smartcontracts.org/docs/candid-guide/candid-intro.html)
+- [Candid Introduction](https://internetcomputer.org/docs/current/developer-docs/backend/candid/)
 - [JavaScript API Reference](https://erxue-5aaaa-aaaab-qaagq-cai.raw.ic0.app)
-- [Troubleshoot issues](https://smartcontracts.org/docs/developers-guide/troubleshooting.html)
+- [Troubleshoot issues](https://internetcomputer.org/docs/current/developer-docs/backend/troubleshooting)

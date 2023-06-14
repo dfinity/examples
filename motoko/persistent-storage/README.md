@@ -30,7 +30,7 @@ The example project requeres the following installed:
 - git
 - dfx
 
-git can be installed from various package managers. `dfx` can be installed following the instructions [here](https://smartcontracts.org/docs/quickstart/local-quickstart.html#download-and-install).
+git can be installed from various package managers. `dfx` can be installed following the instructions [here](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-locally).
 
 ### Install
 Install the example dapp project:

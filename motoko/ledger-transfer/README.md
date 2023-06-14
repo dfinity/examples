@@ -15,7 +15,7 @@ For example, the following aspects are particularly relevant for this app:
 
 Verify the following before running this demo:
 
-*  You have downloaded and installed the [DFINITY Canister SDK](https://smartcontracts.org).
+*  You have downloaded and installed the [DFINITY Canister SDK](https://internetcomputer.org).
 
 *  You have stopped any Internet Computer or other network process that would create a port conflict on 8000.
 

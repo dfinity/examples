@@ -18,7 +18,7 @@ For example, the following aspects are particularly relevant for this app:
 
 ## Dependencies
 
-- [dfx](https://smartcontracts.org/docs/developers-guide/install-upgrade-remove.html)
+- [dfx](https://internetcomputer.org/docs/current/developer-docs/setup/install/)
 - [cmake](https://cmake.org/)
 - [npm](https://nodejs.org/en/download/)
 
