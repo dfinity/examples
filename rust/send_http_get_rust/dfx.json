@@ -1,0 +1,30 @@
+{
+  "canisters": {
+    "send_http_get_rust_backend": {
+      "candid": "src/send_http_get_rust_backend/send_http_get_rust_backend.did",
+      "package": "send_http_get_rust_backend",
+      "type": "rust"
+    },
+    "send_http_get_rust_frontend": {
+      "dependencies": [
+        "send_http_get_rust_backend"
+      ],
+      "frontend": {
+        "entrypoint": "src/send_http_get_rust_frontend/src/index.html"
+      },
+      "source": [
+        "src/send_http_get_rust_frontend/assets",
+        "dist/send_http_get_rust_frontend/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

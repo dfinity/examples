@@ -1,4 +1,4 @@
-# https_outcalls_GET_request
+# send_http_get_rust
 
 The purpose of this dapp is to give developers a minimal dapp that uses the IC's HTTPS outcalls feature to make a `GET` request.
 
@@ -7,7 +7,7 @@ This demo goes in hand with the [developer documentation on HTTPS outcalls](http
 If you want to start working on your project right away, you might want to try the following commands:
 
 ```bash
-cd https_outcalls_GET_request/
+cd send_http_get_rust
 dfx help
 dfx canister --help
 ```
