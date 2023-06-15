@@ -7,7 +7,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
-const frontendDirectory = "hello_http_frontend";
+const frontendDirectory = "send_http_post_motoko_frontend";
 
 const frontend_entry = path.join("src", frontendDirectory, "src", "index.html");
 

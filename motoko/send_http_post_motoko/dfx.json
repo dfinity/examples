@@ -1,7 +1,7 @@
 {
   "canisters": {
-    "hello_http_backend": {
-      "main": "src/hello_http_backend/main.mo",
+    "send_http_post_motoko_backend": {
+      "main": "src/send_http_post_motoko_backend/main.mo",
       "type": "motoko"
     }
   },
