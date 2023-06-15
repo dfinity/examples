@@ -36,7 +36,7 @@ async fn get_icp_usd_exchange() -> String {
         },
     ];
 
-    //note "CanisterHttpRequestArgument" and "HttpMethod" are declared in line 4. 
+    //note "CanisterHttpRequestArgument" and "HttpMethod" are declared in line 4.
     //CanisterHttpRequestArgument has the following types:
 
     // pub struct CanisterHttpRequestArgument {
@@ -61,8 +61,8 @@ async fn get_icp_usd_exchange() -> String {
         max_response_bytes: None, //optional for request
         method: HttpMethod::GET,
         headers: request_headers,
-        body: None,               //optional for request
-        transform: None,          //optional for request
+        body: None,      //optional for request
+        transform: None, //optional for request
     };
 
     //3. MAKE HTTPS REQUEST AND WAIT FOR RESPONSE

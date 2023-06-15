@@ -1,4 +1,0 @@
-[workspace]
-members = [
-    "src/hello_http_rust_backend",
-]

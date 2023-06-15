@@ -7,7 +7,7 @@ This demo goes in hand with the [developer documentation on HTTPS outcalls](http
 If you want to start working on your project right away, you might want to try the following commands:
 
 ```bash
-cd https_outcalls_POST_request/
+cd send_http_post_rust
 dfx help
 dfx canister --help
 ```
