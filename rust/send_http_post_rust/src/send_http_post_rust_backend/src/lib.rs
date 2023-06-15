@@ -8,11 +8,11 @@ use ic_cdk::api::management_canister::http_request::{
 //Update method using the HTTPS outcalls feature
 #[ic_cdk::update]
 async fn send_http_post_request() -> String {
-    
-//2. SETUP ARGUMENTS FOR HTTP GET request
+    //2. SETUP ARGUMENTS FOR HTTP GET request
 
-    // 2.1 Setup the URL and its query parameters
-    
+    // 2.1 Setup the URL
+    let host = "en8d7aepyq2ko.x.pipedream.net";
+    let url = "https://en8d7aepyq2ko.x.pipedream.net/";
 
     // 2.2 prepare headers for the system http_request call
     //Note that `HttpHeader` is declared in line 4
@@ -23,9 +23,9 @@ async fn send_http_post_request() -> String {
         },
         HttpHeader {
             name: "User-Agent".to_string(),
-            value: "exchange_rate_canister".to_string(),
+            value: "demo_HTTP_POST_canister".to_string(),
         },
-        //For the purposes of this exercise, Idempotency-Key" is hard coded, but in practice 
+        //For the purposes of this exercise, Idempotency-Key" is hard coded, but in practice
         //it should be generated via code and unique to each POST request. Common to create helper methods for this
         HttpHeader {
             name: "Idempotency-Key".to_string(),
@@ -33,7 +33,7 @@ async fn send_http_post_request() -> String {
         },
     ];
 
-    //note "CanisterHttpRequestArgument" and "HttpMethod" are declared in line 4. 
+    //note "CanisterHttpRequestArgument" and "HttpMethod" are declared in line 4.
     //CanisterHttpRequestArgument has the following types:
 
     // pub struct CanisterHttpRequestArgument {
@@ -63,10 +63,11 @@ async fn send_http_post_request() -> String {
         "name": "Grogu",
         "force_sensitive": "true",
         "language": "rust"
-    }"#.to_string();
+    }"#
+    .to_string();
     //note: here, r#""# is used for raw strings in Rust, which allows you to include characters like " and \ without needing to escape them.
     //We could have used "serde_json" as well.
-    let json_utf8: u8 = json_string.into_bytes();
+    let json_utf8: Vec<u8> = json_string.into_bytes();
     let request_body: Option<Vec<u8>> = Some(json_utf8);
 
     let request = CanisterHttpRequestArgument {
@@ -74,8 +75,8 @@ async fn send_http_post_request() -> String {
         max_response_bytes: None, //optional for request
         method: HttpMethod::POST,
         headers: request_headers,
-        body: request_body,               
-        transform: None,   //optional for request
+        body: request_body,
+        transform: None, //optional for request
     };
 
     //3. MAKE HTTPS REQUEST AND WAIT FOR RESPONSE
@@ -105,7 +106,12 @@ async fn send_http_post_request() -> String {
             // { successful: true }
 
             //Return the body as a string and end the method
-            str_body
+            let response_url = "https://public.requestbin.com/r/en8d7aepyq2ko";
+            let result: String = format!(
+                "{}. See more info of the request sent at at: {}",
+                str_body, response_url
+            );
+            result
         }
         Err((r, m)) => {
             let message =
@@ -115,8 +121,4 @@ async fn send_http_post_request() -> String {
             message
         }
     }
-
-
-
-
 }
