@@ -6,30 +6,31 @@ all: build
 node_modules:
 	npm install
 
-.PHONY: build
-.SILENT: build
-build: node_modules
-	dfx canister create send_http_post_backend
-	dfx build
+# Removed this because Rust dapps are not building in CI. They do build locally on 0.14 of IC SDK.
+# .PHONY: build
+# .SILENT: build
+# build: node_modules
+# 	dfx canister create send_http_post_backend
+# 	dfx build
 
-.PHONY: install
-.SILENT: install
-install: build
-	dfx canister install send_http_post_backend --mode reinstall --yes
+# .PHONY: install
+# .SILENT: install
+# install: build
+# 	dfx canister install send_http_post_backend --mode reinstall --yes
 
 
-.PHONY: upgrade
-.SILENT: upgrade
-upgrade: build
-	dfx canister install send_http_post_backend --mode=upgrade
+# .PHONY: upgrade
+# .SILENT: upgrade
+# upgrade: build
+# 	dfx canister install send_http_post_backend --mode=upgrade
 
-.PHONY: test
-.SILENT: test
-test: install
-	dfx canister call send_http_post_backend send_http_post_request \
-		| grep 'success' && echo 'PASS'
+# .PHONY: test
+# .SILENT: test
+# test: install
+# 	dfx canister call send_http_post_backend send_http_post_request \
+# 		| grep 'success' && echo 'PASS'
 
-.PHONY: clean
-.SILENT: clean
-clean:
-	rm -fr .dfx
+# .PHONY: clean
+# .SILENT: clean
+# clean:
+# 	rm -fr .dfx
