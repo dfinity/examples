@@ -1,5 +1,5 @@
 {
-  "name": "send_http_get_motoko_frontend",
+  "name": "send_http_get_frontend",
   "version": "0.2.0",
   "description": "Internet Computer starter application",
   "keywords": [
@@ -14,7 +14,7 @@
     "start": "webpack serve --mode development --env development",
     "deploy:local": "dfx deploy --network=local",
     "deploy:ic": "dfx deploy --network=ic",
-    "generate": "dfx generate send_http_get_motoko_backend"
+    "generate": "dfx generate send_http_get_backend"
   },
   "dependencies": {
     "@dfinity/agent": "^0.15.6",

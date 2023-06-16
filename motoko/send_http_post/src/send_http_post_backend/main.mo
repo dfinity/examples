@@ -86,7 +86,10 @@ actor {
     //  2. Use Blob.decodeUtf8() method to convert the Blob to a ?Text optional 
     //  3. We use Motoko syntax "Let... else" to unwrap what is returned from Text.decodeUtf8()
     let response_body: Blob = Blob.fromArray(http_response.body);
-    let ?decoded_text = Text.decodeUtf8(response_body) else return "No value returned";
+        let decoded_text: Text = switch (Text.decodeUtf8(response_body)) {
+        case (null) { "No value returned" };
+        case (?y) { y };
+    };
 
     //6. RETURN RESPONSE OF THE BODY
     let response_url: Text = "https://public.requestbin.com/r/en8d7aepyq2ko/";
