@@ -17,7 +17,6 @@ build: node_modules
 install: build
 	dfx canister install send_http_get_backend --mode reinstall --yes
 
-
 .PHONY: upgrade
 .SILENT: upgrade
 upgrade: build

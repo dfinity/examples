@@ -23,7 +23,7 @@ jobs:
         run: |
           dfx start --background
           pushd rust/send_http_post
-          make test
+          RUSTFLAGS=-Ctarget-cpu=mvp make test
           popd
   rust-send-http-post-example-linux:
     runs-on: ubuntu-20.04
@@ -35,5 +35,5 @@ jobs:
         run: |
           dfx start --background
           pushd rust/send_http_post
-          make test
+          RUSTFLAGS=-Ctarget-cpu=mvp make test
           popd
