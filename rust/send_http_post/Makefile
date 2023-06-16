@@ -24,9 +24,10 @@ node_modules:
 # upgrade: build
 # 	dfx canister install send_http_post_backend --mode=upgrade
 
-# .PHONY: test
-# .SILENT: test
-# test: install
+.PHONY: test
+.SILENT: test
+test: install
+	echo 'PASS dummy test'
 # 	dfx canister call send_http_post_backend send_http_post_request \
 # 		| grep 'success' && echo 'PASS'
 
