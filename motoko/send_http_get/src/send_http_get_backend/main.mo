@@ -68,7 +68,7 @@ actor {
     //The way Cycles.add() works is that it adds those cycles to the next asynchronous call
     //"Function add(amount) indicates the additional amount of cycles to be transferred in the next remote call"
     //See: https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-http_request
-    Cycles.add(17_000_000_000);
+    Cycles.add(22_000_000_000);
     
     //4. MAKE HTTPS REQUEST AND WAIT FOR RESPONSE
     //Since the cycles were added above, we can just call the IC management canister with HTTPS outcalls below
