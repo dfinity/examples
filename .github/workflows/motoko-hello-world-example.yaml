@@ -8,7 +8,7 @@ on:
       - motoko/hello-world/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
-      - .github/workflows/motoko-hello-world-example.yaml2
+      - .github/workflows/motoko-hello-world-example.yaml
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
