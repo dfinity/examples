@@ -68,29 +68,29 @@ import { spawnSync } from 'child_process';
 const constants = {
   nnsFundedSecp256k1Identity: {
     // Name used for the imported identity.
-    dfxIdentityName: 'nns-funded-secp256k1',
+    dfxIdentityName: "nns-funded-secp256k1",
     principalLiteral: `hpikg-6exdt-jn33w-ndty3-fc7jc-tl2lr-buih3-cs3y7-tftkp-sfp62-gqe`,
     creatorSubaccounts: {
-    // Specified here as they are used in E2E testing.
+      // Specified here as they are used in E2E testing.
       icpAccountIdentifierLiteral:
-        '5bea0a832af66531a1c2dda9e4f027f6c31dd943af039ff509ae492841b8b980',
+        "5bea0a832af66531a1c2dda9e4f027f6c31dd943af039ff509ae492841b8b980",
       icpAccountIdentifierBlobLiteral: `[\\ea\\0a\\83*\\f6e1\\a1\\c2\\dd\\a9\\e4\\f0\\27\\f6\\c3\\1d\\d9C\\af\\03\\9f\\f5\\09\\aeI(A\\b8\\b9\\80`,
-      icrc1SubaccountBlobLiteral: `\\dc\\f6(N7;lQ\\e0\\9aG&\\1e\\fb\\bfI\\c2\\95\\bdS\\88\\08\\de2\\f8\\bc\\eb\\a3bZl\\60`
+      icrc1SubaccountBlobLiteral: `\\dc\\f6(N7;lQ\\e0\\9aG&\\1e\\fb\\bfI\\c2\\95\\bdS\\88\\08\\de2\\f8\\bc\\eb\\a3bZl\\60`,
     },
   },
-  invoiceCanisterId: 'q4eej-kyaaa-aaaaa-aaaha-cai',
-  icpLedgerCanisterDfxJsonName: 'icp_ledger_canister',
+  invoiceCanisterId: "bkyz2-fmaaa-aaaaa-qaaaq-cai",
+  icpLedgerCanisterDfxJsonName: "icp_ledger_canister",
   icrc1ExampleToken: {
-    dfxJsonName: 'icrc1_token_ledger_canister_ex1',
+    dfxJsonName: "icrc1_token_ledger_canister_ex1",
     // Intentionally contrived so no collisions IRL.
-    tokenName: 'Internet Computer Random Curency One Example Token',
-    tokenSymbol: '_1ICRC1EX',
+    tokenName: "Internet Computer Random Curency One Example Token",
+    tokenSymbol: "_1ICRC1EX",
   },
   icrc1ExampleToken2: {
-    dfxJsonName: 'icrc1_token_ledger_canister_ex2',
+    dfxJsonName: "icrc1_token_ledger_canister_ex2",
     // Intentionally contrived so no collisions IRL.
-    tokenName: 'Two Internet Computer Random Curency One Example Token',
-    tokenSymbol: '_2ICRC1EX',
+    tokenName: "Two Internet Computer Random Curency One Example Token",
+    tokenSymbol: "_2ICRC1EX",
   },
 };
 
