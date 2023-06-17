@@ -2,7 +2,10 @@
   "canisters": {
     "life": {
       "main": "src/life/main.mo",
-      "type": "motoko"
+      "type": "motoko",
+      "declarations": {
+        "output": "declarations/life"
+      }
     },
     "life_assets": {
       "dependencies": [
