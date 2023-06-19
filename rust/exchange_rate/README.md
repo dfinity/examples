@@ -1,76 +1,98 @@
-## Purpose
-This canister is created to demonstrate usage of Internet Computer's newest feature: HTTP Requests
-for Canisters, where canisters can make remote HTTP calls. Currently, the feature is limited to
-access secure (HTTPS) remote services that are served by nodes with IPv6 addresses. Trying to access
-non-secure HTTP services or services with only IPv4 addresses will trigger Internet Computer errors.
+# Using HTTPS outcalls to fetch exchange rates
 
-## Security Considerations and Security Best Practices
+## Overview
 
-If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+The [HTTPS outcalls](/https-outcalls) feature provides a way for canisters to directly interact with web services that exist outside of the Internet Computer in the Web 2.0 world. The Exchange Rate sample dapp pulls ICP/USDC exchange rates from a single provider – [Coinbase](https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getproductcandles). The sample dapp provides an example of using the [HTTPS outcalls API](/docs/current/references/ic-interface-spec#ic-http_request) implemented in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/exchange_rate)
+ and [Rust](https://github.com/dfinity/examples/tree/master/rust/exchange_rate).
 
-For example, the following aspect is particularly relevant for this app:
-* [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since this is essential when e.g. displaying important financial data (in this case exchange rates) in the frontend that may be used by users to decide on future transactions (based on the rate information).
+### What does the sample dapp do?
+
+**TL;DR: the sample dapp is just an unbounded time series cache.**
+
+There are two parts to the sample dapp:
+1. The frontend UI canister `exchange_rate_assets`, which includes a time range picker and a rate chart.
+2. The backend provider canister `exchange_rate` that performs HTTPS outcalls, queues jobs, transforms responses, etc.
+
+The backend canister receives an update request corresponding to the time range specified by the user at the frontend. The time range
+is converted into time buckets and the buckets are queued for retrieval. Asynchronously at every few Internet Computer heartbeats,
+the backend canister makes a Coinbase API request for a single queued time bucket. Each request to Coinbase pulls at most 200 data points from Coinbase, which is less than the limit of 300 which Coinbase has. The dapp uses a time series granularity of 60 seconds, so each HTTPS request to
+Coinbase covers a time bucket of at most 200 minutes. The fetched data points are then put into a global timestamp-to-rate hashmap.
+
+If the time range the user requested is longer than a couple of years, the size of data to be returned by the backend `exchange_rate`
+canister could exceed the existing limits of the system. As a result, the `exchange_rate` canister may return data points with increased granularity in order to fit into the limits and
+cover the full requested range.
+
+## Architecture
+![Architecture overview diagram of the Exchange Rate dapp](../../_attachments/exchange_rate_arch.png)
 
 ## How to use the sample dapp
-There are two parts to the sample dapp, the frontend UI canister `exchange_rate_assets`, and the
-backend provider canister `exchange_rate`. Users should be able to interact with only the frontend
-UI canister, by selecting the start time and the end time with the datetime pickers.
 
-The returned rates may not exactly match the user's time selection. (There could be gaps in between
-data points, or there could be smaller ranges being returned, or if lucky enough, the returned
-dataset fully matches the user's request.) The reason for that is because, to respect rate limiting
-on the remote service, we scatter our calls to remote service once per every IC heartbeat.
-Consequently, the rate pulling can be a relatively-long asynchronous process. We store all the
-previously-pulled rates in memory. As the user submits their request, the rates that are already
-available from previous pulls will be returned, while the ones that are not yet available will be
-pulled in parallel. If the user spots gaps between requested rates and returned rates, the user
-simply needs to wait for some time and retry the request, and likely the full rates will be available then.
+Users should be able to interact only with the frontend UI canister by selecting the start time 
+and the end time with the datetime pickers.
 
-## Canister behaviors
-This canister uses the example of pulling ICP<->USDC exchange rates from
-[Coinbase Candles API](https://docs.cloud.coinbase.com/exchange/reference/exchangerestapi_getproductcandles).
-User requested rates will be put into a request pipe. And the remote HTTP request will be
-attempted every 5 IC heartbeats. HTTP request pulls 200 data points, with each data point covering a
-1 minute window of sample rate of Coinbase. As a result, each HTTP request to Coinbase covers
-200 minutes of data. 
+The returned rates may not exactly match the user's time selection. There could be gaps between
+data points or there could be a smaller range being returned. The reason is that to respect rate limiting
+on the remote service, we fetch data from the remote service once every few IC heartbeats.
+Consequently, pulling all requested rates can be a relatively long asynchronous operation. 
 
-If the user-requested time range is longer than a couple of years, the data points to be returned
-by backend canister could potentially be out of canister response upper limit (2MB). As a result,
-we cap number of data points to be returned by backend canister to frontend, and increase the
-sample interval in order to cover the full spectrum of interested range.
+All the previously-pulled rates are stored in memory. As the user submits their requests, the rates that are
+already available are returned, while the ones that are not yet available will be fetched eventually.
+If the user spots gaps between requested rates and returned rates, the user needs to wait for some time and
+retry the request, and likely the full set of rates will be available then.
 
-This canister is designed to be as cost effective as possible. There are 2 major factors that affect
-cycles usage when it comes to the Canister HTTP Request feature:
-- The number of requests being made
-- The size of each request and response
+## Cost analysis of the `exchange_rate` canister
 
-And between these 2 factors, the first one (number of remote requests made) has a much higher
-effect on cycles cost. So the goal of the canister is to:
-- Make as few remote calls as possible
-- Make each remote HTTP call as small as possible
+There are 2 major factors affecting the [pricing](/docs/current/developer-docs/integrations/http_requests/http_requests-how-it-works#pricing) when it comes to the HTTPS outcalls feature:
 
-However, note that these 2 goals are conflicting each other. Consider 1 year's exchange rate
-data, that is a static amount of data that needs to be downloaded. The fewer remote calls we make, the
-bigger amount of data each call needs to fetch. The less amount of data each call fetches, the
-more remote call the canister has to make. And we bias towards the 1st approach, which is
-maximize data fetched by each call as much as possible, to reduce number of calls needed. For the reason
-mentioned above, that the number of calls costs much more than call size.
+* The number of requests.
+* The size of each request and response.
 
-On top of that, we cache data that's already fetched, to save from future user requests
-triggering remote HTTP calls again.
+If we need to fetch a longer period of rates then the number of external HTTPS outcalls is inversely proportional to the body size of each response.
+This sample dapp minimizes the total number of HTTPS outcalls at the cost of bigger response bodies. 
 
-## Dependencies
-- [ic-cdk v0.7.0](https://crates.io/crates/ic-cdk) or above
-- [ic-cdk-macros v0.6.8](https://crates.io/crates/ic-cdk-macros) or above
-- [candid v0.8.4](https://crates.io/crates/candid) or above
-- [dfx v0.12.0](https://github.com/dfinity/sdk/releases) or above.
-- `wasm32-unknown-unknown` targets. Can be installed with `rustup target add wasm32-unknown-unknown`.
+## Building and deploying the sample dapp locally
 
-## Building the canister into wasm
-`cd rust/exchange_rate`
+### Prerequisites 
+- [x] Download and install [git.](https://git-scm.com/downloads)
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] [ic-cdk v0.7.0](https://crates.io/crates/ic-cdk) or above.
+- [x] [ic-cdk-macros v0.6.8](https://crates.io/crates/ic-cdk-macros) or above.
+- [x] [candid v0.8.4](https://crates.io/crates/candid) or above.
+- [x] [dfx v0.12.0](https://github.com/dfinity/sdk/releases) or above.
+- [x] `wasm32-unknown-unknown` targets; these can be installed with `rustup target add wasm32-unknown-unknown`.
 
-`cargo build --target wasm32-unknown-unknown --release`
+ ### Step 1: Clone the sample dapp's GitHub repo:
 
-## Deploy the canister locally
-- Simply do `./deploy.sh {env}` where env is your targetted network defined in `dfx.json`.
-E.g. `local`, `ic`, etc.
+```
+git clone https://github.com/dfinity/examples.git
+```
+
+ ### Step 2: Navigate into the Rust example directory for this project:
+
+```
+cd examples/rust/exchange_rate
+```
+
+ ### Step 3: Build the canister into Wasm:
+
+```
+cargo build --target wasm32-unknown-unknown --release
+```
+
+ ### Step 4: Deploy the canister locally:
+ 
+```
+./deploy.sh local
+```
+
+The output of this script will resemble the following:
+
+```
+Committing batch.
+Deployed canisters.
+URLs:
+  Frontend canister via browser
+    exchange_rate_assets: http://127.0.0.1:4943/?canisterId=bd3sg-teaaa-aaaaa-qaaba-cai
+  Backend canister via Candid interface:
+    exchange_rate: http://127.0.0.1:4943/?canisterId=be2us-64aaa-aaaaa-qaabq-cai&id=bkyz2-fmaaa-aaaaa-qaaaq-cai
+```
