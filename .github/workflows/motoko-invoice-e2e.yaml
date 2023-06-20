@@ -19,6 +19,8 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
+      - name: Upgrade dfx to latest
+        run: dfx upgrade
       - name: Install vessel
         run: |
           pushd motoko/invoice-canister
@@ -56,6 +58,8 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
+      - name: Upgrade dfx to latest
+        run: dfx upgrade
       - name: Install vessel
         run: |
           pushd motoko/invoice-canister
