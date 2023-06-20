@@ -234,20 +234,20 @@ The wallet canister on the "local" network for user "nns-funded-secp256k1" is "q
 Deploying: invoice
 Creating canisters...
 Creating canister invoice...
-invoice canister created with canister id: bkyz2-fmaaa-aaaaa-qaaaq-cai
+invoice canister created with canister id: q4eej-kyaaa-aaaaa-aaaha-cai
 Building canisters...
 Shrink WASM module size.
 Installing canisters...
 Creating UI canister on the local network.
 The UI canister on the "local" network is "q3fc5-haaaa-aaaaa-aaahq-cai"
-Installing code for canister invoice, with canister ID bkyz2-fmaaa-aaaaa-qaaaq-cai
+Installing code for canister invoice, with canister ID q4eej-kyaaa-aaaaa-aaaha-cai
 Deployed canisters.
 URLs:
   Backend canister via Candid interface:
-    invoice: http://127.0.0.1:8080/?canisterId=q3fc5-haaaa-aaaaa-aaahq-cai&id=bkyz2-fmaaa-aaaaa-qaaaq-cai
+    invoice: http://127.0.0.1:8080/?canisterId=q3fc5-haaaa-aaaaa-aaahq-cai&id=q4eej-kyaaa-aaaaa-aaaha-cai
 
 $ dfx canister id invoice
-bkyz2-fmaaa-aaaaa-qaaaq-cai
+q4eej-kyaaa-aaaaa-aaaha-cai
 deploying ICP ledger from downloaded wasm and swapping its public and private did files
 
 $ dfx ledger account-id
@@ -266,7 +266,7 @@ Deployed canisters.
 URLs:
   Backend canister via Candid interface:
     icp_ledger_canister: http://127.0.0.1:8080/?canisterId=q3fc5-haaaa-aaaaa-aaahq-cai&id=sgymv-uiaaa-aaaaa-aaaia-cai
-    invoice: http://127.0.0.1:8080/?canisterId=q3fc5-haaaa-aaaaa-aaahq-cai&id=bkyz2-fmaaa-aaaaa-qaaaq-cai
+    invoice: http://127.0.0.1:8080/?canisterId=q3fc5-haaaa-aaaaa-aaahq-cai&id=q4eej-kyaaa-aaaaa-aaaha-cai
 deploying ICRC1 token canister with name Internet Computer Random Curency One Example Token with hpikg-6exdt-jn33w-ndty3-fc7jc-tl2lr-buih3-cs3y7-tftkp-sfp62-gqe as minting principal
 
 $ dfx deploy icrc1_token_ledger_canister_ex1 --argument '(  record {  token_symbol = "_1ICRC1EX"; token_name =  "Internet Computer Random Curency One Example Token"; minting_account = record { owner = principal"hpikg-6exdt-jn33w-ndty3-fc7jc-tl2lr-buih3-cs3y7-tftkp-sfp62-gqe" }; transfer_fee = 10_000; metadata = vec {}; initial_balances = vec { };  archive_options = record { num_blocks_to_archive = 2000; trigger_threshold = 1000; controller_id = principal"hpikg-6exdt-jn33w-ndty3-fc7jc-tl2lr-buih3-cs3y7-tftkp-sfp62-gqe"; }; } )'
@@ -283,7 +283,7 @@ URLs:
   Backend canister via Candid interface:
     icp_ledger_canister: http://127.0.0.1:8080/?canisterId=q3fc5-haaaa-aaaaa-aaahq-cai&id=sgymv-uiaaa-aaaaa-aaaia-cai
     icrc1_token_ledger_canister_ex1: http://127.0.0.1:8080/?canisterId=q3fc5-haaaa-aaaaa-aaahq-cai&id=sbzkb-zqaaa-aaaaa-aaaiq-cai
-    invoice: http://127.0.0.1:8080/?canisterId=q3fc5-haaaa-aaaaa-aaahq-cai&id=bkyz2-fmaaa-aaaaa-qaaaq-cai
+    invoice: http://127.0.0.1:8080/?canisterId=q3fc5-haaaa-aaaaa-aaahq-cai&id=q4eej-kyaaa-aaaaa-aaaha-cai
 deploying ICRC1 token canister with name Two Internet Computer Random Curency One Example Token with hpikg-6exdt-jn33w-ndty3-fc7jc-tl2lr-buih3-cs3y7-tftkp-sfp62-gqe as minting principal
 
 $ dfx deploy icrc1_token_ledger_canister_ex2 --argument '(  record {  token_symbol = "_2ICRC1EX"; token_name =  "Two Internet Computer Random Curency One Example Token"; minting_account = record { owner = principal"hpikg-6exdt-jn33w-ndty3-fc7jc-tl2lr-buih3-cs3y7-tftkp-sfp62-gqe" }; transfer_fee = 10_000; metadata = vec {}; initial_balances = vec { };  archive_options = record { num_blocks_to_archive = 2000; trigger_threshold = 1000; controller_id = principal"hpikg-6exdt-jn33w-ndty3-fc7jc-tl2lr-buih3-cs3y7-tftkp-sfp62-gqe"; }; } )'
@@ -301,7 +301,7 @@ URLs:
     icp_ledger_canister: http://127.0.0.1:8080/?canisterId=q3fc5-haaaa-aaaaa-aaahq-cai&id=sgymv-uiaaa-aaaaa-aaaia-cai
     icrc1_token_ledger_canister_ex1: http://127.0.0.1:8080/?canisterId=q3fc5-haaaa-aaaaa-aaahq-cai&id=sbzkb-zqaaa-aaaaa-aaaiq-cai
     icrc1_token_ledger_canister_ex2: http://127.0.0.1:8080/?canisterId=q3fc5-haaaa-aaaaa-aaahq-cai&id=si2b5-pyaaa-aaaaa-aaaja-cai
-    invoice: http://127.0.0.1:8080/?canisterId=q3fc5-haaaa-aaaaa-aaahq-cai&id=bkyz2-fmaaa-aaaaa-qaaaq-cai
+    invoice: http://127.0.0.1:8080/?canisterId=q3fc5-haaaa-aaaaa-aaahq-cai&id=q4eej-kyaaa-aaaaa-aaaha-cai
 disbursing funds to principal subaccounts of invoice canister for E2E testing
 
 $ dfx ledger transfer 5bea0a832af66531a1c2dda9e4f027f6c31dd943af039ff509ae492841b8b980 --memo 123 --e8s 100000000000000
@@ -310,10 +310,10 @@ Transfer sent at BlockHeight: 5
 $ dfx canister call icp_ledger_canister transfer '( record {  memo = 1; fee = record {  e8s = 0  }; amount = record {  e8s = 100000000000000  }; to = blob "[\ea\0a\83*\f6e1\a1\c2\dd\a9\e4\f0\27\f6\c3\1d\d9C\af\03\9f\f5\09\aeI(A\b8\b9\80" } )'
 (variant { Ok = 0 : nat64 })
 
-$ dfx canister call icrc1_token_ledger_canister_ex1 icrc1_transfer '( record {  to = record {   owner = principal"bkyz2-fmaaa-aaaaa-qaaaq-cai";   subaccount = opt blob"\00\00\00\007;lQ\e0\9aG&\1e\fb\bfI\c2\95\bdS\88\08\de2\f8\bc\eb\a3bZl\60";  }; amount = 100000000000; } )'
+$ dfx canister call icrc1_token_ledger_canister_ex1 icrc1_transfer '( record {  to = record {   owner = principal"q4eej-kyaaa-aaaaa-aaaha-cai";   subaccount = opt blob"\00\00\00\007;lQ\e0\9aG&\1e\fb\bfI\c2\95\bdS\88\08\de2\f8\bc\eb\a3bZl\60";  }; amount = 100000000000; } )'
 (variant { Ok = 0 : nat })
 
-$ dfx canister call icrc1_token_ledger_canister_ex2 icrc1_transfer '( record {  to = record {   owner = principal"bkyz2-fmaaa-aaaaa-qaaaq-cai";   subaccount = opt blob"\00\00\00\007;lQ\e0\9aG&\1e\fb\bfI\c2\95\bdS\88\08\de2\f8\bc\eb\a3bZl\60";  }; amount = 100000000000; } )'
+$ dfx canister call icrc1_token_ledger_canister_ex2 icrc1_transfer '( record {  to = record {   owner = principal"q4eej-kyaaa-aaaaa-aaaha-cai";   subaccount = opt blob"\00\00\00\007;lQ\e0\9aG&\1e\fb\bfI\c2\95\bdS\88\08\de2\f8\bc\eb\a3bZl\60";  }; amount = 100000000000; } )'
 (variant { Ok = 0 : nat })
 
 all canisters deployed and ready to be called...
