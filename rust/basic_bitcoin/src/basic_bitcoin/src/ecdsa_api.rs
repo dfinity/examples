@@ -1,22 +1,20 @@
-use crate::types::*;
-use ic_cdk::{api::call::call_with_payment, call, export::Principal};
+use ic_cdk::api::management_canister::ecdsa::{
+    ecdsa_public_key as x, sign_with_ecdsa as y, EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgument,
+    EcdsaPublicKeyResponse, SignWithEcdsaArgument, SignWithEcdsaResponse,
+};
 
 /// Returns the ECDSA public key of this canister at the given derivation path.
 pub async fn ecdsa_public_key(key_name: String, derivation_path: Vec<Vec<u8>>) -> Vec<u8> {
     // Retrieve the public key of this canister at the given derivation path
     // from the ECDSA API.
-    let res: (ECDSAPublicKeyReply,) = call(
-        Principal::management_canister(),
-        "ecdsa_public_key",
-        (ECDSAPublicKey {
-            canister_id: None,
-            derivation_path,
-            key_id: EcdsaKeyId {
-                curve: EcdsaCurve::Secp256k1,
-                name: key_name,
-            },
-        },),
-    )
+    let res: (EcdsaPublicKeyResponse,) = x(EcdsaPublicKeyArgument {
+        canister_id: None,
+        derivation_path,
+        key_id: EcdsaKeyId {
+            curve: EcdsaCurve::Secp256k1,
+            name: key_name,
+        },
+    })
     .await
     .unwrap();
 
@@ -28,19 +26,14 @@ pub async fn sign_with_ecdsa(
     derivation_path: Vec<Vec<u8>>,
     message_hash: Vec<u8>,
 ) -> Vec<u8> {
-    let res: (SignWithECDSAReply,) = call_with_payment(
-        Principal::management_canister(),
-        "sign_with_ecdsa",
-        (SignWithECDSA {
-            message_hash,
-            derivation_path,
-            key_id: EcdsaKeyId {
-                curve: EcdsaCurve::Secp256k1,
-                name: key_name,
-            },
-        },),
-        10_000_000_000,
-    )
+    let res: (SignWithEcdsaResponse,) = y(SignWithEcdsaArgument {
+        message_hash,
+        derivation_path,
+        key_id: EcdsaKeyId {
+            curve: EcdsaCurve::Secp256k1,
+            name: key_name,
+        },
+    })
     .await
     .unwrap();
 

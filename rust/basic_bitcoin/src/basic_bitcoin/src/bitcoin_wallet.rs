@@ -10,10 +10,13 @@
 use crate::{bitcoin_api, ecdsa_api};
 use bitcoin::util::psbt::serialize::Serialize;
 use bitcoin::{
-    blockdata::{script::Builder, witness::Witness}, hashes::Hash, Address, AddressType, OutPoint, Script, EcdsaSighashType,
-    Transaction, TxIn, TxOut, Txid,
+    blockdata::{script::Builder, witness::Witness},
+    hashes::Hash,
+    Address, AddressType, EcdsaSighashType, OutPoint, Script, Transaction, TxIn, TxOut, Txid,
 };
-use ic_btc_types::{MillisatoshiPerByte, Network, Satoshi, Utxo};
+use ic_cdk::api::management_canister::bitcoin::{
+    BitcoinNetwork, MillisatoshiPerByte, Satoshi, Utxo,
+};
 use ic_cdk::print;
 use sha2::Digest;
 use std::str::FromStr;
@@ -22,7 +25,7 @@ const SIG_HASH_TYPE: EcdsaSighashType = EcdsaSighashType::All;
 
 /// Returns the P2PKH address of this canister at the given derivation path.
 pub async fn get_p2pkh_address(
-    network: Network,
+    network: BitcoinNetwork,
     key_name: String,
     derivation_path: Vec<Vec<u8>>,
 ) -> String {
@@ -37,7 +40,7 @@ pub async fn get_p2pkh_address(
 /// given destination, where the source of the funds is the canister itself
 /// at the given derivation path.
 pub async fn send(
-    network: Network,
+    network: BitcoinNetwork,
     derivation_path: Vec<Vec<u8>>,
     key_name: String,
     dst_address: String,
@@ -139,7 +142,7 @@ async fn build_transaction(
             own_address,
             transaction.clone(),
             String::from(""), // mock key name
-            vec![], // mock derivation path
+            vec![],           // mock derivation path
             mock_signer,
         )
         .await;
@@ -277,15 +280,15 @@ fn sha256(data: &[u8]) -> Vec<u8> {
 }
 
 // Converts a public key to a P2PKH address.
-fn public_key_to_p2pkh_address(network: Network, public_key: &[u8]) -> String {
+fn public_key_to_p2pkh_address(network: BitcoinNetwork, public_key: &[u8]) -> String {
     // sha256 + ripmd160
     let mut hasher = ripemd::Ripemd160::new();
     hasher.update(sha256(public_key));
     let result = hasher.finalize();
 
     let prefix = match network {
-        Network::Testnet | Network::Regtest => 0x6f,
-        Network::Mainnet => 0x00,
+        BitcoinNetwork::Testnet | BitcoinNetwork::Regtest => 0x6f,
+        BitcoinNetwork::Mainnet => 0x00,
     };
     let mut data_with_prefix = vec![prefix];
     data_with_prefix.extend(result);
@@ -299,7 +302,11 @@ fn public_key_to_p2pkh_address(network: Network, public_key: &[u8]) -> String {
 }
 
 // A mock for rubber-stamping ECDSA signatures.
-async fn mock_signer(_key_name: String, _derivation_path: Vec<Vec<u8>>, _message_hash: Vec<u8>) -> Vec<u8> {
+async fn mock_signer(
+    _key_name: String,
+    _derivation_path: Vec<Vec<u8>>,
+    _message_hash: Vec<u8>,
+) -> Vec<u8> {
     vec![255; 64]
 }
 
