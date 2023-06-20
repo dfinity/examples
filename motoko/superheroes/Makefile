@@ -10,6 +10,7 @@ node_modules:
 .SILENT: build
 build: node_modules
 	dfx canister create --all
+	export NODE_OPTIONS=--openssl-legacy-provider
 	dfx build
 
 .PHONY: install
