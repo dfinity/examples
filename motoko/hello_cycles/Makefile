@@ -22,6 +22,7 @@ upgrade: build
 test: install
 	$(eval WALLET := $(shell dfx identity get-wallet))
 	$(eval HELLO_CYCLES := $(shell dfx canister id hello_cycles))
+	echo "dfx version: $(shell dfx --version)"
 	echo "wallet: $(WALLET)"
 	echo "hello_cycles: $(HELLO_CYCLES)"
 	echo "$(dfx canister call hello_cycles wallet_balance)"
