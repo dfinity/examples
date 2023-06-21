@@ -31,7 +31,7 @@ test: install
 	dfx canister call send_http_post_backend send_http_post_request \
 		| grep 'success' && echo 'PASS'
 
-# .PHONY: clean
-# .SILENT: clean
-# clean:
-# 	rm -fr .dfx
+.PHONY: clean
+.SILENT: clean
+clean:
+	rm -fr .dfx
