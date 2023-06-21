@@ -6,7 +6,6 @@ all: build
 node_modules:
 	npm install
 
-# Removed this because Rust dapps are not building in CI. They do build locally on 0.14 of IC SDK.
 .PHONY: build
 .SILENT: build
 build: node_modules
