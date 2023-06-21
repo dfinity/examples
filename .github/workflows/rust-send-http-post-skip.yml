@@ -2,7 +2,7 @@ name: rust-send-http-post
 on:
   pull_request:
     paths-ignore:
-      - rust/send-http-post/**
+      - rust/send_http_post/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/rust-send-http-post-example.yaml
