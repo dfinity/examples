@@ -2,7 +2,7 @@ name: rust-send-http-get
 on:
   pull_request:
     paths-ignore:
-      - rust/send-http-get/**
+      - rust/send_http_get/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/rust-send-http-get-example.yaml
