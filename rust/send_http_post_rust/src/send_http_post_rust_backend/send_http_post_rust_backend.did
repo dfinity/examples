@@ -1,3 +1,0 @@
-service : {
-    "send_http_post_request": () -> (text);
-}
