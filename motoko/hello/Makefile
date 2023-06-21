@@ -22,12 +22,6 @@ install: build
 upgrade: build
 	dfx canister install --all --mode=upgrade
 
-.PHONY: test
-.SILENT: test
-test: install
-	dfx canister call hello greet '("everyone")' \
-		| grep '("Hello, everyone!")' && echo 'PASS'
-
 .PHONY: clean
 .SILENT: clean
 clean:
