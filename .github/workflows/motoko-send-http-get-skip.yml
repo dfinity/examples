@@ -2,7 +2,7 @@ name: motoko-send-http-get
 on:
   pull_request:
     paths-ignore:
-      - motoko/send-http-get/**
+      - motoko/send_http_get/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/motoko-send-http-get-example.yaml
