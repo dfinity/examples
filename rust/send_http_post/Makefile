@@ -7,22 +7,22 @@ node_modules:
 	npm install
 
 # Removed this because Rust dapps are not building in CI. They do build locally on 0.14 of IC SDK.
-# .PHONY: build
-# .SILENT: build
-# build: node_modules
-# 	dfx canister create send_http_post_backend
-# 	dfx build
+.PHONY: build
+.SILENT: build
+build: node_modules
+	dfx canister create send_http_post_backend
+	dfx build
 
-# .PHONY: install
-# .SILENT: install
-# install: build
-# 	dfx canister install send_http_post_backend --mode reinstall --yes
+.PHONY: install
+.SILENT: install
+install: build
+	dfx canister install send_http_post_backend --mode reinstall --yes
 
 
-# .PHONY: upgrade
-# .SILENT: upgrade
-# upgrade: build
-# 	dfx canister install send_http_post_backend --mode=upgrade
+.PHONY: upgrade
+.SILENT: upgrade
+upgrade: build
+	dfx canister install send_http_post_backend --mode=upgrade
 
 .PHONY: test
 .SILENT: test
