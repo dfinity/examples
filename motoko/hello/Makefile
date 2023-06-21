@@ -20,7 +20,7 @@ install: build
 .PHONY: upgrade
 .SILENT: upgrade
 upgrade: build
-	dfx canister install --all --mode=upgrade
+	dfx canister install --all --mode=upgrade 
 
 .PHONY: clean
 .SILENT: clean
