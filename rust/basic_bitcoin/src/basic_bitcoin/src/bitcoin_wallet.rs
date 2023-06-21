@@ -13,7 +13,7 @@ use bitcoin::{
     blockdata::{script::Builder, witness::Witness}, hashes::Hash, Address, AddressType, OutPoint, Script, EcdsaSighashType,
     Transaction, TxIn, TxOut, Txid,
 };
-use ic_btc_types::{MillisatoshiPerByte, Network, Satoshi, Utxo};
+use ic_btc_interface::{MillisatoshiPerByte, Network, Satoshi, Utxo};
 use ic_cdk::print;
 use sha2::Digest;
 use std::str::FromStr;
