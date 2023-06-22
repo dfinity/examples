@@ -41,15 +41,15 @@ Deploying to the Internet Computer requires [cycles](https://internetcomputer.or
 ### Deploy the smart contract to the Internet Computer
 
 ```bash
-dfx deploy --network=ic basic_bitcoin --argument '(variant { Testnet })'
+dfx deploy --network=ic basic_bitcoin --argument '(variant { testnet })'
 ```
 
 #### What this does
 - `dfx deploy` tells the command line interface to `deploy` the smart contract
 - `--network=ic` tells the command line to deploy the smart contract to the mainnet ICP blockchain
-- `--argument '(variant { Testnet })'` passes the argument `Testnet` to initialize the smart contract, telling it to connect to the Bitcoin testnet
+- `--argument '(variant { testnet })'` passes the argument `testnet` to initialize the smart contract, telling it to connect to the Bitcoin testnet
 
-**We're initializing the canister with `variant { Testnet }`, so that the canister connects to the the [Bitcoin testnet](https://en.bitcoin.it/wiki/Testnet). To be specific, this connects to `Testnet3`, which is the current Bitcoin test network used by the Bitcoin community.**
+**We're initializing the canister with `variant { testnet }`, so that the canister connects to the the [Bitcoin testnet](https://en.bitcoin.it/wiki/Testnet). To be specific, this connects to `Testnet3`, which is the current Bitcoin test network used by the Bitcoin community.**
 
 
 If successful, you should see an output that looks like this:
