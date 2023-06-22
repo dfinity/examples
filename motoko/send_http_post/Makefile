@@ -9,25 +9,26 @@ node_modules:
 .PHONY: build
 .SILENT: build
 build: node_modules
-	dfx canister create --all
+	dfx canister create send_http_post_backend
 	dfx build
 
 .PHONY: install
 .SILENT: install
 install: build
-	dfx canister install --all
+	dfx canister install send_http_post_backend --mode reinstall --yes
+
 
 .PHONY: upgrade
 .SILENT: upgrade
 upgrade: build
-	dfx canister install --all --mode=upgrade
+	dfx canister install send_http_post_backend --mode=upgrade
 
 .PHONY: test
 .SILENT: test
 test: install
-	dfx canister call hello greet '("everyone")' \
-		| grep '("Hello, everyone!")' && echo 'PASS'
-		
+	dfx canister call send_http_post_backend send_http_post_request \
+		| grep 'success.*true' && echo 'PASS'
+
 .PHONY: clean
 .SILENT: clean
 clean:
