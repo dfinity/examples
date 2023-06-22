@@ -1,0 +1,16 @@
+{
+  "canisters": {
+    "send_http_post_backend": {
+      "main": "src/send_http_post_backend/main.mo",
+      "type": "motoko"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
