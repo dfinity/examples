@@ -6,6 +6,8 @@ import { v4 as uuidv4 } from 'uuid';
 import type { BackendActor } from './actor';
 import { clearKeys, loadKey, storeKey } from './keyStorage';
 
+import * as agent from "@dfinity/agent";
+
 // Usage of the imported bindings only works if the respective .wasm was loaded, which is done in main.ts.
 // See also https://github.com/rollup/plugins/tree/master/packages/wasm#using-with-wasm-bindgen-and-wasm-pack
 import * as vetkd from "../../../../vetkd_user_lib/ic_vetkd.js";
@@ -34,6 +36,7 @@ export class CryptoService {
   private publicKeyBase64: string | null = null;
   public readonly deviceAlias: string;
   private intervalHandler: number | null = null;
+  private vetAesGcmKey: CryptoKey | null = null;
 
   /**
    * 1. Fetch this browser's public and private key pair. If no keypair exists, one will be generated and stored in localStorage.
@@ -43,10 +46,17 @@ export class CryptoService {
     // Showcase that the integration of the vetkd user library works
     const seed = window.crypto.getRandomValues(new Uint8Array(32));
     const tsk = new vetkd.TransportSecretKey(seed);
-    console.log("Successfully used vetKD user library via WASM to create new transport secret key");
-    console.log(tsk);
-    const tpk = tsk.public_key();
-    console.log(tpk);
+    const ek_bytes_hex = await this.actor.encrypted_symmetric_key_for_caller(tsk.public_key().to_bytes());
+    const ek = new vetkd.EncryptedKey(hex_decode(ek_bytes_hex));
+    const pk_bytes_hex = await this.actor.app_vetkd_public_key([new TextEncoder().encode("symmetric_key")]);
+    const principal = await agent.Actor.agentOf(this.actor).getPrincipal();
+    ///////////////////////////////
+    // TODO: ensure that the principal is different for different Internet Identities.
+    ///////////////////////////////
+    const k = ek.decrypt_and_verify(tsk, hex_decode(pk_bytes_hex), principal.toUint8Array());
+    const aes_key = await window.crypto.subtle.importKey("raw", k.to_aes_256_gcm_key(), "AES-GCM", false, ["encrypt", "decrypt"]);
+
+    this.vetAesGcmKey = aes_key;
 
     this.publicKey = await loadKey('public');
     this.privateKey = await loadKey('private');
@@ -98,6 +108,7 @@ export class CryptoService {
     this.publicKey = null;
     this.secretKey = null;
     this.secret = null;
+    this.vetAesGcmKey = null;
   }
 
   public async clearDevice() {
@@ -264,7 +275,7 @@ export class CryptoService {
 
   // The function encrypts data with the shared secretKey.
   public async encrypt(data: string) {
-    if (this.secretKey === null) {
+    if (this.vetAesGcmKey === null) {
           throw new Error('null shared secret!');
     }
     const data_encoded = Uint8Array.from([...data].map(ch => ch.charCodeAt(0))).buffer
@@ -275,7 +286,7 @@ export class CryptoService {
                        name: "AES-GCM",
                        iv: iv
                      },
-                     this.secretKey,
+                     this.vetAesGcmKey,
                      data_encoded
                    );
 
@@ -286,7 +297,7 @@ export class CryptoService {
 
   // The function decrypts the given input data.
   public async decrypt(data: string) {
-        if (this.secretKey === null) {
+        if (this.vetAesGcmKey === null) {
             throw new Error('null shared secret!');
         }
         if (data.length < 13) {
@@ -302,10 +313,15 @@ export class CryptoService {
                           name: "AES-GCM",
                           iv: iv_encoded
                         },
-                        this.secretKey,
+                        this.vetAesGcmKey,
                         ciphertext_encoded
                       );
         const decrypted_data_decoded = String.fromCharCode(...new Uint8Array(decrypted_data_encoded));
         return decrypted_data_decoded;
   }
 }
+
+const hex_decode = (hexString) =>
+  Uint8Array.from(hexString.match(/.{1,2}/g).map((byte) => parseInt(byte, 16)));
+const hex_encode = (bytes) =>
+  bytes.reduce((str, byte) => str + byte.toString(16).padStart(2, '0'), '');

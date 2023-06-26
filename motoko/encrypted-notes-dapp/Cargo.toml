@@ -1,4 +1,5 @@
 [workspace]
 members = [
-    'src/encrypted_notes_rust'
+    'src/encrypted_notes_rust',
+    'src/vetkd_system_api'
 ]

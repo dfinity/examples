@@ -1,17 +1,29 @@
 {
   "canisters": {
+    "vetkd_system_api": {
+      "candid": "src/vetkd_system_api/vetkd_system_api.did",
+      "package": "vetkd_system_api",
+      "type": "rust"
+    },
     "encrypted_notes_motoko": {
+      "dependencies": [
+        "vetkd_system_api"
+      ],
       "main": "src/encrypted_notes_motoko/main.mo",
       "type": "motoko"
     },
     "encrypted_notes_rust": {
+      "dependencies": [
+        "vetkd_system_api"
+      ],
       "type": "rust",
       "candid": "src/encrypted_notes_rust/src/encrypted_notes_rust.did",
       "package": "encrypted_notes_rust"
     },
     "www": {
       "dependencies": [
-        "encrypted_notes_{{ BUILD_ENV }}"
+        "encrypted_notes_{{ BUILD_ENV }}",
+        "vetkd_system_api"
       ],
       "frontend": {
         "entrypoint": "src/frontend/public/index.html"
