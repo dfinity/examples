@@ -46,14 +46,6 @@
         </li>
         <li class="flex-1" />
         <li>
-          <a href="/devices">
-            <span class="w-6 h-6 p-1 mr-2">
-              <FaMobileAlt />
-            </span>
-            Devices
-          </a>
-        </li>
-        <li>
           <button on:click={() => logout()}>
             <span class="w-6 h-6 p-1 mr-2">
               <FaDoorOpen />

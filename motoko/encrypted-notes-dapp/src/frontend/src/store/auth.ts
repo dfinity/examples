@@ -104,47 +104,16 @@ export async function authenticate(client: AuthClient) {
     }));
 
     const cryptoService = new CryptoService(actor);
-    const initialized = await cryptoService
+    await cryptoService
       .init()
       .catch((e) => showError(e, 'Could not initialize crypto service'));
 
-    if (initialized) {
-      auth.update(() => ({
-        state: 'initialized',
-        actor,
-        client,
-        crypto: cryptoService,
-      }));
-    } else {
-      // syncing required
-      auth.update(() => ({
-        state: 'synchronizing',
-        actor,
-        client,
-      }));
-
-      while (true) {
-        await sleep(1000);
-        try {
-          const initialized = await cryptoService.pollForSeed();
-          if (initialized) {
-            auth.update(() => ({
-              state: 'initialized',
-              actor,
-              client,
-              crypto: cryptoService,
-            }));
-            break;
-          }
-        } catch (e) {
-          console.error(e);
-          addNotification({
-            type: 'error',
-            message: 'Could not check synchronization status',
-          });
-        }
-      }
-    }
+    auth.update(() => ({
+      state: 'initialized',
+      actor,
+      client,
+      crypto: cryptoService,
+    }));
   } catch (e) {
     auth.update(() => ({
       state: 'error',

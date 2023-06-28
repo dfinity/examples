@@ -60,13 +60,10 @@
     "@dfinity/candid": "^0.15.1",
     "@dfinity/identity": "^0.15.1",
     "@dfinity/principal": "^0.15.1",
-    "crypto-js": "^4.1.1",
-    "idb": "^7.0.0",
     "sirv-cli": "^1.0.0",
     "svelte-icons": "^2.1.0",
     "svelte-router-spa": "^6.0.3",
-    "typewriter-editor": "^0.6.45",
-    "uuid": "^8.3.2"
+    "typewriter-editor": "^0.6.45"
   },
   "jest": {
     "transform": {
