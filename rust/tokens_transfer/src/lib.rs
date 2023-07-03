@@ -11,7 +11,7 @@ pub struct Conf {
     ledger_canister_id: Principal,
     // The subaccount of the account identifier that will be used to withdraw tokens and send them
     // to another account identifier. If set to None then the default subaccount will be used.
-    // See the [Ledger doc](https://smartcontracts.org/docs/integration/ledger-quick-start.html#_accounts).
+    // See the [Ledger doc](https://internetcomputer.org/docs/current/developer-docs/integrations/ledger/#accounts).
     subaccount: Option<Subaccount>,
     transaction_fee: Tokens
 }

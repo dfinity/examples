@@ -21,7 +21,7 @@ When upgrading canister code, however, it is necessary to explicitly handle cani
 
  ### 2. Certified data.
 Generally, when a function only reads data, instead of modifying the state of the canister, it is
-beneficial to use a [query call instead of an update call](https://smartcontracts.org/docs/current/concepts/canisters-code.md#query-and-update-methods).
+beneficial to use a [query call instead of an update call](https://internetcomputer.org/docs/current/concepts/canisters-code.md#query-and-update-methods).
 But, since query calls do not go through consensus, [certified responses](https://internetcomputer.org/docs/current/developer-docs/security/general-security-best-practices)
 should be used wherever possible. The HTTP interface of the Rust implementation shows how certified data can be handled.
 
@@ -76,7 +76,7 @@ The NFT example canister keeps access control in these three levels very simple:
 - If a user is not authorized to call a certain function an error is returned.
 
 Burning an NFT is a special case. To burn an NFT means to either delete the NFT (not intended in DIP-721) or to set ownership to `null` (or a similar value).
-On the Internet Computer, this non-existing principal is called the [management canister](https://smartcontracts.org/docs/current/references/ic-interface-spec.md#the-ic-management-canister).
+On the Internet Computer, this non-existing principal is called the [management canister](https://internetcomputer.org/docs/current/references/ic-interface-spec.md#the-ic-management-canister).
 > "The IC management canister is just a facade; it does not actually exist as a canister (with isolated state, Wasm code, etc.)," and its address is `aaaaa-aa`.
 Using this management canister address, we can construct its principal and set the management canister as the owner of a burned NFT.
 
