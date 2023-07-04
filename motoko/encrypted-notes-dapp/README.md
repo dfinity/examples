@@ -130,7 +130,7 @@ _Note_: this option does not yet work on Apple M1; the combination of [DFX](http
    dfx start --clean
    ```
    ⚠️ If you see an error `Failed to set socket of tcp builder to 0.0.0.0:8000`, make sure that the port `8000` is not occupied, e.g., by the previously run Docker command (you might want to stop the Docker deamon whatsoever for this step).
-7. Install a local [Internet Identity (II)](https://smartcontracts.org/docs/ic-identity-guide/what-is-ic-identity.html) canister:
+7. Install a local [Internet Identity (II)](https://internetcomputer.org/internet-identity) canister:
    _Note_: If you have multiple dfx identities set up, ensure you are using the identity you intend to use with the `--identity` flag.
    1. To install and deploy a canister run:
       ```sh
@@ -141,6 +141,15 @@ _Note_: this option does not yet work on Apple M1; the combination of [DFX](http
       npm run print-dfx-ii
       ```
    3. Visit the URL from above and create at least one local internet identity.
+7. Install the vetKD system API canister:
+   1. Ensure the Canister SDK (dfx) uses the canister ID that is hard-coded in the backend canister Rust source code:
+      ```sh
+      dfx canister create system_api --specified-id br5f7-7uaaa-aaaaa-qaaca-cai
+      ```
+   2. Install and deploy the canister:
+      ```sh
+      dfx deploy vetkd_system_api
+      ```
 8. Deploy the encrypted notes backend canister:
    ```sh
    dfx deploy "encrypted_notes_$BUILD_ENV"
@@ -151,20 +160,18 @@ _Note_: this option does not yet work on Apple M1; the combination of [DFX](http
    dfx generate "encrypted_notes_$BUILD_ENV"
    ```
 10. Deploy the frontend canister:
-    1. To install and deploy the canister run:
-       ```sh
-       dfx deploy www
-       ```
-    2. To print the frontend canister's URL, run:
-       ```sh
-       npm run print-dfx-www
-       ```
-    3. Visit the URL from above
-11. To get the frontend with hot-reloading on [http://localhost:3000/](http://localhost:3000/), run:
     ```sh
-    npm run dev
+    dfx deploy www
     ```
-    ⚠️ If you have opened this page previously, please remove all local store data for this page from your web browser, and hard-reload the page. For example in Chrome, go to Inspect → Application → Local Storage → `http://localhost:3000/` → Clear All, and then reload.
+    You can check its URL with `npm run print-dfx-www`.
+11. Open the frontend:
+    1. Start the local development server, which also supports hot-reloading:
+       ```sh
+       npm run dev
+       ```
+    2. Open the URL that is printed in the console output. Usually, this is [http://localhost:3000/](http://localhost:3000/).
+
+       ⚠️ If you have opened this page previously, please remove all local store data for this page from your web browser, and hard-reload the page. For example in Chrome, go to Inspect → Application → Local Storage → `http://localhost:3000/` → Clear All, and then reload.
 ---
 &nbsp;
 

@@ -1,9 +1,9 @@
 {
   "canisters": {
     "vetkd_system_api": {
-      "candid": "src/vetkd_system_api/vetkd_system_api.did",
-      "package": "vetkd_system_api",
-      "type": "rust"
+      "candid": "vetkd_system_api.did",
+      "type": "custom",
+      "wasm": "vetkd_system_api.wasm"
     },
     "encrypted_notes_motoko": {
       "dependencies": [
