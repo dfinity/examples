@@ -1,4 +1,4 @@
-import { random_maze } from '../../declarations'
+import { random_maze } from "../../declarations/random_maze";
 
 document.getElementById("generateBtn").addEventListener("click", async () => {
   const size = BigInt(document.getElementById("size").value);

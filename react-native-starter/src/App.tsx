@@ -129,7 +129,7 @@ const App = () => {
               title="Learn more"
               onPress={e => {
                 e.preventDefault();
-                Linking.openURL("https://smartcontracts.org/");
+                Linking.openURL("https://internetcomputer.org/");
               }}
             />
           </View>

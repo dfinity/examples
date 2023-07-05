@@ -13,7 +13,7 @@ RUN \
 # Uppercase [DFX_VERSION] is an environment variable for expected by the DFX installation script
 ARG dfx_version=0.9.3
 ENV DFX_VERSION=${dfx_version}
-RUN sh -ci "$(curl -fsSL https://smartcontracts.org/install.sh)"
+RUN sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
 ENV NODE_OPTIONS=--openssl-legacy-provider
 EXPOSE 8080 8000 3000 35729
 WORKDIR /canister

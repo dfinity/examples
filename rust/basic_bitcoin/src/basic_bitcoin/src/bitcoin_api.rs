@@ -1,4 +1,4 @@
-use ic_btc_types::{
+use ic_btc_interface::{
     GetBalanceRequest, GetCurrentFeePercentilesRequest, GetUtxosRequest, GetUtxosResponse,
     MillisatoshiPerByte, Network, Satoshi, SendTransactionRequest,
 };
@@ -21,7 +21,7 @@ pub async fn get_balance(network: Network, address: String) -> u64 {
         "bitcoin_get_balance",
         (GetBalanceRequest {
             address,
-            network,
+            network: network.into(),
             min_confirmations: None,
         },),
         GET_BALANCE_COST_CYCLES,
@@ -43,7 +43,7 @@ pub async fn get_utxos(network: Network, address: String) -> GetUtxosResponse {
         "bitcoin_get_utxos",
         (GetUtxosRequest {
             address,
-            network,
+            network: network.into(),
             filter: None,
         },),
         GET_UTXOS_COST_CYCLES,
@@ -62,7 +62,7 @@ pub async fn get_current_fee_percentiles(network: Network) -> Vec<MillisatoshiPe
     let res: Result<(Vec<MillisatoshiPerByte>,), _> = call_with_payment(
         Principal::management_canister(),
         "bitcoin_get_current_fee_percentiles",
-        (GetCurrentFeePercentilesRequest { network },),
+        (GetCurrentFeePercentilesRequest { network: network.into() },),
         GET_CURRENT_FEE_PERCENTILES_CYCLES,
     )
     .await;
@@ -82,7 +82,7 @@ pub async fn send_transaction(network: Network, transaction: Vec<u8>) {
         Principal::management_canister(),
         "bitcoin_send_transaction",
         (SendTransactionRequest {
-            network,
+            network: network.into(),
             transaction,
         },),
         transaction_fee,

@@ -43,7 +43,7 @@ npm ci
 Install `dfx` by running
 
 ```
-sh -ci "$(curl -fsSL https://smartcontracts.org/install.sh)"
+sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
 ```
 
 ### Start and stop the local replica
