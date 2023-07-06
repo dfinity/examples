@@ -53,46 +53,6 @@ impl DerivationPath {
         Self { delta }
     }
 
-    // pub fn new3(canister_id: &[u8], extra_paths: &[Vec<u8>]) -> Self {
-    //     let mut shake256 = Shake256::default();
-    //     shake256.update(b"ic-crypto-vetkd-bls12-381-derivation-path\0");
-
-    //     shake256.update((canister_id.len() as u64).to_be_bytes());
-    //     shake256.update(canister_id);
-
-    //     for path in extra_paths {
-    //         shake256.update((path.len() as u64).to_be_bytes());
-    //         shake256.update(path);
-    //     }
-
-    //     let mut output = shake256.finalize_xof();
-
-    //     let mut delta_h = [0u8; 64];
-    //     output.read(&mut delta_h);
-    //     let delta = scalar_from_wide_bytes(&delta_h);
-    //     Self { delta }
-    // }
-
-    // pub fn new(canister_id: &[u8], extra_paths: &[&[u8]]) -> Self {
-    //     let mut shake256 = Shake256::default();
-    //     shake256.update(b"ic-crypto-vetkd-bls12-381-derivation-path\0");
-
-    //     shake256.update((canister_id.len() as u64).to_be_bytes());
-    //     shake256.update(canister_id);
-
-    //     for path in extra_paths {
-    //         shake256.update((path.len() as u64).to_be_bytes());
-    //         shake256.update(path);
-    //     }
-
-    //     let mut output = shake256.finalize_xof();
-
-    //     let mut delta_h = [0u8; 64];
-    //     output.read(&mut delta_h);
-    //     let delta = scalar_from_wide_bytes(&delta_h);
-    //     Self { delta }
-    // }
-
     fn delta(&self) -> &Scalar {
         &self.delta
     }
