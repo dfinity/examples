@@ -1,3 +1,9 @@
+//! This file mainly contains a subset of an initial version of the Internet
+//! Computer's `ic-crypto-internal-bls12-381-vetkd` crate living at
+//! https://github.com/dfinity/ic/blob/master/rs/crypto/internal/crypto_lib/bls12_381/vetkd/src/lib.rs
+//! In particular, it contains just the subset of the code necessary to
+//! implement the vetkd system_api.
+
 #![allow(unused)]
 
 pub use ic_crypto_internal_bls12_381_type::*;
@@ -9,11 +15,6 @@ use sha3::{
 use zeroize::{Zeroize, ZeroizeOnDrop};
 
 pub type NodeIndex = u32;
-
-#[derive(Copy, Clone, Debug)]
-pub enum TransportSecretKeyDeserializationError {
-    InvalidSecretKey,
-}
 
 #[derive(Clone)]
 pub struct DerivationPath {
@@ -58,37 +59,6 @@ impl DerivationPath {
     }
 }
 
-#[derive(Clone, Zeroize, ZeroizeOnDrop)]
-pub struct TransportSecretKey {
-    secret_key: Scalar,
-}
-
-impl TransportSecretKey {
-    pub fn generate<R: RngCore + CryptoRng>(rng: &mut R) -> Self {
-        let secret_key = Scalar::random(rng);
-        Self { secret_key }
-    }
-
-    pub fn serialize(&self) -> Vec<u8> {
-        self.secret_key.serialize().to_vec()
-    }
-
-    pub fn deserialize(bytes: &[u8]) -> Result<Self, TransportSecretKeyDeserializationError> {
-        let secret_key = Scalar::deserialize(&bytes)
-            .map_err(|_| TransportSecretKeyDeserializationError::InvalidSecretKey)?;
-        Ok(Self { secret_key })
-    }
-
-    pub fn public_key(&self) -> TransportPublicKey {
-        let public_key = G1Affine::generator() * &self.secret_key;
-        TransportPublicKey::new(public_key.to_affine())
-    }
-
-    fn secret(&self) -> &Scalar {
-        &self.secret_key
-    }
-}
-
 #[derive(Copy, Clone, Debug)]
 pub enum TransportPublicKeyDeserializationError {
     InvalidPublicKey,
@@ -100,14 +70,6 @@ pub struct TransportPublicKey {
 }
 
 impl TransportPublicKey {
-    fn new(public_key: G1Affine) -> Self {
-        Self { public_key }
-    }
-
-    pub fn serialize(&self) -> Vec<u8> {
-        self.public_key.serialize().to_vec()
-    }
-
     pub fn deserialize(bytes: &[u8]) -> Result<Self, TransportPublicKeyDeserializationError> {
         let public_key = G1Affine::deserialize(&bytes)
             .map_err(|_| TransportPublicKeyDeserializationError::InvalidPublicKey)?;
@@ -219,47 +181,6 @@ impl EncryptedKey {
         Ok(Self { c1, c2, c3 })
     }
 
-    pub fn decrypt(
-        &self,
-        tsk: &TransportSecretKey,
-        master_pk: &G2Affine,
-        derivation_path: &DerivationPath,
-        did: &[u8],
-    ) -> Option<G1Affine> {
-        let dpk = get_derived_public_key(master_pk, derivation_path);
-        let msg = augmented_hash_to_g1(&dpk, did);
-
-        let k = G1Affine::from(G1Projective::from(&self.c3) - &self.c1 * tsk.secret());
-
-        let dpk_prep = G2Prepared::from(dpk);
-        let k_is_valid_sig =
-            Gt::multipairing(&[(&k, G2Prepared::neg_generator()), (&msg, &dpk_prep)]).is_identity();
-
-        if k_is_valid_sig {
-            Some(k)
-        } else {
-            None
-        }
-    }
-
-    pub fn deserialize(val: [u8; Self::BYTES]) -> Result<Self, EncryptedKeyDeserializationError> {
-        let c2_start = G1Affine::BYTES;
-        let c3_start = G1Affine::BYTES + G2Affine::BYTES;
-
-        let c1_bytes: &[u8] = &val[..c2_start];
-        let c2_bytes: &[u8] = &val[c2_start..c3_start];
-        let c3_bytes: &[u8] = &val[c3_start..];
-
-        let c1 = G1Affine::deserialize(&c1_bytes);
-        let c2 = G2Affine::deserialize(&c2_bytes);
-        let c3 = G1Affine::deserialize(&c3_bytes);
-
-        match (c1, c2, c3) {
-            (Ok(c1), Ok(c2), Ok(c3)) => Ok(Self { c1, c2, c3 }),
-            (_, _, _) => Err(EncryptedKeyDeserializationError::InvalidEncryptedKey),
-        }
-    }
-
     pub fn serialize(&self) -> [u8; Self::BYTES] {
         let mut output = [0u8; Self::BYTES];
 
@@ -326,39 +247,6 @@ impl EncryptedKeyShare {
 
         check_validity(&self.c1, &self.c2, &self.c3, did, tpk, &dpk, &dpki)
     }
-
-    pub fn deserialize(
-        val: [u8; Self::BYTES],
-    ) -> Result<Self, EncryptedKeyShareDeserializationError> {
-        let c2_start = G1Affine::BYTES;
-        let c3_start = G1Affine::BYTES + G2Affine::BYTES;
-
-        let c1_bytes: &[u8] = &val[..c2_start];
-        let c2_bytes: &[u8] = &val[c2_start..c3_start];
-        let c3_bytes: &[u8] = &val[c3_start..];
-
-        let c1 = G1Affine::deserialize(&c1_bytes);
-        let c2 = G2Affine::deserialize(&c2_bytes);
-        let c3 = G1Affine::deserialize(&c3_bytes);
-
-        match (c1, c2, c3) {
-            (Ok(c1), Ok(c2), Ok(c3)) => Ok(Self { c1, c2, c3 }),
-            (_, _, _) => Err(EncryptedKeyShareDeserializationError::InvalidEncryptedKeyShare),
-        }
-    }
-
-    pub fn serialize(&self) -> [u8; Self::BYTES] {
-        let mut output = [0u8; Self::BYTES];
-
-        let c2_start = G1Affine::BYTES;
-        let c3_start = G1Affine::BYTES + G2Affine::BYTES;
-
-        output[..c2_start].copy_from_slice(&self.c1.serialize());
-        output[c2_start..c3_start].copy_from_slice(&self.c2.serialize());
-        output[c3_start..].copy_from_slice(&self.c3.serialize());
-
-        output
-    }
 }
 
 #[derive(Copy, Clone, Debug)]
@@ -377,10 +265,6 @@ impl LagrangeCoefficients {
         }
 
         Ok(Self { coefficients })
-    }
-
-    pub fn coefficients(&self) -> &[Scalar] {
-        &self.coefficients
     }
 
     /// Given a list of samples `(x, f(x) * g)` for a set of unique `x`, some
@@ -405,18 +289,6 @@ impl LagrangeCoefficients {
         }
 
         Ok(G2Projective::muln_affine_vartime(y, &self.coefficients).to_affine())
-    }
-
-    /// Given a list of samples `(x, f(x))` for a set of unique `x`, some
-    /// polynomial `f`, returns `f(value) * g`.
-    ///
-    /// See: <https://en.wikipedia.org/wiki/Shamir%27s_Secret_Sharing#Computationally_efficient_approach>
-    pub fn interpolate_scalar(&self, y: &[Scalar]) -> Result<Scalar, LagrangeError> {
-        if y.len() != self.coefficients.len() {
-            return Err(LagrangeError::InterpolationError);
-        }
-
-        Ok(Scalar::muln_vartime(y, &self.coefficients))
     }
 
     /// Check for duplicate dealer indexes
