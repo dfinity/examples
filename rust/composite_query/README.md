@@ -1,12 +1,15 @@
 # Installing
 
+We first need to build the data partition backend canister.
+
 ```
 cd rust/composite_query/src
 dfx start
 dfx canister create data_partition
+dfx build data_partition
 ```
 
-Take not of the canister ID of the `data_partition` canister and put it in `kv_frontend/src/main.rs` file in constant `CANISTER_IDS`.
+During compilation of the fronted canister, the canister's wasm code will be inlined in the frontend canister's wasm code.
 
 ```
 dfx canister create kv_frontend
@@ -16,15 +19,16 @@ dfx canister install --all
 
 # Using the canister
 
+Now we add some key value pairs to via the frontend canister.
+
 ```
-$ dfx canister call data_partition put '(1:nat, 1337:nat)'
+$ dfx canister call kv_frontend put '(1:nat, 1337:nat)'
 (null)
-$ dfx canister call data_partition put '(1:nat, 42:nat)'
+$ dfx canister call kv_frontend put '(1:nat, 42:nat)'
 (opt (1_337 : nat))
 ```
 
-Although we have directly inserted a new key value pair to the data partition (which we really should not),
-we can retrieve it via the frontend canister.
+Note that the first call to `put` is slow, since the data partitions have to be created first.
 
 ```
 $ dfx canister call kv_frontend get '(1:nat)'
