@@ -424,7 +424,7 @@ dependencies = [
 [[package]]
 name = "ic-crypto-getrandom-for-wasm"
 version = "0.1.0"
-source = "git+https://github.com/dfinity/ic#aa9039ae1a12fc1b21b946d7970dd3d35579a366"
+source = "git+https://github.com/dfinity/ic#c47ecfb931d20474c1bcd779ab0027c494561900"
 dependencies = [
  "getrandom",
 ]
@@ -432,11 +432,11 @@ dependencies = [
 [[package]]
 name = "ic-crypto-internal-bls12-381-type"
 version = "0.1.0"
-source = "git+https://github.com/dfinity/ic#aa9039ae1a12fc1b21b946d7970dd3d35579a366"
+source = "git+https://github.com/dfinity/ic#c47ecfb931d20474c1bcd779ab0027c494561900"
 dependencies = [
  "hex",
  "ic-crypto-getrandom-for-wasm",
- "ic_bls12_381 0.8.0",
+ "ic_bls12_381",
  "itertools",
  "lazy_static",
  "pairing",
@@ -449,25 +449,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "ic-crypto-internal-bls12-381-vetkd"
+version = "0.1.0"
+source = "git+https://github.com/dfinity/ic#c47ecfb931d20474c1bcd779ab0027c494561900"
+dependencies = [
+ "ic-crypto-internal-bls12-381-type",
+ "rand",
+ "sha3",
+ "zeroize",
+]
+
+[[package]]
 name = "ic0"
 version = "0.18.10"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "187fa0cecf46628330b7a390a1a65fb0637ea00d3a1121aa847ecbebc0f3ff79"
-
-[[package]]
-name = "ic_bls12_381"
-version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "42a180f02c79a71fcbc10b194406dbffd6a883c916f96be4f17ae3aeb96348c5"
-dependencies = [
- "digest 0.9.0",
- "ff",
- "group",
- "pairing",
- "rand_core",
- "subtle",
- "zeroize",
-]
 
 [[package]]
 name = "ic_bls12_381"
@@ -1166,13 +1162,11 @@ dependencies = [
  "hex",
  "ic-cdk",
  "ic-crypto-internal-bls12-381-type",
- "ic_bls12_381 0.7.1",
+ "ic-crypto-internal-bls12-381-vetkd",
  "lazy_static",
  "rand",
  "rand_chacha",
  "serde",
- "sha3",
- "zeroize",
 ]
 
 [[package]]

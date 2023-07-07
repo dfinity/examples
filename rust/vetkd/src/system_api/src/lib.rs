@@ -1,5 +1,9 @@
 use ic_cdk::update;
 use ic_crypto_internal_bls12_381_type::{G2Affine, Scalar};
+use ic_crypto_internal_bls12_381_vetkd::{
+    DerivationPath, DerivedPublicKey, EncryptedKey, EncryptedKeyShare, TransportPublicKey,
+    TransportPublicKeyDeserializationError,
+};
 use rand::SeedableRng;
 use rand_chacha::ChaCha20Rng;
 use std::cell::RefCell;
@@ -7,13 +11,8 @@ use types::{
     VetKDCurve, VetKDEncryptedKeyReply, VetKDEncryptedKeyRequest, VetKDKeyId, VetKDPublicKeyReply,
     VetKDPublicKeyRequest,
 };
-use vetkd::{
-    DerivationPath, EncryptedKey, EncryptedKeyShare, TransportPublicKey,
-    TransportPublicKeyDeserializationError,
-};
 
 mod types;
-mod vetkd;
 
 const ENCRYPTED_KEY_CYCLE_COSTS: u64 = 0;
 
@@ -45,7 +44,7 @@ async fn vetkd_public_key(request: VetKDPublicKeyRequest) -> VetKDPublicKeyReply
         let canister_id = request.canister_id.unwrap_or_else(ic_cdk::caller);
         DerivationPath::new(canister_id.as_slice(), &request.derivation_path)
     };
-    let derived_public_key = vetkd::get_derived_public_key(&MASTER_PK, &derivation_path);
+    let derived_public_key = DerivedPublicKey::compute_derived_key(&MASTER_PK, &derivation_path);
     VetKDPublicKeyReply {
         public_key: derived_public_key.serialize().to_vec(),
     }
@@ -81,6 +80,7 @@ async fn vetkd_encrypted_key(request: VetKDEncryptedKeyRequest) -> VetKDEncrypte
     .await;
     let ek = EncryptedKey::combine(
         &vec![(0, MASTER_PK.clone(), eks)],
+        1,
         &MASTER_PK,
         &tpk,
         &derivation_path,

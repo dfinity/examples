@@ -12,11 +12,9 @@ crate-type = ["cdylib"]
 candid = "0.8.4"
 ic-cdk = "0.7.1"
 serde = "1"
+ic-crypto-internal-bls12-381-vetkd = { git = "https://github.com/dfinity/ic" }
 ic-crypto-internal-bls12-381-type = { git = "https://github.com/dfinity/ic" }
-ic_bls12_381 = { version = "0.7.1", default-features = false, features = ["groups", "pairings", "alloc", "experimental", "zeroize"] }
-zeroize = { version = "1", features = ["zeroize_derive"] }
 rand = "0.8"
 rand_chacha = "0.3"
-sha3 = "0.9"
 lazy_static = "1.4"
 hex = "0.4"
