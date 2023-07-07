@@ -1,10 +1,8 @@
-type ICPTs = record {
-     e8s : nat64;
-};
+// This is the official Ledger interface that is guaranteed to be backward compatible.
 
-type Duration = record {
-    secs: nat64;
-    nanos: nat32;
+// Amount of tokens, measured in 10^-8 of a token.
+type Tokens = record {
+     e8s : nat64;
 };
 
 // Number of nanoseconds from the UNIX epoch in UTC timezone.
@@ -12,88 +10,78 @@ type TimeStamp = record {
     timestamp_nanos: nat64;
 };
 
-type ArchiveOptions = record {
-    trigger_threshold : nat64;
-    num_blocks_to_archive : nat64;
-    node_max_memory_size_bytes: opt nat64;
-    max_message_size_bytes: opt nat64;
-    controller_id: principal;
-};
-
-// Height of a ledger block.
-type BlockHeight = nat64;
-
-// A number associated with a transaction.
-// Can be set by the caller in `send` call as a correlation identifier.
-type Memo = nat64;
-
-// Account identifier encoded as a 64-byte ASCII hex string.
-type AccountIdentifier = text;
+// AccountIdentifier is a 32-byte array.
+// The first 4 bytes is big-endian encoding of a CRC32 checksum of the last 28 bytes.
+type AccountIdentifier = blob;
 
 // Subaccount is an arbitrary 32-byte byte array.
+// Ledger uses subaccounts to compute the source address, which enables one
+// principal to control multiple ledger accounts.
 type SubAccount = blob;
 
-type Transfer = variant {
-    Burn: record {
-        from: AccountIdentifier;
-        amount: ICPTs;
-    };
-    Mint: record {
-        to: AccountIdentifier;
-        amount: ICPTs;
-    };
-    Send: record {
-        from: AccountIdentifier;
-        to: AccountIdentifier;
-        amount: ICPTs;
-    };
-};
+// Sequence number of a block produced by the ledger.
+type BlockIndex = nat64;
 
-type Transaction = record {
-    transfer: Transfer;
-    memo: Memo;
-    created_at: BlockHeight;
-};
+// An arbitrary number associated with a transaction.
+// The caller can set it in a `transfer` call as a correlation identifier.
+type Memo = nat64;
 
-// Arguments for the `send_dfx` call.
-type SendArgs = record {
+// Arguments for the `transfer` call.
+type TransferArgs = record {
+    // Transaction memo.
+    // See comments for the `Memo` type.
     memo: Memo;
-    amount: ICPTs;
-    fee: ICPTs;
+    // The amount that the caller wants to transfer to the destination address.
+    amount: Tokens;
+    // The amount that the caller pays for the transaction.
+    // Must be 10000 e8s.
+    fee: Tokens;
+    // The subaccount from which the caller wants to transfer funds.
+    // If null, the ledger uses the default (all zeros) subaccount to compute the source address.
+    // See comments for the `SubAccount` type.
     from_subaccount: opt SubAccount;
+    // The destination account.
+    // If the transfer is successful, the balance of this address increases by `amount`.
     to: AccountIdentifier;
+    // The point in time when the caller created this request.
+    // If null, the ledger uses current IC time as the timestamp.
     created_at_time: opt TimeStamp;
 };
 
-// Arguments for the `notify` call.
-type NotifyCanisterArgs = record {
-    // The of the block to send a notification about.
-    block_height: BlockHeight;
-    // Max fee, should be 10000 e8s.
-    max_fee: ICPTs;
-    // Subaccount the payment came from.
-    from_subaccount: opt SubAccount;
-    // Canister that received the payment.
-    to_canister: principal;
-    // Subaccount that received the payment.
-    to_subaccount: opt SubAccount;
+type TransferError = variant {
+    // The fee that the caller specified in the transfer request was not the one that ledger expects.
+    // The caller can change the transfer fee to the `expected_fee` and retry the request.
+    BadFee : record { expected_fee : Tokens; };
+    // The account specified by the caller doesn't have enough funds.
+    InsufficientFunds : record { balance: Tokens; };
+    // The request is too old.
+    // The ledger only accepts requests created within 24 hours window.
+    // This is a non-recoverable error.
+    TxTooOld : record { allowed_window_nanos: nat64 };
+    // The caller specified `created_at_time` that is too far in future.
+    // The caller can retry the request later.
+    TxCreatedInFuture : null;
+    // The ledger has already executed the request.
+    // `duplicate_of` field is equal to the index of the block containing the original transaction.
+    TxDuplicate : record { duplicate_of: BlockIndex; }
 };
 
+type TransferResult = variant {
+    Ok : BlockIndex;
+    Err : TransferError;
+};
+
+// Arguments for the `account_balance` call.
 type AccountBalanceArgs = record {
     account: AccountIdentifier;
 };
 
-type LedgerCanisterInitPayload = record {
-    minting_account: AccountIdentifier;
-    initial_values: vec record {AccountIdentifier; ICPTs};
-    max_message_size_bytes: opt nat64;
-    transaction_window: opt Duration;
-    archive_options: opt ArchiveOptions;
-    send_whitelist: vec principal;
-};
+service : {
+  // Transfers tokens from a subaccount of the caller to the destination address.
+  // The source address is computed from the principal of the caller and the specified subaccount.
+  // When successful, returns the index of the block containing the transaction.
+  transfer : (TransferArgs) -> (TransferResult);
 
-service: (LedgerCanisterInitPayload) -> {
-  send_dfx : (SendArgs) -> (BlockHeight);
-  notify_dfx: (NotifyCanisterArgs) -> ();
-  account_balance_dfx : (AccountBalanceArgs) -> (ICPTs) query;
+  // Returns the amount of Tokens on the specified account.
+  account_balance : (AccountBalanceArgs) -> (Tokens) query;
 }
