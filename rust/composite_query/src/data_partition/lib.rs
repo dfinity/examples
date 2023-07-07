@@ -9,10 +9,15 @@ thread_local! {
 
 #[update]
 fn put(key: u128, value: u128) -> Option<u128> {
+    ic_cdk::println!("Set in backend for key={} with value={}", key, value);
     STORE.with(|store| store.borrow_mut().insert(key, value))
 }
 
 #[query]
 fn get(key: u128) -> Option<u128> {
-    STORE.with(|store| store.borrow().get(&key))
+    STORE.with(|store| {
+        let r = store.borrow().get(&key);
+        ic_cdk::println!("Get in backend for key={} - result={:?}", key, r);
+        r
+    })
 }

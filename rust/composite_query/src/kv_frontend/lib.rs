@@ -11,12 +11,13 @@ const NUM_PARTITIONS: usize = 5;
 
 // Inline wasm binary of data partition canister
 pub const WASM: &[u8] =
-    include_bytes!("../../target/wasm32-unknown-unknown/release/data_partition.wasm");
+    include_bytes!("../../target/wasm32-unknown-unknown/release/data_partition.wasm.gz");
 
 thread_local! {
     // A list of canister IDs for data partitions
     static CANISTER_IDS: Arc<RwLock<Vec<Principal>>> = Arc::new(RwLock::new(vec![]));
 }
+
 #[update]
 async fn put(key: u128, value: u128) -> Option<u128> {
 
@@ -31,6 +32,7 @@ async fn put(key: u128, value: u128) -> Option<u128> {
     }
 
     let canister_id = get_partition_for_key(key);
+    ic_cdk::println!("Put in frontend for key={} .. using backend={}", key, canister_id.to_text());
     match call(canister_id, "put", (key, value), ).await {
         Ok(r) => {
             let (res,): (Option<u128>,) = r;
@@ -43,6 +45,7 @@ async fn put(key: u128, value: u128) -> Option<u128> {
 #[query(composite = true)]
 async fn get(key: u128) -> Option<u128> {
     let canister_id = get_partition_for_key(key);
+    ic_cdk::println!("Get in frontend for key={} .. using backend={}", key, canister_id.to_text());
     match call(canister_id, "get", (key, ), ).await {
         Ok(r) => {
             let (res,): (Option<u128>,) = r;
@@ -55,6 +58,7 @@ async fn get(key: u128) -> Option<u128> {
 #[update]
 async fn get_update(key: u128) -> Option<u128> {
     let canister_id = get_partition_for_key(key);
+    ic_cdk::println!("Get as update in frontend for key={} .. using backend={}", key, canister_id.to_text());
     match call(canister_id, "get", (key, ), ).await {
         Ok(r) => {
             let (res,): (Option<u128>,) = r;
