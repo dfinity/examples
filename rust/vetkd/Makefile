@@ -15,8 +15,7 @@ deploy: node_modules
 .PHONY: test
 .SILENT: test
 test: deploy
-	dfx canister call app_backend symmetric_key_verification_key \
-		| && echo 'MINIMAL SANITY CHECK PASSED'
+	dfx canister call app_backend symmetric_key_verification_key && echo 'MINIMAL SANITY CHECK PASSED'
 
 .PHONY: clean
 .SILENT: clean
