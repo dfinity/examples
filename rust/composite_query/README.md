@@ -5,16 +5,14 @@ We first need to build the data partition backend canister.
 ```
 cd rust/composite_query/src
 dfx start
-dfx canister create data_partition
-dfx build data_partition
+dfx canister create kv_frontend
 ```
 
 During compilation of the fronted canister, the canister's wasm code will be inlined in the frontend canister's wasm code.
 
 ```
-dfx canister create kv_frontend
-dfx build --all
-dfx canister install --all
+dfx build kv_frontend
+dfx canister install kv_frontend
 ```
 
 # Using the canister
