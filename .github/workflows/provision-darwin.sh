@@ -11,7 +11,7 @@ bash install-brew.sh
 rm install-brew.sh
 
 # Install Node.
-version=14.15.4
+version=14.21.3
 curl --location --output node.pkg "https://nodejs.org/dist/v$version/node-v$version.pkg"
 sudo installer -pkg node.pkg -store -target /
 rm node.pkg
