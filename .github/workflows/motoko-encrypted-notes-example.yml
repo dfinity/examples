@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
-        run: bash .github/workflows/provision-darwin.sh
+        run: bash motoko/encrypted-notes-dapp/provision-darwin.sh
       - name: Motoko Encrypted Notes Darwin (unit tests)
         run: |
           pushd motoko/encrypted-notes-dapp
