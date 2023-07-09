@@ -5,7 +5,7 @@ on:
       - master
   pull_request:
     paths:
-      - rust/encrypted-notes-dapp/**
+      - motoko/encrypted-notes-dapp/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/rust-encrypted-notes-example.yml
@@ -18,7 +18,9 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
-        run: bash .github/workflows/provision-darwin.sh
+        env:
+          DFX_VERSION: 0.14.2
+        run: bash motoko/encrypted-notes-dapp/provision-darwin.sh
       - name: Rust Encrypted Notes Darwin (unit tests)
         run: |
           pushd motoko/encrypted-notes-dapp
@@ -34,6 +36,8 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
+        env:
+          DFX_VERSION: 0.14.2
         run: bash .github/workflows/provision-linux.sh
       - name: Rust Encrypted Notes Linux (unit tests)
         run: |
