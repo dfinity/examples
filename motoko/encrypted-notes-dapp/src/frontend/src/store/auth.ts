@@ -106,7 +106,10 @@ export async function authenticate(client: AuthClient) {
     const cryptoService = new CryptoService(actor);
     await cryptoService
       .init()
-      .catch((e) => showError(e, 'Could not initialize crypto service'));
+      .catch((e) => {
+        console.log(e);
+        showError(e, 'Could not initialize crypto service');
+      });
 
     auth.update(() => ({
       state: 'initialized',
