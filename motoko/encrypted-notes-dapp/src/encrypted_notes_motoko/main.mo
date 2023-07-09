@@ -15,8 +15,6 @@ import Order "mo:base/Order";
 import Blob "mo:base/Blob";
 import Hex "./utils/Hex";
 
-import En "types";
-
 // Declare a shared actor class
 // Bind the caller and the initializer
 shared({ caller = initializer }) actor class() {
