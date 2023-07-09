@@ -228,7 +228,7 @@ shared({ caller = initializer }) actor class() {
         }) -> async ({ encrypted_key : Blob });
     };
 
-    let vetkd_system_api : VETKD_SYSTEM_API = actor("br5f7-7uaaa-aaaaa-qaaca-cai");
+    let vetkd_system_api : VETKD_SYSTEM_API = actor("s55qq-oqaaa-aaaaa-aaakq-cai");
 
     public shared({ caller }) func app_vetkd_public_key(derivation_path: [Blob]): async Text {
         let { public_key } = await vetkd_system_api.vetkd_public_key({

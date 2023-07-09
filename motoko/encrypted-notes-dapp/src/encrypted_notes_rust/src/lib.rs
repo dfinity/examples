@@ -267,7 +267,7 @@ mod tests {
 
 mod vetkd_types;
 
-const VETKD_SYSTEM_API_CANISTER_ID: &str = "br5f7-7uaaa-aaaaa-qaaca-cai";
+const VETKD_SYSTEM_API_CANISTER_ID: &str = "s55qq-oqaaa-aaaaa-aaakq-cai";
 
 use vetkd_types::{
     CanisterId, VetKDCurve, VetKDEncryptedKeyReply, VetKDEncryptedKeyRequest, VetKDKeyId,

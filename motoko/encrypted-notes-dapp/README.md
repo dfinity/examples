@@ -379,7 +379,7 @@ export BUILD_ENV=rust
 7. Install the vetKD system API canister:
    1. Ensure the Canister SDK (dfx) uses the canister ID that is hard-coded in the backend canister Rust source code:
       ```sh
-      dfx canister create vetkd_system_api --specified-id br5f7-7uaaa-aaaaa-qaaca-cai
+      dfx canister create vetkd_system_api --specified-id s55qq-oqaaa-aaaaa-aaakq-cai
       ```
    2. Install and deploy the canister:
       ```sh

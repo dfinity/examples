@@ -17,7 +17,7 @@ test-e2e:
 	rm -fr .dfx
 	dfx start --clean --background
 	dfx deploy internet_identity --argument '(null)'
-	dfx canister create vetkd_system_api --specified-id br5f7-7uaaa-aaaaa-qaaca-cai
+	dfx canister create vetkd_system_api --specified-id s55qq-oqaaa-aaaaa-aaakq-cai
 	dfx deploy vetkd_system_api
 	dfx deploy encrypted_notes_${BUILD_ENV}
 	dfx generate encrypted_notes_${BUILD_ENV}
