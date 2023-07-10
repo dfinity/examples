@@ -6,9 +6,13 @@ In particular, instead of creating a principal-specific AES key and syncing it a
 
 The difference between the original encrypted-notes-dapp and the this one here can be seen in https://github.com/dfinity/examples/pull/561.
 
-Please also see the [README of the original encrypted-notes-dapp](../encrypted-notes-dapp/README.md) for further details, especially the *disclaimer*.
+Currently, the only way to use this dapp is via manual local deployment (see below).
 
-Currently, the only way to deploy this app is with the following manual instructions (i.e., there are currently no instructions for using Docker).
+Please also see the [README of the original encrypted-notes-dapp](../encrypted-notes-dapp/README.md) for further details.
+
+## Disclaimer
+
+This example uses an [**insecure** implementation](../../rust/vetkd/src/system_api) of [the proposed vetKD system API](https://github.com/dfinity/interface-spec/pull/158) in a pre-compiled form via the [vetkd_system_api.wasm](./vetkd_system_api.wasm). **Do not use this in production or for sensitive data**! This example is solely provided **for demonstration purposes** to collect feedback on the mentioned vetKD system API.
 
 ## Manual local deployment
 1. For **Motoko** deployment set environmental variable:
