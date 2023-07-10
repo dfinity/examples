@@ -27,3 +27,13 @@ test-e2e:
 	dfx canister call encrypted_notes_${BUILD_ENV} whoami
 	sh test_whoami.sh
 	echo "ENCRYPTED NOTES E2E TESTS PASSED"
+
+clean:
+	rm -rf .dfx
+	rm -rf node_modules
+	rm -rf src/declarations
+	rm -rf src/frontend/public/build
+	rm -rf src/frontend/src/lib/backend.ts
+	rm -rf src/frontend/src/lib/idlFactory.js
+	rm -rf dfx.json
+	cargo clean
