@@ -1,0 +1,16 @@
+type anon_class_15_1 = 
+ service {
+   add_note: (text) -> ();
+   delete_note: (int) -> ();
+   get_notes: () -> (vec EncryptedNote);
+   update_note: (EncryptedNote) -> ();
+   whoami: () -> (text);
+   app_vetkd_public_key: (vec blob) -> (text);
+   encrypted_symmetric_key_for_caller: (blob) -> (text);
+ };
+type EncryptedNote = 
+ record {
+   encrypted_text: text;
+   id: nat;
+ };
+service : () -> anon_class_15_1
