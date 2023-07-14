@@ -239,6 +239,15 @@ shared({ caller = initializer }) actor class() {
         Hex.encode(Blob.toArray(public_key))
     };
 
+    public shared({ caller }) func symmetric_key_verification_key(): async Text {
+        let { public_key } = await vetkd_system_api.vetkd_public_key({
+            canister_id = null;
+            derivation_path = Array.make(Text.encodeUtf8("symmetric_key"));
+            key_id = { curve = #bls12_381; name = "test_key_1" };
+        });
+        Hex.encode(Blob.toArray(public_key))
+    };
+
     public shared ({ caller }) func encrypted_symmetric_key_for_caller(encryption_public_key : Blob) : async Text {
         let caller_blob = Principal.toBlob(caller);
         let { encrypted_key } = await vetkd_system_api.vetkd_encrypted_key({

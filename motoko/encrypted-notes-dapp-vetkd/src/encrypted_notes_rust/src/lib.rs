@@ -295,6 +295,25 @@ async fn app_vetkd_public_key(derivation_path: Vec<Vec<u8>>) -> String {
 }
 
 #[update]
+async fn symmetric_key_verification_key() -> String {
+    let request = VetKDPublicKeyRequest {
+        canister_id: None,
+        derivation_path: vec![b"symmetric_key".to_vec()],
+        key_id: bls12_381_test_key_1(),
+    };
+
+    let (response,): (VetKDPublicKeyReply,) = ic_cdk::api::call::call(
+        vetkd_system_api_canister_id(),
+        "vetkd_public_key",
+        (request,),
+    )
+    .await
+    .expect("call to vetkd_public_key failed");
+
+    hex::encode(response.public_key)
+}
+
+#[update]
 async fn encrypted_symmetric_key_for_caller(encryption_public_key: Vec<u8>) -> String {
     let request = VetKDEncryptedKeyRequest {
         derivation_id: ic_cdk::caller().as_slice().to_vec(),

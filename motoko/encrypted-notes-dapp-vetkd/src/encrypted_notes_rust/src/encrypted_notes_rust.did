@@ -6,6 +6,7 @@ type anon_class_15_1 =
    update_note: (EncryptedNote) -> ();
    whoami: () -> (text);
    app_vetkd_public_key: (vec blob) -> (text);
+   symmetric_key_verification_key: () -> (text);
    encrypted_symmetric_key_for_caller: (blob) -> (text);
  };
 type EncryptedNote = 

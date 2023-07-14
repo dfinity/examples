@@ -22,7 +22,7 @@ export class CryptoService {
     const tsk = new vetkd.TransportSecretKey(seed);
 
     const ek_bytes_hex = await this.actor.encrypted_symmetric_key_for_caller(tsk.public_key());
-    const pk_bytes_hex = await this.actor.app_vetkd_public_key([new TextEncoder().encode("symmetric_key")]);
+    const pk_bytes_hex = await this.actor.symmetric_key_verification_key();
     const principal = await agent.Actor.agentOf(this.actor).getPrincipal();
 
     const aes_256_gcm_key_raw = tsk.decrypt_and_hash(
