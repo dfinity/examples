@@ -73,7 +73,7 @@ shared({ caller = initializer }) actor class() {
     // Check that a note identifier is sane. This is needed since Motoko integers 
     // are infinite-precision. 
     // Note: avoid extraneous usage of async functions, hence [user_count]
-    private func is_id_sane(id: Int): Bool {
+    private func is_id_sane(id: Nat): Bool {
         0 <= id and id < MAX_NOTES_PER_USER * user_count()
     };
 
@@ -200,7 +200,7 @@ shared({ caller = initializer }) actor class() {
     // Traps: 
     //      [caller] is the anonymous identity
     //      [id] is unreasonable; see [is_id_sane]
-    public shared({ caller }) func delete_note(id: Int): async () {
+    public shared({ caller }) func delete_note(id: Nat): async () {
         assert not Principal.isAnonymous(caller);
         assert is_id_sane(id);
 
