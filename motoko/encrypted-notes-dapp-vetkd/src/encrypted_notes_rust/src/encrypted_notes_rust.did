@@ -1,7 +1,7 @@
 type anon_class_15_1 = 
  service {
    add_note: (text) -> ();
-   delete_note: (int) -> ();
+   delete_note: (nat) -> ();
    get_notes: () -> (vec EncryptedNote);
    update_note: (EncryptedNote) -> ();
    whoami: () -> (text);
