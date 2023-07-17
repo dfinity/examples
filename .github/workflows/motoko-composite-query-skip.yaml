@@ -1,4 +1,4 @@
-name: motoko-classes
+name: motoko-composite-query
 on:
   pull_request:
     paths-ignore:

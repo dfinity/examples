@@ -1,4 +1,4 @@
-name: motoko-classes
+name: motoko-composite-query
 on:
   push:
     branches:
@@ -13,7 +13,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  motoko-classes-darwin:
+  motoko-composite-query-darwin:
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v1
@@ -25,7 +25,7 @@ jobs:
           pushd motoko/composite_query
           make test
           popd
-  motoko-classes-linux:
+  motoko-composite-query-linux:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
