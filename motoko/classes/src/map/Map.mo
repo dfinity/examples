@@ -7,7 +7,7 @@ actor Map {
   let n = 4; // number of buckets
 
   // divide initial balance amongst self and buckets
-  let cycleShare = Cycles.balance()/(n + 1);
+  let cycleShare = Cycles.balance() / (n + 1);
 
   type Key = Nat;
   type Value = Text;
@@ -16,7 +16,14 @@ actor Map {
 
   let buckets : [var ?Bucket] = Array.init(n, null);
 
-  public func get(k : Key) : async ?Value {
+  public func getUpdate(k : Key) : async ?Value {
+    switch (buckets[k % n]) {
+      case null null;
+      case (?bucket) await bucket.get(k);
+    };
+  };
+
+  public composite query func get(k : Key) : async ?Value {
     switch (buckets[k % n]) {
       case null null;
       case (?bucket) await bucket.get(k);
