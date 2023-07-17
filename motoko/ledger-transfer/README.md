@@ -24,36 +24,30 @@ dfx new ledger_transfer
 cd ledger_transfer
 ```
 
-### Step 2: Download a pre-built ledger canister module and Candid interface files:
+### Step 2: Determine ledger file locations
 
-```
-export IC_VERSION=dd3a710b03bd3ae10368a91b255571d012d1ec2f
-curl -o ledger.wasm.gz "https://download.dfinity.systems/ic/$IC_VERSION/canisters/ledger-canister_notify-method.wasm.gz"
-gunzip ledger.wasm.gz
-curl -o ledger.private.did "https://raw.githubusercontent.com/dfinity/ic/$IC_VERSION/rs/rosetta-api/ledger.did"
-dfx canister --network ic call ryjl3-tyaaa-aaaaa-aaaba-cai __get_candid_interface_tmp_hack '()' --query | sed 's/\\n/\n/g'
-```
+Go to the [releases overview](https://dashboard.internetcomputer.org/releases) and copy the latest replica binary revision. At the time of writing, this is `a17247bd86c7aa4e87742bf74d108614580f216d`.
 
-This download should result in 3 files:
-- [ledger.wasm](../../_attachments/ledger.wasm)
-- [ledger.public.did](../../_attachments/ledger.public.did)
-- [ledger.private.did](../../_attachments/ledger.private.did)
+The URL for the ledger WASM module is `https://download.dfinity.systems/ic/<REVISION>/canisters/ic-icrc1-ledger.wasm.gz`, so with the above revision it would be `https://download.dfinity.systems/ic/a17247bd86c7aa4e87742bf74d108614580f216d/canisters/ic-icrc1-ledger.wasm.gz`.
 
-### Step 3: In the `dfx.json` file, replace the existing content with the following:
+The URL for the ledger .did file is `https://raw.githubusercontent.com/dfinity/ic/<REVISION>/rs/rosetta-api/icrc1/ledger/ledger.did`, so with the above revision it would be `https://raw.githubusercontent.com/dfinity/ic/a17247bd86c7aa4e87742bf74d108614580f216d/rs/rosetta-api/icrc1/ledger/ledger.did`.
+
+### Step 3: Configure the `dfx.json` file to use the ledger :
+
+Replace its contents with this (but adapt the URLs to be the ones you determined in step 2:
 
 ```
 {
   "canisters": {
     "ledger": {
       "type": "custom",
-      "wasm": "ledger.wasm",
-      "candid": "ledger.public.did",
+      "candid": "https://raw.githubusercontent.com/dfinity/ic/a17247bd86c7aa4e87742bf74d108614580f216d/rs/rosetta-api/icrc1/ledger/ledger.did",
+      "wasm": "https://download.dfinity.systems/ic/a17247bd86c7aa4e87742bf74d108614580f216d/canisters/ic-icrc1-ledger.wasm.gz",
       "remote": {
-    "candid": "ledger.public.did",
-    "id": {
-      "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
-    }
-  }
+        "id": {
+          "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+        }
+      }
     },
     "ledger_transfer_backend": {
       "main": "src/ledger_transfer_backend/main.mo",
@@ -113,7 +107,7 @@ export LEDGER_ACC=$(dfx ledger account-id)
 
 ### Step 8: Deploy the ledger canister to your network:
 
-`dfx deploy ledger --argument '(record {minting_account = "'${MINT_ACC}'"; initial_values = vec { record { "'${LEDGER_ACC}'"; record { e8s=100_000_000_000 } }; }; send_whitelist = vec {}})'`
+`dfx canister install ledger --argument "(variant {Init = record { token_name = \"NAME\"; token_symbol = \"SYMB\"; transfer_fee = 1000000; metadata = vec {}; minting_account = record {owner = principal \"$(dfx --identity minter identity get-principal)\";}; initial_balances = vec {}; archive_options = record {num_blocks_to_archive = 1000000; trigger_threshold = 1000000; controller_id = principal \"$(dfx identity get-principal)\"}; }})"`
 
 If you want to setup the ledger in a way that matches the production deployment, you should deploy it with archiving enabled. In this setup, the ledger canister dynamically creates new canisters to store old blocks. We recommend using this setup if you are planning to exercise the interface for fetching blocks.
 
