@@ -10,10 +10,11 @@ The original example demonstrates a simple use of actor classes, which allow a p
 In the original example, shared functions `Map.get` and `Bucket.get` were both implemented as
 update methods so that `Map.get` could call `Bucket.get`.
 
-In this version `Bucket.get` is implemented as a query function and `Map.get` as a composite query function. Although queries and composite queries are fast, composite queries can only be invoked as ingress messages, either using Dirk (see below) or a front-end canister (not illustrated here).
+In this version `Bucket.get` is implemented as a query function and `Map.get` as a composite query function.
+Although queries and composite queries are fast, composite queries can only be invoked as ingress messages, either
+using `dfx` (see below) or an agent through, for example, a browser front-end (not illustrated here)).
 
-In detail, the example provides TKO actor `Map`.
-
+In detail, the example provides actor `Map`.
 `Map` is a dead-simple, distributed key-value store, mapping `Nat` to `Text` values, with entries stored in a small number of separate `Bucket` actors, installed on demand.
 
 [Map.mo](./src/map/Map.mo) imports a Motoko _actor class_ `Bucket(i, n)`
