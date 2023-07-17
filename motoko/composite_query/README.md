@@ -28,7 +28,7 @@ Each asynchronous instantiation of the `Bucket` actor class corresponds to the d
 Each new `Bucket` must be provisioned with enough cycles to pay for its installation and running costs.
 `Map` achieves this by adding an equal share of `Map`'s initial cycle balance to each asynchronous call to `Bucket(n, i)`, using a call to `Cycles.add(cycleShare)`.
 
-`Map`'s `test` method simply `put`s 24 consecutive entries into `Map`. These entries are distributed evenly amongst the buckets making up the key-value store. Adding the first entry to a bucket take longer than adding a subsequent one, since the bucket needs to be installed on first use.
+`Map`'s `test` method simply `put`s 16 consecutive entries into `Map`. These entries are distributed evenly amongst the buckets making up the key-value store. Adding the first entry to a bucket take longer than adding a subsequent one, since the bucket needs to be installed on first use.
 
 
 ## Security Considerations and Security Best Practices
@@ -70,7 +70,7 @@ Verify the following before running this demo:
 4. Invoke the `test` method of canister `Map` to add some entries
 
    ```text
-   dfx canister call map test '()'
+   dfx canister call Map test '()'
    ```
 
 5. Observe the following result.
@@ -92,27 +92,19 @@ Verify the following before running this demo:
    debug.print: putting: (13, "13")
    debug.print: putting: (14, "14")
    debug.print: putting: (15, "15")
-   debug.print: putting: (16, "16")
-   debug.print: putting: (17, "17")
-   debug.print: putting: (18, "18")
-   debug.print: putting: (19, "19")
-   debug.print: putting: (20, "20")
-   debug.print: putting: (21, "21")
-   debug.print: putting: (22, "22")
-   debug.print: putting: (23, "23")
    ()
    ```
 
 6. Invoke the `get` composite query method of canister `Main`
 
    ```text
-   dfx canister call --query map get '(23)'
+   dfx canister call --query Map get '(15)'
    ```
 
 7. Observe the following result.
 
    ```
-   "23"
+   (opt "15")
    ```
 
 

@@ -20,9 +20,9 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
-	dfx canister call map test '()'
-	dfx canister call --query map get '(24)' \
-		| grep '("24")' && echo 'PASS'
+	dfx canister call Map test '()'
+	dfx canister call --query Map get '(15)' \
+		| grep '(opt "15")' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean
