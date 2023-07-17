@@ -1,6 +1,6 @@
 # vetKD System API Preview
 
-This repository provides a canister (`src/system_api`) that offers the vetKD system API proposed in https://github.com/dfinity/interface-spec/pull/158, implemented in an unsafe manner for demonstration purposes.
+This repository provides a canister (`src/system_api`) that offers the vetKD system API proposed in https://github.com/dfinity/interface-spec/pull/158, implemented in an **unsafe** manner **for demonstration purposes**.
 
 Additionally, the repository provides:
 * An example app backend canister (`src/app_backend`) that makes use of this system API in order to provide caller-specific symmetric keys that can be used for AES encryption and decryption.
@@ -10,6 +10,10 @@ Additionally, the repository provides:
   The frontend uses the [ic-vetkd-utils](https://github.com/dfinity/ic/tree/master/packages/ic-vetkd-utils) to create a transport key pair that is used to obtain a verifiably-encrypted key from the system API, to decrypt this key, and to derive a symmetric key to be used for AES encryption/decryption.
   
   Because the `ic-vetkd-utils` are not yet published as NPM package at [npmjs.com](npmjs.com), a respective package file (`ic-vetkd-utils-0.1.0.tgz`) is included in this repository.
+
+## Disclaimer
+
+The implementation of [the proposed vetKD system API](https://github.com/dfinity/interface-spec/pull/158) used in this example is **unsafe**, e.g., we hard-code a master secret key, rather than using a master secret key that is distributed among sufficiently many Internet Computer nodes by means of distributed key generation. **Do not use this in production or for sensitive data**! This example is solely provided **for demonstration purposes** to collect feedback on the mentioned vetKD system API. See also the respective disclaimer [in the system API canister implementation](https://github.com/dfinity/examples/blob/master/rust/vetkd/src/system_api/src/lib.rs#L19-L26).
 
 ## Running Locally
 
