@@ -3,16 +3,16 @@
 ![Compatibility](https://img.shields.io/badge/compatibility-0.7.0-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-classes-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-classes-example)
 
-This example modifiesthe simple actor class example to demonstrate the implementation of composite queries.
+This example modifies the simple actor class example to demonstrate the implementation of composite queries.
 
 The original example demonstrates a simple use of actor classes, which allow a program to dynamically install new actors (that is, canisters). It also demonstrates a multi-canister project, and actors using inter-actor communication through `shared` functions.
 
 In the original example, shared functions `Map.get` and `Bucket.get` were both implemented as
 update methods so that `Map.get` could call `Bucket.get`.
 
-In this version `Bucket.get` is implemented as a query function and `Map.get` as a composite query function. Although queries and composite queries are fast, composite queries can only be invoked as ingress messages, either using dfx (see below) or a front-end canister (not illustrated here).
+In this version `Bucket.get` is implemented as a query function and `Map.get` as a composite query function. Although queries and composite queries are fast, composite queries can only be invoked as ingress messages, either using Dirk (see below) or a front-end canister (not illustrated here).
 
-In detial, the example provides Motoko actor `Map`.
+In detail, the example provides TKO actor `Map`.
 
 `Map` is a dead-simple, distributed key-value store, mapping `Nat` to `Text` values, with entries stored in a small number of separate `Bucket` actors, installed on demand.
 
