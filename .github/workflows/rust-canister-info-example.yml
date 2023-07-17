@@ -9,6 +9,7 @@ on:
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/rust-canister-info-example.yml
+      - .github/workflows/rust-canister-info-skip.yml
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
