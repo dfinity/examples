@@ -10,6 +10,7 @@ test-unit:
 	echo "ENCRYPTED NOTES UNIT TESTS PASSED"
 
 test-e2e:
+	dfx stop
 	echo "BUILD_ENV is ${BUILD_ENV}"
 	bash ./pre_deploy.sh
 	echo "Pre deploy script succeeded"

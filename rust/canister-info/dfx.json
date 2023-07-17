@@ -1,0 +1,14 @@
+{
+  "canisters": {
+    "canister-info": {
+      "candid": "canister-info.did",
+      "package": "canister_info",
+      "type": "rust"
+    },
+    "test": {
+      "candid": "test.did",
+      "type": "custom",
+      "wasm": "test.wasm"
+    }
+  }
+}
