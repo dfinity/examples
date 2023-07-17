@@ -4,7 +4,7 @@ import * as agent from "@dfinity/agent";
 
 // Usage of the imported bindings only works if the respective .wasm was loaded, which is done in main.ts.
 // See also https://github.com/rollup/plugins/tree/master/packages/wasm#using-with-wasm-bindgen-and-wasm-pack
-import * as vetkd from "../../../../vetkd_user_lib/ic_vetkd.js";
+import * as vetkd from "../../../../vetkd_user_lib/ic_vetkd_utils.js";
 
 export class CryptoService {
   constructor(private actor: BackendActor) {
@@ -20,14 +20,19 @@ export class CryptoService {
     // Showcase that the integration of the vetkd user library works
     const seed = window.crypto.getRandomValues(new Uint8Array(32));
     const tsk = new vetkd.TransportSecretKey(seed);
-    const ek_bytes_hex = await this.actor.encrypted_symmetric_key_for_caller(tsk.public_key().to_bytes());
-    const ek = new vetkd.EncryptedKey(hex_decode(ek_bytes_hex));
-    const pk_bytes_hex = await this.actor.app_vetkd_public_key([new TextEncoder().encode("symmetric_key")]);
-    const principal = await agent.Actor.agentOf(this.actor).getPrincipal();
-    const k = ek.decrypt_and_verify(tsk, hex_decode(pk_bytes_hex), principal.toUint8Array());
-    const aes_key = await window.crypto.subtle.importKey("raw", k.to_aes_256_gcm_key(), "AES-GCM", false, ["encrypt", "decrypt"]);
 
-    this.vetAesGcmKey = aes_key;
+    const ek_bytes_hex = await this.actor.encrypted_symmetric_key_for_caller(tsk.public_key());
+    const pk_bytes_hex = await this.actor.symmetric_key_verification_key();
+    const principal = await agent.Actor.agentOf(this.actor).getPrincipal();
+
+    const aes_256_gcm_key_raw = tsk.decrypt_and_hash(
+      hex_decode(ek_bytes_hex),
+      hex_decode(pk_bytes_hex),
+      principal.toUint8Array(),
+      32,
+      new TextEncoder().encode("aes-256-gcm")
+    );
+    this.vetAesGcmKey = await window.crypto.subtle.importKey("raw", aes_256_gcm_key_raw, "AES-GCM", false, ["encrypt", "decrypt"]);
   }
 
   public logout() {

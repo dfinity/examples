@@ -1,0 +1,50 @@
+type change_origin = variant {
+  from_user : record {
+    user_id : principal;
+  };
+  from_canister : record {
+    canister_id : principal;
+    canister_version : opt nat64;
+  };
+};
+
+type change_details = variant {
+  creation : record {
+    controllers : vec principal;
+  };
+  code_uninstall;
+  code_deployment : record {
+    mode : variant {install; reinstall; upgrade};
+    module_hash : blob;
+  };
+  controllers_change : record {
+    controllers : vec principal;
+  };
+};
+
+type change = record {
+  timestamp_nanos : nat64;
+  canister_version : nat64;
+  origin : change_origin;
+  details : change_details;
+};
+
+type canister_info_response = record {
+   total_num_changes : nat64;
+   recent_changes : vec change;
+   module_hash : opt blob;
+   controllers : vec principal;
+};
+
+type canister_snapshot = variant {
+  at_timestamp : nat64;
+  at_version : nat64;
+};
+
+service : {
+  "info": (principal) -> (canister_info_response);
+  "canister_controllers": (principal, canister_snapshot) -> (opt record { vec principal; opt nat64 });
+  "canister_module_hash": (principal, canister_snapshot) -> (opt record { opt blob; opt nat64 });
+  "canister_deployment_chain": (principal, canister_snapshot) -> (vec change, opt nat64);
+  "reflexive_transitive_controllers": (principal) -> (vec principal);
+}

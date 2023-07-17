@@ -73,7 +73,7 @@ shared({ caller = initializer }) actor class() {
     // Check that a note identifier is sane. This is needed since Motoko integers 
     // are infinite-precision. 
     // Note: avoid extraneous usage of async functions, hence [user_count]
-    private func is_id_sane(id: Int): Bool {
+    private func is_id_sane(id: Nat): Bool {
         0 <= id and id < MAX_NOTES_PER_USER * user_count()
     };
 
@@ -200,7 +200,7 @@ shared({ caller = initializer }) actor class() {
     // Traps: 
     //      [caller] is the anonymous identity
     //      [id] is unreasonable; see [is_id_sane]
-    public shared({ caller }) func delete_note(id: Int): async () {
+    public shared({ caller }) func delete_note(id: Nat): async () {
         assert not Principal.isAnonymous(caller);
         assert is_id_sane(id);
 
@@ -234,6 +234,15 @@ shared({ caller = initializer }) actor class() {
         let { public_key } = await vetkd_system_api.vetkd_public_key({
             canister_id = null;
             derivation_path;
+            key_id = { curve = #bls12_381; name = "test_key_1" };
+        });
+        Hex.encode(Blob.toArray(public_key))
+    };
+
+    public shared({ caller }) func symmetric_key_verification_key(): async Text {
+        let { public_key } = await vetkd_system_api.vetkd_public_key({
+            canister_id = null;
+            derivation_path = Array.make(Text.encodeUtf8("symmetric_key"));
             key_id = { curve = #bls12_381; name = "test_key_1" };
         });
         Hex.encode(Blob.toArray(public_key))
