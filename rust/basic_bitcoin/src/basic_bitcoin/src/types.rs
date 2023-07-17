@@ -1,8 +1,5 @@
-use ic_cdk::export::{
-    candid::{CandidType, Deserialize},
-    serde::Serialize,
-    Principal,
-};
+use candid::{CandidType, Deserialize, Principal};
+use serde::Serialize;
 
 #[derive(CandidType, Deserialize)]
 pub struct SendRequest {

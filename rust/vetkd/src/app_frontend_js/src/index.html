@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>dfxtest</title>
+  <base href="/" />
+  <link rel="icon" href="favicon.ico" />
+  <link type="text/css" rel="stylesheet" href="main.css" />
+</head>
+
+<body>
+  <main>
+    <h1 id="vetkddemo">vetKD Demo</h1>
+    <hr />
+    <form action="#" id="get_symmetric_key_form">
+      <button type="submit">Get symmetric key</button>
+    </form>
+    <section id="get_symmetric_key_result"></section>
+    <hr />
+    <form action="#" id="encrypt_form">
+      <label for="plaintext">Plaintext:</label>
+      <input type="text" id="plaintext"><br><br>
+      <button type="submit" id="submit_plaintext" disabled="true">Use key to encrypt</button>
+    </form>
+    <section id="encrypt_result"></section>
+    <hr />
+    <form action="#" id="decrypt_form">
+      <label for="ciphertext">Ciphertext:</label>
+      <input type="text" id="ciphertext"><br><br>
+      <button type="submit" id="submit_ciphertext" disabled="true">Use key and decrypt</button>
+    </form>
+    <section id="decrypt_result"></section>
+    <hr />
+    <img src="logo2.svg" id="builtonchainlogo" />
+  </main>
+</body>
+
+</html>
