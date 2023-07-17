@@ -70,7 +70,7 @@ Verify the following before running this demo:
 4. Invoke the `test` method of canister `Map` to add some entries
 
    ```text
-   dfx canister call Map run '()'
+   dfx canister call map test '()'
    ```
 
 5. Observe the following result.
@@ -106,7 +106,7 @@ Verify the following before running this demo:
 6. Invoke the `get` composite query method of canister `Main`
 
    ```text
-   dfx canister call --query Main get '(23)'
+   dfx canister call --query map get '(23)'
    ```
 
 7. Observe the following result.
