@@ -4,10 +4,6 @@
     "map": {
       "type": "motoko",
       "main": "src/map/Map.mo"
-    },
-    "test": {
-      "type": "motoko",
-      "main": "src/test/Test.mo"
     }
   },
   "defaults": {

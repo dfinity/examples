@@ -1,0 +1,16 @@
+name: motoko-classes
+on:
+  pull_request:
+    paths-ignore:
+      - motoko/composite_query/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-composite-query-example.yaml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo 'Not needed - relevant folder not touched'

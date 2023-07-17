@@ -20,7 +20,7 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
-	dfx canister call test run '()' \
+	dfx canister call Map test '()' \
 		| grep '()' && echo 'PASS'
 
 .PHONY: clean

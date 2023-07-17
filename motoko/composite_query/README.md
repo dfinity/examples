@@ -1,11 +1,18 @@
-# Actor Classes
+# Composite Queries
 
 ![Compatibility](https://img.shields.io/badge/compatibility-0.7.0-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-classes-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-classes-example)
 
-This example demonstrates a simple use of actor classes, which allow a program to dynamically install new actors (that is, canisters). It also demonstrates a multi-canister project, and actors using inter-actor communication through `shared` functions.
+This example modifiesthe simple actor class example to demonstrate the implementation of composite queries.
 
-The example defines two Motoko actors, `Map` and `Test`.
+The original example demonstrates a simple use of actor classes, which allow a program to dynamically install new actors (that is, canisters). It also demonstrates a multi-canister project, and actors using inter-actor communication through `shared` functions.
+
+In the original example, shared functions `Map.get` and `Bucket.get` were both implemented as
+update methods so that `Map.get` could call `Bucket.get`.
+
+In this version `Bucket.get` is implemented as a query function and `Map.get` as a composite query function. Although queries and composite queries are fast, composite queries can only be invoked as ingress messages, either using dfx (see below) or a front-end canister (not illustrated here).
+
+In detial, the example provides Motoko actor `Map`.
 
 `Map` is a dead-simple, distributed key-value store, mapping `Nat` to `Text` values, with entries stored in a small number of separate `Bucket` actors, installed on demand.
 
@@ -20,8 +27,8 @@ Each asynchronous instantiation of the `Bucket` actor class corresponds to the d
 Each new `Bucket` must be provisioned with enough cycles to pay for its installation and running costs.
 `Map` achieves this by adding an equal share of `Map`'s initial cycle balance to each asynchronous call to `Bucket(n, i)`, using a call to `Cycles.add(cycleShare)`.
 
-The [Test.mo](./src/test/Test.mo) actor imports the (installed) `Map` canister, using `Maps` Candid interface to determine its Motoko type.
-`Test`'s `run` method simply `put`s 24 consecutive entries into `Map`. These entries are distributed evenly amongst the buckets making up the key-value store. Adding the first entry to a bucket take longer than adding a subsequent one, since the bucket needs to be installed on first use.
+`Map`'s `test` method simply `put`s 24 consecutive entries into `Map`. These entries are distributed evenly amongst the buckets making up the key-value store. Adding the first entry to a bucket take longer than adding a subsequent one, since the bucket needs to be installed on first use.
+
 
 ## Security Considerations and Security Best Practices
 
@@ -53,16 +60,16 @@ Verify the following before running this demo:
 
 2. Open a new terminal window.
 
-3. Deploy the canisters `Map` and `Test`
+3. Deploy the `Map` canister:
 
    ```text
    dfx deploy
    ```
 
-4. Invoke the `run` method of canister `Test`
+4. Invoke the `test` method of canister `Map` to add some entries
 
    ```text
-   dfx canister call Test run '()'
+   dfx canister call Map run '()'
    ```
 
 5. Observe the following result.
@@ -95,16 +102,25 @@ Verify the following before running this demo:
    ()
    ```
 
+6. Invoke the `get` composite query method of canister `Main`
+
+   ```text
+   dfx canister call --query Main get '(23)'
+   ```
+
+7. Observe the following result.
+
+   ```
+   "23"
+   ```
+
+
+
 # Links
 
 Specific links:
 
-- [Actor classes](https://sdk.dfinity.org/docs/language-guide/actor-classes.html)
-- [Managing Cycles](https://sdk.dfinity.org/docs/language-guide/cycles.html)
+- [Actor classes](https://internetcomputer.org/docs/current/motoko/main/actor-classes.html)
+- [Managing Cycles](https://internetcomputer.org/docs/current/motoko/main/cycles.html)
+- [Composite Queries](https://internetcomputer.org/docs/current/motoko/main/actors-async#composite-query-functions.html)
 
-General background:
-
-- [Manage Canisters](https://sdk.dfinity.org/docs/developers-guide/working-with-canisters.html)
-- [Quick Start](https://sdk.dfinity.org/developers-guide/quickstart.html)
-- [Developer's Guide](https://sdk.dfinity.org/developers-guide)
-- [Language Guide](https://sdk.dfinity.org/language-guide)
