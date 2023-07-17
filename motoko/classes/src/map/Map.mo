@@ -16,14 +16,7 @@ actor Map {
 
   let buckets : [var ?Bucket] = Array.init(n, null);
 
-  public func getUpdate(k : Key) : async ?Value {
-    switch (buckets[k % n]) {
-      case null null;
-      case (?bucket) await bucket.get(k);
-    };
-  };
-
-  public composite query func get(k : Key) : async ?Value {
+  public func get(k : Key) : async ?Value {
     switch (buckets[k % n]) {
       case null null;
       case (?bucket) await bucket.get(k);
