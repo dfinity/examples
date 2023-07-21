@@ -7,7 +7,7 @@ BASE="../target/wasm32-unknown-unknown/release"
 echo "building data partition canister"
 
 cargo build --target wasm32-unknown-unknown --release -p data_partition --locked
-ic-cdk-optimizer ${BASE}/data_partition.wasm --output ./data_partition.wasm
+ic-cdk-optimizer ${BASE}/data_partition.wasm --output ${BASE}/data_partition.wasm
 
 (
     echo "compressing data partition canister"
