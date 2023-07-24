@@ -6,6 +6,8 @@ This example shows that an Internet Computer dapp can perform a long-running com
 This is possible due to a unique feature called Deterministic Time Slicing (DTS), which automatically divides long computations into smaller slices executed across multiple blocks.
 Developers can write long-running code as usual and don't require anything special to take advantage of DTS, as demonstrated in this example.
 
+You try the live version of the dapp running on the Internet Computer mainnet here: [https://khpe2-4qaaa-aaaao-a2fnq-cai.icp0.io/](https://khpe2-4qaaa-aaaao-a2fnq-cai.icp0.io/).
+
 ## Prerequisites
 This example requires an installation of:
 

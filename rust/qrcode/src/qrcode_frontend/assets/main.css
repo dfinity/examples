@@ -39,14 +39,7 @@ textarea {
     display: flex;
     flex-flow: row;
     justify-content: left;
-    align-items: baseline;
-}
-
-.slider-container {
-    display: flex;
-    flex-flow: row;
-    justify-content: space-evenly;
-    align-items: baseline;
+    align-items: center;
 }
 
 .toggle-switch {
