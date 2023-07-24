@@ -34,15 +34,17 @@ pub(super) fn generate(
 }
 
 /// Adds the given logo at the center of QR code image.
-/// It ensures that the logo does not cover more than 1/16-th (or 6%) of the
-/// image, which is below the QR error threshold.
+/// It ensures that the logo does not cover more than 10% of the image, which is
+/// below the QR error threshold.
 fn add_logo(qr: &mut ImageBuffer<Rgba<u8>, Vec<u8>>, logo: &[u8]) {
     let image_size = qr.width().min(qr.height()) as usize;
     let element_size = get_qr_element_size(qr);
 
     // Find the right size of the logo by starting with the smallest square.
     let mut logo_size = element_size;
-    while logo_size + 2 * element_size <= image_size / 4 {
+
+    // The ratio `5/16` gives about 10% when squared.
+    while logo_size + 2 * element_size <= 5 * image_size / 16 {
         // Note that two elements are added in order to keep the logo at the
         // center of the image.
         logo_size += 2 * element_size;
