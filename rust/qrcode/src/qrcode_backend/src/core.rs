@@ -100,7 +100,7 @@ fn add_gradient(qr: &mut ImageBuffer<Rgba<u8>, Vec<u8>>) {
 /// Given a QR code image, this function returns the size of the smallest black
 /// square by inspecting the special element in the top-left part of the image.
 fn get_qr_element_size(qr: &ImageBuffer<Rgba<u8>, Vec<u8>>) -> usize {
-    const BLACK_PIXEL: [u8; 4] = [0; 4];
+    const BLACK_PIXEL: [u8; 4] = [0, 0, 0, 255];
 
     let size = qr.width().min(qr.height());
 
