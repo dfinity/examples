@@ -2,7 +2,6 @@ import Debug "mo:base/Debug";
 import Array "mo:base/Array";
 import Cycles "mo:base/ExperimentalCycles";
 import Buckets "Buckets";
-import Debug "mo:base/Debug";
 
 actor Map {
 
