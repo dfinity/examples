@@ -1,7 +1,7 @@
 #!ic-repl
 load "prelude.sh";
 
-import fake = "2vxsx-fae" as "../.dfx/local/canisters/basic_dao/basic_dao.did";
+import fake = "2vxsx-fae" as "../src/basic_dao/src/basic_dao.did";
 let wasm = file "../.dfx/local/canisters/basic_dao/basic_dao.wasm";
 
 

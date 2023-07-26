@@ -4,7 +4,7 @@ set -e
 trap 'dfx stop' EXIT
 
 dfx start --background --clean
-dfx deploy dip721_nft_container --argument 'record{name="DFX Blobs";symbol="DFXB";custodians=null;logo=null}'
+dfx deploy --argument 'record{name="DFX Blobs";symbol="DFXB";custodians=null;logo=null}' dip721_nft_container
 dfx identity new alice --disable-encryption || true
 dfx identity new bob --disable-encryption || true
 YOU=$(dfx identity get-principal)

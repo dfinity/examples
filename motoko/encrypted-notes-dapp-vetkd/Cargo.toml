@@ -1,0 +1,4 @@
+[workspace]
+members = [
+    'src/encrypted_notes_rust',
+]
