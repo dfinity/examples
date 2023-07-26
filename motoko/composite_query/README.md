@@ -12,7 +12,7 @@ update methods so that `Map.get` could call `Bucket.get`.
 
 In this version `Bucket.get` is implemented as a query function and `Map.get` as a composite query function.
 Although queries and composite queries are fast, composite queries can only be invoked as ingress messages, either
-using `dfx` (see below) or an agent through, for example, a browser front-end (not illustrated here)).
+using `dfx` (see below) or an agent through, for example, a browser front-end (not illustrated here).
 
 In detail, the example provides actor `Map`.
 `Map` is a dead-simple, distributed key-value store, mapping `Nat` to `Text` values, with entries stored in a small number of separate `Bucket` actors, installed on demand.
