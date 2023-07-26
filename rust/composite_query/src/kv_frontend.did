@@ -1,0 +1,6 @@
+service : {
+    "put" : (nat, nat) -> (opt nat);
+    "get" : (nat) -> (opt nat) composite_query;
+    "get_update" : (nat) -> (opt nat);
+    "lookup" : (nat) -> (nat, text) query;
+};

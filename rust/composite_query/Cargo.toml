@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "src/data_partition",
+    "src/kv_frontend"
+]

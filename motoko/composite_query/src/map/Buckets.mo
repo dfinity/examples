@@ -8,7 +8,7 @@ actor class Bucket(n : Nat, i : Nat) {
 
   let map = Map.RBTree<Key, Value>(Nat.compare);
 
-  public func get(k : Key) : async ?Value {
+  public query func get(k : Key) : async ?Value {
     assert ((k % n) == i);
     map.get(k);
   };
