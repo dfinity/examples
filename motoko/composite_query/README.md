@@ -113,7 +113,7 @@ Verify the following before running this demo:
 
 Specific links:
 
-- [Actor classes](https://internetcomputer.org/docs/current/motoko/main/actor-classes.html)
-- [Managing Cycles](https://internetcomputer.org/docs/current/motoko/main/cycles.html)
-- [Composite Queries](https://internetcomputer.org/docs/current/motoko/main/actors-async#composite-query-functions.html)
+- [Actor classes](https://internetcomputer.org/docs/current/motoko/main/actor-classes)
+- [Managing Cycles](https://internetcomputer.org/docs/current/motoko/main/cycles)
+- [Composite Queries](https://internetcomputer.org/docs/current/motoko/main/actors-async#composite-query-functions)
 
