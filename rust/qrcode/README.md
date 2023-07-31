@@ -56,7 +56,7 @@ When the user clicks the "Generate!" button, a JavaScript handler initiates a ca
 The heavy-lifting of this call is managed by `candid`, `js-agent`, and `dfx`, which automatically generates a JavaScript object from the backend's Candid interface.
 That object contains `async` functions for each of the backend's endpoints, and the button handler uses them to make the calls.
 
-The backend, written in Rust, uses the `qrcode-generator`` and `image`` crates to create a QR code from user text.
+The backend, written in Rust, uses the `qrcode-generator` and `image` crates to create a QR code from user text.
 It also performs some image processing, to add the Internet Computer logo and a color gradient to the final result.
 Note the amount of computational work may be significant for large images.
 
