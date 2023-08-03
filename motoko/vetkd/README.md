@@ -3,7 +3,7 @@
 This repository provides a canister (`src/system_api`) that offers the vetKD system API proposed in https://github.com/dfinity/interface-spec/pull/158, implemented in an **unsafe** manner **for demonstration purposes**.
 
 Additionally, the repository provides:
-* An example app backend canister (`src/app_backend`) implemented in **Rust** that makes use of this system API in order to provide caller-specific symmetric keys that can be used for AES encryption and decryption.
+* An example app backend canister (`src/app_backend`) implemented in **Motoko** that makes use of this system API in order to provide caller-specific symmetric keys that can be used for AES encryption and decryption.
 
 * An example frontend (`src/app_frontend_js`) that uses the backend from Javascript in the browser.
 
