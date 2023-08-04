@@ -48,4 +48,23 @@ actor {
         });
         Hex.encode(Blob.toArray(encrypted_key));
     };
+
+    public shared ({ caller }) func ibe_encryption_key() : async Text {
+        let { public_key } = await vetkd_system_api.vetkd_public_key({
+            canister_id = null;
+            derivation_path = Array.make(Text.encodeUtf8("ibe_encryption"));
+            key_id = { curve = #bls12_381; name = "test_key_1" };
+        });
+        Hex.encode(Blob.toArray(public_key));
+    };
+
+    public shared ({ caller }) func encrypted_ibe_decryption_key_for_caller(encryption_public_key : Blob) : async Text {
+        let { encrypted_key } = await vetkd_system_api.vetkd_encrypted_key({
+            derivation_id = Principal.toBlob(caller);
+            public_key_derivation_path = Array.make(Text.encodeUtf8("ibe_encryption"));
+            key_id = { curve = #bls12_381; name = "test_key_1" };
+            encryption_public_key;
+        });
+        Hex.encode(Blob.toArray(encrypted_key));
+    };
 };
