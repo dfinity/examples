@@ -6,7 +6,7 @@ This example derives from the [internet_identity_integration](https://github.com
 
 This example shows a special case to support login with the `ImcompleteEd25519KeyIdentity` which only contains the public key. The reason why we support this is all for security. 
 
-As we described in [Internet Identity Integration](/examples/native_apps/unity_android_deeplink/README.md#workflow), users can log in with II from the game. Usually what they do is
+As we described in [Internet Identity Integration](../README.md#workflow), users can log in with II from the game. Usually what they do is
 
 1. Generate the `Ed25519KeyIdentity` supported by [ICP.NET](https://github.com/BoomDAO/ICP.NET) in the Unity game.
 2. For security purposes, only the public key of the `Ed25519KeyIdentity` to the Web browser for login, this is where `ImcompleteEd25519KeyIdentity` can be used for.
