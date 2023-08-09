@@ -2,8 +2,8 @@ import {AuthClient} from "@dfinity/auth-client"
 import {SignIdentity} from "@dfinity/agent";
 import {DelegationIdentity, Ed25519PublicKey } from "@dfinity/identity";
 
-// An imcomplete Ed25519KeyIdentity with only the public key provided.
-class ImcompleteEd25519KeyIdentity extends SignIdentity {
+// An incomplete Ed25519KeyIdentity with only the public key provided.
+class IncompleteEd25519KeyIdentity extends SignIdentity {
     constructor(publicKey) {
         super();
         this._publicKey = publicKey;
@@ -24,11 +24,11 @@ let sessionKeyIndex = -1;
 var url = window.location.href;
 sessionKeyIndex = url.indexOf("sessionkey=");
 if (sessionKeyIndex !== -1) {
-    // Parse the public session key and instantiate an ImcompleteEd25519KeyIdentity.
+    // Parse the public session key and instantiate an IncompleteEd25519KeyIdentity.
     var sessionkey = url.substring(sessionKeyIndex + "sessionkey=".length);
 
     var publicKey = Ed25519PublicKey.fromDer(fromHexString(sessionkey));
-    myKeyIdentity = new ImcompleteEd25519KeyIdentity(publicKey);
+    myKeyIdentity = new IncompleteEd25519KeyIdentity(publicKey);
 } else {
     // TODO: initialize an Ed25519KeyIdentity();
 }
