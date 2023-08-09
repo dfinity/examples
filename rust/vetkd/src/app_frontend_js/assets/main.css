@@ -29,3 +29,32 @@ button[type="submit"] {
 #vetkddemo {
     text-align: center;
 }
+
+#ibedemo {
+    text-align: center;
+    margin-top: 2em;
+}
+
+#get_symmetric_key_result {
+    text-align: center;
+}
+
+#ibe_encrypt_result {
+    text-align: center;
+}
+
+#encrypt_result {
+    text-align: center;
+}
+
+#decrypt_result {
+    text-align: center;
+}
+
+#ibe_encrypt_result {
+    text-align: center;
+}
+
+#ibe_decrypt_result {
+    text-align: center;
+}
