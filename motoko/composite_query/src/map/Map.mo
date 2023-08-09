@@ -1,3 +1,4 @@
+import Debug "mo:base/Debug";
 import Array "mo:base/Array";
 import Cycles "mo:base/ExperimentalCycles";
 import Buckets "Buckets";
@@ -16,7 +17,14 @@ actor Map {
 
   let buckets : [var ?Bucket] = Array.init(n, null);
 
-  public func get(k : Key) : async ?Value {
+  public func getUpdate(k : Key) : async ?Value {
+    switch (buckets[k % n]) {
+      case null null;
+      case (?bucket) await bucket.get(k);
+    };
+  };
+
+  public composite query func get(k : Key) : async ?Value {
     switch (buckets[k % n]) {
       case null null;
       case (?bucket) await bucket.get(k);
@@ -36,6 +44,18 @@ actor Map {
       case (?bucket) bucket;
     };
     await bucket.put(k, v);
+  };
+
+  public func test() : async () {
+    var i = 0;
+    while (i < 16) {
+      let t = debug_show(i);
+      assert (null == (await getUpdate(i)));
+      Debug.print("putting: " # debug_show(i, t));
+      await Map.put(i, t);
+      assert (?t == (await getUpdate(i)));
+      i += 1;
+    };
   };
 
 };
