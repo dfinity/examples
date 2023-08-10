@@ -1,5 +1,5 @@
 # Unity Android sample
-This sample demonstrates one way to integrate Identity Integration with Unity on Android.
+This sample demonstrates one way to integrate Identity Integration with Unity on Android. If you never play with Unity Android, please read [Getting started with Android](https://docs.unity3d.com/Manual/android-getting-started.html) document.
 
 ## Overview
 
@@ -29,3 +29,17 @@ There're several important files in this example.
 
 - [TestICPAgent.cs](./Assets/Scripts/TestICPAgent.cs)  
   This is a testing script which can parse the delegation identity and call the APIs provided by [GreetingClient.cs](./Assets/Scripts/GreetingClient.cs) to communicate with the greeting backend canister.
+
+## Deployment
+
+The current Unity project is configured to use the [deployed dapp](https://6x7nu-oaaaa-aaaan-qdaua-cai.icp0.io). If you deploy your own dapp by following [ii_integration_page](../ii_integration_page/README.md), you need to make some modifications before you start to build this project to Android platform in Unity.
+
+1. In Unity, open the `Assets\Scenes\SampleScene.unity`
+2. Navigate to the `AgentAndPlugin` in the scene hierarchy
+3. Update the `Greet Backend Canister` with your own greeting backend canister id
+4. Update the `Greet Frontend` with your own greeting frontend
+
+Then it's easy to build to Android platform in Unity, just 
+1. Go to `File -> Build Settings` window
+2. Switch to `Android` platform
+3. Click `Build` to build the Android apk, or Click `Build And Run` to build and run on the connected device.

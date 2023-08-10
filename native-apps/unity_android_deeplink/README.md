@@ -13,11 +13,11 @@ Here is the basic workflow that how to integrate with Internet Identity from a U
 
 The steps in detail are described below:
 
-1. Set up an [Internet Identity integration website](#ii_integration_page) which supports logging in with II.
-2. Run a Unity game on Android, which is built from [android_integration sample](#android_integration).
-3. Launch the Web Browser from the game to open the website set up in #1, with the public key of `Ed25519Identity` as a parameter.
+1. Set up an [Internet Identity integration dapp](#ii_integration_page) which supports logging in with II.  
+   Please refer to [ii_integration_page](./ii_integration_page/README.md) to set up the dapp.
+2. Run a Unity game on Android, which is built from [android_integration sample](#android_integration).  
+   Please refer to [android_integration](./android_integration/README.md) to build the Unity Android game.
+3. Launch the Web Browser from the game to open the dapp frontend deployed in #1, with the public key of `Ed25519Identity` as a parameter.
 4. Login with your Internet Identity in the Web Browser.
 5. Launch the application via DeepLink, and pass the `DelegationIdentity` back to the game as the URL parameters.
 6. Call the backend canister with the `DelegationIdentity` to greet.
-
-Please refer to the [ii_integration_page](./ii_integration_page/README.md) and [android_integration](./android_integration/README.md) samples to set up the website and build the Unity Android game.
