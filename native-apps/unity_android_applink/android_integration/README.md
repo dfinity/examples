@@ -19,7 +19,7 @@ There're several important files in this example.
   This is a Unity Android native plugin written in java, provided with functions including opening browser, sending message back to Unity.
 
 - [AndroidPostBuildProcessor.cs](./Assets/Editor/AndroidPostBuildProcessor.cs)  
-  This is a Unity post-build processor for Android platform, which inserts the DeepLink URLScheme into the AndroidManifest.xml.
+  This is a Unity post-build processor for Android platform, which inserts the App Links URLScheme into the AndroidManifest.xml.
 
 - [PluginProxy.cs](./Assets/Scripts/PluginProxy.cs)  
   PluginProxy works as a bridge between Unity C# and Android Java, which calls the functions inside [ICGameKitPlugin.java](./Assets/Android/Plugins/com/icgamekit/plugin/ICGameKitPlugin.java).
