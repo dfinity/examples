@@ -47,9 +47,9 @@ module Types {
     
     /// The type of Bitcoin network the dapp will be interacting with.
     public type Network = {
-        #Mainnet;
-        #Testnet;
-        #Regtest;
+        #mainnet;
+        #testnet;
+        #regtest;
     };
 
     /// A reference to a transaction output.
