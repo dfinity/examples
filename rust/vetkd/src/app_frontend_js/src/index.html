@@ -12,7 +12,13 @@
 
 <body>
   <main>
-    <h1 id="vetkddemo">vetKD Demo: Encryption with symmetric (AES-GCM-256) key</h1>
+    <h1 id="vetkddemo">vetKD Demo</h1>
+    <form id="login_form">
+      <label for="login" id="principal"></label>
+      <button id="login">Login (optional)</button>
+    </form>
+    <hr />
+    <h2 id="symmetric_encryption_demo">Encryption with symmetric (AES-GCM-256) key</h1>
     <form action="#" id="get_symmetric_key_form">
       <button type="submit">Fetch symmetric key for local usage</button>
     </form>
@@ -30,17 +36,19 @@
     </form>
     <section id="decrypt_result"></section>
     <hr />
-    <h1 id="ibedemo">vetKD Demo: Identity-Based Encryption (IBE)</h1>
+    <h2 id="ibedemo">Identity-Based Encryption (IBE)</h1>
     <form action="#" id="ibe_encrypt_form">
       <label for="ibe_plaintext">Plaintext:</label>
       <input type="text" id="ibe_plaintext"><br><br>
-      <button type="submit" id="ibe_encrypt" disabled="true">IBE-encrypt for myself</button>
+      <label for="ibe_principal">Encrypt for principal:</label>
+      <input type="text" id="ibe_principal"><br><br>
+      <button type="submit" id="ibe_encrypt" disabled="true">IBE-encrypt</button>
     </form>
     <section id="ibe_encrypt_result"></section>
     <form action="#" id="ibe_decrypt_form">
       <label for="ibe_ciphertext">Ciphertext:</label>
       <input type="text" id="ibe_ciphertext"><br><br>
-      <button type="submit" id="ibe_decrypt" disabled="true">IBE-decrypt for myself</button>
+      <button type="submit" id="ibe_decrypt" disabled="true">IBE-decrypt (for myself)</button>
     </form>
     <section id="ibe_decrypt_result"></section>
     <hr />

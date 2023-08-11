@@ -3,6 +3,7 @@ import Text "mo:base/Text";
 import Blob "mo:base/Blob";
 import Array "mo:base/Array";
 import Hex "./utils/Hex";
+import Debug "mo:base/Debug";
 
 actor {
     type VETKD_SYSTEM_API = actor {
@@ -40,6 +41,8 @@ actor {
     };
 
     public shared ({ caller }) func encrypted_symmetric_key_for_caller(encryption_public_key : Blob) : async Text {
+        Debug.print("encrypted_symmetric_key_for_caller: caller: " # debug_show (caller));
+
         let { encrypted_key } = await vetkd_system_api.vetkd_encrypted_key({
             derivation_id = Principal.toBlob(caller);
             public_key_derivation_path = Array.make(Text.encodeUtf8("symmetric_key"));
@@ -59,6 +62,8 @@ actor {
     };
 
     public shared ({ caller }) func encrypted_ibe_decryption_key_for_caller(encryption_public_key : Blob) : async Text {
+        Debug.print("encrypted_ibe_decryption_key_for_caller: caller: " # debug_show (caller));
+
         let { encrypted_key } = await vetkd_system_api.vetkd_encrypted_key({
             derivation_id = Principal.toBlob(caller);
             public_key_derivation_path = Array.make(Text.encodeUtf8("ibe_encryption"));
