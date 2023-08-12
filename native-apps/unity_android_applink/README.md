@@ -1,5 +1,5 @@
 # Internet Identity Integration
-This sample shows one way to integrate Internet Identity with some native apps, like Unity Android games.
+This sample shows one way to integrate Internet Identity with Android apps. It contains two parts: a dapp with II integrated，and an Unity Project which interacts with this dapp.
 
 ## ii_integration_page
 It's an example that integrates with Internet Identity, with the backend and frontend. It derives from the [Internet Identity integration sample](https://github.com/dfinity/examples/tree/master/motoko/internet_identity_integration) demo with some modifications.

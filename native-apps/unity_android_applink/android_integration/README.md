@@ -45,3 +45,24 @@ After updating your Unity project correctly, please build to Android platform in
 1. Go to `File -> Build Settings` window.
 2. Switch to `Android` platform.
 3. Click `Build` to build the Android apk, or Click `Build And Run` to build and run on the connected device.
+
+## Verification
+
+While installing your app on your Android devices, the Android installer will fetch the [assetlinks.json file](../ii_integration_page//src/greet_frontend/assets/.well-known/assetlinks.json) from the website and verify the `SHA256` value. But sometimes the verification might fail to due to reasons like unstable network. Once you find the Android App Links doesn't work as you expected, you can run the below [adb command](https://developer.android.com/tools/adb) to retrieve the domain verifcation status of your apps.
+
+```
+adb shell pm get-app-links <your-package-name>
+```
+
+The below is the result of running this command against this sample Unity project, with package name `com.dfinity.ii_applink_integration`.
+
+```
+PS ..> adb shell pm get-app-links com.dfinity.ii_applink_integration
+  com.dfinity.ii_applink_integration:
+    ID: 9be82cc2-52ba-4e91-a152-5ba976d6176a
+    Signatures: [1A:EB:B6:B9:53:B7:E6:78:EB:C2:AD:24:C8:7F:6A:22:3F:F6:14:7C:1D:D3:2C:AB:55:D6:79:2F:3E:0A:C3:B8]
+    Domain verification state:
+      6x7nu-oaaaa-aaaan-qdaua-cai.icp0.io: verified
+```
+
+The `Domain verification state` of the sample dapp should be `verified` to have Android App Links working properly.
