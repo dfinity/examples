@@ -20,6 +20,7 @@ jobs:
       - name: Provision Darwin
         env:
           DFX_VERSION: 0.14.2
+          NODE_VERSION: 14.21.3
         run: bash .github/workflows/provision-darwin.sh
       - name: Rust vetKD Darwin
         run: |
