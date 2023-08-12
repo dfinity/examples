@@ -16,7 +16,7 @@ In this example, you can learn how to communicate with the IC from C#. As we des
 There're several important files in this example.
 
 - [ICGameKitPlugin.java](./Assets/Android/Plugins/com/icgamekit/plugin/ICGameKitPlugin.java)  
-  This is a Unity Android native plugin written in java, provided with functions including opening browser, sending message back to Unity.
+  This is a Unity Android native plugin written in java, provided with functions including opening browser, sending messages back to Unity.
 
 - [AndroidPostBuildProcessor.cs](./Assets/Editor/AndroidPostBuildProcessor.cs)  
   This is a Unity post-build processor for Android platform, which inserts the DeepLink URLScheme into the AndroidManifest.xml.
@@ -38,9 +38,9 @@ The current Unity project is configured to use the [deployed dapp](https://6x7nu
 2. Navigate to the `AgentAndPlugin` in the scene hierarchy
 3. Update the `Greet Backend Canister` with your own greeting backend canister id
 4. Update the `Greet Frontend` with your own greeting frontend
-5. If you use a different URL scheme to launch you Unity project in [ii_integration_page](../ii_integration_page/README.md), please update the `kAndroidScheme` & `kAndroidHost` in [AndroidPostBuildProcessor.cs](./Assets/Editor/AndroidPostBuildProcessor.cs) accordingly.
+5. If you use a different URL scheme to launch your Unity project in [ii_integration_page](../ii_integration_page/README.md), please update the `kAndroidScheme` & `kAndroidHost` in [AndroidPostBuildProcessor.cs](./Assets/Editor/AndroidPostBuildProcessor.cs) accordingly.
 
 After updating your Unity project correctly, please build to Android platform in Unity, just 
 1. Go to `File -> Build Settings` window
 2. Switch to `Android` platform
-3. Click `Build` to build the Android apk, or Click `Build And Run` to build and run on the connected device.
+3. Click `Build` to build the Android app, or Click `Build And Run` to build and run on the connected device.

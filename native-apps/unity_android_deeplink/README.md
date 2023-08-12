@@ -1,5 +1,5 @@
 # Internet Identity Integration
-This sample shows one way to integrate Internet Identity with Android apps. It contains two parts: a dapp with II integrated，and an Unity Project which interacts with this dapp.
+This sample shows one way to integrate Internet Identity with Android apps. It contains two parts: a dapp with II integrated, and an Unity Project which interacts with this dapp.
 
 ## ii_integration_page
 It's an example that integrates with Internet Identity, with the backend and frontend. It derives from the [Internet Identity integration sample](https://github.com/dfinity/examples/tree/master/motoko/internet_identity_integration) demo with some modifications.
@@ -19,5 +19,5 @@ The steps in detail are described below:
    Please refer to [android_integration](./android_integration/README.md) to build the Unity Android game.
 3. Launch the Web Browser from the game to open the dapp frontend deployed in #1, with the public key of `Ed25519Identity` as a parameter.
 4. Login with your Internet Identity in the Web Browser.
-5. Launch the application via DeepLink, and pass the `DelegationIdentity` back to the game as the URL parameters.
+5. Launch the application via DeepLink, and pass the `DelegationIdentity` back to the game as the URL parameter.
 6. Call the backend canister with the `DelegationIdentity` to greet.

@@ -24,7 +24,7 @@ In order to support Android App Links, the website needs to serve an `assetlinks
 
 For how to generate an assetlinks.json file, please refer to the [Android App Links](https://developer.android.com/studio/write/app-link-indexing#associatesite) document.
 
-One thing to remind is `.well-known` folder will be ingored while deploying to the IC, please add a `.ic-assets.json` file insider a directory listed in `sources` in the `dfx.json` file, with the below content. 
+One thing to remind is `.well-known` folder will be ignored while deploying to the IC, please add a `.ic-assets.json` file insider a directory listed in `sources` in the `dfx.json` file, with the below content. 
 
 ```
 [
@@ -40,10 +40,10 @@ Here is an example of [.ic-assets.json](./src/greet_frontend/assets/.ic-assets.j
 
 ### Deploy the Dapp
 
-Once you set up the IC developement environment locally and update the example as you want, you can follow the below steps to deploy to the IC mainnet.
+Once you set up the IC development environment locally and update the example as you want, you can follow the below steps to deploy to the IC mainnet.
 
-1. Enter the `ii_integration_page` directory from command line
+1. Enter the `ii_integration_page` directory from the command line
 2. Run `npm install` to install the npm packages
 3. Run `dfx start --background`
 4. Run `dfx deploy --network=ic --with-cycles=1000000000000`  
-   Here we recommend to deploy the dapp to the IC mainnet as it's easier to access it from your Android devices. Or you can use the [deployed dapp](https://6x7nu-oaaaa-aaaan-qdaua-cai.icp0.io) instead.
+   Here we recommend deploying the dapp to the IC mainnet as it's easier to access it from your Android devices. Or you can use the [deployed dapp](https://6x7nu-oaaaa-aaaan-qdaua-cai.icp0.io) instead.
