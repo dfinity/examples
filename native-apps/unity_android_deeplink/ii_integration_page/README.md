@@ -16,7 +16,11 @@ With this, users don't need to pass the private key around, also they don't need
 
 ## Deployment
 
-If you never work on the IC and don't know how to deploy a dapp, please refer to the [Hello World sample](https://internetcomputer.org/docs/current/tutorials/deploy_sample_app) to learn the basic knowledge about the IC. Once you set up your IC developement environment locally, you can follow the below steps to deploy to the IC mainnet.
+If you never work on the IC and don't know how to deploy a dapp, please refer to the [Hello World sample](https://internetcomputer.org/docs/current/tutorials/deploy_sample_app) to learn the basic knowledge about the IC. 
+
+And this example is configured to launch the Unity Android project by opening the `internetidentity://authorize` URL, you can change to the URL scheme as you want in [index.js](./src/greet_frontend/src/index.js).
+
+Once you set up the IC developement environment locally and update the example as you want, you can follow the below steps to deploy to the IC mainnet.
 
 1. Enter the `ii_integration_page` directory from command line
 2. Run `npm install` to install the npm packages

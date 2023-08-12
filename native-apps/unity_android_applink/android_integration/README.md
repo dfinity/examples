@@ -1,9 +1,9 @@
 # Unity Android sample
-This sample demonstrates one way to integrate Identity Integration with Unity on Android.
+This sample demonstrates one way to integrate Identity Integration with Unity on Android. If you never play with Unity Android, please read [Getting started with Android](https://docs.unity3d.com/Manual/android-getting-started.html) document.
 
 ## Overview
 
-In this example, you can learn how to communicate with the IC from C#. As we described in [Internet Identity Integration](/examples/native_apps/unity_android_deeplink/README.md#workflow), the game mainly focuses on:
+In this example, you can learn how to communicate with the IC from C#. As we described in [Internet Identity Integration](../unity_android_deeplink/README.md#workflow), the game mainly focuses on:
 
 1. Provide an Android Java plugin which can be a bridge between C# and the browser.
 2. Register the App Links in the Android manifest file.
@@ -29,3 +29,19 @@ There're several important files in this example.
 
 - [TestICPAgent.cs](./Assets/Scripts/TestICPAgent.cs)  
   This is a testing script which can parse the delegation identity and call the APIs provided by [GreetingClient.cs](./Assets/Scripts/GreetingClient.cs) to communicate with the greeting backend canister.
+
+## Deployment
+
+The current Unity project is configured to use the [deployed dapp](https://6x7nu-oaaaa-aaaan-qdaua-cai.icp0.io), its [assetlinks.json file] contains the `SHA256` value from the [test.keystore file](./Assets/test.keystore) (the passwords for the keystore and `ii-test` key are both `unity123456`). If you deploy your own dapp by following [ii_integration_page](../ii_integration_page/README.md), you need to make some modifications before you start to build this project to Android platform in Unity.
+
+1. In Unity, open the `Assets\Scenes\SampleScene.unity`.
+2. Navigate to the `AgentAndPlugin` in the scene hierarchy.
+3. Update the `Greet Backend Canister` with your own greeting backend canister id.
+4. Update the `Greet Frontend` with your own greeting frontend.
+5. If you use a different URL scheme to launch you Unity project in [ii_integration_page](../ii_integration_page/README.md), please update the `kAndroidScheme`, `kAndroidHost` and `kURLPath` in [AndroidPostBuildProcessor.cs](./Assets/Editor/AndroidPostBuildProcessor.cs) accordingly.
+6. Naviagte to `Editor -> Project Settings -> Android -> Publishing Settings`, choose the keystore file which contains the same `SHA256` value that you use to in your [assetlinks.json file](../ii_integration_page//src/greet_frontend/assets/.well-known/assetlinks.json).
+
+After updating your Unity project correctly, please build to Android platform in Unity, just 
+1. Go to `File -> Build Settings` window.
+2. Switch to `Android` platform.
+3. Click `Build` to build the Android apk, or Click `Build And Run` to build and run on the connected device.
