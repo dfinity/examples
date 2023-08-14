@@ -15,9 +15,9 @@ actor class BasicBitcoin(_network : Types.Network) {
 
   // The Bitcoin network to connect to.
   //
-  // When developing locally this should be `Regtest`.
-  // When deploying to the IC this should be `Testnet`.
-  // `Mainnet` is currently unsupported.
+  // When developing locally this should be `regtest`.
+  // When deploying to the IC this should be `testnet`.
+  // `mainnet` is currently unsupported.
   stable let NETWORK : Network = _network;
 
   // The derivation path to use for ECDSA secp256k1.
@@ -26,7 +26,7 @@ actor class BasicBitcoin(_network : Types.Network) {
   // The ECDSA key name.
   let KEY_NAME : Text = switch NETWORK {
     // For local development, we use a special test key with dfx.
-    case (#Regtest) "dfx_test_key";
+    case (#regtest) "dfx_test_key";
     // On the IC we're using a test ECDSA key.
     case _ "test_key_1"
   };

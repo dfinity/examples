@@ -7,9 +7,9 @@ type bitcoin_address = text;
 type block_hash = blob;
 
 type network = variant {
-    Regtest;
-    Testnet;
-    Mainnet;
+    regtest;
+    testnet;
+    mainnet;
 };
 
 type outpoint = record {
