@@ -1,5 +1,6 @@
 use crate::types::*;
-use ic_cdk::{api::call::call_with_payment, call, export::Principal};
+use candid::Principal;
+use ic_cdk::{api::call::call_with_payment, call};
 
 /// Returns the ECDSA public key of this canister at the given derivation path.
 pub async fn ecdsa_public_key(key_name: String, derivation_path: Vec<Vec<u8>>) -> Vec<u8> {
