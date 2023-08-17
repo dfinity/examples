@@ -25,7 +25,7 @@ jobs:
         run: |
           dfx start --background
           pushd motoko/basic_bitcoin
-          dfx deploy basic_bitcoin --argument '(variant { Regtest })'
+          dfx deploy basic_bitcoin --argument '(variant { regtest })'
           popd
   rust-basic-bitcoin-linux:
     runs-on: ubuntu-20.04
@@ -39,5 +39,5 @@ jobs:
         run: |
           dfx start --background
           pushd motoko/basic_bitcoin
-          dfx deploy basic_bitcoin --argument '(variant { Regtest })'
+          dfx deploy basic_bitcoin --argument '(variant { regtest })'
           popd
