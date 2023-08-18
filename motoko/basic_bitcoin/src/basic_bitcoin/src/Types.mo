@@ -47,9 +47,31 @@ module Types {
     
     /// The type of Bitcoin network the dapp will be interacting with.
     public type Network = {
+        #mainnet;
+        #testnet;
+        #regtest;
+    };
+
+    /// The type of Bitcoin network as defined by the Bitcoin Motoko library
+    /// (Note the difference in casing compared to `Network`)
+    public type NetworkCamelCase = {
         #Mainnet;
         #Testnet;
         #Regtest;
+    };
+
+    public func network_to_network_camel_case(network: Network) : NetworkCamelCase {
+        switch (network) {
+            case (#regtest) {
+                #Regtest
+            };
+            case (#testnet) {
+                #Testnet
+            };
+            case (#mainnet) {
+                #Mainnet
+            };
+        }
     };
 
     /// A reference to a transaction output.

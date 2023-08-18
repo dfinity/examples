@@ -17,10 +17,10 @@
     "generate": "dfx generate app_backend"
   },
   "dependencies": {
-    "@dfinity/agent": "^0.18.1",
-    "@dfinity/auth-client": "^0.18.1",
-    "@dfinity/candid": "^0.18.1",
-    "@dfinity/principal": "^0.18.1",
+    "@dfinity/agent": "^0.15.6",
+    "@dfinity/auth-client": "^0.15.6",
+    "@dfinity/candid": "^0.15.6",
+    "@dfinity/principal": "^0.15.6",
     "ic-vetkd-utils": "file:ic-vetkd-utils-0.1.0.tgz"
   },
   "devDependencies": {
@@ -34,7 +34,7 @@
     "stream-browserify": "3.0.0",
     "terser-webpack-plugin": "^5.3.3",
     "util": "0.12.4",
-    "webpack": "^5.88.2",
+    "webpack": "^5.73.0",
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^4.8.1"
   },

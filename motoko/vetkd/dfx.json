@@ -9,9 +9,8 @@
       "dependencies": [
         "system_api"
       ],
-      "candid": "src/app_backend/vetkd_app_backend.did",
-      "package": "vetkd_app_backend",
-      "type": "rust"
+      "main": "src/app_backend/Main.mo",
+      "type": "motoko"
     },
     "app_frontend_js": {
       "dependencies": [

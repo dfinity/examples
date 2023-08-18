@@ -213,7 +213,7 @@ public func build_transaction(
     let public_key = public_key_bytes_to_public_key(public_key_bytes);
 
     // Compute the P2PKH address from our public key.
-    P2pkh.deriveAddress(network, Publickey.toSec1(public_key, true))
+    P2pkh.deriveAddress(Types.network_to_network_camel_case(network), Publickey.toSec1(public_key, true))
   };
 
   // A mock for rubber-stamping ECDSA signatures.
