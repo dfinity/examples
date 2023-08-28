@@ -3,20 +3,12 @@ dfx stop
 set -e
 trap 'dfx stop' EXIT
 
-export IC_VERSION=3bcccef07408921fe849c92dd2437adc157ef9c3
-test -f ledger.wasm.gz || curl -o ledger.wasm.gz https://download.dfinity.systems/ic/${IC_VERSION}/canisters/ledger-canister.wasm.gz
-test -f ledger.wasm || gunzip ledger.wasm.gz
-test -f ledger.private.did || curl -o ledger.private.did https://raw.githubusercontent.com/dfinity/ic/${IC_VERSION}/rs/rosetta-api/icp_ledger/ledger.did
-test -f ledger.public.did || curl -o ledger.public.did https://raw.githubusercontent.com/dfinity/ic/${IC_VERSION}/rs/rosetta-api/icp_ledger/ledger/ledger_candid_backwards_compatible.did
-
 dfx start --background --clean
 dfx identity new alice --disable-encryption || true
-cat <<<"$(jq '.canisters.ledger.candid="ledger.private.did"' dfx.json)" >dfx.json
 export MINT_ACC=$(dfx --identity anonymous ledger account-id)
 export LEDGER_ACC=$(dfx ledger account-id)
 export ARCHIVE_CONTROLLER=$(dfx identity get-principal)
-dfx deploy ledger --argument '(record {minting_account = "'${MINT_ACC}'"; initial_values = vec { record { "'${LEDGER_ACC}'"; record { e8s=100_000_000_000 } }; }; send_whitelist = vec {}})'
-cat <<<"$(jq '.canisters.ledger.candid="ledger.public.did"' dfx.json)" >dfx.json
+dfx deploy ledger --argument '(variant { Init = record {minting_account = "'${MINT_ACC}'"; initial_values = vec { record { "'${LEDGER_ACC}'"; record { e8s=100_000_000_000 } }; }; send_whitelist = vec {}}})'
 dfx canister call ledger account_balance '(record { account = '$(python3 -c 'print("vec{" + ";".join([str(b) for b in bytes.fromhex("'$LEDGER_ACC'")]) + "}")')' })'
 
 dfx deploy ledger_transfer
