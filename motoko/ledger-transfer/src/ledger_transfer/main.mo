@@ -2,6 +2,7 @@ import Ledger    "canister:ledger";
 
 import Debug     "mo:base/Debug";
 import Error     "mo:base/Error";
+import Blob      "mo:base/Blob";
 import Int       "mo:base/Int";
 import HashMap   "mo:base/HashMap";
 import List      "mo:base/List";
@@ -60,7 +61,7 @@ actor Self {
 
   // Returns current balance on the default account of this canister.
   public func canisterBalance() : async Ledger.Tokens {
-    await Ledger.account_balance({ account = myAccountId() })
+    await Ledger.account_balance({ account = Blob.toArray(myAccountId()) })
   };
 
   // Rewards the most prolific author of the last week with 1 token.
@@ -92,7 +93,7 @@ actor Self {
         let res = await Ledger.transfer({
           memo = Nat64.fromNat(maxPosts);
           from_subaccount = null;
-          to = Account.accountIdentifier(principal, Account.defaultSubaccount());
+          to = Blob.toArray(Account.accountIdentifier(principal, Account.defaultSubaccount()));
           amount = { e8s = 100_000_000 };
           fee = { e8s = 10_000 };
           created_at_time = ?{ timestamp_nanos = Nat64.fromNat(Int.abs(now)) };
