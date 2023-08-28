@@ -3,11 +3,11 @@ dfx stop
 set -e
 trap 'dfx stop' EXIT
 
-export IC_VERSION=2cb0afe1f49b8bbd4e60db234ca1f4a6f68ea115
-test -f ledger.wasm.gz || curl -o ledger.wasm.gz https://download.dfinity.systems/ic/${IC_VERSION}/canisters/ledger-canister_notify-method.wasm.gz
+export IC_VERSION=3bcccef07408921fe849c92dd2437adc157ef9c3
+test -f ledger.wasm.gz || curl -o ledger.wasm.gz https://download.dfinity.systems/ic/${IC_VERSION}/canisters/ledger-canister.wasm.gz
 test -f ledger.wasm || gunzip ledger.wasm.gz
-test -f ledger.private.did || curl -o ledger.private.did https://raw.githubusercontent.com/dfinity/ic/${IC_VERSION}/rs/rosetta-api/ledger.did
-test -f ledger.public.did || curl -o ledger.public.did https://raw.githubusercontent.com/dfinity/ic/${IC_VERSION}/rs/rosetta-api/ledger_canister/ledger.did
+test -f ledger.private.did || curl -o ledger.private.did https://raw.githubusercontent.com/dfinity/ic/${IC_VERSION}/rs/rosetta-api/icp_ledger/ledger.did
+test -f ledger.public.did || curl -o ledger.public.did https://raw.githubusercontent.com/dfinity/ic/${IC_VERSION}/rs/rosetta-api/icp_ledger/ledger/ledger_candid_backwards_compatible.did
 
 dfx start --background --clean
 dfx identity new alice --disable-encryption || true
