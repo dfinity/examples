@@ -11,8 +11,9 @@ You try the live version of the dapp running on the Internet Computer mainnet he
 ## Prerequisites
 This example requires an installation of:
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
 - [x] Install `node.js` to build the web frontend.
+- [x] Install `webpack` (e.g., using `apt-get install webpack`)
 - [x] Clone this project to a local directory.
 
 ## Running locally
