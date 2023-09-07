@@ -182,8 +182,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   greetFrontend: https://6x7nu-oaaaa-aaaan-qdaua-cai.icp0.io/
-  gameObjectName: AgentAndPlugin
-  methodName: OnMessageSent
 --- !u!1 &671559154
 GameObject:
   m_ObjectHideFlags: 0
@@ -889,7 +887,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 272906662}
-        m_TargetAssemblyTypeName: IC.GameKit.PluginProxy, Assembly-CSharp
+        m_TargetAssemblyTypeName: IC.GameKit.DeepLinkPlugin, Assembly-CSharp
         m_MethodName: OpenBrowser
         m_Mode: 1
         m_Arguments:
