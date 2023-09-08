@@ -9,15 +9,15 @@ Please refer to [README](./ii_integration_dapp/README.md) for details.
 This is a Unity project with [ICP.NET](https://github.com/BoomDAO/ICP.NET) embedded, which is a C# agent that is able to communicate with the IC from C#. Please refer to [README](./unity_project/README.md) for details. 
 
 ## Workflow
-Here is the basic workflow that how to integrate with Internet Identity from a Unity Android game. The basic idea is to open the Web Browser from the game, login in with II in the browser, and pass the DelegationIdentity back to the game.
+Here is the basic workflow that how to integrate with Internet Identity from a Unity mobile game. The basic idea is to open the Web Browser from the game, login in with II in the browser, and pass the DelegationIdentity back to the game.
 
 The steps in detail are described below:
 
 1. Set up an [Internet Identity integration dapp](#ii_integration_dapp) which supports logging in with II.  
    Please refer to [ii_integration_dapp](./ii_integration_dapp/README.md) to set up the dapp.
 
-2. Run a Unity game on Android, which is built from [a unity sample](#unity_project).  
-   Please refer to [unity_project](./unity_project/README.md) to build the Unity Android game.
+2. Run a Unity game on Android/iOS, which is built from [a unity sample](#unity_project).  
+   Please refer to [unity_project](./unity_project/README.md) to build the Unity game.
 
 3. Launch the Web Browser from the game to open the dapp frontend deployed in #1, with the public key of `Ed25519Identity` as a parameter.
 
