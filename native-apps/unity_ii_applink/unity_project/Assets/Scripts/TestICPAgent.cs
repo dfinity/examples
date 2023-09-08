@@ -8,21 +8,33 @@ using EdjCase.ICP.Candid.Utilities;
 using System.Collections.Generic;
 using EdjCase.ICP.Agent.Models;
 using System;
-using System.IO;
-using Newtonsoft.Json;
-using System.Web;
 
 namespace IC.GameKit
 {
     public class TestICPAgent : MonoBehaviour
     {
+        public string greetFrontend = "https://6x7nu-oaaaa-aaaan-qdaua-cai.icp0.io/";
         public string greetBackendCanister = "72rj2-biaaa-aaaan-qdatq-cai";
+
         Text mMyPrincipalText = null;
         Button mGreetButton = null;
         Ed25519Identity mEd25519Identity = null;
         DelegationChainModel mDelegation = null;
 
         public Ed25519Identity TestIdentity { get { return mEd25519Identity; } }
+
+        internal DelegationChainModel Delegation {
+            get { return mDelegation; } 
+            set 
+            {
+                mDelegation = value;
+                
+                if (mDelegation != null && mGreetButton != null)
+                {
+                    mGreetButton.interactable = true;
+                }
+            }
+        }
 
         // Start is called before the first frame update
         void Start()
@@ -39,33 +51,6 @@ namespace IC.GameKit
         // Update is called once per frame
         void Update()
         {
-        }
-
-        public void OnMessageSent(string delegationPath)
-        {
-            if (string.IsNullOrEmpty(delegationPath) || !File.Exists(delegationPath))
-                return;
-
-            //Debug.Log("Identity path '" + identityPath + "' exists.");
-
-            var parameters = File.ReadAllText(delegationPath);
-            //Debug.Log("Params length is: " + parameters.Length);
-
-            const string kDelegationParam = "delegation=";
-            var indexOfDelegation = parameters.IndexOf(kDelegationParam);
-            if (indexOfDelegation == -1)
-            {
-                Debug.LogError("Cannot find delegation");
-                return;
-            }
-
-            var delegationString = HttpUtility.UrlDecode(parameters.Substring(indexOfDelegation + kDelegationParam.Length));
-            mDelegation = JsonConvert.DeserializeObject<DelegationChainModel>(delegationString);
-
-            if (mDelegation != null && mGreetButton != null)
-            {
-                mGreetButton.interactable = true;
-            }
         }
 
         public void Greet()
@@ -99,9 +84,9 @@ namespace IC.GameKit
             // Initialize HttpAgent.
             var agent = new HttpAgent(delegationIdentity);
 
-            Principal canisterId = Principal.FromText(greetBackendCanister);
+            var canisterId = Principal.FromText(greetBackendCanister);
 
-            // Intialize Client and make the call.
+            // Intialize the client and make the call.
             var client = new GreetingClient.GreetingClient(agent, canisterId);
             var content = await client.Greet();
 

@@ -42,7 +42,7 @@ Here is an example of [.ic-assets.json](./src/greet_frontend/assets/.ic-assets.j
 
 Once you set up the IC development environment locally and update the example as you want, you can follow the below steps to deploy to the IC mainnet.
 
-1. Enter the `ii_integration_page` directory from the command line
+1. Enter the `ii_integration_dapp` directory from the command line
 2. Run `npm install` to install the npm packages
 3. Run `dfx start --background`
 4. Run `dfx deploy --network=ic --with-cycles=1000000000000`  
