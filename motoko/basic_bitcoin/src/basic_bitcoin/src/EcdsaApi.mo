@@ -14,6 +14,9 @@ module {
       sign_with_ecdsa : SignWithECDSA -> async SignWithECDSAReply;
   };
 
+  // The fee for the `sign_with_ecdsa` endpoint using the test key.
+  let SIGN_WITH_ECDSA_COST_CYCLES : Cycles = 10_000_000_000;
+
   let ecdsa_canister_actor : EcdsaCanisterActor = actor("aaaaa-aa");
 
   /// Returns the ECDSA public key of this canister at the given derivation path.
@@ -33,7 +36,7 @@ module {
   };
 
   public func sign_with_ecdsa(key_name : Text, derivation_path : [Blob], message_hash : Blob) : async Blob {
-    ExperimentalCycles.add(10_000_000_000);
+    ExperimentalCycles.add(SIGN_WITH_ECDSA_COST_CYCLES);
     let res = await ecdsa_canister_actor.sign_with_ecdsa({
         message_hash;
         derivation_path;
