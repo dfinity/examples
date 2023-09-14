@@ -54,7 +54,7 @@ pub async fn send(
         2000
     } else {
         // Choose the 50th percentile for sending fees.
-        fee_percentiles[49]
+        fee_percentiles[50]
     };
 
     // Fetch our public key, P2PKH address, and UTXOs.
@@ -63,6 +63,8 @@ pub async fn send(
     let own_address = public_key_to_p2pkh_address(network, &own_public_key);
 
     print("Fetching UTXOs...");
+    // Note that pagination may have to be used to get all UTXOs for the given address.
+    // For the sake of simplicity, it is assumed here that the response contains all UTXOs.
     let own_utxos = bitcoin_api::get_utxos(network, own_address.clone())
         .await
         .utxos;
