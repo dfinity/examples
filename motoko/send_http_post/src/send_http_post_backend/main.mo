@@ -94,7 +94,6 @@ actor {
         body = ?request_body_as_nat8; 
         method = #post;
         transform = ?transform_context;
-        // transform = null; //optional for request
     };
 
     //3. ADD CYCLES TO PAY FOR HTTP REQUEST
