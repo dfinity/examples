@@ -10,6 +10,40 @@ import Types "Types";
 
 actor {
 
+  //function to transform the response
+  public query func transform(raw : Types.TransformArgs) : async Types.CanisterHttpResponsePayload {
+      let transformed : Types.CanisterHttpResponsePayload = {
+          status = raw.response.status;
+          body = raw.response.body;
+          headers = [
+              {
+                  name = "Content-Security-Policy";
+                  value = "default-src 'self'";
+              },
+              { 
+                name = "Referrer-Policy"; 
+                value = "strict-origin" 
+              },
+              { 
+                name = "Permissions-Policy"; 
+                value = "geolocation=(self)" },
+              {
+                  name = "Strict-Transport-Security";
+                  value = "max-age=63072000";
+              },
+              { 
+                name = "X-Frame-Options"; 
+                value = "DENY" 
+              },
+              { 
+                name = "X-Content-Type-Options"; 
+                value = "nosniff" 
+              },
+          ];
+      };
+      transformed;
+  };
+
 //PULIC METHOD
 //This method sends a POST request to a URL with a free API we can test.
   public func send_http_post_request() : async Text {
@@ -22,8 +56,8 @@ actor {
 
     // 2.1 Setup the URL and its query parameters
     //This URL is used because it allows us to inspect the HTTP request sent from the canister
-    let host : Text = "en8d7aepyq2ko.x.pipedream.net";
-    let url = "https://en8d7aepyq2ko.x.pipedream.net/";
+    let host : Text = "putsreq.com";
+    let url = "https://putsreq.com/aL1QS5IbaQd4NTqN3a81"; //HTTP that accepts IPV6
 
     // 2.2 prepare headers for the system http_request call
 
@@ -45,6 +79,12 @@ actor {
     let request_body_as_nat8: [Nat8] = Blob.toArray(request_body_as_Blob); // e.g [34, 34,12, 0]
 
 
+    // 2.2.1 Transform context
+    let transform_context : Types.TransformContext = {
+      function = transform;
+      context = Blob.fromArray([]);
+    };
+
     // 2.3 The HTTP request
     let http_request : Types.HttpRequestArgs = {
         url = url;
@@ -53,7 +93,8 @@ actor {
         //note: type of `body` is ?[Nat8] so we pass it here as "?request_body_as_nat8" instead of "request_body_as_nat8"
         body = ?request_body_as_nat8; 
         method = #post;
-        transform = null; //optional for request
+        transform = ?transform_context;
+        // transform = null; //optional for request
     };
 
     //3. ADD CYCLES TO PAY FOR HTTP REQUEST
@@ -63,7 +104,7 @@ actor {
     
     //The way Cycles.add() works is that it adds those cycles to the next asynchronous call
     //See: https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-http_request
-    Cycles.add(220_131_200_000); //minimum cycles needed to pass the CI tests. Cycles needed will vary on many things size of http response, subnetc, etc...).
+    Cycles.add(21_850_258_000);
     
     //4. MAKE HTTPS REQUEST AND WAIT FOR RESPONSE
     //Since the cycles were added above, we can just call the IC management canister with HTTPS outcalls below
@@ -86,14 +127,13 @@ actor {
     //  2. Use Blob.decodeUtf8() method to convert the Blob to a ?Text optional 
     //  3. We use Motoko syntax "Let... else" to unwrap what is returned from Text.decodeUtf8()
     let response_body: Blob = Blob.fromArray(http_response.body);
-        let decoded_text: Text = switch (Text.decodeUtf8(response_body)) {
+    let decoded_text: Text = switch (Text.decodeUtf8(response_body)) {
         case (null) { "No value returned" };
         case (?y) { y };
     };
 
     //6. RETURN RESPONSE OF THE BODY
-    let response_url: Text = "https://public.requestbin.com/r/en8d7aepyq2ko/";
-    let result: Text = decoded_text # ". See more info of the request sent at at: " # response_url;
+    let result: Text = decoded_text # ". See more info of the request sent at: " # url # "/inspect";
     result
   };
 
