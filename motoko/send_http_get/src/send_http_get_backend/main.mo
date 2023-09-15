@@ -15,8 +15,8 @@ import Types "Types";
 actor {
 
 //This method sends a GET request to a URL with a free API we can test.
-//This method returns Coinbase data on the exchange rate between BTC and ICP 
-//for a certain day. The data will look like this:
+//This method returns Coinbase data on the exchange rate between USD and ICP 
+//for a certain day.
 //The API response looks like this:
 //  [
 //     [
@@ -28,6 +28,29 @@ actor {
 //         243.5678 <-- volume of ICP traded
 //     ],
 // ]
+
+  //function to transform the response
+  public query func transform(raw : Types.TransformArgs) : async Types.CanisterHttpResponsePayload {
+      let transformed : Types.CanisterHttpResponsePayload = {
+          status = raw.response.status;
+          body = raw.response.body;
+          headers = [
+              {
+                  name = "Content-Security-Policy";
+                  value = "default-src 'self'";
+              },
+              { name = "Referrer-Policy"; value = "strict-origin" },
+              { name = "Permissions-Policy"; value = "geolocation=(self)" },
+              {
+                  name = "Strict-Transport-Security";
+                  value = "max-age=63072000";
+              },
+              { name = "X-Frame-Options"; value = "DENY" },
+              { name = "X-Content-Type-Options"; value = "nosniff" },
+          ];
+      };
+      transformed;
+  };
   
   public func get_icp_usd_exchange() : async Text {
 
@@ -40,6 +63,7 @@ actor {
     // 2.1 Setup the URL and its query parameters
     let ONE_MINUTE : Nat64 = 60;
     let start_timestamp : Types.Timestamp = 1682978460; //May 1, 2023 22:01:00 GMT
+    let end_timestamp : Types.Timestamp = 1682978520;//May 1, 2023 22:02:00 GMT
     let host : Text = "api.pro.coinbase.com";
     let url = "https://" # host # "/products/ICP-USD/candles?start=" # Nat64.toText(start_timestamp) # "&end=" # Nat64.toText(start_timestamp) # "&granularity=" # Nat64.toText(ONE_MINUTE);
 
@@ -49,6 +73,12 @@ actor {
         { name = "User-Agent"; value = "exchange_rate_canister" },
     ];
 
+    // 2.2.1 Transform context
+    let transform_context : Types.TransformContext = {
+      function = transform;
+      context = Blob.fromArray([]);
+    };
+
     // 2.3 The HTTP request
     let http_request : Types.HttpRequestArgs = {
         url = url;
@@ -56,7 +86,7 @@ actor {
         headers = request_headers;
         body = null; //optional for request
         method = #get;
-        transform = null; //optional for request
+        transform = ?transform_context;
     };
 
     //3. ADD CYCLES TO PAY FOR HTTP REQUEST
@@ -68,7 +98,7 @@ actor {
     //The way Cycles.add() works is that it adds those cycles to the next asynchronous call
     //"Function add(amount) indicates the additional amount of cycles to be transferred in the next remote call"
     //See: https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-http_request
-    Cycles.add(220_131_200_000); //minimum cycles needed to pass the CI tests. Cycles needed will vary on many things size of http response, subnetc, etc...).
+    Cycles.add(20_949_972_000);
     
     //4. MAKE HTTPS REQUEST AND WAIT FOR RESPONSE
     //Since the cycles were added above, we can just call the IC management canister with HTTPS outcalls below
@@ -85,7 +115,7 @@ actor {
     //     body : [Nat8];
     // };
 
-    //We need to decode that [Na8] array that is the body into readable text. 
+    //We need to decode that [Nat8] array that is the body into readable text. 
     //To do this, we:
     //  1. Convert the [Nat8] into a Blob
     //  2. Use Blob.decodeUtf8() method to convert the Blob to a ?Text optional 
