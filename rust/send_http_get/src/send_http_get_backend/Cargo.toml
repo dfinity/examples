@@ -1,5 +1,5 @@
 [package]
-name = "send_http_post_backend"
+name = "send_http_get_backend"
 version = "0.1.0"
 edition = "2021"
 
