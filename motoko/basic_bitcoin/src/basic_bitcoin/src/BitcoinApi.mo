@@ -46,9 +46,7 @@ module {
 
   /// Returns the UTXOs of the given Bitcoin address.
   ///
-  /// NOTE: Pagination is ignored in this example. If an address has many thousands
-  /// of UTXOs, then subsequent calls to `bitcoin_get_utxos` are required.
-  ///
+  /// NOTE: Relies on the `bitcoin_get_utxos` endpoint.
   /// See https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_utxos
   public func get_utxos(network : Network, address : BitcoinAddress) : async GetUtxosResponse {
     ExperimentalCycles.add(GET_UTXOS_COST_CYCLES);

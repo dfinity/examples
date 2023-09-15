@@ -77,7 +77,8 @@ module {
 
     Debug.print("Fetching UTXOs...");
     // Note that pagination may have to be used to get all UTXOs for the given address.
-    // For the sake of simplicity, it is assumed here that the response contains all UTXOs.
+    // For the sake of simplicity, it is assumed here that the `utxo` field in the response
+    // contains all UTXOs.
     let own_utxos = (await BitcoinApi.get_utxos(network, own_address)).utxos;
 
     // Build the transaction that sends `amount` to the destination address.

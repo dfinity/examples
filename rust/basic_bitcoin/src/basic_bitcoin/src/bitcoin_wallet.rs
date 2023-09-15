@@ -64,7 +64,8 @@ pub async fn send(
 
     print("Fetching UTXOs...");
     // Note that pagination may have to be used to get all UTXOs for the given address.
-    // For the sake of simplicity, it is assumed here that the response contains all UTXOs.
+    // For the sake of simplicity, it is assumed here that the `utxo` field in the response
+    // contains all UTXOs.
     let own_utxos = bitcoin_api::get_utxos(network, own_address.clone())
         .await
         .utxos;
