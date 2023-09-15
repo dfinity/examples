@@ -5,14 +5,25 @@ use ic_cdk::api::management_canister::http_request::{
     TransformContext,
 };
 
+use ic_cdk_macros::{self, query, update};
+use serde::{Serialize, Deserialize};
+use serde_json::{self, Value};
+
+// This struct is legacy code and is not really used in the code.
+#[derive(Serialize, Deserialize)]
+struct Context {
+    bucket_start_time_index: usize,
+    closing_price_index: usize,
+}
+
 //Update method using the HTTPS outcalls feature
 #[ic_cdk::update]
 async fn send_http_post_request() -> String {
     //2. SETUP ARGUMENTS FOR HTTP GET request
 
     // 2.1 Setup the URL
-    let host = "en8d7aepyq2ko.x.pipedream.net";
-    let url = "https://en8d7aepyq2ko.x.pipedream.net/";
+    let host = "putsreq.com";
+    let url = "https://putsreq.com/aL1QS5IbaQd4NTqN3a81";
 
     // 2.2 prepare headers for the system http_request call
     //Note that `HttpHeader` is declared in line 4
@@ -30,6 +41,10 @@ async fn send_http_post_request() -> String {
         HttpHeader {
             name: "Idempotency-Key".to_string(),
             value: "UUID-123456789".to_string(),
+        },
+        HttpHeader {
+            name: "Content-Type".to_string(),
+            value: "application/json".to_string(),
         },
     ];
 
@@ -59,16 +74,21 @@ async fn send_http_post_request() -> String {
     //1. Declare a JSON string to send
     //2. Convert that JSON string to array of UTF8 (u8)
     //3. Wrap that array in an optional
-    let json_string: String = r#"{
-        "name": "Grogu",
-        "force_sensitive": "true",
-        "language": "rust"
-    }"#
-    .to_string();
+    let json_string : String = "{ \"name\" : \"Grogu\", \"force_sensitive\" : \"true\" }".to_string();
+
     //note: here, r#""# is used for raw strings in Rust, which allows you to include characters like " and \ without needing to escape them.
     //We could have used "serde_json" as well.
     let json_utf8: Vec<u8> = json_string.into_bytes();
     let request_body: Option<Vec<u8>> = Some(json_utf8);
+
+    // This struct is legacy code and is not really used in the code. Need to be removed in the future
+    // The "TransformContext" function does need a CONTEXT parameter, but this implementation is not necessary
+    // the TransformContext(transform, context) below accepts this "context", but it does nothing with it in this implementation.
+    // bucket_start_time_index and closing_price_index are meaninglesss
+    let context = Context {
+        bucket_start_time_index: 0,
+        closing_price_index: 4,
+    };
 
     let request = CanisterHttpRequestArgument {
         url: url.to_string(),
@@ -76,7 +96,8 @@ async fn send_http_post_request() -> String {
         method: HttpMethod::POST,
         headers: request_headers,
         body: request_body,
-        transform: None, //optional for request
+        transform: Some(TransformContext::new(transform, serde_json::to_vec(&context).unwrap())),
+        // transform: None, //optional for request
     };
 
     //3. MAKE HTTPS REQUEST AND WAIT FOR RESPONSE
@@ -101,15 +122,15 @@ async fn send_http_post_request() -> String {
             //  3. We use a switch to explicitly call out both cases of decoding the Blob into ?Text
             let str_body = String::from_utf8(response.body)
                 .expect("Transformed response is not UTF-8 encoded.");
+            ic_cdk::api::print(format!("{:?}", str_body));
 
             //The API response will looks like this:
             // { successful: true }
 
             //Return the body as a string and end the method
-            let response_url = "https://public.requestbin.com/r/en8d7aepyq2ko";
             let result: String = format!(
-                "{}. See more info of the request sent at at: {}",
-                str_body, response_url
+                "{}. See more info of the request sent at: {}/inspect",
+                str_body, url
             );
             result
         }
@@ -121,4 +142,53 @@ async fn send_http_post_request() -> String {
             message
         }
     }
+
+}
+
+// Strips all data that is not needed from the original response.
+#[query]
+fn transform(raw: TransformArgs) -> HttpResponse {
+
+    let headers = vec![
+        HttpHeader {
+            name: "Content-Security-Policy".to_string(),
+            value: "default-src 'self'".to_string(),
+        },
+        HttpHeader {
+            name: "Referrer-Policy".to_string(),
+            value: "strict-origin".to_string(),
+        },
+        HttpHeader {
+            name: "Permissions-Policy".to_string(),
+            value: "geolocation=(self)".to_string(),
+        },
+        HttpHeader {
+            name: "Strict-Transport-Security".to_string(),
+            value: "max-age=63072000".to_string(),
+        },
+        HttpHeader {
+            name: "X-Frame-Options".to_string(),
+            value: "DENY".to_string(),
+        },
+        HttpHeader {
+            name: "X-Content-Type-Options".to_string(),
+            value: "nosniff".to_string(),
+        },
+    ];
+    
+
+    let mut res = HttpResponse {
+        status: raw.response.status.clone(),
+        body: raw.response.body.clone(),
+        headers,
+        ..Default::default()
+    };
+
+    if res.status == 200 {
+
+        res.body = raw.response.body;
+    } else {
+        ic_cdk::api::print(format!("Received an error from coinbase: err = {:?}", raw));
+    }
+    res
 }
