@@ -7,6 +7,7 @@ module {
   type ECDSAPublicKeyReply = Types.ECDSAPublicKeyReply;
   type SignWithECDSA = Types.SignWithECDSA;
   type SignWithECDSAReply = Types.SignWithECDSAReply;
+  type Cycles = Types.Cycles;
 
   /// Actor definition to handle interactions with the ECDSA canister.
   type EcdsaCanisterActor = actor {
