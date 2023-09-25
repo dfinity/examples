@@ -34,9 +34,7 @@ pub async fn get_balance(network: BitcoinNetwork, address: String) -> u64 {
 
 /// Returns the UTXOs of the given bitcoin address.
 ///
-/// NOTE: Pagination is ignored in this example. If an address has many thousands
-/// of UTXOs, then subsequent calls to `bitcoin_get_utxos` are required.
-///
+/// NOTE: Relies on the `bitcoin_get_utxos` endpoint.
 /// See https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_utxos
 pub async fn get_utxos(network: BitcoinNetwork, address: String) -> GetUtxosResponse {
     let utxos_res: Result<(GetUtxosResponse,), _> = call_with_payment(
