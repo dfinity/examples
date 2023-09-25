@@ -14,7 +14,7 @@
     "start": "webpack serve --mode development --env development",
     "deploy:local": "dfx deploy --network=local",
     "deploy:ic": "dfx deploy --network=ic",
-    "generate": "dfx generate send_http_get_rust_backend"
+    "generate": "dfx generate send_http_get_backend"
   },
   "dependencies": {
     "@dfinity/agent": "^0.15.6",
