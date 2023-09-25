@@ -61,7 +61,7 @@ module {
     // Get fee percentiles from previous transactions to estimate our own fee.
     let fee_percentiles = await BitcoinApi.get_current_fee_percentiles(network);
 
-    let fee_per_byte : MillisatoshiPerVByte = if(fee_percentiles.size() == 0) {
+    let fee_per_vbyte : MillisatoshiPerVByte = if(fee_percentiles.size() == 0) {
         // There are no fee percentiles. This case can only happen on a regtest
         // network where there are no non-coinbase transactions. In this case,
         // we use a default of 1000 millisatoshis/vbyte (i.e. 2 satoshi/byte)
@@ -82,7 +82,7 @@ module {
     let own_utxos = (await BitcoinApi.get_utxos(network, own_address)).utxos;
 
     // Build the transaction that sends `amount` to the destination address.
-    let tx_bytes = await build_transaction(own_public_key, own_address, own_utxos, dst_address, amount, fee_per_byte);
+    let tx_bytes = await build_transaction(own_public_key, own_address, own_utxos, dst_address, amount, fee_per_vbyte);
     let transaction =
         Utils.get_ok(Transaction.fromBytes(Iter.fromArray(tx_bytes)));
 
@@ -120,7 +120,7 @@ public func build_transaction(
     // We solve this problem iteratively. We start with a fee of zero, build
     // and sign a transaction, see what its size is, and then update the fee,
     // rebuild the transaction, until the fee is set to the correct amount.
-    let fee_per_byte_nat = Nat64.toNat(fee_per_byte);
+    let fee_per_vbyte_nat = Nat64.toNat(fee_per_vbyte);
     Debug.print("Building transaction...");
     var total_fee : Nat = 0;
     loop {
@@ -140,11 +140,11 @@ public func build_transaction(
 
         let signed_tx_bytes_len : Nat = signed_transaction_bytes.size();
 
-        if((signed_tx_bytes_len * fee_per_byte_nat) / 1000 == total_fee) {
+        if((signed_tx_bytes_len * fee_per_vbyte_nat) / 1000 == total_fee) {
             Debug.print("Transaction built with fee " # debug_show(total_fee));
             return transaction.toBytes();
         } else {
-            total_fee := (signed_tx_bytes_len * fee_per_byte_nat) / 1000;
+            total_fee := (signed_tx_bytes_len * fee_per_vbyte_nat) / 1000;
         }
     }
   };
