@@ -276,13 +276,16 @@ fn sha256(data: &[u8]) -> Vec<u8> {
     hasher.update(data);
     hasher.finalize().to_vec()
 }
+fn ripemd160(data: &[u8]) -> Vec<u8> {
+    let mut hasher = ripemd::Ripemd160::new();
+    hasher.update(data);
+    hasher.finalize().to_vec()
+}
 
 // Converts a public key to a P2PKH address.
 fn public_key_to_p2pkh_address(network: BitcoinNetwork, public_key: &[u8]) -> String {
-    // sha256 + ripmd160
-    let mut hasher = ripemd::Ripemd160::new();
-    hasher.update(sha256(public_key));
-    let result = hasher.finalize();
+    // SHA-256 & RIPEMD-160
+    let result = ripemd160(&sha256(public_key));
 
     let prefix = match network {
         BitcoinNetwork::Testnet | BitcoinNetwork::Regtest => 0x6f,
