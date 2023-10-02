@@ -54,7 +54,7 @@ pub async fn send(
         2000
     } else {
         // Choose the 50th percentile for sending fees.
-        fee_percentiles[49]
+        fee_percentiles[50]
     };
 
     // Fetch our public key, P2PKH address, and UTXOs.
@@ -63,6 +63,9 @@ pub async fn send(
     let own_address = public_key_to_p2pkh_address(network, &own_public_key);
 
     print("Fetching UTXOs...");
+    // Note that pagination may have to be used to get all UTXOs for the given address.
+    // For the sake of simplicity, it is assumed here that the `utxo` field in the response
+    // contains all UTXOs.
     let own_utxos = bitcoin_api::get_utxos(network, own_address.clone())
         .await
         .utxos;
@@ -276,13 +279,16 @@ fn sha256(data: &[u8]) -> Vec<u8> {
     hasher.update(data);
     hasher.finalize().to_vec()
 }
+fn ripemd160(data: &[u8]) -> Vec<u8> {
+    let mut hasher = ripemd::Ripemd160::new();
+    hasher.update(data);
+    hasher.finalize().to_vec()
+}
 
 // Converts a public key to a P2PKH address.
 fn public_key_to_p2pkh_address(network: BitcoinNetwork, public_key: &[u8]) -> String {
-    // sha256 + ripmd160
-    let mut hasher = ripemd::Ripemd160::new();
-    hasher.update(sha256(public_key));
-    let result = hasher.finalize();
+    // SHA-256 & RIPEMD-160
+    let result = ripemd160(&sha256(public_key));
 
     let prefix = match network {
         BitcoinNetwork::Testnet | BitcoinNetwork::Regtest => 0x6f,

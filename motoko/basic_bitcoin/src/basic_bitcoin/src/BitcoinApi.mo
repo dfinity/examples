@@ -8,7 +8,7 @@ module {
   type Network = Types.Network;
   type BitcoinAddress = Types.BitcoinAddress;
   type GetUtxosResponse = Types.GetUtxosResponse;
-  type MillisatoshiPerByte = Types.MillisatoshiPerByte;
+  type MillisatoshiPerVByte = Types.MillisatoshiPerVByte;
   type GetBalanceRequest = Types.GetBalanceRequest;
   type GetUtxosRequest = Types.GetUtxosRequest;
   type GetCurrentFeePercentilesRequest = Types.GetCurrentFeePercentilesRequest;
@@ -25,7 +25,7 @@ module {
   type ManagementCanisterActor = actor {
       bitcoin_get_balance : GetBalanceRequest -> async Satoshi;
       bitcoin_get_utxos : GetUtxosRequest -> async GetUtxosResponse;
-      bitcoin_get_current_fee_percentiles : GetCurrentFeePercentilesRequest -> async [MillisatoshiPerByte];
+      bitcoin_get_current_fee_percentiles : GetCurrentFeePercentilesRequest -> async [MillisatoshiPerVByte];
       bitcoin_send_transaction : SendTransactionRequest -> async ();
   };
 
@@ -46,9 +46,7 @@ module {
 
   /// Returns the UTXOs of the given Bitcoin address.
   ///
-  /// NOTE: Pagination is ignored in this example. If an address has many thousands
-  /// of UTXOs, then subsequent calls to `bitcoin_get_utxos` are required.
-  ///
+  /// NOTE: Relies on the `bitcoin_get_utxos` endpoint.
   /// See https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_utxos
   public func get_utxos(network : Network, address : BitcoinAddress) : async GetUtxosResponse {
     ExperimentalCycles.add(GET_UTXOS_COST_CYCLES);
@@ -59,12 +57,12 @@ module {
     })
   };
 
-  /// Returns the 100 fee percentiles measured in millisatoshi/byte.
+  /// Returns the 100 fee percentiles measured in millisatoshi/vbyte.
   /// Percentiles are computed from the last 10,000 transactions (if available).
   ///
   /// Relies on the `bitcoin_get_current_fee_percentiles` endpoint.
   /// See https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_current_fee_percentiles
-  public func get_current_fee_percentiles(network : Network) : async [MillisatoshiPerByte] {
+  public func get_current_fee_percentiles(network : Network) : async [MillisatoshiPerVByte] {
     ExperimentalCycles.add(GET_CURRENT_FEE_PERCENTILES_COST_CYCLES);
     await management_canister_actor.bitcoin_get_current_fee_percentiles({
         network;
