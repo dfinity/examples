@@ -2,7 +2,8 @@
   "canisters": {
     "icpos": {
       "main": "src/icpos/main.mo",
-      "type": "motoko"
+      "type": "motoko",
+      "dependencies": ["icrc1_ledger"]
     },
     "icpos_frontend": {
       "dependencies": ["icpos"],
@@ -11,7 +12,7 @@
       },
       "source": ["dist"],
       "type": "assets",
-      "build": ["yarn run build"]
+      "build": ["npm run build"]
     },
     "internet_identity": {
       "type": "custom",
@@ -19,12 +20,11 @@
       "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz",
       "remote": {
         "id": {
-          "ic": "be2us-64aaa-aaaaa-qaabq-cai"
+          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
         }
-      },
-      "frontend": {}
+      }
     },
-    "icrc1-ledger": {
+    "icrc1_ledger": {
       "type": "custom",
       "candid": "https://raw.githubusercontent.com/dfinity/ic/95787355499f3be929f2ab302ed44cdad7c64061/rs/rosetta-api/icrc1/ledger/ledger.did",
       "wasm": "https://download.dfinity.systems/ic/95787355499f3be929f2ab302ed44cdad7c64061/canisters/ic-icrc1-ledger.wasm.gz",
@@ -34,7 +34,7 @@
         }
       }
     },
-    "icrc1-index": {
+    "icrc1_index": {
       "type": "custom",
       "candid": "https://raw.githubusercontent.com/dfinity/ic/95787355499f3be929f2ab302ed44cdad7c64061/rs/rosetta-api/icrc1/index/index.did",
       "wasm": "https://download.dfinity.systems/ic/95787355499f3be929f2ab302ed44cdad7c64061/canisters/ic-icrc1-index.wasm.gz",
@@ -49,12 +49,6 @@
     "build": {
       "args": "",
       "packtool": ""
-    }
-  },
-  "networks": {
-    "local": {
-      "bind": "127.0.0.1:8000",
-      "type": "ephemeral"
     }
   },
   "output_env_file": ".env",

@@ -19,7 +19,7 @@ import Buffer "mo:base/Buffer";
 
 // Importing local modules
 import MainTypes "main.types";
-import CkBtcLedgerTypes "ckbtc-ledger/ckbtc-ledger.types";
+import CkBtcLedger "canister:icrc1_ledger";
 import HttpTypes "http/http.types";
 
 /**
@@ -35,7 +35,6 @@ shared (actorContext) actor class Main(_startBlock : Nat) {
   private stable var merchantStore : Trie.Trie<Text, MainTypes.Merchant> = Trie.empty();
   private stable var latestTransactionIndex : Nat = 0;
   private stable var courierApiKey : Text = "";
-  private stable var ledgerActor : CkBtcLedgerTypes.Actor = actor ("mxzaz-hqaaa-aaaar-qaada-cai") : CkBtcLedgerTypes.Actor;
   private var logData = Buffer.Buffer<Text>(0);
 
   /**
@@ -106,27 +105,6 @@ shared (actorContext) actor class Main(_startBlock : Nat) {
   };
 
   /**
-    * Set the ledger principal, used when monitoring transactions. Only the owner can set the Ledger principal.
-    */
-  public shared (context) func setLedgerId(ledgerId : Text) : async MainTypes.Response<Text> {
-    if (not Principal.equal(context.caller, actorContext.caller)) {
-      return {
-        status = 403;
-        status_text = "Forbidden";
-        data = null;
-        error_text = ?"Only the owner can set the Ledger principal.";
-      };
-    };
-    ledgerActor := actor (ledgerId);
-    {
-      status = 200;
-      status_text = "OK";
-      data = ?ledgerId;
-      error_text = null;
-    };
-  };
-
-  /**
   * Get latest log items. Log output is capped at 100 items.
   */
   public query func getLogs() : async [Text] {
@@ -173,7 +151,7 @@ shared (actorContext) actor class Main(_startBlock : Nat) {
       start := latestTransactionIndex + 1;
     };
 
-    var response = await ledgerActor.get_transactions({
+    var response = await CkBtcLedger.get_transactions({
       start = start;
       length = 1;
     });
@@ -209,7 +187,7 @@ shared (actorContext) actor class Main(_startBlock : Nat) {
   /**
     * Send a notification to a merchant about a received payment
     */
-  private func sendNotification(merchant : MainTypes.Merchant, transaction : CkBtcLedgerTypes.Transaction) : async () {
+  private func sendNotification(merchant : MainTypes.Merchant, transaction : CkBtcLedger.Transaction) : async () {
     // Managment canister
     let ic : HttpTypes.IC = actor ("aaaaa-aa");
 

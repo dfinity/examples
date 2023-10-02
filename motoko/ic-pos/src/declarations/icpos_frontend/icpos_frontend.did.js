@@ -50,7 +50,17 @@ export const idlFactory = ({ IDL }) => {
     'batch_id' : BatchId,
     'max_iterations' : IDL.Opt(IDL.Nat16),
   });
+  const ConfigureArguments = IDL.Record({
+    'max_batches' : IDL.Opt(IDL.Opt(IDL.Nat64)),
+    'max_bytes' : IDL.Opt(IDL.Opt(IDL.Nat64)),
+    'max_chunks' : IDL.Opt(IDL.Opt(IDL.Nat64)),
+  });
   const DeleteBatchArguments = IDL.Record({ 'batch_id' : BatchId });
+  const ConfigurationResponse = IDL.Record({
+    'max_batches' : IDL.Opt(IDL.Nat64),
+    'max_bytes' : IDL.Opt(IDL.Nat64),
+    'max_chunks' : IDL.Opt(IDL.Nat64),
+  });
   const Permission = IDL.Variant({
     'Prepare' : IDL.Null,
     'ManagePermissions' : IDL.Null,
@@ -121,6 +131,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(IDL.Vec(IDL.Nat8))],
         [],
       ),
+    'configure' : IDL.Func([ConfigureArguments], [], []),
     'create_asset' : IDL.Func([CreateAssetArguments], [], []),
     'create_batch' : IDL.Func(
         [IDL.Record({})],
@@ -172,6 +183,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Record({ 'content' : IDL.Vec(IDL.Nat8) })],
         ['query'],
       ),
+    'get_configuration' : IDL.Func([], [ConfigurationResponse], []),
     'grant_permission' : IDL.Func([GrantPermission], [], []),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
     'http_request_streaming_callback' : IDL.Func(
@@ -226,6 +238,11 @@ export const idlFactory = ({ IDL }) => {
     'unset_asset_content' : IDL.Func([UnsetAssetContentArguments], [], []),
     'validate_commit_proposed_batch' : IDL.Func(
         [CommitProposedBatchArguments],
+        [ValidationResult],
+        [],
+      ),
+    'validate_configure' : IDL.Func(
+        [ConfigureArguments],
         [ValidationResult],
         [],
       ),

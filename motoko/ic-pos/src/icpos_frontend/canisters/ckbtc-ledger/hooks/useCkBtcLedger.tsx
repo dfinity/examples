@@ -38,7 +38,8 @@ export default function useCkBtcLedger() {
       const ledgerCanister = IcrcLedgerCanister.create({
         agent,
         canisterId: Principal.fromText(
-          import.meta.env.VITE_CANISTER_ID_CKBTC_LEDGER
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          process.env.CANISTER_ID_ICRC1_LEDGER!
         ),
       });
       setLedgerCanister(ledgerCanister);

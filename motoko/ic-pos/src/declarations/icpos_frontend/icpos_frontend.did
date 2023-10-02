@@ -109,6 +109,18 @@ type SetAssetPropertiesArguments = record {
   is_aliased: opt opt bool;
 };
 
+type ConfigurationResponse = record {
+  max_batches: opt nat64;
+  max_chunks: opt nat64;
+  max_bytes: opt nat64;
+};
+
+type ConfigureArguments = record {
+  max_batches: opt opt nat64;
+  max_chunks: opt opt nat64;
+  max_bytes: opt opt nat64;
+};
+
 type Permission = variant {
   Commit;
   ManagePermissions;
@@ -221,8 +233,12 @@ service: {
     is_aliased: opt bool; } ) query;
   set_asset_properties: (SetAssetPropertiesArguments) -> ();
 
+  get_configuration: () -> (ConfigurationResponse);
+  configure: (ConfigureArguments) -> ();
+
   validate_grant_permission: (GrantPermission) -> (ValidationResult);
   validate_revoke_permission: (RevokePermission) -> (ValidationResult);
   validate_take_ownership: () -> (ValidationResult);
   validate_commit_proposed_batch: (CommitProposedBatchArguments) -> (ValidationResult);
+  validate_configure: (ConfigureArguments) -> (ValidationResult);
 }

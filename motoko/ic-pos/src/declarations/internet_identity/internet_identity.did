@@ -52,6 +52,7 @@ type KeyType = variant {
     platform;
     cross_platform;
     seed_phrase;
+    browser_storage_key;
 };
 
 // This describes whether a device is "protected" or not.
@@ -80,6 +81,7 @@ type DeviceData = record {
     // Note: some fields above will be moved to the metadata map in the future.
     // All field names of `DeviceData` (such as 'alias', 'origin, etc.) are
     // reserved and cannot be written.
+    // In addition, the keys "usage" and "authenticator_attachment" are reserved as well.
     metadata: opt MetadataMap;
 };
 
@@ -169,8 +171,6 @@ type InternetIdentityStats = record {
     };
     archive_info: ArchiveInfo;
     canister_creation_cycles_cost: nat64;
-    active_anchor_stats: opt ActiveAnchorStatistics;
-    domain_active_anchor_stats: opt DomainActiveAnchorStatistics;
     max_num_latest_delegation_origins: nat64;
     latest_delegation_origins: vec FrontendHostname
 };
@@ -208,60 +208,6 @@ type RateLimitConfig = record {
     max_tokens: nat64;
 };
 
-type ActiveAnchorStatistics = record {
-    // Stats for the last completed collection period for daily and monthly active anchors
-    completed: CompletedActiveAnchorStats;
-    // ongoing periods for daily and monthly active anchors
-    ongoing: OngoingActiveAnchorStats;
-};
-
-type CompletedActiveAnchorStats = record {
-    daily_active_anchors: opt ActiveAnchorCounter;
-    monthly_active_anchors: opt ActiveAnchorCounter;
-};
-
-type OngoingActiveAnchorStats = record {
-    // Ongoing active anchor counter for the current 24 h time bucket.
-    daily_active_anchors: ActiveAnchorCounter;
-    // Monthly active users are collected using 30-day sliding windows.
-    // This vec contains up to 30 30-day active windows each offset by one day.
-    // The vec is sorted, new collection windows are added at the end.
-    monthly_active_anchors: vec ActiveAnchorCounter;
-};
-
-type ActiveAnchorCounter = record {
-    start_timestamp: Timestamp;
-    counter: nat64;
-};
-
-type DomainActiveAnchorStatistics = record {
-    // Stats for the last completed collection period for daily and monthly active anchors
-    completed: DomainCompletedActiveAnchorStats;
-    // ongoing periods for daily and monthly active anchors
-    ongoing: DomainOngoingActiveAnchorStats;
-};
-
-type DomainCompletedActiveAnchorStats = record {
-    daily_active_anchors: opt DomainActiveAnchorCounter;
-    monthly_active_anchors: opt DomainActiveAnchorCounter;
-};
-
-type DomainOngoingActiveAnchorStats = record {
-    // Ongoing active anchor counter for the current 24 h time bucket.
-    daily_active_anchors: DomainActiveAnchorCounter;
-    // Monthly active users are collected using 30-day sliding windows.
-    // This vec contains up to 30 30-day active windows each offset by one day.
-    // The vec is sorted, new collection windows are added at the end.
-    monthly_active_anchors: vec DomainActiveAnchorCounter;
-};
-
-type DomainActiveAnchorCounter = record {
-    start_timestamp: Timestamp;
-    ic0_app_counter: nat64;
-    internetcomputer_org_counter: nat64;
-    both_ii_domains_counter: nat64;
-};
-
 // Init arguments of II which can be supplied on install and upgrade.
 // Setting a value to null keeps the previous value.
 type InternetIdentityInit = record {
@@ -284,6 +230,9 @@ type InternetIdentityInit = record {
     // Maximum number of latest delegation origins to track.
     // Default: 1000
     max_num_latest_delegation_origins : opt nat64;
+    // Maximum number of inflight captchas.
+    // Default: 500
+    max_inflight_captchas: opt nat64;
 };
 
 type ChallengeKey = text;
@@ -382,7 +331,8 @@ type AuthnMethodData = record {
     // contains the following fields of the DeviceWithUsage type:
     // - alias
     // - origin
-    // - key_type: reduced to "platform", "cross_platform" on migration
+    // - authenticator_attachment: data taken from key_type and reduced to "platform", "cross_platform" or absent on migration
+    // - usage: data taken from key_type and reduced to "recovery_phrase", "browser_storage_key" or absent on migration
     // Note: for compatibility reasons with the v1 API, the entries above (if present)
     // must be of the `string` variant. This restriction may be lifted in the future.
     metadata: MetadataMap;
@@ -402,7 +352,9 @@ type AuthnMethodRegistrationInfo = record {
 
 type IdentityInfo = record {
     authn_methods: vec AuthnMethodData;
-    authn_data_registration: opt AuthnMethodRegistrationInfo;
+    authn_method_registration: opt AuthnMethodRegistrationInfo;
+    // Authentication method independent metadata
+    metadata: MetadataMap;
 };
 
 type IdentityInfoResponse = variant {
@@ -412,6 +364,14 @@ type IdentityInfoResponse = variant {
 type AuthnMethodAddResponse = variant {
     ok;
     invalid_metadata: text;
+};
+
+type AuthnMethodRemoveResponse = variant {
+    ok;
+};
+
+type IdentityMetadataReplaceResponse = variant {
+    ok;
 };
 
 service : (opt InternetIdentityInit) -> {
@@ -462,7 +422,16 @@ service : (opt InternetIdentityInit) -> {
     // Requires authentication.
     identity_info: (IdentityNumber) -> (opt IdentityInfoResponse);
 
+    // Replaces the authentication method independent metadata map.
+    // The existing metadata map will be overwritten.
+    // Requires authentication.
+    identity_metadata_replace: (IdentityNumber, MetadataMap) -> (opt IdentityMetadataReplaceResponse);
+
     // Adds a new authentication method to the identity.
     // Requires authentication.
     authn_method_add: (IdentityNumber, AuthnMethodData) -> (opt AuthnMethodAddResponse);
+
+    // Removes the authentication method associated with the public key from the identity.
+    // Requires authentication.
+    authn_method_remove: (IdentityNumber, PublicKey) -> (opt AuthnMethodRemoveResponse);
 }

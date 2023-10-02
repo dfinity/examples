@@ -2,7 +2,6 @@ import { Actor, HttpAgent } from "@dfinity/agent";
 
 // Imports and re-exports candid interface
 import { idlFactory } from "./internet_identity.did.js";
-
 export { idlFactory } from "./internet_identity.did.js";
 
 /* CANISTER_ID is replaced by webpack based on node environment
@@ -10,7 +9,9 @@ export { idlFactory } from "./internet_identity.did.js";
  * process.env.CANISTER_ID_<CANISTER_NAME_UPPERCASE>
  * beginning in dfx 0.15.0
  */
-export const canisterId = import.meta.env.VITE_CANISTER_ID_INTERNET_IDENTITY;
+export const canisterId =
+  process.env.CANISTER_ID_INTERNET_IDENTITY ||
+  process.env.INTERNET_IDENTITY_CANISTER_ID;
 
 export const createActor = (canisterId, options = {}) => {
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
@@ -22,7 +23,7 @@ export const createActor = (canisterId, options = {}) => {
   }
 
   // Fetch root key for certificate validation during development
-  if (import.meta.env.VITE_DFX_NETWORK !== "ic") {
+  if (process.env.DFX_NETWORK !== "ic") {
     agent.fetchRootKey().catch((err) => {
       console.warn(
         "Unable to fetch root key. Check to ensure that your local replica is running"
@@ -39,6 +40,4 @@ export const createActor = (canisterId, options = {}) => {
   });
 };
 
-export const internet_identity = createActor(canisterId, {
-  agentOptions: { host: import.meta.env.VITE_IC_HOST },
-});
+export const internet_identity = createActor(canisterId);

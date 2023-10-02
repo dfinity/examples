@@ -24,6 +24,16 @@ export interface ComputeEvidenceArguments {
   'batch_id' : BatchId,
   'max_iterations' : [] | [number],
 }
+export interface ConfigurationResponse {
+  'max_batches' : [] | [bigint],
+  'max_bytes' : [] | [bigint],
+  'max_chunks' : [] | [bigint],
+}
+export interface ConfigureArguments {
+  'max_batches' : [] | [[] | [bigint]],
+  'max_bytes' : [] | [[] | [bigint]],
+  'max_chunks' : [] | [[] | [bigint]],
+}
 export interface CreateAssetArguments {
   'key' : Key,
   'content_type' : string,
@@ -114,6 +124,7 @@ export interface _SERVICE {
     [ComputeEvidenceArguments],
     [] | [Uint8Array | number[]]
   >,
+  'configure' : ActorMethod<[ConfigureArguments], undefined>,
   'create_asset' : ActorMethod<[CreateAssetArguments], undefined>,
   'create_batch' : ActorMethod<[{}], { 'batch_id' : BatchId }>,
   'create_chunk' : ActorMethod<
@@ -153,6 +164,7 @@ export interface _SERVICE {
     ],
     { 'content' : Uint8Array | number[] }
   >,
+  'get_configuration' : ActorMethod<[], ConfigurationResponse>,
   'grant_permission' : ActorMethod<[GrantPermission], undefined>,
   'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
   'http_request_streaming_callback' : ActorMethod<
@@ -203,6 +215,7 @@ export interface _SERVICE {
     [CommitProposedBatchArguments],
     ValidationResult
   >,
+  'validate_configure' : ActorMethod<[ConfigureArguments], ValidationResult>,
   'validate_grant_permission' : ActorMethod<
     [GrantPermission],
     ValidationResult

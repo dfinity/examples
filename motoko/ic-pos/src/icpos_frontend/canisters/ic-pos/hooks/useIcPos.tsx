@@ -17,7 +17,8 @@ export function useIcPos() {
 
   React.useEffect(() => {
     if (!isAuthenticated || !authClient || !hasLoggedIn || !agent) return;
-    const actor = createActor(import.meta.env.VITE_CANISTER_ID_ICPOS, {
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    const actor = createActor(process.env.CANISTER_ID_ICPOS!, {
       agent,
     });
     setIcPos(actor);

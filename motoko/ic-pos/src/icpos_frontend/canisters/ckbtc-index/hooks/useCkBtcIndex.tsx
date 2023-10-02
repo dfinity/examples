@@ -15,7 +15,8 @@ export default function useCkBtcIndex() {
       const indexCanister = IcrcIndexCanister.create({
         agent,
         canisterId: Principal.fromText(
-          import.meta.env.VITE_CANISTER_ID_CKBTC_INDEX
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+          process.env.CANISTER_ID_ICRC1_INDEX!
         ),
       });
       setIndexCanister(indexCanister);
