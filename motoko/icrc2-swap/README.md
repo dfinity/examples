@@ -111,7 +111,7 @@ the token balances.
 
 ## Known issues
 
--
+- Add note about trusting token canister implementations.
 
 ## Contributing
 
