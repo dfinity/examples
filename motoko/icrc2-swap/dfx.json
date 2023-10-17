@@ -2,8 +2,7 @@
   "canisters": {
     "swap": {
       "main": "src/swap/main.mo",
-      "type": "motoko",
-      "dependencies": ["token_a", "token_b"]
+      "type": "motoko"
     },
     "token_a": {
       "type": "custom",
