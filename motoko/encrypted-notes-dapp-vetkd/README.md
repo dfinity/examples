@@ -15,9 +15,15 @@ Please also see the [README of the original encrypted-notes-dapp](../encrypted-n
 This example uses an [**insecure** implementation](../../rust/vetkd/src/system_api) of [the proposed vetKD system API](https://github.com/dfinity/interface-spec/pull/158) in a pre-compiled form via the [vetkd_system_api.wasm](./vetkd_system_api.wasm). **Do not use this in production or for sensitive data**! This example is solely provided **for demonstration purposes** to collect feedback on the mentioned vetKD system API.
 
 ## Manual local deployment
-1. For **Motoko** deployment set environmental variable:
+1. Choose which implementation to use by setting a respective environment variable. You can choose Motoko or Rust.
+   
+   For **Motoko** deployment use
    ```sh
    export BUILD_ENV=motoko
+   ```
+   For **Rust** deployment use
+   ```sh
+   export BUILD_ENV=rust
    ```
 2. To generate `$BUILD_ENV`-specific files (i.e., Motoko or Rust) run:
    ```sh
