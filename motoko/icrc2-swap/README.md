@@ -111,7 +111,11 @@ the token balances.
 
 ## Known issues
 
-- Add note about trusting token canister implementations.
+- Any DeFi on the Internet Computer is experimental. It is a constantly evolving
+  space, with unknown attacks, and should be treated as such.
+- Due to the nature of inter-canister messaging on the IC, it is possible for
+  malicious token canisters to cause this swap contract to deadlock. It should
+  only be used with trusted token canisters.
 
 ## Contributing
 
