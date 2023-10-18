@@ -116,6 +116,12 @@ the token balances.
 - Due to the nature of inter-canister messaging on the IC, it is possible for
   malicious token canisters to cause this swap contract to deadlock. It should
   only be used with trusted token canisters.
+- Currently, there are no limits on the state size of this canister. This could
+  allow malicious users to spam the canister, bloating the size until it runs
+  out of space. However, the only way to increase the size is to call `deposit`,
+  which would cost tokens. For a real canister, you should calculate the maximum
+  size of your canister, limit it to a reasonable amount, and monitor the
+  current size to know when to re-architect.
 
 ## Contributing
 
