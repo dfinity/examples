@@ -194,6 +194,20 @@ shared(init_msg) actor class Swap(init_args: {
     // We do this first, due to the asynchronous nature of the IC. By debitting
     // the account first, we ensure that the user cannot withdraw more than
     // they have.
+    //
+    // If we were to perform the transfer, then debit the user's account, there
+    // are several ways which that attack could lead to loss of funds. For
+    // example:
+    // - The user could call `withdraw` repeatedly, in a DOS attack to trigger
+    // a race condition. This would queue multiple outbound transfers in
+    // parallel, resulting in the user withdrawing more funds than available.
+    // - The token could perform a "reentrancy" attack, where the token's
+    // implementation of `icrc1_transfer` calls back into this canister, and
+    // triggers another recursive withdrawal, resulting in draining of this
+    // canister's token balance. However, because the token canister directly
+    // controls user's balances anyway, it could simplify this attack, and just
+    // change the canister's balance. Generally, this is why you should only
+    // use token canisters which you trust and can review.
     let new_balance = old_balance - args.amount - fee;
     if (new_balance == 0) {
       // Delete zero-balances to keep the balance table tidy.
