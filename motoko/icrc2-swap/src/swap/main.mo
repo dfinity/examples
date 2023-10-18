@@ -102,21 +102,21 @@ shared(init_msg) actor class Swap(init_args: {
   public type SwapArgs = {
     user_a: Principal;
     user_b: Principal;
-    token_a: Principal;
-    token_b: Principal;
-    amount_a: Nat;
-    // amount_b is determined by the internal exchange rate
   };
 
   public type SwapError = {
-    // TODO: Fill this in
+    // Left as a placeholder for future implementors, in case their swap
+    // function could fail.
   };
 
   // Swap TokenA for TokenB
   // - Exchange tokens between the two given users.
-  // - For this example, there will be no AMM mechanism, simply a 1-1 swap. The exact
-  //   swap pricing mechanism is left as an exercise for the reader.
-  public shared(msg) func swap(args: SwapArgs): async Result.Result<Nat, SwapError> {
+  // - For this example, there will be no clever swap mechanism, it simply swaps all
+  //   deposits for the two users. Designing a useful and safer swap mechanism
+  //   is left as an exercise for the reader.
+  // - UserA's full balance of TokenA is given to UserB, and UserB's full
+  //   balance of TokenB is given to UserA.
+  public shared(msg) func swap(args: SwapArgs): async Result.Result<(), SwapError> {
     // Because both tokens were deposited before calling swap, we can execute
     // this function atomically. To do that there must be no `await` calls in
     // this function. Additionally, we need to be careful with the order that
@@ -126,7 +126,26 @@ shared(init_msg) actor class Swap(init_args: {
     //
     // Making this function atomic makes it safer, because either the whole
     // function will execute or none of it will.
-    P.nyi();
+
+    // Give user_a's token_a to user_b
+    // Add the the two user's token_a balances, and give all of it to user_b.
+    balancesA.put(
+      args.user_b,
+      Option.get(balancesA.get(args.user_a), 0 : Nat) +
+      Option.get(balancesA.get(args.user_b), 0 : Nat),
+    );
+    balancesA.put(args.user_a, 0);
+
+    // Give user_b's token_b to user_a
+    // Add the the two user's token_b balances, and give all of it to user_a.
+    balancesB.put(
+      args.user_a,
+      Option.get(balancesB.get(args.user_a), 0 : Nat) +
+      Option.get(balancesB.get(args.user_b), 0 : Nat),
+    );
+    balancesB.put(args.user_b, 0);
+
+    #ok(())
   };
 
   public type WithdrawArgs = {
