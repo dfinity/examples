@@ -38,7 +38,7 @@ dfx start --clean --background
 
 ### Step 2: Deploy two tokens
 
-<!-- TODO: Deploy two ICRC-2 tokens here --!>
+TODO: Deploy two ICRC-2 tokens here
 
 ### Step 3: Deploy the swap canister
 
@@ -64,7 +64,7 @@ dfx canister --network local call token_a icrc2_approve 'record {}'
 
 Then we can perform the deposit to transfer the tokens from our wallet to the swap canister:
 
-<!-- TODO: Explain e8s a bit here --!>
+TODO: Explain e8s a bit here
 
 ```bash
 dfx canister --network local call swap deposit 'record {
