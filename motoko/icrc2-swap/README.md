@@ -197,13 +197,23 @@ dfx canister --network local call swap swap 'record {
 }'
 ```
 
+We can check the deposited balances with:
+
+```bash
+dfx canister --network local call swap balances
+```
+
+That should show us that now user b holds token a, and user a holds token b in
+the swap contract.
+
+
 ### Step 6: Withdraw tokens
 
 After the swap, our balandes in the swap canister will have been updated, and we
 can withdraw our newly received tokens into our wallet.
 
 ```bash
-# Withdraw user a's token b balance, minus the 0.0001 transfer fee
+# Withdraw user a's token b balance (1.00000000), minus the 0.0001 transfer fee
 dfx canister --network local call --identity user_a swap withdraw 'record {
   token = principal "'${TOKEN_B}'";
   to = record {
@@ -214,7 +224,7 @@ dfx canister --network local call --identity user_a swap withdraw 'record {
 ```
 
 ```bash
-# Withdraw user b's token a balance, minus the 0.0001 transfer fee
+# Withdraw user b's token a balance (1.00000000), minus the 0.0001 transfer fee
 dfx canister --network local call --identity user_b swap withdraw 'record {
   token = principal "'${TOKEN_A}'";
   to = record {
@@ -227,7 +237,14 @@ dfx canister --network local call --identity user_b swap withdraw 'record {
 ### Step 7: Check token balances
 
 ```bash
-dfx canister --network local call token_a icrc1_balance 'record {
+# Check user a's token a balance. They should now have 998.99980000 A
+dfx canister --network local call token_a icrc1_balance_of 'record {
+  owner = principal "'${USER_A}'";
+}'
+
+# Check user b's token a balance, They should now have 0.99990000 A.
+dfx canister --network local call token_a icrc1_balance_of 'record {
+  owner = principal "'${USER_A}'";
 }'
 ```
 
