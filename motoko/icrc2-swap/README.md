@@ -36,21 +36,103 @@ https://???.icp0.io/
 dfx start --clean --background
 ```
 
+### Step 2: Create our user accounts
+
+```bash
+export OWNER=$(dfx identity get-principal)
+
+dfx identity new user_a
+export USER_A=$(dfx identity get-principal --identity user_a)
+
+dfx identity new user_b
+export USER_B=$(dfx identity get-principal --identity user_b)
+```
+
 ### Step 2: Deploy two tokens
 
-TODO: Deploy two ICRC-2 tokens here
+Deploy token a:
 
+```bash
+dfx deploy --network local token_a --argument '
+  (variant {
+    Init = record {
+      token_name = "Token A";
+      token_symbol = "A";
+      minting_account = record {
+        owner = principal "'${OWNER}'";
+      };
+      initial_balances = vec {
+        record {
+          record {
+            owner = principal "'${USER_A}'";
+          };
+          100_000_000_000;
+        };
+      };
+      metadata = vec {};
+      transfer_fee = 10_000;
+      archive_options = record {
+        trigger_threshold = 2000;
+        num_blocks_to_archive = 1000;
+        controller_id = principal "'${OWNER}'";
+      };
+      feature_flags = opt record {
+        icrc2 = true;
+      };
+    }
+  })
+'
+```
+
+Deploy token b:
+
+```bash
+dfx deploy --network local token_b --argument '
+  (variant {
+    Init = record {
+      token_name = "Token B";
+      token_symbol = "B";
+      minting_account = record {
+        owner = principal "'${OWNER}'";
+      };
+      initial_balances = vec {
+        record {
+          record {
+            owner = principal "'${USER_B}'";
+          };
+          100_000_000_000;
+        };
+      };
+      metadata = vec {};
+      transfer_fee = 10_000;
+      archive_options = record {
+        trigger_threshold = 2000;
+        num_blocks_to_archive = 1000;
+        controller_id = principal "'${OWNER}'";
+      };
+      feature_flags = opt record {
+        icrc2 = true;
+      };
+    }
+  })
+'
+```
 ### Step 3: Deploy the swap canister
 
 The swap canister accepts deposits, and performs the swap.
 
 ```bash
+export TOKEN_A=$(dfx canister id --network local token_a)
+export TOKEN_B=$(dfx canister id --network local token_b)
+
 dfx deploy --network local swap --argument '
   record {
-   token_a = (principal "mxzaz-hqaaa-aaaar-qaada-cai");
-   token_b = (principal "mxzaz-hqaaa-aaaar-qaada-cai");
+    token_a = (principal "'${TOKEN_A}'");
+    token_b = (principal "'${TOKEN_B}'");
   }
 '
+
+export SWAP=$(dfx canister id --network local swap)
 ```
 
 ### Step 4: Approve & deposit tokens
@@ -59,7 +141,27 @@ Before we can swap the tokens, they must be transferred to the swap canister.
 With ICRC-2, this is a two-step process. First we approve the transfer:
 
 ```bash
-dfx canister --network local call token_a icrc2_approve 'record {}'
+# Approve user B to deposit 1.00000000 of token b, and 0.0001 extra for the
+# transfer fee
+dfx canister --network local call --identity user_a token_a icrc2_approve '
+  record {
+    amount = 100_010_000;
+    spender = record {
+      owner = principal "'${SWAP}'";
+    };
+  }
+'
+
+# Approve user B to deposit 1.00000000 of token b, and 0.0001 extra for the
+# transfer fee
+dfx canister --network local call --identity user_b token_b icrc2_approve '
+  record {
+    amount = 100_010_000;
+    spender = record {
+      owner = principal "'${SWAP}'";
+    };
+  }
+'
 ```
 
 Then we can perform the deposit to transfer the tokens from our wallet to the swap canister:
@@ -67,9 +169,22 @@ Then we can perform the deposit to transfer the tokens from our wallet to the sw
 TODO: Explain e8s a bit here
 
 ```bash
-dfx canister --network local call swap deposit 'record {
-   token = (principal "mxzaz-hqaaa-aaaar-qaada-cai");
-   amount = 100_000_000;
+# Deposit User A's tokens
+dfx canister --network local call --identity user_a swap deposit 'record {
+  token = principal "'${TOKEN_A}'";
+  from = record {
+    owner = principal "'${USER_A}'";
+  };
+  amount = 100_000_000;
+}'
+
+# Deposit User B's tokens
+dfx canister --network local call --identity user_b swap deposit 'record {
+  token = principal "'${TOKEN_B}'";
+  from = record {
+    owner = principal "'${USER_B}'";
+  };
+  amount = 100_000_000;
 }'
 ```
 
@@ -77,6 +192,8 @@ dfx canister --network local call swap deposit 'record {
 
 ```bash
 dfx canister --network local call swap swap 'record {
+  user_a = principal "'${USER_A}'";
+  user_b = principal "'${USER_B}'";
 }'
 ```
 
@@ -86,9 +203,24 @@ After the swap, our balandes in the swap canister will have been updated, and we
 can withdraw our newly received tokens into our wallet.
 
 ```bash
-dfx canister --network local call swap withdraw 'record {
-   token = (principal "mxzaz-hqaaa-aaaar-qaada-cai");
-   amount = 100_000_000;
+# Withdraw user a's token b balance, minus the 0.0001 transfer fee
+dfx canister --network local call --identity user_a swap withdraw 'record {
+  token = principal "'${TOKEN_B}'";
+  to = record {
+    owner = principal "'${USER_A}'";
+  };
+  amount = 99_990_000;
+}'
+```
+
+```bash
+# Withdraw user b's token a balance, minus the 0.0001 transfer fee
+dfx canister --network local call --identity user_b swap withdraw 'record {
+  token = principal "'${TOKEN_A}'";
+  to = record {
+    owner = principal "'${USER_B}'";
+  };
+  amount = 99_990_000;
 }'
 ```
 
