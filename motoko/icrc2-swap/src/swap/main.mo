@@ -148,7 +148,7 @@ shared(init_msg) actor class Swap(init_args: {
       Option.get(balancesB.get(args.user_a), 0 : Nat) +
       Option.get(balancesB.get(args.user_b), 0 : Nat),
     );
-    balancesA.delete(args.user_b);
+    balancesB.delete(args.user_b);
 
     #ok(())
   };
