@@ -28,6 +28,11 @@ shared(init_msg) actor class Swap(init_args: {
   private stable var stableBalancesA : ?[(Principal, Nat)] = null;
   private stable var stableBalancesB : ?[(Principal, Nat)] = null;
 
+  // balances is a simple getter to check the balances of all users, to make debugging easier.
+  public query func balances(): async ([(Principal, Nat)], [(Principal, Nat)]) {
+    (Iter.toArray(balancesA.entries()), Iter.toArray(balancesB.entries()))
+  };
+
   public type DepositArgs = {
     spender_subaccount: ?Blob;
     token: Principal;
@@ -134,7 +139,7 @@ shared(init_msg) actor class Swap(init_args: {
       Option.get(balancesA.get(args.user_a), 0 : Nat) +
       Option.get(balancesA.get(args.user_b), 0 : Nat),
     );
-    balancesA.put(args.user_a, 0);
+    balancesA.delete(args.user_a);
 
     // Give user_b's token_b to user_a
     // Add the the two user's token_b balances, and give all of it to user_a.
@@ -143,7 +148,7 @@ shared(init_msg) actor class Swap(init_args: {
       Option.get(balancesB.get(args.user_a), 0 : Nat) +
       Option.get(balancesB.get(args.user_b), 0 : Nat),
     );
-    balancesB.put(args.user_b, 0);
+    balancesA.delete(args.user_b);
 
     #ok(())
   };
