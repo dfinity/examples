@@ -11,8 +11,10 @@ You try the live version of the dapp running on the Internet Computer mainnet he
 ## Prerequisites
 This example requires an installation of:
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
-- [x] Install `node.js` to build the web frontend.
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
+- [x] Install `node.js` to build the web frontend. Make sure the version is at least `12.20`.
+- [x] Make sure your rust version is up-to-date (e.g., run `rustup update`).
+- [x] Add the `wasm32` target to your rust installation (by running `rustup target add wasm32-unknown-unknown`).
 - [x] Clone this project to a local directory.
 
 ## Running locally
