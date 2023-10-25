@@ -121,11 +121,7 @@ Follow the steps below to deploy this sample project.
 cd examples/motoko/encrypted-notes-dapp
 ```
 
-or
-
-```
-cd examples/rust/encrypted-notes-dapp
-```
+This project folder contains the files for both Motoko and Rust development.
 
 ### Step 2: Set an environmental variable reflecting which backend canister you'll be using:
 For Motoko deployment run:
