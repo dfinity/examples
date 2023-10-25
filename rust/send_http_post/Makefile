@@ -28,7 +28,7 @@ upgrade: build
 test: install
 	# echo 'PASS dummy test'
 	dfx canister call send_http_post_backend send_http_post_request \
-		| grep 'success.*true' && echo 'PASS'
+		| grep 'Hello' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean
