@@ -13,10 +13,6 @@
 # rust
 target/
 
-# frontend code
-node_modules/
-dist/
-
 # environment variables
 .env
 
@@ -32,3 +28,7 @@ yarn-error.log*
 
 # misc
 scratch/
+
+# Jest test stuff
+coverage/
+src/declarations

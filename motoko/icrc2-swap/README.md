@@ -41,16 +41,16 @@ dfx start --clean --background
 ```bash
 export OWNER=$(dfx identity get-principal)
 
-dfx identity new user_a
-export USER_A=$(dfx identity get-principal --identity user_a)
+dfx identity new alice
+export ALICE=$(dfx identity get-principal --identity alice)
 
-dfx identity new user_b
-export USER_B=$(dfx identity get-principal --identity user_b)
+dfx identity new bob
+export BOB=$(dfx identity get-principal --identity bob)
 ```
 
 ### Step 2: Deploy two tokens
 
-Deploy token a:
+Deploy Token A:
 
 ```bash
 dfx deploy --network local token_a --argument '
@@ -64,7 +64,7 @@ dfx deploy --network local token_a --argument '
       initial_balances = vec {
         record {
           record {
-            owner = principal "'${USER_A}'";
+            owner = principal "'${ALICE}'";
           };
           100_000_000_000;
         };
@@ -84,7 +84,7 @@ dfx deploy --network local token_a --argument '
 '
 ```
 
-Deploy token b:
+Deploy Token B:
 
 ```bash
 dfx deploy --network local token_b --argument '
@@ -98,7 +98,7 @@ dfx deploy --network local token_b --argument '
       initial_balances = vec {
         record {
           record {
-            owner = principal "'${USER_B}'";
+            owner = principal "'${BOB}'";
           };
           100_000_000_000;
         };
@@ -141,9 +141,9 @@ Before we can swap the tokens, they must be transferred to the swap canister.
 With ICRC-2, this is a two-step process. First we approve the transfer:
 
 ```bash
-# Approve user B to deposit 1.00000000 of token b, and 0.0001 extra for the
+# Approve Bob to deposit 1.00000000 of Token B, and 0.0001 extra for the
 # transfer fee
-dfx canister --network local call --identity user_a token_a icrc2_approve '
+dfx canister --network local call --identity alice token_a icrc2_approve '
   record {
     amount = 100_010_000;
     spender = record {
@@ -152,9 +152,9 @@ dfx canister --network local call --identity user_a token_a icrc2_approve '
   }
 '
 
-# Approve user B to deposit 1.00000000 of token b, and 0.0001 extra for the
+# Approve Bob to deposit 1.00000000 of Token B, and 0.0001 extra for the
 # transfer fee
-dfx canister --network local call --identity user_b token_b icrc2_approve '
+dfx canister --network local call --identity bob token_b icrc2_approve '
   record {
     amount = 100_010_000;
     spender = record {
@@ -169,20 +169,20 @@ Then we can perform the deposit to transfer the tokens from our wallet to the sw
 TODO: Explain e8s a bit here
 
 ```bash
-# Deposit User A's tokens
-dfx canister --network local call --identity user_a swap deposit 'record {
+# Deposit Alice's tokens
+dfx canister --network local call --identity alice swap deposit 'record {
   token = principal "'${TOKEN_A}'";
   from = record {
-    owner = principal "'${USER_A}'";
+    owner = principal "'${ALICE}'";
   };
   amount = 100_000_000;
 }'
 
-# Deposit User B's tokens
-dfx canister --network local call --identity user_b swap deposit 'record {
+# Deposit Bob's tokens
+dfx canister --network local call --identity bob swap deposit 'record {
   token = principal "'${TOKEN_B}'";
   from = record {
-    owner = principal "'${USER_B}'";
+    owner = principal "'${BOB}'";
   };
   amount = 100_000_000;
 }'
@@ -192,8 +192,8 @@ dfx canister --network local call --identity user_b swap deposit 'record {
 
 ```bash
 dfx canister --network local call swap swap 'record {
-  user_a = principal "'${USER_A}'";
-  user_b = principal "'${USER_B}'";
+  user_a = principal "'${ALICE}'";
+  user_b = principal "'${BOB}'";
 }'
 ```
 
@@ -203,7 +203,7 @@ We can check the deposited balances with:
 dfx canister --network local call swap balances
 ```
 
-That should show us that now user b holds token a, and user a holds token b in
+That should show us that now Bob holds Token A, and Alice holds Token B in
 the swap contract.
 
 
@@ -213,22 +213,22 @@ After the swap, our balandes in the swap canister will have been updated, and we
 can withdraw our newly received tokens into our wallet.
 
 ```bash
-# Withdraw user a's token b balance (1.00000000), minus the 0.0001 transfer fee
-dfx canister --network local call --identity user_a swap withdraw 'record {
+# Withdraw Alice's Token B balance (1.00000000), minus the 0.0001 transfer fee
+dfx canister --network local call --identity alice swap withdraw 'record {
   token = principal "'${TOKEN_B}'";
   to = record {
-    owner = principal "'${USER_A}'";
+    owner = principal "'${ALICE}'";
   };
   amount = 99_990_000;
 }'
 ```
 
 ```bash
-# Withdraw user b's token a balance (1.00000000), minus the 0.0001 transfer fee
-dfx canister --network local call --identity user_b swap withdraw 'record {
+# Withdraw Bob's Token A balance (1.00000000), minus the 0.0001 transfer fee
+dfx canister --network local call --identity bob swap withdraw 'record {
   token = principal "'${TOKEN_A}'";
   to = record {
-    owner = principal "'${USER_B}'";
+    owner = principal "'${BOB}'";
   };
   amount = 99_990_000;
 }'
@@ -237,14 +237,14 @@ dfx canister --network local call --identity user_b swap withdraw 'record {
 ### Step 7: Check token balances
 
 ```bash
-# Check user a's token a balance. They should now have 998.99980000 A
+# Check Alice's Token A balance. They should now have 998.99980000 A
 dfx canister --network local call token_a icrc1_balance_of 'record {
-  owner = principal "'${USER_A}'";
+  owner = principal "'${ALICE}'";
 }'
 
-# Check user b's token a balance, They should now have 0.99990000 A.
+# Check Bob's Token A balance, They should now have 0.99990000 A.
 dfx canister --network local call token_a icrc1_balance_of 'record {
-  owner = principal "'${USER_A}'";
+  owner = principal "'${ALICE}'";
 }'
 ```
 
