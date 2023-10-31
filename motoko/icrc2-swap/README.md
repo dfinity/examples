@@ -17,12 +17,6 @@ different from other synchronous blockchains.
 - **Withdraw Tokens**: Users can send withdraw the resulting tokens after
   swapping.
 
-## Try it!
-
-ICRC2-Swap is deployed on the Internet Computer. You can try it out here:
-
-https://???.icp0.io/
-
 # Local deployment
 
 ## Prerequisites
@@ -30,13 +24,13 @@ https://???.icp0.io/
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Install [Node.js](https://nodejs.org/en/).
 
-### Step 1: Start a local instance of the Internet Computer
+## Step 1: Start a local instance of the Internet Computer
 
 ```bash
 dfx start --clean --background
 ```
 
-### Step 2: Create our user accounts
+## Step 2: Create our user accounts
 
 ```bash
 export OWNER=$(dfx identity get-principal)
@@ -48,7 +42,7 @@ dfx identity new bob
 export BOB=$(dfx identity get-principal --identity bob)
 ```
 
-### Step 2: Deploy two tokens
+## Step 2: Deploy two tokens
 
 Deploy Token A:
 
@@ -117,7 +111,7 @@ dfx deploy --network local token_b --argument '
   })
 '
 ```
-### Step 3: Deploy the swap canister
+## Step 3: Deploy the swap canister
 
 The swap canister accepts deposits, and performs the swap.
 
@@ -135,7 +129,7 @@ dfx deploy --network local swap --argument '
 export SWAP=$(dfx canister id --network local swap)
 ```
 
-### Step 4: Approve & deposit tokens
+## Step 4: Approve & deposit tokens
 
 Before we can swap the tokens, they must be transferred to the swap canister.
 With ICRC-2, this is a two-step process. First we approve the transfer:
@@ -191,7 +185,7 @@ dfx canister --network local call --identity bob swap deposit 'record {
 }'
 ```
 
-### Step 5: Perform a swap
+## Step 5: Perform a swap
 
 ```bash
 dfx canister --network local call swap swap 'record {
@@ -210,7 +204,7 @@ That should show us that now Bob holds Token A, and Alice holds Token B in
 the swap contract.
 
 
-### Step 6: Withdraw tokens
+## Step 6: Withdraw tokens
 
 After the swap, our balandes in the swap canister will have been updated, and we
 can withdraw our newly received tokens into our wallet.
@@ -237,7 +231,7 @@ dfx canister --network local call --identity bob swap withdraw 'record {
 }'
 ```
 
-### Step 7: Check token balances
+## Step 7: Check token balances
 
 ```bash
 # Check Alice's Token A balance. They should now have 998.99980000 A
@@ -256,12 +250,40 @@ the token balances.
 
 🎉
 
-## Possible Improvements
+# Running the test suite
+
+The example comes with a test suite to demonstrate the basic functionality. It
+shows how to use this repo from a Javascript client.
+
+## Prerequisites
+
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Install [Node.js](https://nodejs.org/en/).
+
+## Step 1: Start a local instance of the Internet Computer
+
+```bash
+dfx start --clean --background
+```
+
+## Step 2: Install npm dependencies
+
+```bash
+npm install
+```
+
+## Step 3: Run the test suite
+
+```bash
+make test
+```
+
+# Possible Improvements
 
 - Keep a history of deposits/withdrawaps/swaps.
 - Add a frontend.
 
-## Known issues
+# Known issues
 
 - Any DeFi on the Internet Computer is experimental. It is a constantly evolving
   space, with unknown attacks, and should be treated as such.
