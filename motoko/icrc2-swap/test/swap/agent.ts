@@ -8,10 +8,8 @@ import type {
   Identity,
 } from "@dfinity/agent";
 import { IDL } from '@dfinity/candid';
-import { ICManagementCanister, InstallMode } from "@dfinity/ic-management";
 import { Principal } from "@dfinity/principal";
 import { Actor, HttpAgent } from "@dfinity/agent";
-import { GovernanceCanister, LedgerCanister } from "@dfinity/nns";
 import fetch from "isomorphic-fetch";
 
 import { _SERVICE as Swap, idlFactory as swapIdlFactory } from "../../src/declarations/swap/swap.did.js";

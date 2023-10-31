@@ -1,6 +1,7 @@
+import { Principal } from "@dfinity/principal";
 import {describe, expect, test} from '@jest/globals';
-import { minter, newIdentity } from './identity';
 import { tokenA, tokenACanisterId, tokenB, tokenBCanisterId, swap, swapCanisterId, fundIdentity } from './agent';
+import { minter, newIdentity } from './identity';
 
 describe('swap', () => {
   test(
@@ -147,6 +148,29 @@ describe('swap', () => {
   );
 
   describe('error handling', () => {
+    test(
+      'deposit with invalid token argument',
+      async () => {
+        // Give alice just enough A
+        const alice = newIdentity();
+
+        // Alice tries to deposit 1 A. This will fail because only 0.5A has
+        // been approved.
+        await swap(alice).deposit({
+          amount: 100_000_000n,
+          created_at_time : [],
+          fee: [],
+          from : { owner: alice.getPrincipal(), subaccount: [] },
+          memo: [],
+          spender_subaccount : [],
+          token : Principal.fromText("aaaaa-aa"),
+        }).catch(e => {
+          expect(e.message).toMatch(/invalid token canister/)
+        });
+      },
+      60_000 // 60 second timeout
+    );
+
     test(
       'deposit fails with insufficient approval',
       async () => {
