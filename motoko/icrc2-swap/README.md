@@ -166,7 +166,10 @@ dfx canister --network local call --identity bob token_b icrc2_approve '
 
 Then we can perform the deposit to transfer the tokens from our wallet to the swap canister:
 
-TODO: Explain e8s a bit here
+Side Note: The amounts we use here are denoted in "e8s". Since out token has 8
+decimal places, we writeout all 8 decimal places. So 1.00000000 becomes
+100,000,000.
+
 
 ```bash
 # Deposit Alice's tokens

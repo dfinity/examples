@@ -178,13 +178,6 @@ describe('swap', () => {
         const alice = newIdentity();
         await fundIdentity(tokenA(minter), alice, 100_020_000n);
 
-        // Check the initial wallet token balances
-        expect(await Promise.all([
-          tokenA(alice).icrc1_balance_of({ owner: alice.getPrincipal(), subaccount: [] }),
-        ])).toEqual([
-          100_020_000n,
-        ]);
-
         // Alice approves 0.5 A + 0.0001 for fees
         const approvalA = await tokenA(alice).icrc2_approve({
           amount: 50_010_000n,
@@ -197,6 +190,14 @@ describe('swap', () => {
           spender: { owner: swapCanisterId, subaccount: [], },
         });
         expect(approvalA).toHaveProperty("Ok");
+
+        // Check the initial wallet token balances
+        expect(await Promise.all([
+          tokenA(alice).icrc1_balance_of({ owner: alice.getPrincipal(), subaccount: [] }),
+        ])).toEqual([
+          100_010_000n,
+        ]);
+
 
         // Alice tries to deposit 1 A. This will fail because only 0.5A has
         // been approved.
@@ -218,6 +219,14 @@ describe('swap', () => {
             },
           },
         });
+
+        // Check the user's wallet token balance is unchanged
+        expect(await Promise.all([
+          tokenA(alice).icrc1_balance_of({ owner: alice.getPrincipal(), subaccount: [] }),
+        ])).toEqual([
+          100_010_000n,
+        ]);
+
       },
       60_000 // 60 second timeout
     );

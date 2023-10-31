@@ -242,10 +242,8 @@ shared(init_msg) actor class Swap(init_args: {
         // Refund the user's account. Note, we can't just put the old_balance
         // back, because their balance may have changed simultaneously while we
         // were waiting for the transaction.
-        let old_balance = Option.get(balances.get(msg.caller), 0 : Nat);
-        // TODO: Check if we can always refund the fee here, or if that gets charged
-        // for any failed txns.
-        balances.put(msg.caller, old_balance + args.amount + fee);
+        let b = Option.get(balances.get(msg.caller), 0 : Nat);
+        balances.put(msg.caller, b + args.amount + fee);
 
         return #err(#TransferError(err));
       };
