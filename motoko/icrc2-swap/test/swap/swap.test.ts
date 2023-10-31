@@ -4,7 +4,7 @@ import { tokenA, tokenACanisterId, tokenB, tokenBCanisterId, swap, swapCanisterI
 
 describe('swap', () => {
   test(
-    'deposit, swap, and withdraw',
+    'happy path: deposit, swap, and withdraw',
     async () => {
       // Give alice just enough A
       const alice = newIdentity();
@@ -145,4 +145,84 @@ describe('swap', () => {
     },
     60_000 // 60 second timeout
   );
+
+  describe('error handling', () => {
+    test(
+      'deposit fails with insufficient approval',
+      async () => {
+        // Give alice just enough A
+        const alice = newIdentity();
+        await fundIdentity(tokenA(minter), alice, 100_020_000n);
+
+        // Check the initial wallet token balances
+        expect(await Promise.all([
+          tokenA(alice).icrc1_balance_of({ owner: alice.getPrincipal(), subaccount: [] }),
+        ])).toEqual([
+          100_020_000n,
+        ]);
+
+        // Alice approves 0.5 A + 0.0001 for fees
+        const approvalA = await tokenA(alice).icrc2_approve({
+          amount: 50_010_000n,
+          created_at_time: [],
+          expected_allowance: [],
+          expires_at: [],
+          fee: [],
+          from_subaccount: [],
+          memo: [],
+          spender: { owner: swapCanisterId, subaccount: [], },
+        });
+        expect(approvalA).toHaveProperty("Ok");
+
+        // Alice tries to deposit 1 A. This will fail because only 0.5A has
+        // been approved.
+        const depositA = await swap(alice).deposit({
+          amount: 100_000_000n,
+          created_at_time : [],
+          fee: [],
+          from : { owner: alice.getPrincipal(), subaccount: [] },
+          memo: [],
+          spender_subaccount : [],
+          token : tokenACanisterId,
+        });
+        expect(depositA).toMatchObject({
+          err: {
+            TransferFromError: {
+              InsufficientAllowance: {
+                allowance: 50_010_000n
+              },
+            },
+          },
+        });
+      },
+      60_000 // 60 second timeout
+    );
+
+    test(
+      'withdrawing more than the user\'s balance fails with InsufficientFunds',
+      async () => {
+        // Give alice just enough A
+        const alice = newIdentity();
+
+        // Alice tries to withdrawal 1 A. This will fail because their
+        // deposited A balance is 0.
+        const withdrawalA = await swap(alice).withdraw({
+          amount: 100_000_000n,
+          created_at_time : [],
+          fee: [],
+          to : { owner: alice.getPrincipal(), subaccount: [] },
+          memo: [],
+          token : tokenACanisterId,
+        });
+        expect(withdrawalA).toMatchObject({
+          err: {
+            InsufficientFunds: {
+              balance: 0n,
+            },
+          },
+        });
+      },
+      60_000 // 60 second timeout
+    );
+  });
 });
