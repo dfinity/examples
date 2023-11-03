@@ -11,7 +11,7 @@ describe('swap', () => {
       const alice = newIdentity();
       await fundIdentity(tokenA(minter), alice, 100_020_000n);
 
-      // Give bob, just enough B
+      // Give bob just enough B
       const bob = newIdentity();
       await fundIdentity(tokenB(minter), bob, 100_020_000n);
 
@@ -66,7 +66,7 @@ describe('swap', () => {
       });
       expect(approvalB).toHaveProperty("Ok");
 
-      // Alice deposits 1 A
+      // Bob deposits 1 A
       const depositB = await swap(bob).deposit({
         amount: 100_000_000n,
         created_at_time : [],

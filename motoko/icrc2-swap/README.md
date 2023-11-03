@@ -14,7 +14,7 @@ different from other synchronous blockchains.
 - **Swap Tokens**: Users can swap the tokens for each other. This is implemented
   in a very simple naive 1:1 manner. The point is just to demonstrate some
   minimal behavior.
-- **Withdraw Tokens**: Users can send withdraw the resulting tokens after
+- **Withdraw Tokens**: Users can withdraw the resulting tokens after
   swapping.
 
 # Local deployment
@@ -47,7 +47,7 @@ export BOB=$(dfx identity get-principal --identity bob)
 Deploy Token A:
 
 ```bash
-dfx deploy --network local token_a --argument '
+dfx deploy token_a --argument '
   (variant {
     Init = record {
       token_name = "Token A";
@@ -81,7 +81,7 @@ dfx deploy --network local token_a --argument '
 Deploy Token B:
 
 ```bash
-dfx deploy --network local token_b --argument '
+dfx deploy token_b --argument '
   (variant {
     Init = record {
       token_name = "Token B";
@@ -116,17 +116,17 @@ dfx deploy --network local token_b --argument '
 The swap canister accepts deposits, and performs the swap.
 
 ```bash
-export TOKEN_A=$(dfx canister id --network local token_a)
-export TOKEN_B=$(dfx canister id --network local token_b)
+export TOKEN_A=$(dfx canister id token_a)
+export TOKEN_B=$(dfx canister id token_b)
 
-dfx deploy --network local swap --argument '
+dfx deploy swap --argument '
   record {
     token_a = (principal "'${TOKEN_A}'");
     token_b = (principal "'${TOKEN_B}'");
   }
 '
 
-export SWAP=$(dfx canister id --network local swap)
+export SWAP=$(dfx canister id swap)
 ```
 
 ## Step 4: Approve & deposit tokens
@@ -137,7 +137,7 @@ With ICRC-2, this is a two-step process. First we approve the transfer:
 ```bash
 # Approve Bob to deposit 1.00000000 of Token B, and 0.0001 extra for the
 # transfer fee
-dfx canister --network local call --identity alice token_a icrc2_approve '
+dfx canister call --identity alice token_a icrc2_approve '
   record {
     amount = 100_010_000;
     spender = record {
@@ -148,7 +148,7 @@ dfx canister --network local call --identity alice token_a icrc2_approve '
 
 # Approve Bob to deposit 1.00000000 of Token B, and 0.0001 extra for the
 # transfer fee
-dfx canister --network local call --identity bob token_b icrc2_approve '
+dfx canister call --identity bob token_b icrc2_approve '
   record {
     amount = 100_010_000;
     spender = record {
@@ -167,7 +167,7 @@ decimal places, we writeout all 8 decimal places. So 1.00000000 becomes
 
 ```bash
 # Deposit Alice's tokens
-dfx canister --network local call --identity alice swap deposit 'record {
+dfx canister call --identity alice swap deposit 'record {
   token = principal "'${TOKEN_A}'";
   from = record {
     owner = principal "'${ALICE}'";
@@ -176,7 +176,7 @@ dfx canister --network local call --identity alice swap deposit 'record {
 }'
 
 # Deposit Bob's tokens
-dfx canister --network local call --identity bob swap deposit 'record {
+dfx canister call --identity bob swap deposit 'record {
   token = principal "'${TOKEN_B}'";
   from = record {
     owner = principal "'${BOB}'";
@@ -188,7 +188,7 @@ dfx canister --network local call --identity bob swap deposit 'record {
 ## Step 5: Perform a swap
 
 ```bash
-dfx canister --network local call swap swap 'record {
+dfx canister call swap swap 'record {
   user_a = principal "'${ALICE}'";
   user_b = principal "'${BOB}'";
 }'
@@ -197,7 +197,7 @@ dfx canister --network local call swap swap 'record {
 We can check the deposited balances with:
 
 ```bash
-dfx canister --network local call swap balances
+dfx canister call swap balances
 ```
 
 That should show us that now Bob holds Token A, and Alice holds Token B in
@@ -211,7 +211,7 @@ can withdraw our newly received tokens into our wallet.
 
 ```bash
 # Withdraw Alice's Token B balance (1.00000000), minus the 0.0001 transfer fee
-dfx canister --network local call --identity alice swap withdraw 'record {
+dfx canister call --identity alice swap withdraw 'record {
   token = principal "'${TOKEN_B}'";
   to = record {
     owner = principal "'${ALICE}'";
@@ -222,7 +222,7 @@ dfx canister --network local call --identity alice swap withdraw 'record {
 
 ```bash
 # Withdraw Bob's Token A balance (1.00000000), minus the 0.0001 transfer fee
-dfx canister --network local call --identity bob swap withdraw 'record {
+dfx canister call --identity bob swap withdraw 'record {
   token = principal "'${TOKEN_A}'";
   to = record {
     owner = principal "'${BOB}'";
@@ -235,12 +235,12 @@ dfx canister --network local call --identity bob swap withdraw 'record {
 
 ```bash
 # Check Alice's Token A balance. They should now have 998.99980000 A
-dfx canister --network local call token_a icrc1_balance_of 'record {
+dfx canister call token_a icrc1_balance_of 'record {
   owner = principal "'${ALICE}'";
 }'
 
 # Check Bob's Token A balance, They should now have 0.99990000 A.
-dfx canister --network local call token_a icrc1_balance_of 'record {
+dfx canister call token_a icrc1_balance_of 'record {
   owner = principal "'${ALICE}'";
 }'
 ```
@@ -305,7 +305,3 @@ Contributions are welcome! Please open an issue or submit a pull request.
 
 - [0xAegir@protonmail.com](mailto:0xAegir@protonmail.com)
 - Twitter: [@0xAegir](https://twitter.com/0xAegir)
-
-## License
-
-[MIT](LICENSE)
