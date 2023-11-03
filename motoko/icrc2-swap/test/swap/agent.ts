@@ -14,7 +14,6 @@ import fetch from "isomorphic-fetch";
 
 import { _SERVICE as Swap, idlFactory as swapIdlFactory } from "../../src/declarations/swap/swap.did.js";
 import { _SERVICE as Token, idlFactory as tokenIdlFactory } from "../../src/declarations/token_a/token_a.did.js";
-import localCanisterIds from "../../canister_ids.json";
 
 export declare interface CreateActorOptions {
   /**
@@ -72,7 +71,11 @@ export function agent(identity?: Identity) {
   return a;
 }
 
-export const swapCanisterId = Principal.fromText(process.env.SWAP_CANISTER_ID?.toString() ?? localCanisterIds.swap.local);
+function findCanisterId(name: string) {
+  return execSync(`dfx canister id ${name}`, { encoding: 'utf-8' }).trim();
+}
+
+export const swapCanisterId = Principal.fromText(process.env.SWAP_CANISTER_ID?.toString() ?? findCanisterId('swap'));
 
 export function swap(identity?: Identity) {
   return createActor<Swap>(
@@ -82,7 +85,7 @@ export function swap(identity?: Identity) {
   );
 }
 
-export const tokenACanisterId = Principal.fromText(process.env.TOKEN_A_CANISTER_ID?.toString() ?? localCanisterIds.token_a.local);
+export const tokenACanisterId = Principal.fromText(process.env.TOKEN_A_CANISTER_ID?.toString() ?? findCanisterId('token_a'));
 
 export function tokenA(identity?: Identity) {
   return createActor<Token>(
@@ -92,7 +95,7 @@ export function tokenA(identity?: Identity) {
   );
 }
 
-export const tokenBCanisterId = Principal.fromText(process.env.TOKEN_B_CANISTER_ID?.toString() ?? localCanisterIds.token_b.local);
+export const tokenBCanisterId = Principal.fromText(process.env.TOKEN_B_CANISTER_ID?.toString() ?? findCanisterId('token_b'));
 
 export function tokenB(identity?: Identity) {
   return createActor<Token>(
