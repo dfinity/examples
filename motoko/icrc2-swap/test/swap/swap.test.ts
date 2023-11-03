@@ -154,8 +154,7 @@ describe('swap', () => {
         // Give alice just enough A
         const alice = newIdentity();
 
-        // Alice tries to deposit 1 A. This will fail because only 0.5A has
-        // been approved.
+        // Alice tries to deposit a token that does not exist
         await swap(alice).deposit({
           amount: 100_000_000n,
           created_at_time : [],
