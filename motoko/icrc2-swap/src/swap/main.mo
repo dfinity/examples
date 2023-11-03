@@ -23,7 +23,7 @@ shared(init_msg) actor class Swap(init_args: {
   private var balancesA = TrieMap.TrieMap<Principal, Nat>(Principal.equal, Principal.hash);
   private var balancesB = TrieMap.TrieMap<Principal, Nat>(Principal.equal, Principal.hash);
 
-  // Because TrieMaps are not directly storeable in stable memory we need a
+  // Because TrieMaps are not directly storable in stable memory we need a
   // location to store the data during canister upgrades.
   private stable var stableBalancesA : ?[(Principal, Nat)] = null;
   private stable var stableBalancesB : ?[(Principal, Nat)] = null;
@@ -79,8 +79,8 @@ shared(init_msg) actor class Swap(init_args: {
     let block_height = switch (transfer_result) {
       case (#Ok(block_height)) { block_height };
       case (#Err(err)) {
-        // Transfer failed. There's no cleanup for us to do, so we can just
-        // wrap and return the error to the frontend.
+        // Transfer failed. There's no cleanup for us to do since no state has
+        // changed, so we can just wrap and return the error to the frontend.
         return #err(#TransferFromError(err));
       };
     };
@@ -93,7 +93,7 @@ shared(init_msg) actor class Swap(init_args: {
     // 
     // If the function *can* fail here after this point, we should either:
     // - Move that code to a separate action later
-    // - Have failure-handling code which returns the user's tokens
+    // - Have failure-handling code which refunds the user's tokens
     
     // Credit the sender's account
     let sender = args.from.owner;
@@ -117,20 +117,23 @@ shared(init_msg) actor class Swap(init_args: {
   // Swap TokenA for TokenB
   // - Exchange tokens between the two given users.
   // - For this example, there will be no clever swap mechanism, it simply swaps all
-  //   deposits for the two users. Designing a useful and safer swap mechanism
-  //   is left as an exercise for the reader.
+  //   deposits for the two users, even allowing anybody to perform the swap.
+  //   Designing a useful and safer swap mechanism is left as an exercise for
+  //   the reader.
   // - UserA's full balance of TokenA is given to UserB, and UserB's full
   //   balance of TokenB is given to UserA.
   public shared(msg) func swap(args: SwapArgs): async Result.Result<(), SwapError> {
     // Because both tokens were deposited before calling swap, we can execute
     // this function atomically. To do that there must be no `await` calls in
-    // this function. Additionally, we need to be careful with the order that
-    // we update any internal state variables. If this function were to update
-    // some state variables, then fail, before updating others, it could leave
-    // this canister with inconsistent internal state.
+    // this function. If we *did* have `await` calls in this function, we would
+    // need to be careful with the order that we update any internal state
+    // variables. If this function were to update some state variables, call
+    // `await`, then fail, before updating others, it could leave this canister
+    // with inconsistent internal state.
     //
-    // Making this function atomic makes it safer, because either the whole
-    // function will execute or none of it will.
+    // Making this function atomic (by not using `await`) makes it safer,
+    // because either all of the state changes applied in this function will be
+    // persisted, or all of the state changes will be reverted.
 
     // Give user_a's token_a to user_b
     // Add the the two user's token_a balances, and give all of it to user_b.
@@ -174,7 +177,7 @@ shared(init_msg) actor class Swap(init_args: {
   };
 
   // Allow withdrawals
-  // - Allow UserA to withdraw TokenB, and UserB to withdraw TokenA
+  // - Allow users to withdraw any tokens they hold.
   // - These withdrawal handlers show how to safely send outbound transfers of an ICRC-1 token.
   public shared(msg) func withdraw(args: WithdrawArgs): async Result.Result<Nat, WithdrawError> {
     let token: ICRC.Actor = actor(Principal.toText(args.token));

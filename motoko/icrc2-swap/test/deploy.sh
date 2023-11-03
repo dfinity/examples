@@ -6,12 +6,6 @@ canister_exists() {
   (dfx canister info "$1" 2>&1 | grep 'Module hash: 0x')
 }
 
-# echo
-# echo == Dependencies.
-# echo
-
-# vessel install
-
 echo
 echo == Create Minting Account.
 echo
@@ -34,18 +28,6 @@ export MINTER=$(dfx identity get-principal --identity icrc2-swap-minter)
 # The JS tests use a different principal, so we should give that some balance as well.
 export JS="jg6qm-uw64t-m6ppo-oluwn-ogr5j-dc5pm-lgy2p-eh6px-hebcd-5v73i-nqe"
 
-# echo
-# echo == Install NNS.
-# echo
-
-# if canister_exists "nns-governance"; then
-#     echo "nns-governance already exists skipping nns install" >&2
-# else
-#     dfx extension install nns
-#     dfx nns install --identity icrc2-swap-minter
-#     dfx ledger transfer --identity icrc2-swap-minter --memo 0 --amount 10000 $(dfx ledger account-id)
-# fi
-
 echo
 echo == Create Canisters.
 echo
@@ -56,7 +38,7 @@ echo
 echo == Deploy: Token A
 echo
 
-dfx deploy --network local token_a --argument "
+dfx deploy token_a --argument "
   (variant {
     Init = record {
       token_name = \"Token A\";
@@ -82,13 +64,13 @@ dfx deploy --network local token_a --argument "
   })
 "
 
-export TOKEN_A=$(dfx canister id --network local token_a)
+export TOKEN_A=$(dfx canister id token_a)
 
 echo
 echo == Deploy: Token A
 echo
 
-dfx deploy --network local token_b --argument "
+dfx deploy token_b --argument "
   (variant {
     Init = record {
       token_name = \"Token B\";
@@ -114,17 +96,17 @@ dfx deploy --network local token_b --argument "
   })
 "
 
-export TOKEN_B=$(dfx canister id --network local token_b)
+export TOKEN_B=$(dfx canister id token_b)
 
 echo
 echo == Deploy: Swap
 echo
 
-dfx deploy --network local swap --argument "
+dfx deploy swap --argument "
   record {
     token_a = (principal \"${TOKEN_A}\");
     token_b = (principal \"${TOKEN_B}\");
   }
 "
 
-export SWAP=$(dfx canister id --network local swap)
+export SWAP=$(dfx canister id swap)
