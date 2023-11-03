@@ -158,7 +158,9 @@ dfx canister call --identity bob token_b icrc2_approve '
 '
 ```
 
-Then we can perform the deposit to transfer the tokens from our wallet to the swap canister:
+Then we can call the `swap` canister's `deposit` method. This method will do the
+actual ICRC-1 token transfer, to move the tokens from our wallet into the `swap`
+canister, and then update our deposited token balance in the `swap` canister.
 
 Side Note: The amounts we use here are denoted in "e8s". Since out token has 8
 decimal places, we writeout all 8 decimal places. So 1.00000000 becomes
