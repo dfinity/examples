@@ -14,10 +14,12 @@ import ICRC "./ICRC";
 // The swap canister is the main backend canister for this example. To simplify
 // this example we configure the swap canister with the two tokens it will be
 // swapping.
-shared(init_msg) actor class Swap(init_args: {
-  token_a: Principal;
-  token_b: Principal;
-}) = this {
+shared (init_msg) actor class Swap(
+  init_args : {
+    token_a : Principal;
+    token_b : Principal;
+  }
+) = this {
 
   // Track the deposited per-user balances for token A and token B
   private var balancesA = TrieMap.TrieMap<Principal, Nat>(Principal.equal, Principal.hash);
@@ -29,31 +31,31 @@ shared(init_msg) actor class Swap(init_args: {
   private stable var stableBalancesB : ?[(Principal, Nat)] = null;
 
   // balances is a simple getter to check the balances of all users, to make debugging easier.
-  public query func balances(): async ([(Principal, Nat)], [(Principal, Nat)]) {
-    (Iter.toArray(balancesA.entries()), Iter.toArray(balancesB.entries()))
+  public query func balances() : async ([(Principal, Nat)], [(Principal, Nat)]) {
+    (Iter.toArray(balancesA.entries()), Iter.toArray(balancesB.entries()));
   };
 
   public type DepositArgs = {
-    spender_subaccount: ?Blob;
-    token: Principal;
-    from: ICRC.Account;
-    amount: Nat;
-    fee: ?Nat;
-    memo: ?Blob;
-    created_at_time: ?Nat64;
+    spender_subaccount : ?Blob;
+    token : Principal;
+    from : ICRC.Account;
+    amount : Nat;
+    fee : ?Nat;
+    memo : ?Blob;
+    created_at_time : ?Nat64;
   };
 
   public type DepositError = {
-    #TransferFromError: ICRC.TransferFromError;
+    #TransferFromError : ICRC.TransferFromError;
   };
 
   // Accept deposits
   // - Accept TokenA, and TokenB
   // - user approves transfer: `token_a.icrc2_approve({ spender=swap_canister; amount=amount; ... })`
   // - user deposits their token: `swap_canister.deposit({ token=token_a; amount=amount; ... })`
-  // - These deposit handlers show how to safely accept and register deposits of an ICRC-2 token. 
-  public shared(msg) func deposit(args: DepositArgs): async Result.Result<Nat, DepositError> {
-    let token: ICRC.Actor = actor(Principal.toText(args.token));
+  // - These deposit handlers show how to safely accept and register deposits of an ICRC-2 token.
+  public shared (msg) func deposit(args : DepositArgs) : async Result.Result<Nat, DepositError> {
+    let token : ICRC.Actor = actor (Principal.toText(args.token));
     let balances = which_balances(args.token);
 
     // Load the fee from the token here. The user can pass a null fee, which
@@ -90,23 +92,23 @@ shared(init_msg) actor class Swap(init_args: {
     // would have the user's tokens), but we would not have credited their
     // account yet, so this canister would not *know* that it had received the
     // user's tokens.
-    // 
+    //
     // If the function *can* fail here after this point, we should either:
     // - Move that code to a separate action later
     // - Have failure-handling code which refunds the user's tokens
-    
+
     // Credit the sender's account
     let sender = args.from.owner;
     let old_balance = Option.get(balances.get(sender), 0 : Nat);
     balances.put(sender, old_balance + args.amount);
 
     // Return the "block height" of the transfer
-    #ok(block_height)
+    #ok(block_height);
   };
 
   public type SwapArgs = {
-    user_a: Principal;
-    user_b: Principal;
+    user_a : Principal;
+    user_b : Principal;
   };
 
   public type SwapError = {
@@ -122,7 +124,7 @@ shared(init_msg) actor class Swap(init_args: {
   //   the reader.
   // - UserA's full balance of TokenA is given to UserB, and UserB's full
   //   balance of TokenB is given to UserA.
-  public shared(msg) func swap(args: SwapArgs): async Result.Result<(), SwapError> {
+  public shared (msg) func swap(args : SwapArgs) : async Result.Result<(), SwapError> {
     // Because both tokens were deposited before calling swap, we can execute
     // this function atomically. To do that there must be no `await` calls in
     // this function. If we *did* have `await` calls in this function, we would
@@ -153,16 +155,16 @@ shared(init_msg) actor class Swap(init_args: {
     );
     balancesB.delete(args.user_b);
 
-    #ok(())
+    #ok(());
   };
 
   public type WithdrawArgs = {
-    token: Principal;
-    to: ICRC.Account;
-    amount: Nat;
-    fee: ?Nat;
-    memo: ?Blob;
-    created_at_time: ?Nat64;
+    token : Principal;
+    to : ICRC.Account;
+    amount : Nat;
+    fee : ?Nat;
+    memo : ?Blob;
+    created_at_time : ?Nat64;
   };
 
   public type WithdrawError = {
@@ -171,16 +173,16 @@ shared(init_msg) actor class Swap(init_args: {
     // TransferError(InsufficientFunds), which would indicate that this
     // canister doesn't have enough funds to fulfil the withdrawal (a much more
     // serious error).
-    #InsufficientFunds: { balance : ICRC.Tokens };
+    #InsufficientFunds : { balance : ICRC.Tokens };
     // For other transfer errors, we can just wrap and return them.
-    #TransferError: ICRC.TransferError;
+    #TransferError : ICRC.TransferError;
   };
 
   // Allow withdrawals
   // - Allow users to withdraw any tokens they hold.
   // - These withdrawal handlers show how to safely send outbound transfers of an ICRC-1 token.
-  public shared(msg) func withdraw(args: WithdrawArgs): async Result.Result<Nat, WithdrawError> {
-    let token: ICRC.Actor = actor(Principal.toText(args.token));
+  public shared (msg) func withdraw(args : WithdrawArgs) : async Result.Result<Nat, WithdrawError> {
+    let token : ICRC.Actor = actor (Principal.toText(args.token));
     let balances = which_balances(args.token);
 
     // Load the fee from the token here. The user can pass a null fee, which
@@ -194,7 +196,7 @@ shared(init_msg) actor class Swap(init_args: {
     // Check the user's balance is sufficient
     let old_balance = Option.get(balances.get(msg.caller), 0 : Nat);
     if (old_balance < args.amount + fee) {
-      return #err(#InsufficientFunds{ balance = old_balance });
+      return #err(#InsufficientFunds { balance = old_balance });
     };
 
     // Debit the sender's account
@@ -253,17 +255,17 @@ shared(init_msg) actor class Swap(init_args: {
     };
 
     // Return the "block height" of the transfer
-    #ok(block_height)
+    #ok(block_height);
   };
 
   // which_balances checks which token we are withdrawing, and configure the
   // rest of the transfer. This function will assert that the token specified
   // must be either token_a, or token_b.
-  private func which_balances(t: Principal): TrieMap.TrieMap<Principal, Nat> {
+  private func which_balances(t : Principal) : TrieMap.TrieMap<Principal, Nat> {
     let balances = if (t == init_args.token_a) {
-      balancesA
+      balancesA;
     } else if (t == init_args.token_b) {
-      balancesB
+      balancesB;
     } else {
       Debug.trap("invalid token canister");
     };

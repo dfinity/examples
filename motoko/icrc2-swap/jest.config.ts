@@ -3,7 +3,7 @@
  * https://jestjs.io/docs/configuration
  */
 
-import type {Config} from 'jest';
+import type { Config } from "jest";
 
 const config: Config = {
   // All imported modules in your tests should be mocked automatically
@@ -61,10 +61,10 @@ const config: Config = {
   // forceCoverageMatch: [],
 
   // A path to a module which exports an async function that is triggered once before all test suites
-  globalSetup: './test/swap/setup.ts',
+  globalSetup: "./test/swap/setup.ts",
 
   // A path to a module which exports an async function that is triggered once after all test suites
-  globalTeardown: './test/swap/teardown.ts',
+  globalTeardown: "./test/swap/teardown.ts",
 
   // A set of global variables that need to be available in all test environments
   // globals: {},

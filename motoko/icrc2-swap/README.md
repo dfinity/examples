@@ -111,6 +111,7 @@ dfx deploy token_b --argument '
   })
 '
 ```
+
 ## Step 3: Deploy the swap canister
 
 The swap canister accepts deposits, and performs the swap.
@@ -166,7 +167,6 @@ Side Note: The amounts we use here are denoted in "e8s". Since out token has 8
 decimal places, we writeout all 8 decimal places. So 1.00000000 becomes
 100,000,000.
 
-
 ```bash
 # Deposit Alice's tokens
 dfx canister call --identity alice swap deposit 'record {
@@ -204,7 +204,6 @@ dfx canister call swap balances
 
 That should show us that now Bob holds Token A, and Alice holds Token B in
 the swap contract.
-
 
 ## Step 6: Withdraw tokens
 
