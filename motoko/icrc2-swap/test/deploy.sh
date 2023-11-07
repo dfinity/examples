@@ -13,7 +13,7 @@ echo
 if (dfx identity list | grep icrc2-swap-minter 2>&1 >/dev/null) ; then
     echo "icrc2-swap-minter account already exists" >&2
 else
-    dfx identity import icrc2-swap-minter -- storage-mode plaintext <(cat <<EOF
+    dfx identity import icrc2-swap-minter --storage-mode plaintext <(cat <<EOF
 -----BEGIN EC PRIVATE KEY-----
 MHQCAQEEICJxApEbuZznKFpV+VKACRK30i6+7u5Z13/DOl18cIC+oAcGBSuBBAAK
 oUQDQgAEPas6Iag4TUx+Uop+3NhE6s3FlayFtbwdhRVjvOar0kPTfE/N8N6btRnd
