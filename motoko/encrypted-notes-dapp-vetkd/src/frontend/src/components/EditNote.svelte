@@ -3,10 +3,11 @@
   import type { CurrentRoute } from 'svelte-router-spa/types/components/route';
   import { Editor, placeholder } from 'typewriter-editor';
   import { extractTitle, NoteModel } from '../lib/note';
-  import { notesStore, refreshNotes, updateNote } from '../store/notes';
+  import { notesStore, refreshNotes, updateNote, addUser, removeUser } from '../store/notes';
   import Header from './Header.svelte';
   import NoteEditor from './NoteEditor.svelte';
   import TagEditor from './TagEditor.svelte';
+  import SharingEditor from './SharingEditor.svelte';
   import Trash from 'svelte-icons/fa/FaTrash.svelte';
   import { addNotification, showError } from '../store/notifications';
   import { auth } from '../store/auth';
@@ -18,6 +19,7 @@
   let editor: Editor;
   let updating = false;
   let deleting = false;
+  let ownedByMe;
 
   async function save() {
     if ($auth.state !== 'initialized') {
@@ -78,6 +80,13 @@
     editedNote.tags = editedNote.tags.filter((t) => t !== tag);
   }
 
+  function selfPrincipalString(): string {
+    if ($auth.state !== 'initialized') {
+      throw new Error('expected the auth.state to be initialized');
+    }
+    return $auth.client.getIdentity().getPrincipal().toString();
+  }
+
   $: {
     if ($notesStore.state === 'loaded' && !editedNote) {
       const note = $notesStore.list.find(
@@ -92,6 +101,7 @@
           },
           html: editedNote.content,
         });
+        ownedByMe = note.owner == selfPrincipalString();
       }
     }
   }
@@ -102,7 +112,7 @@
     <span slot="title"> Edit note </span>
     <button
       slot="actions"
-      class="btn btn-ghost {deleting ? 'loading' : ''}"
+      class="btn btn-ghost {deleting ? 'loading' : ''} {!ownedByMe ? 'hidden' : ''}"
       on:click={deleteNote}
       disabled={updating || deleting}
     >
@@ -127,6 +137,11 @@
         disabled={updating || deleting}
         on:click={save}>{updating ? 'Saving...' : 'Save'}</button
       >
+      <hr class="mt-10">
+      <SharingEditor
+        {editedNote}
+        {ownedByMe}
+      />
     {:else if $notesStore.state === 'loading'}
       Loading notes...
     {/if}

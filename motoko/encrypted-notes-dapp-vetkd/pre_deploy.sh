@@ -20,7 +20,7 @@ EOM
 else 
 read -r -d '' BACKEND_TS <<- EOM
 export { idlFactory } from './idlFactory';
-export type { _SERVICE } from '../../../declarations/encrypted_notes_rust/encrypted_notes_rust.did.js';
+export * from '../../../declarations/encrypted_notes_rust/encrypted_notes_rust.did.js';
 export const ENCRYPTED_NOTES_CANISTER_ID = process.env.ENCRYPTED_NOTES_RUST_CANISTER_ID;
 EOM
 fi
