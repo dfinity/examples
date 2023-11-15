@@ -58,8 +58,8 @@ impl Storable for NoteIds {
     const BOUND: Bound = Bound::Unbounded;
 }
 
-// We use a canister's stable memory as storage. This simplifies the code and make the appliation
-// is more robust because no (potentially failing) pre_upgrade/post_upgrade hooks are needed.
+// We use a canister's stable memory as storage. This simplifies the code and makes the appliation
+// more robust because no (potentially failing) pre_upgrade/post_upgrade hooks are needed.
 // Note that stable memory is less performant than heap memory, however.
 // Currently, a single canister smart contract is limited to 96 GB of stable memory.
 // For the current limits see https://internetcomputer.org/docs/current/developer-docs/production/resource-limits.
@@ -215,12 +215,12 @@ fn delete_note(note_id: u128) {
     });
 }
 
-/// Updates a note.
+/// Replaces the encrypted text of note with ID [id] with [encrypted_text].
 ///
 /// Panics: 
 ///     [caller] is the anonymous identity
-///     [caller] is not the owner and not a user with whom the note is shared
-///     [note.encrypted_text] exceeds [MAX_NOTE_CHARS]
+///     [caller] is not the note's owner and not a user with whom the note is shared
+///     [encrypted_text] exceeds [MAX_NOTE_CHARS]
 #[update]
 fn update_note(id: NoteId, encrypted_text: String) {
     let user_str = caller().to_string();
@@ -238,15 +238,13 @@ fn update_note(id: NoteId, encrypted_text: String) {
 }
 
 /// Add new empty note for this [caller].
-///      [note]: (encrypted) content of this note
 ///
 /// Returns: 
 ///      Future of ID of new empty note
 /// Panics: 
 ///      [caller] is the anonymous identity
-///      [caller] is not a registered user
 ///      User already has [MAX_NOTES_PER_USER] notes
-///      [note] would be for a new user and [MAX_USERS] is exceeded
+///      This is the first note for [caller] and [MAX_USERS] is exceeded
 #[update]
 fn create_note() -> NoteId {
     let owner = caller().to_string();
