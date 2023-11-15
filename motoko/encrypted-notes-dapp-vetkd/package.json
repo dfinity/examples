@@ -36,6 +36,7 @@
     "autoprefixer": "^10.4.2",
     "babel-jest": "^27.4.6",
     "daisyui": "^1.25.4",
+    "idb-keyval": "6.2.1",
     "jest": "^27.4.7",
     "postcss": "^8.4.5",
     "rollup": "^3.0.0",

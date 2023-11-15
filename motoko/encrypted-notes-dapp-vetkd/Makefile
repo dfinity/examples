@@ -1,4 +1,4 @@
-BUILD_ENV := motoko
+BUILD_ENV ?= motoko
 
 .PHONY: test test-unit test-e2e
 
