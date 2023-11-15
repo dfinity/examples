@@ -45,7 +45,7 @@ namespace IC.GameKit
             var buttonGo = GameObject.Find("Button_Greet");
             mGreetButton = buttonGo?.GetComponent<Button>();
 
-            mEd25519Identity = Ed25519Identity.Create();
+            mEd25519Identity = Ed25519Identity.Generate();
         }
 
         // Update is called once per frame
@@ -66,13 +66,13 @@ namespace IC.GameKit
             Debug.Assert(delegationChainModel != null && delegationChainModel.delegations.Length >= 1);
 
             // Initialize DelegationIdentity.
-            var chainPublicKey = DerEncodedPublicKey.FromDer(ByteUtil.FromHexString(delegationChainModel.publicKey));
+            var chainPublicKey = SubjectPublicKeyInfo.FromDerEncoding(ByteUtil.FromHexString(delegationChainModel.publicKey));
             var delegations = new List<SignedDelegation>();
             foreach (var signedDelegationModel in delegationChainModel.delegations)
             {
-                var pubKey = DerEncodedPublicKey.FromDer(ByteUtil.FromHexString(signedDelegationModel.delegation.pubkey));
+                var pubKey = SubjectPublicKeyInfo.FromDerEncoding(ByteUtil.FromHexString(signedDelegationModel.delegation.pubkey));
                 var expiration = ICTimestamp.FromNanoSeconds(Convert.ToUInt64(signedDelegationModel.delegation.expiration, 16));
-                var delegation = new Delegation(pubKey.Value, expiration);
+                var delegation = new Delegation(pubKey, expiration);
 
                 var signature = ByteUtil.FromHexString(signedDelegationModel.signature);
                 var signedDelegation = new SignedDelegation(delegation, signature);

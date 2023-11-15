@@ -22,7 +22,7 @@ namespace IC.GameKit
 
         public void OpenBrowser()
         {
-            var target = mTestICPAgent.greetFrontend + "?sessionkey=" + ByteUtil.ToHexString(mTestICPAgent.TestIdentity.PublicKey.Value);
+            var target = mTestICPAgent.greetFrontend + "?sessionkey=" + ByteUtil.ToHexString(mTestICPAgent.TestIdentity.PublicKey.PublicKey);
             Application.OpenURL(target);
         }
 
