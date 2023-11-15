@@ -23,7 +23,7 @@ shared ({ caller = initializer }) actor class () {
 
     // Currently, a single canister smart contract is limited to 4 GB of heap size.
     // For the current limits see https://internetcomputer.org/docs/current/developer-docs/production/resource-limits.
-    // To ensure that our canister does not exceed the limit, we put various restrictions (e.g., number of users) in place.
+    // To ensure that our canister does not exceed the limit, we put various restrictions (e.g., max number of users) in place.
     // This should keep us well below a memory usage of 2 GB because
     // up to 2x memory may be needed for data serialization during canister upgrades.
     // This is sufficient for this proof-of-concept, but in a production environment the actual
