@@ -1,0 +1,10 @@
+{
+  "canisters": {
+    "performance_counters": {
+      "candid": "performance_counters.did",
+      "package": "performance_counters",
+      "type": "rust"
+    }
+  },
+  "version": 1
+}

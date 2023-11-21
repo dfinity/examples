@@ -1,0 +1,12 @@
+[package]
+name = "performance_counters"
+version = "1.0.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+candid = "0.9.11"
+ic-cdk = "0.11.3"
+ic-cdk-macros = "0.8.1"
