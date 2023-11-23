@@ -1,13 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
-using EdjCase.ICP.Agent;
 using EdjCase.ICP.Agent.Agents;
 using EdjCase.ICP.Agent.Identities;
 using EdjCase.ICP.Candid.Models;
-using EdjCase.ICP.Candid.Utilities;
-using System.Collections.Generic;
-using EdjCase.ICP.Agent.Models;
-using System;
 
 namespace IC.GameKit
 {
@@ -19,17 +14,18 @@ namespace IC.GameKit
         Text mMyPrincipalText = null;
         Button mGreetButton = null;
         Ed25519Identity mEd25519Identity = null;
-        DelegationChainModel mDelegation = null;
+        DelegationIdentity mDelegationIdentity = null;
 
         public Ed25519Identity TestIdentity { get { return mEd25519Identity; } }
 
-        internal DelegationChainModel Delegation {
-            get { return mDelegation; } 
+        internal DelegationIdentity DelegationIdentity
+        {
+            get { return mDelegationIdentity; } 
             set 
             {
-                mDelegation = value;
+                mDelegationIdentity = value;
                 
-                if (mDelegation != null && mGreetButton != null)
+                if (mDelegationIdentity != null && mGreetButton != null)
                 {
                     mGreetButton.interactable = true;
                 }
@@ -55,38 +51,20 @@ namespace IC.GameKit
 
         public void Greet()
         {
-            if (mDelegation == null)
-                return;
-
-            CallCanister(mDelegation);
+            CallCanisterGreet();
         }
 
-        private async void CallCanister(DelegationChainModel delegationChainModel)
+        private async void CallCanisterGreet()
         {
-            Debug.Assert(delegationChainModel != null && delegationChainModel.delegations.Length >= 1);
-
-            // Initialize DelegationIdentity.
-            var chainPublicKey = SubjectPublicKeyInfo.FromDerEncoding(ByteUtil.FromHexString(delegationChainModel.publicKey));
-            var delegations = new List<SignedDelegation>();
-            foreach (var signedDelegationModel in delegationChainModel.delegations)
-            {
-                var pubKey = SubjectPublicKeyInfo.FromDerEncoding(ByteUtil.FromHexString(signedDelegationModel.delegation.pubkey));
-                var expiration = ICTimestamp.FromNanoSeconds(Convert.ToUInt64(signedDelegationModel.delegation.expiration, 16));
-                var delegation = new Delegation(pubKey, expiration);
-
-                var signature = ByteUtil.FromHexString(signedDelegationModel.signature);
-                var signedDelegation = new SignedDelegation(delegation, signature);
-                delegations.Add(signedDelegation);
-            }
-            var delegationChain = new DelegationChain(chainPublicKey, delegations);
-            var delegationIdentity = new DelegationIdentity(TestIdentity, delegationChain);
+            if (DelegationIdentity == null)
+                return;
 
             // Initialize HttpAgent.
-            var agent = new HttpAgent(delegationIdentity);
+            var agent = new HttpAgent(DelegationIdentity);
 
             var canisterId = Principal.FromText(greetBackendCanister);
 
-            // Intialize the client and make the call.
+            // Initialize the client and make the call.
             var client = new GreetingClient.GreetingClient(agent, canisterId);
             var content = await client.Greet();
 
