@@ -13,21 +13,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  motoko-icrc2-swap-darwin:
-    runs-on: macos-12
-    steps:
-      - uses: actions/checkout@v1
-      - name: Provision Darwin
-        env:
-          DFX_VERSION: 0.15.1
-        run: bash .github/workflows/provision-darwin.sh
-      - name: Motoko ICRC2-Swap Darwin
-        run: |
-          dfx start --background
-          pushd motoko/icrc2-swap
-          npm install
-          sleep 10
-          make test
   motoko-icrc2-swap-linux:
     runs-on: ubuntu-20.04
     steps:
