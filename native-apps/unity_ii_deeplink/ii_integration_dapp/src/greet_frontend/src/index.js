@@ -1,4 +1,6 @@
+import {createActor, greet_backend} from "../../declarations/greet_backend";
 import {AuthClient} from "@dfinity/auth-client"
+import {HttpAgent} from "@dfinity/agent";
 import {DelegationIdentity, Ed25519PublicKey, Ed25519KeyIdentity, DelegationChain} from "@dfinity/identity";
 
 function fromHexString(hexString) {
@@ -13,9 +15,9 @@ if (publicKeyIndex !== -1) {
     // Parse the public key.
     var publicKeyString = url.substring(publicKeyIndex + "sessionkey=".length);
     appPublicKey = Ed25519PublicKey.fromDer(fromHexString(publicKeyString));
-    // console.log(appPublicKey);
 }
 
+let actor = greet_backend;
 let delegationChain;
 
 const loginButton = document.getElementById("login");
@@ -38,7 +40,12 @@ loginButton.onclick = async (e) => {
 
     // At this point we're authenticated, and we can get the identity from the auth client.
     const middleIdentity = authClient.getIdentity();
-    // console.log(middleIdentity);
+
+    // Using the identity obtained from the auth client to create an agent to interact with the IC.
+    const agent = new HttpAgent({identity: middleIdentity});
+    actor = createActor(process.env.GREET_BACKEND_CANISTER_ID, {
+        agent,
+    });
 
     // Chain the app key.
     if (appPublicKey != null && middleIdentity instanceof DelegationIdentity ) {
@@ -48,7 +55,6 @@ loginButton.onclick = async (e) => {
             new Date(Date.now() + 15 * 60 * 1000),
             { previous: middleIdentity.getDelegation() },
         );
-        // console.log(middleToApp);
 
         delegationChain = middleToApp;
     }
@@ -71,6 +77,22 @@ openButton.onclick = async (e) => {
     //console.log(url);
 
     window.open(url, "_self");
+
+    return false;
+};
+
+const greetButton = document.getElementById("greet");
+greetButton.onclick = async (e) => {
+    e.preventDefault();
+
+    greetButton.setAttribute("disabled", true);
+
+    // Interact with backend actor, calling the greet method
+    const greeting = await actor.greet();
+
+    greetButton.removeAttribute("disabled");
+
+    document.getElementById("greeting").innerText = greeting;
 
     return false;
 };
