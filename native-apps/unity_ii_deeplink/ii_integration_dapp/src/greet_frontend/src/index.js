@@ -47,7 +47,7 @@ loginButton.onclick = async (e) => {
         agent,
     });
 
-    // Chain the app key.
+    // Create another delegation with the app public key, then we have two delegations on the chain.
     if (appPublicKey != null && middleIdentity instanceof DelegationIdentity ) {
         let middleToApp = await DelegationChain.create(
             middleKeyIdentity,
