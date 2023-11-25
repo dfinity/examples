@@ -2,10 +2,7 @@ import {createActor, greet_backend} from "../../declarations/greet_backend";
 import {AuthClient} from "@dfinity/auth-client"
 import {HttpAgent} from "@dfinity/agent";
 import {DelegationIdentity, Ed25519PublicKey, Ed25519KeyIdentity, DelegationChain} from "@dfinity/identity";
-
-function fromHexString(hexString) {
-    return new Uint8Array((hexString.match(/.{1,2}/g) ?? []).map(byte => parseInt(byte, 16))).buffer;
-}
+import {fromHexString} from "@dfinity/identity/lib/cjs/buffer";
 
 let appPublicKey;
 
