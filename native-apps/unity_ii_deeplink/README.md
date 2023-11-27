@@ -28,3 +28,7 @@ The steps in detail are described below:
 6. Composite the `DelegationIdentity` with `DelegationChain` and the `Ed25519Identity`.
 
 7. Call the backend canister with the `DelegationIdentity` to greet.
+
+## Attention
+
+Please keep in mind that DeepLink is not safe as AppLinks on Android, please read [this document](https://developer.android.com/training/app-links#understand-different-types-links) for details. Overall, Android App Links offer better user experience, along with better security. Please refer to the [unity_ii_applink](../unity_ii_applink) sample for more information.
