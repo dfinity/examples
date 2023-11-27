@@ -28,4 +28,4 @@ Once you set up the IC development environment locally and update the example as
 2. Run `npm install` to install the npm packages
 3. Run `dfx start --background`
 4. Run `dfx deploy --network=ic --with-cycles=1000000000000`  
-   Here we recommend deploying the dapp to the IC mainnet as it's easier to access it from your mobile devices. Or you can use the [deployed dapp](https://6x7nu-oaaaa-aaaan-qdaua-cai.icp0.io) instead.
+   Here we recommend deploying the dapp to the IC mainnet as it's easier to access it from your mobile devices. Or you can use the [deployed dapp](https://qsgof-4qaaa-aaaan-qekqq-cai.icp0.io) instead.

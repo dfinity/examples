@@ -1,47 +1,30 @@
-import {AuthClient} from "@dfinity/auth-client"
-import {SignIdentity} from "@dfinity/agent";
-import {DelegationIdentity, Ed25519PublicKey } from "@dfinity/identity";
+import {createActor, greet_backend} from "../../declarations/greet_backend";
+import {AuthClient} from "@dfinity/auth-client";
+import {HttpAgent} from "@dfinity/agent";
+import {DelegationIdentity, Ed25519PublicKey, Ed25519KeyIdentity, DelegationChain} from "@dfinity/identity";
+import {fromHexString} from "@dfinity/identity/lib/cjs/buffer";
 
-// An incomplete Ed25519KeyIdentity with only the public key provided.
-class IncompleteEd25519KeyIdentity extends SignIdentity {
-    constructor(publicKey) {
-        super();
-        this._publicKey = publicKey;
-    }
-
-    getPublicKey () {
-        return this._publicKey;
-    }
-}
-
-function fromHexString(hexString) {
-    return new Uint8Array((hexString.match(/.{1,2}/g) ?? []).map(byte => parseInt(byte, 16))).buffer;
-}
-
-let myKeyIdentity;
-let sessionKeyIndex = -1;
+let appPublicKey;
 
 var url = window.location.href;
-sessionKeyIndex = url.indexOf("sessionkey=");
-if (sessionKeyIndex !== -1) {
-    // Parse the public session key and instantiate an IncompleteEd25519KeyIdentity.
-    var sessionkey = url.substring(sessionKeyIndex + "sessionkey=".length);
-
-    var publicKey = Ed25519PublicKey.fromDer(fromHexString(sessionkey));
-    myKeyIdentity = new IncompleteEd25519KeyIdentity(publicKey);
-} else {
-    // TODO: initialize an Ed25519KeyIdentity();
+var publicKeyIndex = url.indexOf("sessionkey=");
+if (publicKeyIndex !== -1) {
+    // Parse the public key.
+    var publicKeyString = url.substring(publicKeyString + "sessionkey=".length);
+    appPublicKey = Ed25519PublicKey.fromDer(fromHexString(publicKeyString));
 }
 
-let delegationIdentity;
+let actor = greet_backend;
+let delegationChain;
 
 const loginButton = document.getElementById("login");
 loginButton.onclick = async (e) => {
     e.preventDefault();
 
     // Create an auth client.
+    var middleKeyIdentity = Ed25519KeyIdentity.generate();
     let authClient = await AuthClient.create({
-        identity: myKeyIdentity,
+        identity: middleKeyIdentity,
     });
 
     // Start the login process and wait for it to finish.
@@ -53,9 +36,24 @@ loginButton.onclick = async (e) => {
     });
 
     // At this point we're authenticated, and we can get the identity from the auth client.
-    const identity = authClient.getIdentity();
-    if (identity instanceof DelegationIdentity) {
-        delegationIdentity = identity;
+    const middleIdentity = authClient.getIdentity();
+
+    // Using the identity obtained from the auth client to create an agent to interact with the IC.
+    const agent = new HttpAgent({identity: middleIdentity});
+    actor = createActor(process.env.GREET_BACKEND_CANISTER_ID, {
+        agent,
+    });
+
+    // Create another delegation with the app public key, then we have two delegations on the chain.
+    if (appPublicKey != null && middleIdentity instanceof DelegationIdentity ) {
+        let middleToApp = await DelegationChain.create(
+            middleKeyIdentity,
+            appPublicKey,
+            new Date(Date.now() + 15 * 60 * 1000),
+            { previous: middleIdentity.getDelegation() },
+        );
+
+        delegationChain = middleToApp;
     }
 
     return false;
@@ -65,19 +63,33 @@ const openButton = document.getElementById("open");
 openButton.onclick = async (e) => {
     e.preventDefault();
 
-    // if (sessionKeyIndex === -1) {
-    //     // TODO: warning for not login from a game.
-    //     return false;
-    // }
+    if (delegationChain == null){
+        console.log("Invalid delegation chain.");
+        return false;
+    }
     
     var url = "https://6x7nu-oaaaa-aaaan-qdaua-cai.icp0.io/authorize?";
-    if (delegationIdentity != null) {
-        var delegationString = JSON.stringify(delegationIdentity.getDelegation().toJSON());
-        console.log(delegationString);
-        url = url + "delegation=" + encodeURIComponent(delegationString);
-    }
+    var delegationString = JSON.stringify(delegationChain.toJSON());    
+    url = url + "delegation=" + encodeURIComponent(delegationString);
+    //console.log(url);
 
     window.open(url, "_self");
+
+    return false;
+};
+
+const greetButton = document.getElementById("greet");
+greetButton.onclick = async (e) => {
+    e.preventDefault();
+
+    greetButton.setAttribute("disabled", true);
+
+    // Interact with backend actor, calling the greet method
+    const greeting = await actor.greet();
+
+    greetButton.removeAttribute("disabled");
+
+    document.getElementById("greeting").innerText = greeting;
 
     return false;
 };
