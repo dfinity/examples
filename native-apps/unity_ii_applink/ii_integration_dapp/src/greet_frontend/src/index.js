@@ -10,7 +10,7 @@ var url = window.location.href;
 var publicKeyIndex = url.indexOf("sessionkey=");
 if (publicKeyIndex !== -1) {
     // Parse the public key.
-    var publicKeyString = url.substring(publicKeyString + "sessionkey=".length);
+    var publicKeyString = url.substring(publicKeyIndex + "sessionkey=".length);
     appPublicKey = Ed25519PublicKey.fromDer(fromHexString(publicKeyString));
 }
 
