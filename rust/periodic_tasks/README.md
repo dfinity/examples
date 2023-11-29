@@ -54,7 +54,8 @@ cd examples/rust/periodic_tasks
 - #### Step 4: Compile and deploy `heartbeat` and `timer` canisters, setting the interval for periodic tasks to 10s:
 
 ```sh
-dfx deploy --argument 10
+dfx deploy --argument 10 heartbeat
+dfx deploy --argument 10 timer
 ```
 
 The counter will start increasing every ~10s in both canisters.
@@ -62,7 +63,15 @@ The counter will start increasing every ~10s in both canisters.
 Example output:
 
 ```sh
-% dfx deploy --argument 10
+% dfx deploy --argument 10 heartbeat
+[...]
+Deployed canisters.
+URLs:
+   Backend canister via Candid interface:
+      heartbeat: http://127.0.0.1/...
+      timer: http://127.0.0.1/...
+
+% dfx deploy --argument 10 timer
 [...]
 Deployed canisters.
 URLs:
@@ -155,7 +164,8 @@ Dashboard: http://localhost:63387/_/dashboard
 - #### Step 4:. Compile and deploy `heartbeat` and `timer` canisters, setting the interval for periodic tasks to 1s:
 
 ```sh
-dfx deploy --argument 1
+dfx deploy --argument 1 heartbeat
+dfx deploy --argument 1 timer
 ```
 
 The counter will start increasing every second in both canisters.
@@ -163,7 +173,15 @@ The counter will start increasing every second in both canisters.
 Example output:
 
 ```sh
-% dfx deploy --argument 1
+% dfx deploy --argument 1 heartbeat
+[...]
+Deployed canisters.
+URLs:
+   Backend canister via Candid interface:
+      heartbeat: http://127.0.0.1/...
+      timer: http://127.0.0.1/...
+
+% dfx deploy --argument 1 timer
 [...]
 Deployed canisters.
 URLs:
@@ -217,7 +235,7 @@ For such an isolation of execution and scheduling contexts, timers library uses 
 ## Further learning
 1. Have a look at the locally running dashboard. The URL is at the end of the `dfx start` command: `Dashboard: http://localhost/...`
 2. Check out `heartbeat` and `timer` canisters Candid user interface. The URLs are et the end of the `dfx deploy` command: `heartbeat: http://127.0.0.1/...`
-3. Find which interval makes even the costs of running periodic tasks in the `timer` and `heartbeat` canisters: `dfx deploy --argument 5`
+3. Find which interval makes even the costs of running periodic tasks in the `timer` and `heartbeat` canisters: `dfx deploy --argument 5 heartbeat && dfx deploy --argument 5 timer`
 
 ### Canister Interface
 
