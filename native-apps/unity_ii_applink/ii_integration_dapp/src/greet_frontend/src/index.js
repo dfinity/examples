@@ -1,7 +1,7 @@
 import {createActor, greet_backend} from "../../declarations/greet_backend";
 import {AuthClient} from "@dfinity/auth-client";
 import {HttpAgent} from "@dfinity/agent";
-import {DelegationIdentity, Ed25519PublicKey, Ed25519KeyIdentity, DelegationChain} from "@dfinity/identity";
+import {DelegationIdentity, Ed25519PublicKey, ECDSAKeyIdentity, DelegationChain} from "@dfinity/identity";
 import {fromHexString} from "@dfinity/identity/lib/cjs/buffer";
 
 let appPublicKey;
@@ -22,7 +22,7 @@ loginButton.onclick = async (e) => {
     e.preventDefault();
 
     // Create an auth client.
-    var middleKeyIdentity = Ed25519KeyIdentity.generate();
+    var middleKeyIdentity = await ECDSAKeyIdentity.generate();
     let authClient = await AuthClient.create({
         identity: middleKeyIdentity,
     });
