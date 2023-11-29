@@ -76,7 +76,6 @@ export async function logout() {
   const currentAuth = get(auth);
 
   if (currentAuth.state === 'initialized') {
-    currentAuth.crypto.logout();
     await currentAuth.client.logout();
     auth.update(() => ({
       state: 'anonymous',
@@ -104,12 +103,6 @@ export async function authenticate(client: AuthClient) {
     }));
 
     const cryptoService = new CryptoService(actor);
-    await cryptoService
-      .init()
-      .catch((e) => {
-        console.log(e);
-        showError(e, 'Could not initialize crypto service');
-      });
 
     auth.update(() => ({
       state: 'initialized',
