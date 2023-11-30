@@ -32,6 +32,8 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
+        env:
+          DFX_VERSION: 0.13.1
         run: bash .github/workflows/provision-linux.sh
       - name: Rust Periodic Tasks Linux
         run: |
