@@ -9,7 +9,7 @@ Please refer to [README](./ii_integration_dapp/README.md) for details.
 This is a Unity project with [ICP.NET](https://github.com/BoomDAO/ICP.NET) embedded, which is a C# agent that is able to communicate with the IC from C#. Please refer to [README](./unity_project/README.md) for details. 
 
 ## Workflow
-Here is the basic workflow that how to integrate with Internet Identity from a Unity mobile game. The basic idea is to open the Web Browser from the game, login in with II in the browser, and pass the DelegationIdentity back to the game.
+Here is the basic workflow that how to integrate with Internet Identity from a Unity mobile game. The basic idea is to open the Web Browser from the game, login in with II in the browser, and pass the `DelegationChain` back to the game.
 
 The steps in detail are described below:
 
@@ -23,6 +23,12 @@ The steps in detail are described below:
 
 4. Login with your Internet Identity in the Web Browser.
 
-5. Launch the application via DeepLink, and pass the `DelegationIdentity` back to the game as the URL parameter.
+5. Launch the application via DeepLink, and pass the `DelegationChain` back to the game as the URL parameter.
 
-6. Call the backend canister with the `DelegationIdentity` to greet.
+6. Composite the `DelegationIdentity` with `DelegationChain` and the `Ed25519Identity`.
+
+7. Call the backend canister with the `DelegationIdentity` to greet.
+
+## Attention
+
+Please keep in mind that DeepLink is not safe as AppLinks on Android, please read [this document](https://developer.android.com/training/app-links#understand-different-types-links) for details. Overall, Android App Links offer better user experience, along with better security. Please refer to the [unity_ii_applink](../unity_ii_applink) sample for more information.
