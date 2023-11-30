@@ -54,8 +54,8 @@ cd examples/rust/periodic_tasks
 - #### Step 4: Compile and deploy `heartbeat` and `timer` canisters, setting the interval for periodic tasks to 10s:
 
 ```sh
-dfx deploy --argument 10 heartbeat
-dfx deploy --argument 10 timer
+dfx deploy heartbeat --argument 10
+dfx deploy timer --argument 10
 ```
 
 The counter will start increasing every ~10s in both canisters.
@@ -63,7 +63,7 @@ The counter will start increasing every ~10s in both canisters.
 Example output:
 
 ```sh
-% dfx deploy --argument 10 heartbeat
+% dfx deploy heartbeat --argument 10
 [...]
 Deployed canisters.
 URLs:
@@ -71,7 +71,7 @@ URLs:
       heartbeat: http://127.0.0.1/...
       timer: http://127.0.0.1/...
 
-% dfx deploy --argument 10 timer
+% dfx deploy timer --argument 10
 [...]
 Deployed canisters.
 URLs:
@@ -235,7 +235,7 @@ For such an isolation of execution and scheduling contexts, timers library uses 
 ## Further learning
 1. Have a look at the locally running dashboard. The URL is at the end of the `dfx start` command: `Dashboard: http://localhost/...`
 2. Check out `heartbeat` and `timer` canisters Candid user interface. The URLs are et the end of the `dfx deploy` command: `heartbeat: http://127.0.0.1/...`
-3. Find which interval makes even the costs of running periodic tasks in the `timer` and `heartbeat` canisters: `dfx deploy --argument 5 heartbeat && dfx deploy --argument 5 timer`
+3. Find which interval makes even the costs of running periodic tasks in the `timer` and `heartbeat` canisters: `dfx deploy heartbeat --argument 5 && dfx deploy timer --argument 5`
 
 ### Canister Interface
 
