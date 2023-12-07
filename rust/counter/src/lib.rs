@@ -1,8 +1,8 @@
-use std::cell::RefCell;
 use candid::types::number::Nat;
+use std::cell::RefCell;
 
 thread_local! {
-    static COUNTER: RefCell<Nat> = RefCell::new(Nat::from(0));
+    static COUNTER: RefCell<Nat> = RefCell::new(Nat::from(0_u32));
 }
 
 /// Get the value of the counter.
@@ -21,10 +21,8 @@ fn set(n: Nat) {
 /// Increment the value of the counter.
 #[ic_cdk_macros::update]
 fn inc() {
-    COUNTER.with(|counter| *counter.borrow_mut() += 1);
+    COUNTER.with(|counter| *counter.borrow_mut() += 1_u32);
 }
-
-
 
 #[cfg(test)]
 mod tests {

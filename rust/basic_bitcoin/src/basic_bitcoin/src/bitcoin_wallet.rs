@@ -14,7 +14,9 @@ use bitcoin::{
     hashes::Hash,
     Address, AddressType, EcdsaSighashType, OutPoint, Script, Transaction, TxIn, TxOut, Txid,
 };
-use ic_cdk::api::management_canister::bitcoin::{MillisatoshiPerByte, BitcoinNetwork, Satoshi, Utxo};
+use ic_cdk::api::management_canister::bitcoin::{
+    BitcoinNetwork, MillisatoshiPerByte, Satoshi, Utxo,
+};
 use ic_cdk::print;
 use sha2::Digest;
 use std::str::FromStr;
@@ -85,7 +87,7 @@ pub async fn send(
     .await;
 
     let tx_bytes = transaction.serialize();
-    print(&format!("Transaction to sign: {}", hex::encode(tx_bytes)));
+    print(format!("Transaction to sign: {}", hex::encode(tx_bytes)));
 
     // Sign the transaction.
     let signed_transaction = sign_transaction(
@@ -99,7 +101,7 @@ pub async fn send(
     .await;
 
     let signed_transaction_bytes = signed_transaction.serialize();
-    print(&format!(
+    print(format!(
         "Signed transaction: {}",
         hex::encode(&signed_transaction_bytes)
     ));
@@ -151,7 +153,7 @@ async fn build_transaction(
         let signed_tx_bytes_len = signed_transaction.serialize().len() as u64;
 
         if (signed_tx_bytes_len * fee_per_byte) / 1000 == total_fee {
-            print(&format!("Transaction built with fee {}.", total_fee));
+            print(format!("Transaction built with fee {}.", total_fee));
             return transaction;
         } else {
             total_fee = (signed_tx_bytes_len * fee_per_byte) / 1000;

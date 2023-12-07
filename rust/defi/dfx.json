@@ -39,11 +39,6 @@
       "main": "src/DIP20/motoko/src/token.mo"
     }
   },
-  "networks": {
-    "local": {
-      "bind": "127.0.0.1:8000"
-    }
-  },
   "defaults": {
     "replica": {
       "subnet_type": "system"

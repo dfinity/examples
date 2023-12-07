@@ -21,8 +21,7 @@ struct Subscriber {
 #[update]
 async fn setup_subscribe(publisher_id: Principal, topic: String) {
     let subscriber = Subscriber { topic };
-    let _call_result: Result<(), _> =
-        ic_cdk::call(publisher_id, "subscribe", (subscriber,)).await;
+    let _call_result: Result<(), _> = ic_cdk::call(publisher_id, "subscribe", (subscriber,)).await;
 }
 
 #[update]
@@ -34,7 +33,5 @@ fn update_count(counter: Counter) {
 
 #[query]
 fn get_count() -> u64 {
-    COUNTER.with(|c| {
-        c.get()
-    })
+    COUNTER.with(|c| c.get())
 }

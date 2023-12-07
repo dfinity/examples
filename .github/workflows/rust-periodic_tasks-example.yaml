@@ -18,8 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
-        env:
-          DFX_VERSION: 0.13.1
         run: bash .github/workflows/provision-darwin.sh
       - name: Rust Periodic Tasks Darwin
         run: |
@@ -32,8 +30,6 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
-        env:
-          DFX_VERSION: 0.13.1
         run: bash .github/workflows/provision-linux.sh
       - name: Rust Periodic Tasks Linux
         run: |

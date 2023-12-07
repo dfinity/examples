@@ -24,8 +24,7 @@ async fn info(canister_id: Principal) -> CanisterInfoResponse {
 async fn reflexive_transitive_controllers(canister_id: Principal) -> Vec<Principal> {
     let mut ctrls = vec![canister_id];
     let mut queue = vec![canister_id];
-    while !queue.is_empty() {
-        let cur = queue.pop().unwrap();
+    while let Some(cur) = queue.pop() {
         // check if the principal characterizes a canister by determining if it is an opaque principal
         if cur.as_slice().last() == Some(&0x01) {
             let info = info(cur).await;

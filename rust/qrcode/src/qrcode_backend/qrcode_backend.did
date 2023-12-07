@@ -1,18 +1,18 @@
 type Options = record {
-  add_logo: bool;
-  add_gradient: bool;
+  add_logo : bool;
+  add_gradient : bool;
 };
 
 type QrError = record {
-  message: text;
+  message : text;
 };
 
 type QrResult = variant {
-  Image: blob;
-  Err: QrError;
-}
+  Image : blob;
+  Err : QrError;
+};
 
 service : {
-    "qrcode_query": (input: text, options: Options) -> (QrResult) query;
-    "qrcode": (input: text, options: Options) -> (QrResult);
-}
+  "qrcode_query" : (input : text, options : Options) -> (QrResult) query;
+  "qrcode" : (input : text, options : Options) -> (QrResult);
+};

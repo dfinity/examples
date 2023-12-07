@@ -36,9 +36,8 @@ async fn publish(counter: Counter) {
     SUBSCRIBERS.with(|subscribers| {
         for (k, v) in subscribers.borrow().iter() {
             if v.topic == counter.topic {
-                let _call_result: Result<(), _> =
-                    ic_cdk::notify(*k, "update_count", (&counter,));
+                let _call_result: Result<(), _> = ic_cdk::notify(*k, "update_count", (&counter,));
             }
         }
-    });    
+    });
 }

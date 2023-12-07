@@ -14,7 +14,7 @@ type change_details = variant {
   };
   code_uninstall;
   code_deployment : record {
-    mode : variant {install; reinstall; upgrade};
+    mode : variant { install; reinstall; upgrade };
     module_hash : blob;
   };
   controllers_change : record {
@@ -30,10 +30,10 @@ type change = record {
 };
 
 type canister_info_response = record {
-   total_num_changes : nat64;
-   recent_changes : vec change;
-   module_hash : opt blob;
-   controllers : vec principal;
+  total_num_changes : nat64;
+  recent_changes : vec change;
+  module_hash : opt blob;
+  controllers : vec principal;
 };
 
 type canister_snapshot = variant {
@@ -42,9 +42,9 @@ type canister_snapshot = variant {
 };
 
 service : {
-  "info": (principal) -> (canister_info_response);
-  "canister_controllers": (principal, canister_snapshot) -> (opt record { vec principal; opt nat64 });
-  "canister_module_hash": (principal, canister_snapshot) -> (opt record { opt blob; opt nat64 });
-  "canister_deployment_chain": (principal, canister_snapshot) -> (vec change, opt nat64);
-  "reflexive_transitive_controllers": (principal) -> (vec principal);
-}
+  "info" : (principal) -> (canister_info_response);
+  "canister_controllers" : (principal, canister_snapshot) -> (opt record { vec principal; opt nat64 });
+  "canister_module_hash" : (principal, canister_snapshot) -> (opt record { opt blob; opt nat64 });
+  "canister_deployment_chain" : (principal, canister_snapshot) -> (vec change, opt nat64);
+  "reflexive_transitive_controllers" : (principal) -> (vec principal);
+};

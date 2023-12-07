@@ -22,7 +22,7 @@ pub async fn get_balance(network: BitcoinNetwork, address: String) -> u64 {
         "bitcoin_get_balance",
         (GetBalanceRequest {
             address,
-            network: network.into(),
+            network,
             min_confirmations: None,
         },),
         GET_BALANCE_COST_CYCLES,
@@ -42,7 +42,7 @@ pub async fn get_utxos(network: BitcoinNetwork, address: String) -> GetUtxosResp
         "bitcoin_get_utxos",
         (GetUtxosRequest {
             address,
-            network: network.into(),
+            network,
             filter: None,
         },),
         GET_UTXOS_COST_CYCLES,
@@ -62,7 +62,7 @@ pub async fn get_current_fee_percentiles(network: BitcoinNetwork) -> Vec<Millisa
         Principal::management_canister(),
         "bitcoin_get_current_fee_percentiles",
         (GetCurrentFeePercentilesRequest {
-            network: network.into(),
+            network,
         },),
         GET_CURRENT_FEE_PERCENTILES_CYCLES,
     )
@@ -83,7 +83,7 @@ pub async fn send_transaction(network: BitcoinNetwork, transaction: Vec<u8>) {
         Principal::management_canister(),
         "bitcoin_send_transaction",
         (SendTransactionRequest {
-            network: network.into(),
+            network,
             transaction,
         },),
         transaction_fee,

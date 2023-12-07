@@ -1,17 +1,14 @@
 [package]
+edition = "2021"
 name = "publisher"
-version = "0.1.0"
-edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+version = "1.1.0"
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
-candid = "0.7.4"
-ic-cdk = "0.5.1"
-ic-cdk-macros = "0.5.1"
-serde = "1.0.126"
-serde_derive = "1.0.126"
-
+candid = "0.10"
+ic-cdk = "0.12"
+ic-cdk-macros = "0.8"
+serde = "1.0"
+serde_derive = "1.0"
