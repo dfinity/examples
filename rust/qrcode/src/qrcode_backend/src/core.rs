@@ -20,7 +20,7 @@ pub(super) fn generate(
     )?)
     .into_rgba8();
 
-    if options.add_transparency {
+    if options.add_transparency == Some(true) {
         make_transparent(&mut qr);
     }
 

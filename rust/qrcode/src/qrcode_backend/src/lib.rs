@@ -11,7 +11,7 @@ const LOGO_WHITE: &[u8] = include_bytes!("../assets/logo_white.png");
 struct Options {
     add_logo: bool,
     add_gradient: bool,
-    add_transparency: bool,
+    add_transparency: Option<bool>,
 }
 
 #[derive(CandidType, Deserialize)]
@@ -26,7 +26,7 @@ enum QrResult {
 }
 
 fn qrcode_impl(input: String, options: Options) -> QrResult {
-    let logo = if options.add_transparency {
+    let logo = if options.add_transparency == Some(true) {
         LOGO_TRANSPARENT
     } else {
         LOGO_WHITE
