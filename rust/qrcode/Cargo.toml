@@ -2,3 +2,4 @@
 members = [
     "src/qrcode_backend",
 ]
+resolver = "2"

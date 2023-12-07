@@ -20,6 +20,10 @@ pub(super) fn generate(
     )?)
     .into_rgba8();
 
+    if options.add_transparency {
+        make_transparent(&mut qr);
+    }
+
     if options.add_logo {
         add_logo(&mut qr, logo);
     }
@@ -32,6 +36,16 @@ pub(super) fn generate(
     qr.write_to(&mut Cursor::new(&mut result), image::ImageOutputFormat::Png)?;
     Ok(result)
 }
+
+/// Replaces white pixels in the image with transparent pixels.
+fn make_transparent(qr: &mut ImageBuffer<Rgba<u8>, Vec<u8>>) {
+    for (_x, _y, pixel) in qr.enumerate_pixels_mut() {
+        if pixel.0 == [255, 255, 255, 255] {
+            *pixel = image::Rgba([255, 255, 255, 0]);
+        }
+    }
+}
+
 
 /// Adds the given logo at the center of QR code image.
 /// It ensures that the logo does not cover more than 10% of the image, which is
@@ -89,7 +103,7 @@ fn add_gradient(qr: &mut ImageBuffer<Rgba<u8>, Vec<u8>>) {
     // The gradient goes from the center of the image to its sides.
     let center = (image_size / 2) as u32;
     for (x, y, pixel) in qr.enumerate_pixels_mut() {
-        if pixel.0[0] == 0 {
+        if pixel.0 == [0, 0, 0, 255] {
             // Use a simple Manhattan distance as an estimate of how far the
             // pixel is from the center of the image.
             let distance = x.abs_diff(center) + y.abs_diff(center);

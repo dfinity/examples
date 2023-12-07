@@ -1,6 +1,7 @@
 type Options = record {
   add_logo: bool;
   add_gradient: bool;
+  add_transparency: bool;
 };
 
 type QrError = record {
