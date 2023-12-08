@@ -1,39 +1,39 @@
-name: rust-periodic_tasks
+name: rust-performance_counters
 on:
   push:
     branches:
       - master
   pull_request:
     paths:
-      - rust/periodic_tasks/**
+      - rust/performance_counters/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
-      - .github/workflows/rust-periodic_tasks-example.yaml
+      - .github/workflows/rust-performance_counters-example.yaml
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  rust-periodic_tasks-example-darwin:
+  rust-performance_counters-example-darwin:
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
         run: DFX_VERSION="0.15.2" bash .github/workflows/provision-darwin.sh
-      - name: Rust Periodic Tasks Darwin
+      - name: Rust Performance Counters Darwin
         run: |
           dfx start --background
-          pushd rust/periodic_tasks
+          pushd rust/performance_counters
           make test
           popd
-  rust-periodic_tasks-example-linux:
+  rust-performance_counters-example-linux:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
         run: DFX_VERSION="0.15.2" bash .github/workflows/provision-linux.sh
-      - name: Rust Periodic Tasks Linux
+      - name: Rust Performance Counters Linux
         run: |
           dfx start --background
-          pushd rust/periodic_tasks
+          pushd rust/performance_counters
           make test
           popd

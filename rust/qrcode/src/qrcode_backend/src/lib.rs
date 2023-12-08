@@ -39,7 +39,7 @@ fn qrcode_impl(input: String, options: Options) -> QrResult {
     };
     ic_cdk::println!(
         "Executed instructions: {}",
-        ic_cdk::api::call::performance_counter(0)
+        ic_cdk::api::performance_counter(0)
     );
     result
 }
