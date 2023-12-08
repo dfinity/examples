@@ -125,5 +125,5 @@ fn get_qr_element_size(qr: &ImageBuffer<Rgba<u8>, Vec<u8>>) -> usize {
         }
     }
 
-    return element_size as usize;
+    element_size as usize
 }
