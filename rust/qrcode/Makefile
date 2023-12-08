@@ -6,6 +6,8 @@ all: deploy
 node_modules:
 	npm install
 
+.PHONY: deploy
+.SILENT: deploy
 deploy: node_modules
 	dfx deploy
 
