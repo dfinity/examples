@@ -1,14 +1,12 @@
 [package]
-name = "counter"
-version = "1.0.0"
 edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+name = "counter"
+version = "1.1.0"
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
-candid = "0.7.14"
-ic-cdk = "0.5.2"
-ic-cdk-macros = "0.5.2"
+candid = "0.10"
+ic-cdk = "0.12"
+ic-cdk-macros = "0.8"
