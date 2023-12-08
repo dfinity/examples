@@ -16,6 +16,7 @@ This example requires an installation of:
 - [x] Make sure your rust version is up-to-date (e.g., run `rustup update`).
 - [x] Add the `wasm32` target to your rust installation (by running `rustup target add wasm32-unknown-unknown`).
 - [x] Clone this project to a local directory.
+- [x] Install `node.js` dependencies by running `npm install`.
 
 ## Running locally
 
