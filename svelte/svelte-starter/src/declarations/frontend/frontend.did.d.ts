@@ -1,41 +1,104 @@
 import type { Principal } from '@dfinity/principal';
+import type { ActorMethod } from '@dfinity/agent';
+
+export type AssetCanisterArgs = { 'Upgrade' : UpgradeArgs } |
+  { 'Init' : InitArgs };
 export type BatchId = bigint;
-export type BatchOperationKind = { 'CreateAsset' : CreateAssetArguments } |
+export type BatchOperationKind = {
+    'SetAssetProperties' : SetAssetPropertiesArguments
+  } |
+  { 'CreateAsset' : CreateAssetArguments } |
   { 'UnsetAssetContent' : UnsetAssetContentArguments } |
   { 'DeleteAsset' : DeleteAssetArguments } |
   { 'SetAssetContent' : SetAssetContentArguments } |
   { 'Clear' : ClearArguments };
 export type ChunkId = bigint;
 export type ClearArguments = {};
-export interface CreateAssetArguments { 'key' : Key, 'content_type' : string }
+export interface CommitBatchArguments {
+  'batch_id' : BatchId,
+  'operations' : Array<BatchOperationKind>,
+}
+export interface CommitProposedBatchArguments {
+  'batch_id' : BatchId,
+  'evidence' : Uint8Array | number[],
+}
+export interface ComputeEvidenceArguments {
+  'batch_id' : BatchId,
+  'max_iterations' : [] | [number],
+}
+export interface ConfigurationResponse {
+  'max_batches' : [] | [bigint],
+  'max_bytes' : [] | [bigint],
+  'max_chunks' : [] | [bigint],
+}
+export interface ConfigureArguments {
+  'max_batches' : [] | [[] | [bigint]],
+  'max_bytes' : [] | [[] | [bigint]],
+  'max_chunks' : [] | [[] | [bigint]],
+}
+export interface CreateAssetArguments {
+  'key' : Key,
+  'content_type' : string,
+  'headers' : [] | [Array<HeaderField>],
+  'allow_raw_access' : [] | [boolean],
+  'max_age' : [] | [bigint],
+  'enable_aliasing' : [] | [boolean],
+}
 export interface DeleteAssetArguments { 'key' : Key }
+export interface DeleteBatchArguments { 'batch_id' : BatchId }
+export interface GrantPermission {
+  'permission' : Permission,
+  'to_principal' : Principal,
+}
 export type HeaderField = [string, string];
 export interface HttpRequest {
   'url' : string,
   'method' : string,
-  'body' : Array<number>,
+  'body' : Uint8Array | number[],
   'headers' : Array<HeaderField>,
+  'certificate_version' : [] | [number],
 }
 export interface HttpResponse {
-  'body' : Array<number>,
+  'body' : Uint8Array | number[],
   'headers' : Array<HeaderField>,
   'streaming_strategy' : [] | [StreamingStrategy],
   'status_code' : number,
 }
+export type InitArgs = {};
 export type Key = string;
+export interface ListPermitted { 'permission' : Permission }
+export type Permission = { 'Prepare' : null } |
+  { 'ManagePermissions' : null } |
+  { 'Commit' : null };
+export interface RevokePermission {
+  'permission' : Permission,
+  'of_principal' : Principal,
+}
 export interface SetAssetContentArguments {
   'key' : Key,
-  'sha256' : [] | [Array<number>],
+  'sha256' : [] | [Uint8Array | number[]],
   'chunk_ids' : Array<ChunkId>,
   'content_encoding' : string,
 }
+export interface SetAssetPropertiesArguments {
+  'key' : Key,
+  'headers' : [] | [[] | [Array<HeaderField>]],
+  'is_aliased' : [] | [[] | [boolean]],
+  'allow_raw_access' : [] | [[] | [boolean]],
+  'max_age' : [] | [[] | [bigint]],
+}
+export interface SetPermissions {
+  'prepare' : Array<Principal>,
+  'commit' : Array<Principal>,
+  'manage_permissions' : Array<Principal>,
+}
 export interface StreamingCallbackHttpResponse {
   'token' : [] | [StreamingCallbackToken],
-  'body' : Array<number>,
+  'body' : Uint8Array | number[],
 }
 export interface StreamingCallbackToken {
   'key' : Key,
-  'sha256' : [] | [Array<number>],
+  'sha256' : [] | [Uint8Array | number[]],
   'index' : bigint,
   'content_encoding' : string,
 }
@@ -50,68 +113,125 @@ export interface UnsetAssetContentArguments {
   'key' : Key,
   'content_encoding' : string,
 }
+export interface UpgradeArgs { 'set_permissions' : [] | [SetPermissions] }
+export type ValidationResult = { 'Ok' : string } |
+  { 'Err' : string };
 export interface _SERVICE {
-  'authorize' : (arg_0: Principal) => Promise<undefined>,
-  'clear' : (arg_0: ClearArguments) => Promise<undefined>,
-  'commit_batch' : (
-      arg_0: { 'batch_id' : BatchId, 'operations' : Array<BatchOperationKind> },
-    ) => Promise<undefined>,
-  'create_asset' : (arg_0: CreateAssetArguments) => Promise<undefined>,
-  'create_batch' : (arg_0: {}) => Promise<{ 'batch_id' : BatchId }>,
-  'create_chunk' : (
-      arg_0: { 'content' : Array<number>, 'batch_id' : BatchId },
-    ) => Promise<{ 'chunk_id' : ChunkId }>,
-  'delete_asset' : (arg_0: DeleteAssetArguments) => Promise<undefined>,
-  'get' : (
-      arg_0: { 'key' : Key, 'accept_encodings' : Array<string> },
-    ) => Promise<
+  'api_version' : ActorMethod<[], number>,
+  'authorize' : ActorMethod<[Principal], undefined>,
+  'certified_tree' : ActorMethod<
+    [{}],
+    { 'certificate' : Uint8Array | number[], 'tree' : Uint8Array | number[] }
+  >,
+  'clear' : ActorMethod<[ClearArguments], undefined>,
+  'commit_batch' : ActorMethod<[CommitBatchArguments], undefined>,
+  'commit_proposed_batch' : ActorMethod<
+    [CommitProposedBatchArguments],
+    undefined
+  >,
+  'compute_evidence' : ActorMethod<
+    [ComputeEvidenceArguments],
+    [] | [Uint8Array | number[]]
+  >,
+  'configure' : ActorMethod<[ConfigureArguments], undefined>,
+  'create_asset' : ActorMethod<[CreateAssetArguments], undefined>,
+  'create_batch' : ActorMethod<[{}], { 'batch_id' : BatchId }>,
+  'create_chunk' : ActorMethod<
+    [{ 'content' : Uint8Array | number[], 'batch_id' : BatchId }],
+    { 'chunk_id' : ChunkId }
+  >,
+  'deauthorize' : ActorMethod<[Principal], undefined>,
+  'delete_asset' : ActorMethod<[DeleteAssetArguments], undefined>,
+  'delete_batch' : ActorMethod<[DeleteBatchArguments], undefined>,
+  'get' : ActorMethod<
+    [{ 'key' : Key, 'accept_encodings' : Array<string> }],
+    {
+      'content' : Uint8Array | number[],
+      'sha256' : [] | [Uint8Array | number[]],
+      'content_type' : string,
+      'content_encoding' : string,
+      'total_length' : bigint,
+    }
+  >,
+  'get_asset_properties' : ActorMethod<
+    [Key],
+    {
+      'headers' : [] | [Array<HeaderField>],
+      'is_aliased' : [] | [boolean],
+      'allow_raw_access' : [] | [boolean],
+      'max_age' : [] | [bigint],
+    }
+  >,
+  'get_chunk' : ActorMethod<
+    [
       {
-        'content' : Array<number>,
-        'sha256' : [] | [Array<number>],
-        'content_type' : string,
-        'content_encoding' : string,
-        'total_length' : bigint,
-      }
-    >,
-  'get_chunk' : (
-      arg_0: {
         'key' : Key,
-        'sha256' : [] | [Array<number>],
+        'sha256' : [] | [Uint8Array | number[]],
         'index' : bigint,
         'content_encoding' : string,
       },
-    ) => Promise<{ 'content' : Array<number> }>,
-  'http_request' : (arg_0: HttpRequest) => Promise<HttpResponse>,
-  'http_request_streaming_callback' : (
-      arg_0: StreamingCallbackToken,
-    ) => Promise<[] | [StreamingCallbackHttpResponse]>,
-  'list' : (arg_0: {}) => Promise<
-      Array<
-        {
-          'key' : Key,
-          'encodings' : Array<
-            {
-              'modified' : Time,
-              'sha256' : [] | [Array<number>],
-              'length' : bigint,
-              'content_encoding' : string,
-            }
-          >,
-          'content_type' : string,
-        }
-      >
-    >,
-  'set_asset_content' : (arg_0: SetAssetContentArguments) => Promise<undefined>,
-  'store' : (
-      arg_0: {
+    ],
+    { 'content' : Uint8Array | number[] }
+  >,
+  'get_configuration' : ActorMethod<[], ConfigurationResponse>,
+  'grant_permission' : ActorMethod<[GrantPermission], undefined>,
+  'http_request' : ActorMethod<[HttpRequest], HttpResponse>,
+  'http_request_streaming_callback' : ActorMethod<
+    [StreamingCallbackToken],
+    [] | [StreamingCallbackHttpResponse]
+  >,
+  'list' : ActorMethod<
+    [{}],
+    Array<
+      {
         'key' : Key,
-        'content' : Array<number>,
-        'sha256' : [] | [Array<number>],
+        'encodings' : Array<
+          {
+            'modified' : Time,
+            'sha256' : [] | [Uint8Array | number[]],
+            'length' : bigint,
+            'content_encoding' : string,
+          }
+        >,
+        'content_type' : string,
+      }
+    >
+  >,
+  'list_authorized' : ActorMethod<[], Array<Principal>>,
+  'list_permitted' : ActorMethod<[ListPermitted], Array<Principal>>,
+  'propose_commit_batch' : ActorMethod<[CommitBatchArguments], undefined>,
+  'revoke_permission' : ActorMethod<[RevokePermission], undefined>,
+  'set_asset_content' : ActorMethod<[SetAssetContentArguments], undefined>,
+  'set_asset_properties' : ActorMethod<
+    [SetAssetPropertiesArguments],
+    undefined
+  >,
+  'store' : ActorMethod<
+    [
+      {
+        'key' : Key,
+        'content' : Uint8Array | number[],
+        'sha256' : [] | [Uint8Array | number[]],
         'content_type' : string,
         'content_encoding' : string,
       },
-    ) => Promise<undefined>,
-  'unset_asset_content' : (arg_0: UnsetAssetContentArguments) => Promise<
-      undefined
-    >,
+    ],
+    undefined
+  >,
+  'take_ownership' : ActorMethod<[], undefined>,
+  'unset_asset_content' : ActorMethod<[UnsetAssetContentArguments], undefined>,
+  'validate_commit_proposed_batch' : ActorMethod<
+    [CommitProposedBatchArguments],
+    ValidationResult
+  >,
+  'validate_configure' : ActorMethod<[ConfigureArguments], ValidationResult>,
+  'validate_grant_permission' : ActorMethod<
+    [GrantPermission],
+    ValidationResult
+  >,
+  'validate_revoke_permission' : ActorMethod<
+    [RevokePermission],
+    ValidationResult
+  >,
+  'validate_take_ownership' : ActorMethod<[], ValidationResult>,
 }
