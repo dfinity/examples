@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
   import CanisterIds from "./components/CanisterIds.svelte";
   import Links from "./components/Links.svelte";
   import logo from "./assets/logo.png";
