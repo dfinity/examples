@@ -36,6 +36,8 @@ service : (network) -> {
     "get_p2pkh_address": () -> (bitcoin_address);
 
     "get_balance": (address: bitcoin_address) -> (satoshi);
+    "get_b": () -> (satoshi);
+    "get_u": () -> (get_utxos_response);
 
     "get_utxos": (bitcoin_address) -> (get_utxos_response);
 

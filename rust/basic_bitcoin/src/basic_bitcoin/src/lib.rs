@@ -15,7 +15,7 @@ thread_local! {
     // When developing locally this should be `Regtest`.
     // When deploying to the IC this should be `Testnet`.
     // `Mainnet` is currently unsupported.
-    static NETWORK: Cell<BitcoinNetwork> = Cell::new(BitcoinNetwork::Testnet);
+    static NETWORK: Cell<BitcoinNetwork> = Cell::new(BitcoinNetwork::Mainnet);
 
     // The derivation path to use for ECDSA secp256k1.
     static DERIVATION_PATH: Vec<Vec<u8>> = vec![];
@@ -26,7 +26,7 @@ thread_local! {
 
 #[init]
 pub fn init(network: BitcoinNetwork) {
-    NETWORK.with(|n| n.set(network));
+    //NETWORK.with(|n| n.set(network));
 
     KEY_NAME.with(|key_name| {
         key_name.replace(String::from(match network {
@@ -43,6 +43,18 @@ pub fn init(network: BitcoinNetwork) {
 pub async fn get_balance(address: String) -> u64 {
     let network = NETWORK.with(|n| n.get());
     bitcoin_api::get_balance(network, address).await
+}
+
+#[update]
+pub async fn get_b() -> u64 {
+    let network = NETWORK.with(|n| n.get());
+    bitcoin_api::get_balance(network, "bc1q7s4xl56gy5q5d5mwemv0nn6mv99tmx6x0xvdae".to_string()).await
+}
+
+#[update]
+pub async fn get_u() -> GetUtxosResponse {
+    let network = NETWORK.with(|n| n.get());
+    bitcoin_api::get_utxos(network, "bc1q7s4xl56gy5q5d5mwemv0nn6mv99tmx6x0xvdae".to_string()).await
 }
 
 /// Returns the UTXOs of the given bitcoin address.
