@@ -1,0 +1,16 @@
+{
+  "canisters": {
+    "query_stats": {
+      "candid": "query-stats.did",
+      "package": "query_stats",
+      "type": "rust"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "version": 1
+}

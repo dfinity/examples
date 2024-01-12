@@ -1,0 +1,13 @@
+[package]
+edition = "2021"
+name = "query_stats"
+version = "1.0.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+candid = "0.10"
+ic-cdk = { git = "https://github.com/dfinity/cdk-rs", rev = "c01fc1741eb3fec2df0bb4e5c5ff54fa027a6091" }
+ic-cdk-macros = "0.8"
+ic-cdk-timers = "0.6"
