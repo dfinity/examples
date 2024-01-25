@@ -39,7 +39,7 @@ jobs:
       - name: Rust composite_query Linux
         run: |
           dfx start --background
-          pushd rust/composite_query
+          pushd rust/composite_query/src
           dfx canister create kv_frontend
           dfx build kv_frontend
           dfx canister install kv_frontend
