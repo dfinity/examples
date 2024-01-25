@@ -11,7 +11,7 @@ sudo bash install-node.sh
 sudo apt-get install --yes nodejs
 rm install-node.sh
 
-# Install DFINITY SDK.
+## Install DFINITY SDK.
 wget --output-document install-dfx.sh "https://internetcomputer.org/install.sh"
 DFX_VERSION=${DFX_VERSION:=0.12.0} bash install-dfx.sh < <(yes Y)
 rm install-dfx.sh
