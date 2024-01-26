@@ -21,6 +21,7 @@ jobs:
       - name: Provision Darwin
         env:
           DFX_VERSION: 0.16.0
+          NODE_VERSION: 19.8.1
         run: bash .github/workflows/provision-darwin.sh
       - name: Install vessel
         run: |
