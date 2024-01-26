@@ -1,6 +1,8 @@
 name: rust-composite_query
 on:
-   workflow_dispatch:
+  push:
+    branches:
+      - master
 #  pull_request:
 #    paths-ignore:
 #      - rust/composite_query/**
