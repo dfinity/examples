@@ -22,6 +22,7 @@ These examples show the Motoko language as a backend language for the IC, operat
 - [`quicksort`](https://github.com/dfinity/examples/tree/master/motoko/quicksort) -- sorting an array, via Quick Sort, in Motoko.
 - [`simple-to-do`](https://github.com/dfinity/examples/tree/master/motoko/simple-to-do) -- CRUD-like demo service, sans a front end; see also: `phone-book` and `superheroes`.
 - [`calc`](https://github.com/dfinity/examples/tree/master/motoko/calc) -- more advanced version of `counter` demo.
+- [`icrc2-swap`](https://github.com/dfinity/examples/tree/master/motoko/icrc2-swap) -- deposit, swap, and withdraw two ICRC-2 tokens.
 
 ## Minimal front end.
 

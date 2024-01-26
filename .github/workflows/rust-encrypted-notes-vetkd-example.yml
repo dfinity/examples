@@ -1,4 +1,4 @@
-name: rust-encrypted-notes
+name: rust-encrypted-notes-vetkd
 on:
   push:
     branches:
@@ -6,9 +6,9 @@ on:
   pull_request:
     paths:
       - motoko/encrypted-notes-dapp-vetkd/**
-      - .github/workflows/provision-darwin.sh
+      - motoko/encrypted-notes-dapp-vetkd/provision-darwin.sh
       - .github/workflows/provision-linux.sh
-      - .github/workflows/rust-encrypted-notes-example.yml
+      - .github/workflows/rust-encrypted-notes-vetkd-example.yml
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

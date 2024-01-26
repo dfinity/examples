@@ -26,7 +26,7 @@
     }
     creating = true;
     await addNote(
-      noteFromContent(editor.getHTML(), tags),
+      noteFromContent(editor.getHTML(), tags, $auth.client.getIdentity().getPrincipal()),
       $auth.actor,
       $auth.crypto
     )

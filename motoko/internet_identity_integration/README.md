@@ -15,10 +15,11 @@ This is a Motoko example that does not currently have a Rust variant.
 
 
 ## Prerequisites
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
-- [x] Install [Node.js](https://nodejs.org/en/download/).
-- [x] Download and install the `@dfinity/auth-client` package with the command `npm install @dfinity/auth-client`. 
-- [x] Download the following project files from GitHub: https://github.com/dfinity/examples/
+- [ ] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [ ] Install [Node.js](https://nodejs.org/en/download/).
+- [ ] Download and install the `@dfinity/auth-client` package with the command `npm install @dfinity/auth-client`. 
+- [ ] Download the following project files from GitHub: https://github.com/dfinity/examples/
+- [ ] Chrome or Firefox browser (other browsers also work, but may need a slightly different webpack configuration, see the note on [step 4 below](#step-4-make-the-internet-identity-url-available-in-the-build-process))
 
 ### Step 1: Navigate into the examples folder for this sample and then generate a new project with `dfx new`:
 
@@ -95,8 +96,19 @@ Open the `internet_identity` link in the browser. You should be able to create a
 ### Step 4: Make the Internet Identity URL available in the build process.
 We want the sample application to integrate with Internet Identity differently depending on whether we deploy locally or on mainnet:
 
-- Locally the application should use the Internet Identity URL http://127.0.0.1:4943/?canisterId=<II_CANISTER_ID>.
+- Locally the application should use the Internet Identity URL http://<II_CANISTER_ID>.localhost:4943/.
 - On the mainnet it should use https://identity.ic0.app.
+
+> **Note**: If you are using Safari (or any other browser that does not support subdomains on localhost, i.e this URL `http://<II_CANISTER_ID>.localhost:4943/`), you can try to use the following URL instead: `http://localhost:4943/?canisterId=<II_CANISTER_ID>`. This will work for Safari but not Chrome.
+> To do so, replace the following line in the `webpack.config.js` file
+> ```js
+> const internetIdentityUrl = network === "local" ? `http://${canisterEnvVariables["INTERNET_IDENTITY_CANISTER_ID"]}.localhost:4943/` : `https://identity.ic0.app`
+> ```
+> with
+> ```js
+> const internetIdentityUrl = network === "local" ? `http://localhost:4943/?canisterId=${canisterEnvVariables["INTERNET_IDENTITY_CANISTER_ID"]}` : `https://identity.ic0.app`
+> ```
+> in the snippet below.
 
 To do so, we can make an environment variable II_URL available using webpack.
 
@@ -142,7 +154,7 @@ const canisterEnvVariables = initCanisterEnv();
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
-const internetIdentityUrl = network === "local" ? `http://localhost:4943/?canisterId=${canisterEnvVariables["INTERNET_IDENTITY_CANISTER_ID"]}` : `https://identity.ic0.app`
+const internetIdentityUrl = network === "local" ? `http://${canisterEnvVariables["INTERNET_IDENTITY_CANISTER_ID"]}.localhost:4943/` : `https://identity.ic0.app`
 
 const frontendDirectory = "greet_frontend";
 
