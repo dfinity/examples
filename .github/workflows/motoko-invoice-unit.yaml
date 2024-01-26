@@ -1,4 +1,4 @@
-name: motoko-invoice-canister
+name: motoko-invoice-canister-unit
 on:
   push:
     branches:
