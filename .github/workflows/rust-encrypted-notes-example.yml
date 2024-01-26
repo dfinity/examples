@@ -1,4 +1,3 @@
-# Known failure: https://dfinity.atlassian.net/browse/EM-3
 name: rust-encrypted-notes
 on:
   push:
