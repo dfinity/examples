@@ -1,3 +1,4 @@
+# known failure: https://dfinity.atlassian.net/browse/EM-1
 name: motoko-defi
 on:
   push:
