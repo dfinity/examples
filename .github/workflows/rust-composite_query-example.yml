@@ -4,7 +4,6 @@ on:
     branches:
       - master
   pull_request:
-#
 #    paths:
 #      - rust/composite_query/**
 #      - .github/workflows/provision-darwin.sh
