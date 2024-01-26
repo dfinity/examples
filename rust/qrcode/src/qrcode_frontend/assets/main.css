@@ -20,6 +20,7 @@ div {
 img {
     max-width: 80vw;
     border: 1px solid #555;
+    background-color: #ddd;
 }
 
 .qrcode {

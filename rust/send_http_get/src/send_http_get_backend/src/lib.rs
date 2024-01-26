@@ -5,6 +5,17 @@ use ic_cdk::api::management_canister::http_request::{
     TransformContext,
 };
 
+use ic_cdk_macros::{self, query, update};
+use serde::{Serialize, Deserialize};
+use serde_json::{self, Value};
+
+// This struct is legacy code and is not really used in the code.
+#[derive(Serialize, Deserialize)]
+struct Context {
+    bucket_start_time_index: usize,
+    closing_price_index: usize,
+}
+
 //Update method using the HTTPS outcalls feature
 #[ic_cdk::update]
 async fn get_icp_usd_exchange() -> String {
@@ -36,33 +47,25 @@ async fn get_icp_usd_exchange() -> String {
         },
     ];
 
-    //note "CanisterHttpRequestArgument" and "HttpMethod" are declared in line 4.
-    //CanisterHttpRequestArgument has the following types:
 
-    // pub struct CanisterHttpRequestArgument {
-    //     pub url: String,
-    //     pub max_response_bytes: Option<u64>,
-    //     pub method: HttpMethod,
-    //     pub headers: Vec<HttpHeader>,
-    //     pub body: Option<Vec<u8>>,
-    //     pub transform: Option<TransformContext>,
-    // }
-    //see: https://docs.rs/ic-cdk/latest/ic_cdk/api/management_canister/http_request/struct.CanisterHttpRequestArgument.html
+    // This struct is legacy code and is not really used in the code. Need to be removed in the future
+    // The "TransformContext" function does need a CONTEXT parameter, but this implementation is not necessary
+    // the TransformContext(transform, context) below accepts this "context", but it does nothing with it in this implementation.
+    // bucket_start_time_index and closing_price_index are meaninglesss
+    let context = Context {
+        bucket_start_time_index: 0,
+        closing_price_index: 4,
+    };
 
-    //Where "HttpMethod" has structure:
-    // pub enum HttpMethod {
-    //     GET,
-    //     POST,
-    //     HEAD,
-    // }
-    //See: https://docs.rs/ic-cdk/latest/ic_cdk/api/management_canister/http_request/enum.HttpMethod.html
+    //note "CanisterHttpRequestArgument" and "HttpMethod" are declared in line 4
     let request = CanisterHttpRequestArgument {
         url: url.to_string(),
-        max_response_bytes: None, //optional for request
         method: HttpMethod::GET,
+        body: None,               //optional for request
+        max_response_bytes: None, //optional for request
+        // transform: None,          //optional for request
+        transform: Some(TransformContext::new(transform, serde_json::to_vec(&context).unwrap())),
         headers: request_headers,
-        body: None,      //optional for request
-        transform: None, //optional for request
     };
 
     //3. MAKE HTTPS REQUEST AND WAIT FOR RESPONSE
@@ -102,6 +105,8 @@ async fn get_icp_usd_exchange() -> String {
             //         5.714, <-- close
             //         243.5678 <-- volume
             //     ],
+            //  ]
+
 
             //Return the body as a string and end the method
             str_body
@@ -114,4 +119,53 @@ async fn get_icp_usd_exchange() -> String {
             message
         }
     }
+}
+
+
+// Strips all data that is not needed from the original response.
+#[query]
+fn transform(raw: TransformArgs) -> HttpResponse {
+
+    let headers = vec![
+        HttpHeader {
+            name: "Content-Security-Policy".to_string(),
+            value: "default-src 'self'".to_string(),
+        },
+        HttpHeader {
+            name: "Referrer-Policy".to_string(),
+            value: "strict-origin".to_string(),
+        },
+        HttpHeader {
+            name: "Permissions-Policy".to_string(),
+            value: "geolocation=(self)".to_string(),
+        },
+        HttpHeader {
+            name: "Strict-Transport-Security".to_string(),
+            value: "max-age=63072000".to_string(),
+        },
+        HttpHeader {
+            name: "X-Frame-Options".to_string(),
+            value: "DENY".to_string(),
+        },
+        HttpHeader {
+            name: "X-Content-Type-Options".to_string(),
+            value: "nosniff".to_string(),
+        },
+    ];
+    
+
+    let mut res = HttpResponse {
+        status: raw.response.status.clone(),
+        body: raw.response.body.clone(),
+        headers,
+        ..Default::default()
+    };
+
+    if res.status == 200 {
+
+        res.body = raw.response.body;
+    } else {
+        ic_cdk::api::print(format!("Received an error from coinbase: err = {:?}", raw));
+    }
+    res
 }

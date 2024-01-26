@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { logout } from '../store/auth';
+  import { auth, logout } from '../store/auth';
   import FaPlusSquare from 'svelte-icons/fa/FaPlusSquare.svelte';
   import FaBook from 'svelte-icons/fa/FaBook.svelte';
   import FaMobileAlt from 'svelte-icons/fa/FaMobileAlt.svelte';
@@ -24,6 +24,10 @@
         class="sticky h-16 py-4 pl-5 text-2xl font-bold border-b border-base-300 text-primary dark:text-white"
       >
         Encrypted Notes
+      </div>
+      <div class="border-b">
+        <div class="pl-4">My Principal:</div>
+        <div class="pl-4">{$auth.client.getIdentity().getPrincipal()}</div>
       </div>
       <ul
         class="p-4 overflow-y-auto menu w-full bg-base-100 flex-1 flex flex-col"

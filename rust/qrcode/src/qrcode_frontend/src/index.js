@@ -23,6 +23,7 @@ async function onGenerateButtonClick(event) {
     const options = {
       add_logo: document.getElementById("logo").checked,
       add_gradient: document.getElementById("gradient").checked,
+      add_transparency: [document.getElementById("transparent").checked],
     }
 
     // Call the backend and wait for the result.

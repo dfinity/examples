@@ -4,15 +4,17 @@
       "main": "src/backend/main.mo",
       "type": "motoko"
     },
+    "internet-identity": {
+      "type": "pull",
+      "id": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+    },
     "frontend": {
       "dependencies": [
-        "backend"
+        "backend",
+        "internet-identity"
       ],
-      "frontend": {
-        "entrypoint": "src/frontend/public/index.html"
-      },
       "source": [
-        "src/frontend/public"
+        "src/frontend/dist"
       ],
       "type": "assets"
     }
@@ -23,6 +25,6 @@
       "packtool": ""
     }
   },
-  "dfx": "0.12.0",
+  "output_env_file": "src/frontend/.env",
   "version": 1
 }

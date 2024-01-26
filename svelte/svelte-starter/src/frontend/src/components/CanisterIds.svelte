@@ -1,5 +1,5 @@
 <div>
-  <p>Frontend canister ID: {process.env.FRONTEND_CANISTER_ID}</p>
+  <p>Frontend canister ID: {process.env.CANISTER_ID_FRONTEND}</p>
 </div>
 
 <style>

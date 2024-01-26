@@ -1,0 +1,26 @@
+{
+  "include": ["src"],
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "allowJs": true,
+    "checkJs": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "jsx": "react-jsx",
+    "lib": ["ES2019", "DOM", "esnext"],
+    "module": "commonjs",
+    "strict": true,
+    "target": "es2018",
+    "skipLibCheck": true,
+    "allowSyntheticDefaultImports": true,
+    "noFallthroughCasesInSwitch": true,
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "paths": {
+      "dfx-generated/whoami": ["./.dfx/local/canisters/whoami"]
+    }
+  },
+
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx"]
+}

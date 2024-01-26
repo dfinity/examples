@@ -37,7 +37,7 @@ module Types {
     };
 
     public type Satoshi = Nat64;
-    public type MillisatoshiPerByte = Nat64;
+    public type MillisatoshiPerVByte = Nat64;
     public type Cycles = Nat;
     public type BitcoinAddress = Text;
     public type BlockHash = [Nat8];

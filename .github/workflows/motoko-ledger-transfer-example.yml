@@ -1,3 +1,4 @@
+# Known failure: https://dfinity.atlassian.net/browse/EM-5
 name: motoko-ledger-transfer
 on:
   push:

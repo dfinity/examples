@@ -1,8 +1,6 @@
 module Types {
 
-    public type Timestamp = Nat64;
-
-    //1. Type that describes the Request arguments for an HTTPS Outcall
+    //1. Type that describes the Request arguments for an HTTPS outcall
     //See: https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-http_request
     public type HttpRequestArgs = {
         url : Text;
@@ -35,7 +33,6 @@ module Types {
     //modify headers, etc. "
     //See: https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-http_request
     
-
     //2.1 This type describes a function called "TransformRawResponse" used in line 14 above
     //"If provided, the calling canister itself must export this function." 
     //In this minimal example for a GET request, we declare the type for completeness, but 
@@ -51,8 +48,21 @@ module Types {
         context : Blob;
     };
 
+    public type CanisterHttpResponsePayload = {
+        status : Nat;
+        headers : [HttpHeader];
+        body : [Nat8];
+    };
+
+    public type TransformContext = {
+        function : shared query TransformArgs -> async HttpResponsePayload;
+        context : Blob;
+    };
+
+
     //3. Declaring the IC management canister which we use to make the HTTPS outcall
     public type IC = actor {
         http_request : HttpRequestArgs -> async HttpResponsePayload;
     };
+
 }

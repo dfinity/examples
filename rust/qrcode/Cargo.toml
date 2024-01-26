@@ -1,4 +1,3 @@
 [workspace]
-members = [
-    "src/qrcode_backend",
-]
+members = ["src/qrcode_backend"]
+resolver = "2"
