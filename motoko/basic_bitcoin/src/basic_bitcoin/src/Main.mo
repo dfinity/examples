@@ -7,7 +7,7 @@ import Utils "Utils";
 
 actor class BasicBitcoin(_network : Types.Network) {
   type GetUtxosResponse = Types.GetUtxosResponse;
-  type MillisatoshiPerByte = Types.MillisatoshiPerByte;
+  type MillisatoshiPerVByte = Types.MillisatoshiPerVByte;
   type SendRequest = Types.SendRequest;
   type Network = Types.Network;
   type BitcoinAddress = Types.BitcoinAddress;
@@ -41,9 +41,9 @@ actor class BasicBitcoin(_network : Types.Network) {
     await BitcoinApi.get_utxos(NETWORK, address)
   };
 
-  /// Returns the 100 fee percentiles measured in millisatoshi/byte.
+  /// Returns the 100 fee percentiles measured in millisatoshi/vbyte.
   /// Percentiles are computed from the last 10,000 transactions (if available).
-  public func get_current_fee_percentiles() : async [MillisatoshiPerByte] {
+  public func get_current_fee_percentiles() : async [MillisatoshiPerVByte] {
     await BitcoinApi.get_current_fee_percentiles(NETWORK)
   };
 

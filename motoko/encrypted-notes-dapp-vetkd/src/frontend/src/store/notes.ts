@@ -28,8 +28,20 @@ async function decryptNotes(
   notes: EncryptedNote[],
   cryptoService: CryptoService
 ): Promise<NoteModel[]> {
+  // When notes are initially created, they do not have (and cannot have) any
+  // (encrypted) content yet because the note ID, which is needed to retrieve
+  // the note-specific encryption key, is not known yet before the note is
+  // created because the note ID is a return value of the call to create a note.
+  // The (encrypted) note content is stored in the backend only by a second call
+  // to the backend that updates the note's conent directly after the note is
+  // created. This means that there is a short period of time where the note
+  // already exists but doesn't have any (encrypted) content yet.
+  // To avoid decryption errors for these notes, we skip deserializing (and thus
+  // decrypting) these notes here.
+  const notes_with_content = notes.filter((note) => note.encrypted_text != "");
+
   return await Promise.all(
-    notes.map((encryptedNote) => deserialize(encryptedNote, cryptoService))
+    notes_with_content.map((encryptedNote) => deserialize(encryptedNote, cryptoService))
   );
 }
 
@@ -46,9 +58,6 @@ export async function refreshNotes(
 ) {
   const encryptedNotes = await actor.get_notes();
 
-  // did we get logged out?
-  if (!cryptoService.isInitialized()) return;
-
   const notes = await decryptNotes(encryptedNotes, cryptoService);
   updateNotes(notes);
 }
@@ -58,8 +67,10 @@ export async function addNote(
   actor: BackendActor,
   crypto: CryptoService
 ) {
+  const new_id: bigint = await actor.create_note();
+  note.id = new_id;
   const encryptedNote = (await serialize(note, crypto)).encrypted_text;
-  await actor.add_note(encryptedNote);
+  await actor.update_note(new_id, encryptedNote);
 }
 export async function updateNote(
   note: NoteModel,
@@ -67,7 +78,23 @@ export async function updateNote(
   crypto: CryptoService
 ) {
   const encryptedNote = await serialize(note, crypto);
-  await actor.update_note(encryptedNote);
+  await actor.update_note(note.id, encryptedNote.encrypted_text);
+}
+
+export async function addUser(
+  id: bigint,
+  user: string,
+  actor: BackendActor,
+) {
+  await actor.add_user(id, user);
+}
+
+export async function removeUser(
+  id: bigint,
+  user: string,
+  actor: BackendActor,
+) {
+  await actor.remove_user(id, user);
 }
 
 auth.subscribe(async ($auth) => {

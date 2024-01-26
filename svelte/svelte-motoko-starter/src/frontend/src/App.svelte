@@ -6,12 +6,12 @@
 
 <main>
   <a
-    href="https://dfinity.org"
+    href="https://internetcomputer.org"
     target="_blank"
     rel="noopener noreferrer"
     class="logo"
   >
-    <img src="images/dfinity.svg" alt="DFINITY logo" />
+    <img src="images/icp.svg" alt="ICP logo" />
   </a>
   <h1>Svelte Starter dApp</h1>
   <Auth />
