@@ -1,5 +1,5 @@
 #!/bin/bash
-#
+
 set -ex
 
 # Enter temporary directory.
