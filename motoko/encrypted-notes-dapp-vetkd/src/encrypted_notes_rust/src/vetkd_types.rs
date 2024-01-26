@@ -1,6 +1,6 @@
-use ic_cdk::export::candid::CandidType;
-use ic_cdk::export::serde::Deserialize;
-use ic_cdk::export::Principal;
+use candid::CandidType;
+use candid::Deserialize;
+use candid::Principal;
 
 pub type CanisterId = Principal;
 

@@ -36,7 +36,7 @@ module {
   type BitcoinAddress = Types.BitcoinAddress;
   type Satoshi = Types.Satoshi;
   type Utxo = Types.Utxo;
-  type MillisatoshiPerByte = Types.MillisatoshiPerByte;
+  type MillisatoshiPerVByte = Types.MillisatoshiPerVByte;
   let CURVE = Types.CURVE;
   type PublicKey = EcdsaTypes.PublicKey;
   type Transaction = Transaction.Transaction;
@@ -61,14 +61,14 @@ module {
     // Get fee percentiles from previous transactions to estimate our own fee.
     let fee_percentiles = await BitcoinApi.get_current_fee_percentiles(network);
 
-    let fee_per_byte : MillisatoshiPerByte = if(fee_percentiles.size() == 0) {
+    let fee_per_vbyte : MillisatoshiPerVByte = if(fee_percentiles.size() == 0) {
         // There are no fee percentiles. This case can only happen on a regtest
         // network where there are no non-coinbase transactions. In this case,
-        // we use a default of 1000 millisatoshis/byte (i.e. 2 satoshi/byte)
+        // we use a default of 1000 millisatoshis/vbyte (i.e. 2 satoshi/byte)
         2000
     } else {
         // Choose the 50th percentile for sending fees.
-        fee_percentiles[49]
+        fee_percentiles[50]
     };
 
     // Fetch our public key, P2PKH address, and UTXOs.
@@ -76,10 +76,13 @@ module {
     let own_address = public_key_to_p2pkh_address(network, own_public_key);
 
     Debug.print("Fetching UTXOs...");
+    // Note that pagination may have to be used to get all UTXOs for the given address.
+    // For the sake of simplicity, it is assumed here that the `utxo` field in the response
+    // contains all UTXOs.
     let own_utxos = (await BitcoinApi.get_utxos(network, own_address)).utxos;
 
     // Build the transaction that sends `amount` to the destination address.
-    let tx_bytes = await build_transaction(own_public_key, own_address, own_utxos, dst_address, amount, fee_per_byte);
+    let tx_bytes = await build_transaction(own_public_key, own_address, own_utxos, dst_address, amount, fee_per_vbyte);
     let transaction =
         Utils.get_ok(Transaction.fromBytes(Iter.fromArray(tx_bytes)));
 
@@ -107,7 +110,7 @@ public func build_transaction(
     own_utxos : [Utxo],
     dst_address : BitcoinAddress,
     amount : Satoshi,
-    fee_per_byte : MillisatoshiPerByte,
+    fee_per_vbyte : MillisatoshiPerVByte,
 ) : async [Nat8] {
     // We have a chicken-and-egg problem where we need to know the length
     // of the transaction in order to compute its proper fee, but we need
@@ -117,7 +120,7 @@ public func build_transaction(
     // We solve this problem iteratively. We start with a fee of zero, build
     // and sign a transaction, see what its size is, and then update the fee,
     // rebuild the transaction, until the fee is set to the correct amount.
-    let fee_per_byte_nat = Nat64.toNat(fee_per_byte);
+    let fee_per_vbyte_nat = Nat64.toNat(fee_per_vbyte);
     Debug.print("Building transaction...");
     var total_fee : Nat = 0;
     loop {
@@ -137,11 +140,11 @@ public func build_transaction(
 
         let signed_tx_bytes_len : Nat = signed_transaction_bytes.size();
 
-        if((signed_tx_bytes_len * fee_per_byte_nat) / 1000 == total_fee) {
+        if((signed_tx_bytes_len * fee_per_vbyte_nat) / 1000 == total_fee) {
             Debug.print("Transaction built with fee " # debug_show(total_fee));
             return transaction.toBytes();
         } else {
-            total_fee := (signed_tx_bytes_len * fee_per_byte_nat) / 1000;
+            total_fee := (signed_tx_bytes_len * fee_per_vbyte_nat) / 1000;
         }
     }
   };
@@ -213,7 +216,7 @@ public func build_transaction(
     let public_key = public_key_bytes_to_public_key(public_key_bytes);
 
     // Compute the P2PKH address from our public key.
-    P2pkh.deriveAddress(network, Publickey.toSec1(public_key, true))
+    P2pkh.deriveAddress(Types.network_to_network_camel_case(network), Publickey.toSec1(public_key, true))
   };
 
   // A mock for rubber-stamping ECDSA signatures.

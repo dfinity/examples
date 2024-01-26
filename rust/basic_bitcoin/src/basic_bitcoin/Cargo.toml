@@ -12,10 +12,9 @@ crate-type = ["cdylib"]
 hex = "0.4.3"
 bitcoin = "0.28.1"
 bs58 = "0.4.0"
-candid = "0.8.1"
-ic-btc-interface = { git = "https://github.com/dfinity/bitcoin-canister" }
-ic-cdk = "0.8.1"
-ic-cdk-macros = "0.6.10"
+candid = "0.9.3"
+ic-cdk = "0.10.0"
+ic-cdk-macros = "0.7.1"
 ripemd = "0.1.1"
 serde = "1.0.132"
 sha2 = "0.10.2"

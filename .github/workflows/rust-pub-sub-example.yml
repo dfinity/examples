@@ -1,3 +1,4 @@
+# Known failure: https://dfinity.atlassian.net/browse/EM-6
 name: rust-pub-sub
 on:
   push:

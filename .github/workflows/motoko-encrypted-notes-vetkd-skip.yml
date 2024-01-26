@@ -1,11 +1,11 @@
-name: motoko-encrypted-notes
+name: motoko-encrypted-notes-vetkd
 on:
   pull_request:
     paths-ignore:
       - motoko/encrypted-notes-dapp-vetkd/**
-      - .github/workflows/provision-darwin.sh
+      - motoko/encrypted-notes-dapp-vetkd/provision-darwin.sh
       - .github/workflows/provision-linux.sh
-      - .github/workflows/motoko-encrypted-notes-example.yml
+      - .github/workflows/motoko-encrypted-notes-vetkd-example.yml
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
