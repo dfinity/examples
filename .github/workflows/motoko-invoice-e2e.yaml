@@ -18,6 +18,8 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
+        env:
+          NODE_VERSION: 19.8.1
         run: bash .github/workflows/provision-darwin.sh
       - name: Install vessel
         run: |
@@ -44,6 +46,7 @@ jobs:
           EOF
       - name: Motoko Invoice Canister Darwin
         run: |
+          dfx extension install nns --version 0.2.1
           pushd motoko/invoice-canister
           make e2e
           dfx stop
@@ -81,6 +84,7 @@ jobs:
           EOF
       - name: Motoko Invoice Canister Linux
         run: |
+          dfx extension install nns --version 0.2.1
           pushd motoko/invoice-canister
           make e2e
           dfx stop
