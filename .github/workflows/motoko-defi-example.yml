@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - attempt-dfx-0.16.0
   pull_request:
     paths:
       - motoko/defi/**
@@ -21,7 +22,7 @@ jobs:
           submodules: recursive
       - name: Provision Darwin
         env:
-          DFX_VERSION: 0.15.3
+          DFX_VERSION: 0.16.0
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko Defi Darwin
         run: |
@@ -39,7 +40,7 @@ jobs:
           submodules: recursive
       - name: Provision Linux
         env:
-          DFX_VERSION: 0.15.3
+          DFX_VERSION: 0.16.0
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko Defi Linux
         run: |
