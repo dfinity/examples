@@ -38,6 +38,8 @@ jobs:
         with:
           submodules: recursive
       - name: Provision Linux
+        env:
+          DFX_VERSION: 0.15.3
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko Defi Linux
         run: |
