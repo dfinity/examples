@@ -21,6 +21,8 @@ jobs:
         with:
           submodules: recursive
       - name: Provision Darwin
+        env:
+          DFX_VERSION: 0.15.3
         run: bash .github/workflows/provision-darwin.sh
       - name: Rust Defi Darwin
         run: |
