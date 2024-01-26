@@ -22,9 +22,9 @@
       "type": "assets"
     },
     "internet_identity": {
-      "candid": "internet_identity.did",
+      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
       "type": "custom",
-      "wasm": "internet_identity.wasm"
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz"
     }
   },
   "networks": {

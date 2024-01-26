@@ -1,3 +1,4 @@
+# Known failure: https://dfinity.atlassian.net/browse/EM-4
 name: rust-basic-dao
 on:
   push:

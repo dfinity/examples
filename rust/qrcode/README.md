@@ -11,9 +11,12 @@ You try the live version of the dapp running on the Internet Computer mainnet he
 ## Prerequisites
 This example requires an installation of:
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
-- [x] Install `node.js` to build the web frontend.
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
+- [x] Install `node.js` to build the web frontend. Make sure the version is at least `12.20`.
+- [x] Make sure your rust version is up-to-date (e.g., run `rustup update`).
+- [x] Add the `wasm32` target to your rust installation (by running `rustup target add wasm32-unknown-unknown`).
 - [x] Clone this project to a local directory.
+- [x] Install `node.js` dependencies by running `npm install`.
 
 ## Running locally
 
@@ -56,7 +59,7 @@ When the user clicks the "Generate!" button, a JavaScript handler initiates a ca
 The heavy-lifting of this call is managed by `candid`, `js-agent`, and `dfx`, which automatically generates a JavaScript object from the backend's Candid interface.
 That object contains `async` functions for each of the backend's endpoints, and the button handler uses them to make the calls.
 
-The backend, written in Rust, uses the `qrcode-generator`` and `image`` crates to create a QR code from user text.
+The backend, written in Rust, uses the `qrcode-generator` and `image` crates to create a QR code from user text.
 It also performs some image processing, to add the Internet Computer logo and a color gradient to the final result.
 Note the amount of computational work may be significant for large images.
 

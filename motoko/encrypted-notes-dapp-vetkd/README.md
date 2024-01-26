@@ -1,10 +1,10 @@
 # Encrypted notes adapted for using vetKD
 
-This is a copy of the encrypted-notes-dapp example, adapted to use [the proposed vetKD feature](https://github.com/dfinity/interface-spec/pull/158).
+This is a copy of the encrypted-notes-dapp example, adapted to (1) use [the proposed vetKD feature](https://github.com/dfinity/interface-spec/pull/158) and (2) add sharing of notes between users.
 
-In particular, instead of creating a principal-specific AES key and syncing it across devices (by means of device-specific RSA keys), the notes are encrypted with an AES key that is derived (directly in the browser) from a principal-specific vetKey obtained from the backend canister (in encrypted form, using an ephemeral transport key), which itself obtains it from the vetKD system API. This way, there is no need for any device management in the dapp.
+In particular, instead of creating a principal-specific AES key and syncing it across devices (by means of device-specific RSA keys), the notes are encrypted with an AES key that is derived (directly in the browser) from a note-ID-specific vetKey obtained from the backend canister (in encrypted form, using an ephemeral transport key), which itself obtains it from the vetKD system API. This way, there is no need for any device management in the dapp, plus sharing of notes becomes possible.
 
-The difference between the original encrypted-notes-dapp and the this one here can be seen in https://github.com/dfinity/examples/pull/561.
+The vetKey used to encrypt and decrypt a note is note-ID-specific (and not, for example, principal-specific) so as to enable the sharing of notes between users. The derived AES keys are stored as non-extractable CryptoKeys in an IndexedDB in the browser for efficiency so that they respective vetKey only has to be fetched from the server once. To improve the security even further, the vetKeys' derivation information could be adapted to include a (numeric) epoch that advances each time the list of users with which the note is shared is changed.
 
 Currently, the only way to use this dapp is via manual local deployment (see below).
 
@@ -15,9 +15,15 @@ Please also see the [README of the original encrypted-notes-dapp](../encrypted-n
 This example uses an [**insecure** implementation](../../rust/vetkd/src/system_api) of [the proposed vetKD system API](https://github.com/dfinity/interface-spec/pull/158) in a pre-compiled form via the [vetkd_system_api.wasm](./vetkd_system_api.wasm). **Do not use this in production or for sensitive data**! This example is solely provided **for demonstration purposes** to collect feedback on the mentioned vetKD system API.
 
 ## Manual local deployment
-1. For **Motoko** deployment set environmental variable:
+1. Choose which implementation to use by setting a respective environment variable. You can choose Motoko or Rust.
+   
+   For **Motoko** deployment use
    ```sh
    export BUILD_ENV=motoko
+   ```
+   For **Rust** deployment use
+   ```sh
+   export BUILD_ENV=rust
    ```
 2. To generate `$BUILD_ENV`-specific files (i.e., Motoko or Rust) run:
    ```sh
@@ -81,3 +87,7 @@ This example uses an [**insecure** implementation](../../rust/vetkd/src/system_a
     2. Open the URL that is printed in the console output. Usually, this is [http://localhost:3000/](http://localhost:3000/).
 
        ⚠️ If you have opened this page previously, please remove all local store data for this page from your web browser, and hard-reload the page. For example in Chrome, go to Inspect → Application → Local Storage → `http://localhost:3000/` → Clear All, and then reload.
+
+## Troubleshooting
+
+If you run into issues, clearing all the application-specific IndexedDBs in the browser (which are used to store Internet Identity information and the derived non-extractable AES keys) might help fixing the issue.

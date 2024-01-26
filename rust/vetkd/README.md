@@ -3,7 +3,7 @@
 This repository provides a canister (`src/system_api`) that offers the vetKD system API proposed in https://github.com/dfinity/interface-spec/pull/158, implemented in an **unsafe** manner **for demonstration purposes**.
 
 Additionally, the repository provides:
-* An example app backend canister (`src/app_backend`) that makes use of this system API in order to provide caller-specific symmetric keys that can be used for AES encryption and decryption.
+* An example app backend canister (`src/app_backend`) implemented in **Rust** that makes use of this system API in order to provide caller-specific symmetric keys that can be used for AES encryption and decryption.
 
 * An example frontend (`src/app_frontend_js`) that uses the backend from Javascript in the browser.
 
@@ -14,6 +14,11 @@ Additionally, the repository provides:
 ## Disclaimer
 
 The implementation of [the proposed vetKD system API](https://github.com/dfinity/interface-spec/pull/158) used in this example is **unsafe**, e.g., we hard-code a master secret key, rather than using a master secret key that is distributed among sufficiently many Internet Computer nodes by means of distributed key generation. **Do not use this in production or for sensitive data**! This example is solely provided **for demonstration purposes** to collect feedback on the mentioned vetKD system API. See also the respective disclaimer [in the system API canister implementation](https://github.com/dfinity/examples/blob/master/rust/vetkd/src/system_api/src/lib.rs#L19-L26).
+
+## Prerequisites
+- [ ] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
+- [ ] Install [Node.js](https://nodejs.org/en/download/).
+- [ ] Install [Rust](https://www.rust-lang.org/tools/install), and add Wasm as a target (`rustup target add wasm32-unknown-unknown`).
 
 ## Running Locally
 
