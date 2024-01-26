@@ -1,65 +1,110 @@
-use candid::CandidType;
-use ic_cdk::api::caller as caller_api;
-use ic_cdk::export::{candid, Principal};
-use ic_cdk::storage;
+use candid::{CandidType, Decode, Deserialize, Encode, Principal};
 use ic_cdk_macros::*;
-use serde::{Deserialize, Serialize};
+use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
+use ic_stable_structures::{
+    storable::Bound, DefaultMemoryImpl, StableBTreeMap, StableCell, Storable,
+};
+use std::borrow::Cow;
 use std::cell::RefCell;
-use std::collections::BTreeMap;
-use std::mem;
 
 type PrincipalName = String;
+type Memory = VirtualMemory<DefaultMemoryImpl>;
+type NoteId = u128;
 
-/// Deriving CandidType or implementing it is necessary for
-/// almost everything IC - if you want your structs to
-/// Save in stable storage or serialize in inputs/outputs
-/// You should derive CandidType, Serialize, Deserialize.
-#[derive(Clone, CandidType, Serialize, Deserialize)]
+#[derive(Clone, Debug, CandidType, Deserialize, Eq, PartialEq)]
 pub struct EncryptedNote {
-    id: u128,
+    id: NoteId,
     encrypted_text: String,
+    owner: PrincipalName,
+    /// Principals with whom this note is shared. Does not include the owner.
+    /// Needed to be able to efficiently show in the UI with whom this note is shared.
+    users: Vec<PrincipalName>,
 }
 
-/// There can only be one Type in stable storage at a time.
-/// We use this struct to represent the full CanisterState
-/// So we can serialize it to stable storage.
-#[derive(Clone, CandidType, Serialize, Deserialize)]
-struct CanisterState {
-    // During canister upgrades, this field contains a stable representation of the value stored in [NEXT_NOTE]
-    counter: u128,
-    // We use a BTreeMap vice a HashMap for deterministic ordering.
-    notes: BTreeMap<PrincipalName, Vec<EncryptedNote>>,
+impl EncryptedNote {
+    pub fn is_authorized(&self, user: &PrincipalName) -> bool {
+        user == &self.owner || self.users.contains(user)
+    }
 }
 
-// WASM is single-threaded by nature. [RefCell] and [thread_local!] are used despite being not totally safe primitives.
-// This is to ensure that the canister state can be used throughout.
-// Your other option here is to avoid [thread_local!] and use a [RefCell<RwLock/Mutex/Atomic>].
-// Here we use [thread_local!] because it is simpler.
+impl Storable for EncryptedNote {
+    fn to_bytes(&self) -> Cow<[u8]> {
+        Cow::Owned(Encode!(self).unwrap())
+    }
+    fn from_bytes(bytes: Cow<[u8]>) -> Self {
+        Decode!(bytes.as_ref(), Self).unwrap()
+    }
+    const BOUND: Bound = Bound::Unbounded;
+}
+
+#[derive(CandidType, Deserialize, Default)]
+pub struct NoteIds {
+    ids: Vec<NoteId>,
+}
+
+impl NoteIds {
+    pub fn iter(&self) -> impl std::iter::Iterator<Item = &NoteId> {
+        self.ids.iter()
+    }
+}
+
+impl Storable for NoteIds {
+    fn to_bytes(&self) -> Cow<[u8]> {
+        Cow::Owned(Encode!(self).unwrap())
+    }
+    fn from_bytes(bytes: Cow<[u8]>) -> Self {
+        Decode!(bytes.as_ref(), Self).unwrap()
+    }
+    const BOUND: Bound = Bound::Unbounded;
+}
+
+// We use a canister's stable memory as storage. This simplifies the code and makes the appliation
+// more robust because no (potentially failing) pre_upgrade/post_upgrade hooks are needed.
+// Note that stable memory is less performant than heap memory, however.
+// Currently, a single canister smart contract is limited to 96 GB of stable memory.
+// For the current limits see https://internetcomputer.org/docs/current/developer-docs/production/resource-limits.
+// To ensure that our canister does not exceed the limit, we put various restrictions (e.g., number of users) in place.
+static MAX_USERS: u64 = 1_000;
+static MAX_NOTES_PER_USER: usize = 500;
+static MAX_NOTE_CHARS: usize = 1000;
+static MAX_SHARES_PER_NOTE: usize = 50;
+
 thread_local! {
+    static MEMORY_MANAGER: RefCell<MemoryManager<DefaultMemoryImpl>> =
+        RefCell::new(MemoryManager::init(DefaultMemoryImpl::default()));
 
-    // Currently, a single canister smart contract is limited to 4 GB of storage due to WebAssembly limitations.
-    // To ensure that our canister does not exceed this limit, we restrict memory usage to at most 2 GB because 
-    // up to 2x memory may be needed for data serialization during canister upgrades. Therefore, we aim to support
-    // up to 1,000 users, each storing up to 2 MB of data.
-    // The data is reserved for storing the notes:
-    //     NOTES_PER_USER = MAX_NOTES_PER_USER x MAX_NOTE_CHARS x (4 bytes per char)
-    //     2 MB = 500 x 1000 x 4 = 2,000,000
+    static NEXT_NOTE_ID: RefCell<StableCell<NoteId, Memory>> = RefCell::new(
+        StableCell::init(
+            MEMORY_MANAGER.with_borrow(|m| m.get(MemoryId::new(0))),
+            1
+        ).expect("failed to init NEXT_NOTE_ID")
+    );
 
-    // Define dapp limits - important for security assurance
-    static MAX_USERS: usize = 1_000;
-    static MAX_NOTES_PER_USER: usize = 500;
-    static MAX_NOTE_CHARS: usize = 1000;
+    static NOTES: RefCell<StableBTreeMap<NoteId, EncryptedNote, Memory>> = RefCell::new(
+        StableBTreeMap::init(
+            MEMORY_MANAGER.with_borrow(|m| m.get(MemoryId::new(1))),
+        )
+    );
 
-    pub static NEXT_NOTE: RefCell<u128> = RefCell::new(1);
-    pub static NOTES_BY_USER: RefCell<BTreeMap<PrincipalName, Vec<EncryptedNote>>> = RefCell::new(BTreeMap::new());
+    static NOTE_OWNERS: RefCell<StableBTreeMap<PrincipalName, NoteIds, Memory>> = RefCell::new(
+        StableBTreeMap::init(
+            MEMORY_MANAGER.with_borrow(|m| m.get(MemoryId::new(2))),
+        )
+    );
+
+    static NOTE_SHARES: RefCell<StableBTreeMap<PrincipalName, NoteIds, Memory>> = RefCell::new(
+        StableBTreeMap::init(
+            MEMORY_MANAGER.with_borrow(|m| m.get(MemoryId::new(3))),
+        )
+    );
 }
 
 /// Unlike Motoko, the caller identity is not built into Rust. 
-/// Thus, we use the ic_cdk::api::caller() method inside this wrapper function.
+/// Thus, we use the ic_cdk::caller() method inside this wrapper function.
 /// The wrapper prevents the use of the anonymous identity. Forbidding anonymous 
 /// interactions is the recommended default behavior for IC canisters. 
 fn caller() -> Principal {
-    let caller = caller_api();
+    let caller = ic_cdk::caller();
     // The anonymous principal is not allowed to interact with the 
     // encrypted notes canister.
     if caller == Principal::anonymous() {
@@ -67,9 +112,6 @@ fn caller() -> Principal {
     }
     caller
 }
-
-#[init]
-fn init() {}
 
 /// --- Queries vs. Updates ---
 ///
@@ -88,41 +130,43 @@ fn init() {}
 
 /// Reflects the [caller]'s identity by returning (a future of) its principal. 
 /// Useful for debugging.
-#[update(name = "whoami")]
+#[update]
 fn whoami() -> String {
-    caller_api().to_string()
+    ic_cdk::caller().to_string()
 }
 
 /// General assumptions
 /// -------------------
 /// All the functions of this canister's public API should be available only to
-/// registered users, with the exception of [register_device] and [whoami].
-
-/// Returns the current number of users.
-fn user_count() -> usize {
-    NOTES_BY_USER.with(|notes_ref| notes_ref.borrow().keys().len())
-}
-
-/// Check that a note identifier is sane. This is needed since we use finite-
-/// precision integers (`u128`).
-fn is_id_sane(id: u128) -> bool {
-    MAX_NOTES_PER_USER.with(|max_notes_per_user| id < (*max_notes_per_user as u128) * (user_count() as u128))
-}
+/// registered users, with the exception of [whoami].
 
 /// Returns (a future of) this [caller]'s notes.
 /// Panics: 
 ///     [caller] is the anonymous identity
-///     [caller] is not a registered user
-#[update(name = "get_notes")]
+#[update]
 fn get_notes() -> Vec<EncryptedNote> {
-    let user = caller();
-    let user_str = user.to_string();
-    NOTES_BY_USER.with(|notes_ref| {
-        notes_ref
-            .borrow()
-            .get(&user_str)
-            .cloned()
-            .unwrap_or_default()
+    let user_str = caller().to_string();
+    NOTES.with_borrow(|notes| {
+        let owned = NOTE_OWNERS.with_borrow(|ids| {
+            ids.get(&user_str)
+                .unwrap_or_default()
+                .iter()
+                .map(|id| notes.get(id).ok_or(format!("missing note with ID {id}")))
+                .collect::<Result<Vec<_>, _>>()
+                .unwrap_or_else(|err| ic_cdk::trap(&err))
+        });
+        let shared = NOTE_SHARES.with_borrow(|ids| {
+            ids.get(&user_str)
+                .unwrap_or_default()
+                .iter()
+                .map(|id| notes.get(id).ok_or(format!("missing note with ID {id}")))
+                .collect::<Result<Vec<_>, _>>()
+                .unwrap_or_else(|err| ic_cdk::trap(&err))
+        });
+        let mut result = Vec::with_capacity(owned.len() + shared.len());
+        result.extend(owned);
+        result.extend(shared);
+        result
     })
 }
 
@@ -134,135 +178,176 @@ fn get_notes() -> Vec<EncryptedNote> {
 ///      Future of unit
 /// Panics: 
 ///      [caller] is the anonymous identity
-///      [caller] is not a registered user
-///      [id] is unreasonable; see [is_id_sane]
-#[update(name = "delete_note")]
+///      [caller] is not the owner of note with id `note_id`
+#[update]
 fn delete_note(note_id: u128) {
-    let user = caller();
-    assert!(is_id_sane(note_id));
-
-    let user_str = user.to_string();
-    // shared ownership borrowing
-    NOTES_BY_USER.with(|notes_ref| {
-        let mut writer = notes_ref.borrow_mut();
-        if let Some(v) = writer.get_mut(&user_str) {
-            v.retain(|item| item.id != note_id);
+    let user_str = caller().to_string();
+    NOTES.with_borrow_mut(|notes| {
+        if let Some(note_to_delete) = notes.get(&note_id) {
+            let owner = &note_to_delete.owner;
+            if owner != &user_str {
+                ic_cdk::trap("only the owner can delete notes");
+            }
+            NOTE_OWNERS.with_borrow_mut(|owner_to_nids| {
+                if let Some(mut owner_ids) = owner_to_nids.get(owner) {
+                    owner_ids.ids.retain(|&id| id != note_id);
+                    if !owner_ids.ids.is_empty() {
+                        owner_to_nids.insert(owner.clone(), owner_ids);
+                    } else {
+                        owner_to_nids.remove(owner);
+                    }
+                }
+            });
+            NOTE_SHARES.with_borrow_mut(|share_to_nids| {
+                for share in note_to_delete.users {
+                    if let Some(mut share_ids) = share_to_nids.get(&share) {
+                        share_ids.ids.retain(|&id| id != note_id);
+                        if !share_ids.ids.is_empty() {
+                            share_to_nids.insert(share, share_ids);
+                        } else {
+                            share_to_nids.remove(&share);
+                        }
+                    }
+                }
+            });
+            notes.remove(&note_id);
         }
     });
 }
 
-/// Returns (a future of) this [caller]'s notes.
+/// Replaces the encrypted text of note with ID [id] with [encrypted_text].
+///
 /// Panics: 
 ///     [caller] is the anonymous identity
-///     [caller] is not a registered user
-///     [note.encrypted_text] exceeds [MAX_NOTE_CHARS]
-///     [note.id] is unreasonable; see [is_id_sane]
-#[update(name = "update_note")]
-fn update_note(note: EncryptedNote) {
-    let user = caller();
-    assert!(note.encrypted_text.chars().count() <= MAX_NOTE_CHARS.with(|mnc| *mnc));
-    assert!(is_id_sane(note.id));
+///     [caller] is not the note's owner and not a user with whom the note is shared
+///     [encrypted_text] exceeds [MAX_NOTE_CHARS]
+#[update]
+fn update_note(id: NoteId, encrypted_text: String) {
+    let user_str = caller().to_string();
 
-    let user_str = user.to_string();
-    NOTES_BY_USER.with(|notes_ref| {
-        let mut writer = notes_ref.borrow_mut();
-        if let Some(old_note) = writer
-            .get_mut(&user_str)
-            .and_then(|notes| notes.iter_mut().find(|n| n.id == note.id))
-        {
-            old_note.encrypted_text = note.encrypted_text;
+    NOTES.with_borrow_mut(|notes| {
+        if let Some(mut note_to_update) = notes.get(&id) {
+            if !note_to_update.is_authorized(&user_str) {
+                ic_cdk::trap("unauthorized update");
+            }
+            assert!(encrypted_text.chars().count() <= MAX_NOTE_CHARS);
+            note_to_update.encrypted_text = encrypted_text;
+            notes.insert(id, note_to_update);
         }
     })
 }
 
-/// Add new note for this [caller].
-///      [note]: (encrypted) content of this note
+/// Add new empty note for this [caller].
 ///
 /// Returns: 
-///      Future of unit
+///      Future of ID of new empty note
 /// Panics: 
 ///      [caller] is the anonymous identity
-///      [caller] is not a registered user
-///      [note] exceeds [MAX_NOTE_CHARS]
 ///      User already has [MAX_NOTES_PER_USER] notes
-///      [note] would be for a new user and [MAX_USERS] is exceeded
-#[update(name = "add_note")]
-fn add_note(note: String) {
-    let user = caller();
-    assert!(note.chars().count() <= MAX_NOTE_CHARS.with(|mnc| *mnc));
+///      This is the first note for [caller] and [MAX_USERS] is exceeded
+#[update]
+fn create_note() -> NoteId {
+    let owner = caller().to_string();
 
-    let user_str = user.to_string();
-    let note_id = NEXT_NOTE.with(|counter_ref| {
-        let mut writer = counter_ref.borrow_mut();
-        *writer += 1;
-        *writer
-    });
-
-    let user_count = user_count();
-    NOTES_BY_USER.with(|notes_ref| {
-        let mut writer = notes_ref.borrow_mut();
-        let user_notes = writer.entry(user_str).or_insert_with(|| {
-            // caller unknown ==> check invariants
-            // A. can we add a new user?
-            assert!(MAX_USERS.with(|mu| user_count < *mu));
-            vec![]
-        });
-
-        assert!(user_notes.len() < MAX_NOTES_PER_USER.with(|mnpu| *mnpu));
-
-        user_notes.push(EncryptedNote {
-            id: note_id,
-            encrypted_text: note,
-        });
-    });
-}
-
-/// Hooks in these macros will produce a `function already defined` error
-/// if they share the same name as the underlying function.
-
-#[pre_upgrade]
-/// The pre_upgrade hook determines anything your canister
-/// should do before it goes offline for a code upgrade.
-fn pre_upgrade() {
-    let copied_counter: u128 = NEXT_NOTE.with(|counter_ref| {
-        let reader = counter_ref.borrow();
-        *reader
-    });
-    NOTES_BY_USER.with(|notes_ref| {
-            let old_state = CanisterState {
-                notes: mem::take(&mut notes_ref.borrow_mut()),
-                counter: copied_counter,
+    NOTES.with_borrow_mut(|id_to_note| {
+        NOTE_OWNERS.with_borrow_mut(|owner_to_nids| {
+            let next_note_id = NEXT_NOTE_ID.with_borrow(|id| *id.get());
+            let new_note = EncryptedNote {
+                id: next_note_id,
+                owner: owner.clone(),
+                users: vec![],
+                encrypted_text: String::new(),
             };
-            // storage::stable_save is the API used to write canister state out.
-            // More explicit error handling *can* be useful, but if we fail to read out/in stable memory on upgrade
-            // it means the data won't be accessible to the canister in any way.
-            storage::stable_save((old_state,)).unwrap();
-    });
+
+            if let Some(mut owner_nids) = owner_to_nids.get(&owner) {
+                assert!(owner_nids.ids.len() < MAX_NOTES_PER_USER);
+                owner_nids.ids.push(new_note.id);
+                owner_to_nids.insert(owner, owner_nids);
+            } else {
+                assert!(owner_to_nids.len() < MAX_USERS);
+                owner_to_nids.insert(
+                    owner,
+                    NoteIds {
+                        ids: vec![new_note.id],
+                    },
+                );
+            }
+            assert_eq!(id_to_note.insert(new_note.id, new_note), None);
+
+            NEXT_NOTE_ID.with_borrow_mut(|next_note_id| {
+                next_note_id
+                    .set(next_note_id.get() + 1)
+                    .unwrap_or_else(|_e| ic_cdk::trap("failed to set NEXT_NOTE_ID"))
+            });
+            next_note_id
+        })
+    })
 }
 
-#[post_upgrade]
-/// The post_upgrade hook determines anything your canister should do after it restarts
-fn post_upgrade() {
-    // storage::stable_restore is how to read your canister state back in from stable memory
-    // Same thing with the unwrap here. For this canister there's nothing to do
-    // in the event of a memory read out/in failure.
-    let (old_state,): (CanisterState,) = storage::stable_restore().unwrap();
-    NOTES_BY_USER.with(|notes_ref| {
-        NEXT_NOTE.with(|counter_ref| {
-                *notes_ref.borrow_mut() = old_state.notes;
-                *counter_ref.borrow_mut() = old_state.counter;
+/// Shares the note with ID `note_id`` with the `user`.
+/// Has no effect if the note is already shared with that user.
+///
+/// Panics:
+///      [caller] is the anonymous identity
+///      [caller] is not the owner of note with id `note_id`
+#[update]
+fn add_user(note_id: NoteId, user: PrincipalName) {
+    let caller_str = caller().to_string();
+    NOTES.with_borrow_mut(|notes| {
+        NOTE_SHARES.with_borrow_mut(|user_to_nids| {
+            if let Some(mut note) = notes.get(&note_id) {
+                let owner = &note.owner;
+                if owner != &caller_str {
+                    ic_cdk::trap("only the owner can share the note");
+                }
+                assert!(note.users.len() < MAX_SHARES_PER_NOTE);
+                if !note.users.contains(&user) {
+                    note.users.push(user.clone());
+                    notes.insert(note_id, note);
+                }
+                if let Some(mut user_ids) = user_to_nids.get(&user) {
+                    if !user_ids.ids.contains(&note_id) {
+                        user_ids.ids.push(note_id);
+                        user_to_nids.insert(user, user_ids);
+                    }
+                } else {
+                    user_to_nids.insert(user, NoteIds { ids: vec![note_id] });
+                }
+            }
         })
     });
 }
 
-#[cfg(test)]
-mod tests {
-    use super::*;
+/// Unshares the note with ID `note_id`` with the `user`.
+/// Has no effect if the note is not shared with that user.
+///
+/// Panics:
+///      [caller] is the anonymous identity
+///      [caller] is not the owner of note with id `note_id`
+#[update]
+fn remove_user(note_id: NoteId, user: PrincipalName) {
+    let caller_str = caller().to_string();
+    NOTES.with_borrow_mut(|notes| {
+        NOTE_SHARES.with_borrow_mut(|user_to_nids| {
+            if let Some(mut note) = notes.get(&note_id) {
+                let owner = &note.owner;
+                if owner != &caller_str {
+                    ic_cdk::trap("only the owner can share the note");
+                }
+                note.users.retain(|u| u != &user);
+                notes.insert(note_id, note);
 
-    #[test]
-    fn test_user_count_succeeds() {
-        assert_eq!(user_count(), 0);
-    }
+                if let Some(mut user_ids) = user_to_nids.get(&user) {
+                    user_ids.ids.retain(|&id| id != note_id);
+                    if !user_ids.ids.is_empty() {
+                        user_to_nids.insert(user, user_ids);
+                    } else {
+                        user_to_nids.remove(&user);
+                    }
+                }
+            }
+        })
+    });
 }
 
 mod vetkd_types;
@@ -274,16 +359,15 @@ use vetkd_types::{
     VetKDPublicKeyReply, VetKDPublicKeyRequest,
 };
 
-/// Results can be cached.
 #[update]
-async fn app_vetkd_public_key(derivation_path: Vec<Vec<u8>>) -> String {
+async fn symmetric_key_verification_key_for_note() -> String {
     let request = VetKDPublicKeyRequest {
         canister_id: None,
-        derivation_path,
+        derivation_path: vec![b"note_symmetric_key".to_vec()],
         key_id: bls12_381_test_key_1(),
     };
 
-    let (response,): (VetKDPublicKeyReply,) = ic_cdk::api::call::call(
+    let (response,): (VetKDPublicKeyReply,) = ic_cdk::call(
         vetkd_system_api_canister_id(),
         "vetkd_public_key",
         (request,),
@@ -295,34 +379,33 @@ async fn app_vetkd_public_key(derivation_path: Vec<Vec<u8>>) -> String {
 }
 
 #[update]
-async fn symmetric_key_verification_key() -> String {
-    let request = VetKDPublicKeyRequest {
-        canister_id: None,
-        derivation_path: vec![b"symmetric_key".to_vec()],
-        key_id: bls12_381_test_key_1(),
-    };
+async fn encrypted_symmetric_key_for_note(
+    note_id: NoteId,
+    encryption_public_key: Vec<u8>,
+) -> String {
+    let user_str = caller().to_string();
+    let request = NOTES.with_borrow(|notes| {
+        if let Some(note) = notes.get(&note_id) {
+            if !note.is_authorized(&user_str) {
+                ic_cdk::trap(&format!("unauthorized key request by user {user_str}"));
+            }
+            VetKDEncryptedKeyRequest {
+                derivation_id: {
+                    let mut buf = vec![];
+                    buf.extend_from_slice(&note_id.to_be_bytes()); // fixed-size encoding
+                    buf.extend_from_slice(note.owner.as_bytes());
+                    buf // prefix-free
+                },
+                public_key_derivation_path: vec![b"note_symmetric_key".to_vec()],
+                key_id: bls12_381_test_key_1(),
+                encryption_public_key,
+            }
+        } else {
+            ic_cdk::trap(&format!("note with ID {note_id} does not exist"));
+        }
+    });
 
-    let (response,): (VetKDPublicKeyReply,) = ic_cdk::api::call::call(
-        vetkd_system_api_canister_id(),
-        "vetkd_public_key",
-        (request,),
-    )
-    .await
-    .expect("call to vetkd_public_key failed");
-
-    hex::encode(response.public_key)
-}
-
-#[update]
-async fn encrypted_symmetric_key_for_caller(encryption_public_key: Vec<u8>) -> String {
-    let request = VetKDEncryptedKeyRequest {
-        derivation_id: ic_cdk::caller().as_slice().to_vec(),
-        public_key_derivation_path: vec![b"symmetric_key".to_vec()],
-        key_id: bls12_381_test_key_1(),
-        encryption_public_key,
-    };
-
-    let (response,): (VetKDEncryptedKeyReply,) = ic_cdk::api::call::call(
+    let (response,): (VetKDEncryptedKeyReply,) = ic_cdk::call(
         vetkd_system_api_canister_id(),
         "vetkd_encrypted_key",
         (request,),
