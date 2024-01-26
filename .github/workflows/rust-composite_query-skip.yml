@@ -1,13 +1,12 @@
 name: rust-composite_query
 on:
-   workflow_dispatch:
-#  pull_request:
-#    paths-ignore:
-#      - rust/composite_query/**
-#      - .github/workflows/provision-darwin.sh
-#      - .github/workflows/provision-linux.sh
-#      - .github/workflows/rust-composite_query-example.yml
-#      - .github/workflows/rust-composite_query-skip.yml
+  pull_request:
+    paths-ignore:
+      - rust/composite_query/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-composite_query-example.yml
+      - .github/workflows/rust-composite_query-skip.yml
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
