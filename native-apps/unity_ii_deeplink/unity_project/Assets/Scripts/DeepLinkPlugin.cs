@@ -1,7 +1,13 @@
 using UnityEngine;
+using EdjCase.ICP.Agent;
+using EdjCase.ICP.Agent.Identities;
+using EdjCase.ICP.Agent.Models;
+using EdjCase.ICP.Candid.Models;
 using EdjCase.ICP.Candid.Utilities;
 using Newtonsoft.Json;
+using System;
 using System.Web;
+using System.Collections.Generic;
 
 namespace IC.GameKit
 {
@@ -22,7 +28,7 @@ namespace IC.GameKit
 
         public void OpenBrowser()
         {
-            var target = mTestICPAgent.greetFrontend + "?sessionkey=" + ByteUtil.ToHexString(mTestICPAgent.TestIdentity.PublicKey.Value);
+            var target = mTestICPAgent.greetFrontend + "?sessionkey=" + ByteUtil.ToHexString(mTestICPAgent.TestIdentity.PublicKey.ToDerEncoding());
             Application.OpenURL(target);
         }
 
@@ -40,8 +46,36 @@ namespace IC.GameKit
             }
 
             var delegationString = HttpUtility.UrlDecode(url.Substring(indexOfDelegation + kDelegationParam.Length));
-            var delegation = JsonConvert.DeserializeObject<DelegationChainModel>(delegationString);
-            mTestICPAgent.Delegation = delegation;
+            mTestICPAgent.DelegationIdentity = ConvertJsonToDelegationIdentity(delegationString);
+        }
+
+        internal DelegationIdentity ConvertJsonToDelegationIdentity(string jsonDelegation)
+        {
+            var delegationChainModel = JsonConvert.DeserializeObject<DelegationChainModel>(jsonDelegation);
+            if (delegationChainModel == null && delegationChainModel.delegations.Length == 0)
+            {
+                Debug.LogError("Invalid delegation chain.");
+                return null;
+            }
+
+            // Initialize DelegationIdentity.
+            var delegations = new List<SignedDelegation>();
+            foreach (var signedDelegationModel in delegationChainModel.delegations)
+            {
+                var pubKey = SubjectPublicKeyInfo.FromDerEncoding(ByteUtil.FromHexString(signedDelegationModel.delegation.pubkey));
+                var expiration = ICTimestamp.FromNanoSeconds(Convert.ToUInt64(signedDelegationModel.delegation.expiration, 16));
+                var delegation = new Delegation(pubKey, expiration);
+
+                var signature = ByteUtil.FromHexString(signedDelegationModel.signature);
+                var signedDelegation = new SignedDelegation(delegation, signature);
+                delegations.Add(signedDelegation);
+            }
+
+            var chainPublicKey = SubjectPublicKeyInfo.FromDerEncoding(ByteUtil.FromHexString(delegationChainModel.publicKey));
+            var delegationChain = new DelegationChain(chainPublicKey, delegations);
+            var delegationIdentity = new DelegationIdentity(mTestICPAgent.TestIdentity, delegationChain);
+
+            return delegationIdentity;
         }
     }
 }

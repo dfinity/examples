@@ -1,14 +1,13 @@
 [package]
+edition = "2021"
 name = "hello"
-version = "0.1.0"
-edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+version = "1.1.0"
 
 [lib]
-path = "lib.rs"
 crate-type = ["cdylib"]
+path = "lib.rs"
 
 [dependencies]
-ic-cdk = "0.3"
-ic-cdk-macros = "0.3"
+candid = "0.10"
+ic-cdk = "0.12"
+ic-cdk-macros = "0.8"
