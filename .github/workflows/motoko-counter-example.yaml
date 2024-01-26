@@ -4,16 +4,33 @@ on:
     branches:
       - master
   pull_request:
-    paths:
-      - motoko/counter/**
-      - .github/workflows/provision-darwin.sh
-      - .github/workflows/provision-linux.sh
-      - .github/workflows/motoko-counter-example.yaml
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
+  # JOB to run change detection
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    # Set job outputs to values from filter step
+    outputs:
+      motoko-counter-example-darwin: ${{ steps.filter.outputs.sources }}
+      motoko-counter-example-linux: ${{ steps.filter.outputs.sources }}
+    steps:
+      # For pull requests it's not necessary to checkout the code
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            sources:
+              - motoko/counter/**
+              - .github/workflows/provision-darwin.sh
+              - .github/workflows/provision-linux.sh
+              - .github/workflows/motoko-counter-example.yaml
   motoko-counter-example-darwin:
+    needs: changes
+    if: ${{ needs.changes.outputs.sources == 'true' }}
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v1
@@ -26,6 +43,8 @@ jobs:
           make test
           popd
   motoko-counter-example-linux:
+    needs: changes
+    if: ${{ needs.changes.outputs.sources == 'true' }}
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
