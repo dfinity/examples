@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - attempt-dfx-0.16.0
   pull_request:
     paths:
       - rust/qrcode/**
@@ -18,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
-        run: DFX_VERSION="0.15.2" bash .github/workflows/provision-darwin.sh
+        run: DFX_VERSION="0.16.0" bash .github/workflows/provision-darwin.sh
       - name: Rust QRCode Darwin
         run: |
           dfx start --background
@@ -30,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
-        run: DFX_VERSION="0.15.2" bash .github/workflows/provision-linux.sh
+        run: DFX_VERSION="0.16.0" bash .github/workflows/provision-linux.sh
       - name: Rust QRCode Linux
         run: |
           dfx start --background

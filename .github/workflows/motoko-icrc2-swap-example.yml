@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+      - attempt-dfx-0.16.0
   pull_request:
     paths:
       - motoko/icrc2-swap/**
@@ -19,7 +20,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Linux
         env:
-          DFX_VERSION: 0.15.1
+          DFX_VERSION: 0.16.0
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko ICRC2-Swap Linux
         run: |
