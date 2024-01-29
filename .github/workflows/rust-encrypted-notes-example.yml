@@ -18,8 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
-        env:
-          DFX_VERSION: 0.14.2
         run: bash .github/workflows/provision-darwin.sh
       - name: Rust Encrypted Notes Darwin (unit tests)
         run: |
@@ -36,8 +34,6 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
-        env:
-          DFX_VERSION: 0.14.2
         run: bash .github/workflows/provision-linux.sh
       - name: Rust Encrypted Notes Linux (unit tests)
         run: |
