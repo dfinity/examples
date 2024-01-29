@@ -17,7 +17,8 @@ jobs:
     outputs:
       sources: ${{ steps.filter.outputs.sources }}
     steps:
-      # For pull requests it's not necessary to checkout the code
+      - uses: actions/checkout@v4
+        if: github.event_name == 'push'
       - uses: dorny/paths-filter@v3
         id: filter
         with:
@@ -29,7 +30,7 @@ jobs:
               - .github/workflows/motoko-counter-example.yaml
   motoko-counter-example-darwin:
     needs: changes
-    if: ${{ needs.changes.outputs.sources == 'true' }}
+    if: github.event_name == 'push' || needs.changes.outputs.sources == 'true'
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v1
@@ -43,7 +44,7 @@ jobs:
           popd
   motoko-counter-example-linux:
     needs: changes
-    if: ${{ needs.changes.outputs.sources == 'true' }}
+    if: github.event_name == 'push' || needs.changes.outputs.sources == 'true'
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
