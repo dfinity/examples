@@ -36,7 +36,7 @@
     "babel-jest": "^27.4.6",
     "daisyui": "^1.25.4",
     "jest": "^27.4.7",
-    "postcss": "^8.4.5",
+    "postcss": "^8.4.31",
     "rollup": "^2.3.4",
     "rollup-plugin-css-only": "^3.1.0",
     "rollup-plugin-inject": "^3.0.2",
