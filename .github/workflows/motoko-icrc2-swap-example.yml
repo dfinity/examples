@@ -18,8 +18,6 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
-        env:
-          DFX_VERSION: 0.15.1
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko ICRC2-Swap Linux
         run: |
