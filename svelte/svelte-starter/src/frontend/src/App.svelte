@@ -1,16 +1,17 @@
-<script>
+<script lang="ts">
   import CanisterIds from "./components/CanisterIds.svelte";
   import Links from "./components/Links.svelte";
+  import logo from "./assets/logo.png";
 </script>
 
 <main>
   <a
-    href="https://dfinity.org"
+    href="https://internetcomputer.org"
     target="_blank"
     rel="noopener noreferrer"
     class="logo"
   >
-    <img src="images/dfinity.svg" alt="DFINITY logo" />
+    <img src={logo} alt="ICP logo" />
   </a>
   <h1>Svelte Starter dApp</h1>
   <Links />

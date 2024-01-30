@@ -6,6 +6,8 @@ type Time = int;
 type CreateAssetArguments = record {
   key: Key;
   content_type: text;
+  max_age: opt nat64;
+  headers: opt vec HeaderField;
 };
 
 // Add or change content for an asset, by content encoding
@@ -106,6 +108,11 @@ service: {
       length: nat; // Size of this encoding's blob. Calculated when uploading assets.
       modified: Time;
     };
+  }) query;
+
+  certified_tree : (record {}) -> (record {
+    certificate: blob;
+    tree: blob;
   }) query;
 
   create_batch : (record {}) -> (record { batch_id: BatchId });

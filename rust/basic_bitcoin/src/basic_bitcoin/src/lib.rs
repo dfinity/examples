@@ -3,7 +3,9 @@ mod bitcoin_wallet;
 mod ecdsa_api;
 mod types;
 
-use ic_btc_types::{GetUtxosResponse, MillisatoshiPerByte, Network};
+use ic_cdk::api::management_canister::bitcoin::{
+    BitcoinNetwork, GetUtxosResponse, MillisatoshiPerByte,
+};
 use ic_cdk_macros::{init, post_upgrade, pre_upgrade, update};
 use std::cell::{Cell, RefCell};
 
@@ -13,7 +15,7 @@ thread_local! {
     // When developing locally this should be `Regtest`.
     // When deploying to the IC this should be `Testnet`.
     // `Mainnet` is currently unsupported.
-    static NETWORK: Cell<Network> = Cell::new(Network::Testnet);
+    static NETWORK: Cell<BitcoinNetwork> = Cell::new(BitcoinNetwork::Testnet);
 
     // The derivation path to use for ECDSA secp256k1.
     static DERIVATION_PATH: Vec<Vec<u8>> = vec![];
@@ -23,15 +25,15 @@ thread_local! {
 }
 
 #[init]
-pub fn init(network: Network) {
+pub fn init(network: BitcoinNetwork) {
     NETWORK.with(|n| n.set(network));
 
     KEY_NAME.with(|key_name| {
         key_name.replace(String::from(match network {
             // For local development, we use a special test key with dfx.
-            Network::Regtest => "dfx_test_key",
+            BitcoinNetwork::Regtest => "dfx_test_key",
             // On the IC we're using a test ECDSA key.
-            Network::Mainnet | Network::Testnet => "test_key_1",
+            BitcoinNetwork::Mainnet | BitcoinNetwork::Testnet => "test_key_1",
         }))
     });
 }
@@ -94,7 +96,7 @@ fn pre_upgrade() {
 
 #[post_upgrade]
 fn post_upgrade() {
-    let network = ic_cdk::storage::stable_restore::<(Network,)>()
+    let network = ic_cdk::storage::stable_restore::<(BitcoinNetwork,)>()
         .expect("Failed to read network from stable memory.")
         .0;
 

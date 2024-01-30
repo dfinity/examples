@@ -1,32 +1,6 @@
-#### Content
+# Encrypted notes
 
-- [Encrypted notes](#encrypted-notes)
-- [Disclaimer: please read carefully](#disclaimer-please-read-carefully)
-- [Security Considerations and Security Best Practices](#security-considerations-and-security-best-practices)
-- [Deployment](#deployment)
-  - [Selecting backend canister deployment option](#selecting-backend-canister-deployment-option)
-  - [Local deployment](#local-deployment)
-    - [Option 1: Docker deployment](#option-1-docker-deployment)
-    - [Option 2: Manual deployment](#option-2-manual-deployment)
-  - [Mainnet deployment](#mainnet-deployment)
-- [User interaction with "Encrypted Notes" dapp](#user-interaction-with-encrypted-notes-dapp)
-  - [Scenario I: basic single-device usage](#scenario-i-basic-single-device-usage)
-  - [Scenario II: user is accessing notes from multiple devices](#scenario-ii-user-is-accessing-notes-from-multiple-devices)
-  - [Scenario III: device management](#scenario-iii-device-management)
-- [Unit testing](#unit-testing)
-  - [Motoko Unit Tests](#motoko-unit-tests)
-  - [Rust Unit Tests](#rust-unit-tests)
-- [Troubleshooting](#troubleshooting)
-  - [Building/deployment problems](#buildingdeployment-problems)
-  - [Login problems](#login-problems)
-  - [SSL certificate problems](#ssl-certificate-problems)
-- [dfx.json file structure](#dfxjson-file-structure)
-- [Local memory model](#local-memory-model)
-- [Further Reading](#further-reading)
-- [Acknowledgments](#acknowledgments)
-## Encrypted notes
-
-Encrypted Notes is an example dapp for authoring and storing confidential information on the Internet Computer (IC) in the form of short pieces of text. Users can create and access their notes via any number of automatically synchronized devices authenticated via [Internet Identity (II)](https://smartcontracts.org/docs/ic-identity-guide/what-is-ic-identity.html). Notes are stored confidentially thanks to the end-to-end encryption performed by the dapp’s frontend.
+Encrypted notes is an example dapp for authoring and storing confidential information on the Internet Computer (IC) in the form of short pieces of text. Users can create and access their notes via any number of automatically synchronized devices authenticated via [Internet Identity (II)](https://wiki.internetcomputer.org/wiki/What_is_Internet_Identity). Notes are stored confidentially thanks to the end-to-end encryption performed by the dapp’s frontend.
 
 This project serves as a simple (but not too simple) example of a dapp, which uses Motoko and Rust as backend and Svelte as frontend.
 
@@ -42,7 +16,7 @@ Fig.1. Architectural overview of the Encrypted Notes dapp using client-side end-
 
 ## Disclaimer: please read carefully
 
-This is an _example dapp_ that demonstrates the potential of building _canisters_ for the IC. Please do not use this code in production and/or scenarios in which sensitive data could be involved. While this dapp illustrates end-to-end encryption, there are **several open security issues** that should be addressed before the dapp could be considered production-ready:
+This is an **example dapp** that demonstrates the potential of building **canisters** for the IC. Please do not use this code in production and/or scenarios in which sensitive data could be involved. While this dapp illustrates end-to-end encryption, there are **several open security issues** that should be addressed before the dapp could be considered production-ready:
 
 - The frontend re-uses the generated public- and private-key pair for every identity in the same browser. In a better implementation, this key pair should be unique per principal.
 - The public/private key pair should not be managed by the web browser at all. [WebAuthn](https://en.wikipedia.org/wiki/WebAuthn) should be used to push the key management to the operating system.
@@ -53,9 +27,264 @@ This is an _example dapp_ that demonstrates the potential of building _canisters
 ---
 &nbsp;
 
-## Security Considerations and Security Best Practices
+## Overview
 
-If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices, see also the [disclaimer](#disclaimer-please-read-carefully) above.  
+You can play around with the [dapp deployed on the IC](https://cvhrw-2yaaa-aaaaj-aaiqa-cai.icp0.io/) and see a quick introduction on [YouTube](https://youtu.be/DZQmtPSxvbs).
+
+We wanted to build an example of a simple (but not too simple) dapp running purely on the IC. This example relies upon the **web-serving** and **storage capabilities** of the IC. We focused on the following two key features for our example dapp: 
+1. Client-side **end-to-end encryption**. 
+2. **Multi-user** and **multi-device** support.
+
+To demonstrate the potential of the IC as a platform for developing such dapps, we implemented this example using two distinct canister development kits (CDKs). The Motoko CDK allows developers to implement actor-based dapps using the [Motoko](/motoko/main/motoko.md) language. The Rust CDK allows implementing dapps in [Rust](/developer-docs/backend/rust/index.md). In both cases, canisters are compiled into WebAssembly files that are then deployed onto the IC.
+
+## Architecture
+
+The basic functionality of the encrypted notes consists of two main components.
+
+First, we re-used the code of a non-encrypted dapp called [IC Notes](https://github.com/pattad/ic_notes). In particular IC Notes relies on the Internet Identity (II) canister for user authentication, an approach that is also inherited by the encrypted notes dapp. For development purposes, we deploy a local instance of the II canister, along with a local instance of encrypted notes. When deploying the encrypted notes dapp onto the mainnet, the real-world instance of II is used for authentication.
+
+Second, we enabled client-side, end-to-end encryption for the note contents, borrowing the solution from another existing dapp called [IC Vault](https://github.com/timohanke/icvault). Our encrypted notes dapp follows the approach of IC Vault to support managing multiple devices.
+
+In the context of the canisters discussed in this document, a device is not necessarily a separate physical device but a logical instance device, e.g., a web browser, with its own local data storage. For example, we consider two web browsers running on the same laptop as two independent devices, since these browsers generate their own encryption keys. In contrast, the II canister relies on hardware-generated encryption keys, distinguishing only hardware devices.
+
+To support multiple devices per user, IC Vault employs a device manager; a canister that securely synchronizes device-specific keys across all the devices that are associated with a user. The remainder of this document focuses on the encrypted notes dapp canister that implements a device manager in a similar way but as part of its main canister.
+
+For further details and user stories, please refer to the [README file](https://github.com/dfinity/examples/blob/master/motoko/encrypted-notes-dapp/README.md).
+
+![High-level architecture overview diagram of the Encrypted Notes dapp](_attachments/encrypted-notes-arch.png)
+
+## Note management
+
+-   Users are linked to II in the frontend, getting the user a principal that can be used for calling API queries and updates.
+
+-   Internally, we store the map of the form `Principal → [Notes]` and a `counter`.
+
+-   `counter` stores the number of notes the canister has created across all principals.
+
+-   Method `create` adds a note to its principal’s entry (if it exists), or adds the principal to the map with the `note_id == counter`, and then increments `counter`.
+
+-   Method `update` pulls a note, for the caller’s principal and for the provided `note_id` and replaces it with the provided `text` (this `text` is assumed to be encrypted by the frontend).
+
+-   Method `delete` finds the note with the given `note_id` in the map and removes it. To ensure that note IDs are always globally unique, we do not decrease `counter`.
+
+## Cryptography
+
+Encryption of notes is entirely client-side. However, our example dapp is still not protected against potentially data-revealing attacks by a possibly malicious node provider. For example, the attacker can infer how many notes a particular user has, user activity statistics, etc. Therefore, please carefully read the [disclaimer](https://github.com/dfinity/examples/blob/master/motoko/encrypted-notes-dapp/README.md#disclaimer-please-read-carefully) before using any of the code or patterns from this dapp.
+
+Recall that, in our definition, a device is not necessarily a separate physical device but simply a web browser instance with an independent local storage.
+
+This dapp uses three different kinds of keys:
+
+-   **Symmetric AES-GCM secret key**: Used to encrypt the notes of a given principal. The notes of a principal are stored in the encrypted notes dapp canister encrypted with this secret key. Thus, the frontend of the dapp needs to know this secret key to decrypt notes from this user and to send encrypted notes to be stored in the Encrypted Notes canister.
+
+-   **Device RSA-OAEP public key**: used to encrypt the symmetric AES **secret key** of the principal. The encrypted secret key is stored in the canister for each device registered to the principal. The same key is used for different principals using that device.
+
+-   **Device RSA-OAEP private key**: used to decrypt the symmetric AES **secret key** stored in the encrypted notes canister for a given principal. Once the frontend decrypts the secret key, it can use this key for decrypting the notes stored in the encrypted notes canister.
+
+We store a map of the form:
+
+        Principal → (DeviceAlias → PublicKey,
+                     DeviceAlias → CipherText)
+
+This map is used for managing user devices, as explained next. To register a device, the frontend generates a device alias, a public key, and a private key (held in its local storage).
+
+Adding a device:
+
+-   **Device registration:** if this identity is already known, a new device will remain unsynced at first; at this time, only the `alias` and `publickey` of this device will be added to the Encrypted Notes canister.
+
+-   **Device synchronization:** once an unsynced device obtains the list of all unsynced devices for this II, it will encrypt the symmetric AES **secret key** under each unsynced device’s public key. Afterwards, the unsynced device obtains the encrypted symmetric AES **secret key**, decrypts it, and then uses it to decrypt the existing notes stored in the encrypted notes canister.
+
+Once authenticated with II:
+
+-   If this identity is not known, then the frontend generates a symmetric AES **secret key** and encrypts it with its own public key. Then the frontend calls `seed(publickey, ciphertext)`, adding that `ciphertext` and its associated `publickey` to the map.
+
+-   If a user wants to register a subsequent device, the frontend calls `register_device`, passing in the `alias` and `publickey` of that device. The frontend then calls `submit_ciphertexts([publickey, ciphertext])` for all the devices it needs to register. This allows the registered devices to pull and decrypt the AES key to encrypt and decrypt the user notes.
+
+## Sequence diagrams
+
+### Adding a new device
+
+![UML sequence diagram showing device registration and synchronization](_attachments/encrypted-notes-seq.png)
+
+## Encrypted note taking dapp tutorial
+
+Follow the steps below to deploy this sample project.
+
+## Prerequisites
+- [x] Install the [IC SDK](../developer-docs/setup/install/index.mdx).
+- [x] Download and install [Docker](https://docs.docker.com/get-docker/) if using the Docker option. 
+- [x] Download the GitHub repo containing this project's files: https://github.com/dfinity/examples/tree/master/motoko/encrypted-notes-dapp. (If using Rust, use the /master/rust/encrypted-notes-dapp folder.)
+
+### Step 1. Navigate inside of the project's folder:
+
+```
+cd examples/motoko/encrypted-notes-dapp
+```
+
+This project folder contains the files for both Motoko and Rust development.
+
+### Step 2: Set an environmental variable reflecting which backend canister you'll be using:
+For Motoko deployment run:
+
+```
+export BUILD_ENV=motoko
+```
+
+For Rust deployment run:
+
+```
+export BUILD_ENV=rust
+```
+
+**Building the Rust canister requires either the Rust toolchain installed on your system or Docker-backed deployment (see below).**
+ 
+### Step 3: Deploy locally. 
+
+### Option 1: Docker deployment
+**This option does not yet work on Apple M1; the combination of DFX and Docker do not currently support the required architecture.**
+
+- #### Step 1: Install and start Docker by following the instructions.
+- #### Step 2: For Motoko build/deployment set environmental variable:
+        
+```
+export BUILD_ENV=motoko
+```
+
+- #### Step 3: Run the following Bash script that builds a Docker image, compiles the canister, and deploys this dapp (all inside the Docker instance). 
+
+Execution can take a few minutes:
+
+```
+sh ./deploy_locally.sh
+```
+
+
+**If this fails with "No such container", please ensure that the Docker daemon is running on your system.**
+
+- #### Step 4: To open the frontend, go to `http://localhost:3000/`.
+
+- #### Step 5: To stop the docker instance:
+   - Hit **Ctrl+C** on your keyboard to abort the running process.
+   - Run `docker ps` and find the <CONTAINER ID'\'> of encrypted_notes.
+   - Run `docker rm -f <CONTAINER ID'\'>`.
+
+### Option 2: Manual deployment
+- #### Step 1: For Motoko deployment set environmental variable:
+
+```
+export BUILD_ENV=motoko
+```
+
+- #### Step 2: To generate $BUILD_ENV-specific files (i.e., Motoko or Rust) run:
+
+```
+sh ./pre_deploy.sh
+```
+
+- #### Step 3: Install `npm` packages from the project root:
+
+```
+npm install
+```
+
+- #### Step 4: Start `dfx`:
+
+```
+dfx start
+```
+
+
+**If you see an error "Failed to set socket of tcp builder to 0.0.0.0:8000", make sure that the port 8000 is not occupied, e.g., by the previously run Docker command (you might want to stop the Docker daemon whatsoever for this step).**
+
+- #### Step 5: Install a local Internet Identity (II) canister.
+
+**If you have multiple dfx identities set up, ensure you are using the identity you intend to use with the `--identity` flag.**
+
+To install and deploy a canister run:
+
+```
+dfx deploy internet_identity --argument '(null)'
+```
+
+- #### Step 6: To print the Internet Identity URL, run:
+
+```
+npm run print-dfx-ii
+```
+
+Visit the URL from above and create at least one local Internet Identity.
+
+- #### Step 7: Deploy the encrypted notes backend canister:
+
+```
+dfx deploy "encrypted_notes_$BUILD_ENV"
+```
+
+**If you are deploying the Rust canister, you should first run `rustup target add wasm32-unknown-unknown`.**
+
+- #### Step 8: Update the generated canister interface bindings:
+
+```
+dfx generate "encrypted_notes_$BUILD_ENV"
+```
+
+- #### Step 9: Deploy the frontend canister.
+To install and deploy the canister run:
+
+```
+dfx deploy www
+```
+
+- #### Step 10: To print the frontend canister's URL, run:
+
+```
+npm run print-dfx-www
+```
+
+Visit the URL from above in a web browser. To run the frontend with hot-reloading on `http://localhost:3000/`, run:
+
+```
+npm run dev
+```
+
+
+**If you have opened this page previously, please remove all local store data for this page from your web browser, and hard-reload the page. For example in Chrome, go to Inspect → Application → Local Storage → http://localhost:3000/ → Clear All, and then reload.**
+ 
+
+### Mainnet deployment
+
+**Prior to starting the mainnet deployment process, ensure you have your identities and wallets set up for controlling the canisters correctly. This guide assumes that this work has been done in advance.**
+
+- #### Step 1: Create the canisters:
+
+```
+dfx canister --network ic create "encrypted_notes_${BUILD_ENV}"
+dfx canister --network ic create www
+```
+
+
+**`encrypted_notes_rust` will only work if you have the Rust toolchain installed.**
+
+- #### Step 2: Build the canisters:
+
+```
+dfx build "encrypted_notes_${BUILD_ENV}" --network ic
+dfx build www --network ic
+```
+
+- #### Step 3: Deploy to mainnet:
+
+
+**In the commands below, --mode could also be reinstall to reset the stable memory.**
+
+```
+dfx canister --network ic install "encrypted_notes_${BUILD_ENV}" --mode=upgrade
+dfx canister --network ic install www --mode=upgrade
+```
+
+## Security considerations and security best practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices, see also the [disclaimer](#disclaimer-please-read-carefully) above.  
 
 For example, the following aspects are particularly relevant for this app: 
 * [Make sure any action that only a specific user should be able to do requires authentication](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#make-sure-any-action-that-only-a-specific-user-should-be-able-to-do-requires-authentication), since a user should only be able to manage their own notes.
@@ -65,16 +294,18 @@ For example, the following aspects are particularly relevant for this app:
 ## Deployment
 ### Selecting backend canister deployment option
 * For **Motoko** deployment run:
-  ```sh
-  export BUILD_ENV=motoko
-  ```
+
+```sh
+export BUILD_ENV=motoko
+```
 
 * For **Rust** deployment run:
-  ```sh
-  export BUILD_ENV=rust
-  ```
 
-   _Note_: Building the Rust canister requires either the Rust toolchain installed on your system or Docker-backed deployment (see below). 
+```sh
+export BUILD_ENV=rust
+```
+
+**Note:** Building the Rust canister requires either the Rust toolchain installed on your system or Docker-backed deployment (see below). 
 
 ---
 &nbsp;
@@ -82,7 +313,7 @@ For example, the following aspects are particularly relevant for this app:
 ### Local deployment
 #### Option 1: Docker deployment
 
-_Note_: this option does not yet work on Apple M1; the combination of [DFX](https://smartcontracts.org/docs/developers-guide/cli-reference/dfx-parent.html) and Docker do not currently support the required architecture.
+**Note:** this option does not yet work on Apple M1; the combination of [DFX](https://internetcomputer.org/docs/current/references/cli-reference/dfx-parent) and Docker do not currently support the required architecture.
 
 1. Install and start Docker by following the [instructions](https://docs.docker.com/get-docker/).
 2. For **Motoko** build/deployment set environmental variable:
@@ -130,7 +361,7 @@ _Note_: this option does not yet work on Apple M1; the combination of [DFX](http
    dfx start --clean
    ```
    ⚠️ If you see an error `Failed to set socket of tcp builder to 0.0.0.0:8000`, make sure that the port `8000` is not occupied, e.g., by the previously run Docker command (you might want to stop the Docker deamon whatsoever for this step).
-7. Install a local [Internet Identity (II)](https://smartcontracts.org/docs/ic-identity-guide/what-is-ic-identity.html) canister:
+7. Install a local [Internet Identity (II)](https://wiki.internetcomputer.org/wiki/What_is_Internet_Identity) canister:
    _Note_: If you have multiple dfx identities set up, ensure you are using the identity you intend to use with the `--identity` flag.
    1. To install and deploy a canister run:
       ```sh
@@ -169,7 +400,7 @@ _Note_: this option does not yet work on Apple M1; the combination of [DFX](http
 &nbsp;
 
 ### Mainnet deployment
-_Note_: Prior to starting the mainnet deployment process, ensure you have your identities and wallets set up for controlling the canisters correctly. This guide assumes that this work has been done in advance. [More info here](https://smartcontracts.org/docs/developers-guide/cli-reference/dfx-identity.html).
+**Note:** Prior to starting the mainnet deployment process, ensure you have your identities and wallets set up for controlling the canisters correctly. This guide assumes that this work has been done in advance. [More info here](https://internetcomputer.org/docs/current/references/cli-reference/dfx-identity).
 
 1. Create the canisters:
    ```sh
@@ -184,7 +415,7 @@ _Note_: Prior to starting the mainnet deployment process, ensure you have your i
       ```
 
 3.  Deploy to mainnet:
-      _Note_: In the commands below, `--mode` could also be `reinstall` to reset the [stable memory](https://smartcontracts.org/docs/language-guide/upgrades.html).
+      _Note_: In the commands below, `--mode` could also be `reinstall` to reset the [stable memory](https://internetcomputer.org/docs/current/motoko/main/upgrades/).
 
       ```sh
       dfx canister --network ic install "encrypted_notes_${BUILD_ENV}" --mode=upgrade
@@ -211,12 +442,12 @@ Fig. 2. Basic single-device scenario for a user.
 
    At this moment, only one _deviceAlias_ variable is stored in the _Local Storage_ (see Fig. 2(a)).
 
-   _Note_: see [Troubleshooting](#troubleshooting) in case of problems.
+   **Note:** see [Troubleshooting](#troubleshooting) in case of problems.
 
 2. Click the "Login" button. You will be redirected to the _Internet Identity_ canister (see Fig. 2(b)).
 
    1. If you already have an `anchor`, you may continue with it. Click "Authenticate", then verify your identity and finally click "Proceed", see Fig. 2(c).
-   2. If you do not have an anchor yet, you should [create one](https://smartcontracts.org/docs/ic-identity-guide/auth-how-to.html). Once an `anchor` is created, please follow 2.1.
+   2. If you do not have an anchor yet, you should [create one](https://internetcomputer.org/how-it-works/web-authentication-identity/). Once an `anchor` is created, please follow 2.1.
 
 3. Once logged in for the first time, your notes list should be empty. At this moment, your _Local Storage_ should be populated with additional variables (see Fig. 2(d)): **ic-identity**, **ic-delegation**. These variables are used for storing/retrieving notes from the backend canister. In addition, another two variables are generated in the _IndexedDB_: **PrivateKey**, **PublicKey**. These two variable are used for encrypting/decrypting the shared secret key.
 4. Create/edit/delete notes and observe changes in the resulting notes list (see Fig. 2(e)).
@@ -407,18 +638,6 @@ A symmetric key for encrypting/decrypting the notes is stored in RAM (this key i
 ---
 &nbsp;
 
-
-## Further Reading
-To learn more about working with `dfx`, see the following online documentation:
-
-- [Quick Start](https://sdk.dfinity.org/docs/quickstart/quickstart-intro.html)
-- [SDK Developer Tools](https://sdk.dfinity.org/docs/developers-guide/sdk-guide.html)
-- [Motoko Programming Language Guide](https://sdk.dfinity.org/docs/language-guide/motoko.html)
-- [Motoko Language Quick Reference](https://sdk.dfinity.org/docs/language-guide/language-manual.html)
-- [JavaScript API Reference](https://erxue-5aaaa-aaaab-qaagq-cai.raw.ic0.app)
-
----
-&nbsp;
 
 ## Acknowledgments
 We thank the author of [IC Notes](https://github.com/pattad/ic_notes) whose code was the starting point for the frontend component used in this project.

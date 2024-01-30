@@ -57,13 +57,13 @@ shared({ caller = initializer }) actor class() {
 
     // Define private fields
     // Stable actor fields are automatically retained across canister upgrades. 
-    // See https://smartcontracts.org/docs/language-guide/upgrades.html
+    // See https://internetcomputer.org/docs/current/motoko/main/upgrades/
 
     // Design choice: Use globally unique note identifiers for all users.
     //
     // The keyword `stable` makes this (scalar) variable keep its value across canister upgrades.
     //
-    // See https://smartcontracts.org/docs/developers-guide/working-with-canisters.html#upgrade-canister
+    // See https://internetcomputer.org/docs/current/developer-docs/setup/manage-canisters#upgrade-a-canister
     private stable var nextNoteId: Nat = 1;
     
     // Internal representation: store each user's notes in a separate List. 
@@ -156,7 +156,7 @@ shared({ caller = initializer }) actor class() {
     // Shared functions, i.e., those specified with [shared], are 
     // accessible to remote callers. 
     // The extra parameter [caller] is the caller's principal
-    // See https://smartcontracts.org/docs/language-guide/actors-async.html
+    // See https://internetcomputer.org/docs/current/motoko/main/actors-async
 
     // Add new note for this [caller]. Note: this function may be called only by 
     // those users that have at least one device registered via [register_device].
@@ -200,7 +200,7 @@ shared({ caller = initializer }) actor class() {
     // functions gets through consensus. Otherwise, this function could e.g. omit some notes 
     // if it got executed by a malicious node. (To make the dapp more efficient, one could 
     // use an approach in which both queries and updates are combined.)
-    // See https://smartcontracts.org/docs/developers-guide/concepts/canisters-code.html#query-update
+    // See https://internetcomputer.org/docs/current/concepts/canisters-code#query-and-update-methods
     //
     // Returns: 
     //      Future of array of EncryptedNote
@@ -498,7 +498,7 @@ shared({ caller = initializer }) actor class() {
     };
 
     // Below, we implement the upgrade hooks for our canister.
-    // See https://smartcontracts.org/docs/language-guide/upgrades.html
+    // See https://internetcomputer.org/docs/current/motoko/main/upgrades/
 
     // The work required before a canister upgrade begins.
     // See [nextNoteId], [stable_notesByUser], [stable_users]
