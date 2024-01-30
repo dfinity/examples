@@ -1,4 +1,4 @@
-BUILD_ENV := motoko
+BUILD_ENV ?= motoko
 
 .PHONY: test test-unit test-e2e
 
@@ -30,6 +30,7 @@ test-e2e:
 	echo "ENCRYPTED NOTES E2E TESTS PASSED"
 
 clean:
+	dfx stop
 	rm -rf .dfx
 	rm -rf node_modules
 	rm -rf src/declarations

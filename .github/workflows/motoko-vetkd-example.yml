@@ -19,7 +19,7 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Darwin
         env:
-          DFX_VERSION: 0.14.2
+          NODE_VERSION: 19.8.1
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko vetKD Darwin
         run: |
@@ -32,8 +32,6 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
-        env:
-          DFX_VERSION: 0.14.2
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko vetKD Linux
         run: |

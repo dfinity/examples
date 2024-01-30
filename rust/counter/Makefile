@@ -19,6 +19,7 @@ upgrade: build
 
 .PHONY: test
 .SILENT: test
+test: install
 	cargo test
 	(  dfx canister call counter set '(7 : nat)' \
 	&& dfx canister call counter inc \

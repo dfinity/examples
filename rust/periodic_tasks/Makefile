@@ -23,8 +23,8 @@ upgrade: build
 .SILENT: deploy
 deploy:
 	# Deploy the canisters and run periodic tasks with 1s interval.
-	dfx deploy --argument 1 heartbeat
-	dfx deploy --argument 1 timer
+	dfx deploy heartbeat --argument 1
+	dfx deploy timer --argument 1
 
 .PHONY: test
 .SILENT: test

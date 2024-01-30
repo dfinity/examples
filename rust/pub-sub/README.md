@@ -28,28 +28,34 @@ dfx start --background
 dfx deploy
 ```
 
-### Step 3: Subscribe to the "Apples" topic:
+### Step 3: Get the publisher ID
 
 ```
-dfx canister call sub init '("Apples")'
+dfx canister id publisher
 ```
 
-### Step 4: Publish to the "Apples" topic:
+### Step 4: Subscribe to the "Apples" topic:
 
 ```
-dfx canister call pub publish '(record { "topic" = "Apples"; "value" = 2 })'
+dfx canister call subscriber setup_subscribe '(principal "<publisher ID from Step 3>", "Apples")'
 ```
 
-### Step 5: Receive your subscription:
+### Step 5: Publish to the "Apples" topic:
 
 ```
-dfx canister call sub getCount
+dfx canister call publisher publish '(record { "topic" = "Apples"; "value" = 2 })'
+```
+
+### Step 6: Receive your subscription:
+
+```
+dfx canister call subscriber get_count
 ```
 
 The output should resemble the following:
 
 ```
-(2 : nat)
+(2 : nat64)
 ```
 
 ## Security considerations and security best practices
