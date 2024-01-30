@@ -18,7 +18,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
-        run: DFX_VERSION="0.15.2" bash .github/workflows/provision-darwin.sh
+        run: bash .github/workflows/provision-darwin.sh
       - name: Rust Performance Counters Darwin
         run: |
           dfx start --background
@@ -30,7 +30,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
-        run: DFX_VERSION="0.15.2" bash .github/workflows/provision-linux.sh
+        run: bash .github/workflows/provision-linux.sh
       - name: Rust Performance Counters Linux
         run: |
           dfx start --background
