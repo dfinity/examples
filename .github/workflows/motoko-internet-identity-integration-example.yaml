@@ -1,0 +1,39 @@
+name: motoko-internet-identity-integration
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - motoko/internet_identity_integration/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-internet-identity-integration-example.yaml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  motoko-internet-identity-integration-example-darwin:
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Motoko Internet Identity Integration Darwin
+        run: |
+          dfx start --background
+          pushd motoko/internet_identity_integration
+          make test
+          popd
+  motoko-internet-identity-integration-example-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Motoko Internet Identity Integration Linux
+        run: |
+          dfx start --background
+          pushd motoko/internet_identity_integration
+          make test
+          popd

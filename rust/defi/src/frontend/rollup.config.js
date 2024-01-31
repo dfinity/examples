@@ -37,15 +37,12 @@ function initCanisterIds() {
 
   console.log(network);
 
-  const canisterIds =
-    network === "local"
-      ? localCanisters
-      : prodCanisters;
+  const canisterIds = network === "local" ? localCanisters : prodCanisters;
 
   return { canisterIds, network };
 }
 const { canisterIds, network } = initCanisterIds();
-console.log(canisterIds)
+console.log(canisterIds);
 
 function serve() {
   let server;
@@ -78,7 +75,8 @@ export default {
     sourcemap: true,
     format: "iife",
     name: "app",
-    file: "../frontend_assets/build/bundle.js",
+    file: "../frontend_assets/build/main.js",
+    inlineDynamicImports: true,
   },
   plugins: [
     svelte({

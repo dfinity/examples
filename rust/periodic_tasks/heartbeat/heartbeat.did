@@ -1,0 +1,6 @@
+service : (nat64) -> {
+    "counter" : () -> (nat32) query;
+    "set_interval_secs" : (nat64) -> ();
+    "stop" : () -> ();
+    "cycles_used" : () -> (nat64) query;
+};

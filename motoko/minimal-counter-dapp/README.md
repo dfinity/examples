@@ -1,47 +1,62 @@
-# Minimalistic Dapp
-The example dapp shows how to build a very basic dapp with both backend and frontend, using Motoko for the backend functionality and plain HTML and JavaScript for the frontend. The dapp is a simple counter, which will increment a counter by clicking a button in the frontend.
+# Minimal counter dapp
 
 ![Counter Frontend](README_images/frontend.png)
 
-## Introduction
+## Overview
+
+The example dapp shows how to build a very basic dapp with both backend and frontend, using Motoko for the backend functionality and plain HTML and JavaScript for the frontend. The dapp is a simple counter, which will increment a counter by clicking a button in the frontend.
+
 The purpose of this example dapp is to build a minimalistic dapp, based on the default dapp template, installed by DFX when creating a new project. The dapp is a simple website with a counter. Every time a button is pressed, a counter is incremented.
 
 This example covers:
 
-- Create new canister smart contract using the SDK (DFX)
-- Use the default project as a template as the starting point for the new project
-- Add backend functions for a counter (count, get count and reset count)
-- Implement backend functions in the frontend
-- Deploy the canister smart contract locally
-- Test backend with Candid UI and command line using DFX, and test frontend in browser
+- Create new canister smart contract using the IC SDK (DFX).
+- Use the default project as a template as the starting point for the new project.
+- Add backend functions for a counter (count, get count and reset count).
+- Implement backend functions in the frontend.
+- Deploy the canister smart contract locally.
+- Test backend with Candid UI and command line using DFX, and test frontend in browser.
 
-## Installation
-This example project can be cloned, installed and deployed locally, for learning and testing purposes. The instructions are based on running the example on either macOS or Linux, but when using WSL2 on Windows, the instructions will be the same.
+## Prerequisites
 
-### Prerequisites
-The example project requires the following installed:
+This example requires an installation of:
 
-- git
-- Node.js
-- dfx
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Install [Node.js](https://nodejs.org/en/download/).
+- [x] Download and install [git.](https://git-scm.com/downloads)
 
-Git and Node can be installed from various package managers. DFX can be installed following the instructions [here](https://smartcontracts.org/docs/quickstart/local-quickstart.html#download-and-install).
+Begin by opening a terminal window.
 
-### Install
-Install the example dapp project:
+### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-```bash
-$ git clone https://github.com/dfinity/examples
-$ cd motoko/minimal-counter-dapp
-$ npm install
+```
+cd examples/motoko/minimal-counter-dapp
+npm install
+dfx start --background
 ```
 
-The project folder will then look like this:
+### Step 2: Build and deploy the canister:
 
-![Project Files](README_images/project_files.png)
+```
+dfx deploy
+```
 
+The output will resemble the following:
 
-## Documentation
+```
+Deployed canisters.
+URLs:
+  Frontend canister via browser
+    minimal_dapp_assets: http://127.0.0.1:4943/?canisterId=br5f7-7uaaa-aaaaa-qaaca-cai
+  Backend canister via Candid interface:
+    minimal_dapp: http://127.0.0.1:4943/?canisterId=bw4dl-smaaa-aaaaa-qaacq-cai&id=be2us-64aaa-aaaaa-qaabq-cai
+```
+
+### Step 3: Open the `minimal_dapp_assets` URL in a web browser.
+
+You will see a GUI interface with a button that says **Click Me!** followed by a counter number. Each time the button is clicked, the counter value will increase by 1. 
+
+## Architecture
 The three main parts of the example dapp are the backend, the Candid interface and the frontend. This example project is based on the default project, which is created when running the `dfx new project_name` command, but most of the default project code is replaced to create the counter functionality in this project.
 
 ### Motoko backend
@@ -120,51 +135,21 @@ All HTML code is in the `src/minimal_dapp_assets/src/index.html` file, and most 
 ```
 
 #### Javascript
-Two eventlisteners are added to the JavaScript file, `src/minimal_dapp_assets/src/index.js`, the existing JavaScript file from the default project. One eventlistener is for detecting button clicks, and it's calling the `count()` function in the backend, and an eventlistener for page load is added to get the initial value of the counter with `getCount()`. The backend functions are imported through the Candid interface.
+Two `eventlisteners` are added to the JavaScript file, `src/minimal_dapp_assets/src/index.js`, the existing JavaScript file from the default project. One `eventlistener` is for detecting button clicks, and it's calling the `count()` function in the backend, and an `eventlistener` for page load is added to get the initial value of the counter with `getCount()`. The backend functions are imported through the Candid interface.
 
 ```javascript
 import { minimal_dapp } from "../../declarations/minimal_dapp";
 
-document.addEventListener('DOMContentLoaded', async function () {
+document.addEventListener("DOMContentLoaded", async () => {
   const counter = await minimal_dapp.getCount();
   document.getElementById("counter").innerText = "Counter: " + counter;
-})
+});
 
 document.getElementById("clickMeBtn").addEventListener("click", async () => {
   const counter = await minimal_dapp.count();
   document.getElementById("counter").innerText = "Counter: " + counter;
 });
 ```
-
-
-## Deployment
-The local network is started by running this command:
-
-```bash
-$ dfx start --background
-```
-
-When the local network is up and running, run this command to deploy the canisters:
-
-```bash
-$ dfx deploy
-```
-
-
-## Testing
-The functionality in this example dapp can be tested both in the frontend and in the backend. Before the example dapp can be tested, it must be deployed (locally) as described in the above Deployment section.
-
-### Test the Frontend
-The URL for the frontend depends on the canister ID, which can be retrieved from the `dfx canister id <canister_name>` command.
-
-```bash
-$ dfx canister id minimal_dapp_assets
-ryjl3-tyaaa-aaaaa-aaaba-cai
-```
-**https://<ui_canister_id>.localhost:8000**
-
-### Test the backend
-There are two ways of testing the backend. One way is by making command line requests using DFX, and the other way is to use the Candid UI.
 
 #### dfx
 DFX has a subset of commands for canister operations, and one of them enables calling the public functions added to the `main.mo` file in the previous step. In the following examples the initial value is 0. `count` will increment value and return 1, `getCount` will return the current value and `reset` will set the value to 0.
@@ -202,3 +187,11 @@ rrkah-fqaaa-aaaaa-aaaaq-cai
 
 ## License
 This project is licensed under the Apache 2.0 license, see LICENSE.md for details. See CONTRIBUTE.md for details about how to contribute to this project.
+
+## Security considerations and security best practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+
+For example, the following aspects are particularly relevant for this app:
+* [Use HTTP asset certification and avoid serving your dApp through raw.ic0.app](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#use-http-asset-certification-and-avoid-serving-your-dapp-through-rawic0app), since this app serves a frontend. 
+* [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since this app uses query calls.

@@ -9,6 +9,7 @@ img {
     display: block;
     margin: auto;
 }
+
 section {
     display: flex;
     flex-flow: row wrap;

@@ -1,4 +1,4 @@
-t.PHONY: all
+.PHONY: all
 all: build
 
 .PHONY: node_modules

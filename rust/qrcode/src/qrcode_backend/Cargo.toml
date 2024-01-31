@@ -1,0 +1,16 @@
+[package]
+edition = "2021"
+name = "qrcode_backend"
+version = "1.1.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+anyhow = "1.0"
+candid = "0.10"
+colorgrad = "0.6"
+ic-cdk = "0.12"
+image = { version = "0.24", features = ["png"], default-features = false }
+qrcode-generator = "4.1"
+serde = { version = "1.0", features = ["derive"] }

@@ -6,3 +6,5 @@ dist/
 _MACOSX
 .vscode/
 target/
+*.old.did
+.idea
