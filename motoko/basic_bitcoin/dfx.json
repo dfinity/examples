@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "canisters": {
+    "basic_bitcoin": {
+      "main": "src/basic_bitcoin/src/Main.mo"
+    }
+  },
+  "defaults": {
+    "bitcoin": {
+      "enabled": true,
+      "nodes": [
+        "127.0.0.1:18444"
+      ],
+      "log_level": "info"
+    },
+    "build": {
+      "packtool": "",
+      "args": ""
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:4943"
+    }
+  }
+}

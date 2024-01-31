@@ -9,11 +9,5 @@
       ]
     }
   },
-  "networks": {
-    "local": {
-      "bind": "localhost:8000",
-      "type": "ephemeral"
-    }
-  },
   "version": 1
 }

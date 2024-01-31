@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "canisters": {
+    "Map": {
+      "type": "motoko",
+      "main": "src/map/Map.mo"
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": ""
+    }
+  }
+}

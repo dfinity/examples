@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "send_http_post_backend": {
+      "candid": "src/send_http_post_backend/send_http_post_backend.did",
+      "package": "send_http_post_backend",
+      "type": "rust"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

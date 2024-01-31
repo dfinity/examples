@@ -1,0 +1,5 @@
+service : {
+  public_key : () -> (variant { Ok: record { public_key_hex: text; }; Err: text });
+  sign : (text) -> (variant { Ok: record { signature_hex: text; }; Err: text });
+  verify : (text, text, text) -> (variant { Ok: record { is_signature_valid: bool; }; Err: text });
+}

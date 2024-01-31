@@ -1,0 +1,279 @@
+type AddTentativeDeviceResponse = variant {
+  device_registration_mode_off;
+  another_device_tentatively_added;
+  added_tentatively : record {
+    verification_code : text;
+    device_registration_timeout : Timestamp;
+  };
+};
+type AnchorCredentials = record {
+  recovery_phrases : vec PublicKey;
+  credentials : vec WebAuthnCredential;
+  recovery_credentials : vec WebAuthnCredential;
+};
+type ArchiveConfig = record {
+  polling_interval_ns : nat64;
+  entries_buffer_limit : nat64;
+  module_hash : vec nat8;
+  entries_fetch_limit : nat16;
+};
+type ArchiveInfo = record {
+  archive_config : opt ArchiveConfig;
+  archive_canister : opt principal;
+};
+type AuthnMethod = variant { webauthn : WebAuthn; pubkey : PublicKeyAuthn };
+type AuthnMethodAddResponse = variant { ok; invalid_metadata : text };
+type AuthnMethodData = record {
+  metadata : MetadataMap;
+  protection : AuthnMethodProtection;
+  last_authentication : opt Timestamp;
+  authn_method : AuthnMethod;
+  purpose : Purpose;
+};
+type AuthnMethodProtection = variant { unprotected; protected };
+type AuthnMethodRegistrationInfo = record {
+  expiration : Timestamp;
+  authn_method : opt AuthnMethodData;
+};
+type AuthnMethodRemoveResponse = variant { ok };
+type BufferedArchiveEntry = record {
+  sequence_number : nat64;
+  entry : vec nat8;
+  anchor_number : UserNumber;
+  timestamp : Timestamp;
+};
+type CaptchaCreateResponse = variant { ok : Challenge };
+type CaptchaResult = ChallengeResult;
+type Challenge = record { png_base64 : text; challenge_key : ChallengeKey };
+type ChallengeKey = text;
+type ChallengeResult = record { key : ChallengeKey; chars : text };
+type CredentialId = vec nat8;
+type Delegation = record {
+  pubkey : PublicKey;
+  targets : opt vec principal;
+  expiration : Timestamp;
+};
+type DeployArchiveResult = variant {
+  creation_in_progress;
+  success : principal;
+  failed : text;
+};
+type DeviceData = record {
+  alias : text;
+  metadata : opt MetadataMap;
+  origin : opt text;
+  protection : DeviceProtection;
+  pubkey : DeviceKey;
+  key_type : KeyType;
+  purpose : Purpose;
+  credential_id : opt CredentialId;
+};
+type DeviceKey = PublicKey;
+type DeviceProtection = variant { unprotected; protected };
+type DeviceRegistrationInfo = record {
+  tentative_device : opt DeviceData;
+  expiration : Timestamp;
+};
+type DeviceWithUsage = record {
+  alias : text;
+  last_usage : opt Timestamp;
+  metadata : opt MetadataMap;
+  origin : opt text;
+  protection : DeviceProtection;
+  pubkey : DeviceKey;
+  key_type : KeyType;
+  purpose : Purpose;
+  credential_id : opt CredentialId;
+};
+type FrontendHostname = text;
+type GetDelegationResponse = variant {
+  no_such_delegation;
+  signed_delegation : SignedDelegation;
+};
+type GetIdAliasError = variant {
+  NoSuchCredentials : text;
+  AuthenticationFailed : text;
+};
+type GetIdAliasRequest = record {
+  rp_id_alias_jwt : text;
+  issuer : FrontendHostname;
+  issuer_id_alias_jwt : text;
+  relying_party : FrontendHostname;
+  identity_number : IdentityNumber;
+};
+type HeaderField = record { text; text };
+type HttpRequest = record {
+  url : text;
+  method : text;
+  body : vec nat8;
+  headers : vec HeaderField;
+  certificate_version : opt nat16;
+};
+type HttpResponse = record {
+  body : vec nat8;
+  headers : vec HeaderField;
+  upgrade : opt bool;
+  streaming_strategy : opt StreamingStrategy;
+  status_code : nat16;
+};
+type IdAliasCredentials = record {
+  rp_id_alias_credential : SignedIdAlias;
+  issuer_id_alias_credential : SignedIdAlias;
+};
+type IdentityAnchorInfo = record {
+  devices : vec DeviceWithUsage;
+  device_registration : opt DeviceRegistrationInfo;
+};
+type IdentityInfo = record {
+  authn_methods : vec AuthnMethodData;
+  metadata : MetadataMap;
+  authn_method_registration : opt AuthnMethodRegistrationInfo;
+};
+type IdentityInfoResponse = variant { ok : IdentityInfo };
+type IdentityMetadataReplaceResponse = variant { ok };
+type IdentityNumber = nat64;
+type IdentityRegisterResponse = variant {
+  ok : IdentityNumber;
+  invalid_metadata : text;
+  bad_captcha;
+  canister_full;
+};
+type InternetIdentityInit = record {
+  max_num_latest_delegation_origins : opt nat64;
+  assigned_user_number_range : opt record { nat64; nat64 };
+  max_inflight_captchas : opt nat64;
+  archive_config : opt ArchiveConfig;
+  canister_creation_cycles_cost : opt nat64;
+  register_rate_limit : opt RateLimitConfig;
+};
+type InternetIdentityStats = record {
+  storage_layout_version : nat8;
+  users_registered : nat64;
+  max_num_latest_delegation_origins : nat64;
+  assigned_user_number_range : record { nat64; nat64 };
+  latest_delegation_origins : vec FrontendHostname;
+  archive_info : ArchiveInfo;
+  canister_creation_cycles_cost : nat64;
+};
+type KeyType = variant {
+  platform;
+  seed_phrase;
+  cross_platform;
+  unknown;
+  browser_storage_key;
+};
+type MetadataMap = vec record {
+  text;
+  variant { map : MetadataMap; string : text; bytes : vec nat8 };
+};
+type PrepareIdAliasError = variant { AuthenticationFailed : text };
+type PrepareIdAliasRequest = record {
+  issuer : FrontendHostname;
+  relying_party : FrontendHostname;
+  identity_number : IdentityNumber;
+};
+type PreparedIdAlias = record {
+  rp_id_alias_jwt : text;
+  issuer_id_alias_jwt : text;
+  canister_sig_pk_der : PublicKey;
+};
+type PublicKey = vec nat8;
+type PublicKeyAuthn = record { pubkey : PublicKey };
+type Purpose = variant { authentication; recovery };
+type RateLimitConfig = record { max_tokens : nat64; time_per_token_ns : nat64 };
+type RegisterResponse = variant {
+  bad_challenge;
+  canister_full;
+  registered : record { user_number : UserNumber };
+};
+type SessionKey = PublicKey;
+type SignedDelegation = record {
+  signature : vec nat8;
+  delegation : Delegation;
+};
+type SignedIdAlias = record {
+  credential_jws : text;
+  id_alias : principal;
+  id_dapp : principal;
+};
+type StreamingCallbackHttpResponse = record {
+  token : opt Token;
+  body : vec nat8;
+};
+type StreamingStrategy = variant {
+  Callback : record {
+    token : Token;
+    callback : func (Token) -> (StreamingCallbackHttpResponse) query;
+  };
+};
+type Timestamp = nat64;
+type Token = record {};
+type UserKey = PublicKey;
+type UserNumber = nat64;
+type VerifyTentativeDeviceResponse = variant {
+  device_registration_mode_off;
+  verified;
+  wrong_code : record { retries_left : nat8 };
+  no_device_to_verify;
+};
+type WebAuthn = record { pubkey : PublicKey; credential_id : CredentialId };
+type WebAuthnCredential = record {
+  pubkey : PublicKey;
+  credential_id : CredentialId;
+};
+service : {
+  acknowledge_entries : (nat64) -> ();
+  add : (UserNumber, DeviceData) -> ();
+  add_tentative_device : (UserNumber, DeviceData) -> (
+      AddTentativeDeviceResponse,
+    );
+  authn_method_add : (IdentityNumber, AuthnMethodData) -> (
+      opt AuthnMethodAddResponse,
+    );
+  authn_method_remove : (IdentityNumber, PublicKey) -> (
+      opt AuthnMethodRemoveResponse,
+    );
+  captcha_create : () -> (opt CaptchaCreateResponse);
+  create_challenge : () -> (Challenge);
+  deploy_archive : (vec nat8) -> (DeployArchiveResult);
+  enter_device_registration_mode : (UserNumber) -> (Timestamp);
+  exit_device_registration_mode : (UserNumber) -> ();
+  fetch_entries : () -> (vec BufferedArchiveEntry);
+  get_anchor_credentials : (UserNumber) -> (AnchorCredentials) query;
+  get_anchor_info : (UserNumber) -> (IdentityAnchorInfo);
+  get_delegation : (UserNumber, FrontendHostname, SessionKey, Timestamp) -> (
+      GetDelegationResponse,
+    ) query;
+  get_id_alias : (GetIdAliasRequest) -> (
+      variant { Ok : IdAliasCredentials; Err : GetIdAliasError },
+    ) query;
+  get_principal : (UserNumber, FrontendHostname) -> (principal) query;
+  http_request : (HttpRequest) -> (HttpResponse) query;
+  http_request_update : (HttpRequest) -> (HttpResponse);
+  identity_info : (IdentityNumber) -> (opt IdentityInfoResponse);
+  identity_metadata_replace : (IdentityNumber, MetadataMap) -> (
+      opt IdentityMetadataReplaceResponse,
+    );
+  identity_register : (AuthnMethodData, CaptchaResult, opt principal) -> (
+      opt IdentityRegisterResponse,
+    );
+  init_salt : () -> ();
+  lookup : (UserNumber) -> (vec DeviceData) query;
+  prepare_delegation : (
+      UserNumber,
+      FrontendHostname,
+      SessionKey,
+      opt nat64,
+    ) -> (UserKey, Timestamp);
+  prepare_id_alias : (PrepareIdAliasRequest) -> (
+      variant { Ok : PreparedIdAlias; Err : PrepareIdAliasError },
+    );
+  register : (DeviceData, ChallengeResult, opt principal) -> (RegisterResponse);
+  remove : (UserNumber, DeviceKey) -> ();
+  replace : (UserNumber, DeviceKey, DeviceData) -> ();
+  stats : () -> (InternetIdentityStats) query;
+  update : (UserNumber, DeviceKey, DeviceData) -> ();
+  verify_tentative_device : (UserNumber, text) -> (
+      VerifyTentativeDeviceResponse,
+    );
+}

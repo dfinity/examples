@@ -1,0 +1,29 @@
+{
+    "canisters": {
+        "data_partition": {
+            "candid": "data_partition.did",
+            "package": "data_partition",
+            "type": "rust"
+        },
+        "kv_frontend": {
+            "candid": "kv_frontend.did",
+            "package": "kv_frontend",
+            "wasm": "kv_frontend.wasm",
+            "build": "./build.sh",
+            "type": "custom"
+        }
+    },
+    "defaults": {
+        "build": {
+            "args": "",
+            "packtool": ""
+        }
+    },
+    "networks": {
+        "local": {
+            "bind": "127.0.0.1:8000",
+            "type": "ephemeral"
+        }
+    },
+    "version": 1
+}

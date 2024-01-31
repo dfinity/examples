@@ -1,0 +1,18 @@
+{
+  "name": "svelte-motoko-starter",
+  "version": "0.1.0",
+  "description": "Internet Computer starter application",
+  "keywords": [
+    "Internet Computer",
+    "Motoko",
+    "Svelte",
+    "Canister",
+    "Internet Identity"
+  ],
+  "scripts": {
+    "build": "cd src/frontend && npm run build",
+    "prebuild": "dfx generate",
+    "dev": "cd src/frontend && npm run dev",
+    "prestart": "dfx generate"
+  }
+}
