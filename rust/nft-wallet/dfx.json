@@ -1,17 +1,20 @@
 {
   "version": 1,
-  "dfx": "0.8.4",
   "canisters": {
     "nftwallet": {
-      "type": "custom",
-      "wasm": "target/wasm32-unknown-unknown/release/nft_wallet-opt.wasm",
+      "type": "rust",
       "candid": "nftwallet.did",
-      "build": "./build.sh"
+      "package": "nftwallet"
     },
     "internet_identity": {
       "type": "custom",
-      "candid": "internet-identity/internet_identity.did",
-      "wasm": "internet-identity/internet_identity.wasm"
+      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz",
+      "remote": {
+        "id": {
+          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+        }
+      }
     }
   }
 }

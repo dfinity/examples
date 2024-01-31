@@ -1,11 +1,12 @@
 {
   "canisters": {
     "pub": {
+      "type": "motoko",
       "main": "src/pub/Main.mo"
     },
     "sub": {
+      "type": "motoko",
       "main": "src/sub/Main.mo"
     }
-  },
-  "dfx": "0.9.2"
+  }
 }

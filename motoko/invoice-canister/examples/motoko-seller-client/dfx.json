@@ -1,0 +1,35 @@
+{
+  "canisters": {
+    "invoice": {
+      "main": "src/backend/Invoice.mo",
+      "type": "motoko",
+      "declarations": {
+        "output": "src/declarations/invoice"
+      }
+    },
+    "seller": {
+      "main": "src/backend/Seller.mo",
+      "type": "motoko",
+      "declarations": {
+        "output": "src/declarations/seller"
+      }
+    },
+    "frontend": {
+      "frontend": {
+        "entrypoint": "src/frontend/src/index.html"
+      },
+      "source": [
+        "src/frontend/assets",
+        "dist/frontend/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": "vessel sources"
+    }
+  },
+  "version": 1
+}

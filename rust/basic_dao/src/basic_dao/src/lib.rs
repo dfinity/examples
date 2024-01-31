@@ -1,13 +1,13 @@
-mod types;
-mod service;
 mod env;
-mod init;
 mod heartbeat;
+mod init;
+mod service;
+mod types;
 
-use ic_cdk_macros::*;
-use std::cell::RefCell;
 use crate::service::BasicDaoService;
 use crate::types::*;
+use ic_cdk_macros::*;
+use std::cell::RefCell;
 
 thread_local! {
     static SERVICE: RefCell<BasicDaoService> = RefCell::default();
@@ -38,7 +38,7 @@ fn list_accounts() -> Vec<Account> {
 }
 
 #[update]
-#[ic_cdk::export::candid::candid_method(query)]
+#[ic_cdk::export::candid::candid_method]
 fn submit_proposal(proposal: ProposalPayload) -> Result<u64, String> {
     SERVICE.with(|service| service.borrow_mut().submit_proposal(proposal))
 }

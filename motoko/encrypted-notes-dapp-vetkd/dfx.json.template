@@ -1,0 +1,49 @@
+{
+  "canisters": {
+    "vetkd_system_api": {
+      "candid": "vetkd_system_api.did",
+      "type": "custom",
+      "wasm": "vetkd_system_api.wasm"
+    },
+    "encrypted_notes_motoko": {
+      "dependencies": [
+        "vetkd_system_api"
+      ],
+      "main": "src/encrypted_notes_motoko/main.mo",
+      "type": "motoko"
+    },
+    "encrypted_notes_rust": {
+      "dependencies": [
+        "vetkd_system_api"
+      ],
+      "type": "rust",
+      "candid": "src/encrypted_notes_rust/src/encrypted_notes_rust.did",
+      "package": "encrypted_notes_rust"
+    },
+    "www": {
+      "dependencies": [
+        "encrypted_notes_{{ BUILD_ENV }}",
+        "vetkd_system_api"
+      ],
+      "frontend": {
+        "entrypoint": "src/frontend/public/index.html"
+      },
+      "source": [
+        "src/frontend/public/"
+      ],
+      "type": "assets"
+    },
+    "internet_identity": {
+      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
+      "type": "custom",
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz"
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "0.0.0.0:8000",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
+}

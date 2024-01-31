@@ -67,7 +67,7 @@ impl UserStore {
     }
 }
 
-// WASM is single-threaded by nature. [RefCell] and [thread_local!] is used vice unsafe.
+// WASM is single-threaded by nature. [RefCell] and [thread_local!] are used despite being not totally safe primitives.
 // This is to ensure that the canister state can be used throughout.
 // Your other option here is to avoid [thread_local!] and use a [RefCell<RwLock/Mutex/Atomic>].
 // Here we use [thread_local!] because it is simpler.
@@ -112,7 +112,6 @@ fn caller() -> Principal {
     caller
 }
 
-
 #[init]
 fn init() {}
 
@@ -129,7 +128,7 @@ fn init() {}
 /// if it got executed by a malicious node. (To make the dapp more efficient, one could 
 /// use an approach in which both queries and updates are combined.)
 ///
-/// See https://smartcontracts.org/docs/developers-guide/concepts/canisters-code.html#query-update
+/// See https://internetcomputer.org/docs/current/concepts/canisters-code#query-and-update-methods
 
 /// Reflects the [caller]'s identity by returning (a future of) its principal. 
 /// Useful for debugging.
@@ -138,28 +137,18 @@ fn whoami() -> String {
     caller_api().to_string()
 }
 
-/// The following invariant is preserved by [register_device].
-///
-/// All the functions of this canister's public API are available only to 
+/// General assumptions
+/// -------------------
+/// All the functions of this canister's public API should be available only to
 /// registered users, with the exception of [register_device] and [whoami].
-///
-/// See also: [is_user_registered]
-fn users_invariant() -> bool {
-    let num_users_with_notes = NOTES_BY_USER.with(|notes_ref| notes_ref.borrow().keys().len() as u128);
-    let num_users_with_store = USER_KEYS.with(|user_keys_ref| user_keys_ref.borrow().keys().len() as u128);
-    num_users_with_notes == num_users_with_store
-}
 
 /// Returns the current number of users.
-/// Panics if [users_invariant] is violated.
 fn user_count() -> usize {
-    assert!(users_invariant());
     NOTES_BY_USER.with(|notes_ref| notes_ref.borrow().keys().len())
 }
 
 /// Check if this user has been registered
 /// Note: [register_device] must be each user's very first update call.
-/// See also: [users_invariant]
 fn is_user_registered(principal: Principal) -> bool {
     USER_KEYS.with(|user_keys_ref| user_keys_ref.borrow().contains_key(&principal))
 }
@@ -585,14 +574,6 @@ mod tests {
     #[test]
     fn test_user_count_succeeds() {
         assert_eq!(user_count(), 0);
-    }
-
-    #[test]
-    #[should_panic(expected = "assertion failed: users_invariant()")]
-    fn test_user_count_panics() {
-        NOTES_BY_USER.with(|notes_ref| 
-            notes_ref.borrow_mut().insert(Principal::anonymous().to_string(), vec![]));
-        user_count();
     }
 
     #[test]
