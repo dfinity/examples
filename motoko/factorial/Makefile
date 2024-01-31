@@ -21,7 +21,7 @@ upgrade: build
 .SILENT: test
 test: install
 	dfx canister call factorial fac '(20)' \
-		| grep '(2_432_902_008_176_640_000)' && echo 'PASS'
+		| grep '(2_432_902_008_176_640_000 : nat)' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean

@@ -1,0 +1,6 @@
+[
+    {
+        "match": ".well-known",
+        "ignore": false
+    }
+]

@@ -1,4 +1,5 @@
 {
+  "name": "template_assets",
   "author": {
     "email": "enzo@dfinity.org",
     "name": "Enzo Haussecker"
@@ -9,24 +10,54 @@
       "name": "Andrew Wylde"
     }
   ],
-  "dependencies": {
-    "@babel/core": "7.9.0",
-    "@babel/preset-react": "7.9.0",
-    "@dfinity/agent": "0.6.20",
-    "babel-loader": "8.1.0",
-    "react": "16.13.1",
-    "react-dom": "16.13.1",
-    "webpack": "4.43.0",
-    "webpack-cli": "3.3.12"
-  },
+  "license": "SEE LICENSE IN LICENSE",
+  "version": "0.0.0",
   "description": [
     "A simple example that demonstrates how to build a CRUD application on",
     "the Internet Computer using Motoko and React."
   ],
-  "license": "SEE LICENSE IN LICENSE",
-  "name": "superheroes",
+  "keywords": [
+    "Internet Computer",
+    "Motoko",
+    "JavaScript",
+    "Canister"
+  ],
   "scripts": {
-    "build": "webpack"
+    "build": "webpack",
+    "prebuild": "npm run generate",
+    "start": "webpack serve --mode development --env development",
+    "prestart": "npm run generate",
+    "generate": "dfx generate superheroes"
   },
-  "version": "0.0.0"
+  "devDependencies": {
+    "@dfinity/agent": "^0.15.1",
+    "@dfinity/candid": "^0.15.1",
+    "@dfinity/principal": "^0.15.1",
+    "assert": "2.0.0",
+    "buffer": "6.0.3",
+    "copy-webpack-plugin": "^9.0.1",
+    "css-loader": "^6.0.0",
+    "events": "3.3.0",
+    "html-webpack-plugin": "5.3.1",
+    "process": "0.11.10",
+    "stream-browserify": "3.0.0",
+    "style-loader": "^3.1.0",
+    "terser-webpack-plugin": "5.1.1",
+    "ts-loader": "^9.2.3",
+    "typescript": "^4.3.5",
+    "util": "0.12.3",
+    "webpack": "^5.87.0",
+    "webpack-cli": "4.5.0",
+    "webpack-dev-server": "^4.6.0"
+  },
+  "browserslist": [
+    "last 2 chrome version",
+    "last 2 firefox version",
+    "last 2 safari version",
+    "last 2 edge version"
+  ],
+  "dependencies": {
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2"
+  }
 }

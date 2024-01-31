@@ -1,29 +1,56 @@
-name: motoko-hello-world-example
+name: motoko-hello-world
 on:
   push:
     branches:
       - master
   pull_request:
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
+  # JOB to run change detection
+  changes:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
+    # Set job outputs to values from filter step
+    outputs:
+      sources: ${{ steps.filter.outputs.sources }}
+    steps:
+      - uses: actions/checkout@v4
+        if: github.event_name == 'push'
+      - uses: dorny/paths-filter@v3
+        id: filter
+        with:
+          filters: |
+            sources:
+              - motoko/hello-world/**
+              - .github/workflows/provision-darwin.sh
+              - .github/workflows/provision-linux.sh
+              - .github/workflows/motoko-hello-world-example.yaml
   motoko-hello-world-example-darwin:
-    runs-on: macos-10.15
+    needs: changes
+    if: github.event_name == 'push' || needs.changes.outputs.sources == 'true'
+    runs-on: macos-12
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
-      - name: Motoko Hello World Exmaple Darwin
+      - name: Motoko Hello World Darwin
         run: |
           dfx start --background
           pushd motoko/hello-world
           make test
           popd
   motoko-hello-world-example-linux:
+    needs: changes
+    if: github.event_name == 'push' || needs.changes.outputs.sources == 'true'
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
-      - name: Motoko Hello World Exmaple Linux
+      - name: Motoko Hello World Linux
         run: |
           dfx start --background
           pushd motoko/hello-world

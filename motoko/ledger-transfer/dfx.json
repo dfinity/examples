@@ -1,0 +1,23 @@
+{
+  "canisters": {
+    "ledger_transfer": {
+      "dependencies": [
+        "ledger"
+      ],
+      "main": "src/ledger_transfer/main.mo",
+      "type": "motoko"
+    },
+    "ledger": {
+      "type": "custom",
+      "candid": "ledger.public.did",
+      "wasm": "ledger.wasm"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "version": 1
+}

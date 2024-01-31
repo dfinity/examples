@@ -1,6 +1,6 @@
 # Hello World
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.24-blue)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.25-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-hello-world--example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-hello-world-example)
 
 This example demonstrates a canister called `hello_world`, which exports a
@@ -15,6 +15,10 @@ Verify the following before running this demo:
 
 *  You have stopped any Internet Computer or other network process that would
    create a port conflict on 8000.
+
+## Security Considerations and Security Best Practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 
 ## Demo
 

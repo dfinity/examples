@@ -1,103 +1,90 @@
 # Simple To-Do
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.24-blue)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.25-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-simple-to-do-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-simple-to-do-example)
 
-This example illustrates how to create a simple to-do checklist application.
+# Simple to-do
 
-## Introduction
+## Overview
+This example illustrates how to create a simple to-do checklist application. 
 
 The application is built from the following Motoko source code files:
 
-*  `Utils.mo`, which contains the core functions for adding, completing, and
-   removing to-do checklist items;
+- `Utils.mo`: contains the core functions for adding, completing, and removing to-do checklist items.
+- `Types.mo`: contains the type definition of a to-do checklist item.
+- `Main.mo`: contains the actor definition and methods exposed by this canister.
 
-*  `Types.mo`, which contains the type definition of a to-do checklist item;
-   and
-
-*  `Main.mo`, which contains the actor definition and methods exposed by this
-   canister.
+This is a Motoko example that does not currently have a Rust variant. 
 
 ## Prerequisites
+This example requires an installation of:
 
-Verify the following before running this demo:
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 
-*  You have downloaded and installed the [DFINITY Canister
-   SDK](https://sdk.dfinity.org).
+Begin by opening a terminal window.
 
-*  You have stopped any Internet Computer or other network process that would
-   create a port conflict on 8000.
+### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-## Demo
+```
+cd examples/motoko/simple-to-do
+dfx start --background
+```
 
-1. Start a local internet computer.
+### Step 2: Deploy the canister:
 
-   ```text
-   dfx start
-   ```
+```
+dfx deploy
+```
 
-1. Open a new terminal window.
+### Step 3: Create a to-do checklist by invoking the addTodo method:
 
-1. Reserve an identifier for your canister.
+```
+dfx canister call simple_to_do addTodo '("Create a project")'
+dfx canister call simple_to_do addTodo '("Build the project")'
+dfx canister call simple_to_do addTodo '("Deploy the project")'
+```
 
-   ```text
-   dfx canister create simple_to_do
-   ```
+### Step 4: Display the to-do checklist by invoking the showTodos method:
 
-1. Build your canister.
+```
+dfx canister call simple_to_do showTodos
+```
 
-   ```text
-   dfx build
-   ```
+### Step 5: Verify the output returns the values you inputted:
 
-1. Deploy your canister.
+```
+("
+___TO-DOs___
+(1) Create a project
+(2) Build the project
+(3) Deploy the project")
+```
 
-   ```text
-   dfx canister install simple_to_do
-   ```
+### Step 6: Complete a to-do checklist item by invoking the completeTodo method:
 
-1. Create a to-do checklist by invoking the `addTodo` method.
+```
+dfx canister call simple_to_do completeTodo '(1)'
+```
 
-   ```text
-   dfx canister call simple_to_do addTodo '("Create a project")'
-   dfx canister call simple_to_do addTodo '("Build the project")'
-   dfx canister call simple_to_do addTodo '("Deploy the project")'
-   ```
+### Step 7: Display the to-do checklist by invoking the showTodos method.
 
-1. Display the to-do checklist by invoking the `showTodos` method.
+```
+dfx canister call simple_to_do showTodos
+```
 
-   ```text
-   dfx canister call simple_to_do showTodos
-   ```
+### Step 8: Verify the return value matches what you would expect.
 
-1. Verify the return value matches what you would expect.
+```
+("
+___TO-DOs___
+(1) Create a project ✔
+(2) Build the project
+(3) Deploy the project")
+```
+## Security considerations and security best practices
 
-   ```text
-   ("
-   ___TO-DOs___
-   (1) Create a project
-   (2) Build the project
-   (3) Deploy the project")
-   ```
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 
-1. Complete a to-do checklist item by invoking the `completeTodo` method.
+For example, the following aspect is particularly relevant for this app:
+* [Validate inputs](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#validate-inputs), since this canister processes user-provided input. 
 
-   ```text
-   dfx canister call simple_to_do completeTodo '(1)'
-   ```
-
-1. Display the to-do checklist by invoking the `showTodos` method.
-
-   ```text
-   dfx canister call simple_to_do showTodos
-   ```
-
-1. Verify the return value matches what you would expect.
-
-   ```text
-   ("
-   ___TO-DOs___
-   (1) Create a project ✔
-   (2) Build the project
-   (3) Deploy the project")
-   ```

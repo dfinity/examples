@@ -1,0 +1,27 @@
+{
+  "canisters": {
+    "cert_var": {
+      "main": "src/cert_var/main.mo",
+      "type": "motoko"
+    },
+    "cert_var_assets": {
+      "dependencies": [
+        "cert_var"
+      ],
+      "frontend": {
+        "entrypoint": "src/cert_var_assets/src/index.html"
+      },
+      "source": [
+        "src/cert_var_assets/assets",
+        "dist/cert_var_assets/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": ""
+    }
+  },
+  "version": 1
+}

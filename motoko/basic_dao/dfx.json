@@ -1,0 +1,7 @@
+{
+  "canisters": {
+    "basic_dao": {
+      "main": "src/Main.mo"
+    }
+  }
+}

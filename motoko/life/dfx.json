@@ -1,0 +1,30 @@
+{
+  "canisters": {
+    "life": {
+      "main": "src/life/main.mo",
+      "type": "motoko",
+      "declarations": {
+        "output": "declarations/life"
+      }
+    },
+    "life_assets": {
+      "dependencies": [
+        "life"
+      ],
+      "frontend": {
+        "entrypoint": "src/life_assets/public/index.html"
+      },
+      "source": [
+        "src/life_assets/assets",
+        "dist/life_assets/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": ""
+    }
+  },
+  "version": 1
+}

@@ -1,61 +1,56 @@
-# Who Am I?
+# Who am I?
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.24-blue)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.25-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-whoami-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-whoami-example)
+
+## Overview
 
 This example demonstrates how a canister can identify its caller and itself.
 
 ## Prerequisites
 
-Verify the following before running this demo:
+This example requires an installation of:
 
-*  You have downloaded and installed the [DFINITY Canister
-   SDK](https://sdk.dfinity.org).
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 
-*  You have stopped any Internet Computer or other network process that would
-   create a port conflict on 8000.
+Begin by opening a terminal window.
 
-## Demo
+### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-1. Start a local internet computer.
+```
+cd examples/motoko/whoami
+dfx start --background
+```
 
-   ```text
-   dfx start
-   ```
+### Step 2: Build and deploy the canister:
 
-1. Open a new terminal window.
+```
+dfx canister install whoami --argument='(principal "2mxjj-pyyts-rk2hl-2xyka-avylz-dfama-pqui5-pwrhx-wtq2x-xl5lj-qqe")'
+dfx build
+dfx deploy
+```
 
-1. Reserve an identifier for your canister.
+### Step 3: Invoke the `whoami` method:
 
-   ```text
-   dfx canister create --all
-   ```
+```
+dfx canister call whoami whoami
+```
 
-1. Build your canister.
+### Step 4: Observe your principal identifier.
 
-   ```text
-   dfx build
-   ```
+### Step 5: Invoke the `id` method:
 
-1. Deploy your canister.
+```
+dfx canister call whoami id
+```
 
-   ```text
-   dfx canister install --all
-   ```
-
-1. Invoke the `whoami` method.
-
-   ```text
-   dfx canister call whoami whoami
-   ```
-
-1. Observe your principal identifier.
+### Step 6: Observe the principal identifier of your canister.
 
 
-1. Invoke the `id` method.
+## Security considerations and security best practices
 
-   ```text
-   dfx canister call whoami id
-   ```
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 
-1. Observe the principal identifier of your canister.
+For example, the following aspects are particularly relevant for this app:
+* [Make sure any action that only a specific user should be able to do requires authentication](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#make-sure-any-action-that-only-a-specific-user-should-be-able-to-do-requires-authentication), since this example illustrates how to access the caller system API. 
+* [Disallow the anonymous principal in authenticated calls](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#disallow-the-anonymous-principal-in-authenticated-calls), since the caller system API may return the anonymous principal.

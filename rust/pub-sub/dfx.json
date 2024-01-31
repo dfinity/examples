@@ -1,0 +1,15 @@
+{
+  "version": 1,
+  "canisters": {
+    "publisher": {
+      "package": "publisher",
+      "candid": "src/publisher/src/publisher.did",
+      "type": "rust"
+    },
+    "subscriber": {
+      "package": "subscriber",
+      "candid": "src/subscriber/src/subscriber.did",
+      "type": "rust"
+    }
+  }
+}

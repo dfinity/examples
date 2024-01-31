@@ -1,72 +1,55 @@
 # Phone book
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.24-blue)
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.25-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-phone-book-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-phone-book-example)
 
-This example demonstrates a phone book application that is accessible from your
-web browser.
+## Overview
 
-## Introduction
+This example demonstrates a phone book application that is accessible from your web browser.
 
 The application is built from the following Motoko source code files:
 
-*  `index.jsx`, which contains the JavaScript, React, and HTML used to generate
-   the front-end user interface for the application when it is launched in a
-   web browser; and
+- `index.jsx`: contains the JavaScript, React, and HTML used to generate the front-end user interface for the application when it is launched in a web browser.
+- `Main.mo`: contains the actor definition and methods exposed by this canister.
 
-*  `Main.mo`, which contains the actor definition and methods exposed by this
-   canister.
+This is a Motoko example that does not currently have a Rust variant. 
 
 ## Prerequisites
+This example requires an installation of:
 
-Verify the following before running this demo:
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Install [Node.js](https://nodejs.org/en/download/).
 
-*  You have downloaded and installed [Node.js](https://nodejs.org).
+Begin by opening a terminal window.
 
-*  You have downloaded and installed the [DFINITY Canister
-   SDK](https://sdk.dfinity.org).
+### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-*  You have stopped any Internet Computer or other network process that would
-   create a port conflict on 8000.
+```
+cd examples/motoko/phone-book
+dfx start --background
+```
 
-## Demo
+### Step 2: Install front-end dependencies:
 
-1. Start a local internet computer.
+```
+npm install
+```
 
-   ```text
-   dfx start
-   ```
+### Step 3: Deploy the canister:
 
-1. Open a new terminal window.
+```
+dfx deploy
+```
 
-1. Reserve an identifier for your canister.
+### Step 4: Take note of the URL at which the phone book is accessible.
 
-   ```text
-   dfx canister create --all
-   ```
+echo "http://127.0.0.1:4943/?canisterId=$(dfx canister id www)"
 
-1. Build your front-end.
+### Step 5: Open the aforementioned URL in your web browser.
 
-   ```text
-   npm install
-   ```
+You will see an interface that you can interact with to store phone book entries:
 
-1. Build your canister.
+![Phonebook](./_attachments/phonebook.png)
 
-   ```text
-   dfx build
-   ```
 
-1. Deploy your canister.
 
-   ```text
-   dfx canister install --all
-   ```
-
-1. Take note of the URL at which the phone book is accessible.
-
-   ```text
-   echo "http://localhost:8000/?canisterId=$(dfx canister id www)"
-   ```
-
-1. Open the aforementioned URL in your web browser.

@@ -1,0 +1,27 @@
+{
+  "canisters": {
+    "random_maze": {
+      "main": "src/random_maze/Main.mo",
+      "type": "motoko"
+    },
+    "random_maze_assets": {
+      "dependencies": [
+        "random_maze"
+      ],
+      "frontend": {
+        "entrypoint": "src/random_maze_assets/src/index.html"
+      },
+      "source": [
+        "src/random_maze_assets/assets",
+        "dist/random_maze_assets/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": ""
+    }
+  },
+  "version": 1
+}

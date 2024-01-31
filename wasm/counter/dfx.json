@@ -1,0 +1,13 @@
+{
+  "canisters": {
+    "counter": {
+      "type": "custom",
+      "candid": "counter.did",
+      "wasm": "counter.wasm",
+      "build": [
+        "wat2wasm counter.wat -o counter.wasm"
+      ]
+    }
+  },
+  "version": 1
+}

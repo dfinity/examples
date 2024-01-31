@@ -3,6 +3,5 @@
     "echo": {
       "main": "src/Main.mo"
     }
-  },
-  "dfx": "0.6.24"
+  }
 }

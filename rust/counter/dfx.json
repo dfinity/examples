@@ -1,0 +1,16 @@
+{
+  "canisters": {
+    "counter": {
+      "candid": "counter.did",
+      "package": "counter",
+      "type": "rust"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "version": 1
+}

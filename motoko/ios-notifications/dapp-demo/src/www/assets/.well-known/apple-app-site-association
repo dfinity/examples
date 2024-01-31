@@ -1,0 +1,22 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": [
+          "9H35YHV94H.com.dfinity.dappexample"
+        ],
+        "components": [
+          {
+            "/": "/mobile-auth-token/*",
+            "comment": "Matches any URL."
+          }
+        ]
+      }
+    ]
+  },
+  "webcredentials": {
+    "apps": [
+      "9H35YHV94H.com.dfinity.dappexample"
+    ]
+  }
+}

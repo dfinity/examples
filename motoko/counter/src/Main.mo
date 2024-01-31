@@ -1,6 +1,6 @@
 actor Counter {
 
-  var counter = 0;
+  stable var counter = 0;
 
   // Get the value of the counter.
   public query func get() : async Nat {
@@ -8,12 +8,12 @@ actor Counter {
   };
 
   // Set the value of the counter.
-  public func set(n: Nat) {
+  public func set(n : Nat) : async () {
     counter := n;
   };
 
   // Increment the value of the counter.
-  public func inc() {
+  public func inc() : async () {
     counter += 1;
   };
 };

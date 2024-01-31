@@ -1,0 +1,14 @@
+{
+  "version": 1,
+  "canisters": {
+    "actor_reference": {
+      "type": "motoko",
+      "main": "src/actor_reference/main.mo"
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": ""
+    }
+  }
+}
