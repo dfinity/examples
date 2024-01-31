@@ -79,9 +79,11 @@ export default (config) => {
     input: 'src/frontend/src/main.ts',
     output: {
       sourcemap: true,
-      format: 'iife',
       name: 'app',
-      file: 'src/frontend/public/build/bundle.js',
+      format: 'iife',
+      
+      file: 'src/frontend/public/build/main.js',
+      inlineDynamicImports: true,
     },
     plugins: [
       svelte({

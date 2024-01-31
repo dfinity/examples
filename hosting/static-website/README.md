@@ -22,7 +22,7 @@ The example project requires the following installed:
 - git
 - dfx 
 
-git can be installed from various package managers. DFX can be installed following the instructions [here](https://smartcontracts.org/docs/quickstart/local-quickstart.html#download-and-install).
+git can be installed from various package managers. DFX can be installed following the instructions [here](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-locally).
 
 ### Install
 Install the example dapp project:
@@ -92,7 +92,6 @@ The `dfx.json` file is a configuration file which specifies the canister used fo
             "packtool": ""
         }
     },
-    "dfx": "0.8.4",
     "networks": {
         "local": {
             "bind": "127.0.0.1:8000",

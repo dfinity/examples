@@ -1,10 +1,11 @@
-use ic_cdk::export::{
-    candid::{CandidType, Deserialize},
-    Principal,
-};
+use candid::{CandidType, Principal};
 use ic_cdk_macros::*;
+use serde::Deserialize;
+use std::cell::Cell;
 
-static mut COUNTER: u64 = 0;
+thread_local! {
+    static COUNTER: Cell<u64> = Cell::new(0);
+}
 
 #[derive(Clone, Debug, CandidType, Deserialize)]
 struct Counter {
@@ -21,17 +22,19 @@ struct Subscriber {
 async fn setup_subscribe(publisher_id: Principal, topic: String) {
     let subscriber = Subscriber { topic };
     let _call_result: Result<(), _> =
-        ic_cdk::api::call::call(publisher_id, "subscribe", (subscriber,)).await;
+        ic_cdk::call(publisher_id, "subscribe", (subscriber,)).await;
 }
 
 #[update]
 fn update_count(counter: Counter) {
-    unsafe {
-        COUNTER += counter.value;
-    }
+    COUNTER.with(|c| {
+        c.set(c.get() + counter.value);
+    });
 }
 
 #[query]
 fn get_count() -> u64 {
-    unsafe { COUNTER }
+    COUNTER.with(|c| {
+        c.get()
+    })
 }

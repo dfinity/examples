@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      http-equiv="content-security-policy"
+      content="default-src 'self';
+      font-src * ;
+      style-src-elem 'self' https://fonts.googleapis.com https://cdn.jsdelivr.net;
+      img-src blob: *;
+      media-src blob: *;
+      frame-src 'none';
+      connect-src 'self' ROLLUP_CONNECT_SRC_DOMAIN;
+      script-src 'self' 'unsafe-eval'"
+    />
+    <meta name="referrer" content="same-origin" />
+
+    <title>NFT Wallet</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;700&family=Roboto+Mono:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/svelte-material-ui@6.0.0-beta.15/bare.min.css"
+    />
+    <link rel="stylesheet" href="/global.css" />
+    <link rel="stylesheet" href="/build/bundle.css" />
+  </head>
+
+  <body>
+    <script defer src="/build/main.js"></script>
+  </body>
+</html>

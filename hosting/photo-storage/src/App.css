@@ -1,0 +1,55 @@
+.App-wrapper {
+    padding: 10px 10px 0 10px;
+}
+
+.App-masonry {
+    display: flex;
+    margin-left: -10px;
+    width: auto;
+}
+
+.App-masonry-column {
+    padding-left: 10px;
+    background-clip: padding-box;
+}
+
+.App-upload {
+    background: #222222;
+    color: #ffffff;
+    font-family: sans-serif;
+    font-weight: 600;
+    width: 100%;
+    height: 200px;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.App-upload:hover {
+    background: #333333;
+}
+
+.App-image {
+    margin-bottom: 10px;
+    background: #eeeeee;
+}
+
+.App-image img {
+    display: block;
+    width: 100%;
+}
+
+.App-progress {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin: -30px 0 0 -50px;
+    width: 100px;
+    height: 60px;
+    background: #222222;
+    font-family: sans-serif;
+    text-align: center;
+    line-height: 60px;
+    font-weight: 600;
+    color: #ffffff;
+    box-shadow: 0 0 0 9999px rgba(255, 255, 255, 0.8);
+}

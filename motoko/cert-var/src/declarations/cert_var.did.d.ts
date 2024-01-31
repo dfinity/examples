@@ -1,8 +1,11 @@
 import type { Principal } from '@dfinity/principal';
+import type { ActorMethod } from '@dfinity/agent';
+
 export interface _SERVICE {
-  'get' : () => Promise<
-      { 'certificate' : [] | [Array<number>], 'value' : number }
-    >,
-  'inc' : () => Promise<number>,
-  'set' : (arg_0: number) => Promise<undefined>,
+  'get' : ActorMethod<
+    [],
+    { 'certificate' : [] | [Uint8Array], 'value' : number }
+  >,
+  'inc' : ActorMethod<[], number>,
+  'set' : ActorMethod<[number], undefined>,
 }

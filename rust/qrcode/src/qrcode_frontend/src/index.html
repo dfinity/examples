@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>QR code generator</title>
+  <base href="/" />
+  <link rel="icon" href="favicon.ico" />
+  <link type="text/css" rel="stylesheet" href="main.css" />
+</head>
+
+<body>
+  <form>
+    <div>
+      <h1>QR code generator</h1>
+      <textarea id="text" cols=60 rows=4 placeholder="Enter text"></textarea>
+      <div class="option">
+        <label>
+          <div class="toggle-switch">
+            <input type="checkbox" id="logo" checked>
+            <span class="slider"></span>
+          </div>
+          &nbsp; add logo
+        </label>
+      </div>
+      <div class="option">
+        <label>
+          <div class="toggle-switch">
+            <input type="checkbox" id="gradient" checked>
+            <span class="slider"></span>
+          </div>
+          &nbsp; add gradient
+        </label>
+      </div>
+      <div class="option">
+        <label>
+          <div class="toggle-switch">
+            <input type="checkbox" id="transparent">
+            <span class="slider"></span>
+          </div>
+          &nbsp; make transparent
+        </label>
+      </div>
+      <div class="option">
+        <label>
+          <div class="toggle-switch">
+            <input type="checkbox" id="consensus">
+            <span class="slider"></span>
+          </div>
+          &nbsp; wait for blockchain consensus
+        </label>
+      </div>
+      <button class="clean-button" id="generate">Generate!</button>
+      <div>
+        <div id="message"></div>
+        <a id="download" download="qrcode.png">
+          <img id="qrcode" class="qrcode"></img>
+        </a>
+      </div>
+    </div>
+  </form>
+</body>
+
+</html>

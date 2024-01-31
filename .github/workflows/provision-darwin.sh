@@ -11,15 +11,14 @@ bash install-brew.sh
 rm install-brew.sh
 
 # Install Node.
-version=14.15.4
+version=${NODE_VERSION:=14.15.4}
 curl --location --output node.pkg "https://nodejs.org/dist/v$version/node-v$version.pkg"
 sudo installer -pkg node.pkg -store -target /
 rm node.pkg
 
 # Install DFINITY SDK.
-version=0.9.2
-curl --location --output install-dfx.sh "https://sdk.dfinity.org/install.sh"
-DFX_VERSION=$version bash install-dfx.sh < <(yes Y)
+curl --location --output install-dfx.sh "https://internetcomputer.org/install.sh"
+DFX_VERSION=${DFX_VERSION:=0.16.0} bash install-dfx.sh < <(yes Y)
 rm install-dfx.sh
 dfx cache install
 

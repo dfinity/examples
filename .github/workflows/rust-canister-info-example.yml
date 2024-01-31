@@ -1,0 +1,40 @@
+name: rust-canister-info
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - rust/canister-info/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-canister-info-example.yml
+      - .github/workflows/rust-canister-info-skip.yml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rust-canister-info-darwin:
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: DFX_VERSION="0.14.2" bash .github/workflows/provision-darwin.sh
+      - name: Rust Canister info Darwin
+        run: |
+          dfx start --background
+          pushd rust/canister-info
+          make test
+          popd
+  rust-canister-info-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: DFX_VERSION="0.14.2" bash .github/workflows/provision-linux.sh
+      - name: Rust Canister info Linux
+        run: |
+          dfx start --background
+          pushd rust/canister-info
+          make test
+          popd

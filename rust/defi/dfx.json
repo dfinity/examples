@@ -4,7 +4,9 @@
       "candid": "src/defi_dapp/defi_dapp.did",
       "package": "defi_dapp",
       "type": "rust",
-      "dependencies": ["ledger"]
+      "dependencies": [
+        "ledger"
+      ]
     },
     "ledger": {
       "type": "custom",
@@ -13,14 +15,19 @@
     },
     "internet_identity": {
       "type": "custom",
-      "candid": "src/internet_identity/internet_identity.did",
-      "wasm": "src/internet_identity/internet_identity_dummy.wasm"
+      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz",
+      "remote": {
+        "id": {
+          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+        }
+      }
     },
-    "frontend" : {
-      "dependencies" : [
+    "frontend": {
+      "dependencies": [
         "defi_dapp"
       ],
-      "source" : [
+      "source": [
         "src/frontend_assets"
       ],
       "type": "assets"
@@ -32,17 +39,14 @@
       "main": "src/DIP20/motoko/src/token.mo"
     }
   },
-  "defaults": {
-    "build": {
-      "args": "",
-      "packtool": ""
-    }
-  },
-  "dfx": "0.8.4",
   "networks": {
     "local": {
-      "bind": "127.0.0.1:8000",
-      "type": "ephemeral"
+      "bind": "127.0.0.1:8000"
+    }
+  },
+  "defaults": {
+    "replica": {
+      "subnet_type": "system"
     }
   },
   "version": 1

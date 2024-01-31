@@ -1,5 +1,7 @@
 import type { Principal } from '@dfinity/principal';
+import type { ActorMethod } from '@dfinity/agent';
+
 export interface _SERVICE {
-  'current' : () => Promise<string>,
-  'next' : () => Promise<string>,
+  'current' : ActorMethod<[], string>,
+  'next' : ActorMethod<[], string>,
 }

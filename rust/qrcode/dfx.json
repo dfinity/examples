@@ -1,0 +1,30 @@
+{
+  "canisters": {
+    "qrcode_backend": {
+      "candid": "src/qrcode_backend/qrcode_backend.did",
+      "package": "qrcode_backend",
+      "type": "rust"
+    },
+    "qrcode_frontend": {
+      "dependencies": [
+        "qrcode_backend"
+      ],
+      "frontend": {
+        "entrypoint": "src/qrcode_frontend/src/index.html"
+      },
+      "source": [
+        "src/qrcode_frontend/assets",
+        "dist/qrcode_frontend/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

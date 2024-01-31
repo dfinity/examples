@@ -1,22 +1,23 @@
 use std::cell::RefCell;
 use std::convert::TryInto;
 
-use candid::{candid_method, export_service, CandidType, Nat, Principal};
+use candid::{candid_method, export_service, Nat, Principal};
 use ic_cdk::caller;
 use ic_cdk_macros::*;
 use ic_ledger_types::{
     AccountIdentifier, Memo, Tokens, DEFAULT_SUBACCOUNT, MAINNET_LEDGER_CANISTER_ID,
 };
-use serde::{Deserialize, Serialize};
 
 mod dip20;
 mod exchange;
+mod stable;
 mod types;
 mod utils;
+
 use dip20::DIP20;
 use exchange::Exchange;
 use types::*;
-use utils::{nat_to_u128, principal_to_subaccount};
+use utils::principal_to_subaccount;
 
 const ICP_FEE: u64 = 10_000;
 
@@ -24,7 +25,7 @@ thread_local! {
     static STATE: RefCell<State> = RefCell::new(State::default());
 }
 
-#[derive(CandidType, Clone, Deserialize, Serialize, Default)]
+#[derive(Default)]
 pub struct State {
     owner: Option<Principal>,
     ledger: Option<Principal>,
@@ -48,12 +49,12 @@ pub async fn deposit(token_canister_id: Principal) -> DepositReceipt {
         s.borrow_mut()
             .exchange
             .balances
-            .add_balance(&caller, &token_canister_id, amount)
+            .add_balance(&caller, &token_canister_id, amount.to_owned())
     });
-    DepositReceipt::Ok(amount.into())
+    DepositReceipt::Ok(amount)
 }
 
-async fn deposit_icp(caller: Principal) -> Result<u128, DepositErr> {
+async fn deposit_icp(caller: Principal) -> Result<Nat, DepositErr> {
     let canister_id = ic_cdk::api::id();
     let ledger_canister_id = STATE
         .with(|s| s.borrow().ledger)
@@ -85,14 +86,14 @@ async fn deposit_icp(caller: Principal) -> Result<u128, DepositErr> {
 
     ic_cdk::println!(
         "Deposit of {} ICP in account {:?}",
-        balance - Tokens::from_e8s(2 * ICP_FEE),
+        balance - Tokens::from_e8s(ICP_FEE),
         &account
     );
 
     Ok((balance.e8s() - ICP_FEE).into())
 }
 
-async fn deposit_token(caller: Principal, token: Principal) -> Result<u128, DepositErr> {
+async fn deposit_token(caller: Principal, token: Principal) -> Result<Nat, DepositErr> {
     let token = DIP20::new(token);
     let dip_fee = token.get_metadata().await.fee;
 
@@ -105,7 +106,7 @@ async fn deposit_token(caller: Principal, token: Principal) -> Result<u128, Depo
         .await
         .map_err(|_| DepositErr::TransferFailure)?;
 
-    Ok(nat_to_u128(available))
+    Ok(available)
 }
 
 #[query(name = "getBalance")]
@@ -145,14 +146,6 @@ pub fn get_deposit_address() -> AccountIdentifier {
     let subaccount = principal_to_subaccount(&caller());
 
     AccountIdentifier::new(&canister_id, &subaccount)
-}
-
-#[update(name = "getWithdrawalAddress")]
-#[candid_method(update, rename = "getWithdrawalAddress")]
-pub fn get_withdrawal_address() -> AccountIdentifier {
-    let canister_id = ic_cdk::api::id();
-
-    AccountIdentifier::new(&canister_id, &DEFAULT_SUBACCOUNT)
 }
 
 #[update(name = "getSymbol")]
@@ -205,8 +198,13 @@ pub async fn withdraw(
         .with(|s| s.borrow().ledger)
         .unwrap_or(MAINNET_LEDGER_CANISTER_ID);
 
+    // Close all currently open orders to avoid completing orders
+    // without funds.
     STATE.with(|s| {
-        s.borrow_mut().exchange.orders.retain(|_,v| v.owner != caller);
+        s.borrow_mut()
+            .exchange
+            .orders
+            .retain(|_, v| v.owner != caller);
     });
 
     if token_canister_id == ledger_canister_id {
@@ -227,16 +225,23 @@ async fn withdraw_icp(amount: &Nat, account_id: AccountIdentifier) -> Result<Nat
         s.borrow_mut().exchange.balances.subtract_balance(
             &caller,
             &ledger_canister_id,
-            nat_to_u128(amount.to_owned() + ICP_FEE),
+            amount.to_owned() + ICP_FEE,
         )
     });
     if !sufficient_balance {
         return Err(WithdrawErr::BalanceLow);
     }
 
+    let transfer_amount = Tokens::from_e8s(
+        (amount.to_owned() + ICP_FEE)
+            .0
+            .try_into()
+            .map_err(|_| WithdrawErr::TransferFailure)?,
+    );
+
     let transfer_args = ic_ledger_types::TransferArgs {
         memo: Memo(0),
-        amount: Tokens::from_e8s(nat_to_u128(amount.to_owned() + ICP_FEE).try_into().unwrap()),
+        amount: transfer_amount,
         fee: Tokens::from_e8s(ICP_FEE),
         from_subaccount: Some(DEFAULT_SUBACCOUNT),
         to: account_id,
@@ -252,7 +257,7 @@ async fn withdraw_icp(amount: &Nat, account_id: AccountIdentifier) -> Result<Nat
             s.borrow_mut().exchange.balances.add_balance(
                 &caller,
                 &ledger_canister_id,
-                nat_to_u128(amount.to_owned() + ICP_FEE),
+                amount.to_owned() + ICP_FEE,
             )
         });
 
@@ -277,7 +282,7 @@ async fn withdraw_token(
         s.borrow_mut().exchange.balances.subtract_balance(
             &caller,
             &token,
-            nat_to_u128(amount.to_owned() + dip_fee.clone()),
+            amount.to_owned() + dip_fee.to_owned(),
         )
     });
     if !sufficient_balance {
@@ -285,7 +290,7 @@ async fn withdraw_token(
     }
 
     let tx_receipt = dip
-        .transfer(address, amount.to_owned() + dip_fee.clone())
+        .transfer(address, amount.to_owned() + dip_fee.to_owned())
         .await
         .map_err(|_| WithdrawErr::TransferFailure);
 
@@ -294,7 +299,7 @@ async fn withdraw_token(
             s.borrow_mut().exchange.balances.add_balance(
                 &caller,
                 &token,
-                nat_to_u128(amount.to_owned() + dip_fee.clone()),
+                amount.to_owned() + dip_fee.to_owned(),
             )
         });
 
@@ -323,7 +328,7 @@ pub fn credit(user: Principal, token_canister_id: Principal, amount: Nat) {
         state
             .exchange
             .balances
-            .add_balance(&user, &token_canister_id, nat_to_u128(amount));
+            .add_balance(&user, &token_canister_id, amount);
     })
 }
 
@@ -349,18 +354,34 @@ fn init(ledger: Option<Principal>) {
     });
 }
 
+// NOTE: Converting and storing state like this should not be used in production.
+// If the state becomes too large, it can prevent future upgrades. This
+// is left in as a tool during development. If removed, native types
+// can be used throughout, instead.
 #[pre_upgrade]
 fn pre_upgrade() {
-    let stable_state = STATE.with(|s| s.take());
+    let state = STATE.with(|s| s.take());
+
+    // Transform into stable state
+    let stable_state: stable::StableState = state.into();
+
     ic_cdk::storage::stable_save((stable_state,)).expect("failed to save stable state");
 }
 
+// NOTE: Converting and storing state like this should not be used in production.
+// If the state becomes too large, it can prevent future upgrades. This
+// is left in as a tool during development. If removed, native types
+// can be used throughout, instead.
 #[post_upgrade]
 fn post_upgrade() {
-    let (stable_state,) =
+    let (stable_state,): (stable::StableState,) =
         ic_cdk::storage::stable_restore().expect("failed to restore stable state");
+
+    // Transform from stable state
+    let state = stable_state.into();
+
     STATE.with(|s| {
-        s.replace(stable_state);
+        s.replace(state);
     });
 }
 
