@@ -1,0 +1,9 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "com.dfinity.ii_applink_integration",
+    "sha256_cert_fingerprints":
+    ["A3:E2:36:BC:E9:04:3F:8F:A9:C5:9B:B5:FE:89:95:C8:08:BA:35:2D:07:D8:76:13:65:A9:27:D6:33:6B:44:6E"]
+  }
+}]

@@ -1,0 +1,21 @@
+[package]
+name = "encrypted_notes_rust"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["cdylib"]
+
+
+[dependencies]
+candid = "0.9.11"
+ic-cdk = "0.11.3"
+ic-cdk-macros = "0.8.1"
+ic-stable-structures = "0.6.0"
+lazy_static = "1.4.0"
+serde_json = "1.0.108"
+anyhow = "1.0.75"
+serde = "1.0.190"
+ic-types = "0.7.0"
+hex = "0.4.3"

@@ -1,0 +1,21 @@
+{
+  "canisters": {
+    "unity_webgl_template_assets": {
+      "frontend": {
+        "entrypoint": "src/unity_webgl_template_assets/src/index.html"
+      },
+      "source": [
+        "src/unity_webgl_template_assets/assets",
+        "src/unity_webgl_template_assets/src"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "version": 1
+}

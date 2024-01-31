@@ -1,0 +1,20 @@
+type anon_class_15_1 = 
+ service {
+   create_note: () -> (nat);
+   delete_note: (nat) -> ();
+   get_notes: () -> (vec EncryptedNote);
+   update_note: (nat, text) -> ();
+   add_user: (nat, text) -> ();
+   remove_user: (nat, text) -> ();
+   whoami: () -> (text);
+   symmetric_key_verification_key_for_note: () -> (text);
+   encrypted_symmetric_key_for_note: (nat, blob) -> (text);
+ };
+type EncryptedNote = 
+ record {
+   encrypted_text: text;
+   id: nat;
+   owner: text;
+   users: vec text;
+ };
+service : () -> anon_class_15_1

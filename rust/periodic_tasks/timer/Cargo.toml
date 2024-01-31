@@ -1,0 +1,15 @@
+[package]
+edition = "2021"
+name = "timer"
+version = "1.0.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+candid = "0.10"
+# Base Rust CDK crate provides support for heartbeats only.
+ic-cdk = "0.12"
+# The timers library is required for multiple and periodic timers.
+ic-cdk-macros = "0.8"
+ic-cdk-timers = "0.6"

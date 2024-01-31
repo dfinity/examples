@@ -1,0 +1,106 @@
+body {
+    font-family: sans-serif;
+}
+
+form {
+    display: flex;
+    justify-content: center;
+    max-width: 80vw;
+    margin: auto;
+}
+
+div {
+    display: flex;
+    max-width: 80vw;
+    flex-flow: column;
+    align-items: baseline;
+    row-gap: 20px;
+}
+
+img {
+    max-width: 80vw;
+    border: 1px solid #555;
+    background-color: #ddd;
+}
+
+.qrcode {
+    border: 1px solid #555;
+}
+
+h1 {
+    font-size: 100%;
+}
+
+textarea {
+    margin-top: -20px;
+    max-width: 80vw;
+}
+
+.option {
+    display: flex;
+    flex-flow: row;
+    justify-content: left;
+    align-items: center;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 42px;
+    height: 18px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    border-radius: 18px;
+    transition: 0.4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 1px;
+    bottom: 1px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.4s;
+}
+
+input:checked+.slider {
+    background-color: #b11dbb;
+}
+
+input:checked+.slider:before {
+    transform: translateX(24px);
+}
+
+.clean-button {
+    display: inline-block;
+    padding: 5px 10px;
+    border: 2px solid #a10dab;
+    border-radius: 4px;
+    background-color: #b11dbb;
+    color: #fff;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.clean-button:disabled {
+    background-color: #ccc;
+    border-color: #ccc;
+}

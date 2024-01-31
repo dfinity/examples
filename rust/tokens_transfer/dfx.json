@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "canisters": {
+    "tokens_transfer": {
+      "package": "tokens_transfer",
+      "candid": "src/tokens_transfer.did",
+      "type": "rust"
+    },
+    "ledger": {
+      "type": "custom",
+      "candid": "ledger.public.did",
+      "wasm": "ledger.wasm"
+    }
+  },
+  "defaults": {
+    "replica": {
+      "subnet_type": "system"
+    }
+  }
+}

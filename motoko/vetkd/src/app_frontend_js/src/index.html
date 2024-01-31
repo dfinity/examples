@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>dfxtest</title>
+  <base href="/" />
+  <link rel="icon" href="favicon.ico" />
+  <link type="text/css" rel="stylesheet" href="main.css" />
+</head>
+
+<body>
+  <main>
+    <h1 id="vetkddemo">vetKD Demo</h1>
+    <form id="login_form">
+      <label for="login" id="principal"></label>
+      <button id="login">Login (optional)</button>
+    </form>
+    <hr />
+    <h2 id="symmetric_encryption_demo">Encryption with symmetric (AES-GCM-256) key</h1>
+    <form action="#" id="get_symmetric_key_form">
+      <button type="submit">Fetch symmetric key for local usage</button>
+    </form>
+    <section id="get_symmetric_key_result"></section>
+    <form action="#" id="encrypt_form">
+      <label for="plaintext">Plaintext:</label>
+      <input type="text" id="plaintext"><br><br>
+      <button type="submit" id="submit_plaintext" disabled="true">Encrypt with symmetric key</button>
+    </form>
+    <section id="encrypt_result"></section>
+    <form action="#" id="decrypt_form">
+      <label for="ciphertext">Ciphertext:</label>
+      <input type="text" id="ciphertext"><br><br>
+      <button type="submit" id="submit_ciphertext" disabled="true">Decrypt with symmetric key</button>
+    </form>
+    <section id="decrypt_result"></section>
+    <hr />
+    <h2 id="ibedemo">Identity-Based Encryption (IBE)</h1>
+    <form action="#" id="ibe_encrypt_form">
+      <label for="ibe_plaintext">Plaintext:</label>
+      <input type="text" id="ibe_plaintext"><br><br>
+      <label for="ibe_principal">Encrypt for principal:</label>
+      <input type="text" id="ibe_principal"><br><br>
+      <button type="submit" id="ibe_encrypt" disabled="true">IBE-encrypt</button>
+    </form>
+    <section id="ibe_encrypt_result"></section>
+    <form action="#" id="ibe_decrypt_form">
+      <label for="ibe_ciphertext">Ciphertext:</label>
+      <input type="text" id="ibe_ciphertext"><br><br>
+      <button type="submit" id="ibe_decrypt" disabled="true">IBE-decrypt (for myself)</button>
+    </form>
+    <section id="ibe_decrypt_result"></section>
+    <hr />
+    <img src="logo2.svg" id="builtonchainlogo" />
+  </main>
+</body>
+
+</html>

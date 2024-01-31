@@ -1,0 +1,65 @@
+{
+  "canisters": {
+    "defi_dapp": {
+      "main": "src/defi_dapp/main.mo",
+      "dependencies": [
+        "ledger"
+      ],
+      "declarations": {
+        "output": "src/frontend/declarations/defi_dapp"
+      }
+    },
+    "ledger": {
+      "type": "custom",
+      "candid": "src/ledger/ledger.did",
+      "wasm": "src/ledger/ledger.wasm",
+      "declarations": {
+        "output": "src/frontend/declarations/ledger"
+      }
+    },
+    "internet_identity": {
+      "type": "custom",
+      "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz",
+      "remote": {
+        "id": {
+          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+        }
+      }
+    },
+    "frontend": {
+      "dependencies": [
+        "defi_dapp",
+        "AkitaDIP20",
+        "GoldenDIP20"
+      ],
+      "source": [
+        "src/frontend_assets"
+      ],
+      "type": "assets"
+    },
+    "AkitaDIP20": {
+      "main": "src/DIP20/motoko/src/token.mo",
+      "declarations": {
+        "output": "src/frontend/declarations/AkitaDIP20"
+      }
+    },
+    "GoldenDIP20": {
+      "main": "src/DIP20/motoko/src/token.mo",
+      "declarations": {
+        "output": "src/frontend/declarations/GoldenDIP20"
+      }
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000"
+    }
+  },
+  "defaults": {
+    "replica": {
+      "subnet_type": "system"
+    }
+  },
+  "version": 1
+}
