@@ -9,40 +9,7 @@ This is an example of a Motoko project with an Angular 14 frontend.
     ```
     npm install
     ```
-- A https://nns.ic0.app wallet, logged in.
-- ~5 US dollars worth of ICP transfered to your wallet address.
-- As taken from [this guide](https://kyle-peacock.com/blog/dfinity/your-first-canister): 
- 
-    1. Login to your https://nns.ic0.app, select your account and verify your balance.
-    2. Select the [CANISTERS](https://nns.ic0.app/#/canisters) view on the left side navigation menu. 
-    3. Click the blue "Create or Link Canister" button at the bottom of your page to open up the dialog.
-    4. Click the "Create New Canister" button. Then, select the ICP account that you want to use to fund your new canister.
-    5. You'll then be prompted to enter an amount. For now, put at least 2T Cycles.
-    6. Click "Review Cycles Purchase" and Confirm.
-        * You will need to create 2 unique Canisters for this project. Repeat steps 3-6 to create a second canister. 
-    7. You'll need to get the principal from your computer by running from the project root
-        ```
-        dfx identity get-principal
-        ```
-    8. Copy that principal id and head back to your CANISTERS view with your newly created Canisters. Click the blue "Change Controllers" button to open up the controller management UI.
-        * Repeat for the second Canister.
-    9. Enter your principal in the empty second input, and then click "Perform Controller Change". This step authorizes your dfx on your computer to deploy to your newly created Canister. 
-        * Repeat for the second Canister as well.
-    10. Modify the `canister_id.json` file in the project root. Update both "motoko" and "www" "ic" properties.
-	 
-        ```bash
-        # canister_id.json
-        {
-        "motoko": {
-            # replace this with your unique cansiter from the above guide
-            "ic":"your-unique-canister-goes-here"
-        },
-        "www": {
-            # replace this with a second unique cansiter from the above guide
-            "ic": "another-unique-canister-goes-here"
-        }
-    
-        ```
+- For live IC deployment: A wallet set up as described in the [quickstart guide](https://internetcomputer.org/docs/current/developer-docs/quickstart/hello10mins/).
     
 
 -----
