@@ -1,0 +1,29 @@
+{
+  "canisters": {
+    "hello": {
+      "candid": "src/hello/hello.did",
+      "package": "hello",
+      "type": "rust"
+    },
+    "hello_assets": {
+      "dependencies": [
+        "hello"
+      ],
+      "frontend": {
+        "entrypoint": "src/hello_assets/src/index.html"
+      },
+      "source": [
+        "src/hello_assets/assets",
+        "dist/hello_assets/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "version": 1
+}

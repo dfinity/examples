@@ -1,0 +1,15 @@
+{
+  "canisters": {
+    "persistent_storage": {
+      "main": "src/persistent_storage/main.mo",
+      "type": "motoko"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "version": 1
+}

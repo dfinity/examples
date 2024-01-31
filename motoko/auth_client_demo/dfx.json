@@ -1,0 +1,49 @@
+{
+  "canisters": {
+    "whoami": {
+      "main": "src/whoami/main.mo",
+      "type": "motoko",
+      "declarations": {
+        "node_compatibility": true
+      },
+      "pullable": {
+        "dependencies": [],
+        "wasm_url": "https://github.com/krpeacock/auth-client-demo/releases/latest/download/whoami.wasm",
+        "wasm_hash": "a5af74d01aec228c5a717dfb43f773917e1a9138e512431aafcd225ad0001a8b",
+        "init_guide": "(null)"
+      }
+    },
+    "internet-identity": {
+      "type": "pull",
+      "id": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+    },
+    "auth_client_demo_assets": {
+      "dependencies": [
+        "whoami",
+        "internet-identity"
+      ],
+      "source": [
+        "src/auth_client_demo_assets/vanilla/dist"
+      ],
+      "type": "assets"
+    },
+    "svelte": {
+      "dependencies": [
+        "whoami",
+        "internet-identity"
+      ],
+      "source": [
+        "src/auth_client_demo_assets/svelte/build"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 2
+}

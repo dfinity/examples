@@ -1,0 +1,13 @@
+[package]
+edition = "2021"
+name = "hello"
+version = "1.1.0"
+
+[lib]
+crate-type = ["cdylib"]
+path = "lib.rs"
+
+[dependencies]
+candid = "0.10"
+ic-cdk = "0.12"
+ic-cdk-macros = "0.8"

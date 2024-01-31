@@ -1,0 +1,48 @@
+{
+  "canisters": {
+    "invoice": {
+      "declarations": {
+        "output": "test/e2e/src/declarations/invoice",
+        "node_compatibility": true
+      },
+      "main": "src/invoice/Invoice.mo",
+      "type": "motoko"
+    },
+    "nns-ledger": {
+      "build": "",
+      "candid": "candid/nns-ledger.did",
+      "remote": {
+        "id": {
+          "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai",
+          "local": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+        }
+      },
+      "type": "custom",
+      "wasm": ""
+    },
+    "icp_ledger_canister": {
+      "type": "custom",
+      "wasm": "src/token-ledger-canisters/icp/ledger.wasm",
+      "candid": "src/token-ledger-canisters/icp/ledger.public.did",
+      "build": ""
+    },
+    "icrc1_token_ledger_canister_ex1": {
+      "type": "custom",
+      "wasm": "src/token-ledger-canisters/icrc1/ledger.wasm",
+      "candid": "src/token-ledger-canisters/icrc1/icrc1.did",
+      "build": ""
+    },
+    "icrc1_token_ledger_canister_ex2": {
+      "type": "custom",
+      "wasm": "src/token-ledger-canisters/icrc1/ledger.wasm",
+      "candid": "src/token-ledger-canisters/icrc1/icrc1.did",
+      "build": ""
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": "vessel sources"
+    }
+  },
+  "version": 1
+}

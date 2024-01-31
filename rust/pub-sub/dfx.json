@@ -1,22 +1,15 @@
 {
+  "version": 1,
   "canisters": {
     "publisher": {
-      "build": [
-        "cargo build --target wasm32-unknown-unknown --package  publisher --release",
-        "ic-cdk-optimizer target/wasm32-unknown-unknown/release/publisher.wasm -o target/wasm32-unknown-unknown/release/publisher_opt.wasm"
-      ],
+      "package": "publisher",
       "candid": "src/publisher/src/publisher.did",
-      "wasm": "target/wasm32-unknown-unknown/release/publisher_opt.wasm",
-      "type": "custom"
+      "type": "rust"
     },
     "subscriber": {
-      "build": [
-        "cargo build --target wasm32-unknown-unknown --package  subscriber --release",
-        "ic-cdk-optimizer target/wasm32-unknown-unknown/release/subscriber.wasm -o target/wasm32-unknown-unknown/release/subscriber_opt.wasm"
-      ],
+      "package": "subscriber",
       "candid": "src/subscriber/src/subscriber.did",
-      "wasm": "target/wasm32-unknown-unknown/release/subscriber_opt.wasm",
-      "type": "custom"
+      "type": "rust"
     }
   }
 }

@@ -1,0 +1,26 @@
+{
+  "name": "nft-wallet",
+  "version": "0.1.0",
+  "description": "DFINITY Internet Computer NFT wallet",
+  "keywords": [
+    "Internet Computer",
+    "Rust",
+    "Svelte",
+    "Canister",
+    "Internet Identity",
+    "NFT"
+  ],
+  "scripts": {
+    "build": "cd frontend && npm run build:html && npm run build",
+    "install": "cd frontend && npm install --production=false",
+    "dev": "cd frontend && npm run dev",
+    "generate": "dfx generate nftwallet"
+  },
+  "devDependencies": {
+    "@rollup/plugin-html": "^0.2.4",
+    "@rollup/plugin-replace": "^4.0.0"
+  },
+  "dependencies": {
+    "smelte": "^1.1.2"
+  }
+}
