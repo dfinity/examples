@@ -1,77 +1,68 @@
 # Design Pattern: Pub/Sub
 
-This sample project demonstrates a simple pub-sub example.
+![Compatibility](https://img.shields.io/badge/compatibility-0.6.25-blue)
+[![Build Status](https://github.com/dfinity/examples/workflows/motoko-pub-sub-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-pub-sub-example)
 
 ## Overview
+This sample project demonstrates how functions may be passed as arguments of inter-canister calls to be used as callbacks.
 
-A common problem in both distributed and decentralized systems is keeping separate services (or canisters) synchronized with one another. While there are many potential solutions to this problem, a popular one is the Publisher/Subscriber pattern or "PubSub". PubSub is an especially valuable pattern on the Internet Computer as its primary drawback, message delivery failures, does not apply. This example demonstrates the usage of one-way calls between canisters. Regular calls on the Internet Computer expect a response. If for some reason this response never arrives the canister can't be stopped and hence can't be upgraded (Read this [blog post](https://www.joachim-breitner.de/blog/789-Zero-downtime_upgrades_of_Internet_Computer_canisters) for details). In this example, the publisher uses the [`notify`](https://docs.rs/ic-cdk/0.5.1/ic_cdk/api/call/fn.notify.html) method instead of the regular `call` method to call `update_count` to implement the one-way notification pattern.
-
-## Implementation
-
-The first canister (Publisher) exposes a `subscribe` method that other canisters can call to register a callback to be executed whenever its other method `publish` is called with an event matching the subscribed topic.
-
-The second canister (Subscriber) updates its internal count when its `update_count` method is called.
-
-Note: There are many obvious improvements (keying subscribers by topic in Publisher, validating the topic in the callback) and callbacks can do much more complex things than update counters but hopefully this example illustrates the concepts in a simple way.
+A common problem in both distributed and decentralized systems is keeping separate services (or canisters) synchronized with one another. While there are many potential solutions to this problem, a popular one is the Publisher/Subscriber pattern or "PubSub". PubSub is an especially valuable pattern on the Internet Computer as its primary drawback, message delivery failures, does not apply.
 
 ## Prerequisites
+This example requires an installation of:
 
-Verify the following before running this demo:
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 
-*  You have downloaded and installed the [DFINITY Canister
-   SDK](https://smartcontracts.org).
+Begin by opening a terminal window.
 
-*  You have stopped any Internet Computer or other network process that would
-   create a port conflict on 8000.
+### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-## Demo
+```
+cd examples/rust/pub-sub
+dfx start --background
+```
 
-1. Start a local internet computer.
+### Step 2: Deploy the canister:
 
-   ```text
-   dfx start
-   ```
+```
+dfx deploy
+```
 
-1. Open a new terminal window.
+### Step 3: Get the publisher ID
 
-1. Reserve an identifier for your canister.
+```
+dfx canister id publisher
+```
 
-   ```text
-   dfx canister create --all
-   ```
+### Step 4: Subscribe to the "Apples" topic:
 
-1. Build your canister.
+```
+dfx canister call subscriber setup_subscribe '(principal "<publisher ID from Step 3>", "Apples")'
+```
 
-   ```text
-   dfx build
-   ```
+### Step 5: Publish to the "Apples" topic:
 
-1. Deploy your canister.
+```
+dfx canister call publisher publish '(record { "topic" = "Apples"; "value" = 2 })'
+```
 
-   ```text
-   dfx canister install --all
-   ```
+### Step 6: Receive your subscription:
 
-1. Subscribe to the `"Apples"` topic.
+```
+dfx canister call subscriber get_count
+```
 
-   ```text
-   dfx canister call subscriber setup_subscribe '(principal "your publisher canister id","Apples")'
-   ```
+The output should resemble the following:
 
-1. Publish to the `"Apples"` topic.
+```
+(2 : nat64)
+```
 
-   ```text
-   dfx canister call publisher publish '(record { "topic" = "Apples"; "value" = 2 })'
-   ```
+## Security considerations and security best practices
 
-1. Receive your subscription.
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 
-   ```text
-   dfx canister call subscriber get_count
-   ```
-
-1. Observe the following result.
-
-   ```
-   (2 : nat64)
-   ```
+For example, the following aspects are particularly relevant for this app, since it makes inter-canister calls: 
+* [Be aware that state may change during inter-canister calls.](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#be-aware-that-state-may-change-during-inter-canister-calls)
+* [Only make inter-canister calls to trustworthy canisters.](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#only-make-inter-canister-calls-to-trustworthy-canisters)
+* [Don’t panic after await and don’t lock shared resources across await boundaries.](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#dont-panic-after-await-and-dont-lock-shared-resources-across-await-boundaries)

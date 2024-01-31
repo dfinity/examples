@@ -1,39 +1,45 @@
-# NFT WALLET
+# NFT wallet
 
-This is the NFT Wallet example dapp that runs utilizing minted NFTs from the Rust dip721-nft-container. Among some of its essential features, the wallet can register NTS, transfer out NFTs and check how many NFTs it owns.
+## Overview
 
-NFT Wallet dapp has a frontend UI available!
+This is an NFT wallet example dapp that utilizes minted NFTs from the Rust dip721-nft-container. Among some of its essential features, the wallet can register NFTs, transfer out NFTs and check how many NFTs it contains. This dapp includes a frontend UI for interaction. 
 
-## Get started
+## Prerequisites
+This example requires an installation of:
 
-Simple way to start is running:
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+
+Begin by opening a terminal window.
+
+
+### Step 1: You can deploy the dapp using the `start.sh` script:
 
 ```bash
 ./start.sh
 ```
 
-Start script installs dependencies as well as a local internet-identity. Then it goes on to deploy the NFT Wallet locally.
+This script installs dependencies as well as a local Internet Identity, then deploys the NFT wallet locally.
 
-If you prefer to manually deploy
+Alternatively, the dapp can be deployed manually with the commands:
 
 ```bash
 dfx start --background
 cd internet-identity
 npm install
-II_ENV=development dfx deploy --no-wallet --argument null
+II_FETCH_ROOT_KEY=1 dfx deploy
 cd ..
-./deploy.sh --no-wallet --argument null
+./deploy.sh
 ```
 
-If you'd like to deploy on the IC network run
+### Step 2: If you'd like to deploy on the IC network run the command:
 
 ```bash
-./deploy.sh --no-wallet --network ic --argument null
+./deploy.sh --network ic
 ```
 
-## Make calls against NFT wallet canister
+### Step 3: Make calls against NFT wallet canister:
 
-Example to Transfer an NFT
+For example, to to transfer an NFT use the command:
 
 ```bash
 dfx canister call nftwallet transfer '(record {canister = principal "<NFT canister id>"; index = 1:nat64}, principal "<recipient canister id>", opt true)'

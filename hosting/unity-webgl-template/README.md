@@ -14,7 +14,7 @@ The example project requires the following installed:
 - git
 - dfx 
 
-git can be installed from various package managers. DFX can be installed following the instructions [here](https://smartcontracts.org/docs/quickstart/local-quickstart.html#download-and-install).
+git can be installed from various package managers. DFX can be installed following the instructions [here](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-locally).
 
 ### Install
 Install the example dapp project:
@@ -36,6 +36,8 @@ When the local network is up and running, run this command to deploy the caniste
 ```bash
 $ dfx deploy
 ```
+
+If you get error code 500 after deploying to the IC mainnet, try to use `raw` keyword in the URL like this: `https://\<canister-id\>.raw.ic0.app`.
 
 ## License
 This project is licensed under the Apache 2.0 license, see LICENSE.md for details. See CONTRIBUTE.md for details about how to contribute to this project. 

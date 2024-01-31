@@ -3,6 +3,5 @@
     "basic_dao": {
       "main": "src/Main.mo"
     }
-  },
-  "dfx": "0.9.2"
+  }
 }

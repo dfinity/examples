@@ -1,10 +1,12 @@
 import type { Principal } from '@dfinity/principal';
+import type { ActorMethod } from '@dfinity/agent';
+
 export type List = [] | [[string, List]];
 export interface Superhero { 'superpowers' : List, 'name' : string }
 export type SuperheroId = number;
 export interface _SERVICE {
-  'create' : (arg_0: Superhero) => Promise<SuperheroId>,
-  'delete' : (arg_0: SuperheroId) => Promise<boolean>,
-  'read' : (arg_0: SuperheroId) => Promise<[] | [Superhero]>,
-  'update' : (arg_0: SuperheroId, arg_1: Superhero) => Promise<boolean>,
+  'create' : ActorMethod<[Superhero], SuperheroId>,
+  'delete' : ActorMethod<[SuperheroId], boolean>,
+  'read' : ActorMethod<[SuperheroId], [] | [Superhero]>,
+  'update' : ActorMethod<[SuperheroId, Superhero], boolean>,
 }

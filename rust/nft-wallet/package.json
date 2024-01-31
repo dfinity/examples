@@ -14,7 +14,7 @@
     "build": "cd frontend && npm run build:html && npm run build",
     "install": "cd frontend && npm install --production=false",
     "dev": "cd frontend && npm run dev",
-    "copy:types": "rsync -avr .dfx/$(echo ${DFX_NETWORK:-'**'})/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --delete frontend/src/declarations"
+    "generate": "dfx generate nftwallet"
   },
   "devDependencies": {
     "@rollup/plugin-html": "^0.2.4",

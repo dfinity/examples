@@ -1,0 +1,31 @@
+type Response_1 = 
+ record {
+   data: opt text;
+   error_text: opt text;
+   status: nat16;
+   status_text: text;
+ };
+type Response = 
+ record {
+   data: opt Merchant;
+   error_text: opt text;
+   status: nat16;
+   status_text: text;
+ };
+type Merchant = 
+ record {
+   email_address: text;
+   email_notifications: bool;
+   name: text;
+   phone_notifications: bool;
+   phone_number: text;
+ };
+type Main = 
+ service {
+   getLogs: () -> (vec text) query;
+   getMerchant: () -> (Response) query;
+   setCourierApiKey: (text) -> (Response_1);
+   setLedgerId: (text) -> (Response_1);
+   updateMerchant: (Merchant) -> (Response);
+ };
+service : (nat) -> Main
