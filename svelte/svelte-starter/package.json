@@ -11,9 +11,8 @@
   ],
   "scripts": {
     "build": "cd src/frontend && npm run build",
-    "prebuild": "npm run copy:types",
+    "prebuild": "dfx generate",
     "dev": "cd src/frontend && npm run dev",
-    "prestart": "npm run copy:types",
-    "copy:types": "rsync -avr .dfx/$(echo ${DFX_NETWORK:-'**'})/canisters/** --exclude='assets' --exclude='idl/' --exclude='*.wasm' --delete src/declarations"
+    "prestart": "dfx generate"
   }
 }

@@ -449,7 +449,7 @@ shared(init_msg) actor class Dex() = this {
 
     // !!!! UPGRADES ONLY USED FOR DEVELOPMENT !!!!
     // Defi apps are not upgradable and should have an empty controller list
-    // https://smartcontracts.org/docs/developers-guide/concepts/trust-in-canisters.html
+    // https://internetcomputer.org/docs/current/concepts/trust-in-canisters
     // !!!! UPGRADES ONLY USED FOR DEVELOPMENT !!!!
     
     // Required since maps cannot be stable and need to be moved to stable memory

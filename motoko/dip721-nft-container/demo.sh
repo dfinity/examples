@@ -20,7 +20,7 @@ dfx deploy --argument "(
     symbol = \"DFXB\";
     maxLimit = 10;
   }
-)"
+)" dip721_nft_container
 
 dfx canister call dip721_nft_container mintDip721 \
 "(
