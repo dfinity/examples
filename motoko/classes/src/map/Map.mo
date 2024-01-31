@@ -7,7 +7,7 @@ actor Map {
   let n = 4; // number of buckets
 
   // divide initial balance amongst self and buckets
-  let cycleShare = Cycles.balance()/(n + 1);
+  let cycleShare = Cycles.balance() / (n + 1);
 
   type Key = Nat;
   type Value = Text;

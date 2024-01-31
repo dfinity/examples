@@ -1,8 +1,9 @@
-dfx start --background --clean --host 127.0.0.1:8000
+set -e
+dfx stop && dfx start --background --clean --host 127.0.0.1:8000
 
 
 ### === DEPLOY LOCAL LEDGER =====
-dfx identity new minter
+dfx identity new minter --disable-encryption || true
 dfx identity use minter
 export MINT_ACC=$(dfx ledger account-id)
 
@@ -10,7 +11,7 @@ dfx identity use default
 export LEDGER_ACC=$(dfx ledger account-id)
 
 # Use private api for install
-rm src/ledger/ledger.did
+rm src/ledger/ledger.did || true
 cp src/ledger/ledger.private.did src/ledger/ledger.did
 
 dfx deploy ledger --argument '(record  {
@@ -43,13 +44,20 @@ dfx canister call GoldenDIP20 setFee "(420)"
 
 ### === DEPLOY INTERNET IDENTITY =====
 
-II_ENV=development dfx deploy internet_identity --no-wallet --argument '(null)'
+II_FETCH_ROOT_KEY=1 dfx deploy internet_identity --no-wallet --argument '(null)'
 
 ## === INSTALL FRONTEND / BACKEND ==== 
 
 dfx deploy defi_dapp --argument "(opt principal \"$LEDGER_ID\")"
 
-rsync -avr .dfx/$(echo ${DFX_NETWORK:-'**'})/canisters/** --exclude='assets/' --exclude='idl/' --exclude='*.wasm' --delete src/frontend/declarations
+dfx generate defi_dapp
+dfx build defi_dapp
+dfx build AkitaDIP20
+dfx build GoldenDIP20
+dfx generate defi_dapp
+dfx generate AkitaDIP20
+dfx generate GoldenDIP20
+dfx generate ledger
 
 dfx canister create frontend
 pushd src/frontend

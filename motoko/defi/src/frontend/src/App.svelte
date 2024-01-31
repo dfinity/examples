@@ -21,7 +21,7 @@
     <Orders />
   </div>
   <div class="footer">
-    <a class="ic-badge-link" href="https://www.smartcontracts.org">
+    <a class="ic-badge-link" href="https://internetcomputer.org">
       <picture>
         <img src="images/ic-badge.png" alt="Powered by the Internet Computer" />
       </picture>

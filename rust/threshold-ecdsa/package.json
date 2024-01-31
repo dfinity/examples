@@ -1,0 +1,8 @@
+{
+  "name": "threshold-ecdsa-test",
+  "version": "0.1.0",
+  "description": "Internet Computer starter application",
+  "dependencies": {
+    "secp256k1": "^4.0.3"
+  }
+}

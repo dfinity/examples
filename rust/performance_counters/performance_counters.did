@@ -1,0 +1,5 @@
+service : {
+    "for_update" : () -> (nat64, nat64);
+    "for_composite_query" : () -> (nat64, nat64) query;
+    "example" : () -> (nat64, nat64) query;
+};

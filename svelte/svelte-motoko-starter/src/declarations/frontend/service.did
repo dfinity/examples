@@ -1,0 +1,197 @@
+type AssetCanisterArgs = variant { Upgrade : UpgradeArgs; Init : InitArgs };
+type BatchId = nat;
+type BatchOperationKind = variant {
+  SetAssetProperties : SetAssetPropertiesArguments;
+  CreateAsset : CreateAssetArguments;
+  UnsetAssetContent : UnsetAssetContentArguments;
+  DeleteAsset : DeleteAssetArguments;
+  SetAssetContent : SetAssetContentArguments;
+  Clear : ClearArguments;
+};
+type ChunkId = nat;
+type ClearArguments = record {};
+type CommitBatchArguments = record {
+  batch_id : BatchId;
+  operations : vec BatchOperationKind;
+};
+type CommitProposedBatchArguments = record {
+  batch_id : BatchId;
+  evidence : vec nat8;
+};
+type ComputeEvidenceArguments = record {
+  batch_id : BatchId;
+  max_iterations : opt nat16;
+};
+type ConfigurationResponse = record {
+  max_batches : opt nat64;
+  max_bytes : opt nat64;
+  max_chunks : opt nat64;
+};
+type ConfigureArguments = record {
+  max_batches : opt opt nat64;
+  max_bytes : opt opt nat64;
+  max_chunks : opt opt nat64;
+};
+type CreateAssetArguments = record {
+  key : Key;
+  content_type : text;
+  headers : opt vec HeaderField;
+  allow_raw_access : opt bool;
+  max_age : opt nat64;
+  enable_aliasing : opt bool;
+};
+type DeleteAssetArguments = record { key : Key };
+type DeleteBatchArguments = record { batch_id : BatchId };
+type GrantPermission = record {
+  permission : Permission;
+  to_principal : principal;
+};
+type HeaderField = record { text; text };
+type HttpRequest = record {
+  url : text;
+  method : text;
+  body : vec nat8;
+  headers : vec HeaderField;
+  certificate_version : opt nat16;
+};
+type HttpResponse = record {
+  body : vec nat8;
+  headers : vec HeaderField;
+  streaming_strategy : opt StreamingStrategy;
+  status_code : nat16;
+};
+type InitArgs = record {};
+type Key = text;
+type ListPermitted = record { permission : Permission };
+type Permission = variant { Prepare; ManagePermissions; Commit };
+type RevokePermission = record {
+  permission : Permission;
+  of_principal : principal;
+};
+type SetAssetContentArguments = record {
+  key : Key;
+  sha256 : opt vec nat8;
+  chunk_ids : vec ChunkId;
+  content_encoding : text;
+};
+type SetAssetPropertiesArguments = record {
+  key : Key;
+  headers : opt opt vec HeaderField;
+  is_aliased : opt opt bool;
+  allow_raw_access : opt opt bool;
+  max_age : opt opt nat64;
+};
+type SetPermissions = record {
+  prepare : vec principal;
+  commit : vec principal;
+  manage_permissions : vec principal;
+};
+type StreamingCallbackHttpResponse = record {
+  token : opt StreamingCallbackToken;
+  body : vec nat8;
+};
+type StreamingCallbackToken = record {
+  key : Key;
+  sha256 : opt vec nat8;
+  index : nat;
+  content_encoding : text;
+};
+type StreamingStrategy = variant {
+  Callback : record {
+    token : StreamingCallbackToken;
+    callback : func (StreamingCallbackToken) -> (
+        opt StreamingCallbackHttpResponse,
+      ) query;
+  };
+};
+type Time = int;
+type UnsetAssetContentArguments = record { key : Key; content_encoding : text };
+type UpgradeArgs = record { set_permissions : opt SetPermissions };
+type ValidationResult = variant { Ok : text; Err : text };
+service : {
+  api_version : () -> (nat16) query;
+  authorize : (principal) -> ();
+  certified_tree : (record {}) -> (
+      record { certificate : vec nat8; tree : vec nat8 },
+    ) query;
+  clear : (ClearArguments) -> ();
+  commit_batch : (CommitBatchArguments) -> ();
+  commit_proposed_batch : (CommitProposedBatchArguments) -> ();
+  compute_evidence : (ComputeEvidenceArguments) -> (opt vec nat8);
+  configure : (ConfigureArguments) -> ();
+  create_asset : (CreateAssetArguments) -> ();
+  create_batch : (record {}) -> (record { batch_id : BatchId });
+  create_chunk : (record { content : vec nat8; batch_id : BatchId }) -> (
+      record { chunk_id : ChunkId },
+    );
+  deauthorize : (principal) -> ();
+  delete_asset : (DeleteAssetArguments) -> ();
+  delete_batch : (DeleteBatchArguments) -> ();
+  get : (record { key : Key; accept_encodings : vec text }) -> (
+      record {
+        content : vec nat8;
+        sha256 : opt vec nat8;
+        content_type : text;
+        content_encoding : text;
+        total_length : nat;
+      },
+    ) query;
+  get_asset_properties : (Key) -> (
+      record {
+        headers : opt vec HeaderField;
+        is_aliased : opt bool;
+        allow_raw_access : opt bool;
+        max_age : opt nat64;
+      },
+    ) query;
+  get_chunk : (
+      record {
+        key : Key;
+        sha256 : opt vec nat8;
+        index : nat;
+        content_encoding : text;
+      },
+    ) -> (record { content : vec nat8 }) query;
+  get_configuration : () -> (ConfigurationResponse);
+  grant_permission : (GrantPermission) -> ();
+  http_request : (HttpRequest) -> (HttpResponse) query;
+  http_request_streaming_callback : (StreamingCallbackToken) -> (
+      opt StreamingCallbackHttpResponse,
+    ) query;
+  list : (record {}) -> (
+      vec record {
+        key : Key;
+        encodings : vec record {
+          modified : Time;
+          sha256 : opt vec nat8;
+          length : nat;
+          content_encoding : text;
+        };
+        content_type : text;
+      },
+    ) query;
+  list_authorized : () -> (vec principal);
+  list_permitted : (ListPermitted) -> (vec principal);
+  propose_commit_batch : (CommitBatchArguments) -> ();
+  revoke_permission : (RevokePermission) -> ();
+  set_asset_content : (SetAssetContentArguments) -> ();
+  set_asset_properties : (SetAssetPropertiesArguments) -> ();
+  store : (
+      record {
+        key : Key;
+        content : vec nat8;
+        sha256 : opt vec nat8;
+        content_type : text;
+        content_encoding : text;
+      },
+    ) -> ();
+  take_ownership : () -> ();
+  unset_asset_content : (UnsetAssetContentArguments) -> ();
+  validate_commit_proposed_batch : (CommitProposedBatchArguments) -> (
+      ValidationResult,
+    );
+  validate_configure : (ConfigureArguments) -> (ValidationResult);
+  validate_grant_permission : (GrantPermission) -> (ValidationResult);
+  validate_revoke_permission : (RevokePermission) -> (ValidationResult);
+  validate_take_ownership : () -> (ValidationResult);
+}

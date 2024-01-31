@@ -1,0 +1,28 @@
+name: motoko-icrc2-swap
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - motoko/icrc2-swap/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-icrc2-swap-example.yaml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  motoko-icrc2-swap-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Motoko ICRC2-Swap Linux
+        run: |
+          dfx start --background
+          pushd motoko/icrc2-swap
+          npm install
+          sleep 10
+          make test

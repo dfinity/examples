@@ -14,14 +14,10 @@ import Order "mo:base/Order";
 import Principal "mo:base/Principal";
 import RBTree "mo:base/RBTree";
 
-import Ledger "canister:ledger";
-
 import Book "book";
 import T "types";
 
 module {
-
-    public let ledger = func(): Principal { Principal.fromActor(Ledger) };
 
     // internal types
     public type TradingPair = (T.Token,T.Token);
@@ -50,18 +46,18 @@ module {
             orders.remove(id)
         };
 
-        public func addOrders(orders: [T.Order]) {
+        public func addOrders(dex : Principal, orders: [T.Order]) {
             for(o in orders.vals()) {
-                addOrder(o);
+                addOrder(dex, o);
             }
         };
 
-        public func addOrder(o: T.Order) {
+        public func addOrder(dex : Principal, o: T.Order) {
             orders.put(o.id, o);
-            detectMatch(o);
+            detectMatch(dex, o);
         };
 
-        func detectMatch(order: T.Order) {
+        func detectMatch(dex : Principal, order: T.Order) {
             let a = order;
 
             // Find matching orders.
@@ -105,12 +101,12 @@ module {
                 };
 
                 if (a_to_amount > 0 and b_to_amount > 0) {
-                    processTrade(a, b, a_to_amount, b_to_amount);
+                    processTrade(dex, a, b, a_to_amount, b_to_amount);
                 }
             };
         };
 
-        func processTrade(orderA : T.Order, orderB: T.Order, aToAmount: Nat, bToAmount: Nat) {
+        func processTrade(dex : Principal, orderA : T.Order, orderB: T.Order, aToAmount: Nat, bToAmount: Nat) {
             Debug.print("Process trade between order " # Nat32.toText(orderA.id) # " and order " # Nat32.toText(orderB.id));
             let ra=orders.remove(orderA.id);
             let rb=orders.remove(orderB.id);
@@ -147,11 +143,11 @@ module {
             // The DEX keeps any tokens not required to satisfy the parties.
             let dex_amount_a : Nat = aFromAmount - bToAmount;
             if (dex_amount_a > 0) {
-                book.addTokens(ledger(), a.from, dex_amount_a);
+                book.addTokens(dex, a.from, dex_amount_a);
             };
             let dex_amount_b : Nat = bFromAmount - aToAmount;
             if (dex_amount_b > 0) {
-                book.addTokens(ledger(), b.from, dex_amount_b);
+                book.addTokens(dex, b.from, dex_amount_b);
             };
 
             // Maintain the orders only if not empty

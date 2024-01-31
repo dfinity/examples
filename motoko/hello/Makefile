@@ -1,4 +1,4 @@
-t.PHONY: all
+.PHONY: all
 all: build
 
 .PHONY: node_modules
@@ -27,7 +27,7 @@ upgrade: build
 test: install
 	dfx canister call hello greet '("everyone")' \
 		| grep '("Hello, everyone!")' && echo 'PASS'
-
+		
 .PHONY: clean
 .SILENT: clean
 clean:
