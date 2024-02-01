@@ -62,7 +62,7 @@ The output will resemble the following:
 
 ## Resources
 
-- [Actors and sync data](https://internetcomputer.org/docs/current/motoko/main/actors-async.md).
+- [Actors and sync data](https://internetcomputer.org/docs/current/motoko/main/actors-async).
 - [Basic Motoko concepts and terms](https://internetcomputer.org/docs/current/motoko/main/basic-concepts.md).
 
 # Security Considerations and Security Best Practices
