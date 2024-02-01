@@ -109,7 +109,7 @@ In addition to this, there's also a [Testing Glossary](TestingGlossay.md) showin
 
     - [x] **Updating the backend**
       - [x] Updating [examples/motoko-seller-client/src/backend/modules/SupportedToken.mo](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/modules/SupportedToken.mo):   
-        - [x] For each corresponding methods (and [SupportedToken<> variant](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/modules/SupportedToken.mo#L523)) two cases instead of the previous four.  
+        - [x] For each corresponding methods (and [SupportedToken variant](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/modules/SupportedToken.mo#L523)) two cases instead of the previous four.  
       - [x] Updating [examples/motoko-seller-client/src/backend/Invoice.mo](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/Invoice.mo):  
         - [x] Editing to do two instead of four cases for each API method.  
         - [x] Adding the seller as an authorized allowed creator.  

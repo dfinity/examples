@@ -102,8 +102,6 @@ Once authenticated with II:
 
 ### Adding a new device
 
-![UML sequence diagram showing device registration and synchronization](_attachments/encrypted-notes-seq.png)
-
 ## Encrypted note taking dapp tutorial
 
 Follow the steps below to deploy this sample project.
