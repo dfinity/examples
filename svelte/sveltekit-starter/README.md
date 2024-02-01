@@ -1,7 +1,3 @@
-<p align="left" >
-  <img width="240"  src="./src/frontend/static/logo.png">
-</p>
-
 # SvelteKit Dapp template
 
 This repository is meant to give [SvelteKit](https://kit.svelte.dev/) developers an easy on-ramp to get started with developing decentralized applications (Dapps in short) for the Internet Computer blockchain.
