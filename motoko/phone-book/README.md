@@ -43,13 +43,10 @@ dfx deploy
 
 ### Step 4: Take note of the URL at which the phone book is accessible.
 
+```
 echo "http://127.0.0.1:4943/?canisterId=$(dfx canister id www)"
+```
 
 ### Step 5: Open the aforementioned URL in your web browser.
 
-You will see an interface that you can interact with to store phone book entries:
-
-![Phonebook](./_attachments/phonebook.png)
-
-
-
+You will see an interface that you can interact with to store phone book entries.

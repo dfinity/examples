@@ -23,8 +23,6 @@ Canister `hello`, whether implemented in Motoko or Rust, presents the same Candi
 
 The frontend canister, `hello_assets`, displays an HTML page with a text box for the argument and a button for calling the function greet with that argument. The result of the call is displayed in a message box.
 
-![hello frontend](_attachments/hello.png)
-
 The frontend canister is a generic canister provided by `dfx` but the assets it serves to browsers are determined by the dfx project settings and project files.
 
 The frontend canister and its assets are identical for both projects.

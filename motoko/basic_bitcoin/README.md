@@ -70,8 +70,6 @@ In the output above, to see the Candid Web UI for your bitcoin canister, you wou
 * `public_key`
 * `sign`
 
-![Candid web UI for bitcoin canister](../../_attachments/candid-web-ui-bitcoin-canister.webp)
-
 ## Step 2: Generating a Bitcoin address
 
 Bitcoin has different types of addresses (e.g. P2PKH, P2SH). Most of these
@@ -79,15 +77,11 @@ addresses can be generated from an ECDSA public key. The example code
 showcases how your canister can generate a [P2PKH address](https://en.bitcoin.it/wiki/Transaction#Pay-to-PubkeyHash) using the [ecdsa_public_key](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-ecdsa_public_key) API.
 
 On the Candid UI of your canister, click the "Call" button under `get_p2pkh_address` to
-generate a P2PKH Bitcoin address:
-
-![Generating a P2PKH Bitcoin Address](../../_attachments/generate-ecdsa-key.png)
+generate a P2PKH Bitcoin address.
 
 Or, if you prefer the command line:
 
     dfx canister --network=ic call basic_bitcoin get_p2pkh_address
-
-
 
 * The Bitcoin address you see will be different from the one above, because the
   ECDSA public key your canister retrieves is unique.
@@ -104,12 +98,6 @@ to receive some bitcoin.
 
 Enter your address and click on "Send testnet Bitcoins". In the example below we will use bitcoin address `n31eU1K11m1r58aJMgTyxGonu7wSMoUYe7`, but you would use your own address. The canister will be receiving 0.011 test BTC on the Bitcoin Testnet.
 
-![Bitcoin Testnet Faucet](../../_attachments/bitcoin-testnet-faucet.png)
-
-You should see something similar to this:
-
-![Bitcoin Testnet Faucet](../../_attachments/bitcoin-testnet-faucet-received.png)
-
 
 Once the transaction has at least one confirmation, which can take a few minutes,
 you'll be able to see it in your canister's balance.
@@ -118,9 +106,7 @@ you'll be able to see it in your canister's balance.
 
 You can check a Bitcoin address's balance by using the `get_balance` endpoint on your canister.
 
-In the Candid UI, paste in your canister's address, and click on "Call":
-
-![Checking Bitcoin Balance](../../_attachments/bitcoin-received-funds.png)
+In the Candid UI, paste in your canister's address, and click on "Call".
 
 Alternatively, make the call using the command line. Be sure to replace `mheyfRsAQ1XrjtzjfU1cCH2B6G1KmNarNL` with your own generated P2PKH address:
 
@@ -134,8 +120,6 @@ You can send Bitcoin using the `send` endpoint on your canister.
 
 In the Candid UI, add a destination address and an amount to send. In the example
 below, we're sending 4'321 Satoshi (0.00004321 BTC) back to the testnet faucet.
-
-![Sending Bitcoin](../../_attachments/bitcoin-send-transaction.png)
 
 Via command line, the same call would look like this:
 

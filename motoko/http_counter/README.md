@@ -2,7 +2,7 @@
 
 ## Overview
 
-The example demonstrates a counter dapp and an HTTP interface. It is essentially an iteration on the [counter canister](../Counter/README.md) which adds native HTTP interfaces.
+The example demonstrates a counter dapp and an HTTP interface. It is essentially an iteration on the counter canister which adds native HTTP interfaces.
 
 This sample dapp provides an interface that exposes the following methods:
 

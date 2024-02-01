@@ -55,12 +55,7 @@ dfx deploy
 echo "http://127.0.0.1:4943/?canisterId=$(dfx canister id random_maze_assets)"
 ```
 
-![Maze interface](../../_attachments/maze1.png)
-
-Enter a size for the maze, then select **Generate!**. The maze will be displayed below.
-
-![Random maze](../../_attachments/maze2.png)
-
+Enter a size for the maze, then select **Generate!**. The maze will be displayed.
 
 ## Security considerations and security best practices
 

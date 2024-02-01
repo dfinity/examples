@@ -48,10 +48,7 @@ URLs:
     ecdsa_example_motoko: http://127.0.0.1:4943/?canisterId=t6rzw-2iaaa-aaaaa-aaama-cai&id=st75y-vaaaa-aaaaa-aaalq-cai
 ```
 
-If you open the URL in a web browser, you will see a web UI that shows the public methods the canister exposes. Since the canister exposes `public_key` and `sign` methods, those are rendered in the web UI:
-
- ![Candid UI](../../_attachments/tecdsa-candid-ui.png)
-
+If you open the URL in a web browser, you will see a web UI that shows the public methods the canister exposes. Since the canister exposes `public_key` and `sign` methods, those are rendered in the web UI.
 
 ## Step 2: Deploying the canister on IC mainnet
 
@@ -123,9 +120,7 @@ In example above, `ecdsa_example_motoko` has the URL https://a3gq9-oaaaa-aaaab-q
 
 ### Using the Candid web UI
 
-If you deployed your canister locally or to mainnet, you should have a URL to the Candid web UI where you can access the public methods. We can call the `public-key` method:
-
-![Public key method](../../_attachments/tecdsa-candid-public-key.png)
+If you deployed your canister locally or to mainnet, you should have a URL to the Candid web UI where you can access the public methods. We can call the `public-key` method.
 
 In the example below, the method returns `03c22bef676644dba524d4a24132ea8463221a55540a27fc86d690fda8e688e31a` as the public key.
 
