@@ -48,10 +48,6 @@ echo "http://127.0.0.1:4943/?canisterId=$(dfx canister id life_assets)"
 
 ### Step 3: Open the frontend in your browser by clicking on the link returned in the output of the previous command.
 
-You should see a frontend like this: 
-
-![Game of Life](../../_attachments/game-of-life.png)
-
 Click the button **Step**. The grid will advance to the next generation of the Game of Life.
 
 Click the button **Run**. The grid will (slowly) animate sequential generations.
@@ -123,8 +119,6 @@ dfx deploy
 Then, return to the same browser tab and refresh (or re-load the link). Note the current grid state is unchanged (thus preserved), apart from changing display character in grid.
 Click button **Run**, then click button **Pause** when bored. Open **Details** and click **View State**. Admire the #v1 state on display.
 
-![Game of life v1](../../_attachments/game-of-life2.png)
-
 After first upgrading from v0 the state will be random, as on deploying v0. This is because the v0 code did not declare its state variable stable, forcing the upgraded actor to re-initialize state as no previous value for state is available in the retired actor.
 
 However, if you re-deploy the v1 project a second time, perhaps after making a minor edit, you'll see the last state of the grid, before deployment, preserved across the deployment, in a state-preserving upgrade. The random initializer for state is skipped and state just assumes the value it had before the upgrade.
@@ -142,8 +136,6 @@ dfx deploy
 Return to the same browser tab. Refresh the tab. Note the current grid state is unchanged (thus preserved), apart from changing the display character in the textual display of the grid.
 
 Click button **Run**, then click button **Pause** when bored. Open **Details** and click **View State**. Admire the #v2 state on display.
-
-![Game of life v2](../../_attachments/game-of-life3.png)
 
 ## Security considerations and security best practices
 
