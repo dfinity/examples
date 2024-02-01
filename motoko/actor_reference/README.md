@@ -29,7 +29,7 @@ This is a Motoko example that does not currently have a Rust variant.
 ## Prerequisites
 This example requires an installation of:
 
-- [x] Install the [IC SDK](../developer-docs/setup/install/index.mdx).
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
 
 Begin by opening a terminal window.
 
@@ -62,8 +62,8 @@ The output will resemble the following:
 
 ## Resources
 
-- [Actors and sync data](../motoko/main/actors-async.md).
-- [Basic Motoko concepts and terms](../motoko/main/basic-concepts.md).
+- [Actors and sync data](https://internetcomputer.org/docs/current/motoko/main/actors-async.md).
+- [Basic Motoko concepts and terms](https://internetcomputer.org/docs/current/motoko/main/basic-concepts.md).
 
 # Security Considerations and Security Best Practices
 
