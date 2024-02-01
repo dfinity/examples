@@ -191,7 +191,7 @@ Note that the URL here to the dashboard for the ckTESTBTC ledger could be anothe
 
 ### Step 7: The next step is updating `Invoice.mo` to add the declaration for the token ledger-canister's actor type and updating the relevant API methods. 
 
-As these API methods (except for `to_other_address_format()`) involve the actual calls that are made to the corresponding `ICP` ledger and `ICRC1` token-ledgers, their actor type can be instantiated with their canister id reusing the `ICP` and `ICRC1` actor supertype declarations found in either the ICP and ICRC1 subdirectories of [supported-token](./src/invoice/modules/supported-token/). For the ckTESTBTC token example, this would look like:
+As these API methods (except for `to_other_address_format()`) involve the actual calls that are made to the corresponding `ICP` ledger and `ICRC1` token-ledgers, their actor type can be instantiated with their canister id reusing the `ICP` and `ICRC1` actor supertype declarations found in either the ICP and ICRC1 subdirectories of [supported-token](./src/invoice/modules/supported-token/SupportedToken.mo). For the ckTESTBTC token example, this would look like:
 
 ```diff
 import SupportedToken "./modules/supported-token/SupportedToken";
@@ -287,7 +287,7 @@ actor CanisterRequiringPaymentProcessing {
 
 ### Step 10: After deploying the invoice canister, its canister id can be found with the [`dfx canister id` command](https://github.com/dfinity/sdk/blob/master/docs/cli-reference/dfx-canister.md#dfx-canister-id).
 
-This completes covering all the needed steps for integrating the invoice canister in another project. While much of this was reiterating what was already written elsewhere in this project, for more details be sure to review [Design Doc](./docs/DesignDoc.md), [Invoice.mo](./src/invoice/Invoice.mo), [Types.mo](./src/modules/Types.mo) and [SupportedToken.mo](./src/invoice/modules/supported-token/SupportedToken.mo) as well as [clean-startup.mjs](./clean-startup.mjs) for further explanation of how to deploy the invoice canister and token ledger-canisters however may be needed.
+This completes covering all the needed steps for integrating the invoice canister in another project. While much of this was reiterating what was already written elsewhere in this project, for more details be sure to review [Design Doc](./docs/DesignDoc.md), [Invoice.mo](./src/invoice/Invoice.mo), [Types.mo](https://github.com/dfinity/examples/blob/master/motoko/invoice-canister/src/invoice/modules/Types.mo) and [SupportedToken.mo](./src/invoice/modules/supported-token/SupportedToken.mo) as well as [clean-startup.mjs](./clean-startup.mjs) for further explanation of how to deploy the invoice canister and token ledger-canisters however may be needed.
 
 ## Testing
 
