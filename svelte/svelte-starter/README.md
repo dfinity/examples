@@ -1,7 +1,3 @@
-<p align="left" >
-  <img width="240"  src="assets/logo.png">
-</p>
-
 # Svelte Dapp template
 
 This repository is meant to give [Svelte](https://svelte.dev/) developers an easy on-ramp to get started with developing decentralized applications (Dapps in short) for the Internet Computer blockchain. Dapps, also known as smart contracts are specialized software that run on a blockchain.
