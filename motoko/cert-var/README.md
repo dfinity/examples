@@ -244,8 +244,6 @@ This should present an entry for "New value of variable", and a button to "Set a
 
 Enter a number and click the button.
 
-[Certified variables](../../_attachments/cert-var.png)
-
 The canister updates its certificate, and the frontend checks it. The developer console contains some additional comments about each step.
 
 
