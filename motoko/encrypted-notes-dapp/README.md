@@ -111,7 +111,7 @@ Once authenticated with II:
 Follow the steps below to deploy this sample project.
 
 ## Prerequisites
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index).
 - [x] Download and install [Docker](https://docs.docker.com/get-docker/) if using the Docker option. 
 - [x] Download the GitHub repo containing this project's files: https://github.com/dfinity/examples/tree/master/motoko/encrypted-notes-dapp. (If using Rust, use the /master/rust/encrypted-notes-dapp folder.)
 
