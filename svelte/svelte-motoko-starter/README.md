@@ -106,8 +106,6 @@ git submodule update --init --recursive
 
 When the repository is cloned, switch to its directory and install it:
 
-(If you're running this on an M1 Mac, make sure you follow [these steps]())
-
 ```
 cd internet-identity
 npm install
