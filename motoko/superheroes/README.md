@@ -42,9 +42,7 @@ echo "http://127.0.0.1:4943/?canisterId=$(dfx canister id www)"
 ```
 
 ### Step 5: Open the aforementioned URL in your web browser.
-You will see the following interface that you can interact with:
-
-![Superheros interface](../../_attachments/superheros.png)
+You will see the following interface that you can interact with.
 
 ## Security considerations and security best practices
 
