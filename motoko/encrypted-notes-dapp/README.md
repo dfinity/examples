@@ -98,10 +98,6 @@ Once authenticated with II:
 
 -   If a user wants to register a subsequent device, the frontend calls `register_device`, passing in the `alias` and `publickey` of that device. The frontend then calls `submit_ciphertexts([publickey, ciphertext])` for all the devices it needs to register. This allows the registered devices to pull and decrypt the AES key to encrypt and decrypt the user notes.
 
-## Sequence diagrams
-
-### Adding a new device
-
 ## Encrypted note taking dapp tutorial
 
 Follow the steps below to deploy this sample project.
