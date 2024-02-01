@@ -373,8 +373,6 @@ URLs:
 
 Open the `greet_frontend` URL in a web browser. 
 
-![II Sample](../../_attachments/ii-sample.png)
-
 You should be able to observe the following behavior:
 
 - If you press the "Click me!" button without logging in first, you should be greeted by the anonymous principal (2vxsx-fae).
