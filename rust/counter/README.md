@@ -5,7 +5,7 @@
 ### Prerequisites
 This example requires an installation of:
 
-- [x] Install the [IC SDK](../developer-docs/setup/install/index.mdx).
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
 - [x] Download the following project files from GitHub: https://github.com/dfinity/examples/
 
 Begin by opening a terminal window.
