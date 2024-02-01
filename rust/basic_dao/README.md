@@ -25,7 +25,7 @@ This example requires an installation of:
 
 - [x] The Rust toolchain (e.g. cargo).
 - [x] [didc.](https://github.com/dfinity/candid/tree/master/tools/didc)
-- [x] Install the [IC SDK](../developer-docs/setup/install/index.mdx).
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
 
 
 Begin by opening a terminal window.
