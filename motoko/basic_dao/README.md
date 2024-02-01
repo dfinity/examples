@@ -23,7 +23,7 @@ For example, the following aspects are particularly relevant for this app:
 ### Prerequisites
 This example requires an installation of:
 
-- [x] Install the [IC SDK](../developer-docs/setup/install/index.mdx).
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
 - [x] To run the test scripts, you need to download [ic-repl](https://github.com/chenyan2002/ic-repl/releases).
 
 Begin by opening a terminal window.
