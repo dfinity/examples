@@ -25,35 +25,35 @@ This example requires an installation of:
 
 Begin by opening a terminal window.
 
-### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
+### Step 1: Navigate into the folder containing the project's files and start a local instance of the replica with the command:
 
-```
+```bash
 cd examples/motoko/calc
 dfx start --background
 ```
 
 ### Step 2: Deploy the canister with the command:
 
-```
+```bash
 dfx deploy
 ```
 
 ### Step 3: Run a calculator function. For example, to multiple 2 by 3:
 
-```
+```bash
 dfx canister call calc add '(2)'
 dfx canister call calc mul '(3)'
 ```
 
 Output:
 
-```
+```bash
 (2 : int)
 (6 : int)
 ```
 
 
-## Security considerations and security best practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 

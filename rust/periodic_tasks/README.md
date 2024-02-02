@@ -13,8 +13,6 @@ This example demonstrates different ways of scheduling periodic tasks on the Int
 
 The example consist of two canisters named `heartbeat` and `timer`, both implementing the same functionality: schedule a periodic task to increase a counter.
 
-## Tutorial
-
 ## Prerequisites
 This example requires an installation of:
 
@@ -237,7 +235,7 @@ For such an isolation of execution and scheduling contexts, timers library uses 
 2. Check out `heartbeat` and `timer` canisters Candid user interface. The URLs are et the end of the `dfx deploy` command: `heartbeat: http://127.0.0.1/...`
 3. Find which interval makes even the costs of running periodic tasks in the `timer` and `heartbeat` canisters: `dfx deploy heartbeat --argument 5 && dfx deploy timer --argument 5`
 
-### Canister Interface
+### Canister interface
 
 The `heartbeat` and `timer` canisters provide the following interface:
 
@@ -260,6 +258,6 @@ For the code composability, execution context isolation and cost efficiency, can
 As shown in `Example 2`, there might be still very specific use cases for the heartbeats. Those should be considered case by case, with composability and isolation issues in mind.
 
 
-## Security considerations and security best practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.

@@ -1,4 +1,4 @@
-# Decentralized exchange (DEX) sample
+# Decentralized exchange sample
 
 ## Overview
 
@@ -88,7 +88,7 @@ Compared to depositing funds, withdrawing funds is simpler. Since the exchange h
 
 ### Step 1: Download the project's GitHub repo and install the dependencies:
 
-```
+```bash
 git clone --recurse-submodules --shallow-submodules https://github.com/dfinity/examples.git
 # for the rust implementation examples/rust/defi
 cd examples/motoko/defi
@@ -97,7 +97,7 @@ make install
 
 The install scripts output the URL to visit the exchange frontend:
 
-```
+```bash
 ===== VISIT DEFI FRONTEND =====
 http://127.0.0.1:4943?canisterId=by6od-j4aaa-aaaaa-qaadq-cai
 ===== VISIT DEFI FRONTEND =====
@@ -138,7 +138,7 @@ To trade tokens with yourself, you can open a second incognito browser window.
 -   No panics after await: when a panic happens, the state gets rolled back. This can cause issues with the correctness of the exchange.
 
 
-## Security considerations and security best practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 

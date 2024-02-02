@@ -15,28 +15,28 @@ This example requires an installation of:
 
 Begin by opening a terminal window.
 
-### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
+### Step 1: Navigate into the folder containing the project's files and start a local instance of the replica with the command:
 
-```
+```bash
 cd examples/motoko/quicksort
 dfx start --background
 ```
 
 ### Step 2: Deploy the canister:
 
-```
+```bash
 dfx deploy
 ```
 
 ### Step 3: Sort an array of integers.
 
-```
+```bash
 dfx canister call quicksort sort '(vec { 5; 3; 0; 9; 8; 2; 1; 4; 7; 6 })'
 ```
 
 The output will resemble the following:
 
-```
+```bash
 (
   vec {
     0 : int;
@@ -53,7 +53,7 @@ The output will resemble the following:
 )
 ```
 
-## Security considerations and security best practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 
