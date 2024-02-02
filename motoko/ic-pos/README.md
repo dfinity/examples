@@ -1,6 +1,7 @@
+# IC-POS
+
 ![](./media/header.png)
 
-# IC-POS
 
 IC-POS is an experimental app to demonstrate a real world use case for [ckBTC](https://internetcomputer.org/ckbtc/) on the Internet Computer. It is a simple Point of Sale app that allows users to accept ckBTC payments.
 
