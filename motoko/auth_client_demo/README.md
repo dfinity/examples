@@ -1,4 +1,4 @@
-# Auth-Client Demo
+# Auth-client 
 
 This is an example project, intended to demonstrate how an app developer might integrate with an [Internet Identity](https://identity.ic0.app).
 
@@ -23,7 +23,7 @@ Once deployed, start the development server with `npm start`.
 
 You can now access the app at `http://127.0.0.1:5173/`.
 
-## Multiple Versions
+## Multiple versions
 
 This demo has multiple versions, each of which demonstrates a different feature of the auth-client. `npm start` will run the vanilla JS version, but you can run the others by running `npm run start:version` where `version` is one of the following:
 
@@ -36,7 +36,7 @@ This demo has multiple versions, each of which demonstrates a different feature 
 
 To pull Internet Identity into your own project, you'll need to do the following:
 
-1. Add Internet Identity to your `dfx.json` file:
+- #### Step 1: Add Internet Identity to your `dfx.json` file:
 
 ```json
 "internet-identity" : {
@@ -45,7 +45,7 @@ To pull Internet Identity into your own project, you'll need to do the following
 }
 ```
 
-2. Run the following commands to install the dependencies:
+- #### Step 2: Run the following commands to install the dependencies:
 
 ```bash
 dfx deps pull

@@ -56,13 +56,13 @@ The frontend interacts with the following IC canisters:
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Install [Node.js](https://nodejs.org/en/).
 
-### Step 1: Start a local instance of the Internet Computer
+### Step 1: Start a local instance of the replica:
 
 ```bash
 dfx start --clean --background
 ```
 
-### Step 2: Deploy the Internet Identity canister
+### Step 2: Deploy the Internet Identity canister:
 
 Integration with the [Internet Identity](https://internetcomputer.org/internet-identity/) allows store owners to securely setup and manage their store. The Internet Identity canister is already deployed on the IC mainnet. For local development, you need to deploy it to your local instance of the IC.
 
@@ -70,7 +70,7 @@ Integration with the [Internet Identity](https://internetcomputer.org/internet-i
 dfx deploy --network local internet_identity
 ```
 
-### Step 3: Save current principal as a variable
+### Step 3: Save current principal as a variable:
 
 The principal will be used when deploying the ledger canister.
 
@@ -78,7 +78,7 @@ The principal will be used when deploying the ledger canister.
 export OWNER=$(dfx identity get-principal)
 ```
 
-### Step 3: Deploy the ckBTC ledger canister
+### Step 3: Deploy the ckBTC ledger canister:
 
 The responsibilities of the ledger canister is to keep track of token balances and handle token transfers.
 
@@ -121,7 +121,7 @@ dfx deploy --network local --specified-id mxzaz-hqaaa-aaaar-qaada-cai icrc1_ledg
 '
 ```
 
-### Step 4: Deploy the index canister
+### Step 4: Deploy the index canister:
 
 The index canister syncs the ledger transactions and indexes them by account.
 
@@ -133,7 +133,7 @@ dfx deploy --network local icrc1_index --argument '
 '
 ```
 
-### Step 5: Deploy the icpos canister
+### Step 5: Deploy the icpos canister:
 
 The icpos canister manages the store configuration and sends notifications when a payment is received.
 
@@ -143,7 +143,7 @@ The `--argument '(0)'` argument is used to initialize the canister with `startBl
 dfx deploy --network local icpos --argument '(0)'
 ```
 
-### Step 6: Configure the icpos canister
+### Step 6: Configure the icpos canister:
 
 ic-pos uses [Courier](https://courier.com/) to send email and SMS notifications. If you want to enable notifications, you need to sign up for a Courier account and and create and API key. Then issue the following command:
 
@@ -151,7 +151,7 @@ ic-pos uses [Courier](https://courier.com/) to send email and SMS notifications.
 dfx canister --network local call icpos setCourierApiKey "pk_prod_..."
 ```
 
-### Step 7: Build and run the frontend
+### Step 7: Build and run the frontend:
 
 Run npm to install dependencies and start the frontend. The frontend will be available at http://localhost:5173.
 
@@ -170,7 +170,7 @@ Transfers made from the owner principal will not trigger notifications in the UI
 
 The easiest way to do this is to create two stores using two different Internet Identity accounts, using two different web browsers. Then, transfer some tokens from one store to the other.
 
-#### 8.1: Create the first store and supply it with some tokens
+#### 8.1: Create the first store and supply it with some tokens:
 
 Log in to the frontend using the Internet Identity. Configure the store and navigate to the `Receive` page. Click on the principal pill to copy the address to your clipboard. Then, using the `dfx` command, mint some tokens from your owner principal to the store principal.
 
@@ -185,7 +185,7 @@ dfx canister --network local call icrc1_ledger icrc1_transfer '
 '
 ```
 
-#### 8.2: Create the second store
+#### 8.2: Create the second store:
 
 Log in to the frontend using **a new Internet Identity on another web browser**. Configure the store and navigate to the `Receive` page. Click on the principal pill to copy the address to your clipboard.
 
@@ -195,7 +195,7 @@ If everything is working, you should see a notification in the second store.
 
 🎉
 
-## Possible Improvements
+## Possible improvements
 
 - Login state is not persisted. Reloading the app will log the user out. This should be done using `localStorage` or `sessionStorage`.
 - Show more information about transactions. A transaction detail page.

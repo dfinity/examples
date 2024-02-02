@@ -1,4 +1,4 @@
-# Hello cycles
+# Hello, cycles!
 ![Compatibility](https://img.shields.io/badge/compatibility-0.6.25-blue)
 
 ## Overview
@@ -29,40 +29,40 @@ This example requires an installation of:
 
 Begin by opening a terminal window.
 
-### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
+### Step 1: Navigate into the folder containing the project's files and start a local instance of the replica with the command:
 
-```
+```bash
 cd examples/motoko/hello_cycles
 dfx start --background
 ```
 
 ### Step 2: Deploy the canister:
 
-```
+```bash
 dfx deploy
 ```
 
 ### Step 3: Check that the current cycles balance of canister hello_cycles by running the following command:
 
-```
+```bash
 dfx canister call hello_cycles wallet_balance
 ```
 
 The output should resemble the following:
 
-```
+```bash
 (3_091_662_816_985 : nat)
 ```
 
 You can also see the cycles balance of hello_cycles (or any canister you control) by calling:
 
-```
+```bash
 dfx canister status hello_cycles
 ```
 
 The output of this command will be similar to:
 
-```
+```bash
 Canister status call result for hello_cycles.
 Status: Running
 Controllers: 2vxsx-fae b77ix-eeaaa-aaaaa-qaada-cai
@@ -76,14 +76,14 @@ Module hash: 0x09198be65e161bdb5c75c705dfec4b707a8091ac5d1a095dd45c025142a1fc43
 
 ### Step 4: To display the default wallet and hello_cycles canister principals, run the commands:
 
-```
+```bash
 dfx identity get-wallet
 dfx canister id hello_cycles
 ```
 
 The output should resemble the following:
 
-```
+```bash
 b77ix-eeaaa-aaaaa-qaada-cai
 dzh22-nuaaa-aaaaa-qaaoa-cai
 ```
@@ -92,7 +92,7 @@ Below, we'll frequently use `$(dfx identity get-wallet)` and `$(dfx canister id 
 
 ### Step 5: Attempt to send 2 trillion cycles from the default wallet to the hello_cycles canister by running the following command:
 
-```
+```bash
 dfx canister call $(dfx identity get-wallet) wallet_send "(record { canister = principal \"$(dfx canister id hello_cycles)\"; amount = (2000000000000:nat64); } )"
 ```
 
@@ -100,19 +100,19 @@ The wallet's `wallet_send` function transfers the amount to the argument caniste
 
 If successful, the output will look similar to:
 
-```
+```bash
 (variant { 17_724 })
 ```
 
 #### Step 6: Verify that the cycles balance for the hello_cycles canister has increased by 10_000_000 by running the following command:
 
-```
+```bash
 dfx canister call hello_cycles wallet_balance
 ```
 
 Output:
 
-```
+```bash
 (5_091_662_569_379 : nat)
 ```
 
@@ -120,25 +120,25 @@ The amount is only increased by 10_000_000 because the implementation of `wallet
 
 ### Step 7: Send some cycles from the hello_cycles canister back to the wallet by running the command:
 
-```
+```bash
 dfx canister call hello_cycles transfer "(func \"$(dfx identity get-wallet)\".\"wallet_receive\", 5000000)"
 ```
 
 Output: 
 
-```
+```bash
 (record { refunded = 0 : nat })
 ```
 
 ### Step 8: Verify that the cycles balance of hello_cycles canister has decreased with:
 
-```
+```bash
 dfx canister call hello_cycles wallet_balance
 ```
 
 Output:
 
-```
+```bash
 (5_091_657_208_987 : nat)
 ```
 
@@ -147,7 +147,7 @@ In this step, we are passing our own wallet's `wallet_receive` function as the f
 Without some additional access control checks (omitted here), a malicious client could abuse our naive transfer function to drain the canister of all of its cycles.
 
 
-## Security considerations and security best practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 
