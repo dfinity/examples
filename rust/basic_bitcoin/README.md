@@ -1,6 +1,4 @@
-# Basic Bitcoin example
-
-## Deploying your first Bitcoin dapp
+# Basic Bitcoin 
 
 ## Overview 
 This tutorial will walk you through how to deploy a sample [canister smart contract](https://wiki.internetcomputer.org/wiki/Canister_smart_contract) **that can send and receive Bitcoin** on the Internet Computer.
@@ -91,18 +89,18 @@ Or, if you prefer the command line:
 used for sending/receiving Bitcoin on the Bitcoin testnet.
 
 
-## Step 3: Receiving Bitcoin
+## Step 3: Receiving bitcoin
 
 Now that the canister is deployed and you have a Bitcoin address, it's time to receive
-some testnet Bitcoin. You can use one of the Bitcoin faucets, such as [coinfaucet.eu](https://coinfaucet.eu),
+some testnet bitcoin. You can use one of the Bitcoin faucets, such as [coinfaucet.eu](https://coinfaucet.eu),
 to receive some bitcoin.
 
-Enter your address and click on "Send testnet Bitcoins". In the example below we will use bitcoin address `n31eU1K11m1r58aJMgTyxGonu7wSMoUYe7`, but you would use your own address. The canister will be receiving 0.011 test BTC on the Bitcoin Testnet.
+Enter your address and click on "Send testnet bitcoins". In the example below we will use Bitcoin address `n31eU1K11m1r58aJMgTyxGonu7wSMoUYe7`, but you would use your own address. The canister will be receiving 0.011 test BTC on the Bitcoin Testnet.
 
 Once the transaction has at least one confirmation, which can take a few minutes,
 you'll be able to see it in your canister's balance.
 
-## Step 4: Checking your Bitcoin balance
+## Step 4: Checking your bitcoin balance
 
 You can check a Bitcoin address's balance by using the `get_balance` endpoint on your canister.
 
@@ -110,22 +108,26 @@ In the Candid UI, paste in your canister's address, and click on "Call":
 
 Alternatively, make the call using the command line. Be sure to replace `mheyfRsAQ1XrjtzjfU1cCH2B6G1KmNarNL` with your own generated P2PKH address:
 
-    dfx canister --network=ic call basic_bitcoin get_balance '("mheyfRsAQ1XrjtzjfU1cCH2B6G1KmNarNL")'
+```bash
+dfx canister --network=ic call basic_bitcoin get_balance '("mheyfRsAQ1XrjtzjfU1cCH2B6G1KmNarNL")'
+```
 
 Checking the balance of a Bitcoin address relies on the [bitcoin_get_balance](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_balance) API.
 
-## Step 5: Sending Bitcoin
+## Step 5: Sending bitcoin
 
-You can send Bitcoin using the `send` endpoint on your canister.
+You can send bitcoin using the `send` endpoint on your canister.
 
 In the Candid UI, add a destination address and an amount to send. In the example
 below, we're sending 4'321 Satoshi (0.00004321 BTC) back to the testnet faucet.
 
 Via command line, the same call would look like this:
 
-    dfx canister --network=ic call basic_bitcoin send '(record { destination_address = "tb1ql7w62elx9ucw4pj5lgw4l028hmuw80sndtntxt"; amount_in_satoshi = 4321; })'
+```bash
+dfx canister --network=ic call basic_bitcoin send '(record { destination_address = "tb1ql7w62elx9ucw4pj5lgw4l028hmuw80sndtntxt"; amount_in_satoshi = 4321; })'
+```
 
-The `send` endpoint is able to send Bitcoin by:
+The `send` endpoint is able to send bitcoin by:
 
 1. Getting the percentiles of the most recent fees on the Bitcoin network using the [bitcoin_get_current_fee_percentiles API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_current_fee_percentiles).
 2. Fetching your unspent transaction outputs (UTXOs), using the [bitcoin_get_utxos API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_utxos).
@@ -143,7 +145,7 @@ reflected in your current balance.
 
 In this tutorial, you were able to:
 
-* Deploy a canister smart contract on the ICP blockchain that can receive & send Bitcoin.
+* Deploy a canister smart contract on the ICP blockchain that can receive & send bitcoin.
 * Use a cycles faucet to deploy the canister to ICP blockchain on mainnet for free.
 * Connect the canister to the Bitcoin testnet.
 * Send the canister some testnet BTC.
@@ -155,7 +157,7 @@ This example is extensively documented in the following tutorials:
 * [Deploying your first Bitcoin dapp](https://internetcomputer.org/docs/current/samples/deploying-your-first-bitcoin-dapp).
 * [Developing Bitcoin dapps locally](https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/local-development).
 
-## Security considerations and security best practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 

@@ -1,4 +1,4 @@
-# QR code generator on the Internet Computer
+# QR code generator
 
 ## Overview
 
@@ -6,7 +6,7 @@ This example shows that an Internet Computer dapp can perform a long-running com
 This is possible due to a unique feature called Deterministic Time Slicing (DTS), which automatically divides long computations into smaller slices executed across multiple blocks.
 Developers can write long-running code as usual and don't require anything special to take advantage of DTS, as demonstrated in this example.
 
-You try the live version of the dapp running on the Internet Computer mainnet here: [https://khpe2-4qaaa-aaaao-a2fnq-cai.icp0.io/](https://khpe2-4qaaa-aaaao-a2fnq-cai.icp0.io/).
+You try the live version of the dapp running on the mainnet here: [https://khpe2-4qaaa-aaaao-a2fnq-cai.icp0.io/](https://khpe2-4qaaa-aaaao-a2fnq-cai.icp0.io/).
 
 ## Prerequisites
 This example requires an installation of:
@@ -22,21 +22,22 @@ This example requires an installation of:
 
 Start a local replica of the Internet Computer by running:
 
-```
+```bash
 dfx start --background
 ```
 
 You can omit the `--background` argument if you want to see log messages of the dapp.
 
-Now you can build and deploy the dapp with a single command
-```
+Now you can build and deploy the dapp with a single command:
+
+```bash
 dfx deploy
 ```
 
 If you see any error, it might be worthwhile to consult the [developer forum](https://forum.dfinity.org/).
 In case of successful deployment, you will see an output with local URLs:
 
-```
+```bash
 Deployed canisters.
 URLs:
   Frontend canister via browser
