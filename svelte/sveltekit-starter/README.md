@@ -88,7 +88,7 @@ it is not necessary to deploy it to the frontend canister during development.
 
 To host the Svelte app on the IC, you'll need to have some cycles available. Cycles pay for the execution of your app, and they are also needed to create canisters.
 
-You can get $20 worth of cycles for free from the [Cycles Faucet](faucet.dfinity.org).
+You can get $20 worth of cycles for free from the [Cycles Faucet](https://faucet.dfinity.org).
 
 You should have a canister running the cycles wallet on the IC at this point. The cycles wallet makes it easy to pay for canister creation.
 

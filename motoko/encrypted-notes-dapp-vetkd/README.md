@@ -12,7 +12,7 @@ Please also see the [README of the original encrypted-notes-dapp](../encrypted-n
 
 ## Disclaimer
 
-This example uses an [**insecure** implementation](../../rust/vetkd/src/system_api) of [the proposed vetKD system API](https://github.com/dfinity/interface-spec/pull/158) in a pre-compiled form via the [vetkd_system_api.wasm](./vetkd_system_api.wasm). **Do not use this in production or for sensitive data**! This example is solely provided **for demonstration purposes** to collect feedback on the mentioned vetKD system API.
+This example uses an **insecure** implementation of [the proposed vetKD system API](https://github.com/dfinity/interface-spec/pull/158) in a pre-compiled form via the [vetkd_system_api.wasm](./vetkd_system_api.wasm). **Do not use this in production or for sensitive data**! This example is solely provided **for demonstration purposes** to collect feedback on the mentioned vetKD system API.
 
 ## Manual local deployment
 1. Choose which implementation to use by setting a respective environment variable. You can choose Motoko or Rust.
