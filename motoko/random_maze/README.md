@@ -1,8 +1,4 @@
-# Random Maze
-
-![Compatibility](https://img.shields.io/badge/compatibility-0.7.0-blue)
-[![Build Status](https://github.com/dfinity/examples/workflows/motoko-random_maze-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-random_maze-example)
-
+# Random maze
 ## Overview
 
 The example generates a random maze using cryptographic randomness.
@@ -17,7 +13,7 @@ The application is built from the following Motoko source code file:
 
 - `main.mo`: contains the actor definition and methods exposed by this canister.
 
-This actor use Motoko's Random library to generate a cryptographically random maze of user-specified size.
+This actor use Motoko's random library to generate a cryptographically random maze of user-specified size.
 
 Function generate, calls library function `Random.blob()` asynchronously to obtain 256-bits of raw entropy (256 random bits as 32 bytes) from the Internet Computer. It makes these calls on demand as it is constructing a maze. The bits of these blobs are consumed to generate samples from a variety of discrete distributions using some of the other classes and functions of library Random.mo.
 
@@ -30,34 +26,34 @@ This example requires an installation of:
 
 Begin by opening a terminal window.
 
-### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
+### Step 1: Navigate into the folder containing the project's files and start a local instance of the replica with the command:
 
-```
+```bash
 cd examples/motoko/random_maze
 dfx start --background
 ```
 
 ### Step 2: Install front-end dependencies:
 
-```
+```bash
 npm install
 ```
 
 ### Step 3: Deploy the canister:
 
-```
+```bash
 dfx deploy
 ```
 
 ### Step 4: Take note of the URL at which the user interface is accessible.
 
-```
+```bash
 echo "http://127.0.0.1:4943/?canisterId=$(dfx canister id random_maze_assets)"
 ```
 
 Enter a size for the maze, then select **Generate!**. The maze will be displayed.
 
-## Security considerations and security best practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 

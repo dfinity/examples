@@ -1,11 +1,8 @@
 ## Superheroes
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.25-blue)
-[![Build Status](https://github.com/dfinity/examples/workflows/motoko-superheroes-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-superheroes-example)
-
 ## Overview
 
-This example demonstrates how to build a CRUD application on the Internet Computer using Motoko and React.
+This example demonstrates how to build a CRUD application on ICP using Motoko and React.
 
 This is a Motoko example that does not currently have a Rust variant. 
 
@@ -16,35 +13,34 @@ This example requires an installation of:
 
 Begin by opening a terminal window.
 
-### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
+### Step 1: Navigate into the folder containing the project's files and start a local instance of the replica with the command:
 
-```
+```bash
 cd examples/motoko/superheros
 dfx start --background
 ```
 
 ### Step 2: Build the front-end of the application:
 
-```
+```bash
 npm install
 ``` 
 
 ### Step 3: Deploy the canister:
 
-```
+```bash
 dfx deploy
 ```
 
 ### Step 4: Take note of the URL at which the canister is accessible.
 
-```
+```bash
 echo "http://127.0.0.1:4943/?canisterId=$(dfx canister id www)"
 ```
 
 ### Step 5: Open the aforementioned URL in your web browser.
-You will see the following interface that you can interact with.
 
-## Security considerations and security best practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 
