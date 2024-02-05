@@ -1,4 +1,4 @@
-# Actor Classes
+# Classes
 
 ![Compatibility](https://img.shields.io/badge/compatibility-0.7.0-blue)
 [![Build Status](https://github.com/dfinity/examples/workflows/motoko-classes-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-classes-example)
@@ -27,32 +27,32 @@ This is a Motoko example that does not currently have a Rust variant.
 ## Prerequisites
 This example requires an installation of:
 
-- [x] Install the [IC SDK](../developer-docs/setup/install/index.mdx).
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
 
 Begin by opening a terminal window.
 
 ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-```
+```bash
 cd examples/motoko/classes
 dfx start --background
 ```
 
 ### Step 2: Deploy the canisters `Map` and `Test`:
 
-```
+```bash
 dfx deploy
 ```
 
 ### Step 3: Invoke the run method of canister Test:
 
-```
+```bash
 dfx canister call Test run '()'
 ```
 
 The output should resemble the following:
 
-```
+```bash
 debug.print: putting: (0, "0")
 debug.print: putting: (1, "1")
 debug.print: putting: (2, "2")
@@ -80,6 +80,6 @@ debug.print: putting: (23, "23")
 ()
 ```
 
-## Security considerations and security best practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.

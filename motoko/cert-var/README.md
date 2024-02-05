@@ -1,8 +1,5 @@
 # Certified variables
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.7.0-blue)
-[![Build Status](https://github.com/dfinity/examples/workflows/motoko-cert-var-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-cert-var-example)
-
 ## Overview
 This example demonstrates the use of a single cryptographically certified variable, as supported by the Internet Computer.
 
@@ -43,7 +40,6 @@ Notably, in an example with more data in the canister than a single number, or a
 
 This is a Motoko example that does not currently have a Rust variant. 
 
-
 ## Prerequisites
 This example requires an installation of:
 
@@ -54,26 +50,26 @@ Begin by opening a terminal window.
 
 ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-```
+```bash
 cd examples/motoko/cert-var
 dfx start --background
 ```
 
 ### Step 2: Install the front-end dependencies:
 
-```
+```bash
 npm install
 ```
 
 ### Step 3: Deploy the canister:
 
-```
+```bash
 dfx deploy
 ```
 
 ### Step 4: Next, open the `webpack.config.js` file and replace the contents with the following:
 
-```
+```javascript
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -187,7 +183,7 @@ module.exports = {
 
 ### Step 5: Create a new file called `server.js` with the following content:
 
-```
+```javascript
 var express = require('express');
 var app = express();
 
@@ -202,7 +198,7 @@ app.listen(8000, function () {
 
 ### Step 6: Replace the content of the `src/cert_var_assets/src/index.html` with the following content:
 
-```
+```html
 <!doctype html>
 <html lang="en">
 <head>
@@ -227,16 +223,16 @@ app.listen(8000, function () {
 </html>
 ```
 
-### Step 7: Start a local web server that hosts the front-end.
+### Step 7: Start a local web server that hosts the frontend.
 
-```
+```bash
 npm start
 ```
 
 
 ### Step 8: Visit the frontend, and interact with the demo there:
 
-```
+```bash
 http://localhost:8080/
 ```
 
@@ -244,12 +240,10 @@ This should present an entry for "New value of variable", and a button to "Set a
 
 Enter a number and click the button.
 
-[Certified variables](../../_attachments/cert-var.png)
-
 The canister updates its certificate, and the frontend checks it. The developer console contains some additional comments about each step.
 
 
-## Security considerations and security best practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 

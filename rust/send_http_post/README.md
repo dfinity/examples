@@ -1,4 +1,4 @@
-# send_http_post
+# HTTP: POST
 
 The purpose of this dapp is to give developers a minimal dapp that uses the IC's HTTPS outcalls feature to make a `POST` request.
 
