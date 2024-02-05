@@ -30,7 +30,7 @@ jobs:
           dfx build kv_frontend
           dfx canister install kv_frontend
           dfx canister call kv_frontend put '(1, 1337)'
-          dfx canister call kv_frontend get '(1)' | grep 1337
+          dfx canister call kv_frontend get '(1)' | grep '1337'
           popd
   rust-composite_query-linux:
     runs-on: ubuntu-20.04
@@ -48,5 +48,5 @@ jobs:
           dfx build kv_frontend
           dfx canister install kv_frontend
           dfx canister call kv_frontend put '(1, 1337)'
-          dfx canister call kv_frontend get '(1)' | grep 1337
+          dfx canister call kv_frontend get '(1)' | grep '1337'
           popd
