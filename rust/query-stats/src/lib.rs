@@ -31,32 +31,32 @@ impl QueryStatAtTime {
         let time_diff = self.timestamp_nanos - other.timestamp_nanos;
         assert!(time_diff > 0);
 
-        fn calc_rate(a: Nat, b: Nat, time_diff: u64) -> f32 {
-            let a: u128 = a.0.try_into().unwrap();
-            let b: u128 = b.0.try_into().unwrap();
+        fn calc_rate(a: &Nat, b: &Nat, time_diff: u64) -> f32 {
+            let a: u128 = a.0.clone().try_into().unwrap();
+            let b: u128 = b.0.clone().try_into().unwrap();
             let time_diff = time_diff as f32;
             (a as f32 - b as f32) / time_diff
         }
 
         QueryStatRates {
             num_calls_total: calc_rate(
-                self.query_stats.num_calls_total,
-                other.query_stats.num_calls_total,
+                &self.query_stats.num_calls_total,
+                &other.query_stats.num_calls_total,
                 time_diff,
             ),
             num_instructions_total: calc_rate(
-                self.query_stats.num_instructions_total,
-                other.query_stats.num_instructions_total,
+                &self.query_stats.num_instructions_total,
+                &other.query_stats.num_instructions_total,
                 time_diff,
             ),
             request_payload_bytes_total: calc_rate(
-                self.query_stats.request_payload_bytes_total,
-                other.query_stats.request_payload_bytes_total,
+                &self.query_stats.request_payload_bytes_total,
+                &other.query_stats.request_payload_bytes_total,
                 time_diff,
             ),
             response_payload_bytes_total: calc_rate(
-                self.query_stats.response_payload_bytes_total,
-                other.query_stats.response_payload_bytes_total,
+                &self.query_stats.response_payload_bytes_total,
+                &other.query_stats.response_payload_bytes_total,
                 time_diff,
             ),
         }
@@ -98,7 +98,7 @@ async fn get_current_query_stats_as_string() -> String {
 #[ic_cdk::query]
 // Calculates the rate between the latest query statistics and the query statistics
 // from QUERY_STATS_RATE_FOR_LAST_SECS seconds ago.
-fn get_currenty_query_stats_as_rates() -> Option<QueryStatRates> {
+fn get_current_query_stats_as_rates() -> Option<QueryStatRates> {
     with_state(|state| {
         let mut most_recent: Option<&QueryStatAtTime> = None;
         let mut before: Option<&QueryStatAtTime> = None;
