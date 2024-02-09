@@ -51,8 +51,6 @@ To support multiple devices per user, IC Vault employs a device manager; a canis
 
 For further details and user stories, please refer to the [README file](https://github.com/dfinity/examples/blob/master/motoko/encrypted-notes-dapp/README.md).
 
-![High-level architecture overview diagram of the Encrypted Notes dapp](../../_attachments/encrypted-notes-arch.png)
-
 ## Note management
 
 -   Users are linked to II in the frontend, getting the user a principal that can be used for calling API queries and updates.
@@ -104,8 +102,6 @@ Once authenticated with II:
 
 ### Adding a new device
 
-![UML sequence diagram showing device registration and synchronization](_attachments/encrypted-notes-seq.png)
-
 ## Encrypted note taking dapp tutorial
 
 Follow the steps below to deploy this sample project.
@@ -117,26 +113,13 @@ Follow the steps below to deploy this sample project.
 
 ### Step 1. Navigate inside of the project's folder:
 
-```
-cd examples/motoko/encrypted-notes-dapp
-```
-
-or
-
-```
+```bash
 cd examples/rust/encrypted-notes-dapp
 ```
 
 ### Step 2: Set an environmental variable reflecting which backend canister you'll be using:
-For Motoko deployment run:
 
-```
-export BUILD_ENV=motoko
-```
-
-For Rust deployment run:
-
-```
+```bash
 export BUILD_ENV=rust
 ```
 
@@ -145,20 +128,20 @@ export BUILD_ENV=rust
 ### Step 3: Deploy locally. 
 
 ### Option 1: Docker deployment
-**This option does not yet work on Apple M1; the combination of DFX and Docker do not currently support the required architecture.**
+**This option does not yet work on Apple M1; the combination of dfx and Docker do not currently support the required architecture.**
 
 - #### Step 1: Install and start Docker by following the instructions.
-- #### Step 2: For Motoko build/deployment set environmental variable:
+- #### Step 2: For Rust build/deployment set environmental variable:
 
-```
-export BUILD_ENV=motoko
+```bash
+export BUILD_ENV=rust
 ```
 
 - #### Step 3: Run the following Bash script that builds a Docker image, compiles the canister, and deploys this dapp (all inside the Docker instance). 
 
 Execution can take a few minutes:
 
-```
+```bash
 sh ./deploy_locally.sh
 ```
 
@@ -173,27 +156,27 @@ sh ./deploy_locally.sh
    - Run `docker rm -f <CONTAINER ID'\'>`.
 
 ### Option 2: Manual deployment
-- #### Step 1: For Motoko deployment set environmental variable:
+- #### Step 1: For Rust deployment set environmental variable:
 
-```
-export BUILD_ENV=motoko
+```bash
+export BUILD_ENV=rust
 ```
 
-- #### Step 2: To generate $BUILD_ENV-specific files (i.e., Motoko or Rust) run:
+- #### Step 2: To generate $BUILD_ENV-specific files:
 
-```
+```bash
 sh ./pre_deploy.sh
 ```
 
 - #### Step 3: Install `npm` packages from the project root:
 
-```
+```bash
 npm install
 ```
 
 - #### Step 4: Start `dfx`:
 
-```
+```bash
 dfx start
 ```
 
@@ -253,7 +236,7 @@ Visit the URL from above in a web browser. To run the frontend with hot-reloadin
 
 - #### Step 1: Create the canisters:
 
-```
+```bash
 dfx canister --network ic create "encrypted_notes_${BUILD_ENV}"
 dfx canister --network ic create www
 ```
@@ -263,7 +246,7 @@ dfx canister --network ic create www
 
 - #### Step 2: Build the canisters:
 
-```
+```bash
 dfx build "encrypted_notes_${BUILD_ENV}" --network ic
 dfx build www --network ic
 ```
@@ -273,12 +256,12 @@ dfx build www --network ic
 
 **In the commands below, --mode could also be reinstall to reset the stable memory.**
 
-```
+```bash
 dfx canister --network ic install "encrypted_notes_${BUILD_ENV}" --mode=upgrade
 dfx canister --network ic install www --mode=upgrade
 ```
 
-## Security considerations and security best practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices, see also the [disclaimer](#disclaimer-please-read-carefully) above.  
 
@@ -299,7 +282,7 @@ For example, the following aspects are particularly relevant for this app:
 Fig. 2. Basic single-device scenario for a user.
 </p>
 
-1. Open the main page of the `Encrypted Notes` dapp. You will see a _login_ button.
+- #### Step 1: Open the main page of the `Encrypted Notes` dapp. You will see a _login_ button.
 
    1. If deployed locally, visit the following link: http://localhost:8000?canisterId=rkp4c-7iaaa-aaaaa-aaaca-cai
    2. If deployed to the mainnet IC, visit the corresponding canister URL.
@@ -308,13 +291,16 @@ Fig. 2. Basic single-device scenario for a user.
 
    _Note_: see [Troubleshooting](#troubleshooting) in case of problems.
 
-2. Click the "Login" button. You will be redirected to the _Internet Identity_ canister (see Fig. 2(b)).
+- #### Step 2: Click the "Login" button. You will be redirected to the _Internet Identity_ canister (see Fig. 2(b)).
 
    1. If you already have an `anchor`, you may continue with it. Click "Authenticate", then verify your identity and finally click "Proceed", see Fig. 2(c).
    2. If you do not have an anchor yet, you should [create one](https://internetcomputer.org/how-it-works/web-authentication-identity/). Once an `anchor` is created, please follow 2.1.
 
-3. Once logged in for the first time, your notes list should be empty. At this moment, your _Local Storage_ should be populated with additional variables (see Fig. 2(d)): **ic-identity**, **ic-delegation**. These variables are used for storing/retrieving notes from the backend canister. In addition, another two variables are generated in the _IndexedDB_: **PrivateKey**, **PublicKey**. These two variable are used for encrypting/decrypting the shared secret key.
-4. Create/edit/delete notes and observe changes in the resulting notes list (see Fig. 2(e)).
+- #### Step 3: Once logged in for the first time, your notes list should be empty. 
+
+At this moment, your _Local Storage_ should be populated with additional variables (see Fig. 2(d)): **ic-identity**, **ic-delegation**. These variables are used for storing/retrieving notes from the backend canister. In addition, another two variables are generated in the _IndexedDB_: **PrivateKey**, **PublicKey**. These two variable are used for encrypting/decrypting the shared secret key.
+
+- #### Step 4: Create/edit/delete notes and observe changes in the resulting notes list (see Fig. 2(e)).
 
 ### Scenario II: user is accessing notes from multiple devices
 
@@ -355,35 +341,6 @@ Fig. 4. Scenario for a user adding/removing devices.
 &nbsp;
 
 ## Unit testing
-
-This project also demonstrates how one can write unit tests for Motoko and Rust canisters.
-
-### Motoko Unit Tests
-
-The unit tests are implemented in `src/encrypted_notes_motoko/test/test.mo` using the [Motoko Matchers](https://kritzcreek.github.io/motoko-matchers/) library. 
-
-The easiest way to run all tests involves the following steps:
-
-1. Follow the above instructions for Deployment via Docker with `BUILD_ENV=motoko`.
-2. Open a new console, type `docker ps`, and copy the _`<CONTAINER ID>`_ of the `encrypted_notes` image.
-3. Run: `docker exec `_`<CONTAINER ID>`_` sh src/encrypted_notes_motoko/test/run_tests.sh`
-4. Observer `All tests passed.` at the end of the output.
-
-Alternatively, one can also run unit tests after a local deployment via:
-```sh
-src/encrypted_notes_motoko/test/run_tests.sh
-```
-However, this requires installing [`wasmtime`](https://wasmtime.dev/) and [`motoko-matchers`](https://github.com/kritzcreek/motoko-matchers):
-
-```sh
-git clone https://github.com/kritzcreek/motoko-matchers $(dfx cache show)/motoko-matchers
-chmod +x src/encrypted_notes_motoko/test/run_tests.sh
-src/encrypted_notes_motoko/test/run_tests.sh
-```
-
-Observer `All tests passed.` at the end of the output.
-
-### Rust Unit Tests
 
 The unit tests are implemented in `src/encrypted_notes_rust/src/lib.rs` at the bottom.
 

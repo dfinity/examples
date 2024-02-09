@@ -1,4 +1,4 @@
-# DIP721 NFT container
+# DIP721 NFT 
 
 This example demonstrates implementing an NFT canister. NFTs (non-fungible tokens) are unique tokens with arbitrary
 metadata, usually an image of some kind, to form the digital equivalent of trading cards. There are a few different
@@ -165,7 +165,7 @@ Minting is restricted to anyone authorized with the `custodians` parameter or th
 
 This Rust example comes with a demo script, `demo.sh`, which runs through an example workflow with minting and trading an NFT between a few users. This is primarily designed to be read rather than run so that you can use it to see how basic NFT operations are done. For a more in-depth explanation, read the [standard][DIP721].
 
-## Security considerations and security best practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 
@@ -175,6 +175,6 @@ For example, the following aspects are particularly relevant for this app:
 * [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#use-a-decentralized-governance-system-like-sns-to-make-a-canister-have-a-decentralized-controller), since decentralizing control is a fundamental aspect when dealing with NFTs.
 
 ## Resources
-[Rust]: https://rustup.rs
-[DIP721]: https://github.com/Psychedelic/DIP721
-[mint]: https://github.com/dfinity/experimental-minting-tool
+- [Rust](https://rustup.rs).
+- [DIP721](https://github.com/Psychedelic/DIP721).
+- [mint](https://github.com/dfinity/experimental-minting-tool).

@@ -10,7 +10,7 @@ All the referenced line numbers should be correct to within one or two lines (so
 
 In addition to these bounty tasks, two other non-trivial changes include using the literal of a generated ULID for an invoice's id (instead of the invoice creation counter value). ULID was chosen for its timestamp encoding and human copy and paste friendly dash-lacking format; there's an example of decoding the timestamp from an invoice's ulid in the frontend of the `motoko-seller-client` example. Also note a monotonic invoice creation counter is still used and available if needed for an invoice record. The other change was upgrading from the volatile hashmap to the stable compatible trie to remove the need for using the pre and postupgrade system hooks. 
 
-In addition to this, there's also a [Testing Glossary](./docs/TestingGlossay.md) showing an example output of all the unit and E2E tests, as well as an example of the [startup script's output](./docs/clean-startup-console-output.md) showing a shell running the `clean-startup-mjs` script with the `deployForTesting` flag.
+In addition to this, there's also a [Testing Glossary](TestingGlossay.md) showing an example output of all the unit and E2E tests, as well as an example of the [startup script's output](clean-startup-console-output.md) showing a shell running the `clean-startup-mjs` script with the `deployForTesting` flag.
 
 ---
 
@@ -27,13 +27,13 @@ In addition to this, there's also a [Testing Glossary](./docs/TestingGlossay.md)
       - [x] `clean-startup.mjs::disburse_funds_to_nnsFundedSecp256k1Identity_creator_subaccounts()` (lines [250](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/clean-startup.mjs#L250)-270, 377).  
   
 - [x] **Adding the required ICRC1 token-ledger canister typings:**  
-    ✶ [src/invoice/modules/supported-token/token-specific/icrc1/Types.mo](./src/invoice/modules/supported-token/token-specific/icrc1/Types.mo)  
+    ✶ [src/invoice/modules/supported-token/token-specific/icrc1/Types.mo](https://github.com/dfinity/examples/tree/master/motoko/invoice-canister/src/invoice/modules/supported-token/token-specific/icrc1/Types.mo)  
 
 - [x] **For consistency and integration adding an ICRC1 token-ledger canister actor supertype:**  
-    ✶ [src/invoice/modules/supported-token/token-specific/icrc1/ActorSupertype.mo](./src/invoice/modules/supported-token/token-specific/icrc1/ActorSupertype.mo)  
+    ✶ [src/invoice/modules/supported-token/token-specific/icrc1/ActorSupertype.mo](https://github.com/dfinity/examples/tree/master/motoko/invoice-canister/src/invoice/modules/supported-token/token-specific/icrc1/ActorSupertype.mo)  
 
 - [x] **Adding the logic for ICRC1 addressing computations:**  
-  - [x] [src/invoice/modules/supported-token/token-specific/icrc1/Adapter.mo](./src/invoice/modules/supported-token/token-specific/icrc1/Adapter.mo)  
+  - [x] [src/invoice/modules/supported-token/token-specific/icrc1/Adapter.mo](https://github.com/dfinity/examples/tree/master/motoko/invoice-canister/src/invoice/modules/supported-token/token-specific/icrc1/Adapter.mo)  
      - [x] `isValidSubaccount()`  
      - [x] `isValidAddress()`  
      - [x] `encodeAddress()`  
@@ -46,7 +46,7 @@ In addition to this, there's also a [Testing Glossary](./docs/TestingGlossay.md)
       ✶ `describe("ICRC1 Adapter Account and Subaccount Computations"...` (lines [270](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/unit/Test.mo#L270)-422).  
 
 - [x] **Adding the logic connecting those addressing transformations to the invoice canister's API methods:**
-  - [x] [src/invoice/modules/supported-token/SupportedToken.mo](./src/invoice/modules/supported-token/SupportedToken.mo).  
+  - [x] [src/invoice/modules/supported-token/SupportedToken.mo](https://github.com/dfinity/examples/tree/master/motoko/invoice-canister/src/invoice/modules/supported-token/SupportedToken.mo).  
         _ㅤVariant tags mapping the two ICRC1 tokens:_  
     - [x] `SupportedToken<T1, T2>` (`#ICRC1_ExampleToken` & `#ICRC1_ExampleToken2` (lines [63](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/modules/supported-token/SupportedToken.mo#L63)-64).  
         _ㅤRelated `SupportedToken`'s types each with corresponding ICRC1 type:_  
@@ -77,7 +77,7 @@ In addition to this, there's also a [Testing Glossary](./docs/TestingGlossay.md)
           _ㅤEach includes its own subsuite-set of test cases ("describe">"it") for each token type._  
       - [x] `describe("Supported Token Types' and Methods"...` (full set omitted here, lines [426](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/test/unit/Test.mo#L426)-1651).  
 
-  - [x] **Implementing the actual use of the above methods in the invoice canister's API methods in [src/invoice/Invoice.mo](./src/invoice/Invoice.mo):**  
+  - [x] **Implementing the actual use of the above methods in the invoice canister's API methods in [src/invoice/Invoice.mo](https://github.com/dfinity/examples/tree/master/motoko/invoice-canister/src/invoice/Invoice.mo):**  
     - [x] `create_invoice()`  
     - [x] `get_caller_address()`  
     - [x] `get_caller_balance()`  
@@ -109,7 +109,7 @@ In addition to this, there's also a [Testing Glossary](./docs/TestingGlossay.md)
 
     - [x] **Updating the backend**
       - [x] Updating [examples/motoko-seller-client/src/backend/modules/SupportedToken.mo](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/modules/SupportedToken.mo):   
-        - [x] For each corresponding methods (and [SupportedToken<> variant](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/modules/SupportedToken.mo#L523)) two cases instead of the previous four.  
+        - [x] For each corresponding methods (and [SupportedToken variant](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/modules/SupportedToken.mo#L523)) two cases instead of the previous four.  
       - [x] Updating [examples/motoko-seller-client/src/backend/Invoice.mo](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/examples/motoko-seller-client/src/backend/Invoice.mo):  
         - [x] Editing to do two instead of four cases for each API method.  
         - [x] Adding the seller as an authorized allowed creator.  
@@ -139,7 +139,7 @@ In addition to this, there's also a [Testing Glossary](./docs/TestingGlossay.md)
     - [x] Add access control for creating new invoices (see [SEC-F20] & [SEC-F21] below).    
     - [x] Refactor permission checks to a method.  
       ✶ `src/invoice/Invoice.mo::getInvoiceIfAuthorized()` ([lines 100-142](https://github.com/atengberg/examples/blob/ashton/invoice-bnt2/motoko/invoice-canister/src/invoice/Invoice.mo#L100)).  
-    - [x] Additionally, when first starting this bounty independently of any work I was doing, the startup scripting was being migrated to use zx which coincidentally at the time I had just become interested in. There's likely an ideal niche for dfx cli and zx for example in making dynamic canister deployment easier particularly as the javascript can console log out the arg as a literal without the explicit need of using it with zx. In any case as a result this migration was completed in the form of [`clean-startup.mjs`](./clean-startup.mjs).  
+    - [x] Additionally, when first starting this bounty independently of any work I was doing, the startup scripting was being migrated to use zx which coincidentally at the time I had just become interested in. There's likely an ideal niche for dfx cli and zx for example in making dynamic canister deployment easier particularly as the javascript can console log out the arg as a literal without the explicit need of using it with zx. In any case as a result this migration was completed in the form of [`clean-startup.mjs`](https://github.com/dfinity/examples/tree/master/clean-startup.mjs).  
   
 ### Prevent arithmetic overflow when amount in TransferArgs is below 10_000 #35 ###  
   - [x] https://github.com/dfinity/invoice-canister/issues/35  
@@ -260,10 +260,10 @@ In addition to this, there's also a [Testing Glossary](./docs/TestingGlossay.md)
   - [x] https://github.com/dfinity/invoice-canister/issues/19
     - [x] Extensive Motokodoc and in-method-body comments literally everywhere / generated `dev docs`.
     - [x] All testing is also extensively commented.
-    - [x] Standalone (non-generated) developer doc [DesignDoc.md](./docs/DesignDoc.md) covering specifications, API, security and critical aspects.  
-    - [x] Commented [invoice.did](./invoice.did) at project's root.  
-    - [x] Coverage in [README](./README.md) including integration of invoice canister.   
-    - [x] [Diagram flow chart](./docs/invoice-payment-flow.png) of typical "ok" invoice lifecycle.  
+    - [x] Standalone (non-generated) developer doc [DesignDoc.md](DesignDoc.md) covering specifications, API, security and critical aspects.  
+    - [x] Commented [invoice.did](../invoice.did) at project's root.  
+    - [x] Coverage in [README](../README.md) including integration of invoice canister.   
+    - [x] [Diagram flow chart](invoice-payment-flow.png) of typical "ok" invoice lifecycle.  
 
 ### [SEC-F22] Potentially sensitive invoice details are stored in plain text on the canister #26 ###
   - [x] https://github.com/dfinity/invoice-canister/issues/26  

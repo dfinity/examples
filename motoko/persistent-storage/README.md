@@ -28,46 +28,46 @@ Begin by opening a terminal window.
 
 ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-```
+```bash
 cd examples/motoko/persistent-storage
 dfx start --background
 ```
 
 ### Step 2: Build and deploy the canister:
 
-```
+```bash
 dfx deploy
 ```
 
 ### Step 3: Command usage: `dfx canister call <project>  <function>`
 
-```
+```bash
 dfx canister call persistent_storage increment
 ```
 
 Output:
 
-```
+```bash
 (1 : Nat)
 ```
 
-```
+```bash
 dfx canister call persistent_storage get
 ```
 
 Output:
 
-```
+```bash
 (1 : Nat)
 ```
 
-```
+```bash
 dfx canister call persistent_storage reset
 ```
 
 Output:
 
-```
+```bash
 (0 : Nat)
 ```
 
@@ -144,7 +144,7 @@ rrkah-fqaaa-aaaaa-aaaaq-cai
 This project is licensed under the Apache 2.0 license, see LICENSE.md for details. See CONTRIBUTE.md for details about how to contribute to this project.
 
 
-## Security Considerations and Security Best Practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 
