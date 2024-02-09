@@ -16,7 +16,7 @@ jobs:
   motoko-encrypted-notes-darwin:
     runs-on: macos-12
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Provision Darwin
         env:
           DFX_VERSION: 0.14.2
@@ -34,7 +34,7 @@ jobs:
   motoko-encrypted-notes-linux:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Provision Linux
         env:
           DFX_VERSION: 0.14.2

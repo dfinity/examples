@@ -16,7 +16,7 @@ jobs:
   motoko-invoice-canister-darwin:
     runs-on: macos-12
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
       - name: Install vessel
@@ -37,7 +37,7 @@ jobs:
   motoko-invoice-canister-linux:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
       - name: Install vessel

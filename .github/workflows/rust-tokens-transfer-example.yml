@@ -17,7 +17,7 @@ jobs:
   rust-tokens_transfer-darwin:
     runs-on: macos-12
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
       - name: Provision Darwin
@@ -30,7 +30,7 @@ jobs:
   rust-tokens_transfer-linux:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
       - name: Provision Linux

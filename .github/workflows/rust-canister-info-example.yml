@@ -17,7 +17,7 @@ jobs:
   rust-canister-info-darwin:
     runs-on: macos-12
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Provision Darwin
         run: DFX_VERSION="0.14.2" bash .github/workflows/provision-darwin.sh
       - name: Rust Canister info Darwin
@@ -29,7 +29,7 @@ jobs:
   rust-canister-info-linux:
     runs-on: ubuntu-20.04
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v4
       - name: Provision Linux
         run: DFX_VERSION="0.14.2" bash .github/workflows/provision-linux.sh
       - name: Rust Canister info Linux
