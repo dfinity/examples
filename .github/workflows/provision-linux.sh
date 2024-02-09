@@ -12,10 +12,11 @@ sudo apt-get install --yes nodejs
 rm install-node.sh
 
 # Install DFINITY SDK.
-wget --output-document install-dfx.sh "https://internetcomputer.org/install.sh"
+wget --output-document install-dfx.sh "https://raw.githubusercontent.com/dfinity/sdk/dfxvm-install-script/install.sh"
 DFX_VERSION=${DFX_VERSION:=0.16.1} bash install-dfx.sh < <(yes Y)
 rm install-dfx.sh
-dfx cache install
+echo "$HOME/.local/share/dfx/bin" >> $GITHUB_PATH
+"$HOME/.local/share/dfx/bin"/dfx cache install
 
 # Install ic-repl
 version=0.1.2
