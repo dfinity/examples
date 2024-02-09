@@ -18,6 +18,7 @@ jobs:
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v4
+      - uses: dfinity/setup-dfx@main
       - name: Provision Darwin
         env:
           NODE_VERSION: 19.8.1
@@ -58,6 +59,7 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v4
+      - uses: dfinity/setup-dfx@main
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
       - name: Install vessel

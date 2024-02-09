@@ -19,6 +19,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           submodules: recursive
+      - uses: dfinity/setup-dfx@main
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
       - name: Rust DIP-721 Darwin

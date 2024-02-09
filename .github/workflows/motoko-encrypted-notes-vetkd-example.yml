@@ -17,9 +17,10 @@ jobs:
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v4
+      - uses: dfinity/setup-dfx@main
+        with:
+          dfx-version: 0.14.2
       - name: Provision Darwin
-        env:
-          DFX_VERSION: 0.14.2
         run: bash motoko/encrypted-notes-dapp-vetkd/provision-darwin.sh
       - name: Motoko Encrypted Notes Darwin (unit tests)
         run: |
@@ -35,9 +36,10 @@ jobs:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v4
+      - uses: dfinity/setup-dfx@main
+        with:
+          dfx-version: 0.14.2
       - name: Provision Linux
-        env:
-          DFX_VERSION: 0.14.2
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko Encrypted Notes Linux (unit tests)
         run: |

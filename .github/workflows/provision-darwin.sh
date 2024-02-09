@@ -16,10 +16,7 @@ curl --location --output node.pkg "https://nodejs.org/dist/v$version/node-v$vers
 sudo installer -pkg node.pkg -store -target /
 rm node.pkg
 
-# Install DFINITY SDK.
-curl --location --output install-dfx.sh "https://internetcomputer.org/install.sh"
-DFX_VERSION=${DFX_VERSION:=0.16.1} bash install-dfx.sh < <(yes Y)
-rm install-dfx.sh
+# Initialize DFINITY SDK.
 dfx cache install
 
 # Install ic-repl
