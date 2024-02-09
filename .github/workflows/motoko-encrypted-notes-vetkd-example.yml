@@ -6,7 +6,7 @@ on:
   pull_request:
     paths:
       - motoko/encrypted-notes-dapp-vetkd/**
-      - motoko/encrypted-notes-dapp-vetkd/provision-darwin.sh
+      - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/motoko-encrypted-notes-vetkd-example.yml
 concurrency:
