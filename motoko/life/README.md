@@ -1,4 +1,4 @@
-# Game of Life
+# Game of life
 
 ## Overview
 
@@ -27,14 +27,14 @@ Begin by opening a terminal window.
 
 ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-```
+```bash
 cd examples/motoko/life
 dfx start --background
 ```
 
 ### Step 2: Deploy the canister:
 
-```
+```bash
 dfx deploy
 ```
 
@@ -42,15 +42,11 @@ The deployment step should report a canister id for the life_assets canister.
 
 Take note of the URL at which the life_assets is accessible using the command:
 
-```
+```bash
 echo "http://127.0.0.1:4943/?canisterId=$(dfx canister id life_assets)"
 ```
 
 ### Step 3: Open the frontend in your browser by clicking on the link returned in the output of the previous command.
-
-You should see a frontend like this: 
-
-![Game of Life](../../_attachments/game-of-life.png)
 
 Click the button **Step**. The grid will advance to the next generation of the Game of Life.
 
@@ -64,7 +60,7 @@ Because the v0 implementation makes no provision for upgrades, every time you re
 
 The state of the grid is represented naively as a nested, mutable array of Boolean values, as described in the `src/State.mo` file:
 
-```
+```motoko
 module {
 
   public type Cell = Bool;
@@ -77,7 +73,7 @@ A `src/life/grid` is represented as a simple class constructed from, and maintai
 
 The main actor in `src/life/main` creates a random state and maintains two grid objects, the current and next grid (`cur` and `nxt`). Life's `next()` method advances the Game of Life to the next generation by updating `nxt` from `cur`, using Grid method call `cur.next(nxt)`. The roles of `cur` and `nxt` are then swapped to re-use `cur`'s space for the next generation (a simple application of double-buffering). This logic is described in the `src/life/main.mo` file:
 
-```
+```motoko
 import Random = "Random";
 import State = "State";
 import Grid = "Grid";
@@ -114,7 +110,7 @@ Note that none of the variables in this actor are declared stable so their value
 ### Upgrading to v1
 To upgrade to the v1 implementation, issue these commands:
 
-```
+```bash
 mv src versions/v0
 mv versions/v1 src
 dfx deploy
@@ -122,8 +118,6 @@ dfx deploy
 
 Then, return to the same browser tab and refresh (or re-load the link). Note the current grid state is unchanged (thus preserved), apart from changing display character in grid.
 Click button **Run**, then click button **Pause** when bored. Open **Details** and click **View State**. Admire the #v1 state on display.
-
-![Game of life v1](../../_attachments/game-of-life2.png)
 
 After first upgrading from v0 the state will be random, as on deploying v0. This is because the v0 code did not declare its state variable stable, forcing the upgraded actor to re-initialize state as no previous value for state is available in the retired actor.
 
@@ -133,7 +127,7 @@ However, if you re-deploy the v1 project a second time, perhaps after making a m
 ### Upgrading to v2:
 To upgrade to the v2 implementation, issue these commands:
 
-```
+```bash
 mv src versions/v1
 mv versions/v2 src
 dfx deploy
@@ -143,9 +137,7 @@ Return to the same browser tab. Refresh the tab. Note the current grid state is 
 
 Click button **Run**, then click button **Pause** when bored. Open **Details** and click **View State**. Admire the #v2 state on display.
 
-![Game of life v2](../../_attachments/game-of-life3.png)
-
-## Security considerations and security best practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 

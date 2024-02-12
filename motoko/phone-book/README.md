@@ -22,34 +22,31 @@ This example requires an installation of:
 
 Begin by opening a terminal window.
 
-### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
+### Step 1: Navigate into the folder containing the project's files and start a local instance of the replica with the command:
 
-```
+```bash
 cd examples/motoko/phone-book
 dfx start --background
 ```
 
 ### Step 2: Install front-end dependencies:
 
-```
+```bash
 npm install
 ```
 
 ### Step 3: Deploy the canister:
 
-```
+```bash
 dfx deploy
 ```
 
 ### Step 4: Take note of the URL at which the phone book is accessible.
 
+```bash
 echo "http://127.0.0.1:4943/?canisterId=$(dfx canister id www)"
+```
 
 ### Step 5: Open the aforementioned URL in your web browser.
 
-You will see an interface that you can interact with to store phone book entries:
-
-![Phonebook](./_attachments/phonebook.png)
-
-
-
+You will see an interface that you can interact with to store phone book entries.

@@ -6,7 +6,7 @@ on:
   pull_request:
     paths:
       - motoko/encrypted-notes-dapp-vetkd/**
-      - motoko/encrypted-notes-dapp-vetkd/provision-darwin.sh
+      - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/rust-encrypted-notes-vetkd-example.yml
 concurrency:
@@ -20,7 +20,8 @@ jobs:
       - name: Provision Darwin
         env:
           DFX_VERSION: 0.14.2
-        run: bash motoko/encrypted-notes-dapp-vetkd/provision-darwin.sh
+          NODE_VERSION: 14.21.3
+        run: bash .github/workflows/provision-darwin.sh
       - name: Rust Encrypted Notes Darwin (unit tests)
         run: |
           pushd motoko/encrypted-notes-dapp-vetkd

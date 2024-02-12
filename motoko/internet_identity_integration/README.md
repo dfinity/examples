@@ -1,4 +1,4 @@
-# Internet Identity integration sample
+# Internet Identity integration 
 
 ## Overview
 
@@ -15,15 +15,15 @@ This is a Motoko example that does not currently have a Rust variant.
 
 
 ## Prerequisites
-- [ ] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
-- [ ] Install [Node.js](https://nodejs.org/en/download/).
-- [ ] Download and install the `@dfinity/auth-client` package with the command `npm install @dfinity/auth-client`. 
-- [ ] Download the following project files from GitHub: https://github.com/dfinity/examples/
-- [ ] Chrome or Firefox browser (other browsers also work, but may need a slightly different webpack configuration, see the note on [step 4 below](#step-4-make-the-internet-identity-url-available-in-the-build-process))
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Install [Node.js](https://nodejs.org/en/download/).
+- [x] Download and install the `@dfinity/auth-client` package with the command `npm install @dfinity/auth-client`. 
+- [x] Download the following project files from GitHub: https://github.com/dfinity/examples/
+- [x] Chrome or Firefox browser (other browsers also work, but may need a slightly different webpack configuration, see the note on [step 4 below](#step-4-make-the-internet-identity-url-available-in-the-build-process))
 
 ### Step 1: Navigate into the examples folder for this sample and then generate a new project with `dfx new`:
 
-```
+```bash
 cd examples/motoko/internet_identity_integration
 dfx new greet
 ```
@@ -31,7 +31,7 @@ dfx new greet
 
 You should have a starter project generated with the following file structure:
 
-```
+```bash
 ├── README.md
 ├── dfx.json
 ├── package.json
@@ -55,7 +55,7 @@ Add this code block to the canister section in the `dfx.json` file:
 
 **The following example is a **code snippet** that is part of a larger code file. This snippet may return an error if run on its own. To view the full code file that should be run, please see [final code](#final-code).**
 
-```
+```json
 "internet_identity": {
   "type": "custom",
   "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
@@ -74,13 +74,13 @@ This adds a prebuilt Internet Identity canister to your project. The remote prop
 ### Step 3: Deploy Internet Identity locally.
 Run `dfx deploy` to deploy all canisters including Internet Identity to the local replica. It should print the Internet Identity URL to the console:
 
-```
+```bash
 dfx deploy
 ```
 
 If successful, your output will resemble the following:
 
-```
+```bash
 ...
 Deployed canisters.
 URLs:
@@ -114,7 +114,7 @@ To do so, we can make an environment variable II_URL available using webpack.
 
 Open the `webpack.config.js` file and replace the contents with the following:
 
-```
+```javascript
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -243,17 +243,17 @@ module.exports = {
 };
 ```
 
-### Step 5: Add the auth-client library to the front-end.
+### Step 5: Add the auth-client library to the frontend.
 The auth-client is a library provided by DFINITY to make integration with Internet Identity easy. Run:
 
-```
+```bash
 npm install @dfinity/auth-client @dfinity/identity --save-dev
 ```
 
-### Step 6: Add a login button to the front-end.
+### Step 6: Add a login button to the frontend.
 Open the `index.html` file and replace the content with the following:
 
-```
+```html
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -285,7 +285,7 @@ Open the `index.html` file and replace the content with the following:
 ### Step 7: Make the login button interact with II.
 In order for the login button to work, we need to give it behavior. Replace the contents of the `src/greet_frontend/src/index.js` file with the following:
 
-```
+```javascript
 import {createActor, greet_backend} from "../../declarations/greet_backend";
 import {AuthClient} from "@dfinity/auth-client"
 import {HttpAgent} from "@dfinity/agent";
@@ -336,15 +336,15 @@ loginButton.onclick = async (e) => {
 };%                              
 ```
 
-### Step 8: Modify the back-end.
-We want our application to greet the caller principal. In order to do so, the back-end Motoko code needs to be changed to:
+### Step 8: Modify the backend.
+We want our application to greet the caller principal. In order to do so, the backend Motoko code needs to be changed to:
 
 - No longer take a name parameter.
 - Use the `message.caller` for the greeting.
 
 Replace the content of `src/greet_backend/main.mo` with the following:
 
-```
+```motoko
 import Principal "mo:base/Principal";
 
 actor {
@@ -358,7 +358,7 @@ actor {
 
 The successful output should resemble the following:
 
-```
+```bash
 Deployed canisters.
 URLs:
   Frontend canister via browser
@@ -372,8 +372,6 @@ URLs:
 ### Step 10: Test the application.
 
 Open the `greet_frontend` URL in a web browser. 
-
-![II Sample](../../_attachments/ii-sample.png)
 
 You should be able to observe the following behavior:
 
