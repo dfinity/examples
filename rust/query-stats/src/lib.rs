@@ -12,7 +12,7 @@ const QUERY_STATS_PURGE_AFTER_SECS: u64 = 60 * 60 * 24; // 24h, has to be much l
 const QUERY_STATS_RATE_FOR_LAST_SECS: u64 = 60 * 60; // 1h, has to be larger than query stats epoch
 
 // Unfortunately, we need to redefine this type, since the members are not public.
-#[derive(CandidType)]
+#[derive(CandidType, Debug)]
 pub struct QueryStatRates {
     num_calls_total: f32,
     num_instructions_total: f32,
@@ -28,8 +28,9 @@ struct QueryStatAtTime {
 impl QueryStatAtTime {
     fn rate(&self, other: &Self) -> QueryStatRates {
         // Make sure we are subtracting the older from the newer.
-        let time_diff = self.timestamp_nanos - other.timestamp_nanos;
-        assert!(time_diff > 0);
+        let time_diff_nanos = self.timestamp_nanos - other.timestamp_nanos;
+        let time_diff_secs = time_diff_nanos / 1_000_000_000;
+        assert!(time_diff_secs > 0);
 
         fn calc_rate(a: &Nat, b: &Nat, time_diff: u64) -> f32 {
             let a: u128 = a.0.clone().try_into().unwrap();
@@ -42,22 +43,22 @@ impl QueryStatAtTime {
             num_calls_total: calc_rate(
                 &self.query_stats.num_calls_total,
                 &other.query_stats.num_calls_total,
-                time_diff,
+                time_diff_secs,
             ),
             num_instructions_total: calc_rate(
                 &self.query_stats.num_instructions_total,
                 &other.query_stats.num_instructions_total,
-                time_diff,
+                time_diff_secs,
             ),
             request_payload_bytes_total: calc_rate(
                 &self.query_stats.request_payload_bytes_total,
                 &other.query_stats.request_payload_bytes_total,
-                time_diff,
+                time_diff_secs,
             ),
             response_payload_bytes_total: calc_rate(
                 &self.query_stats.response_payload_bytes_total,
                 &other.query_stats.response_payload_bytes_total,
-                time_diff,
+                time_diff_secs,
             ),
         }
     }
@@ -85,7 +86,8 @@ pub(crate) fn with_state<R>(f: impl FnOnce(&QueryStatsRates) -> R) -> R {
     QUERY_STATS_RATE.with(|cell| f(&cell.borrow()))
 }
 
-#[ic_cdk::query]
+#[ic_cdk::update]
+// Returns the current query stats as a string as received from the canister itself via the canister status.
 async fn get_current_query_stats_as_string() -> String {
     let c = canister_status(CanisterIdRecord {
         canister_id: ic_cdk::id(),
@@ -96,9 +98,26 @@ async fn get_current_query_stats_as_string() -> String {
 }
 
 #[ic_cdk::query]
+// Used to generate load to the system. Uses time() in order to prevent caching.
+// This is mostly to test query stats and is being called periodically by a load generator.
+fn load() -> u64 {
+    ic_cdk::api::time()
+}
+
+#[ic_cdk::query]
+// Get the current query rates as string.
+fn get_current_query_stats_as_rates_string(period_secs: u64) -> String {
+    match get_current_query_stats_as_rates(Some(period_secs)) {
+        Some(rates) => format!("{:?}", rates),
+        None => "No query stats available.".to_string(),
+    }
+}
+
+#[ic_cdk::query]
 // Calculates the rate between the latest query statistics and the query statistics
 // from QUERY_STATS_RATE_FOR_LAST_SECS seconds ago.
-fn get_current_query_stats_as_rates() -> Option<QueryStatRates> {
+fn get_current_query_stats_as_rates(period: Option<u64>) -> Option<QueryStatRates> {
+    let period = period.unwrap_or(QUERY_STATS_RATE_FOR_LAST_SECS);
     with_state(|state| {
         let mut most_recent: Option<&QueryStatAtTime> = None;
         let mut before: Option<&QueryStatAtTime> = None;
@@ -110,8 +129,7 @@ fn get_current_query_stats_as_rates() -> Option<QueryStatRates> {
             }
 
             // Find query stats data point at least QUERY_STATS_RATE_FOR_LAST_SECS old
-            if (q.timestamp_nanos
-                + Duration::from_secs(QUERY_STATS_RATE_FOR_LAST_SECS).as_nanos() as u64)
+            if (q.timestamp_nanos + Duration::from_secs(period).as_nanos() as u64)
                 < ic_cdk::api::time()
             {
                 if before.is_none() || q.timestamp_nanos > before.unwrap().timestamp_nanos {
