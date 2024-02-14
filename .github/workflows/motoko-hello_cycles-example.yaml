@@ -21,7 +21,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko Hello Cycles Darwin
         run: |
-          dfx upgrade
+          dfxvm update
           dfx start --background --clean
           pushd motoko/hello_cycles
           make test
@@ -34,7 +34,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko Hello Cycles Linux
         run: |
-          dfx upgrade
+          dfxvm update
           dfx start --background --clean
           pushd motoko/hello_cycles
           make test
