@@ -1,60 +1,65 @@
-# Counter
+# Query stats
 
-## Rust variant
-
-### Prerequisites
+## Prerequisites
 This example requires an installation of:
 
-- [x] Install the [IC SDK](../developer-docs/setup/install/index.mdx).
+- [x] Install the [IC SDK](../developer-docs/setup/install/index.mdx) at version 0.16.1 or higher.
 - [x] Download the following project files from GitHub: https://github.com/dfinity/examples/
 
 Begin by opening a terminal window.
 
- ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
+This is currently only for use from within DFINITY, as the replica shipped with `dfx` as well as nodes on 
+mainnet do not enable the query stats feature at the moment.
+
+Once enabled on mainnet, the following instructions will work without the `--network` argument.
+
+From within DFINITY, it can be ran as following (e.g. with a deployment to the `small_with_query_stats` Farm testnet)
+
+Variable `$BN_HOSTNAME` points at the hostname of a boundary node. For example, from field `['bn_aaaa_records']['url']` of the output of a Farm deployment
+
+## Installing the canister
 
 ```
-cd examples/rust/counter
-dfx start --background
+dfx canister create --network="$BN_HOSTNAME" query_stats
 ```
 
- ### Step 2: Test the canister:
+We will need the canister ID that has been assigned to our canister later.
 
 ```
-cargo test
+dfx build --network=$BN_HOSTNAME query_stats
+dfx canister install --network=$BN_HOSTNAME query_stats
 ```
 
- ### Step 3: Deploy the canister:
+## Issuing load
+
+We now want to generate queries at a certain rate. One way to achieve this is by using `ic-workload-generator`, which is part of the [IC repo](https://github.com/dfinity/ic/tree/master/rs/workload_generator). 
+
 
 ```
-dfx deploy
-```
-
- ### Step 4: Set the value of the counter:
-
-```
-dfx canister call counter set '(7)'
-```
-
- ### Step 5: Increment the value of the counter:
-
-```
-dfx canister call counter inc
-```
-
- ### Step 6: Get the value of the counter:
-
-```
-dfx canister call counter get
-```
-
-The following output should be returned:
-
-```
-(8 : nat)
+ic-workload-generator $BN_HOSTNAME -r 10 -n 6000 --call-method "load" -m query --payload "4449444c0000" --no-status-check --canister-id=$CANISTER_ID
 ```
 
 
-## Security considerations and security best practices
+## Get query stats
 
-If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+There is a delay until query stats show up in the canister status. Depending on the configuration, this 
+can reach from multiple minutes to an hour.
+
+After that period of time, the following call shows the current stats:
+```
+dfx canister call --network=$BN_HOSTNAME query_stats get_current_query_stats_as_string '()'
+```
+
+This is the grant total of queries recorded since the canister was created.
+
+If the query stats are 0, either the features is disabled on the nodes the canister was deployed too,
+not enough time has passed since queries have been executed, or no queries have been recorded for this canister.
+
+With the following call, we can query the current rates of those values:
+
+```
+dfx canister call --network=$BN_HOSTNAME query_stats get_current_query_stats_as_rates_string '(300)'
+```
+
+
 

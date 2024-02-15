@@ -1,5 +1,3 @@
 service : {
-    "get" : () -> (nat) query;
-    "set" : (nat) -> ();
-    "inc" : () -> ();
+    "get_current_query_stats_as_rates_string" : (nat64) -> (text) query;
 };
