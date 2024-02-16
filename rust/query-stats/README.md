@@ -61,5 +61,7 @@ With the following call, we can query the current rates of those values:
 dfx canister call --network=$BN_HOSTNAME query_stats get_current_query_stats_as_rates_string '(300)'
 ```
 
+Note that queries might be cached in boundary nodes, so a significantly lower number of calls might be
+counted.
 
 

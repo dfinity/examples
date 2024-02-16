@@ -1,3 +1,15 @@
+type QueryStatRates {
+    num_calls_total: f32;
+    num_instructions_total: f32;
+    request_payload_bytes_total: f32;
+    response_payload_bytes_total: f32;
+}
+
 service : {
     "get_current_query_stats_as_rates_string" : (nat64) -> (text) query;
+    "get_current_query_stats_as_rates" : (opt nat64) -> (opt QueryStatRates) query;
+
+    "get_current_query_stats_as_string" : () -> (text);
+
+    "load" : () -> (nat64) query;
 };
