@@ -14,10 +14,10 @@ const QUERY_STATS_RATE_FOR_LAST_SECS: u64 = 60 * 60; // 1h, has to be larger tha
 // Unfortunately, we need to redefine this type, since the members are not public.
 #[derive(CandidType, Debug)]
 pub struct QueryStatRates {
-    num_calls_total: f32,
-    num_instructions_total: f32,
-    request_payload_bytes_total: f32,
-    response_payload_bytes_total: f32,
+    calls_rate: f32,
+    instructions_rate: f32,
+    request_payload_bytes_rate: f32,
+    response_payload_bytes_rate: f32,
 }
 
 struct QueryStatAtTime {
@@ -40,22 +40,22 @@ impl QueryStatAtTime {
         }
 
         QueryStatRates {
-            num_calls_total: calc_rate(
+            calls_rate: calc_rate(
                 &self.query_stats.num_calls_total,
                 &other.query_stats.num_calls_total,
                 time_diff_secs,
             ),
-            num_instructions_total: calc_rate(
+            instructions_rate: calc_rate(
                 &self.query_stats.num_instructions_total,
                 &other.query_stats.num_instructions_total,
                 time_diff_secs,
             ),
-            request_payload_bytes_total: calc_rate(
+            request_payload_bytes_rate: calc_rate(
                 &self.query_stats.request_payload_bytes_total,
                 &other.query_stats.request_payload_bytes_total,
                 time_diff_secs,
             ),
-            response_payload_bytes_total: calc_rate(
+            response_payload_bytes_rate: calc_rate(
                 &self.query_stats.response_payload_bytes_total,
                 &other.query_stats.response_payload_bytes_total,
                 time_diff_secs,

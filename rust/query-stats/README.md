@@ -61,7 +61,15 @@ With the following call, we can query the current rates of those values:
 dfx canister call --network=$BN_HOSTNAME query_stats get_current_query_stats_as_rates_string '(300)'
 ```
 
+The argument to that call is the time in seconds over which to aggregate. This needs to be larger than the epoch length. On mainnet and real deployments, this therefore be at least one hour (3600 seconds).
+
 Note that queries might be cached in boundary nodes, so a significantly lower number of calls might be
 counted.
+
+Similarly, the following call gets the raw data rather than its string representation:
+
+```
+dfx canister call --network=$BN_HOSTNAME query_stats get_current_query_stats_as_rates '(opt 300)'
+```
 
 

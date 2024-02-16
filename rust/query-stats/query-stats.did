@@ -1,8 +1,8 @@
-type QueryStatRates {
-    num_calls_total: f32;
-    num_instructions_total: f32;
-    request_payload_bytes_total: f32;
-    response_payload_bytes_total: f32;
+type QueryStatRates = record {
+    calls_rate: float32;
+    instructions_rate: float32;
+    request_payload_bytes_rate: float32;
+    response_payload_bytes_rate: float32;
 }
 
 service : {
