@@ -1,15 +1,18 @@
 # Query stats
 
+This example shows to work with the new query stats feature.
+
+It shows how to programmatically access query stats and also how to monitor them over time by means of a timer and calculate rates out of the monotonically increasing counters of the feature.
+
 ## Prerequisites
 This example requires an installation of:
 
-- [x] Install the [IC SDK](../developer-docs/setup/install/index.mdx) at version 0.16.1 or higher.
-- [x] Download the following project files from GitHub: https://github.com/dfinity/examples/
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install/) at version 0.16.1 or higher.
+- [x] Clone the following project files from GitHub: https://github.com/dfinity/examples/
 
 Begin by opening a terminal window.
 
-This is currently only for use from within DFINITY, as the replica shipped with `dfx` as well as nodes on 
-mainnet do not enable the query stats feature at the moment.
+This is currently only for use from within DFINITY, as the replica shipped with `dfx` as well as nodes on mainnet do not enable the query stats feature at the moment.
 
 Once enabled on mainnet, the following instructions will work without the `--network` argument.
 
