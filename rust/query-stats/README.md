@@ -52,7 +52,7 @@ dfx canister call --network=$BN_HOSTNAME query_stats get_current_query_stats_as_
 
 This is the grant total of queries recorded since the canister was created.
 
-If the query stats are 0, either the features is disabled on the nodes the canister was deployed too,
+If the query stats are 0, either the features is disabled on the nodes the canister was deployed to,
 not enough time has passed since queries have been executed, or no queries have been recorded for this canister.
 
 With the following call, we can query the current rates of those values:
