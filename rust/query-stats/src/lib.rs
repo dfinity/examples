@@ -11,7 +11,6 @@ const TIMER_PERIOD_IN_SECS: u64 = 5;
 const QUERY_STATS_PURGE_AFTER_SECS: u64 = 60 * 60 * 24; // 24h, has to be much larger than query stats epoch
 const QUERY_STATS_RATE_FOR_LAST_SECS: u64 = 60 * 60; // 1h, has to be larger than query stats epoch
 
-// Unfortunately, we need to redefine this type, since the members are not public.
 #[derive(CandidType, Debug)]
 pub struct QueryStatRates {
     calls_rate: f32,
