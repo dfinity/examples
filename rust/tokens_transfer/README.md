@@ -145,8 +145,7 @@ If successful, the output should be:
 Deployed canisters.
 URLs:
   Backend canister via Candid interface:
-    icp_ledger_canister: http://127.0.0.1:8080/?canisterId=bd3sg-teaaa-aaaaa-qaaba-cai&id=ryjl3-tyaaa-aaaaa-aaaba-cai
-    tokens_transfer: http://127.0.0.1:8080/?canisterId=bd3sg-teaaa-aaaaa-qaaba-cai&id=bkyz2-fmaaa-aaaaa-qaaaq-cai
+    icp_ledger_canister: http://127.0.0.1:4943/?canisterId=bnz7o-iuaaa-aaaaa-qaaaa-cai&id=ryjl3-tyaaa-aaaaa-aaaba-cai
 ```
 
 ### Step 8: Verify that the ledger canister is healthy and working as expected by using the command:
@@ -158,7 +157,7 @@ dfx canister call icp_ledger_canister account_balance '(record { account = '$(py
 The output should be:
 
 ```bash
-(record { e8s = 100_000_000_000 : nat64 })
+(record { e8s = 10_000_000_000 : nat64 })
 ```
 
 ### Step 9: Prepare the token transfer canister:
@@ -269,15 +268,8 @@ dfx deploy tokens_transfer_backend
 ### Step 11: Determine out the address of your canister:
 
 ```bash
-dfx canister call tokens_transfer_backend canister_account
-```
-
-Your output should resemble the following:
-
-```bash
-(
-  blob "\94\b9\bc]\ab(\ad\b93\8dE\19#\914\b6\a0\0e\dfam5\e4\e5\80\b5\01\9a~\e1_{",
-)
+TOKENS_TRANSFER_ACCOUNT_ID="$(dfx ledger account-id --of-canister tokens_transfer_backend)"
+TOKENS_TRANSFER_ACCOUNT_ID_BYTES="$(python3 -c 'print("vec{" + ";".join([str(b) for b in bytes.fromhex("'$TOKENS_TRANSFER_ACCOUNT_ID'")]) + "}")')"
 ```
 
 ### Step 12: Transfer funds to your canister:
@@ -285,16 +277,10 @@ Your output should resemble the following:
 > [!IMPORTANT]
 > Make sure that you are using the default `dfx` account that we minted tokens to in step 7 for the following steps.
 
-Make the following call to transfer funds to the canister, make sure to replace the `<CANISTER ADDRESS FROM PREVIOUS COMMAND>` with the address you got from the previous command:
+Make the following call to transfer funds to the canister:
 
 ```bash
-dfx canister call icp_ledger_canister transfer '(record { to = <CANISTER ADDRESS FROM PREVIOUS COMMAND>; memo = 1; amount = record { e8s = 2_00_000_000 }; fee = record { e8s = 10_000 }; })'
-```
-
-This could look like the following:
-
-```bash
-dfx canister call icp_ledger_canister transfer '(record { to = blob "\94\b9\bc]\ab(\ad\b93\8dE\19#\914\b6\a0\0e\dfam5\e4\e5\80\b5\01\9a~\e1_{"; memo = 1; amount = record { e8s = 2_00_000_000 }; fee = record { e8s = 10_000 }; })'
+dfx canister call icp_ledger_canister transfer "(record { to = ${TOKENS_TRANSFER_ACCOUNT_ID_BYTES}; memo = 1; amount = record { e8s = 2_00_000_000 }; fee = record { e8s = 10_000 }; })"
 ```
 
 If successful, the output should be:
@@ -308,7 +294,7 @@ If successful, the output should be:
 Now that the canister owns ICP on the ledger, you can transfer funds from the canister to another account, in this case back to the default account:
 
 ```bash
-dfx canister call tokens_transfer_backend transfer "(record { amount = record { e8s = 2_00_000_000 }; to_principal = principal \"$(dfx identity get-principal)\"})"
+dfx canister call tokens_transfer_backend transfer "(record { amount = record { e8s = 1_00_000_000 }; to_principal = principal \"$(dfx identity get-principal)\"})"
 ```
 
 ## Security considerations and best practices

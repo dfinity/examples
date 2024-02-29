@@ -41,11 +41,5 @@ async fn transfer(args: TransferArgs) -> Result<BlockIndex, String> {
         .map_err(|e| format!("ledger transfer error {:?}", e))
 }
 
-#[query]
-async fn canister_account() -> AccountIdentifier {
-    let canister_id = ic_cdk::id();
-    ic_ledger_types::AccountIdentifier::new(&canister_id, &DEFAULT_SUBACCOUNT)
-}
-
 // Enable Candid export (see https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid)
 ic_cdk::export_candid!();
