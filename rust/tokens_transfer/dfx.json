@@ -1,20 +1,28 @@
 {
-  "version": 1,
   "canisters": {
-    "tokens_transfer": {
-      "package": "tokens_transfer",
-      "candid": "src/tokens_transfer.did",
+    "tokens_transfer_backend": {
+      "candid": "src/tokens_transfer_backend/tokens_transfer_backend.did",
+      "package": "tokens_transfer_backend",
       "type": "rust"
     },
-    "ledger": {
+    "icp_ledger_canister": {
       "type": "custom",
-      "candid": "ledger.public.did",
-      "wasm": "ledger.wasm"
+      "candid": "https://raw.githubusercontent.com/dfinity/ic/d87954601e4b22972899e9957e800406a0a6b929/rs/rosetta-api/icp_ledger/ledger.did",
+      "wasm": "https://download.dfinity.systems/ic/d87954601e4b22972899e9957e800406a0a6b929/canisters/ledger-canister.wasm.gz",
+      "remote": {
+        "id": {
+          "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+        }
+      },
+      "specified_id": "ryjl3-tyaaa-aaaaa-aaaba-cai"
     }
   },
   "defaults": {
-    "replica": {
-      "subnet_type": "system"
+    "build": {
+      "args": "",
+      "packtool": ""
     }
-  }
+  },
+  "output_env_file": ".env",
+  "version": 1
 }

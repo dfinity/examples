@@ -1,0 +1,11 @@
+type Result = variant { Ok : nat64; Err : text };
+type Tokens = record { e8s : nat64 };
+type TransferArgs = record {
+  to_principal : principal;
+  to_subaccount : opt vec nat8;
+  amount : Tokens;
+};
+service : {
+  canister_account : () -> (vec nat8) query;
+  transfer : (TransferArgs) -> (Result);
+}
