@@ -244,6 +244,9 @@ ic_cdk::export_candid!();
 
 Replace the contents of the `src/tokens_transfer_backend/tokens_transfer_backend.did` file with the following:
 
+> [!NOTE]
+> The `tokens_transfer_backend.did` file is a Candid file that describes the service interface of the canister. It was generated from the Rust code using the `candid-extractor` tool. You can read more about the necessary steps [here(https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid).]
+
 ```did
 type Result = variant { Ok : nat64; Err : text };
 type Tokens = record { e8s : nat64 };

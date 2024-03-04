@@ -1,5 +1,4 @@
 use candid::{CandidType, Principal};
-use std::hash::Hash;
 
 use ic_cdk_macros::*;
 use ic_ledger_types::{
@@ -8,7 +7,7 @@ use ic_ledger_types::{
 };
 use serde::{Deserialize, Serialize};
 
-#[derive(CandidType, Serialize, Deserialize, Clone, Debug, Hash)]
+#[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
 pub struct TransferArgs {
     amount: Tokens,
     to_principal: Principal,
