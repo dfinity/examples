@@ -1,4 +1,8 @@
+import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
+
 # Actor reference
+
+<MarkdownChipRow labels={["Sample project", "Motoko"]} />
 
 ## Overview
 
