@@ -1,4 +1,8 @@
+import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
+
 # Decentralized exchange sample
+
+<MarkdownChipRow labels={["Sample project", "Motoko"]} />
 
 ## Overview
 
