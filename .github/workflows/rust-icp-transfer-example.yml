@@ -9,7 +9,7 @@ on:
       - rust/icp_transfer/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
-      - .github/workflows/rust-tokens-transfer-example.yml
+      - .github/workflows/rust-icp-transfer-example.yml
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
