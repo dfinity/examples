@@ -5,7 +5,7 @@
 ICP transfer is a canister that can transfer ICP from its account to other accounts. It is an example of a canister that uses the ledger canister. Sample code is available in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/icp_transfer) and [Rust](https://github.com/dfinity/examples/tree/master/rust/icp_transfer).
 
 > ![NOTE]
-> The ICP ledger supports the ICRC1 standard, which is the recommended standard for token transfers. You can read more about the differences [here](https://internetcomputer.org/docs/current/developer-docs/defi/overview) and find an example of how to use the ICRC1 standard [here](TO-DO)?
+> The ICP ledger supports the ICRC1 standard, which is the recommended standard for token transfers. You can read more about the differences [here](https://internetcomputer.org/docs/current/developer-docs/defi/overview) and find an example of how to transfer ICRC1 tokens from a canister in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/token_transfer) and [Rust](https://github.com/dfinity/examples/tree/master/rust/token_transfer).
 
 ## Architecture
 
@@ -182,7 +182,7 @@ Add the `account-identifier` library to the project:
 mops add account-identifier
 ```
 
-Replace the contents of the `src/icp_transfer/main.mo` file with the following:
+Replace the contents of the `src/icp_transfer_backend/main.mo` file with the following:
 
 ```motoko
 import IcpLedger "canister:icp_ledger_canister";
