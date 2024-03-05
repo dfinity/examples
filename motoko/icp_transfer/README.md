@@ -11,14 +11,15 @@ ICP transfer is a canister that can transfer ICP from its account to other accou
 
 The sample code revolves around one core transfer function which takes as input the amount of ICP to transfer, the account (and optionally the subaccount) to which to transfer ICP and returns either success or an error in case e.g. the ICP transfer canister doesn’t have enough ICP to do the transfer. In case of success, a unique identifier of the transaction is returned. This identifier will be stored in the memo of the transaction in the ledger.
 
-This sample will use the Rust variant.
+This sample will use the Motoko variant.
 
 ## Prerequisites
 
 This example requires an installation of:
 
 -   [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
--   [x] Download and install [git.](https://git-scm.com/downloads)
+-   [x] Download and install [git](https://git-scm.com/downloads).
+-   [x] Download and install [mops](https://internetcomputer.org/docs/current/tutorials/developer-journey/level-3/3.1-package-managers/#installing-mops).
 
 ## How to get there
 
@@ -30,7 +31,7 @@ The following steps will guide you through the process of setting up the token t
 ### Step 1: Create a new `dfx` project and navigate into the project's directory.
 
 ```bash
-dfx new --type=rust icp_transfer --no-frontend
+dfx dfx new --type=motoko icp_transfer --no-frontend
 cd icp_transfer
 ```
 
@@ -62,9 +63,9 @@ Replace its contents with this but adapt the URLs to be the ones you determined 
 {
     "canisters": {
         "icp_transfer_backend": {
-            "candid": "src/icp_transfer_backend/icp_transfer_backend.did",
-            "package": "icp_transfer_backend",
-            "type": "rust"
+            "main": "src/icp_transfer_backend/main.mo",
+            "type": "motoko",
+            "dependencies": ["icp_ledger_canister"]
         },
         "icp_ledger_canister": {
             "type": "custom",
@@ -80,7 +81,7 @@ Replace its contents with this but adapt the URLs to be the ones you determined 
     "defaults": {
         "build": {
             "args": "",
-            "packtool": ""
+            "packtool": "mops sources"
         }
     },
     "output_env_file": ".env",
@@ -169,103 +170,84 @@ The output should be:
 
 ### Step 9: Prepare the token transfer canister:
 
-Replace the contents of the `src/icp_transfer_backend/Cargo.toml` file with the following:
+Initiate `mops` in the project directory. When asked, select the type "Project" and don't setup a GitHub workflow:
 
-```toml
-[package]
-name = "icp_transfer_backend"
-version = "0.1.0"
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
-[lib]
-crate-type = ["cdylib"]
-
-[dependencies]
-candid = "0.10.4"
-ic-cdk = "0.12.1"
-ic-cdk-macros = "0.8.4"
-ic-ledger-types = "0.9.0"
-serde = "1.0.197"
-serde_derive = "1.0.197"
-
+```bash
+mops init
 ```
 
-Replace the contents of the `src/icp_transfer_backend/src/lib.rs` file with the following:
+Add the `account-identifier` library to the project:
 
-```rust
-use candid::{CandidType, Principal};
-use std::hash::Hash;
+```bash
+mops add account-identifier
+```
 
-use ic_cdk_macros::*;
-use ic_ledger_types::{
-    AccountIdentifier, BlockIndex, Memo, Subaccount, Tokens, DEFAULT_SUBACCOUNT,
-    MAINNET_LEDGER_CANISTER_ID,
-};
-use serde::{Deserialize, Serialize};
+Replace the contents of the `src/icp_transfer/main.mo` file with the following:
 
-#[derive(CandidType, Serialize, Deserialize, Clone, Debug, Hash)]
-pub struct TransferArgs {
-    amount: Tokens,
-    to_principal: Principal,
-    to_subaccount: Option<Subaccount>,
-}
+```motoko
+import IcpLedger "canister:icp_ledger_canister";
+import Debug "mo:base/Debug";
+import Result "mo:base/Result";
+import Option "mo:base/Option";
+import Blob "mo:base/Blob";
+import Error "mo:base/Error";
+import Account "mo:account-identifier";
 
-#[update]
-async fn transfer(args: TransferArgs) -> Result<BlockIndex, String> {
-    ic_cdk::println!(
-        "Transferring {} tokens to principal {} subaccount {:?}",
-        &args.amount,
-        &args.to_principal,
-        &args.to_subaccount
+actor {
+  type Tokens = {
+    e8s : Nat64;
+  };
+
+  type TransferArgs = {
+    amount : Tokens;
+    toPrincipal : Principal;
+    toSubaccount : ?Account.Subaccount;
+  };
+
+  public shared ({ caller }) func transfer(args : TransferArgs) : async Result.Result<IcpLedger.BlockIndex, Text> {
+    Debug.print(
+      "Transferring "
+      # debug_show (args.amount)
+      # " tokens to principal "
+      # debug_show (args.toPrincipal)
+      # " subaccount "
+      # debug_show (args.toSubaccount)
     );
-    let to_subaccount = args.to_subaccount.unwrap_or(DEFAULT_SUBACCOUNT);
-    let transfer_args = ic_ledger_types::TransferArgs {
-        memo: Memo(0),
-        amount: args.amount,
-        fee: Tokens::from_e8s(10_000),
-        // The subaccount of the account identifier that will be used to withdraw tokens and send them
-        // to another account identifier. If set to None then the default subaccount will be used.
-        // See the [Ledger doc](https://internetcomputer.org/docs/current/developer-docs/integrations/ledger/#accounts).
-        from_subaccount: None,
-        to: AccountIdentifier::new(&args.to_principal, &to_subaccount),
-        created_at_time: None,
+
+    // if no subaccount is specified, we use the default subaccount
+    let toSubaccount = Option.get(args.toSubaccount, Account.defaultSubaccount());
+    let transferArgs : IcpLedger.TransferArgs = {
+      // can be used to distinguish between transactions
+      memo = 0;
+      // the amount we want to transfer
+      amount = args.amount;
+      // the ICP ledger charges 10_000 e8s for a transfer
+      fee = { e8s = 10_000 };
+      // we are transferring from the canisters default subaccount, therefore we don't need to specify it
+      from_subaccount = null;
+      // we take the principal and subaccount from the arguments and convert them into an account identifier
+      to = Blob.toArray(Account.accountIdentifier(args.toPrincipal, toSubaccount));
+      // a timestamp indicating when the transaction was created by the caller; if it is not specified by the caller then this is set to the current ICP time
+      created_at_time = null;
     };
-    ic_ledger_types::transfer(MAINNET_LEDGER_CANISTER_ID, transfer_args)
-        .await
-        .map_err(|e| format!("failed to call ledger: {:?}", e))?
-        .map_err(|e| format!("ledger transfer error {:?}", e))
-}
 
-#[query]
-async fn canister_account() -> AccountIdentifier {
-    let canister_id = ic_cdk::id();
-    ic_ledger_types::AccountIdentifier::new(&canister_id, &DEFAULT_SUBACCOUNT)
-}
+    try {
+      // initiate the transfer
+      let transferResult = await IcpLedger.transfer(transferArgs);
 
-// Enable Candid export (see https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid)
-ic_cdk::export_candid!();
-
-```
-
-Replace the contents of the `src/icp_transfer_backend/icp_transfer_backend.did` file with the following:
-
-> [!NOTE]
-> The `icp_transfer_backend.did` file is a Candid file that describes the service interface of the canister. It was generated from the Rust code using the `candid-extractor` tool. You can read more about the necessary steps [here(https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid).]
-
-```did
-type Result = variant { Ok : nat64; Err : text };
-type Tokens = record { e8s : nat64 };
-type TransferArgs = record {
-  to_principal : principal;
-  to_subaccount : opt vec nat8;
-  amount : Tokens;
+      // check if the transfer was successfull
+      switch (transferResult) {
+        case (#Err(transferError)) {
+          return #err("Couldn't transfer funds:\n" # debug_show (transferError));
+        };
+        case (#Ok(blockIndex)) { return #ok blockIndex };
+      };
+    } catch (error : Error) {
+      // catch any errors that might occur during the transfer
+      return #err("Reject message: " # Error.message(error));
+    };
+  };
 };
-service : {
-  canister_account : () -> (vec nat8) query;
-  transfer : (TransferArgs) -> (Result);
-}
 
 ```
 
@@ -304,7 +286,7 @@ If successful, the output should be:
 Now that the canister owns ICP on the ledger, you can transfer funds from the canister to another account, in this case back to the default account:
 
 ```bash
-dfx canister call icp_transfer_backend transfer "(record { amount = record { e8s = 1_00_000_000 }; to_principal = principal \"$(dfx identity get-principal)\"})"
+dfx canister call icp_transfer_backend transfer "(record { amount = record { e8s = 1_00_000_000 }; toPrincipal = principal \"$(dfx identity get-principal)\"})"
 ```
 
 ## Security considerations and best practices
