@@ -14,7 +14,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  motoko-icp-transfer-darwin:
+  motoko-icp_transfer-darwin:
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v1
@@ -25,7 +25,7 @@ jobs:
           pushd motoko/icp_transfer
           bash ./demo.sh
           popd
-  motoko-icp-transfer-linux:
+  motoko-icp_transfer-linux:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
