@@ -1,8 +1,8 @@
 {
   "canisters": {
-    "tokens_transfer_backend": {
-      "candid": "src/tokens_transfer_backend/tokens_transfer_backend.did",
-      "package": "tokens_transfer_backend",
+    "icp_transfer_backend": {
+      "candid": "src/icp_transfer_backend/icp_transfer_backend.did",
+      "package": "icp_transfer_backend",
       "type": "rust"
     },
     "icp_ledger_canister": {

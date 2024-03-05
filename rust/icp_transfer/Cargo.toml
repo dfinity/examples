@@ -1,5 +1,5 @@
 [workspace]
 members = [
-    "src/tokens_transfer_backend"
+    "src/icp_transfer_backend"
 ]
 resolver = "2"

@@ -2,7 +2,7 @@
 
 ## Overview
 
-ICP transfer is a canister that can transfer ICP from its account to other accounts. It is an example of a canister that uses the ledger canister. Sample code is available in [Motoko](https://github.com/dfinity/examples/tree/master/ rust/ledger-transfer) and [Rust](https://github.com/dfinity/examples/tree/master/rust/tokens_transfer).
+ICP transfer is a canister that can transfer ICP from its account to other accounts. It is an example of a canister that uses the ledger canister. Sample code is available in [Motoko](https://github.com/dfinity/examples/tree/master/ rust/ledger-transfer) and [Rust](https://github.com/dfinity/examples/tree/master/rust/icp_transfer).
 
 ## Architecture
 
@@ -27,8 +27,8 @@ The following steps will guide you through the process of setting up the token t
 ### Step 1: Create a new `dfx` project and navigate into the project's directory.
 
 ```bash
-dfx new --type=rust tokens_transfer --no-frontend
-cd tokens_transfer
+dfx new --type=rust icp_transfer --no-frontend
+cd icp_transfer
 ```
 
 ### Step 2: Determine ledger file locations
@@ -55,9 +55,9 @@ Replace its contents with this but adapt the URLs to be the ones you determined 
 ```json
 {
     "canisters": {
-        "tokens_transfer_backend": {
-            "candid": "src/tokens_transfer_backend/tokens_transfer_backend.did",
-            "package": "tokens_transfer_backend",
+        "icp_transfer_backend": {
+            "candid": "src/icp_transfer_backend/icp_transfer_backend.did",
+            "package": "icp_transfer_backend",
             "type": "rust"
         },
         "icp_ledger_canister": {
@@ -162,11 +162,11 @@ The output should be:
 
 ### Step 9: Prepare the token transfer canister:
 
-Replace the contents of the `src/tokens_transfer_backend/Cargo.toml` file with the following:
+Replace the contents of the `src/icp_transfer_backend/Cargo.toml` file with the following:
 
 ```toml
 [package]
-name = "tokens_transfer_backend"
+name = "icp_transfer_backend"
 version = "0.1.0"
 edition = "2021"
 
@@ -185,7 +185,7 @@ serde_derive = "1.0.197"
 
 ```
 
-Replace the contents of the `src/tokens_transfer_backend/src/lib.rs` file with the following:
+Replace the contents of the `src/icp_transfer_backend/src/lib.rs` file with the following:
 
 ```rust
 use candid::{CandidType, Principal};
@@ -242,10 +242,10 @@ ic_cdk::export_candid!();
 
 ```
 
-Replace the contents of the `src/tokens_transfer_backend/tokens_transfer_backend.did` file with the following:
+Replace the contents of the `src/icp_transfer_backend/icp_transfer_backend.did` file with the following:
 
 > [!NOTE]
-> The `tokens_transfer_backend.did` file is a Candid file that describes the service interface of the canister. It was generated from the Rust code using the `candid-extractor` tool. You can read more about the necessary steps [here(https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid).]
+> The `icp_transfer_backend.did` file is a Candid file that describes the service interface of the canister. It was generated from the Rust code using the `candid-extractor` tool. You can read more about the necessary steps [here(https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid).]
 
 ```did
 type Result = variant { Ok : nat64; Err : text };
@@ -265,13 +265,13 @@ service : {
 ### Step 10: Deploy the token transfer canister:
 
 ```bash
-dfx deploy tokens_transfer_backend
+dfx deploy icp_transfer_backend
 ```
 
 ### Step 11: Determine out the address of your canister:
 
 ```bash
-TOKENS_TRANSFER_ACCOUNT_ID="$(dfx ledger account-id --of-canister tokens_transfer_backend)"
+TOKENS_TRANSFER_ACCOUNT_ID="$(dfx ledger account-id --of-canister icp_transfer_backend)"
 TOKENS_TRANSFER_ACCOUNT_ID_BYTES="$(python3 -c 'print("vec{" + ";".join([str(b) for b in bytes.fromhex("'$TOKENS_TRANSFER_ACCOUNT_ID'")]) + "}")')"
 ```
 
@@ -297,7 +297,7 @@ If successful, the output should be:
 Now that the canister owns ICP on the ledger, you can transfer funds from the canister to another account, in this case back to the default account:
 
 ```bash
-dfx canister call tokens_transfer_backend transfer "(record { amount = record { e8s = 1_00_000_000 }; to_principal = principal \"$(dfx identity get-principal)\"})"
+dfx canister call icp_transfer_backend transfer "(record { amount = record { e8s = 1_00_000_000 }; to_principal = principal \"$(dfx identity get-principal)\"})"
 ```
 
 ## Security considerations and best practices
