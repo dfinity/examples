@@ -22,11 +22,10 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Install mops
         uses: ZenVoich/setup-mops@v1
-      - name: install mops packages
-        run: mops install
       - name: Motoko Ledger Transfer Darwin
         run: |
           pushd motoko/icp_transfer
+          mops install
           bash ./demo.sh
           popd
   motoko-icp_transfer-linux:
@@ -37,10 +36,9 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Install mops
         uses: ZenVoich/setup-mops@v1
-      - name: install mops packages
-        run: mops install
       - name: Motoko Ledger Transfer Linux
         run: |
           pushd motoko/icp_transfer
+          mops install
           bash ./demo.sh
           popd
