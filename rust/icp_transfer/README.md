@@ -196,7 +196,6 @@ Replace the contents of the `src/icp_transfer_backend/src/lib.rs` file with the 
 
 ```rust
 use candid::{CandidType, Principal};
-use std::hash::Hash;
 
 use ic_cdk_macros::*;
 use ic_ledger_types::{
@@ -205,7 +204,7 @@ use ic_ledger_types::{
 };
 use serde::{Deserialize, Serialize};
 
-#[derive(CandidType, Serialize, Deserialize, Clone, Debug, Hash)]
+#[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
 pub struct TransferArgs {
     amount: Tokens,
     to_principal: Principal,
@@ -238,12 +237,6 @@ async fn transfer(args: TransferArgs) -> Result<BlockIndex, String> {
         .map_err(|e| format!("ledger transfer error {:?}", e))
 }
 
-#[query]
-async fn canister_account() -> AccountIdentifier {
-    let canister_id = ic_cdk::id();
-    ic_ledger_types::AccountIdentifier::new(&canister_id, &DEFAULT_SUBACCOUNT)
-}
-
 // Enable Candid export (see https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid)
 ic_cdk::export_candid!();
 
@@ -252,7 +245,7 @@ ic_cdk::export_candid!();
 Replace the contents of the `src/icp_transfer_backend/icp_transfer_backend.did` file with the following:
 
 > [!NOTE]
-> The `icp_transfer_backend.did` file is a Candid file that describes the service interface of the canister. It was generated from the Rust code using the `candid-extractor` tool. You can read more about the necessary steps [here(https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid).]
+> The `icp_transfer_backend.did` file is a Candid file that describes the service interface of the canister. It was generated from the Rust code using the `candid-extractor` tool. You can read more about the necessary steps [here](https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid).
 
 ```did
 type Result = variant { Ok : nat64; Err : text };

@@ -34,7 +34,7 @@ actor {
       from_subaccount = null;
       // if not specified, the default fee for the canister is used
       fee = null;
-      // we take the principal and subaccount from the arguments and convert them into an account identifier
+      // the account we want to transfer tokens to
       to = args.toAccount;
       // a timestamp indicating when the transaction was created by the caller; if it is not specified by the caller then this is set to the current ICP time
       created_at_time = null;
