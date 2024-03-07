@@ -1,5 +1,5 @@
 ---
-keywords: [advanced, motoko, encrypted, encrypted notes, notes dapp]
+keywords: [advanced, motoko, encrypted, encrypted notes, notes dapp, vetkeys, vetkd]
 ---
 
 import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
@@ -59,7 +59,7 @@ rm -rf .dfx
 ```sh
 dfx start --clean
 ```
-:::caution
+:::info
 If you see an error `Failed to set socket of tcp builder to 0.0.0.0:8000`, make sure that the port `8000` is not occupied, e.g., by the previously run Docker command (you might want to stop the Docker daemon whatsoever for this step).
 :::
 
@@ -116,7 +116,7 @@ You can check its URL with `npm run print-dfx-www`.
       ```
    2. Open the URL that is printed in the console output. Usually, this is [http://localhost:3000/](http://localhost:3000/).
 
-:::caution
+:::info
 If you have opened this page previously, please remove all local store data for this page from your web browser, and hard-reload the page. For example in Chrome, go to Inspect → Application → Local Storage → `http://localhost:3000/` → Clear All, and then reload.
 :::
 
