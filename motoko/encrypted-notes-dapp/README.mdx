@@ -13,7 +13,7 @@ Encrypted notes is an example dapp for authoring and storing confidential inform
 This project serves as a simple (but not too simple) example of a dapp, which uses Motoko and Rust as backend and Svelte as frontend.
 
 <p align="center">
-  <img src="./pictures/architectural_overview.png" width="70%" height="70%"/>
+  <img src="/docs/current/references/samples/motoko/encrypted-notes-dapp/pictures/architectural_overview.png" width="70%" height="70%"/>
 </p>
 <p align = "center">
 Fig.1. Architectural overview of the Encrypted Notes dapp using client-side end-to-end encryption.
@@ -295,10 +295,10 @@ For example, the following aspects are particularly relevant for this app:
 
 ## User interaction with "Encrypted Notes" dapp
 
-### Scenario I: basic single-device usage
+### Scenario I: Basic single-device usage
 
 <p align="center">
-  <img src="./pictures/single_user.png" width="80%" height="80%"/>
+  <img src="/docs/current/references/samples/motoko/encrypted-notes-dapp/pictures/single_user.png" width="80%" height="80%"/>
 </p>
 <p align = "center">
 Fig. 2. Basic single-device scenario for a user.
@@ -327,7 +327,7 @@ Fig. 2. Basic single-device scenario for a user.
 In this scenario, a user accesses the dapp using the same _Internet Identity_ anchor from multiple devices. From our dapp's perspective, each web browser instance can be viewed as a separate device.
 
 <p align="center">
-  <img src="./pictures/multiple_devices.png" width="50%" height="50%"/>
+  <img src="/docs/current/references/samples/motoko/encrypted-notes-dapp/pictures/multiple_devices.png" width="50%" height="50%"/>
 </p>
 <p align = "center">
 Fig. 3. Scenario for a user with multiple registered devices.
@@ -350,7 +350,7 @@ One subtle difference that you might observe on Device B is that the message "Sy
 ### Scenario III: device management
 
 <p align="center">
-  <img src="./pictures/registered_devices.png" width="30%" height="30%"/>
+  <img src="/docs/current/references/samples/motoko/encrypted-notes-dapp/pictures/registered_devices.png" width="30%" height="30%"/>
 </p>
 <p align = "center">
 Fig. 4. Scenario for a user adding/removing devices.
@@ -413,7 +413,7 @@ Possible Remedies:
 2. Regress node version to 16.13.2 LTS (untested)
 
 ### Login problems
-Some errors like `Could not initialize crypto service` might occur due to browser caching issues. Redeployment of the dapp can cause such problems. In this case clear browser's _Local Storage_ and _IndexedDB_.
+Some errors like `Could not initialize crypto service` might occur due to browser caching issues. Redeployment of the dapp can cause such problems. In this case clear the browser's `_Local Storage_` and `_IndexedDB_`.
 
 ### SSL certificate problems
 
