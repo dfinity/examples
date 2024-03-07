@@ -1,3 +1,7 @@
+---
+keywords: [intermediate, motoko, storage, persistent storage, persistence]
+---
+
 import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
 
 # Persistent storage
@@ -9,18 +13,18 @@ The example dapp shows how to build a simple dapp in Motoko, which will have per
 
 ![Counter Frontend](README_images/candid_ui.png)
 
-The purpose of this example dapp is to build a simple counter dapp, where the counter value will persist even after the dapp has changed and been re-deployed.
+The purpose of this example dapp is to build a simple counter dapp, where the counter value will persist even after the dapp has changed and been redeployed.
 
 This example covers:
 
-- Create new canister smart contract using Motoko.
-- Add backend functions for a counter (increment, get count and reset count).
+- Create a new canister smart contract using Motoko.
+- Add backend functions for a counter (increment, get count, and reset count).
 - Deploy the canister smart contract locally.
-- Test backend with Candid UI and command line using `dfx` .
+- Test backend with Candid UI and command line using `dfx`.
 
 
 ## Installation
-This example project can be cloned, installed and deployed locally, for learning and testing purposes. The instructions are based on running the example on either macOS or Linux, but when using WSL2 on Windows, the instructions will be the same.
+This example project can be cloned, installed, and deployed locally, for learning and testing purposes. The instructions are based on running the example on either macOS or Linux, but when using WSL2 on Windows, the instructions will be the same.
 
 ### Prerequisites
 This example requires an installation of:
@@ -90,7 +94,7 @@ $ dfx canister call persistent_storage getCount
 The two main parts of the example dapp are the backend and the Candid interface. This example project does not have a frontend.
 
 ### Motoko backend
-The backend functions are located in the `src/persistent_storage/main.mo` Motoko file. The backend stores the counter value, and has functions to get, increment and reset the counter value. Furthermore the backend insures the counter value persists upgrades of the dapp.
+The backend functions are located in the `src/persistent_storage/main.mo` Motoko file. The backend stores the counter value and has functions to get, increment, and reset the counter value. Furthermore, the backend ensures the counter value persists in upgrades of the dapp.
 
 #### Counter variable
 The current counter value is stored as a number in the actor.
@@ -111,7 +115,7 @@ public func increment() : async Nat {
 };
 ```
 
-The function is returning the incremented counter variable.
+The function returns the incremented counter variable.
 
 #### get()
 The `get()` function returns the current counter value.
@@ -133,7 +137,7 @@ public func reset() : async Nat {
 ```
 
 ### Candid interface
-The Candid UI provides an easy, user friendly interface for testing the backend. The UI is automatically generated, and the canister ID can be found by using the `dfx canister id <canister_name>` command:
+The Candid UI provides an easy, user-friendly interface for testing the backend. The UI is automatically generated, and the canister ID can be found by using the `dfx canister id <canister_name>` command:
 
 ```bash
 $ dfx canister id __Candid_UI
