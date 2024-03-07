@@ -11,7 +11,7 @@ const NUM_PARTITIONS: usize = 5;
 
 // Inline wasm binary of data partition canister
 pub const WASM: &[u8] =
-    include_bytes!("../../target/wasm32-unknown-unknown/release/data_partition.wasm.gz");
+    include_bytes!("../../target/wasm32-unknown-unknown/release/data_partition.wasm");
 
 thread_local! {
     // A list of canister IDs for data partitions
