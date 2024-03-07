@@ -1,14 +1,18 @@
+---
+keywords: [advanced, motoko, encrypted, encrypted notes, notes dapp, vetkeys, vetkd]
+---
+
 import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
 
 # Encrypted notes: vetKD
 
 <MarkdownChipRow labels={["Advanced", "Motoko"]} />
 
-This is a copy of the encrypted-notes-dapp example, adapted to (1) use [the proposed vetKD feature](https://github.com/dfinity/interface-spec/pull/158) and (2) add sharing of notes between users.
+This is a copy of the `encrypted-notes-dapp` example, adapted to use [the proposed vetKD feature](https://github.com/dfinity/interface-spec/pull/158) and add sharing of notes between users.
 
-In particular, instead of creating a principal-specific AES key and syncing it across devices (by means of device-specific RSA keys), the notes are encrypted with an AES key that is derived (directly in the browser) from a note-ID-specific vetKey obtained from the backend canister (in encrypted form, using an ephemeral transport key), which itself obtains it from the vetKD system API. This way, there is no need for any device management in the dapp, plus sharing of notes becomes possible.
+In particular, instead of creating a principal-specific AES key and syncing it across devices (using device-specific RSA keys), the notes are encrypted with an AES key that is derived (directly in the browser) from a note-ID-specific vetKey obtained from the backend canister (in encrypted form, using an ephemeral transport key), which itself obtains it from the vetKD system API. This way, there is no need for any device management in the dapp, plus sharing of notes becomes possible.
 
-The vetKey used to encrypt and decrypt a note is note-ID-specific (and not, for example, principal-specific) so as to enable the sharing of notes between users. The derived AES keys are stored as non-extractable CryptoKeys in an IndexedDB in the browser for efficiency so that they respective vetKey only has to be fetched from the server once. To improve the security even further, the vetKeys' derivation information could be adapted to include a (numeric) epoch that advances each time the list of users with which the note is shared is changed.
+The vetKey used to encrypt and decrypt a note is note-ID-specific (and not, for example, principal-specific) to enable the sharing of notes between users. The derived AES keys are stored as non-extractable CryptoKeys in an IndexedDB in the browser for efficiency so that their respective vetKey only has to be fetched from the server once. To improve the security even further, the vetKeys' derivation information could be adapted to include a (numeric) epoch that advances each time the list of users with which the note is shared is changed.
 
 Currently, the only way to use this dapp is via manual local deployment (see below).
 
@@ -34,7 +38,7 @@ sh ./pre_deploy.sh
 
 ### Step 3: [Install dfx](https://sdk.dfinity.org/docs/quickstart/local-quickstart.html). 
 
-Please keep in mind the dfx cli currently only runs on Linux and macOS.
+Please keep in mind the `dfx` CLI currently only runs on Linux and macOS.
 
 ### Step 4: Install npm packages from the project root:
 
@@ -43,7 +47,7 @@ npm install
 ```
 _Note_: see [Troubleshooting](#troubleshooting) in case of problems.
 
-### Step 5: In case dfx was already started before, run the following:
+### Step 5: In case `dfx` was already started before, run the following:
 
 ```sh
 dfx stop
@@ -55,10 +59,15 @@ rm -rf .dfx
 ```sh
 dfx start --clean
 ```
-⚠️ If you see an error `Failed to set socket of tcp builder to 0.0.0.0:8000`, make sure that the port `8000` is not occupied, e.g., by the previously run Docker command (you might want to stop the Docker daemon whatsoever for this step).
+:::info
+If you see an error `Failed to set socket of tcp builder to 0.0.0.0:8000`, make sure that the port `8000` is not occupied, e.g., by the previously run Docker command (you might want to stop the Docker daemon whatsoever for this step).
+:::
 
 ### Step 7: Install a local [Internet Identity (II)](https://wiki.internetcomputer.org/wiki/What_is_Internet_Identity) canister:
-   _Note_: If you have multiple dfx identities set up, ensure you are using the identity you intend to use with the `--identity` flag.
+
+:::info 
+If you have multiple `dfx` identities set up, ensure you are using the identity you intend to use with the `--identity` flag.
+:::
    1. To install and deploy a canister run:
       ```sh
       dfx deploy internet_identity --argument '(null)'
@@ -107,8 +116,10 @@ You can check its URL with `npm run print-dfx-www`.
       ```
    2. Open the URL that is printed in the console output. Usually, this is [http://localhost:3000/](http://localhost:3000/).
 
-      ⚠️ If you have opened this page previously, please remove all local store data for this page from your web browser, and hard-reload the page. For example in Chrome, go to Inspect → Application → Local Storage → `http://localhost:3000/` → Clear All, and then reload.
+:::info
+If you have opened this page previously, please remove all local store data for this page from your web browser, and hard-reload the page. For example in Chrome, go to Inspect → Application → Local Storage → `http://localhost:3000/` → Clear All, and then reload.
+:::
 
 ## Troubleshooting
 
-If you run into issues, clearing all the application-specific IndexedDBs in the browser (which are used to store Internet Identity information and the derived non-extractable AES keys) might help fixing the issue.
+If you run into issues, clearing all the application-specific IndexedDBs in the browser (which are used to store Internet Identity information and the derived non-extractable AES keys) might help fix the issue.

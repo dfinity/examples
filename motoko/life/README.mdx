@@ -1,3 +1,7 @@
+---
+keywords: [beginner, motoko, game of life]
+---
+
 import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
 
 # Game of life
@@ -14,7 +18,7 @@ Our `src` directory contains the initial, version v0, implementation but its con
 
 Directory src (version v0) contains an application with a very simple React UI.
 
-Directories `versions/v1` and `versions/v2` contain sequential upgrades to src used to illustrate live upgrade by re-deployment of a deployed canister.
+Directories `versions/v1` and `versions/v2` contain sequential upgrades to src used to illustrate live upgrades by re-deployment of a deployed canister.
 
 To make upgrades apparent, each version uses a different digit to display live cells (0,1,2).
 
@@ -42,7 +46,7 @@ dfx start --background
 dfx deploy
 ```
 
-The deployment step should report a canister id for the life_assets canister.
+The deployment step should report a canister ID for the life_assets canister.
 
 Take note of the URL at which the life_assets is accessible using the command:
 
@@ -120,8 +124,8 @@ mv versions/v1 src
 dfx deploy
 ```
 
-Then, return to the same browser tab and refresh (or re-load the link). Note the current grid state is unchanged (thus preserved), apart from changing display character in grid.
-Click button **Run**, then click button **Pause** when bored. Open **Details** and click **View State**. Admire the #v1 state on display.
+Then, return to the same browser tab and refresh (or re-load the link). Note the current grid state is unchanged (thus preserved), apart from changing the display character in grid.
+Click the button **Run**, then click the button **Pause** when bored. Open **Details** and click **View State**. Admire the #v1 state on display.
 
 After first upgrading from v0 the state will be random, as on deploying v0. This is because the v0 code did not declare its state variable stable, forcing the upgraded actor to re-initialize state as no previous value for state is available in the retired actor.
 
@@ -139,7 +143,7 @@ dfx deploy
 
 Return to the same browser tab. Refresh the tab. Note the current grid state is unchanged (thus preserved), apart from changing the display character in the textual display of the grid.
 
-Click button **Run**, then click button **Pause** when bored. Open **Details** and click **View State**. Admire the #v2 state on display.
+Click the button **Run**, then click the button **Pause** when bored. Open **Details** and click **View State**. Admire the #v2 state on display.
 
 ## Security considerations and best practices
 

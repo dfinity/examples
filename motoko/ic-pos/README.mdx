@@ -1,3 +1,7 @@
+---
+keywords: [advanced, motoko, bitcoin, pos, point of sale, ckbtc]
+---
+
 import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
 
 # IC-POS
@@ -8,15 +12,15 @@ import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
 ![](./media/header.png)
 
 
-IC-POS is an experimental app to demonstrate a real world use case for [ckBTC](https://internetcomputer.org/ckbtc/) on the Internet Computer. It is a simple Point of Sale app that allows users to accept ckBTC payments.
+IC-POS is an experimental app to demonstrate a real-world use case for [ckBTC](https://internetcomputer.org/ckbtc/) on the Internet Computer. It is a simple Point of Sale app that allows users to accept ckBTC payments.
 
-The Internet Computer [integrates directly with the Bitcoin network](https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/). This allows canisters on the Internet Computer to receive, hold, and send Bitcoin, all directly with transactions on the Bitcoin network. Chain-key Bitcoin (ckBTC) is an ICRC-1-compliant token that is backed 1:1 by Bitcoin held 100% on the IC mainnet.
+The Internet Computer [integrates directly with the Bitcoin network](https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/). This allows canisters on the Internet Computer to receive, hold, and send Bitcoin, all directly with transactions on the Bitcoin network. Chain-key Bitcoin (ckBTC) is an ICRC-1-compliant token that is backed 1:1 by Bitcoin and held 100% on the ICP mainnet.
 
 For deeper understanding of the ICP < > BTC integration, see the IC wiki article on [Bitcoin integration](https://wiki.internetcomputer.org/wiki/Bitcoin_Integration).
 
 ## Features
 
-- **Create store**: Users logs in with their Internet Identity and configure the store with a name and other settings.
+- **Create store**: Users log in with their Internet Identity and configure the store with a name and other settings.
 - **Charge customer**: Users can charge a customer by entering an amount. This will generate and display a QR code for the customer to scan and pay. QR code follows the [ICRC-22](https://github.com/dfinity/ICRC/issues/22) standard.
 - **Send tokens**: Users can send ckBTC tokens to other users.
 - **Receive notifications**: Users can choose to receive notifications by email or SMS when a payment is received. This uses the [HTTP Outcall](https://internetcomputer.org/docs/current/developer-docs/integrations/https-outcalls/) feature of the Internet Computer.
@@ -34,12 +38,12 @@ https://github.com/kristoferlund/ic-pos/assets/9698363/f67d9952-3ee1-4876-a5e5-6
 
 ### Backend
 
-The backend is written in Motoko and consist of one canister, `icpos`. It exposes four public methods:
+The backend is written in Motoko and consists of one canister, `icpos`. It exposes four public methods:
 
 - `getMerchant` - returns the store configuration for a given principal.
 - `updateMerchant` - updates the store configuration for a given principal.
 - `setCourierApiKey` - sets the Courier API key used to send email and SMS notifications. Only the canister controller can call this method.
-- `setLedgerId` - sets the ledger id to monitor for transactions. Only the canister controller can call this method.
+- `setLedgerId` - sets the ledger ID to monitor for transactions. Only the canister controller can call this method.
 - `getLogs` - The canister maintains a debug log that can be fetched using this method.
 
 In addition to the public methods, the canister uses a [timer](https://internetcomputer.org/docs/current/motoko/main/timers/) to monitor ledger transactions. When a new transaction is found that matches a configured store – depending on the store settings – the canister will send a notification either by email or SMS.
@@ -76,7 +80,7 @@ Integration with the [Internet Identity](https://internetcomputer.org/internet-i
 dfx deploy --network local internet_identity
 ```
 
-### Step 3: Save current principal as a variable:
+### Step 3: Save the current principal as a variable:
 
 The principal will be used when deploying the ledger canister.
 
@@ -195,7 +199,7 @@ dfx canister --network local call icrc1_ledger icrc1_transfer '
 
 Log in to the frontend using **a new Internet Identity on another web browser**. Configure the store and navigate to the `Receive` page. Click on the principal pill to copy the address to your clipboard.
 
-Now, go back to the first browser/store, navigate to the `Send` page and transfer some tokens to the second store.
+Now, go back to the first browser/store, navigate to the `Send` page, and transfer some tokens to the second store.
 
 If everything is working, you should see a notification in the second store.
 
@@ -205,7 +209,7 @@ If everything is working, you should see a notification in the second store.
 
 - Login state is not persisted. Reloading the app will log the user out. This should be done using `localStorage` or `sessionStorage`.
 - Show more information about transactions. A transaction detail page.
-- Show a confirmation dialog after user clicks on `Send` button.
+- Show a confirmation dialog after the user clicks on the `Send` button.
 
 ## Known issues
 

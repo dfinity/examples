@@ -1,3 +1,7 @@
+---
+keywords: [advanced, motoko, swap, token swap, icrc2]
+---
+
 import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
 
 # ICRC-2 swap
@@ -6,11 +10,11 @@ import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
 
 ## Overview
 
-ICRC-2 Swap is simple canister demonstrating how to safely work with ICRC-2
+ICRC-2 Swap is a simple canister demonstrating how to safely work with ICRC-2
 tokens. It handles depositing, swapping, and withdrawing ICRC-2 tokens.
 
 The asynchronous nature of developing on the Internet Computer presents some
-unique challenges, which mean the design patterns for inter-canister calls are
+unique challenges, which means the design patterns for inter-canister calls are
 different from other synchronous blockchains.
 
 ## Features
@@ -120,7 +124,7 @@ dfx deploy token_b --argument '
 
 ### Step 3: Deploy the swap canister:
 
-The swap canister accepts deposits, and performs the swap.
+The swap canister accepts deposits and performs the swap.
 
 ```bash
 export TOKEN_A=$(dfx canister id token_a)
@@ -138,8 +142,8 @@ export SWAP=$(dfx canister id swap)
 
 ### Step 4: Approve & deposit tokens:
 
-Before we can swap the tokens, they must be transferred to the swap canister.
-With ICRC-2, this is a two-step process. First we approve the transfer:
+Before you can swap the tokens, they must be transferred to the swap canister.
+With ICRC-2, this is a two-step process. First, approve the transfer:
 
 ```bash
 # Approve Bob to deposit 1.00000000 of Token B, and 0.0001 extra for the
@@ -165,13 +169,15 @@ dfx canister call --identity bob token_b icrc2_approve '
 '
 ```
 
-Then we can call the `swap` canister's `deposit` method. This method will do the
-actual ICRC-1 token transfer, to move the tokens from our wallet into the `swap`
-canister, and then update our deposited token balance in the `swap` canister.
+Then call the `swap` canister's `deposit` method. This method will do the
+actual ICRC-1 token transfer, to move the tokens from your wallet into the `swap`
+canister, and then update your deposited token balance in the `swap` canister.
 
-Side Note: The amounts we use here are denoted in "e8s". Since out token has 8
-decimal places, we writeout all 8 decimal places. So 1.00000000 becomes
+:::info
+The amounts you use here are denoted in "e8s". Since your token has 8
+decimal places, you write out all 8 decimal places. So 1.00000000 becomes
 100,000,000.
+:::
 
 ```bash
 # Deposit Alice's tokens
@@ -202,7 +208,7 @@ dfx canister call swap swap 'record {
 }'
 ```
 
-We can check the deposited balances with:
+You can check the deposited balances with:
 
 ```bash
 dfx canister call swap balances
@@ -213,8 +219,8 @@ the swap contract.
 
 ### Step 6: Withdraw tokens:
 
-After the swap, our balances in the swap canister will have been updated, and we
-can withdraw our newly received tokens into our wallet.
+After the swap, your balances in the swap canister will have been updated, and you
+can withdraw your newly received tokens into your wallet.
 
 ```bash
 # Withdraw Alice's Token B balance (1.00000000), minus the 0.0001 transfer fee
@@ -252,7 +258,7 @@ dfx canister call token_a icrc1_balance_of 'record {
 }'
 ```
 
-If everything is working, you should see a your dfx wallet balances reflected in
+If everything is working, you should see your dfx wallet balances reflected in
 the token balances.
 
 🎉
