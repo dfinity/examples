@@ -1,3 +1,7 @@
+---
+keywords: [intermediate, rust, composite query, queries]
+---
+
 import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
 
 # Composite queries
@@ -15,7 +19,7 @@ dfx canister create data_partition
 dfx build data_partition
 ```
 
-During compilation of the fronted canister, the canister's wasm code will be inlined in the frontend canister's wasm code.
+During the compilation of the fronted canister, the canister's wasm code will be inlined in the frontend canister's wasm code.
 
 ```bash
 dfx canister create kv_frontend
@@ -25,7 +29,7 @@ dfx canister install kv_frontend
 
 ## Using the canister
 
-Now we add some key value pairs to via the frontend canister.
+Now we add some key value pairs via the frontend canister.
 
 ```bash
 dfx canister call kv_frontend put '(1:nat, 1337:nat)'
@@ -41,7 +45,7 @@ dfx canister call kv_frontend get '(1:nat)'
 (opt (42 : nat))
 ```
 
-We can also query it via a (duplicate) method doing update calls:
+We can also query it via a (duplicate) method by doing update calls:
 
 ```bash
 dfx canister call kv_frontend get_update '(1:nat)'
