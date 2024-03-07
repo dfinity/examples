@@ -1,3 +1,7 @@
+---
+keywords: [intermediate, rust, token transfer]
+---
+
 import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
 
 # Token transfer
@@ -8,7 +12,7 @@ import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
 ICP transfer is a canister that can transfer ICP from its account to other accounts. It is an example of a canister that uses the ledger canister. Sample code is available in [Motoko](https://github.com/dfinity/examples/tree/master/ rust/ledger-transfer) and [Rust](https://github.com/dfinity/examples/tree/master/rust/tokens_transfer).
 
 ## Architecture
-The sample code revolves around one core transfer function which takes as input the amount of ICP to transfer, the account (and optionally the subaccount) to which to transfer ICP and returns either success or an error in case e.g. the ICP transfer canister doesn’t have enough ICP to do the transfer. In case of success, a unique identifier of the transaction is returned. This identifier will be stored in the memo of the transaction in the ledger.
+The sample code revolves around one core transfer function which takes as input the amount of ICP to transfer, the account (and optionally the subaccount) to which to transfer ICP, and returns either success or an error in case e.g. the ICP transfer canister doesn’t have enough ICP to do the transfer. In case of success, a unique identifier of the transaction is returned. This identifier will be stored in the memo of the transaction in the ledger.
 
 This sample will use the Rust variant. 
 
@@ -152,7 +156,7 @@ The output should be:
 (record { e8s = 100_000_000_000 : nat64 })
 ```
 
-### Step 11: In a separate working directory, clone the Github repo containing the `ledger_transfer` project's files:
+### Step 11: In a separate working directory, clone the GitHub repo containing the `ledger_transfer` project's files:
 
 ```bash
 git clone https://github.com/dfinity/examples.git
@@ -205,7 +209,7 @@ URLs:
     ledger_transfer_backend: http://127.0.0.1:4943/?canisterId=bd3sg-teaaa-aaaaa-qaaba-cai&id=be2us-64aaa-aaaaa-qaabq-cai
 ```
 
-### Step 15: Determine out the address of your canister:
+### Step 15: Determine the address of your canister:
 
 ```bash
 dfx canister call ledger_transfer canisterAccount '()'
