@@ -1,3 +1,7 @@
+---
+keywords: [intermediate, motoko, internet identity, authentication]
+---
+
 import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
 
 # Internet Identity integration 
@@ -73,7 +77,7 @@ Add this code block to the canister section in the `dfx.json` file:
 }
 ```
 
-This adds a prebuilt Internet Identity canister to your project. The remote property makes sure, that this canister is only deployed locally (as it already exists on mainnet). The frontend property tells dfx that this canister does have a front-end (so it prints the front-end URL after deployment, see the next step). The URLs point to the latest dev build release of Internet Identity. The dev build has some extra features that make Internet Identity easier to use in a development setting (such as a predictable captcha, no requirement for WebAuthn, etc.).
+This adds a prebuilt Internet Identity canister to your project. The remote property makes sure, that this canister is only deployed locally (as it already exists on mainnet). The frontend property tells `dfx` that this canister does have a front-end (so it prints the front-end URL after deployment, see the next step). The URLs point to the latest dev build release of Internet Identity. The dev build has some extra features that make Internet Identity easier to use in a development setting (such as a predictable captcha, no requirement for WebAuthn, etc.).
 
 ### Step 3: Deploy Internet Identity locally.
 Run `dfx deploy` to deploy all canisters including Internet Identity to the local replica. It should print the Internet Identity URL to the console:
@@ -341,7 +345,7 @@ loginButton.onclick = async (e) => {
 ```
 
 ### Step 8: Modify the backend.
-We want our application to greet the caller principal. In order to do so, the backend Motoko code needs to be changed to:
+We want our application to greet the caller principal. To do so, the backend Motoko code needs to be changed to:
 
 - No longer take a name parameter.
 - Use the `message.caller` for the greeting.

@@ -1,3 +1,7 @@
+---
+keywords: [beginner, motoko, composite queries, queries]
+---
+
 import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
 
 # Composite queries
@@ -8,7 +12,7 @@ import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
 
 This example modifies the simple actor class example to demonstrate the implementation of composite queries.
 
-The original example demonstrates a simple use of actor classes, which allow a program to dynamically install new actors (that is, canisters). It also demonstrates a multi-canister project, and actors using inter-actor communication through `shared` functions.
+The original example demonstrates a simple use of actor classes, allowing a program to dynamically install new actors (that is, canisters). It also demonstrates a multi-canister project, and actors using inter-actor communication through `shared` functions.
 
 In the original example, shared functions `Map.get` and `Bucket.get` were both implemented as
 update methods so that `Map.get` could call `Bucket.get`.
@@ -22,7 +26,7 @@ In detail, the example provides actor `Map`.
 
 [Map.mo](./src/map/Map.mo) imports a Motoko _actor class_ `Bucket(i, n)`
 from library [Buckets.mo](./src/map/Buckets.mo).
-It also imports the `ExperimentalCycles` base library, naming it `Cycles` for short, in order to share its cycles amongst the bucket it creates.
+It also imports the `ExperimentalCycles` base library, naming it `Cycles` for short, to share its cycles amongst the buckets it creates.
 
 Each call to `Buckets.Bucket(n, i)` within `Map` instantiates a new `Bucket` instance (the `i`-th of `n`) dedicated to those entries of the `Map` whose key _hashes_ to `i` (by taking the remainder of the key modulo division by `n`).
 
@@ -37,11 +41,9 @@ Each new `Bucket` must be provisioned with enough cycles to pay for its installa
 
 Verify the following before running this demo:
 
-*  You have downloaded and installed the
-   [DFINITY Canister SDK](https://sdk.dfinity.org).
+*  You have downloaded and installed [dfx](https://sdk.dfinity.org).
 
-*  You have stopped any Internet Computer or other network process that would
-   create a port conflict on 8000.
+*  You have stopped any process that would create a port conflict on `8000`.
 
 ## Install
 
@@ -101,9 +103,9 @@ dfx canister call --query Map get '(15)'
 
 ## Resources
 
-- [Actor classes](https://internetcomputer.org/docs/current/motoko/main/actor-classes)
-- [Managing cycles](https://internetcomputer.org/docs/current/motoko/main/cycles)
-- [Composite queries](https://internetcomputer.org/docs/current/motoko/main/actors-async#composite-query-functions)
+- [Actor classes](https://internetcomputer.org/docs/current/motoko/main/actor-classes).
+- [Managing cycles](https://internetcomputer.org/docs/current/motoko/main/cycles).
+- [Composite queries](https://internetcomputer.org/docs/current/motoko/main/actors-async#composite-query-functions).
 
 ## Security considerations and best practices
 

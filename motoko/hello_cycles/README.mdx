@@ -1,10 +1,12 @@
+---
+keywords: [beginner, motoko, hello, hello cycles, cycles]
+---
+
 import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
 
 # Hello, cycles!
 
 <MarkdownChipRow labels={["Beginner", "Motoko"]} />
-
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.25-blue)
 
 ## Overview
 
@@ -101,7 +103,7 @@ Below, we'll frequently use `$(dfx identity get-wallet)` and `$(dfx canister id 
 dfx canister call $(dfx identity get-wallet) wallet_send "(record { canister = principal \"$(dfx canister id hello_cycles)\"; amount = (2000000000000:nat64); } )"
 ```
 
-The wallet's `wallet_send` function transfers the amount to the argument canister's `wallet_receive` function (see above), and returns a result signalling success or failure.
+The wallet's `wallet_send` function transfers the amount to the argument canister's `wallet_receive` function (see above) and returns a result signaling success or failure.
 
 If successful, the output will look similar to:
 
@@ -121,7 +123,7 @@ Output:
 (5_091_662_569_379 : nat)
 ```
 
-The amount is only increased by 10_000_000 because the implementation of `wallet_receive` is coded to accept at most 10_000_000 cycles, even when more cycles where transferred with the call. The unaccepted cycles are not lost, but implicitly refunded to the caller (in this case, the wallet).
+The amount is only increased by 10_000_000 because the implementation of `wallet_receive` is coded to accept at most 10_000_000 cycles, even when more cycles were transferred with the call. The unaccepted cycles are not lost but implicitly refunded to the caller (in this case, the wallet).
 
 ### Step 7: Send some cycles from the hello_cycles canister back to the wallet by running the command:
 
@@ -135,7 +137,7 @@ Output:
 (record { refunded = 0 : nat })
 ```
 
-### Step 8: Verify that the cycles balance of hello_cycles canister has decreased with:
+### Step 8: Verify that the cycles balance of the `hello_cycles` canister has decreased with:
 
 ```bash
 dfx canister call hello_cycles wallet_balance
@@ -147,7 +149,7 @@ Output:
 (5_091_657_208_987 : nat)
 ```
 
-In this step, we are passing our own wallet's `wallet_receive` function as the first argument, followed by the amount. We, or a third party, could also pass any another function of the same signature, belonging to any other canister or wallet.
+In this step, we are passing our own wallet's `wallet_receive` function as the first argument, followed by the amount. We, or a third party, could also pass any other function of the same signature, belonging to any other canister or wallet.
 
 Without some additional access control checks (omitted here), a malicious client could abuse our naive transfer function to drain the canister of all of its cycles.
 

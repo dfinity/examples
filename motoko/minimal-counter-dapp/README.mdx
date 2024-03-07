@@ -1,3 +1,7 @@
+---
+keywords: [beginner, motoko, counter]
+---
+
 import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
 
 # Minimal counter dapp
@@ -10,16 +14,16 @@ import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
 
 The example dapp shows how to build a very basic dapp with both backend and frontend, using Motoko for the backend functionality and plain HTML and JavaScript for the frontend. The dapp is a simple counter, which will increment a counter by clicking a button in the frontend.
 
-The purpose of this example dapp is to build a minimalistic dapp, based on the default dapp template, installed by dfx when creating a new project. The dapp is a simple website with a counter. Every time a button is pressed, a counter is incremented.
+The purpose of this example dapp is to build a minimalistic dapp, based on the default dapp template, installed by `dfx` when creating a new project. The dapp is a simple website with a counter. Every time a button is pressed, a counter is incremented.
 
 This example covers:
 
-- Create new canister smart contract using the IC SDK (dfx).
+- Create a new canister smart contract using the IC SDK (`dfx`).
 - Use the default project as a template as the starting point for the new project.
-- Add backend functions for a counter (count, get count and reset count).
+- Add backend functions for a counter (count, get count, and reset count).
 - Implement backend functions in the frontend.
 - Deploy the canister smart contract locally.
-- Test backend with Candid UI and command line using dfx, and test frontend in browser.
+- Test backend with Candid UI and command line using `dfx`, and test frontend in browser.
 
 ## Prerequisites
 
@@ -61,10 +65,10 @@ URLs:
 You will see a GUI interface with a button that says **Click Me!** followed by a counter number. Each time the button is clicked, the counter value will increase by 1. 
 
 ## Architecture
-The three main parts of the example dapp are the backend, the Candid interface and the frontend. This example project is based on the default project, which is created when running the `dfx new project_name` command, but most of the default project code is replaced to create the counter functionality in this project.
+The three main parts of the example dapp are the backend, the Candid interface, and the frontend. This example project is based on the default project, which is created when running the `dfx new project_name` command, but most of the default project code is replaced to create the counter functionality in this project.
 
 ### Motoko backend
-The backend functions are located in the `src/minimal_dapp/main.mo` Motoko file. The backend stores the counter value, and has functions to get, increment and reset the counter value.
+The backend functions are located in the `src/minimal_dapp/main.mo` Motoko file. The backend stores the counter value and has functions to get, increment, and reset the counter value.
 
 
 #### Counter variable
@@ -112,7 +116,7 @@ public func reset() : async Nat {
 The Candid interface is automatically created, and it has a convenient UI, which provides an easy, user-friendly way to test the backend. Learn how to access the Candid UI in the **Testing** section below. 
 
 ### Frontend
-The default project installed with `dfx new project_name` has an `index.html` file with page HTML and an `index.js` file with an implementation of the backend functions. These two files are modified in this example project to support the counter functionality, and the backend functions.
+The default project installed with `dfx new project_name` has an `index.html` file with page HTML and an `index.js` file with an implementation of the backend functions. These two files are modified in this example project to support the counter functionality and the backend functions.
 
 #### HTML
 All HTML code is in the `src/minimal_dapp_assets/src/index.html` file, and most of the HTML is carried over from the default project. The button is kept and so is the section showing the result, just simplified.
@@ -155,8 +159,8 @@ document.getElementById("clickMeBtn").addEventListener("click", async () => {
 });
 ```
 
-#### dfx
-dfx has a subset of commands for canister operations, and one of them enables calling the public functions added to the `main.mo` file in the previous step. In the following examples the initial value is 0. `count` will increment value and return 1, `getCount` will return the current value and `reset` will set the value to 0.
+#### `dfx`
+`dfx` has a subset of commands for canister operations, and one of them enables calling the public functions added to the `main.mo` file in the previous step. In the following examples the initial value is 0. `count` will increment value and return 1, `getCount` will return the current value, and `reset` will set the value to 0.
 
 Command usage: `dfx canister call <project>  <function>`
 

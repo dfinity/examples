@@ -1,3 +1,7 @@
+---
+keywords: [motoko, beginner, motoko actor, actor reference]
+---
+
 import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
 
 # Actor reference
@@ -14,11 +18,11 @@ Actor references should be used sparingly, and only when necessary, to provide a
 Providing an incorrect interface may cause subsequent communication with the actor to fail with serialization (but not memory) errors.
 :::
 
-The example defines one Motoko actor: `main.mo` binds the name IC to the actor obtained by asserting an interface for the textual actor reference "aaaaa-aa". This is the identity, in textual format, of the well-known (that is, system provided) management canister which is typically used to install, top up, and otherwise manage canisters on the IC.
+The example defines one Motoko actor: `main.mo` binds the name IC to the actor obtained by asserting an interface for the textual actor reference "aaaaa-aa". This is the identity, in textual format, of the well-known (that is, system-provided) management canister which is typically used to install, top up, and otherwise manage canisters on the IC.
 
 The full interface of the management canister is provided in the Interface Computer interface specification. For this simple example, we only need a subset of the specified operations, and, due to Candid sub-typing, can even import them at less informative types than described in the full specification. To provide access to more operations, one would simply add them to the actor type, at the appropriate Motoko translation of the original Candid signature.
 
-Our actor exposes a single burn method that uses its local IC actor reference to provision, create, query, stop and delete a transient canister, in order to burn half of the actor's cycle balance.
+Our actor exposes a single burn method that uses its local IC actor reference to provision, create, query, stop, and delete a transient canister, to burn half of the actor's cycle balance.
 
 This application of IC is meant to be illustrative, not necessarily useful.
 
@@ -66,4 +70,4 @@ The output will resemble the following:
 
 # Security considerations best practices
 
-If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on ICP. This example may not implement all the best practices.
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on ICP. This example may not implement all the best practices.
