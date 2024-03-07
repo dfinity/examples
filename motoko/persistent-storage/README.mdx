@@ -20,7 +20,7 @@ This example covers:
 - Create a new canister smart contract using Motoko.
 - Add backend functions for a counter (increment, get count, and reset count).
 - Deploy the canister smart contract locally.
-- Test backend with Candid UI and command line using `dfx`.
+- Test the backend with Candid UI and command line using `dfx`.
 
 
 ## Installation
@@ -146,7 +146,9 @@ $ dfx canister id persistent_storage
 rrkah-fqaaa-aaaaa-aaaaq-cai
 ```
 
-**http://<candid_canister_id>.localhost:8000/?id=<backend_canister_id>**
+```
+http://<candid_canister_id>.localhost:8000/?id=<backend_canister_id>
+```
 
 ## License
 This project is licensed under the Apache 2.0 license, see LICENSE.md for details. See CONTRIBUTE.md for details about how to contribute to this project.
