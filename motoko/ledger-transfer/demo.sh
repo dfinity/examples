@@ -3,7 +3,9 @@ dfx stop
 set -e
 trap 'dfx stop' EXIT
 
-export IC_VERSION=2cb0afe1f49b8bbd4e60db234ca1f4a6f68ea115
+# Version corresponding to the latest upgrade proposal for the ICP Ledger canister
+# https://dashboard.internetcomputer.org/canister/ryjl3-tyaaa-aaaaa-aaaba-cai
+export IC_VERSION=98eb213581b239c3829eee7076bea74acad9937b
 test -f ledger.wasm.gz || curl -o ledger.wasm.gz https://download.dfinity.systems/ic/${IC_VERSION}/canisters/ledger-canister_notify-method.wasm.gz
 test -f ledger.wasm || gunzip ledger.wasm.gz
 test -f ledger.private.did || curl -o ledger.private.did https://raw.githubusercontent.com/dfinity/ic/${IC_VERSION}/rs/rosetta-api/ledger.did
