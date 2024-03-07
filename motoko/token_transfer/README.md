@@ -27,7 +27,7 @@ The following steps will guide you through the process of setting up the token t
 ### Step 1: Create a new `dfx` project and navigate into the project's directory.
 
 ```bash
-dfx dfx new --type=motoko token_transfer --no-frontend
+dfx new --type=motoko token_transfer --no-frontend
 cd token_transfer
 ```
 
