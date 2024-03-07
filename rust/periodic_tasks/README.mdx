@@ -1,3 +1,7 @@
+---
+keywords: [advanced, rust, periodic, timer, heartbeats]
+---
+
 import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
 
 # Periodic tasks and timers
@@ -13,9 +17,9 @@ There are two ways to schedule an automatic canister execution on the IC:
 1. **Timers**: one-shot or periodic canister calls with specified minimum timeout or interval.
 2. **Heartbeats**: legacy periodic canister invocations with intervals close to the blockchain finalization rate (1s). Heartbeats are supported by the IC for backward compatibility and some very special use cases. Newly developed canisters should prefer using timers over the heartbeats.
 
-This example demonstrates different ways of scheduling periodic tasks on the Internet Computer: timers and heartbeats. The example shows the difference between the two, and helps to decide which method suits you the best.
+This example demonstrates different ways of scheduling periodic tasks on the Internet Computer: timers and heartbeats. The example shows the difference between the two and helps to decide which method suits you the best.
 
-The example consist of two canisters named `heartbeat` and `timer`, both implementing the same functionality: schedule a periodic task to increase a counter.
+The example consists of two canisters named `heartbeat` and `timer`, both implementing the same functionality: schedule a periodic task to increase a counter.
 
 ## Prerequisites
 This example requires an installation of:
@@ -116,20 +120,20 @@ Example output:
 (2_112_067 : nat64)
 ```
 
-For periodic tasks with 10 sec interval the `heartbeat` canister uses *more* cycles than the `timer` canister.
+For periodic tasks with 10 sec intervals, the `heartbeat` canister uses *more* cycles than the `timer` canister.
 
-Not only timers use less cycles, but they also more composable. As there is no global state or methods to export, different libraries with timers could be easily used in the same project.
+Not only do timers use fewer cycles, but they are also more composable. As there is no global state or methods to export, different libraries with timers could be easily used in the same project.
 
 Also, timers provide isolation between the scheduling logic and the periodic task. If the periodic task fails, all the changes made by this task will be reverted, but the timers library state will be updated, i.e. the failed task will be removed from the list of timers to execute.
 
-For such an isolation of execution and scheduling contexts, internally timers library uses self canister calls:
+For such isolation of execution and scheduling contexts, the internal timers library uses self-canister calls:
 
    ```rust
    # This is a pseudo-code of a self call:
    ic_cdk::call(ic_cdk::id(), "periodic_task", ());
    ```
 
-Despite the [costs](https://internetcomputer.org/docs/current/developer-docs/production/computation-and-storage-costs) associated with such self canister calls, timers library still use less cycles than the heartbeats.
+Despite the [costs](https://internetcomputer.org/docs/current/developer-docs/production/computation-and-storage-costs) associated with such self-canister calls, the timers library still uses fewer cycles than the heartbeats.
 
 ### Example 2: Cycles usage for tasks with 1s interval
 
@@ -210,7 +214,7 @@ Example output:
 (9 : nat32)
 ```
 
-- #### Step 6: Compare the amount of cycles used to schedule the periodic task with 1s interval:
+- #### Step 6: Compare the number of cycles used to schedule the periodic task with 1s interval:
 
 ```sh
 dfx canister call heartbeat cycles_used
@@ -226,17 +230,17 @@ Example output:
 (4_545_326 : nat64)
 ```
 
-For periodic tasks with 1 sec interval the `heartbeat` canister uses *less* cycles than the `timer` canister.
+For periodic tasks with 1 sec interval, the `heartbeat` canister uses *less* cycles than the `timer` canister.
 
-Despite the `heartbeat` uses less cycles in this case, this solution is hard to compose within a big project. If there are two libraries using heartbeats internally, they won't even compile together, as they both would be trying to export the global `canister_heartbeat`  method required for the heartbeats.
+Despite the `heartbeat` using fewer cycles in this case, this solution is hard to compose within a big project. If there are two libraries using heartbeats internally, they won't even compile together, as they both would be trying to export the global `canister_heartbeat`  method required for the heartbeats.
 
-Also, there is no isolation between the scheduling logic and the periodic task. If the periodic task fails, all the changes made by the task and by the `canister_heartbeat` method will be reverted. So the failed task will be executing over and over again every heartbeat.
+Also, there is no isolation between the scheduling logic and the periodic task. If the periodic task fails, all the changes made by the task and by the `canister_heartbeat` method will be reverted. So the failed task will be executed over and over again every heartbeat.
 
-For such an isolation of execution and scheduling contexts, timers library uses internally self canister calls as described in the `Demo 1`. Due to the [costs](https://internetcomputer.org/docs/current/developer-docs/production/computation-and-storage-costs) associated with such self canister calls, `timer` canister uses more cycles for very frequent periodic tasks.
+For such isolation of execution and scheduling contexts, the timers library uses internal self-canister calls as described in `Demo 1`. Due to the [costs](https://internetcomputer.org/docs/current/developer-docs/production/computation-and-storage-costs) associated with such self-canister calls, `timer` canister uses more cycles for very frequent periodic tasks.
 
 ## Further learning
 1. Have a look at the locally running dashboard. The URL is at the end of the `dfx start` command: `Dashboard: http://localhost/...`
-2. Check out `heartbeat` and `timer` canisters Candid user interface. The URLs are et the end of the `dfx deploy` command: `heartbeat: http://127.0.0.1/...`
+2. Check out `heartbeat` and `timer` canisters Candid user interface. The URLs are at the end of the `dfx deploy` command: `heartbeat: http://127.0.0.1/...`
 3. Find which interval makes even the costs of running periodic tasks in the `timer` and `heartbeat` canisters: `dfx deploy heartbeat --argument 5 && dfx deploy timer --argument 5`
 
 ### Canister interface
@@ -257,7 +261,7 @@ dfx canister call timer start_with_interval_secs 5
 
 ## Conclusion
 
-For the code composability, execution context isolation and cost efficiency, canister developers should prefer to use timers over the heartbeats.
+For code composability, execution context isolation, and cost efficiency, canister developers should prefer to use timers over heartbeats.
 
 As shown in `Example 2`, there might be still very specific use cases for the heartbeats. Those should be considered case by case, with composability and isolation issues in mind.
 
