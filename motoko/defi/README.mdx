@@ -1,3 +1,7 @@
+---
+keywords: [advanced, motoko, defi, decentralized exchange, dex, exchange]
+---
+
 import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
 
 # Decentralized exchange sample
@@ -107,7 +111,7 @@ http://127.0.0.1:4943?canisterId=by6od-j4aaa-aaaaa-qaadq-cai
 ===== VISIT DEFI FRONTEND =====
 ```
 
-or you can regenerate the URL "http://127.0.0.1:4943?canisterId=$(dfx canister id frontend)". Open this URL in a web browser.
+or you can regenerate the URL `http://127.0.0.1:4943?canisterId=$(dfx canister id frontend)`. Open this URL in a web browser.
 
 ### Step 2: To interact with the exchange, you can create a local Internet Identity by clicking the login button.
 
@@ -135,7 +139,7 @@ To trade tokens with yourself, you can open a second incognito browser window.
 
 ## Common mistakes and troubleshooting
 
--   Concurrent execution: if canister functions have `await` statements, it is possible that execution is interleaved. To avoid bugs, it is necessary to carefully consider the placement of data structure updates to prevent double-spend attacks.
+-   Concurrent execution: if canister functions have `await` statements, execution may be interleaved. To avoid bugs, it is necessary to carefully consider the placement of data structure updates to prevent double-spend attacks.
 
 -   Floating points: more advanced exchanges should take care of floating points and make sure to limit decimals.
 
