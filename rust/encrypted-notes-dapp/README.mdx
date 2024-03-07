@@ -13,7 +13,7 @@ Encrypted notes is an example dapp for authoring and storing confidential inform
 This project serves as a simple (but not too simple) example of a dapp, which uses Motoko and Rust as the backend and Svelte as the frontend.
 
 <p align="center">
-  <img src="./pictures/architectural_overview.png" width="70%" height="70%"/>
+  <img src="/docs/current/references/samples/motoko/encrypted-notes-dapp/pictures/architectural_overview.png" width="70%" height="70%"/>
 </p>
 <p align = "center">
 Fig.1. Architectural overview of the Encrypted Notes dapp using client-side end-to-end encryption.
@@ -290,7 +290,7 @@ For example, the following aspects are particularly relevant for this app:
 ### Scenario I: basic single-device usage
 
 <p align="center">
-  <img src="./pictures/single_user.png" width="80%" height="80%"/>
+  <img src="/docs/current/references/samples/motoko/encrypted-notes-dapp/pictures/single_user.png" width="80%" height="80%"/>
 </p>
 <p align = "center">
 Fig. 2. Basic single-device scenario for a user.
@@ -321,14 +321,14 @@ At this moment, your _Local Storage_ should be populated with additional variabl
 In this scenario, a user accesses the dapp using the same _Internet Identity_ anchor from multiple devices. From our dapp's perspective, each web browser instance can be viewed as a separate device.
 
 <p align="center">
-  <img src="./pictures/multiple_devices.png" width="50%" height="50%"/>
+  <img src="/docs/current/references/samples/motoko/encrypted-notes-dapp/pictures/multiple_devices.png" width="50%" height="50%"/>
 </p>
 <p align = "center">
 Fig. 3. Scenario for a user with multiple registered devices.
 </p>
 
 1. Perform steps 1-3 of Scenario I on Device A.
-2. Perform steps 1-3 of Scenario I on Device B. One subtle difference that you might observe on Device B is that the message "Synchronizing..." (Fig. 3(a)) appears for a short period of time. As Device A was the first to login, it was also the first one to generate a shared secret. Device B has to retrieve it. In order to do that, Device B first uploads its public key (pub B) to the backend canister. Device A retrieves pub B by means of periodic polling. Device A then re-encrypts the shared secret with pub B and uploads it to the backend. Afterwards, Device B can retrieve the encrypted shared secret and decrypt it with its private key.
+2. Perform steps 1-3 of Scenario I on Device B. One subtle difference that you might observe on Device B is that the message "Synchronizing..." (Fig. 3(a)) appears for a short time. As Device A was the first to log in, it was also the first one to generate a shared secret. Device B has to retrieve it. To do that, Device B first uploads its public key (pub B) to the backend canister. Device A retrieves pub B through periodic polling. Device A then re-encrypts the shared secret with pub B and uploads it to the backend. Afterward, Device B can retrieve the encrypted shared secret and decrypt it with its private key.
 3. Observe that the list of notes is now empty for both devices.
 4. Create a Note, e.g. "Note from Device A" on Device A, and observe it on Device B.
 5. Analogously, create a different note, e.g. "Note from Device B" on Device B.
@@ -337,7 +337,7 @@ Fig. 3. Scenario for a user with multiple registered devices.
 ### Scenario III: device management
 
 <p align="center">
-  <img src="./pictures/registered_devices.png" width="30%" height="30%"/>
+  <img src="/docs/current/references/samples/motoko/encrypted-notes-dapp/pictures/registered_devices.png" width="30%" height="30%"/>
 </p>
 <p align = "center">
 Fig. 4. Scenario for a user adding/removing devices.
@@ -345,7 +345,7 @@ Fig. 4. Scenario for a user adding/removing devices.
 
 1. Login into the dapp with the same anchor on two or more devices.
 2. On each device, navigate to "Devices" item in the menu.
-3. Observe that the list of registered devices contains as many entries as the number of logged in devices.
+3. Observe that the list of registered devices contains as many entries as the number of logged-in devices.
 4. Assuming we are using Device A, click "remove" for some other device, say, Device B.
 5. While still on Device A, observe that Device B is deleted from the list of devices. _Note_: a device cannot remove itself. That is why you do not see a "remove" button for your current device.
 6. Switch to Device B and observe that it has been logged out.
@@ -435,7 +435,7 @@ Motoko is the IC-specific language for building and deploying Canisters. Two key
 `type`: needs to be "motoko", informing `dfx` of how to properly build the canister.
 
 **encrypted_notes_rust**:
-Rust natively supports WebAssembly — the binary format of the Internet Computer, and there is a crate ic_cdk that allows hooks into the IC. Unlike Motoko, DFX does not yet have a native Rust target that infers as much as Motoko canisters. So the keys that need to be provided are:
+Rust natively supports WebAssembly — the binary format of the Internet Computer, and there is a crate `ic_cdk` that allows hooks into the IC. Unlike Motoko, DFX does not yet have a native Rust target that infers as much as Motoko canisters. So the keys that need to be provided are:
 `type`: Custom (letting `dfx` know that it's going to need to do some user-defined work)
 `build`: Whatever command is needed to turn your project into a wasm binary. In this repo it's:
 ```sh
@@ -452,8 +452,8 @@ Frontend www canister (an "asset" canister) is the way to describe a set of file
 
 **Binary targets**:
 You can also just deploy arbitrary binary targets as long as they're Wasm binaries. For that, use the keys:
-`wasm`: a wasm file.
-`candid`: a candidfile representing all interfaces in the wasm file.
+`wasm`: A Wasm file.
+`candid`: A Candid file representing all interfaces in the wasm file.
 
 **Note**: If there is a mismatch between "Wasm" and "Candid" interface definitions, your canister will not deploy.
 
