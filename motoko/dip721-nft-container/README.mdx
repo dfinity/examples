@@ -1,3 +1,7 @@
+---
+keywords: [advanced, motoko, nfts, dip721]
+---
+
 import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
 
 # DIP721 NFTs
@@ -6,7 +10,7 @@ import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
 
 This example demonstrates implementing an NFT canister. NFTs (non-fungible tokens) are unique tokens with arbitrary
 metadata, usually an image of some kind, to form the digital equivalent of trading cards. There are a few different
-NFT standards for the Internet Computer (e.g [EXT](https://github.com/Toniq-Labs/extendable-token), [IC-NFT](https://github.com/rocklabs-io/ic-nft)), but for the purposes of this tutorial we use [DIP-721](https://github.com/Psychedelic/DIP721). You can see a quick introduction on [YouTube](https://youtu.be/1po3udDADp4).
+NFT standards for the Internet Computer (e.g [EXT](https://github.com/Toniq-Labs/extendable-token), [IC-NFT](https://github.com/rocklabs-io/ic-nft)), but for this tutorial you will use [DIP-721](https://github.com/Psychedelic/DIP721). You can see a quick introduction on [YouTube](https://youtu.be/1po3udDADp4).
 
 The canister is a basic implementation of the standard, with support for the minting, burning, and notification interface extensions.
 
@@ -37,8 +41,8 @@ The NFT canister example contains all those cases and shows how it can be done.
 Since the basic functions required in [DIP-721](https://github.com/Psychedelic/DIP721) are very straightforward to implement, this section only discusses how the above ideas are handled and implemented.
 
 ### Stable storage for canister upgrades
-During canister code upgrades, memory is not persisted between different canister calls. Only memory in stable memory is carried over.
-Because of that it is necessary to write all data to stable memory before the upgrade happens, which is usually done in the `pre_upgrade` function.
+During canister code upgrades, memory does not persist between different canister calls. Only memory in stable memory is carried over.
+Because of that, it is necessary to write all data to stable memory before the upgrade happens, which is usually done in the `pre_upgrade` function.
 This function is called by the system before the upgrade happens. After the upgrade, it is normal to load data from stable memory into memory
 during the `post_upgrade` function. The `post_upgrade` function is called by the system after the upgrade happened.
 In case an error occurs during any part of the upgrade (including `post_upgdrade`), the entire upgrade is reverted.
@@ -47,7 +51,7 @@ The Rust CDK (Canister Development Kit) currently only supports one value in sta
 In addition, not every data type can be stored in stable memory; only ones that implement the [CandidType trait](https://docs.rs/candid/latest/candid/types/trait.CandidType.html)
 (usually via the [CandidType derive macro](https://docs.rs/candid/latest/candid/derive.CandidType.html)) can be written to stable memory. 
 
-Since the state of our canister includes an `RbTree` which does not implement the `CandidType`, it has to be converted into a data structure (in this case a `Vec`) that implements `CandidType`.
+Since the state of our canister includes a `RbTree` which does not implement the `CandidType`, it has to be converted into a data structure (in this case a `Vec`) that implements `CandidType`.
 Luckily, both `RbTree` and `Vec` implement functions that allow converting to/from iterators, so the conversion can be done quite easily.
 After conversion, a separate `StableState` object is used to store data during the upgrade.
 
@@ -64,14 +68,14 @@ To see how data is certified in the NFT example canister, look at the function `
 
 For the response to be verified, it has to be checked that a) the served content is part of the tree, and b) the tree containing that content actually can be hashed to the certified hash.
 The function `witness` is responsible for creating a tree with minimal content that still can be verified to fulfill a) and b).
-Once this minimal tree is constructed, certificate and minimal hash tree are sent as part of the `IC-Certificate` header.
+Once this minimal tree is constructed, the certificate and minimal hash tree are sent as part of the `IC-Certificate` header.
 
-For a much more detailed explanation how certification works, see [this explanation video](https://internetcomputer.org/how-it-works/response-certification).
+For a much more detailed explanation of how certification works, see [this explanation video](https://internetcomputer.org/how-it-works/response-certification).
 
 ### Managing control over assets
 [DIP-721](https://github.com/Psychedelic/DIP721) specifies multiple levels of control over the NFTs:
 - **Owner**: this person owns an NFT. They can transfer the NFT, add/remove operators, or burn the NFT.
-- **Operator**: sort of a delegated owner. The operator does not own the NFT, but can do the same actions an owner can do.
+- **Operator**: sort of a delegated owner. The operator does not own the NFT but can do the same actions an owner can do.
 - **Custodian**: creator of the NFT collection/canister. They can do anything (transfer, add/remove operators, burn, and even un-burn) to NFTs, but also mint new ones or change the symbol or description of the collection.
 
 The NFT example canister keeps access control in these three levels very simple: 
@@ -81,7 +85,7 @@ The NFT example canister keeps access control in these three levels very simple:
 
 Burning an NFT is a special case. To burn an NFT means to either delete the NFT (not intended in DIP-721) or to set ownership to `null` (or a similar value).
 On the Internet Computer, this non-existing principal is called the [management canister](https://internetcomputer.org/docs/current/references/ic-interface-spec.md#the-ic-management-canister).
-> "The IC management canister is just a facade; it does not actually exist as a canister (with isolated state, Wasm code, etc.)," and its address is `aaaaa-aa`.
+> "The IC management canister is just a facade; it does not exist as a canister (with isolated state, Wasm code, etc.)," and its address is `aaaaa-aa`.
 Using this management canister address, we can construct its principal and set the management canister as the owner of a burned NFT.
 
 ## NFT sample code tutorial
@@ -217,7 +221,7 @@ Here the arguments are:
 dfx canister call dip721_nft_container transferFromDip721 "(principal\"$(dfx identity get-principal)\", principal\"$ALICE\", 0)"
 ```
 
-Transfer the NFT from from `ALICE` back to the default user.
+Transfer the NFT from `ALICE` back to the default user.
 
 ```bash
 dfx canister call dip721_nft_container safeTransferFromDip721 "(principal\"$ALICE\", principal\"$(dfx identity get-principal)\", 0)"
