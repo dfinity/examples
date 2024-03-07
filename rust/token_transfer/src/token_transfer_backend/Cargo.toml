@@ -1,0 +1,17 @@
+[package]
+name = "token_transfer_backend"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+candid = "0.10"
+ic-cdk = "0.12"
+ic-cdk-timers = "0.6" # Feel free to remove this dependency if you don't need timers
+icrc-ledger-types = "0.1.5"
+serde = "1.0.197"
+serde_derive = "1.0.197"
