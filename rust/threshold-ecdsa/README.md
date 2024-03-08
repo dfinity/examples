@@ -2,11 +2,9 @@
 keywords: [advanced, rust, threshold ecdsa, ecdsa, signature]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Threshold ECDSA
 
-<MarkdownChipRow labels={["Advanced", "Rust"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/threshold-ecdsa)
 
 ## Overview
 
@@ -27,6 +25,7 @@ This walkthrough focuses on the version of the sample canister code written in [
 
 ## Prerequisites
 -   [x] Download and [install the IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/index.md) if you do not already have it.
+-   [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 ## Getting started
 
