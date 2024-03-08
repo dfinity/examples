@@ -2,12 +2,9 @@
 keywords: [advanced, motoko, dao, decentralized organization, decentralized org]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Basic DAO
 
-<MarkdownChipRow labels={["Advanced", "Motoko"]} />
-
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/basic_dao)
 
 This sample project demonstrates a basic [decentralized autonomous organization](https://en.wikipedia.org/wiki/Decentralized_autonomous_organization) (DAO) that can be deployed to the [Internet Computer](https://github.com/dfinity/ic). The basic DAO sample code is available in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/basic_dao) and [Rust](https://github.com/dfinity/examples/tree/master/rust/basic_dao). You can see a quick introduction on [YouTube](https://youtu.be/3IcYlieA-EE).
 
@@ -27,13 +24,14 @@ This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
 - [x] To run the test scripts, you need to download [ic-repl](https://github.com/chenyan2002/ic-repl/releases).
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
 
  ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
 ```bash
-cd basic_dao
+cd examples/motoko/basic_dao
 dfx start --background
 ```
 
