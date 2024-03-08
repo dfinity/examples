@@ -2,11 +2,9 @@
 keywords: [advanced, motoko, vetkd, vetkeys]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # vetKD API
 
-<MarkdownChipRow labels={["Advanced", "Motoko"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/vetkd)
 
 This repository provides a canister (`src/system_api`) that offers the vetKD system API proposed in https://github.com/dfinity/interface-spec/pull/158, implemented in an **unsafe** manner **for demonstration purposes**.
 
@@ -27,6 +25,7 @@ The implementation of [the proposed vetKD system API](https://github.com/dfinity
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
 - [x] Install [Node.js](https://nodejs.org/en/download/).
 - [x] Install [Rust](https://www.rust-lang.org/tools/install), and add Wasm as a target (`rustup target add wasm32-unknown-unknown`). Note that Rust is only needed for compiling the (insecure) canister offering the vetKD system API, which later would be directly integrated into ICP.
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 ## Running locally
 
@@ -41,6 +40,7 @@ dfx start
 - #### Step 3: Ensure `dfx` uses the canister IDs that are hard-coded in the Rust source code:
 
 ```sh
+cd examples/motoko/vetkd
 dfx canister create system_api --specified-id s55qq-oqaaa-aaaaa-aaakq-cai
 ```
 
