@@ -2,11 +2,9 @@
 keywords: [advanced, rust, bitcoin, btc, integration, bitcoin integration]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Basic Bitcoin 
 
-<MarkdownChipRow labels={["Advanced", "Rust"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/basic_bitcoin)
 
 ## Overview 
 This tutorial will walk you through how to deploy a sample [canister smart contract](/docs/current/developer-docs/multi-chain/bitcoin/overview) **that can send and receive Bitcoin** on the Internet Computer.
