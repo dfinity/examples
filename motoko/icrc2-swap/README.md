@@ -2,11 +2,9 @@
 keywords: [advanced, motoko, swap, token swap, icrc2]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # ICRC-2 swap
 
-<MarkdownChipRow labels={["Advanced", "Motoko"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/icrc2-swap)
 
 ## Overview
 
@@ -33,6 +31,7 @@ different from other synchronous blockchains.
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Install [Node.js](https://nodejs.org/en/).
+- [ ] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 ### Step 1: Start a local instance of the replica:
 
@@ -57,6 +56,7 @@ export BOB=$(dfx identity get-principal --identity bob)
 Deploy Token A:
 
 ```bash
+cd examples/motoko/icrc2-swap
 dfx deploy token_a --argument '
   (variant {
     Init = record {
