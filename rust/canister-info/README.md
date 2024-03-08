@@ -2,11 +2,9 @@
 keywords: [beginner, rust, canister info]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Canister info
 
-<MarkdownChipRow labels={["Beginner", "Rust"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/canister-info)
 
 The purpose of this dapp is to give developers a small (backend) dapp that uses the IC's `canister_info` management call to retrieve information about canisters including canister history.
 
