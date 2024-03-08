@@ -2,11 +2,10 @@
 keywords: [advanced, motoko, ios, ios notifications]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # iOS integration
 
-<MarkdownChipRow labels={["Advanced", "Motoko"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/ios-notifications)
+
 
 ## Overview
 [iOS integration](https://github.com/dfinity/examples/tree/master/motoko/ios-notifications) is an experimental dapp with a native app integration that showcases a possible solution for integrating a dapp hosted in the Internet Computer with multiple platforms. For this example, we've created an iOS app.
@@ -29,6 +28,7 @@ The basic functionality of the IOS integration consists of four main components:
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Install [Node.js](https://nodejs.org/en/download/).
 - [x] [xcode](https://apps.apple.com/us/app/xcode/id497799835).
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 ### Step 1: Local development.
 
