@@ -2,11 +2,9 @@
 keywords: [advanced, motoko, nfts, dip721]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # DIP721 NFTs
 
-<MarkdownChipRow labels={["Advanced", "Motoko"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/dip721-nft-container)
 
 This example demonstrates implementing an NFT canister. NFTs (non-fungible tokens) are unique tokens with arbitrary
 metadata, usually an image of some kind, to form the digital equivalent of trading cards. There are a few different
