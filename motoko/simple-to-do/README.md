@@ -2,11 +2,9 @@
 keywords: [beginner, motoko, simple to do, to do, to do list]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Simple to-do
 
-<MarkdownChipRow labels={["Beginner", "Motoko"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/simple-to-do)
 
 ## Overview
 This example illustrates how to create a simple to-do checklist application. 
@@ -23,6 +21,7 @@ This is a Motoko example that does not currently have a Rust variant.
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
 
