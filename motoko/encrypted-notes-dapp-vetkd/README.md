@@ -2,11 +2,9 @@
 keywords: [advanced, motoko, encrypted, encrypted notes, notes dapp, vetkeys, vetkd]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Encrypted notes: vetKD
 
-<MarkdownChipRow labels={["Advanced", "Motoko"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/encrypted-notes-dapp-vetkd)
 
 This is a copy of the `encrypted-notes-dapp` example, adapted to use [the proposed vetKD feature](https://github.com/dfinity/interface-spec/pull/158) and add sharing of notes between users.
 
@@ -16,16 +14,22 @@ The vetKey used to encrypt and decrypt a note is note-ID-specific (and not, for 
 
 Currently, the only way to use this dapp is via manual local deployment (see below).
 
-Please also see the [README of the original encrypted-notes-dapp](../encrypted-notes-dapp/README.mdx) for further details.
+Please also see the [README of the original encrypted-notes-dapp](../encrypted-notes-dapp/README.md) for further details.
 
 ## Disclaimer
 
 This example uses an **insecure** implementation of [the proposed vetKD system API](https://github.com/dfinity/interface-spec/pull/158) in a pre-compiled form via the [vetkd_system_api.wasm](./vetkd_system_api.wasm). **Do not use this in production or for sensitive data**! This example is solely provided **for demonstration purposes** to collect feedback on the mentioned vetKD system API.
 
 ## Manual local deployment
+
+### Prerequisites
+
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+
 ### Step 1: Choose which implementation to use by setting a respective environment variable.
    
-For **Motoko** deployment use
+For **Motoko** deployment use:
+
 ```sh
 export BUILD_ENV=motoko
 ```
@@ -70,6 +74,7 @@ If you have multiple `dfx` identities set up, ensure you are using the identity 
 :::
    1. To install and deploy a canister run:
       ```sh
+      cd examples/motoko/encrypted-notes-dapp-vetkd
       dfx deploy internet_identity --argument '(null)'
       ```
    2. To print the Internet Identity URL, run:
