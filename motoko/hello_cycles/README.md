@@ -2,11 +2,9 @@
 keywords: [beginner, motoko, hello, hello cycles, cycles]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Hello, cycles!
 
-<MarkdownChipRow labels={["Beginner", "Motoko"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/hello_cycles)
 
 ## Overview
 
@@ -32,7 +30,7 @@ This is a Motoko example that does not currently have a Rust variant.
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
-- [x] Download the following project files from GitHub: https://github.com/dfinity/examples/
+- [x] Download the following project files from GitHub: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
 
