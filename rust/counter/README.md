@@ -2,17 +2,15 @@
 keywords: [beginner, rust, counter]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Counter
 
-<MarkdownChipRow labels={["Beginner", "Rust"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/counter)
 
 ## Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
-- [x] Download the following project files from GitHub: https://github.com/dfinity/examples/
+- [x] Download the following project files from GitHub: `git clone https://github.com/dfinity/examples/`
 
 Begin by opening a terminal window.
 
