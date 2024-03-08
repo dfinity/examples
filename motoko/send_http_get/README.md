@@ -2,11 +2,9 @@
 keywords: [intermediate, motoko, http get, http, get]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # HTTP: GET
 
-<MarkdownChipRow labels={["Intermediate", "Motoko"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/send_http_get)
 
 The purpose of this dapp is to give developers a minimal dapp that uses the IC's HTTPS outcalls feature to make a `GET` request.
 
@@ -15,7 +13,8 @@ This demo goes in hand with the [developer documentation on HTTPS outcalls](http
 If you want to start working on your project right away, you might want to try the following commands:
 
 ```bash
-cd send_http_get
+git clone https://github.com/dfinity/examples
+cd examples/motoko/send_http_get
 dfx help
 dfx canister --help
 ```
