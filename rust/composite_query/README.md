@@ -2,18 +2,17 @@
 keywords: [intermediate, rust, composite query, queries]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Composite queries
 
-<MarkdownChipRow labels={["Intermediate", "Rust"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/composite_query)
 
 ## Building the example
 
 We first need to build the data partition backend canister.
 
 ```bash
-cd rust/composite_query
+git clone https://github.com/dfinity/examples
+cd examples/rust/composite_query
 dfx start --background
 dfx canister create data_partition
 dfx build data_partition
