@@ -2,11 +2,9 @@
 keywords: [intermediate, motoko, internet identity, authentication]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Internet Identity integration 
 
-<MarkdownChipRow labels={["Intermediate", "Motoko"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/internet_identity_integration)
 
 ## Overview
 
@@ -26,7 +24,7 @@ This is a Motoko example that does not currently have a Rust variant.
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Install [Node.js](https://nodejs.org/en/download/).
 - [x] Download and install the `@dfinity/auth-client` package with the command `npm install @dfinity/auth-client`. 
-- [x] Download the following project files from GitHub: https://github.com/dfinity/examples/
+- [x] Download the following project files from GitHub: `git clone https://github.com/dfinity/examples`
 - [x] Chrome or Firefox browser (other browsers also work, but may need a slightly different webpack configuration, see the note on [step 4 below](#step-4-make-the-internet-identity-url-available-in-the-build-process))
 
 ### Step 1: Navigate into the examples folder for this sample and then generate a new project with `dfx new`:
