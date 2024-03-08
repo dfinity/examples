@@ -2,11 +2,9 @@
 keywords: [beginner, rust, hello]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Hello, world!
 
-<MarkdownChipRow labels={["Beginner", "Rust"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/hello)
 
 ## Overview 
 This sample demonstrates a simple dapp consisting of two canisters:
