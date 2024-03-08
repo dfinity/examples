@@ -2,11 +2,9 @@
 keywords: [beginner, motoko, composite queries, queries]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Composite queries
 
-<MarkdownChipRow labels={["Beginner", "Motoko"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/composite_query)
 
 ## Overview
 
@@ -41,9 +39,11 @@ Each new `Bucket` must be provisioned with enough cycles to pay for its installa
 
 Verify the following before running this demo:
 
-*  You have downloaded and installed [dfx](https://sdk.dfinity.org).
+- [x] You have downloaded and installed [dfx](https://sdk.dfinity.org).
 
-*  You have stopped any process that would create a port conflict on `8000`.
+- [x] You have stopped any process that would create a port conflict on `8000`.
+
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 ## Install
 
@@ -58,6 +58,7 @@ dfx start
 ### Step 3: Deploy the `Map` canister:
 
 ```bash
+cd examples/motoko/composite_query
 dfx deploy
 ```
 
