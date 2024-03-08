@@ -2,11 +2,10 @@
 keywords: [beginner, motoko, pubsub, publish, subscribe]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # PubSub
 
-<MarkdownChipRow labels={["Beginner", "Motoko"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/pub-sub)
+
 
 ## Overview
 This sample project demonstrates how functions may be passed as arguments of inter-canister calls to be used as callbacks.
@@ -17,6 +16,7 @@ A common problem in both distributed and decentralized systems is keeping separa
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
 
