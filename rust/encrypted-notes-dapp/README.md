@@ -2,18 +2,17 @@
 keywords: [advanced, rust, encrypted notes, notes, encryption]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Encrypted notes
 
-<MarkdownChipRow labels={["Advanced", "Rust"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/encrypted-notes-dapp)
+
 
 Encrypted notes is an example dapp for authoring and storing confidential information on the Internet Computer (IC) in the form of short pieces of text. Users can create and access their notes via any number of automatically synchronized devices authenticated via [Internet Identity (II)](https://wiki.internetcomputer.org/wiki/What_is_Internet_Identity). Notes are stored confidentially thanks to the end-to-end encryption performed by the dapp’s frontend.
 
 This project serves as a simple (but not too simple) example of a dapp, which uses Motoko and Rust as the backend and Svelte as the frontend.
 
 <p align="center">
-  <img src="/docs/current/references/samples/motoko/encrypted-notes-dapp/pictures/architectural_overview.png" width="70%" height="70%"/>
+  <img src="https://github.com/dfinity/examples/blob/master/motoko/encrypted-notes-dapp/pictures/architectural_overview.png?raw=true" width="70%" height="70%"/>
 </p>
 <p align = "center">
 Fig.1. Architectural overview of the Encrypted Notes dapp using client-side end-to-end encryption.
@@ -116,7 +115,8 @@ Follow the steps below to deploy this sample project.
 
 ## Prerequisites
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
-- [x] Download and install [Docker](https://docs.docker.com/get-docker/) if using the Docker option. 
+- [x] Download and install [Docker](https://docs.docker.com/get-docker/) if using the Docker option.
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 
 ### Step 1. Navigate inside of the project's folder:
@@ -290,7 +290,7 @@ For example, the following aspects are particularly relevant for this app:
 ### Scenario I: basic single-device usage
 
 <p align="center">
-  <img src="/docs/current/references/samples/motoko/encrypted-notes-dapp/pictures/single_user.png" width="80%" height="80%"/>
+  <img src="https://github.com/dfinity/examples/blob/master/motoko/encrypted-notes-dapp/pictures/single_user.png?raw=true" width="80%" height="80%"/>
 </p>
 <p align = "center">
 Fig. 2. Basic single-device scenario for a user.
@@ -321,7 +321,7 @@ At this moment, your _Local Storage_ should be populated with additional variabl
 In this scenario, a user accesses the dapp using the same _Internet Identity_ anchor from multiple devices. From our dapp's perspective, each web browser instance can be viewed as a separate device.
 
 <p align="center">
-  <img src="/docs/current/references/samples/motoko/encrypted-notes-dapp/pictures/multiple_devices.png" width="50%" height="50%"/>
+  <img src="https://github.com/dfinity/examples/blob/master/motoko/encrypted-notes-dapp/pictures/multiple_devices.png?raw=true" width="50%" height="50%"/>
 </p>
 <p align = "center">
 Fig. 3. Scenario for a user with multiple registered devices.
@@ -337,7 +337,7 @@ Fig. 3. Scenario for a user with multiple registered devices.
 ### Scenario III: device management
 
 <p align="center">
-  <img src="/docs/current/references/samples/motoko/encrypted-notes-dapp/pictures/registered_devices.png" width="30%" height="30%"/>
+  <img src="https://github.com/dfinity/examples/blob/master/motoko/encrypted-notes-dapp/pictures/registered_devices.png?raw=true" width="30%" height="30%"/>
 </p>
 <p align = "center">
 Fig. 4. Scenario for a user adding/removing devices.
