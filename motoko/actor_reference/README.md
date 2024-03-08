@@ -2,11 +2,9 @@
 keywords: [motoko, beginner, motoko actor, actor reference]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Actor reference
 
-<MarkdownChipRow labels={["Beginner", "Motoko"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/actor_reference)
 
 ## Overview
 
