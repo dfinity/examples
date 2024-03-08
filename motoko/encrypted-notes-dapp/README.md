@@ -2,18 +2,16 @@
 keywords: [advanced, motoko, encrypted notes, encrypted, notes dapp]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Encrypted notes
 
-<MarkdownChipRow labels={["Advanced", "Motoko"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/encrypted-notes-dapp)
 
 Encrypted notes is an example dapp for authoring and storing confidential information on the Internet Computer (ICP) in the form of short pieces of text. Users can create and access their notes via any number of automatically synchronized devices authenticated via [Internet Identity (II)](https://wiki.internetcomputer.org/wiki/What_is_Internet_Identity). Notes are stored confidentially thanks to the end-to-end encryption performed by the dapp’s frontend.
 
 This project serves as a simple (but not too simple) example of a dapp, which uses Motoko and Rust as backend and Svelte as frontend.
 
 <p align="center">
-  <img src="/docs/current/references/samples/motoko/encrypted-notes-dapp/pictures/architectural_overview.png" width="70%" height="70%"/>
+  <img src="https://github.com/dfinity/examples/blob/master/motoko/encrypted-notes-dapp/pictures/architectural_overview.png?raw=true" width="70%" height="70%"/>
 </p>
 <p align = "center">
 Fig.1. Architectural overview of the Encrypted Notes dapp using client-side end-to-end encryption.
@@ -113,7 +111,7 @@ Follow the steps below to deploy this sample project.
 ## Prerequisites
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index).
 - [x] Download and install [Docker](https://docs.docker.com/get-docker/) if using the Docker option. 
-- [x] Download the GitHub repo containing this project's files: https://github.com/dfinity/examples/tree/master/motoko/encrypted-notes-dapp. (If using Rust, use the /master/rust/encrypted-notes-dapp folder.)
+- [x] Download the GitHub repo containing this project's files: `git clone https://github.com/dfinity/examples`
 
 ### Step 1. Navigate inside of the project's folder:
 
@@ -249,7 +247,9 @@ npm run dev
 
 
 :::caution
-If you have opened this page previously, please remove all local store data for this page from your web browser, and hard-reload the page. For example in Chrome, go to Inspect → Application → Local Storage → http://localhost:3000/ → Clear All, and then reload.
+If you have opened this page previously, please remove all local store data for this page from your web browser, and hard-reload the page. 
+
+For example in Chrome, go to Inspect → Application → Local Storage → http://localhost:3000/ → Clear All, and then reload.
 :::
  
 
@@ -298,7 +298,7 @@ For example, the following aspects are particularly relevant for this app:
 ### Scenario I: Basic single-device usage
 
 <p align="center">
-  <img src="/docs/current/references/samples/motoko/encrypted-notes-dapp/pictures/single_user.png" width="80%" height="80%"/>
+  <img src="https://github.com/dfinity/examples/blob/master/motoko/encrypted-notes-dapp/pictures/single_user.png?raw=true" width="80%" height="80%"/>
 </p>
 <p align = "center">
 Fig. 2. Basic single-device scenario for a user.
@@ -318,7 +318,13 @@ Fig. 2. Basic single-device scenario for a user.
    1. If you already have an `anchor`, you may continue with it. Click "Authenticate", then verify your identity and finally click "Proceed", see Fig. 2(c).
    2. If you do not have an anchor yet, you should [create one](https://internetcomputer.org/how-it-works/web-authentication-identity/). Once an `anchor` is created, please follow 2.1.
 
-- #### Step 3: Once logged in for the first time, your notes list should be empty. At this moment, your _Local Storage_ should be populated with additional variables (see Fig. 2(d)): **ic-identity**, **ic-delegation**. These variables are used for storing/retrieving notes from the backend canister. In addition, another two variables are generated in the _IndexedDB_: **PrivateKey**, **PublicKey**. These two variables are used for encrypting/decrypting the shared secret key.
+- #### Step 3: Once logged in for the first time, your notes list should be empty.
+
+At this moment, your _Local Storage_ should be populated with additional variables (see Fig. 2(d)): **ic-identity**, **ic-delegation**. 
+
+These variables are used for storing/retrieving notes from the backend canister. 
+
+In addition, another two variables are generated in the _IndexedDB_: **PrivateKey**, **PublicKey**. These two variables are used for encrypting/decrypting the shared secret key.
 
 - #### Step 4: Create/edit/delete notes and observe changes in the resulting notes list (see Fig. 2(e)).
 
@@ -327,7 +333,7 @@ Fig. 2. Basic single-device scenario for a user.
 In this scenario, a user accesses the dapp using the same _Internet Identity_ anchor from multiple devices. From our dapp's perspective, each web browser instance can be viewed as a separate device.
 
 <p align="center">
-  <img src="/docs/current/references/samples/motoko/encrypted-notes-dapp/pictures/multiple_devices.png" width="50%" height="50%"/>
+  <img src="https://github.com/dfinity/examples/blob/master/motoko/encrypted-notes-dapp/pictures/multiple_devices.png?raw=true" width="50%" height="50%"/>
 </p>
 <p align = "center">
 Fig. 3. Scenario for a user with multiple registered devices.
@@ -350,7 +356,7 @@ One subtle difference that you might observe on Device B is that the message "Sy
 ### Scenario III: device management
 
 <p align="center">
-  <img src="/docs/current/references/samples/motoko/encrypted-notes-dapp/pictures/registered_devices.png" width="30%" height="30%"/>
+  <img src="https://github.com/dfinity/examples/blob/master/motoko/encrypted-notes-dapp/pictures/registered_devices.png?raw=true" width="30%" height="30%"/>
 </p>
 <p align = "center">
 Fig. 4. Scenario for a user adding/removing devices.
@@ -499,6 +505,8 @@ This dapp uses the web browser's `_Local Storage_` and `_IndexedDB_` for storing
 - Device name.
 - User identity info.
 - A private/public key pair.
+
+:::
 
 A symmetric key for encrypting/decrypting the notes is stored in RAM (this key is shared between multiple devices). For a better understanding of the mechanics of the dapp, please see the `_Local Storage_`/`_IndexedDB_` windows in your web browser. 
 
