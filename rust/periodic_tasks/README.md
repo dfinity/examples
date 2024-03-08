@@ -2,11 +2,9 @@
 keywords: [advanced, rust, periodic, timer, heartbeats]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Periodic tasks and timers
 
-<MarkdownChipRow labels={["Advanced", "Rust"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/periodic_tasks)
 
 ## Overview
 
@@ -25,6 +23,7 @@ The example consists of two canisters named `heartbeat` and `timer`, both implem
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 ### Example 1:
 
