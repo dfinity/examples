@@ -2,11 +2,9 @@
 keywords: [photo storage, store photos, photo app, photos, beginner]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Photo storage example
 
-<MarkdownChipRow labels={["Beginner"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/hosting/photo-storage)
 
 The example shows how to store photos on ICP in an asset canister with the `@dfinity/assets` package. The photo
 storage app is deployed as a frontend in an asset canister which is also used for photo upload.
