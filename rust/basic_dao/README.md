@@ -2,11 +2,9 @@
 keywords: [advanced, rust, dao, decentralized organization, decentralized org]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Basic DAO
 
-<MarkdownChipRow labels={["Advanced", "Rust"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/basic_dao)
 
 This sample project demonstrates a basic [decentralized autonomous organization](https://en.wikipedia.org/wiki/Decentralized_autonomous_organization) (DAO) that can be deployed to the [Internet Computer](https://github.com/dfinity/ic). The basic DAO sample code is available in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/basic_dao) and [Rust](https://github.com/dfinity/examples/tree/master/rust/basic_dao). You can see a quick introduction on [YouTube](https://youtu.be/3IcYlieA-EE).
 
@@ -26,7 +24,7 @@ This example requires an installation of:
 - [x] The Rust toolchain (e.g. cargo).
 - [x] [didc.](https://github.com/dfinity/candid/tree/master/tools/didc)
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
-
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
 
