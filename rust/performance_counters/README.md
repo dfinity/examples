@@ -2,11 +2,9 @@
 keywords: [intermediate, rust, performance, canister performance, counter]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Performance counter
 
-<MarkdownChipRow labels={["Intermediate", "Rust"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/performance_counters)
 
 ## Overview
 
@@ -44,6 +42,7 @@ In the future, ICP might expose more performance counters.
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 ### Step 1: Begin by opening a terminal window and navigating into the project's directory
 
