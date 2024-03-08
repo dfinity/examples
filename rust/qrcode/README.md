@@ -2,11 +2,9 @@
 keywords: [intermediate, rust, qrcode]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # QR code generator
 
-<MarkdownChipRow labels={["Intermediate", "Rust"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/qrcode)
 
 ## Overview
 
@@ -25,6 +23,7 @@ This example requires an installation of:
 - [x] Add the `wasm32` target to your rust installation (by running `rustup target add wasm32-unknown-unknown`).
 - [x] Clone this project to a local directory.
 - [x] Install `node.js` dependencies by running `npm install`.
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 ## Running locally
 
