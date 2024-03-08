@@ -21,7 +21,8 @@ This example shows how to use [@dfinity/auth-client](https://www.npmjs.com/packa
 To get started, start a local `dfx` development environment in this directory with the following steps:
 
 ```bash
-cd auth-client-demo/
+git clone https://github.com/dfinity/examples
+cd examples/motoko/auth-client-demo/
 dfx start --background --clean
 dfx deps deploy
 dfx deploy
