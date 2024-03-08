@@ -2,12 +2,9 @@
 keywords: [advanced, motoko, bitcoin, pos, point of sale, ckbtc]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # IC-POS
 
-<MarkdownChipRow labels={["Advanced", "Motoko"]} />
-
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/ic-pos)
 
 ![](./media/header.png)
 
@@ -65,6 +62,7 @@ The frontend interacts with the following IC canisters:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Install [Node.js](https://nodejs.org/en/).
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 ### Step 1: Start a local instance of the replica:
 
