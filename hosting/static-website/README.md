@@ -2,11 +2,9 @@
 keywords: [static website, basic website, html, host a website, beginner]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Static website
 
-<MarkdownChipRow labels={["Beginner"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/hosting/static-website)
 
 ## Overview
 The example shows how to deploy a simple, static website on the IC in an asset canister. The website is very simple, it just shows the DFINITY logo and has a basic styling of the logo. 
