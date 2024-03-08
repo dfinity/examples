@@ -2,11 +2,9 @@
 keywords: [beginner, motoko, counter]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Minimal counter dapp
 
-<MarkdownChipRow labels={["Beginner", "Motoko"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/minimal-counter-dapp)
 
 ![Counter Frontend](README_images/frontend.png)
 
@@ -32,6 +30,7 @@ This example requires an installation of:
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Install [Node.js](https://nodejs.org/en/download/).
 - [x] Download and install [git.](https://git-scm.com/downloads)
+- [ ] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
 
