@@ -2,11 +2,9 @@
 keywords: [advanced, motoko, defi, decentralized exchange, dex, exchange]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Decentralized exchange sample
 
-<MarkdownChipRow labels={["Advanced", "Motoko"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/defi)
 
 ## Overview
 
@@ -98,7 +96,6 @@ Compared to depositing funds, withdrawing funds is simpler. Since the exchange h
 
 ```bash
 git clone --recurse-submodules --shallow-submodules https://github.com/dfinity/examples.git
-# for the rust implementation examples/rust/defi
 cd examples/motoko/defi
 make install
 ```
