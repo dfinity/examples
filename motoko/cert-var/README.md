@@ -2,11 +2,9 @@
 keywords: [intermediate, motoko, cert var, certified variables]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Certified variables
 
-<MarkdownChipRow labels={["Intermediate", "Motoko"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/cert-var)
 
 ## Overview
 This example demonstrates the use of a single cryptographically certified variable, as supported by the Internet Computer.
@@ -53,6 +51,7 @@ This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Download [npm](https://nodejs.org/en/download/).
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
 
