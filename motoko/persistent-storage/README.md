@@ -2,11 +2,9 @@
 keywords: [intermediate, motoko, storage, persistent storage, persistence]
 ---
 
-import { MarkdownChipRow } from "/src/components/Chip/MarkdownChipRow";
-
 # Persistent storage
 
-<MarkdownChipRow labels={["Intermediate", "Motoko"]} />
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/persistent-storage)
 
 ## Overview
 The example dapp shows how to build a simple dapp in Motoko, which will have persistent storage. The dapp is a simple counter, which will increment a counter, retrieve the counter value and reset the counter value by calling backend functions. The functions are exposed through a Candid interface.
@@ -31,6 +29,7 @@ This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Download and install [git.](https://git-scm.com/downloads)
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
 
