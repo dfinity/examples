@@ -20,11 +20,11 @@ With this, users don't need to pass the private key around, also they don't need
 
 If you never work on the IC and don't know how to deploy a dapp, please refer to the [Hello World sample](https://internetcomputer.org/docs/current/tutorials/deploy_sample_app) to learn the basic knowledge about the IC. 
 
-### Set up the `assetlinks.json` file
+### Set up the `apple-app-site-association` file
 
-In order to support Android App Links, the website needs to serve an `assetlinks.json` file under the `.well-known` directory. The `assetlinks.json` file contains the package name, sha256 certificate fingerprints etc., which will be used by the Android installer to verify if the apps should be launched to handle the URLs defined in the Android manifest.xml. This is an example of [assetlinks.json](./src/greet_frontend/assets/.well-known/assetlinks.json) file in this sample.
+In order to support iOS Universal Links, the website needs to serve an `apple-app-site-association` file under the `.well-known` directory. The `apple-app-site-association` file contains the app bundle id, team id etc., which will be used by the app installer to verify the domains in the entitlements file. This is an example of an [apple-app-site-association](./src/universallink_website/assets/.well-known/apple-app-site-association) file in this sample.
 
-For how to generate an assetlinks.json file, please refer to the [Android App Links](https://developer.android.com/studio/write/app-link-indexing#associatesite) document.
+For how to generate an apple-app-site-association file, please refer to the [Associated domain file ](https://developer.apple.com/documentation/xcode/supporting-associated-domains#Add-the-associated-domain-file-to-your-website) document.
 
 One thing to remind is `.well-known` folder will be ignored while deploying to the IC, please add a `.ic-assets.json` file insider a directory listed in `sources` in the `dfx.json` file, with the below content. 
 
@@ -38,7 +38,7 @@ One thing to remind is `.well-known` folder will be ignored while deploying to t
 
 ```
 
-Here is an example of [.ic-assets.json](./src/greet_frontend/assets/.ic-assets.json) in this sample.
+Here is an example of [.ic-assets.json](./src/universallink_website/assets/.ic-assets.json) in this sample.
 
 ### Deploy the Dapp
 
@@ -48,4 +48,4 @@ Once you set up the IC development environment locally and update the example as
 2. Run `npm install` to install the npm packages
 3. Run `dfx start --background`
 4. Run `dfx deploy --network=ic --with-cycles=1000000000000`  
-   Here we recommend deploying the dapp to the IC mainnet as it's easier to access it from your Android devices. Or you can use the [deployed dapp](https://6x7nu-oaaaa-aaaan-qdaua-cai.icp0.io) instead.
+   Here we recommend deploying the dapp to the IC mainnet as it's easier to access it from your iOS devices.
