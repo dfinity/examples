@@ -1,4 +1,10 @@
+---
+keywords: [intermediate, rust, performance, canister performance, counter]
+---
+
 # Performance counter
+
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/performance_counters)
 
 ## Overview
 
@@ -6,7 +12,7 @@ The canister can query one of the "performance counters", which is a determinist
 
 ```Candid
 ic0.performance_counter : (counter_type : i32) -> i64
-````
+```
 
 The argument `type` decides which performance counter to return:
 
@@ -29,15 +35,14 @@ The argument `type` decides which performance counter to return:
     (ignoring WebAssembly instructions executed within any further downstream calls
     of `composite_query_helper`).
 
-In the future, the IC might expose more performance counters.
-
-## Tutorial
+In the future, ICP might expose more performance counters.
 
 ## Prerequisites
 
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 ### Step 1: Begin by opening a terminal window and navigating into the project's directory
 
@@ -149,7 +154,7 @@ Note the same performance counters behavior for composite queries.
 1. Have a look at the locally running dashboard. The URL is at the end of the `dfx start` command: `Dashboard: http://localhost/...`
 2. Check out the Candid user interface for `performance_counters` canister. The URL is at the end of the `dfx deploy` command: `performance_counters: http://127.0.0.1/...`
 
-### Canister Interface
+### Canister interface
 
 The `performance_counters` canisters provide the following interface:
 
@@ -160,6 +165,6 @@ The `performance_counters` canisters provide the following interface:
 
 Performance counters is a great tool to optimize canister performance, both for update calls and queries.
 
-## Security considerations and security best practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.

@@ -1,0 +1,26 @@
+{
+  "canisters": {
+    "token_transfer_backend": {
+      "candid": "src/token_transfer_backend/token_transfer_backend.did",
+      "package": "token_transfer_backend",
+      "type": "rust",
+      "dependencies": [
+        "icrc1_ledger_canister"
+      ]
+    },
+    "icrc1_ledger_canister": {
+      "type": "custom",
+      "candid": "https://raw.githubusercontent.com/dfinity/ic/d87954601e4b22972899e9957e800406a0a6b929/rs/rosetta-api/icrc1/ledger/ledger.did",
+      "wasm": "https://download.dfinity.systems/ic/d87954601e4b22972899e9957e800406a0a6b929/canisters/ic-icrc1-ledger.wasm.gz",
+      "specified_id": "mxzaz-hqaaa-aaaar-qaada-cai"
+    } 
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

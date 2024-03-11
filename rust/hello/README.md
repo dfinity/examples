@@ -1,4 +1,10 @@
+---
+keywords: [beginner, rust, hello]
+---
+
 # Hello, world!
+
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/hello)
 
 ## Overview 
 This sample demonstrates a simple dapp consisting of two canisters:
@@ -22,8 +28,6 @@ Canister `hello`, whether implemented in Motoko or Rust, presents the same Candi
     }
 
 The frontend canister, `hello_assets`, displays an HTML page with a text box for the argument and a button for calling the function greet with that argument. The result of the call is displayed in a message box.
-
-![hello frontend](_attachments/hello.png)
 
 The frontend canister is a generic canister provided by `dfx` but the assets it serves to browsers are determined by the dfx project settings and project files.
 
@@ -64,7 +68,7 @@ dfx start --background
 npm install
 ```
 
- ### Step 4: Register, build and deploy the project with the command:
+ ### Step 4: Register, build, and deploy the project with the command:
 
 ```
 dfx deploy
@@ -83,7 +87,7 @@ dfx canister call hello_backend greet everyone
 ("Hello, everyone!")
 ```
 
-The previous steps use dfx to directly call the function on the hello (backend) canister. To access the web user interface of the dapp, that is served by canister hello_assets, do the following:
+The previous steps use `dfx` to directly call the function on the hello (backend) canister. To access the web user interface of the dapp, that is served by canister hello_assets, do the following:
 
  ### Step 7: Determine the URL of the hello_frontend asset canister.
 
@@ -97,14 +101,14 @@ The browser should display a simple HTML page with a sample asset image file, an
  ### Step 9: Enter the text "everyone" and click the button to see the greeting returned by the backend hello canister.
 
 ### Troubleshooting
-If the web page doesn't display properly, or displays the wrong contents, you may need to clear your browser cache.
+If the web page doesn't display properly or displays the wrong content, you may need to clear your browser cache.
 
 Alternatively, open the URL in a fresh, in-private browser window to start with a clean cache.
 
 ### Resources
-- [ic-cdk](https://docs.rs/ic-cdk/latest/ic_cdk/)
-- [ic-cdk-macros](https://docs.rs/ic-cdk-macros)
-- [JavaScript API Reference](https://erxue-5aaaa-aaaab-qaagq-cai.ic0.app/)
+- [ic-cdk](https://docs.rs/ic-cdk/latest/ic_cdk/).
+- [ic-cdk-macros](https://docs.rs/ic-cdk-macros).
+- [JavaScript API Reference](https://erxue-5aaaa-aaaab-qaagq-cai.ic0.app/).
 
 
 ## Security considerations and security best practices

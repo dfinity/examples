@@ -1,79 +1,82 @@
+---
+keywords: [intermediate, motoko, cert var, certified variables]
+---
+
 # Certified variables
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.7.0-blue)
-[![Build Status](https://github.com/dfinity/examples/workflows/motoko-cert-var-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-cert-var-example)
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/cert-var)
 
 ## Overview
 This example demonstrates the use of a single cryptographically certified variable, as supported by the Internet Computer.
 
-In a nut shell, this example code demonstrates "response certification" for a canister that holds a single 32-bit variable. It has two sides:
+In a nutshell, this example code demonstrates "response certification" for a canister that holds a single 32-bit variable. It has two sides:
 
-- Backend (BE) canister logic in Motoko (main.mo).
-- Frontend (FE) logic in JS (index.js).
+- Backend (BE) canister logic in Motoko (`main.mo`).
+- Frontend (FE) logic in JS (`index.js`).
 
 To detect an attacker in the middle between the FE and the IC and our "true" BE canister running there, we must either:
 
 - Perform update calls that use "full consensus" (and wait for ~2 sec).
 - Perform (fast) query calls whose responses that we, the client, certify, using the coordination of the IC and our canister running there.
 
-The FE and BE code demonstrates the second approach here, in a minimal setting. The BE holds a single certified variable, as a 32-bit number, and the FE code queries and certifies this number's "current certificate". The BE prepares for the FE certification by giving the FE a "current certificate" within the response; this certificate is signed by the entire IC, using a special system feature.
+The FE and BE code demonstrates the second approach in a minimal setting. The BE holds a single certified variable, as a 32-bit number, and the FE code queries and certifies this number's "current certificate". The BE prepares for the FE certification by giving the FE a "current certificate" within the response; this certificate is signed by the entire IC, using a special system feature.
 
-Before the FE trusts the response from the apparent BE canister, it interrogates it, and verifies its authenticity, the FE does four checks:
+Before the FE trusts the response from the apparent BE canister, it interrogates it and verifies its authenticity, the FE does four checks:
 
 - Verify system certificate.
 - Check system certificate timestamp is not "too old".
-- Check canister ID in system certificate.
-- Check response matches witness.
+- Check the canister ID in the system certificate.
+- Check that the response matches the witness.
 
-For steps 2, 3 and 4, the FE accesses data from the certificate (Blob).
+For steps 2, 3, and 4, the FE accesses data from the certificate (Blob).
 
 The `Certificate` class from the `agent-js` library provides a way to access those items using their paths, like a filesystem, each addressing a Blob, encoding something.
 
 In the case of time and our data, the encodings are each Candid. The IC spec represents time using a LEB128 encoding, and certified data uses little endian.
 
-Ideally, we should use a proper library to decode these numbers. To prevent an extra dependency, we take advantage of the fact that the Candid value encoding of Nat and Nat32 happen to use the same representation.
+Ideally, we should use a proper library to decode these numbers. To prevent an extra dependency, we take advantage of the fact that the Candid value encoding of Nat and Nat32 use the same representation.
 
-Our data we choose to encode the same as a Candid 32-bit Nat (little endian -- see the Motoko canister for details).
+The data encoded is the same as a Candid 32-bit Nat (little endian -- see the Motoko canister for details).
 
 Notably, in an example with more data in the canister than a single number, or a more complex query interface, we would generally do more work to certify each query response:
 
 - Use witnesses to re-calculate hash (no witness or hashing needed here.)
-- Check query parameters matches witness (no params, so trivial here.)
-- Neither of those steps are needed here, for the reasons given above.
+- Check query parameters match witness (no params, so trivial here.)
+- Neither of those steps is needed here, for the reasons given above.
 
 This is a Motoko example that does not currently have a Rust variant. 
-
 
 ## Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Download [npm](https://nodejs.org/en/download/).
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
 
 ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-```
+```bash
 cd examples/motoko/cert-var
 dfx start --background
 ```
 
 ### Step 2: Install the front-end dependencies:
 
-```
+```bash
 npm install
 ```
 
 ### Step 3: Deploy the canister:
 
-```
+```bash
 dfx deploy
 ```
 
 ### Step 4: Next, open the `webpack.config.js` file and replace the contents with the following:
 
-```
+```javascript
 const path = require("path");
 const webpack = require("webpack");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
@@ -187,7 +190,7 @@ module.exports = {
 
 ### Step 5: Create a new file called `server.js` with the following content:
 
-```
+```javascript
 var express = require('express');
 var app = express();
 
@@ -202,7 +205,7 @@ app.listen(8000, function () {
 
 ### Step 6: Replace the content of the `src/cert_var_assets/src/index.html` with the following content:
 
-```
+```html
 <!doctype html>
 <html lang="en">
 <head>
@@ -227,16 +230,16 @@ app.listen(8000, function () {
 </html>
 ```
 
-### Step 7: Start a local web server that hosts the front-end.
+### Step 7: Start a local web server that hosts the frontend.
 
-```
+```bash
 npm start
 ```
 
 
 ### Step 8: Visit the frontend, and interact with the demo there:
 
-```
+```bash
 http://localhost:8080/
 ```
 
@@ -244,12 +247,10 @@ This should present an entry for "New value of variable", and a button to "Set a
 
 Enter a number and click the button.
 
-[Certified variables](../../_attachments/cert-var.png)
-
 The canister updates its certificate, and the frontend checks it. The developer console contains some additional comments about each step.
 
 
-## Security considerations and security best practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 

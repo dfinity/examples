@@ -1,7 +1,10 @@
+---
+keywords: [beginner, motoko, who am i, whoami]
+---
+
 # Who am I?
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.25-blue)
-[![Build Status](https://github.com/dfinity/examples/workflows/motoko-whoami-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-whoami-example)
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/whoami)
 
 ## Overview
 
@@ -12,19 +15,20 @@ This example demonstrates how a canister can identify its caller and itself.
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
 
-### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
+### Step 1: Navigate into the folder containing the project's files and start a local instance of the replica with the command:
 
-```
+```bash
 cd examples/motoko/whoami
 dfx start --background
 ```
 
 ### Step 2: Build and deploy the canister:
 
-```
+```bash
 dfx canister install whoami --argument='(principal "2mxjj-pyyts-rk2hl-2xyka-avylz-dfama-pqui5-pwrhx-wtq2x-xl5lj-qqe")'
 dfx build
 dfx deploy
@@ -32,7 +36,7 @@ dfx deploy
 
 ### Step 3: Invoke the `whoami` method:
 
-```
+```bash
 dfx canister call whoami whoami
 ```
 
@@ -40,14 +44,14 @@ dfx canister call whoami whoami
 
 ### Step 5: Invoke the `id` method:
 
-```
+```bash
 dfx canister call whoami id
 ```
 
 ### Step 6: Observe the principal identifier of your canister.
 
 
-## Security considerations and security best practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 

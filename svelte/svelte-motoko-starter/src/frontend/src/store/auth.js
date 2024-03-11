@@ -12,8 +12,8 @@ export function createActor(options) {
   const hostOptions = {
     host:
       process.env.DFX_NETWORK === "ic"
-        ? `https://${process.env.BACKEND_CANISTER_ID}.ic0.app`
-        : "http://localhost:8000",
+        ? `https://${process.env.CANISTER_ID_BACKEND}.ic0.app`
+        : undefined,
   };
   if (!options) {
     options = {
@@ -28,7 +28,7 @@ export function createActor(options) {
   const agent = new HttpAgent({ ...options.agentOptions });
 
   // Fetch root key for certificate validation during development
-  if (process.env.NODE_ENV !== "production") {
+  if (process.env.DFX_NETWORK !== "ic") {
     agent.fetchRootKey().catch((err) => {
       console.warn(
         "Unable to fetch root key. Check to ensure that your local replica is running"
@@ -40,7 +40,7 @@ export function createActor(options) {
   // Creates an actor with using the candid interface and the HttpAgent
   return Actor.createActor(idlFactory, {
     agent,
-    canisterId: process.env.BACKEND_CANISTER_ID,
+    canisterId: process.env.CANISTER_ID_BACKEND,
     ...options?.actorOptions,
   });
 }
