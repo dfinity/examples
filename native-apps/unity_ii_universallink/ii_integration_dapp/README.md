@@ -18,7 +18,7 @@ With this, users don't need to pass the private key around, also they don't need
 
 ## Deployment
 
-If you never work on the IC and don't know how to deploy a dapp, please refer to the [Hello World sample](https://internetcomputer.org/docs/current/tutorials/deploy_sample_app) to learn the basic knowledge about the IC. 
+If you never work on the IC and don't know how to deploy a dapp, please refer to the [Hello World sample](https://internetcomputer.org/docs/current/developer-docs/getting-started/hello-world) to learn the basic knowledge about the IC. 
 
 ### Set up the `apple-app-site-association` file
 
