@@ -21,8 +21,15 @@ const loginButton = document.getElementById("login");
 loginButton.onclick = async (e) => {
     e.preventDefault();
 
-    // Create an auth client.
+    // Here we generated a middle key.
+    // Then the II identity delegates to the middle key, and the middle key delegates to the app key.
+    // This is a good way to avoid the issue that II delegation is not confidential due to:
+    //   1. II delegation can’t be considered as confidential. An attacker could craft a delegation by observing state changes of the II canister;
+    //   2. A malicious replica might leak the II delegation.
+    // So here we generate a frontend only delegation which is only exposed to the Unity app.
     var middleKeyIdentity = await ECDSAKeyIdentity.generate();
+
+    // Create an auth client.
     let authClient = await AuthClient.create({
         identity: middleKeyIdentity,
     });

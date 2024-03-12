@@ -16,7 +16,7 @@ namespace IC.GameKit
         Ed25519Identity mEd25519Identity = null;
         DelegationIdentity mDelegationIdentity = null;
 
-        public Ed25519Identity TestIdentity { get { return mEd25519Identity; } }
+        internal Ed25519Identity TestIdentity { get { return mEd25519Identity; } }
 
         internal DelegationIdentity DelegationIdentity
         {
