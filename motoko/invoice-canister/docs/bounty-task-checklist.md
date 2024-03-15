@@ -262,7 +262,7 @@ In addition to this, there's also a [Testing Glossary](TestingGlossay.md) showin
     - [x] All testing is also extensively commented.
     - [x] Standalone (non-generated) developer doc [DesignDoc.md](DesignDoc.md) covering specifications, API, security and critical aspects.  
     - [x] Commented [invoice.did](../invoice.did) at project's root.  
-    - [x] Coverage in [README](../README.mdx) including integration of invoice canister.   
+    - [x] Coverage in [README](../README.md) including integration of invoice canister.   
     - [x] [Diagram flow chart](invoice-payment-flow.png) of typical "ok" invoice lifecycle.  
 
 ### [SEC-F22] Potentially sensitive invoice details are stored in plain text on the canister #26 ###
