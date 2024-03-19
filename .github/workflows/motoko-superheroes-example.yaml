@@ -14,8 +14,6 @@ concurrency:
   cancel-in-progress: true
 jobs:
   motoko-superheroes-example-darwin:
-    needs: changes
-    if: github.event_name == 'push' || needs.changes.outputs.sources == 'true'
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v1
@@ -28,8 +26,6 @@ jobs:
           make test
           popd
   motoko-superheroes-example-linux:
-    needs: changes
-    if: github.event_name == 'push' || needs.changes.outputs.sources == 'true'
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
