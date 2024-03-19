@@ -5,7 +5,7 @@ keywords: [advanced, motoko, encrypted, encrypted notes, notes dapp, vetkeys, ve
 # Encrypted notes: vetKD
 
 [View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/encrypted-notes-dapp-vetkd)
-
+ 
 This is a copy of the `encrypted-notes-dapp` example, adapted to use [the proposed vetKD feature](https://github.com/dfinity/interface-spec/pull/158) and add sharing of notes between users.
 
 In particular, instead of creating a principal-specific AES key and syncing it across devices (using device-specific RSA keys), the notes are encrypted with an AES key that is derived (directly in the browser) from a note-ID-specific vetKey obtained from the backend canister (in encrypted form, using an ephemeral transport key), which itself obtains it from the vetKD system API. This way, there is no need for any device management in the dapp, plus sharing of notes becomes possible.
