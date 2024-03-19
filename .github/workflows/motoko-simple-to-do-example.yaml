@@ -4,6 +4,11 @@ on:
     branches:
       - master
   pull_request:
+    paths:
+      - motoko/simple-to-do/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-simple-to-do-example.yaml
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
