@@ -13,26 +13,6 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  # JOB to run change detection
-  changes:
-    runs-on: ubuntu-latest
-    permissions:
-      pull-requests: read
-    # Set job outputs to values from filter step
-    outputs:
-      sources: ${{ steps.filter.outputs.sources }}
-    steps:
-      - uses: actions/checkout@v4
-        if: github.event_name == 'push'
-      - uses: dorny/paths-filter@v3
-        id: filter
-        with:
-          filters: |
-            sources:
-              - motoko/pub-sub/**
-              - .github/workflows/provision-darwin.sh
-              - .github/workflows/provision-linux.sh
-              - .github/workflows/motoko-pub-sub-example.yaml
   motoko-pub-sub-example-darwin:
     needs: changes
     if: github.event_name == 'push' || needs.changes.outputs.sources == 'true'
