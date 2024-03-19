@@ -1,7 +1,7 @@
 ---
 keywords: [advanced, motoko, encrypted notes, encrypted, notes dapp]
 ---
-
+ 
 # Encrypted notes
 
 [View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/encrypted-notes-dapp)
