@@ -1,7 +1,7 @@
 ---
 keywords: [advanced, motoko, invoice]
 ---
-
+ 
 # Invoice canister
 
 [View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/invoice-canister)
