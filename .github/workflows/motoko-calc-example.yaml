@@ -4,6 +4,11 @@ on:
     branches:
       - master
   pull_request:
+    paths:
+      - motoko/calc/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-calc-example.yaml
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true

@@ -21,7 +21,6 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Rust Send HTTP POST Darwin
         run: |
-          dfxvm update
           dfx start --background
           pushd rust/send_http_post
           RUSTFLAGS=-Ctarget-cpu=mvp make test
