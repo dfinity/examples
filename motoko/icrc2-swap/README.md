@@ -1,10 +1,18 @@
-# ICRC-2 Swap
+---
+keywords: [advanced, motoko, swap, token swap, icrc2]
+---
 
-ICRC-2 Swap is simple canister demonstrating how to safely work with ICRC-2
+# ICRC-2 swap
+
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/icrc2-swap)
+
+## Overview
+
+ICRC-2 Swap is a simple canister demonstrating how to safely work with ICRC-2
 tokens. It handles depositing, swapping, and withdrawing ICRC-2 tokens.
 
 The asynchronous nature of developing on the Internet Computer presents some
-unique challenges, which mean the design patterns for inter-canister calls are
+unique challenges, which means the design patterns for inter-canister calls are
 different from other synchronous blockchains.
 
 ## Features
@@ -17,20 +25,21 @@ different from other synchronous blockchains.
 - **Withdraw Tokens**: Users can withdraw the resulting tokens after
   swapping.
 
-# Local deployment
+## Local deployment
 
 ## Prerequisites
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Install [Node.js](https://nodejs.org/en/).
+- [ ] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
-## Step 1: Start a local instance of the Internet Computer
+### Step 1: Start a local instance of the replica:
 
 ```bash
 dfx start --clean --background
 ```
 
-## Step 2: Create our user accounts
+### Step 2: Create your user accounts:
 
 ```bash
 export OWNER=$(dfx identity get-principal)
@@ -42,11 +51,12 @@ dfx identity new bob
 export BOB=$(dfx identity get-principal --identity bob)
 ```
 
-## Step 2: Deploy two tokens
+### Step 2: Deploy two tokens:
 
 Deploy Token A:
 
 ```bash
+cd examples/motoko/icrc2-swap
 dfx deploy token_a --argument '
   (variant {
     Init = record {
@@ -112,9 +122,9 @@ dfx deploy token_b --argument '
 '
 ```
 
-## Step 3: Deploy the swap canister
+### Step 3: Deploy the swap canister:
 
-The swap canister accepts deposits, and performs the swap.
+The swap canister accepts deposits and performs the swap.
 
 ```bash
 export TOKEN_A=$(dfx canister id token_a)
@@ -130,10 +140,10 @@ dfx deploy swap --argument '
 export SWAP=$(dfx canister id swap)
 ```
 
-## Step 4: Approve & deposit tokens
+### Step 4: Approve & deposit tokens:
 
-Before we can swap the tokens, they must be transferred to the swap canister.
-With ICRC-2, this is a two-step process. First we approve the transfer:
+Before you can swap the tokens, they must be transferred to the swap canister.
+With ICRC-2, this is a two-step process. First, approve the transfer:
 
 ```bash
 # Approve Bob to deposit 1.00000000 of Token B, and 0.0001 extra for the
@@ -159,13 +169,15 @@ dfx canister call --identity bob token_b icrc2_approve '
 '
 ```
 
-Then we can call the `swap` canister's `deposit` method. This method will do the
-actual ICRC-1 token transfer, to move the tokens from our wallet into the `swap`
-canister, and then update our deposited token balance in the `swap` canister.
+Then call the `swap` canister's `deposit` method. This method will do the
+actual ICRC-1 token transfer, to move the tokens from your wallet into the `swap`
+canister, and then update your deposited token balance in the `swap` canister.
 
-Side Note: The amounts we use here are denoted in "e8s". Since out token has 8
-decimal places, we writeout all 8 decimal places. So 1.00000000 becomes
+:::info
+The amounts you use here are denoted in "e8s". Since your token has 8
+decimal places, you write out all 8 decimal places. So 1.00000000 becomes
 100,000,000.
+:::
 
 ```bash
 # Deposit Alice's tokens
@@ -187,7 +199,7 @@ dfx canister call --identity bob swap deposit 'record {
 }'
 ```
 
-## Step 5: Perform a swap
+### Step 5: Perform a swap:
 
 ```bash
 dfx canister call swap swap 'record {
@@ -196,7 +208,7 @@ dfx canister call swap swap 'record {
 }'
 ```
 
-We can check the deposited balances with:
+You can check the deposited balances with:
 
 ```bash
 dfx canister call swap balances
@@ -205,10 +217,10 @@ dfx canister call swap balances
 That should show us that now Bob holds Token A, and Alice holds Token B in
 the swap contract.
 
-## Step 6: Withdraw tokens
+### Step 6: Withdraw tokens:
 
-After the swap, our balandes in the swap canister will have been updated, and we
-can withdraw our newly received tokens into our wallet.
+After the swap, your balances in the swap canister will have been updated, and you
+can withdraw your newly received tokens into your wallet.
 
 ```bash
 # Withdraw Alice's Token B balance (1.00000000), minus the 0.0001 transfer fee
@@ -232,7 +244,7 @@ dfx canister call --identity bob swap withdraw 'record {
 }'
 ```
 
-## Step 7: Check token balances
+### Step 7: Check token balances:
 
 ```bash
 # Check Alice's Token A balance. They should now have 998.99980000 A
@@ -246,12 +258,12 @@ dfx canister call token_a icrc1_balance_of 'record {
 }'
 ```
 
-If everything is working, you should see a your dfx wallet balances reflected in
+If everything is working, you should see your dfx wallet balances reflected in
 the token balances.
 
 🎉
 
-# Running the test suite
+## Running the test suite
 
 The example comes with a test suite to demonstrate the basic functionality. It
 shows how to use this repo from a Javascript client.
@@ -261,30 +273,30 @@ shows how to use this repo from a Javascript client.
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Install [Node.js](https://nodejs.org/en/).
 
-## Step 1: Start a local instance of the Internet Computer
+### Step 1: Start a local instance of the replica:
 
 ```bash
 dfx start --clean --background
 ```
 
-## Step 2: Install npm dependencies
+### Step 2: Install npm dependencies:
 
 ```bash
 npm install
 ```
 
-## Step 3: Run the test suite
+### Step 3: Run the test suite:
 
 ```bash
 make test
 ```
 
-# Possible Improvements
+## Possible improvements
 
 - Keep a history of deposits/withdrawaps/swaps.
 - Add a frontend.
 
-# Known issues
+## Known issues
 
 - Any DeFi on the Internet Computer is experimental. It is a constantly evolving
   space, with unknown attacks, and should be treated as such.

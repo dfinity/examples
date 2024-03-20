@@ -3,7 +3,8 @@
 This repository provides access to sample code, applications, and microservices that run on the Internet Computer platform.
 
 From this repository, you can download, clone, fork, or share sample projects.
-<!-- You will also be able to contribute your own project or suggest updates to published projects using the standard Git work flow. --> 
+
+You will also be able to contribute your own project or suggest updates to published projects using the standard Git work flow.
 
 Sample projects provide a way for you to experiment and collaborate with other developers.
 The projects and sample code are not, however, intended to be used as commercial applications and do not provide any explicit or implied support or warranty of any kind.
@@ -38,6 +39,6 @@ To get started:
     dfx build
     ```
 
-## Security Considerations and Security Best Practices
+## Security Considerations and Best Practices
 
 If you base your application on one of these examples, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. The examples provided here may not implement all the best practices.

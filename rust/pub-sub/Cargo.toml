@@ -3,3 +3,4 @@ members = [
     "src/publisher",
     "src/subscriber"
 ]
+resolver = "2"

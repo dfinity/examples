@@ -1,7 +1,10 @@
+---
+keywords: [beginner, motoko, phone book, directory]
+---
+
 # Phone book
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.25-blue)
-[![Build Status](https://github.com/dfinity/examples/workflows/motoko-phone-book-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-phone-book-example)
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/phone-book)
 
 ## Overview
 
@@ -19,37 +22,35 @@ This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Install [Node.js](https://nodejs.org/en/download/).
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
 
-### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
+### Step 1: Navigate into the folder containing the project's files and start a local instance of the replica with the command:
 
-```
+```bash
 cd examples/motoko/phone-book
 dfx start --background
 ```
 
 ### Step 2: Install front-end dependencies:
 
-```
+```bash
 npm install
 ```
 
 ### Step 3: Deploy the canister:
 
-```
+```bash
 dfx deploy
 ```
 
 ### Step 4: Take note of the URL at which the phone book is accessible.
 
+```bash
 echo "http://127.0.0.1:4943/?canisterId=$(dfx canister id www)"
+```
 
 ### Step 5: Open the aforementioned URL in your web browser.
 
-You will see an interface that you can interact with to store phone book entries:
-
-![Phonebook](./_attachments/phonebook.png)
-
-
-
+You will see an interface that you can interact with to store phone book entries.

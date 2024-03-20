@@ -1,7 +1,10 @@
-# Design Pattern: Pub/Sub
+---
+keywords: [beginner, rust, pubsub, publisher, subscriber]
+---
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.25-blue)
-[![Build Status](https://github.com/dfinity/examples/workflows/motoko-pub-sub-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-pub-sub-example)
+# PubSub
+
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/pub-sub)
 
 ## Overview
 This sample project demonstrates how functions may be passed as arguments of inter-canister calls to be used as callbacks.
@@ -12,53 +15,54 @@ A common problem in both distributed and decentralized systems is keeping separa
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
 
 ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-```
+```bash
 cd examples/rust/pub-sub
 dfx start --background
 ```
 
 ### Step 2: Deploy the canister:
 
-```
+```bash
 dfx deploy
 ```
 
 ### Step 3: Get the publisher ID
 
-```
+```bash
 dfx canister id publisher
 ```
 
 ### Step 4: Subscribe to the "Apples" topic:
 
-```
+```bash
 dfx canister call subscriber setup_subscribe '(principal "<publisher ID from Step 3>", "Apples")'
 ```
 
 ### Step 5: Publish to the "Apples" topic:
 
-```
+```bash
 dfx canister call publisher publish '(record { "topic" = "Apples"; "value" = 2 })'
 ```
 
 ### Step 6: Receive your subscription:
 
-```
+```bash
 dfx canister call subscriber get_count
 ```
 
 The output should resemble the following:
 
-```
+```bash
 (2 : nat64)
 ```
 
-## Security considerations and security best practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 
