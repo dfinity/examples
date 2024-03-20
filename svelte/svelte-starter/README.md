@@ -1,7 +1,3 @@
-<p align="left" >
-  <img width="240"  src="assets/logo.png">
-</p>
-
 # Svelte Dapp template
 
 This repository is meant to give [Svelte](https://svelte.dev/) developers an easy on-ramp to get started with developing decentralized applications (Dapps in short) for the Internet Computer blockchain. Dapps, also known as smart contracts are specialized software that run on a blockchain.
@@ -48,7 +44,7 @@ npx degit dfinity/examples/svelte-starter svelte-starter
 Install `dfx` by running
 
 ```
-sh -ci "$(curl -fsSL https://smartcontracts.org/install.sh)"
+sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
 ```
 
 ## Start the local replica
@@ -107,7 +103,7 @@ from the project root directory, it is not necessary to deploy it to the fronten
 
 To host the Svelte app on the IC, you'll need to have some cycles available. Cycles pay for the execution of your app, and they are also needed to create canisters.
 
-You can get $20 worth of cycles for free from the Cycles Faucet, if you have a GitHub account. To claim them, follow [this guide](https://smartcontracts.org/docs/quickstart/cycles-faucet.html).
+You can get $20 worth of cycles for free from the Cycles Faucet, if you have a GitHub account. To claim them, follow [this guide](https://internetcomputer.org/docs/current/developer-docs/setup/cycles/cycles-faucet).
 
 You should have a canister running the cycles wallet on the IC at this point. The cycles wallet makes it easy to pay for canister creation.
 

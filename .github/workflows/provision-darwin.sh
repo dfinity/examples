@@ -11,15 +11,17 @@ bash install-brew.sh
 rm install-brew.sh
 
 # Install Node.
-version=14.15.4
+version=${NODE_VERSION:=14.15.4}
 curl --location --output node.pkg "https://nodejs.org/dist/v$version/node-v$version.pkg"
 sudo installer -pkg node.pkg -store -target /
 rm node.pkg
 
 # Install DFINITY SDK.
-curl --location --output install-dfx.sh "https://internetcomputer.org/install.sh"
-DFX_VERSION=${DFX_VERSION:=0.12.0} bash install-dfx.sh < <(yes Y)
+curl --location --output install-dfx.sh "https://raw.githubusercontent.com/dfinity/sdk/dfxvm-install-script/install.sh"
+DFX_VERSION=${DFX_VERSION:=0.18.0} DFXVM_INIT_YES=true bash install-dfx.sh
 rm install-dfx.sh
+echo "$HOME/Library/Application Support/org.dfinity.dfx/bin" >> $GITHUB_PATH
+source "$HOME/Library/Application Support/org.dfinity.dfx/env"
 dfx cache install
 
 # Install ic-repl

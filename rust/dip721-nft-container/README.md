@@ -1,8 +1,14 @@
-# DIP721 NFT container
+---
+keywords: [advanced, rust, nft, dip721]
+---
+
+# DIP721 NFT 
+
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/dip721-nft-container)
 
 This example demonstrates implementing an NFT canister. NFTs (non-fungible tokens) are unique tokens with arbitrary
 metadata, usually an image of some kind, to form the digital equivalent of trading cards. There are a few different
-NFT standards for the Internet Computer (e.g [EXT](https://github.com/Toniq-Labs/extendable-token), [IC-NFT](https://github.com/rocklabs-io/ic-nft)), but for the purposes of this tutorial we use [DIP-721](https://github.com/Psychedelic/DIP721). You can see a quick introduction on [YouTube](https://youtu.be/1po3udDADp4).
+NFT standards for the Internet Computer (e.g [EXT](https://github.com/Toniq-Labs/extendable-token), [IC-NFT](https://github.com/rocklabs-io/ic-nft)), but this tutorial will use [DIP-721](https://github.com/Psychedelic/DIP721). You can see a quick introduction on [YouTube](https://youtu.be/1po3udDADp4).
 
 The canister is a basic implementation of the standard, with support for the minting, burning, and notification interface extensions.
 
@@ -21,7 +27,7 @@ When upgrading canister code, however, it is necessary to explicitly handle cani
 
  ### 2. Certified data.
 Generally, when a function only reads data, instead of modifying the state of the canister, it is
-beneficial to use a [query call instead of an update call](https://smartcontracts.org/docs/current/concepts/canisters-code.md#query-and-update-methods).
+beneficial to use a [query call instead of an update call](https://internetcomputer.org/docs/current/concepts/canisters-code.md#query-and-update-methods).
 But, since query calls do not go through consensus, [certified responses](https://internetcomputer.org/docs/current/developer-docs/security/general-security-best-practices)
 should be used wherever possible. The HTTP interface of the Rust implementation shows how certified data can be handled.
 
@@ -33,8 +39,8 @@ The NFT canister example contains all those cases and shows how it can be done.
 Since the basic functions required in [DIP-721](https://github.com/Psychedelic/DIP721) are very straightforward to implement, this section only discusses how the above ideas are handled and implemented.
 
 ### Stable storage for canister upgrades
-During canister code upgrades, memory is not persisted between different canister calls. Only memory in stable memory is carried over.
-Because of that it is necessary to write all data to stable memory before the upgrade happens, which is usually done in the `pre_upgrade` function.
+During canister code upgrades, memory does not persist between different canister calls. Only memory in stable memory is carried over.
+Because of that, it is necessary to write all data to stable memory before the upgrade happens, which is usually done in the `pre_upgrade` function.
 This function is called by the system before the upgrade happens. After the upgrade, it is normal to load data from stable memory into memory
 during the `post_upgrade` function. The `post_upgrade` function is called by the system after the upgrade happened.
 In case an error occurs during any part of the upgrade (including `post_upgdrade`), the entire upgrade is reverted.
@@ -60,14 +66,14 @@ To see how data is certified in the NFT example canister, look at the function `
 
 For the response to be verified, it has to be checked that a) the served content is part of the tree, and b) the tree containing that content actually can be hashed to the certified hash.
 The function `witness` is responsible for creating a tree with minimal content that still can be verified to fulfill a) and b).
-Once this minimal tree is constructed, certificate and minimal hash tree are sent as part of the `IC-Certificate` header.
+Once this minimal tree is constructed, the certificate and minimal hash tree are sent as part of the `IC-Certificate` header.
 
-For a much more detailed explanation how certification works, see [this explanation video](https://internetcomputer.org/how-it-works/response-certification).
+For a much more detailed explanation of how certification works, see [this explanation video](https://internetcomputer.org/how-it-works/response-certification).
 
 ### Managing control over assets
 [DIP-721](https://github.com/Psychedelic/DIP721) specifies multiple levels of control over the NFTs:
 - **Owner**: this person owns an NFT. They can transfer the NFT, add/remove operators, or burn the NFT.
-- **Operator**: sort of a delegated owner. The operator does not own the NFT, but can do the same actions an owner can do.
+- **Operator**: sort of a delegated owner. The operator does not own the NFT but can do the same actions an owner can do.
 - **Custodian**: creator of the NFT collection/canister. They can do anything (transfer, add/remove operators, burn, and even un-burn) to NFTs, but also mint new ones or change the symbol or description of the collection.
 
 The NFT example canister keeps access control in these three levels very simple: 
@@ -76,8 +82,8 @@ The NFT example canister keeps access control in these three levels very simple:
 - If a user is not authorized to call a certain function an error is returned.
 
 Burning an NFT is a special case. To burn an NFT means to either delete the NFT (not intended in DIP-721) or to set ownership to `null` (or a similar value).
-On the Internet Computer, this non-existing principal is called the [management canister](https://smartcontracts.org/docs/current/references/ic-interface-spec.md#the-ic-management-canister).
-> "The IC management canister is just a facade; it does not actually exist as a canister (with isolated state, Wasm code, etc.)," and its address is `aaaaa-aa`.
+On the Internet Computer, this non-existing principal is called the [management canister](https://internetcomputer.org/docs/current/references/ic-interface-spec.md#the-ic-management-canister).
+> "The IC management canister is just a facade; it does not exist as a canister (with isolated state, Wasm code, etc.)," and its address is `aaaaa-aa`.
 Using this management canister address, we can construct its principal and set the management canister as the owner of a burned NFT.
 
 ## NFT sample code tutorial
@@ -137,7 +143,7 @@ Aside from the standard functions, it has five extra functions:
 
 The canister also supports a certified HTTP interface; going to `/<nft>/<id>` will return `nft`'s metadata file #`id`, with `/<nft>` returning the first non-preview file.
 
-Remember that query functions are uncertified; the result of functions like `ownerOfDip721` can be modified arbitrarily by a single malicious node. If queried information is depended on, for example if someone might send ICP to the owner of a particular NFT to buy it from them, those calls should be performed as update calls instead. You can force an update call by passing the `--update` flag to `dfx` or using the `Agent::update` function in `agent-rs`.
+Remember that query functions are uncertified; the result of functions like `ownerOfDip721` can be modified arbitrarily by a single malicious node. If queried information is depended on, for example, if someone might send ICP to the owner of a particular NFT to buy it from them, those calls should be performed as update calls instead. You can force an update call by passing the `--update` flag to `dfx` or using the `Agent::update` function in `agent-rs`.
 
  ### Step 5: Mint an NFT. 
 
@@ -159,13 +165,13 @@ The output of this command should look like this:
 Successfully minted token 0 to x4d3z-ufpaj-lpxs4-v7gmt-v56ze-aub3k-bvifl-y4lsq-soafd-d3i4k-fqe (transaction id 0)
 ```
 
-Minting is restricted to anyone authorized with the `custodians` parameter or the `set_custodians` function. Since the contents of `--file` are stored on-chain, it's important to prevent arbitrary users from minting tokens, or they will be able to store arbitrarily-sized data in the contract and exhaust the canister's cycles. Be careful not to upload too much data to the canister yourself, or the contract will no longer be able to be upgraded afterwards.
+Minting is restricted to anyone authorized with the `custodians` parameter or the `set_custodians` function. Since the contents of `--file` are stored on-chain, it's important to prevent arbitrary users from minting tokens, or they will be able to store arbitrarily-sized data in the contract and exhaust the canister's cycles. Be careful not to upload too much data to the canister yourself, or the contract will no longer be able to be upgraded afterward.
 
 #### Demo
 
 This Rust example comes with a demo script, `demo.sh`, which runs through an example workflow with minting and trading an NFT between a few users. This is primarily designed to be read rather than run so that you can use it to see how basic NFT operations are done. For a more in-depth explanation, read the [standard][DIP721].
 
-## Security considerations and security best practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 
@@ -175,6 +181,6 @@ For example, the following aspects are particularly relevant for this app:
 * [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#use-a-decentralized-governance-system-like-sns-to-make-a-canister-have-a-decentralized-controller), since decentralizing control is a fundamental aspect when dealing with NFTs.
 
 ## Resources
-[Rust]: https://rustup.rs
-[DIP721]: https://github.com/Psychedelic/DIP721
-[mint]: https://github.com/dfinity/experimental-minting-tool
+- [Rust](https://rustup.rs).
+- [DIP721](https://github.com/Psychedelic/DIP721).
+- [mint](https://github.com/dfinity/experimental-minting-tool).

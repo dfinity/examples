@@ -1,7 +1,10 @@
-# Hello World
+---
+keywords: [beginner, motoko, hello, hello world]
+---
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.25-blue)
-[![Build Status](https://github.com/dfinity/examples/workflows/motoko-hello-world--example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-hello-world-example)
+# Hello, world!
+
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/hello-world)
 
 This example demonstrates a canister called `hello_world`, which exports a
 method called `main`, which prints `Hello World!` to the console.
@@ -10,15 +13,15 @@ method called `main`, which prints `Hello World!` to the console.
 
 Verify the following before running this demo:
 
-*  You have downloaded and installed the [DFINITY Canister
-   SDK](https://sdk.dfinity.org).
+- [x] You have downloaded and installed [`dfx`](https://sdk.dfinity.org).
 
-*  You have stopped any Internet Computer or other network process that would
-   create a port conflict on 8000.
+- [x] You have stopped any process that would create a port conflict on 8000.
 
-## Security Considerations and Security Best Practices
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
-If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+## Security considerations and security best practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on ICP. This example may not implement all the best practices.
 
 ## Demo
 
@@ -39,6 +42,7 @@ If you base your application on this example, we recommend you familiarize yours
 1. Build your canister.
 
    ```text
+   cd examples/motoko/hello-world
    dfx build
    ```
 
@@ -63,6 +67,5 @@ If you base your application on this example, we recommend you familiarize yours
 
 # Issues
 
-Don't see any output? Be sure to check the terminal where your local Internet
-Computer is running and not the terminal from which you invoked the `main`
+Don't see any output? Be sure to check the terminal where your local replica is running and not the terminal from which you invoked the `main`
 method.

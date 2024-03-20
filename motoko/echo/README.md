@@ -1,7 +1,10 @@
+---
+keywords: [beginner, motoko, echo]
+---
+
 # Echo
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.25-blue)
-[![Build Status](https://github.com/dfinity/examples/workflows/motoko-echo-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-echo-example)
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/echo)
 
 ## Overview
 
@@ -13,32 +16,33 @@ This is a Motoko example that does not currently have a Rust variant.
 ## Prerequisites
 This example requires an installation of:
 
-- [x] Install the [IC SDK](../developer-docs/setup/install/index.mdx).
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
+- [ ] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
 
-### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
+### Step 1: Navigate into the folder containing the project's files and start a local instance of the replica with the command:
 
-```
+```bash
 cd examples/motoko/echo
 dfx start --background
 ```
 
 ### Step 2: Deploy the canisters `Map` and `Test`:
 
-```
+```bash
 dfx deploy
 ```
 
-### Step 3: Invoke the say method:
+### Step 3: Invoke the `say` method:
 
-```
+```bash
 dfx canister call echo say '("This is a test.")'
 ```
 
 
 The following output will be returned: 
 
-```
+```bash
 ("This is a test.")
 ```

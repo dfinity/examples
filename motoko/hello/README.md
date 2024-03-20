@@ -1,4 +1,10 @@
+---
+keywords: [beginner, motoko, hello]
+---
+
 # Hello, world!
+
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/hello)
 
 ## Overview 
 This sample demonstrates a simple dapp consisting of two canisters:
@@ -7,7 +13,7 @@ This sample demonstrates a simple dapp consisting of two canisters:
 
 -   A simple frontend asset canister, `hello_assets`, serving the assets of the dapp’s web user interface.
 
-It is the dapp equivalent of the ubiquitous 'Hello, world!' and can be seen running [here on the IC](https://6lqbm-ryaaa-aaaai-qibsa-cai.ic0.app/).
+It is the dapp equivalent of the ubiquitous 'Hello, world!' and can be seen running [on the IC](https://6lqbm-ryaaa-aaaai-qibsa-cai.ic0.app/).
 
 ## Architecture
 
@@ -22,8 +28,6 @@ Canister `hello`, whether implemented in Motoko or Rust, presents the same Candi
     }
 
 The frontend canister, `hello_assets`, displays an HTML page with a text box for the argument and a button for calling the function greet with that argument. The result of the call is displayed in a message box.
-
-![hello frontend](_attachments/hello.png)
 
 The frontend canister is a generic canister provided by `dfx` but the assets it serves to browsers are determined by the dfx project settings and project files.
 
@@ -95,15 +99,15 @@ The browser should display a simple HTML page with a sample asset image file, an
  ### Step 9: Enter the text "everyone" and click the button to see the greeting returned by the backend hello canister.
 
 ### Troubleshooting
-If the web page doesn't display properly, or displays the wrong contents, you may need to clear your browser cache.
+If the web page doesn't display properly or displays the wrong content, you may need to clear your browser cache.
 
 Alternatively, open the URL in a fresh, in-private browser window to start with a clean cache.
 
 
 ### Resources
-- [ic-cdk](https://docs.rs/ic-cdk/latest/ic_cdk/)
-- [ic-cdk-macros](https://docs.rs/ic-cdk-macros)
-- [JavaScript API Reference](https://erxue-5aaaa-aaaab-qaagq-cai.ic0.app/)
+- [ic-cdk](https://docs.rs/ic-cdk/latest/ic_cdk/).
+- [ic-cdk-macros](https://docs.rs/ic-cdk-macros).
+- [JavaScript API Reference](https://erxue-5aaaa-aaaab-qaagq-cai.ic0.app/).
 
 
 ## Security considerations and security best practices

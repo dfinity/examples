@@ -44,9 +44,9 @@
     "whatwg-url": "^5.0.0"
   },
   "scripts": {
-    "test": "cd test/e2e; npm ci; npm test",
+    "test": "cd test/e2e; npm ci && npm test",
     "deployAll": "node clean-startup.mjs",
-    "deployForTesting": "node clean-startup.mjs --deployForTesting --quiet; dfx generate invoice"
+    "deployForTesting": "node clean-startup.mjs --deployForTesting --quiet && dfx generate invoice"
   },
   "repository": {
     "type": "git",

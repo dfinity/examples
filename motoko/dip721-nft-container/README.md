@@ -1,8 +1,14 @@
-# DIP721 NFT container
+---
+keywords: [advanced, motoko, nfts, dip721]
+---
+
+# DIP721 NFTs
+
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/dip721-nft-container)
 
 This example demonstrates implementing an NFT canister. NFTs (non-fungible tokens) are unique tokens with arbitrary
 metadata, usually an image of some kind, to form the digital equivalent of trading cards. There are a few different
-NFT standards for the Internet Computer (e.g [EXT](https://github.com/Toniq-Labs/extendable-token), [IC-NFT](https://github.com/rocklabs-io/ic-nft)), but for the purposes of this tutorial we use [DIP-721](https://github.com/Psychedelic/DIP721). You can see a quick introduction on [YouTube](https://youtu.be/1po3udDADp4).
+NFT standards for the Internet Computer (e.g [EXT](https://github.com/Toniq-Labs/extendable-token), [IC-NFT](https://github.com/rocklabs-io/ic-nft)), but for this tutorial you will use [DIP-721](https://github.com/Psychedelic/DIP721). You can see a quick introduction on [YouTube](https://youtu.be/1po3udDADp4).
 
 The canister is a basic implementation of the standard, with support for the minting, burning, and notification interface extensions.
 
@@ -21,7 +27,7 @@ When upgrading canister code, however, it is necessary to explicitly handle cani
 
  ### 2. Certified data.
 Generally, when a function only reads data, instead of modifying the state of the canister, it is
-beneficial to use a [query call instead of an update call](https://smartcontracts.org/docs/current/concepts/canisters-code.md#query-and-update-methods).
+beneficial to use a [query call instead of an update call](https://internetcomputer.org/docs/current/concepts/canisters-code.md#query-and-update-methods).
 But, since query calls do not go through consensus, [certified responses](https://internetcomputer.org/docs/current/developer-docs/security/general-security-best-practices)
 should be used wherever possible. The HTTP interface of the Rust implementation shows how certified data can be handled.
 
@@ -33,8 +39,8 @@ The NFT canister example contains all those cases and shows how it can be done.
 Since the basic functions required in [DIP-721](https://github.com/Psychedelic/DIP721) are very straightforward to implement, this section only discusses how the above ideas are handled and implemented.
 
 ### Stable storage for canister upgrades
-During canister code upgrades, memory is not persisted between different canister calls. Only memory in stable memory is carried over.
-Because of that it is necessary to write all data to stable memory before the upgrade happens, which is usually done in the `pre_upgrade` function.
+During canister code upgrades, memory does not persist between different canister calls. Only memory in stable memory is carried over.
+Because of that, it is necessary to write all data to stable memory before the upgrade happens, which is usually done in the `pre_upgrade` function.
 This function is called by the system before the upgrade happens. After the upgrade, it is normal to load data from stable memory into memory
 during the `post_upgrade` function. The `post_upgrade` function is called by the system after the upgrade happened.
 In case an error occurs during any part of the upgrade (including `post_upgdrade`), the entire upgrade is reverted.
@@ -43,7 +49,7 @@ The Rust CDK (Canister Development Kit) currently only supports one value in sta
 In addition, not every data type can be stored in stable memory; only ones that implement the [CandidType trait](https://docs.rs/candid/latest/candid/types/trait.CandidType.html)
 (usually via the [CandidType derive macro](https://docs.rs/candid/latest/candid/derive.CandidType.html)) can be written to stable memory. 
 
-Since the state of our canister includes an `RbTree` which does not implement the `CandidType`, it has to be converted into a data structure (in this case a `Vec`) that implements `CandidType`.
+Since the state of our canister includes a `RbTree` which does not implement the `CandidType`, it has to be converted into a data structure (in this case a `Vec`) that implements `CandidType`.
 Luckily, both `RbTree` and `Vec` implement functions that allow converting to/from iterators, so the conversion can be done quite easily.
 After conversion, a separate `StableState` object is used to store data during the upgrade.
 
@@ -60,14 +66,14 @@ To see how data is certified in the NFT example canister, look at the function `
 
 For the response to be verified, it has to be checked that a) the served content is part of the tree, and b) the tree containing that content actually can be hashed to the certified hash.
 The function `witness` is responsible for creating a tree with minimal content that still can be verified to fulfill a) and b).
-Once this minimal tree is constructed, certificate and minimal hash tree are sent as part of the `IC-Certificate` header.
+Once this minimal tree is constructed, the certificate and minimal hash tree are sent as part of the `IC-Certificate` header.
 
-For a much more detailed explanation how certification works, see [this explanation video](https://internetcomputer.org/how-it-works/response-certification).
+For a much more detailed explanation of how certification works, see [this explanation video](https://internetcomputer.org/how-it-works/response-certification).
 
 ### Managing control over assets
 [DIP-721](https://github.com/Psychedelic/DIP721) specifies multiple levels of control over the NFTs:
 - **Owner**: this person owns an NFT. They can transfer the NFT, add/remove operators, or burn the NFT.
-- **Operator**: sort of a delegated owner. The operator does not own the NFT, but can do the same actions an owner can do.
+- **Operator**: sort of a delegated owner. The operator does not own the NFT but can do the same actions an owner can do.
 - **Custodian**: creator of the NFT collection/canister. They can do anything (transfer, add/remove operators, burn, and even un-burn) to NFTs, but also mint new ones or change the symbol or description of the collection.
 
 The NFT example canister keeps access control in these three levels very simple: 
@@ -76,8 +82,8 @@ The NFT example canister keeps access control in these three levels very simple:
 - If a user is not authorized to call a certain function an error is returned.
 
 Burning an NFT is a special case. To burn an NFT means to either delete the NFT (not intended in DIP-721) or to set ownership to `null` (or a similar value).
-On the Internet Computer, this non-existing principal is called the [management canister](https://smartcontracts.org/docs/current/references/ic-interface-spec.md#the-ic-management-canister).
-> "The IC management canister is just a facade; it does not actually exist as a canister (with isolated state, Wasm code, etc.)," and its address is `aaaaa-aa`.
+On the Internet Computer, this non-existing principal is called the [management canister](https://internetcomputer.org/docs/current/references/ic-interface-spec.md#the-ic-management-canister).
+> "The IC management canister is just a facade; it does not exist as a canister (with isolated state, Wasm code, etc.)," and its address is `aaaaa-aa`.
 Using this management canister address, we can construct its principal and set the management canister as the owner of a burned NFT.
 
 ## NFT sample code tutorial
@@ -89,32 +95,33 @@ Using this management canister address, we can construct its principal and set t
 
  ### Step 1: Clone the examples repo:
 
-```
+```bash
 git clone git@github.com:dfinity/examples.git
 ```
 
  ### Step 2: Navigate to DIP721 project root:
 
-```
+```bash
 cd examples/motoko/dip-721-nft-container
 ```
 
  ### Step 3: Run a local instance of the Internet Computer:
 
-```
+```bash
 dfx start --background 
 ```
 
 **If this is not a new installation, you may need to run `start` with the `--clean` flag.**
 
-```
+```bash
 dfx start --clean --background
 ```
 
- ### Step 4: Deploy a DIP721 NFT canister to your local IC.
+ ### Step 4: Deploy a DIP721 NFT canister to your local replica:
+
 This command deploys the DIP721 NFT canister with the following initialization arguments:
 
-```
+```bash
 dfx deploy --argument "(
   principal\"$(dfx identity get-principal)\", 
   record {
@@ -143,18 +150,18 @@ dfx deploy --argument "(
 
 You will receive output that resembles the following:
 
-```
+```bash
 Deployed canisters.
 URLs:
   Backend canister via Candid interface:
     dip721_nft_container: http://127.0.0.1:4943/?canisterId=br5f7-7uaaa-aaaaa-qaaca-cai&id=be2us-64aaa-aaaaa-qaabq-cai
 ```
 
- ### Step 5: Mint an NFT.
+ ### Step 5: Mint an NFT:
 
 Use the following command to mint an NFT:
 
-```
+```bash
 dfx canister call dip721_nft_container mintDip721 \
 "(
   principal\"$(dfx identity get-principal)\", 
@@ -175,27 +182,29 @@ dfx canister call dip721_nft_container mintDip721 \
 
 If this succeeds, you should see the following message:
 
-```
+```bash
 (variant { Ok = record { id = 1 : nat; token_id = 0 : nat64 } })
 ```
 
- ### Step 6: Transferring an NFT.
+ ### Step 6: Transferring an NFT:
 The DIP721 interface supports transferring an NFT to some other `principal` values via the `transferFromDip721` or `safeTransferFromDip721` methods.
 
 First, create a different identity using DFX. This will become the principal that you receives the NFT
 
-```
+```bash
 dfx identity new --disable-encryption alice
 ALICE=$(dfx --identity alice identity get-principal)
 ```
 
 Verify the identity for `ALICE` was created and set as an environment variable:
-```
+
+```bash
 echo $ALICE
 ```
 
-You should see a principal get printed
-```
+You should see a principal returned:
+
+```bash
 o4f3h-cbpnm-4hnl7-pejut-c4vii-a5u5u-bk2va-e72lb-edvgw-z4wuq-5qe
 ```
 
@@ -206,56 +215,56 @@ Here the arguments are:
 `to`: principal to transfer the NFT to
 `token_id`: the id of the token to transfer
 
-```
+```bash
 dfx canister call dip721_nft_container transferFromDip721 "(principal\"$(dfx identity get-principal)\", principal\"$ALICE\", 0)"
 ```
 
-Transfer the NFT from from `ALICE` back to the default user.
+Transfer the NFT from `ALICE` back to the default user.
 
-```
+```bash
 dfx canister call dip721_nft_container safeTransferFromDip721 "(principal\"$ALICE\", principal\"$(dfx identity get-principal)\", 0)"
 ```
 
 Note the second transfer works because the caller is in the list of custodians, i.e. the default user has admin rights to modify the NFT collection.
 
-### Other methods
+## Other methods
 
- ### balanceOfDip721
+### `balanceOfDip721`
 
-```
+```bash
 dfx canister call dip721_nft_container balanceOfDip721 "(principal\"$(dfx identity get-principal)\")"
 ```
 
 Output:
 
-```
+```bash
 (1 : nat64)
 ```
 
- ### getMaxLimitDip721
+### `getMaxLimitDip721`
 
-```
+```bash
 dfx canister call dip721_nft_container getMaxLimitDip721
 ```
 
 Output:
 
-```
+```bash
 (10 : nat16)
 ```
 
- ### getMetadataDip721
+### `getMetadataDip721`
 
 Provide a token ID. 
 The token ID was provided to you when you ran `mintDip721`, e.g. `(variant { Ok = record { id = 1 : nat; token_id = 0 : nat64 } })` So, the token ID is 0 in this case.
 
-```
+```bash
 dfx canister call dip721_nft_container getMetadataDip721 "0"
 ```
 
 Output:
 
-```
+```bash
 (
   variant {
     Ok = vec {
@@ -286,15 +295,15 @@ Output:
 ```
 
 
- ### getMetadataForUserDip721
+### `getMetadataForUserDip721`
 
-```
+```bash
 dfx canister call dip721_nft_container getMetadataForUserDip721 "(principal\"$(dfx identity get-principal)\")"
 ```
 
 Output:
 
-```
+```bash
 (
   variant {
     Ok = record {
@@ -327,88 +336,90 @@ Output:
 )
 ```
 
- ### getTokenIdsForUserDip721
+### `getTokenIdsForUserDip721`
 
-```
+```bash
 dfx canister call dip721_nft_container getTokenIdsForUserDip721 "(principal\"$(dfx identity get-principal)\")"
 ```
 
 Output:
 
-```
+```bash
 (vec { 0 : nat64 })
 ```
 
- ### logoDip721
+### `logoDip721`
 
-```
+```bash
 dfx canister call dip721_nft_container logoDip721
 ```
 
 Output:
 
-```
+```bash
 (record { data = ""; logo_type = "image/png" })
 ```
 
- ### nameDip721
+### `nameDip721`
 
-```
+```bash
 dfx canister call dip721_nft_container nameDip721
 ```
 
 Output:
 
-```
+```bash
 ("My DIP721")
 ```
 
- ### supportedInterfacesDip721
+### `supportedInterfacesDip721`
 
-```
+```bash
 dfx canister call dip721_nft_container supportedInterfacesDip721
 ```
 
 Output:
 
-```
+```bash
 (vec { variant { TransferNotification }; variant { Burn }; variant { Mint } })
 ```
 
- ### symbolDip721
+### `symbolDip721`
 
-```
+```bash
 dfx canister call dip721_nft_container symbolDip721
 ```
 
 Output:
-```
+
+```bash
 ("DFXB")
 ```
 
- ### totalSupplyDip721
+### `totalSupplyDip721`
 
-```
+```bash
 dfx canister call dip721_nft_container totalSupplyDip721
 ```
 
 Output:
 
-```
+```bash
 (1 : nat64)
 ```
 
- ### ownerOfDip721
+### `ownerOfDip721`
+
 Provide a token ID. 
 The token ID was provided to you when you ran `mintDip721`, e.g. `(variant { Ok = record { id = 1 : nat; token_id = 0 : nat64 } })` So, the token ID is 0 in this case.
 
-```
+```bash
 dfx canister call dip721_nft_container ownerOfDip721 "0"
 ```
 
 Output:
 
-```
+```bash
 (
   variant {
     Ok = principal "5wuse-ejxao-gkqq6-4dhl5-hn5ps-2mgop-2se4s-w4zle-agr6j-svlhq-3qe"
@@ -418,11 +429,11 @@ Output:
 
 Verify that this is the same principal that you ran `mintDip721` with:
 
-```
+```bash
 dfx identity get-principal
 ```
 
-## Security considerations and security best practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 

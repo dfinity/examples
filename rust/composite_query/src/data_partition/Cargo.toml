@@ -1,0 +1,15 @@
+[package]
+name = "data_partition"
+version = "1.0.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+path = "lib.rs"
+
+[dependencies]
+candid = "0.8.4"
+ic-cdk = "0.8.1"
+ic-cdk-macros = "0.6.10"
+ic-cdk-optimizer = "0.3.5"
+ic-stable-structures = "0.5.4"

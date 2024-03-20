@@ -7,17 +7,21 @@ export { idlFactory } from './frontend.did.js';
 export const canisterId = process.env.FRONTEND_CANISTER_ID;
 
 /**
- * 
+ * @deprecated since dfx 0.11.1
+ * Do not import from `.dfx`, instead switch to using `dfx generate` to generate your JS interface.
  * @param {string | import("@dfinity/principal").Principal} canisterId Canister ID of Agent
- * @param {{agentOptions?: import("@dfinity/agent").HttpAgentOptions; actorOptions?: import("@dfinity/agent").ActorConfig}} [options]
+ * @param {{agentOptions?: import("@dfinity/agent").HttpAgentOptions; actorOptions?: import("@dfinity/agent").ActorConfig} | { agent?: import("@dfinity/agent").Agent; actorOptions?: import("@dfinity/agent").ActorConfig }} [options]
  * @return {import("@dfinity/agent").ActorSubclass<import("./frontend.did.js")._SERVICE>}
  */
- export const createActor = (canisterId, options) => {
-  const agent = new HttpAgent({ ...options?.agentOptions });
+export const createActor = (canisterId, options = {}) => {
+  console.warn(`Deprecation warning: you are currently importing code from .dfx. Going forward, refactor to use the dfx generate command for JavaScript bindings.
+
+See https://internetcomputer.org/docs/current/developer-docs/updates/release-notes/ for migration instructions`);
+  const agent = options.agent || new HttpAgent({ ...options.agentOptions });
   
   // Fetch root key for certificate validation during development
-  if(process.env.NODE_ENV !== "production") {
-    agent.fetchRootKey().catch(err=>{
+  if (process.env.DFX_NETWORK !== "ic") {
+    agent.fetchRootKey().catch(err => {
       console.warn("Unable to fetch root key. Check to ensure that your local replica is running");
       console.error(err);
     });
@@ -27,7 +31,7 @@ export const canisterId = process.env.FRONTEND_CANISTER_ID;
   return Actor.createActor(idlFactory, {
     agent,
     canisterId,
-    ...options?.actorOptions,
+    ...(options ? options.actorOptions : {}),
   });
 };
   
@@ -35,4 +39,4 @@ export const canisterId = process.env.FRONTEND_CANISTER_ID;
  * A ready-to-use agent for the frontend canister
  * @type {import("@dfinity/agent").ActorSubclass<import("./frontend.did.js")._SERVICE>}
  */
- export const frontend = createActor(canisterId);
+export const frontend = createActor(canisterId);

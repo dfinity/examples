@@ -10,8 +10,8 @@ crate-type = ["cdylib"]
 
 [dependencies]
 serde = "1"
-candid = "0.8.4"
-ic-cdk = "0.7.1"
+candid = "0.10.2"
+ic-cdk = "0.12.0"
 hex = "0.4.3"
 sha2 = "0.10.6"
 k256 = { version = "0.12.0", features = ["ecdsa"] }

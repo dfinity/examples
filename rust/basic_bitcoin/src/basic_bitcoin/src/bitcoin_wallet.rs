@@ -10,10 +10,11 @@
 use crate::{bitcoin_api, ecdsa_api};
 use bitcoin::util::psbt::serialize::Serialize;
 use bitcoin::{
-    blockdata::{script::Builder, witness::Witness}, hashes::Hash, Address, AddressType, OutPoint, Script, EcdsaSighashType,
-    Transaction, TxIn, TxOut, Txid,
+    blockdata::{script::Builder, witness::Witness},
+    hashes::Hash,
+    Address, AddressType, EcdsaSighashType, OutPoint, Script, Transaction, TxIn, TxOut, Txid,
 };
-use ic_btc_types::{MillisatoshiPerByte, Network, Satoshi, Utxo};
+use ic_cdk::api::management_canister::bitcoin::{MillisatoshiPerByte, BitcoinNetwork, Satoshi, Utxo};
 use ic_cdk::print;
 use sha2::Digest;
 use std::str::FromStr;
@@ -22,7 +23,7 @@ const SIG_HASH_TYPE: EcdsaSighashType = EcdsaSighashType::All;
 
 /// Returns the P2PKH address of this canister at the given derivation path.
 pub async fn get_p2pkh_address(
-    network: Network,
+    network: BitcoinNetwork,
     key_name: String,
     derivation_path: Vec<Vec<u8>>,
 ) -> String {
@@ -37,7 +38,7 @@ pub async fn get_p2pkh_address(
 /// given destination, where the source of the funds is the canister itself
 /// at the given derivation path.
 pub async fn send(
-    network: Network,
+    network: BitcoinNetwork,
     derivation_path: Vec<Vec<u8>>,
     key_name: String,
     dst_address: String,
@@ -53,7 +54,7 @@ pub async fn send(
         2000
     } else {
         // Choose the 50th percentile for sending fees.
-        fee_percentiles[49]
+        fee_percentiles[50]
     };
 
     // Fetch our public key, P2PKH address, and UTXOs.
@@ -62,6 +63,9 @@ pub async fn send(
     let own_address = public_key_to_p2pkh_address(network, &own_public_key);
 
     print("Fetching UTXOs...");
+    // Note that pagination may have to be used to get all UTXOs for the given address.
+    // For the sake of simplicity, it is assumed here that the `utxo` field in the response
+    // contains all UTXOs.
     let own_utxos = bitcoin_api::get_utxos(network, own_address.clone())
         .await
         .utxos;
@@ -139,7 +143,7 @@ async fn build_transaction(
             own_address,
             transaction.clone(),
             String::from(""), // mock key name
-            vec![], // mock derivation path
+            vec![],           // mock derivation path
             mock_signer,
         )
         .await;
@@ -275,17 +279,20 @@ fn sha256(data: &[u8]) -> Vec<u8> {
     hasher.update(data);
     hasher.finalize().to_vec()
 }
+fn ripemd160(data: &[u8]) -> Vec<u8> {
+    let mut hasher = ripemd::Ripemd160::new();
+    hasher.update(data);
+    hasher.finalize().to_vec()
+}
 
 // Converts a public key to a P2PKH address.
-fn public_key_to_p2pkh_address(network: Network, public_key: &[u8]) -> String {
-    // sha256 + ripmd160
-    let mut hasher = ripemd::Ripemd160::new();
-    hasher.update(sha256(public_key));
-    let result = hasher.finalize();
+fn public_key_to_p2pkh_address(network: BitcoinNetwork, public_key: &[u8]) -> String {
+    // SHA-256 & RIPEMD-160
+    let result = ripemd160(&sha256(public_key));
 
     let prefix = match network {
-        Network::Testnet | Network::Regtest => 0x6f,
-        Network::Mainnet => 0x00,
+        BitcoinNetwork::Testnet | BitcoinNetwork::Regtest => 0x6f,
+        BitcoinNetwork::Mainnet => 0x00,
     };
     let mut data_with_prefix = vec![prefix];
     data_with_prefix.extend(result);
@@ -299,7 +306,11 @@ fn public_key_to_p2pkh_address(network: Network, public_key: &[u8]) -> String {
 }
 
 // A mock for rubber-stamping ECDSA signatures.
-async fn mock_signer(_key_name: String, _derivation_path: Vec<Vec<u8>>, _message_hash: Vec<u8>) -> Vec<u8> {
+async fn mock_signer(
+    _key_name: String,
+    _derivation_path: Vec<Vec<u8>>,
+    _message_hash: Vec<u8>,
+) -> Vec<u8> {
     vec![255; 64]
 }
 

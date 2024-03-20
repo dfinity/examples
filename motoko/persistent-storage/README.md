@@ -1,73 +1,80 @@
+---
+keywords: [intermediate, motoko, storage, persistent storage, persistence]
+---
+
 # Persistent storage
+
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/persistent-storage)
 
 ## Overview
 The example dapp shows how to build a simple dapp in Motoko, which will have persistent storage. The dapp is a simple counter, which will increment a counter, retrieve the counter value and reset the counter value by calling backend functions. The functions are exposed through a Candid interface.
 
 ![Counter Frontend](README_images/candid_ui.png)
 
-The purpose of this example dapp is to build a simple counter dapp, where the counter value will persist even after the dapp has changed and been re-deployed.
+The purpose of this example dapp is to build a simple counter dapp, where the counter value will persist even after the dapp has changed and been redeployed.
 
 This example covers:
 
-- Create new canister smart contract using Motoko.
-- Add backend functions for a counter (increment, get count and reset count).
+- Create a new canister smart contract using Motoko.
+- Add backend functions for a counter (increment, get count, and reset count).
 - Deploy the canister smart contract locally.
-- Test backend with Candid UI and command line using `dfx` .
+- Test the backend with Candid UI and command line using `dfx`.
 
 
 ## Installation
-This example project can be cloned, installed and deployed locally, for learning and testing purposes. The instructions are based on running the example on either macOS or Linux, but when using WSL2 on Windows, the instructions will be the same.
+This example project can be cloned, installed, and deployed locally, for learning and testing purposes. The instructions are based on running the example on either macOS or Linux, but when using WSL2 on Windows, the instructions will be the same.
 
 ### Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Download and install [git.](https://git-scm.com/downloads)
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
 
 ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-```
+```bash
 cd examples/motoko/persistent-storage
 dfx start --background
 ```
 
 ### Step 2: Build and deploy the canister:
 
-```
+```bash
 dfx deploy
 ```
 
 ### Step 3: Command usage: `dfx canister call <project>  <function>`
 
-```
+```bash
 dfx canister call persistent_storage increment
 ```
 
 Output:
 
-```
+```bash
 (1 : Nat)
 ```
 
-```
+```bash
 dfx canister call persistent_storage get
 ```
 
 Output:
 
-```
+```bash
 (1 : Nat)
 ```
 
-```
+```bash
 dfx canister call persistent_storage reset
 ```
 
 Output:
 
-```
+```bash
 (0 : Nat)
 ```
 
@@ -86,7 +93,7 @@ $ dfx canister call persistent_storage getCount
 The two main parts of the example dapp are the backend and the Candid interface. This example project does not have a frontend.
 
 ### Motoko backend
-The backend functions are located in the `src/persistent_storage/main.mo` Motoko file. The backend stores the counter value, and has functions to get, increment and reset the counter value. Furthermore the backend insures the counter value persists upgrades of the dapp.
+The backend functions are located in the `src/persistent_storage/main.mo` Motoko file. The backend stores the counter value and has functions to get, increment, and reset the counter value. Furthermore, the backend ensures the counter value persists in upgrades of the dapp.
 
 #### Counter variable
 The current counter value is stored as a number in the actor.
@@ -107,7 +114,7 @@ public func increment() : async Nat {
 };
 ```
 
-The function is returning the incremented counter variable.
+The function returns the incremented counter variable.
 
 #### get()
 The `get()` function returns the current counter value.
@@ -129,7 +136,7 @@ public func reset() : async Nat {
 ```
 
 ### Candid interface
-The Candid UI provides an easy, user friendly interface for testing the backend. The UI is automatically generated, and the canister ID can be found by using the `dfx canister id <canister_name>` command:
+The Candid UI provides an easy, user-friendly interface for testing the backend. The UI is automatically generated, and the canister ID can be found by using the `dfx canister id <canister_name>` command:
 
 ```bash
 $ dfx canister id __Candid_UI
@@ -138,13 +145,15 @@ $ dfx canister id persistent_storage
 rrkah-fqaaa-aaaaa-aaaaq-cai
 ```
 
-**http://<candid_canister_id>.localhost:8000/?id=<backend_canister_id>**
+```
+http://<candid_canister_id>.localhost:8000/?id=<backend_canister_id>
+```
 
 ## License
 This project is licensed under the Apache 2.0 license, see LICENSE.md for details. See CONTRIBUTE.md for details about how to contribute to this project.
 
 
-## Security Considerations and Security Best Practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 

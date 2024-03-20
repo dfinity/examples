@@ -1,7 +1,3 @@
-<p align="left" >
-  <img width="240"  src="assets/logo.png">
-</p>
-
 # Svelte Dapp with Motoko & Internet Identity
 
 This repository is meant to give [Svelte](https://svelte.dev/) developers an easy on-ramp to get started with developing decentralized applications (Dapps in short) for the Internet Computer blockchain. Dapps, also known as smart contracts are specialized software that run on a blockchain.
@@ -33,11 +29,11 @@ You will build and deploy the following _canisters_:
 
 ### What is Motoko?
 
-Motoko is a new language designed for the Internet Computer. Easy to learn for JavaScript and Solidity developers. Created by the Motoko team at the DFINITY Foundation, led by WebAssembly co-creator Andreas Rossberg. To learn more about the language, check out the [SDK](https://smartcontracts.org/docs/language-guide/motoko.html).
+Motoko is a new language designed for the Internet Computer. Easy to learn for JavaScript and Solidity developers. Created by the Motoko team at the DFINITY Foundation, led by WebAssembly co-creator Andreas Rossberg. To learn more about the language, check out the [SDK](https://internetcomputer.org/docs/current/motoko/main/motoko).
 
 ### What is Internet Identity?
 
-This starter template also includes integration with Internet Identity. Internet Identity is a new authentication framework similar to Github or Google login, but providing complete anonimity to the users. To learn more about Internet Identity check out the [documentation](https://smartcontracts.org/docs/ic-identity-guide/what-is-ic-identity.html).
+This starter template also includes integration with Internet Identity. Internet Identity is a new authentication framework similar to Github or Google login, but providing complete anonimity to the users. To learn more about Internet Identity check out the [documentation](https://wiki.internetcomputer.org/wiki/What_is_Internet_Identity).
 
 ## Security Considerations and Security Best Practices
 
@@ -65,7 +61,7 @@ npx degit dfinity/examples/svelte/svelte-motoko-starter svelte-motoko-starter
 Install `dfx` by running
 
 ```
-sh -ci "$(curl -fsSL https://smartcontracts.org/install.sh)"
+sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
 ```
 
 ### Rust
@@ -105,8 +101,6 @@ git submodule update --init --recursive
 ```
 
 When the repository is cloned, switch to its directory and install it:
-
-(If you're running this on an M1 Mac, make sure you follow [these steps]())
 
 ```
 cd internet-identity
@@ -162,7 +156,7 @@ To deploy the backend canister to the local replica you have several options:
 
 `dfx deploy backend --mode reinstall` will reinstall the backend canister clearing all existing state.
 
-For more options and other commands see the [dfx CLI reference](https://smartcontracts.org/docs/developers-guide/cli-reference.html).
+For more options and other commands see the [dfx CLI reference](https://internetcomputer.org/docs/current/references/cli-reference).
 
 ### Svelte frontend
 
@@ -178,7 +172,7 @@ from the project root directory, it is not necessary to deploy it to the fronten
 
 To host the frontend and backend on the IC, you'll need to have some cycles available. Cycles pay for the execution of your app, and they are also needed to create canisters.
 
-You can get $20 worth of cycles for free from the Cycles Faucet, if you have a GitHub account. To claim them, follow [this guide](https://smartcontracts.org/docs/quickstart/cycles-faucet.html).
+You can get $20 worth of cycles for free from the Cycles Faucet, if you have a GitHub account. To claim them, follow [this guide](https://internetcomputer.org/docs/current/developer-docs/setup/cycles/cycles-faucet).
 
 You should have a canister running the cycles wallet on the IC at this point. The cycles wallet makes it easy to pay for canister creation.
 

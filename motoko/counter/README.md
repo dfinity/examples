@@ -1,7 +1,10 @@
+---
+keywords: [beginner, motoko, counter, count]
+---
+
 # Counter
 
-![Compatibility](https://img.shields.io/badge/compatibility-0.6.25-blue)
-[![Build Status](https://github.com/dfinity/examples/workflows/motoko-counter-example/badge.svg)](https://github.com/dfinity/examples/actions?query=workflow%3Amotoko-counter-example)
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/counter)
 
 ## Overview
 
@@ -19,43 +22,44 @@ The application provides an interface that exposes the following methods:
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
 
  ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
 
-```
+```bash
 cd examples/motoko/counter
 dfx start --background
 ```
 
  ### Step 2: Deploy the canister:
 
-```
+```bash
 dfx deploy
 ```
 
  ### Step 3: Set the value of the counter:
 
-```
+```bash
 dfx canister call counter set '(7)'
 ```
 
  ### Step 4: Increment the value of the counter:
 
-```
+```bash
 dfx canister call counter inc
 ```
 
  ### Step 5: Get the value of the counter:
 
-```
+```bash
 dfx canister call counter get
 ```
 
 The following output should be returned:
 
-```
+```bash
 (8 : nat)
 ```
 
@@ -66,6 +70,6 @@ To learn more about these features of Motoko, see:
 - [Declaring stable values](https://internetcomputer.org/docs/current/motoko/main/upgrades#declaring-stable-variables).
 
 
-## Security considerations and security best practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.

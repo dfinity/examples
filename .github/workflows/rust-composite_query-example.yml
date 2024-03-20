@@ -1,0 +1,52 @@
+name: rust-composite_query
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - rust/composite_query/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-composite_query-example.yml
+      - .github/workflows/rust-composite_query-skip.yml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rust-composite_query-darwin:
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Rust composite_query Darwin
+        run: |
+          pushd rust/composite_query
+          dfx start --background
+          dfx canister create data_partition
+          dfx build data_partition
+          dfx canister create kv_frontend
+          dfx build kv_frontend
+          dfx canister install kv_frontend
+          dfx canister call kv_frontend put '(1, 1337)'
+          dfx canister call kv_frontend get '(1)' | grep '1_337'
+          popd
+  rust-composite_query-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Rust composite_query Linux
+        run: |
+          pushd rust/composite_query
+          dfx start --background
+          dfx canister create data_partition
+          dfx build data_partition
+          dfx canister create kv_frontend
+          dfx build kv_frontend
+          dfx canister install kv_frontend
+          dfx canister call kv_frontend put '(1, 1337)'
+          dfx canister call kv_frontend get '(1)' | grep '1_337'
+          popd

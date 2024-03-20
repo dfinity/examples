@@ -1,10 +1,16 @@
-# Ledger transfer
+---
+keywords: [intermediate, rust, token transfer]
+---
+
+# Token transfer
+
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/tokens_transfer)
 
 ## Overview
 ICP transfer is a canister that can transfer ICP from its account to other accounts. It is an example of a canister that uses the ledger canister. Sample code is available in [Motoko](https://github.com/dfinity/examples/tree/master/ rust/ledger-transfer) and [Rust](https://github.com/dfinity/examples/tree/master/rust/tokens_transfer).
 
 ## Architecture
-The sample code revolves around one core transfer function which takes as input the amount of ICP to transfer, the account (and optionally the subaccount) to which to transfer ICP and returns either success or an error in case e.g. the ICP transfer canister doesn’t have enough ICP to do the transfer. In case of success, a unique identifier of the transaction is returned. This identifier will be stored in the memo of the transaction in the ledger.
+The sample code revolves around one core transfer function which takes as input the amount of ICP to transfer, the account (and optionally the subaccount) to which to transfer ICP, and returns either success or an error in case e.g. the ICP transfer canister doesn’t have enough ICP to do the transfer. In case of success, a unique identifier of the transaction is returned. This identifier will be stored in the memo of the transaction in the ledger.
 
 This sample will use the Rust variant. 
 
@@ -16,45 +22,39 @@ This example requires an installation of:
 
 ### Step 1: Create a new `dfx` project and navigate into the project's directory.
 
-```
+```bash
 dfx new --type=rust ledger_transfer
 cd ledger_transfer
 ```
 
-### Step 2: Download a pre-built ledger canister module and Candid interface files:
+### Step 2: Determine ledger file locations
 
-```
-export IC_VERSION=dd3a710b03bd3ae10368a91b255571d012d1ec2f
-curl -o ledger.wasm.gz "https://download.dfinity.systems/ic/$IC_VERSION/canisters/ledger-canister_notify-method.wasm.gz"
-gunzip ledger.wasm.gz
-curl -o ledger.private.did "https://raw.githubusercontent.com/dfinity/ic/$IC_VERSION/rs/rosetta-api/ledger.did"
-dfx canister --network ic call ryjl3-tyaaa-aaaaa-aaaba-cai __get_candid_interface_tmp_hack '()' --query | sed 's/\\n/\n/g'
-```
+Go to the [releases overview](https://dashboard.internetcomputer.org/releases) and copy the latest replica binary revision. At the time of writing, this is `a17247bd86c7aa4e87742bf74d108614580f216d`.
 
-This download should result in 3 files:
-- [ledger.wasm](../../_attachments/ledger.wasm)
-- [ledger.public.did](../../_attachments/ledger.public.did)
-- [ledger.private.did](../../_attachments/ledger.private.did)
+The URL for the ledger WASM module is `https://download.dfinity.systems/ic/<REVISION>/canisters/ic-icrc1-ledger.wasm.gz`, so with the above revision it would be `https://download.dfinity.systems/ic/a17247bd86c7aa4e87742bf74d108614580f216d/canisters/ic-icrc1-ledger.wasm.gz`.
 
-### Step 3: In the `dfx.json` file, replace the existing content with the following:
+The URL for the ledger .did file is `https://raw.githubusercontent.com/dfinity/ic/<REVISION>/rs/rosetta-api/icrc1/ledger/ledger.did`, so with the above revision it would be `https://raw.githubusercontent.com/dfinity/ic/a17247bd86c7aa4e87742bf74d108614580f216d/rs/rosetta-api/icrc1/ledger/ledger.did`.
 
-```
+### Step 3: Configure the `dfx.json` file to use the ledger :
+
+Replace its contents with this but adapt the URLs to be the ones you determined in step 2:
+
+```json
 {
   "canisters": {
     "ledger": {
       "type": "custom",
-      "wasm": "ledger.wasm",
-      "candid": "ledger.public.did",
+      "candid": "https://raw.githubusercontent.com/dfinity/ic/a17247bd86c7aa4e87742bf74d108614580f216d/rs/rosetta-api/icrc1/ledger/ledger.did",
+      "wasm": "https://download.dfinity.systems/ic/a17247bd86c7aa4e87742bf74d108614580f216d/canisters/ic-icrc1-ledger.wasm.gz",
       "remote": {
-    "candid": "ledger.public.did",
-    "id": {
-      "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
-    }
-  }
+        "id": {
+          "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+        }
+      }
     },
     "ledger_transfer_backend": {
       "main": "src/ledger_transfer_backend/main.mo",
-      "type": " rust"
+      "type": "motoko"
     },
     "ledger_transfer_frontend": {
       "dependencies": [
@@ -84,15 +84,15 @@ This download should result in 3 files:
 }
 ```
 
-### Step 5: Start a local replica:
+### Step 4: Start a local replica:
 
-```
+```bash
 dfx start --background
 ```
 
-### Step 6: Create a new identity that will work as a minting account:
+### Step 5: Create a new identity that will work as a minting account:
 
-```
+```bash
 dfx identity new minter
 dfx identity use minter
 export MINT_ACC=$(dfx ledger account-id)
@@ -100,39 +100,39 @@ export MINT_ACC=$(dfx ledger account-id)
 
 Transfers from the minting account will create Mint transactions. Transfers to the minting account will create Burn transactions.
 
-### Step 7: Switch back to your default identity and record its ledger account identifier:
+### Step 6: Switch back to your default identity and record its ledger account identifier:
 
-```
+```bash
 dfx identity use default
 export LEDGER_ACC=$(dfx ledger account-id)
 ```
 
 
-### Step 8: Deploy the ledger canister to your network:
+### Step 7: Deploy the ledger canister to your network:
 
-```
-dfx deploy ledger --argument '(record {minting_account = "'${MINT_ACC}'"; initial_values = vec { record { "'${LEDGER_ACC}'"; record { e8s=100_000_000_000 } }; }; send_whitelist = vec {}})'
+```bash
+dfx deploy ledger --argument "(variant {Init = record { token_name = \"NAME\"; token_symbol = \"SYMB\"; transfer_fee = 1000000; metadata = vec {}; minting_account = record {owner = principal \"$(dfx --identity minter identity get-principal)\";}; initial_balances = vec {}; archive_options = record {num_blocks_to_archive = 1000000; trigger_threshold = 1000000; controller_id = principal \"$(dfx identity get-principal)\"}; }})"
 ```
 
 If you want to setup the ledger in a way that matches the production deployment, you should deploy it with archiving enabled. In this setup, the ledger canister dynamically creates new canisters to store old blocks. We recommend using this setup if you are planning to exercise the interface for fetching blocks.
 
-### Step 9: Obtain the principal of the identity you use for development. 
+### Step 8: Obtain the principal of the identity you use for development. 
 This principal will be the controller of archive canisters.
 
-```
+```bash
 dfx identity use default
 export ARCHIVE_CONTROLLER=$(dfx identity get-principal)
 ```
 
-### Step 10: Deploy the ledger canister with archiving options:
+### Step 9: Deploy the ledger canister with archiving options:
 
-```
+```bash
 dfx deploy ledger --argument '(record {minting_account = "'${MINT_ACC}'"; initial_values = vec { record { "'${LEDGER_ACC}'"; record { e8s=100_000_000_000 } }; }; send_whitelist = vec {}; archive_options = opt record { trigger_threshold = 2000; num_blocks_to_archive = 1000; controller_id = principal "'${ARCHIVE_CONTROLLER}'" }})'
 ```
 
 If successful, the output should be:
 
-```
+```bash
 Deployed canisters.
 URLs:
   Frontend canister via browser
@@ -142,33 +142,33 @@ URLs:
     ledger_transfer_backend: http://127.0.0.1:4943/?canisterId=bd3sg-teaaa-aaaaa-qaaba-cai&id=be2us-64aaa-aaaaa-qaabq-cai
 ```
 
-### Step 11: Verify that the ledger canister is healthy and working as expected by using the command:
+### Step 10: Verify that the ledger canister is healthy and working as expected by using the command:
 
-```
+```bash
 dfx canister call ledger account_balance '(record { account = '$(python3 -c 'print("vec{" + ";".join([str(b) for b in bytes.fromhex("'$LEDGER_ACC'")]) + "}")')' })'
 ```
 
 The output should be:
 
-```
+```bash
 (record { e8s = 100_000_000_000 : nat64 })
 ```
 
-### Step 10: In a separate working directory, clone the Github repo containing the `ledger_transfer` project's files:
+### Step 11: In a separate working directory, clone the GitHub repo containing the `ledger_transfer` project's files:
 
-```
+```bash
 git clone https://github.com/dfinity/examples.git
 ```
 
-### Step 11: Copy the files for the `ledger-transfer` canister into your `ledger_transfer` workspace:
+### Step 12: Copy the files for the `ledger-transfer` canister into your `ledger_transfer` workspace:
 
-```
+```bash
 cp -r ./examples/rust/ledger-transfer/src/* ./ledger_transfer/src
 ```
 
-### Step 12: Edit your `dfx.json` file to include the following information within the 'canisters' section:
+### Step 13: Edit your `dfx.json` file to include the following information within the 'canisters' section:
 
-```
+```json
 ...
   "canisters": {
     "ledger_transfer": {
@@ -188,15 +188,15 @@ cp -r ./examples/rust/ledger-transfer/src/* ./ledger_transfer/src
 ```
 
 
-### Step 13: Deploy this new canister:
+### Step 14: Deploy this new canister:
 
-```
+```bash
 dfx deploy
 ```
 
 Your output should resemble the following:
 
-```
+```bash
 Deployed canisters.
 URLs:
   Frontend canister via browser
@@ -207,48 +207,48 @@ URLs:
     ledger_transfer_backend: http://127.0.0.1:4943/?canisterId=bd3sg-teaaa-aaaaa-qaaba-cai&id=be2us-64aaa-aaaaa-qaabq-cai
 ```
 
-### Step 14: Determine out the address of your canister:
+### Step 15: Determine the address of your canister:
 
-```
+```bash
 dfx canister call ledger_transfer canisterAccount '()'
 ```
 
 Your output should resemble the following:
 
-```
+```bash
 (
   blob "\94\b9\bc]\ab(\ad\b93\8dE\19#\914\b6\a0\0e\dfam5\e4\e5\80\b5\01\9a~\e1_{",
 )
 ```
 
-### Step 15: Transfer funds to your canister:
+### Step 16: Transfer funds to your canister:
 
-```
+```bash
 dfx canister call ledger transfer '(record { to = blob "\08.\cf.?dz\c6\00\f4?8\a6\83B\fb\a5\b8\e6\8b\08_\02Y+w\f3\98\08\a8\d2\b5"; memo = 1; amount = record { e8s = 2_00_000_000 }; fee = record { e8s = 10_000 }; })'
 ```
 
 If successful, the output should be:
 
-```
+```bash
 (variant { Ok = 1 : nat64 })
 ```
 
-### Step 16: Post a message as a new user:
+### Step 17: Post a message as a new user:
 
-```
+```bash
 dfx identity new --disable-encryption ALICE
 dfx identity use ALICE
 dfx canister call ledger_transfer post "(\"Test message\")"
 ```
 
-### Step 17: Distribute rewards to users:
+### Step 18: Distribute rewards to users:
 
-```
+```bash
 dfx identity use default
 dfx canister call ledger_transfer distributeRewards '()'
 ```
 
-## Security considerations and security best practices
+## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 
