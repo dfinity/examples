@@ -16,3 +16,4 @@ Please also refer to the [Interface Specification](https://internetcomputer.org/
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/developer-docs/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 
+.
