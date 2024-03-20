@@ -35,7 +35,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Rust Basic Bitcoin Linux
         run: |
-          dfx start --background
+          dfx start --background --clean
           pushd rust/basic_bitcoin
           make deploy
           popd
