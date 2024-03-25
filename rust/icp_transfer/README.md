@@ -1,10 +1,12 @@
-# Token transfer
+# ICP transfer
+
+[View this samples code on GitHub](https://github.com/dfinity/examples/tree/master/rust/icp_transfer).
 
 ## Overview
 
 ICP transfer is a canister that can transfer ICP from its account to other accounts. It is an example of a canister that uses the ledger canister. Sample code is available in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/icp_transfer) and [Rust](https://github.com/dfinity/examples/tree/master/rust/icp_transfer).
 
-> ![NOTE]
+> [!NOTE]
 > The ICP ledger supports the ICRC1 standard, which is the recommended standard for token transfers. You can read more about the differences [here](https://internetcomputer.org/docs/current/developer-docs/defi/overview) and find an example of how to transfer ICRC1 tokens from a canister in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/token_transfer) and [Rust](https://github.com/dfinity/examples/tree/master/rust/token_transfer).
 
 ## Architecture
@@ -36,7 +38,7 @@ cd icp_transfer
 
 ### Step 2: Determine ledger file locations
 
-> ![NOTE]
+> [!NOTE]
 > You can read more about how to setup the ICP ledger locally [here](https://internetcomputer.org/docs/current/developer-docs/defi/icp-tokens/ledger-local-setup).
 
 Go to the [releases overview](https://dashboard.internetcomputer.org/releases) and copy the latest replica binary revision. At the time of writing, this is `d87954601e4b22972899e9957e800406a0a6b929`.

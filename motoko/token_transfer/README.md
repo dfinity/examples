@@ -1,5 +1,7 @@
 # Token transfer
 
+[View this samples code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/token_transfer).
+
 ## Overview
 
 Token transfer is a canister that can transfer ICRC-1 tokens from its account to other accounts. It is an example of a canister that uses an ICRC-1 ledger canister. Sample code is available in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/token_transfer) and [Rust](https://github.com/dfinity/examples/tree/master/rust/token_transfer).
@@ -33,7 +35,7 @@ cd token_transfer
 
 ### Step 2: Determine ICRC-1 ledger file locations
 
-> ![NOTE]
+> [!NOTE]
 > You can read more about how to setup the ICRC-1 ledger locally [here](https://internetcomputer.org/docs/current/developer-docs/defi/icrc-1/icrc1-ledger-setup).
 
 Go to the [releases overview](https://dashboard.internetcomputer.org/releases) and copy the latest replica binary revision. At the time of writing, this is `d87954601e4b22972899e9957e800406a0a6b929`.
