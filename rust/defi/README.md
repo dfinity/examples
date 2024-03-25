@@ -109,31 +109,24 @@ or you can regenerate the URL "http://127.0.0.1:4943?canisterId=$(dfx canister i
 
 This sample project uses a local test version of Internet Identity. Do not use your mainnet Internet Identity, and this testnet Internet Identity will not work on the mainnet. 
 
-![DEX II Login](../../_attachments/dex-ii.png)
 
 ## Step 3: When prompted, select **Create Internet Identity**.
 
-![II Step 1](../../_attachments/II1.png)
 
 ## Step 4: Then select **Create Passkey**.
 
-![II Step 2](../../_attachments/II2.png)
 
 ## Step 5: Complete the CAPTCHA.
 
-![II Step 3](../../_attachments/II3.png)
 
 ## Step 6: Save the II number and click **I saved it, continue**.
 
-![II Step 4](../../_attachments/II4.png)
 
 ## Step 7: You will be redirected to the exchange's frontend webpage.
 
-![II Step 5](../../_attachments/II5.png)
 
 ## Step 8: You can give yourself some tokens and ICP by running an initialization script with your II principal that you can copy from the frontend.
 
-![II Principal](../../_attachments/II-principal.png)
 
 ## Step 9: Then run the following command:
 
@@ -141,7 +134,6 @@ This sample project uses a local test version of Internet Identity. Do not use y
 
 ## Step 10: Refresh the web browser to verify that your tokens were deposited. 
 
-![II Deposit](../../_attachments/II-deposit.png)
 
 To trade tokens with yourself, you can open a second incognito browser window.
 
