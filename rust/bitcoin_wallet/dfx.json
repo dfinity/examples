@@ -1,0 +1,36 @@
+{
+  "canisters": {
+    "bitcoin_wallet": {
+      "candid": "src/bitcoin_wallet/bitcoin_wallet.did",
+      "package": "bitcoin_wallet",
+      "type": "rust"
+    },
+    "bitcoin_wallet_assets": {
+      "dependencies": [
+        ""
+      ],
+      "frontend": {
+        "entrypoint": "src/bitcoin_wallet_assets/src/index.html"
+      },
+      "source": [
+        "src/bitcoin_wallet_assets/assets",
+        "dist/bitcoin_wallet_assets/"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "dfx": "0.9.2",
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
+}
