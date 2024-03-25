@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 dfx stop
-# set -e
-# trap 'dfx stop' EXIT
+set -e
+trap 'dfx stop' EXIT
 
 echo "===========SETUP========="
 dfx start --background --clean
