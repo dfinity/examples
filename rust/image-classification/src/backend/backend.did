@@ -1,0 +1,17 @@
+type Classification = record {
+  label: text;
+  score: float32;
+};
+
+type ClassificationError = record {
+  message: text;
+};
+
+type ClassificationResult = variant {
+  Ok: vec Classification;
+  Err: ClassificationError;
+}
+
+service : {
+    "classify": (image: blob) -> (ClassificationResult);
+}
