@@ -1,0 +1,162 @@
+body {
+    font-family: monospace;
+}
+
+form {
+    display: flex;
+    justify-content: center;
+    max-width: 80vw;
+    margin: auto;
+}
+
+div {
+    display: flex;
+    max-width: 80vw;
+    flex-flow: column;
+    align-items: baseline;
+}
+
+img {
+    max-width: 80vw;
+    border: 1px solid #555;
+}
+
+.image {
+    margin-top: 10px;
+    border: 1px solid #555;
+    width: 300px;
+    height: 300px;
+    object-fit: cover
+}
+
+.invisible {
+    visibility: hidden;
+}
+
+h1 {
+    font-size: 100%;
+}
+
+textarea {
+    margin-top: -20px;
+    max-width: 80vw;
+}
+
+.option {
+    display: flex;
+    flex-flow: row;
+    justify-content: left;
+    align-items: center;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 42px;
+    height: 18px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    border-radius: 18px;
+    transition: 0.4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 16px;
+    width: 16px;
+    left: 1px;
+    bottom: 1px;
+    background-color: white;
+    border-radius: 50%;
+    transition: 0.4s;
+}
+
+input:checked+.slider {
+    background-color: #b11dbb;
+}
+
+input:checked+.slider:before {
+    transform: translateX(24px);
+}
+
+input.file {
+    display: none;
+}
+
+.clickable {
+    cursor: pointer;
+}
+
+.clean-button {
+    display: inline-block;
+    padding: 5px 10px;
+    border: 2px solid #a10dab;
+    border-radius: 4px;
+    background-color: #b11dbb;
+    color: #fff;
+    cursor: pointer;
+    text-decoration: none;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.clean-button:disabled {
+    background-color: #ccc;
+    border-color: #ccc;
+}
+
+ul {
+    margin: 0px;
+}
+
+li {
+    margin-top: 10px;
+}
+
+@keyframes astrodance {
+    0% {
+        transform: translate(-50%,-50%) rotate(-20deg)
+    }
+
+    50% {
+        transform: translate(-50%,-50%) rotate(10deg)
+    }
+
+    to {
+        transform: translate(-50%,-50%) rotate(-20deg)
+    }
+}
+
+img.loader {
+    width: 32px;
+    display: block;
+    left: 50%;
+    position: absolute;
+    -webkit-user-select: none;
+    user-select: none;
+    animation-name: astrodance;
+    animation-duration: 5s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+    border: none;
+    background-color: transparent;
+    padding-top: 30px;
+}
+
+#container {
+    margin-top: 20px;
+}
