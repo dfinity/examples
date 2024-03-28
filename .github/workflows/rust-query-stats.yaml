@@ -1,0 +1,43 @@
+name: rust-query-stats
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - rust/query_stats/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-query-stats.yaml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rust-basic-bitcoin-darwin:
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Rust Query Stats Darwin
+        run: |
+          dfx start --background
+          pushd rust/query_stats
+          dfx deploy query_stats
+          popd
+  rust-basic-bitcoin-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Rust Query Stats Linux
+        run: |
+          dfx start --background
+          pushd rust/query_stats
+          dfx deploy query_stats
+          popd

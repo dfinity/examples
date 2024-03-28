@@ -1,0 +1,15 @@
+type QueryStatRates = record {
+    calls_rate: float32;
+    instructions_rate: float32;
+    request_payload_bytes_rate: float32;
+    response_payload_bytes_rate: float32;
+}
+
+service : {
+    "get_current_query_stats_as_rates_string" : (nat64) -> (text) query;
+    "get_current_query_stats_as_rates" : (opt nat64) -> (opt QueryStatRates) query;
+
+    "get_current_query_stats_as_string" : () -> (text);
+
+    "load" : () -> (nat64) query;
+};
