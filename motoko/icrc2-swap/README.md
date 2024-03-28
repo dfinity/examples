@@ -254,7 +254,7 @@ dfx canister call token_a icrc1_balance_of 'record {
 
 # Check Bob's Token A balance, They should now have 0.99990000 A.
 dfx canister call token_a icrc1_balance_of 'record {
-  owner = principal "'${ALICE}'";
+  owner = principal "'${BOB}'";
 }'
 ```
 
@@ -293,7 +293,7 @@ make test
 
 ## Possible improvements
 
-- Keep a history of deposits/withdrawaps/swaps.
+- Keep a history of deposits/withdrawals/swaps.
 - Add a frontend.
 
 ## Known issues
