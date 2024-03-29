@@ -188,7 +188,7 @@ $ dfx canister id minimal_dapp
 rrkah-fqaaa-aaaaa-aaaaq-cai
 ```
 
-**http://<candid_canister_id>.localhost:8000/?id=<backend_canister_id>**
+**http://\{candid_canister_id\}.localhost:8000/?id=\<backend_canister_id\>**
 
 ![Candid UI](README_images/candid_ui.png)
 
