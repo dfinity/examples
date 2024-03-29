@@ -29,7 +29,7 @@ There're several important files in this example.
 
 ## Deployment
 
-The current Unity project is configured to use the [deployed dapp](https://nytzv-wqaaa-aaaan-qixdq-cai.icp0.io). And the [apple-app-site-association](https://ms43p-uaaaa-aaaan-qixeq-cai.icp0.io/.well-known/apple-app-site-association) file contains personal team id and app bundle id. If you deploy your own dapp by following [ii_integration_dapp](../ii_integration_dapp/README.md), you need to make some modifications before you start to build this project to iOS platform in Unity.
+The current Unity project is configured to use the [deployed dapp](https://nytzv-wqaaa-aaaan-qixdq-cai.icp0.io). And the [apple-app-site-association](https://ms43p-uaaaa-aaaan-qixeq-cai.icp0.io/.well-known/apple-app-site-association) file contains personal team id and app bundle id. If you deploy your own dapp by following <a href="../ii_integration_dapp/README.md">ii_integration_dapp</a>, you need to make some modifications before you start to build this project to iOS platform in Unity.
 
 1. In Unity, open the `Assets\Scenes\SampleScene.unity`.
 2. Navigate to the `AgentAndPlugin` in the scene hierarchy.
