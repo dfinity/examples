@@ -159,8 +159,8 @@ sh ./deploy_locally.sh
 
 - #### Step 5: To stop the docker instance:
    - Hit **Ctrl+C** on your keyboard to abort the running process.
-   - Run `docker ps` and find the <CONTAINER ID'\'> of encrypted_notes.
-   - Run `docker rm -f <CONTAINER ID'\'>`.
+   - Run `docker ps` and find the \<CONTAINER ID\> of encrypted_notes.
+   - Run `docker rm -f <CONTAINER ID>`.
 
 ### Option 2: Manual deployment
 - #### Step 1: For Motoko deployment set environmental variable:

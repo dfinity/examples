@@ -22,10 +22,11 @@ This sample is based on the default project created by running `dfx new` as desc
 The sample code is available from the [samples](https://github.com/dfinity/examples) repository in both [Motoko](https://github.com/dfinity/examples/tree/master/motoko/hello) and [Rust](https://github.com/dfinity/examples/tree/master/rust/hello).
 
 Canister `hello`, whether implemented in Motoko or Rust, presents the same Candid interface:
-
-    service : {
-      greet: (text) -> (text);
-    }
+```candid
+service : {
+  greet: (text) -> (text);
+}
+```
 
 The frontend canister, `hello_assets`, displays an HTML page with a text box for the argument and a button for calling the function greet with that argument. The result of the call is displayed in a message box.
 
