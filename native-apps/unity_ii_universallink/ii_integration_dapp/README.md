@@ -22,7 +22,7 @@ If you never work on the IC and don't know how to deploy a dapp, please refer to
 
 ### Set up the `apple-app-site-association` file
 
-In order to support iOS Universal Links, the website needs to serve an `apple-app-site-association` file under the `.well-known` directory. The `apple-app-site-association` file contains the app bundle id, team id etc., which will be used by the app installer to verify the domains in the entitlements file. This is an example of an [apple-app-site-association](./src/universallink_website/assets/.well-known/apple-app-site-association) file in this sample.
+In order to support iOS Universal Links, the website needs to serve an `apple-app-site-association` file under the `.well-known` directory. The `apple-app-site-association` file contains the app bundle id, team id etc., which will be used by the app installer to verify the domains in the entitlements file. This is an example of an [apple-app-site-association](https://github.com/dfinity/examples/blob/master/native-apps/unity_ii_universallink/ii_integration_dapp/src/universallink_website/assets/.well-known/apple-app-site-association) file in this sample.
 
 For how to generate an apple-app-site-association file, please refer to the [Associated domain file ](https://developer.apple.com/documentation/xcode/supporting-associated-domains#Add-the-associated-domain-file-to-your-website) document.
 

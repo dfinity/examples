@@ -4,7 +4,7 @@ This sample demonstrates one way to integrate Identity Integration with Unity on
 
 ## Overview
 
-In this example, you can learn how to communicate with the IC from C#. As we described in [Internet Identity Integration](../README.md#workflow), the game mainly focuses on:
+In this example, you can learn how to communicate with the IC from C#. As we described in [Internet Identity Integration](https://github.com/dfinity/examples/blob/master/native-apps/unity_ii_universallink/README.md#workflow), the game mainly focuses on:
 
 1. Provide a plugin to handle the communication between C# and the browser.
 2. Register the App Links in the Android manifest file.
@@ -36,7 +36,7 @@ The current Unity project is configured to use the [deployed dapp](https://nytzv
 2. Navigate to the `AgentAndPlugin` in the scene hierarchy.
 3. Update the `Greet Backend Canister` with your own greeting backend canister id.
 4. Update the `Greet Frontend` with your own greeting frontend.
-5. Please update the `kURLIdentifier` in [iOSPostBuildProcessor.cs](./Assets/Editor/iOSPostBuildProcessor.cs) to the URL of your deployed [universallink_website](../ii_integration_dapp/src/universallink_website).
+5. Please update the `kURLIdentifier` in [iOSPostBuildProcessor.cs](./Assets/Editor/iOSPostBuildProcessor.cs) to the URL of your deployed [universallink_website](https://github.com/dfinity/examples/tree/master/native-apps/unity_ii_universallink/ii_integration_dapp/src/universallink_website).
 
 After updating your Unity project correctly, please build to iOS platform in Unity, just
 
