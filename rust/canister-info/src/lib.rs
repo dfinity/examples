@@ -95,6 +95,13 @@ async fn map_canister_change<T>(
     map_change.map(|x| (x, skew))
 }
 
+/// Type for the result of `canister_controllers` calls.
+#[derive(CandidType, Deserialize, Clone)]
+struct CanisterControllersResult {
+    controllers: Vec<Principal>,
+    max_clock_skew: Option<u64>,
+}
+
 /// Returns the controllers of the canister characterized by a given principal and at the given `CanisterSnapshot`
 /// and an optional integer characterizing the maximum clock skew (in nanoseconds)
 /// between the subnet hosting the canister and the given `CanisterSnapshot`
@@ -106,13 +113,24 @@ async fn map_canister_change<T>(
 async fn canister_controllers(
     canister_id: Principal,
     canister_deployment: CanisterSnapshot,
-) -> Option<(Vec<Principal>, Option<u64>)> {
+) -> Option<CanisterControllersResult> {
     map_canister_change(canister_id, canister_deployment, |c| match &c.details {
         Creation(creation) => Some(creation.controllers.clone()),
         ControllersChange(ctrls) => Some(ctrls.controllers.clone()),
         _ => None,
     })
     .await
+    .map(|(controllers, max_clock_skew)| CanisterControllersResult {
+        controllers,
+        max_clock_skew,
+    })
+}
+
+/// Type for the result of `canister_module_hash` calls.
+#[derive(CandidType, Deserialize, Clone)]
+struct CanisterModuleHashResult {
+    module_hash: Option<Vec<u8>>,
+    max_clock_skew: Option<u64>,
 }
 
 /// Returns the module hash of the canister characterized by a given principal and at the given `CanisterSnapshot`
@@ -126,7 +144,7 @@ async fn canister_controllers(
 async fn canister_module_hash(
     canister_id: Principal,
     canister_deployment: CanisterSnapshot,
-) -> Option<(Option<Vec<u8>>, Option<u64>)> {
+) -> Option<CanisterModuleHashResult> {
     map_canister_change(canister_id, canister_deployment, |c| match &c.details {
         Creation(_) => Some(None),
         CodeUninstall => Some(None),
@@ -134,6 +152,17 @@ async fn canister_module_hash(
         _ => None,
     })
     .await
+    .map(|(module_hash, max_clock_skew)| CanisterModuleHashResult {
+        module_hash,
+        max_clock_skew,
+    })
+}
+
+/// Type for the result of `canister_deployment_chain` calls.
+#[derive(CandidType, Deserialize, Clone)]
+struct CanisterDeploymentChainResult {
+    deployment_chain: Vec<CanisterChange>,
+    max_clock_skew: Option<u64>,
 }
 
 /// Returns the deployment chain of the canister characterized by a given principal and at the given `CanisterSnapshot`:
@@ -150,12 +179,12 @@ async fn canister_module_hash(
 async fn canister_deployment_chain(
     canister_id: Principal,
     canister_deployment: CanisterSnapshot,
-) -> (Vec<CanisterChange>, Option<u64>) {
+) -> CanisterDeploymentChainResult {
     let mut current_canister_id = canister_id;
     let mut current_canister_deployment = canister_deployment;
     let mut visited_canister_ids = vec![]; // canister IDs of canisters from the deployment chain
     let mut deployment_chain = vec![];
-    let mut skew = None;
+    let mut max_clock_skew = None;
     loop {
         visited_canister_ids.push(current_canister_id);
         match map_canister_change(
@@ -187,9 +216,9 @@ async fn canister_deployment_chain(
                     }
                 };
                 deployment_chain.push(c);
-                skew = s
-                    .map(|dt| Some(std::cmp::min(dt, skew.unwrap_or(dt))))
-                    .unwrap_or(skew);
+                max_clock_skew = s
+                    .map(|dt| Some(std::cmp::min(dt, max_clock_skew.unwrap_or(dt))))
+                    .unwrap_or(max_clock_skew);
                 if done {
                     break;
                 }
@@ -199,7 +228,10 @@ async fn canister_deployment_chain(
             }
         };
     }
-    (deployment_chain, skew)
+    CanisterDeploymentChainResult {
+        deployment_chain,
+        max_clock_skew,
+    }
 }
 
 #[test]

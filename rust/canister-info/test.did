@@ -1,8 +1,3 @@
-type canister_snapshot = variant {
-    at_timestamp : nat64;
-    at_version : nat64;
-};
-
 type change_origin = variant {
     from_user : record {
         user_id : principal;
@@ -34,6 +29,26 @@ type change = record {
     details : change_details;
 };
 
+type canister_snapshot = variant {
+    at_timestamp : nat64;
+    at_version : nat64;
+};
+
+type canister_controllers_result = record {
+    controllers : vec principal;
+    max_clock_skew : opt nat64;
+};
+
+type canister_deployment_chain_result = record {
+    deployment_chain : vec change;
+    max_clock_skew : opt nat64;
+};
+
+type canister_module_hash_result = record {
+    module_hash : opt blob;
+    max_clock_skew : opt nat64;
+};
+
 type canister_info_result = record {
     total_num_changes : nat64;
     recent_changes : vec change;
@@ -42,16 +57,9 @@ type canister_info_result = record {
 };
 
 service : {
-  canister_controllers : (principal, canister_snapshot) -> (
-      opt record { vec principal; opt nat64 },
-    );
-  canister_deployment_chain : (principal, canister_snapshot) -> (
-      vec change,
-      opt nat64,
-    );
-  canister_module_hash : (principal, canister_snapshot) -> (
-      opt record { opt blob; opt nat64 },
-    );
+  canister_controllers : (principal, canister_snapshot) -> (opt canister_controllers_result);
+  canister_deployment_chain : (principal, canister_snapshot) -> (canister_deployment_chain_result);
+  canister_module_hash : (principal, canister_snapshot) -> (opt canister_module_hash_result);
   info : (principal) -> (canister_info_result);
   reflexive_transitive_controllers : (principal) -> (vec principal);
 }
