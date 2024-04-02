@@ -4,7 +4,7 @@ export const aPriori = {
   invoiceCanister: {
     canisterId: {
       principal: {
-        asText: 'bkyz2-fmaaa-aaaaa-qaaaq-cai',
+        asText: 'q4eej-kyaaa-aaaaa-aaaha-cai',
       },
     },
     // Used in to_other_address_form for non-trivial subaccount ICRC1 account case.

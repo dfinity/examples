@@ -30,7 +30,7 @@ module {
 
     let testInputs = {
       caller = Principal.fromText("hpikg-6exdt-jn33w-ndty3-fc7jc-tl2lr-buih3-cs3y7-tftkp-sfp62-gqe");
-      invoiceCanisterId = Principal.fromText("bkyz2-fmaaa-aaaaa-qaaaq-cai");
+      invoiceCanisterId = Principal.fromText("q4eej-kyaaa-aaaaa-aaaha-cai");
       amountDueNatBaseUnits = 23456789;
       invoiceULID = "6GNGGRXAKGTXG070DV4GW2JKCJ";
       originalTokenVerbose = {
@@ -523,7 +523,7 @@ module {
 
     let testInputs = {
       creator = Principal.fromText("hpikg-6exdt-jn33w-ndty3-fc7jc-tl2lr-buih3-cs3y7-tftkp-sfp62-gqe");
-      canisterId = Principal.fromText("bkyz2-fmaaa-aaaaa-qaaaq-cai");
+      canisterId = Principal.fromText("q4eej-kyaaa-aaaaa-aaaha-cai");
       id = "6GNGGRXAKGTXG070DV4GW2JKCJ";
       amountDue = 23456789;
     };
