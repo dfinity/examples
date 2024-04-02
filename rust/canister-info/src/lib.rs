@@ -203,7 +203,7 @@ async fn canister_deployment_chain(
 }
 
 #[test]
-fn check_governance_candid_file() {
+fn check_candid_file() {
     use candid_parser::utils::{CandidSource, service_equal};
 
     let did_path = std::path::PathBuf::from(
