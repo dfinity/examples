@@ -175,7 +175,7 @@ const deploy_icp_ledger_from_downloaded_wasm_and_did = async () => {
     );
   };
   const mintingAccount = `${await $`dfx ledger account-id`}`.trim();
-  const cliDeployLiteral = oneLine`dfx deploy ${constants.icpLedgerCanisterDfxJsonName} 
+  const cliDeployLiteral = oneLine`dfx deploy --specified-id "sgymv-uiaaa-aaaaa-aaaia-cai" ${constants.icpLedgerCanisterDfxJsonName}
     --argument '(record {
         minting_account = "${mintingAccount}"; 
         initial_values = vec {}; 
@@ -194,13 +194,14 @@ const deploy_icp_ledger_from_downloaded_wasm_and_did = async () => {
 const deploy_icrc1_token_canister = async (
   currentIdentityPrincipal,
   { dfxJsonName, tokenName, tokenSymbol },
+  canisterId,
 ) => {
   console.info(
     chalk.cyan(
       `deploying ICRC1 token canister with name ${tokenName} with ${currentIdentityPrincipal} as minting principal`,
     ),
   );
-  const deploymentLiteral = oneLine`dfx deploy ${dfxJsonName} --argument '( 
+  const deploymentLiteral = oneLine`dfx deploy --specified-id ${canisterId} ${dfxJsonName} --argument '(
     record { 
       token_symbol = "${tokenSymbol}";
       token_name =  "${tokenName}";
@@ -376,9 +377,9 @@ const run = async (testing = false) => {
   // Deploys token-ledger canister that maps to #ICP.
   await deploy_icp_ledger_from_downloaded_wasm_and_did(currentIdentityPrincipal);
   // Deploys token-ledger canister that maps to #ICRC1ExampleToken.
-  await deploy_icrc1_token_canister(currentIdentityPrincipal, constants.icrc1ExampleToken);
+  await deploy_icrc1_token_canister(currentIdentityPrincipal, constants.icrc1ExampleToken, "sbzkb-zqaaa-aaaaa-aaaiq-cai");
   // Deploys token-ledger canister that maps to #ICRC1ExampleToken2.
-  await deploy_icrc1_token_canister(currentIdentityPrincipal, constants.icrc1ExampleToken2);
+  await deploy_icrc1_token_canister(currentIdentityPrincipal, constants.icrc1ExampleToken2, "si2b5-pyaaa-aaaaa-aaaja-cai");
 
   if (testing) {
     await disburse_funds_to_nnsFundedSecp256k1Identity_creator_subaccounts();
