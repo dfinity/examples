@@ -24,6 +24,7 @@ jobs:
         run: |
           dfx start --background
           pushd rust/canister-info
+          cargo test
           make test
           popd
   rust-canister-info-linux:
@@ -36,5 +37,6 @@ jobs:
         run: |
           dfx start --background
           pushd rust/canister-info
+          cargo test
           make test
           popd
