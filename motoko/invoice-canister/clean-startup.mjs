@@ -296,6 +296,7 @@ const second_e2e_precheck = async ({ testing }) => {
   if (testing) {
     const invoiceCanisterId = `${await $`dfx canister id invoice`}`.trim();
     if (invoiceCanisterId !== constants.invoiceCanisterId) {
+      console.info(chalk.green(`actual invoiceCanisterId: ${invoiceCanisterId}, expected: ${constants.invoiceCanisterId}`));
       throw new Error(
         'Mismatch between expected canister id and current invoice canister id\n'
         +'indicates breaking change for E2E tests. Aborting...',
