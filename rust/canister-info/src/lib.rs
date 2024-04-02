@@ -211,7 +211,6 @@ fn check_candid_file() {
     )
     .join("test.did");
 
-    // See comments in main above
     candid::export_service!();
     let expected = __export_service();
 
