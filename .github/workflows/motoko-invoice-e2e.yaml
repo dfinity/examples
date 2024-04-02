@@ -83,15 +83,6 @@ jobs:
             }
           }
           EOF
-      - name: Set configured canister_ids.json
-        run: |
-          cat > ~/.config/dfx/canister_ids.json << EOF
-          {
-            "local": {
-              "invoice": "q4eej-kyaaa-aaaaa-aaaha-cai"
-            }
-          }
-          EOF
       - name: Motoko Invoice Canister Linux
         run: |
           dfx extension install nns --version 0.2.1
@@ -99,7 +90,5 @@ jobs:
           make e2e
           dfx stop
           popd
-      - name: Remove canister_ids.json
-        run: rm ~/.config/dfx/canister_ids.json
       - name: Remove networks.json
         run: rm ~/.config/dfx/networks.json
