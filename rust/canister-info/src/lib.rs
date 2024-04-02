@@ -241,7 +241,7 @@ fn check_candid_file() {
     let did_path = std::path::PathBuf::from(
         std::env::var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR env var undefined"),
     )
-    .join("test.did");
+    .join("canister-info.did");
 
     candid::export_service!();
     let expected = __export_service();
