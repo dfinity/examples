@@ -370,7 +370,7 @@ const run = async (testing = false) => {
 
   console.info(chalk.cyan(`deploying invoice canister`));
   // To keep invoice canister id consistent, deploy it first after `dfx nns install` is done.
-  await $`dfx deploy invoice`;
+  await $`dfx deploy invoice --specified-id ${constants.invoiceCanisterId}`;
   await second_e2e_precheck({ testing });
 
   // Deploys token-ledger canister that maps to #ICP.
