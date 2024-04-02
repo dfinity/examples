@@ -201,3 +201,19 @@ async fn canister_deployment_chain(
     }
     (deployment_chain, skew)
 }
+
+#[test]
+fn check_governance_candid_file() {
+    use candid_parser::utils::{CandidSource, service_equal};
+
+    let did_path = std::path::PathBuf::from(
+        std::env::var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR env var undefined"),
+    )
+    .join("test.did");
+
+    // See comments in main above
+    candid::export_service!();
+    let expected = __export_service();
+
+    service_equal(CandidSource::Text(&expected), CandidSource::File(did_path.as_path())).unwrap();
+}
