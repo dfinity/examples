@@ -204,7 +204,7 @@ async fn canister_deployment_chain(
 
 #[test]
 fn check_candid_file() {
-    use candid_parser::utils::{CandidSource, service_equal};
+    use candid_parser::utils::{service_equal, CandidSource};
 
     let did_path = std::path::PathBuf::from(
         std::env::var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR env var undefined"),
@@ -215,5 +215,9 @@ fn check_candid_file() {
     candid::export_service!();
     let expected = __export_service();
 
-    service_equal(CandidSource::Text(&expected), CandidSource::File(did_path.as_path())).unwrap();
+    service_equal(
+        CandidSource::Text(&expected),
+        CandidSource::File(did_path.as_path()),
+    )
+    .unwrap();
 }
