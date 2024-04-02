@@ -354,7 +354,7 @@ module Types {
     `{`  
     `  tokenAmount = #ICRC1_ExampleToken(1_000_000_000_000) };`  
     `  destination = #CanisterExpected(#ICRC1_ExampleToken({`  
-    `    owner = Principal.fromText("q4eej-kyaaa-aaaaa-aaaha-cai");`
+    `    owner = Principal.fromText("q4eej-kyaaa-aaaaa-aaaha-cai");`  
     `    subaccount = null;`  
     `   }))`  
     `}`  
@@ -401,7 +401,7 @@ module Types {
     `{`  
     `  id = "6GNGGRXAKGTXG070DV4GW2JKCJ";`  
     `  destination = #CanisterExpected(#ICRC1_ExampleToken({`  
-    `    owner = Principal.fromText("q4eej-kyaaa-aaaaa-aaaha-cai");`
+    `    owner = Principal.fromText("q4eej-kyaaa-aaaaa-aaaha-cai");`  
     `    subaccount = null;`  
     `   }))`  
     `}`  
@@ -464,7 +464,7 @@ module Types {
     `{`  
     `  token = null;`  
     `  destination = #CanisterExpected(#ICRC1_ExampleToken({`  
-    `    owner = Principal.fromText("q4eej-kyaaa-aaaaa-aaaha-cai");`
+    `    owner = Principal.fromText("q4eej-kyaaa-aaaaa-aaaha-cai");`  
     `    subaccount = null;`  
     `  }))`  
     `}`  

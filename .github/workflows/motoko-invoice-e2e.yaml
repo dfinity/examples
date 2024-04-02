@@ -90,5 +90,5 @@ jobs:
           make e2e
           dfx stop
           popd
-      - name: Remove networks.json
+      - name: Remove networks.json 
         run: rm ~/.config/dfx/networks.json
