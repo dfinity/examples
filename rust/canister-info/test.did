@@ -57,9 +57,9 @@ type canister_info_result = record {
 };
 
 service : {
-  canister_controllers : (principal, canister_snapshot) -> (opt canister_controllers_result);
-  canister_deployment_chain : (principal, canister_snapshot) -> (canister_deployment_chain_result);
-  canister_module_hash : (principal, canister_snapshot) -> (opt canister_module_hash_result);
-  info : (principal) -> (canister_info_result);
-  reflexive_transitive_controllers : (principal) -> (vec principal);
+    canister_controllers : (principal, canister_snapshot) -> (opt canister_controllers_result);
+    canister_deployment_chain : (principal, canister_snapshot) -> (canister_deployment_chain_result);
+    canister_module_hash : (principal, canister_snapshot) -> (opt canister_module_hash_result);
+    info : (principal) -> (canister_info_result);
+    reflexive_transitive_controllers : (principal) -> (vec principal);
 }
