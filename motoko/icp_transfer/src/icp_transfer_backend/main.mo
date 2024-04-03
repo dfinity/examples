@@ -4,7 +4,8 @@ import Result "mo:base/Result";
 import Option "mo:base/Option";
 import Blob "mo:base/Blob";
 import Error "mo:base/Error";
-import Account "mo:account-identifier";
+import Array "mo:base/Array";
+import Principal "mo:base/Principal";
 
 actor {
   type Tokens = {
@@ -14,7 +15,7 @@ actor {
   type TransferArgs = {
     amount : Tokens;
     toPrincipal : Principal;
-    toSubaccount : ?Account.Subaccount;
+    toSubaccount : ?Blob;
   };
 
   public shared ({ caller }) func transfer(args : TransferArgs) : async Result.Result<IcpLedger.BlockIndex, Text> {
@@ -27,8 +28,6 @@ actor {
       # debug_show (args.toSubaccount)
     );
 
-    // if no subaccount is specified, we use the default subaccount
-    let toSubaccount = Option.get(args.toSubaccount, Account.defaultSubaccount());
     let transferArgs : IcpLedger.TransferArgs = {
       // can be used to distinguish between transactions
       memo = 0;
@@ -39,7 +38,7 @@ actor {
       // we are transferring from the canisters default subaccount, therefore we don't need to specify it
       from_subaccount = null;
       // we take the principal and subaccount from the arguments and convert them into an account identifier
-      to = Blob.toArray(Account.accountIdentifier(args.toPrincipal, toSubaccount));
+      to = Blob.toArray(Principal.toLedgerAccount(args.toPrincipal, args.toSubaccount));
       // a timestamp indicating when the transaction was created by the caller; if it is not specified by the caller then this is set to the current ICP time
       created_at_time = null;
     };
