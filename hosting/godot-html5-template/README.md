@@ -41,7 +41,7 @@ When the local replica is up and running, run this command to deploy the caniste
 dfx deploy
 ```
 
-If you get error code 500 after deploying to the IC mainnet, try to use `raw` keyword in the URL like this: `https://\<canister-id\>.raw.ic0.app`.
+If you get error code 500 after deploying to the IC mainnet, try to use `raw` keyword in the URL like this: `https://<canister-id>.raw.ic0.app`.
 
 ## License
 This project is licensed under the Apache 2.0 license, see `LICENSE.md` for details. See `CONTRIBUTE.md` for details about how to contribute to this project. 

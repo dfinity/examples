@@ -102,7 +102,7 @@ Open the `internet_identity` link in the browser. You should be able to create a
 ### Step 4: Make the Internet Identity URL available in the build process.
 We want the sample application to integrate with Internet Identity differently depending on whether we deploy locally or on mainnet:
 
-- Locally the application should use the Internet Identity URL http://\<II_CANISTER_ID\>.localhost:4943/.
+- Locally the application should use the Internet Identity URL `http://<II_CANISTER_ID>.localhost:4943/`.
 - On the mainnet it should use https://identity.ic0.app.
 
 > **Note**: If you are using Safari (or any other browser that does not support subdomains on localhost, i.e this URL `http://<II_CANISTER_ID>.localhost:4943/`), you can try to use the following URL instead: `http://localhost:4943/?canisterId=<II_CANISTER_ID>`. This will work for Safari but not Chrome.
