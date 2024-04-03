@@ -27,7 +27,7 @@ This example requires an installation of:
 The following steps will guide you through the process of setting up the token transfer canister for your own project.
 
 > [!TIP]
-> If you just want to interact with this example, follow steps 4-8 and 10-13 below.
+> If you just want to interact with this example, follow steps 4-6 and 8-11 below.
 
 ### Step 1: Create a new `dfx` project and navigate into the project's directory.
 
