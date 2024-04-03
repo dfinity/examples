@@ -1,6 +1,6 @@
 # Token transfer_from
 
-[View this samples code on GitHub](https://github.com/dfinity/examples/tree/master/rust/token_transfer_from).
+[View this samples code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/token_transfer_from).
 
 ## Overview
 
@@ -29,7 +29,7 @@ The following steps will guide you through the process of setting up the token t
 ### Step 1: Create a new `dfx` project and navigate into the project's directory.
 
 ```bash
-dfx new --type=rust token_transfer_from --no-frontend
+dfx new --type=motoko token_transfer_from --no-frontend
 cd token_transfer_from
 ```
 
@@ -57,13 +57,16 @@ chmod +x download_latest_icrc1_ledger.sh
 
 Replace its contents with this but adapt the URLs to be the ones you determined in step 2. Note that we are deploying the ICRC-1 ledger to the same canister id the ckBTC ledger uses on mainnet. This will make it easier to interact with it later.
 
+> [!IMPORTANT]
+> Don't forget to add the `icrc1_ledger_canister` as a dependency for `token_transfer_from_backend`, otherwise the build will fail.
+
 ```json
 {
     "canisters": {
         "token_transfer_from_backend": {
-            "candid": "src/token_transfer_from_backend/token_transfer_from_backend.did",
-            "package": "token_transfer_from_backend",
-            "type": "rust"
+            "main": "src/token_transfer_from_backend/main.mo",
+            "type": "motoko",
+            "dependencies": ["icrc1_ledger_canister"]
         },
         "icrc1_ledger_canister": {
             "type": "custom",
@@ -169,104 +172,74 @@ The output should be:
 
 ### Step 7: Prepare the token transfer canister:
 
-Replace the contents of the `src/token_transfer_from_backend/Cargo.toml` file with the following:
+Replace the contents of the `src/token_transfer_from_backend/main.mo` file with the following:
 
-```toml
-[package]
-name = "token_transfer_from_backend"
-version = "0.1.0"
-edition = "2021"
+```motoko
+import Icrc1Ledger "canister:icrc1_ledger_canister";
+import Debug "mo:base/Debug";
+import Result "mo:base/Result";
+import Option "mo:base/Option";
+import Blob "mo:base/Blob";
+import Error "mo:base/Error";
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+actor {
 
-[lib]
-crate-type = ["cdylib"]
+  type Account = {
+    owner : Principal;
+    subaccount : ?[Nat8];
+  };
 
-[dependencies]
-candid = "0.10"
-ic-cdk = "0.12"
-ic-cdk-timers = "0.6" # Feel free to remove this dependency if you don't need timers
-icrc-ledger-types = "0.1.5"
-serde = "1.0.197"
-```
+  type TransferArgs = {
+    amount : Nat;
+    toAccount : Account;
+  };
 
-Replace the contents of the `src/token_transfer_from_backend/src/lib.rs` file with the following:
-
-```rust
-use candid::{CandidType, Deserialize, Principal};
-use icrc_ledger_types::icrc1::account::Account;
-use icrc_ledger_types::icrc1::transfer::{BlockIndex, NumTokens};
-use icrc_ledger_types::icrc2::transfer_from::{TransferFromArgs, TransferFromError};
-use serde::Serialize;
-
-#[derive(CandidType, Deserialize, Serialize)]
-pub struct TransferArgs {
-    amount: NumTokens,
-    to_account: Account,
-}
-
-#[ic_cdk::update]
-async fn transfer(args: TransferArgs) -> Result<BlockIndex, String> {
-    ic_cdk::println!(
-        "Transferring {} tokens to account {}",
-        &args.amount,
-        &args.to_account,
+  public shared ({ caller }) func transfer(args : TransferArgs) : async Result.Result<Icrc1Ledger.BlockIndex, Text> {
+    Debug.print(
+      "Transferring "
+      # debug_show (args.amount)
+      # " tokens to account"
+      # debug_show (args.toAccount)
     );
 
-    let transfer_from_args = TransferFromArgs {
-        // the account we want to transfer tokens from (in this case we assume the caller approved the canister to spend funds on their behalf)
-        from: Account::from(ic_cdk::caller()),
-        // can be used to distinguish between transactions
-        memo: None,
-        // the amount we want to transfer
-        amount: args.amount,
-        // the subaccount we want to spend the tokens from (in this case we assume the default subaccount has been approved)
-        spender_subaccount: None,
-        // if not specified, the default fee for the canister is used
-        fee: None,
-        // the account we want to transfer tokens to
-        to: args.to_account,
-        // a timestamp indicating when the transaction was created by the caller; if it is not specified by the caller then this is set to the current ICP time
-        created_at_time: None,
+    let transferFromArgs : Icrc1Ledger.TransferFromArgs = {
+      // the account we want to transfer tokens from (in this case we assume the caller approved the canister to spend funds on their behalf)
+      from = {
+        owner = caller;
+        subaccount = null;
+      };
+      // can be used to distinguish between transactions
+      memo = null;
+      // the amount we want to transfer
+      amount = args.amount;
+      // the subaccount we want to spend the tokens from (in this case we assume the default subaccount has been approved)
+      spender_subaccount = null;
+      // if not specified, the default fee for the canister is used
+      fee = null;
+      // we take the principal and subaccount from the arguments and convert them into an account identifier
+      to = args.toAccount;
+      // a timestamp indicating when the transaction was created by the caller; if it is not specified by the caller then this is set to the current ICP time
+      created_at_time = null;
     };
 
-    // 1. Asynchronously call another canister function using `ic_cdk::call`.
-    ic_cdk::call::<(TransferFromArgs,), (Result<BlockIndex, TransferFromError>,)>(
-        // 2. Convert a textual representation of a Principal into an actual `Principal` object. The principal is the one we specified in `dfx.json`.
-        //    `expect` will panic if the conversion fails, ensuring the code does not proceed with an invalid principal.
-        Principal::from_text("mxzaz-hqaaa-aaaar-qaada-cai")
-            .expect("Could not decode the principal."),
-        // 3. Specify the method name on the target canister to be called, in this case, "icrc1_transfer".
-        "icrc2_transfer_from",
-        // 4. Provide the arguments for the call in a tuple, here `transfer_args` is encapsulated as a single-element tuple.
-        (transfer_from_args,),
-    )
-    .await // 5. Await the completion of the asynchronous call, pausing the execution until the future is resolved.
-    // 6. Apply `map_err` to transform any network or system errors encountered during the call into a more readable string format.
-    //    The `?` operator is then used to propagate errors: if the result is an `Err`, it returns from the function with that error,
-    //    otherwise, it unwraps the `Ok` value, allowing the chain to continue.
-    .map_err(|e| format!("failed to call ledger: {:?}", e))?
-    // 7. Access the first element of the tuple, which is the `Result<BlockIndex, TransferError>`, for further processing.
-    .0
-    // 8. Use `map_err` again to transform any specific ledger transfer errors into a readable string format, facilitating error handling and debugging.
-    .map_err(|e| format!("ledger transfer error {:?}", e))
-}
+    try {
+      // initiate the transfer
+      let transferFromResult = await Icrc1Ledger.icrc2_transfer_from(transferFromArgs);
 
-// Enable Candid export (see https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid)
-ic_cdk::export_candid!();
+      // check if the transfer was successfull
+      switch (transferFromResult) {
+        case (#Err(transferError)) {
+          return #err("Couldn't transfer funds:\n" # debug_show (transferError));
+        };
+        case (#Ok(blockIndex)) { return #ok blockIndex };
+      };
+    } catch (error : Error) {
+      // catch any errors that might occur during the transfer
+      return #err("Reject message: " # Error.message(error));
+    };
+  };
+};
 
-```
-
-Replace the contents of the `src/token_transfer_from_backend/token_transfer_from_backend.did` file with the following:
-
-> [!NOTE]
-> The `token_transfer_from.did` file is a Candid file that describes the service interface of the canister. It was generated from the Rust code using the `candid-extractor` tool. You can read more about the necessary steps [here](https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid).
-
-```did
-type Account = record { owner : principal; subaccount : opt blob };
-type Result = variant { Ok : nat; Err : text };
-type TransferArgs = record { to_account : Account; amount : nat };
-service : { transfer : (TransferArgs) -> (Result) }
 ```
 
 ### Step 8: Deploy the token transfer canister:
@@ -306,7 +279,7 @@ Now that the canister has an approval for the `default` identities tokens on the
 ```bash
 dfx canister call token_transfer_from_backend transfer "(record {
   amount = 100_000_000;
-  to_account = record {
+  toAccount = record {
     owner = principal \"$(dfx canister id token_transfer_from_backend)\";
   };
 })"
