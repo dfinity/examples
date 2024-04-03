@@ -5,7 +5,7 @@ trap 'dfx stop' EXIT
 
 echo "===========SETUP========="
 dfx start --background --clean
-dfx identity new alice --storage-mode plaintext
+dfx identity new alice_icp_transfer --storage-mode plaintext --force
 export MINTER_ACCOUNT_ID=$(dfx --identity anonymous ledger account-id)
 export DEFAULT_ACCOUNT_ID=$(dfx ledger account-id)
 dfx deploy icp_ledger_canister --argument "
