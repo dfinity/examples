@@ -42,7 +42,7 @@ dfx deploy
 If you get error code 500 after deploying to the IC mainnet, try to use `raw` keyword in the URL like this: 
 
 ```
-https://\<canister-id\>.raw.ic0.app
+https://<canister-id>.raw.ic0.app
 ```
 
 ## License
