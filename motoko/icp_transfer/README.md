@@ -21,14 +21,13 @@ This example requires an installation of:
 
 -   [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 -   [x] Download and install [git](https://git-scm.com/downloads).
--   [x] Download and install [mops](https://internetcomputer.org/docs/current/tutorials/developer-journey/level-3/3.1-package-managers/#installing-mops).
 
 ## How to get there
 
 The following steps will guide you through the process of setting up the token transfer canister for your own project.
 
 > [!TIP]
-> If you just want to interact with this example, follow steps 4-8 and 10-13 below.
+> If you just want to interact with this example, follow steps 4-6 and 8-11 below.
 
 ### Step 1: Create a new `dfx` project and navigate into the project's directory.
 
@@ -61,6 +60,9 @@ chmod +x download_latest_icp_ledger.sh
 
 Replace its contents with this but adapt the URLs to be the ones you determined in step 2:
 
+> [!IMPORTANT]
+> Don't forget to add the `icp_ledger_canister` as a dependency for `icp_transfer_backend`, otherwise the build will fail.
+
 ```json
 {
     "canisters": {
@@ -83,7 +85,7 @@ Replace its contents with this but adapt the URLs to be the ones you determined 
     "defaults": {
         "build": {
             "args": "",
-            "packtool": "mops sources"
+            "packtool": ""
         }
     },
     "output_env_file": ".env",
@@ -97,42 +99,26 @@ Replace its contents with this but adapt the URLs to be the ones you determined 
 dfx start --background --clean
 ```
 
-### Step 5: Create a new identity that will work as a minting account:
-
-```bash
-dfx identity new minter --storage-mode plaintext
-dfx identity use minter
-export MINTER_ACCOUNT_ID=$(dfx ledger account-id)
-```
+### Step 5: Deploy the ledger canister to your network:
 
 > [!IMPORTANT]
 > Transfers from the minting account will create Mint transactions. Transfers to the minting account will create Burn transactions.
 
-### Step 6: Switch back to your default identity and record its ledger account identifier:
-
-```bash
-dfx identity use default
-export DEFAULT_ACCOUNT_ID=$(dfx ledger account-id)
-```
-
-### Step 7: Deploy the ledger canister to your network:
-
 Take a moment to read the details of the call made below. Not only are you deploying the ICP ledger canister, you are also:
 
 -   Deploying the canister to the same canister ID as the mainnet ledger canister. This is to make it easier to switch between local and mainnet deployments and set in `dfx.json` using `specified_id`.
--   Setting the minting account to the account identifier you saved in a previous step (MINTER_ACCOUNT_ID).
+-   Setting the minting account to the anonymous principal (`2vxsx-fae`)
 -   Minting 100 ICP tokens to the DEFAULT_ACCOUNT_ID (1 ICP is equal to 10^8 e8s, hence the name).
 -   Setting the transfer fee to 0.0001 ICP.
 -   Naming the token Local ICP / LICP
 
 ```bash
-dfx deploy icp_ledger_canister --argument "
-  (variant {
+dfx deploy icp_ledger_canister --argument "(variant {
     Init = record {
-      minting_account = \"$MINTER_ACCOUNT_ID\";
+      minting_account = \"$(dfx ledger --identity anonymous account-id)\";
       initial_values = vec {
         record {
-          \"$DEFAULT_ACCOUNT_ID\";
+          \"$(dfx ledger --identity default account-id)\";
           record {
             e8s = 10_000_000_000 : nat64;
           };
@@ -158,10 +144,10 @@ URLs:
     icp_ledger_canister: http://127.0.0.1:4943/?canisterId=bnz7o-iuaaa-aaaaa-qaaaa-cai&id=ryjl3-tyaaa-aaaaa-aaaba-cai
 ```
 
-### Step 8: Verify that the ledger canister is healthy and working as expected by using the command:
+### Step 6: Verify that the ledger canister is healthy and working as expected by using the command:
 
 ```bash
-dfx canister call icp_ledger_canister account_balance '(record { account = '$(python3 -c 'print("vec{" + ";".join([str(b) for b in bytes.fromhex("'$DEFAULT_ACCOUNT_ID'")]) + "}")')'})'
+dfx canister call icp_ledger_canister account_balance '(record { account = '$(python3 -c 'print("vec{" + ";".join([str(b) for b in bytes.fromhex("'$(dfx ledger --identity default account-id)'")]) + "}")')'})'
 ```
 
 The output should be:
@@ -170,19 +156,7 @@ The output should be:
 (record { e8s = 10_000_000_000 : nat64 })
 ```
 
-### Step 9: Prepare the token transfer canister:
-
-Initiate `mops` in the project directory. When asked, select the type "Project" and don't setup a GitHub workflow:
-
-```bash
-mops init
-```
-
-Add the `account-identifier` library to the project:
-
-```bash
-mops add account-identifier
-```
+### Step 7: Prepare the ICP transfer canister:
 
 Replace the contents of the `src/icp_transfer_backend/main.mo` file with the following:
 
@@ -193,7 +167,8 @@ import Result "mo:base/Result";
 import Option "mo:base/Option";
 import Blob "mo:base/Blob";
 import Error "mo:base/Error";
-import Account "mo:account-identifier";
+import Array "mo:base/Array";
+import Principal "mo:base/Principal";
 
 actor {
   type Tokens = {
@@ -203,7 +178,7 @@ actor {
   type TransferArgs = {
     amount : Tokens;
     toPrincipal : Principal;
-    toSubaccount : ?Account.Subaccount;
+    toSubaccount : ?Blob;
   };
 
   public shared ({ caller }) func transfer(args : TransferArgs) : async Result.Result<IcpLedger.BlockIndex, Text> {
@@ -216,8 +191,6 @@ actor {
       # debug_show (args.toSubaccount)
     );
 
-    // if no subaccount is specified, we use the default subaccount
-    let toSubaccount = Option.get(args.toSubaccount, Account.defaultSubaccount());
     let transferArgs : IcpLedger.TransferArgs = {
       // can be used to distinguish between transactions
       memo = 0;
@@ -228,7 +201,7 @@ actor {
       // we are transferring from the canisters default subaccount, therefore we don't need to specify it
       from_subaccount = null;
       // we take the principal and subaccount from the arguments and convert them into an account identifier
-      to = Blob.toArray(Account.accountIdentifier(args.toPrincipal, toSubaccount));
+      to = Blob.toArray(Principal.toLedgerAccount(args.toPrincipal, args.toSubaccount));
       // a timestamp indicating when the transaction was created by the caller; if it is not specified by the caller then this is set to the current ICP time
       created_at_time = null;
     };
@@ -253,20 +226,20 @@ actor {
 
 ```
 
-### Step 10: Deploy the token transfer canister:
+### Step 8: Deploy the token transfer canister:
 
 ```bash
 dfx deploy icp_transfer_backend
 ```
 
-### Step 11: Determine out the address of your canister:
+### Step 9: Determine out the address of your canister:
 
 ```bash
 TOKENS_TRANSFER_ACCOUNT_ID="$(dfx ledger account-id --of-canister icp_transfer_backend)"
 TOKENS_TRANSFER_ACCOUNT_ID_BYTES="$(python3 -c 'print("vec{" + ";".join([str(b) for b in bytes.fromhex("'$TOKENS_TRANSFER_ACCOUNT_ID'")]) + "}")')"
 ```
 
-### Step 12: Transfer funds to your canister:
+### Step 10: Transfer funds to your canister:
 
 > [!IMPORTANT]
 > Make sure that you are using the default `dfx` account that we minted tokens to in step 7 for the following steps.
@@ -274,7 +247,7 @@ TOKENS_TRANSFER_ACCOUNT_ID_BYTES="$(python3 -c 'print("vec{" + ";".join([str(b) 
 Make the following call to transfer funds to the canister:
 
 ```bash
-dfx canister call icp_ledger_canister transfer "(record { to = ${TOKENS_TRANSFER_ACCOUNT_ID_BYTES}; memo = 1; amount = record { e8s = 2_00_000_000 }; fee = record { e8s = 10_000 }; })"
+dfx canister --identity default call icp_ledger_canister transfer "(record { to = ${TOKENS_TRANSFER_ACCOUNT_ID_BYTES}; memo = 1; amount = record { e8s = 2_00_000_000 }; fee = record { e8s = 10_000 }; })"
 ```
 
 If successful, the output should be:
@@ -283,12 +256,12 @@ If successful, the output should be:
 (variant { Ok = 1 : nat64 })
 ```
 
-### Step 13: Transfer funds from the canister:
+### Step 11: Transfer funds from the canister:
 
 Now that the canister owns ICP on the ledger, you can transfer funds from the canister to another account, in this case back to the default account:
 
 ```bash
-dfx canister call icp_transfer_backend transfer "(record { amount = record { e8s = 1_00_000_000 }; toPrincipal = principal \"$(dfx identity get-principal)\"})"
+dfx canister call icp_transfer_backend transfer "(record { amount = record { e8s = 100_000_000 }; toPrincipal = principal \"$(dfx identity --identity default get-principal)\"})"
 ```
 
 ## Security considerations and best practices
@@ -298,5 +271,5 @@ If you base your application on this example, we recommend you familiarize yours
 For example, the following aspects are particularly relevant for this app:
 
 -   [Inter-canister calls and rollbacks](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices/#inter-canister-calls-and-rollbacks), since issues around inter-canister calls (here the ledger) can e.g. lead to time-of-check time-of-use or double spending security bugs.
--   [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since this is essential when e.g. displaying important financial data in the frontend that may be used by users to decide on future transactions. In this example, this is e.g. relevant for the call to `canisterBalance`.
+-   [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since this is essential when e.g. displaying important financial data in the frontend that may be used by users to decide on future transactions.
 -   [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#use-a-decentralized-governance-system-like-sns-to-make-a-canister-have-a-decentralized-controller), since decentralizing control is a fundamental aspect of decentralized finance applications.
