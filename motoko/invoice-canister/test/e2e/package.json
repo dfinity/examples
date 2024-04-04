@@ -21,7 +21,7 @@
     "chalk": "^5.2.0",
     "isomorphic-fetch": "^3.0.0",
     "pem-file": "^1.0.1",
-    "vite": "^4.5.2",
+    "vite": "^4.5.3",
     "vitest": "^0.28.4"
   }
 }
