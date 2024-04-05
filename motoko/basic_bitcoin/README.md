@@ -39,7 +39,7 @@ Deploying to the Internet Computer requires [cycles](https://internetcomputer.or
 ### Deploy the smart contract to the Internet Computer
 
 ```bash
-dfx deploy --network=ic basic_bitcoin --argument '(variant { Testnet })'
+dfx deploy --network=ic basic_bitcoin --argument '(variant { testnet })'
 ```
 
 #### What this does
