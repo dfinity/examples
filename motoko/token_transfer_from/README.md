@@ -248,12 +248,12 @@ actor {
 dfx deploy token_transfer_from_backend
 ```
 
-### Step 9: Transfer funds to your canister:
+### Step 9: Approve the canister to transfer funds on behalf of the user:
 
 > [!IMPORTANT]
 > Make sure that you are using the default `dfx` account that we minted tokens to in step 5 for the following steps.
 
-Make the following call to entitle the `token_transfer_from_backend` canister to transfer 100 tokens on behalf of the `default` identity:
+Make the following call to approve the `token_transfer_from_backend` canister to transfer 100 tokens on behalf of the `default` identity:
 
 ```bash
 dfx canister call --identity default icrc1_ledger_canister icrc2_approve "(
