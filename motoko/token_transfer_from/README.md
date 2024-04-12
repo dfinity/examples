@@ -23,8 +23,11 @@ This example requires an installation of:
 
 The following steps will guide you through the process of setting up the token transfer canister for your own project.
 
-> [!TIP]
-> If you just want to interact with this example, follow steps 4-6 and 8-10 below.
+:::info 
+
+If you just want to interact with this example, follow steps 4-6 and 8-10 below.
+
+:::
 
 ### Step 1: Create a new `dfx` project and navigate into the project's directory.
 
@@ -35,8 +38,11 @@ cd token_transfer_from
 
 ### Step 2: Determine ICRC-1 ledger file locations
 
-> [!NOTE]
-> You can read more about how to setup the ICRC-1 ledger locally [here](https://internetcomputer.org/docs/current/developer-docs/defi/icrc-1/icrc1-ledger-setup).
+:::info 
+
+You can read more about how to setup the ICRC-1 ledger locally [here](https://internetcomputer.org/docs/current/developer-docs/defi/icrc-1/icrc1-ledger-setup).
+
+:::
 
 Go to the [releases overview](https://dashboard.internetcomputer.org/releases) and copy the latest replica binary revision. At the time of writing, this is `d87954601e4b22972899e9957e800406a0a6b929`.
 
