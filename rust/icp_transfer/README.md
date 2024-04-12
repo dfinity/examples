@@ -6,8 +6,10 @@
 
 ICP transfer is a canister that can transfer ICP from its account to other accounts. It is an example of a canister that uses the ledger canister. Sample code is available in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/icp_transfer) and [Rust](https://github.com/dfinity/examples/tree/master/rust/icp_transfer).
 
-> [!NOTE]
-> The ICP ledger supports the ICRC1 standard, which is the recommended standard for token transfers. You can read more about the differences [here](https://internetcomputer.org/docs/current/developer-docs/defi/overview) and find an example of how to transfer ICRC1 tokens from a canister in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/token_transfer) and [Rust](https://github.com/dfinity/examples/tree/master/rust/token_transfer).
+:::info 
+
+The ICP ledger supports the ICRC1 standard, which is the recommended standard for token transfers. You can [read more about the differences](https://internetcomputer.org/docs/current/developer-docs/defi/overview) and find an example of how to transfer ICRC1 tokens from a canister in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/token_transfer) and [Rust](https://github.com/dfinity/examples/tree/master/rust/token_transfer).
+:::
 
 ## Architecture
 
@@ -26,8 +28,11 @@ This example requires an installation of:
 
 The following steps will guide you through the process of setting up the token transfer canister for your own project.
 
-> [!TIP]
-> If you just want to interact with this example, follow steps 4-8 and 10-13 below.
+:::info 
+
+If you just want to interact with this example, follow steps 4-8 and 10-13 below.
+
+:::
 
 ### Step 1: Create a new `dfx` project and navigate into the project's directory.
 
@@ -38,8 +43,11 @@ cd icp_transfer
 
 ### Step 2: Determine ledger file locations
 
-> [!NOTE]
-> You can read more about how to setup the ICP ledger locally [here](https://internetcomputer.org/docs/current/developer-docs/defi/icp-tokens/ledger-local-setup).
+:::info 
+
+You can read more about how to [setup the ICP ledger locally](https://internetcomputer.org/docs/current/developer-docs/defi/icp-tokens/ledger-local-setup).
+
+:::
 
 Go to the [releases overview](https://dashboard.internetcomputer.org/releases) and copy the latest replica binary revision. At the time of writing, this is `d87954601e4b22972899e9957e800406a0a6b929`.
 
@@ -246,8 +254,11 @@ ic_cdk::export_candid!();
 
 Replace the contents of the `src/icp_transfer_backend/icp_transfer_backend.did` file with the following:
 
-> [!NOTE]
-> The `icp_transfer_backend.did` file is a Candid file that describes the service interface of the canister. It was generated from the Rust code using the `candid-extractor` tool. You can read more about the necessary steps [here](https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid).
+:::info 
+
+The `icp_transfer_backend.did` file is a Candid file that describes the service interface of the canister. It was generated from the Rust code using the `candid-extractor` tool. You can read more about the [necessary steps](https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid).
+
+:::
 
 ```did
 type Result = variant { Ok : nat64; Err : text };
@@ -279,8 +290,11 @@ TOKENS_TRANSFER_ACCOUNT_ID_BYTES="$(python3 -c 'print("vec{" + ";".join([str(b) 
 
 ### Step 12: Transfer funds to your canister:
 
-> [!IMPORTANT]
-> Make sure that you are using the default `dfx` account that we minted tokens to in step 7 for the following steps.
+:::info 
+
+Make sure that you are using the default `dfx` account that we minted tokens to in step 7 for the following steps.
+
+:::
 
 Make the following call to transfer funds to the canister:
 
