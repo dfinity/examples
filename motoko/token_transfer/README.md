@@ -111,8 +111,11 @@ dfx identity use minter
 export MINTER=$(dfx identity get-principal)
 ```
 
-> [!IMPORTANT]
-> Transfers from the minting account will create Mint transactions. Transfers to the minting account will create Burn transactions.
+:::info 
+
+Transfers from the minting account will create Mint transactions. Transfers to the minting account will create Burn transactions.
+
+:::
 
 ### Step 6: Switch back to your default identity and record its principal to mint an initial balance to when deploying the ledger:
 
@@ -159,8 +162,11 @@ URLs:
 
 ### Step 8: Verify that the ledger canister is healthy and working as expected by using the command:
 
-> [!NOTE]
-> You can find more information on how to interact with the ICRC-1 ledger [here](https://internetcomputer.org/docs/current/developer-docs/defi/icrc-1/using-icrc1-ledger#icrc-1-and-icrc-1-extension-endpoints)
+:::info 
+
+You can find more information on how to interact with the ICRC-1 ledger [here](https://internetcomputer.org/docs/current/developer-docs/defi/icrc-1/using-icrc1-ledger#icrc-1-and-icrc-1-extension-endpoints).
+
+:::
 
 ````bash
 dfx canister call icrc1_ledger_canister icrc1_balance_of "(record {
@@ -250,8 +256,11 @@ dfx deploy token_transfer_backend
 
 ### Step 11: Transfer funds to your canister:
 
-> [!IMPORTANT]
-> Make sure that you are using the default `dfx` account that we minted tokens to in step 7 for the following steps.
+:::info 
+
+Make sure that you are using the default `dfx` account that we minted tokens to in step 7 for the following steps.
+
+:::
 
 Make the following call to transfer 10 tokens to the canister:
 
