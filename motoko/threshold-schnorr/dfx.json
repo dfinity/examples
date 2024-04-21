@@ -1,0 +1,8 @@
+{
+  "canisters": {
+    "schnorr_example_motoko": {
+      "type": "motoko",
+      "main": "src/schnorr_example_motoko/main.mo"
+    }
+  }
+}
