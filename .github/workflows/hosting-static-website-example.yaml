@@ -22,10 +22,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Hosting Static Website Darwin
         run: |
-          dfx start --background
-          pushd hosting/static-website
-          dfx deploy
-          popd
+          .github/workflows/hosting-static-website-example.test.sh
   hosting-static-website-linux:
     runs-on: ubuntu-20.04
     steps:
@@ -34,7 +31,4 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Hosting Static Website Linux
         run: |
-          dfx start --background
-          pushd hosting/static-website
-          dfx deploy
-          popd
+          .github/workflows/hosting-static-website-example.test.sh
