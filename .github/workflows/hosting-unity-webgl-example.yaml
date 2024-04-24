@@ -22,10 +22,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Hosting Unity Webgl Darwin
         run: |
-          dfx start --background
-          pushd hosting/unity-webgl-template
-          dfx deploy
-          popd
+          .github/workflows/hosting-unity-webgl-example.test.sh
   hosting-unity-webgl-linux:
     runs-on: ubuntu-20.04
     steps:
@@ -34,7 +31,4 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Hosting Unity Webgl Linux
         run: |
-          dfx start --background
-          pushd hosting/unity-webgl-template
-          dfx deploy
-          popd
+          .github/workflows/hosting-unity-webgl-example.test.sh
