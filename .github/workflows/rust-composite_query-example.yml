@@ -1,5 +1,6 @@
 name: rust-composite_query
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

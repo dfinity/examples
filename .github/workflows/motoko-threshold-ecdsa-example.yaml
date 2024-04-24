@@ -1,5 +1,6 @@
 name: motoko-threshold-ecdsa
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

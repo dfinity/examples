@@ -1,5 +1,6 @@
 name: motoko-composite-query
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

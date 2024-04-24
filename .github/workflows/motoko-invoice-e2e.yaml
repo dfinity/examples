@@ -1,6 +1,7 @@
 # Known failure: https://dfinity.atlassian.net/browse/EM-9
 name: motoko-invoice-canister-e2e
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

@@ -1,5 +1,6 @@
 name: motoko-actor-reference
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

@@ -1,5 +1,6 @@
 name: motoko-encrypted-notes-vetkd
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

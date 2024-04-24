@@ -1,5 +1,6 @@
 name: motoko-whoami
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

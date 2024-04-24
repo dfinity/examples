@@ -1,5 +1,6 @@
 name: motoko-dip721
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

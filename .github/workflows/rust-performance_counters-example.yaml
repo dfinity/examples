@@ -1,5 +1,6 @@
 name: rust-performance_counters
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

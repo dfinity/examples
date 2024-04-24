@@ -1,5 +1,6 @@
 name: motoko-icrc2-swap
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

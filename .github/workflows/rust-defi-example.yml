@@ -1,5 +1,6 @@
 name: rust-defi
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

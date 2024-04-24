@@ -1,5 +1,6 @@
 name: rust-nft-wallet
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

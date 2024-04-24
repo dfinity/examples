@@ -1,5 +1,6 @@
 name: motoko-hello_cycles
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

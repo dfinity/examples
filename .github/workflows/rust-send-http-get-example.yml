@@ -1,5 +1,6 @@
 name: rust-send-http-get-example
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

@@ -1,5 +1,6 @@
 name: motoko-cert-var
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

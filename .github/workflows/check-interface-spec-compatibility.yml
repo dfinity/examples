@@ -1,0 +1,88 @@
+# A GitHub Actions workflow that regularly installs the latest replica and builds/deploys all examples
+name: Check Examples Compatibility with Latest IC SHA
+
+on:
+  # TODO: remove `push` trigger; this is only for testing
+  push:
+  schedule:
+    # run the test suite every monday
+    - cron: '0 0 * * MON'
+
+jobs:
+  build-and-deploy-examples-against-latest-ic-sha-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+        # First, check if there is a newer version and update the artifacts referencing the version
+      - name: Check new ic version
+        id: update
+        run: |
+          # Not all ic commits are built and released, so we go through the last commits until we found one
+          # which has associated artefacts
+          while read -r sha
+          do
+              echo "sha: $sha"
+              # Send a HEAD to the URL to see if it exists
+              if curl --fail --head --silent --location \
+                  "https://download.dfinity.systems/ic/$sha/binaries/x86_64-linux/replica.gz"
+              then
+                  echo "$sha appears to have associated binary, using"
+                  latest_sha="$sha"
+                  break
+              else
+                  echo "$sha does not seem to have associated binary"
+              fi
+          done < <(curl \
+              -SsL \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              https://api.github.com/repos/dfinity/ic/commits | jq -cMr '.[] | .sha')
+
+          # If we couldn't find any sha with associated artefacts, abort
+          if [ -z "${latest_sha:-}" ]
+          then
+              echo no sha found
+              exit 1
+          fi
+
+      - name: Download latest ic artifacts
+        run: |
+          curl -O "https://download.dfinity.systems/ic/$latest_sha/binaries/x86_64-linux/replica.gz"
+          curl -O "https://download.dfinity.systems/ic/$latest_sha/binaries/x86_64-linux/canister_sandbox.gz"
+          curl -O "https://download.dfinity.systems/ic/$latest_sha/binaries/x86_64-linux/ic-admin.gz"
+          curl -O "https://download.dfinity.systems/ic/$latest_sha/binaries/x86_64-linux/ic-btc-adapter.gz"
+          curl -O "https://download.dfinity.systems/ic/$latest_sha/binaries/x86_64-linux/ic-https-outcalls-adapter.gz"
+          curl -O "https://download.dfinity.systems/ic/$latest_sha/binaries/x86_64-linux/ic-nns-init.gz"
+          curl -O "https://download.dfinity.systems/ic/$latest_sha/binaries/x86_64-linux/ic-starter.gz"
+          curl -O "https://download.dfinity.systems/ic/$latest_sha/binaries/x86_64-linux/sandbox_launcher.gz"
+          curl -O "https://download.dfinity.systems/ic/$latest_sha/binaries/x86_64-linux/sns.gz"
+
+      - name: Overwrite artifacts in dfx cache
+        run: |
+          gzip -d replica.gz
+          mv replica $(dfx cache show)
+          gzip -d canister_sandbox.gz
+          mv canister_sandbox $(dfx cache show)
+          gzip -d ic-admin.gz
+          mv ic-admin $(dfx cache show)
+          gzip -d ic-btc-adapter.gz
+          mv ic-btc-adapter $(dfx cache show)
+          gzip -d ic-https-outcalls-adapter.gz
+          mv ic-https-outcalls-adapter $(dfx cache show)
+          gzip -d ic-nns-init.gz
+          mv ic-nns-init $(dfx cache show)
+          gzip -d ic-starter.gz
+          mv ic-starter $(dfx cache show)
+          gzip -d sandbox_launcher.gz
+          mv sandbox_launcher $(dfx cache show)
+          gzip -d sns.gz
+          mv sns $(dfx cache show)  
+
+      - name: Skip cache install
+        run: |
+          export "skip_dfx_cache_install=1"
+
+      - name: Build and deploy all examples
+        run: |
+          .github/workflows/hosting-photo-storage-example.test.sh

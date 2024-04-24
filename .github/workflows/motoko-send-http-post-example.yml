@@ -1,5 +1,6 @@
 name: motoko-send-http-post-example
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

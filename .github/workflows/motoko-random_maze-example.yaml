@@ -1,5 +1,6 @@
 name: motoko-random_maze
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

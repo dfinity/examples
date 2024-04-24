@@ -1,5 +1,6 @@
 name: motoko-persistent-storage
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

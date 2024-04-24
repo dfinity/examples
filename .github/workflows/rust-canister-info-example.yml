@@ -1,5 +1,6 @@
 name: rust-canister-info
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

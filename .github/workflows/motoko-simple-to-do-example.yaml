@@ -1,5 +1,6 @@
 name: motoko-simple-to-do
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

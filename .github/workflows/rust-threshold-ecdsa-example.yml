@@ -1,6 +1,7 @@
 # Known failure: https://dfinity.atlassian.net/browse/EM-7
 name: rust-threshold-ecdsa
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

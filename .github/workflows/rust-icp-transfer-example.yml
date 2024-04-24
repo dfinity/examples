@@ -1,6 +1,7 @@
 # Known failure: https://dfinity.atlassian.net/browse/EM-5
 name: rust-icp_transfer
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

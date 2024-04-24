@@ -1,5 +1,6 @@
 name: rust-hello
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

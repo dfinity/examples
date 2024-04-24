@@ -1,5 +1,6 @@
 name: motoko-superheroes
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

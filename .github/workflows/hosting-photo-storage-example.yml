@@ -1,5 +1,7 @@
 name: hosting-photo-storage
 on:
+  workflow_dispatch:
+  workflow_call:
   push:
     branches:
       - master
@@ -21,14 +23,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Hosting Photo Storage Darwin
         run: |
-          pushd hosting/photo-storage
-          # verify frontend deps install and build
-          npm install
-          npm run build
-          # verify that frontend asset canister deploys
-          dfx start --background
-          dfx deploy
-          popd
+          .github/workflows/hosting-photo-storage-example.test.sh
   hosting-photo-storage-linux:
     runs-on: ubuntu-20.04
     steps:
@@ -37,11 +32,4 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Hosting Photo Storage Linux
         run: |
-          pushd hosting/photo-storage
-          # verify frontend deps install and build
-          npm install
-          npm run build
-          # verify that frontend asset canister deploys
-          dfx start --background
-          dfx deploy
-          popd
+          .github/workflows/hosting-photo-storage-example.test.sh

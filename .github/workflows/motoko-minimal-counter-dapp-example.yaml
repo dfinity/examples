@@ -1,5 +1,6 @@
 name: motoko-minimal-counter-dapp
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

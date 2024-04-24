@@ -1,5 +1,6 @@
 name: motoko-phone-book
 on:
+  workflow_dispatch:
   push:
     branches:
       - master

@@ -1,5 +1,6 @@
 name: rust-periodic_tasks
 on:
+  workflow_dispatch:
   push:
     branches:
       - master
