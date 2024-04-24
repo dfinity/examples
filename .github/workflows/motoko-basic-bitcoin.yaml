@@ -24,10 +24,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko Basic Bitcoin Darwin
         run: |
-          dfx start --background
-          pushd motoko/basic_bitcoin
-          dfx deploy basic_bitcoin --argument '(variant { regtest })'
-          popd
+          .github/workflows/motoko-basic-bitcoin.test.sh
   rust-basic-bitcoin-linux:
     runs-on: ubuntu-20.04
     steps:
@@ -38,7 +35,4 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko Basic Bitcoin Linux
         run: |
-          dfx start --background
-          pushd motoko/basic_bitcoin
-          dfx deploy basic_bitcoin --argument '(variant { regtest })'
-          popd
+          .github/workflows/motoko-basic-bitcoin.test.sh
