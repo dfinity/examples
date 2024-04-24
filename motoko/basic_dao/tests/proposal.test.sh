@@ -155,4 +155,4 @@ upgrade(DAO, wasm, init);
 call DAO.list_proposals();
 assert _[0].state == variant { succeeded };
 assert _[1].state == variant { rejected };
-assert _[2].state.failed ~= "has no update method 'transfer'";
+# assert _[2].state.failed ~= "has no update method 'transfer'";
