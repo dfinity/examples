@@ -84,7 +84,21 @@ jobs:
       - name: Build and deploy all examples
         run: |
           .github/workflows/hosting-photo-storage-example.test.sh
+      - name: Build and deploy all examples
+        run: |
           .github/workflows/hosting-static-website-example.test.sh
+      - name: Build and deploy all examples
+        run: |
           .github/workflows/hosting-unity-webgl-example.test.sh
+      - name: Build and deploy all examples
+        run: |
           .github/workflows/motoko-actor-reference.test.sh
+      - name: Build and deploy all examples
+        run: |
           .github/workflows/motoko-basic-bitcoin.test.sh
+      - name: Build and deploy all examples
+        run: |
+          .github/workflows/motoko-basic-dao-example.test.sh
+      - name: Build and deploy all examples
+        run: |
+          .github/workflows/motoko-calc-example.test.sh

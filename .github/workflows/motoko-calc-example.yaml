@@ -22,10 +22,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko Calc Darwin
         run: |
-          dfx start --background
-          pushd motoko/calc
-          make test
-          popd
+          .github/workflows/motoko-calc-example.test.sh
   motoko-calc-example-linux:
     runs-on: ubuntu-20.04
     steps:
@@ -34,7 +31,4 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko Calc Linux
         run: |
-          dfx start --background
-          pushd motoko/calc
-          make test
-          popd
+          .github/workflows/motoko-calc-example.test.sh
