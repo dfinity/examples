@@ -17,11 +17,7 @@ DFX_VERSION=${DFX_VERSION:=0.19.0} DFXVM_INIT_YES=true bash install-dfx.sh
 rm install-dfx.sh
 echo "$HOME/.local/share/dfx/bin" >> $GITHUB_PATH
 source "$HOME/.local/share/dfx/env"
-if [[ -z "${skip_dfx_cache_install}" ]]; then
-  echo "Skipping dfx cache install"
-else
-  dfx cache install
-fi
+dfx cache install
 
 # Install ic-repl
 version=0.1.2
