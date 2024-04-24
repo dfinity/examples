@@ -56,6 +56,14 @@ jobs:
           curl -O "https://download.dfinity.systems/ic/$latest_sha/binaries/x86_64-linux/sandbox_launcher.gz"
           curl -O "https://download.dfinity.systems/ic/$latest_sha/binaries/x86_64-linux/sns.gz"
 
+      - name: Install IC SDK
+        run: |
+          wget --output-document install-dfx.sh "https://raw.githubusercontent.com/dfinity/sdk/dfxvm-install-script/install.sh"
+          DFX_VERSION=${DFX_VERSION:=0.19.0} DFXVM_INIT_YES=true bash install-dfx.sh
+          rm install-dfx.sh
+          echo "$HOME/.local/share/dfx/bin" >> $GITHUB_PATH
+          source "$HOME/.local/share/dfx/env"
+
       - name: Overwrite artifacts in dfx cache
         run: |
           gzip -d replica.gz
