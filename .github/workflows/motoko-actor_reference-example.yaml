@@ -22,10 +22,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko Actor Reference Darwin
         run: |
-          dfx start --background
-          pushd motoko/actor_reference
-          make test
-          popd
+          .github/workflows/motoko-actor-reference.test.sh
   motoko-actor-reference-linux:
     runs-on: ubuntu-20.04
     steps:
@@ -34,7 +31,4 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko Actor Reference Linux
         run: |
-          dfx start --background
-          pushd motoko/actor_reference
-          make test
-          popd
+          .github/workflows/motoko-actor-reference.test.sh

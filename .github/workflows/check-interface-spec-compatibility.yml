@@ -86,3 +86,4 @@ jobs:
           .github/workflows/hosting-photo-storage-example.test.sh
           .github/workflows/hosting-static-website-example.test.sh
           .github/workflows/hosting-unity-webgl-example.test.sh
+          .github/workflows/motoko-actor-reference.test.sh
