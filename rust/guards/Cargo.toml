@@ -9,6 +9,8 @@ crate-type = ["cdylib"]
 [dependencies]
 candid = "0.10"
 ic-cdk = "0.13"
+scopeguard = "1.2.0"
+serde = "1.0"
 
 [dev-dependencies]
 pocket-ic = "2.2"

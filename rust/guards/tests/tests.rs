@@ -1,16 +1,43 @@
-use candid::{Decode, Encode, Principal};
+use candid::{CandidType, Decode, Encode, Principal};
 use ic_cdk::api::management_canister::main::CanisterId;
-use pocket_ic::{PocketIc, WasmResult};
+use pocket_ic::PocketIc;
 
 pub const CANISTER_WASM: &[u8] =
     include_bytes!("../target/wasm32-unknown-unknown/release/ic_fun_with_guards.wasm");
 
 #[test]
-fn should_get_value() {
+fn should_execute_and_not_revert_guard() {
     let canister = CanisterSetup::new();
+    assert_eq!(canister.query_call_get_value(), None);
+
+    canister.update_call_with_panicking_callback(&FutureType::TrueAsyncCall);
+
     assert_eq!(
         canister.query_call_get_value(),
-        Some("Hello, world!".to_string())
+        Some("guard executed".to_string())
+    );
+}
+
+#[test]
+fn should_revert_guard() {
+    let canister = CanisterSetup::new();
+    assert_eq!(canister.query_call_get_value(), None);
+
+    canister.update_call_with_panicking_callback(&FutureType::FalseAsyncCall);
+
+    assert_eq!(canister.query_call_get_value(), None);
+}
+
+#[test]
+fn should_not_revert_guard_with_made_up_future() {
+    let canister = CanisterSetup::new();
+    assert_eq!(canister.query_call_get_value(), None);
+
+    canister.update_call_with_made_up_future_and_panicking_callback();
+
+    assert_eq!(
+        canister.query_call_get_value(),
+        Some("guard executed".to_string())
     );
 }
 
@@ -29,6 +56,7 @@ impl CanisterSetup {
     }
 
     pub fn query_call_get_value(&self) -> Option<String> {
+        use pocket_ic::WasmResult;
         match self
             .env
             .query_call(
@@ -45,6 +73,45 @@ impl CanisterSetup {
             }
         }
     }
+
+    pub fn update_call_with_panicking_callback(&self, future_type: &FutureType) {
+        use pocket_ic::ErrorCode;
+
+        let res = self
+            .env
+            .update_call(
+                self.canister_id,
+                Principal::anonymous(),
+                "update_with_panicking_callback",
+                Encode!(&future_type).unwrap(),
+            )
+            .expect_err("update_with_panicking_callback should panic");
+        assert_eq!(res.code, ErrorCode::CanisterCalledTrap);
+        assert!(res.description.contains("panicking callback!"));
+    }
+
+    pub fn update_call_with_made_up_future_and_panicking_callback(&self) {
+        use pocket_ic::ErrorCode;
+
+        let res = self
+            .env
+            .update_call(
+                self.canister_id,
+                Principal::anonymous(),
+                "update_with_made_up_future_and_panicking_callback",
+                Encode!().unwrap(),
+            )
+            .expect_err("update_with_panicking_callback should panic");
+        assert_eq!(res.code, ErrorCode::CanisterCalledTrap);
+        assert!(res.description.contains("panicking callback!"));
+    }
+}
+
+#[derive(CandidType, Debug, PartialEq, Eq)]
+pub enum FutureType {
+    TrueAsyncCall,
+    FalseAsyncCall,
+    ArtificialAsyncCall,
 }
 
 fn setup_pocket_ic() -> PocketIc {
