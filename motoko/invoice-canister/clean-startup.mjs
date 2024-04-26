@@ -78,6 +78,7 @@ const constants = {
       icrc1SubaccountBlobLiteral: `\\dc\\f6(N7;lQ\\e0\\9aG&\\1e\\fb\\bfI\\c2\\95\\bdS\\88\\08\\de2\\f8\\bc\\eb\\a3bZl\\60`
     },
   },
+  invoiceCanisterId: 'q4eej-kyaaa-aaaaa-aaaha-cai',
   icpLedgerCanisterDfxJsonName: 'icp_ledger_canister',
   icrc1ExampleToken: {
     dfxJsonName: 'icrc1_token_ledger_canister_ex1',
@@ -249,14 +250,12 @@ const disburse_funds_to_nnsFundedSecp256k1Identity_creator_subaccounts = async (
     }
   )'`;
   await dfxRaw(transferLiteral);
-    
-  const invoiceCanisterId = `${await $`dfx canister id invoice`}`.trim();
 
   // Next first ICRC1 token-ledger canister (`#ICRC1_ExampleToken1` in invoice canister's Motoko code).
   transferLiteral = oneLine`dfx canister call ${constants.icrc1ExampleToken.dfxJsonName} icrc1_transfer '(
     record { 
         to = record {  
-          owner = principal"${invoiceCanisterId}";  
+          owner = principal"${constants.invoiceCanisterId}";  
           subaccount = opt blob"${constants.nnsFundedSecp256k1Identity.creatorSubaccounts.icrc1SubaccountBlobLiteral}"; 
         };
         amount = 100000000000;
@@ -268,7 +267,7 @@ const disburse_funds_to_nnsFundedSecp256k1Identity_creator_subaccounts = async (
   transferLiteral = oneLine`dfx canister call ${constants.icrc1ExampleToken2.dfxJsonName} icrc1_transfer '(
     record { 
         to = record {  
-          owner = principal"${invoiceCanisterId}";  
+          owner = principal"${constants.invoiceCanisterId}";  
           subaccount = opt blob"${constants.nnsFundedSecp256k1Identity.creatorSubaccounts.icrc1SubaccountBlobLiteral}"; 
         };
         amount = 100000000000;
@@ -286,6 +285,20 @@ const first_e2e_precheck = ({ testing, currentIdentityPrincipal }) => {
       throw new Error(
         "Mismatch between expected principal and current secp256k1Identity's principal\n"
         + "indicates breaking change for E2E tests. Aborting...",
+      );
+    }
+  }
+}
+
+// As subaccount addresses are dependent on the value of invoice canister's id, E2E will not 
+// work if the deployed invoice canister id has 'somehow' changed from its expected value.
+const second_e2e_precheck = async ({ testing }) => {
+  if (testing) {
+    const invoiceCanisterId = `${await $`dfx canister id invoice`}`.trim();
+    if (invoiceCanisterId !== constants.invoiceCanisterId) {
+      throw new Error(
+        `Mismatch between expected canister id ${constants.invoiceCanisterId} and current invoice canister id ${invoiceCanisterId}{\n`
+        +'indicates breaking change for E2E tests. Aborting...',
       );
     }
   }
@@ -357,6 +370,7 @@ const run = async (testing = false) => {
   console.info(chalk.cyan(`deploying invoice canister`));
   // To keep invoice canister id consistent, deploy it first after `dfx nns install` is done.
   await $`dfx deploy invoice`;
+  await second_e2e_precheck({ testing });
 
   // Deploys token-ledger canister that maps to #ICP.
   await deploy_icp_ledger_from_downloaded_wasm_and_did(currentIdentityPrincipal);
