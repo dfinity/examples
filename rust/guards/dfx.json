@@ -1,0 +1,21 @@
+{
+  "canisters": {
+    "guards": {
+      "candid": "guards.did",
+      "package": "ic-fun-with-guards",
+      "type": "rust",
+      "metadata": [
+	      {
+		      "name": "candid:service"
+	      }
+      ]
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "version": 1
+}

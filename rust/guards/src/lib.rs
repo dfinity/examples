@@ -104,6 +104,11 @@ mod future {
     }
 }
 
+#[update]
+fn reset_value() {
+    STATE.with(|state| state.borrow_mut().value = None);
+}
+
 #[query]
 fn get_value() -> Option<String> {
     STATE.with(|state| state.borrow().value.clone())
