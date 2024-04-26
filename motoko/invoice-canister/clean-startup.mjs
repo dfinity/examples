@@ -297,7 +297,7 @@ const second_e2e_precheck = async ({ testing }) => {
     const invoiceCanisterId = `${await $`dfx canister id invoice`}`.trim();
     if (invoiceCanisterId !== constants.invoiceCanisterId) {
       throw new Error(
-        'Mismatch between expected canister id and current invoice canister id\n'
+        `Mismatch between expected canister id ${constants.invoiceCanisterId} and current invoice canister id ${invoiceCanisterId}`{\n'
         +'indicates breaking change for E2E tests. Aborting...',
       );
     }
