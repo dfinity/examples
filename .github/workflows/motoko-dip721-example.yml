@@ -24,9 +24,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko DIP-721 Darwin
         run: |
-          pushd motoko/dip721-nft-container
-          bash ./demo.sh
-          popd
+          .github/workflows/motoko-dip721-example.test.sh
   motoko-dip721-linux:
     runs-on: ubuntu-20.04
     steps:
@@ -37,6 +35,4 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko DIP-721 Linux
         run: |
-          pushd motoko/dip721-nft-container
-          bash ./demo.sh
-          popd
+          .github/workflows/motoko-dip721-example.test.sh

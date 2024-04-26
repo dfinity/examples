@@ -22,10 +22,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko Classes Darwin
         run: |
-          dfx start --background
-          pushd motoko/classes
-          make test
-          popd
+          .github/workflows/motoko-classes-example.test.sh
   motoko-classes-linux:
     runs-on: ubuntu-20.04
     steps:
@@ -34,7 +31,4 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko Classes Linux
         run: |
-          dfx start --background
-          pushd motoko/classes
-          make test
-          popd
+          .github/workflows/motoko-classes-example.test.sh

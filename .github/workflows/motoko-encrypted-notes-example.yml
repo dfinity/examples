@@ -27,9 +27,7 @@ jobs:
           popd
       - name: Motoko Encrypted Notes Darwin (e2e)
         run: |
-          pushd motoko/encrypted-notes-dapp
-          make test-e2e BUILD_ENV=motoko
-          popd
+          .github/workflows/motoko-encrypted-notes-example.test.sh
   motoko-encrypted-notes-linux:
     runs-on: ubuntu-20.04
     steps:
@@ -43,6 +41,4 @@ jobs:
           popd
       - name: Motoko Encrypted Notes Linux (e2e)
         run: |
-          pushd motoko/encrypted-notes-dapp
-          make test-e2e BUILD_ENV=motoko
-          popd
+          .github/workflows/motoko-encrypted-notes-example.test.sh

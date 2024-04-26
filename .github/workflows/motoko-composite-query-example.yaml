@@ -23,10 +23,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko Composite Query Darwin
         run: |
-          dfx start --background
-          pushd motoko/composite_query
-          make test
-          popd
+          .github/workflows/motoko-composite-query-example.test.sh
   motoko-composite-query-linux:
     runs-on: ubuntu-20.04
     steps:
@@ -35,7 +32,4 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko Composite Query Linux
         run: |
-          dfx start --background
-          pushd motoko/composite_query
-          make test
-          popd
+          .github/workflows/motoko-composite-query-example.test.sh

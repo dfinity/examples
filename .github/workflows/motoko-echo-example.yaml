@@ -22,10 +22,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko Echo Darwin
         run: |
-          dfx start --background
-          pushd motoko/echo
-          make test
-          popd
+          .github/workflows/motoko-echo-example.test.sh
   motoko-echo-example-linux:
     runs-on: ubuntu-20.04
     steps:
@@ -34,7 +31,4 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko Echo Linux
         run: |
-          dfx start --background
-          pushd motoko/echo
-          make test
-          popd
+          .github/workflows/motoko-echo-example.test.sh

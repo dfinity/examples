@@ -92,7 +92,7 @@ jobs:
           .github/workflows/hosting-unity-webgl-example.test.sh
       - name: Build and deploy all examples
         run: |
-          .github/workflows/motoko-actor-reference.test.sh
+          .github/workflows/motoko-actor-reference-example.test.sh
       - name: Build and deploy all examples
         run: |
           .github/workflows/motoko-basic-bitcoin.test.sh
@@ -102,3 +102,30 @@ jobs:
       - name: Build and deploy all examples
         run: |
           .github/workflows/motoko-calc-example.test.sh
+      - name: Build and deploy all examples
+        run: |
+          .github/workflows/motoko-cert-var-example.test.sh
+      - name: Build and deploy all examples
+        run: |
+          .github/workflows/motoko-classes-example.test.sh
+      - name: Build and deploy all examples
+        run: |
+          .github/workflows/motoko-composite-query-example.test.sh
+      - name: Build and deploy all examples
+        run: |
+          .github/workflows/motoko-counter-example.test.sh
+      - name: Build and deploy all examples
+        run: |
+          .github/workflows/motoko-defi-example.test.sh
+      - name: Build and deploy all examples
+        run: |
+          .github/workflows/motoko-dip721-example.test.sh
+      - name: Build and deploy all examples
+        run: |
+          .github/workflows/motoko-echo-example.test.sh
+      - name: Build and deploy all examples
+        run: |
+          .github/workflows/motoko-encrypted-notes-example.test.sh
+      - name: Build and deploy all examples
+        run: |
+          .github/workflows/motoko-encrypted-notes-vetkd-example.test.sh
