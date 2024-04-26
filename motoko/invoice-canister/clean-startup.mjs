@@ -78,7 +78,7 @@ const constants = {
       icrc1SubaccountBlobLiteral: `\\dc\\f6(N7;lQ\\e0\\9aG&\\1e\\fb\\bfI\\c2\\95\\bdS\\88\\08\\de2\\f8\\bc\\eb\\a3bZl\\60`
     },
   },
-  invoiceCanisterId: 'q4eej-kyaaa-aaaaa-aaaha-cai',
+  invoiceCanisterId: 'bkyz2-fmaaa-aaaaa-qaaaq-cai',
   icpLedgerCanisterDfxJsonName: 'icp_ledger_canister',
   icrc1ExampleToken: {
     dfxJsonName: 'icrc1_token_ledger_canister_ex1',
@@ -297,7 +297,7 @@ const second_e2e_precheck = async ({ testing }) => {
     const invoiceCanisterId = `${await $`dfx canister id invoice`}`.trim();
     if (invoiceCanisterId !== constants.invoiceCanisterId) {
       throw new Error(
-        'Mismatch between expected canister id and current invoice canister id\n'
+        `Mismatch between expected canister id ${constants.invoiceCanisterId} and current invoice canister id ${invoiceCanisterId}{\n`
         +'indicates breaking change for E2E tests. Aborting...',
       );
     }
