@@ -56,12 +56,6 @@ jobs:
             sed -i -e \
               "s/$current_sha/$latest_sha/g" \
               ".ic-commit"
-
-            # This updates the download hint when tests are run with a missing binary
-            sed -i -e \
-                "s/$current_sha/$latest_sha/g" \
-                "src/canister_tests/src/framework.rs"
-            echo "updated=1" >> "$GITHUB_OUTPUT"
           else
             echo "not updating $current_sha"
             echo "updated=0" >> "$GITHUB_OUTPUT"
