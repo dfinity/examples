@@ -24,7 +24,7 @@ if [ -f "${GITHUB_WORKSPACE}/.ic-commit" ]; then
     stable_sha=$(curl https://raw.githubusercontent.com/dfinity/examples/master/.ic-commit)
     current_sha=$(sed <"$GITHUB_WORKSPACE/.ic-commit" 's/#.*$//' | sed '/^$/d')
     if [ "$current_sha" != "$stable_sha" ]; then
-      ./update-dfx-cache.sh
+      sh "$GITHUB_WORKSPACE/.github/workflows/update-dfx-cache.sh"
     fi
 fi
 
