@@ -31,6 +31,9 @@ if [ -f "${GITHUB_WORKSPACE}/.ic-commit" ]; then
     current_sha=$(sed <"$GITHUB_WORKSPACE/.ic-commit" 's/#.*$//' | sed '/^$/d')
     arch="x86_64-darwin"
     if [ "$current_sha" != "$stable_sha" ]; then
+      export stable_sha
+      export current_sha
+      export arch
       sh "$GITHUB_WORKSPACE/.github/workflows/update-dfx-cache.sh"
     fi
 fi
