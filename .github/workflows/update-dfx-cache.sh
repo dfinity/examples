@@ -15,9 +15,9 @@ curl -O "https://download.dfinity.systems/ic/$current_sha/binaries/x86_64-linux/
 
 # Overwrite artifacts in dfx cache
 gzip -d replica.gz && chmod +x replica && mv replica $(dfx cache show)
-gzip -d canister_sandbox.gz && chmod +x canister_sandbox && mv canister_sandbox $(dfx cache show)
-gzip -d ic-starter.gz && chmod +x ic-starter && mv ic-starter $(dfx cache show)
-gzip -d sandbox_launcher.gz && chmod +x sandbox_launcher && mv sandbox_launcher $(dfx cache show)
+#gzip -d canister_sandbox.gz && chmod +x canister_sandbox && mv canister_sandbox $(dfx cache show)
+#gzip -d ic-starter.gz && chmod +x ic-starter && mv ic-starter $(dfx cache show)
+#gzip -d sandbox_launcher.gz && chmod +x sandbox_launcher && mv sandbox_launcher $(dfx cache show)
 #gzip -d ic-admin.gz && chmod +x ic-admin && mv ic-admin $(dfx cache show)
 #gzip -d ic-btc-adapter.gz && chmod +x ic-btc-adapter && mv ic-btc-adapter $(dfx cache show)
 #gzip -d ic-https-outcalls-adapter.gz && chmod +x ic-https-outcalls-adapter && mv ic-https-outcalls-adapter $(dfx cache show)
