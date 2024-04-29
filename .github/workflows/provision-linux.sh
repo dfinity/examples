@@ -18,6 +18,13 @@ rm install-dfx.sh
 echo "$HOME/.local/share/dfx/bin" >> $GITHUB_PATH
 source "$HOME/.local/share/dfx/env"
 dfx cache install
+# check the current ic-commit found in the main branch, check if it differs from the one in this PR branch
+# if so, update the  dfx cache with the latest ic artifacts
+stable_sha=$(curl https://raw.githubusercontent.com/dfinity/examples/master/.ic-commit)
+current_sha=$(sed <.ic-commit 's/#.*$//' | sed '/^$/d')
+if [ "$current_sha" != "$stable_sha" ]; then
+  ./update-dfx-cache.sh
+fi
 
 # Install ic-repl
 version=0.7.0
