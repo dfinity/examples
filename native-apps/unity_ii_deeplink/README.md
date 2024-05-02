@@ -1,7 +1,9 @@
-# Unity + Internet Identity deep link
+# Unity + Internet Identity deep links
 
 ## Overview 
 This sample shows one way to integrate Internet Identity with native mobile apps. It contains two parts: a dapp with II integrated, and an Unity Project which interacts with this dapp.
+
+[View this project on GitHub](https://github.com/dfinity/examples/tree/master/native-apps/unity_ii_deeplink)
 
 `ii_integration_dapp` is an example that integrates with Internet Identity, with the backend and frontend. It derives from the [Internet Identity integration sample](https://github.com/dfinity/examples/tree/master/motoko/internet_identity_integration) demo with some modifications.
 Please refer to [README](./ii_integration_dapp/README.md) for details.
