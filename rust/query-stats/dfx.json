@@ -5,5 +5,5 @@
       "package": "query_stats",
       "type": "rust"
     }
-  },
+  }
 }

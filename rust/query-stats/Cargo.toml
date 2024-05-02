@@ -10,4 +10,3 @@ crate-type = ["cdylib"]
 candid = "0.10"
 ic-cdk = "0.12.1"
 ic-cdk-macros = "0.8"
-ic-cdk-timers = "0.6"
