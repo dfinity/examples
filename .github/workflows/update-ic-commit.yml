@@ -2,8 +2,6 @@
 name: IC Artifacts Update
 
 on:
-  # TODO: remove `push` trigger. this is just for testing
-  push:
   schedule:
     # create a new pull request every monday
     - cron:  '0 0 * * MON'
@@ -65,8 +63,7 @@ jobs:
 
       # If the ic commit was updated, create a PR.
       - name: Create Pull Request
-        # TODO: re-enable
-        # if: ${{ steps.update.outputs.updated == '1' }}
+        if: ${{ steps.update.outputs.updated == '1' }}
         uses: peter-evans/create-pull-request@v6
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
