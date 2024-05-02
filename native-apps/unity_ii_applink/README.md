@@ -1,4 +1,4 @@
-# Internet Identity integration
+# Unity + Internet Identity app link
 
 ## Overview
 This sample shows one way to integrate Internet Identity with Android apps. It contains two parts: a dapp with II integrated, and an Unity Project which interacts with this dapp.
