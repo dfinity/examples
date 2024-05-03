@@ -1,78 +1,87 @@
-# Query stats
+---
+keywords: [beginner, rust, query statistics]
+---
 
-This example shows to work with the new query stats feature.
+# Query Statistics
 
-It shows how to programmatically access query stats and also how to monitor them over time by means of a timer and calculate rates out of the monotonically increasing counters of the feature.
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/query-stats)
 
-## Prerequisites
+## Overview 
+
+This example shows to work with the query stats feature.
+
+## Architecture
+
+The example consists of a single canister called `query_stats`.
+It exports the following candid interface:
+
+```candid
+service : {
+    "get_query_stats" : () -> (text);
+    "load" : () -> (nat64) query;
+};
+
+```
+
+The `load` function just returns a timestamp.
+It just exists such that there is a query endpoint to call.
+The `get_query_stats` is the function that queries the status endpoint and returns the collected query statistics.
+
+### Prerequisites 
 This example requires an installation of:
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Install `node.js` (to build the web frontend).
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install/) at version 0.16.1 or higher.
-- [x] Clone the following project files from GitHub: https://github.com/dfinity/examples/
 
-Begin by opening a terminal window.
-
-This is currently only for use from within DFINITY, as the replica shipped with `dfx` as well as nodes on mainnet do not enable the query stats feature at the moment.
-
-Once enabled on mainnet, the following instructions will work without the `--network` argument.
-
-From within DFINITY, it can be ran as following (e.g. with a deployment to the `small_with_query_stats` Farm testnet)
-
-Variable `$BN_HOSTNAME` points at the hostname of a boundary node. For example, from field `['bn_aaaa_records']['url']` of the output of a Farm deployment
-
-## Installing the canister
+ ### Step 1: Start a local canister execution environment:
 
 ```
-dfx canister create --network="$BN_HOSTNAME" query_stats
+dfx start --background
 ```
 
-We will need the canister ID that has been assigned to our canister later.
+ ### Step 2: Register, build, and deploy the project with the command:
 
 ```
-dfx build --network=$BN_HOSTNAME query_stats
-dfx canister install --network=$BN_HOSTNAME query_stats
+dfx deploy
 ```
 
-## Issuing load
-
-We now want to generate queries at a certain rate. One way to achieve this is by using `ic-workload-generator`, which is part of the [IC repo](https://github.com/dfinity/ic/tree/master/rs/workload_generator). 
-
+ ### Step 3: Call the canisters load function a few times to generate query traffic:
 
 ```
-ic-workload-generator $BN_HOSTNAME -r 10 -n 6000 --call-method "load" -m query --payload "4449444c0000" --no-status-check --canister-id=$CANISTER_ID
+dfx canister call query_stats load
 ```
 
-
-## Get query stats
-
-There is a delay until query stats show up in the canister status. Depending on the configuration, this 
-can reach from multiple minutes to an hour.
-
-After that period of time, the following call shows the current stats:
-```
-dfx canister call --network=$BN_HOSTNAME query_stats get_current_query_stats_as_string '()'
-```
-
-This is the grant total of queries recorded since the canister was created.
-
-If the query stats are 0, either the features is disabled on the nodes the canister was deployed to,
-not enough time has passed since queries have been executed, or no queries have been recorded for this canister.
-
-With the following call, we can query the current rates of those values:
+ ### Step 4: Observe the following result:
 
 ```
-dfx canister call --network=$BN_HOSTNAME query_stats get_current_query_stats_as_rates_string '(300)'
+dfx canister call query_stats get_query_stats
 ```
 
-The argument to that call is the time in seconds over which to aggregate. This needs to be larger than the epoch length. On mainnet and real deployments, this therefore be at least one hour (3600 seconds).
-
-Note that queries might be cached in boundary nodes, so a significantly lower number of calls might be
-counted.
-
-Similarly, the following call gets the raw data rather than its string representation:
+ ### Step 5: After a while, the values should become populated
 
 ```
-dfx canister call --network=$BN_HOSTNAME query_stats get_current_query_stats_as_rates '(opt 300)'
+"Number of calls: 19 - Number of instructions 414_083 - Request payload bytes: 114 - Response payload bytes: 270"
 ```
 
+Alternatively, you can use the candid interface to make those calls.
 
+### Troubleshooting
+
+On the local `dfx` replica, the aggregation epoch is set to 60 seconds.
+So calling the load function a couple of times should result in values showing up a couple minutes later.
+
+On mainnet, the aggregation epoch is 10 minutes, thus it will up to half an hour before the values appear on mainnet.
+
+### Possible next steps
+
+Query statistics are simple counters that increase.
+Their raw values are not that useful, you may want to implement some sort of metering system.
+
+One way to go from here is to get the query stats in a regular interval using a timer and compare to the last values, calculating rates.
+
+### Resources
+- [ic-cdk](https://docs.rs/ic-cdk/latest/ic_cdk/).
+
+## Security considerations and security best practices
+
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
