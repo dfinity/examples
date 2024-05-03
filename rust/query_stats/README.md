@@ -4,7 +4,7 @@ keywords: [beginner, rust, query statistics]
 
 # Query Statistics
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/query-stats)
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/query_stats)
 
 ## Overview 
 
