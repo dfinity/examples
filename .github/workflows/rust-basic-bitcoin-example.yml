@@ -9,6 +9,7 @@ on:
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/rust-basic-bitcoin-example.yml
+      - .ic-commit
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -35,7 +36,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Rust Basic Bitcoin Linux
         run: |
-          dfx start --background
+          dfx start --background --clean
           pushd rust/basic_bitcoin
           make deploy
           popd

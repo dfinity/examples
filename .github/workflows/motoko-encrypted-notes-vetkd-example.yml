@@ -9,6 +9,7 @@ on:
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/motoko-encrypted-notes-vetkd-example.yml
+      - .ic-commit
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -36,8 +37,6 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
-        env:
-          DFX_VERSION: 0.14.2
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko Encrypted Notes Linux (unit tests)
         run: |

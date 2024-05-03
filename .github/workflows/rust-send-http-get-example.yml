@@ -9,6 +9,7 @@ on:
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/rust-send-http-get-example.yaml
+      - .ic-commit
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -21,7 +22,6 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Rust Send HTTP GET Darwin
         run: |
-          dfxvm update
           dfx start --background
           pushd rust/send_http_get
           RUSTFLAGS=-Ctarget-cpu=mvp make test

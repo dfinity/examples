@@ -10,6 +10,7 @@ on:
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/motoko-icp-transfer-example.yml
+      - .ic-commit
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -20,12 +21,9 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
-      - name: Install mops
-        uses: ZenVoich/setup-mops@v1
       - name: Motoko Ledger Transfer Darwin
         run: |
           pushd motoko/icp_transfer
-          mops install
           bash ./demo.sh
           popd
   motoko-icp_transfer-linux:
@@ -34,11 +32,8 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
-      - name: Install mops
-        uses: ZenVoich/setup-mops@v1
       - name: Motoko Ledger Transfer Linux
         run: |
           pushd motoko/icp_transfer
-          mops install
           bash ./demo.sh
           popd

@@ -1,0 +1,43 @@
+# Known failure: https://dfinity.atlassian.net/browse/EM-5
+name: rust-token_transfer_from
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - rust/token_transfer_from/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-token-transfer-from-example.yml
+      - .ic-commit
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rust-token_transfer_from-darwin:
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Rust Tokens Transfer Darwin
+        run: |
+          pushd rust/token_transfer_from
+          bash ./demo.sh
+          popd
+  rust-token_transfer_from-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Rust Tokens Transfer Linux
+        run: |
+          pushd rust/token_transfer_from
+          bash ./demo.sh
+          popd

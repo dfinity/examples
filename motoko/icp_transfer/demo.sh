@@ -5,16 +5,12 @@ trap 'dfx stop' EXIT
 
 echo "===========SETUP========="
 dfx start --background --clean
-dfx identity new alice --storage-mode plaintext
-export MINTER_ACCOUNT_ID=$(dfx --identity anonymous ledger account-id)
-export DEFAULT_ACCOUNT_ID=$(dfx ledger account-id)
-dfx deploy icp_ledger_canister --argument "
-  (variant {
+dfx deploy icp_ledger_canister --argument "(variant {
     Init = record {
-      minting_account = \"$MINTER_ACCOUNT_ID\";
+      minting_account = \"$(dfx ledger --identity anonymous account-id)\";
       initial_values = vec {
         record {
-          \"$DEFAULT_ACCOUNT_ID\";
+          \"$(dfx ledger --identity default account-id)\";
           record {
             e8s = 10_000_000_000 : nat64;
           };
@@ -29,15 +25,15 @@ dfx deploy icp_ledger_canister --argument "
     }
   })
 "
-dfx canister call icp_ledger_canister account_balance '(record { account = '$(python3 -c 'print("vec{" + ";".join([str(b) for b in bytes.fromhex("'$DEFAULT_ACCOUNT_ID'")]) + "}")')'})'
+dfx canister call icp_ledger_canister account_balance '(record { account = '$(python3 -c 'print("vec{" + ";".join([str(b) for b in bytes.fromhex("'$(dfx ledger --identity default account-id)'")]) + "}")')'})'
 echo "===========SETUP DONE========="
 
 dfx deploy icp_transfer_backend
 
 TOKENS_TRANSFER_ACCOUNT_ID="$(dfx ledger account-id --of-canister icp_transfer_backend)"
 TOKENS_TRANSFER_ACCOUNT_ID_BYTES="$(python3 -c 'print("vec{" + ";".join([str(b) for b in bytes.fromhex("'$TOKENS_TRANSFER_ACCOUNT_ID'")]) + "}")')"
-dfx canister call icp_ledger_canister transfer "(record { to=${TOKENS_TRANSFER_ACCOUNT_ID_BYTES}; amount=record { e8s=100_000 }; fee=record { e8s=10_000 }; memo=0:nat64; }, )"
+dfx canister --identity default call icp_ledger_canister transfer "(record { to = ${TOKENS_TRANSFER_ACCOUNT_ID_BYTES}; memo = 1; amount = record { e8s = 2_00_000_000 }; fee = record { e8s = 10_000 }; })"
 
-dfx canister call icp_transfer_backend transfer "(record { amount=record { e8s=5 }; toPrincipal=principal \"$(dfx identity get-principal)\" },)"
+dfx canister call icp_transfer_backend transfer "(record { amount = record { e8s = 100_000_000 }; toPrincipal = principal \"$(dfx identity --identity default get-principal)\"})"
 
 echo "DONE"

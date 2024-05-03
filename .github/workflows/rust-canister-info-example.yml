@@ -10,6 +10,7 @@ on:
       - .github/workflows/provision-linux.sh
       - .github/workflows/rust-canister-info-example.yml
       - .github/workflows/rust-canister-info-skip.yml
+      - .ic-commit
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -24,6 +25,7 @@ jobs:
         run: |
           dfx start --background
           pushd rust/canister-info
+          cargo test
           make test
           popd
   rust-canister-info-linux:
@@ -31,10 +33,11 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
-        run: DFX_VERSION="0.14.2" bash .github/workflows/provision-linux.sh
+        run: DFX_VERSION="0.18.0" bash .github/workflows/provision-linux.sh
       - name: Rust Canister info Linux
         run: |
           dfx start --background
           pushd rust/canister-info
+          cargo test
           make test
           popd

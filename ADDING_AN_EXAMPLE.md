@@ -39,13 +39,19 @@ hope of keeping examples in sync with releases of dfx.
 
 # Documentation
 
-In repo dfinity/docs, add some general, language agnostic documentation for the
-example. E.g. for `hello`:
+Make sure to add documentation for the example in the [dfinity/portal](https://github.com/dfinity/portal) repository once your example has been merged.
 
-* modules/examples/pages/index.adoc: add new bullet in early subsection pointing pointing to hello.adoc.
-* modules/examples/pages/hello.adoc: add one page description of hello example.
-* modules/examples/pages/assets/hello.png: screenshot of UI linked by hello.adoc (optional).
-* modules/ROOT/nav.adoc: add direct site navigation to hello.adoc.
+Add a quick section to [`docs/samples/overview.mdx`](https://github.com/dfinity/portal/blob/master/docs/samples/overview.mdx) and make sure the example is listed in the "Sample apps" category in [`sidebars.js`](https://github.com/dfinity/portal/blob/master/sidebars.js).
+
+The content of the documentation is generated automatically from the `README.md` files in the examples repository, make sure your `README.md` contains a link to the actual example so people can easily find it. The following could be the first sentence of your `README.md`:
+
+> [View this samples code on GitHub](https://github.com/dfinity/examples/tree/master/rust/token_transfer_from).
+
+For your new example to be included in the auto generated documentation, make sure you update the submodule in the portal repository to point to the latest commit in the examples repository with the following command:
+
+```bash
+git submodule update --remote submodules/samples
+```
 
 # Issues
 

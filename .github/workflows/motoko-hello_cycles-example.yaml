@@ -9,6 +9,7 @@ on:
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/motoko-hello_cycles-example.yaml
+      - .ic-commit
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -21,7 +22,6 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko Hello Cycles Darwin
         run: |
-          dfxvm update
           dfx start --background --clean
           pushd motoko/hello_cycles
           make test
