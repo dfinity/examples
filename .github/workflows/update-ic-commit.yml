@@ -2,6 +2,7 @@
 name: IC Artifacts Update
 
 on:
+  push:
   schedule:
     # create a new pull request every monday
     - cron:  '0 0 * * MON'
