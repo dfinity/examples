@@ -1,8 +1,6 @@
 import Icrc1Ledger "canister:icrc1_ledger_canister";
 import Debug "mo:base/Debug";
 import Result "mo:base/Result";
-import Option "mo:base/Option";
-import Blob "mo:base/Blob";
 import Error "mo:base/Error";
 
 actor {
