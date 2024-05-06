@@ -184,14 +184,9 @@ import Error "mo:base/Error";
 
 actor {
 
-  type Account = {
-    owner : Principal;
-    subaccount : ?[Nat8];
-  };
-
   type TransferArgs = {
     amount : Nat;
-    toAccount : Account;
+    toAccount : Icrc1Ledger.Account;
   };
 
   public shared ({ caller }) func transfer(args : TransferArgs) : async Result.Result<Icrc1Ledger.BlockIndex, Text> {
