@@ -2,6 +2,7 @@
 name: IC Artifacts Update
 
 on:
+  workflow_dispatch:
   schedule:
     # create a new pull request every monday
     - cron:  '0 0 * * MON'
@@ -54,6 +55,7 @@ jobs:
             sed -i -e \
               "s/$current_sha/$latest_sha/g" \
               ".ic-commit"
+            echo "updated=1" >> "$GITHUB_OUTPUT"
           else
             echo "not updating $current_sha"
             echo "updated=0" >> "$GITHUB_OUTPUT"
