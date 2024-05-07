@@ -1,20 +1,13 @@
 import Icrc1Ledger "canister:icrc1_ledger_canister";
 import Debug "mo:base/Debug";
 import Result "mo:base/Result";
-import Option "mo:base/Option";
-import Blob "mo:base/Blob";
 import Error "mo:base/Error";
 
 actor {
 
-  type Account = {
-    owner : Principal;
-    subaccount : ?[Nat8];
-  };
-
   type TransferArgs = {
     amount : Nat;
-    toAccount : Account;
+    toAccount : Icrc1Ledger.Account;
   };
 
   public shared ({ caller }) func transfer(args : TransferArgs) : async Result.Result<Icrc1Ledger.BlockIndex, Text> {
