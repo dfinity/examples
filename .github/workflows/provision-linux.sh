@@ -12,7 +12,7 @@ sudo apt-get install --yes nodejs
 rm install-node.sh
 
 # Install DFINITY SDK.
-wget --output-document install-dfx.sh "https://raw.githubusercontent.com/dfinity/sdk/dfxvm-install-script/install.sh"
+wget --output-document install-dfx.sh "https://raw.githubusercontent.com/dfinity/sdk/master/public/install-dfxvm.sh"
 DFX_VERSION=${DFX_VERSION:=0.20.0} DFXVM_INIT_YES=true bash install-dfx.sh
 rm install-dfx.sh
 echo "$HOME/.local/share/dfx/bin" >> $GITHUB_PATH
