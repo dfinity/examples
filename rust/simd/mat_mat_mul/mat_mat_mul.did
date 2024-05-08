@@ -1,0 +1,7 @@
+service : {
+    "generic_f32" : () -> (nat64) query;
+    "auto_vectorization_f32" : () -> (nat64) query;
+    "simd_f32" : () -> (nat64) query;
+    "generic_u32" : () -> (nat64) query;
+    "auto_vectorization_u32" : () -> (nat64) query;
+};

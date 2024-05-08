@@ -1,0 +1,10 @@
+{
+  "canisters": {
+    "mat_mat_mul": {
+      "candid": "mat_mat_mul/mat_mat_mul.did",
+      "package": "mat_mat_mul",
+      "type": "rust"
+    }
+  },
+  "version": 1
+}
