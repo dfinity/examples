@@ -68,7 +68,7 @@ jobs:
         if: ${{ steps.update.outputs.updated == '1' }}
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GIX_CREATE_PR_PAT }}
           base: master
           add-paths: ./.ic-commit
           commit-message: Update commit of IC artifacts
