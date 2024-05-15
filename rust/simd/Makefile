@@ -10,33 +10,29 @@ build:
 .PHONY: install
 .SILENT: install
 install: build
-	dfx canister install heartbeat --argument 1
-	dfx canister install timer --argument 1
+	dfx canister install mat_mat_mul
 
 .PHONY: upgrade
 .SILENT: upgrade
 upgrade: build
-	dfx canister install heartbeat --mode=upgrade --argument 1
-	dfx canister install timer --mode=upgrade --argument 1
+	dfx canister install mat_mat_mul --mode=upgrade
 
 .PHONY: deploy
 .SILENT: deploy
 deploy:
-	# Deploy the canisters and run periodic tasks with 1s interval.
-	dfx deploy heartbeat --argument 1
-	dfx deploy timer --argument 1
+	dfx deploy mat_mat_mul
 
 .PHONY: test
 .SILENT: test
 test: deploy
-	# Wait at least 2 seconds.
-	sleep 2
-	# Validate the counters are non-zero.
-	dfx canister call heartbeat counter | grep -vw '0' && echo 'PASS'
-	dfx canister call timer counter | grep -vw '0' && echo 'PASS'
-	# Validate the cycles used for periodic tasks are non-zero.
-	dfx canister call heartbeat cycles_used | grep -vw '0' && echo 'PASS'
-	dfx canister call timer cycles_used | grep -vw '0' && echo 'PASS'
+	# Validate the number of instructions is non-zero.
+	dfx canister call mat_mat_mul naive_f32 | grep -vw '0' && echo 'PASS'
+	dfx canister call mat_mat_mul optimized_f32 | grep -vw '0' && echo 'PASS'
+	dfx canister call mat_mat_mul auto_vectorization_f32 | grep -vw '0' && echo 'PASS'
+	dfx canister call mat_mat_mul simd_f32 | grep -vw '0' && echo 'PASS'
+	dfx canister call mat_mat_mul naive_u32 | grep -vw '0' && echo 'PASS'
+	dfx canister call mat_mat_mul optimized_u32 | grep -vw '0' && echo 'PASS'
+	dfx canister call mat_mat_mul auto_vectorization_u32 | grep -vw '0' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean

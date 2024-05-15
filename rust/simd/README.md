@@ -75,27 +75,31 @@ URLs:
 
 - #### Step 1.5: Compare the amount of instructions used for different matrix multiplication implementations
 
+Call a loop performing 1K element-wise multiplications of `K x 4` packed slices
+from matrices `A` and `B` using optimized algorithm, the same algorithm with
+Rust auto-vectorization enabled, and WebAssembly SIMD instructions:
+
 ```sh
-dfx canister call mat_mat_mul generic_f32
-dfx canister call mat_mat_mul simd_f32
+dfx canister call mat_mat_mul optimized_f32
 dfx canister call mat_mat_mul auto_vectorization_f32
+dfx canister call mat_mat_mul simd_f32
 ```
 
 Example output:
 
 ```sh
-% dfx canister call mat_mat_mul generic_f32
-(167_925_151 : nat64)
-% dfx canister call mat_mat_mul simd_f32
-(71_223_151 : nat64)
+% dfx canister call mat_mat_mul optimized_f32
+(168_993_895 : nat64)
 % dfx canister call mat_mat_mul auto_vectorization_f32
-(12_925_207 : nat64)
+(13_972_400 : nat64)
+% dfx canister call mat_mat_mul simd_f32
+(71_302_304 : nat64)
 ```
 
 In this example, Rust's auto-vectorization shines in optimizing matrix multiplication.
-The auto-vectorized code achieves over 10x speedup compared to the original version!
+The auto-vectorized code achieves over 10x speedup compared to the optimized version!
 
-It's important to note that the generic code's performance is currently limited
+It's important to note that the optimized code's performance is currently limited
 due to a known issue with NaN canonicalization in `wasmtime`.
 This issue [has been fixed](https://github.com/bytecodealliance/wasmtime/commit/72a3b8b99d7c0343bacb7cd2cff3151b0144179d)
 by DFINITY, but not yet released at the time of writing.
@@ -151,28 +155,27 @@ URLs:
 
 - #### Step 2.5: Compare the amount of instructions used for different matrix multiplication implementations
 
+Call a loop performing 1K element-wise multiplications of `K x 4` packed slices
+from matrices `A` and `B` using optimized algorithm and the same algorithm
+with Rust auto-vectorization enabled:
+
 ```sh
-dfx canister call mat_mat_mul generic_f32
-dfx canister call mat_mat_mul auto_vectorization_f32
+dfx canister call mat_mat_mul optimized_u32
+dfx canister call mat_mat_mul auto_vectorization_u32
 ```
 
 Example output:
 
 ```sh
-% dfx canister call mat_mat_mul generic_f32
-(31_484_435 : nat64)
-% dfx canister call mat_mat_mul auto_vectorization_f32
-(15_249_432 : nat64)
+% dfx canister call mat_mat_mul optimized_u32
+(32_489_415 : nat64)
+% dfx canister call mat_mat_mul auto_vectorization_u32
+(16_290_757 : nat64)
 ```
 
-Rust auto-vectorization again demonstrates its power in this example!
+Rust auto-vectorization again demonstrates its power in this example.
 The auto-vectorized version of the integer matrix multiplication achieves
 more than a 2x speedup compared to the original code.
-
-However, the slower performance of the generic floating-point
-matrix multiplication is due to a known issue with NaN canonicalization in `wasmtime`.
-This issue [has been fixed](https://github.com/bytecodealliance/wasmtime/commit/72a3b8b99d7c0343bacb7cd2cff3151b0144179d)
-by DFINITY, but not yet released at the time of writing.
 
 ## Further learning
 
@@ -183,16 +186,27 @@ by DFINITY, but not yet released at the time of writing.
 
 The `mat_mat_mul` canister provide the following interface:
 
-- `generic_f32` &mdash; returns the number of instructions used for a loop performing element-wise multiplication of `224x4` tiles of matrices `A` and `B` using generic Rust operators.
-- `auto_vectorization_f32` &mdash; returns the number of instructions used for a loop performing element-wise multiplication of `224x4` tiles of matrices `A` and `B` using loop auto-vectorization for generic Rust operators.
-- `simd_f32` &mdash; returns the number of instructions used for a loop performing element-wise multiplication of `224x4` tiles of matrices `A` and `B` using WebAssembly SIMD instructions.
-- `generic_u32` &mdash; returns the number of instructions used for a loop performing element-wise multiplication of `224x4` tiles of integer matrices `A` and `B` using generic Rust operators.
-- `auto_vectorization_u32` &mdash; returns the number of instructions used for a loop performing element-wise multiplication of `224x4` tiles of integer matrices `A` and `B` using loop auto-vectorization for generic Rust operators.
+- `naive_f32`/`naive_u32` &mdash;
+  returns the number of instructions used for a loop performing
+  1K element-wise multiplications of matrices `A` and `B`
+  using naive algorithm.
+- `optimized_f32`/`optimized_u32` &mdash;
+  returns the number of instructions used for a loop performing
+  1K element-wise multiplications of `K x 4` packed slices
+  from matrices `A` and `B` using optimized algorithm.
+- `auto_vectorization_f32`/`auto_vectorization_u32` &mdash;
+  returns the number of instructions used for a loop performing
+  1K element-wise multiplications of `K x 4` packed slices
+  from matrices `A` and `B` using Rust loop auto-vectorization.
+- `simd_f32` &mdash;
+  Returns the number of instructions used for a loop performing
+  1K element-wise multiplications of `K x 4` packed slices
+  from matrices `A` and `B` using WebAssembly SIMD instructions.
 
 Example usage:
 
 ```sh
-dfx canister call mat_mat_mul generic_f32
+dfx canister call mat_mat_mul naive_f32
 ```
 
 ## Conclusion
