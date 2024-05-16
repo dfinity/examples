@@ -27,8 +27,11 @@ where
         let mut new = [[T::default(); N]; M];
         for row in 0..M {
             for col in 0..N {
+                // Make sure the compiler won't be able to predict the matrix content,
+                // as it won't be able to speculate about the returned values.
+                let black_box_zero = ic_cdk::api::time() - ic_cdk::api::time();
                 // The conversion into `f32` is defined for up to `u16` integers.
-                new[row][col] = ((col + row * N) as u16).into();
+                new[row][col] = ((col + row * N + black_box_zero as usize) as u16).into();
             }
         }
         Matrix(new)

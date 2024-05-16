@@ -89,11 +89,11 @@ Example output:
 
 ```sh
 % dfx canister call mat_mat_mul optimized_f32
-(168_993_895 : nat64)
+(168_542_255 : nat64)
 % dfx canister call mat_mat_mul auto_vectorization_f32
-(13_972_400 : nat64)
+(13_697_228 : nat64)
 % dfx canister call mat_mat_mul simd_f32
-(71_302_304 : nat64)
+(70_948_244 : nat64)
 ```
 
 In this example, Rust's auto-vectorization shines in optimizing matrix multiplication.
@@ -168,9 +168,9 @@ Example output:
 
 ```sh
 % dfx canister call mat_mat_mul optimized_u32
-(32_489_415 : nat64)
+(32_342_253 : nat64)
 % dfx canister call mat_mat_mul auto_vectorization_u32
-(16_290_757 : nat64)
+(16_164_254 : nat64)
 ```
 
 Rust auto-vectorization again demonstrates its power in this example.
