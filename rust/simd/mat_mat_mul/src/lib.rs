@@ -141,6 +141,9 @@ fn auto_vectorization_f32() -> u64 {
 /// Returns the number of instructions used for a loop performing
 /// 1K element-wise multiplications of `K x 4` packed slices
 /// from matrices `A` and `B` using WebAssembly SIMD instructions.
+///
+/// The following line enables WebAssembly SIMD instructions.
+#[target_feature(enable = "simd128")]
 #[ic_cdk_macros::query]
 fn simd_f32() -> u64 {
     let a = mats::Matrix::<f32, 4, K>::new();

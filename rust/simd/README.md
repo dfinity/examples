@@ -93,11 +93,12 @@ Example output:
 % dfx canister call mat_mat_mul auto_vectorization_f32
 (13_697_228 : nat64)
 % dfx canister call mat_mat_mul simd_f32
-(70_948_244 : nat64)
+(13_697_228 : nat64)
 ```
 
 In this example, Rust's auto-vectorization shines in optimizing matrix multiplication.
 The auto-vectorized code achieves over 10x speedup compared to the optimized version!
+Also, it's on par with the hand-crafted WebAssembly SIMD multiplication.
 
 It's important to note that the optimized code's performance is currently limited
 due to a known issue with NaN canonicalization in `wasmtime`.

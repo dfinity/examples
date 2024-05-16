@@ -104,6 +104,7 @@ where
 /// from matrices `A` and `B`.
 ///
 /// Returns the resulting `4 x 4` tile with the element-wise products.
+#[inline(always)]
 pub fn add_mat_mul_4x4_optimized<T>(k: usize, pa: *const u8, pb: *const u8) -> [[T; 4]; 4]
 where
     T: Copy + Default + std::ops::Mul<Output = T> + std::ops::AddAssign,
@@ -145,6 +146,7 @@ where
 /// from matrices `A` and `B`.
 ///
 /// Returns the resulting `4 x 4` tile with the element-wise products.
+#[inline(always)]
 pub fn add_mat_mul_4x4_simd_f32(k: usize, pa: *const u8, pb: *const u8) -> [[f32; 4]; 4] {
     use std::arch::wasm32::*;
     // `Clear` op.
