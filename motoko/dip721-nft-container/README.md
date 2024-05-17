@@ -102,7 +102,7 @@ git clone git@github.com:dfinity/examples.git
  ### Step 2: Navigate to DIP721 project root:
 
 ```bash
-cd examples/motoko/dip-721-nft-container
+cd examples/motoko/dip721-nft-container
 ```
 
  ### Step 3: Run a local instance of the Internet Computer:
