@@ -1,0 +1,7 @@
+service : {
+    "print" : (text) -> ();
+    "trap" : (text) -> ();
+    "panic" : (text) -> ();
+    "memory_oob" : () -> ();
+    "failed_unwrap" : () -> ();
+};
