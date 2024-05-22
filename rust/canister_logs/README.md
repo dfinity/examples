@@ -38,13 +38,17 @@ $ cd examples/rust/canister_logs
 $ dfx deploy
 ```
 
-### Step 3: Check canister has no logs yet:
+### Step 3: Check canister logs:
 
 ```shell
 # Terminal B
 $ dfx canister logs canister_logs
+# Expect to see logs from timer traps.
+[0. 2024-05-22T12:35:32.050252022Z]: right before timer trap
+[1. 2024-05-22T12:35:32.050252022Z]: [TRAP]: timer trap
+[2. 2024-05-22T12:35:37.680315152Z]: right before timer trap
+[3. 2024-05-22T12:35:37.680315152Z]: [TRAP]: timer trap
 
-# Expect to see no logs.
 ```
 
 ### Step 4: Call `print` method and check the logs:
@@ -56,7 +60,16 @@ $ dfx canister call canister_logs print hi
 
 # Expect to see new log entry.
 $ dfx canister logs canister_logs
-[0. 2024-05-22T11:37:28.080234848Z]: hi
+...
+[16. 2024-05-22T12:36:15.638667167Z]: right before timer trap
+[17. 2024-05-22T12:36:15.638667167Z]: [TRAP]: timer trap
+[18. 2024-05-22T12:36:20.881326098Z]: right before timer trap
+[19. 2024-05-22T12:36:20.881326098Z]: [TRAP]: timer trap
+[20. 2024-05-22T12:36:26.305162772Z]: hi
+[21. 2024-05-22T12:36:27.185879186Z]: right before timer trap
+[22. 2024-05-22T12:36:27.185879186Z]: [TRAP]: timer trap
+[23. 2024-05-22T12:36:33.486805581Z]: right before timer trap
+[24. 2024-05-22T12:36:33.486805581Z]: [TRAP]: timer trap
 ```
 
 ### Step 5: Start constantly polling logs:
@@ -66,7 +79,17 @@ In order not to call `dfx canister logs canister_logs` after every canister call
 ```shell
 # Terminal C
 $ ./poll_logs.sh
-[0. 2024-05-22T11:37:28.080234848Z]: hi
+...
+[16. 2024-05-22T12:36:15.638667167Z]: right before timer trap
+[17. 2024-05-22T12:36:15.638667167Z]: [TRAP]: timer trap
+[18. 2024-05-22T12:36:20.881326098Z]: right before timer trap
+[19. 2024-05-22T12:36:20.881326098Z]: [TRAP]: timer trap
+[20. 2024-05-22T12:36:26.305162772Z]: hi
+[21. 2024-05-22T12:36:27.185879186Z]: right before timer trap
+[22. 2024-05-22T12:36:27.185879186Z]: [TRAP]: timer trap
+[23. 2024-05-22T12:36:33.486805581Z]: right before timer trap
+[24. 2024-05-22T12:36:33.486805581Z]: [TRAP]: timer trap
+...
 
 ```
 
@@ -109,17 +132,31 @@ Observe recorded logs that might look similar to this:
 
 ```shell
 # Terminal C
-[0. 2024-05-22T11:37:28.080234848Z]: hi
-[1. 2024-05-22T11:43:32.152363971Z]: hello!
-[2. 2024-05-22T11:43:36.317710491Z]: yey!
-[3. 2024-05-22T11:43:40.592174915Z]: right before trap
-[4. 2024-05-22T11:43:40.592174915Z]: [TRAP]: oops!
-[5. 2024-05-22T11:43:49.904081741Z]: right before panic
-[6. 2024-05-22T11:43:49.904081741Z]: Panicked at 'aaa!', src/lib.rs:17:5
-[7. 2024-05-22T11:43:49.904081741Z]: [TRAP]: Panicked at 'aaa!', src/lib.rs:17:5
-[8. 2024-05-22T11:43:54.400015642Z]: right before memory out of bounds
-[9. 2024-05-22T11:43:54.400015642Z]: [TRAP]: stable memory out of bounds
-[10. 2024-05-22T11:43:59.810358166Z]: right before failed unwrap
-[11. 2024-05-22T11:43:59.810358166Z]: Panicked at 'called `Result::unwrap()` on an `Err` value: FromUtf8Error { bytes: [192, 255, 238], error: Utf8Error { valid_up_to: 0, error_len: Some(1) } }', src/lib.rs:31:47
-[12. 2024-05-22T11:43:59.810358166Z]: [TRAP]: Panicked at 'called `Result::unwrap()` on an `Err` value: FromUtf8Error { bytes: [192, 255, 238], error: Utf8Error { valid_up_to: 0, error_len: Some(1) } }', src/lib.rs:31:47
+...
+[45. 2024-05-22T12:37:33.0576873Z]: right before timer trap
+[46. 2024-05-22T12:37:33.0576873Z]: [TRAP]: timer trap
+[47. 2024-05-22T12:37:33.773343176Z]: hi!
+[48. 2024-05-22T12:37:37.558075267Z]: hello!
+[49. 2024-05-22T12:37:38.349121524Z]: right before timer trap
+[50. 2024-05-22T12:37:38.349121524Z]: [TRAP]: timer trap
+[51. 2024-05-22T12:37:41.466030479Z]: yey!
+[52. 2024-05-22T12:37:43.7472275Z]: right before timer trap
+[53. 2024-05-22T12:37:43.7472275Z]: [TRAP]: timer trap
+[54. 2024-05-22T12:37:45.302285184Z]: right before trap
+[55. 2024-05-22T12:37:45.302285184Z]: [TRAP]: oops!
+[56. 2024-05-22T12:37:48.900425146Z]: right before timer trap
+[57. 2024-05-22T12:37:48.900425146Z]: [TRAP]: timer trap
+[58. 2024-05-22T12:37:49.736443986Z]: right before panic
+[59. 2024-05-22T12:37:49.736443986Z]: Panicked at 'aaa!', src/lib.rs:37:5
+[60. 2024-05-22T12:37:49.736443986Z]: [TRAP]: Panicked at 'aaa!', src/lib.rs:37:5
+[61. 2024-05-22T12:37:54.122929037Z]: right before timer trap
+[62. 2024-05-22T12:37:54.122929037Z]: [TRAP]: timer trap
+[63. 2024-05-22T12:37:54.94948481Z]: right before memory out of bounds
+[64. 2024-05-22T12:37:54.94948481Z]: [TRAP]: stable memory out of bounds
+[65. 2024-05-22T12:37:59.693695919Z]: right before failed unwrap
+[66. 2024-05-22T12:37:59.693695919Z]: Panicked at 'called `Result::unwrap()` on an `Err` value: FromUtf8Error { bytes: [192, 255, 238], error: Utf8Error { valid_up_to: 0, error_len: Some(1) } }', src/lib.rs:51:47
+[67. 2024-05-22T12:37:59.693695919Z]: [TRAP]: Panicked at 'called `Result::unwrap()` on an `Err` value: FromUtf8Error { bytes: [192, 255, 238], error: Utf8Error { valid_up_to: 0, error_len: Some(1) } }', src/lib.rs:51:47
+[68. 2024-05-22T12:38:00.621855713Z]: right before timer trap
+[69. 2024-05-22T12:38:00.621855713Z]: [TRAP]: timer trap
+...
 ```

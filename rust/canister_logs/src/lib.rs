@@ -1,4 +1,24 @@
-use ic_cdk::update;
+use ic_cdk::{init, post_upgrade, update};
+use std::time::Duration;
+
+const TIMER_INTERVAL_SEC: u64 = 5;
+
+fn setup_timer() {
+    ic_cdk_timers::set_timer_interval(Duration::from_secs(TIMER_INTERVAL_SEC), || {
+        ic_cdk::print("right before timer trap");
+        ic_cdk::trap("timer trap");
+    });
+}
+
+#[init]
+fn init() {
+    setup_timer();
+}
+
+#[post_upgrade]
+fn post_upgrade() {
+    setup_timer();
+}
 
 #[update]
 fn print(text: String) {
