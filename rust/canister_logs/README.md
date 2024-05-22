@@ -40,10 +40,11 @@ $ dfx deploy
 
 ### Step 3: Check canister logs:
 
+Expect to see logs from timer traps.
+
 ```shell
 # Terminal B
 $ dfx canister logs canister_logs
-# Expect to see logs from timer traps.
 [0. 2024-05-22T12:35:32.050252022Z]: right before timer trap
 [1. 2024-05-22T12:35:32.050252022Z]: [TRAP]: timer trap
 [2. 2024-05-22T12:35:37.680315152Z]: right before timer trap
