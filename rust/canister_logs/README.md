@@ -9,6 +9,7 @@ keywords: [beginner, rust, canister logs, logging]
 ## Prerequisites
 This example requires an installation of:
 
+- [x] DFX version 0.19.0 or newer
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
 - [x] Download the following project files from GitHub: `git clone https://github.com/dfinity/examples/`
 
@@ -64,7 +65,7 @@ $ dfx canister logs canister_logs
 ...
 [18. 2024-05-22T12:36:20.881326098Z]: right before timer trap
 [19. 2024-05-22T12:36:20.881326098Z]: [TRAP]: timer trap
-[20. 2024-05-22T12:36:26.305162772Z]: hi
+<b>[20. 2024-05-22T12:36:26.305162772Z]: hi</b>
 [21. 2024-05-22T12:36:27.185879186Z]: right before timer trap
 [22. 2024-05-22T12:36:27.185879186Z]: [TRAP]: timer trap
 ```
