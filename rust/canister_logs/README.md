@@ -65,7 +65,7 @@ $ dfx canister logs canister_logs
 ...
 [18. 2024-05-22T12:36:20.881326098Z]: right before timer trap
 [19. 2024-05-22T12:36:20.881326098Z]: [TRAP]: timer trap
-<b>[20. 2024-05-22T12:36:26.305162772Z]: hi</b>
+[20. 2024-05-22T12:36:26.305162772Z]: hi
 [21. 2024-05-22T12:36:27.185879186Z]: right before timer trap
 [22. 2024-05-22T12:36:27.185879186Z]: [TRAP]: timer trap
 ```
