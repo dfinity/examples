@@ -14,6 +14,7 @@
 /motoko/basic_bitcoin/ @dfinity/execution
 /motoko/basic_dao/ @dfinity/languages
 /motoko/calc/ @dfinity/languages
+/motoko/canister_logs/ @dfinity/execution
 /motoko/cert-var/ @dfinity/trust
 /motoko/classes/ @dfinity/languages
 /motoko/composite_query/ @dfinity/languages
@@ -54,6 +55,7 @@
 
 /rust/basic_bitcoin/ @dfinity/execution
 /rust/basic_dao/ @dfinity/testing-verification
+/rust/canister_logs/ @dfinity/execution
 /rust/canister-info/ @dfinity/testing-verification
 /rust/composite_query/ @dfinity/execution
 /rust/counter/ @dfinity/growth

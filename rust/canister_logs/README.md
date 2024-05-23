@@ -9,6 +9,7 @@ keywords: [beginner, rust, canister logs, logging]
 ## Prerequisites
 This example requires an installation of:
 
+- [x] DFX version 0.19.0 or newer
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
 - [x] Download the following project files from GitHub: `git clone https://github.com/dfinity/examples/`
 
