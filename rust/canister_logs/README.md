@@ -85,7 +85,7 @@ $ ./poll_logs.sh
 ...
 ```
 
-### Step 6: Call `print`, `trap`, `panic` and other canister methods:
+### Step 6: Call `print`, `trap` and other canister methods:
 
 ```shell
 # Terminal B

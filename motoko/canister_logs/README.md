@@ -45,10 +45,10 @@ Expect to see logs from timer traps.
 ```shell
 # Terminal B
 $ dfx canister logs CanisterLogs
-[0. 2024-05-23T08:14:40.60349175Z]: right before timer trap
-[1. 2024-05-23T08:14:40.60349175Z]: [TRAP]: timer trap
-[2. 2024-05-23T08:14:46.160555676Z]: right before timer trap
-[3. 2024-05-23T08:14:46.160555676Z]: [TRAP]: timer trap
+[0. 2024-05-23T08:32:26.203980235Z]: right before timer trap
+[1. 2024-05-23T08:32:26.203980235Z]: [TRAP]: timer trap
+[2. 2024-05-23T08:32:31.836721763Z]: right before timer trap
+[3. 2024-05-23T08:32:31.836721763Z]: [TRAP]: timer trap
 ```
 
 ### Step 4: Call `print` method and check the logs:
@@ -61,11 +61,11 @@ $ dfx canister call CanisterLogs print hi
 # Expect to see new log entry.
 $ dfx canister logs CanisterLogs
 ...
-[14. 2024-05-23T08:15:15.829022842Z]: right before timer trap
-[15. 2024-05-23T08:15:15.829022842Z]: [TRAP]: timer trap
-[16. 2024-05-23T08:15:19.728382106Z]: hi
-[17. 2024-05-23T08:15:21.079923035Z]: right before timer trap
-[18. 2024-05-23T08:15:21.079923035Z]: [TRAP]: timer trap
+[8. 2024-05-23T08:32:46.598972616Z]: right before timer trap
+[9. 2024-05-23T08:32:46.598972616Z]: [TRAP]: timer trap
+[10. 2024-05-23T08:32:48.713755238Z]: hi
+[11. 2024-05-23T08:32:51.623988313Z]: right before timer trap
+[12. 2024-05-23T08:32:51.623988313Z]: [TRAP]: timer trap
 ...
 ```
 
@@ -77,15 +77,15 @@ In order not to call `dfx canister logs CanisterLogs` after every canister call 
 # Terminal C
 $ ./poll_logs.sh
 ...
-[14. 2024-05-23T08:15:15.829022842Z]: right before timer trap
-[15. 2024-05-23T08:15:15.829022842Z]: [TRAP]: timer trap
-[16. 2024-05-23T08:15:19.728382106Z]: hi
-[17. 2024-05-23T08:15:21.079923035Z]: right before timer trap
-[18. 2024-05-23T08:15:21.079923035Z]: [TRAP]: timer trap
+[8. 2024-05-23T08:32:46.598972616Z]: right before timer trap
+[9. 2024-05-23T08:32:46.598972616Z]: [TRAP]: timer trap
+[10. 2024-05-23T08:32:48.713755238Z]: hi
+[11. 2024-05-23T08:32:51.623988313Z]: right before timer trap
+[12. 2024-05-23T08:32:51.623988313Z]: [TRAP]: timer trap
 ...
 ```
 
-### Step 6: Call `print`, `trap`, `panic` and other canister methods:
+### Step 6: Call `print`, `trap` and other canister methods:
 
 ```shell
 # Terminal B
@@ -103,6 +103,11 @@ Error: Failed update call.
 Caused by: Failed update call.
   The replica returned a rejection error: reject code CanisterError, reject message Canister bkyz2-fmaaa-aaaaa-qaaaq-cai trapped explicitly: oops!, error code None
 
+$ dfx canister call CanisterLogs memory_oob
+Error: Failed update call.
+Caused by: Failed update call.
+  The replica returned a rejection error: reject code CanisterError, reject message Canister bkyz2-fmaaa-aaaaa-qaaaq-cai trapped explicitly: StableMemory range out of bounds, error code None
+
 ```
 
 Observe recorded logs that might look similar to this:
@@ -110,23 +115,25 @@ Observe recorded logs that might look similar to this:
 ```shell
 # Terminal C
 ...
-[49. 2024-05-23T08:16:40.702368542Z]: right before timer trap
-[50. 2024-05-23T08:16:40.702368542Z]: [TRAP]: timer trap
-[51. 2024-05-23T08:16:42.785727368Z]: hi!
-[52. 2024-05-23T08:16:45.69960063Z]: right before timer trap
-[53. 2024-05-23T08:16:45.69960063Z]: [TRAP]: timer trap
-[54. 2024-05-23T08:16:47.222911354Z]: hello!
-[55. 2024-05-23T08:16:50.875445893Z]: right before timer trap
-[56. 2024-05-23T08:16:50.875445893Z]: [TRAP]: timer trap
-[57. 2024-05-23T08:16:51.570602735Z]: yey!
-[58. 2024-05-23T08:16:55.783308056Z]: right before timer trap
-[59. 2024-05-23T08:16:55.783308056Z]: [TRAP]: timer trap
-[60. 2024-05-23T08:16:56.536701165Z]: right before trap
-[61. 2024-05-23T08:16:56.536701165Z]: [TRAP]: oops!
-[62. 2024-05-23T08:17:00.759041661Z]: right before timer trap
-[63. 2024-05-23T08:17:00.759041661Z]: [TRAP]: timer trap
-[64. 2024-05-23T08:17:05.657467481Z]: right before timer trap
-[65. 2024-05-23T08:17:05.657467481Z]: [TRAP]: timer trap
+[19. 2024-05-23T08:33:11.319493785Z]: right before timer trap
+[20. 2024-05-23T08:33:11.319493785Z]: [TRAP]: timer trap
+[21. 2024-05-23T08:33:14.229855179Z]: hi!
+[22. 2024-05-23T08:33:16.413512126Z]: right before timer trap
+[23. 2024-05-23T08:33:16.413512126Z]: [TRAP]: timer trap
+[24. 2024-05-23T08:33:18.622686552Z]: hello!
+[25. 2024-05-23T08:33:21.519088681Z]: right before timer trap
+[26. 2024-05-23T08:33:21.519088681Z]: [TRAP]: timer trap
+[27. 2024-05-23T08:33:22.96101893Z]: yey!
+[28. 2024-05-23T08:33:26.601860526Z]: right before timer trap
+[29. 2024-05-23T08:33:26.601860526Z]: [TRAP]: timer trap
+[30. 2024-05-23T08:33:28.039227914Z]: right before trap
+[31. 2024-05-23T08:33:28.039227914Z]: [TRAP]: oops!
+[32. 2024-05-23T08:33:31.634215234Z]: right before timer trap
+[33. 2024-05-23T08:33:31.634215234Z]: [TRAP]: timer trap
+[34. 2024-05-23T08:33:35.96761902Z]: right before memory out of bounds
+[35. 2024-05-23T08:33:35.96761902Z]: [TRAP]: StableMemory range out of bounds
+[36. 2024-05-23T08:33:36.712223153Z]: right before timer trap
+[37. 2024-05-23T08:33:36.712223153Z]: [TRAP]: timer trap
 ...
 
 ```
