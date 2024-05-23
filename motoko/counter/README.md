@@ -21,7 +21,6 @@ The application provides an interface that exposes the following methods:
 ### Prerequisites
 This example requires an installation of:
 
-- [x] DFX version 0.19.0 or newer
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
