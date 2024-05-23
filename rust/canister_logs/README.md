@@ -62,15 +62,11 @@ $ dfx canister call canister_logs print hi
 # Expect to see new log entry.
 $ dfx canister logs canister_logs
 ...
-[16. 2024-05-22T12:36:15.638667167Z]: right before timer trap
-[17. 2024-05-22T12:36:15.638667167Z]: [TRAP]: timer trap
 [18. 2024-05-22T12:36:20.881326098Z]: right before timer trap
 [19. 2024-05-22T12:36:20.881326098Z]: [TRAP]: timer trap
 [20. 2024-05-22T12:36:26.305162772Z]: hi
 [21. 2024-05-22T12:36:27.185879186Z]: right before timer trap
 [22. 2024-05-22T12:36:27.185879186Z]: [TRAP]: timer trap
-[23. 2024-05-22T12:36:33.486805581Z]: right before timer trap
-[24. 2024-05-22T12:36:33.486805581Z]: [TRAP]: timer trap
 ```
 
 ### Step 5: Start constantly polling logs:
@@ -81,17 +77,12 @@ In order not to call `dfx canister logs canister_logs` after every canister call
 # Terminal C
 $ ./poll_logs.sh
 ...
-[16. 2024-05-22T12:36:15.638667167Z]: right before timer trap
-[17. 2024-05-22T12:36:15.638667167Z]: [TRAP]: timer trap
 [18. 2024-05-22T12:36:20.881326098Z]: right before timer trap
 [19. 2024-05-22T12:36:20.881326098Z]: [TRAP]: timer trap
 [20. 2024-05-22T12:36:26.305162772Z]: hi
 [21. 2024-05-22T12:36:27.185879186Z]: right before timer trap
 [22. 2024-05-22T12:36:27.185879186Z]: [TRAP]: timer trap
-[23. 2024-05-22T12:36:33.486805581Z]: right before timer trap
-[24. 2024-05-22T12:36:33.486805581Z]: [TRAP]: timer trap
 ...
-
 ```
 
 ### Step 6: Call `print`, `trap`, `panic` and other canister methods:

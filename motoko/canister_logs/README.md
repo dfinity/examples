@@ -38,13 +38,17 @@ $ cd examples/motoko/canister_logs
 $ dfx deploy
 ```
 
-### Step 3: Check canister has no logs yet:
+### Step 3: Check canister logs:
+
+Expect to see logs from timer traps.
 
 ```shell
 # Terminal B
 $ dfx canister logs CanisterLogs
-
-# Expect to see no logs.
+[0. 2024-05-23T08:14:40.60349175Z]: right before timer trap
+[1. 2024-05-23T08:14:40.60349175Z]: [TRAP]: timer trap
+[2. 2024-05-23T08:14:46.160555676Z]: right before timer trap
+[3. 2024-05-23T08:14:46.160555676Z]: [TRAP]: timer trap
 ```
 
 ### Step 4: Call `print` method and check the logs:
@@ -56,7 +60,13 @@ $ dfx canister call CanisterLogs print hi
 
 # Expect to see new log entry.
 $ dfx canister logs CanisterLogs
-[0. 2024-05-22T11:37:28.080234848Z]: hi
+...
+[14. 2024-05-23T08:15:15.829022842Z]: right before timer trap
+[15. 2024-05-23T08:15:15.829022842Z]: [TRAP]: timer trap
+[16. 2024-05-23T08:15:19.728382106Z]: hi
+[17. 2024-05-23T08:15:21.079923035Z]: right before timer trap
+[18. 2024-05-23T08:15:21.079923035Z]: [TRAP]: timer trap
+...
 ```
 
 ### Step 5: Start constantly polling logs:
@@ -66,8 +76,13 @@ In order not to call `dfx canister logs CanisterLogs` after every canister call 
 ```shell
 # Terminal C
 $ ./poll_logs.sh
-[0. 2024-05-22T11:37:28.080234848Z]: hi
-
+...
+[14. 2024-05-23T08:15:15.829022842Z]: right before timer trap
+[15. 2024-05-23T08:15:15.829022842Z]: [TRAP]: timer trap
+[16. 2024-05-23T08:15:19.728382106Z]: hi
+[17. 2024-05-23T08:15:21.079923035Z]: right before timer trap
+[18. 2024-05-23T08:15:21.079923035Z]: [TRAP]: timer trap
+...
 ```
 
 ### Step 6: Call `print`, `trap`, `panic` and other canister methods:
@@ -94,10 +109,24 @@ Observe recorded logs that might look similar to this:
 
 ```shell
 # Terminal C
-[0. 2024-05-22T12:21:52.333589617Z]: hi
-[1. 2024-05-22T12:22:27.330332077Z]: hello!
-[2. 2024-05-22T12:22:32.062734677Z]: yey!
-[3. 2024-05-22T12:22:36.685104375Z]: right before trap
-[4. 2024-05-22T12:22:36.685104375Z]: [TRAP]: oops!
+...
+[49. 2024-05-23T08:16:40.702368542Z]: right before timer trap
+[50. 2024-05-23T08:16:40.702368542Z]: [TRAP]: timer trap
+[51. 2024-05-23T08:16:42.785727368Z]: hi!
+[52. 2024-05-23T08:16:45.69960063Z]: right before timer trap
+[53. 2024-05-23T08:16:45.69960063Z]: [TRAP]: timer trap
+[54. 2024-05-23T08:16:47.222911354Z]: hello!
+[55. 2024-05-23T08:16:50.875445893Z]: right before timer trap
+[56. 2024-05-23T08:16:50.875445893Z]: [TRAP]: timer trap
+[57. 2024-05-23T08:16:51.570602735Z]: yey!
+[58. 2024-05-23T08:16:55.783308056Z]: right before timer trap
+[59. 2024-05-23T08:16:55.783308056Z]: [TRAP]: timer trap
+[60. 2024-05-23T08:16:56.536701165Z]: right before trap
+[61. 2024-05-23T08:16:56.536701165Z]: [TRAP]: oops!
+[62. 2024-05-23T08:17:00.759041661Z]: right before timer trap
+[63. 2024-05-23T08:17:00.759041661Z]: [TRAP]: timer trap
+[64. 2024-05-23T08:17:05.657467481Z]: right before timer trap
+[65. 2024-05-23T08:17:05.657467481Z]: [TRAP]: timer trap
+...
 
 ```
