@@ -1,0 +1,21 @@
+name: code owner approval
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+jobs:
+  noop-darwin:
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v1
+      - name: No-op check
+        run: |
+          echo "Running no-op check to trigger codeowner approval"
+  noop-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: No-op check
+        run: |
+          echo "Running no-op check to trigger codeowner approval"
