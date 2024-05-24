@@ -4,10 +4,10 @@
 /c/qr/ @dfinity/growth
 /c/reverse/ @dfinity/growth
 
-/hosting/godot-html5-template/ @zhangwei983
+/hosting/godot-html5-template/ @dfinity/sdk
 /hosting/photo-storage/ @dfinity/sdk
 /hosting/static-website/ @dfinity/sdk
-/hosting/unity-webgl-template/ @zhangwei983
+/hosting/unity-webgl-template/ @dfinity/sdk
 
 /motoko/actor_reference/ @dfinity/languages
 /motoko/auth_client_demo/ @dfinity/sdk
@@ -19,7 +19,7 @@
 /motoko/classes/ @dfinity/languages
 /motoko/composite_query/ @dfinity/languages
 /motoko/counter/ @dfinity/languages
-/motoko/defi/ @rumenov
+/motoko/defi/ @dfinity/networking
 /motoko/dip721-nft-container/ @dfinity/languages
 /motoko/echo/ @dfinity/languages
 /motoko/encrypted-notes-dapp-vetkd/ @dfinity/div-Crypto
@@ -28,35 +28,37 @@
 /motoko/hello-world/ @dfinity/languages
 /motoko/hello/ @dfinity/languages
 /motoko/hello_cycles/ @dfinity/languages
-/motoko/http_counter/ @rumenov
+/motoko/http_counter/ @dfinity/networking
 /motoko/ic-pos/ @dfinity/div-Crypto
+/motoko/icp_transfer/ @dfinity/growth
 /motoko/icrc2-swap/ @dfinity/div-Crypto
 /motoko/internet_identity_integration/ @dfinity/gix
-/motoko/invoice-canister/ @dfinity/FinInt
 /motoko/ios-notifications/ @dfinity/trust
-/motoko/ledger-transfer/ @dfinity/FinInt
 /motoko/life/ @dfinity/languages
 /motoko/minimal-counter-dapp/ @dfinity/growth
 /motoko/persistent-storage/ @dfinity/growth
 /motoko/phone-book/ @dfinity/growth
 /motoko/pub-sub/ @dfinity/growth
+/motoko/query_stats/ @dfinity/sdk
 /motoko/quicksort/ @dfinity/growth
 /motoko/random_maze/ @dfinity/languages
-/motoko/send_http_get/ @rumenov
-/motoko/send_http_post/ @rumenov
+/motoko/send_http_get/ @dfinity/networking
+/motoko/send_http_post/ @dfinity/networking
 /motoko/simple-to-do/ @dfinity/growth
 /motoko/superheroes/ @dfinity/growth
 /motoko/threshold-ecdsa/ @dfinity/div-Crypto
+/motoko/token_transfer/ @dfinity/growth
+/motoko/token_transfer_from/ @dfinity/growth
 /motoko/vetkd/ @dfinity/div-Crypto
 /motoko/whoami/ @dfinity/growth
 
-/native-apps/unity_ii_applink/ @zhangwei983
-/native-apps/unity_ii_deeplink/ @zhangwei983
+/native-apps/unity_ii_applink/ @dfinity/sdk
+/native-apps/unity_ii_deeplink/ @dfinity/sdk
 
 /rust/basic_bitcoin/ @dfinity/execution
 /rust/basic_dao/ @dfinity/testing-verification
-/rust/canister_logs/ @dfinity/execution
 /rust/canister-info/ @dfinity/testing-verification
+/rust/canister_logs/ @dfinity/execution
 /rust/composite_query/ @dfinity/execution
 /rust/counter/ @dfinity/growth
 /rust/defi/ @dfinity/div-Crypto
@@ -64,15 +66,20 @@
 /rust/encrypted-notes-dapp-vetkd/ @dfinity/div-Crypto
 /rust/encrypted-notes-dapp/ @dfinity/div-Crypto
 /rust/hello/ @dfinity/sdk
+/rust/icp_transfer/ @dfinity/growth
+/rust/image-classification/ @dfinity/runtime
 /rust/nft-wallet/ @dfinity/growth
 /rust/performance_counters/ @dfinity/runtime
 /rust/periodic_tasks/ @dfinity/runtime
 /rust/pub-sub/ @dfinity/growth
 /rust/qrcode/ @dfinity/runtime
+/rust/query_stats/ @dfinity/consensus
 /rust/send_http_get/ @dfinity/growth
 /rust/send_http_post/ @dfinity/growth
-/rust/threshold-ecdsa/ @chmllr
-/rust/tokens_transfer/ @dfinity/div-Crypto
+/rust/simd/ @dfinity/runtime
+/rust/threshold-ecdsa/ @dfinity/consensus
+/rust/token_transfer/ @dfinity/growth
+/rust/token_transfer_from/ @dfinity/growth
 /rust/vetkd/ @dfinity/div-Crypto
 
 /svelte/svelte-motoko-starter/ @dfinity/sdk
