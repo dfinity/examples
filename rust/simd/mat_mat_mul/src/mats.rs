@@ -148,7 +148,8 @@ where
 /// Returns the resulting `4 x 4` tile with the element-wise products.
 #[inline(always)]
 pub fn add_mat_mul_4x4_simd_f32(k: usize, pa: *const u8, pb: *const u8) -> [[f32; 4]; 4] {
-    use std::arch::wasm32::*;
+    use core::arch::wasm32::*;
+
     // `Clear` op.
     let mut ab0 = f32x4(0_f32, 0_f32, 0_f32, 0_f32);
     let mut ab1 = f32x4(0_f32, 0_f32, 0_f32, 0_f32);

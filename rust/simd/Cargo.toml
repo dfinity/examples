@@ -3,5 +3,5 @@ members = ["mat_mat_mul"]
 resolver = "2"
 
 [profile.release]
-opt-level = 3
 lto = true
+opt-level = 3
