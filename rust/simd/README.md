@@ -81,7 +81,7 @@ Rust auto-vectorization enabled, and WebAssembly SIMD instructions:
 
 ```sh
 dfx canister call mat_mat_mul optimized_f32
-dfx canister call mat_mat_mul auto_vectorization_f32
+dfx canister call mat_mat_mul auto_vectorized_f32
 dfx canister call mat_mat_mul simd_f32
 ```
 
@@ -90,7 +90,7 @@ Example output:
 ```sh
 % dfx canister call mat_mat_mul optimized_f32
 (168_542_255 : nat64)
-% dfx canister call mat_mat_mul auto_vectorization_f32
+% dfx canister call mat_mat_mul auto_vectorized_f32
 (13_697_228 : nat64)
 % dfx canister call mat_mat_mul simd_f32
 (13_697_228 : nat64)
@@ -162,7 +162,7 @@ with Rust auto-vectorization enabled:
 
 ```sh
 dfx canister call mat_mat_mul optimized_u32
-dfx canister call mat_mat_mul auto_vectorization_u32
+dfx canister call mat_mat_mul auto_vectorized_u32
 ```
 
 Example output:
@@ -170,7 +170,7 @@ Example output:
 ```sh
 % dfx canister call mat_mat_mul optimized_u32
 (32_342_253 : nat64)
-% dfx canister call mat_mat_mul auto_vectorization_u32
+% dfx canister call mat_mat_mul auto_vectorized_u32
 (16_164_254 : nat64)
 ```
 
@@ -195,7 +195,7 @@ The `mat_mat_mul` canister provide the following interface:
   returns the number of instructions used for a loop performing
   1K element-wise multiplications of `K x 4` packed slices
   from matrices `A` and `B` using optimized algorithm.
-- `auto_vectorization_f32`/`auto_vectorization_u32` &mdash;
+- `auto_vectorized_f32`/`auto_vectorized_u32` &mdash;
   returns the number of instructions used for a loop performing
   1K element-wise multiplications of `K x 4` packed slices
   from matrices `A` and `B` using Rust loop auto-vectorization.

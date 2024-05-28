@@ -110,7 +110,7 @@ fn optimized_f32() -> u64 {
 /// The following line enables auto-vectorization using WebAssembly SIMD instructions.
 #[target_feature(enable = "simd128")]
 #[ic_cdk_macros::query]
-fn auto_vectorization_f32() -> u64 {
+fn auto_vectorized_f32() -> u64 {
     let a = mats::Matrix::<f32, 4, K>::new();
     let b = mats::Matrix::<f32, K, 4>::new();
     let a_packed = a.a_packed();
@@ -132,7 +132,7 @@ fn auto_vectorization_f32() -> u64 {
     );
 
     ic_cdk::println!(
-        "Auto-vectorization (f32):  {:>12} Wasm instructions",
+        "Auto-vectorized (f32):     {:>12} Wasm instructions",
         fmt(instructions)
     );
     instructions
@@ -237,7 +237,7 @@ fn optimized_u32() -> u64 {
 /// The following line enables auto-vectorization using WebAssembly SIMD instructions.
 #[target_feature(enable = "simd128")]
 #[ic_cdk_macros::query]
-fn auto_vectorization_u32() -> u64 {
+fn auto_vectorized_u32() -> u64 {
     let a = mats::Matrix::<u32, 4, K>::new();
     let b = mats::Matrix::<u32, K, 4>::new();
     let a_packed = a.a_packed();
@@ -259,7 +259,7 @@ fn auto_vectorization_u32() -> u64 {
     );
 
     ic_cdk::println!(
-        "Auto-vectorization (u32):  {:>12} Wasm instructions",
+        "Auto-vectorized (u32):     {:>12} Wasm instructions",
         fmt(instructions)
     );
     instructions

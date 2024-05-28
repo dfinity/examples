@@ -10,7 +10,7 @@ target = ["wasm32-unknown-unknown"]
 # ```rust
 # #[target_feature(enable = "simd128")]
 # #[ic_cdk_macros::query]
-# fn auto_vectorization_f32() -> u64 {
+# fn auto_vectorized_f32() -> u64 {
 # ```
 #
 # In most cases, there's no need to annotate functions or even change

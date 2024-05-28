@@ -28,11 +28,11 @@ test: deploy
 	# Validate the number of instructions is non-zero.
 	dfx canister call mat_mat_mul naive_f32 | grep -vw '0' && echo 'PASS'
 	dfx canister call mat_mat_mul optimized_f32 | grep -vw '0' && echo 'PASS'
-	dfx canister call mat_mat_mul auto_vectorization_f32 | grep -vw '0' && echo 'PASS'
+	dfx canister call mat_mat_mul auto_vectorized_f32 | grep -vw '0' && echo 'PASS'
 	dfx canister call mat_mat_mul simd_f32 | grep -vw '0' && echo 'PASS'
 	dfx canister call mat_mat_mul naive_u32 | grep -vw '0' && echo 'PASS'
 	dfx canister call mat_mat_mul optimized_u32 | grep -vw '0' && echo 'PASS'
-	dfx canister call mat_mat_mul auto_vectorization_u32 | grep -vw '0' && echo 'PASS'
+	dfx canister call mat_mat_mul auto_vectorized_u32 | grep -vw '0' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean
