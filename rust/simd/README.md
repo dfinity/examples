@@ -21,7 +21,7 @@ The example consists of a canister named `mat_mat_mul` (matrix-matrix multiplica
 
 This example requires an installation of:
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx). Note: the WebAssembly SIMD support requires `dfx` version `0.21` or later.
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx). Note: the WebAssembly SIMD support requires `dfx` version `0.20.2-beta.0` or later.
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 ### Example 1: Floating point matrices multiplications
@@ -45,7 +45,7 @@ Example output:
 
 ```sh
 % dfx stop && dfx start --clean
-Running dfx start for version 0.21.0
+Running dfx start for version 0.20.2-beta.0
 [...]
 Dashboard: http://localhost:63387/_/dashboard
 ```
@@ -126,7 +126,7 @@ Example output:
 
 ```sh
 % dfx stop && dfx start --clean
-Running dfx start for version 0.21.0
+Running dfx start for version 0.20.2-beta.0
 [...]
 Dashboard: http://localhost:63387/_/dashboard
 ```
