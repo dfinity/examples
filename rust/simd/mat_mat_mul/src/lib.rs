@@ -57,12 +57,12 @@ fn naive_f32() -> u64 {
     let a = mats::Matrix::<f32, 4, K>::new();
     let b = mats::Matrix::<f32, K, 4>::new();
 
-    let instructions_before = ic_cdk::api::performance_counter(0);
+    let instructions_before = ic_cdk::api::instruction_counter();
     for _ in 0..ITERATIONS {
         let c = mats::add_mat_mul_naive(&a, &b);
         std::hint::black_box(c);
     }
-    let instructions = ic_cdk::api::performance_counter(0) - instructions_before;
+    let instructions = ic_cdk::api::instruction_counter() - instructions_before;
 
     ic_cdk::println!(
         "Naive algorithm (f32):     {:>12} Wasm instructions",
@@ -83,12 +83,12 @@ fn optimized_f32() -> u64 {
     let pa = a_packed.0.as_ptr() as *const u8;
     let pb = b_packed.0.as_ptr() as *const u8;
 
-    let instructions_before = ic_cdk::api::performance_counter(0);
+    let instructions_before = ic_cdk::api::instruction_counter();
     for _ in 0..ITERATIONS {
         let c = mats::add_mat_mul_4x4_optimized::<f32>(K, pa, pb);
         std::hint::black_box(c);
     }
-    let instructions = ic_cdk::api::performance_counter(0) - instructions_before;
+    let instructions = ic_cdk::api::instruction_counter() - instructions_before;
 
     // Assert the naive and optimized algorithms produce the same results.
     assert_eq!(
@@ -118,12 +118,12 @@ fn auto_vectorized_f32() -> u64 {
     let pa = a_packed.0.as_ptr() as *const u8;
     let pb = b_packed.0.as_ptr() as *const u8;
 
-    let instructions_before = ic_cdk::api::performance_counter(0);
+    let instructions_before = ic_cdk::api::instruction_counter();
     for _ in 0..ITERATIONS {
         let c = mats::add_mat_mul_4x4_optimized::<f32>(K, pa, pb);
         std::hint::black_box(c);
     }
-    let instructions = ic_cdk::api::performance_counter(0) - instructions_before;
+    let instructions = ic_cdk::api::instruction_counter() - instructions_before;
 
     // Assert the naive and optimized algorithms produce the same results.
     assert_eq!(
@@ -153,12 +153,12 @@ fn simd_f32() -> u64 {
     let pa = a_packed.0.as_ptr() as *const u8;
     let pb = b_packed.0.as_ptr() as *const u8;
 
-    let instructions_before = ic_cdk::api::performance_counter(0);
+    let instructions_before = ic_cdk::api::instruction_counter();
     for _ in 0..ITERATIONS {
         let c = mats::add_mat_mul_4x4_simd_f32(K, pa, pb);
         std::hint::black_box(c);
     }
-    let instructions = ic_cdk::api::performance_counter(0) - instructions_before;
+    let instructions = ic_cdk::api::instruction_counter() - instructions_before;
 
     // Assert the naive and SIMD algorithms produce the same results.
     assert_eq!(
@@ -184,12 +184,12 @@ fn naive_u32() -> u64 {
     let a = mats::Matrix::<u32, 4, K>::new();
     let b = mats::Matrix::<u32, K, 4>::new();
 
-    let instructions_before = ic_cdk::api::performance_counter(0);
+    let instructions_before = ic_cdk::api::instruction_counter();
     for _ in 0..ITERATIONS {
         let c = mats::add_mat_mul_naive(&a, &b);
         std::hint::black_box(c);
     }
-    let instructions = ic_cdk::api::performance_counter(0) - instructions_before;
+    let instructions = ic_cdk::api::instruction_counter() - instructions_before;
 
     ic_cdk::println!(
         "Naive algorithm (u32):     {:>12} Wasm instructions",
@@ -210,12 +210,12 @@ fn optimized_u32() -> u64 {
     let pa = a_packed.0.as_ptr() as *const u8;
     let pb = b_packed.0.as_ptr() as *const u8;
 
-    let instructions_before = ic_cdk::api::performance_counter(0);
+    let instructions_before = ic_cdk::api::instruction_counter();
     for _ in 0..ITERATIONS {
         let c = mats::add_mat_mul_4x4_optimized::<u32>(K, pa, pb);
         std::hint::black_box(c);
     }
-    let instructions = ic_cdk::api::performance_counter(0) - instructions_before;
+    let instructions = ic_cdk::api::instruction_counter() - instructions_before;
 
     // Assert the naive and optimized algorithms produce the same results.
     assert_eq!(
@@ -245,12 +245,12 @@ fn auto_vectorized_u32() -> u64 {
     let pa = a_packed.0.as_ptr() as *const u8;
     let pb = b_packed.0.as_ptr() as *const u8;
 
-    let instructions_before = ic_cdk::api::performance_counter(0);
+    let instructions_before = ic_cdk::api::instruction_counter();
     for _ in 0..ITERATIONS {
         let c = mats::add_mat_mul_4x4_optimized::<u32>(K, pa, pb);
         std::hint::black_box(c);
     }
-    let instructions = ic_cdk::api::performance_counter(0) - instructions_before;
+    let instructions = ic_cdk::api::instruction_counter() - instructions_before;
 
     // Assert the naive and optimized algorithms produce the same results.
     assert_eq!(
