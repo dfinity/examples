@@ -1,0 +1,25 @@
+[build]
+target = ["wasm32-unknown-unknown"]
+
+[target.wasm32-unknown-unknown]
+# This example compares the performance of the same function compiled
+# with and without WebAssembly SIMD support. SIMD instructions are
+# globally disabled, and enabled just for specific functions using
+# the `target_feature` attribute:
+#
+# ```rust
+# #[target_feature(enable = "simd128")]
+# #[ic_cdk_macros::query]
+# fn auto_vectorized_f32() -> u64 {
+# ```
+#
+# In most cases, there's no need to annotate functions or even change
+# the source code. To enable WebAssembly SIMD instructions globally,
+# for the whole workspace and all its dependencies, just uncomment
+# the following line:
+#
+# rustflags = ["-C", "target-feature=+simd128"]
+#
+# Note, enabling WebAssembly SIMD instructions enables Rust loop
+# auto-vectorization. This option might be enabled by default in future
+# `dfx` versions.

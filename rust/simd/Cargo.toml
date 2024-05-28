@@ -1,0 +1,7 @@
+[workspace]
+members = ["mat_mat_mul"]
+resolver = "2"
+
+[profile.release]
+lto = true
+opt-level = 3
