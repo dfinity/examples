@@ -2,10 +2,13 @@ use crate::future::PollTwiceFuture;
 use candid::{CandidType, Deserialize};
 use ic_cdk::{query, update};
 use std::cell::RefCell;
+use std::collections::BTreeSet;
+use std::sync::{Arc, Mutex};
 
 #[derive(Debug, Default)]
 pub struct State {
     value: Option<String>,
+    other_values: BTreeSet<String>,
 }
 
 thread_local! {
@@ -41,13 +44,37 @@ async fn update_with_panicking_callback(future_type: FutureType) {
 }
 
 #[update]
+async fn update_multi_async_with_panicking_callback(
+    future_type: FutureType,
+    panicking_element: String,
+) {
+    let values: Vec<String> =
+        STATE.with(|state| state.borrow().other_values.iter().cloned().collect());
+    for value in values.iter() {
+        let _elements_should_be_processed_only_once_guard = scopeguard::guard(value, |_| {
+            let _is_removed = STATE.with(|state| state.borrow_mut().other_values.remove(value));
+        });
+        if value == &panicking_element {
+            panic!("panicking callback");
+        }
+        future_type.call().await;
+    }
+}
+
+#[update]
 async fn update_with_made_up_future_and_panicking_callback() {
     let _guard = scopeguard::guard((), |_| {
         STATE.with(|state| state.borrow_mut().value = Some("guard executed".to_string()));
     });
-    let fut = PollTwiceFuture::default();
+    let shared_state = Arc::new(Mutex::new(future::SharedState::default()));
+    let fut = PollTwiceFuture {
+        shared_state: shared_state.clone(),
+    };
 
     let res = fut.await;
+    assert_eq!(res, "PollTwiceFuture completed".to_string());
+
+    let _ = shared_state.lock().unwrap().waker.take().unwrap().wake();
 
     STATE.with(|state| {
         state.borrow_mut().value = Some(format!(
@@ -80,36 +107,55 @@ impl FutureType {
 mod future {
     use std::future::Future;
     use std::pin::Pin;
+    use std::sync::{Arc, Mutex};
     use std::task::{Context, Poll, Waker};
 
     #[derive(Default)]
-    pub(crate) struct PollTwiceFuture {
+    pub(crate) struct SharedState {
         polled: bool,
-        waker: Option<Waker>,
+        pub(crate) waker: Option<Waker>,
+    }
+
+    #[derive(Default)]
+    pub(crate) struct PollTwiceFuture {
+        pub shared_state: Arc<Mutex<SharedState>>,
     }
 
     impl Future for PollTwiceFuture {
         type Output = String;
 
         fn poll(mut self: Pin<&mut Self>, cx: &mut Context<'_>) -> Poll<Self::Output> {
-            ic_cdk::println!("PollTwiceFuture polled once: {}", self.polled);
-            if !self.polled {
-                self.polled = true;
-                self.waker = Some(cx.waker().clone());
-                Poll::Pending
-            } else {
+            let mut shared_state = self.shared_state.lock().unwrap();
+            ic_cdk::println!("PollTwiceFuture polled once: {}", shared_state.polled);
+            if shared_state.polled {
                 Poll::Ready("PollTwiceFuture completed".to_string())
+            } else {
+                shared_state.polled = true;
+                shared_state.waker = Some(cx.waker().clone());
+                Poll::Pending
             }
         }
     }
 }
 
 #[update]
-fn reset_value() {
-    STATE.with(|state| state.borrow_mut().value = None);
+fn reset() {
+    STATE.with(|state| *state.borrow_mut() = State::default());
+}
+
+#[update]
+fn set_values(values: Vec<String>) {
+    STATE.with(|state| {
+        state.borrow_mut().other_values = values.into_iter().collect();
+    });
 }
 
 #[query]
 fn get_value() -> Option<String> {
     STATE.with(|state| state.borrow().value.clone())
+}
+
+#[query]
+fn get_values() -> Vec<String> {
+    STATE.with(|state| state.borrow().other_values.clone().into_iter().collect())
 }

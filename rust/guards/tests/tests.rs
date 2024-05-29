@@ -1,3 +1,4 @@
+use assert_matches::assert_matches;
 use candid::{CandidType, Decode, Encode, Principal};
 use ic_cdk::api::management_canister::main::CanisterId;
 use pocket_ic::PocketIc;
@@ -27,6 +28,9 @@ fn should_revert_guard() {
 
     assert_eq!(canister.query_call_get_value(), None);
 }
+
+#[test]
+fn should_process_elements_only_once() {}
 
 #[test]
 fn should_not_revert_guard_with_made_up_future() {
@@ -73,6 +77,24 @@ impl CanisterSetup {
             }
         }
     }
+    pub fn query_call_get_values(&self) -> Vec<String> {
+        use pocket_ic::WasmResult;
+        match self
+            .env
+            .query_call(
+                self.canister_id,
+                Principal::anonymous(),
+                "get_values",
+                Encode!().unwrap(),
+            )
+            .expect("failed to get values")
+        {
+            WasmResult::Reply(bytes) => Decode!(&bytes, Vec<String>).unwrap(),
+            WasmResult::Reject(e) => {
+                panic!("Failed to get values: {:?}", e);
+            }
+        }
+    }
 
     pub fn update_call_with_panicking_callback(&self, future_type: &FutureType) {
         use pocket_ic::ErrorCode;
@@ -104,6 +126,20 @@ impl CanisterSetup {
             .expect_err("update_with_panicking_callback should panic");
         assert_eq!(res.code, ErrorCode::CanisterCalledTrap);
         assert!(res.description.contains("panicking callback!"));
+    }
+
+    pub fn update_call_set_values(&self, values: &[&str]) {
+        let values = values.iter().map(|s| s.to_string()).collect::<Vec<_>>();
+        let result = self
+            .env
+            .update_call(
+                self.canister_id,
+                Principal::anonymous(),
+                "update_with_made_up_future_and_panicking_callback",
+                Encode!(&values).unwrap(),
+            )
+            .expect("failed to set values");
+        assert_matches!(result, pocket_ic::WasmResult::Reply(_));
     }
 }
 
