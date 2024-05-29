@@ -150,11 +150,15 @@ impl CanisterSetup {
 pub enum FutureType {
     TrueAsyncCall,
     FalseAsyncCall,
-    ArtificialAsyncCall,
 }
 
 fn setup_pocket_ic() -> PocketIc {
     use std::path::PathBuf;
+
+    if std::env::var("POCKET_IC_BIN").is_ok() {
+        return PocketIc::new();
+    }
+
     let filename = match std::env::consts::OS {
         "macos" => "pocket-ic-x86_64-darwin",
         "linux" => "pocket-ic-x86_64-linux",
