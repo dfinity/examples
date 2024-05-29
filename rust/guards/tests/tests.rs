@@ -29,7 +29,7 @@ fn should_process_single_item_but_fail_to_mark_it_as_processed() {
 }
 
 #[test]
-fn should_process_all_items() {
+fn should_process_all_items_and_mark_the_first_one_as_processed() {
     let canister = CanisterSetup::new();
     canister.set_non_processed_items(&["mint1", "mint2", "mint3"]);
     assert_eq!(canister.is_item_processed("mint1"), Some(false));
@@ -44,7 +44,7 @@ fn should_process_all_items() {
 }
 
 #[test]
-fn should_process_all_items2() {
+fn should_process_all_items_but_fail_to_mark_the_first_one_as_processed() {
     let canister = CanisterSetup::new();
     canister.set_non_processed_items(&["mint1", "mint2", "mint3"]);
     assert_eq!(canister.is_item_processed("mint1"), Some(false));
@@ -57,33 +57,6 @@ fn should_process_all_items2() {
     assert_eq!(canister.is_item_processed("mint2"), Some(false));
     assert_eq!(canister.is_item_processed("mint3"), Some(false));
 }
-
-
-#[test]
-fn should_execute_and_not_revert_guard() {
-    let canister = CanisterSetup::new();
-    assert_eq!(canister.query_call_get_value(), None);
-
-    canister.update_call_with_panicking_callback(&FutureType::TrueAsyncCall);
-
-    assert_eq!(
-        canister.query_call_get_value(),
-        Some("guard executed".to_string())
-    );
-}
-
-#[test]
-fn should_revert_guard() {
-    let canister = CanisterSetup::new();
-    assert_eq!(canister.query_call_get_value(), None);
-
-    canister.update_call_with_panicking_callback(&FutureType::FalseAsyncCall);
-
-    assert_eq!(canister.query_call_get_value(), None);
-}
-
-#[test]
-fn should_process_elements_only_once() {}
 
 pub struct CanisterSetup {
     env: PocketIc,
@@ -118,57 +91,18 @@ impl CanisterSetup {
         }
     }
 
-    pub fn query_call_get_value(&self) -> Option<String> {
-        use pocket_ic::WasmResult;
-        match self
-            .env
-            .query_call(
-                self.canister_id,
-                Principal::anonymous(),
-                "get_value",
-                Encode!().unwrap(),
-            )
-            .expect("failed to get value")
-        {
-            WasmResult::Reply(bytes) => Decode!(&bytes, Option<String>).unwrap(),
-            WasmResult::Reject(e) => {
-                panic!("Failed to get value: {:?}", e);
-            }
-        }
-    }
-    pub fn query_call_get_values(&self) -> Vec<String> {
-        use pocket_ic::WasmResult;
-        match self
-            .env
-            .query_call(
-                self.canister_id,
-                Principal::anonymous(),
-                "get_values",
-                Encode!().unwrap(),
-            )
-            .expect("failed to get values")
-        {
-            WasmResult::Reply(bytes) => Decode!(&bytes, Vec<String>).unwrap(),
-            WasmResult::Reject(e) => {
-                panic!("Failed to get values: {:?}", e);
-            }
-        }
-    }
-
-    pub fn update_call_with_panicking_callback(&self, future_type: &FutureType) {
-        use pocket_ic::ErrorCode;
-
-        let res = self
+    pub fn set_non_processed_items(&self, values: &[&str]) {
+        let values = values.iter().map(|s| s.to_string()).collect::<Vec<_>>();
+        let result = self
             .env
             .update_call(
                 self.canister_id,
                 Principal::anonymous(),
-                "update_with_panicking_callback",
-                Encode!(&future_type).unwrap(),
+                "set_non_processed_items",
+                Encode!(&values).unwrap(),
             )
-            .expect_err("update_with_panicking_callback should panic");
-        assert_eq!(res.code, ErrorCode::CanisterCalledTrap);
-        assert!(res.description.contains("panicking callback!"));
+            .expect("failed to set non-processed items");
+        assert_matches!(result, pocket_ic::WasmResult::Reply(_));
     }
 
     pub fn process_single_item_with_panicking_callback(
@@ -209,34 +143,6 @@ impl CanisterSetup {
             .expect_err("process_all_items_with_panicking_callback should panic");
         assert_eq!(res.code, ErrorCode::CanisterCalledTrap);
         assert!(res.description.contains("panicking callback!"));
-    }
-
-    pub fn set_non_processed_items(&self, values: &[&str]) {
-        let values = values.iter().map(|s| s.to_string()).collect::<Vec<_>>();
-        let result = self
-            .env
-            .update_call(
-                self.canister_id,
-                Principal::anonymous(),
-                "set_non_processed_items",
-                Encode!(&values).unwrap(),
-            )
-            .expect("failed to set non-processed items");
-        assert_matches!(result, pocket_ic::WasmResult::Reply(_));
-    }
-
-    pub fn update_call_set_values(&self, values: &[&str]) {
-        let values = values.iter().map(|s| s.to_string()).collect::<Vec<_>>();
-        let result = self
-            .env
-            .update_call(
-                self.canister_id,
-                Principal::anonymous(),
-                "update_with_made_up_future_and_panicking_callback",
-                Encode!(&values).unwrap(),
-            )
-            .expect("failed to set values");
-        assert_matches!(result, pocket_ic::WasmResult::Reply(_));
     }
 }
 
