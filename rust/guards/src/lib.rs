@@ -1,16 +1,74 @@
 use candid::{CandidType, Deserialize};
 use ic_cdk::{query, update};
 use std::cell::RefCell;
-use std::collections::BTreeSet;
+use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Debug, Default)]
 pub struct State {
     value: Option<String>,
     other_values: BTreeSet<String>,
+    //Bunch of items, where the boolean value indicates whether this item was processed.
+    items: BTreeMap<String, bool>,
 }
 
 thread_local! {
     static STATE: RefCell<State> = RefCell::new(State::default());
+}
+
+#[update]
+async fn process_single_item_with_panicking_callback(
+    item_to_process: String,
+    future_type: FutureType,
+) {
+    let _process_item_only_once_guard = scopeguard::guard((), |_| {
+        STATE.with(|state| {
+            state
+                .borrow_mut()
+                .items
+                .entry(item_to_process)
+                .and_modify(|v| *v = true);
+        });
+    });
+
+    // Call and await future. There are 2 scenarios to consider.
+    // 1) The future cannot be polled until completion.
+    // The future returns a result of type `futures::task::Poll::Pending` indicating that it's not ready yet.
+    // In that case, the state will be committed and execution will yield, terminating the execution of that first message.
+    // Execution will then continue in a second message, when the future is ready.
+    // That means that the panic at the end will only revert the state changes occurring in the second message.
+    // The Rust ic_cdk will during `call_on_cleanup` call `Drop` on any variables that still in scope at the end of the first message,
+    // hence the guard will be executed and not reverted.
+    //
+    // 2) The future can be polled until completion.
+    // The future returns a result of type `futures::task::Poll::Ready` and in that case execution will continue without yielding.
+    // Everything will be executed in a single message and any state modification will be dropped due to the panic occurring at the end.
+    // In that case, the guard is ineffective
+    future_type.call().await;
+
+    panic!("panicking callback!")
+}
+
+#[update]
+async fn process_all_items_with_panicking_callback(
+    panicking_item: String,
+    future_type: FutureType,
+) {
+    let items: Vec<String> = STATE.with(|state| state.borrow().items.keys().cloned().collect());
+    for item in items {
+        let _process_item_only_once_guard = scopeguard::guard((), |_| {
+            STATE.with(|state| {
+                state
+                    .borrow_mut()
+                    .items
+                    .entry(item.clone())
+                    .and_modify(|v| *v = true);
+            });
+        });
+        if item == panicking_item {
+            panic!("panicking callback!");
+        }
+        future_type.call().await;
+    }
 }
 
 #[update]
@@ -84,6 +142,13 @@ fn reset() {
 }
 
 #[update]
+fn set_non_processed_items(values: Vec<String>) {
+    STATE.with(|state| {
+        state.borrow_mut().items = values.into_iter().map(|item| (item, false)).collect();
+    });
+}
+
+#[update]
 fn set_values(values: Vec<String>) {
     STATE.with(|state| {
         state.borrow_mut().other_values = values.into_iter().collect();
@@ -93,6 +158,11 @@ fn set_values(values: Vec<String>) {
 #[query]
 fn get_value() -> Option<String> {
     STATE.with(|state| state.borrow().value.clone())
+}
+
+#[query]
+fn is_item_processed(item: String) -> Option<bool> {
+    STATE.with(|state| state.borrow().items.get(&item).cloned())
 }
 
 #[query]
