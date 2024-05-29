@@ -9,6 +9,4 @@ service : () -> {
    get_value : () -> (opt text) query;
 
    update_with_panicking_callback: (FutureType) -> ();
-
-   update_with_made_up_future_and_panicking_callback: () -> ();
 }

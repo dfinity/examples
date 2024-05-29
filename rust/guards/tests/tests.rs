@@ -32,19 +32,6 @@ fn should_revert_guard() {
 #[test]
 fn should_process_elements_only_once() {}
 
-#[test]
-fn should_not_revert_guard_with_made_up_future() {
-    let canister = CanisterSetup::new();
-    assert_eq!(canister.query_call_get_value(), None);
-
-    canister.update_call_with_made_up_future_and_panicking_callback();
-
-    assert_eq!(
-        canister.query_call_get_value(),
-        Some("guard executed".to_string())
-    );
-}
-
 pub struct CanisterSetup {
     env: PocketIc,
     canister_id: CanisterId,
@@ -106,22 +93,6 @@ impl CanisterSetup {
                 Principal::anonymous(),
                 "update_with_panicking_callback",
                 Encode!(&future_type).unwrap(),
-            )
-            .expect_err("update_with_panicking_callback should panic");
-        assert_eq!(res.code, ErrorCode::CanisterCalledTrap);
-        assert!(res.description.contains("panicking callback!"));
-    }
-
-    pub fn update_call_with_made_up_future_and_panicking_callback(&self) {
-        use pocket_ic::ErrorCode;
-
-        let res = self
-            .env
-            .update_call(
-                self.canister_id,
-                Principal::anonymous(),
-                "update_with_made_up_future_and_panicking_callback",
-                Encode!().unwrap(),
             )
             .expect_err("update_with_panicking_callback should panic");
         assert_eq!(res.code, ErrorCode::CanisterCalledTrap);
