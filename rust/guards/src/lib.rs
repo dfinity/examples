@@ -18,6 +18,7 @@ async fn process_single_item_with_panicking_callback(
     item_to_process: String,
     future_type: FutureType,
 ) {
+    ensure_not_processed(&item_to_process);
     let _process_item_only_once_guard = scopeguard::guard((), |_| {
         STATE.with(|state| {
             state
@@ -53,6 +54,7 @@ async fn process_all_items_with_panicking_callback(
 ) {
     let items: Vec<String> = STATE.with(|state| state.borrow().items.keys().cloned().collect());
     for item in items {
+        ensure_not_processed(&item);
         let _process_item_only_once_guard = scopeguard::guard((), |_| {
             STATE.with(|state| {
                 state
@@ -69,6 +71,12 @@ async fn process_all_items_with_panicking_callback(
             panic!("panicking callback!");
         }
         future_type.call().await;
+    }
+}
+
+fn ensure_not_processed(item: &str) {
+    if let Some(true) = is_item_processed(item.to_string()) {
+        panic!("BUG: Item '{}' already processed!", item);
     }
 }
 
