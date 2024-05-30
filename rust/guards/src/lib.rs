@@ -1,12 +1,15 @@
+use crate::parallel_guard::ParallelProcessingGuard;
 use candid::{CandidType, Deserialize};
 use ic_cdk::{query, update};
 use std::cell::RefCell;
-use std::collections::BTreeMap;
+use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Debug, Default)]
 pub struct State {
-    //Bunch of items, where the boolean value indicates whether this item was processed.
+    /// Bunch of items, where the boolean value indicates whether this item was processed.
     items: BTreeMap<String, bool>,
+    /// Items that are currently being processed.
+    processing_items: BTreeSet<String>,
 }
 
 thread_local! {
@@ -18,6 +21,7 @@ async fn process_single_item_with_panicking_callback(
     item_to_process: String,
     future_type: FutureType,
 ) {
+    let _prevent_parallel_calls_guard = ensure_not_in_processing(item_to_process.clone());
     ensure_not_processed(&item_to_process);
     let _process_item_only_once_guard = scopeguard::guard((), |_| {
         STATE.with(|state| {
@@ -54,6 +58,7 @@ async fn process_all_items_with_panicking_callback(
 ) {
     let items: Vec<String> = STATE.with(|state| state.borrow().items.keys().cloned().collect());
     for item in items {
+        let _prevent_parallel_calls_guard = ensure_not_in_processing(item.clone());
         ensure_not_processed(&item);
         let _process_item_only_once_guard = scopeguard::guard((), |_| {
             STATE.with(|state| {
@@ -76,8 +81,12 @@ async fn process_all_items_with_panicking_callback(
 
 fn ensure_not_processed(item: &str) {
     if let Some(true) = is_item_processed(item.to_string()) {
-        panic!("BUG: Item '{}' already processed!", item);
+        panic!("ERROR: Item '{}' already processed!", item);
     }
+}
+
+fn ensure_not_in_processing(item: String) -> ParallelProcessingGuard {
+    ParallelProcessingGuard::new(item).expect("ERROR: Item already in processing!")
 }
 
 #[derive(CandidType, Deserialize, Debug, PartialEq, Eq)]
@@ -109,4 +118,36 @@ fn set_non_processed_items(values: Vec<String>) {
     STATE.with(|state| {
         state.borrow_mut().items = values.into_iter().map(|item| (item, false)).collect();
     });
+}
+
+mod parallel_guard {
+    use crate::STATE;
+
+    pub struct ParallelProcessingGuard {
+        item: String,
+    }
+
+    #[derive(Debug, PartialEq, Eq)]
+    pub enum ParallelProcessingGuardError {
+        AlreadyProcessing,
+    }
+
+    impl ParallelProcessingGuard {
+        pub fn new(item: String) -> Result<Self, ParallelProcessingGuardError> {
+            STATE.with(|state| {
+                if !state.borrow_mut().processing_items.insert(item.clone()) {
+                    return Err(ParallelProcessingGuardError::AlreadyProcessing);
+                }
+                Ok(Self { item })
+            })
+        }
+    }
+
+    impl Drop for ParallelProcessingGuard {
+        fn drop(&mut self) {
+            STATE.with(|state| {
+                state.borrow_mut().processing_items.remove(&self.item);
+            });
+        }
+    }
 }
