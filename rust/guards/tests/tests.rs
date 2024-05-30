@@ -160,8 +160,8 @@ fn setup_pocket_ic() -> PocketIc {
     }
 
     let filename = match std::env::consts::OS {
-        "macos" => "pocket-ic-x86_64-darwin",
-        "linux" => "pocket-ic-x86_64-linux",
+        "macos" => "pocket-ic-server",
+        "linux" => "pocket-ic-server",
         _ => panic!("Unsupported OS"),
     };
     let manifest_dir = PathBuf::from(
