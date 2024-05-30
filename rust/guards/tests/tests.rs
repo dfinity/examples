@@ -1,7 +1,8 @@
 use assert_matches::assert_matches;
 use candid::{CandidType, Decode, Encode, Principal};
 use ic_cdk::api::management_canister::main::CanisterId;
-use pocket_ic::PocketIc;
+use pocket_ic::common::rest::RawMessageId;
+use pocket_ic::{ErrorCode, PocketIc, UserError, WasmResult};
 
 pub const CANISTER_WASM: &[u8] =
     include_bytes!("../target/wasm32-unknown-unknown/release/ic_fun_with_guards.wasm");
@@ -56,6 +57,27 @@ fn should_process_all_items_but_fail_to_mark_the_first_one_as_processed() {
     assert_eq!(canister.is_item_processed("mint1"), Some(false));
     assert_eq!(canister.is_item_processed("mint2"), Some(false));
     assert_eq!(canister.is_item_processed("mint3"), Some(false));
+}
+
+#[test]
+fn should_prevent_parallel_processing() {
+    let canister = CanisterSetup::new();
+    canister.set_non_processed_items(&["mint"]);
+
+    let process_item_1 = canister
+        .submit_process_single_item_with_panicking_callback("mint", &FutureType::TrueAsyncCall)
+        .unwrap();
+
+    let process_item_2 = canister
+        .submit_process_single_item_with_panicking_callback("mint", &FutureType::TrueAsyncCall)
+        .unwrap();
+
+    let result_1 = canister.env.await_call(process_item_1);
+    let result_2 = canister.env.await_call(process_item_2);
+
+    assert_matches!((result_1, result_2),
+        (Err(UserError { code, description }), _) | (_, Err(UserError { code, description }))
+            if code == ErrorCode::CanisterCalledTrap && description.contains("ERROR: Item already in processing!"));
 }
 
 pub struct CanisterSetup {
@@ -123,6 +145,19 @@ impl CanisterSetup {
             .expect_err("process_single_item_with_panicking_callback should panic");
         assert_eq!(res.code, ErrorCode::CanisterCalledTrap);
         assert!(res.description.contains("panicking callback!"));
+    }
+
+    pub fn submit_process_single_item_with_panicking_callback(
+        &self,
+        item: &str,
+        future_type: &FutureType,
+    ) -> Result<RawMessageId, UserError> {
+        self.env.submit_call(
+            self.canister_id,
+            Principal::anonymous(),
+            "process_single_item_with_panicking_callback",
+            Encode!(&item, &future_type).unwrap(),
+        )
     }
 
     pub fn process_all_items_with_panicking_callback(
