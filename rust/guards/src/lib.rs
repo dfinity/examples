@@ -79,16 +79,6 @@ async fn process_all_items_with_panicking_callback(
     }
 }
 
-fn ensure_not_processed(item: &str) {
-    if let Some(true) = is_item_processed(item.to_string()) {
-        panic!("ERROR: Item '{}' already processed!", item);
-    }
-}
-
-fn ensure_not_in_processing(item: String) -> ParallelProcessingGuard {
-    ParallelProcessingGuard::new(item).expect("ERROR: Item already in processing!")
-}
-
 #[derive(CandidType, Deserialize, Debug, PartialEq, Eq)]
 pub enum FutureType {
     TrueAsyncCall,
@@ -115,8 +105,29 @@ fn is_item_processed(item: String) -> Option<bool> {
 
 #[update]
 fn set_non_processed_items(values: Vec<String>) {
+    ensure_none_in_processing();
     STATE.with(|state| {
         state.borrow_mut().items = values.into_iter().map(|item| (item, false)).collect();
+    });
+}
+
+fn ensure_not_processed(item: &str) {
+    if let Some(true) = is_item_processed(item.to_string()) {
+        panic!("ERROR: Item '{}' already processed!", item);
+    }
+}
+
+fn ensure_not_in_processing(item: String) -> ParallelProcessingGuard {
+    ParallelProcessingGuard::new(item).expect("ERROR: Item already in processing!")
+}
+
+fn ensure_none_in_processing() {
+    STATE.with(|state| {
+        assert_eq!(
+            state.borrow().processing_items,
+            BTreeSet::default(),
+            "ERROR: Items already in processing!"
+        );
     });
 }
 
