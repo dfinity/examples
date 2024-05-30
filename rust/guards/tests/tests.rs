@@ -9,7 +9,7 @@ pub const CANISTER_WASM: &[u8] =
 
 #[test]
 fn should_process_single_item_and_mark_it_as_processed() {
-    let canister = CanisterSetup::new();
+    let canister = CanisterSetup::default();
     canister.set_non_processed_items(&["mint"]);
     assert_eq!(canister.is_item_processed("mint"), Some(false));
 
@@ -20,7 +20,7 @@ fn should_process_single_item_and_mark_it_as_processed() {
 
 #[test]
 fn should_process_single_item_but_fail_to_mark_it_as_processed() {
-    let canister = CanisterSetup::new();
+    let canister = CanisterSetup::default();
     canister.set_non_processed_items(&["mint"]);
     assert_eq!(canister.is_item_processed("mint"), Some(false));
 
@@ -31,7 +31,7 @@ fn should_process_single_item_but_fail_to_mark_it_as_processed() {
 
 #[test]
 fn should_process_all_items_and_mark_the_first_one_as_processed() {
-    let canister = CanisterSetup::new();
+    let canister = CanisterSetup::default();
     canister.set_non_processed_items(&["mint1", "mint2", "mint3"]);
     assert_eq!(canister.is_item_processed("mint1"), Some(false));
     assert_eq!(canister.is_item_processed("mint2"), Some(false));
@@ -46,7 +46,7 @@ fn should_process_all_items_and_mark_the_first_one_as_processed() {
 
 #[test]
 fn should_process_all_items_but_fail_to_mark_the_first_one_as_processed() {
-    let canister = CanisterSetup::new();
+    let canister = CanisterSetup::default();
     canister.set_non_processed_items(&["mint1", "mint2", "mint3"]);
     assert_eq!(canister.is_item_processed("mint1"), Some(false));
     assert_eq!(canister.is_item_processed("mint2"), Some(false));
@@ -61,7 +61,7 @@ fn should_process_all_items_but_fail_to_mark_the_first_one_as_processed() {
 
 #[test]
 fn should_prevent_parallel_processing() {
-    let canister = CanisterSetup::new();
+    let canister = CanisterSetup::default();
     canister.set_non_processed_items(&["mint"]);
 
     let process_item_1 = canister
@@ -87,7 +87,7 @@ pub struct CanisterSetup {
 
 impl CanisterSetup {
     pub fn new() -> Self {
-        let env = setup_pocket_ic();
+        let env = PocketIc::new();
         let canister_id = env.create_canister();
         env.add_cycles(canister_id, u128::MAX);
         env.install_canister(canister_id, CANISTER_WASM.to_vec(), vec![], None);
@@ -95,7 +95,6 @@ impl CanisterSetup {
     }
 
     pub fn is_item_processed(&self, item: &str) -> Option<bool> {
-        use pocket_ic::WasmResult;
         match self
             .env
             .query_call(
@@ -124,7 +123,7 @@ impl CanisterSetup {
                 Encode!(&values).unwrap(),
             )
             .expect("failed to set non-processed items");
-        assert_matches!(result, pocket_ic::WasmResult::Reply(_));
+        assert_matches!(result, WasmResult::Reply(_));
     }
 
     pub fn process_single_item_with_panicking_callback(
@@ -181,29 +180,14 @@ impl CanisterSetup {
     }
 }
 
+impl Default for CanisterSetup {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 #[derive(CandidType, Debug, PartialEq, Eq)]
 pub enum FutureType {
     TrueAsyncCall,
     FalseAsyncCall,
-}
-
-fn setup_pocket_ic() -> PocketIc {
-    use std::path::PathBuf;
-
-    if std::env::var("POCKET_IC_BIN").is_ok() {
-        return PocketIc::new();
-    }
-
-    let filename = match std::env::consts::OS {
-        "macos" => "pocket-ic-server",
-        "linux" => "pocket-ic-server",
-        _ => panic!("Unsupported OS"),
-    };
-    let manifest_dir = PathBuf::from(
-        std::env::var("CARGO_MANIFEST_DIR")
-            .expect("CARGO_MANIFEST_DIR env variable is not defined"),
-    );
-    let pocket_bin_path = manifest_dir.join("pocket-ic").join(filename);
-    std::env::set_var("POCKET_IC_BIN", pocket_bin_path);
-    PocketIc::new()
 }

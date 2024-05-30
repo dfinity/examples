@@ -29,7 +29,7 @@ until completion directly, everything will be executed in a single message.
 
 ## Automated Integration Tests
 
-To run the integration tests under `tests/`, run
+To run the integration tests under `tests/` install [PocketIC server](https://github.com/dfinity/pocketic) and then run
 
 ```shell
 cargo build --target wasm32-unknown-unknown --release && cargo test
