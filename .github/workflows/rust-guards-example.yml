@@ -23,15 +23,20 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Provision PocketIC Darwin
         run: bash .github/workflows/provision-pocket-ic-server.sh
+      - name: Build Guards Darwin
+        run: |
+          pushd rust/guards
+          cargo build --target wasm32-unknown-unknown --release
+          popd
       - name: Lint Guards Darwin
         run: |
           pushd rust/guards
           cargo fmt --all -- --check && cargo clippy --all-targets --all-features -- -D warnings
           popd
-      - name: Rust Guards Darwin
+      - name: Test Guards Darwin
         run: |
           pushd rust/guards
-          cargo build --target wasm32-unknown-unknown --release && cargo test
+          cargo test
           popd
   rust-guards-linux:
     runs-on: ubuntu-20.04
@@ -41,13 +46,18 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Provision PocketIC Linux
         run: bash .github/workflows/provision-pocket-ic-server.sh
+      - name: Build Guards Linux
+        run: |
+          pushd rust/guards
+          cargo build --target wasm32-unknown-unknown --release
+          popd
       - name: Lint Guards Linux
         run: |
           pushd rust/guards
           cargo fmt --all -- --check && cargo clippy --all-targets --all-features -- -D warnings
           popd
-      - name: Rust Guards Linux
+      - name: Test Guards Linux
         run: |
           pushd rust/guards
-          cargo build --target wasm32-unknown-unknown --release && cargo test
+          cargo test
           popd

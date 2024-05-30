@@ -131,8 +131,6 @@ impl CanisterSetup {
         item: &str,
         future_type: &FutureType,
     ) {
-        use pocket_ic::ErrorCode;
-
         let res = self
             .env
             .update_call(
@@ -164,8 +162,6 @@ impl CanisterSetup {
         panicking_item: &str,
         future_type: &FutureType,
     ) {
-        use pocket_ic::ErrorCode;
-
         let res = self
             .env
             .update_call(
