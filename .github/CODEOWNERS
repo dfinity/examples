@@ -22,7 +22,7 @@
 /motoko/defi/ @dfinity/networking
 /motoko/dip721-nft-container/ @dfinity/languages
 /motoko/echo/ @dfinity/languages
-/motoko/encrypted-notes-dapp-vetkd/ @dfinity/div-Crypto
+/motoko/encrypted-notes-dapp-vetkd/ @dfinity/dept-crypto-library
 /motoko/encrypted-notes-dapp/ @dfinity/div-Crypto
 /motoko/factorial/ @dfinity/languages
 /motoko/hello-world/ @dfinity/languages
@@ -49,7 +49,7 @@
 /motoko/threshold-ecdsa/ @dfinity/div-Crypto
 /motoko/token_transfer/ @dfinity/growth
 /motoko/token_transfer_from/ @dfinity/growth
-/motoko/vetkd/ @dfinity/div-Crypto
+/motoko/vetkd/ @dfinity/dept-crypto-library
 /motoko/whoami/ @dfinity/growth
 
 /native-apps/unity_ii_applink/ @dfinity/sdk
@@ -63,7 +63,7 @@
 /rust/counter/ @dfinity/growth
 /rust/defi/ @dfinity/div-Crypto
 /rust/dip721-nft-container/ @dfinity/sdk
-/rust/encrypted-notes-dapp-vetkd/ @dfinity/div-Crypto
+/rust/encrypted-notes-dapp-vetkd/ @dfinity/dept-crypto-library
 /rust/encrypted-notes-dapp/ @dfinity/div-Crypto
 /rust/hello/ @dfinity/sdk
 /rust/icp_transfer/ @dfinity/growth
@@ -80,7 +80,7 @@
 /rust/threshold-ecdsa/ @dfinity/consensus
 /rust/token_transfer/ @dfinity/growth
 /rust/token_transfer_from/ @dfinity/growth
-/rust/vetkd/ @dfinity/div-Crypto
+/rust/vetkd/ @dfinity/dept-crypto-library
 
 /svelte/svelte-motoko-starter/ @dfinity/sdk
 /svelte/svelte-starter/ @dfinity/sdk
