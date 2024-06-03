@@ -61,6 +61,7 @@
 /rust/dip721-nft-container/ @dfinity/sdk
 /rust/encrypted-notes-dapp-vetkd/ @dfinity/div-Crypto
 /rust/encrypted-notes-dapp/ @dfinity/div-Crypto
+/rust/guards/ @dfinity/cross-chain-team
 /rust/hello/ @dfinity/sdk
 /rust/nft-wallet/ @dfinity/growth
 /rust/performance_counters/ @dfinity/runtime
