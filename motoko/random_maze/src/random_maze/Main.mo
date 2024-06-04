@@ -41,16 +41,14 @@ actor {
   func chooseMax(f : Random.Finite, max : Nat) : ? Nat {
     assert max > 0;
     do ? {
-      if (max == 1) return ? 0;
-      var k = bit(f.coin()!);
-      var n = max / 2;
-      while (n > 1) {
-        k := k * 2 + bit(f.coin()!);
-        n := n / 2;
+      var n = max - 1 : Nat;
+      var k = 0;
+      while (n != 0) {
+        k *= 2;
+        k += bit(f.coin()!);
+        n /= 2;
       };
-      if (k < max)
-        return ? k
-      else chooseMax(f, max) !; // retry
+      if (k < max) k else chooseMax(f, max)!;
     };
   };
 

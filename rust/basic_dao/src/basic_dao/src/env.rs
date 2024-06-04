@@ -1,4 +1,4 @@
-use ic_cdk::export::Principal;
+use candid::Principal;
 
 /// The functions that are provided by the environment that the canister runs in
 ///

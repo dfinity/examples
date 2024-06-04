@@ -1,0 +1,13 @@
+[package]
+edition = "2021"
+name = "canister_logs"
+version = "1.1.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+candid = "0.10"
+ic-cdk = "0.12"
+ic-cdk-macros = "0.8"
+ic-cdk-timers = "0.7"

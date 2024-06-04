@@ -1,12 +1,14 @@
-# Internet Identity Integration
+# Unity + Internet Identity universal links
+
+## Overview
 This sample shows one way to integrate Internet Identity with iOS apps. It contains two parts: a dapp with II integrated, and an Unity Project which interacts with this dapp.
 
-## ii_integration_dapp
-It's an example that integrates with Internet Identity, with the backend and frontend. It derives from the [Internet Identity integration sample](https://github.com/dfinity/examples/tree/master/motoko/internet_identity_integration) demo with some modifications.
+[View this project on GitHub](https://github.com/dfinity/examples/tree/master/native-apps/unity_ii_universallink).
+
+`ii_integration_dapp` is an example that integrates with Internet Identity, with the backend and frontend. It derives from the [Internet Identity integration sample](https://github.com/dfinity/examples/tree/master/motoko/internet_identity_integration) demo with some modifications.
 Please refer to [README](./ii_integration_dapp/README.md) for details.
 
-## unity_project
-This is a Unity project with [ICP.NET](https://github.com/BoomDAO/ICP.NET) embedded, which is a C# agent that is able to communicate with the IC from C#. Please refer to [README](./unity_project/README.md) for details. 
+`unity_project` is a Unity project with [ICP.NET](https://github.com/BoomDAO/ICP.NET) embedded, which is a C# agent that is able to communicate with the IC from C#. Please refer to [README](./unity_project/README.md) for details. 
 
 ## Workflow
 Before continuing, please read through the [iOS Universal Links](https://developer.apple.com/ios/universal-links/) to understand how iOS Universal Links works.

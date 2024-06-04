@@ -1,0 +1,4 @@
+service : {
+    "get_query_stats" : () -> (text);
+    "load" : () -> (nat64) query;
+};

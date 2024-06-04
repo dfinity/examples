@@ -9,6 +9,7 @@ on:
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/rust-periodic_tasks-example.yaml
+      - .ic-commit
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -19,6 +20,8 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
+      - name: Remove networks.json
+        run: rm -f ~/.config/dfx/networks.json
       - name: Rust Periodic Tasks Darwin
         run: |
           dfx start --background
@@ -31,6 +34,8 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
+      - name: Remove networks.json
+        run: rm -f ~/.config/dfx/networks.json
       - name: Rust Periodic Tasks Linux
         run: |
           dfx start --background

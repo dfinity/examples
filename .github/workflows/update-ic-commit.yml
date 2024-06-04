@@ -1,0 +1,79 @@
+# A GitHub Actions workflow that regularly creates a pull request to update the IC artifacts
+name: IC Artifacts Update
+
+on:
+  workflow_dispatch:
+  schedule:
+    # create a new pull request every monday
+    - cron:  '0 0 * * MON'
+
+jobs:
+  ic-update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+        # First, check if there is a newer version and update the file referencing the version
+      - name: Check new ic version
+        id: update
+        run: |
+          # Not all ic commits are built and released, so we go through the last commits until we found one
+          # which has associated artefacts
+          while read -r sha
+          do
+              echo "sha: $sha"
+              # Send a HEAD to the URL to see if it exists
+              if curl --fail --head --silent --location \
+                  "https://download.dfinity.systems/ic/$sha/binaries/x86_64-linux/ic-test-state-machine.gz"
+              then
+                  echo "$sha appears to have associated binary, using"
+                  latest_sha="$sha"
+                  break
+              else
+                  echo "$sha does not seem to have associated binary"
+              fi
+          done < <(curl \
+              -SsL \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              https://api.github.com/repos/dfinity/ic/commits | jq -cMr '.[] | .sha')
+
+          # If we couldn't find any sha with associated artefacts, abort
+          if [ -z "${latest_sha:-}" ]
+          then
+              echo no sha found
+              exit 1
+          fi
+
+          # Compare the current and latest shas, and potentially update the relevant files
+          current_sha=$(sed <.ic-commit 's/#.*$//' | sed '/^$/d')
+
+          echo current sha is "$current_sha"
+
+          if [ "$current_sha" != "$latest_sha" ]; then
+            echo "updating $current_sha to $latest_sha"
+            sed -i -e \
+              "s/$current_sha/$latest_sha/g" \
+              ".ic-commit"
+            echo "updated=1" >> "$GITHUB_OUTPUT"
+          else
+            echo "not updating $current_sha"
+            echo "updated=0" >> "$GITHUB_OUTPUT"
+          fi
+
+          cat ".ic-commit"
+
+      # If the ic commit was updated, create a PR.
+      - name: Create Pull Request
+        if: ${{ steps.update.outputs.updated == '1' }}
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GIX_CREATE_PR_PAT }}
+          base: master
+          add-paths: ./.ic-commit
+          commit-message: Update commit of IC artifacts
+          committer: GitHub <noreply@github.com>
+          author: SDK <team-sdk@dfinity.org>
+          branch: bot-ic-update
+          delete-branch: true
+          title: 'Update commit of IC artifacts'
