@@ -23,8 +23,11 @@ This example requires an installation of:
 
 The following steps will guide you through the process of setting up the token transfer canister for your own project.
 
-> [!TIP]
-> If you just want to interact with this example, follow steps 4-6 and 8-10 below.
+:::info 
+
+If you just want to interact with this example, follow steps 4-6 and 8-10 below.
+
+:::
 
 ### Step 1: Create a new `dfx` project and navigate into the project's directory.
 
@@ -35,8 +38,11 @@ cd token_transfer_from
 
 ### Step 2: Determine ICRC-1 ledger file locations
 
-> [!NOTE]
-> You can read more about how to setup the ICRC-1 ledger locally [here](https://internetcomputer.org/docs/current/developer-docs/defi/icrc-1/icrc1-ledger-setup).
+:::info 
+
+You can read more about how to setup the ICRC-1 ledger locally [here](https://internetcomputer.org/docs/current/developer-docs/defi/icrc-1/icrc1-ledger-setup).
+
+:::
 
 Go to the [releases overview](https://dashboard.internetcomputer.org/releases) and copy the latest replica binary revision. At the time of writing, this is `d87954601e4b22972899e9957e800406a0a6b929`.
 
@@ -57,8 +63,11 @@ chmod +x download_latest_icrc1_ledger.sh
 
 Replace its contents with this but adapt the URLs to be the ones you determined in step 2. Note that we are deploying the ICRC-1 ledger to the same canister id the ckBTC ledger uses on mainnet. This will make it easier to interact with it later.
 
-> [!IMPORTANT]
-> Don't forget to add the `icrc1_ledger_canister` as a dependency for `token_transfer_from_backend`, otherwise the build will fail.
+:::info 
+
+Don't forget to add the `icrc1_ledger_canister` as a dependency for `token_transfer_from_backend`, otherwise the build will fail.
+
+:::
 
 ```json
 {
@@ -103,8 +112,11 @@ dfx start --background --clean
 
 ### Step 5: Deploy the ICRC-1 ledger locally:
 
-> [!IMPORTANT]
-> Transfers from the `minting_account` will create Mint transactions. Transfers to the minting account will create Burn transactions.
+:::info 
+
+Transfers from the `minting_account` will create Mint transactions. Transfers to the minting account will create Burn transactions.
+
+:::
 
 Take a moment to read the details of the call made below. Not only are you deploying an ICRC-1 ledger canister, you are also:
 
@@ -155,8 +167,11 @@ URLs:
 
 ### Step 6: Verify that the ledger canister is healthy and working as expected by using the command:
 
-> [!NOTE]
-> You can find more information on how to interact with the ICRC-1 ledger [here](https://internetcomputer.org/docs/current/developer-docs/defi/icrc-1/using-icrc1-ledger#icrc-1-and-icrc-1-extension-endpoints)
+:::info 
+
+[Learn more about how to interact with the ICRC-1 ledger](https://internetcomputer.org/docs/current/developer-docs/defi/icrc-1/using-icrc1-ledger#icrc-1-and-icrc-1-extension-endpoints).
+
+:::
 
 ````bash
 dfx canister call icrc1_ledger_canister icrc1_balance_of "(record {
@@ -243,8 +258,11 @@ dfx deploy token_transfer_from_backend
 
 ### Step 9: Approve the canister to transfer funds on behalf of the user:
 
-> [!IMPORTANT]
-> Make sure that you are using the default `dfx` account that we minted tokens to in step 5 for the following steps.
+:::info 
+
+Make sure that you are using the default `dfx` account that we minted tokens to in step 5 for the following steps.
+
+:::
 
 Make the following call to approve the `token_transfer_from_backend` canister to transfer 100 tokens on behalf of the `default` identity:
 
