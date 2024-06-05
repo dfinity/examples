@@ -69,8 +69,10 @@ async fn process_all_items_with_panicking_callback(
                     .and_modify(|v| *v = true);
             });
         });
-        // Note that this is the callback of the previous item. Similarly to the above method,
-        // the same 2 scenarios apply and whether the guard is effective or not depends on whether
+        // If the panicking item is the first in the list, then this a no-op.
+        // If the panicking element is not the first in the list, then this is the callback of the previous item.
+        // In that case, the same 2 scenarios described in the above method apply
+        // and whether the guard is effective or not depends on whether
         // the future was polled until completion in a single message.
         if item == panicking_item {
             panic!("panicking callback!");
