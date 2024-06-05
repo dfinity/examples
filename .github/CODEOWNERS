@@ -23,7 +23,7 @@
 /motoko/dip721-nft-container/ @dfinity/languages
 /motoko/echo/ @dfinity/languages
 /motoko/encrypted-notes-dapp-vetkd/ @dfinity/dept-crypto-library
-/motoko/encrypted-notes-dapp/ @dfinity/div-Crypto
+/motoko/encrypted-notes-dapp/ @dfinity/dept-crypto-library
 /motoko/factorial/ @dfinity/languages
 /motoko/hello-world/ @dfinity/languages
 /motoko/hello/ @dfinity/languages
@@ -64,7 +64,7 @@
 /rust/defi/ @dfinity/div-Crypto
 /rust/dip721-nft-container/ @dfinity/sdk
 /rust/encrypted-notes-dapp-vetkd/ @dfinity/dept-crypto-library
-/rust/encrypted-notes-dapp/ @dfinity/div-Crypto
+/rust/encrypted-notes-dapp/ @dfinity/dept-crypto-library
 /rust/guards/ @dfinity/cross-chain-team
 /rust/hello/ @dfinity/sdk
 /rust/icp_transfer/ @dfinity/growth
@@ -78,7 +78,7 @@
 /rust/send_http_get/ @dfinity/growth
 /rust/send_http_post/ @dfinity/growth
 /rust/simd/ @dfinity/runtime
-/rust/threshold-ecdsa/ @dfinity/consensus
+/rust/threshold-ecdsa/ @dfinity/dept-crypto-library
 /rust/token_transfer/ @dfinity/growth
 /rust/token_transfer_from/ @dfinity/growth
 /rust/vetkd/ @dfinity/dept-crypto-library
