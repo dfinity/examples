@@ -131,37 +131,16 @@ fn verify_bip340_secp256k1(
     msg_bytes: &[u8],
     secp1_pk_bytes: &[u8],
 ) -> Result<SignatureVerificationReply, String> {
-    // use k256::schnorr::signature::Verifier;
-
     assert_eq!(secp1_pk_bytes.len(), 33);
     assert_eq!(sig_bytes.len(), 64);
 
-    // let sig =
-    //     k256::schnorr::Signature::try_from(sig_bytes[1..]).expect("failed to deserialize signature");
-    // let vk = k256::schnorr::VerifyingKey::from_bytes(&pk_bytes)
-    //     .expect("failed to deserialize BIP340 encoding into public key");
+    let sig =
+        k256::schnorr::Signature::try_from(sig_bytes).expect("failed to deserialize signature");
 
-    // let is_signature_valid = vk.verify_raw(&msg_bytes, &sig).is_ok();
+    let vk = k256::schnorr::VerifyingKey::from_bytes(&secp1_pk_bytes[1..])
+        .expect("failed to deserialize BIP340 encoding into public key");
 
-    use schnorr_fun::{
-        fun::{marker::*, Point},
-        Message, Schnorr, Signature,
-    };
-    use sha2::Sha256;
-
-    let sig_array = <[u8; 64]>::try_from(sig_bytes).expect("signature is not 64 bytes");
-    // The public key is a BIP-340 public key, which is a 32-byte
-    // compressed public key ignoring the y coordinate in the first byte of the
-    // SEC1 encoding.
-    let bip340_pk_array =
-        <[u8; 32]>::try_from(&secp1_pk_bytes[1..]).expect("public key is not 32 bytes");
-
-    let schnorr = Schnorr::<Sha256>::verify_only();
-    let public_key = Point::<EvenY, Public>::from_xonly_bytes(bip340_pk_array)
-        .expect("failed to parse public key");
-    let signature = Signature::<Public>::from_bytes(sig_array).unwrap();
-    let is_signature_valid =
-        schnorr.verify(&public_key, Message::<Secret>::raw(msg_bytes), &signature);
+    let is_signature_valid = vk.verify_raw(&msg_bytes, &sig).is_ok();
 
     Ok(SignatureVerificationReply { is_signature_valid })
 }
