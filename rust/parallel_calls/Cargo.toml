@@ -1,0 +1,4 @@
+[workspace]
+members = [ "src/callee", "src/caller", "src/multi_subnet",
+]
+resolver = "2"
