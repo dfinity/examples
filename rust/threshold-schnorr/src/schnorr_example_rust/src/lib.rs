@@ -165,7 +165,8 @@ fn verify_ed25519(
 }
 
 fn mgmt_canister_id() -> CanisterId {
-    CanisterId::from_str(&"aaaaa-aa").unwrap()
+    // CanisterId::from_str(&"aaaaa-aa").unwrap()
+    CanisterId::from_str(&"bkyz2-fmaaa-aaaaa-qaaaq-cai").unwrap()
 }
 
 enum SchnorrKeyIds {
