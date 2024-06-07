@@ -32,7 +32,7 @@ Begin by opening a terminal window.
 ### Step 1: Navigate into the example folder and start a local Internet Computer replica
 
 ```bash
-cd examples/rust/parallel_calls
+cd examples/motoko/parallel_calls
 dfx start --background
 ```
 
