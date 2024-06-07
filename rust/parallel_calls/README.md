@@ -4,7 +4,7 @@ keywords: [advanced, rust, defi]
 
 # Parallel inter-canister calls
 
-[View this samples code on GitHub](https://github.com/dfinity/examples/tree/master/rust/parallel_calls).
+[View this sample code on GitHub](https://github.com/dfinity/examples/tree/master/rust/parallel_calls).
 
 ## Overview
 
