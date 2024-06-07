@@ -13,7 +13,7 @@ This example demonstrates how to implement inter-canister calls that run in para
 ## Architecture
 
 The sample code revolves around two simple canisters, `caller` and `callee`. `Caller` has three endpoints:
-1. `setup_callee`, to set the ID of the callee canister
+1. `setup_callee`, to set the ID of the callee canister.
 2. `sequential_calls` and `parallel_calls`, which both take a number `n` and issue `n` calls to the callee, returning the number of successful calls. The former performs calls sequentially, the latter in parallel.
 
 The callee exposes a simple `ping` endpoint that takes no parameters and returns nothing.
