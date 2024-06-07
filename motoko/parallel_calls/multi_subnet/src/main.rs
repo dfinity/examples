@@ -34,7 +34,7 @@ fn main() {
             caller_id,
             Principal::anonymous(),
             "sequential_calls",
-            encode_one(num_calls).unwrap(),
+            encode_one(num_calls.clone()).unwrap(),
         )
         .expect("Failed to execute sequential calls");
     let sequential_num_calls: Nat = match sequential_result {
@@ -49,7 +49,7 @@ fn main() {
             caller_id,
             Principal::anonymous(),
             "parallel_calls",
-            encode_one(num_calls).unwrap(),
+            encode_one(num_calls.clone()).unwrap(),
         )
         .expect("Failed to execute parallel calls");
     let parallel_num_calls: Nat = match parallel_result {
