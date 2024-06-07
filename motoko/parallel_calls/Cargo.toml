@@ -1,0 +1,3 @@
+[workspace]
+members = ["multi_subnet"]
+resolver = "2"
