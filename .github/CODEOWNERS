@@ -70,6 +70,7 @@
 /rust/icp_transfer/ @dfinity/growth
 /rust/image-classification/ @dfinity/runtime
 /rust/nft-wallet/ @dfinity/growth
+/rust/parallel_calls/ @dfinity/research
 /rust/performance_counters/ @dfinity/runtime
 /rust/periodic_tasks/ @dfinity/runtime
 /rust/pub-sub/ @dfinity/growth
