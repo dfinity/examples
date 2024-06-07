@@ -3,6 +3,7 @@ use pocket_ic::{PocketIcBuilder, WasmResult};
 use std::time::Instant;
 
 const INIT_CYCLES: u128 = 2_000_000_000_000;
+
 fn main() {
     let num_calls: u64 = 90;
     let pic = PocketIcBuilder::new()
