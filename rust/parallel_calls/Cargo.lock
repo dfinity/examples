@@ -150,7 +150,6 @@ version = "0.1.0"
 dependencies = [
  "candid",
  "ic-cdk",
- "ic-cdk-timers",
 ]
 
 [[package]]
@@ -160,7 +159,6 @@ dependencies = [
  "candid",
  "futures",
  "ic-cdk",
- "ic-cdk-timers",
 ]
 
 [[package]]
@@ -605,20 +603,6 @@ dependencies = [
  "serde",
  "serde_tokenstream",
  "syn 1.0.109",
-]
-
-[[package]]
-name = "ic-cdk-timers"
-version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "054727a3a1c486528b96349817d54290ff70df6addf417def456ea708a16f7fb"
-dependencies = [
- "futures",
- "ic-cdk",
- "ic0",
- "serde",
- "serde_bytes",
- "slotmap",
 ]
 
 [[package]]
@@ -1280,15 +1264,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8f92a496fb766b417c996b9c5e57daf2f7ad3b0bebe1ccfca4856390e3d3bb67"
 dependencies = [
  "autocfg",
-]
-
-[[package]]
-name = "slotmap"
-version = "1.0.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "dbff4acf519f630b3a3ddcfaea6c06b42174d9a44bc70c620e9ed1649d58b82a"
-dependencies = [
- "version_check",
 ]
 
 [[package]]
