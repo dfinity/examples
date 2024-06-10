@@ -1,14 +1,14 @@
 ---
-keywords: [advanced, rust, defi]
+keywords: [advanced, motoko, defi]
 ---
 
 # Parallel inter-canister calls
 
-[View this sample code on GitHub](https://github.com/dfinity/examples/tree/master/rust/parallel_calls).
+[View this sample code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/parallel_calls).
 
 ## Overview
 
-This example demonstrates how to implement inter-canister calls that run in parallel in Rust, and highlights some differences between parallel and sequential calls. Running independent calls in parallel can lower the latency, especially when messages are sent across subnets. For example, a canister that swaps two tokens might want to launch both token transfer operations in parallel.
+This example demonstrates how to implement inter-canister calls that run in parallel in Motoko, and highlights some differences between parallel and sequential calls. Running independent calls in parallel can lower the latency, especially when messages are sent across subnets. For example, a canister that swaps two tokens might want to launch both token transfer operations in parallel.
 
 ## Architecture
 
@@ -32,7 +32,7 @@ Begin by opening a terminal window.
 ### Step 1: Navigate into the example folder and start a local Internet Computer replica
 
 ```bash
-cd examples/rust/parallel_calls
+cd examples/motoko/parallel_calls
 dfx start --background
 ```
 
@@ -110,12 +110,12 @@ First, follow the [installation instructions](https://github.com/dfinity/pocketi
 
 Then, run the pre-made test, which now installs the `caller` and `callee` canisters on different subnets, and then runs 90 calls sequentially/in parallel.
 
-```
+```bash
 CALLER_WASM=.dfx/local/canisters/caller/caller.wasm CALLEE_WASM=.dfx/local/canisters/callee/callee.wasm cargo run
-    Finished dev [unoptimized + debuginfo] target(s) in 0.10s
-     Running `target/debug/multi_subnet`
-Sequential calls: 90/90 successful calls in 1.976396917s
-Parallel calls: 90/90 successful calls in 353.738958ms
+    Finished dev [unoptimized + debuginfo] target(s) in 0.31s
+     Running `target/debug/multi_subnet
+Sequential calls: 90/90 successful calls in 599.863583ms
+Parallel calls: 90/90 successful calls in 296.402ms
 ```
 
 As you can see, parallel calls run a lot faster than sequential calls here. The difference on the IC mainnet would be significantly larger still, as Pocket IC executes rounds much faster than the IC mainnet.
