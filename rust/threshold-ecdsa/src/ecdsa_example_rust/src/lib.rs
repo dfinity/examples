@@ -1,8 +1,11 @@
-use candid::{CandidType, Principal};
-use serde::{Deserialize, Serialize};
+use candid::CandidType;
+use ic_cdk::api::management_canister::ecdsa::{
+    ecdsa_public_key, sign_with_ecdsa, EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgument,
+    SignWithEcdsaArgument,
+};
 use ic_cdk::{query, update};
+use serde::Serialize;
 use std::convert::TryFrom;
-use std::str::FromStr;
 
 #[derive(CandidType, Serialize, Debug)]
 struct PublicKeyReply {
@@ -19,82 +22,38 @@ struct SignatureVerificationReply {
     pub is_signature_valid: bool,
 }
 
-type CanisterId = Principal;
-
-#[derive(CandidType, Serialize, Debug)]
-struct ECDSAPublicKey {
-    pub canister_id: Option<CanisterId>,
-    pub derivation_path: Vec<Vec<u8>>,
-    pub key_id: EcdsaKeyId,
-}
-
-#[derive(CandidType, Deserialize, Debug)]
-struct ECDSAPublicKeyReply {
-    pub public_key: Vec<u8>,
-    pub chain_code: Vec<u8>,
-}
-
-#[derive(CandidType, Serialize, Debug)]
-struct SignWithECDSA {
-    pub message_hash: Vec<u8>,
-    pub derivation_path: Vec<Vec<u8>>,
-    pub key_id: EcdsaKeyId,
-}
-
-#[derive(CandidType, Deserialize, Debug)]
-struct SignWithECDSAReply {
-    pub signature: Vec<u8>,
-}
-
-#[derive(CandidType, Serialize, Debug, Clone)]
-struct EcdsaKeyId {
-    pub curve: EcdsaCurve,
-    pub name: String,
-}
-
-#[derive(CandidType, Serialize, Debug, Clone)]
-pub enum EcdsaCurve {
-    #[serde(rename = "secp256k1")]
-    Secp256k1,
-}
 
 #[update]
 async fn public_key() -> Result<PublicKeyReply, String> {
-    let request = ECDSAPublicKey {
+    let request = EcdsaPublicKeyArgument {
         canister_id: None,
         derivation_path: vec![],
         key_id: EcdsaKeyIds::TestKeyLocalDevelopment.to_key_id(),
     };
 
-    let (res,): (ECDSAPublicKeyReply,) =
-        ic_cdk::call(mgmt_canister_id(), "ecdsa_public_key", (request,))
-            .await
-            .map_err(|e| format!("ecdsa_public_key failed {}", e.1))?;
+    let (response,) = ecdsa_public_key(request)
+        .await
+        .map_err(|e| format!("ecdsa_public_key failed {}", e.1))?;
 
     Ok(PublicKeyReply {
-        public_key_hex: hex::encode(&res.public_key),
+        public_key_hex: hex::encode(response.public_key),
     })
 }
 
 #[update]
 async fn sign(message: String) -> Result<SignatureReply, String> {
-    let request = SignWithECDSA {
+    let request = SignWithEcdsaArgument {
         message_hash: sha256(&message).to_vec(),
         derivation_path: vec![],
         key_id: EcdsaKeyIds::TestKeyLocalDevelopment.to_key_id(),
     };
 
-    let (response,): (SignWithECDSAReply,) = ic_cdk::api::call::call_with_payment(
-        mgmt_canister_id(),
-        "sign_with_ecdsa",
-        (request,),
-        25_000_000_000,
-    )
-    .await
-    .map_err(|e| format!("sign_with_ecdsa failed {}", e.1))?;
+    let (response,) = sign_with_ecdsa(request)
+        .await
+        .map_err(|e| format!("sign_with_ecdsa failed {}", e.1))?;
 
     Ok(SignatureReply {
-        signature_hex: hex::encode(&response.signature),
+        signature_hex: hex::encode(response.signature),
     })
 }
 
@@ -104,25 +63,19 @@ async fn verify(
     message: String,
     public_key_hex: String,
 ) -> Result<SignatureVerificationReply, String> {
-    let signature_bytes = hex::decode(&signature_hex).expect("failed to hex-decode signature");
-    let pubkey_bytes = hex::decode(&public_key_hex).expect("failed to hex-decode public key");
+    let signature_bytes = hex::decode(signature_hex).expect("failed to hex-decode signature");
+    let pubkey_bytes = hex::decode(public_key_hex).expect("failed to hex-decode public key");
     let message_bytes = message.as_bytes();
 
     use k256::ecdsa::signature::Verifier;
     let signature = k256::ecdsa::Signature::try_from(signature_bytes.as_slice())
         .expect("failed to deserialize signature");
-    let is_signature_valid= k256::ecdsa::VerifyingKey::from_sec1_bytes(&pubkey_bytes)
+    let is_signature_valid = k256::ecdsa::VerifyingKey::from_sec1_bytes(&pubkey_bytes)
         .expect("failed to deserialize sec1 encoding into public key")
         .verify(message_bytes, &signature)
         .is_ok();
 
-    Ok(SignatureVerificationReply{
-        is_signature_valid
-    })
-}
-
-fn mgmt_canister_id() -> CanisterId {
-    CanisterId::from_str(&"aaaaa-aa").unwrap()
+    Ok(SignatureVerificationReply { is_signature_valid })
 }
 
 fn sha256(input: &String) -> [u8; 32] {
