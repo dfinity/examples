@@ -47,6 +47,11 @@ actor {
             } catch (e) {};
         };
 
+        // The responses on the IC will in this example come in the order of the requests in practice.
+        // We reverse the list to match the order of the requests here, as the Motoko scheduler has
+        // some overhead if the responses are awaited out of order.
+        l := List.reverse(l);
+
         var successful_calls = 0;
         for (a in List.toIter(l)) {
             try {
