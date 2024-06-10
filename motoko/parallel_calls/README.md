@@ -110,12 +110,12 @@ First, follow the [installation instructions](https://github.com/dfinity/pocketi
 
 Then, run the pre-made test, which now installs the `caller` and `callee` canisters on different subnets, and then runs 90 calls sequentially/in parallel.
 
-```
+```bash
 CALLER_WASM=.dfx/local/canisters/caller/caller.wasm CALLEE_WASM=.dfx/local/canisters/callee/callee.wasm cargo run
-    Finished dev [unoptimized + debuginfo] target(s) in 0.10s
-     Running `target/debug/multi_subnet`
-Sequential calls: 90/90 successful calls in 1.976396917s
-Parallel calls: 90/90 successful calls in 353.738958ms
+    Finished dev [unoptimized + debuginfo] target(s) in 0.31s
+     Running `target/debug/multi_subnet
+Sequential calls: 90/90 successful calls in 599.863583ms
+Parallel calls: 90/90 successful calls in 296.402ms
 ```
 
 As you can see, parallel calls run a lot faster than sequential calls here. The difference on the IC mainnet would be significantly larger still, as Pocket IC executes rounds much faster than the IC mainnet.
