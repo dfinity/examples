@@ -46,7 +46,7 @@
 /motoko/send_http_post/ @dfinity/networking
 /motoko/simple-to-do/ @dfinity/growth
 /motoko/superheroes/ @dfinity/growth
-/motoko/threshold-ecdsa/ @dfinity/div-Crypto
+/motoko/threshold-ecdsa/ @dfinity/dept-crypto-library
 /motoko/token_transfer/ @dfinity/growth
 /motoko/token_transfer_from/ @dfinity/growth
 /motoko/vetkd/ @dfinity/dept-crypto-library
