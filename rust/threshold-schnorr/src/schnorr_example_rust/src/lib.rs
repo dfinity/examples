@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 use std::convert::TryFrom;
 use std::convert::TryInto;
-use std::str::FromStr;
 
 #[derive(CandidType, Serialize, Deserialize, Debug)]
 pub struct PublicKeyReply {
@@ -56,7 +55,12 @@ thread_local! {
 
 #[update]
 async fn mock_management_canister_id(id: String) -> Result<(), String> {
+    let _ = CanisterId::from_text(&id).map_err(|e| panic!("invalid canister id: {}: {}", id, e));
     STATE.with_borrow_mut(move |current_id| {
+        println!(
+            "Changing management canister id from {} to {id}",
+            *current_id
+        );
         *current_id = id;
     });
     Ok(())
@@ -173,9 +177,7 @@ fn verify_ed25519(
 }
 
 fn mgmt_canister_id() -> CanisterId {
-    STATE
-        .with_borrow(|state| CanisterId::from_str(&state))
-        .unwrap()
+    STATE.with_borrow(|state| CanisterId::from_text(&state).unwrap())
 }
 
 enum SchnorrKeyIds {

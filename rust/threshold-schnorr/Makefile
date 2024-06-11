@@ -17,6 +17,15 @@ install: build
 upgrade: build
 	dfx canister install --all --mode=upgrade
 
+.PHONY: mock
+.SILENT: mock
+mock: install
+	SCHNORR_MOCK_CANISTER_ID=$(shell dfx canister id schnorr_canister); \
+	SCHNORR_EXAMPLE_CANISTER_ID=$(shell dfx canister id schnorr_example_rust); \
+	echo "Changing to using mock canister instead of management canister for signing"; \
+	CMD="dfx canister call "$${SCHNORR_EXAMPLE_CANISTER_ID}" mock_management_canister_id '("\"$${SCHNORR_MOCK_CANISTER_ID}\"")'"; \
+	eval "$${CMD}"
+
 .PHONY: test
 .SILENT: test
 test: build

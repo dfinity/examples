@@ -8,12 +8,7 @@
     "schnorr_canister": {
       "type": "custom",
       "candid": "https://github.com/altkdf/schnorr_canister/releases/download/v0.3.0/schnorr_canister.did",
-      "wasm": "https://github.com/altkdf/schnorr_canister/releases/download/v0.3.0/schnorr_canister.wasm.gz",
-      "remote": {
-        "id": {
-          "ic": "bkyz2-fmaaa-aaaaa-qaaaq-cai"
-        }
-      }
+      "wasm": "https://github.com/altkdf/schnorr_canister/releases/download/v0.3.0/schnorr_canister.wasm.gz"
     }
   }
 }
