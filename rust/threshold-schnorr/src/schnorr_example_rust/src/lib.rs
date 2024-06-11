@@ -1,6 +1,7 @@
 use candid::{CandidType, Principal};
 use ic_cdk::{query, update};
 use serde::{Deserialize, Serialize};
+use std::cell::RefCell;
 use std::convert::TryFrom;
 use std::convert::TryInto;
 use std::str::FromStr;
@@ -49,6 +50,18 @@ pub enum SchnorrAlgorithm {
     Ed25519,
 }
 
+thread_local! {
+    static STATE: RefCell<String> = RefCell::new("aaaaa-aa".to_string());
+}
+
+#[update]
+async fn mock_management_canister_id(id: String) -> Result<(), String> {
+    STATE.with_borrow_mut(move |current_id| {
+        *current_id = id;
+    });
+    Ok(())
+}
+
 #[update]
 async fn public_key(algorithm: SchnorrAlgorithm) -> Result<PublicKeyReply, String> {
     let request = SchnorrPublicKey {
@@ -68,7 +81,7 @@ async fn public_key(algorithm: SchnorrAlgorithm) -> Result<PublicKeyReply, Strin
 }
 
 #[update]
-async fn sign(message:String, algorithm: SchnorrAlgorithm) -> Result<SignatureReply, String> {
+async fn sign(message: String, algorithm: SchnorrAlgorithm) -> Result<SignatureReply, String> {
     #[derive(CandidType, Serialize, Debug)]
     struct ManagementCanisterSignatureRequest {
         pub message: Vec<u8>,
@@ -87,24 +100,19 @@ async fn sign(message:String, algorithm: SchnorrAlgorithm) -> Result<SignatureRe
         key_id: SchnorrKeyIds::TestKeyLocalDevelopment.to_key_id(algorithm),
     };
 
-    let (internal_reply,): (ManagementCanisterSignatureReply,) = ic_cdk::api::call::call_with_payment(
-        mgmt_canister_id(),
-        "sign_with_schnorr",
-        (internal_request,),
-        25_000_000_000,
-    )
-    .await
-    .map_err(|e| format!("sign_with_schnorr failed {e:?}"))?;
+    let (internal_reply,): (ManagementCanisterSignatureReply,) =
+        ic_cdk::api::call::call_with_payment(
+            mgmt_canister_id(),
+            "sign_with_schnorr",
+            (internal_request,),
+            25_000_000_000,
+        )
+        .await
+        .map_err(|e| format!("sign_with_schnorr failed {e:?}"))?;
 
     Ok(SignatureReply {
         signature_hex: hex::encode(&internal_reply.signature),
     })
-}
-
-#[derive(CandidType, Deserialize, Debug)]
-pub struct SignatureRequest {
-    pub message: String,
-    pub algorithm: SchnorrAlgorithm,
 }
 
 #[query]
@@ -165,8 +173,9 @@ fn verify_ed25519(
 }
 
 fn mgmt_canister_id() -> CanisterId {
-    // CanisterId::from_str(&"aaaaa-aa").unwrap()
-    CanisterId::from_str(&"bkyz2-fmaaa-aaaaa-qaaaq-cai").unwrap()
+    STATE
+        .with_borrow(|state| CanisterId::from_str(&state))
+        .unwrap()
 }
 
 enum SchnorrKeyIds {

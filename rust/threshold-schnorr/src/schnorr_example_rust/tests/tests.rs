@@ -1,7 +1,7 @@
-use candid::{decode_one, encode_one, CandidType, Principal};
+use candid::{decode_one, encode_args, encode_one, CandidType, Principal};
 use pocket_ic::{PocketIc, WasmResult};
 use schnorr_example_rust::{
-    PublicKeyReply, SchnorrAlgorithm, SignatureReply, SignatureRequest, SignatureVerificationReply,
+    PublicKeyReply, SchnorrAlgorithm, SignatureReply, SignatureVerificationReply,
 };
 use serde::Deserialize;
 use std::path::Path;
@@ -12,7 +12,9 @@ fn signing_and_verification_should_work_correctly() {
         [SchnorrAlgorithm::Bip340Secp256k1, SchnorrAlgorithm::Ed25519];
 
     for algorithm in ALGORITHMS {
-        test_impl(algorithm);
+        for _trial in 0..5 {
+            test_impl(algorithm);
+        }
     }
 }
 
@@ -20,28 +22,50 @@ fn test_impl(algorithm: SchnorrAlgorithm) {
     let pic = PocketIc::new();
 
     let my_principal = Principal::anonymous();
-    // Create an empty canister as the anonymous principal and add cycles.
-    let canister_id = pic.create_canister();
-    pic.add_cycles(canister_id, 2_000_000_000_000);
 
-    let wasm_bytes = load_schnorr_canister_wasm();
-    pic.install_canister(canister_id, wasm_bytes, vec![], None);
+    // Create an empty canister as the anonymous principal and add cycles.
+    let schnorr_mock_canister_id = pic.create_canister();
+    pic.add_cycles(schnorr_mock_canister_id, 2_000_000_000_000);
+
+    let schnorr_mock_wasm_bytes = load_schnorr_mock_canister_wasm();
+    pic.install_canister(
+        schnorr_mock_canister_id,
+        schnorr_mock_wasm_bytes,
+        vec![],
+        None,
+    );
+
+    // Create an empty example canister as the anonymous principal and add cycles.
+    let example_canister_id = pic.create_canister();
+    pic.add_cycles(example_canister_id, 2_000_000_000_000);
+
+    let example_wasm_bytes = load_schnorr_example_canister_wasm();
+    pic.install_canister(example_canister_id, example_wasm_bytes, vec![], None);
 
     // Make sure the canister is properly initialized
     fast_forward(&pic, 5);
 
+    let _dummy_reply: () = update(
+        &pic,
+        my_principal,
+        example_canister_id,
+        "mock_management_canister_id",
+        encode_one(schnorr_mock_canister_id.to_text()).unwrap(),
+    )
+    .expect("failed to update management canister id");
+
+    // Make sure the example canister uses mock schnorr canister instead of
+    // the management canister
+    fast_forward(&pic, 5);
+
     let message_hex = hex::encode("Test message");
-    let signature_request = SignatureRequest {
-        message: message_hex.clone(),
-        algorithm: algorithm,
-    };
 
     let sig_reply: Result<SignatureReply, String> = update(
         &pic,
         my_principal,
-        canister_id,
+        example_canister_id,
         "sign",
-        encode_one(signature_request).unwrap(),
+        encode_args((message_hex.clone(), algorithm)).unwrap(),
     );
 
     let signature_hex = sig_reply.expect("failed to sign").signature_hex;
@@ -49,7 +73,7 @@ fn test_impl(algorithm: SchnorrAlgorithm) {
     let pk_reply: Result<PublicKeyReply, String> = update(
         &pic,
         my_principal,
-        canister_id,
+        example_canister_id,
         "public_key",
         encode_one(algorithm).unwrap(),
     );
@@ -60,9 +84,9 @@ fn test_impl(algorithm: SchnorrAlgorithm) {
         let verification_reply: Result<SignatureVerificationReply, String> = update(
             &pic,
             my_principal,
-            canister_id,
+            example_canister_id,
             "verify",
-            encode_one((
+            encode_args((
                 signature_hex.clone(),
                 message_hex.clone(),
                 public_key_hex.clone(),
@@ -78,10 +102,10 @@ fn test_impl(algorithm: SchnorrAlgorithm) {
         let verification_reply: Result<SignatureVerificationReply, String> = update(
             &pic,
             my_principal,
-            canister_id,
+            example_canister_id,
             "verify",
-            encode_one((
-                clone_and_swap_two_first_chars(&signature_hex),
+            encode_args((
+                clone_and_reverse_chars(&signature_hex),
                 message_hex.clone(),
                 public_key_hex.clone(),
                 algorithm,
@@ -96,11 +120,11 @@ fn test_impl(algorithm: SchnorrAlgorithm) {
         let verification_reply: Result<SignatureVerificationReply, String> = update(
             &pic,
             my_principal,
-            canister_id,
+            example_canister_id,
             "verify",
-            encode_one((
+            encode_args((
                 signature_hex.clone(),
-                clone_and_swap_two_first_chars(&message_hex),
+                clone_and_reverse_chars(&message_hex),
                 public_key_hex.clone(),
                 algorithm,
             ))
@@ -114,27 +138,30 @@ fn test_impl(algorithm: SchnorrAlgorithm) {
         let verification_reply: Result<SignatureVerificationReply, String> = update(
             &pic,
             my_principal,
-            canister_id,
+            example_canister_id,
             "verify",
-            encode_one((
+            encode_args((
                 signature_hex.clone(),
                 message_hex.clone(),
-                clone_and_swap_two_first_chars(&public_key_hex),
+                clone_and_reverse_chars(&public_key_hex),
                 algorithm,
             ))
             .unwrap(),
         );
 
-        assert!(!verification_reply.unwrap().is_signature_valid);
+        assert!(
+            verification_reply.is_err() || !verification_reply.unwrap().is_signature_valid,
+            "either the public key should fail to deserialize or the verification should fail"
+        );
     }
 
     {
         let verification_reply: Result<SignatureVerificationReply, String> = update(
             &pic,
             my_principal,
-            canister_id,
+            example_canister_id,
             "verify",
-            encode_one((
+            encode_args((
                 signature_hex.clone(),
                 message_hex.clone(),
                 public_key_hex.clone(),
@@ -143,20 +170,44 @@ fn test_impl(algorithm: SchnorrAlgorithm) {
             .unwrap(),
         );
 
-        assert!(!verification_reply.unwrap().is_signature_valid);
+        assert!(
+            verification_reply.is_err(),
+            "ed25519 and BIP340 should have different public key sizes"
+        );
     }
 }
 
-fn clone_and_swap_two_first_chars(s: &str) -> String {
+fn clone_and_reverse_chars(s: &str) -> String {
     let mut v: Vec<_> = s.chars().collect();
-    v.swap(0, 1);
+    v.reverse();
     v.into_iter().collect()
 }
 
-fn load_schnorr_canister_wasm() -> Vec<u8> {
+fn load_schnorr_example_canister_wasm() -> Vec<u8> {
+    use flate2::write::GzEncoder;
+    use flate2::Compression;
+    use std::io::prelude::*;
+
     let wasm_path =
         Path::new("../../target/wasm32-unknown-unknown/release/schnorr_example_rust.wasm");
-    std::fs::read(wasm_path).unwrap()
+    let wasm_bytes = std::fs::read(wasm_path).expect(
+        "wasm does not exist - run `cargo build --release --target wasm32-unknown-unknown`",
+    );
+
+    let mut e = GzEncoder::new(Vec::new(), Compression::default());
+    e.write_all(wasm_bytes.as_slice()).unwrap();
+    let zipped_bytes = e.finish().unwrap();
+
+    zipped_bytes
+}
+
+fn load_schnorr_mock_canister_wasm() -> Vec<u8> {
+    let wasm_url = "https://github.com/domwoe/schnorr_canister/releases/download/v0.4.0/schnorr_canister.wasm.gz";
+    reqwest::blocking::get(wasm_url)
+        .unwrap()
+        .bytes()
+        .unwrap()
+        .to_vec()
 }
 
 pub fn update<T: CandidType + for<'de> Deserialize<'de>>(
