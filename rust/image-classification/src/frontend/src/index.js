@@ -11,15 +11,22 @@ async function classify(event) {
   const message = document.getElementById("message");
   const loader = document.getElementById("loader");
   const img = document.getElementById("image");
+  const repl_option = document.getElementById("replicated_option");
 
   button.disabled = true;
   button.className = "clean-button invisible";
+  repl_option.className = "option invisible";
   message.innerText = "Computing...";
   loader.className = "loader";
 
   try {
     const blob = await resize(img);
-    const result = await backend.classify(new Uint8Array(blob));
+    let result;;
+    if (document.getElementById("replicated").checked) {
+      result = await backend.classify(new Uint8Array(blob));
+    } else {
+      result = await backend.classify_query(new Uint8Array(blob));
+    }
     if (result.Ok) {
       render(message, result.Ok);
     } else {
@@ -77,6 +84,7 @@ async function onImageChange(event) {
   const button = document.getElementById("classify");
   const message = document.getElementById("message");
   const img = document.getElementById("image");
+  const repl_option = document.getElementById("replicated_option");
   try {
     const file = event.target.files[0];
     const url = await toDataURL(file);
@@ -89,6 +97,7 @@ async function onImageChange(event) {
   button.disabled = false;
   button.className = "clean-button";
   message.innerText = "";
+  repl_option.className = "option"
   return false;
 }
 

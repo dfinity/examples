@@ -1,6 +1,9 @@
-use std::cell::RefCell;
 use candid::{CandidType, Deserialize};
-use ic_stable_structures::{memory_manager::{MemoryId, MemoryManager}, DefaultMemoryImpl};
+use ic_stable_structures::{
+    memory_manager::{MemoryId, MemoryManager},
+    DefaultMemoryImpl,
+};
+use std::cell::RefCell;
 
 mod onnx;
 
@@ -31,8 +34,19 @@ enum ClassificationResult {
     Err(ClassificationError),
 }
 
-#[ic_cdk::update]
+#[ic_cdk::query]
 fn classify(image: Vec<u8>) -> ClassificationResult {
+    let result = match onnx::classify(image) {
+        Ok(result) => ClassificationResult::Ok(result),
+        Err(err) => ClassificationResult::Err(ClassificationError {
+            message: err.to_string(),
+        }),
+    };
+    result
+}
+
+#[ic_cdk::query]
+fn classify_query(image: Vec<u8>) -> ClassificationResult {
     let result = match onnx::classify(image) {
         Ok(result) => ClassificationResult::Ok(result),
         Err(err) => ClassificationResult::Err(ClassificationError {
