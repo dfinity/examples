@@ -23,14 +23,14 @@ pub struct SignatureVerificationReply {
 type CanisterId = Principal;
 
 #[derive(CandidType, Serialize, Debug)]
-struct SchnorrPublicKey {
+struct ManagementCanisterSchnorrPublicKeyRequest {
     pub canister_id: Option<CanisterId>,
     pub derivation_path: Vec<Vec<u8>>,
     pub key_id: SchnorrKeyId,
 }
 
 #[derive(CandidType, Deserialize, Debug)]
-struct SchnorrPublicKeyReply {
+struct ManagementCanisterSchnorrPublicKeyReply {
     pub public_key: Vec<u8>,
     pub chain_code: Vec<u8>,
 }
@@ -47,6 +47,18 @@ pub enum SchnorrAlgorithm {
     Bip340Secp256k1,
     #[serde(rename = "ed25519")]
     Ed25519,
+}
+
+#[derive(CandidType, Serialize, Debug)]
+struct ManagementCanisterSignatureRequest {
+    pub message: Vec<u8>,
+    pub derivation_path: Vec<Vec<u8>>,
+    pub key_id: SchnorrKeyId,
+}
+
+#[derive(CandidType, Deserialize, Debug)]
+struct ManagementCanisterSignatureReply {
+    pub signature: Vec<u8>,
 }
 
 thread_local! {
@@ -68,13 +80,13 @@ async fn mock_management_canister_id(id: String) -> Result<(), String> {
 
 #[update]
 async fn public_key(algorithm: SchnorrAlgorithm) -> Result<PublicKeyReply, String> {
-    let request = SchnorrPublicKey {
+    let request = ManagementCanisterSchnorrPublicKeyRequest {
         canister_id: None,
         derivation_path: vec![],
         key_id: SchnorrKeyIds::TestKeyLocalDevelopment.to_key_id(algorithm),
     };
 
-    let (res,): (SchnorrPublicKeyReply,) =
+    let (res,): (ManagementCanisterSchnorrPublicKeyReply,) =
         ic_cdk::call(mgmt_canister_id(), "schnorr_public_key", (request,))
             .await
             .map_err(|e| format!("schnorr_public_key failed {}", e.1))?;
@@ -86,18 +98,6 @@ async fn public_key(algorithm: SchnorrAlgorithm) -> Result<PublicKeyReply, Strin
 
 #[update]
 async fn sign(message: String, algorithm: SchnorrAlgorithm) -> Result<SignatureReply, String> {
-    #[derive(CandidType, Serialize, Debug)]
-    struct ManagementCanisterSignatureRequest {
-        pub message: Vec<u8>,
-        pub derivation_path: Vec<Vec<u8>>,
-        pub key_id: SchnorrKeyId,
-    }
-
-    #[derive(CandidType, Deserialize, Debug)]
-    struct ManagementCanisterSignatureReply {
-        pub signature: Vec<u8>,
-    }
-
     let internal_request = ManagementCanisterSignatureRequest {
         message: message.as_bytes().to_vec(),
         derivation_path: vec![],
