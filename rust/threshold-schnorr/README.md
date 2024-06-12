@@ -37,7 +37,10 @@ More specifically:
 
 This tutorial gives a complete overview of the development, starting with downloading [`dfx`](https://internetcomputer.org/docs/current/developer-docs/setup/index.md), up to the deployment and trying out the code on the mainnet.
 
-This walkthrough focuses on the version of the sample canister code written in [Motoko](https://internetcomputer.org/docs/current/developer-docs/backend/motoko/index.md) programming language, but no specific knowledge of Motoko is needed to follow along. There is also a [Rust](https://github.com/dfinity/examples/tree/master/rust/threshold-schnorr) version available in the same repo and follows the same commands for deploying.
+This walkthrough focuses on the version of the sample canister code written in
+Rust programming language.. There is also a
+[Motoko](https://github.com/dfinity/examples/tree/master/motoko/threshold-schnorr)
+version available in the same repo and follows the same commands for deploying.
 
 
 ## Prerequisites
@@ -125,7 +128,7 @@ If successful, you should see something like this:
 Deployed canisters.
 URLs:
   Backend canister via Candid interface:
-    schnorr_example_motoko: https://a3gq9-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=736w4-cyaaa-aaaal-qb3wq-cai
+    schnorr_example_rust: https://a3gq9-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=736w4-cyaaa-aaaal-qb3wq-cai
 ```
 
 TODO: deploy this canister to mainnet when management canister threshold Schnorr
@@ -151,7 +154,7 @@ In the example below, the method returns `03c22bef676644dba524d4a24132ea8463221a
 
 
 ### Code walkthrough
-Open the file `lib.rs`, which will show the following Motoko code that
+Open the file `lib.rs`, which will show the following Rust code that
 demonstrates how to obtain a Schnorr public key. 
 
 ```rust
