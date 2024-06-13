@@ -8,6 +8,7 @@ export type ClassificationResult = { 'Ok' : Array<Classification> } |
   { 'Err' : ClassificationError };
 export interface _SERVICE {
   'classify' : ActorMethod<[Uint8Array | number[]], ClassificationResult>,
+  'classify_query' : ActorMethod<[Uint8Array | number[]], ClassificationResult>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

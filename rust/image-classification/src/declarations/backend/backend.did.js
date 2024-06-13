@@ -10,6 +10,11 @@ export const idlFactory = ({ IDL }) => {
   });
   return IDL.Service({
     'classify' : IDL.Func([IDL.Vec(IDL.Nat8)], [ClassificationResult], []),
+    'classify_query' : IDL.Func(
+        [IDL.Vec(IDL.Nat8)],
+        [ClassificationResult],
+        ['query'],
+      ),
   });
 };
 export const init = ({ IDL }) => { return []; };
