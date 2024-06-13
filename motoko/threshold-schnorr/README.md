@@ -1,28 +1,47 @@
 ---
-keywords: [advanced, motoko, threshold ecdsa, signature, ecdsa]
+keywords: [advanced, motoko, threshold schnorr, schnorr, signature]
 ---
 
-# Threshold ECDSA sample
+# Threshold Schnorr
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/threshold-ecdsa)
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/threshold-schnorr)
 
 ## Overview
 
-We present a minimal example canister smart contract for showcasing the [threshold ECDSA](https://internetcomputer.org/docs/current/developer-docs/integrations/t-ecdsa) API. 
+We present a minimal example canister smart contract for showcasing the
+[threshold
+Schnorr](https://internetcomputer.org/docs/current/developer-docs/integrations/t-schnorr)
+API. TODO: fix link when the API docs are published.
 
-The example canister is a signing oracle that creates ECDSA signatures with keys derived from an input string. 
+WARNING: the current version of this canister calls not the management canister
+but a custom canister, which produces Schnorr signatures in an INSECURE way.
+This is done for testing purposes ONLY and MUST NOT be done in production. In
+production, ONLY the management canister API MUST be used. The reason is that
+the management canister API is not yet fully implemented and instead of the
+management canister we use a mock canister that provides Schnorr signatures.
+TODO: remove the use of a custom canister and hard-code the management canister
+ID.
+
+The example canister is a signing oracle that creates Schnorr signatures with
+keys derived based on the canister ID and the chosen algorithm, either BIP340 or
+Ed25519.
 
 More specifically:
 
-- The sample canister receives a request that provides a message.
-- The sample canister hashes the message and uses the key derivation string for the derivation path. 
-- The sample canister uses the above to request a signature from the threshold ECDSA [subnet](https://wiki.internetcomputer.org/wiki/Subnet_blockchain) (the threshold ECDSA is a subnet specializing in generating threshold ECDSA signatures).
+- The sample canister receives a request that provides a message and an algorithm ID.
+- The sample canister uses the key derivation string for the derivation path.
+- The sample canister uses the above to request a signature from the threshold
+  Schnorr [subnet](https://wiki.internetcomputer.org/wiki/Subnet_blockchain)
+  (the threshold Schnorr is a subnet specializing in generating threshold
+  Schnorr signatures).
 
-This tutorial gives a complete overview of the development, starting with downloading the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/index.md), up to the deployment and trying out the code on the IC mainnet.
+This tutorial gives a complete overview of the development, starting with downloading [`dfx`](https://internetcomputer.org/docs/current/developer-docs/setup/index.md), up to the deployment and trying out the code on the mainnet.
 
-:::info
-This walkthrough focuses on the version of the sample canister code written in [Motoko](https://internetcomputer.org/docs/current/developer-docs/backend/motoko/index.md) programming language, but no specific knowledge of Motoko is needed to follow along. There is also a [Rust](https://github.com/dfinity/examples/tree/master/rust/threshold-ecdsa) version available in the same repo and follows the same commands for deploying.
-:::
+This walkthrough focuses on the version of the sample canister code written in
+Motoko programming language.. There is also a
+[Rust](https://github.com/dfinity/examples/tree/master/rust/threshold-schnorr)
+version available in the same repo and follows the same commands for deploying.
+
 
 ## Prerequisites
 -   [x] Download and [install the IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/index.md) if you do not already have it.
@@ -30,22 +49,24 @@ This walkthrough focuses on the version of the sample canister code written in [
 
 ## Getting started
 
-Sample code for `threshold-ecdsa` is provided in the [examples repository](https://github.com/dfinity/examples), under either [`/motoko`](https://github.com/dfinity/examples/tree/master/motoko/threshold-ecdsa) or [`/rust`](https://github.com/dfinity/examples/tree/master/rust/threshold-ecdsa) sub-directories. It requires at least [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/index.md) version 0.11.0 for local development.
+Sample code for `threshold-schnorr-example` is provided in the [examples repository](https://github.com/dfinity/examples), under either [`/motoko`](https://github.com/dfinity/examples/tree/master/motoko/threshold-schnorr) or [`/rust`](https://github.com/dfinity/examples/tree/master/rust/threshold-schnorr) sub-directories.
 
-## Deploy and test the canister locally 
+### Deploy and test the canister locally 
 
 This tutorial will use the Motoko version of the canister:
 
 ```bash
-cd examples/motoko/threshold-ecdsa
+cd examples/motoko/threshold-schnorr
 dfx start --background
 npm install
-dfx deploy
+make mock
 ```
 
 #### What this does
 - `dfx start --background` starts a local instance of the IC via the IC SDK
-- `dfx deploy` deploys the code in the user's directory as a canister on the local version of the IC
+- `make mock` deploys the canister code on the local version of the IC and
+  updates the canister ID that produces Schnorr signatures (see the WARNING at
+  the beginning of this document)
 
 If successful, you should see something like this:
 
@@ -53,26 +74,27 @@ If successful, you should see something like this:
 Deployed canisters.
 URLs:
   Backend canister via Candid interface:
-    ecdsa_example_motoko: http://127.0.0.1:4943/?canisterId=t6rzw-2iaaa-aaaaa-aaama-cai&id=st75y-vaaaa-aaaaa-aaalq-cai
+    schnorr_example_motoko: http://127.0.0.1:4943/?canisterId=t6rzw-2iaaa-aaaaa-aaama-cai&id=st75y-vaaaa-aaaaa-aaalq-cai
 ```
 
-If you open the URL in a web browser, you will see a web UI that shows the public methods the canister exposes. Since the canister exposes `public_key` and `sign` methods, those are rendered in the web UI.
-
+If you open the URL in a web browser, you will see a web UI that shows the
+public methods the canister exposes. Since the canister exposes `public_key`,
+`sign`, and `verify` methods, those are rendered in the web UI.
 
 ### Deploying the canister on the mainnet
 
-To deploy this canister to the mainnet, one needs to do two things:
+To deploy this canister the mainnet, one needs to do two things:
 
-- Acquire cycles (the equivalent of "gas" in other blockchains). This is necessary for all canisters.
+- Acquire cycles (equivalent of "gas" in other blockchains). This is necessary for all canisters.
 - Update the sample source code to have the right key ID. This is unique to this canister.
 
 #### Acquire cycles to deploy
 
-Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/setup/cycles). You can get free cycles from the [cycles faucet](https://internetcomputer.org/docs/current/developer-docs/setup/cycles/cycles-faucet.md).
+Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/setup/cycles). You can get free cycles from the [cycles faucet](https://internetcomputer.org/docs/current/developer-docs/getting-started/cycles/cycles-faucet).
 
 #### Update source code with the right key ID
 
-To deploy the sample code, the canister needs the right key ID for the right environment. Specifically, one needs to replace the value of the `key_id` in the `src/ecdsa_example_motoko/main.mo` file of the sample code. Before deploying to the mainnet, one should modify the code to use the right name of the `key_id`.
+To deploy the sample code, the canister needs the right key ID for the right environment. Specifically, one needs to replace the value of the `key_id` in the `src/schnorr_example_motoko/src/lib.rs` file of the sample code. Before deploying to mainnet, one should modify the code to use the right name of the `key_id`.
 
 There are three options:
 
@@ -80,35 +102,20 @@ There are three options:
 * `test_key_1`: a master **test** key ID that is used in mainnet.
 * `key_1`: a master **production** key ID that is used in mainnet.
 
-For example, the default code in `src/ecdsa_example_motoko/main.mo` includes the following lines and can be deployed locally:
-
-:::caution
-The following example is two **code snippets** that are part of a larger code file. These snippets may return an error if run on their own.
-:::
-
+For example, the default code in `src/schnorr_example_motoko/src/lib.rs`
+hard-codes the used of `dfx_test_key` and derives the key ID as follows and can
+be deployed locally:
 ```motoko
-let { public_key } = await ic.ecdsa_public_key({
-  canister_id = null;
-  derivation_path = [ caller ];
-  key_id = { curve = #secp256k1; name = "dfx_test_key" };
-});
+key_id = { algorithm = algorithm_arg; name = "dfx_test_key" }
 ```
 
-```motoko
-let { signature } = await ic.sign_with_ecdsa({
-  message_hash;
-  derivation_path = [ caller ];
-  key_id = { curve = #secp256k1; name = "dfx_test_key" };
-});
-```
+IMPORTANT: To deploy to IC mainnet, one needs to replace `"dfx_test_key"` with
+ either "test_key_1"` or `"key_1"` depending on the desired intent. Both uses of
+key ID in `src/schnorr_example_motoko/src/main.mo` must be consistent.
 
-:::caution
-To deploy to IC mainnet, one needs to replace the value in `key_id` fields with the values `"dfx_test_key"` to instead have either `"test_key_1"` or `"key_1"` depending on the desired intent.
-:::
+#### Deploy to the mainnet via IC SDK
 
-### Deploy to the mainnet via IC SDK
-
-To [deploy via mainnet](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-mainnet.md), run the following commands:
+To [deploy via the mainnet](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-mainnet.md), run the following commands:
 
 ```bash
 npm install
@@ -120,10 +127,11 @@ If successful, you should see something like this:
 Deployed canisters.
 URLs:
   Backend canister via Candid interface:
-    ecdsa_example_motoko: https://a3gq9-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=736w4-cyaaa-aaaal-qb3wq-cai
+    schnorr_example_motoko: https://a3gq9-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=736w4-cyaaa-aaaal-qb3wq-cai
 ```
 
-In the example above, `ecdsa_example_motoko` has the URL https://a3gq9-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=736w4-cyaaa-aaaal-qb3wq-cai and serves up the Candid web UI for this particular canister deployed on mainnet.
+TODO: deploy this canister to mainnet when management canister threshold Schnorr
+API is implemented.
 
 ## Obtaining public keys
 
@@ -144,42 +152,37 @@ In the example below, the method returns `03c22bef676644dba524d4a24132ea8463221a
 
 
 ### Code walkthrough
-Open the file `main.mo`, which will show the following Motoko code that demonstrates how to obtain an ECDSA public key. 
+Open the file `lib.rs`, which will show the following Motoko code that
+demonstrates how to obtain a Schnorr public key. 
 
 ```motoko
-  //declare "ic" to be the management canister, which is evoked by `actor("aaaaa-aa")`. This is how we will obtain an ECDSA public key 
-  let ic : IC = actor("aaaaa-aa");
-
-  public shared (msg) func public_key() : async { #Ok : { public_key: Blob }; #Err : Text } {
-    let caller = Principal.toBlob(msg.caller);
-    
+  public shared ({ caller }) func public_key(algorithm_arg : SchnorrAlgotirhm) : async {
+    #Ok : { public_key_hex : Text };
+    #Err : Text;
+  } {
     try {
-
-      //request the management canister to compute an ECDSA public key
-      let { public_key } = await ic.ecdsa_public_key({
-
-          //When `null`, it defaults to getting the public key of the canister that makes this call
-          canister_id = null;
-          derivation_path = [ caller ];
-          //this code uses the mainnet test key
-          key_id = { curve = #secp256k1; name = "test_key_1" };
+      let { public_key } = await ic.schnorr_public_key({
+        canister_id = null;
+        derivation_path = [Principal.toBlob(caller)];
+        key_id = { algorithm = algorithm_arg; name = "dfx_test_key" };
       });
-      
-      #Ok({ public_key })
-    
+      #Ok({ public_key_hex = Hex.encode(Blob.toArray(public_key)) });
     } catch (err) {
-    
-      #Err(Error.message(err))
-    
-    }
-
+      #Err(Error.message(err));
+    };
   };
 ```
 
-In the code above, the canister calls the `ecdsa_public_key` method of the [IC management canister](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-management-canister) (`aaaaa-aa`). 
+In the code above, the canister calls the `schnorr_public_key` method of the [IC management canister](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-management-canister) (`aaaaa-aa`). 
 
 
-**The [IC management canister](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-management-canister) is just a facade; it does not exist as a canister (with isolated state, Wasm code, etc.). It is an ergonomic way for canisters to call the system API of the IC (as if it were a single canister). In the code below, we use the management canister to create an ECDSA public key. `let ic : IC = actor("aaaaa-aa")` declares the IC management canister in the code above.**
+**The [IC management
+canister](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-management-canister)
+is just a facade; it does not exist as a canister (with isolated state, Wasm
+code, etc.). It is an ergonomic way for canisters to call the system API of the
+IC (as if it were a single canister). In the code below, we use the management
+canister to create a Schnorr public key. Canister ID `"aaaaa-aa"`
+declares the IC management canister in the canister code.**
 
 ### Canister root public key
 
@@ -192,50 +195,82 @@ For obtaining the canister's root public key, the derivation path in the API can
 
 ## Signing
 
-Computing threshold ECDSA signatures is the core functionality of this feature. **Canisters do not hold ECDSA keys themselves**, but keys are derived from a master key held by dedicated subnets. A canister can request the computation of a signature through the management canister API. The request is then routed to a subnet holding the specified key and the subnet computes the requested signature using threshold cryptography. Thereby, it derives the canister root key or a key obtained through further derivation, as part of the signature protocol, from a shared secret and the requesting canister's principal identifier. Thus, a canister can only request signatures to be created for its canister root key or a key derived from it. This means that canisters "control" their private ECDSA keys in that they decide when signatures are to be created with them, but don't hold a private key themselves.
+Computing threshold Schnorr signatures is the core functionality of this feature. **Canisters do not hold Schnorr keys themselves**, but keys are derived from a master key held by dedicated subnets. A canister can request the computation of a signature through the management canister API. The request is then routed to a subnet holding the specified key and the subnet computes the requested signature using threshold cryptography. Thereby, it derives the canister root key or a key obtained through further derivation, as part of the signature protocol, from a shared secret and the requesting canister's principal identifier. Thus, a canister can only request signatures to be created for its canister root key or a key derived from it. This means, that canisters "control" their private Schnorr keys in that they decide when signatures are to be created with them, but don't hold a private key themselves.
 
 ```motoko
-  public shared (msg) func sign(message_hash: Blob) : async { #Ok : { signature: Blob };  #Err : Text } {
-    assert(message_hash.size() == 32);
-    let caller = Principal.toBlob(msg.caller);
+  public shared ({ caller }) func sign(message_arg : Text, algorithm_arg : SchnorrAlgotirhm) : async {
+    #Ok : { signature_hex : Text };
+    #Err : Text;
+  } {
     try {
-      Cycles.add(10_000_000_000);
-      let { signature } = await ic.sign_with_ecdsa({
-          message_hash;
-          derivation_path = [ caller ];
-          key_id = { curve = #secp256k1; name = "dfx_test_key" };
+      Cycles.add(25_000_000_000);
+      let { signature } = await ic.sign_with_schnorr({
+        message = Text.encodeUtf8(message_arg);
+        derivation_path = [Principal.toBlob(caller)];
+        key_id = { algorithm = algorithm_arg; name = "dfx_test_key" };
       });
-      #Ok({ signature })
+      #Ok({ signature_hex = Hex.encode(Blob.toArray(signature)) });
     } catch (err) {
-      #Err(Error.message(err))
-    }
+      #Err(Error.message(err));
+    };
   };
+};
 ```
 
 ## Signature verification
 
 For completeness of the example, we show that the created signatures can be verified with the public key corresponding to the same canister and derivation path.
 
-The following shows how this verification can be done in Javascript, with the [secp256k1](https://www.npmjs.com/package/secp256k1) npm package:
-
+Ed25519 can be verified as follows:
 ```javascript
-let { ecdsaVerify } = require("secp256k1")
+import * as ed25519 from '@noble/ed25519';
 
-let public_key = ... // Uint8Array type, the result of calling the above canister "public_key" function.
-let hash = ...       // 32-byte Uint8Array representing a binary hash (e.g. sha256).
-let signature = ...  // Uint8Array type, the result of calling the above canister "sign" function on `hash`.
+import { sha512 } from "@noble/hashes/sha512";
+ed25519.etc.sha512Sync = (...m) => sha512(ed25519.etc.concatBytes(...m));
 
-let verified = ecdsaVerify(signature, hash, public_key)
+var test_sig = 'a2db78f132afaa9b01d2bd8a39e3a6628453936001733e5ebc0084012c70ccffdaa6f1052396a347ec9a5bf1fe8386d604f6c119dd7deaef7830322849b9bc0f'
+var test_pubkey = '6e48e755842d0323be83edc7fc8766a20423c8127f7731993873d2f123d01a34'
+
+var correct_msg = Uint8Array.from(Buffer.from("correct message", 'utf8'))
+// outputs `true`
+console.log(ed25519.verify(test_sig, correct_msg, test_pubkey))
+
+var wrong_msg = Uint8Array.from(Buffer.from("wrong message", 'utf8'))
+// outputs `false`
+console.log(ed25519.verify(test_sig, wrong_msg, test_pubkey))
 ```
 
-The call to `ecdsaVerify` function should always return `true`.
+BIP340 can be verified as follows:
+```javascript
+import { schnorr } from '@noble/curves/secp256k1';
 
-Similar verifications can be done in many other languages with the help of cryptographic libraries that support the `secp256k1` curve.
+const sig = 'cca44f350d15d72dfebca43f92afde91913fb9899cfc814a38622b26cc0ddf6e6ea4862f98a3e32e2d6825738a6e97ac161b1b461e7aa4721a086a8fc938b9f9'
+
+// the first byte of the BIP340 public key is truncated
+const pubkey = '026a8b92cfb057b38d45a7e87405755bdbf4c7ad5bc8ca8912a4183903ae6a87c9'.substring(2)
+
+const correct_msg = Uint8Array.from(Buffer.from("correct message", 'utf8'))
+// outputs `true`
+console.log(schnorr.verify(sig, correct_msg, pubkey))
+
+const wrong_msg = Uint8Array.from(Buffer.from("wrong message", 'utf8'))
+// outputs `true`
+console.log(schnorr.verify(sig, wrong_msg, pubkey))
+```
+
+The call to `verify` function should always return `true` for correct parameters
+and `false` or error otherwise.
+
+Similar verifications can be done in many other languages with the help of
+cryptographic libraries that support the `bip340secp256k1` signing *with
+arbitrary message length* as specified in
+[BIP340](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki#user-content-Messages_of_Arbitrary_Size)
+and `ed25519` signing.
 
 ## Conclusion
 
 In this walkthrough, we deployed a sample smart contract that:
 
-* Signed with private ECDSA keys even though **canisters do not hold ECDSA keys themselves**.
+* Signed with private Schnorr keys even though **canisters do not hold Schnorr keys themselves**.
 * Requested a public key.
 * Performed signature verification.

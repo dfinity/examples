@@ -66,7 +66,7 @@ thread_local! {
 }
 
 #[update]
-async fn mock_management_canister_id(id: String) -> Result<(), String> {
+async fn for_test_only_change_management_canister_id(id: String) -> Result<(), String> {
     let _ = CanisterId::from_text(&id).map_err(|e| panic!("invalid canister id: {}: {}", id, e));
     STATE.with_borrow_mut(move |current_id| {
         println!(
@@ -82,7 +82,7 @@ async fn mock_management_canister_id(id: String) -> Result<(), String> {
 async fn public_key(algorithm: SchnorrAlgorithm) -> Result<PublicKeyReply, String> {
     let request = ManagementCanisterSchnorrPublicKeyRequest {
         canister_id: None,
-        derivation_path: vec![],
+        derivation_path: vec![ic_cdk::api::caller().as_slice().to_vec()],
         key_id: SchnorrKeyIds::TestKeyLocalDevelopment.to_key_id(algorithm),
     };
 
@@ -100,7 +100,7 @@ async fn public_key(algorithm: SchnorrAlgorithm) -> Result<PublicKeyReply, Strin
 async fn sign(message: String, algorithm: SchnorrAlgorithm) -> Result<SignatureReply, String> {
     let internal_request = ManagementCanisterSignatureRequest {
         message: message.as_bytes().to_vec(),
-        derivation_path: vec![],
+        derivation_path: vec![ic_cdk::api::caller().as_slice().to_vec()],
         key_id: SchnorrKeyIds::TestKeyLocalDevelopment.to_key_id(algorithm),
     };
 

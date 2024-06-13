@@ -162,7 +162,7 @@ demonstrates how to obtain a Schnorr public key.
 async fn public_key(algorithm: SchnorrAlgorithm) -> Result<PublicKeyReply, String> {
     let request = ManagementCanisterSchnorrPublicKeyRequest {
         canister_id: None,
-        derivation_path: vec![],
+        derivation_path: vec![ic_cdk::api::caller().as_slice().to_vec()],
         key_id: SchnorrKeyIds::TestKeyLocalDevelopment.to_key_id(algorithm),
     };
 
@@ -195,7 +195,7 @@ For obtaining the canister's root public key, the derivation path in the API can
 ### Key derivation
 
 -   For obtaining a canister's public key below its root key in the BIP-32 key derivation hierarchy, a derivation path needs to be specified. As explained in the general documentation, each element in the array of the derivation path is either a 32-bit integer encoded as 4 bytes in big endian or a byte array of arbitrary length. The element is used to derive the key in the corresponding level at the derivation hierarchy.
--   In the example code above, we use an empty `derivation_path`, meaning that different callers of `public_key()` method of our canister will be able get the same public keys.
+-   In the example code above, we use the bytes extracted from the msg.caller principal in the `derivation_path`, so that different callers of `public_key()` method of our canister will be able to get their own public keys.
 
 ## Signing
 
@@ -206,7 +206,7 @@ Computing threshold Schnorr signatures is the core functionality of this feature
 async fn sign(message: String, algorithm: SchnorrAlgorithm) -> Result<SignatureReply, String> {
     let internal_request = ManagementCanisterSignatureRequest {
         message: message.as_bytes().to_vec(),
-        derivation_path: vec![],
+        derivation_path: vec![ic_cdk::api::caller().as_slice().to_vec()],
         key_id: SchnorrKeyIds::TestKeyLocalDevelopment.to_key_id(algorithm),
     };
 
@@ -228,10 +228,12 @@ async fn sign(message: String, algorithm: SchnorrAlgorithm) -> Result<SignatureR
 
 ## Signature verification
 
-For completeness of the example, we show that the created signatures can be verified with the public key corresponding to the same canister and derivation path.
+For completeness of the example, we show that the created signatures can be
+verified with the public key corresponding to the same canister and derivation
+path. Note that the first byte of the BIP340 public key needs to be removed for
+verification, which is done by the verification function below internally.
 
 ```rust
-
 #[query]
 async fn verify(
     signature_hex: String,
