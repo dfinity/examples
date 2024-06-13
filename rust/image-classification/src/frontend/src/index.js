@@ -21,7 +21,7 @@ async function classify(event) {
 
   try {
     const blob = await resize(img);
-    let result;;
+    let result;
     if (document.getElementById("replicated").checked) {
       result = await backend.classify(new Uint8Array(blob));
     } else {
