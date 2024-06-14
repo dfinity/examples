@@ -32,8 +32,8 @@ More specifically:
 - The sample canister uses the key derivation string for the derivation path.
 - The sample canister uses the above to request a signature from the threshold
   Schnorr [subnet](https://wiki.internetcomputer.org/wiki/Subnet_blockchain)
-  (the threshold Schnorr is a subnet specializing in generating threshold
-  Schnorr signatures).
+  (the threshold Schnorr subnet is a subnet generating threshold Schnorr
+  signatures).
 
 This tutorial gives a complete overview of the development, starting with downloading [`dfx`](https://internetcomputer.org/docs/current/developer-docs/setup/index.md), up to the deployment and trying out the code on the mainnet.
 
