@@ -1,25 +1,14 @@
 .PHONY: all
 all: build
 
-.PHONY: build
-.SILENT: build
-build:
-	dfx canister create --all
-	dfx build
-
-.PHONY: install
-.SILENT: install
-install: build
-	dfx canister install --all
-
-.PHONY: upgrade
-.SILENT: upgrade
-upgrade: build
-	dfx canister install --all --mode=upgrade
+.PHONY: deploy
+.SILENT: deploy
+deploy:
+	dfx deploy
 
 .PHONY: mock
 .SILENT: mock
-mock: install
+mock: deploy
 	SCHNORR_MOCK_CANISTER_ID=$(shell dfx canister id schnorr_canister); \
 	SCHNORR_EXAMPLE_CANISTER_ID=$(shell dfx canister id schnorr_example_rust); \
 	echo "Changing to using mock canister instead of management canister for signing"; \
@@ -28,7 +17,7 @@ mock: install
 
 .PHONY: test
 .SILENT: test
-test: build
+test: mock
 	cargo test
 
 .PHONY: clean
