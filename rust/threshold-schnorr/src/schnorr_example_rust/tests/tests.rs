@@ -11,16 +11,16 @@ fn signing_and_verification_should_work_correctly() {
     const ALGORITHMS: [SchnorrAlgorithm; 2] =
         [SchnorrAlgorithm::Bip340Secp256k1, SchnorrAlgorithm::Ed25519];
 
+    let pic = PocketIc::new();
+
     for algorithm in ALGORITHMS {
         for _trial in 0..5 {
-            test_impl(algorithm);
+            test_impl(&pic, algorithm);
         }
     }
 }
 
-fn test_impl(algorithm: SchnorrAlgorithm) {
-    let pic = PocketIc::new();
-
+fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm) {
     let my_principal = Principal::anonymous();
 
     // Create an empty canister as the anonymous principal and add cycles.
@@ -49,7 +49,7 @@ fn test_impl(algorithm: SchnorrAlgorithm) {
         &pic,
         my_principal,
         example_canister_id,
-        "mock_management_canister_id",
+        "for_test_only_change_management_canister_id",
         encode_one(schnorr_mock_canister_id.to_text()).unwrap(),
     )
     .expect("failed to update management canister id");
