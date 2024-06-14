@@ -21,6 +21,8 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
+      - name: Provision PocketIC
+        run: bash .github/workflows/provision-pocket-ic-server.sh
       - name: Rust Threshold Schnorr Darwin
         run: |
           dfx start --background
@@ -34,6 +36,8 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
+      - name: Provision PocketIC
+        run: bash .github/workflows/provision-pocket-ic-server.sh
       - name: Rust Threshold Schnorr Linux
         run: |
           dfx start --background
