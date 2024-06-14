@@ -144,7 +144,6 @@ fn verify_bip340_secp256k1(
     secp1_pk_bytes: &[u8],
 ) -> Result<SignatureVerificationReply, String> {
     assert_eq!(secp1_pk_bytes.len(), 33);
-    assert_eq!(sig_bytes.len(), 64);
 
     let sig =
         k256::schnorr::Signature::try_from(sig_bytes).expect("failed to deserialize signature");
