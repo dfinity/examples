@@ -139,14 +139,16 @@ API is implemented.
 
 If you deployed your canister locally or to the mainnet, you should have a URL to the Candid web UI where you can access the public methods. We can call the `public-key` method.
 
-In the example below, the method returns `03c22bef676644dba524d4a24132ea8463221a55540a27fc86d690fda8e688e31a` as the public key.
+In the example below, the method returns
+`6e48e755842d0323be83edc7fc8766a20423c8127f7731993873d2f123d01a34` as the
+Ed25519 public key.
 
 ```json
 {
   "Ok":
   {
-    "public_key_hex": "03c22bef676644dba524d4a24132ea8463221a55540a27fc86d690fda8e688e31a"
-  }  
+    "public_key_hex": "6e48e755842d0323be83edc7fc8766a20423c8127f7731993873d2f123d01a34"
+  }
 }
 ```
 
@@ -214,7 +216,6 @@ Computing threshold Schnorr signatures is the core functionality of this feature
       #Err(Error.message(err));
     };
   };
-};
 ```
 
 ## Signature verification
@@ -223,39 +224,31 @@ For completeness of the example, we show that the created signatures can be veri
 
 Ed25519 can be verified as follows:
 ```javascript
-import * as ed25519 from '@noble/ed25519';
+import('@noble/curves/ed25519').then((ed25519) => { verify(ed25519.ed25519); })
+  .catch((err) => { console.log(err) });
 
-import { sha512 } from "@noble/hashes/sha512";
-ed25519.etc.sha512Sync = (...m) => sha512(ed25519.etc.concatBytes(...m));
+function verify(ed25519) {
+  const test_sig = '1efa03b7b7f9077449a0f4b3114513f9c90ccf214166a8907c23d9c2bbbd0e0e6e630f67a93c1bd525b626120e86846909aedf4c58763ae8794bcef57401a301'
+  const test_pubkey = '566d53caf990f5f096d151df70b2a75107fac6724cb61a9d6d2aa63e1496b003'
+  const test_msg = Uint8Array.from(Buffer.from("hello", 'utf8'));
 
-var test_sig = 'a2db78f132afaa9b01d2bd8a39e3a6628453936001733e5ebc0084012c70ccffdaa6f1052396a347ec9a5bf1fe8386d604f6c119dd7deaef7830322849b9bc0f'
-var test_pubkey = '6e48e755842d0323be83edc7fc8766a20423c8127f7731993873d2f123d01a34'
-
-var correct_msg = Uint8Array.from(Buffer.from("correct message", 'utf8'))
-// outputs `true`
-console.log(ed25519.verify(test_sig, correct_msg, test_pubkey))
-
-var wrong_msg = Uint8Array.from(Buffer.from("wrong message", 'utf8'))
-// outputs `false`
-console.log(ed25519.verify(test_sig, wrong_msg, test_pubkey))
+  console.log(ed25519.verify(test_sig, test_msg, test_pubkey));
+  }
 ```
 
 BIP340 can be verified as follows:
 ```javascript
-import { schnorr } from '@noble/curves/secp256k1';
+import('@noble/curves/secp256k1').then((bip340) => { verify(bip340.schnorr); })
+  .catch((err) => { console.log(err) });
 
-const sig = 'cca44f350d15d72dfebca43f92afde91913fb9899cfc814a38622b26cc0ddf6e6ea4862f98a3e32e2d6825738a6e97ac161b1b461e7aa4721a086a8fc938b9f9'
+function verify(bip340) {
+  const test_sig = '1b64ca7a7f02c76633954f320675267685b3b80560eb6a35cda20291ddefc709364e59585771c284e46264bfbb0620e23eb8fb274994f7a6f2fcbc8a9430e5d7';
+  // the first byte of the BIP340 public key is truncated
+  const pubkey = '0341d7cf39688e10b5f11f168ad0a9e790bcb429d7d486eab07d2c824b85821470'.substring(2)
+  const test_msg = Uint8Array.from(Buffer.from("hello", 'utf8'));
 
-// the first byte of the BIP340 public key is truncated
-const pubkey = '026a8b92cfb057b38d45a7e87405755bdbf4c7ad5bc8ca8912a4183903ae6a87c9'.substring(2)
-
-const correct_msg = Uint8Array.from(Buffer.from("correct message", 'utf8'))
-// outputs `true`
-console.log(schnorr.verify(sig, correct_msg, pubkey))
-
-const wrong_msg = Uint8Array.from(Buffer.from("wrong message", 'utf8'))
-// outputs `true`
-console.log(schnorr.verify(sig, wrong_msg, pubkey))
+  console.log(bip340.verify(test_sig, test_msg, test_pubkey));
+}
 ```
 
 The call to `verify` function should always return `true` for correct parameters

@@ -26,6 +26,9 @@ mock: install
 	CMD="dfx canister call "$${SCHNORR_EXAMPLE_CANISTER_ID}" for_test_only_change_management_canister_id '("\"$${SCHNORR_MOCK_CANISTER_ID}\"")'"; \
 	eval "$${CMD}"
 
+test: mock
+	bash test.sh hello
+
 .PHONY: clean
 .SILENT: clean
 clean:

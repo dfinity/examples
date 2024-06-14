@@ -141,14 +141,16 @@ API is implemented.
 
 If you deployed your canister locally or to the mainnet, you should have a URL to the Candid web UI where you can access the public methods. We can call the `public-key` method.
 
-In the example below, the method returns `03c22bef676644dba524d4a24132ea8463221a55540a27fc86d690fda8e688e31a` as the public key.
+In the example below, the method returns
+`6e48e755842d0323be83edc7fc8766a20423c8127f7731993873d2f123d01a34` as the
+Ed25519 public key.
 
 ```json
 {
   "Ok":
   {
-    "public_key_hex": "03c22bef676644dba524d4a24132ea8463221a55540a27fc86d690fda8e688e31a"
-  }  
+    "public_key_hex": "6e48e755842d0323be83edc7fc8766a20423c8127f7731993873d2f123d01a34"
+  }
 }
 ```
 
