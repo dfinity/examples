@@ -167,7 +167,7 @@ fn verify_ed25519(
     let pk: [u8; 32] = pk_bytes
         .try_into()
         .expect("ed25519 public key incorrect length");
-    let vk = VerifyingKey::from_bytes(&pk).unwrap();
+    let vk = VerifyingKey::from_bytes(&pk).expect("failed to parse ed25519 public key");
 
     let signature = Signature::from_slice(sig_bytes).expect("ed25519 signature incorrect length");
 
