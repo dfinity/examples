@@ -214,10 +214,3 @@ getrandom::register_custom_getrandom!(always_fail);
 pub fn always_fail(_buf: &mut [u8]) -> Result<(), getrandom::Error> {
     Err(getrandom::Error::UNSUPPORTED)
 }
-
-// Derivation path is wrongly typed. It should be a vector of vectors of bytes
-// but it is a vector of bytes. This is a bug in the code.
-
-// The Schnorr signing algorithm is non-standard. It should be hashing the
-// message together with other parameters, but it is prehashing the message,
-// which does not correspond to BIP340 signing.
