@@ -52,7 +52,6 @@
 /motoko/token_transfer/ @dfinity/growth
 /motoko/token_transfer_from/ @dfinity/growth
 /motoko/vetkd/ @dfinity/dept-crypto-library
->>>>>>> master
 /motoko/whoami/ @dfinity/growth
 
 /native-apps/unity_ii_applink/ @dfinity/sdk
