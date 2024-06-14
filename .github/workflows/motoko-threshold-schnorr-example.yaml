@@ -24,7 +24,6 @@ jobs:
           dfx start --background
           pushd motoko/threshold-schnorr
           make mock
-          npm install
           make test
   motoko-threshold-schnorr-linux:
     runs-on: ubuntu-20.04
@@ -37,5 +36,4 @@ jobs:
           dfx start --background
           pushd motoko/threshold-schnorr
           make mock
-          npm install
           make test
