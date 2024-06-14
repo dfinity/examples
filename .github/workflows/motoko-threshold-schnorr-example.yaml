@@ -1,4 +1,4 @@
-name: motoko-threshold-ecdsa
+name: motoko-threshold-schnorr
 on:
   push:
     branches:
@@ -13,7 +13,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  motoko-threshold-ecdsa-darwin:
+  motoko-threshold-schnorr-darwin:
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v1
@@ -26,7 +26,7 @@ jobs:
           make mock
           npm install
           make test
-  motoko-threshold-ecdsa-linux:
+  motoko-threshold-schnorr-linux:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
