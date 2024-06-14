@@ -1,0 +1,5 @@
+service : {
+  parallel_calls : (nat64) -> (nat64);
+  sequential_calls : (nat64) -> (nat64);
+  setup_callee : (principal) -> ();
+}

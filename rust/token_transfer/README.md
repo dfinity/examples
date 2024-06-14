@@ -23,8 +23,11 @@ This example requires an installation of:
 
 The following steps will guide you through the process of setting up the token transfer canister for your own project.
 
-> [!TIP]
-> If you just want to interact with this example, follow steps 4-8 and 10-12 below.
+:::info 
+
+If you just want to interact with this example, follow steps 4-8 and 10-12 below.
+
+:::
 
 ### Step 1: Create a new `dfx` project and navigate into the project's directory.
 
@@ -35,8 +38,11 @@ cd token_transfer
 
 ### Step 2: Determine ICRC-1 ledger file locations
 
-> [!NOTE]
-> You can read more about how to setup the ICRC-1 ledger locally [here](https://internetcomputer.org/docs/current/developer-docs/defi/icrc-1/icrc1-ledger-setup).
+:::info 
+
+You can read more about how to [setup the ICRC-1 ledger locally](https://internetcomputer.org/docs/current/developer-docs/defi/icrc-1/icrc1-ledger-setup).
+
+:::
 
 Go to the [releases overview](https://dashboard.internetcomputer.org/releases) and copy the latest replica binary revision. At the time of writing, this is `d87954601e4b22972899e9957e800406a0a6b929`.
 
@@ -107,8 +113,11 @@ dfx identity use minter
 export MINTER=$(dfx identity get-principal)
 ```
 
-> [!IMPORTANT]
-> Transfers from the minting account will create Mint transactions. Transfers to the minting account will create Burn transactions.
+:::info 
+
+Transfers from the minting account will create Mint transactions. Transfers to the minting account will create Burn transactions.
+
+:::
 
 ### Step 6: Switch back to your default identity and record its principal to mint an initial balance to when deploying the ledger:
 
@@ -155,8 +164,9 @@ URLs:
 
 ### Step 8: Verify that the ledger canister is healthy and working as expected by using the command:
 
-> [!NOTE]
-> You can find more information on how to interact with the ICRC-1 ledger [here](https://internetcomputer.org/docs/current/developer-docs/defi/icrc-1/using-icrc1-ledger#icrc-1-and-icrc-1-extension-endpoints)
+:::info 
+
+You can find more information on how to [interact with the ICRC-1 ledger](https://internetcomputer.org/docs/current/developer-docs/defi/icrc-1/using-icrc1-ledger#icrc-1-and-icrc-1-extension-endpoints)
 
 ````bash
 dfx canister call icrc1_ledger_canister icrc1_balance_of "(record {
@@ -261,8 +271,11 @@ ic_cdk::export_candid!();
 
 Replace the contents of the `src/token_transfer_backend/token_transfer_backend.did` file with the following:
 
-> [!NOTE]
-> The `token_transfer_backend.did` file is a Candid file that describes the service interface of the canister. It was generated from the Rust code using the `candid-extractor` tool. You can read more about the necessary steps [here](https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid).
+:::info 
+
+The `token_transfer_backend.did` file is a Candid file that describes the service interface of the canister. It was generated from the Rust code using the `candid-extractor` tool. You can read more about the [necessary steps](https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid).
+
+:::
 
 ```did
 type Account = record { owner : principal; subaccount : opt vec nat8 };
@@ -280,8 +293,11 @@ dfx deploy token_transfer_backend
 
 ### Step 11: Transfer funds to your canister:
 
-> [!IMPORTANT]
-> Make sure that you are using the default `dfx` account that we minted tokens to in step 7 for the following steps.
+:::info 
+
+Make sure that you are using the default `dfx` account that we minted tokens to in step 7 for the following steps.
+
+:::
 
 Make the following call to transfer 10 tokens to the canister:
 

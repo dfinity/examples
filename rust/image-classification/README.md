@@ -3,18 +3,12 @@
 This is an ICP smart contract that accepts an image from the user and runs image classification inference.
 The smart contract consists of two canisters:
 
-- the backend canister embeds the [the Tract ONNX inference engine](https://github.com/sonos/tract) with [the MobileNet v2-7 model](https://github.com/onnx/models/tree/main/validated/vision/classification/mobilenet). It provides a `classify()` endpoint for the frontend code to call.
+- the backend canister embeds the [the Tract ONNX inference engine](https://github.com/sonos/tract) with [the MobileNet v2-7 model](https://github.com/onnx/models/tree/main/validated/vision/classification/mobilenet).
+  It provides `classify()` and `classify_query()` endpoints for the frontend code to call.
+  The former endpoint is used for replicated execution (running on all nodes) whereas the latter runs only on a single node.
 - the frontend canister contains the Web assets such as HTML, JS, CSS that are served to the browser.
 
-Note that currently Wasm execution is not optimized for this workload.
-A single call executes about 24B instructions (~10s).
-
-This is expected to improve in the future with:
-
-- faster deterministic floating-point operations.
-- Wasm SIMD (Single-Instruction Multiple Data).
-
-The ICP mainnet subnets and `dfx` running a replica version older than [463296](https://dashboard.internetcomputer.org/release/463296c0bc82ad5999b70245e5f125c14ba7d090) may fail with an instruction-limit-exceeded error.
+This example uses Wasm SIMD instructions that are available in `dfx` version `0.20.2-beta.0` or newer.
 
 # Dependencies
 
@@ -39,6 +33,18 @@ Download MobileNet v2-7 to `src/backend/assets/mobilenetv2-7.onnx`:
 ./downdload_model.sh
 ```
 
+Install NodeJS dependencies for the frontend:
+
+```
+npm install
+```
+
+Install `wasm-opt`:
+
+```
+cargo install wasm-opt
+```
+
 # Build
 
 ```
@@ -46,5 +52,5 @@ dfx start --background
 dfx deploy
 ```
 
-If the deployment is successfull, the it will show the `frontend` URL.
+If the deployment is successful, the it will show the `frontend` URL.
 Open that URL in browser to interact with the smart contract.

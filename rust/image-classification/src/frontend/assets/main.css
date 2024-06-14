@@ -47,6 +47,7 @@ textarea {
     flex-flow: row;
     justify-content: left;
     align-items: center;
+    margin-bottom: 20px;
 }
 
 .toggle-switch {
@@ -71,7 +72,6 @@ textarea {
     bottom: 0;
     background-color: #ccc;
     border-radius: 18px;
-    transition: 0.4s;
 }
 
 .slider:before {
@@ -83,7 +83,6 @@ textarea {
     bottom: 1px;
     background-color: white;
     border-radius: 50%;
-    transition: 0.4s;
 }
 
 input:checked+.slider {
@@ -129,15 +128,15 @@ li {
 
 @keyframes astrodance {
     0% {
-        transform: translate(-50%,-50%) rotate(-20deg)
+        transform: translate(-50%, -50%) rotate(-20deg)
     }
 
     50% {
-        transform: translate(-50%,-50%) rotate(10deg)
+        transform: translate(-50%, -50%) rotate(10deg)
     }
 
     to {
-        transform: translate(-50%,-50%) rotate(-20deg)
+        transform: translate(-50%, -50%) rotate(-20deg)
     }
 }
 

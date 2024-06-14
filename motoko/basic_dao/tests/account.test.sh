@@ -2,7 +2,7 @@
 load "prelude.sh";
 
 import fake = "2vxsx-fae" as "../.dfx/local/canisters/basic_dao/basic_dao.did";
-let wasm = file "../.dfx/local/canisters/basic_dao/basic_dao.wasm";
+let wasm = file("../.dfx/local/canisters/basic_dao/basic_dao.wasm");
 
 
 // Setup initial account

@@ -1,0 +1,25 @@
+{
+  "canisters": {
+    "guards": {
+      "candid": "guards.did",
+      "package": "ic-fun-with-guards",
+      "type": "custom",
+      "build": [
+        "cargo build --target wasm32-unknown-unknown --release"
+      ],
+      "wasm": "target/wasm32-unknown-unknown/release/ic_fun_with_guards.wasm",
+      "metadata": [
+        {
+          "name": "candid:service"
+        }
+      ]
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "version": 1
+}
