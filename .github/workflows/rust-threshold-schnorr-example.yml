@@ -9,6 +9,7 @@ on:
       - rust/threshold-schnorr/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
+      - .github/workflows/provision-pocket-ic-server.sh
       - .github/workflows/rust-threshold-schnorr-example.yml
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
