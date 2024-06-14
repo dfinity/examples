@@ -228,7 +228,7 @@ pub fn update<T: CandidType + for<'de> Deserialize<'de>>(
     }
 }
 
-pub fn fast_forward(ic: &PocketIc, ticks: u64) {
+fn fast_forward(ic: &PocketIc, ticks: u64) {
     for _ in 0..ticks - 1 {
         ic.tick();
     }
