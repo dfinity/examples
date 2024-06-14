@@ -213,11 +213,11 @@ fn load_schnorr_mock_canister_wasm() -> Vec<u8> {
 pub fn update<T: CandidType + for<'de> Deserialize<'de>>(
     ic: &PocketIc,
     sender: Principal,
-    receiver: Principal,
+    canister_id: Principal,
     method: &str,
     args: Vec<u8>,
 ) -> Result<T, String> {
-    match ic.update_call(receiver, sender, method, args) {
+    match ic.update_call(canister_id, sender, method, args) {
         Ok(WasmResult::Reply(data)) => {
             decode_one(&data).map_err(|e| format!("failed to decode reply: {e:?}"))?
         }
