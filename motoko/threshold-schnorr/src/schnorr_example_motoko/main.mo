@@ -6,10 +6,10 @@ import Blob "mo:base/Blob";
 import Hex "./utils/Hex";
 
 actor {
-  public type SchnorrAlgotirhm = { #bip340secp256k1; #ed25519 };
+  public type SchnorrAlgorithm = { #bip340secp256k1; #ed25519 };
 
   public type KeyId = {
-    algorithm : SchnorrAlgotirhm;
+    algorithm : SchnorrAlgorithm;
     name : Text;
   };
 
@@ -37,7 +37,7 @@ actor {
     #Ok(());
   };
 
-  public shared ({ caller }) func public_key(algorithm_arg : SchnorrAlgotirhm) : async {
+  public shared ({ caller }) func public_key(algorithm_arg : SchnorrAlgorithm) : async {
     #Ok : { public_key_hex : Text };
     #Err : Text;
   } {
@@ -53,7 +53,7 @@ actor {
     };
   };
 
-  public shared ({ caller }) func sign(message_arg : Text, algorithm_arg : SchnorrAlgotirhm) : async {
+  public shared ({ caller }) func sign(message_arg : Text, algorithm_arg : SchnorrAlgorithm) : async {
     #Ok : { signature_hex : Text };
     #Err : Text;
   } {
