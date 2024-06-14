@@ -7,8 +7,8 @@
     },
     "schnorr_canister": {
       "type": "custom",
-      "candid": "https://github.com/altkdf/schnorr_canister/releases/download/v0.3.0/schnorr_canister.did",
-      "wasm": "https://github.com/altkdf/schnorr_canister/releases/download/v0.3.0/schnorr_canister.wasm.gz"
+      "candid": "https://github.com/domwoe/schnorr_canister/releases/download/v0.4.0//schnorr_canister.did",
+      "wasm": "https://github.com/domwoe/schnorr_canister/releases/download/v0.4.0/schnorr_canister.wasm.gz"
     }
   }
 }
