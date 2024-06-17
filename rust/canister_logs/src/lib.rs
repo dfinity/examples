@@ -1,5 +1,5 @@
 use ic_cdk::{
-    ic_cdk::api::management_canister::main::raw_rand as ic00_raw_rand, init, post_upgrade, update,
+    api::management_canister::main::raw_rand as ic00_raw_rand, init, post_upgrade, update,
 };
 use std::time::Duration;
 
