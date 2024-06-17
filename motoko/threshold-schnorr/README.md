@@ -10,8 +10,8 @@ keywords: [advanced, motoko, threshold schnorr, schnorr, signature]
 
 We present a minimal example canister smart contract for showcasing the
 [threshold
-Schnorr](https://internetcomputer.org/docs/current/developer-docs/integrations/t-schnorr)
-API. TODO: fix link when the API docs are published.
+Schnorr](https://org5p-7iaaa-aaaak-qckna-cai.icp0.io/docs#ic-sign_with_schnorr)
+API.
 
 WARNING: the current version of this canister calls not the management canister
 but a custom canister, which produces Schnorr signatures in an INSECURE way.
