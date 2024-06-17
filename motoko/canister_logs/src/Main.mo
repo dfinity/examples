@@ -3,7 +3,6 @@ import { abs } = "mo:base/Int";
 import { now } = "mo:base/Time";
 import { setTimer; recurringTimer } = "mo:base/Timer";
 import StableMemory "mo:base/ExperimentalStableMemory";
-import Types "Types";
 
 actor CanisterLogs {
 
