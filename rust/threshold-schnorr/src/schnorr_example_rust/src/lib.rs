@@ -7,5 +7,3 @@ pub use all_architectures::*;
 // --release --target wasm32-unknown-unknown` should be used.
 #[cfg(target_arch = "wasm32")]
 mod wasm_only;
-#[cfg(target_arch = "wasm32")]
-pub use wasm_only::*;
