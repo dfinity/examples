@@ -4,5 +4,5 @@ service : {
     "panic" : (text) -> ();
     "memory_oob" : () -> ();
     "failed_unwrap" : () -> ();
-    "raw_rand" : () -> blob;
+    "raw_rand" : () -> (blob);
 };

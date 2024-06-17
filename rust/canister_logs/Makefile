@@ -21,20 +21,16 @@ upgrade: build
 .SILENT: test
 test: install
 	dfx canister call canister_logs print 'hi'
-	dfx canister logs canister_logs \
-		| grep 'hi' && echo 'PASS'
-
 	dfx canister call canister_logs trap 'oops'
-	dfx canister logs canister_logs \
-		| grep 'oops' && echo 'PASS'
-
 	dfx canister call canister_logs panic 'aaa!'
-	dfx canister logs canister_logs \
-		| grep 'aaa!' && echo 'PASS'
-
 	dfx canister call canister_logs raw_rand
-	dfx canister logs canister_logs \
-		| grep 'ic00_raw_rand call succeeded' && echo 'PASS'
+
+	logs=$$(dfx canister logs canister_logs) && \
+	echo "$$logs" | grep 'hi' && \
+	echo "$$logs" | grep 'oops' && \
+	echo "$$logs" | grep 'aaa!' && \
+	echo "$$logs" | grep 'ic00_raw_rand call succeeded' && \
+	echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean
