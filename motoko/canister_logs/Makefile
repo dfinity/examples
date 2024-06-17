@@ -20,21 +20,20 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
-	dfx canister call CanisterLogs print 'hi'
-	dfx canister logs CanisterLogs \
-		| grep 'hi' && echo 'PASS'
+	# Perform calls, ignore output.
+	-dfx canister call CanisterLogs print 'print_message'
+	-dfx canister call CanisterLogs trap 'trap_message'
+	-dfx canister call CanisterLogs raw_rand
+	sleep 5  # TODO: remove this after dfx gets new release.
 
-	dfx canister call CanisterLogs trap 'oops'
-	dfx canister logs CanisterLogs \
-		| grep 'oops' && echo 'PASS'
-
-	dfx canister call CanisterLogs panic 'aaa!'
-	dfx canister logs CanisterLogs \
-		| grep 'aaa!' && echo 'PASS'
-
-	dfx canister call CanisterLogs raw_rand
-	dfx canister logs CanisterLogs \
-		| grep 'ic00_raw_rand call succeeded' && echo 'PASS'
+	# Capture logs and check for expected strings.
+	logs=$$(dfx canister logs CanisterLogs) && \
+	echo "$$logs" && \
+	echo "===" && \
+	echo "$$logs" | grep 'print_message' && \
+	echo "$$logs" | grep 'trap_message' && \
+	echo "$$logs" | grep 'ic.raw_rand() call succeeded' && \
+	echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean

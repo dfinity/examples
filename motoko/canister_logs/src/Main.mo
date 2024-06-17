@@ -38,9 +38,9 @@ actor CanisterLogs {
   };
 
   public func raw_rand() : async Blob {
-    Debug.print("pre ic00_raw_rand call");
+    Debug.print("pre ic.raw_rand() call");
     let bytes = await ic00_raw_rand();
-    Debug.print("ic00_raw_rand call succeeded");
+    Debug.print("ic.raw_rand() call succeeded");
     bytes;
   };
 
