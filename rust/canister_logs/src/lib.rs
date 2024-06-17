@@ -55,14 +55,14 @@ fn failed_unwrap() {
 
 #[update]
 async fn raw_rand() -> Vec<u8> {
-    println!("pre ic00_raw_rand call");
+    ic_cdk::println!("pre ic.raw_rand() call");
     match ic00_raw_rand().await {
         Ok((bytes,)) => {
-            println!("ic00_raw_rand call succeeded");
+            ic_cdk::println!("ic.raw_rand() call succeeded");
             bytes
         }
         Err(err) => {
-            println!("ic00_raw_rand call failed: {:?}", err);
+            ic_cdk::println!("ic.raw_rand() call failed: {:?}", err);
             vec![]
         }
     }

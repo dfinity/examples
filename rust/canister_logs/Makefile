@@ -20,18 +20,21 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
-	# Perform calls
-	-dfx canister call canister_logs print 'hi'
-	-dfx canister call canister_logs trap 'oops'
-	-dfx canister call canister_logs panic 'aaa!'
+	# Perform calls, ignore output.
+	-dfx canister call canister_logs print 'print_message'
+	-dfx canister call canister_logs trap 'trap_message'
+	-dfx canister call canister_logs panic 'panic_message'
 	-dfx canister call canister_logs raw_rand
+	sleep 5  # TODO: remove this after dfx gets new release.
 
-	# Capture logs and check for expected strings
+	# Capture logs and check for expected strings.
 	logs=$$(dfx canister logs canister_logs) && \
-	echo "$$logs" | grep 'hi' && \
-	echo "$$logs" | grep 'oops' && \
-	echo "$$logs" | grep 'aaa!' && \
-	echo "$$logs" | grep 'ic00_raw_rand call succeeded' && \
+	echo "$$logs" && \
+	echo "===" && \
+	echo "$$logs" | grep 'print_message' && \
+	echo "$$logs" | grep 'trap_message' && \
+	echo "$$logs" | grep 'panic_message' && \
+	echo "$$logs" | grep 'ic.raw_rand() call succeeded' && \
 	echo 'PASS'
 
 .PHONY: clean
