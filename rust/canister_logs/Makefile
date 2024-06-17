@@ -20,11 +20,13 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
-	dfx canister call canister_logs print 'hi'
-	dfx canister call canister_logs trap 'oops'
-	dfx canister call canister_logs panic 'aaa!'
-	dfx canister call canister_logs raw_rand
+	# Perform calls
+	-dfx canister call canister_logs print 'hi'
+	-dfx canister call canister_logs trap 'oops'
+	-dfx canister call canister_logs panic 'aaa!'
+	-dfx canister call canister_logs raw_rand
 
+	# Capture logs and check for expected strings
 	logs=$$(dfx canister logs canister_logs) && \
 	echo "$$logs" | grep 'hi' && \
 	echo "$$logs" | grep 'oops' && \
