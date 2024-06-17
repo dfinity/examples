@@ -24,6 +24,18 @@ test: install
 	dfx canister logs CanisterLogs \
 		| grep 'hi' && echo 'PASS'
 
+	dfx canister call CanisterLogs trap 'oops'
+	dfx canister logs CanisterLogs \
+		| grep 'oops' && echo 'PASS'
+
+	dfx canister call CanisterLogs panic 'aaa!'
+	dfx canister logs CanisterLogs \
+		| grep 'aaa!' && echo 'PASS'
+
+	dfx canister call CanisterLogs raw_rand
+	dfx canister logs CanisterLogs \
+		| grep 'ic00_raw_rand call succeeded' && echo 'PASS'
+
 .PHONY: clean
 .SILENT: clean
 clean:
