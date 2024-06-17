@@ -19,8 +19,8 @@ This is done for testing purposes ONLY and MUST NOT be done in production. In
 production, ONLY the management canister API MUST be used. The reason is that
 the management canister API is not yet fully implemented and instead of the
 management canister we use a mock canister that provides Schnorr signatures.
-TODO: remove the use of a custom canister and hard-code the management canister
-ID.
+TODO(CRP-2532): remove the use of a custom canister and hard-code the management
+canister ID.
 
 The example canister is a signing oracle that creates Schnorr signatures with
 keys derived based on the canister ID and the chosen algorithm, either BIP340 or
@@ -131,8 +131,8 @@ URLs:
     schnorr_example_rust: https://a3gq9-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=736w4-cyaaa-aaaal-qb3wq-cai
 ```
 
-TODO: deploy this canister to mainnet when management canister threshold Schnorr
-API is implemented.
+TODO(CRP-2532): deploy this canister to mainnet when management canister
+threshold Schnorr API is implemented.
 # In the example above, `schnorr_example_rust` has the URL https://a3gq9-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=736w4-cyaaa-aaaal-qb3wq-cai and serves up the Candid web UI for this particular canister deployed on mainnet.
 
 ## Obtaining public keys
