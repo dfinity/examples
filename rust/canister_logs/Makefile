@@ -20,22 +20,40 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
-	# Perform calls, ignore output.
-	-dfx canister call canister_logs print 'print_message'
-	-dfx canister call canister_logs trap 'trap_message'
-	-dfx canister call canister_logs panic 'panic_message'
-	-dfx canister call canister_logs raw_rand
-	sleep 5  # TODO: remove this after dfx gets new release.
+	# Test print.
+	dfx canister call canister_logs print 'print_message'
+	dfx canister logs canister_logs \
+		| grep 'print_message' && echo 'PASS'
 
-	# Capture logs and check for expected strings.
-	logs=$$(dfx canister logs canister_logs) && \
-	echo "$$logs" && \
-	echo "===" && \
-	echo "$$logs" | grep 'print_message' && \
-	echo "$$logs" | grep 'trap_message' && \
-	echo "$$logs" | grep 'panic_message' && \
-	echo "$$logs" | grep 'ic.raw_rand() call succeeded' && \
-	echo 'PASS'
+	# Test trap, ignore failed call output.
+	-dfx canister call canister_logs trap 'trap_message'
+	dfx canister logs canister_logs \
+		| grep 'trap_message' && echo 'PASS'
+
+	# Test panic, ignore failed call output.
+	-dfx canister call canister_logs panic 'panic_message'
+	dfx canister logs canister_logs \
+		| grep 'panic_message' && echo 'PASS'
+
+	# Test memory_oob, ignore failed call output.
+	-dfx canister call canister_logs memory_oob
+	dfx canister logs canister_logs \
+		| grep 'stable memory out of bounds' && echo 'PASS'
+
+	# Test failed_unwrap, ignore failed call output.
+	-dfx canister call canister_logs failed_unwrap
+	dfx canister logs canister_logs \
+		| grep 'Result::unwrap()' && echo 'PASS'
+
+	# Test timer trap, assume it's been 5 seconds since the start.
+	dfx canister logs canister_logs \
+		| grep 'timer trap' && echo 'PASS'
+
+	# TODO: make sure DFX has the fix.
+	# Test raw_rand.
+	dfx canister call canister_logs raw_rand
+	dfx canister logs canister_logs \
+		| grep 'ic.raw_rand() call succeeded' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean
