@@ -14,7 +14,9 @@ use bitcoin::{
     hashes::Hash,
     Address, AddressType, EcdsaSighashType, OutPoint, Script, Transaction, TxIn, TxOut, Txid,
 };
-use ic_cdk::api::management_canister::bitcoin::{MillisatoshiPerByte, BitcoinNetwork, Satoshi, Utxo};
+use ic_cdk::api::management_canister::bitcoin::{
+    BitcoinNetwork, MillisatoshiPerByte, Satoshi, Utxo,
+};
 use ic_cdk::print;
 use sha2::Digest;
 use std::str::FromStr;
@@ -28,7 +30,7 @@ pub async fn get_p2pkh_address(
     derivation_path: Vec<Vec<u8>>,
 ) -> String {
     // Fetch the public key of the given derivation path.
-    let public_key = ecdsa_api::ecdsa_public_key(key_name, derivation_path).await;
+    let public_key = ecdsa_api::get_ecdsa_public_key(key_name, derivation_path).await;
 
     // Compute the address.
     public_key_to_p2pkh_address(network, &public_key)
@@ -59,7 +61,7 @@ pub async fn send(
 
     // Fetch our public key, P2PKH address, and UTXOs.
     let own_public_key =
-        ecdsa_api::ecdsa_public_key(key_name.clone(), derivation_path.clone()).await;
+        ecdsa_api::get_ecdsa_public_key(key_name.clone(), derivation_path.clone()).await;
     let own_address = public_key_to_p2pkh_address(network, &own_public_key);
 
     print("Fetching UTXOs...");
@@ -85,7 +87,7 @@ pub async fn send(
     .await;
 
     let tx_bytes = transaction.serialize();
-    print(&format!("Transaction to sign: {}", hex::encode(tx_bytes)));
+    print(format!("Transaction to sign: {}", hex::encode(tx_bytes)));
 
     // Sign the transaction.
     let signed_transaction = sign_transaction(
@@ -94,12 +96,12 @@ pub async fn send(
         transaction,
         key_name,
         derivation_path,
-        ecdsa_api::sign_with_ecdsa,
+        ecdsa_api::get_ecdsa_signature,
     )
     .await;
 
     let signed_transaction_bytes = signed_transaction.serialize();
-    print(&format!(
+    print(format!(
         "Signed transaction: {}",
         hex::encode(&signed_transaction_bytes)
     ));
@@ -151,7 +153,7 @@ async fn build_transaction(
         let signed_tx_bytes_len = signed_transaction.serialize().len() as u64;
 
         if (signed_tx_bytes_len * fee_per_byte) / 1000 == total_fee {
-            print(&format!("Transaction built with fee {}.", total_fee));
+            print(format!("Transaction built with fee {}.", total_fee));
             return transaction;
         } else {
             total_fee = (signed_tx_bytes_len * fee_per_byte) / 1000;
