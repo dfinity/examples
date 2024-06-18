@@ -14,7 +14,7 @@ type QrResult = variant {
 };
 
 service : {
-  "qrcode_query" : (input : text, options : Options) -> (QrResult) query;
+  "qrcode_query" : (input : text, options : Options) -> (QrResult);
   "qrcode" : (input : text, options : Options) -> (QrResult);
   "qrresult_len" : () -> (nat64);
 };

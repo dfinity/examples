@@ -19,6 +19,12 @@
       "type": "assets"
     }
   },
+  "networks": {
+    "testnet": {
+      "providers": ["https://api.ic2.farm.dfinity.systems"],
+      "type": "ephemeral"
+    }
+  },
   "defaults": {
     "build": {
       "args": "",
