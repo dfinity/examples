@@ -1,13 +1,19 @@
 use candid::{CandidType, Deserialize};
+use std::cell::RefCell;
 use std::include_bytes;
 
 mod core;
 
 const IMAGE_SIZE_IN_PIXELS: usize = 1024;
+const QR_CODE_NUMBER_OF_ITERATIONS: usize = 20;
 const LOGO_TRANSPARENT: &[u8] = include_bytes!("../assets/logo_transparent.png");
 const LOGO_WHITE: &[u8] = include_bytes!("../assets/logo_white.png");
 
-#[derive(CandidType, Deserialize)]
+thread_local! {
+    static STATE: RefCell<Vec<QrResult>> = RefCell::new(Vec::new());
+}
+
+#[derive(CandidType, Clone, Deserialize)]
 struct Options {
     add_logo: bool,
     add_gradient: bool,
@@ -45,11 +51,24 @@ fn qrcode_impl(input: String, options: Options) -> QrResult {
 }
 
 #[ic_cdk::update]
-fn qrcode(input: String, options: Options) -> QrResult {
-    qrcode_impl(input, options)
+fn qrcode(input: String, options: Options) {
+    let mut res = vec![];
+
+    for _ in 0..QR_CODE_NUMBER_OF_ITERATIONS {
+        res.push(qrcode_impl(input.clone(), options.clone()));
+    }
+
+    STATE.with(|state| {
+        state.borrow_mut().extend(res);
+    });
 }
 
 #[ic_cdk::query]
 fn qrcode_query(input: String, options: Options) -> QrResult {
     qrcode_impl(input, options)
+}
+
+#[ic_cdk::query]
+fn qrresult_len() -> u64 {
+    STATE.with(|state| state.borrow().len().try_into().unwrap())
 }
