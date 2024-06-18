@@ -79,3 +79,8 @@ fn qrcode_query(input: String, options: Options) -> QrResult {
 fn qrresult_len() -> u64 {
     STATE.with(|state| state.borrow().len().try_into().unwrap())
 }
+
+#[ic_cdk::query]
+fn qrcode_query_single(input: String, options: Options) -> QrResult {
+    qrcode_impl(input, options)
+}

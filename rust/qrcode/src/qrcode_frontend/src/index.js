@@ -32,6 +32,7 @@ async function onGenerateButtonClick(event) {
       result = await qrcode_backend.qrcode(text, options);
     } else {
       result = await qrcode_backend.qrcode_query(text, options);
+      result = await qrcode_backend.qrcode_query_single(text, options);
     }
 
     if ("Err" in result) {
