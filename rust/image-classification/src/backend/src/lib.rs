@@ -69,3 +69,25 @@ fn post_upgrade() {
     ic_wasi_polyfill::init_with_memory(&[0u8; 32], &[], wasi_memory);
     onnx::setup().unwrap();
 }
+
+const IMAGE: &'static [u8] = include_bytes!("../assets/man_on_ferrari_1975.png");
+
+/// Formats thousands for the specified `u64` integer (helper function).
+fn fmt(n: u64) -> String {
+    n.to_string()
+        .as_bytes()
+        .rchunks(3)
+        .rev()
+        .map(std::str::from_utf8)
+        .collect::<Result<Vec<&str>, _>>()
+        .unwrap()
+        .join("_")
+}
+
+#[ic_cdk::query]
+fn run() -> ClassificationResult {
+    let result = classify(IMAGE.into());
+    let instructions = ic_cdk::api::performance_counter(0);
+    ic_cdk::println!("Executed instructions: {}", fmt(instructions));
+    result
+}

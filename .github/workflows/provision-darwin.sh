@@ -66,5 +66,15 @@ tar -xf "wasmtime-v${wasmtime_version}-x86_64-macos.tar.xz" --directory "${HOME}
 mv "${HOME}/bin/wasmtime-v${wasmtime_version}-x86_64-macos/wasmtime" "${HOME}/bin/wasmtime"
 rm "wasmtime-v${wasmtime_version}-x86_64-macos.tar.xz"
 
+# Install wasi2ic
+git clone https://github.com/wasm-forge/wasi2ic
+cargo install --path wasi2ic --root "${HOME}"
+
+# Install wasm-opt
+version=117
+curl -fsSLO "https://github.com/WebAssembly/binaryen/releases/download/version_117/binaryen-version_${version}-x86_64-macos.tar.gz" 
+tar -xzf "binaryen-version_${version}-x86_64-macos.tar.gz" --directory "${HOME}/" --strip-components 1
+rm "binaryen-version_${version}-x86_64-macos.tar.gz"
+
 # Exit temporary directory.
 popd
