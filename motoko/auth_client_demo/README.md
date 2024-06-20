@@ -28,6 +28,8 @@ dfx deps deploy
 dfx deploy
 ```
 
+This will deploy the vanilla JS (using lit-html) version of the application as well as Internet Identity and the `whoami` canister. You can access the canister using the link provided from running `dfx deploy`
+
 Once deployed, start the development server with `npm start`.
 
 You can now access the app at `http://127.0.0.1:5173/`.
@@ -40,6 +42,10 @@ This demo has multiple versions, each of which demonstrates a different feature 
 - Vue
 - Vanilla
 - Svelte
+
+> Note: the svelte project was created using sveltekit, and has its own `package.json`. Cd into ./src/auth_client_demo_assets/svelte and run `npm install` to run the svelte version.
+
+You can also deploy each of the frontend canisters by editing `package.json` to run the `build:version` script, and `dfx.json` to pull from the `dist` directory of that framework.
 
 ## Pulling Internet Identity into your project
 

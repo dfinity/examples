@@ -3,7 +3,7 @@ import { AuthClient } from "@dfinity/auth-client";
 import { html, render } from "lit-html";
 import { canisterId, createActor } from "../../../declarations/whoami";
 import { renderLoggedIn } from "./loggedIn";
-import { defaultOptions } from "..";
+import { defaultOptions, getIdentityProvider } from "..";
 
 const content = html`<div class="container">
   <h1>Internet Identity Client</h1>
@@ -14,7 +14,7 @@ const content = html`<div class="container">
 
 export const renderIndex = async (
   client?: AuthClient,
-  statusMessage?: string
+  statusMessage?: string,
 ) => {
   const authClient =
     client ?? (await AuthClient.create(defaultOptions.createOptions));
@@ -33,12 +33,13 @@ export const renderIndex = async (
   }
 
   const loginButton = document.getElementById(
-    "loginButton"
+    "loginButton",
   ) as HTMLButtonElement;
 
   loginButton.onclick = () => {
     authClient.login({
       ...defaultOptions.loginOptions,
+      identityProvider: getIdentityProvider(),
       onSuccess: async () => {
         handleAuthenticated(authClient);
       },
