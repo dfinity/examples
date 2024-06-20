@@ -1,22 +1,28 @@
 ---
 keywords: [intermediate, motoko, authentication, internet identity, integrate, auth, user auth]
 ---
-# Auth-Client Demo
 
-This is an example project, intended to demonstrate how an app developer might integrate with an [Internet Identity](https://identity.ic0.app).
+# Auth-client 
 
-For a non-typescript implementation, see https://github.com/krpeacock/auth-client-demo/tree/vanilla-js
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/auth_client_demo)
 
-[Live demo](https://vasb2-4yaaa-aaaab-qadoa-cai.ic0.app/)
+This is an example project intended to demonstrate how a developer might integrate with [Internet Identity](https://identity.ic0.app).
 
-This is an example showing how to use [@dfinity/auth-client](https://www.npmjs.com/package/@dfinity/auth-client).
+:::info
+This example uses TypeScript. See an alternative [vanilla JS example](https://github.com/krpeacock/auth-client-demo/tree/vanilla-js).
+:::
+
+[View a live demo of this sample](https://vasb2-4yaaa-aaaab-qadoa-cai.ic0.app/).
+
+This example shows how to use [@dfinity/auth-client](https://www.npmjs.com/package/@dfinity/auth-client).
 
 ## Setting up for local development
 
-To get started, start a local dfx development environment in this directory with the following steps:
+To get started, start a local `dfx` development environment in this directory with the following steps:
 
 ```bash
-cd auth-client-demo/
+git clone https://github.com/dfinity/examples
+cd examples/motoko/auth-client-demo/
 dfx start --background --clean
 dfx deps deploy
 dfx deploy
@@ -28,7 +34,7 @@ Once deployed, start the development server with `npm start`.
 
 You can now access the app at `http://127.0.0.1:5173/`.
 
-## Multiple Versions
+## Multiple versions
 
 This demo has multiple versions, each of which demonstrates a different feature of the auth-client. `npm start` will run the vanilla JS version, but you can run the others by running `npm run start:version` where `version` is one of the following:
 
@@ -41,11 +47,11 @@ This demo has multiple versions, each of which demonstrates a different feature 
 
 You can also deploy each of the frontend canisters by editing `package.json` to run the `build:version` script, and `dfx.json` to pull from the `dist` directory of that framework.
 
-## Pulling Internet Identity into your own project
+## Pulling Internet Identity into your project
 
-To pull Internet Identity into your own project, you'll need to do the following:
+To pull Internet Identity into your project, you'll need to do the following:
 
-1. Add Internet Identity to your `dfx.json` file:
+- #### Step 1: Add Internet Identity to your `dfx.json` file:
 
 ```json
 "internet-identity" : {
@@ -54,7 +60,7 @@ To pull Internet Identity into your own project, you'll need to do the following
 }
 ```
 
-2. Run the following commands to install the dependencies:
+- #### Step 2: Run the following commands to install the dependencies:
 
 ```bash
 dfx deps pull
