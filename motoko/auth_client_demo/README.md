@@ -1,3 +1,6 @@
+---
+keywords: [intermediate, motoko, authentication, internet identity, integrate, auth, user auth]
+---
 # Auth-Client Demo
 
 This is an example project, intended to demonstrate how an app developer might integrate with an [Internet Identity](https://identity.ic0.app).
