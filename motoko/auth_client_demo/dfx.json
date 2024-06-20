@@ -23,7 +23,7 @@
         "internet-identity"
       ],
       "source": [
-        "src/auth_client_demo_assets/react/dist"
+        "src/auth_client_demo_assets/vanilla/dist"
       ],
       "type": "assets"
     }
