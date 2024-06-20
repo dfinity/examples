@@ -8,3 +8,5 @@ _MACOSX
 target/
 *.old.did
 .idea
+src/backend/assets/mobilenetv2-7.onnx
+.env

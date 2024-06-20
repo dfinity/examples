@@ -1,0 +1,44 @@
+name: rust-image-classification
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - rust/image-classification/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-image-classification-example.yaml
+      - .ic-commit
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rust-image-classification-example-darwin:
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: DFX_VERSION="0.20.2-beta.0" bash .github/workflows/provision-darwin.sh
+      - name: Remove networks.json
+        run: rm -f ~/.config/dfx/networks.json
+      - name: Rust Image Classification Darwin
+        run: |
+          dfx start --background
+          pushd rust/image-classification
+          make test
+          popd
+  rust-image-classification-example-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: DFX_VERSION="0.20.2-beta.0" bash .github/workflows/provision-linux.sh
+      - name: Remove networks.json
+        run: rm -f ~/.config/dfx/networks.json
+      - name: Rust Image Classification Linux
+        run: |
+          dfx start --background
+          pushd rust/image-classification
+          make test
+          popd

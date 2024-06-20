@@ -15,6 +15,7 @@ export const idlFactory = ({ IDL }) => {
         [ClassificationResult],
         ['query'],
       ),
+    'run' : IDL.Func([], [ClassificationResult], ['query']),
   });
 };
 export const init = ({ IDL }) => { return []; };

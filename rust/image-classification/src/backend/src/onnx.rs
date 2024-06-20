@@ -1,9 +1,7 @@
-use std::cell::RefCell;
-
-use prost::Message;
-use tract_onnx::prelude::*;
-
 use crate::Classification;
+use prost::Message;
+use std::cell::RefCell;
+use tract_onnx::prelude::*;
 
 type Model = SimplePlan<TypedFact, Box<dyn TypedOp>, Graph<TypedFact, Box<dyn TypedOp>>>;
 
