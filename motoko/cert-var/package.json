@@ -16,9 +16,9 @@
     "generate": "dfx generate cert_var"
   },
   "devDependencies": {
-    "@dfinity/agent": "^0.15.1",
-    "@dfinity/candid": "^0.15.1",
-    "@dfinity/principal": "^0.15.1",
+    "@dfinity/agent": "^1.4.0",
+    "@dfinity/candid": "^1.4.0",
+    "@dfinity/principal": "^1.4.0",
     "assert": "2.0.0",
     "buffer": "6.0.3",
     "css-loader": "^6.0.0",

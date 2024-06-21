@@ -1,6 +1,6 @@
 import { HttpAgent } from '@dfinity/agent';
 import { Certificate } from '@dfinity/agent';
-import { IDL } from '@dfinity/candid';
+import { IDL, PipeArrayBuffer, lebDecode } from '@dfinity/candid';
 import { Principal } from '@dfinity/principal'
 import { cert_var, canisterId } from '../../declarations'
 
@@ -83,26 +83,21 @@ document.getElementById("setBtn").addEventListener("click", async () => {
     Neither of those steps are needed here, for the reasons given above.
   */
 
-  const readState = { certificate: new Uint8Array(resp.certificate[0]) };
-  const cert = new Certificate(readState, agent);
+  let cert;
 
-  // Check 1: Certificate verifies.
-  if(!(await cert.verify())) {
+  try {
+    // Check 1: Certificate verifies.
+    cert = await Certificate.create({
+      certificate: resp.certificate[0].buffer,
+      rootKey: agent.rootKey,
+      canisterId: cid,
+    });
+  } catch {
     log.innerText = "Failure: Certification verification failed.";
-    return;
   }
   console.log("Check 1: Verified certificate.", cert);
 
-  const te = new TextEncoder();
-  const pathTime = [te.encode('time')];
-  const rawTime = cert.lookup(pathTime);
-  const idlMessage = new Uint8Array([
-      ...new TextEncoder().encode('DIDL\x00\x01\x7d'),
-      ...new Uint8Array(rawTime),
-  ]);
-  const decodedTime = IDL.decode(
-    [IDL.Nat], idlMessage
-  )[0];
+  const decodedTime = lebDecode(new PipeArrayBuffer(cert.lookup(["time"]).value));
   const time = Number(decodedTime) / 1e9;
 
   // Check 2: The diff between decoded time and local time is within 5s.
@@ -117,10 +112,7 @@ document.getElementById("setBtn").addEventListener("click", async () => {
   // Checks 3 and 4:
   // - Canister ID is correct.
   // - Certified data is correct.
-  const pathData = [te.encode('canister'),
-                    cid.toUint8Array(),
-                    te.encode('certified_data')];
-  const rawData = cert.lookup(pathData);
+  const rawData = cert.lookup(['canister', cid.toUint8Array(), 'certified_data']).value;
   const decodedData = IDL.decode(
     [IDL.Nat32],
     new Uint8Array([
