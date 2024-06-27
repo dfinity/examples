@@ -38,7 +38,7 @@ If you just want to interact with this example, follow steps 4-6 and 8-11 below.
 ### Step 1: Create a new `dfx` project and navigate into the project's directory.
 
 ```bash
-dfx dfx new --type=motoko icp_transfer --no-frontend
+dfx new --type=motoko icp_transfer --no-frontend
 cd icp_transfer
 ```
 
