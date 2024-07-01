@@ -2,14 +2,23 @@ import type { Principal } from '@dfinity/principal';
 import type { ActorMethod } from '@dfinity/agent';
 import type { IDL } from '@dfinity/candid';
 
-export interface Classification { 'label' : string, 'score' : number }
-export interface ClassificationError { 'message' : string }
-export type ClassificationResult = { 'Ok' : Array<Classification> } |
-  { 'Err' : ClassificationError };
+export interface BoundingBox {
+  'top' : number,
+  'left' : number,
+  'bottom' : number,
+  'right' : number,
+}
+export interface DetectionError { 'message' : string }
+export type DetectionResult = { 'Ok' : BoundingBox } |
+  { 'Err' : DetectionError };
+export interface Embedding { 'v0' : Array<number> }
+export interface EmbeddingError { 'message' : string }
+export type EmbeddingResult = { 'Ok' : Embedding } |
+  { 'Err' : EmbeddingError };
 export interface _SERVICE {
-  'classify' : ActorMethod<[Uint8Array | number[]], ClassificationResult>,
-  'classify_query' : ActorMethod<[Uint8Array | number[]], ClassificationResult>,
-  'run' : ActorMethod<[], ClassificationResult>,
+  'detect' : ActorMethod<[Uint8Array | number[]], DetectionResult>,
+  'detect_query' : ActorMethod<[Uint8Array | number[]], DetectionResult>,
+  'embedding' : ActorMethod<[Uint8Array | number[]], EmbeddingResult>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

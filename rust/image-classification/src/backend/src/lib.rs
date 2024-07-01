@@ -3,6 +3,7 @@ use ic_stable_structures::{
     memory_manager::{MemoryId, MemoryManager},
     DefaultMemoryImpl,
 };
+use onnx::{BoundingBox, Embedding};
 use std::cell::RefCell;
 
 mod onnx;
@@ -18,27 +19,33 @@ thread_local! {
 }
 
 #[derive(CandidType, Deserialize)]
-struct Classification {
-    label: String,
-    score: f32,
-}
-
-#[derive(CandidType, Deserialize)]
-struct ClassificationError {
+struct DetectionError {
     message: String,
 }
 
 #[derive(CandidType, Deserialize)]
-enum ClassificationResult {
-    Ok(Vec<Classification>),
-    Err(ClassificationError),
+enum DetectionResult {
+    Ok(BoundingBox),
+    Err(DetectionError),
 }
 
-#[ic_cdk::query]
-fn classify(image: Vec<u8>) -> ClassificationResult {
-    let result = match onnx::classify(image) {
-        Ok(result) => ClassificationResult::Ok(result),
-        Err(err) => ClassificationResult::Err(ClassificationError {
+#[derive(CandidType, Deserialize)]
+struct EmbeddingError {
+    message: String,
+}
+
+#[derive(CandidType, Deserialize)]
+enum EmbeddingResult {
+    Ok(Embedding),
+    Err(EmbeddingError),
+}
+
+
+#[ic_cdk::update]
+fn detect(image: Vec<u8>) -> DetectionResult {
+    let result = match onnx::detect(image) {
+        Ok(result) => DetectionResult::Ok(result.0),
+        Err(err) => DetectionResult::Err(DetectionError {
             message: err.to_string(),
         }),
     };
@@ -46,15 +53,28 @@ fn classify(image: Vec<u8>) -> ClassificationResult {
 }
 
 #[ic_cdk::query]
-fn classify_query(image: Vec<u8>) -> ClassificationResult {
-    let result = match onnx::classify(image) {
-        Ok(result) => ClassificationResult::Ok(result),
-        Err(err) => ClassificationResult::Err(ClassificationError {
+fn detect_query(image: Vec<u8>) -> DetectionResult {
+    ic_cdk::api::print("query started");
+    let result = match onnx::detect(image) {
+        Ok(result) => DetectionResult::Ok(result.0),
+        Err(err) => DetectionResult::Err(DetectionError {
             message: err.to_string(),
         }),
     };
     result
 }
+
+#[ic_cdk::update]
+fn embedding(image: Vec<u8>) -> EmbeddingResult {
+    let result = match onnx::embedding(image) {
+        Ok(result) => EmbeddingResult::Ok(result),
+        Err(err) => EmbeddingResult::Err(EmbeddingError {
+            message: err.to_string(),
+        }),
+    };
+    result
+}
+
 
 #[ic_cdk::init]
 fn init() {
@@ -68,26 +88,4 @@ fn post_upgrade() {
     let wasi_memory = MEMORY_MANAGER.with(|m| m.borrow().get(WASI_MEMORY_ID));
     ic_wasi_polyfill::init_with_memory(&[0u8; 32], &[], wasi_memory);
     onnx::setup().unwrap();
-}
-
-const IMAGE: &'static [u8] = include_bytes!("../assets/man_on_ferrari_1975.png");
-
-/// Formats thousands for the specified `u64` integer (helper function).
-fn fmt(n: u64) -> String {
-    n.to_string()
-        .as_bytes()
-        .rchunks(3)
-        .rev()
-        .map(std::str::from_utf8)
-        .collect::<Result<Vec<&str>, _>>()
-        .unwrap()
-        .join("_")
-}
-
-#[ic_cdk::query]
-fn run() -> ClassificationResult {
-    let result = classify(IMAGE.into());
-    let instructions = ic_cdk::api::performance_counter(0);
-    ic_cdk::println!("Executed instructions: {}", fmt(instructions));
-    result
 }

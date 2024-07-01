@@ -20,32 +20,38 @@ async function classify(event) {
   loader.className = "loader";
 
   try {
-    const blob = await resize(img);
+    const [blob, scaling] = await resize(img);
     let result;
     if (document.getElementById("replicated").checked) {
-      result = await backend.classify(new Uint8Array(blob));
+      result = await backend.detect(new Uint8Array(blob));
     } else {
-      result = await backend.classify_query(new Uint8Array(blob));
+      result = await backend.detect_query(new Uint8Array(blob));
     }
     if (result.Ok) {
-      render(message, result.Ok);
+      let blob = await render(message, scaling, result.Ok);
+      result = await backend.embedding(new Uint8Array(blob));
+      if (result.Ok) {
+        message.innerText = "Embedding" + JSON.stringify(result.Ok);
+      } else {
+        throw JSON.stringify(result.Err);
+      }
     } else {
-      throw result.Err;
+      throw JSON.stringify(result.Err);
     }
   } catch (err) {
-    message.innerText = "Failed to classify image: " + JSON.stringify(err);
+    message.innerText = "Failed to detect face: " + err.toString();
   }
   loader.className = "loader invisible";
 
   return false;
 }
 
-// Resizes the given image to 224x224px and returns the resulting PNG blob.
+// Resizes the given image to 320x240px and returns the resulting PNG blob.
 async function resize(img) {
   const canvas = document.createElement("canvas");
-  canvas.width = 224;
-  canvas.height = 224;
-  let scale = Math.max(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight);
+  canvas.width = 320;
+  canvas.height = 240;
+  let scale = Math.min(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight);
   let width = img.naturalWidth * scale;
   let height = img.naturalHeight * scale;
   let x = canvas.width / 2 - width / 2;
@@ -54,8 +60,10 @@ async function resize(img) {
   if (ctx) {
     ctx.drawImage(img, x, y, width, height);
   }
+  const img2 = document.getElementById("image2");
+  img2.src = canvas.toDataURL();
   let bytes = await serialize(canvas);
-  return bytes;
+  return [bytes, {scale, x, y}];
 }
 
 // Serializes the given canvas into PNG image bytes.
@@ -64,19 +72,47 @@ function serialize(canvas) {
 }
 
 // Adds the classification results as a list to the given DOM element.
-function render(element, classification) {
-  element.innerText = "Results:";
-  let ul = document.createElement("ul");
-  for (let item of classification) {
-    let li = document.createElement("li");
-    let b = document.createElement("b");
-    b.innerText = item.label.toLowerCase();
-    let t = document.createTextNode("[score " + Math.round(item.score * 10) / 10 + "]");
-    li.appendChild(b);
-    li.appendChild(t);
-    ul.appendChild(li)
+async function render(element, scaling, box) {
+  const message = document.getElementById("message");
+  message.textContent = "";
+  const img = document.getElementById("image");
+  const pos = img.getBoundingClientRect();
+  const canvas = document.createElement("canvas");
+  const w = img.width;
+  const h = img.height;
+  canvas.width = w;
+  canvas.height = h;
+
+  box.left = Math.round((box.left * 320 - scaling.x) / scaling.scale);
+  box.right = Math.round((box.right * 320 - scaling.x) / scaling.scale);
+  box.top = Math.round((box.top * 240 - scaling.y) / scaling.scale);
+  box.bottom = Math.round((box.bottom * 240 - scaling.y) / scaling.scale);
+
+  // const canvas2 = document.createElement("canvas");
+  const canvas2 = document.getElementById("canvas123");
+  canvas2.width = 140;
+  canvas2.height = 140;
+  const ctx2 = canvas2.getContext("2d");
+  if (ctx2) {
+    ctx2.drawImage(img, box.left, box.top, box.right - box.left, box.bottom - box.top, 0, 0, 140, 140);
+    //ctx2.drawImage(img, box.left, box.top, 140, 140, 0, 0, 140, 140);
   }
-  element.appendChild(ul);
+  const img2 = document.getElementById("image2");
+  img2.src = canvas2.toDataURL();
+
+  // const ctx = canvas.getContext("2d");
+  // if (ctx) {
+  //   ctx.drawImage(img, 0, 0, w, h);
+  //   ctx.strokeStyle = "#0f3";
+  //   ctx.lineWidth = 5;
+  //   ctx.beginPath();
+  //   ctx.rect(box.left, box.top, box.right - box.left, box.bottom - box.top);
+  //   ctx.stroke();
+  // }
+  // img.src = canvas.toDataURL();
+  let bytes = await serialize(canvas2);
+
+  return bytes;
 }
 
 // This function is called when the user selects a new image file.

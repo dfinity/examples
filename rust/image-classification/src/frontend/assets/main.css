@@ -24,9 +24,10 @@ img {
 .image {
     margin-top: 10px;
     border: 1px solid #555;
-    width: 300px;
-    height: 300px;
-    object-fit: cover
+    max-width: 300px;
+    max-height: 300px;
+    width: auto;
+    height: auto;
 }
 
 .invisible {

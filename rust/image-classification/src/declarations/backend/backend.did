@@ -1,19 +1,35 @@
-type Classification = record {
-  label: text;
-  score: float32;
+type BoundingBox = record {
+  left: float32;
+  top: float32;
+  right: float32;
+  bottom: float32;
 };
 
-type ClassificationError = record {
+type Embedding = record {
+  v0: vec float32;
+};
+
+type DetectionError = record {
   message: text;
 };
 
-type ClassificationResult = variant {
-  Ok: vec Classification;
-  Err: ClassificationError;
-}
+type DetectionResult = variant {
+  Ok: BoundingBox;
+  Err: DetectionError;
+};
+
+type EmbeddingError = record {
+  message: text;
+};
+
+type EmbeddingResult = variant {
+  Ok: Embedding;
+  Err: EmbeddingError;
+};
+
 
 service : {
-    "classify": (image: blob) -> (ClassificationResult);
-    "classify_query": (image: blob) -> (ClassificationResult) query;
-    "run": () -> (ClassificationResult) query;
+    "detect": (image: blob) -> (DetectionResult);
+    "detect_query": (image: blob) -> (DetectionResult) query;
+    "embedding": (image: blob) -> (EmbeddingResult);
 }
