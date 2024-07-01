@@ -103,12 +103,10 @@ If you chose to download the ICRC-1 ledger files with the script, you need to re
 dfx start --background --clean
 ```
 
-### Step 5: Create a new identity that will work as a minting account:
+### Step 5: Use the anonymous identity as the minting account:
 
 ```bash
-dfx identity new minter --storage-mode plaintext
-dfx identity use minter
-export MINTER=$(dfx identity get-principal)
+export MINTER=$(dfx --identity anonymous identity get-principal)
 ```
 
 :::info 
@@ -117,10 +115,9 @@ Transfers from the minting account will create Mint transactions. Transfers to t
 
 :::
 
-### Step 6: Switch back to your default identity and record its principal to mint an initial balance to when deploying the ledger:
+### Step 6: Record your default identity's principal to mint an initial balance to when deploying the ledger:
 
 ```bash
-dfx identity use default
 export DEFAULT=$(dfx identity get-principal)
 ```
 
@@ -128,7 +125,7 @@ export DEFAULT=$(dfx identity get-principal)
 
 Take a moment to read the details of the call made below. Not only are you deploying an ICRC-1 ledger canister, you are also:
 
--   Setting the minting account to the principal you saved in a previous step (`MINTER`)
+-   Setting the minting account to the anonymous principal you saved in a previous step (`MINTER`)
 -   Minting 100 tokens to the DEFAULT principal
 -   Setting the transfer fee to 0.0001 tokens
 -   Naming the token Local ICRC1 / L-ICRC1
@@ -189,23 +186,16 @@ Replace the contents of the `src/token_transfer_backend/main.mo` file with the f
 import Icrc1Ledger "canister:icrc1_ledger_canister";
 import Debug "mo:base/Debug";
 import Result "mo:base/Result";
-import Option "mo:base/Option";
-import Blob "mo:base/Blob";
 import Error "mo:base/Error";
 
 actor {
 
-  type Account = {
-    owner : Principal;
-    subaccount : ?[Nat8];
-  };
-
   type TransferArgs = {
     amount : Nat;
-    toAccount : Account;
+    toAccount : Icrc1Ledger.Account;
   };
 
-  public shared ({ caller }) func transfer(args : TransferArgs) : async Result.Result<Icrc1Ledger.BlockIndex, Text> {
+  public shared func transfer(args : TransferArgs) : async Result.Result<Icrc1Ledger.BlockIndex, Text> {
     Debug.print(
       "Transferring "
       # debug_show (args.amount)
@@ -222,7 +212,7 @@ actor {
       from_subaccount = null;
       // if not specified, the default fee for the canister is used
       fee = null;
-      // we take the principal and subaccount from the arguments and convert them into an account identifier
+      // the account we want to transfer tokens to
       to = args.toAccount;
       // a timestamp indicating when the transaction was created by the caller; if it is not specified by the caller then this is set to the current ICP time
       created_at_time = null;
