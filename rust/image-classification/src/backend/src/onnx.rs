@@ -11,6 +11,7 @@ type Model = SimplePlan<TypedFact, Box<dyn TypedOp>, Graph<TypedFact, Box<dyn Ty
 thread_local! {
     static ULTRAFACE: RefCell<Option<Model>> = RefCell::new(None);
     static FACEREC: RefCell<Option<Model>> = RefCell::new(None);
+    static DB: RefCell<Vec<(String, Embedding)>> = RefCell::new(vec![]);
 }
 
 #[derive(CandidType, Deserialize, Clone)]
@@ -35,6 +36,18 @@ impl BoundingBox {
 #[derive(CandidType, Deserialize, Clone)]
 pub struct Embedding {
     v0: Vec<f32>,
+}
+
+impl Embedding {
+    fn distance(&self, other: &Self) -> f32 {
+        let result: f32 = self
+            .v0
+            .iter()
+            .zip(other.v0.iter())
+            .map(|(a, b)| (a - b) * (a - b))
+            .sum();
+        result.sqrt()
+    }
 }
 
 const ULTRAFACE_ONNX: &'static [u8] = include_bytes!("../assets/version-RFB-320.onnx");
@@ -141,5 +154,25 @@ pub fn embedding(image: Vec<u8>) -> Result<Embedding, anyhow::Error> {
             .collect();
 
         Ok(Embedding { v0 })
+    })
+}
+
+pub fn add(label: String, image: Vec<u8>) -> Result<Embedding, anyhow::Error> {
+    let emb = embedding(image)?;
+    DB.with_borrow_mut(|db| {
+        db.push((label, emb.clone()));
+    });
+    Ok(emb)
+}
+
+pub fn recognize(image: Vec<u8>) -> Result<(String, f32), anyhow::Error> {
+    let emb = embedding(image)?;
+    DB.with_borrow(|db| {
+        let emb = &emb;
+        let best = db
+            .iter()
+            .min_by(|a, b| f32::partial_cmp(&a.1.distance(emb), &b.1.distance(emb)).unwrap());
+        let best = best.ok_or(anyhow!("Face database is empty"))?.clone();
+        Ok((best.0, best.1.distance(emb)))
     })
 }

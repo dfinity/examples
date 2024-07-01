@@ -27,9 +27,25 @@ type EmbeddingResult = variant {
   Err: EmbeddingError;
 };
 
+type RecognizeError = record {
+  message: text;
+};
+
+type Recognize = record {
+  label: text;
+  score: float32;
+};
+
+type RecognizeResult = variant {
+  Ok: Recognize;
+  Err: RecognizeError;
+};
+
 
 service : {
     "detect": (image: blob) -> (DetectionResult);
     "detect_query": (image: blob) -> (DetectionResult) query;
     "embedding": (image: blob) -> (EmbeddingResult);
+    "add": (label: text, image: blob) -> (EmbeddingResult);
+    "recognize": (image: blob) -> (RecognizeResult);
 }

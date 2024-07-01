@@ -1,6 +1,7 @@
 import { backend } from "../../declarations/backend";
 
 document.getElementById("classify").onclick = classify;
+document.getElementById("add").onclick = add;
 document.getElementById("file").onchange = onImageChange;
 
 // Calls the backend to perform image classification.
@@ -8,6 +9,7 @@ async function classify(event) {
   event.preventDefault();
 
   const button = event.target;
+  const button2 = document.getElementById("add");
   const message = document.getElementById("message");
   const loader = document.getElementById("loader");
   const img = document.getElementById("image");
@@ -15,6 +17,8 @@ async function classify(event) {
 
   button.disabled = true;
   button.className = "clean-button invisible";
+  button2.disabled = true;
+  button2.className = "clean-button invisible";
   repl_option.className = "option invisible";
   message.innerText = "Computing...";
   loader.className = "loader";
@@ -29,7 +33,53 @@ async function classify(event) {
     }
     if (result.Ok) {
       let blob = await render(message, scaling, result.Ok);
-      result = await backend.embedding(new Uint8Array(blob));
+      result = await backend.recognize(new Uint8Array(blob));
+      if (result.Ok) {
+        message.innerText = JSON.stringify(result.Ok);
+      } else {
+        throw JSON.stringify(result.Err);
+      }
+    } else {
+      throw JSON.stringify(result.Err);
+    }
+  } catch (err) {
+    message.innerText = "Failed to detect face: " + err.toString();
+  }
+  loader.className = "loader invisible";
+
+  return false;
+}
+
+async function add(event) {
+  event.preventDefault();
+
+  const button = event.target;
+  const button2 = document.getElementById("classify");
+  const message = document.getElementById("message");
+  const loader = document.getElementById("loader");
+  const img = document.getElementById("image");
+  const repl_option = document.getElementById("replicated_option");
+  const label = document.getElementById("label");
+
+  button.disabled = true;
+  button.className = "clean-button invisible";
+  button2.disabled = true;
+  button2.className = "clean-button invisible";
+  repl_option.className = "option invisible";
+  message.innerText = "Computing...";
+  loader.className = "loader";
+
+  try {
+    const [blob, scaling] = await resize(img);
+    let result;
+    if (document.getElementById("replicated").checked) {
+      result = await backend.detect(new Uint8Array(blob));
+    } else {
+      result = await backend.detect_query(new Uint8Array(blob));
+    }
+    if (result.Ok) {
+      let blob = await render(message, scaling, result.Ok);
+      result = await backend.add(label.value, new Uint8Array(blob));
       if (result.Ok) {
         message.innerText = "Embedding" + JSON.stringify(result.Ok);
       } else {
@@ -45,6 +95,7 @@ async function classify(event) {
 
   return false;
 }
+
 
 // Resizes the given image to 320x240px and returns the resulting PNG blob.
 async function resize(img) {
@@ -63,7 +114,7 @@ async function resize(img) {
   const img2 = document.getElementById("image2");
   img2.src = canvas.toDataURL();
   let bytes = await serialize(canvas);
-  return [bytes, {scale, x, y}];
+  return [bytes, { scale, x, y }];
 }
 
 // Serializes the given canvas into PNG image bytes.
@@ -118,6 +169,7 @@ async function render(element, scaling, box) {
 // This function is called when the user selects a new image file.
 async function onImageChange(event) {
   const button = document.getElementById("classify");
+  const button2 = document.getElementById("add");
   const message = document.getElementById("message");
   const img = document.getElementById("image");
   const repl_option = document.getElementById("replicated_option");
@@ -132,6 +184,8 @@ async function onImageChange(event) {
   }
   button.disabled = false;
   button.className = "clean-button";
+  button2.disabled = false;
+  button2.className = "clean-button";
   message.innerText = "";
   repl_option.className = "option"
   return false;

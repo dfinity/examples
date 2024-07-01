@@ -40,6 +40,22 @@ enum EmbeddingResult {
     Err(EmbeddingError),
 }
 
+#[derive(CandidType, Deserialize)]
+struct RecognizeError {
+    message: String,
+}
+
+#[derive(CandidType, Deserialize)]
+struct Reconize {
+    label: String,
+    score: f32,
+}
+
+#[derive(CandidType, Deserialize)]
+enum RecognizeResult {
+    Ok(Reconize),
+    Err(RecognizeError),
+}
 
 #[ic_cdk::update]
 fn detect(image: Vec<u8>) -> DetectionResult {
@@ -75,6 +91,30 @@ fn embedding(image: Vec<u8>) -> EmbeddingResult {
     result
 }
 
+#[ic_cdk::update]
+fn add(label: String, image: Vec<u8>) -> EmbeddingResult {
+    let result = match onnx::add(label, image) {
+        Ok(result) => EmbeddingResult::Ok(result),
+        Err(err) => EmbeddingResult::Err(EmbeddingError {
+            message: err.to_string(),
+        }),
+    };
+    result
+}
+
+#[ic_cdk::update]
+fn recognize(image: Vec<u8>) -> RecognizeResult {
+    let result = match onnx::recognize(image) {
+        Ok(result) => RecognizeResult::Ok(Reconize {
+            label: result.0,
+            score: result.1,
+        }),
+        Err(err) => RecognizeResult::Err(RecognizeError {
+            message: err.to_string(),
+        }),
+    };
+    result
+}
 
 #[ic_cdk::init]
 fn init() {
