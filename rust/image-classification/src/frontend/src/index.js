@@ -1,204 +1,157 @@
 import { backend } from "../../declarations/backend";
 
-document.getElementById("classify").onclick = classify;
-document.getElementById("add").onclick = add;
-document.getElementById("file").onchange = onImageChange;
-
-// Calls the backend to perform image classification.
-async function classify(event) {
-  event.preventDefault();
-
-  const button = event.target;
-  const button2 = document.getElementById("add");
-  const message = document.getElementById("message");
-  const loader = document.getElementById("loader");
-  const img = document.getElementById("image");
-  const repl_option = document.getElementById("replicated_option");
-
-  button.disabled = true;
-  button.className = "clean-button invisible";
-  button2.disabled = true;
-  button2.className = "clean-button invisible";
-  repl_option.className = "option invisible";
-  message.innerText = "Computing...";
-  loader.className = "loader";
-
-  try {
-    const [blob, scaling] = await resize(img);
-    let result;
-    if (document.getElementById("replicated").checked) {
-      result = await backend.detect(new Uint8Array(blob));
-    } else {
-      result = await backend.detect_query(new Uint8Array(blob));
-    }
-    if (result.Ok) {
-      let blob = await render(message, scaling, result.Ok);
-      result = await backend.recognize(new Uint8Array(blob));
-      if (result.Ok) {
-        message.innerText = JSON.stringify(result.Ok);
-      } else {
-        throw JSON.stringify(result.Err);
-      }
-    } else {
-      throw JSON.stringify(result.Err);
-    }
-  } catch (err) {
-    message.innerText = "Failed to detect face: " + err.toString();
-  }
-  loader.className = "loader invisible";
-
-  return false;
+function elem(id) {
+  return document.getElementById(id);
 }
 
-async function add(event) {
-  event.preventDefault();
-
-  const button = event.target;
-  const button2 = document.getElementById("classify");
-  const message = document.getElementById("message");
-  const loader = document.getElementById("loader");
-  const img = document.getElementById("image");
-  const repl_option = document.getElementById("replicated_option");
-  const label = document.getElementById("label");
-
-  button.disabled = true;
-  button.className = "clean-button invisible";
-  button2.disabled = true;
-  button2.className = "clean-button invisible";
-  repl_option.className = "option invisible";
-  message.innerText = "Computing...";
-  loader.className = "loader";
-
-  try {
-    const [blob, scaling] = await resize(img);
-    let result;
-    if (document.getElementById("replicated").checked) {
-      result = await backend.detect(new Uint8Array(blob));
-    } else {
-      result = await backend.detect_query(new Uint8Array(blob));
-    }
-    if (result.Ok) {
-      let blob = await render(message, scaling, result.Ok);
-      result = await backend.add(label.value, new Uint8Array(blob));
-      if (result.Ok) {
-        message.innerText = "Embedding" + JSON.stringify(result.Ok);
-      } else {
-        throw JSON.stringify(result.Err);
-      }
-    } else {
-      throw JSON.stringify(result.Err);
-    }
-  } catch (err) {
-    message.innerText = "Failed to detect face: " + err.toString();
-  }
-  loader.className = "loader invisible";
-
-  return false;
+function show(id) {
+  elem(id).className = "";
 }
 
-
-// Resizes the given image to 320x240px and returns the resulting PNG blob.
-async function resize(img) {
-  const canvas = document.createElement("canvas");
-  canvas.width = 320;
-  canvas.height = 240;
-  let scale = Math.min(canvas.width / img.naturalWidth, canvas.height / img.naturalHeight);
-  let width = img.naturalWidth * scale;
-  let height = img.naturalHeight * scale;
-  let x = canvas.width / 2 - width / 2;
-  let y = canvas.height / 2 - height / 2;
-  const ctx = canvas.getContext("2d");
-  if (ctx) {
-    ctx.drawImage(img, x, y, width, height);
-  }
-  const img2 = document.getElementById("image2");
-  img2.src = canvas.toDataURL();
-  let bytes = await serialize(canvas);
-  return [bytes, { scale, x, y }];
+function hide(id) {
+  elem(id).className = "invisible";
 }
 
-// Serializes the given canvas into PNG image bytes.
+function message(m) {
+  elem("message").innerText = m;
+}
+
 function serialize(canvas) {
   return new Promise((resolve) => canvas.toBlob((blob) => blob.arrayBuffer().then(resolve), "image/png", 0.9));
 }
 
-// Adds the classification results as a list to the given DOM element.
-async function render(element, scaling, box) {
-  const message = document.getElementById("message");
-  message.textContent = "";
-  const img = document.getElementById("image");
-  const pos = img.getBoundingClientRect();
-  const canvas = document.createElement("canvas");
-  const w = img.width;
-  const h = img.height;
-  canvas.width = w;
-  canvas.height = h;
+window.onload = async () => {
+  elem("recognize").onclick = recognize;
+  elem("store").onclick = store;
+  navigator.mediaDevices
+    .getUserMedia({ video: true, audio: false })
+    .then((stream) => {
+      const video = elem("video");
+      video.srcObject = stream;
+      video.play();
+      hide("logo");
+      show("buttons");
+      show("video");
+    })
+    .catch((err) => {
+      console.error(`An error occurred: ${err}`);
+      message("Failed to start camera: " + err.toString());
+    });
+}
 
+async function capture_image() {
+  const video = elem("video");
+  const canvas = elem("canvas");
+  canvas.width = video.videoWidth;
+  canvas.height = video.videoHeight;
+  const context = canvas.getContext("2d");
+  context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+
+  const resized = document.createElement("canvas");
+  resized.width = 320;
+  resized.height = 240;
+  let scale = Math.min(resized.width / canvas.width, resized.height / canvas.height);
+  let width = canvas.width * scale;
+  let height = canvas.height * scale;
+  let x = resized.width / 2 - width / 2;
+  let y = resized.height / 2 - height / 2;
+  const ctx = resized.getContext("2d");
+  if (ctx) {
+    ctx.drawImage(canvas, x, y, width, height);
+  }
+  let bytes = await serialize(canvas);
+
+  video.srcObject.getTracks().forEach((track) => track.stop());
+
+  hide("video");
+  show("canvas")
+  return [bytes, { scale, x, y }];
+}
+
+async function render(scaling, box) {
   box.left = Math.round((box.left * 320 - scaling.x) / scaling.scale);
   box.right = Math.round((box.right * 320 - scaling.x) / scaling.scale);
   box.top = Math.round((box.top * 240 - scaling.y) / scaling.scale);
   box.bottom = Math.round((box.bottom * 240 - scaling.y) / scaling.scale);
 
-  // const canvas2 = document.createElement("canvas");
-  const canvas2 = document.getElementById("canvas123");
-  canvas2.width = 140;
-  canvas2.height = 140;
-  const ctx2 = canvas2.getContext("2d");
-  if (ctx2) {
-    ctx2.drawImage(img, box.left, box.top, box.right - box.left, box.bottom - box.top, 0, 0, 140, 140);
-    //ctx2.drawImage(img, box.left, box.top, 140, 140, 0, 0, 140, 140);
-  }
-  const img2 = document.getElementById("image2");
-  img2.src = canvas2.toDataURL();
+  const canvas = elem("canvas");
 
-  // const ctx = canvas.getContext("2d");
-  // if (ctx) {
-  //   ctx.drawImage(img, 0, 0, w, h);
-  //   ctx.strokeStyle = "#0f3";
-  //   ctx.lineWidth = 5;
-  //   ctx.beginPath();
-  //   ctx.rect(box.left, box.top, box.right - box.left, box.bottom - box.top);
-  //   ctx.stroke();
-  // }
-  // img.src = canvas.toDataURL();
-  let bytes = await serialize(canvas2);
+  const small = document.createElement("canvas");
+  small.width = 140;
+  small.height = 140;
+  const ctx2 = small.getContext("2d");
+  if (ctx2) {
+    ctx2.drawImage(canvas, box.left, box.top, box.right - box.left, box.bottom - box.top, 0, 0, 140, 140);
+  }
+  let bytes = await serialize(small);
+
+  const ctx = canvas.getContext("2d");
+  if (ctx) {
+    ctx.strokeStyle = "#0f3";
+    ctx.lineWidth = 5;
+    ctx.beginPath();
+    ctx.rect(box.left, box.top, box.right - box.left, box.bottom - box.top);
+    ctx.stroke();
+  }
 
   return bytes;
 }
 
-// This function is called when the user selects a new image file.
-async function onImageChange(event) {
-  const button = document.getElementById("classify");
-  const button2 = document.getElementById("add");
-  const message = document.getElementById("message");
-  const img = document.getElementById("image");
-  const repl_option = document.getElementById("replicated_option");
+async function recognize(event) {
+  event.preventDefault();
+  hide("buttons");
+  show("loader");
+  message("Detecting face..");
   try {
-    const file = event.target.files[0];
-    const url = await toDataURL(file);
-    img.src = url;
-    img.width = 600;
-    img.className = "image";
+    const [blob, scaling] = await capture_image();
+    let result;
+    result = await backend.detect_query(new Uint8Array(blob));
+    if (!result.Ok) {
+      throw JSON.stringify(result.Err);
+    }
+    let face = await render(scaling, result.Ok);
+    message("Face detected. Recognizing..");
+    result = await backend.recognize(new Uint8Array(face));
+    if (!result.Ok) {
+      throw JSON.stringify(result.Err);
+    }
+    message(`Recognized ${result.Ok.label} with score=${Math.round(result.Ok.score * 100) / 100}`);
   } catch (err) {
-    message.innerText = "Failed to select image: " + err.toString();
+    console.error(`An error occurred: ${err}`);
+    message("Failed to detect the face: " + err.toString());
   }
-  button.disabled = false;
-  button.className = "clean-button";
-  button2.disabled = false;
-  button2.className = "clean-button";
-  message.innerText = "";
-  repl_option.className = "option"
+  hide("loader");
   return false;
 }
 
-// Converts the given blob into a data url such that it can be assigned as a
-// target of a link of as an image source.
-function toDataURL(blob) {
-  return new Promise((resolve, _) => {
-    const fileReader = new FileReader();
-    fileReader.readAsDataURL(blob);
-    fileReader.onloadend = function () {
-      resolve(fileReader.result);
+async function store(event) {
+  event.preventDefault();
+  hide("buttons");
+  show("loader");
+  message("Detecting face..");
+  try {
+    const [blob, scaling] = await capture_image();
+    let result;
+    result = await backend.detect_query(new Uint8Array(blob));
+    if (!result.Ok) {
+      throw JSON.stringify(result.Err);
     }
-  });
+    let face = await render(scaling, result.Ok);
+    message("Face detected. Adding..");
+    let label = prompt("Enter name of the person");
+    if (!label) {
+      throw "cannot add without a name";
+    }
+    result = await backend.add(label, new Uint8Array(face));
+    if (!result.Ok) {
+      throw JSON.stringify(result.Err);
+    }
+    message(`Successfully added ${label}.`);
+  } catch (err) {
+    console.error(`An error occurred: ${err}`);
+    message("Failed to add the face: " + err.toString());
+  }
+
+  hide("loader");
+  return false;
 }

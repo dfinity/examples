@@ -2,6 +2,10 @@ body {
     font-family: monospace;
 }
 
+h1 {
+    font-size: x-large;
+}
+
 form {
     display: flex;
     justify-content: center;
@@ -16,12 +20,11 @@ div {
     align-items: baseline;
 }
 
-img {
-    max-width: 80vw;
-    border: 1px solid #555;
+#camera {
+    position: relative;
 }
 
-.image {
+#camera video {
     margin-top: 10px;
     border: 1px solid #555;
     max-width: 300px;
@@ -30,101 +33,22 @@ img {
     height: auto;
 }
 
+#camera canvas,
+#logo {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    margin-top: 10px;
+    border: 1px solid #555;
+    max-width: 300px;
+    max-height: 300px;
+    width: auto;
+    height: auto;
+}
+
+
 .invisible {
     visibility: hidden;
-}
-
-h1 {
-    font-size: 100%;
-}
-
-textarea {
-    margin-top: -20px;
-    max-width: 80vw;
-}
-
-.option {
-    display: flex;
-    flex-flow: row;
-    justify-content: left;
-    align-items: center;
-    margin-bottom: 20px;
-}
-
-.toggle-switch {
-    position: relative;
-    display: inline-block;
-    width: 42px;
-    height: 18px;
-}
-
-.toggle-switch input {
-    opacity: 0;
-    width: 0;
-    height: 0;
-}
-
-.slider {
-    position: absolute;
-    cursor: pointer;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: #ccc;
-    border-radius: 18px;
-}
-
-.slider:before {
-    position: absolute;
-    content: "";
-    height: 16px;
-    width: 16px;
-    left: 1px;
-    bottom: 1px;
-    background-color: white;
-    border-radius: 50%;
-}
-
-input:checked+.slider {
-    background-color: #b11dbb;
-}
-
-input:checked+.slider:before {
-    transform: translateX(24px);
-}
-
-input.file {
-    display: none;
-}
-
-.clickable {
-    cursor: pointer;
-}
-
-.clean-button {
-    display: inline-block;
-    padding: 5px 10px;
-    border: 2px solid #a10dab;
-    border-radius: 4px;
-    background-color: #b11dbb;
-    color: #fff;
-    cursor: pointer;
-    text-decoration: none;
-    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
-}
-
-.clean-button:disabled {
-    background-color: #ccc;
-    border-color: #ccc;
-}
-
-ul {
-    margin: 0px;
-}
-
-li {
-    margin-top: 10px;
 }
 
 @keyframes astrodance {
@@ -141,10 +65,11 @@ li {
     }
 }
 
-img.loader {
+#loader {
     width: 32px;
     display: block;
     left: 50%;
+    top: 50%;
     position: absolute;
     -webkit-user-select: none;
     user-select: none;
@@ -157,6 +82,34 @@ img.loader {
     padding-top: 30px;
 }
 
-#container {
+#toolbar {
+    position: relative;
     margin-top: 20px;
+}
+
+#buttons {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    display: flex;
+    flex-direction: row;
+    gap: 20px;
+    justify-content: center;
+    width: 300px;
+}
+
+#buttons button {
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    background-color: #eee;
+    cursor: pointer;
+}
+
+#buttons button:hover {
+    background-color: #fff;
+}
+
+#message {
+    font-size: larger;
 }

@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width" />
-  <title>ICP image classification</title>
+  <title>ICP face recognition</title>
   <base href="/" />
   <link rel="icon" href="favicon.ico" />
   <link type="text/css" rel="stylesheet" href="main.css" />
@@ -14,28 +14,24 @@
   <form>
     <div>
       <h1>ICP face recognition</h1>
-      <label id="filelabel" for="file" class="clickable">
-        <img id="image" class="image" src="logo_transparent.png"></img>
-        <img id="image2"></img>
-        <canvas id="canvas123" width="140" height="140" style="border:1px solid grey"></canvas>
-      </label>
-      <input id="file" class="file" name="file" type="file" accept="image/png, image/jpeg" />
-      <input id="label" type="text" />
-      <div id="container">
-        <div id="message"></div>
-        <div class="option invisible" id="replicated_option">
-          <label>
-            <div class="toggle-switch">
-              <input type="checkbox" id="replicated">
-              <span class="slider"></span>
-            </div>
-            &nbsp; replicated execution
-          </label>
+
+      <div>
+        <div id="camera">
+          <video id="video" class="invisible"></video>
+          <canvas id="canvas" class="invisible"></canvas>
+          <img id="logo" src="logo_transparent.png"></img>
+          <img id="loader" src="loader.svg" class="invisible" />
         </div>
-        <img id="loader" src="loader.svg" class="loader invisible" />
-        <button id="classify" class="clean-button invisible" disabled>Recognize!</button>
-        <button id="add" class="clean-button invisible" disabled>Add!</button>
       </div>
+
+      <div id="toolbar">
+        <div id="message"></div>
+        <div id="buttons" class="invisible">
+          <button id="recognize">🔍</button>
+          <button id="store">➕</button>
+        </div>
+      </div>
+
     </div>
   </form>
 </body>
