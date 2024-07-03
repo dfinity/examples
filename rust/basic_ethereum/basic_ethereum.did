@@ -1,3 +1,26 @@
-service : () -> {
+type InitArg = record {
+    // The canister will interact with this Ethereum network.
+    ethereum_network : EthereumNetwork;
+
+    // The name of the ECDSA key to use.
+    ecdsa_key_name : EcdsaKeyName;
+};
+type EthereumNetwork = variant {
+    // The public Ethereum mainnet.
+    Mainnet;
+    // The public Ethereum Sepolia testnet.
+    Sepolia;
+};
+
+type EcdsaKeyName = variant {
+    // For local development with `dfx`
+    TestKeyLocalDevelopment;
+    // For testing with the Internet Computer's test key.
+    TestKey1;
+    // For running the canister in a production environment using the Internet Computer's production key.
+    ProductionKey1;
+}
+
+service : (opt InitArg) -> {
     hello : () -> (text) query;
 }
