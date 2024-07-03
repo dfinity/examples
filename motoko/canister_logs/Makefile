@@ -41,6 +41,18 @@ test: install
 	dfx canister logs CanisterLogs \
 		| grep 'trap via update' && echo 'PASS'
 
+	# Test trap via replicated query call.
+	# Ignore failed dfx command output (so the test continues) and check the logs to contain the message.
+	- dfx canister call --update CanisterLogs trap_query 'trap via replicated query'
+	dfx canister logs CanisterLogs \
+		| grep 'trap via replicated query' && echo 'PASS'
+
+	# Test trap via non-replicated query call should NOT record the message.
+	# Ignore failed dfx command output (so the test continues) and check the logs to contain the message.
+	- dfx canister call --query CanisterLogs trap_query 'trap via non-replicated query'
+	! dfx canister logs CanisterLogs \
+		| grep 'trap via non-replicated query' && echo 'PASS'
+
 	# Test call to fail with memory out of bounds.
 	# Ignore failed dfx command output (so the test continues) and check the logs to contain the message.
 	- dfx canister call CanisterLogs memory_oob

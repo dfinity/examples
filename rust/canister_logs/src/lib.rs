@@ -36,6 +36,12 @@ fn trap(message: String) {
     ic_cdk::trap(&message);
 }
 
+#[query]
+fn trap_query(message: String) {
+    ic_cdk::print("right before trap_query");
+    ic_cdk::trap(&message);
+}
+
 #[update]
 fn panic(message: String) {
     ic_cdk::print("right before panic");

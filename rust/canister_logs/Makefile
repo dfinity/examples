@@ -41,6 +41,18 @@ test: install
 	dfx canister logs canister_logs \
 		| grep 'trap via update' && echo 'PASS'
 
+	# Test trap via replicated query call.
+	# Ignore failed dfx command output (so the test continues) and check the logs to contain the message.
+	- dfx canister call --update canister_logs trap_query 'trap via replicated query'
+	dfx canister logs canister_logs \
+		| grep 'trap via replicated query' && echo 'PASS'
+
+	# Test trap via non-replicated query call should NOT record the message.
+	# Ignore failed dfx command output (so the test continues) and check the logs to contain the message.
+	- dfx canister call --query canister_logs trap_query 'trap via non-replicated query'
+	! dfx canister logs canister_logs \
+		| grep 'trap via non-replicated query' && echo 'PASS'
+
 	# Test the call with panic is recorded in logs. 
 	# Ignore failed dfx command output (so the test continues) and check the logs to contain the message.
 	- dfx canister call canister_logs panic 'panic via update'
