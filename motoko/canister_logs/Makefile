@@ -35,12 +35,14 @@ test: install
 	! dfx canister logs CanisterLogs \
 		| grep 'print via non-replicated query' && echo 'PASS'
 
-	# Test trap, ignore failed call output.
+	# Test trapped call is recorded in logs. 
+	# Ignore failed call output (so the test continues) and check the logs to contain the message.
 	-dfx canister call CanisterLogs trap 'trap via update'
 	dfx canister logs CanisterLogs \
 		| grep 'trap via update' && echo 'PASS'
 
-	# Test memory_oob, ignore failed call output.
+	# Test call to fail with memory out of bounds.
+	# Ignore failed call output (so the test continues) and check the logs to contain the message.
 	-dfx canister call CanisterLogs memory_oob
 	dfx canister logs CanisterLogs \
 		| grep 'StableMemory range out of bounds' && echo 'PASS'
