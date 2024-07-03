@@ -1,0 +1,25 @@
+{
+  "canisters": {
+    "guards": {
+      "candid": "basic_ethereum.did",
+      "package": "basic_ethereum",
+      "type": "custom",
+      "build": [
+        "cargo build --target wasm32-unknown-unknown --release"
+      ],
+      "wasm": "target/wasm32-unknown-unknown/release/basic_ethereum.wasm",
+      "metadata": [
+        {
+          "name": "candid:service"
+        }
+      ]
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "version": 1
+}
