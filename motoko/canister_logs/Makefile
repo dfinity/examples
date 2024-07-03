@@ -20,9 +20,25 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
-	dfx canister call CanisterLogs print 'hi'
+	# Test print.
+	dfx canister call CanisterLogs print 'print_message'
 	dfx canister logs CanisterLogs \
-		| grep 'hi' && echo 'PASS'
+		| grep 'print_message' && echo 'PASS'
+
+	# Test trap, ignore failed call output.
+	-dfx canister call CanisterLogs trap 'trap_message'
+	dfx canister logs CanisterLogs \
+		| grep 'trap_message' && echo 'PASS'
+
+	# Test memory_oob, ignore failed call output.
+	-dfx canister call CanisterLogs memory_oob
+	dfx canister logs CanisterLogs \
+		| grep 'StableMemory range out of bounds' && echo 'PASS'
+
+	# Test timer trap, assume it's been 5 seconds since the start.
+	sleep 2
+	dfx canister logs CanisterLogs \
+		| grep 'timer trap' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean
