@@ -36,19 +36,21 @@ test: install
 		| grep 'print via non-replicated query' && echo 'PASS'
 
 	# Test trapped call is recorded in logs. 
-	# Ignore failed call output (so the test continues) and check the logs to contain the message.
-	-dfx canister call CanisterLogs trap 'trap via update'
+	# Ignore failed dfx command output (so the test continues) and check the logs to contain the message.
+	- dfx canister call CanisterLogs trap 'trap via update'
 	dfx canister logs CanisterLogs \
 		| grep 'trap via update' && echo 'PASS'
 
 	# Test call to fail with memory out of bounds.
-	# Ignore failed call output (so the test continues) and check the logs to contain the message.
-	-dfx canister call CanisterLogs memory_oob
+	# Ignore failed dfx command output (so the test continues) and check the logs to contain the message.
+	- dfx canister call CanisterLogs memory_oob
 	dfx canister logs CanisterLogs \
 		| grep 'StableMemory range out of bounds' && echo 'PASS'
 
-	# Test timer trap, assume it's been 5 seconds since the start.
-	sleep 2
+	# Test timer trap.
+	# The timer is setup to trap every 5 seconds, so this test has to be called 
+	# at least 5 seconds after the start to record the trap log message.
+	sleep 2  # This delay considers previous tests execution time.
 	dfx canister logs CanisterLogs \
 		| grep 'timer trap' && echo 'PASS'
 
