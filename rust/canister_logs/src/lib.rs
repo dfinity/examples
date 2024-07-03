@@ -1,4 +1,4 @@
-use ic_cdk::{init, post_upgrade, update};
+use ic_cdk::{init, post_upgrade, query, update};
 use std::time::Duration;
 
 const TIMER_INTERVAL_SEC: u64 = 5;
@@ -22,6 +22,11 @@ fn post_upgrade() {
 
 #[update]
 fn print(text: String) {
+    ic_cdk::print(text);
+}
+
+#[query]
+fn print_query(text: String) {
     ic_cdk::print(text);
 }
 
