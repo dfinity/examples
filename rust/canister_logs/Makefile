@@ -62,6 +62,7 @@ test: install
 	# Test timer trap.
 	# The timer is setup to trap every 5 seconds, so this test has to be called 
 	# at least 5 seconds after the start to record the trap log message.
+	sleep 5
 	dfx canister logs canister_logs \
 		| grep 'timer trap' && echo 'PASS'
 
