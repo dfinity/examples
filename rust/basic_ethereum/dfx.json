@@ -1,6 +1,6 @@
 {
   "canisters": {
-    "guards": {
+    "basic_ethereum": {
       "candid": "basic_ethereum.did",
       "package": "basic_ethereum",
       "type": "custom",

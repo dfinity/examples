@@ -1,2 +1,3 @@
 service : () -> {
+    hello : () -> (text) query;
 }
