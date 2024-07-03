@@ -29,6 +29,11 @@ window.onload = async () => {
   elem("store").onclick = store;
   elem("file").onchange = upload;
   elem("canvas").onclick = restart;
+  elem("video").oncanplay = () => {
+    show("video");
+    hide("image");
+    hide("canvas");
+  }
 
   navigator.mediaDevices
     .getUserMedia({ video: true, audio: false })
@@ -37,9 +42,6 @@ window.onload = async () => {
       video.srcObject = stream;
       video.play();
       show("buttons");
-      show("video");
-      hide("image");
-      hide("canvas");
     })
     .catch((err) => {
       show("image");
@@ -85,7 +87,7 @@ async function capture_image() {
   if (ctx) {
     ctx.drawImage(canvas, x, y, width, height);
   }
-  let bytes = await serialize(canvas);
+  let bytes = await serialize(resized);
 
   if (video.srcObject) {
     video.srcObject.getTracks().forEach((track) => track.stop());
@@ -146,7 +148,7 @@ async function recognize(event) {
     }
     let label = sanitize(result.Ok.label);
     let score = Math.round(result.Ok.score * 100) / 100;
-    message(`${label} with score=${score}`);
+    message(`${label}, score=${score}`);
   } catch (err) {
     console.error(`An error occurred: ${err}`);
     message(err.toString());
@@ -233,8 +235,5 @@ async function restart(event) {
       video.srcObject = stream;
       video.play();
       show("buttons");
-      show("video");
-      hide("image");
-      hide("canvas");
     });
 }

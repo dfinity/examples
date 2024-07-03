@@ -6,7 +6,7 @@ use std::cell::RefCell;
 use tract_ndarray::s;
 use tract_onnx::prelude::*;
 
-const THRESHOLD: f32 = 0.8;
+const THRESHOLD: f32 = 0.85;
 
 type Model = SimplePlan<TypedFact, Box<dyn TypedOp>, Graph<TypedFact, Box<dyn TypedOp>>>;
 

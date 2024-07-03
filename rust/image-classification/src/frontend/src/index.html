@@ -11,35 +11,31 @@
 </head>
 
 <body>
-  <form>
+  <div class="container">
+    <h1>ICP face recognition</h1>
     <div>
-      <h1>ICP face recognition</h1>
-
-      <div>
-        <label id="filelabel" for="file" class="clickable">
-          <div id="camera">
-            <img id="image" src="logo_transparent.png"></img>
-            <video id="video" class="invisible"></video>
-            <canvas id="canvas" class="invisible"></canvas>
-          </div>
-        </label>
-        <input id="file" class="file" name="file" type="file" accept="image/png, image/jpeg" />
-      </div>
-
-      <div>
-        <img id="loader" src="loader.svg" class="invisible" />
-      </div>
-
-      <div id="toolbar">
-        <div id="buttons" class="invisible">
-          <button id="recognize">🔍</button>
-          <button id="store">➕</button>
+      <label id="filelabel" for="file" class="clickable">
+        <div id="camera">
+          <img id="image" src="logo_transparent.png"></img>
+          <video playsinline id="video" class="invisible"></video>
+          <canvas id="canvas" class="invisible"></canvas>
         </div>
-        <div id="message">Test</div>
-      </div>
-
+      </label>
+      <input id="file" class="file" name="file" type="file" accept="image/png, image/jpeg" />
     </div>
-  </form>
+
+    <div>
+      <img id="loader" src="loader.svg" class="invisible" />
+    </div>
+
+    <div id="toolbar">
+      <div id="buttons" class="invisible">
+        <button id="recognize">🔍</button>
+        <button id="store">➕</button>
+      </div>
+      <div id="message"></div>
+    </div>
+  </div>
 </body>
 
 </html>

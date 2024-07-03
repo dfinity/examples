@@ -1,9 +1,10 @@
 body {
     font-family: monospace;
+    width: 100%;
 }
 
 h1 {
-    font-size: x-large;
+    font-size: larger;
 }
 
 form {
@@ -21,13 +22,9 @@ div {
 }
 
 #camera {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
     position: relative;
     margin-top: 10px;
-    height: 300px;
+    height: 250px;
     cursor: pointer;
 }
 
@@ -38,10 +35,10 @@ div {
     top: 0px;
     left: 0px;
     border: 1px solid #555;
-    max-width: 400px;
-    max-height: 400px;
+    max-width: 350px;
+    max-height: 350px;
     width: auto;
-    height: 300px;
+    height: 250px;
 }
 
 
@@ -64,9 +61,9 @@ div {
 }
 
 #loader {
-    width: 48px;
+    width: 32px;
     margin-top: -64px;
-    margin-left: 48px;
+    margin-left: 32px;
     display: block;
     -webkit-user-select: none;
     user-select: none;
@@ -80,7 +77,7 @@ div {
 
 #toolbar {
     position: relative;
-    margin-top: 10px;
+    margin-top: 30px;
 }
 
 #buttons {
@@ -109,10 +106,15 @@ div {
 }
 
 #message {
-    font-size: larger;
-    max-width: 300px;
+    max-width: 200px;
+    font-size: 120%;
 }
 
 input.file {
     display: none;
+}
+
+.container {
+    margin: 0 auto;
+    width: 350px;
 }
