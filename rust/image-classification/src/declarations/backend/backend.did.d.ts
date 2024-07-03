@@ -9,6 +9,7 @@ export type ClassificationResult = { 'Ok' : Array<Classification> } |
 export interface _SERVICE {
   'classify' : ActorMethod<[Uint8Array | number[]], ClassificationResult>,
   'classify_query' : ActorMethod<[Uint8Array | number[]], ClassificationResult>,
+  'run' : ActorMethod<[], ClassificationResult>,
 }
 export declare const idlFactory: IDL.InterfaceFactory;
 export declare const init: (args: { IDL: typeof IDL }) => IDL.Type[];

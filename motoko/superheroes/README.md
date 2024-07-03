@@ -23,7 +23,7 @@ Begin by opening a terminal window.
 ### Step 1: Navigate into the folder containing the project's files and start a local instance of the replica with the command:
 
 ```bash
-cd examples/motoko/superheros
+cd examples/motoko/superheroes
 dfx start --background
 ```
 

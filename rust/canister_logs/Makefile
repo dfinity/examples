@@ -20,27 +20,41 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
-	# Test print.
-	dfx canister call canister_logs print 'print_message'
+	# Test print via update call.
+	dfx canister call canister_logs print 'print via update'
 	dfx canister logs canister_logs \
-		| grep 'print_message' && echo 'PASS'
+		| grep 'print via update' && echo 'PASS'
 
-	# Test trap, ignore failed call output.
-	-dfx canister call canister_logs trap 'trap_message'
+	# Test print via replicated query call.
+	dfx canister call --update canister_logs print_query 'print via replicated query'
 	dfx canister logs canister_logs \
-		| grep 'trap_message' && echo 'PASS'
+		| grep 'print via replicated query' && echo 'PASS'
 
-	# Test panic, ignore failed call output.
-	-dfx canister call canister_logs panic 'panic_message'
+	# Test print via non-replicated query call should NOT record the message.
+	dfx canister call --query canister_logs print_query 'print via non-replicated query'
+	! dfx canister logs canister_logs \
+		| grep 'print via non-replicated query' && echo 'PASS'
+
+	# Test trapped call is recorded in logs. 
+	# Ignore failed call output (so the test continues) and check the logs to contain the message.
+	-dfx canister call canister_logs trap 'trap via update'
 	dfx canister logs canister_logs \
-		| grep 'panic_message' && echo 'PASS'
+		| grep 'trap via update' && echo 'PASS'
 
-	# Test memory_oob, ignore failed call output.
+	# Test the call with panic is recorded in logs. 
+	# Ignore failed call output (so the test continues) and check the logs to contain the message.
+	-dfx canister call canister_logs panic 'panic via update'
+	dfx canister logs canister_logs \
+		| grep 'panic via update' && echo 'PASS'
+
+	# Test call to fail with memory out of bounds.
+	# Ignore failed call output (so the test continues) and check the logs to contain the message.
 	-dfx canister call canister_logs memory_oob
 	dfx canister logs canister_logs \
 		| grep 'stable memory out of bounds' && echo 'PASS'
 
-	# Test failed_unwrap, ignore failed call output.
+	# Test call to fail with failed unwrap.
+	# Ignore failed call output (so the test continues) and check the logs to contain the message.
 	-dfx canister call canister_logs failed_unwrap
 	dfx canister logs canister_logs \
 		| grep 'Result::unwrap()' && echo 'PASS'

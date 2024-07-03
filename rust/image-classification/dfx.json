@@ -1,6 +1,11 @@
 {
   "canisters": {
     "backend": {
+      "metadata": [
+        {
+          "name": "candid:service"
+        }
+      ],
       "candid": "src/backend/backend.did",
       "package": "backend",
       "type": "custom",

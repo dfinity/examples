@@ -1,5 +1,6 @@
 service : {
     "print" : (text) -> ();
+    "print_query" : (text) -> () query;
     "trap" : (text) -> ();
     "panic" : (text) -> ();
     "memory_oob" : () -> ();

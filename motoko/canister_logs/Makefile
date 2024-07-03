@@ -20,17 +20,29 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
-	# Test print.
-	dfx canister call CanisterLogs print 'print_message'
+	# Test print via update call.
+	dfx canister call CanisterLogs print 'print via update'
 	dfx canister logs CanisterLogs \
-		| grep 'print_message' && echo 'PASS'
+		| grep 'print via update' && echo 'PASS'
 
-	# Test trap, ignore failed call output.
-	-dfx canister call CanisterLogs trap 'trap_message'
+	# Test print via replicated query call.
+	dfx canister call --update CanisterLogs print_query 'print via replicated query'
 	dfx canister logs CanisterLogs \
-		| grep 'trap_message' && echo 'PASS'
+		| grep 'print via replicated query' && echo 'PASS'
 
-	# Test memory_oob, ignore failed call output.
+	# Test print via non-replicated query call should NOT record the message.
+	dfx canister call --query CanisterLogs print_query 'print via non-replicated query'
+	! dfx canister logs CanisterLogs \
+		| grep 'print via non-replicated query' && echo 'PASS'
+
+	# Test trapped call is recorded in logs. 
+	# Ignore failed call output (so the test continues) and check the logs to contain the message.
+	-dfx canister call CanisterLogs trap 'trap via update'
+	dfx canister logs CanisterLogs \
+		| grep 'trap via update' && echo 'PASS'
+
+	# Test call to fail with memory out of bounds.
+	# Ignore failed call output (so the test continues) and check the logs to contain the message.
 	-dfx canister call CanisterLogs memory_oob
 	dfx canister logs CanisterLogs \
 		| grep 'StableMemory range out of bounds' && echo 'PASS'

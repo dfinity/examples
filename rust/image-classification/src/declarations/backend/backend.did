@@ -15,4 +15,5 @@ type ClassificationResult = variant {
 service : {
     "classify": (image: blob) -> (ClassificationResult);
     "classify_query": (image: blob) -> (ClassificationResult) query;
+    "run": () -> (ClassificationResult) query;
 }

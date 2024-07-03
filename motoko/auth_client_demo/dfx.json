@@ -26,24 +26,8 @@
         "src/auth_client_demo_assets/vanilla/dist"
       ],
       "type": "assets"
-    },
-    "svelte": {
-      "dependencies": [
-        "whoami",
-        "internet-identity"
-      ],
-      "source": [
-        "src/auth_client_demo_assets/svelte/build"
-      ],
-      "type": "assets"
-    }
-  },
-  "defaults": {
-    "build": {
-      "args": "",
-      "packtool": ""
     }
   },
   "output_env_file": ".env",
-  "version": 2
+  "version": 3
 }
