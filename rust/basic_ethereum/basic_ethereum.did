@@ -1,10 +1,11 @@
 type InitArg = record {
     // The canister will interact with this Ethereum network.
-    ethereum_network : EthereumNetwork;
+    ethereum_network : opt EthereumNetwork;
 
     // The name of the ECDSA key to use.
-    ecdsa_key_name : EcdsaKeyName;
+    ecdsa_key_name : opt EcdsaKeyName;
 };
+
 type EthereumNetwork = variant {
     // The public Ethereum mainnet.
     Mainnet;
@@ -22,5 +23,10 @@ type EcdsaKeyName = variant {
 }
 
 service : (opt InitArg) -> {
-    hello : () -> (text) query;
+    // Returns the Ethereum address to which the owner should send ETH
+    // before sending the amount to another address via the canister using the [send_eth]
+    // endpoint.
+    //
+    // If the owner is not set, it defaults to the caller's principal.
+    ethereum_address : (record { owner: opt principal}) -> (text);
 }

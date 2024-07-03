@@ -1,37 +1,53 @@
-use candid::{CandidType, Deserialize};
-use ic_cdk::api::management_canister::ecdsa::{EcdsaCurve, EcdsaKeyId};
-use ic_cdk::{init, query};
+use candid::{CandidType, Deserialize, Principal};
+use ic_cdk::api::management_canister::ecdsa::{EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyResponse};
+use ic_cdk::{init, query, update};
 use std::cell::RefCell;
+use std::ops::{Deref, DerefMut};
 
 thread_local! {
-    pub static STATE: RefCell<InitArg> = RefCell::default();
+    pub static STATE: RefCell<State> = RefCell::default();
 }
 
 #[init]
 pub fn init(maybe_init: Option<InitArg>) {
-    if let Some(InitArg {
-        ethereum_network,
-        ecdsa_key_name,
-    }) = maybe_init
-    {
+    if let Some(init_arg) = maybe_init {
         STATE.with(|state| {
-            *state.borrow_mut() = InitArg {
-                ethereum_network,
-                ecdsa_key_name,
-            };
+            *state.borrow_mut() = State::from(init_arg);
         });
     }
 }
 
-#[query]
-fn hello() -> String {
-    "Hello, world!".to_string()
+#[update]
+pub async fn ethereum_address(owner: Option<Principal>) -> String {
+    let caller = validate_caller_not_anonymous();
+    format!(
+        "{}:{:?}",
+        caller,
+        lazy_call_ecdsa_public_key().await.public_key
+    )
+}
+
+#[derive(Debug, Default, PartialEq, Eq)]
+pub struct State {
+    ethereum_network: EthereumNetwork,
+    ecdsa_key_name: EcdsaKeyName,
+    ecdsa_public_key: Option<EcdsaPublicKeyResponse>,
+}
+
+impl From<InitArg> for State {
+    fn from(init_arg: InitArg) -> Self {
+        State {
+            ethereum_network: init_arg.ethereum_network.unwrap_or_default(),
+            ecdsa_key_name: init_arg.ecdsa_key_name.unwrap_or_default(),
+            ..Default::default()
+        }
+    }
 }
 
 #[derive(CandidType, Deserialize, Debug, Default, PartialEq, Eq)]
 pub struct InitArg {
-    pub ethereum_network: EthereumNetwork,
-    pub ecdsa_key_name: EcdsaKeyName,
+    pub ethereum_network: Option<EthereumNetwork>,
+    pub ecdsa_key_name: Option<EcdsaKeyName>,
 }
 
 #[derive(CandidType, Deserialize, Debug, Default, PartialEq, Eq)]
@@ -50,7 +66,7 @@ impl EthereumNetwork {
     }
 }
 
-#[derive(CandidType, Deserialize, Debug, Default, PartialEq, Eq)]
+#[derive(CandidType, Deserialize, Debug, Default, PartialEq, Eq, Clone)]
 pub enum EcdsaKeyName {
     #[default]
     TestKeyLocalDevelopment,
@@ -70,4 +86,46 @@ impl From<EcdsaKeyName> for EcdsaKeyId {
             .to_string(),
         }
     }
+}
+
+pub fn read_state<R>(f: impl FnOnce(&State) -> R) -> R {
+    STATE.with(|s| f(s.borrow().deref()))
+}
+
+pub fn mutate_state<F, R>(f: F) -> R
+where
+    F: FnOnce(&mut State) -> R,
+{
+    STATE.with(|s| f(s.borrow_mut().deref_mut()))
+}
+
+async fn lazy_call_ecdsa_public_key() -> EcdsaPublicKeyResponse {
+    use ic_cdk::api::management_canister::ecdsa::{ecdsa_public_key, EcdsaPublicKeyArgument};
+
+    if let Some(ecdsa_pk_response) = read_state(|s| s.ecdsa_public_key.clone()) {
+        return ecdsa_pk_response;
+    }
+    let key_name = read_state(|s| s.ecdsa_key_name.clone());
+    let (response,) = ecdsa_public_key(EcdsaPublicKeyArgument {
+        canister_id: None,
+        derivation_path: vec![],
+        key_id: EcdsaKeyId::from(key_name),
+    })
+    .await
+    .unwrap_or_else(|(error_code, message)| {
+        ic_cdk::trap(&format!(
+            "failed to get canister's public key: {} (error code = {:?})",
+            message, error_code,
+        ))
+    });
+    mutate_state(|s| s.ecdsa_public_key = Some(response.clone()));
+    response
+}
+
+fn validate_caller_not_anonymous() -> Principal {
+    let principal = ic_cdk::caller();
+    if principal == Principal::anonymous() {
+        panic!("anonymous principal is not allowed");
+    }
+    principal
 }
