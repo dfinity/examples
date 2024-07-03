@@ -21,26 +21,31 @@ upgrade: build
 .SILENT: test
 test: install
 	# Test print via update call.
-	dfx canister call canister_logs print 'print via update call'
+	dfx canister call canister_logs print 'print via update'
 	dfx canister logs canister_logs \
-		| grep 'print via update call' && echo 'PASS'
+		| grep 'print via update' && echo 'PASS'
 
 	# Test print via replicated query call.
 	dfx canister call canister_logs print_query 'print via replicated query'
 	dfx canister logs canister_logs \
 		| grep 'print via replicated query' && echo 'PASS'
 
+	# Test print via non-replicated query call should NOT record the message.
+	dfx canister call --query canister_logs print_query 'print via non-replicated query'
+	! dfx canister logs canister_logs \
+		| grep 'print via non-replicated query' && echo 'PASS'
+
 	# Test trap, ignore failed call output.
-	-dfx canister call canister_logs trap 'trap_message'
+	-dfx canister call canister_logs trap 'trap via update'
 	dfx canister logs canister_logs \
-		| grep 'trap_message' && echo 'PASS'
+		| grep 'trap via update' && echo 'PASS'
 
 	# Test panic, ignore failed call output.
-	-dfx canister call canister_logs panic 'panic_message'
+	-dfx canister call canister_logs panic 'panic via update'
 	dfx canister logs canister_logs \
-		| grep 'panic_message' && echo 'PASS'
+		| grep 'panic via update' && echo 'PASS'
 
-	# Test memory_oob, ignore failed call output.
+	# # Test memory_oob, ignore failed call output.
 	-dfx canister call canister_logs memory_oob
 	dfx canister logs canister_logs \
 		| grep 'stable memory out of bounds' && echo 'PASS'
