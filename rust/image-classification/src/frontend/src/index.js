@@ -20,6 +20,10 @@ function serialize(canvas) {
   return new Promise((resolve) => canvas.toBlob((blob) => blob.arrayBuffer().then(resolve), "image/png", 0.9));
 }
 
+function sanitize(name) {
+  return name.match(/[\p{L}\p{N}\s_-]/gu).join('');
+}
+
 window.onload = async () => {
   elem("recognize").onclick = recognize;
   elem("store").onclick = store;
@@ -29,11 +33,12 @@ window.onload = async () => {
       const video = elem("video");
       video.srcObject = stream;
       video.play();
-      hide("logo");
+      const logo = elem("logo");
       show("buttons");
       show("video");
     })
     .catch((err) => {
+      const video = elem("video");
       console.error(`An error occurred: ${err}`);
       message("Failed to start camera: " + err.toString());
     });
@@ -115,7 +120,9 @@ async function recognize(event) {
     if (!result.Ok) {
       throw JSON.stringify(result.Err);
     }
-    message(`Recognized ${result.Ok.label} with score=${Math.round(result.Ok.score * 100) / 100}`);
+    let label = sanitize(result.Ok.label);
+    let score = Math.round(result.Ok.score * 100) / 100;
+    message(`Recognized ${label} with score=${score}`);
   } catch (err) {
     console.error(`An error occurred: ${err}`);
     message("Failed to detect the face: " + err.toString());
@@ -142,6 +149,8 @@ async function store(event) {
     if (!label) {
       throw "cannot add without a name";
     }
+    label = sanitize(label);
+    message(`Face detected. Adding ${label}..`);
     result = await backend.add(label, new Uint8Array(face));
     if (!result.Ok) {
       throw JSON.stringify(result.Err);

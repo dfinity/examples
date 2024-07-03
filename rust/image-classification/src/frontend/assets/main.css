@@ -21,29 +21,26 @@ div {
 }
 
 #camera {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
     position: relative;
-}
-
-#camera video {
     margin-top: 10px;
-    border: 1px solid #555;
-    max-width: 300px;
-    max-height: 300px;
-    width: auto;
-    height: auto;
+    height: 300px;
 }
 
+#camera video,
 #camera canvas,
-#logo {
+#camera img {
     position: absolute;
     top: 0px;
     left: 0px;
-    margin-top: 10px;
     border: 1px solid #555;
-    max-width: 300px;
-    max-height: 300px;
+    max-width: 400px;
+    max-height: 400px;
     width: auto;
-    height: auto;
+    height: 300px;
 }
 
 
@@ -66,11 +63,10 @@ div {
 }
 
 #loader {
-    width: 32px;
+    width: 48px;
+    margin-top: -64px;
+    margin-left: 48px;
     display: block;
-    left: 50%;
-    top: 50%;
-    position: absolute;
     -webkit-user-select: none;
     user-select: none;
     animation-name: astrodance;
@@ -79,12 +75,11 @@ div {
     animation-timing-function: ease-in-out;
     border: none;
     background-color: transparent;
-    padding-top: 30px;
 }
 
 #toolbar {
     position: relative;
-    margin-top: 20px;
+    margin-top: 10px;
 }
 
 #buttons {
@@ -93,9 +88,8 @@ div {
     left: 0px;
     display: flex;
     flex-direction: row;
-    gap: 20px;
+    gap: 10px;
     justify-content: center;
-    width: 300px;
 }
 
 #buttons button {
