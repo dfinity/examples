@@ -9,43 +9,32 @@ type Embedding = record {
   v0: vec float32;
 };
 
-type DetectionError = record {
-  message: text;
-};
-
-type DetectionResult = variant {
-  Ok: BoundingBox;
-  Err: DetectionError;
-};
-
-type EmbeddingError = record {
-  message: text;
-};
-
-type EmbeddingResult = variant {
-  Ok: Embedding;
-  Err: EmbeddingError;
-};
-
-type RecognizeError = record {
-  message: text;
-};
-
-type Recognize = record {
+type Person = record {
   label: text;
   score: float32;
 };
 
-type RecognizeResult = variant {
-  Ok: Recognize;
-  Err: RecognizeError;
+type Detection = variant {
+  Ok: BoundingBox;
+  Err: Error;
 };
 
+type Addition = variant {
+  Ok: Embedding;
+  Err: Error;
+};
+
+type Recognition = variant {
+  Ok: Person;
+  Err: Error;
+};
+
+type Error = record {
+  message: text;
+};
 
 service : {
-    "detect": (image: blob) -> (DetectionResult);
-    "detect_query": (image: blob) -> (DetectionResult) query;
-    "embedding": (image: blob) -> (EmbeddingResult);
-    "add": (label: text, image: blob) -> (EmbeddingResult);
-    "recognize": (image: blob) -> (RecognizeResult);
+    "detect": (image: blob) -> (Detection) query;
+    "recognize": (image: blob) -> (Recognition) query;
+    "add": (label: text, image: blob) -> (Addition);
 }

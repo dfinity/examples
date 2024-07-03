@@ -16,11 +16,14 @@
       <h1>ICP face recognition</h1>
 
       <div>
-        <div id="camera">
-          <img id="logo" src="logo_transparent.png"></img>
-          <video id="video" class="invisible"></video>
-          <canvas id="canvas" class="invisible"></canvas>
-        </div>
+        <label id="filelabel" for="file" class="clickable">
+          <div id="camera">
+            <img id="image" src="logo_transparent.png"></img>
+            <video id="video" class="invisible"></video>
+            <canvas id="canvas" class="invisible"></canvas>
+          </div>
+        </label>
+        <input id="file" class="file" name="file" type="file" accept="image/png, image/jpeg" />
       </div>
 
       <div>
@@ -28,11 +31,11 @@
       </div>
 
       <div id="toolbar">
-        <div id="message"></div>
         <div id="buttons" class="invisible">
           <button id="recognize">🔍</button>
           <button id="store">➕</button>
         </div>
+        <div id="message">Test</div>
       </div>
 
     </div>

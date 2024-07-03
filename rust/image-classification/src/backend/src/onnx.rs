@@ -6,6 +6,8 @@ use std::cell::RefCell;
 use tract_ndarray::s;
 use tract_onnx::prelude::*;
 
+const THRESHOLD: f32 = 0.8;
+
 type Model = SimplePlan<TypedFact, Box<dyn TypedOp>, Graph<TypedFact, Box<dyn TypedOp>>>;
 
 thread_local! {
@@ -50,6 +52,12 @@ impl Embedding {
     }
 }
 
+#[derive(CandidType, Deserialize)]
+pub struct Person {
+    label: String,
+    score: f32,
+}
+
 const ULTRAFACE_ONNX: &'static [u8] = include_bytes!("../assets/version-RFB-320.onnx");
 const FACEREC_ONNX: &'static [u8] = include_bytes!("../assets/facerec.onnx");
 
@@ -87,7 +95,6 @@ pub fn setup() -> TractResult<()> {
 /// Runs the model on the given image and returns top three labels.
 pub fn detect(image: Vec<u8>) -> Result<(BoundingBox, f32), anyhow::Error> {
     ULTRAFACE.with_borrow(|model| {
-        ic_cdk::api::print("started!");
         let model = model.as_ref().unwrap();
         let image = image::load_from_memory(&image)?.to_rgb8();
 
@@ -103,9 +110,7 @@ pub fn detect(image: Vec<u8>) -> Result<(BoundingBox, f32), anyhow::Error> {
             (image[(x as u32, y as u32)][c] as f32 / 255.0 - MEAN[c]) / STD[c]
         });
 
-        ic_cdk::api::print("before run!");
         let result = model.run(tvec!(Tensor::from(tensor).into()))?;
-        ic_cdk::api::print("after run!");
 
         let confidences = result[0]
             .to_array_view::<f32>()?
@@ -118,8 +123,6 @@ pub fn detect(image: Vec<u8>) -> Result<(BoundingBox, f32), anyhow::Error> {
         let boxes: Vec<_> = boxes.chunks(4).map(BoundingBox::new).collect();
 
         let boxes: Vec<_> = boxes.iter().zip(confidences.iter()).collect();
-
-        ic_cdk::api::print("almsot there!");
 
         let best = boxes
             .iter()
@@ -157,22 +160,27 @@ pub fn embedding(image: Vec<u8>) -> Result<Embedding, anyhow::Error> {
     })
 }
 
-pub fn add(label: String, image: Vec<u8>) -> Result<Embedding, anyhow::Error> {
-    let emb = embedding(image)?;
-    DB.with_borrow_mut(|db| {
-        db.push((label, emb.clone()));
-    });
-    Ok(emb)
-}
-
-pub fn recognize(image: Vec<u8>) -> Result<(String, f32), anyhow::Error> {
+pub fn recognize(image: Vec<u8>) -> Result<Person, anyhow::Error> {
     let emb = embedding(image)?;
     DB.with_borrow(|db| {
         let emb = &emb;
         let best = db
             .iter()
             .min_by(|a, b| f32::partial_cmp(&a.1.distance(emb), &b.1.distance(emb)).unwrap());
-        let best = best.ok_or(anyhow!("Face database is empty"))?.clone();
-        Ok((best.0, best.1.distance(emb)))
+        let best = best.ok_or(anyhow!("Unknown person"))?.clone();
+        let label = best.0;
+        let score = best.1.distance(emb);
+        if score > THRESHOLD {
+            return Err(anyhow!("Unknown person"));
+        }
+        Ok(Person { label, score })
     })
+}
+
+pub fn add(label: String, image: Vec<u8>) -> Result<Embedding, anyhow::Error> {
+    let emb = embedding(image)?;
+    DB.with_borrow_mut(|db| {
+        db.push((label, emb.clone()));
+    });
+    Ok(emb)
 }

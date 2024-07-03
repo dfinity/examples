@@ -28,11 +28,12 @@ div {
     position: relative;
     margin-top: 10px;
     height: 300px;
+    cursor: pointer;
 }
 
-#camera video,
-#camera canvas,
-#camera img {
+#camera>video,
+#camera>canvas,
+#camera>img {
     position: absolute;
     top: 0px;
     left: 0px;
@@ -92,18 +93,26 @@ div {
     justify-content: center;
 }
 
-#buttons button {
+#buttons button,
+#buttons label {
     padding: 5px 10px;
     border-radius: 4px;
     border: 1px solid #555;
     background-color: #eee;
+    font-size: larger;
     cursor: pointer;
 }
 
-#buttons button:hover {
+#buttons button:hover,
+#buttons label:hover {
     background-color: #fff;
 }
 
 #message {
     font-size: larger;
+    max-width: 300px;
+}
+
+input.file {
+    display: none;
 }

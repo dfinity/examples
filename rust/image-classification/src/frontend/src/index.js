@@ -27,37 +27,58 @@ function sanitize(name) {
 window.onload = async () => {
   elem("recognize").onclick = recognize;
   elem("store").onclick = store;
+  elem("file").onchange = upload;
+  elem("canvas").onclick = restart;
+
   navigator.mediaDevices
     .getUserMedia({ video: true, audio: false })
     .then((stream) => {
       const video = elem("video");
       video.srcObject = stream;
       video.play();
-      const logo = elem("logo");
       show("buttons");
       show("video");
+      hide("image");
+      hide("canvas");
     })
     .catch((err) => {
-      const video = elem("video");
+      show("image");
+      hide("buttons");
+      hide("video");
+      hide("canvas");
       console.error(`An error occurred: ${err}`);
-      message("Failed to start camera: " + err.toString());
+      message("Couldn't start camera, but you can upload photos.")
     });
 }
 
-async function capture_image() {
+function select_visible_element() {
   const video = elem("video");
+  const image = elem("image");
   const canvas = elem("canvas");
-  canvas.width = video.videoWidth;
-  canvas.height = video.videoHeight;
+  if (!video.className.includes("invisible")) {
+    return [video, video.videoWidth, video.videoHeight];
+  } else if (!image.className.includes("invisible")) {
+    return [image, image.width, image.height];
+  } else {
+    return [canvas, canvas.width, canvas.height];
+  }
+}
+
+async function capture_image() {
+  let [image, width, height] = select_visible_element();
+
+  const canvas = elem("canvas");
+  canvas.width = width
+  canvas.height = height;
   const context = canvas.getContext("2d");
-  context.drawImage(video, 0, 0, video.videoWidth, video.videoHeight);
+  context.drawImage(image, 0, 0, width, height);
 
   const resized = document.createElement("canvas");
   resized.width = 320;
   resized.height = 240;
   let scale = Math.min(resized.width / canvas.width, resized.height / canvas.height);
-  let width = canvas.width * scale;
-  let height = canvas.height * scale;
+  width = canvas.width * scale;
+  height = canvas.height * scale;
   let x = resized.width / 2 - width / 2;
   let y = resized.height / 2 - height / 2;
   const ctx = resized.getContext("2d");
@@ -66,9 +87,12 @@ async function capture_image() {
   }
   let bytes = await serialize(canvas);
 
-  video.srcObject.getTracks().forEach((track) => track.stop());
+  if (video.srcObject) {
+    video.srcObject.getTracks().forEach((track) => track.stop());
+  }
 
   hide("video");
+  hide("image");
   show("canvas")
   return [bytes, { scale, x, y }];
 }
@@ -110,22 +134,22 @@ async function recognize(event) {
   try {
     const [blob, scaling] = await capture_image();
     let result;
-    result = await backend.detect_query(new Uint8Array(blob));
+    result = await backend.detect(new Uint8Array(blob));
     if (!result.Ok) {
-      throw JSON.stringify(result.Err);
+      throw result.Err.message;
     }
     let face = await render(scaling, result.Ok);
     message("Face detected. Recognizing..");
     result = await backend.recognize(new Uint8Array(face));
     if (!result.Ok) {
-      throw JSON.stringify(result.Err);
+      throw result.Err.message;
     }
     let label = sanitize(result.Ok.label);
     let score = Math.round(result.Ok.score * 100) / 100;
-    message(`Recognized ${label} with score=${score}`);
+    message(`${label} with score=${score}`);
   } catch (err) {
     console.error(`An error occurred: ${err}`);
-    message("Failed to detect the face: " + err.toString());
+    message(err.toString());
   }
   hide("loader");
   return false;
@@ -139,9 +163,9 @@ async function store(event) {
   try {
     const [blob, scaling] = await capture_image();
     let result;
-    result = await backend.detect_query(new Uint8Array(blob));
+    result = await backend.detect(new Uint8Array(blob));
     if (!result.Ok) {
-      throw JSON.stringify(result.Err);
+      throw result.Err.message;
     }
     let face = await render(scaling, result.Ok);
     message("Face detected. Adding..");
@@ -153,7 +177,7 @@ async function store(event) {
     message(`Face detected. Adding ${label}..`);
     result = await backend.add(label, new Uint8Array(face));
     if (!result.Ok) {
-      throw JSON.stringify(result.Err);
+      throw result.Err.message;
     }
     message(`Successfully added ${label}.`);
   } catch (err) {
@@ -163,4 +187,54 @@ async function store(event) {
 
   hide("loader");
   return false;
+}
+
+async function upload(event) {
+  message("");
+  let image = elem("image");
+  try {
+    const file = event.target.files[0];
+    if (!file) {
+      return false;
+    }
+    const url = await toDataURL(file);
+    image.src = url;
+  } catch (err) {
+    message("Failed to select photo: " + err.toString());
+  }
+  hide("video");
+  hide("canvas");
+  show("image");
+  show("buttons");
+  return false;
+}
+
+// Converts the given blob into a data url such that it can be assigned as a
+// target of a link of as an image source.
+function toDataURL(blob) {
+  return new Promise((resolve, _) => {
+    const fileReader = new FileReader();
+    fileReader.readAsDataURL(blob);
+    fileReader.onloadend = function () {
+      resolve(fileReader.result);
+    }
+  });
+}
+
+async function restart(event) {
+  message("");
+  if (video.srcObject) {
+    event.preventDefault();
+  }
+  navigator.mediaDevices
+    .getUserMedia({ video: true, audio: false })
+    .then((stream) => {
+      const video = elem("video");
+      video.srcObject = stream;
+      video.play();
+      show("buttons");
+      show("video");
+      hide("image");
+      hide("canvas");
+    });
 }

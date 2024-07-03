@@ -3,7 +3,7 @@ use ic_stable_structures::{
     memory_manager::{MemoryId, MemoryManager},
     DefaultMemoryImpl,
 };
-use onnx::{BoundingBox, Embedding};
+use onnx::{BoundingBox, Embedding, Person};
 use std::cell::RefCell;
 
 mod onnx;
@@ -19,49 +19,33 @@ thread_local! {
 }
 
 #[derive(CandidType, Deserialize)]
-struct DetectionError {
+struct Error {
     message: String,
 }
 
 #[derive(CandidType, Deserialize)]
-enum DetectionResult {
+enum Detection {
     Ok(BoundingBox),
-    Err(DetectionError),
+    Err(Error),
 }
 
 #[derive(CandidType, Deserialize)]
-struct EmbeddingError {
-    message: String,
-}
-
-#[derive(CandidType, Deserialize)]
-enum EmbeddingResult {
+enum Addition {
     Ok(Embedding),
-    Err(EmbeddingError),
+    Err(Error),
 }
 
 #[derive(CandidType, Deserialize)]
-struct RecognizeError {
-    message: String,
+enum Recognition {
+    Ok(Person),
+    Err(Error),
 }
 
-#[derive(CandidType, Deserialize)]
-struct Reconize {
-    label: String,
-    score: f32,
-}
-
-#[derive(CandidType, Deserialize)]
-enum RecognizeResult {
-    Ok(Reconize),
-    Err(RecognizeError),
-}
-
-#[ic_cdk::update]
-fn detect(image: Vec<u8>) -> DetectionResult {
+#[ic_cdk::query]
+fn detect(image: Vec<u8>) -> Detection {
     let result = match onnx::detect(image) {
-        Ok(result) => DetectionResult::Ok(result.0),
-        Err(err) => DetectionResult::Err(DetectionError {
+        Ok(result) => Detection::Ok(result.0),
+        Err(err) => Detection::Err(Error {
             message: err.to_string(),
         }),
     };
@@ -69,47 +53,21 @@ fn detect(image: Vec<u8>) -> DetectionResult {
 }
 
 #[ic_cdk::query]
-fn detect_query(image: Vec<u8>) -> DetectionResult {
-    ic_cdk::api::print("query started");
-    let result = match onnx::detect(image) {
-        Ok(result) => DetectionResult::Ok(result.0),
-        Err(err) => DetectionResult::Err(DetectionError {
-            message: err.to_string(),
-        }),
-    };
-    result
-}
-
-#[ic_cdk::update]
-fn embedding(image: Vec<u8>) -> EmbeddingResult {
-    let result = match onnx::embedding(image) {
-        Ok(result) => EmbeddingResult::Ok(result),
-        Err(err) => EmbeddingResult::Err(EmbeddingError {
-            message: err.to_string(),
-        }),
-    };
-    result
-}
-
-#[ic_cdk::update]
-fn add(label: String, image: Vec<u8>) -> EmbeddingResult {
-    let result = match onnx::add(label, image) {
-        Ok(result) => EmbeddingResult::Ok(result),
-        Err(err) => EmbeddingResult::Err(EmbeddingError {
-            message: err.to_string(),
-        }),
-    };
-    result
-}
-
-#[ic_cdk::update]
-fn recognize(image: Vec<u8>) -> RecognizeResult {
+fn recognize(image: Vec<u8>) -> Recognition {
     let result = match onnx::recognize(image) {
-        Ok(result) => RecognizeResult::Ok(Reconize {
-            label: result.0,
-            score: result.1,
+        Ok(result) => Recognition::Ok(result),
+        Err(err) => Recognition::Err(Error {
+            message: err.to_string(),
         }),
-        Err(err) => RecognizeResult::Err(RecognizeError {
+    };
+    result
+}
+
+#[ic_cdk::update]
+fn add(label: String, image: Vec<u8>) -> Addition {
+    let result = match onnx::add(label, image) {
+        Ok(result) => Addition::Ok(result),
+        Err(err) => Addition::Err(Error {
             message: err.to_string(),
         }),
     };
