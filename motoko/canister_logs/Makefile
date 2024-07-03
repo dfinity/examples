@@ -21,19 +21,24 @@ upgrade: build
 .SILENT: test
 test: install
 	# Test print via update call.
-	dfx canister call CanisterLogs print 'print via update call'
+	dfx canister call CanisterLogs print 'print via update'
 	dfx canister logs CanisterLogs \
-		| grep 'print via update call' && echo 'PASS'
+		| grep 'print via update' && echo 'PASS'
 
 	# Test print via replicated query call.
-	dfx canister call CanisterLogs print_query 'print via replicated query'
+	dfx canister call --update CanisterLogs print_query 'print via replicated query'
 	dfx canister logs CanisterLogs \
 		| grep 'print via replicated query' && echo 'PASS'
 
+	# Test print via non-replicated query call should NOT record the message.
+	dfx canister call --query CanisterLogs print_query 'print via non-replicated query'
+	! dfx canister logs CanisterLogs \
+		| grep 'print via non-replicated query' && echo 'PASS'
+
 	# Test trap, ignore failed call output.
-	-dfx canister call CanisterLogs trap 'trap_message'
+	-dfx canister call CanisterLogs trap 'trap via update'
 	dfx canister logs CanisterLogs \
-		| grep 'trap_message' && echo 'PASS'
+		| grep 'trap via update' && echo 'PASS'
 
 	# Test memory_oob, ignore failed call output.
 	-dfx canister call CanisterLogs memory_oob

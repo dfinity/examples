@@ -26,7 +26,7 @@ test: install
 		| grep 'print via update' && echo 'PASS'
 
 	# Test print via replicated query call.
-	dfx canister call canister_logs print_query 'print via replicated query'
+	dfx canister call --update canister_logs print_query 'print via replicated query'
 	dfx canister logs canister_logs \
 		| grep 'print via replicated query' && echo 'PASS'
 
