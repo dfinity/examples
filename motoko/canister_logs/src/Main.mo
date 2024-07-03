@@ -24,6 +24,10 @@ actor CanisterLogs {
     Debug.print(text);
   };
 
+  public query func print_query(text : Text) : async () {
+    Debug.print(text);
+  };
+
   public func trap(text : Text) : async () {
     Debug.print("right before trap");
     Debug.trap(text);

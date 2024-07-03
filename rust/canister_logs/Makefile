@@ -20,10 +20,15 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
-	# Test print.
-	dfx canister call canister_logs print 'print_message'
+	# Test print via update call.
+	dfx canister call canister_logs print 'print via update call'
 	dfx canister logs canister_logs \
-		| grep 'print_message' && echo 'PASS'
+		| grep 'print via update call' && echo 'PASS'
+
+	# Test print via replicated query call.
+	dfx canister call canister_logs print_query 'print via replicated query'
+	dfx canister logs canister_logs \
+		| grep 'print via replicated query' && echo 'PASS'
 
 	# Test trap, ignore failed call output.
 	-dfx canister call canister_logs trap 'trap_message'
