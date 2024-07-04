@@ -28,5 +28,5 @@ service : (opt InitArg) -> {
     // endpoint.
     //
     // If the owner is not set, it defaults to the caller's principal.
-    ethereum_address : (record { owner: opt principal}) -> (text);
+    ethereum_address : (owner: opt principal) -> (text);
 }

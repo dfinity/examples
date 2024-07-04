@@ -1,6 +1,9 @@
 use candid::{CandidType, Deserialize, Principal};
 use ic_cdk::api::management_canister::ecdsa::{EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyResponse};
-use ic_cdk::{init, query, update};
+use ic_cdk::{init, update};
+use ic_crypto_ecdsa_secp256k1::PublicKey;
+use ic_ethereum_types::Address;
+use serde_bytes::ByteBuf;
 use std::cell::RefCell;
 use std::ops::{Deref, DerefMut};
 
@@ -20,18 +23,16 @@ pub fn init(maybe_init: Option<InitArg>) {
 #[update]
 pub async fn ethereum_address(owner: Option<Principal>) -> String {
     let caller = validate_caller_not_anonymous();
-    format!(
-        "{}:{:?}",
-        caller,
-        lazy_call_ecdsa_public_key().await.public_key
-    )
+    let owner = owner.unwrap_or(caller);
+    let address = Address::from(&lazy_call_ecdsa_public_key().await.derive(&owner));
+    address.to_string()
 }
 
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct State {
     ethereum_network: EthereumNetwork,
     ecdsa_key_name: EcdsaKeyName,
-    ecdsa_public_key: Option<EcdsaPublicKeyResponse>,
+    ecdsa_public_key: Option<EcdsaPublicKey>,
 }
 
 impl From<InitArg> for State {
@@ -99,11 +100,67 @@ where
     STATE.with(|s| f(s.borrow_mut().deref_mut()))
 }
 
-async fn lazy_call_ecdsa_public_key() -> EcdsaPublicKeyResponse {
+#[derive(Debug, Default, PartialEq, Eq, Clone)]
+struct EcdsaPublicKey {
+    public_key: Vec<u8>,
+    chain_code: Vec<u8>,
+}
+
+impl EcdsaPublicKey {
+    pub fn derive(&self, owner: &Principal) -> Self {
+        use ic_crypto_extended_bip32::{
+            DerivationIndex, DerivationPath, ExtendedBip32DerivationOutput,
+        };
+
+        let ExtendedBip32DerivationOutput {
+            derived_public_key,
+            derived_chain_code,
+        } = DerivationPath::new(
+            derivation_path(owner)
+                .into_iter()
+                .map(|x| DerivationIndex(x.into_vec()))
+                .collect(),
+        )
+        .public_key_derivation(&self.public_key, &self.chain_code)
+        .expect("BUG: failed to derive an ECDSA public key");
+        Self {
+            public_key: derived_public_key,
+            chain_code: derived_chain_code,
+        }
+    }
+}
+
+fn derivation_path(owner: &Principal) -> Vec<ByteBuf> {
+    const SCHEMA_V1: u8 = 1;
+    vec![
+        ByteBuf::from(vec![SCHEMA_V1]),
+        ByteBuf::from(owner.as_slice().to_vec()),
+    ]
+}
+
+impl From<EcdsaPublicKeyResponse> for EcdsaPublicKey {
+    fn from(value: EcdsaPublicKeyResponse) -> Self {
+        EcdsaPublicKey {
+            public_key: value.public_key,
+            chain_code: value.chain_code,
+        }
+    }
+}
+
+impl From<&EcdsaPublicKey> for Address {
+    fn from(value: &EcdsaPublicKey) -> Self {
+        let public_key = PublicKey::deserialize_sec1(&value.public_key).unwrap_or_else(|e| {
+            ic_cdk::trap(&format!("failed to decode minter's public key: {:?}", e))
+        });
+        ecdsa_public_key_to_address(&public_key)
+    }
+}
+
+async fn lazy_call_ecdsa_public_key() -> EcdsaPublicKey {
     use ic_cdk::api::management_canister::ecdsa::{ecdsa_public_key, EcdsaPublicKeyArgument};
 
-    if let Some(ecdsa_pk_response) = read_state(|s| s.ecdsa_public_key.clone()) {
-        return ecdsa_pk_response;
+    if let Some(ecdsa_pk) = read_state(|s| s.ecdsa_public_key.clone()) {
+        return ecdsa_pk;
     }
     let key_name = read_state(|s| s.ecdsa_key_name.clone());
     let (response,) = ecdsa_public_key(EcdsaPublicKeyArgument {
@@ -118,8 +175,22 @@ async fn lazy_call_ecdsa_public_key() -> EcdsaPublicKeyResponse {
             message, error_code,
         ))
     });
-    mutate_state(|s| s.ecdsa_public_key = Some(response.clone()));
-    response
+    let pk = EcdsaPublicKey::from(response);
+    mutate_state(|s| s.ecdsa_public_key = Some(pk.clone()));
+    pk
+}
+
+pub fn ecdsa_public_key_to_address(pubkey: &PublicKey) -> Address {
+    let key_bytes = pubkey.serialize_sec1(/*compressed=*/ false);
+    debug_assert_eq!(key_bytes[0], 0x04);
+    let hash = keccak(&key_bytes[1..]);
+    let mut addr = [0u8; 20];
+    addr[..].copy_from_slice(&hash[12..32]);
+    Address::new(addr)
+}
+
+fn keccak(bytes: &[u8]) -> [u8; 32] {
+    ic_crypto_sha3::Keccak256::hash(bytes)
 }
 
 fn validate_caller_not_anonymous() -> Principal {

@@ -5,7 +5,7 @@
       "package": "basic_ethereum",
       "type": "custom",
       "build": [
-        "cargo build --target wasm32-unknown-unknown --release"
+        "cargo build --no-default-features --target wasm32-unknown-unknown --release"
       ],
       "wasm": "target/wasm32-unknown-unknown/release/basic_ethereum.wasm",
       "metadata": [
