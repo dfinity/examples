@@ -1,4 +1,8 @@
-use candid::{CandidType, Deserialize, Principal};
+use candid::{CandidType, Deserialize, Nat, Principal};
+use evm_rpc_canister_types::{
+    BlockTag, EvmRpcCanister, GetTransactionCountArgs, GetTransactionCountResult,
+    MultiGetTransactionCountResult, RpcServices,
+};
 use ic_cdk::api::management_canister::ecdsa::{EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyResponse};
 use ic_cdk::{init, update};
 use ic_crypto_ecdsa_secp256k1::PublicKey;
@@ -6,6 +10,10 @@ use ic_ethereum_types::Address;
 use serde_bytes::ByteBuf;
 use std::cell::RefCell;
 use std::ops::{Deref, DerefMut};
+
+pub const CANISTER_ID: Principal =
+    Principal::from_slice(b"\x00\x00\x00\x00\x02\x30\x00\xCC\x01\x01"); // 7hfb6-caaaa-aaaar-qadga-cai
+pub const EVM_RPC: EvmRpcCanister = EvmRpcCanister(CANISTER_ID);
 
 thread_local! {
     pub static STATE: RefCell<State> = RefCell::default();
@@ -28,11 +36,52 @@ pub async fn ethereum_address(owner: Option<Principal>) -> String {
     address.to_string()
 }
 
+#[update]
+pub async fn transaction_count(owner: Option<Principal>, block: Option<BlockTag>) -> Nat {
+    let caller = validate_caller_not_anonymous();
+    let owner = owner.unwrap_or(caller);
+    let address = Address::from(&lazy_call_ecdsa_public_key().await.derive(&owner));
+    let rpc_services = read_state(|s| s.evm_rpc_services());
+    let args = GetTransactionCountArgs {
+        address: address.to_string(),
+        block: block.unwrap_or(BlockTag::Finalized),
+    };
+    let (result,) = EVM_RPC
+        .eth_get_transaction_count(rpc_services, None, args.clone(), 2_000_000_000_u128)
+        .await
+        .unwrap_or_else(|e| {
+            panic!(
+                "failed to get transaction count for {:?}, error: {:?}",
+                args, e
+            )
+        });
+    match result {
+        MultiGetTransactionCountResult::Consistent(consistent_result) => match consistent_result {
+            GetTransactionCountResult::Ok(count) => count,
+            GetTransactionCountResult::Err(error) => {
+                ic_cdk::trap(&format!("failed to get transaction count for {:?}, error: {:?}",args, error))
+            }
+        },
+        MultiGetTransactionCountResult::Inconsistent(inconsistent_results) => {
+            ic_cdk::trap(&format!("inconsistent results when retrieving transaction count for {:?}. Received results: {:?}", args, inconsistent_results))
+        }
+    }
+}
+
 #[derive(Debug, Default, PartialEq, Eq)]
 pub struct State {
     ethereum_network: EthereumNetwork,
     ecdsa_key_name: EcdsaKeyName,
     ecdsa_public_key: Option<EcdsaPublicKey>,
+}
+
+impl State {
+    pub fn evm_rpc_services(&self) -> RpcServices {
+        match self.ethereum_network {
+            EthereumNetwork::Mainnet => RpcServices::EthMainnet(None),
+            EthereumNetwork::Sepolia => RpcServices::EthSepolia(None),
+        }
+    }
 }
 
 impl From<InitArg> for State {
@@ -180,7 +229,7 @@ async fn lazy_call_ecdsa_public_key() -> EcdsaPublicKey {
     pk
 }
 
-pub fn ecdsa_public_key_to_address(pubkey: &PublicKey) -> Address {
+fn ecdsa_public_key_to_address(pubkey: &PublicKey) -> Address {
     let key_bytes = pubkey.serialize_sec1(/*compressed=*/ false);
     debug_assert_eq!(key_bytes[0], 0x04);
     let hash = keccak(&key_bytes[1..]);

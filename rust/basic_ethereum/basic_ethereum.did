@@ -20,7 +20,16 @@ type EcdsaKeyName = variant {
     TestKey1;
     // For running the canister in a production environment using the Internet Computer's production key.
     ProductionKey1;
-}
+};
+
+type BlockTag = variant {
+    Earliest;
+    Safe;
+    Finalized;
+    Latest;
+    Number : nat;
+    Pending;
+};
 
 service : (opt InitArg) -> {
     // Returns the Ethereum address to which the owner should send ETH
@@ -29,4 +38,9 @@ service : (opt InitArg) -> {
     //
     // If the owner is not set, it defaults to the caller's principal.
     ethereum_address : (owner: opt principal) -> (text);
+
+    // Returns the transaction count for the Ethereum address derived for the given principal.
+    //
+    // If the owner is not set, it defaults to the caller's principal.
+    transaction_count : (owner: opt principal, block_height: opt BlockTag) -> (nat);
 }

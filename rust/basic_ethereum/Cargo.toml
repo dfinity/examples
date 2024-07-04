@@ -8,6 +8,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 candid = "0.10"
+evm-rpc-canister-types = "0.1.2"
 # transitive dependency: ic-crypto-ecdsa-secp256k1 -> k256 -> ecdsa -> elliptic-curve -> crypto-bigint -> rand_core -> getrandom
 # See https://forum.dfinity.org/t/module-imports-function-wbindgen-describe-from-wbindgen-placeholder-that-is-not-exported-by-the-runtime/11545/8
 getrandom = { version = "*", default-features = false, features = ["custom"] }
