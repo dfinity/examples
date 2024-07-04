@@ -2,6 +2,7 @@ service : {
     "print" : (text) -> ();
     "print_query" : (text) -> () query;
     "trap" : (text) -> ();
+    "trap_query" : (text) -> () query;
     "panic" : (text) -> ();
     "memory_oob" : () -> ();
     "failed_unwrap" : () -> ();
