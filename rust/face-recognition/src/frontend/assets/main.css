@@ -1,0 +1,120 @@
+body {
+    font-family: monospace;
+    width: 100%;
+}
+
+h1 {
+    font-size: larger;
+}
+
+form {
+    display: flex;
+    justify-content: center;
+    max-width: 80vw;
+    margin: auto;
+}
+
+div {
+    display: flex;
+    max-width: 80vw;
+    flex-flow: column;
+    align-items: baseline;
+}
+
+#camera {
+    position: relative;
+    margin-top: 10px;
+    height: 250px;
+    cursor: pointer;
+}
+
+#camera>video,
+#camera>canvas,
+#camera>img {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    border: 1px solid #555;
+    max-width: 350px;
+    max-height: 350px;
+    width: auto;
+    height: 250px;
+}
+
+
+.invisible {
+    visibility: hidden;
+}
+
+@keyframes astrodance {
+    0% {
+        transform: translate(-50%, -50%) rotate(-20deg)
+    }
+
+    50% {
+        transform: translate(-50%, -50%) rotate(10deg)
+    }
+
+    to {
+        transform: translate(-50%, -50%) rotate(-20deg)
+    }
+}
+
+#loader {
+    width: 32px;
+    margin-top: -64px;
+    margin-left: 32px;
+    display: block;
+    -webkit-user-select: none;
+    user-select: none;
+    animation-name: astrodance;
+    animation-duration: 5s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+    border: none;
+    background-color: transparent;
+}
+
+#toolbar {
+    position: relative;
+    margin-top: 30px;
+}
+
+#buttons {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
+}
+
+#buttons button,
+#buttons label {
+    padding: 5px 10px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    background-color: #eee;
+    font-size: larger;
+    cursor: pointer;
+}
+
+#buttons button:hover,
+#buttons label:hover {
+    background-color: #fff;
+}
+
+#message {
+    max-width: 200px;
+    font-size: 120%;
+}
+
+input.file {
+    display: none;
+}
+
+.container {
+    margin: 0 auto;
+    width: 350px;
+}
