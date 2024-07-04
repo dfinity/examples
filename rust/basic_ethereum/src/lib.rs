@@ -2,8 +2,8 @@ use alloy_consensus::{SignableTransaction, TxEip1559, TxEnvelope};
 use alloy_primitives::{hex, Signature, TxKind, U256};
 use candid::{CandidType, Deserialize, Nat, Principal};
 use evm_rpc_canister_types::{
-    BlockTag, EvmRpcCanister, GetTransactionCountArgs, GetTransactionCountResult,
-    MultiGetTransactionCountResult, RpcServices,
+    BlockTag, EthMainnetService, EthSepoliaService, EvmRpcCanister, GetTransactionCountArgs,
+    GetTransactionCountResult, MultiGetTransactionCountResult, RpcServices,
 };
 use ic_cdk::api::management_canister::ecdsa::{
     EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyResponse, SignWithEcdsaArgument,
@@ -109,7 +109,6 @@ pub async fn send_eth(to: String, amount: Nat) -> String {
             .expect("Transaction hash does not fit 32 bytes"),
     )
     .await;
-
     let recid = compute_recovery_id(&tx_hash, &caller, &raw_sig).await;
     if recid.is_x_reduced() {
         ic_cdk::trap("BUG: affine x-coordinate of r is reduced which is so unlikely to happen that it's probably a bug");
@@ -117,12 +116,44 @@ pub async fn send_eth(to: String, amount: Nat) -> String {
     let signature = Signature::from_bytes_and_parity(&raw_sig, recid.is_y_odd())
         .expect("BUG: failed to create a signature");
     let signed_tx = transaction.into_signed(signature);
-    ic_cdk::println!("Sending transaction {}", signed_tx.hash());
 
+    let raw_transaction_hash = signed_tx.hash().clone();
     let mut tx_bytes: Vec<u8> = vec![];
     TxEnvelope::from(signed_tx).encode_2718(&mut tx_bytes);
+    let raw_transaction_hex = format!("0x{}", hex::encode(&tx_bytes));
+    ic_cdk::println!(
+        "Sending raw transaction hex {} with transaction hash {}",
+        raw_transaction_hex,
+        raw_transaction_hash
+    );
+    // The canister is sending a signed statement, meaning a malicious provider could only affect availability.
+    // For demonstration purposes, the canister uses a single provider to send the signed transaction,
+    // but in production multiple providers (e.g., using round-robin strategy) should be used to avoid a single point of failure.
+    let single_rpc_service = read_state(|s| s.single_evm_rpc_service());
+    let (result,) = EVM_RPC
+        .eth_send_raw_transaction(
+            single_rpc_service,
+            None,
+            raw_transaction_hex.clone(),
+            2_000_000_000_u128,
+        )
+        .await
+        .unwrap_or_else(|e| {
+            panic!(
+                "failed to send raw transaction {}, error: {:?}",
+                raw_transaction_hex, e
+            )
+        });
+    ic_cdk::println!(
+        "Result of sending raw transaction {}: {:?}. \
+    Due to the replicated nature of HTTPs outcalls an error there is the most likely outcome. \
+    Check whether the transaction appears on Etherscan or check that the transaction count on \
+    that address as latest block height did increase.",
+        raw_transaction_hex,
+        result
+    );
 
-    format!("{:?}", hex::encode(&tx_bytes))
+    raw_transaction_hash.to_string()
 }
 
 #[derive(Debug, Default, PartialEq, Eq)]
@@ -137,6 +168,17 @@ impl State {
         match self.ethereum_network {
             EthereumNetwork::Mainnet => RpcServices::EthMainnet(None),
             EthereumNetwork::Sepolia => RpcServices::EthSepolia(None),
+        }
+    }
+
+    pub fn single_evm_rpc_service(&self) -> RpcServices {
+        match self.ethereum_network {
+            EthereumNetwork::Mainnet => {
+                RpcServices::EthMainnet(Some(vec![EthMainnetService::Ankr]))
+            }
+            EthereumNetwork::Sepolia => {
+                RpcServices::EthSepolia(Some(vec![EthSepoliaService::Ankr]))
+            }
         }
     }
 }
