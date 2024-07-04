@@ -43,4 +43,6 @@ service : (opt InitArg) -> {
     //
     // If the owner is not set, it defaults to the caller's principal.
     transaction_count : (owner: opt principal, block_height: opt BlockTag) -> (nat);
+
+    send_eth : (to: text, amount: nat) -> (text);
 }

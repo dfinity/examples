@@ -1,15 +1,20 @@
+use alloy_consensus::{SignableTransaction, TxEip1559, TxEnvelope};
+use alloy_primitives::{hex, Signature, TxKind, U256};
 use candid::{CandidType, Deserialize, Nat, Principal};
 use evm_rpc_canister_types::{
     BlockTag, EvmRpcCanister, GetTransactionCountArgs, GetTransactionCountResult,
     MultiGetTransactionCountResult, RpcServices,
 };
-use ic_cdk::api::management_canister::ecdsa::{EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyResponse};
+use ic_cdk::api::management_canister::ecdsa::{
+    EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyResponse, SignWithEcdsaArgument,
+};
 use ic_cdk::{init, update};
-use ic_crypto_ecdsa_secp256k1::PublicKey;
+use ic_crypto_ecdsa_secp256k1::{PublicKey, RecoveryId};
 use ic_ethereum_types::Address;
 use serde_bytes::ByteBuf;
 use std::cell::RefCell;
 use std::ops::{Deref, DerefMut};
+use std::str::FromStr;
 
 pub const CANISTER_ID: Principal =
     Principal::from_slice(b"\x00\x00\x00\x00\x02\x30\x00\xCC\x01\x01"); // 7hfb6-caaaa-aaaar-qadga-cai
@@ -66,6 +71,58 @@ pub async fn transaction_count(owner: Option<Principal>, block: Option<BlockTag>
             ic_cdk::trap(&format!("inconsistent results when retrieving transaction count for {:?}. Received results: {:?}", args, inconsistent_results))
         }
     }
+}
+
+#[update]
+pub async fn send_eth(to: String, amount: Nat) -> String {
+    use alloy_eips::eip2718::Encodable2718;
+
+    let caller = validate_caller_not_anonymous();
+    let _to_address = Address::from_str(&to).unwrap_or_else(|e| {
+        ic_cdk::trap(&format!("failed to parse the recipient address: {:?}", e))
+    });
+    let chain_id = read_state(|s| s.ethereum_network.chain_id());
+    let nonce = nat_to_u64(transaction_count(Some(caller), Some(BlockTag::Latest)).await);
+
+    let transaction = TxEip1559 {
+        chain_id,
+        nonce,
+        gas_limit: 21_000,
+        max_fee_per_gas: 50_000_000_000,
+        max_priority_fee_per_gas: 1_500_000_000,
+        to: TxKind::Call(to.parse().expect("failed to parse recipient address")),
+        value: nat_to_u256(amount),
+        access_list: Default::default(),
+        input: Default::default(),
+    };
+
+    let tx_hash = transaction.signature_hash().0;
+    let derivation_path = derivation_path(&caller)
+        .iter()
+        .map(|x| x.to_vec())
+        .collect();
+    let raw_sig = sign_with_ecdsa(
+        read_state(|s| s.ecdsa_key_name.clone()),
+        derivation_path,
+        tx_hash
+            .try_into()
+            .expect("Transaction hash does not fit 32 bytes"),
+    )
+    .await;
+
+    let recid = compute_recovery_id(&tx_hash, &caller, &raw_sig).await;
+    if recid.is_x_reduced() {
+        ic_cdk::trap("BUG: affine x-coordinate of r is reduced which is so unlikely to happen that it's probably a bug");
+    }
+    let signature = Signature::from_bytes_and_parity(&raw_sig, recid.is_y_odd())
+        .expect("BUG: failed to create a signature");
+    let signed_tx = transaction.into_signed(signature);
+    ic_cdk::println!("Sending transaction {}", signed_tx.hash());
+
+    let mut tx_bytes: Vec<u8> = vec![];
+    TxEnvelope::from(signed_tx).encode_2718(&mut tx_bytes);
+
+    format!("{:?}", hex::encode(&tx_bytes))
 }
 
 #[derive(Debug, Default, PartialEq, Eq)]
@@ -238,6 +295,57 @@ fn ecdsa_public_key_to_address(pubkey: &PublicKey) -> Address {
     Address::new(addr)
 }
 
+/// Signs a message hash using the tECDSA API.
+pub async fn sign_with_ecdsa(
+    key_name: EcdsaKeyName,
+    derivation_path: Vec<Vec<u8>>,
+    message_hash: [u8; 32],
+) -> [u8; 64] {
+    let (result,) =
+        ic_cdk::api::management_canister::ecdsa::sign_with_ecdsa(SignWithEcdsaArgument {
+            message_hash: message_hash.to_vec(),
+            derivation_path,
+            key_id: EcdsaKeyId::from(key_name),
+        })
+        .await
+        .expect("failed to sign with ecdsa");
+
+    let signature_length = result.signature.len();
+    <[u8; 64]>::try_from(result.signature).unwrap_or_else(|_| {
+        panic!(
+            "BUG: invalid signature from management canister. Expected 64 bytes but got {} bytes",
+            signature_length
+        )
+    })
+}
+
+async fn compute_recovery_id(digest: &[u8; 32], owner: &Principal, signature: &[u8]) -> RecoveryId {
+    let ecdsa_public_key = lazy_call_ecdsa_public_key().await.derive(owner);
+    let ecdsa_public_key = PublicKey::deserialize_sec1(&ecdsa_public_key.public_key)
+        .unwrap_or_else(|e| {
+            ic_cdk::trap(&format!("failed to decode minter's public key: {:?}", e))
+        });
+
+    assert!(
+        ecdsa_public_key.verify_signature_prehashed(digest, signature),
+        "failed to verify signature prehashed, digest: {:?}, signature: {:?}, public_key: {:?}",
+        hex::encode(digest),
+        hex::encode(signature),
+        hex::encode(ecdsa_public_key.serialize_sec1(true)),
+    );
+    ecdsa_public_key
+        .try_recovery_from_digest(digest, signature)
+        .unwrap_or_else(|e| {
+            panic!(
+                "BUG: failed to recover public key {:?} from digest {:?} and signature {:?}: {:?}",
+                hex::encode(ecdsa_public_key.serialize_sec1(true)),
+                hex::encode(digest),
+                hex::encode(signature),
+                e
+            )
+        })
+}
+
 fn keccak(bytes: &[u8]) -> [u8; 32] {
     ic_crypto_sha3::Keccak256::hash(bytes)
 }
@@ -248,4 +356,23 @@ fn validate_caller_not_anonymous() -> Principal {
         panic!("anonymous principal is not allowed");
     }
     principal
+}
+
+fn nat_to_u64(nat: Nat) -> u64 {
+    use num_traits::cast::ToPrimitive;
+    nat.0
+        .to_u64()
+        .unwrap_or_else(|| ic_cdk::trap(&format!("Nat {} doesn't fit into a u64", nat)))
+}
+
+fn nat_to_u256(value: Nat) -> U256 {
+    let value_bytes = value.0.to_bytes_be();
+    assert!(
+        value_bytes.len() <= 32,
+        "Nat does not fit in a U256: {}",
+        value
+    );
+    let mut value_u256 = [0u8; 32];
+    value_u256[32 - value_bytes.len()..].copy_from_slice(&value_bytes);
+    U256::from_be_bytes(value_u256)
 }
