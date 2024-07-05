@@ -1,3 +1,6 @@
+mod ethereum_wallet;
+
+use crate::ethereum_wallet::EthereumWallet;
 use alloy_consensus::{SignableTransaction, TxEip1559, TxEnvelope};
 use alloy_primitives::{hex, Signature, TxKind, U256};
 use candid::{CandidType, Deserialize, Nat, Principal};
@@ -5,13 +8,10 @@ use evm_rpc_canister_types::{
     BlockTag, EthMainnetService, EthSepoliaService, EvmRpcCanister, GetTransactionCountArgs,
     GetTransactionCountResult, MultiGetTransactionCountResult, RpcServices,
 };
-use ic_cdk::api::management_canister::ecdsa::{
-    EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyResponse, SignWithEcdsaArgument,
-};
+use ic_cdk::api::management_canister::ecdsa::{EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyResponse};
 use ic_cdk::{init, update};
-use ic_crypto_ecdsa_secp256k1::{PublicKey, RecoveryId};
+use ic_crypto_ecdsa_secp256k1::PublicKey;
 use ic_ethereum_types::Address;
-use serde_bytes::ByteBuf;
 use std::cell::RefCell;
 use std::ops::{Deref, DerefMut};
 use std::str::FromStr;
@@ -37,18 +37,18 @@ pub fn init(maybe_init: Option<InitArg>) {
 pub async fn ethereum_address(owner: Option<Principal>) -> String {
     let caller = validate_caller_not_anonymous();
     let owner = owner.unwrap_or(caller);
-    let address = Address::from(&lazy_call_ecdsa_public_key().await.derive(&owner));
-    address.to_string()
+    let wallet = EthereumWallet::new(owner).await;
+    wallet.ethereum_address().to_string()
 }
 
 #[update]
 pub async fn transaction_count(owner: Option<Principal>, block: Option<BlockTag>) -> Nat {
     let caller = validate_caller_not_anonymous();
     let owner = owner.unwrap_or(caller);
-    let address = Address::from(&lazy_call_ecdsa_public_key().await.derive(&owner));
+    let wallet = EthereumWallet::new(owner).await;
     let rpc_services = read_state(|s| s.evm_rpc_services());
     let args = GetTransactionCountArgs {
-        address: address.to_string(),
+        address: wallet.ethereum_address().to_string(),
         block: block.unwrap_or(BlockTag::Finalized),
     };
     let (result,) = EVM_RPC
@@ -96,22 +96,10 @@ pub async fn send_eth(to: String, amount: Nat) -> String {
         input: Default::default(),
     };
 
+    let wallet = EthereumWallet::new(caller).await;
     let tx_hash = transaction.signature_hash().0;
-    let derivation_path = derivation_path(&caller)
-        .iter()
-        .map(|x| x.to_vec())
-        .collect();
-    let raw_sig = sign_with_ecdsa(
-        read_state(|s| s.ecdsa_key_name.clone()),
-        derivation_path,
-        tx_hash,
-    )
-    .await;
-    let recid = compute_recovery_id(&tx_hash, &caller, &raw_sig).await;
-    if recid.is_x_reduced() {
-        ic_cdk::trap("BUG: affine x-coordinate of r is reduced which is so unlikely to happen that it's probably a bug");
-    }
-    let signature = Signature::from_bytes_and_parity(&raw_sig, recid.is_y_odd())
+    let (raw_signature, recovery_id) = wallet.sign_with_ecdsa(tx_hash).await;
+    let signature = Signature::from_bytes_and_parity(&raw_signature, recovery_id.is_y_odd())
         .expect("BUG: failed to create a signature");
     let signed_tx = transaction.into_signed(signature);
 
@@ -252,38 +240,6 @@ struct EcdsaPublicKey {
     chain_code: Vec<u8>,
 }
 
-impl EcdsaPublicKey {
-    pub fn derive(&self, owner: &Principal) -> Self {
-        use ic_crypto_extended_bip32::{
-            DerivationIndex, DerivationPath, ExtendedBip32DerivationOutput,
-        };
-
-        let ExtendedBip32DerivationOutput {
-            derived_public_key,
-            derived_chain_code,
-        } = DerivationPath::new(
-            derivation_path(owner)
-                .into_iter()
-                .map(|x| DerivationIndex(x.into_vec()))
-                .collect(),
-        )
-        .public_key_derivation(&self.public_key, &self.chain_code)
-        .expect("BUG: failed to derive an ECDSA public key");
-        Self {
-            public_key: derived_public_key,
-            chain_code: derived_chain_code,
-        }
-    }
-}
-
-fn derivation_path(owner: &Principal) -> Vec<ByteBuf> {
-    const SCHEMA_V1: u8 = 1;
-    vec![
-        ByteBuf::from(vec![SCHEMA_V1]),
-        ByteBuf::from(owner.as_slice().to_vec()),
-    ]
-}
-
 impl From<EcdsaPublicKeyResponse> for EcdsaPublicKey {
     fn from(value: EcdsaPublicKeyResponse) -> Self {
         EcdsaPublicKey {
@@ -335,62 +291,11 @@ fn ecdsa_public_key_to_address(pubkey: &PublicKey) -> Address {
     Address::new(addr)
 }
 
-/// Signs a message hash using the tECDSA API.
-pub async fn sign_with_ecdsa(
-    key_name: EcdsaKeyName,
-    derivation_path: Vec<Vec<u8>>,
-    message_hash: [u8; 32],
-) -> [u8; 64] {
-    let (result,) =
-        ic_cdk::api::management_canister::ecdsa::sign_with_ecdsa(SignWithEcdsaArgument {
-            message_hash: message_hash.to_vec(),
-            derivation_path,
-            key_id: EcdsaKeyId::from(key_name),
-        })
-        .await
-        .expect("failed to sign with ecdsa");
-
-    let signature_length = result.signature.len();
-    <[u8; 64]>::try_from(result.signature).unwrap_or_else(|_| {
-        panic!(
-            "BUG: invalid signature from management canister. Expected 64 bytes but got {} bytes",
-            signature_length
-        )
-    })
-}
-
-async fn compute_recovery_id(digest: &[u8; 32], owner: &Principal, signature: &[u8]) -> RecoveryId {
-    let ecdsa_public_key = lazy_call_ecdsa_public_key().await.derive(owner);
-    let ecdsa_public_key = PublicKey::deserialize_sec1(&ecdsa_public_key.public_key)
-        .unwrap_or_else(|e| {
-            ic_cdk::trap(&format!("failed to decode minter's public key: {:?}", e))
-        });
-
-    assert!(
-        ecdsa_public_key.verify_signature_prehashed(digest, signature),
-        "failed to verify signature prehashed, digest: {:?}, signature: {:?}, public_key: {:?}",
-        hex::encode(digest),
-        hex::encode(signature),
-        hex::encode(ecdsa_public_key.serialize_sec1(true)),
-    );
-    ecdsa_public_key
-        .try_recovery_from_digest(digest, signature)
-        .unwrap_or_else(|e| {
-            panic!(
-                "BUG: failed to recover public key {:?} from digest {:?} and signature {:?}: {:?}",
-                hex::encode(ecdsa_public_key.serialize_sec1(true)),
-                hex::encode(digest),
-                hex::encode(signature),
-                e
-            )
-        })
-}
-
 fn keccak(bytes: &[u8]) -> [u8; 32] {
     ic_crypto_sha3::Keccak256::hash(bytes)
 }
 
-fn validate_caller_not_anonymous() -> Principal {
+pub fn validate_caller_not_anonymous() -> Principal {
     let principal = ic_cdk::caller();
     if principal == Principal::anonymous() {
         panic!("anonymous principal is not allowed");
