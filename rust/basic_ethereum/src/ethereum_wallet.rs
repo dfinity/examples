@@ -4,8 +4,8 @@
 //! and how ethereum transactions can be signed. It is missing several
 //! pieces that any production-grade wallet would have, such as error handling, access-control, caching, etc.
 
+use crate::ecdsa::EcdsaPublicKey;
 use crate::state::{lazy_call_ecdsa_public_key, read_state};
-use crate::EcdsaPublicKey;
 use candid::Principal;
 use ic_crypto_ecdsa_secp256k1::RecoveryId;
 use ic_ethereum_types::Address;
@@ -27,7 +27,8 @@ impl EthereumWallet {
     }
 
     pub fn ethereum_address(&self) -> Address {
-        Address::from(&self.derived_public_key)
+        Address::try_from(&self.derived_public_key)
+            .expect("failed to convert public key to address")
     }
 
     pub async fn sign_with_ecdsa(&self, message_hash: [u8; 32]) -> ([u8; 64], RecoveryId) {
@@ -61,10 +62,9 @@ impl EthereumWallet {
         use alloy_primitives::hex;
         use ic_crypto_ecdsa_secp256k1::PublicKey;
 
-        let ecdsa_public_key = PublicKey::deserialize_sec1(&self.derived_public_key.public_key)
-            .unwrap_or_else(|e| {
-                ic_cdk::trap(&format!("failed to decode user's public key: {:?}", e))
-            });
+        let ecdsa_public_key = PublicKey::try_from(&self.derived_public_key).unwrap_or_else(|e| {
+            ic_cdk::trap(&format!("failed to decode user's public key: {:?}", e))
+        });
 
         assert!(
             ecdsa_public_key.verify_signature_prehashed(message_hash, signature),
@@ -88,26 +88,16 @@ impl EthereumWallet {
 }
 
 fn derive_public_key(owner: &Principal, public_key: &EcdsaPublicKey) -> EcdsaPublicKey {
-    use ic_crypto_extended_bip32::{
-        DerivationIndex, DerivationPath, ExtendedBip32DerivationOutput,
-    };
+    use ic_crypto_extended_bip32::{DerivationIndex, DerivationPath};
     let derivation_path = DerivationPath::new(
         derivation_path(owner)
             .into_iter()
             .map(DerivationIndex)
             .collect(),
     );
-
-    let ExtendedBip32DerivationOutput {
-        derived_public_key,
-        derived_chain_code,
-    } = derivation_path
-        .public_key_derivation(&public_key.public_key, &public_key.chain_code)
-        .expect("BUG: failed to derive an ECDSA public key");
-    EcdsaPublicKey {
-        public_key: derived_public_key,
-        chain_code: derived_chain_code,
-    }
+    public_key
+        .derive_new_public_key(&derivation_path)
+        .expect("BUG: failed to derive an ECDSA public key")
 }
 
 fn derivation_path(owner: &Principal) -> Vec<Vec<u8>> {

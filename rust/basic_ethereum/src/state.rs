@@ -1,4 +1,5 @@
-use crate::{EcdsaKeyName, EcdsaPublicKey, EthereumNetwork, InitArg};
+use crate::ecdsa::EcdsaPublicKey;
+use crate::{EcdsaKeyName, EthereumNetwork, InitArg};
 use evm_rpc_canister_types::{EthMainnetService, EthSepoliaService, RpcServices};
 use ic_cdk::api::management_canister::ecdsa::EcdsaKeyId;
 use std::cell::RefCell;

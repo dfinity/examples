@@ -1,3 +1,4 @@
+mod ecdsa;
 mod ethereum_wallet;
 mod state;
 
@@ -10,9 +11,8 @@ use evm_rpc_canister_types::{
     BlockTag, EvmRpcCanister, GetTransactionCountArgs, GetTransactionCountResult,
     MultiGetTransactionCountResult,
 };
-use ic_cdk::api::management_canister::ecdsa::{EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyResponse};
+use ic_cdk::api::management_canister::ecdsa::{EcdsaCurve, EcdsaKeyId};
 use ic_cdk::{init, update};
-use ic_crypto_ecdsa_secp256k1::PublicKey;
 use ic_ethereum_types::Address;
 use std::str::FromStr;
 
@@ -178,43 +178,6 @@ impl From<&EcdsaKeyName> for EcdsaKeyId {
             .to_string(),
         }
     }
-}
-
-#[derive(Debug, Default, PartialEq, Eq, Clone)]
-struct EcdsaPublicKey {
-    public_key: Vec<u8>,
-    chain_code: Vec<u8>,
-}
-
-impl From<EcdsaPublicKeyResponse> for EcdsaPublicKey {
-    fn from(value: EcdsaPublicKeyResponse) -> Self {
-        EcdsaPublicKey {
-            public_key: value.public_key,
-            chain_code: value.chain_code,
-        }
-    }
-}
-
-impl From<&EcdsaPublicKey> for Address {
-    fn from(value: &EcdsaPublicKey) -> Self {
-        let public_key = PublicKey::deserialize_sec1(&value.public_key).unwrap_or_else(|e| {
-            ic_cdk::trap(&format!("failed to decode minter's public key: {:?}", e))
-        });
-        ecdsa_public_key_to_address(&public_key)
-    }
-}
-
-fn ecdsa_public_key_to_address(pubkey: &PublicKey) -> Address {
-    let key_bytes = pubkey.serialize_sec1(/*compressed=*/ false);
-    debug_assert_eq!(key_bytes[0], 0x04);
-    let hash = keccak(&key_bytes[1..]);
-    let mut addr = [0u8; 20];
-    addr[..].copy_from_slice(&hash[12..32]);
-    Address::new(addr)
-}
-
-fn keccak(bytes: &[u8]) -> [u8; 32] {
-    ic_crypto_sha3::Keccak256::hash(bytes)
 }
 
 pub fn validate_caller_not_anonymous() -> Principal {
