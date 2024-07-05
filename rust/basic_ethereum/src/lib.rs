@@ -1,35 +1,29 @@
 mod ethereum_wallet;
+mod state;
 
 use crate::ethereum_wallet::EthereumWallet;
+use crate::state::{init_state, read_state};
 use alloy_consensus::{SignableTransaction, TxEip1559, TxEnvelope};
 use alloy_primitives::{hex, Signature, TxKind, U256};
 use candid::{CandidType, Deserialize, Nat, Principal};
 use evm_rpc_canister_types::{
-    BlockTag, EthMainnetService, EthSepoliaService, EvmRpcCanister, GetTransactionCountArgs,
-    GetTransactionCountResult, MultiGetTransactionCountResult, RpcServices,
+    BlockTag, EvmRpcCanister, GetTransactionCountArgs, GetTransactionCountResult,
+    MultiGetTransactionCountResult,
 };
 use ic_cdk::api::management_canister::ecdsa::{EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyResponse};
 use ic_cdk::{init, update};
 use ic_crypto_ecdsa_secp256k1::PublicKey;
 use ic_ethereum_types::Address;
-use std::cell::RefCell;
-use std::ops::{Deref, DerefMut};
 use std::str::FromStr;
 
 pub const CANISTER_ID: Principal =
     Principal::from_slice(b"\x00\x00\x00\x00\x02\x30\x00\xCC\x01\x01"); // 7hfb6-caaaa-aaaar-qadga-cai
 pub const EVM_RPC: EvmRpcCanister = EvmRpcCanister(CANISTER_ID);
 
-thread_local! {
-    pub static STATE: RefCell<State> = RefCell::default();
-}
-
 #[init]
 pub fn init(maybe_init: Option<InitArg>) {
     if let Some(init_arg) = maybe_init {
-        STATE.with(|state| {
-            *state.borrow_mut() = State::from(init_arg);
-        });
+        init_state(init_arg)
     }
 }
 
@@ -81,7 +75,7 @@ pub async fn send_eth(to: String, amount: Nat) -> String {
     let _to_address = Address::from_str(&to).unwrap_or_else(|e| {
         ic_cdk::trap(&format!("failed to parse the recipient address: {:?}", e))
     });
-    let chain_id = read_state(|s| s.ethereum_network.chain_id());
+    let chain_id = read_state(|s| s.ethereum_network().chain_id());
     let nonce = nat_to_u64(transaction_count(Some(caller), Some(BlockTag::Latest)).await);
 
     let transaction = TxEip1559 {
@@ -142,50 +136,13 @@ pub async fn send_eth(to: String, amount: Nat) -> String {
     raw_transaction_hash.to_string()
 }
 
-#[derive(Debug, Default, PartialEq, Eq)]
-pub struct State {
-    ethereum_network: EthereumNetwork,
-    ecdsa_key_name: EcdsaKeyName,
-    ecdsa_public_key: Option<EcdsaPublicKey>,
-}
-
-impl State {
-    pub fn evm_rpc_services(&self) -> RpcServices {
-        match self.ethereum_network {
-            EthereumNetwork::Mainnet => RpcServices::EthMainnet(None),
-            EthereumNetwork::Sepolia => RpcServices::EthSepolia(None),
-        }
-    }
-
-    pub fn single_evm_rpc_service(&self) -> RpcServices {
-        match self.ethereum_network {
-            EthereumNetwork::Mainnet => {
-                RpcServices::EthMainnet(Some(vec![EthMainnetService::Ankr]))
-            }
-            EthereumNetwork::Sepolia => {
-                RpcServices::EthSepolia(Some(vec![EthSepoliaService::Ankr]))
-            }
-        }
-    }
-}
-
-impl From<InitArg> for State {
-    fn from(init_arg: InitArg) -> Self {
-        State {
-            ethereum_network: init_arg.ethereum_network.unwrap_or_default(),
-            ecdsa_key_name: init_arg.ecdsa_key_name.unwrap_or_default(),
-            ..Default::default()
-        }
-    }
-}
-
 #[derive(CandidType, Deserialize, Debug, Default, PartialEq, Eq)]
 pub struct InitArg {
     pub ethereum_network: Option<EthereumNetwork>,
     pub ecdsa_key_name: Option<EcdsaKeyName>,
 }
 
-#[derive(CandidType, Deserialize, Debug, Default, PartialEq, Eq)]
+#[derive(CandidType, Deserialize, Debug, Default, PartialEq, Eq, Clone, Copy)]
 pub enum EthereumNetwork {
     Mainnet,
     #[default]
@@ -209,8 +166,8 @@ pub enum EcdsaKeyName {
     ProductionKey1,
 }
 
-impl From<EcdsaKeyName> for EcdsaKeyId {
-    fn from(value: EcdsaKeyName) -> Self {
+impl From<&EcdsaKeyName> for EcdsaKeyId {
+    fn from(value: &EcdsaKeyName) -> Self {
         EcdsaKeyId {
             curve: EcdsaCurve::Secp256k1,
             name: match value {
@@ -221,17 +178,6 @@ impl From<EcdsaKeyName> for EcdsaKeyId {
             .to_string(),
         }
     }
-}
-
-pub fn read_state<R>(f: impl FnOnce(&State) -> R) -> R {
-    STATE.with(|s| f(s.borrow().deref()))
-}
-
-pub fn mutate_state<F, R>(f: F) -> R
-where
-    F: FnOnce(&mut State) -> R,
-{
-    STATE.with(|s| f(s.borrow_mut().deref_mut()))
 }
 
 #[derive(Debug, Default, PartialEq, Eq, Clone)]
@@ -256,30 +202,6 @@ impl From<&EcdsaPublicKey> for Address {
         });
         ecdsa_public_key_to_address(&public_key)
     }
-}
-
-async fn lazy_call_ecdsa_public_key() -> EcdsaPublicKey {
-    use ic_cdk::api::management_canister::ecdsa::{ecdsa_public_key, EcdsaPublicKeyArgument};
-
-    if let Some(ecdsa_pk) = read_state(|s| s.ecdsa_public_key.clone()) {
-        return ecdsa_pk;
-    }
-    let key_name = read_state(|s| s.ecdsa_key_name.clone());
-    let (response,) = ecdsa_public_key(EcdsaPublicKeyArgument {
-        canister_id: None,
-        derivation_path: vec![],
-        key_id: EcdsaKeyId::from(key_name),
-    })
-    .await
-    .unwrap_or_else(|(error_code, message)| {
-        ic_cdk::trap(&format!(
-            "failed to get canister's public key: {} (error code = {:?})",
-            message, error_code,
-        ))
-    });
-    let pk = EcdsaPublicKey::from(response);
-    mutate_state(|s| s.ecdsa_public_key = Some(pk.clone()));
-    pk
 }
 
 fn ecdsa_public_key_to_address(pubkey: &PublicKey) -> Address {

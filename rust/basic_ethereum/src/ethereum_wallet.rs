@@ -4,7 +4,8 @@
 //! and how ethereum transactions can be signed. It is missing several
 //! pieces that any production-grade wallet would have, such as error handling, access-control, caching, etc.
 
-use crate::{lazy_call_ecdsa_public_key, read_state, EcdsaPublicKey};
+use crate::state::{lazy_call_ecdsa_public_key, read_state};
+use crate::EcdsaPublicKey;
 use candid::Principal;
 use ic_crypto_ecdsa_secp256k1::RecoveryId;
 use ic_ethereum_types::Address;
@@ -30,10 +31,10 @@ impl EthereumWallet {
     }
 
     pub async fn sign_with_ecdsa(&self, message_hash: [u8; 32]) -> ([u8; 64], RecoveryId) {
-        use ic_cdk::api::management_canister::ecdsa::{EcdsaKeyId, SignWithEcdsaArgument};
+        use ic_cdk::api::management_canister::ecdsa::SignWithEcdsaArgument;
 
         let derivation_path = derivation_path(&self.owner);
-        let key_id = EcdsaKeyId::from(read_state(|s| s.ecdsa_key_name.clone()));
+        let key_id = read_state(|s| s.ecdsa_key_id());
         let (result,) =
             ic_cdk::api::management_canister::ecdsa::sign_with_ecdsa(SignWithEcdsaArgument {
                 message_hash: message_hash.to_vec(),
