@@ -7,7 +7,7 @@
 use crate::ecdsa::EcdsaPublicKey;
 use crate::state::{lazy_call_ecdsa_public_key, read_state};
 use candid::Principal;
-use ic_crypto_ecdsa_secp256k1::RecoveryId;
+use ic_crypto_ecdsa_secp256k1::{PublicKey, RecoveryId};
 use ic_ethereum_types::Address;
 use serde_bytes::ByteBuf;
 
@@ -15,6 +15,12 @@ use serde_bytes::ByteBuf;
 pub struct EthereumWallet {
     owner: Principal,
     derived_public_key: EcdsaPublicKey,
+}
+
+impl AsRef<PublicKey> for EthereumWallet {
+    fn as_ref(&self) -> &PublicKey {
+        self.derived_public_key.as_ref()
+    }
 }
 
 impl EthereumWallet {
@@ -27,8 +33,7 @@ impl EthereumWallet {
     }
 
     pub fn ethereum_address(&self) -> Address {
-        Address::try_from(&self.derived_public_key)
-            .expect("failed to convert public key to address")
+        Address::from(&self.derived_public_key)
     }
 
     pub async fn sign_with_ecdsa(&self, message_hash: [u8; 32]) -> ([u8; 64], RecoveryId) {
@@ -60,25 +65,21 @@ impl EthereumWallet {
 
     fn compute_recovery_id(&self, message_hash: &[u8], signature: &[u8]) -> RecoveryId {
         use alloy_primitives::hex;
-        use ic_crypto_ecdsa_secp256k1::PublicKey;
-
-        let ecdsa_public_key = PublicKey::try_from(&self.derived_public_key).unwrap_or_else(|e| {
-            ic_cdk::trap(&format!("failed to decode user's public key: {:?}", e))
-        });
 
         assert!(
-            ecdsa_public_key.verify_signature_prehashed(message_hash, signature),
+            self.as_ref()
+                .verify_signature_prehashed(message_hash, signature),
             "failed to verify signature prehashed, digest: {:?}, signature: {:?}, public_key: {:?}",
             hex::encode(message_hash),
             hex::encode(signature),
-            hex::encode(ecdsa_public_key.serialize_sec1(true)),
+            hex::encode(self.as_ref().serialize_sec1(true)),
         );
-        ecdsa_public_key
+        self.as_ref()
             .try_recovery_from_digest(message_hash, signature)
             .unwrap_or_else(|e| {
                 panic!(
                     "BUG: failed to recover public key {:?} from digest {:?} and signature {:?}: {:?}",
-                    hex::encode(ecdsa_public_key.serialize_sec1(true)),
+                    hex::encode(self.as_ref().serialize_sec1(true)),
                     hex::encode(message_hash),
                     hex::encode(signature),
                     e
