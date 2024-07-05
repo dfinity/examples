@@ -2,7 +2,7 @@
   "version": 1,
   "canisters": {
     "basic_bitcoin": {
-      "type": "custom",
+      "type": "rust",
       "package": "basic_bitcoin",
       "candid": "src/basic_bitcoin/basic_bitcoin.did",
       "wasm": "target/wasm32-unknown-unknown/release/basic_bitcoin.wasm",
@@ -11,7 +11,26 @@
         {
           "name": "candid:service"
         }
-      ]
+      ],
+      "specified_id": "om77v-qqaaa-aaaap-ahmrq-cai",
+      "remote": {
+        "id": {
+          "ic": "om77v-qqaaa-aaaap-ahmrq-cai",
+          "playground": "om77v-qqaaa-aaaap-ahmrq-cai"
+        }
+      }
+    },
+    "schnorr_canister": {
+      "type": "custom",
+      "candid": "https://github.com/domwoe/schnorr_canister/releases/latest/download/schnorr_canister.did",
+      "wasm": "https://github.com/domwoe/schnorr_canister/releases/latest/download/schnorr_canister.wasm.gz",
+      "specified_id": "6fwhw-fyaaa-aaaap-qb7ua-cai",
+      "remote": {
+        "id": {
+          "ic": "6fwhw-fyaaa-aaaap-qb7ua-cai",
+          "playground": "6fwhw-fyaaa-aaaap-qb7ua-cai"
+        }
+      }
     }
   },
   "defaults": {
@@ -25,11 +44,6 @@
     "build": {
       "packtool": "",
       "args": ""
-    }
-  },
-  "networks": {
-    "local": {
-      "bind": "127.0.0.1:4943"
     }
   }
 }
