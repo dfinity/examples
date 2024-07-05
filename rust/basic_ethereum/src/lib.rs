@@ -104,9 +104,7 @@ pub async fn send_eth(to: String, amount: Nat) -> String {
     let raw_sig = sign_with_ecdsa(
         read_state(|s| s.ecdsa_key_name.clone()),
         derivation_path,
-        tx_hash
-            .try_into()
-            .expect("Transaction hash does not fit 32 bytes"),
+        tx_hash,
     )
     .await;
     let recid = compute_recovery_id(&tx_hash, &caller, &raw_sig).await;
@@ -117,7 +115,7 @@ pub async fn send_eth(to: String, amount: Nat) -> String {
         .expect("BUG: failed to create a signature");
     let signed_tx = transaction.into_signed(signature);
 
-    let raw_transaction_hash = signed_tx.hash().clone();
+    let raw_transaction_hash = *signed_tx.hash();
     let mut tx_bytes: Vec<u8> = vec![];
     TxEnvelope::from(signed_tx).encode_2718(&mut tx_bytes);
     let raw_transaction_hex = format!("0x{}", hex::encode(&tx_bytes));
