@@ -127,9 +127,10 @@ pub async fn send_eth(to: String, amount: Nat) -> String {
         });
     ic_cdk::println!(
         "Result of sending raw transaction {}: {:?}. \
-    Due to the replicated nature of HTTPs outcalls an error there is the most likely outcome. \
+    Due to the replicated nature of HTTPs outcalls, an error such as transaction already known or nonce too low could be reported, \
+    even though the transaction was successfully sent. \
     Check whether the transaction appears on Etherscan or check that the transaction count on \
-    that address as latest block height did increase.",
+    that address at latest block height did increase.",
         raw_transaction_hex,
         result
     );
