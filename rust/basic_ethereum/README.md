@@ -89,7 +89,7 @@ URL `https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=<YOUR-CANISTER-ID>`. Yo
 ## Step 2: Generating an Ethereum address
 
 An Ethereum address can be derived from an ECDSA public key. To derive a user's specific address, identified on the IC
-by a principal, the canister uses its own threshold ECDSA public key to derive deterministically a new public key for
+by a principal, the canister uses its own threshold ECDSA public key to derive a new public key deterministically for
 each requested principal. To retrieve your Ethereum address, you can call the `ethereum_address` method on the
 previously deployed canister:
 
@@ -98,10 +98,10 @@ dfx canister --network ic call basic_ethereum ethereum_address
 ```
 
 This will return an Ethereum address such as `("0x378a452B20d1f06008C06c581b1656BdC5313c0C")` that is unique to your
-principal. Your address will be different. You can view such address on any Ethereum block explorer such as Etherscan.
+principal. Your address will be different. You can view such addresses on any Ethereum block explorer such as [Etherscan](https://etherscan.io/).
 
-If you want to send some ETH to someone else, you can also use the above method to enquiry about their Ethereum address
-given their IC principal
+If you want to send some ETH to someone else, you can also use the above method to enquire about their Ethereum address
+given their IC principal:
 
 ```shell
 dfx canister --network ic call basic_ethereum ethereum_address '(opt principal "hkroy-sm7vs-yyjs7-ekppe-qqnwx-hm4zf-n7ybs-titsi-k6e3k-ucuiu-uqe")'
@@ -114,25 +114,24 @@ as `("0x8d68f7B3cdb40A2E77071077658b01A9EA4B040F")`.
 
 Now that you have your Ethereum address, let us send some (Sepolia) ETH to it:
 
-1. Get some Sepolia ETH if you don't have any. You can for example use such
-   a [faucet](https://www.alchemy.com/faucets/ethereum-sepolia).
+1. Get some Sepolia ETH if you don't have any. You can for example use [this faucet](https://www.alchemy.com/faucets/ethereum-sepolia).
 2. Send some Sepolia ETH to the address you obtained in the previous step. You can use any Ethereum wallet (e.g.,
    Metamask) to do so.
 
 Once the transaction has at least one confirmation, which can take a few seconds,
 you'll be able to see it in your Ethereum address's balance, which should be visible in an Ethereum block explorer,
-e.g. https://sepolia.etherscan.io/address/0x378a452b20d1f06008c06c581b1656bdc5313c0c.
+e.g., https://sepolia.etherscan.io/address/0x378a452b20d1f06008c06c581b1656bdc5313c0c.
 
 ## Step 4: Sending ETH
 
 You can send ETH using the `send_eth` endpoint on your canister, specifying an Ethereum destination address and an
-amount in the smallest unit (Wei). For example, to send 1 Wei to `0xdd2851Cdd40aE6536831558DD46db62fAc7A844d`:
+amount in the smallest unit (Wei). For example, to send 1 Wei to `0xdd2851Cdd40aE6536831558DD46db62fAc7A844d`, run the following command:
 
 ```shell
 dfx canister --ic call basic_ethereum send_eth '("0xdd2851Cdd40aE6536831558DD46db62fAc7A844d", 40000000000000000)'
 ```
 
-The `send_eth` endpoint can send ETH by:
+The `send_eth` endpoint sends ETH by executing the following steps:
 
 1. Retrieving the transaction count for the sender's address at `Latest` block height. This is necessary because
    Ethereum transactions for a given sender's address are ordered by a `nonce`, which is a monotonically incrementally
@@ -156,13 +155,13 @@ to track the transaction on an Ethereum blockchain explorer.
 
 In this tutorial, you were able to:
 
-* Deploy a canister smart contract on the ICP blockchain that can receive & send ETH.
+* Deploy a canister smart contract on the ICP blockchain that can receive and send ETH.
 * Use a cycles faucet to deploy the canister to ICP blockchain on the mainnet for free.
 * Connect the canister to the Ethereum Sepolia testnet.
 * Send the canister some Sepolia ETH.
 * Use the canister to send ETH to another Ethereum address.
 
-Additional examples regarding the ICP < > ETH integration of can be
+Additional examples regarding the ICP < > ETH integration can be
 found [here](https://internetcomputer.org/docs/current/developer-docs/multi-chain/examples#ethereum--evm-examples).
 
 ## Security considerations and best practices
@@ -174,6 +173,6 @@ Internet Computer. This example may not implement all the best practices.
 For example, the following aspects are particularly relevant for this app:
 
 * [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security),
-  since the app e.g. offers a method to read balances.
+  since the app offers a method to read balances, for example.
 * [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#use-a-decentralized-governance-system-like-sns-to-make-a-canister-have-a-decentralized-controller),
   since decentralized control may be essential for canisters holding ETH on behalf of users.

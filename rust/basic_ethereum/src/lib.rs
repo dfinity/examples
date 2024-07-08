@@ -108,7 +108,7 @@ pub async fn send_eth(to: String, amount: Nat) -> String {
     );
     // The canister is sending a signed statement, meaning a malicious provider could only affect availability.
     // For demonstration purposes, the canister uses a single provider to send the signed transaction,
-    // but in production multiple providers (e.g., using round-robin strategy) should be used to avoid a single point of failure.
+    // but in production multiple providers (e.g., using a round-robin strategy) should be used to avoid a single point of failure.
     let single_rpc_service = read_state(|s| s.single_evm_rpc_service());
     let (result,) = EVM_RPC
         .eth_send_raw_transaction(

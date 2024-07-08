@@ -1,7 +1,7 @@
 //! A demo of a very bare-bones ethereum "wallet".
 //!
-//! The wallet here showcases how ethereum addresses can be computed
-//! and how ethereum transactions can be signed. It is missing several
+//! The wallet here showcases how Ethereum addresses can be computed
+//! and how Ethereum transactions can be signed. It is missing several
 //! pieces that any production-grade wallet would have, such as error handling, access-control, caching, etc.
 
 use crate::ecdsa::EcdsaPublicKey;
