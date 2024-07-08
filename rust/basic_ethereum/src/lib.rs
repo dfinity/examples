@@ -16,9 +16,9 @@ use ic_cdk::{init, update};
 use ic_ethereum_types::Address;
 use std::str::FromStr;
 
-pub const CANISTER_ID: Principal =
+pub const EVM_RPC_CANISTER_ID: Principal =
     Principal::from_slice(b"\x00\x00\x00\x00\x02\x30\x00\xCC\x01\x01"); // 7hfb6-caaaa-aaaar-qadga-cai
-pub const EVM_RPC: EvmRpcCanister = EvmRpcCanister(CANISTER_ID);
+pub const EVM_RPC: EvmRpcCanister = EvmRpcCanister(EVM_RPC_CANISTER_ID);
 
 #[init]
 pub fn init(maybe_init: Option<InitArg>) {
