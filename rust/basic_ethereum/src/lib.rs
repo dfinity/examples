@@ -77,13 +77,14 @@ pub async fn send_eth(to: String, amount: Nat) -> String {
     });
     let chain_id = read_state(|s| s.ethereum_network().chain_id());
     let nonce = nat_to_u64(transaction_count(Some(caller), Some(BlockTag::Latest)).await);
+    let (gas_limit, max_fee_per_gas, max_priority_fee_per_gas) = estimate_transaction_fees();
 
     let transaction = TxEip1559 {
         chain_id,
         nonce,
-        gas_limit: 21_000,
-        max_fee_per_gas: 50_000_000_000,
-        max_priority_fee_per_gas: 1_500_000_000,
+        gas_limit,
+        max_fee_per_gas,
+        max_priority_fee_per_gas,
         to: TxKind::Call(to.parse().expect("failed to parse recipient address")),
         value: nat_to_u256(amount),
         access_list: Default::default(),
@@ -134,6 +135,18 @@ pub async fn send_eth(to: String, amount: Nat) -> String {
     );
 
     raw_transaction_hash.to_string()
+}
+
+fn estimate_transaction_fees() -> (u128, u128, u128) {
+    /// Standard gas limit for an Ethereum transfer to an EOA.
+    /// Other transactions, in particular ones interacting with a smart contract (e.g., ERC-20), would require a higher gas limit.
+    const GAS_LIMIT: u128 = 21_000;
+
+    /// Very crude estimates of max_fee_per_gas and max_priority_fee_per_gas.
+    /// A real world application would need to estimate this more accurately by for example fetching the fee history from the last 5 blocks.
+    const MAX_FEE_PER_GAS: u128 = 50_000_000_000;
+    const MAX_PRIORITY_FEE_PER_GAS: u128 = 1_500_000_000;
+    (GAS_LIMIT, MAX_FEE_PER_GAS, MAX_PRIORITY_FEE_PER_GAS)
 }
 
 #[derive(CandidType, Deserialize, Debug, Default, PartialEq, Eq)]
