@@ -97,7 +97,7 @@ previously deployed canister:
 dfx canister --ic call basic_ethereum ethereum_address
 ```
 
-This will return an Ethereum address such as `("0x378a452B20d1f06008C06c581b1656BdC5313c0C")` that is unique to your
+This will return an Ethereum address such as `("0x378a452B20d1f06008C06c581b1656BdC5313c0C")` that is tied to your
 principal. Your address will be different. You can view such addresses on any Ethereum block explorer such as [Etherscan](https://etherscan.io/).
 
 If you want to send some ETH to someone else, you can also use the above method to enquire about their Ethereum address
