@@ -47,13 +47,9 @@ impl From<&EcdsaPublicKey> for Address {
     fn from(value: &EcdsaPublicKey) -> Self {
         let key_bytes = value.as_ref().serialize_sec1(/*compressed=*/ false);
         debug_assert_eq!(key_bytes[0], 0x04);
-        let hash = keccak(&key_bytes[1..]);
+        let hash = ic_crypto_sha3::Keccak256::hash(&key_bytes[1..]);
         let mut addr = [0u8; 20];
         addr[..].copy_from_slice(&hash[12..32]);
         Address::new(addr)
     }
-}
-
-fn keccak(bytes: &[u8]) -> [u8; 32] {
-    ic_crypto_sha3::Keccak256::hash(bytes)
 }
