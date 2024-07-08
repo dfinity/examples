@@ -51,13 +51,13 @@ the [cycles faucet](https://internetcomputer.org/docs/current/developer-docs/set
 ### Deploy the smart contract to the Internet Computer
 
 ```bash
-dfx deploy --network ic basic_ethereum --argument '(opt record {ethereum_network = opt variant {Sepolia}; ecdsa_key_name = opt variant {TestKey1}})'
+dfx deploy --ic basic_ethereum --argument '(opt record {ethereum_network = opt variant {Sepolia}; ecdsa_key_name = opt variant {TestKey1}})'
 ```
 
 #### What this does
 
 - `dfx deploy` tells the command line interface to `deploy` the smart contract
-- `--network=ic` tells the command line to deploy the smart contract to the mainnet ICP blockchain
+- `--ic` tells the command line to deploy the smart contract to the mainnet ICP blockchain
 - `--argument (opt record {ethereum_network = opt variant {Sepolia}; ecdsa_key_name = opt variant {TestKey1}})`
   initializes the smart contract with the provided arguments:
     - `ethereum_network = opt variant {Sepolia}`: the canister uses
@@ -94,7 +94,7 @@ each requested principal. To retrieve your Ethereum address, you can call the `e
 previously deployed canister:
 
 ```shell
-dfx canister --network ic call basic_ethereum ethereum_address
+dfx canister --ic call basic_ethereum ethereum_address
 ```
 
 This will return an Ethereum address such as `("0x378a452B20d1f06008C06c581b1656BdC5313c0C")` that is unique to your
@@ -104,7 +104,7 @@ If you want to send some ETH to someone else, you can also use the above method 
 given their IC principal:
 
 ```shell
-dfx canister --network ic call basic_ethereum ethereum_address '(opt principal "hkroy-sm7vs-yyjs7-ekppe-qqnwx-hm4zf-n7ybs-titsi-k6e3k-ucuiu-uqe")'
+dfx canister --ic call basic_ethereum ethereum_address '(opt principal "hkroy-sm7vs-yyjs7-ekppe-qqnwx-hm4zf-n7ybs-titsi-k6e3k-ucuiu-uqe")'
 ```
 
 This will return a different Ethereum address as the one above, such
