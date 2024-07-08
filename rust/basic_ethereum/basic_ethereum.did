@@ -31,6 +31,9 @@ type BlockTag = variant {
     Pending;
 };
 
+// Base unit of ETH, i.e., 1 ETH = 10^18 Wei.
+type Wei = nat;
+
 service : (opt InitArg) -> {
     // Returns the Ethereum address to which the owner should send ETH
     // before sending the amount to another address via the canister using the [send_eth]
@@ -46,5 +49,5 @@ service : (opt InitArg) -> {
 
     // Sends the given amount of ETH in base unit (Wei) to the given Ethereum address.
     // Returns the transaction hash
-    send_eth : (to: text, amount: nat) -> (text);
+    send_eth : (to: text, amount: Wei) -> (text);
 }
