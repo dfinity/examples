@@ -128,7 +128,7 @@ You can send ETH using the `send_eth` endpoint on your canister, specifying an E
 amount in the smallest unit (Wei). For example, to send 1 Wei to `0xdd2851Cdd40aE6536831558DD46db62fAc7A844d`, run the following command:
 
 ```shell
-dfx canister --ic call basic_ethereum send_eth '("0xdd2851Cdd40aE6536831558DD46db62fAc7A844d", 40000000000000000)'
+dfx canister --ic call basic_ethereum send_eth '("0xdd2851Cdd40aE6536831558DD46db62fAc7A844d", 1)'
 ```
 
 The `send_eth` endpoint sends ETH by executing the following steps:
