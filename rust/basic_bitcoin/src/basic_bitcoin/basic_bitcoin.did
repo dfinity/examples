@@ -32,9 +32,7 @@ type get_utxos_response = record {
   next_page : opt blob;
 };
 
-service : (network, text) -> {
-  "for_test_only_set_schnorr_canister_id" : (text) -> ();
-
+service : (network) -> {
   "get_p2pkh_address" : () -> (bitcoin_address);
 
   "get_p2tr_script_spend_address" : () -> (bitcoin_address);

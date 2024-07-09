@@ -1,8 +1,6 @@
 use candid::{CandidType, Deserialize, Principal};
 use serde::Serialize;
 
-use crate::SCHNORR_CANISTER;
-
 #[derive(CandidType, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum SchnorrAlgorithm {
     #[serde(rename = "bip340secp256k1")]
@@ -44,17 +42,8 @@ struct SignWithSchnorrReply {
 
 /// Returns the Schnorr public key of this canister at the given derivation path.
 pub async fn schnorr_public_key(key_name: String, derivation_path: Vec<Vec<u8>>) -> Vec<u8> {
-    let canister_id = SCHNORR_CANISTER.with(|schnorr_canister| {
-        ic_cdk::println!(
-            "CANISTER_ID_SCHNORR_CANISTER: {:?}",
-            &schnorr_canister.borrow()
-        );
-
-        Principal::from_text(schnorr_canister.borrow().as_str()).unwrap()
-    });
-
     let res: Result<(SchnorrPublicKeyReply,), _> = ic_cdk::call(
-        canister_id,
+        Principal::management_canister(),
         "schnorr_public_key",
         (SchnorrPublicKey {
             canister_id: None,
@@ -75,11 +64,8 @@ pub async fn sign_with_schnorr(
     derivation_path: Vec<Vec<u8>>,
     message: Vec<u8>,
 ) -> Vec<u8> {
-    let canister_id = SCHNORR_CANISTER
-        .with(|schnorr_canister| Principal::from_text(schnorr_canister.borrow().as_str()).unwrap());
-
     let res: Result<(SignWithSchnorrReply,), _> = ic_cdk::call(
-        canister_id,
+        Principal::management_canister(),
         "sign_with_schnorr",
         (SignWithSchnorr {
             message,

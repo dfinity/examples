@@ -2,14 +2,12 @@ mod bitcoin_api;
 mod bitcoin_wallet;
 mod ecdsa_api;
 mod schnorr_api;
-mod types;
 
 use ic_cdk::api::management_canister::bitcoin::{
     BitcoinNetwork, GetUtxosResponse, MillisatoshiPerByte,
 };
 use ic_cdk_macros::{init, update};
 use std::cell::{Cell, RefCell};
-use std::env;
 
 thread_local! {
     // The bitcoin network to connect to.
@@ -24,12 +22,10 @@ thread_local! {
 
     // The ECDSA key name.
     static KEY_NAME: RefCell<String> = RefCell::new(String::from(""));
-
-    pub static SCHNORR_CANISTER: RefCell<String> = RefCell::new(String::from(""));
 }
 
 #[init]
-pub fn init(network: BitcoinNetwork, schnorr_canister: String) {
+pub fn init(network: BitcoinNetwork) {
     NETWORK.with(|n| n.set(network));
 
     KEY_NAME.with(|key_name| {
@@ -39,24 +35,6 @@ pub fn init(network: BitcoinNetwork, schnorr_canister: String) {
             // On the IC we're using a test ECDSA key.
             BitcoinNetwork::Mainnet | BitcoinNetwork::Testnet => "test_key_1",
         }))
-    });
-
-    SCHNORR_CANISTER.with(|schnorr_canister_id| {
-        let canister_id = env::var("CANISTER_ID_SCHNORR_CANISTER").unwrap_or(schnorr_canister);
-        ic_cdk::println!("CANISTER_ID_SCHNORR_CANISTER: {}", &canister_id);
-        schnorr_canister_id.replace(canister_id);
-    });
-}
-
-#[update]
-pub fn for_test_only_set_schnorr_canister_id(new_schnorr_canister_id: String) {
-    SCHNORR_CANISTER.with(|schnorr_canister_id| {
-        ic_cdk::println!(
-            "Changing schnorr canister id from {} to {}",
-            schnorr_canister_id.borrow(),
-            new_schnorr_canister_id
-        );
-        schnorr_canister_id.replace(new_schnorr_canister_id);
     });
 }
 
@@ -94,7 +72,7 @@ pub async fn get_p2pkh_address() -> String {
 /// Sends the given amount of bitcoin from this canister's p2pkh address to the given address.
 /// Returns the transaction ID.
 #[update]
-pub async fn send_from_p2pkh(request: types::SendRequest) -> String {
+pub async fn send_from_p2pkh(request: SendRequest) -> String {
     let derivation_path = DERIVATION_PATH.with(|d| d.clone());
     let network = NETWORK.with(|n| n.get());
     let key_name = KEY_NAME.with(|kn| kn.borrow().to_string());
@@ -126,7 +104,7 @@ pub async fn get_p2tr_script_spend_address() -> String {
 /// Sends the given amount of bitcoin from this canister's p2tr address to the given address.
 /// Returns the transaction ID.
 #[update]
-pub async fn send_from_p2tr_script_spend(request: types::SendRequest) -> String {
+pub async fn send_from_p2tr_script_spend(request: SendRequest) -> String {
     let mut derivation_path = DERIVATION_PATH.with(|d| d.clone());
     derivation_path.push(b"script_spend".to_vec());
     let network = NETWORK.with(|n| n.get());
@@ -164,7 +142,7 @@ pub async fn get_p2tr_raw_key_spend_address() -> String {
 /// WARNING: This function is not suited for multi-party scenarios where
 /// multiple keys are used for spending.
 #[update]
-pub async fn send_from_p2tr_raw_key_spend(request: types::SendRequest) -> String {
+pub async fn send_from_p2tr_raw_key_spend(request: SendRequest) -> String {
     let mut derivation_path = DERIVATION_PATH.with(|d| d.clone());
     derivation_path.push(b"key_spend".to_vec());
     let network = NETWORK.with(|n| n.get());
@@ -179,4 +157,10 @@ pub async fn send_from_p2tr_raw_key_spend(request: types::SendRequest) -> String
     .await;
 
     tx_id.to_string()
+}
+
+#[derive(candid::CandidType, candid::Deserialize)]
+pub struct SendRequest {
+    pub destination_address: String,
+    pub amount_in_satoshi: u64,
 }
