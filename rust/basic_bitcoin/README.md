@@ -21,7 +21,9 @@ For a deeper understanding of the ICP < > BTC integration, see the [Bitcoin inte
 
 ## Prerequisites
 
-* [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+* [x] Install the [IC
+  SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+  For local testing, `dfx >= 0.22.0-beta.0` is required.
 
 ## Step 1: Building and deploying sample code
 
