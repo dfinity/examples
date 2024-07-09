@@ -78,7 +78,6 @@ test: install
 	dfx canister logs canister_logs \
 		| grep 'timer trap' && echo 'PASS'
 
-	# TODO: make sure DFX has the fix.
 	# Test raw_rand.
 	dfx canister call canister_logs raw_rand
 	dfx canister logs canister_logs \
