@@ -34,6 +34,11 @@ actor CanisterLogs {
     Debug.trap(text);
   };
 
+  public query func trap_query(text : Text) : async () {
+    Debug.print("right before trap_query");
+    Debug.trap(text);
+  };
+
   public func memory_oob() : async () {
     Debug.print("right before memory out of bounds");
     let offset : Nat64 = 10;
