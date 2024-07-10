@@ -20,4 +20,4 @@ serde_bytes = "0.11"
 
 [dev-dependencies]
 flate2 = "1.0"
-pocket-ic = { git = "https://github.com/dfinity/ic", rev = "09f58cf9488a0afb2363e8a39b327176be6d7495" }
+pocket-ic = "3.1"
