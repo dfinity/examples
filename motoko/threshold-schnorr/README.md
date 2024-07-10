@@ -13,13 +13,6 @@ We present a minimal example canister smart contract for showcasing the
 Schnorr](https://org5p-7iaaa-aaaak-qckna-cai.icp0.io/docs#ic-sign_with_schnorr)
 API.
 
-WARNING: the current version of this canister calls not the management canister
-but a custom canister, which produces Schnorr signatures in an INSECURE way.
-This is done for testing purposes ONLY and MUST NOT be done in production. In
-production, ONLY the management canister API MUST be used. The reason is that
-the management canister API is not yet fully implemented and instead of the
-management canister we use a mock canister that provides Schnorr signatures.
-
 The example canister is a signing oracle that creates Schnorr signatures with
 keys derived based on the canister ID and the chosen algorithm, either BIP340 or
 Ed25519.
@@ -57,14 +50,12 @@ This tutorial will use the Motoko version of the canister:
 cd examples/motoko/threshold-schnorr
 dfx start --background
 npm install
-make mock
+make deploy
 ```
 
 #### What this does
 - `dfx start --background` starts a local instance of the IC via the IC SDK
-- `make mock` deploys the canister code on the local version of the IC and
-  updates the canister ID that produces Schnorr signatures (see the WARNING at
-  the beginning of this document)
+- `make deploy` deploys the canister code on the local version of the IC
 
 If successful, you should see something like this:
 

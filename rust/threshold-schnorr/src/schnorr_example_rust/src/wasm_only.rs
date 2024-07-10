@@ -1,10 +1,8 @@
+use super::{PublicKeyReply, SchnorrAlgorithm, SignatureReply, SignatureVerificationReply};
 use candid::{CandidType, Principal};
 use ic_cdk::{query, update};
 use serde::{Deserialize, Serialize};
-use std::cell::RefCell;
-use std::convert::TryFrom;
-use std::convert::TryInto;
-use super::{PublicKeyReply, SchnorrAlgorithm, SignatureReply, SignatureVerificationReply};
+use std::convert::{TryFrom, TryInto};
 
 type CanisterId = Principal;
 
@@ -39,23 +37,6 @@ struct ManagementCanisterSignatureReply {
     pub signature: Vec<u8>,
 }
 
-thread_local! {
-    static STATE: RefCell<String> = RefCell::new("aaaaa-aa".to_string());
-}
-
-#[update]
-async fn for_test_only_change_management_canister_id(id: String) -> Result<(), String> {
-    let _ = CanisterId::from_text(&id).map_err(|e| panic!("invalid canister id: {}: {}", id, e));
-    STATE.with_borrow_mut(move |current_id| {
-        println!(
-            "Changing management canister id from {} to {id}",
-            *current_id
-        );
-        *current_id = id;
-    });
-    Ok(())
-}
-
 #[update]
 async fn public_key(algorithm: SchnorrAlgorithm) -> Result<PublicKeyReply, String> {
     let request = ManagementCanisterSchnorrPublicKeyRequest {
@@ -64,10 +45,13 @@ async fn public_key(algorithm: SchnorrAlgorithm) -> Result<PublicKeyReply, Strin
         key_id: SchnorrKeyIds::TestKeyLocalDevelopment.to_key_id(algorithm),
     };
 
-    let (res,): (ManagementCanisterSchnorrPublicKeyReply,) =
-        ic_cdk::call(mgmt_canister_id(), "schnorr_public_key", (request,))
-            .await
-            .map_err(|e| format!("schnorr_public_key failed {}", e.1))?;
+    let (res,): (ManagementCanisterSchnorrPublicKeyReply,) = ic_cdk::call(
+        Principal::management_canister(),
+        "schnorr_public_key",
+        (request,),
+    )
+    .await
+    .map_err(|e| format!("schnorr_public_key failed {}", e.1))?;
 
     Ok(PublicKeyReply {
         public_key_hex: hex::encode(&res.public_key),
@@ -84,7 +68,7 @@ async fn sign(message: String, algorithm: SchnorrAlgorithm) -> Result<SignatureR
 
     let (internal_reply,): (ManagementCanisterSignatureReply,) =
         ic_cdk::api::call::call_with_payment(
-            mgmt_canister_id(),
+            Principal::management_canister(),
             "sign_with_schnorr",
             (internal_request,),
             25_000_000_000,
@@ -151,10 +135,6 @@ fn verify_ed25519(
     let is_signature_valid = vk.verify(msg_bytes, &signature).is_ok();
 
     Ok(SignatureVerificationReply { is_signature_valid })
-}
-
-fn mgmt_canister_id() -> CanisterId {
-    STATE.with_borrow(|state| CanisterId::from_text(&state).unwrap())
 }
 
 enum SchnorrKeyIds {
