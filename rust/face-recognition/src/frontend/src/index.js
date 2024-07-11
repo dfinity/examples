@@ -5,6 +5,7 @@ window.onload = async () => {
   elem("store").onclick = store;
   elem("file").onchange = load_local_image;
   elem("canvas").onclick = restart;
+  elem("restart").onclick = restart;
   elem("video").oncanplay = () => {
     show("video");
     hide("image");
@@ -142,6 +143,7 @@ async function recognize(event) {
     message(err.toString());
   }
   hide("loader");
+  show("restart");
   return false;
 }
 
@@ -181,6 +183,7 @@ async function store(event) {
   }
 
   hide("loader");
+  show("restart");
   return false;
 }
 
@@ -220,6 +223,7 @@ function toDataURL(blob) {
 
 // Restarts the face recognition / addition user flow.
 async function restart(event) {
+  hide("restart");
   message("");
   if (video.srcObject) {
     event.preventDefault();

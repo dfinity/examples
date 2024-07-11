@@ -4,15 +4,16 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width" />
-  <title>ICP face recognition</title>
+  <title>On-chain ICP face recognition</title>
   <base href="/" />
   <link rel="icon" href="favicon.ico" />
   <link type="text/css" rel="stylesheet" href="main.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
 </head>
 
 <body>
   <div class="container">
-    <h1>ICP face recognition</h1>
+    <h1>On-chain ICP face recognition</h1>
     <div>
       <label id="filelabel" for="file" class="clickable">
         <div id="camera">
@@ -30,10 +31,12 @@
 
     <div id="toolbar">
       <div id="buttons" class="invisible">
-        <button id="recognize">🔍</button>
-        <button id="store">➕</button>
+        <button id="recognize"><i class="fa-solid fa-magnifying-glass"></i>Recognize</button>
+        <button id="store"><i class="fa-solid fa-user"></i>Add person</button>
       </div>
       <div id="message"></div>
+      <button id="restart" class="invisible" style="margin-top: 30px"><i
+          class="fa-solid fa-rotate-right"></i>Back</button>
     </div>
   </div>
 </body>

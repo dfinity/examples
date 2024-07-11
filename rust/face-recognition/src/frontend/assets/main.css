@@ -1,6 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 body {
     font-family: monospace;
     width: 100%;
+    color: #2563eb;
 }
 
 h1 {
@@ -24,7 +27,7 @@ div {
 #camera {
     position: relative;
     margin-top: 10px;
-    height: 250px;
+    height: 320px;
     cursor: pointer;
 }
 
@@ -34,11 +37,11 @@ div {
     position: absolute;
     top: 0px;
     left: 0px;
-    border: 1px solid #555;
-    max-width: 350px;
-    max-height: 350px;
+    border: 1px solid #2563eb;
+    max-width: 450px;
     width: auto;
-    height: 250px;
+    height: 320px;
+    border-radius: 0.6rem;
 }
 
 
@@ -86,27 +89,34 @@ div {
     left: 0px;
     display: flex;
     flex-direction: row;
-    gap: 10px;
+    gap: 1rem;
     justify-content: center;
 }
 
-#buttons button,
+button,
 #buttons label {
-    padding: 5px 10px;
-    border-radius: 4px;
-    border: 1px solid #555;
-    background-color: #eee;
-    font-size: larger;
+    text-wrap: nowrap;
+    display: inline;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    background-color: #2563eb;
+    color: #fff;
     cursor: pointer;
 }
 
-#buttons button:hover,
+button:hover,
 #buttons label:hover {
-    background-color: #fff;
+    background-color: #3583fb;
+}
+
+button i {
+    margin-right: 0.5rem;
+    font-size: 1rem;
 }
 
 #message {
-    max-width: 200px;
+    max-width: 300px;
     font-size: 120%;
 }
 
@@ -116,5 +126,5 @@ input.file {
 
 .container {
     margin: 0 auto;
-    width: 350px;
+    width: 450px;
 }
