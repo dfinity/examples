@@ -24,6 +24,7 @@ jobs:
         run: rm -f ~/.config/dfx/networks.json
       - name: Rust Face Recognition Darwin
         run: |
+          dfxvm install 0.22.0-beta.0
           dfx start --background
           pushd rust/face-recognition
           dfx deploy --yes 
@@ -38,6 +39,7 @@ jobs:
         run: rm -f ~/.config/dfx/networks.json
       - name: Rust Face Recognition Linux
         run: |
+          dfxvm install 0.22.0-beta.0
           dfx start --background
           pushd rust/face-recognition
           dfx deploy --yes 
