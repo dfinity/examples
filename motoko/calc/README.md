@@ -63,5 +63,5 @@ Output:
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 
 For example, the following aspects are particularly relevant for this app:
-* [Consider using stable memory, version it, test it](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices/#consider-using-stable-memory-version-it-test-it), since this canister uses canister memory and not stable memory. 
-* [Validate inputs](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices/#validate-inputs), since this canister accepts user input which requires input validation (e.g. div by 0 is not allowed). 
+* [Consider using stable memory, version it, test it](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/overview), since this canister uses canister memory and not stable memory.
+* [Validate inputs](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/overview), since this canister accepts user input which requires input validation (e.g. div by 0 is not allowed).
