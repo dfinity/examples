@@ -157,5 +157,5 @@ Without some additional access control checks (omitted here), a malicious client
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 
 For example, the following aspect is particularly relevant for this app:
-* [Protect against draining the cycles balance](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#protect-against-draining-the-cycles-balance), since this canister consumes cycles that are being transferred to other canisters. 
+* [Protect against draining the cycles balance](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/overview), since this canister consumes cycles that are being transferred to other canisters.
 

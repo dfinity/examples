@@ -289,7 +289,7 @@ dfx canister --network ic install www --mode=upgrade
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices, see also the [disclaimer](#disclaimer-please-read-carefully) above.  
 
 For example, the following aspects are particularly relevant for this app: 
-* [Make sure any action that only a specific user should be able to do requires authentication](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#make-sure-any-action-that-only-a-specific-user-should-be-able-to-do-requires-authentication), since a user should only be able to manage their own notes.
+* [Make sure any action that only a specific user should be able to do requires authentication](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/overview), since a user should only be able to manage their own notes.
 * [Protect key material against XSS using Web Crypto API](https://internetcomputer.org/docs/current/references/security/web-app-development-security-best-practices#crypto-protect-key-material-against-xss-using-web-crypto-api), since this app stores private keys in the browser. 
 * [Use secure cryptographic schemes](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#use-secure-cryptographic-schemes), since notes are being encrypted.
 

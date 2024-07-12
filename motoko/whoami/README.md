@@ -56,5 +56,5 @@ dfx canister call whoami id
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 
 For example, the following aspects are particularly relevant for this app:
-* [Make sure any action that only a specific user should be able to do requires authentication](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#make-sure-any-action-that-only-a-specific-user-should-be-able-to-do-requires-authentication), since this example illustrates how to access the caller system API. 
-* [Disallow the anonymous principal in authenticated calls](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#disallow-the-anonymous-principal-in-authenticated-calls), since the caller system API may return the anonymous principal.
+* [Make sure any action that only a specific user should be able to do requires authentication](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/overview), since this example illustrates how to access the caller system API.
+* [Disallow the anonymous principal in authenticated calls](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/overview), since the caller system API may return the anonymous principal.
