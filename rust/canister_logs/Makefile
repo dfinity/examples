@@ -78,6 +78,11 @@ test: install
 	dfx canister logs canister_logs \
 		| grep 'timer trap' && echo 'PASS'
 
+	# Test raw_rand.
+	dfx canister call canister_logs raw_rand
+	dfx canister logs canister_logs \
+		| grep 'ic.raw_rand() call succeeded' && echo 'PASS'
+
 .PHONY: clean
 .SILENT: clean
 clean:

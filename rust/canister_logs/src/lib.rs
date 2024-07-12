@@ -1,4 +1,6 @@
-use ic_cdk::{init, post_upgrade, query, update};
+use ic_cdk::{
+    api::management_canister::main::raw_rand as ic00_raw_rand, init, post_upgrade, query, update,
+};
 use std::time::Duration;
 
 const TIMER_INTERVAL_SEC: u64 = 5;
@@ -60,4 +62,19 @@ fn memory_oob() {
 fn failed_unwrap() {
     ic_cdk::print("right before failed unwrap");
     String::from_utf8(vec![0xc0, 0xff, 0xee]).unwrap(); // Invalid utf8 should panic.
+}
+
+#[update]
+async fn raw_rand() -> Vec<u8> {
+    ic_cdk::println!("pre ic.raw_rand() call");
+    match ic00_raw_rand().await {
+        Ok((bytes,)) => {
+            ic_cdk::println!("ic.raw_rand() call succeeded");
+            bytes
+        }
+        Err(err) => {
+            ic_cdk::println!("ic.raw_rand() call failed: {:?}", err);
+            vec![]
+        }
+    }
 }
