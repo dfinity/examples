@@ -1,0 +1,44 @@
+name: rust-face-recognition
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - rust/face-recognition/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-face-recognition-example.yaml
+      - .ic-commit
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rust-face-recognition-example-darwin:
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: DFX_VERSION="0.20.2-beta.0" bash .github/workflows/provision-darwin.sh
+      - name: Remove networks.json
+        run: rm -f ~/.config/dfx/networks.json
+      - name: Rust Face Recognition Darwin
+        run: |
+          dfx start --background
+          pushd rust/face-recognition
+          dfx deploy --yes 
+          popd
+  rust-face-recognition-example-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: DFX_VERSION="0.20.2-beta.0" bash .github/workflows/provision-linux.sh
+      - name: Remove networks.json
+        run: rm -f ~/.config/dfx/networks.json
+      - name: Rust Face Recognition Linux
+        run: |
+          dfx start --background
+          pushd rust/face-recognition
+          dfx deploy --yes 
+          popd
