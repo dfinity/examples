@@ -82,19 +82,24 @@ Open that URL in browser to interact with the smart contract.
 Since the models are large, they cannot be embedded into the Wasm binary of the smart contract.
 Instead they should be uploaded separately.
 
-[DecideAI](https://decideai.xyz/) implemented a tool for incremental uploading of models: https://github.com/modclub-app/rust-connect-py-ai-to-ic/tree/main/rust/upload_multiple_byte_files.
+[DecideAI](https://decideai.xyz/) implemented a tool for incremental uploading of models: https://github.com/modclub-app/ic-file-uploader/tree/main.
 
-In order to upload the models, you need to clone that repository, build the `upload_byte_file` rust binary, and add it to your `$PATH`.
+You can install the tool with
+
+```
+cargo install ic-file-uploader
+```
+
 Afterwards, execute the `upload-models-to-canister.sh` script, which runs the following commands:
 ```
 dfx canister call backend clear_face_detection_model_bytes
 dfx canister call backend clear_face_recognition_model_bytes
-upload_byte_file backend append_face_detection_model_bytes . version-RFB-320.onnx
-upload_byte_file backend append_face_recognition_model_bytes . face-recognition.onnx
+ic-file-uploader backend append_face_detection_model_bytes version-RFB-320.onnx
+ic-file-uploader backend append_face_recognition_model_bytes face-recognition.onnx
 dfx canister call backend setup_models
 ```
 
 # Credits 
 
-Thanks to [DecideAI](https://decideai.xyz/) for discussions and providing [rust-connect-py-ai-to-ic](https://github.com/modclub-app/rust-connect-py-ai-to-ic/tree/main/rust/upload_multiple_byte_files).
+Thanks to [DecideAI](https://decideai.xyz/) for discussions and providing [ic-file-uploader](https://github.com/modclub-app/ic-file-uploader/tree/main).
 

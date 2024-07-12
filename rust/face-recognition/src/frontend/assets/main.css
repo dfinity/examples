@@ -8,6 +8,8 @@ body {
 
 h1 {
     font-size: larger;
+    display: flex;
+    align-items: center;
 }
 
 form {
@@ -127,4 +129,10 @@ input.file {
 .container {
     margin: 0 auto;
     width: 450px;
+}
+
+#inline-logo {
+    height: 1em;
+    margin-left: 0.2ch;
+    margin-right: 1ch;
 }
