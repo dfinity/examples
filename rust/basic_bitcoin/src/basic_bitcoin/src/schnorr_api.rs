@@ -1,6 +1,8 @@
 use candid::{CandidType, Deserialize, Principal};
 use serde::Serialize;
 
+const SIGN_WITH_SCHNORR_FEE: u128 = 10_000_000_000;
+
 #[derive(CandidType, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum SchnorrAlgorithm {
     #[serde(rename = "bip340secp256k1")]
@@ -64,7 +66,7 @@ pub async fn sign_with_schnorr(
     derivation_path: Vec<Vec<u8>>,
     message: Vec<u8>,
 ) -> Vec<u8> {
-    let res: Result<(SignWithSchnorrReply,), _> = ic_cdk::call(
+    let res: Result<(SignWithSchnorrReply,), _> = ic_cdk::api::call::call_with_payment128(
         Principal::management_canister(),
         "sign_with_schnorr",
         (SignWithSchnorr {
@@ -75,6 +77,7 @@ pub async fn sign_with_schnorr(
                 algorithm: SchnorrAlgorithm::Bip340Secp256k1,
             },
         },),
+        SIGN_WITH_SCHNORR_FEE,
     )
     .await;
 
