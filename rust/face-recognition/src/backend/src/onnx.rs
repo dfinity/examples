@@ -132,7 +132,7 @@ pub fn embedding(image: Vec<u8>) -> Result<Embedding, anyhow::Error> {
         let model = model.as_ref().unwrap();
         let image = image::load_from_memory(&image)?.to_rgb8();
 
-        // The model accepts an image of size 140x140px.
+        // The model accepts an image of size 160x160px.
         let image =
             image::imageops::resize(&image, 160, 160, ::image::imageops::FilterType::Triangle);
 
