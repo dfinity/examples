@@ -101,12 +101,16 @@ from three types of addresses:
 2. A [P2TR
    address](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki)
    where the funds can be spent using the raw (untweaked) internal key
-   (so-called P2TR key path spend, but untweaked). IMPORTANT: This type of
-   address MUST NOT be used with keys created by multiple parties (e.g., using
-   [MuSig2](https://ia.cr/2020/1261)). It is only secure in a single-party
-   scenario. The advantage of this approach compared to the one below is its
-   significantly smaller fee per transaction because checking the transaction
-   signature is analogous to P2PK but uses Schnorr instead of ECDSA.
+   (so-called P2TR key path spend, but untweaked). The advantage of this
+   approach compared to the one below is its significantly smaller fee per
+   transaction because checking the transaction signature is analogous to P2PK
+   but uses Schnorr instead of ECDSA. IMPORTANT: Note that
+   [BIP341](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki#cite_note-23)
+   advises against using taproot addresses that can be spent with an untweaked
+   key. This precaution is to prevent attacks that can occur when creating
+   taproot multisigner addresses using specific multisignature schemes. However,
+   the Schnorr API of the internet computer does not support Schnorr
+   multisignatures. 
 3. A [P2TR
    address](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki)
    where the funds can be spent using the provided public key with the script
