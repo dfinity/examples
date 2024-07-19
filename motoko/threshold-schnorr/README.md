@@ -47,19 +47,30 @@ Sample code for `threshold-schnorr-example` is provided in the [examples reposit
 
 ### Deploy and test the canister locally 
 
-This tutorial will use the Motoko version of the canister:
+This tutorial will use the Motoko version of the canister.
 
+To deploy:
 ```bash
 cd examples/motoko/threshold-schnorr
 dfx start --background
+make deploy
+```
+
+To test (includes deploying):
+```bash
+cd examples/motoko/threshold-schnorr
+dfx start --background
+npm install @noble/curves
 make test
 ```
 
 #### What this does
 - `dfx start --background` starts a local instance of the IC via the IC SDK
-- `make test` deploys the canister code on the local version of the IC
+- `make deploy` deploys the canister code on the local version of the IC
+- `npm install @noble/curves` installs a test javascript dependency
+- `make test` deploys and tests the canister code on the local version of the IC
 
-If successful, you should see something like this:
+If deployment was successful, you should see something like this:
 
 ```bash
 Deployed canisters.

@@ -45,7 +45,7 @@ version available in the same repo and follows the same commands for deploying.
 
 Sample code for `threshold-schnorr-example` is provided in the [examples repository](https://github.com/dfinity/examples), under either [`/motoko`](https://github.com/dfinity/examples/tree/master/motoko/threshold-schnorr) or [`/rust`](https://github.com/dfinity/examples/tree/master/rust/threshold-schnorr) sub-directories.
 
-### Deploy and test the canister locally 
+### Deploy the canister locally
 
 This tutorial will use the Rust version of the canister:
 
