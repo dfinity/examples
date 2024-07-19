@@ -1,7 +1,7 @@
 use candid::{CandidType, Deserialize, Principal};
 use serde::Serialize;
 
-const SIGN_WITH_SCHNORR_FEE: u128 = 10_000_000_000;
+const SIGN_WITH_SCHNORR_FEE: u128 = 25_000_000_000;
 
 #[derive(CandidType, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
 pub enum SchnorrAlgorithm {
