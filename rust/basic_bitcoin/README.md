@@ -123,8 +123,7 @@ applying BIP341 tweaks to the private key. In contrast, the
 tweaked public key is used to spend in the script path, which is availble on the
 IC. For a technical comparison of different ways of how single-signer P2TR
 addresses can be constructed and used, you may want to take a look at [this
-post](https://bitcoin.stackexchange.com/a/111100) by Pieter Wuille. Multi-signer
-P2TR addresses are out of scope of this example.
+post](https://bitcoin.stackexchange.com/a/111100) by Pieter Wuille.
 
 On the Candid UI of your canister, click the "Call" button under
 `get_${type}_address` to generate a `${type}` Bitcoin address, where `${type}`
