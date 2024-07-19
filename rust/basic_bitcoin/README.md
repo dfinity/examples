@@ -117,12 +117,14 @@ from three types of addresses:
    path, where the Merkelized Alternative Script Tree (MAST) consists of a
    single script allowing to spend funds by exactly one key.
 
-Note that P2TR tweaked key spends are currently not available on the IC because
-the threshold Schnorr signing interface does not allow applying BIP341 tweaks to
-For a technical comparison of different
-ways of how single-signer P2TR addresses can be constructed and used, you may
-want to take a look at [this post](https://bitcoin.stackexchange.com/a/111100)
-by Pieter Wuille. Multi-signer P2TR addresses are out of scope of this example.
+Note that P2TR *key path* spending with a tweaked key is currently not available
+on the IC because the threshold Schnorr signing interface does not allow
+applying BIP341 tweaks to the private key. In contrast, the
+tweaked public key is used to spend in the script path, which is availble on the
+IC. For a technical comparison of different ways of how single-signer P2TR
+addresses can be constructed and used, you may want to take a look at [this
+post](https://bitcoin.stackexchange.com/a/111100) by Pieter Wuille. Multi-signer
+P2TR addresses are out of scope of this example.
 
 On the Candid UI of your canister, click the "Call" button under
 `get_${type}_address` to generate a `${type}` Bitcoin address, where `${type}`
