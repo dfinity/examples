@@ -128,8 +128,14 @@ If successful, you should see something like this:
 Deployed canisters.
 URLs:
   Backend canister via Candid interface:
-    schnorr_example_motoko: https://a3gq9-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=736w4-cyaaa-aaaal-qb3wq-cai
+    schnorr_example_motoko: https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=enb64-iaaaa-aaaap-ahnkq-cai
 ```
+
+The implementation of this canister in Rust is (`schnorr_example_rust`) is
+deployed on mainnet. It has the URL
+https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=enb64-iaaaa-aaaap-ahnkq-cai
+and serves up the Candid web UI for this particular canister deployed on
+mainnet.
 
 ## Obtaining public keys
 
