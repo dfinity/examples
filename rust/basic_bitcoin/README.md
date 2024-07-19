@@ -115,8 +115,7 @@ from three types of addresses:
 
 Note that P2TR tweaked key spends are currently not available on the IC because
 the threshold Schnorr signing interface does not allow applying BIP341 tweaks to
-the private key but this may become available in the future - there is no
-technical limitation on the IC side. For a technical comparison of different
+For a technical comparison of different
 ways of how single-signer P2TR addresses can be constructed and used, you may
 want to take a look at [this post](https://bitcoin.stackexchange.com/a/111100)
 by Pieter Wuille. Multi-signer P2TR addresses are out of scope of this example.
