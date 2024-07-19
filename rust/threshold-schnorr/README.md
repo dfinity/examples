@@ -35,7 +35,10 @@ version available in the same repo and follows the same commands for deploying.
 
 
 ## Prerequisites
--   [x] Download and [install the IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/index.md) if you do not already have it.
+-   [x] Download and [install the IC
+    SDK](https://internetcomputer.org/docs/current/developer-docs/setup/index.md)
+    if you do not already have it. For local testing, `dfx >= 0.22.0-beta.0` is
+    required.
 -   [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 ## Getting started
@@ -49,7 +52,6 @@ This tutorial will use the Rust version of the canister:
 ```bash
 cd examples/rust/threshold-schnorr
 dfx start --background
-npm install
 make deploy
 ```
 
@@ -108,7 +110,6 @@ Both uses of key ID in `src/schnorr_example_rust/src/lib.rs` must be consistent.
 To [deploy via the mainnet](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-mainnet.md), run the following commands:
 
 ```bash
-npm install
 dfx deploy --network ic
 ```
 If successful, you should see something like this:

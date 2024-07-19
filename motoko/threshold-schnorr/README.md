@@ -29,13 +29,16 @@ More specifically:
 This tutorial gives a complete overview of the development, starting with downloading [`dfx`](https://internetcomputer.org/docs/current/developer-docs/setup/index.md), up to the deployment and trying out the code on the mainnet.
 
 This walkthrough focuses on the version of the sample canister code written in
-Motoko programming language.. There is also a
+Motoko programming language. There is also a
 [Rust](https://github.com/dfinity/examples/tree/master/rust/threshold-schnorr)
 version available in the same repo and follows the same commands for deploying.
 
 
 ## Prerequisites
--   [x] Download and [install the IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/index.md) if you do not already have it.
+-   [x] Download and [install the IC
+    SDK](https://internetcomputer.org/docs/current/developer-docs/setup/index.md)
+    if you do not already have it. For local testing, `dfx >= 0.22.0-beta.0` is
+    required.
 -   [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 ## Getting started
@@ -49,13 +52,12 @@ This tutorial will use the Motoko version of the canister:
 ```bash
 cd examples/motoko/threshold-schnorr
 dfx start --background
-npm install
-make deploy
+make test
 ```
 
 #### What this does
 - `dfx start --background` starts a local instance of the IC via the IC SDK
-- `make deploy` deploys the canister code on the local version of the IC
+- `make test` deploys the canister code on the local version of the IC
 
 If successful, you should see something like this:
 
@@ -67,8 +69,8 @@ URLs:
 ```
 
 If you open the URL in a web browser, you will see a web UI that shows the
-public methods the canister exposes. Since the canister exposes `public_key`,
-`sign`, and `verify` methods, those are rendered in the web UI.
+public methods the canister exposes. Since the canister exposes `public_key` and
+`sign`, those are rendered in the web UI.
 
 ### Deploying the canister on the mainnet
 
@@ -107,7 +109,6 @@ key ID in `src/schnorr_example_motoko/src/main.mo` must be consistent.
 To [deploy via the mainnet](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-mainnet.md), run the following commands:
 
 ```bash
-npm install
 dfx deploy --network ic
 ```
 If successful, you should see something like this:
@@ -206,7 +207,11 @@ Computing threshold Schnorr signatures is the core functionality of this feature
 
 ## Signature verification
 
-For completeness of the example, we show that the created signatures can be verified with the public key corresponding to the same canister and derivation path.
+For completeness of the example, we show that the created signatures can be
+verified with the public key corresponding to the same canister and derivation
+path in javascript. Note that in contrast to the Rust implementation of this
+example, the signature verification is not part of the canister API and happens
+externally.
 
 Ed25519 can be verified as follows:
 ```javascript
