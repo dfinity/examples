@@ -84,6 +84,12 @@ would use the URL
 `https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=<YOUR-CANISTER-ID>`. Candid
 Web UI will contain all methods implemented by the canister.
 
+The `basic_bitcoin` example is deployed on mainnet for illustration purposes and
+is interacting with Bitcoin testnet. It has the URL
+https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=vvha6-7qaaa-aaaap-ahodq-cai
+and serves up the Candid web UI for this particular canister deployed on
+mainnet.
+
 ## Step 2: Generating a Bitcoin address
 
 Bitcoin has different types of addresses (e.g. P2PKH, P2SH, P2TR). You may want
