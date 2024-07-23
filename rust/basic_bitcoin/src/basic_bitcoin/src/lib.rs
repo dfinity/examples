@@ -1,12 +1,12 @@
 mod bitcoin_api;
 mod bitcoin_wallet;
 mod ecdsa_api;
-mod types;
+mod schnorr_api;
 
 use ic_cdk::api::management_canister::bitcoin::{
     BitcoinNetwork, GetUtxosResponse, MillisatoshiPerByte,
 };
-use ic_cdk_macros::{init, post_upgrade, pre_upgrade, update};
+use ic_cdk_macros::{init, update};
 use std::cell::{Cell, RefCell};
 
 thread_local! {
@@ -17,7 +17,7 @@ thread_local! {
     // `Mainnet` is currently unsupported.
     static NETWORK: Cell<BitcoinNetwork> = Cell::new(BitcoinNetwork::Testnet);
 
-    // The derivation path to use for ECDSA secp256k1.
+    // The derivation path to use for the threshold key.
     static DERIVATION_PATH: Vec<Vec<u8>> = vec![];
 
     // The ECDSA key name.
@@ -66,17 +66,17 @@ pub async fn get_p2pkh_address() -> String {
     let derivation_path = DERIVATION_PATH.with(|d| d.clone());
     let key_name = KEY_NAME.with(|kn| kn.borrow().to_string());
     let network = NETWORK.with(|n| n.get());
-    bitcoin_wallet::get_p2pkh_address(network, key_name, derivation_path).await
+    bitcoin_wallet::p2pkh::get_address(network, key_name, derivation_path).await
 }
 
-/// Sends the given amount of bitcoin from this canister to the given address.
+/// Sends the given amount of bitcoin from this canister's p2pkh address to the given address.
 /// Returns the transaction ID.
 #[update]
-pub async fn send(request: types::SendRequest) -> String {
+pub async fn send_from_p2pkh(request: SendRequest) -> String {
     let derivation_path = DERIVATION_PATH.with(|d| d.clone());
     let network = NETWORK.with(|n| n.get());
     let key_name = KEY_NAME.with(|kn| kn.borrow().to_string());
-    let tx_id = bitcoin_wallet::send(
+    let tx_id = bitcoin_wallet::p2pkh::send(
         network,
         derivation_path,
         key_name,
@@ -88,17 +88,79 @@ pub async fn send(request: types::SendRequest) -> String {
     tx_id.to_string()
 }
 
-#[pre_upgrade]
-fn pre_upgrade() {
+/// Returns the P2TR address of this canister at a specific derivation path.
+#[update]
+pub async fn get_p2tr_script_spend_address() -> String {
+    let mut derivation_path = DERIVATION_PATH.with(|d| d.clone());
+    derivation_path.push(b"script_spend".to_vec());
+    let key_name = KEY_NAME.with(|kn| kn.borrow().to_string());
     let network = NETWORK.with(|n| n.get());
-    ic_cdk::storage::stable_save((network,)).expect("Saving network to stable store must succeed.");
+
+    bitcoin_wallet::p2tr_script_spend::get_address(network, key_name, derivation_path)
+        .await
+        .to_string()
 }
 
-#[post_upgrade]
-fn post_upgrade() {
-    let network = ic_cdk::storage::stable_restore::<(BitcoinNetwork,)>()
-        .expect("Failed to read network from stable memory.")
-        .0;
+/// Sends the given amount of bitcoin from this canister's p2tr address to the given address.
+/// Returns the transaction ID.
+#[update]
+pub async fn send_from_p2tr_script_spend(request: SendRequest) -> String {
+    let mut derivation_path = DERIVATION_PATH.with(|d| d.clone());
+    derivation_path.push(b"script_spend".to_vec());
+    let network = NETWORK.with(|n| n.get());
+    let key_name = KEY_NAME.with(|kn| kn.borrow().to_string());
+    let tx_id = bitcoin_wallet::p2tr_script_spend::send(
+        network,
+        derivation_path,
+        key_name,
+        request.destination_address,
+        request.amount_in_satoshi,
+    )
+    .await;
 
-    init(network);
+    tx_id.to_string()
+}
+
+/// Returns the P2TR address of this canister at a specific derivation path.
+#[update]
+pub async fn get_p2tr_raw_key_spend_address() -> String {
+    let mut derivation_path = DERIVATION_PATH.with(|d| d.clone());
+    derivation_path.push(b"key_spend".to_vec());
+    let key_name = KEY_NAME.with(|kn| kn.borrow().to_string());
+    let network = NETWORK.with(|n| n.get());
+
+    bitcoin_wallet::p2tr_raw_key_spend::get_address(network, key_name, derivation_path)
+        .await
+        .to_string()
+}
+
+/// Sends the given amount of bitcoin from this canister's p2tr address to the
+/// given address. Returns the transaction ID.
+///
+/// IMPORTANT: This function uses an untweaked key as the spending key.
+///
+/// WARNING: This function is not suited for multi-party scenarios where
+/// multiple keys are used for spending.
+#[update]
+pub async fn send_from_p2tr_raw_key_spend(request: SendRequest) -> String {
+    let mut derivation_path = DERIVATION_PATH.with(|d| d.clone());
+    derivation_path.push(b"key_spend".to_vec());
+    let network = NETWORK.with(|n| n.get());
+    let key_name = KEY_NAME.with(|kn| kn.borrow().to_string());
+    let tx_id = bitcoin_wallet::p2tr_raw_key_spend::send(
+        network,
+        derivation_path,
+        key_name,
+        request.destination_address,
+        request.amount_in_satoshi,
+    )
+    .await;
+
+    tx_id.to_string()
+}
+
+#[derive(candid::CandidType, candid::Deserialize)]
+pub struct SendRequest {
+    pub destination_address: String,
+    pub amount_in_satoshi: u64,
 }

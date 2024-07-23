@@ -11,7 +11,14 @@
         {
           "name": "candid:service"
         }
-      ]
+      ],
+      "specified_id": "om77v-qqaaa-aaaap-ahmrq-cai",
+      "remote": {
+        "id": {
+          "ic": "om77v-qqaaa-aaaap-ahmrq-cai",
+          "playground": "om77v-qqaaa-aaaap-ahmrq-cai"
+        }
+      }
     }
   },
   "defaults": {
@@ -25,11 +32,6 @@
     "build": {
       "packtool": "",
       "args": ""
-    }
-  },
-  "networks": {
-    "local": {
-      "bind": "127.0.0.1:4943"
     }
   }
 }
