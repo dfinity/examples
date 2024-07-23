@@ -21,9 +21,10 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko Threshold Schnorr Darwin
         run: |
+          dfxvm default 0.22.0-beta.0
           dfx start --background
+          npm install @noble/curves
           pushd motoko/threshold-schnorr
-          make mock
           make test
   motoko-threshold-schnorr-linux:
     runs-on: ubuntu-20.04
@@ -33,7 +34,8 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko Threshold Schnorr Linux
         run: |
+          dfxvm default 0.22.0-beta.0
           dfx start --background
+          npm install @noble/curves
           pushd motoko/threshold-schnorr
-          make mock
           make test

@@ -25,11 +25,13 @@ jobs:
         run: bash .github/workflows/provision-pocket-ic-server.sh
       - name: Rust Threshold Schnorr Darwin
         run: |
+          dfxvm default 0.22.0-beta.0
           dfx start --background
           pushd rust/threshold-schnorr
-          make mock
-          sleep 10
-          make test
+          make deploy
+# This should be re-enabled when Pocket IC supports threshold Schnorr
+# sleep 10
+# make test
   rust-threshold-schnorr-linux:
     runs-on: ubuntu-20.04
     steps:
@@ -40,8 +42,10 @@ jobs:
         run: bash .github/workflows/provision-pocket-ic-server.sh
       - name: Rust Threshold Schnorr Linux
         run: |
+          dfxvm default 0.22.0-beta.0
           dfx start --background
           pushd rust/threshold-schnorr
-          make mock
-          sleep 10
-          make test
+          make deploy
+# This should be re-enabled when Pocket IC supports threshold Schnorr
+# sleep 10
+# make test
