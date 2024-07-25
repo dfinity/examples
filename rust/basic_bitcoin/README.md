@@ -13,7 +13,9 @@ This tutorial will walk you through how to deploy a sample [canister smart contr
 
 This example internally leverages the [ECDSA
 API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-ecdsa_public_key),
-[Schnorr API](https://org5p-7iaaa-aaaak-qckna-cai.icp0.io/docs#ic-sign_with_schnorr), and [Bitcoin
+[Schnorr
+API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr),
+and [Bitcoin
 API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin-api)
 of the Internet Computer.
 
@@ -200,9 +202,11 @@ The `send_from_${type}` endpoint can send bitcoin by:
    The fee percentiles obtained from step 1 is used to set an appropriate fee.
 4. Signing the inputs of the transaction using the
    [sign_with_ecdsa
-   API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-method-sign_with_ecdsa)/\
-   [sign_with_schnorr](https://org5p-7iaaa-aaaak-qckna-cai.icp0.io/docs#ic-sign_with_schnorr).
-5. Sending the signed transaction to the Bitcoin network using the [bitcoin_send_transaction API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-method-bitcoin_send_transaction).
+   API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_ecdsa)/\
+   [sign_with_schnorr](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr).
+5. Sending the signed transaction to the Bitcoin network using the
+   [bitcoin_send_transaction
+   API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_send_transaction).
 
 This canister's `send_from_${type}` endpoint returns the ID of the transaction
 it sent to the network. You can track the status of this transaction using a
