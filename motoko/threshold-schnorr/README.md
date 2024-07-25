@@ -10,7 +10,7 @@ keywords: [advanced, motoko, threshold schnorr, schnorr, signature]
 
 We present a minimal example canister smart contract for showcasing the
 [threshold
-Schnorr](https://org5p-7iaaa-aaaak-qckna-cai.icp0.io/docs#ic-sign_with_schnorr)
+Schnorr](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr)
 API.
 
 The example canister is a signing oracle that creates Schnorr signatures with
