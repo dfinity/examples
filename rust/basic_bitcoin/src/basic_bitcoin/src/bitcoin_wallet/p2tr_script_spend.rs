@@ -41,13 +41,17 @@ pub fn public_key_to_p2tr_script_spend_address(
 
 fn p2tr_scipt_spend_info(public_key: &[u8]) -> TaprootSpendInfo {
     let spend_script = p2tr_script(public_key);
-    let dummy_random_secp256k1 = Secp256k1::new();
-    let schnorr_public_key = XOnlyPublicKey::from(PublicKey::from_slice(&public_key).unwrap());
+    let secp256k1_engine = Secp256k1::new();
+    // This is the key used in the *tweaked* key path spending. Currently, this
+    // use case is not supported on the IC. But, once the IC supports this use
+    // case, the addresses constructed in this way will be able to use same key
+    // in both script and *tweaked* key path spending.
+    let internal_public_key = XOnlyPublicKey::from(PublicKey::from_slice(&public_key).unwrap());
 
     TaprootBuilder::new()
         .add_leaf(0, spend_script.clone())
         .expect("adding leaf should work")
-        .finalize(&dummy_random_secp256k1, schnorr_public_key)
+        .finalize(&secp256k1_engine, internal_public_key)
         .expect("finalizing taproot builder should work")
 }
 
