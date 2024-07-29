@@ -18,7 +18,7 @@ rm node.pkg
 
 # Install DFINITY SDK.
 curl --location --output install-dfx.sh "https://raw.githubusercontent.com/dfinity/sdk/master/public/install-dfxvm.sh"
-DFX_VERSION=${DFX_VERSION:=0.21.0} DFXVM_INIT_YES=true bash install-dfx.sh
+DFX_VERSION=${DFX_VERSION:=0.22.0} DFXVM_INIT_YES=true bash install-dfx.sh
 rm install-dfx.sh
 echo "$HOME/Library/Application Support/org.dfinity.dfx/bin" >> $GITHUB_PATH
 source "$HOME/Library/Application Support/org.dfinity.dfx/env"
