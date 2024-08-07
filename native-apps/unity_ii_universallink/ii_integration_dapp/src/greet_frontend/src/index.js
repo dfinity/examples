@@ -75,7 +75,7 @@ openButton.onclick = async (e) => {
         return false;
     }
     
-    var url = "https://ms43p-uaaaa-aaaan-qixeq-cai.icp0.io/authorize?";
+    var url = "https://ms43p-uaaaa-aaaan-qixeq-cai.icp0.io/authorize#";
     var delegationString = JSON.stringify(delegationChain.toJSON());    
     url = url + "delegation=" + encodeURIComponent(delegationString);
     //console.log(url);

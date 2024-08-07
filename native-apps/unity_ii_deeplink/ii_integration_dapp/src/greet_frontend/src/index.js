@@ -68,7 +68,7 @@ openButton.onclick = async (e) => {
         return false;
     }
 
-    var url = "internetidentity://authorize?";
+    var url = "internetidentity://authorize#";
     var delegationString = JSON.stringify(delegationChain.toJSON());
     url = url + "delegation=" + encodeURIComponent(delegationString);
     //console.log(url);
