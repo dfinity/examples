@@ -8,6 +8,11 @@ use ic_cdk::api::management_canister::bitcoin::{
 };
 use ic_cdk_macros::{init, update};
 use std::cell::{Cell, RefCell};
+use bitcoin::{Address, Network, PublicKey};
+use bitcoin::hashes::siphash24::State;
+use candid::de::Config;
+use candid::Principal;
+use ic_cdk::api::management_canister::ecdsa::{ecdsa_public_key, EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgument};
 
 thread_local! {
     // The bitcoin network to connect to.
@@ -163,4 +168,61 @@ pub async fn send_from_p2tr_raw_key_spend(request: SendRequest) -> String {
 pub struct SendRequest {
     pub destination_address: String,
     pub amount_in_satoshi: u64,
+}
+
+fn transform_network2(network: BitcoinNetwork) -> Network {
+    match network {
+        BitcoinNetwork::Mainnet => Network::Bitcoin,
+        BitcoinNetwork::Testnet => Network::Testnet,
+        BitcoinNetwork::Regtest => Network::Regtest,
+    }
+}
+
+/// Converts a public key to a P2PKH address.
+/// Reference: [IC Bitcoin Documentation](https://internetcomputer.org/docs/current/developer-docs/multi-chain/bitcoin/using-btc/generate-addresses#generating-addresses-with-threshold-ecdsa)
+pub fn public_key_to_p2pkh_address2(network: BitcoinNetwork, public_key: &[u8]) -> String {
+    Address::p2pkh(
+        &PublicKey::from_slice(public_key).expect("failed to parse public key"),
+        transform_network2(network),
+    )
+        .to_string()
+}
+
+fn principal_to_derivation_path(p: &Principal) -> Vec<Vec<u8>> {
+    const SCHEMA: u8 = 1;
+
+    vec![vec![SCHEMA], p.as_slice().to_vec()]
+}
+
+/// Computes the public key of the specified principal.
+async fn ecdsa_pubkey_of(principal: &Principal) -> Vec<u8> {
+    let name = KEY_NAME.with(|kn| kn.borrow().to_string());
+    let (key,) = ecdsa_public_key(EcdsaPublicKeyArgument {
+        canister_id: None,
+        derivation_path: principal_to_derivation_path(principal),
+        key_id: EcdsaKeyId {
+            curve: EcdsaCurve::Secp256k1,
+            name,
+        },
+    })
+        .await
+        .expect("failed to get public key");
+    key.public_key
+}
+
+/// Returns the
+#[update]
+pub async fn caller_btc_address(network: BitcoinNetwork) -> String {
+    public_key_to_p2pkh_address2(network, &ecdsa_pubkey_of(&ic_cdk::caller()).await)
+}
+
+
+
+/// Returns the
+#[update]
+pub async fn btc_address_of(p: Principal, network: BitcoinNetwork) -> String {
+    if p == Principal::anonymous() {
+        ic_cdk::trap("Anonymous principal is not authorized");
+    }
+    public_key_to_p2pkh_address2(network,&ecdsa_pubkey_of(&p).await)
 }

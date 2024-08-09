@@ -8,6 +8,8 @@ type transaction_id = text;
 
 type block_hash = blob;
 
+type BitcoinNetwork = variant { mainnet; regtest; testnet };
+
 type network = variant {
   regtest;
   testnet;
@@ -34,6 +36,10 @@ type get_utxos_response = record {
 
 service : (network) -> {
   "get_p2pkh_address" : () -> (bitcoin_address);
+
+  "caller_btc_address" : (BitcoinNetwork) -> (text);
+
+  "btc_address_of" : (principal, BitcoinNetwork) -> (text);
 
   "get_p2tr_script_spend_address" : () -> (bitcoin_address);
 
