@@ -167,3 +167,16 @@ If you base your application on this example, we recommend you familiarize yours
 For example, the following aspects are particularly relevant for this app:
 * [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since the app e.g. offers a method to read balances.
 * [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/overview)
+
+## Taproot transactions
+In addition to P2PKH transactions, this example now also suppots P2TR
+transactions, namely the so-called untweaked key path P2TR transactions, which
+is the most efficient way of performing a P2TR transaction. The limitation of
+this type of transactions is that it cannot be used in combination with scripts.
+IMPORTANT: Note that BIP341 advises against using taproot addresses that can be
+spent with an untweaked key. This precaution is to prevent attacks that can
+occur when creating taproot multisigner addresses using specific multisignature
+schemes. However, the Schnorr API of the internet computer does not support
+Schnorr multisignatures.
+
+This implementation has only been tested locally with regtest.

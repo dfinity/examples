@@ -9,22 +9,22 @@ module {
     type Result<Ok, Err> = Result.Result<Ok, Err>;
 
     /// Returns the value of the result and traps if there isn't any value to return.
-    public func get_ok<T, U>(result : Result<T, U>) : T {
+    public func get_ok<T>(result : Result<T, Text>) : T {
         switch result {
             case (#ok value)
                 value;
             case (#err error)
-                Debug.trap("pattern failed");
+                Debug.trap("pattern failed: " # error);
         }
     };
 
     /// Returns the value of the result and traps with a custom message if there isn't any value to return.
-    public func get_ok_except<T, U>(result : Result<T, U>, expect : Text) : T {
+    public func get_ok_except<T>(result : Result<T, Text>, expect : Text) : T {
         switch result {
             case (#ok value)
                 value;
             case (#err error) {
-                Debug.print("pattern failed");
+                Debug.print("pattern failed: " # error);
                 Debug.trap(expect);
             };
         }
