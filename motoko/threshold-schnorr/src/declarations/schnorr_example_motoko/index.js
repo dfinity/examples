@@ -1,8 +1,8 @@
 import { Actor, HttpAgent } from "@dfinity/agent";
 
 // Imports and re-exports candid interface
-import { idlFactory } from "./random_maze.did.js";
-export { idlFactory } from "./random_maze.did.js";
+import { idlFactory } from "./schnorr_example_motoko.did.js";
+export { idlFactory } from "./schnorr_example_motoko.did.js";
 
 /* CANISTER_ID is replaced by webpack based on node environment
  * Note: canister environment variable will be standardized as
@@ -10,7 +10,7 @@ export { idlFactory } from "./random_maze.did.js";
  * beginning in dfx 0.15.0
  */
 export const canisterId =
-  process.env.CANISTER_ID_RANDOM_MAZE;
+  process.env.CANISTER_ID_SCHNORR_EXAMPLE_MOTOKO;
 
 export const createActor = (canisterId, options = {}) => {
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
@@ -39,4 +39,4 @@ export const createActor = (canisterId, options = {}) => {
   });
 };
 
-export const random_maze = canisterId ? createActor(canisterId) : undefined;
+export const schnorr_example_motoko = canisterId ? createActor(canisterId) : undefined;
