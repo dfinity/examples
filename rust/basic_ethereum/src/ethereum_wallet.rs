@@ -89,7 +89,7 @@ impl EthereumWallet {
 }
 
 fn derive_public_key(owner: &Principal, public_key: &EcdsaPublicKey) -> EcdsaPublicKey {
-    use ic_crypto_extended_bip32::{DerivationIndex, DerivationPath};
+    use ic_crypto_ecdsa_secp256k1::{DerivationIndex, DerivationPath};
     let derivation_path = DerivationPath::new(
         derivation_path(owner)
             .into_iter()
@@ -98,7 +98,6 @@ fn derive_public_key(owner: &Principal, public_key: &EcdsaPublicKey) -> EcdsaPub
     );
     public_key
         .derive_new_public_key(&derivation_path)
-        .expect("BUG: failed to derive an ECDSA public key")
 }
 
 fn derivation_path(owner: &Principal) -> Vec<Vec<u8>> {
