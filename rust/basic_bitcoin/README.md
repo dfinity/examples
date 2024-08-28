@@ -219,10 +219,7 @@ reflected in your current balance.
 You can also get a range of Bitcoin block headers by using the `get_block_headers` 
 endpoint on your canister.
 
-In the Candid UI, write the desired start height and optionally end height, and click on "Call":
-
-Alternatively, make the call using the command line. Be sure to replace `10` with your 
-desired start height:
+Make the call using the command line. Be sure to replace `10` with your desired start height:
 
 ```bash
 dfx canister --network=ic call basic_bitcoin get_block_headers "(10: nat32)"
