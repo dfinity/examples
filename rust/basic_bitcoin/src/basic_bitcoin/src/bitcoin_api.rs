@@ -1,8 +1,10 @@
+use candid::Principal;
 use ic_cdk::api::management_canister::bitcoin::{
     bitcoin_get_balance, bitcoin_get_current_fee_percentiles, bitcoin_get_utxos,
     bitcoin_send_transaction, BitcoinNetwork, GetBalanceRequest, GetCurrentFeePercentilesRequest,
     GetUtxosRequest, GetUtxosResponse, MillisatoshiPerByte, SendTransactionRequest,
 };
+use crate::{GetBlockHeadersRequest, GetBlockHeadersResponse};
 
 /// Returns the balance of the given bitcoin address.
 ///
@@ -36,6 +38,31 @@ pub async fn get_utxos(network: BitcoinNetwork, address: String) -> GetUtxosResp
     utxos_res.unwrap().0
 }
 
+/// Returns the block headers in the given height range.
+pub(crate) async fn get_block_headers(network: BitcoinNetwork, start_height: u32, end_height: Option<u32>) -> GetBlockHeadersResponse{
+    let cycles = match network {
+        BitcoinNetwork::Mainnet => 10_000_000_000,
+        BitcoinNetwork::Testnet => 10_000_000_000,
+        BitcoinNetwork::Regtest => 0,
+    };
+
+    let request = GetBlockHeadersRequest{
+        start_height,
+        end_height,
+        network
+    };
+
+    let res = ic_cdk::api::call::call_with_payment128::<(GetBlockHeadersRequest,), (GetBlockHeadersResponse,)>(
+        Principal::management_canister(),
+        "bitcoin_get_block_headers",
+        (request,),
+        cycles,
+    )
+    .await;
+
+    res.unwrap().0
+}
+
 /// Returns the 100 fee percentiles measured in millisatoshi/byte.
 /// Percentiles are computed from the last 10,000 transactions (if available).
 ///
@@ -61,3 +88,4 @@ pub async fn send_transaction(network: BitcoinNetwork, transaction: Vec<u8>) {
 
     res.unwrap();
 }
+
