@@ -232,8 +232,6 @@ or replace `0` and `11` with your desired start and end height respectively:
 dfx canister --network=ic call basic_bitcoin get_block_headers "(0: nat32, 11: nat32)"
 ```
 
-Checking the balance of a Bitcoin address relies on the [bitcoin_get_block_headers](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_block_headers) API.
-
 ## Conclusion
 
 In this tutorial, you were able to:
