@@ -32,6 +32,14 @@ type get_utxos_response = record {
   next_page : opt blob;
 };
 
+type block_header = blob;
+type block_height = nat32;
+
+type get_block_headers_response = record {
+  tip_height : block_height;
+  block_headers : vec block_header;
+};
+
 service : (network) -> {
   "get_p2pkh_address" : () -> (bitcoin_address);
 
@@ -42,6 +50,8 @@ service : (network) -> {
   "get_balance" : (address : bitcoin_address) -> (satoshi);
 
   "get_utxos" : (bitcoin_address) -> (get_utxos_response);
+
+  "get_block_headers" : (start_height : block_height, end_height : opt block_height) -> (get_block_headers_response);
 
   "get_current_fee_percentiles" : () -> (vec millisatoshi_per_vbyte);
 

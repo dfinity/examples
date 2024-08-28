@@ -3,6 +3,7 @@ mod bitcoin_wallet;
 mod ecdsa_api;
 mod schnorr_api;
 
+use candid::{CandidType, Deserialize};
 use ic_cdk::api::management_canister::bitcoin::{
     BitcoinNetwork, GetUtxosResponse, MillisatoshiPerByte,
 };
@@ -50,6 +51,31 @@ pub async fn get_balance(address: String) -> u64 {
 pub async fn get_utxos(address: String) -> GetUtxosResponse {
     let network = NETWORK.with(|n| n.get());
     bitcoin_api::get_utxos(network, address).await
+}
+
+pub type Height = u32;
+pub type BlockHeader = Vec<u8>;
+
+/// A request for getting the block headers for a given height range.
+#[derive(CandidType, Debug, Deserialize, PartialEq, Eq)]
+pub struct GetBlockHeadersRequest {
+    pub start_height: Height,
+    pub end_height: Option<Height>,
+    pub network: BitcoinNetwork,
+}
+
+/// The response returned for a request for getting the block headers from a given height.
+#[derive(CandidType, Debug, Deserialize, PartialEq, Eq, Clone)]
+pub struct GetBlockHeadersResponse {
+    pub tip_height: Height,
+    pub block_headers: Vec<BlockHeader>,
+}
+
+/// Returns the block headers in the given height range.
+#[update]
+pub async fn get_block_headers(start_height: u32, end_height: Option<u32>) -> GetBlockHeadersResponse{
+    let network = NETWORK.with(|n| n.get());
+    bitcoin_api::get_block_headers(network, start_height, end_height).await
 }
 
 /// Returns the 100 fee percentiles measured in millisatoshi/byte.
