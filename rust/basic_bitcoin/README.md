@@ -216,7 +216,7 @@ reflected in your current balance.
 
 ## Step 6: Retrieving block headers
 
-You can also get range of Bitcoin block headers by using the `get_block_headers` 
+You can also get a range of Bitcoin block headers by using the `get_block_headers` 
 endpoint on your canister.
 
 In the Candid UI, write the desired start height and optionally end height, and click on "Call":
