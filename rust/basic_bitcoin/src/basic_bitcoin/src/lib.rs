@@ -56,7 +56,7 @@ pub async fn get_utxos(address: String) -> GetUtxosResponse {
 pub type Height = u32;
 pub type BlockHeader = Vec<u8>;
 
-/// A request for getting the block headers from a given height.
+/// A request for getting the block headers for a given height range.
 #[derive(CandidType, Debug, Deserialize, PartialEq, Eq)]
 pub struct GetBlockHeadersRequest {
     pub start_height: Height,
