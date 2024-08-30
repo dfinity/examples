@@ -21,7 +21,7 @@ cargo install ic-wasm --version 0.2.0 --root ./
 STATUS=$?
 
 if [[ "$STATUS" -eq "0" ]]; then
-  ./ic-wasm \
+  ./bin/ic-wasm \
       	"$SCRIPT_DIR/../../target/$TARGET/release/$CANISTER.wasm" \
       	-o "$SCRIPT_DIR/../../target/$TARGET/release/$CANISTER.wasm" \
       	metadata candid:service -f "$SCRIPT_DIR/basic_bitcoin.did" -v public
