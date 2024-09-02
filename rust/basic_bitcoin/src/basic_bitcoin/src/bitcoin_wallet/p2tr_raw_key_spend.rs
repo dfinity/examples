@@ -27,7 +27,7 @@ pub async fn get_address(
     Address::p2tr_tweaked(tweaked_pubkey, super::common::transform_network(network))
 }
 
-/// Sends a P2TR script spend transaction to the network that transfers the
+/// Sends a P2TR raw key spend transaction to the network that transfers the
 /// given amount to the given destination, where the source of the funds is the
 /// canister itself at the given derivation path.
 pub async fn send(
