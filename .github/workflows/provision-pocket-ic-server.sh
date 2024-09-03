@@ -2,7 +2,7 @@
 
 set -ex
 
-POCKET_IC_SERVER_VERSION=${POCKET_IC_SERVER_VERSION:=4.0.0}
+POCKET_IC_SERVER_VERSION=${POCKET_IC_SERVER_VERSION:=5.0.0}
 POCKET_IC_SERVER_PATH=${POCKET_IC_SERVER_PATH:="${HOME}/bin/pocket-ic-server"}
 
 if [[ $OSTYPE == "linux-gnu"* ]] || [[ $RUNNER_OS == "Linux" ]]
