@@ -42,6 +42,9 @@ service : (opt InitArg) -> {
     // If the owner is not set, it defaults to the caller's principal.
     ethereum_address : (owner: opt principal) -> (text);
 
+    // Returns the balance of the given Ethereum address.
+    get_balance : (address: text) -> (Wei);
+
     // Returns the transaction count for the Ethereum address derived for the given principal.
     //
     // If the owner is not set, it defaults to the caller's principal.

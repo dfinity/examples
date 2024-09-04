@@ -9,12 +9,13 @@ use alloy_primitives::{hex, Signature, TxKind, U256};
 use candid::{CandidType, Deserialize, Nat, Principal};
 use evm_rpc_canister_types::{
     BlockTag, EvmRpcCanister, GetTransactionCountArgs, GetTransactionCountResult,
-    MultiGetTransactionCountResult,
+    MultiGetTransactionCountResult, EthSepoliaService, RpcService, RequestResult
 };
 use ic_cdk::api::management_canister::ecdsa::{EcdsaCurve, EcdsaKeyId};
 use ic_cdk::{init, update};
 use ic_ethereum_types::Address;
 use std::str::FromStr;
+use std::u64;
 
 pub const EVM_RPC_CANISTER_ID: Principal =
     Principal::from_slice(b"\x00\x00\x00\x00\x02\x30\x00\xCC\x01\x01"); // 7hfb6-caaaa-aaaar-qadga-cai
@@ -33,6 +34,45 @@ pub async fn ethereum_address(owner: Option<Principal>) -> String {
     let owner = owner.unwrap_or(caller);
     let wallet = EthereumWallet::new(owner).await;
     wallet.ethereum_address().to_string()
+}
+
+#[derive(Debug, Deserialize)]
+struct Balance {
+    result: String,
+}
+
+#[update]
+pub async fn get_balance(address: String) -> Nat {
+    let _caller = validate_caller_not_anonymous();
+    let chain_id = read_state(|s| s.ethereum_network().chain_id());
+    let json = format!(r#"{{ "jsonrpc": "2.0", "method": "eth_getBalance", "params": ["{}", "latest"], "id": {} }}"#, address, chain_id);
+    let (response,) = EVM_RPC.request(RpcService::EthSepolia(EthSepoliaService::PublicNode), json, 500u64, 1_000_000_000u128)
+        .await
+        .unwrap_or_else(|e| {
+            panic!(
+                "failed to get the balance of address {:?}, error: {:?}",
+                address, e
+            )
+        });
+    match response {
+        RequestResult::Ok(balance_result) => {
+            let balance_result : Result<Balance, _> = serde_json::from_str(&balance_result);
+            let balance_string = balance_result
+                .unwrap_or_else(|e| {
+                    panic!(
+                        "failed to get parse get_balance, error: {:?}",
+                        e
+                    )
+                });
+            if balance_string.result.len() % 2 == 0 {
+                u64::from_str_radix(&balance_string.result[2..], 16).unwrap().into()
+            } else {
+                u64::from_str_radix(&format!("0{}", &balance_string.result[2..]), 16).unwrap().into()
+            }
+        },
+        RequestResult::Err(_) => panic!("Say something here.")
+    }
+   
 }
 
 #[update]
