@@ -12,7 +12,7 @@ candid = "=0.10.4"
 ed25519-dalek = "2.1"
 getrandom = { version = "0.2", features = ["custom"] }
 hex = "0.4"
-ic-cdk = "0.13"
+ic-cdk = "0.15"
 k256 = { git = "https://github.com/altkdf/elliptic-curves", branch = "schnorr_canister", features = ["schnorr"] }
 sha2 = "0.10"
 serde = "1.0"
@@ -20,4 +20,4 @@ serde_bytes = "0.11"
 
 [dev-dependencies]
 flate2 = "1.0"
-pocket-ic = "3.1"
+pocket-ic = "4.0.0"
