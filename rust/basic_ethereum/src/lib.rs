@@ -59,7 +59,7 @@ pub async fn get_balance(address: String) -> Nat {
         .await
         .unwrap_or_else(|e| {
             panic!(
-                "failed to get the balance of address {:?}, error: {:?}",
+                "Failed to get the balance of address {:?}, error: {:?}",
                 address, e
             )
         });
@@ -67,7 +67,7 @@ pub async fn get_balance(address: String) -> Nat {
         RequestResult::Ok(balance_result) => {
             let balance_result: Result<Balance, _> = serde_json::from_str(&balance_result);
             let balance_string = balance_result
-                .unwrap_or_else(|e| panic!("failed to get parse get_balance, error: {:?}", e));
+                .unwrap_or_else(|e| panic!("Failed to get parse get_balance, error: {:?}", e));
             if balance_string.result.len() % 2 == 0 {
                 u64::from_str_radix(&balance_string.result[2..], 16)
                     .unwrap()
@@ -78,7 +78,7 @@ pub async fn get_balance(address: String) -> Nat {
                     .into()
             }
         }
-        RequestResult::Err(_) => panic!("Say something here."),
+        RequestResult::Err(e) => panic!("Received an error response: {:?}", e),
     }
 }
 
