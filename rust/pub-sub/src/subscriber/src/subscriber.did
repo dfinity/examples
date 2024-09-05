@@ -1,8 +1,8 @@
-type Counter = variant {    
+type Counter = record {    
     topic : text;
     value:nat64;
 };
-type Subscriber = variant {
+type Subscriber = record {
     topic:text;
   };
 service : {
