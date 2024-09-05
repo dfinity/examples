@@ -348,6 +348,7 @@ dependencies = [
  "num-traits",
  "serde",
  "serde_bytes",
+ "serde_json",
 ]
 
 [[package]]

@@ -8,8 +8,8 @@ use alloy_consensus::{SignableTransaction, TxEip1559, TxEnvelope};
 use alloy_primitives::{hex, Signature, TxKind, U256};
 use candid::{CandidType, Deserialize, Nat, Principal};
 use evm_rpc_canister_types::{
-    BlockTag, EvmRpcCanister, GetTransactionCountArgs, GetTransactionCountResult,
-    MultiGetTransactionCountResult, EthSepoliaService, RpcService, RequestResult
+    BlockTag, EthSepoliaService, EvmRpcCanister, GetTransactionCountArgs,
+    GetTransactionCountResult, MultiGetTransactionCountResult, RequestResult, RpcService,
 };
 use ic_cdk::api::management_canister::ecdsa::{EcdsaCurve, EcdsaKeyId};
 use ic_cdk::{init, update};
@@ -45,8 +45,17 @@ struct Balance {
 pub async fn get_balance(address: String) -> Nat {
     let _caller = validate_caller_not_anonymous();
     let chain_id = read_state(|s| s.ethereum_network().chain_id());
-    let json = format!(r#"{{ "jsonrpc": "2.0", "method": "eth_getBalance", "params": ["{}", "latest"], "id": {} }}"#, address, chain_id);
-    let (response,) = EVM_RPC.request(RpcService::EthSepolia(EthSepoliaService::PublicNode), json, 500u64, 1_000_000_000u128)
+    let json = format!(
+        r#"{{ "jsonrpc": "2.0", "method": "eth_getBalance", "params": ["{}", "latest"], "id": {} }}"#,
+        address, chain_id
+    );
+    let (response,) = EVM_RPC
+        .request(
+            RpcService::EthSepolia(EthSepoliaService::PublicNode),
+            json,
+            500u64,
+            1_000_000_000u128,
+        )
         .await
         .unwrap_or_else(|e| {
             panic!(
@@ -56,23 +65,21 @@ pub async fn get_balance(address: String) -> Nat {
         });
     match response {
         RequestResult::Ok(balance_result) => {
-            let balance_result : Result<Balance, _> = serde_json::from_str(&balance_result);
+            let balance_result: Result<Balance, _> = serde_json::from_str(&balance_result);
             let balance_string = balance_result
-                .unwrap_or_else(|e| {
-                    panic!(
-                        "failed to get parse get_balance, error: {:?}",
-                        e
-                    )
-                });
+                .unwrap_or_else(|e| panic!("failed to get parse get_balance, error: {:?}", e));
             if balance_string.result.len() % 2 == 0 {
-                u64::from_str_radix(&balance_string.result[2..], 16).unwrap().into()
+                u64::from_str_radix(&balance_string.result[2..], 16)
+                    .unwrap()
+                    .into()
             } else {
-                u64::from_str_radix(&format!("0{}", &balance_string.result[2..]), 16).unwrap().into()
+                u64::from_str_radix(&format!("0{}", &balance_string.result[2..]), 16)
+                    .unwrap()
+                    .into()
             }
-        },
-        RequestResult::Err(_) => panic!("Say something here.")
+        }
+        RequestResult::Err(_) => panic!("Say something here."),
     }
-   
 }
 
 #[update]
