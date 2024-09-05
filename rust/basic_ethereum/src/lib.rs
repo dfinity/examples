@@ -66,8 +66,9 @@ pub async fn get_balance(address: String) -> Nat {
     match response {
         RequestResult::Ok(balance_result) => {
             let balance_result: Result<Balance, _> = serde_json::from_str(&balance_result);
-            let balance_string = balance_result
-                .unwrap_or_else(|e| panic!("Failed to get parse get_balance, error: {:?}", e));
+            let balance_string = balance_result.unwrap_or_else(|e| {
+                panic!("Failed to decode the eth_getBalance response: {:?}", e)
+            });
             if balance_string.result.len() % 2 == 0 {
                 u64::from_str_radix(&balance_string.result[2..], 16)
                     .unwrap()
