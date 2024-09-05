@@ -15,7 +15,6 @@ use ic_cdk::api::management_canister::ecdsa::{EcdsaCurve, EcdsaKeyId};
 use ic_cdk::{init, update};
 use ic_ethereum_types::Address;
 use std::str::FromStr;
-use std::u64;
 
 pub const EVM_RPC_CANISTER_ID: Principal =
     Principal::from_slice(b"\x00\x00\x00\x00\x02\x30\x00\xCC\x01\x01"); // 7hfb6-caaaa-aaaar-qadga-cai
@@ -37,8 +36,17 @@ pub async fn ethereum_address(owner: Option<Principal>) -> String {
 }
 
 #[derive(Debug, Deserialize)]
-struct Balance {
-    result: String,
+#[allow(dead_code)]
+struct JsonRpcResult {
+    result: Option<String>,
+    error: Option<JsonRpcError>,
+}
+
+#[derive(Debug, Deserialize)]
+#[allow(dead_code)]
+struct JsonRpcError {
+    code: isize,
+    message: String,
 }
 
 #[update]
@@ -57,27 +65,22 @@ pub async fn get_balance(address: String) -> Nat {
             1_000_000_000u128,
         )
         .await
-        .unwrap_or_else(|e| {
-            panic!(
-                "Failed to get the balance of address {:?}, error: {:?}",
-                address, e
-            )
-        });
+        .expect("RPC call failed");
+
     match response {
         RequestResult::Ok(balance_result) => {
-            let balance_result: Result<Balance, _> = serde_json::from_str(&balance_result);
-            let balance_string = balance_result.unwrap_or_else(|e| {
-                panic!("Failed to decode the eth_getBalance response: {:?}", e)
-            });
-            if balance_string.result.len() % 2 == 0 {
-                u64::from_str_radix(&balance_string.result[2..], 16)
-                    .unwrap()
-                    .into()
+            let json_rpc_result: JsonRpcResult =
+                serde_json::from_str(&balance_result).expect("JSON is not well-formatted");
+            // The response to a successful `eth_getBalance` call has the format
+            // { "id": "[CHAIN ID]", "jsonrpc": "2.0", "result": "[BALANCE IN HEX]" }
+            let hex_balance = json_rpc_result.result.expect("No balance received");
+
+            let hex_balance = if hex_balance.len() % 2 != 0 {
+                format!("0{}", &hex_balance[2..])
             } else {
-                u64::from_str_radix(&format!("0{}", &balance_string.result[2..]), 16)
-                    .unwrap()
-                    .into()
-            }
+                hex_balance[2..].to_string()
+            };
+            Nat::from_str(&U256::from_str_radix(&hex_balance, 16).unwrap().to_string()).unwrap()
         }
         RequestResult::Err(e) => panic!("Received an error response: {:?}", e),
     }
