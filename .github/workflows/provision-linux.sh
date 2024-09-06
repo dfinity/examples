@@ -1,4 +1,4 @@
-DFX_VERSION:=0.23.0#!/bin/bash
+#!/bin/bash
 
 set -ex
 
