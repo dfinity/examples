@@ -29,7 +29,6 @@ To clone and build the smart contract in **Motoko**:
 ```bash
 git clone https://github.com/dfinity/examples
 cd examples/motoko/basic_bitcoin
-git submodule update --init --recursive
 ```
 
 ### Acquire cycles to deploy
