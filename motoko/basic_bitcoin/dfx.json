@@ -14,7 +14,7 @@
       "log_level": "info"
     },
     "build": {
-      "packtool": "",
+      "packtool": "mops sources",
       "args": ""
     }
   },
