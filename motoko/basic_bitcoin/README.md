@@ -31,6 +31,15 @@ git clone https://github.com/dfinity/examples
 cd examples/motoko/basic_bitcoin
 ```
 
+### Install MOPS
+
+[Install](https://docs.mops.one/quick-start#2-install-mops-cli) the MOPS package
+manager, e.g., by running
+
+```bash
+curl -fsSL cli.mops.one/install.sh | sh
+```
+
 ### Acquire cycles to deploy
 
 Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/setup/cycles) (the equivalent of "gas" in other blockchains). You can get free cycles from the [cycles faucet](https://internetcomputer.org/docs/current/developer-docs/setup/cycles/cycles-faucet.md).
