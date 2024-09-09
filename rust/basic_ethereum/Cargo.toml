@@ -16,10 +16,9 @@ evm-rpc-canister-types = "0.1.2"
 # See https://forum.dfinity.org/t/module-imports-function-wbindgen-describe-from-wbindgen-placeholder-that-is-not-exported-by-the-runtime/11545/8
 getrandom = { version = "*", default-features = false, features = ["custom"] }
 ic-cdk = "0.15"
-ic-crypto-ecdsa-secp256k1 = { git = "https://github.com/dfinity/ic", tag = "release-2024-06-26_23-01-base", package = "ic-crypto-ecdsa-secp256k1" }
-ic-crypto-extended-bip32 = { git = "https://github.com/dfinity/ic", tag = "release-2024-06-26_23-01-base", package = "ic-crypto-extended-bip32" }
-ic-crypto-sha3 = { git = "https://github.com/dfinity/ic", tag = "release-2024-06-26_23-01-base", package = "ic-crypto-sha3" }
-ic-ethereum-types = { git = "https://github.com/dfinity/ic", tag = "release-2024-06-26_23-01-base", package = "ic-ethereum-types" }
+ic-crypto-ecdsa-secp256k1 = { git = "https://github.com/dfinity/ic", tag = "release-2024-08-21_15-36-base", package = "ic-crypto-ecdsa-secp256k1" }
+ic-crypto-sha3 = { git = "https://github.com/dfinity/ic", tag = "release-2024-08-21_15-36-base", package = "ic-crypto-sha3" }
+ic-ethereum-types = { git = "https://github.com/dfinity/ic", tag = "release-2024-08-21_15-36-base", package = "ic-ethereum-types" }
 serde = "1.0"
 serde_bytes = "0.11.15"
 num-traits = "0.2.19"
