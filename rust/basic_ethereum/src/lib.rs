@@ -17,8 +17,6 @@ use ic_ethereum_types::Address;
 use num::{BigUint, Num};
 use std::str::FromStr;
 
-pub const ETH_MAINNET_CHAIN_ID: u64 = 1;
-pub const ETH_SEPOLIA_CHAIN_ID: u64 = 11155111;
 
 pub const EVM_RPC_CANISTER_ID: Principal =
     Principal::from_slice(b"\x00\x00\x00\x00\x02\x30\x00\xCC\x01\x01"); // 7hfb6-caaaa-aaaar-qadga-cai
