@@ -18,33 +18,26 @@ import Blob "mo:base/Blob";
 import Nat "mo:base/Nat";
 import Option "mo:base/Option";
 
-import EcdsaTypes "mo:bitcoin/ecdsa/Types";
-import P2pkh "mo:bitcoin/bitcoin/P2pkh";
 import Bitcoin "mo:bitcoin/bitcoin/Bitcoin";
 import Address "mo:bitcoin/bitcoin/Address";
 import Transaction "mo:bitcoin/bitcoin/Transaction";
 import TxInput "mo:bitcoin/bitcoin/TxInput";
 import Script "mo:bitcoin/bitcoin/Script";
-import Publickey "mo:bitcoin/ecdsa/Publickey";
-import Der "mo:bitcoin/ecdsa/Der";
-import Affine "mo:bitcoin/ec/Affine";
 import Segwit "mo:bitcoin/Segwit";
 
 import BitcoinApi "BitcoinApi";
-import EcdsaApi "EcdsaApi";
 import SchnorrApi "SchnorrApi";
 import Types "Types";
 import Utils "Utils";
+
 module {
   type Network = Types.Network;
   type BitcoinAddress = Types.BitcoinAddress;
   type Satoshi = Types.Satoshi;
   type Utxo = Types.Utxo;
   type MillisatoshiPerVByte = Types.MillisatoshiPerVByte;
-  type PublicKey = EcdsaTypes.PublicKey;
   type Transaction = Transaction.Transaction;
   type Script = Script.Script;
-  type SighashType = Nat32;
 
   public func get_address(network : Network, key_name : Text, derivation_path : [[Nat8]]) : async BitcoinAddress {
     // Fetch the public key of the given derivation path.
@@ -54,7 +47,7 @@ module {
     public_key_to_p2tr_key_spend_address(network, Blob.toArray(sec1_public_key));
   };
 
-  // Converts a public key to a P2PKH address.
+  // Converts a public key to a P2TR raw key spend address.
   func public_key_to_p2tr_key_spend_address(network : Network, public_key_bytes : [Nat8]) : BitcoinAddress {
     // human-readable part of the address
     let hrp = switch (network) {
@@ -139,7 +132,7 @@ module {
   // supports signing transactions if:
   //
   // 1. All the inputs are referencing outpoints that are owned by `own_address`.
-  // 2. `own_address` is a P2PKH address.
+  // 2. `own_address` is a P2TR raw key spend address.
   func sign_transaction(
     own_address : BitcoinAddress,
     transaction : Transaction,
@@ -190,7 +183,7 @@ module {
       fee_percentiles[50];
     };
 
-    // Fetch our public key, P2PKH address, and UTXOs.
+    // Fetch our public key, P2TR raw key spend address, and UTXOs.
     let own_sec1_public_key = Blob.toArray(await SchnorrApi.schnorr_public_key(key_name, Array.map(derivation_path, Blob.fromArray)));
     let own_address = public_key_to_p2tr_key_spend_address(network, own_sec1_public_key);
 

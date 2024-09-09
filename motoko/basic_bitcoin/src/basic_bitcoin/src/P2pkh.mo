@@ -16,23 +16,19 @@ import Nat64 "mo:base/Nat64";
 import Iter "mo:base/Iter";
 import Blob "mo:base/Blob";
 import Nat "mo:base/Nat";
-import Option "mo:base/Option";
 
 import EcdsaTypes "mo:bitcoin/ecdsa/Types";
 import P2pkh "mo:bitcoin/bitcoin/P2pkh";
 import Bitcoin "mo:bitcoin/bitcoin/Bitcoin";
 import Address "mo:bitcoin/bitcoin/Address";
 import Transaction "mo:bitcoin/bitcoin/Transaction";
-import TxInput "mo:bitcoin/bitcoin/TxInput";
 import Script "mo:bitcoin/bitcoin/Script";
 import Publickey "mo:bitcoin/ecdsa/Publickey";
 import Der "mo:bitcoin/ecdsa/Der";
 import Affine "mo:bitcoin/ec/Affine";
-import Segwit "mo:bitcoin/Segwit";
 
 import BitcoinApi "BitcoinApi";
 import EcdsaApi "EcdsaApi";
-import SchnorrApi "SchnorrApi";
 import Types "Types";
 import Utils "Utils";
 
