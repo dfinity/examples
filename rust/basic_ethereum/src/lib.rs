@@ -61,7 +61,7 @@ pub async fn get_balance(address: String) -> Nat {
 
     let hex_balance = match response {
         RequestResult::Ok(balance_result) => {
-            // The response to a successful `eth_getBalance` call has the format
+            // The response to a successful `eth_getBalance` call has the following format:
             // { "id": "[ID]", "jsonrpc": "2.0", "result": "[BALANCE IN HEX]" }
             let response: serde_json::Value = serde_json::from_str(&balance_result).unwrap();
             response
@@ -73,14 +73,8 @@ pub async fn get_balance(address: String) -> Nat {
         RequestResult::Err(e) => panic!("Received an error response: {:?}", e),
     };
 
-    // Make sure that the number of digits is even and remove the "0x" prefix.
-    let hex_balance = if hex_balance.len() % 2 != 0 {
-        format!("0{}", &hex_balance[2..])
-    } else {
-        hex_balance[2..].to_string()
-    };
-
-    Nat(BigUint::from_str_radix(&hex_balance, 16).unwrap())
+    // Remove the "0x" prefix before converting to a decimal number.
+    Nat(BigUint::from_str_radix(&hex_balance[2..], 16).unwrap())
 }
 
 #[update]
