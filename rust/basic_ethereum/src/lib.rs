@@ -8,13 +8,17 @@ use alloy_consensus::{SignableTransaction, TxEip1559, TxEnvelope};
 use alloy_primitives::{hex, Signature, TxKind, U256};
 use candid::{CandidType, Deserialize, Nat, Principal};
 use evm_rpc_canister_types::{
-    BlockTag, EthSepoliaService, EvmRpcCanister, GetTransactionCountArgs,
+    BlockTag, EthMainnetService, EthSepoliaService, EvmRpcCanister, GetTransactionCountArgs,
     GetTransactionCountResult, MultiGetTransactionCountResult, RequestResult, RpcService,
 };
 use ic_cdk::api::management_canister::ecdsa::{EcdsaCurve, EcdsaKeyId};
 use ic_cdk::{init, update};
 use ic_ethereum_types::Address;
+use num::{BigUint, Num};
 use std::str::FromStr;
+
+pub const ETH_MAINNET_CHAIN_ID: u64 = 1;
+pub const ETH_SEPOLIA_CHAIN_ID: u64 = 11155111;
 
 pub const EVM_RPC_CANISTER_ID: Principal =
     Principal::from_slice(b"\x00\x00\x00\x00\x02\x30\x00\xCC\x01\x01"); // 7hfb6-caaaa-aaaar-qadga-cai
@@ -52,18 +56,24 @@ struct JsonRpcError {
 #[update]
 pub async fn get_balance(address: String) -> Nat {
     let _caller = validate_caller_not_anonymous();
-    let chain_id = read_state(|s| s.ethereum_network().chain_id());
     let json = format!(
-        r#"{{ "jsonrpc": "2.0", "method": "eth_getBalance", "params": ["{}", "latest"], "id": {} }}"#,
-        address, chain_id
+        r#"{{ "jsonrpc": "2.0", "method": "eth_getBalance", "params": ["{}", "latest"], "id": 1 }}"#,
+        address
     );
+
+    let max_response_size_bytes = 500_u64;
+    let num_cycles = 1_000_000_000u128;
+
+    let chain_id = read_state(|s| s.ethereum_network().chain_id());
+
+    let rpc_service = match chain_id {
+        ETH_MAINNET_CHAIN_ID => RpcService::EthMainnet(EthMainnetService::PublicNode),
+        ETH_SEPOLIA_CHAIN_ID => RpcService::EthSepolia(EthSepoliaService::PublicNode),
+        _ => panic!("Unsupported chain ID in get_balance call."),
+    };
+
     let (response,) = EVM_RPC
-        .request(
-            RpcService::EthSepolia(EthSepoliaService::PublicNode),
-            json,
-            500u64,
-            1_000_000_000u128,
-        )
+        .request(rpc_service, json, max_response_size_bytes, num_cycles)
         .await
         .expect("RPC call failed");
 
@@ -75,12 +85,13 @@ pub async fn get_balance(address: String) -> Nat {
             // { "id": "[CHAIN ID]", "jsonrpc": "2.0", "result": "[BALANCE IN HEX]" }
             let hex_balance = json_rpc_result.result.expect("No balance received");
 
+            // Make sure that the number of digits is even and remove the "0x" prefix.
             let hex_balance = if hex_balance.len() % 2 != 0 {
                 format!("0{}", &hex_balance[2..])
             } else {
                 hex_balance[2..].to_string()
             };
-            Nat::from_str(&U256::from_str_radix(&hex_balance, 16).unwrap().to_string()).unwrap()
+            Nat(BigUint::from_str_radix(&hex_balance, 16).unwrap())
         }
         RequestResult::Err(e) => panic!("Received an error response: {:?}", e),
     }
