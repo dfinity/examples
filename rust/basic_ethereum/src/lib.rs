@@ -64,12 +64,11 @@ pub async fn get_balance(address: String) -> Nat {
     let max_response_size_bytes = 500_u64;
     let num_cycles = 1_000_000_000u128;
 
-    let chain_id = read_state(|s| s.ethereum_network().chain_id());
+    let ethereum_network = read_state(|s| s.ethereum_network());
 
-    let rpc_service = match chain_id {
-        ETH_MAINNET_CHAIN_ID => RpcService::EthMainnet(EthMainnetService::PublicNode),
-        ETH_SEPOLIA_CHAIN_ID => RpcService::EthSepolia(EthSepoliaService::PublicNode),
-        _ => panic!("Unsupported chain ID in get_balance call."),
+    let rpc_service = match ethereum_network {
+        EthereumNetwork::Mainnet => RpcService::EthMainnet(EthMainnetService::PublicNode),
+        EthereumNetwork::Sepolia => RpcService::EthSepolia(EthSepoliaService::PublicNode),
     };
 
     let (response,) = EVM_RPC
