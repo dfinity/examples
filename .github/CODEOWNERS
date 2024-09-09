@@ -22,8 +22,8 @@
 /motoko/defi/ @dfinity/networking
 /motoko/dip721-nft-container/ @dfinity/languages
 /motoko/echo/ @dfinity/languages
-/motoko/encrypted-notes-dapp-vetkd/ @dfinity/dept-crypto-library
-/motoko/encrypted-notes-dapp/ @dfinity/dept-crypto-library
+/motoko/encrypted-notes-dapp-vetkd/ @dfinity/crypto-team
+/motoko/encrypted-notes-dapp/ @dfinity/crypto-team
 /motoko/factorial/ @dfinity/languages
 /motoko/hello-world/ @dfinity/languages
 /motoko/hello/ @dfinity/languages
@@ -47,11 +47,11 @@
 /motoko/send_http_post/ @dfinity/networking
 /motoko/simple-to-do/ @dfinity/growth
 /motoko/superheroes/ @dfinity/growth
-/motoko/threshold-ecdsa/ @dfinity/dept-crypto-library
-/motoko/threshold-schnorr/ @dfinity/dept-crypto-library
+/motoko/threshold-ecdsa/ @dfinity/crypto-team
+/motoko/threshold-schnorr/ @dfinity/crypto-team
 /motoko/token_transfer/ @dfinity/growth
 /motoko/token_transfer_from/ @dfinity/growth
-/motoko/vetkd/ @dfinity/dept-crypto-library
+/motoko/vetkd/ @dfinity/crypto-team
 /motoko/whoami/ @dfinity/growth
 
 /native-apps/unity_ii_applink/ @dfinity/sdk
@@ -67,8 +67,8 @@
 /rust/counter/ @dfinity/growth
 /rust/defi/ @dfinity/div-Crypto
 /rust/dip721-nft-container/ @dfinity/sdk
-/rust/encrypted-notes-dapp-vetkd/ @dfinity/dept-crypto-library
-/rust/encrypted-notes-dapp/ @dfinity/dept-crypto-library
+/rust/encrypted-notes-dapp-vetkd/ @dfinity/crypto-team
+/rust/encrypted-notes-dapp/ @dfinity/crypto-team
 /rust/face-recognition/ @dfinity/execution
 /rust/guards/ @dfinity/cross-chain-team
 /rust/hello/ @dfinity/sdk
@@ -84,11 +84,11 @@
 /rust/send_http_get/ @dfinity/growth
 /rust/send_http_post/ @dfinity/growth
 /rust/simd/ @dfinity/execution
-/rust/threshold-ecdsa/ @dfinity/dept-crypto-library
-/rust/threshold-schnorr/ @dfinity/dept-crypto-library
+/rust/threshold-ecdsa/ @dfinity/crypto-team
+/rust/threshold-schnorr/ @dfinity/crypto-team
 /rust/token_transfer/ @dfinity/growth
 /rust/token_transfer_from/ @dfinity/growth
-/rust/vetkd/ @dfinity/dept-crypto-library
+/rust/vetkd/ @dfinity/crypto-team
 
 /svelte/svelte-motoko-starter/ @dfinity/sdk
 /svelte/svelte-starter/ @dfinity/sdk
