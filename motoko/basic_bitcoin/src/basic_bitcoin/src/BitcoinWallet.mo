@@ -18,17 +18,17 @@ import Blob "mo:base/Blob";
 import Nat "mo:base/Nat";
 import Option "mo:base/Option";
 
-import EcdsaTypes "../../../motoko-bitcoin/src/ecdsa/Types";
-import P2pkh "../../../motoko-bitcoin/src/bitcoin/P2pkh";
-import Bitcoin "../../../motoko-bitcoin/src/bitcoin/Bitcoin";
-import Address "../../../motoko-bitcoin/src/bitcoin/Address";
-import Transaction "../../../motoko-bitcoin/src/bitcoin/Transaction";
-import TxInput "../../../motoko-bitcoin/src/bitcoin/TxInput";
-import Script "../../../motoko-bitcoin/src/bitcoin/Script";
-import Publickey "../../../motoko-bitcoin/src/ecdsa/Publickey";
-import Der "../../../motoko-bitcoin/src/ecdsa/Der";
-import Affine "../../../motoko-bitcoin/src/ec/Affine";
-import Segwit "../../../motoko-bitcoin/src/Segwit";
+import EcdsaTypes "mo:bitcoin/ecdsa/Types";
+import P2pkh "mo:bitcoin/bitcoin/P2pkh";
+import Bitcoin "mo:bitcoin/bitcoin/Bitcoin";
+import Address "mo:bitcoin/bitcoin/Address";
+import Transaction "mo:bitcoin/bitcoin/Transaction";
+import TxInput "mo:bitcoin/bitcoin/TxInput";
+import Script "mo:bitcoin/bitcoin/Script";
+import Publickey "mo:bitcoin/ecdsa/Publickey";
+import Der "mo:bitcoin/ecdsa/Der";
+import Affine "mo:bitcoin/ec/Affine";
+import Segwit "mo:bitcoin/Segwit";
 
 import BitcoinApi "BitcoinApi";
 import EcdsaApi "EcdsaApi";

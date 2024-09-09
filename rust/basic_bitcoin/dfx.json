@@ -11,14 +11,7 @@
         {
           "name": "candid:service"
         }
-      ],
-      "specified_id": "om77v-qqaaa-aaaap-ahmrq-cai",
-      "remote": {
-        "id": {
-          "ic": "om77v-qqaaa-aaaap-ahmrq-cai",
-          "playground": "om77v-qqaaa-aaaap-ahmrq-cai"
-        }
-      }
+      ]
     }
   },
   "defaults": {

@@ -22,6 +22,8 @@ jobs:
           submodules: recursive
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
+      - name: Install mops
+        uses: ZenVoich/setup-mops@v1
       - name: Motoko Basic Bitcoin Darwin
         run: |
           dfx start --background
@@ -36,6 +38,8 @@ jobs:
           submodules: recursive
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
+      - name: Install mops
+        uses: ZenVoich/setup-mops@v1
       - name: Motoko Basic Bitcoin Linux
         run: |
           dfx start --background

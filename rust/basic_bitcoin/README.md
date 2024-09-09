@@ -42,7 +42,7 @@ To clone and build the smart contract in **Rust**:
 ```bash
 git clone https://github.com/dfinity/examples
 cd examples/rust/basic_bitcoin
-cargo build --release --target wasm32-unknown unknown
+cargo build --release --target wasm32-unknown-unknown
 ```
 
 ### Acquire cycles to deploy
@@ -213,6 +213,23 @@ it sent to the network. You can track the status of this transaction using a
 [block explorer](https://en.bitcoin.it/wiki/Block_chain_browser). Once the
 transaction has at least one confirmation, you should be able to see it
 reflected in your current balance.
+
+## Step 6: Retrieving block headers
+
+You can also get a range of Bitcoin block headers by using the `get_block_headers` 
+endpoint on your canister.
+
+In the Candid UI, write the desired start height and optionally end height, and click on "Call":
+
+Alternatively, make the call using the command line. Be sure to replace `10` with your desired start height:
+
+```bash
+dfx canister --network=ic call basic_bitcoin get_block_headers "(10: nat32)"
+```
+or replace `0` and `11` with your desired start and end height respectively:
+```bash
+dfx canister --network=ic call basic_bitcoin get_block_headers "(0: nat32, 11: nat32)"
+```
 
 ## Conclusion
 
