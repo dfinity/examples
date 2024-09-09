@@ -1,0 +1,5 @@
+[dependencies]
+base = "0.11.2"
+bitcoin = "https://github.com/dfinity/motoko-bitcoin#ad3709363bf980d2cab45cce0dea7eda5c97a7ff"
+# sha2 is a transitive dependency and should be removed when `bitcoin` is published on `mops`
+sha2 = "0.1.0"

@@ -1,4 +1,4 @@
-import Curves "../../../motoko-bitcoin/src/ec/Curves";
+import Curves "mo:bitcoin/ec/Curves";
 
 module Types {
     public type SendRequest = {

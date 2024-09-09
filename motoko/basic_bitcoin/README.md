@@ -29,7 +29,15 @@ To clone and build the smart contract in **Motoko**:
 ```bash
 git clone https://github.com/dfinity/examples
 cd examples/motoko/basic_bitcoin
-git submodule update --init --recursive
+```
+
+### Install MOPS
+
+[Install](https://docs.mops.one/quick-start#2-install-mops-cli) the MOPS package
+manager, e.g., by running
+
+```bash
+curl -fsSL cli.mops.one/install.sh | sh
 ```
 
 ### Acquire cycles to deploy
