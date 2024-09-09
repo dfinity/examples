@@ -154,4 +154,6 @@ module Types {
         transaction : [Nat8];
         network : Network;
     };
+
+    public type SignFunction = (Text, [Blob], Blob) -> async Blob;
 };

@@ -4,6 +4,8 @@ import Iter "mo:base/Iter";
 import Nat8 "mo:base/Nat8";
 import Prelude "mo:base/Prelude";
 import Text "mo:base/Text";
+import Blob "mo:base/Blob";
+import Array "mo:base/Array";
 
 module {
     type Result<Ok, Err> = Result.Result<Ok, Err>;
@@ -24,8 +26,7 @@ module {
             case (#ok value)
                 value;
             case (#err error) {
-                Debug.print("pattern failed: " # error);
-                Debug.trap(expect);
+                Debug.trap(expect # " pattern failed: " # error);
             };
         }
     };
@@ -73,6 +74,11 @@ module {
     /// Returns the hexadecimal representation of a byte array.
     public func bytesToText(bytes : [Nat8]) : Text {
         Text.join("", Iter.map<Nat8, Text>(Iter.fromArray(bytes), func (n) { nat8ToText(n) }))
+    };
+
+    /// A mock for rubber-stamping 64B ECDSA/BIP340 signatures.
+    public func mock_signer(_key_name : Text, _derivation_path : [Blob], _message_hash : Blob) : async Blob {
+      Blob.fromArray(Array.freeze(Array.init<Nat8>(64, 255)));
     };
 }
 
