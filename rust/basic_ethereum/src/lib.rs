@@ -17,7 +17,6 @@ use ic_ethereum_types::Address;
 use num::{BigUint, Num};
 use std::str::FromStr;
 
-
 pub const EVM_RPC_CANISTER_ID: Principal =
     Principal::from_slice(b"\x00\x00\x00\x00\x02\x30\x00\xCC\x01\x01"); // 7hfb6-caaaa-aaaar-qadga-cai
 pub const EVM_RPC: EvmRpcCanister = EvmRpcCanister(EVM_RPC_CANISTER_ID);
@@ -35,20 +34,6 @@ pub async fn ethereum_address(owner: Option<Principal>) -> String {
     let owner = owner.unwrap_or(caller);
     let wallet = EthereumWallet::new(owner).await;
     wallet.ethereum_address().to_string()
-}
-
-#[derive(Debug, Deserialize)]
-#[allow(dead_code)]
-struct JsonRpcResult {
-    result: Option<String>,
-    error: Option<JsonRpcError>,
-}
-
-#[derive(Debug, Deserialize)]
-#[allow(dead_code)]
-struct JsonRpcError {
-    code: isize,
-    message: String,
 }
 
 #[update]
@@ -74,24 +59,28 @@ pub async fn get_balance(address: String) -> Nat {
         .await
         .expect("RPC call failed");
 
-    match response {
+    let hex_balance = match response {
         RequestResult::Ok(balance_result) => {
-            let json_rpc_result: JsonRpcResult =
-                serde_json::from_str(&balance_result).expect("JSON is not well-formatted");
             // The response to a successful `eth_getBalance` call has the format
-            // { "id": "[CHAIN ID]", "jsonrpc": "2.0", "result": "[BALANCE IN HEX]" }
-            let hex_balance = json_rpc_result.result.expect("No balance received");
-
-            // Make sure that the number of digits is even and remove the "0x" prefix.
-            let hex_balance = if hex_balance.len() % 2 != 0 {
-                format!("0{}", &hex_balance[2..])
-            } else {
-                hex_balance[2..].to_string()
-            };
-            Nat(BigUint::from_str_radix(&hex_balance, 16).unwrap())
+            // { "id": "[ID]", "jsonrpc": "2.0", "result": "[BALANCE IN HEX]" }
+            let response: serde_json::Value = serde_json::from_str(&balance_result).unwrap();
+            response
+                .get("result")
+                .and_then(|v| v.as_str())
+                .unwrap()
+                .to_string()
         }
         RequestResult::Err(e) => panic!("Received an error response: {:?}", e),
-    }
+    };
+
+    // Make sure that the number of digits is even and remove the "0x" prefix.
+    let hex_balance = if hex_balance.len() % 2 != 0 {
+        format!("0{}", &hex_balance[2..])
+    } else {
+        hex_balance[2..].to_string()
+    };
+
+    Nat(BigUint::from_str_radix(&hex_balance, 16).unwrap())
 }
 
 #[update]
