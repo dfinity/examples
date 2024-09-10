@@ -9,7 +9,6 @@ type InitArg = record {
 type EthereumNetwork = variant {
     // The public Ethereum mainnet.
     Mainnet;
-    // The public Ethereum Sepolia testnet.
     Sepolia;
 };
 
@@ -43,7 +42,8 @@ service : (opt InitArg) -> {
     ethereum_address : (owner: opt principal) -> (text);
 
     // Returns the balance of the given Ethereum address.
-    get_balance : (address: text) -> (Wei);
+    // If no address is provided, the address derived from the caller's principal is used.
+    get_balance : (address: opt text) -> (Wei);
 
     // Returns the transaction count for the Ethereum address derived for the given principal.
     //
