@@ -22,7 +22,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Rust Send HTTP GET Darwin
         run: |
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           pushd rust/send_http_get
           RUSTFLAGS=-Ctarget-cpu=mvp make test
           popd
@@ -35,7 +35,7 @@ jobs:
       - name: Rust Send HTTP GET Linux
         run: |
           dfxvm update
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           pushd rust/send_http_get
           RUSTFLAGS=-Ctarget-cpu=mvp make test
           popd

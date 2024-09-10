@@ -24,7 +24,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko vetKD Darwin
         run: |
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           pushd motoko/vetkd
           make test
           popd
@@ -36,7 +36,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko vetKD Linux
         run: |
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           pushd motoko/vetkd
           make test
           popd

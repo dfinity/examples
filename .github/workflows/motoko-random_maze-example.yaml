@@ -22,7 +22,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko Random Maze Darwin
         run: |
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           pushd motoko/random_maze
           make test
           popd
@@ -34,7 +34,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko Random Maze Linux
         run: |
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           pushd motoko/random_maze
           make test
           popd

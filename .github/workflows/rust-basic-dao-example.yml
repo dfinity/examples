@@ -23,7 +23,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Rust DAO Darwin
         run: |
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           pushd rust/basic_dao
           dfx canister create basic_dao
           dfx build
@@ -40,7 +40,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Rust DAO Linux
         run: |
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           pushd rust/basic_dao
           dfx canister create basic_dao
           dfx build

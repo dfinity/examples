@@ -24,7 +24,7 @@ jobs:
         run: rm -f ~/.config/dfx/networks.json
       - name: Rust SIMD Darwin
         run: |
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           pushd rust/simd
           make test
           popd
@@ -38,7 +38,7 @@ jobs:
         run: rm -f ~/.config/dfx/networks.json
       - name: Rust SIMD Linux
         run: |
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           pushd rust/simd
           make test
           popd

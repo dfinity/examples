@@ -23,7 +23,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Rust Query Stats Darwin
         run: |
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           pushd rust/query_stats
           dfx deploy query_stats
           popd
@@ -37,7 +37,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Rust Query Stats Linux
         run: |
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           pushd rust/query_stats
           dfx deploy query_stats
           popd

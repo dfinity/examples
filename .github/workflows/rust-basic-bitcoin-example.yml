@@ -24,7 +24,7 @@ jobs:
           brew install llvm
       - name: Rust Basic Bitcoin Darwin
         run: |
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           pushd rust/basic_bitcoin
           make deploy
           popd
@@ -36,7 +36,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Rust Basic Bitcoin Linux
         run: |
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           pushd rust/basic_bitcoin
           make deploy
           popd

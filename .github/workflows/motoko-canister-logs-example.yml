@@ -22,7 +22,7 @@ jobs:
         run: DFX_VERSION="0.23.0" bash .github/workflows/provision-darwin.sh
       - name: Motoko Canister Logs Darwin
         run: |
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           pushd motoko/canister_logs
           make test
           popd
@@ -34,7 +34,7 @@ jobs:
         run: DFX_VERSION="0.23.0" bash .github/workflows/provision-linux.sh
       - name: Motoko Canister Logs Linux
         run: |
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           pushd motoko/canister_logs
           make test
           popd

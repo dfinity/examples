@@ -24,7 +24,7 @@ jobs:
         run: rm -f ~/.config/dfx/networks.json
       - name: Rust Periodic Tasks Darwin
         run: |
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           pushd rust/periodic_tasks
           make test
           popd
@@ -38,7 +38,7 @@ jobs:
         run: rm -f ~/.config/dfx/networks.json
       - name: Rust Periodic Tasks Linux
         run: |
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           pushd rust/periodic_tasks
           make test
           popd

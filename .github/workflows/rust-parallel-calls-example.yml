@@ -25,7 +25,7 @@ jobs:
       - name: Rust Parallel-Calls Darwin
         run: |
           pushd rust/parallel_calls
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           make test
           popd
   rust-parallel-calls-linux:
@@ -39,6 +39,6 @@ jobs:
       - name: Rust Parallel-Calls Linux
         run: |
           pushd rust/parallel_calls
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           make test
           popd

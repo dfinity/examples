@@ -22,7 +22,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko DAO Darwin
         run: |
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           pushd motoko/basic_dao
           dfx canister create basic_dao
           dfx build
@@ -39,7 +39,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko DAO Linux
         run: |
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           pushd motoko/basic_dao
           dfx canister create basic_dao
           dfx build

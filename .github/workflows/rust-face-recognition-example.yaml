@@ -25,7 +25,7 @@ jobs:
       - name: Rust Face Recognition Darwin
         run: |
           dfxvm install 0.22.0-beta.0
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           pushd rust/face-recognition
           npm install
           dfx deploy --yes 
@@ -41,7 +41,7 @@ jobs:
       - name: Rust Face Recognition Linux
         run: |
           dfxvm install 0.22.0-beta.0
-          dfx start --backgroud --clean --pocketic
+          dfx start --background --clean --pocketic
           pushd rust/face-recognition
           npm install
           dfx deploy --yes 
