@@ -58,7 +58,7 @@ export function createActor<T>(
 }
 
 // Ask dfx where the the replica is running. This is a total hack to work
-// around `dfx start` launching on a random port each time.
+// around `dfx start --pocketic` launching on a random port each time.
 const dfxPort = execSync("dfx info replica-port", { encoding: "utf-8" });
 
 export function agent(identity?: Identity) {

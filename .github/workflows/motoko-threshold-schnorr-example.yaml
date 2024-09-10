@@ -22,7 +22,7 @@ jobs:
       - name: Motoko Threshold Schnorr Darwin
         run: |
           dfxvm default 0.22.0-beta.0
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           npm install @noble/curves
           pushd motoko/threshold-schnorr
           make test
@@ -35,7 +35,7 @@ jobs:
       - name: Motoko Threshold Schnorr Linux
         run: |
           dfxvm default 0.22.0-beta.0
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           npm install @noble/curves
           pushd motoko/threshold-schnorr
           make test

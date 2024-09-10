@@ -4,7 +4,7 @@ set -e
 trap 'dfx stop' EXIT
 
 echo "===========SETUP========="
-dfx start --background --clean
+dfx start --pocketic --background --clean
 export MINTER=$(dfx --identity anonymous identity get-principal)
 export DEFAULT=$(dfx identity get-principal)
 dfx deploy icrc1_ledger_canister --argument "(variant { Init =

@@ -26,7 +26,7 @@ jobs:
         uses: ZenVoich/setup-mops@v1
       - name: Motoko Basic Bitcoin Darwin
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd motoko/basic_bitcoin
           dfx deploy basic_bitcoin --argument '(variant { regtest })'
           popd
@@ -42,7 +42,7 @@ jobs:
         uses: ZenVoich/setup-mops@v1
       - name: Motoko Basic Bitcoin Linux
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd motoko/basic_bitcoin
           dfx deploy basic_bitcoin --argument '(variant { regtest })'
           popd

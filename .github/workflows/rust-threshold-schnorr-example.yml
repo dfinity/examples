@@ -26,7 +26,7 @@ jobs:
       - name: Rust Threshold Schnorr Darwin
         run: |
           dfxvm default 0.22.0-beta.0
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd rust/threshold-schnorr
           make deploy
 # This should be re-enabled when Pocket IC supports threshold Schnorr
@@ -43,7 +43,7 @@ jobs:
       - name: Rust Threshold Schnorr Linux
         run: |
           dfxvm default 0.22.0-beta.0
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd rust/threshold-schnorr
           make deploy
 # This should be re-enabled when Pocket IC supports threshold Schnorr

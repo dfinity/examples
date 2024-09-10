@@ -4,7 +4,7 @@ set -e
 trap 'dfx stop' EXIT
 
 echo "===========SETUP========="
-dfx start --background --clean
+dfx start --pocketic --background --clean
 dfx deploy icrc1_ledger_canister --argument "(variant {
   Init = record {
     token_symbol = \"ICRC1\";

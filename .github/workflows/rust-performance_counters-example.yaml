@@ -22,7 +22,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Rust Performance Counters Darwin
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd rust/performance_counters
           make test
           popd
@@ -34,7 +34,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Rust Performance Counters Linux
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd rust/performance_counters
           make test
           popd

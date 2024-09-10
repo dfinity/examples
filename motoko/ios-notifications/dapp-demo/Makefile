@@ -4,7 +4,7 @@ all: build
 .PHONY: build
 .SILENT: build
 build:
-	dfx start --clean --background
+	dfx start --pocketic --clean --background
 	dfx canister create ios_notifications_api
 	dfx build ios_notifications_api
 

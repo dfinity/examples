@@ -3,7 +3,7 @@ dfx stop
 set -e
 trap 'dfx stop' EXIT
 
-dfx start --background --clean
+dfx start --pocketic --background --clean
 dfx identity new alice --disable-encryption || true
 ALICE=$(dfx --identity alice identity get-principal)
 dfx identity new bob --disable-encryption || true

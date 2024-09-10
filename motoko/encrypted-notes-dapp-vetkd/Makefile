@@ -16,7 +16,7 @@ test-e2e:
 	echo "Pre deploy script succeeded"
 	npm install
 	rm -fr .dfx
-	dfx start --clean --background
+	dfx start --pocketic --clean --background
 	dfx deploy internet_identity --argument '(null)'
 	dfx canister create vetkd_system_api --specified-id s55qq-oqaaa-aaaaa-aaakq-cai
 	dfx deploy vetkd_system_api

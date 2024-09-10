@@ -26,7 +26,7 @@ jobs:
       - name: Rust Pub-Sub Darwin
         run: |
           pushd rust/pub-sub
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           make install
           make test
           popd
@@ -41,7 +41,7 @@ jobs:
       - name: Rust Pub-Sub Linux
         run: |
           pushd rust/pub-sub
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           make install
           make test
           popd

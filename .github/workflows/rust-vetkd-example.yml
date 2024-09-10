@@ -24,7 +24,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Rust vetKD Darwin
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd rust/vetkd
           make test
           popd
@@ -36,7 +36,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Rust vetKD Linux
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd rust/vetkd
           make test
           popd

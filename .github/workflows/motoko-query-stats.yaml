@@ -23,7 +23,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko Query Stats Darwin
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd motoko/query_stats
           dfx deploy query_stats
           popd
@@ -37,7 +37,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko Query Stats Linux
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd motoko/query_stats
           dfx deploy query_stats
           popd

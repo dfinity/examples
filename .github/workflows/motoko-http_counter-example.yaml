@@ -22,7 +22,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko Http Counter Darwin
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd motoko/http_counter
           make test
           popd
@@ -34,7 +34,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko Http Counter Linux
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd motoko/http_counter
           make test
           popd

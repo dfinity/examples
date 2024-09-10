@@ -22,7 +22,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko Persistent Storage Darwin
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd motoko/persistent-storage
           make test
           popd
@@ -34,7 +34,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko Persistent Storage Linux
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd motoko/persistent-storage
           make test
           popd

@@ -19,10 +19,10 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
-        run: DFX_VERSION="0.21.0-beta.0" bash .github/workflows/provision-darwin.sh
+        run: DFX_VERSION="0.23.0" bash .github/workflows/provision-darwin.sh
       - name: Motoko Canister Logs Darwin
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd motoko/canister_logs
           make test
           popd
@@ -31,10 +31,10 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
-        run: DFX_VERSION="0.21.0-beta.0" bash .github/workflows/provision-linux.sh
+        run: DFX_VERSION="0.23.0" bash .github/workflows/provision-linux.sh
       - name: Motoko Canister Logs Linux
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd motoko/canister_logs
           make test
           popd

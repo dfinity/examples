@@ -23,7 +23,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Rust Threshold ECDSA Darwin
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd rust/threshold-ecdsa
           dfx deploy
           npm install
@@ -37,7 +37,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Rust Threshold ECDSA Linux
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd rust/threshold-ecdsa
           dfx deploy
           npm install

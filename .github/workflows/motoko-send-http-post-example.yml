@@ -22,7 +22,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko Send HTTP POST Darwin
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd motoko/send_http_post
           make test
           popd
@@ -34,7 +34,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko Send HTTP POST Linux
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd motoko/send_http_post
           make test
           popd

@@ -22,7 +22,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko Threshold ECDSA Darwin
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd motoko/threshold-ecdsa
           dfx deploy
           npm install
@@ -36,7 +36,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko Threshold ECDSA Linux
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd motoko/threshold-ecdsa
           dfx deploy
           npm install

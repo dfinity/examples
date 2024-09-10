@@ -22,7 +22,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Rust Hello Darwin
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd rust/hello
           make test
           popd
@@ -34,7 +34,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Rust Hello Linux
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd rust/hello
           make test
           popd

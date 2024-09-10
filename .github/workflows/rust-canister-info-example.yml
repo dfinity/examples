@@ -20,10 +20,10 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
-        run: DFX_VERSION="0.14.2" bash .github/workflows/provision-darwin.sh
+        run: DFX_VERSION="0.23.0" bash .github/workflows/provision-darwin.sh
       - name: Rust Canister info Darwin
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd rust/canister-info
           cargo test
           make test
@@ -33,10 +33,10 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
-        run: DFX_VERSION="0.18.0" bash .github/workflows/provision-linux.sh
+        run: DFX_VERSION="0.23.0" bash .github/workflows/provision-linux.sh
       - name: Rust Canister info Linux
         run: |
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           pushd rust/canister-info
           cargo test
           make test

@@ -27,7 +27,7 @@ jobs:
           npm install
           npm run build
           # verify that frontend asset canister deploys
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           dfx deploy
           popd
   hosting-photo-storage-linux:
@@ -43,6 +43,6 @@ jobs:
           npm install
           npm run build
           # verify that frontend asset canister deploys
-          dfx start --background
+          dfx start --backgroud --clean --pocketic
           dfx deploy
           popd
