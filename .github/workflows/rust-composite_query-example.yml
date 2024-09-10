@@ -43,9 +43,9 @@ jobs:
         run: |
           pushd rust/composite_query
           dfx start --background --clean --pocketic
-          dfx canister create data_partition
+          dfx canister create data_partition --no-wallet
           dfx build data_partition
-          dfx canister create kv_frontend
+          dfx canister create kv_frontend --no-wallet
           dfx build kv_frontend
           dfx canister install kv_frontend
           dfx canister call kv_frontend put '(1, 1337)'

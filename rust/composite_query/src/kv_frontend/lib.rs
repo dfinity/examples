@@ -1,8 +1,10 @@
-use ic_cdk::api::call::{call};
-use ic_cdk::api::management_canister::main::{CreateCanisterArgument, create_canister, InstallCodeArgument, install_code, CanisterInstallMode};
+use candid::Principal;
+use ic_cdk::api::call::call;
+use ic_cdk::api::management_canister::main::{
+    create_canister, install_code, CanisterInstallMode, CreateCanisterArgument, InstallCodeArgument,
+};
 use ic_cdk::api::management_canister::provisional::CanisterSettings;
 use ic_cdk_macros::{query, update};
-use candid::Principal;
 
 use std::sync::Arc;
 use std::sync::RwLock;
@@ -20,7 +22,6 @@ thread_local! {
 
 #[update]
 async fn put(key: u128, value: u128) -> Option<u128> {
-
     // Create partitions if they don't exist yet
     if CANISTER_IDS.with(|canister_ids| {
         let canister_ids = canister_ids.read().unwrap();
@@ -32,12 +33,16 @@ async fn put(key: u128, value: u128) -> Option<u128> {
     }
 
     let canister_id = get_partition_for_key(key);
-    ic_cdk::println!("Put in frontend for key={} .. using backend={}", key, canister_id.to_text());
-    match call(canister_id, "put", (key, value), ).await {
+    ic_cdk::println!(
+        "Put in frontend for key={} .. using backend={}",
+        key,
+        canister_id.to_text()
+    );
+    match call(canister_id, "put", (key, value)).await {
         Ok(r) => {
             let (res,): (Option<u128>,) = r;
             res
-        },
+        }
         Err(_) => None,
     }
 }
@@ -45,12 +50,16 @@ async fn put(key: u128, value: u128) -> Option<u128> {
 #[query(composite = true)]
 async fn get(key: u128) -> Option<u128> {
     let canister_id = get_partition_for_key(key);
-    ic_cdk::println!("Get in frontend for key={} .. using backend={}", key, canister_id.to_text());
-    match call(canister_id, "get", (key, ), ).await {
+    ic_cdk::println!(
+        "Get in frontend for key={} .. using backend={}",
+        key,
+        canister_id.to_text()
+    );
+    match call(canister_id, "get", (key,)).await {
         Ok(r) => {
             let (res,): (Option<u128>,) = r;
             res
-        },
+        }
         Err(_) => None,
     }
 }
@@ -58,12 +67,16 @@ async fn get(key: u128) -> Option<u128> {
 #[update]
 async fn get_update(key: u128) -> Option<u128> {
     let canister_id = get_partition_for_key(key);
-    ic_cdk::println!("Get as update in frontend for key={} .. using backend={}", key, canister_id.to_text());
-    match call(canister_id, "get", (key, ), ).await {
+    ic_cdk::println!(
+        "Get as update in frontend for key={} .. using backend={}",
+        key,
+        canister_id.to_text()
+    );
+    match call(canister_id, "get", (key,)).await {
         Ok(r) => {
             let (res,): (Option<u128>,) = r;
             res
-        },
+        }
         Err(_) => None,
     }
 }
@@ -79,23 +92,31 @@ fn get_partition_for_key(key: u128) -> Principal {
 #[query(composite = true)]
 fn lookup(key: u128) -> (u128, String) {
     let r = key % NUM_PARTITIONS as u128;
-    (r, CANISTER_IDS.with(|canister_ids| {
-        let canister_ids = canister_ids.read().unwrap();
-        canister_ids[r as usize].to_text()
-    }))
+    (
+        r,
+        CANISTER_IDS.with(|canister_ids| {
+            let canister_ids = canister_ids.read().unwrap();
+            canister_ids[r as usize].to_text()
+        }),
+    )
 }
 
 async fn create_data_partition_canister_from_wasm() {
     let create_args = CreateCanisterArgument {
         settings: Some(CanisterSettings {
             controllers: Some(vec![ic_cdk::id()]),
-            compute_allocation: Some(0.into()),
-            memory_allocation: Some(0.into()),
-            freezing_threshold: Some(0.into()),
-        })
+            compute_allocation: Some(0_u64.into()),
+            memory_allocation: Some(0_u64.into()),
+            freezing_threshold: Some(0_u64.into()),
+            log_visibility: None,
+            reserved_cycles_limit: None,
+            wasm_memory_limit: None,
+        }),
     };
 
-    let canister_record = create_canister(create_args).await.unwrap();
+    const T: u128 = 1_000_000_000_000;
+
+    let canister_record = create_canister(create_args, 10 * T).await.unwrap();
     let canister_id = canister_record.0.canister_id;
 
     ic_cdk::println!("Created canister {}", canister_id);
