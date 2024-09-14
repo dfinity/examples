@@ -23,7 +23,9 @@ jobs:
         run: |
           pushd rust/basic_bitcoin
           bash src/basic_bitcoin/build.sh
+          gzip -9 rust/basic_bitcoin/target/wasm32-unknown-unknown/release/basic_bitcoin.wasm
       - uses: actions/upload-artifact@v4
         with:
-          name: "basic_bitcoin.wasm"
-          path: "rust/basic_bitcoin/target/wasm32-unknown-unknown/release/basic_bitcoin.wasm"
+          name: "basic_bitcoin.wasm.gz"
+          path: "rust/basic_bitcoin/target/wasm32-unknown-unknown/release/basic_bitcoin.wasm.gz"
+          compression-level: 0
