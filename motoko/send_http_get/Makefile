@@ -3,6 +3,7 @@ all: build
 
 .PHONY: build
 .SILENT: build
+build:
 	dfx deploy send_http_get_backend
 
 .PHONY: test
