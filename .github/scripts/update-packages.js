@@ -70,7 +70,7 @@ async function updatePackageLock(directory) {
   const packageJsonPath = join(directory, "package.json");
   try {
     await $({
-      stdio: "inherit",
+      stderr: "inherit",
       cwd: directory,
     })`npm install --package-lock-only`;
     console.log(`Updated lockfile for ${packageJsonPath}`);
