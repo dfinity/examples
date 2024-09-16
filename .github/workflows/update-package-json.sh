@@ -33,7 +33,7 @@ find . -name "package.json" -not -path "*/node_modules/*" | while read -r file; 
         echo "Updated @dfinity/* versions in $file"
     fi
     # Update `package-lock.json`
-    #npm install --prefix "$file/.." || exit 1
+    npm install --package-lock-only --prefix "$file/.." || exit 1
 done
 
 echo "Script completed."
