@@ -1,16 +1,20 @@
 // Update agent-js dependencies across all example projects.
 
-import { readFile, writeFile, readdir, stat } from "fs/promises";
-import { resolve, join } from "path";
+import { $ } from "execa";
+import { readdir, readFile, stat, writeFile } from "fs/promises";
 import latestVersion from "latest-version";
+import { join, resolve } from "path";
+
+// Skip updating these projects.
+const ignoreProjects = ["motoko/ic-pos"];
 
 // Skip updating these packages.
-const ignoreList = [
+const ignorePackages = [
   "@dfinity/internet-identity-vite-plugins",
   "@dfinity/internet-identity-vc-api",
 ];
 
-const visitedPackageJsonFiles = [];
+const projectDirectories = [];
 const versionPromiseMap = new Map();
 
 // Find and cache the latest version of a package.
@@ -25,13 +29,6 @@ async function findLatestVersion(pkg) {
 
 // Update all `package.json` files in the repository.
 async function updatePackageJson(filePath) {
-  filePath = resolve(filePath);
-  if (visitedPackageJsonFiles.includes(filePath)) {
-    console.log("Already visited package.json file:", filePath);
-    return;
-  }
-  visitedPackageJsonFiles.push(filePath);
-
   let content = await readFile(filePath, "utf8");
   let updated = false;
 
@@ -41,7 +38,7 @@ async function updatePackageJson(filePath) {
     const pkg = match[1];
     const version = match[2];
     try {
-      if (ignoreList.includes(pkg)) {
+      if (ignorePackages.includes(pkg)) {
         continue;
       }
       const newVersion = `^${await findLatestVersion(pkg)}`;
@@ -68,7 +65,23 @@ async function updatePackageJson(filePath) {
   }
 }
 
-// Recursively search for and update directories with a `package.json` file.
+// Update the `package-lock.json` file in the given directory.
+async function updatePackageLock(directory) {
+  const packageJsonPath = join(directory, "package.json");
+  try {
+    await $({
+      stdio: "inherit",
+      cwd: directory,
+    })`npm install --package-lock-only`;
+    console.log(`Updated lockfile for ${packageJsonPath}`);
+  } catch (err) {
+    console.error(err);
+    throw new Error(`Error while updating lockfile for ${packageJsonPath}`);
+  }
+}
+
+// Search for and update directories with a `package.json` file.
+// Returns a list of directories containing npm projects.
 async function searchAndUpdate(directory) {
   const files = await readdir(directory);
   await Promise.all(
@@ -80,10 +93,22 @@ async function searchAndUpdate(directory) {
         }
         await searchAndUpdate(filePath);
       } else if (filename === "package.json") {
+        if (
+          ignoreProjects.some((path) => resolve(directory) === resolve(path))
+        ) {
+          return;
+        }
+        projectDirectories.push(directory);
         await updatePackageJson(filePath);
       }
     })
   );
 }
 
-searchAndUpdate(process.cwd()).then(() => console.log("Completed"));
+(async () => {
+  await searchAndUpdate(process.cwd());
+  for (const directory of projectDirectories) {
+    await updatePackageLock(directory);
+  }
+  console.log("Completed");
+})();
