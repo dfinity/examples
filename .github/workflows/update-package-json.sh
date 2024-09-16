@@ -25,7 +25,7 @@ else
 fi
 
 # Find all package.json files in subdirectories
-find . -name "package.json" | while read -r file; do
+find . -name "package.json" -not -path "*/node_modules/*" | while read -r file; do
     # Check if the file contains any "@dfinity/" package
     if grep -q '"@dfinity/' "$file"; then
         # Use sed to replace the version for all @dfinity packages, preserving the caret if present
@@ -33,7 +33,7 @@ find . -name "package.json" | while read -r file; do
         echo "Updated @dfinity/* versions in $file"
     fi
     # Update `package-lock.json`
-    npm install --prefix "$file/.." || exit 1
+    #npm install --prefix "$file/.." || exit 1
 done
 
 echo "Script completed."
