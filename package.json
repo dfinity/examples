@@ -1,0 +1,13 @@
+{
+  "name": "@dfinity/examples",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Example applications, microservices, and code samples for the Internet Computer",
+  "type": "module",
+  "scripts": {
+    "update-packages": "node .github/scripts/update-packages.js"
+  },
+  "devDependencies": {
+    "latest-version": "^9.0.0"
+  }
+}
