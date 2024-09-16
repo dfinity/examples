@@ -1,6 +1,6 @@
 actor {
 
-  stable counter : Nat = 0;
+  stable var counter : Nat = 0;
 
   public func count() : async Nat {
     counter += 1;
