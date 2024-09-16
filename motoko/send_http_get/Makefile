@@ -1,14 +1,8 @@
 .PHONY: all
 all: build
 
-.PHONY: node_modules
-.SILENT: node_modules
-node_modules:
-	npm install
-
 .PHONY: build
 .SILENT: build
-build: node_modules
 	dfx canister create send_http_get_backend
 	dfx build
 

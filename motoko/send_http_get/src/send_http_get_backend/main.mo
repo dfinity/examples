@@ -1,9 +1,5 @@
-import Debug "mo:base/Debug";
 import Blob "mo:base/Blob";
 import Cycles "mo:base/ExperimentalCycles";
-import Error "mo:base/Error";
-import Array "mo:base/Array";
-import Nat8 "mo:base/Nat8";
 import Nat64 "mo:base/Nat64";
 import Text "mo:base/Text";
 
@@ -63,8 +59,7 @@ actor {
     // 2.1 Setup the URL and its query parameters
     let ONE_MINUTE : Nat64 = 60;
     let start_timestamp : Types.Timestamp = 1682978460; //May 1, 2023 22:01:00 GMT
-    let end_timestamp : Types.Timestamp = 1682978520;//May 1, 2023 22:02:00 GMT
-    let host : Text = "api.pro.coinbase.com";
+    let host : Text = "api.exchange.coinbase.com";
     let url = "https://" # host # "/products/ICP-USD/candles?start=" # Nat64.toText(start_timestamp) # "&end=" # Nat64.toText(start_timestamp) # "&granularity=" # Nat64.toText(ONE_MINUTE);
 
     // 2.2 prepare headers for the system http_request call
@@ -98,7 +93,7 @@ actor {
     //The way Cycles.add() works is that it adds those cycles to the next asynchronous call
     //"Function add(amount) indicates the additional amount of cycles to be transferred in the next remote call"
     //See: https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-http_request
-    Cycles.add(230_949_972_000);
+    Cycles.add<system>(230_949_972_000);
     
     //4. MAKE HTTPS REQUEST AND WAIT FOR RESPONSE
     //Since the cycles were added above, we can just call the IC management canister with HTTPS outcalls below
