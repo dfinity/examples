@@ -32,6 +32,8 @@ find . -name "package.json" | while read -r file; do
         $SED_CMD -i 's/\("@dfinity\/[^"]*"\s*:\s*"\^*\)[0-9.]*"/\1'"$NEW_VERSION"'"/' "$file"
         echo "Updated @dfinity/* versions in $file"
     fi
+    # Update `package-lock.json`
+    npm install --prefix "$file/.." || exit 1
 done
 
 echo "Script completed."
