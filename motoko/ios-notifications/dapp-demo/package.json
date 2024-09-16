@@ -36,7 +36,7 @@
   "dependencies": {
     "@dfinity/agent": "2.1.1",
     "@dfinity/auth-client": "^2.1.1",
-    "@dfinity/authentication": "^2.1.1",
+    "@dfinity/authentication": "^0.14.2",
     "@dfinity/candid": "2.1.1",
     "@dfinity/identity": "^2.1.1",
     "@dfinity/principal": "2.1.1",
