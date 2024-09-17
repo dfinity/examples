@@ -57,9 +57,9 @@ export function createActor<T>(
   });
 }
 
-// Ask dfx where the the replica is running. This is a total hack to work
+// Ask dfx where the the webserver is running. This is a total hack to work
 // around `dfx start --pocketic` launching on a random port each time.
-const dfxPort = execSync("dfx info replica-port", { encoding: "utf-8" });
+const dfxPort = execSync("dfx info webserver-port", { encoding: "utf-8" });
 
 export function agent(identity?: Identity) {
   const a = new HttpAgent({
