@@ -37,8 +37,9 @@ pub async fn ethereum_address(owner: Option<Principal>) -> String {
 }
 
 #[update]
-pub async fn get_balance(address: String) -> Nat {
-    let _caller = validate_caller_not_anonymous();
+pub async fn get_balance(address: Option<String>) -> Nat {
+    let address = address.unwrap_or(ethereum_address(None).await);
+
     let json = format!(
         r#"{{ "jsonrpc": "2.0", "method": "eth_getBalance", "params": ["{}", "latest"], "id": 1 }}"#,
         address
