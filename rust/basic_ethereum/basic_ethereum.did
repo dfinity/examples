@@ -9,7 +9,7 @@ type InitArg = record {
 type EthereumNetwork = variant {
     // The public Ethereum mainnet.
     Mainnet;
-    // The public Sepolia testnet.
+    // The public Ethereum Sepolia testnet.
     Sepolia;
 };
 
