@@ -17,9 +17,9 @@
     "generate": "dfx generate qrcode_backend"
   },
   "dependencies": {
-    "@dfinity/agent": "^0.18.1",
-    "@dfinity/candid": "^0.18.1",
-    "@dfinity/principal": "^0.18.1"
+    "@dfinity/agent": "^2.1.1",
+    "@dfinity/candid": "^2.1.1",
+    "@dfinity/principal": "^2.1.1"
   },
   "devDependencies": {
     "assert": "2.0.0",

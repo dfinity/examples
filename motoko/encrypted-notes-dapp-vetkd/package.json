@@ -56,11 +56,11 @@
     "typescript": "^4.0.0"
   },
   "dependencies": {
-    "@dfinity/agent": "^0.15.1",
-    "@dfinity/auth-client": "^0.15.1",
-    "@dfinity/candid": "^0.15.1",
-    "@dfinity/identity": "^0.15.1",
-    "@dfinity/principal": "^0.15.1",
+    "@dfinity/agent": "^2.1.1",
+    "@dfinity/auth-client": "^2.1.1",
+    "@dfinity/candid": "^2.1.1",
+    "@dfinity/identity": "^2.1.1",
+    "@dfinity/principal": "^2.1.1",
     "sirv-cli": "^1.0.0",
     "svelte-icons": "^2.1.0",
     "svelte-router-spa": "^6.0.3",
