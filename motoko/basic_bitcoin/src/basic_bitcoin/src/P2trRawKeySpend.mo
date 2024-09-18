@@ -44,11 +44,13 @@ module {
     let sec1_public_key = await SchnorrApi.schnorr_public_key(key_name, Array.map(derivation_path, Blob.fromArray));
     assert sec1_public_key.size() == 33;
 
-    public_key_to_p2tr_key_spend_address(network, Blob.toArray(sec1_public_key));
+    let bip340_public_key_bytes = Array.subArray(Blob.toArray(sec1_public_key), 1, 32);
+
+    public_key_to_p2tr_key_spend_address(network, bip340_public_key_bytes);
   };
 
   // Converts a public key to a P2TR raw key spend address.
-  func public_key_to_p2tr_key_spend_address(network : Network, public_key_bytes : [Nat8]) : BitcoinAddress {
+  public func public_key_to_p2tr_key_spend_address(network : Network, bip340_public_key_bytes : [Nat8]) : BitcoinAddress {
     // human-readable part of the address
     let hrp = switch (network) {
       case (#mainnet) "bc";
@@ -57,11 +59,9 @@ module {
     };
 
     let version : Nat8 = 1;
-    let bip340PublicKeyBytes = Array.subArray(public_key_bytes, 1, 32);
-    assert bip340PublicKeyBytes.size() == 32;
-    let program = bip340PublicKeyBytes;
+    assert bip340_public_key_bytes.size() == 32;
 
-    switch (Segwit.encode(hrp, { version; program })) {
+    switch (Segwit.encode(hrp, { version; program = bip340_public_key_bytes })) {
       case (#ok address) address;
       case (#err msg) Debug.trap("Error encoding segwit address: " # msg);
     };
@@ -184,8 +184,7 @@ module {
     };
 
     // Fetch our public key, P2TR raw key spend address, and UTXOs.
-    let own_sec1_public_key = Blob.toArray(await SchnorrApi.schnorr_public_key(key_name, Array.map(derivation_path, Blob.fromArray)));
-    let own_address = public_key_to_p2tr_key_spend_address(network, own_sec1_public_key);
+    let own_address = await get_address(network, key_name, derivation_path);
 
     Debug.print("Fetching UTXOs...");
     // Note that pagination may have to be used to get all UTXOs for the given address.
@@ -217,6 +216,6 @@ module {
     Debug.print("Sending transaction...");
     await BitcoinApi.send_transaction(network, signed_transaction_bytes);
 
-    signed_transaction.id();
+    signed_transaction.txid();
   };
 };
