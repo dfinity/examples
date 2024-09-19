@@ -1,0 +1,12 @@
+type PemCertificateRequest = record { pem_certificate_request : text };
+type PublicKeyReply = record { public_key_hex : text };
+type Result_1 = variant { Ok : X509CertificateString; Err : text };
+type Result_2 = variant { Ok : PublicKeyReply; Err : text };
+type SchnorrKeyName = variant { TestKey1; Key1; DfxTestKey };
+type X509CertificateString = record { x509_certificate_string : text };
+
+service : (SchnorrKeyName) -> {
+  child_certificate : (PemCertificateRequest) -> (Result_1);
+  root_ca_certificate : () -> (Result_1);
+  root_ca_public_key : () -> (Result_2);
+}
