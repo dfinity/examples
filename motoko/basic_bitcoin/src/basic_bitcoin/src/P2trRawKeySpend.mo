@@ -217,6 +217,6 @@ module {
     Debug.print("Sending transaction...");
     await BitcoinApi.send_transaction(network, signed_transaction_bytes);
 
-    signed_transaction.id();
+    signed_transaction.txid();
   };
 };

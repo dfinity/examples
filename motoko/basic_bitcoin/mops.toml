@@ -1,5 +1,3 @@
 [dependencies]
 base = "0.11.2"
-bitcoin = "https://github.com/dfinity/motoko-bitcoin#alex-add-script-spends"
-# sha2 is a transitive dependency and should be removed when `bitcoin` is published on `mops`
-sha2 = "0.1.0"
+bitcoin = "0.1.0"
