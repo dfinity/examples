@@ -20,6 +20,10 @@ For a deeper understanding of the ICP < > BTC integration, see the [Bitcoin inte
 
 * [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 
+:::info 
+This example is designed to be deployed on the mainnet. It will return errors when deployed locally; these errors are expected.
+:::
+
 ## Step 1: Building and deploying sample code
 
 ### Clone the smart contract
