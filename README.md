@@ -1,44 +1,50 @@
-## DFINITY Examples for the Internet Computer
+# Internet Computer sample applications 
 
-This repository provides access to sample code, applications, and microservices that run on the Internet Computer platform.
+Get started building on ICP with the sample applications in this repository.
 
-From this repository, you can download, clone, fork, or share sample projects.
+From this repository, you can deploy, download, clone, fork, or share sample projects.
 
-You will also be able to contribute your own project or suggest updates to published projects using the standard Git work flow.
-
-Sample projects provide a way for you to experiment and collaborate with other developers.
 The projects and sample code are not, however, intended to be used as commercial applications and do not provide any explicit or implied support or warranty of any kind.
 
-To get started:
+You can also contribute your own project or suggest updates to published projects using the standard GitHub workflow.
 
-1. Open a terminal shell on your local computer.
+## Deploying samples 
 
-1. Download the DFINITY Canister SDK, if needed:
+### GitHub Codespaces or Gitpod
 
-    ```
-    sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
-    ```
+This repo can be opened in a web-based developer environment such as [GitHub Codespaces](https://github.com/codespaces) or [Gitpod](https://www.gitpod.io/), allowing you to edit and deploy the sample projects without downloading any tools or setting up a local environment. 
 
-1. Select a language—for example, `c` or `motoko`—to explore the examples available in the language of your choice.
+[Get started with GitHub codespaces](https://internetcomputer.org/docs/current/developer-docs/developer-tools/ide/codespaces).
 
-1. Clone the repository to download the `examples` repo to your local workspace.
+[Get started with Gitpod](https://internetcomputer.org/docs/current/developer-docs/developer-tools/ide/gitpod).
 
-1. Open the project folder for the example you want to use.
+### Motoko Playground
 
-1. Start a local internet computer replica by running the following command:
+Motoko Playground is a web-based developer environment for Motoko projects. To use Motoko Playground, navigate to the [playground UI](https://m7sm4-2iaaa-aaaab-qabra-cai.ic0.app/) and select a template to get started, or start a new project.
 
-    ```
-    dfx start
-    ```
+### dfx 
 
-1. Open a new terminal shell on your local computer.
+dfx is a command-line tool used to create, deploy. and manage projects on ICP. To download and use dfx with this examples repo, run the following commands locally (macOS/Linux systems):
 
-1. Build the sample project by running the following command:
+```
+git clone https://github.com/dfinity/examples.git
+cd examples
+sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
+```
 
-    ```
-    dfx build
-    ```
+Then, navigate into the folder of the sample that you want to use and follow the project's README instructions to setup and deploy the sample code.
 
-## Security Considerations and Best Practices
 
-If you base your application on one of these examples, we recommend you familiarize yourself with and adhere to the [Security Best Practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. The examples provided here may not implement all the best practices.
+## Resources 
+
+- [ICP Developer Docs](https://internetcomputer.org/docs/current/home)
+
+- [Overview of ICP](https://internetcomputer.org/docs/current/developer-docs/getting-started/overview-of-icp)
+
+- [Installing dfx](https://internetcomputer.org/docs/current/developer-docs/getting-started/install/)
+
+- [Developer tools](https://internetcomputer.org/docs/current/developer-docs/developer-tools/dev-tools-overview)
+
+## Security considerations and best practices
+
+If you base your application on one of these examples, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. The examples provided here may not implement all the best practices.
