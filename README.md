@@ -1,12 +1,26 @@
 # Internet Computer sample applications 
 
-Get started building on ICP with the sample applications in this repository.
+Get started building on ICP with the sample applications in this repository. From this repository, you can deploy, download, clone, fork, or share sample projects.
 
-From this repository, you can deploy, download, clone, fork, or share sample projects.
-
-The projects and sample code are not, however, intended to be used as commercial applications and do not provide any explicit or implied support or warranty of any kind.
+The projects in this repository are not intended to be used as commercial applications and do not provide any explicit or implied support or warranty of any kind.
 
 You can also contribute your own project or suggest updates to published projects using the standard GitHub workflow.
+
+## Sample applications
+
+Code samples are organized by programming language:
+
+- [Motoko](https://github.com/dfinity/examples/tree/master/motoko)
+- [Rust](https://github.com/dfinity/examples/tree/master/rust)
+- [C](https://github.com/dfinity/examples/tree/master/c)
+
+Some examples include frontends written in a variety of frameworks, such as React, JavaScript, etc. 
+
+Additional frontend samples can be found in the following folders:
+
+- [Svelte](https://github.com/dfinity/examples/tree/master/svelte)
+- [HTML](https://github.com/dfinity/examples/tree/master/hosting)
+- [Unity](https://github.com/dfinity/examples/tree/master/native-apps)
 
 ## Deploying samples 
 
