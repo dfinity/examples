@@ -104,7 +104,7 @@ from two types of addresses:
    address](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki)
    where the funds can be spent using the raw (untweaked) internal key
    (so-called P2TR key path spend, but untweaked). The advantage of this
-   approach compared to the one below is its significantly smaller fee per
+   approach compared to P2TR script spends is its significantly smaller fee per
    transaction because checking the transaction signature is analogous to P2PK
    but uses Schnorr instead of ECDSA. IMPORTANT: Note that
    [BIP341](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki#cite_note-23)
