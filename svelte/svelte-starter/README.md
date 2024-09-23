@@ -4,7 +4,7 @@
 
 This repository is meant to give [Svelte](https://svelte.dev/) developers an easy on-ramp to get started with developing decentralized applications (Dapps in short) for ICP. Dapps, also known as smart contracts, are specialized software that runs on a blockchain.
 
-This template contains a Svelte app under `src/frontend` that can be hosted on-chain on ICP.
+This template contains a Svelte app under `src/frontend` that can be hosted onchain on ICP.
 
 You can see a deployed version of this template here: https://zgvi5-hiaaa-aaaam-aaasq-cai.ic0.app/
 
@@ -119,6 +119,6 @@ dfx deploy --network ic
 
 The command will build the project, create a new canister on ICP and deploy the Svelte app into it. The command will also create a new file `canister_ids.json` which will help the dfx tool deploy to the same canister in future updates. You can commit this file in your repository.
 
-You can now open your Svelte app running on-chain. You can find the canister ID in the deploy command output, or use the ID in `canister_ids.json`.
+You can now open your Svelte app running onchain. You can find the canister ID in the deploy command output, or use the ID in `canister_ids.json`.
 
 The link to your app is `<canister_id>.ic0.app`. For example, if your canister ID is `zgvi5-hiaaa-aaaam-aaasq-cai`, your app will be at `https://zgvi5-hiaaa-aaaam-aaasq-cai.ic0.app/`.
