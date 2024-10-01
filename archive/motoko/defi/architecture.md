@@ -4,7 +4,7 @@ To enable DEFI application on the IC, canisters need to interact with token cani
 
 ## Architecture
 
-The design of the IC allows for more complex on-chain computation. In combination with cheap storage, it is possible to have on-chain order books. This example takes advantage of these features and stores user balances and orders inside the exchange canister. The example exchange functionality can be condensed into the following steps:
+The design of the IC allows for more complex onchain computation. In combination with cheap storage, it is possible to have onchain order books. This example takes advantage of these features and stores user balances and orders inside the exchange canister. The example exchange functionality can be condensed into the following steps:
 
 1. Exchange takes custody of funds (different mechanism for tokens and ICP, see below).
 2. Exchange updates internal balance book.
@@ -13,7 +13,7 @@ The design of the IC allows for more complex on-chain computation. In combinatio
 
 ### Interface
 
-Request user-specific ledger account identifier from the exchange. This unique account identifier represents a user-specific subaccount in the exchange's ledger account, allowing it to differentiate between user deposits. 
+Request user-specific ledger account identifier from the exchange. This unique account identifier represents a user-specific subaccount in the exchange's ledger account, allowing it to differentiate between user deposits.
 ```
 getDepositAddress: () -> (blob);
 ```
@@ -25,7 +25,7 @@ Withdraw request to the exchange. The exchange will send funds back to the user 
 ```
 withdraw: (Token, nat, principal) -> (WithdrawReceipt);
 ```
-Place new order to exchange. If the order matches an existing order, it will get executed. 
+Place new order to exchange. If the order matches an existing order, it will get executed.
 ```
 placeOrder: (Token, nat, Token, nat) -> (OrderPlacementReceipt);
 ```
@@ -72,5 +72,5 @@ Compared to depositing funds, withdrawing funds is simpler. Since the exchange h
 ## Common mistakes
 
 - **Concurrent execution**: If canister functions have `await` statements, it is possible that execution is interleaved. To avoid bugs, it is necessary to carefully consider the placement of data structure updates to prevent double-spend attacks.
-- **Floating Points**: More advanced exchanges should take care of floating points and make sure to limit decimals. 
+- **Floating Points**: More advanced exchanges should take care of floating points and make sure to limit decimals.
 - **No panics after await**: When a panic happens, the state gets rolled back. This can cause issues with the correctness of the exchange.
