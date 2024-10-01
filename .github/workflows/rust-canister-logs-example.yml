@@ -19,7 +19,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
-        run: DFX_VERSION="0.23.0" bash .github/workflows/provision-darwin.sh
+        run: bash .github/workflows/provision-darwin.sh
       - name: Rust Canister Logs Darwin
         run: |
           dfx start --background --clean --pocketic
@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
-        run: DFX_VERSION="0.23.0" bash .github/workflows/provision-linux.sh
+        run: bash .github/workflows/provision-linux.sh
       - name: Rust Canister Logs Linux
         run: |
           dfx start --background --clean --pocketic
