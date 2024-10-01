@@ -26,7 +26,7 @@ upgrade: build
 
 .PHONY: test
 .SILENT: test
-test: upgrade
+test: install
 	dfx canister call minimal_dapp_backend increment \
 		| grep '(1 : nat)' && echo 'PASS'
 	dfx canister call minimal_dapp_backend increment \
