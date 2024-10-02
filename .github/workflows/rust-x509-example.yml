@@ -28,7 +28,9 @@ jobs:
           brew install openssl
           dfx start --background
           pushd rust/x509
-          dfx deploy
+          dfx deploy --argument "(variant { Ed25519 = variant { TestKey1 } })" x509_example_rust
+          cargo test
+          dfx deploy --argument "(variant { EcdsaSecp256k1 = variant { TestKey1 } })" --mode reinstall --yes x509_example_rust
           cargo test
   rust-x509-linux:
     runs-on: ubuntu-20.04
@@ -43,5 +45,7 @@ jobs:
           sudo apt-get install --yes openssl
           dfx start --background
           pushd rust/x509
-          dfx deploy
+          dfx deploy --argument "(variant { Ed25519 = variant { TestKey1 } })" x509_example_rust
+          cargo test
+          dfx deploy --argument "(variant { EcdsaSecp256k1 = variant { TestKey1 } })" --mode reinstall --yes x509_example_rust
           cargo test
