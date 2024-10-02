@@ -1,15 +1,19 @@
-use crate::SchnorrKeyName;
+use crate::{CaKeyInformation, KeyName, PemCertificateRequest, X509CertificateString};
 
 use super::SchnorrAlgorithm;
 use candid::{CandidType, Principal};
 use der::{asn1::BitString, pem::LineEnding, DecodePem, Encode, EncodePem};
+use ic_cdk::api::management_canister::ecdsa as cdk_ecdsa;
 use ic_cdk::export_candid;
 use ic_cdk::{api::time, init, update};
+use pkcs8::AssociatedOid;
 use serde::{Deserialize, Serialize};
-use spki::{AlgorithmIdentifier, AlgorithmIdentifierOwned, DynSignatureAlgorithmIdentifier};
-use std::cell::OnceCell;
-use std::convert::TryInto;
-use std::{cell::RefCell, convert::TryFrom, error::Error, str::FromStr, time::Duration};
+use signature::Keypair;
+use spki::{AlgorithmIdentifier, DynSignatureAlgorithmIdentifier, EncodePublicKey};
+use std::{
+    cell::OnceCell, cell::RefCell, convert::TryFrom, convert::TryInto, error::Error, ops::Deref,
+    str::FromStr, time::Duration,
+};
 use x509_cert::{
     builder::{Builder, CertificateBuilder, Profile},
     name::Name,
@@ -19,10 +23,45 @@ use x509_cert::{
     time::{Time, Validity},
 };
 
+mod signer;
+use signer::{EcdsaSecp256k1Signer, Ed25519Signer, Sign};
+
 type CanisterId = Principal;
 
+impl TryFrom<&CaKeyInformation> for SchnorrKeyId {
+    type Error = String;
+
+    fn try_from(value: &CaKeyInformation) -> Result<Self, Self::Error> {
+        match value {
+            CaKeyInformation::Ed25519(key_name) => Ok(SchnorrKeyId {
+                algorithm: SchnorrAlgorithm::Ed25519,
+                name: String::from(<&'static str>::from(key_name)),
+            }),
+            something_else => Err(format!(
+                "Expected Ed25519 CA key but got {something_else:?}"
+            )),
+        }
+    }
+}
+
+impl TryFrom<&CaKeyInformation> for cdk_ecdsa::EcdsaKeyId {
+    type Error = String;
+
+    fn try_from(value: &CaKeyInformation) -> Result<Self, Self::Error> {
+        match value {
+            CaKeyInformation::EcdsaSecp256k1(key_name) => Ok(cdk_ecdsa::EcdsaKeyId {
+                curve: cdk_ecdsa::EcdsaCurve::Secp256k1,
+                name: String::from(<&'static str>::from(key_name)),
+            }),
+            something_else => Err(format!(
+                "Expected EcdsaSecp256k1 CA key but got {something_else:?}"
+            )),
+        }
+    }
+}
+
 thread_local! {
-    static KEY_NAME: RefCell<SchnorrKeyName> = RefCell::new(SchnorrKeyName::DfxTestKey);
+    static CA_KEY_INFORMATION: RefCell<CaKeyInformation> = RefCell::new(CaKeyInformation::Ed25519(KeyName::DfxTestKey));
 
     // cache the public key and certificate to avoid fetching them multiple times
     static ROOT_CA_PUBLIC_KEY: OnceCell<Vec<u8>> = OnceCell::new();
@@ -32,9 +71,9 @@ thread_local! {
 }
 
 #[init]
-fn init(key_name: SchnorrKeyName) {
-    KEY_NAME.with(|state| {
-        *state.borrow_mut() = key_name;
+fn init(ca_key_information: CaKeyInformation) {
+    CA_KEY_INFORMATION.with(|value| {
+        *value.borrow_mut() = ca_key_information;
     });
 }
 
@@ -58,23 +97,70 @@ async fn root_ca_certificate() -> Result<X509CertificateString, String> {
     )
     .unwrap();
 
-    let subject_public_key = der::asn1::BitString::new(0, root_ca_public_key_bytes().await?)
-        .map_err(|e| format!("source: {:?}", e.source()))?;
+    let newly_constructed_x509_certificate_string = match CA_KEY_INFORMATION
+        .with(|value| *value.borrow())
+    {
+        CaKeyInformation::Ed25519(_) => {
+            let signer = Ed25519Signer::new()
+                .await
+                .map_err(|e| format!("failed to create Ed25519 signer: {e:?}"))?;
 
-    let pub_key = SubjectPublicKeyInfoOwned {
-        algorithm: public_key_algorithm_identifier(),
-        subject_public_key,
+            let subject_public_key =
+                der::asn1::BitString::new(0, root_ca_public_key_bytes().await?)
+                    .map_err(|e| format!("source: {:?}", e.source()))?;
+
+            let pub_key = SubjectPublicKeyInfoOwned {
+                algorithm: signer.signature_algorithm_identifier().unwrap(),
+                subject_public_key,
+            };
+
+            pem_certificate_signed_by_root_ca(
+                Profile::Root,
+                serial_number,
+                validity(),
+                subject,
+                pub_key,
+                signer,
+            )
+            .await
+            .map_err(|e| format!("failed to create root certificate: {e:?}"))?
+        }
+        CaKeyInformation::EcdsaSecp256k1(_) => {
+            let signer = EcdsaSecp256k1Signer::new()
+                .await
+                .map_err(|e| format!("failed to create ECDSA secp256k1 signer: {e:?}"))?;
+
+            let public_key_bytes_compressed = root_ca_public_key_bytes().await?;
+            let public_key_bytes_uncompressed =
+                k256::ecdsa::VerifyingKey::from_sec1_bytes(public_key_bytes_compressed.as_slice())
+                    .map_err(|e| format!("malformed public key: {e:?}"))?
+                    .to_encoded_point(false);
+
+            let subject_public_key =
+                der::asn1::BitString::new(0, public_key_bytes_uncompressed.as_bytes())
+                    .map_err(|e| format!("source: {:?}", e.source()))?;
+
+            let pub_key = SubjectPublicKeyInfoOwned {
+                algorithm: AlgorithmIdentifier {
+                    // Public Key Algorithm: id-ecPublicKey (1.2.840.10045.2.1)
+                    oid: pkcs8::ObjectIdentifier::new_unwrap("1.2.840.10045.2.1"),
+                    parameters: Some(der::Any::from(k256::Secp256k1::OID)),
+                },
+                subject_public_key,
+            };
+
+            pem_certificate_signed_by_root_ca(
+                Profile::Root,
+                serial_number,
+                validity(),
+                subject,
+                pub_key,
+                signer,
+            )
+            .await
+            .map_err(|e| format!("failed to create root certificate: {e:?}"))?
+        }
     };
-
-    let newly_constructed_x509_certificate_string = pem_certificated_signed_by_root_ca(
-        Profile::Root,
-        serial_number,
-        validity(),
-        subject,
-        pub_key,
-    )
-    .await
-    .map_err(|e| format!("failed to create root certificate: {e:?}"))?;
 
     let x509_certificate_string = ROOT_CA_CERTIFICATE_PEM.with(move |inner| {
         inner
@@ -116,21 +202,48 @@ async fn child_certificate(
 
     let serial_number = SerialNumber::from(next_child_certificate_serial_number());
 
-    let x509_certificate_string = pem_certificated_signed_by_root_ca(
-        profile,
-        serial_number,
-        // For simplicity of this example, let's just use the same validity
-        // period as the root certificate. In a real application, the validity
-        // would normally not start in the past and might end well before the root
-        // certificate validity ends. Also, the validity of the child
-        // ceritifcate should always be in the time frame of the root
-        // certificate's validity.
-        root_certificate.tbs_certificate.validity.clone(),
-        cert_req.info.subject.clone(),
-        cert_req.info.public_key.clone(),
-    )
-    .await
-    .map_err(|e| format!("failed to create child certificate: {e:?}"))?;
+    // For simplicity of this example, let's just use the same validity
+    // period as the root certificate. In a real application, the validity
+    // would normally not start in the past and might end well before the root
+    // certificate validity ends. Also, the validity of the child
+    // ceritifcate should always be in the time frame of the root
+    // certificate's validity.
+    let validity = root_certificate.tbs_certificate.validity.clone();
+
+    let x509_certificate_string = {
+        match CA_KEY_INFORMATION.with(|value| *value.borrow()) {
+            CaKeyInformation::Ed25519(_) => {
+                let signer = Ed25519Signer::new()
+                    .await
+                    .map_err(|e| format!("failed to create Ed25519 signer: {e:?}"))?;
+                pem_certificate_signed_by_root_ca(
+                    profile,
+                    serial_number,
+                    validity,
+                    cert_req.info.subject.clone(),
+                    cert_req.info.public_key.clone(),
+                    signer,
+                )
+                .await
+                .map_err(|e| format!("failed to create child certificate: {e:?}"))?
+            }
+            CaKeyInformation::EcdsaSecp256k1(_) => {
+                let signer = EcdsaSecp256k1Signer::new()
+                    .await
+                    .map_err(|e| format!("failed to create Ed25519 signer: {e:?}"))?;
+                pem_certificate_signed_by_root_ca(
+                    profile,
+                    serial_number,
+                    validity,
+                    cert_req.info.subject.clone(),
+                    cert_req.info.public_key.clone(),
+                    signer,
+                )
+                .await
+                .map_err(|e| format!("failed to create child certificate: {e:?}"))?
+            }
+        }
+    };
 
     Ok(X509CertificateString {
         x509_certificate_string,
@@ -168,111 +281,65 @@ struct ManagementCanisterSignatureReply {
     pub signature: Vec<u8>,
 }
 
-#[derive(CandidType, Serialize, Deserialize, Debug)]
-pub struct X509CertificateString {
-    x509_certificate_string: String,
-}
-
-#[derive(CandidType, Deserialize, Debug)]
-pub struct PemCertificateRequest {
-    pem_certificate_request: String,
-}
-
-struct Signer {
-    key_id: SchnorrKeyId,
-    public_key: ed25519::pkcs8::PublicKeyBytes,
-}
-
-impl Signer {
-    pub async fn new() -> Result<Self, String> {
-        let public_key_raw = <[u8; 32]>::try_from(root_ca_public_key_bytes().await?.as_slice())
-            .map_err(|e| format!("public key has wrong length: {e:?}"))?;
-        let public_key = ed25519::pkcs8::PublicKeyBytes(public_key_raw);
-        Ok(Self {
-            key_id: key_id(),
-            public_key,
-        })
-    }
-
-    pub async fn sign(&self, msg: &[u8]) -> Result<ed25519::Signature, String> {
-        let internal_request = ManagementCanisterSignatureRequest {
-            message: msg.to_vec(),
-            derivation_path: derivation_path(), // empty because there is only one root certificate for everyone in this example
-            key_id: self.key_id.clone(),
-        };
-
-        let (internal_reply,): (ManagementCanisterSignatureReply,) =
-            ic_cdk::api::call::call_with_payment(
-                Principal::management_canister(),
-                "sign_with_schnorr",
-                (internal_request,),
-                25_000_000_000,
-            )
-            .await
-            .map_err(|e| format!("sign_with_schnorr failed {e:?}"))?;
-
-        Ok(ed25519::Signature::from_bytes(
-            &<[u8; 64]>::try_from(internal_reply.signature.as_slice())
-                .map_err(|e| format!("signature has wrong length: {e:?}"))?,
-        ))
-    }
-}
-
-impl AsRef<ed25519::pkcs8::PublicKeyBytes> for Signer {
-    fn as_ref(&self) -> &ed25519::pkcs8::PublicKeyBytes {
-        &self.public_key
-    }
-}
-
-impl signature::KeypairRef for Signer {
-    type VerifyingKey = ed25519::pkcs8::PublicKeyBytes;
-}
-
-impl DynSignatureAlgorithmIdentifier for Signer {
-    fn signature_algorithm_identifier(&self) -> spki::Result<AlgorithmIdentifierOwned> {
-        Ok(AlgorithmIdentifierOwned {
-            oid: ed25519::pkcs8::ALGORITHM_OID.clone(),
-            parameters: None,
-        })
-    }
-}
-
 async fn root_ca_public_key_bytes() -> Result<Vec<u8>, String> {
     // if the public key is already cached, return it
     if let Some(public_key) = ROOT_CA_PUBLIC_KEY.with(|inner| inner.get().map(|v| v.clone())) {
         return Ok(public_key);
     };
 
-    // if the public key is not cached, fetch it from the management canister
-    let request = ManagementCanisterSchnorrPublicKeyRequest {
-        canister_id: None,
-        derivation_path: derivation_path(),
-        key_id: key_id(),
-    };
+    let result = match CA_KEY_INFORMATION.with(|value| *value.borrow()) {
+        CaKeyInformation::Ed25519(_) => {
+            // if the public key is not cached, fetch it from the management canister
+            let request = ManagementCanisterSchnorrPublicKeyRequest {
+                canister_id: None,
+                derivation_path: derivation_path(),
+                key_id: CA_KEY_INFORMATION
+                    .with(|value| SchnorrKeyId::try_from(value.borrow().deref()))?,
+            };
 
-    let (res,): (ManagementCanisterSchnorrPublicKeyReply,) = ic_cdk::call(
-        Principal::management_canister(),
-        "schnorr_public_key",
-        (request,),
-    )
-    .await
-    .map_err(|e| format!("schnorr_public_key failed {}", e.1))?;
+            let (res,): (ManagementCanisterSchnorrPublicKeyReply,) = ic_cdk::call(
+                Principal::management_canister(),
+                "schnorr_public_key",
+                (request,),
+            )
+            .await
+            .map_err(|e| format!("schnorr_public_key failed {}", e.1))?;
+
+            res.public_key
+        }
+        CaKeyInformation::EcdsaSecp256k1(_) => {
+            let args = cdk_ecdsa::EcdsaPublicKeyArgument {
+                canister_id: None,
+                derivation_path: derivation_path(),
+                key_id: CA_KEY_INFORMATION
+                    .with(|value| cdk_ecdsa::EcdsaKeyId::try_from(value.borrow().deref()))?,
+            };
+            let response = cdk_ecdsa::ecdsa_public_key(args)
+                .await
+                .map_err(|e| format!("ecdsa_public_key failed {}", e.1))?;
+            response.0.public_key
+        }
+    };
 
     // try to initialize the cache with the fetched public key or returne the
     // cached value, because we were making an async call between the cache
     // check and cache initialization
-    Ok(ROOT_CA_PUBLIC_KEY.with(move |inner| inner.get_or_init(|| res.public_key).clone()))
+    Ok(ROOT_CA_PUBLIC_KEY.with(move |inner| inner.get_or_init(|| result).clone()))
 }
 
-async fn pem_certificated_signed_by_root_ca(
+async fn pem_certificate_signed_by_root_ca<Signer>(
     profile: Profile,
     serial_number: SerialNumber,
     validity: Validity,
     subject: Name,
     subject_public_key_info: SubjectPublicKeyInfoOwned,
-) -> Result<String, String> {
-    let signer = Signer::new().await?;
-
+    signer: Signer,
+) -> Result<String, String>
+where
+    Signer: Sign,
+    Signer: Keypair + DynSignatureAlgorithmIdentifier,
+    Signer::VerifyingKey: EncodePublicKey,
+{
     let mut builder = CertificateBuilder::new(
         profile,
         serial_number,
@@ -287,17 +354,12 @@ async fn pem_certificated_signed_by_root_ca(
         .finalize()
         .map_err(|e| format!("failed to finalize certificate builder: {e:?}"))?;
 
-    let signature = BitString::from_bytes(&signer.sign(&blob).await?.to_bytes())
-        .map_err(|e| format!("wrong Ed25519 signature length: {e:?}"))?;
+    let signature = BitString::from_bytes(&signer.sign(&blob).await?)
+        .map_err(|e| format!("wrong signature length: {e:?}"))?;
 
     let certificate = builder
         .assemble(signature)
         .map_err(|e| format!("failed to assemble certificate: {e:?}"))?;
-
-    assert_eq!(
-        root_ca_public_key_bytes().await?.as_slice(),
-        signer.public_key.0.as_slice()
-    );
 
     certificate
         .to_pem(LineEnding::LF)
@@ -305,29 +367,65 @@ async fn pem_certificated_signed_by_root_ca(
 }
 
 fn verify_certificate_request_signature(certificate_request: &CertReq) -> Result<(), String> {
-    let result = match (
-        certificate_request.algorithm.oid,
-        &certificate_request.algorithm.parameters,
-    ) {
-        (ed25519::pkcs8::ALGORITHM_OID, None) => {
-            let msg_buf = &mut vec![];
-            certificate_request
-                .info
-                .encode_to_vec(msg_buf)
-                .map_err(|e| format!("failed to encode CSR info: {e:?}"))?;
-            let public_key_bytes = certificate_request
-                .info
-                .public_key
-                .subject_public_key
-                .raw_bytes();
+    fn certificate_as_message_and_public_key_bytes(
+        certificate_request: &CertReq,
+    ) -> (Vec<u8>, Vec<u8>) {
+        let mut message = vec![];
+        certificate_request
+            .info
+            .encode(&mut message)
+            .expect("failed to encode certificate request info");
+
+        let public_key_bytes = certificate_request
+            .info
+            .public_key
+            .subject_public_key
+            .raw_bytes()
+            .to_vec();
+
+        (message, public_key_bytes)
+    }
+    let result = match &certificate_request.algorithm {
+        AlgorithmIdentifier::<der::Any> {
+            oid: ed25519::pkcs8::ALGORITHM_OID,
+            parameters: None,
+        } => {
+            let (message, public_key_bytes) =
+                certificate_as_message_and_public_key_bytes(certificate_request);
             verify_ed25519_signature(
                 certificate_request.signature.raw_bytes(),
-                msg_buf.as_slice(),
-                public_key_bytes,
+                message.as_slice(),
+                public_key_bytes.as_slice(),
             )
         }
-        // (ecdsa::ECDSA_SHA256_OID, Some(k256::Secp256k1::oid())) => {}
-        _ => Err("unsupported algorithm".to_string()),
+        AlgorithmIdentifier::<der::Any> {
+            oid: ecdsa::ECDSA_SHA256_OID,
+            parameters: None, // secp256k1 is non-standard and is sometimes encoded as None
+        } => {
+            let (message, public_key_bytes) =
+                certificate_as_message_and_public_key_bytes(certificate_request);
+            verify_ecdsa_secp256k1_signature(
+                certificate_request.signature.raw_bytes(),
+                message.as_slice(),
+                public_key_bytes.as_slice(),
+            )
+        }
+        AlgorithmIdentifier::<der::Any> {
+            oid: ecdsa::ECDSA_SHA256_OID,
+            parameters: Some(curve),
+        } if curve == &der::Any::from(k256::Secp256k1::OID) => {
+            let (message, public_key_bytes) =
+                certificate_as_message_and_public_key_bytes(certificate_request);
+            verify_ecdsa_secp256k1_signature(
+                certificate_request.signature.raw_bytes(),
+                message.as_slice(),
+                public_key_bytes.as_slice(),
+            )
+        }
+        _ => Err(format!(
+            "unsupported algorithm: {:?}",
+            certificate_request.algorithm
+        )),
     };
 
     result.map_err(|e| format!("failed to verify CRS: {e:?}"))
@@ -352,6 +450,26 @@ fn verify_ed25519_signature(
         .map_err(|e| format!("invalid signature: {:?}", e))
 }
 
+fn verify_ecdsa_secp256k1_signature(
+    der_signature_bytes: &[u8],
+    message_bytes: &[u8],
+    public_key_bytes: &[u8],
+) -> Result<(), String> {
+    use k256::ecdsa::{signature::Verifier, Signature, VerifyingKey};
+    let verifying_key = VerifyingKey::from_sec1_bytes(
+        public_key_bytes
+            .try_into()
+            .map_err(|e| format!("malformed public key: {e:?}"))?,
+    )
+    .map_err(|e| format!("couldn't create veryfing key: {e:?}"))?;
+
+    let signature = Signature::from_der(der_signature_bytes)
+        .map_err(|e| format!("malformed signature: {e:?}"))?;
+    verifying_key
+        .verify(message_bytes, &signature)
+        .map_err(|e| format!("invalid signature: {:?}", e))
+}
+
 fn next_child_certificate_serial_number() -> u32 {
     CHILD_CERTIFICATE_SERIAL_NUMBER.with(|state| {
         let mut serial_number = state.borrow_mut();
@@ -367,16 +485,6 @@ fn prove_ownership(_cert_req: &CertReq, _caller: Principal /*, ... */) -> Result
     Ok(())
 }
 
-fn key_id() -> SchnorrKeyId {
-    KEY_NAME.with(|state| {
-        let name = String::from(<&'static str>::from(*state.borrow()));
-        SchnorrKeyId {
-            algorithm: SchnorrAlgorithm::Ed25519,
-            name,
-        }
-    })
-}
-
 fn derivation_path() -> Vec<Vec<u8>> {
     vec![]
 }
@@ -390,13 +498,6 @@ fn validity() -> Validity {
         not_before: Time::try_from(not_before_system_time).expect("failed to convert time"),
         not_after: Time::try_from(not_before_system_time + ten_years)
             .expect("failed to convert time"),
-    }
-}
-
-fn public_key_algorithm_identifier() -> AlgorithmIdentifier<der::Any> {
-    AlgorithmIdentifier::<der::Any> {
-        oid: ed25519::pkcs8::ALGORITHM_OID,
-        parameters: None,
     }
 }
 

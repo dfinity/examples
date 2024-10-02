@@ -25,9 +25,8 @@ pub struct SignatureVerificationReply {
     pub is_signature_valid: bool,
 }
 
-#[derive(CandidType, Serialize, Deserialize, Debug, Clone, Copy)]
-#[derive(IntoStaticStr)]
-pub enum SchnorrKeyName {
+#[derive(CandidType, Serialize, Deserialize, Debug, Clone, Copy, IntoStaticStr)]
+pub enum KeyName {
     #[allow(unused)]
     #[strum(serialize = "dfx_test_key")]
     DfxTestKey,
@@ -37,4 +36,20 @@ pub enum SchnorrKeyName {
     #[allow(unused)]
     #[strum(serialize = "key_1")]
     Key1,
+}
+
+#[derive(CandidType, Serialize, Deserialize, Debug, Clone, Copy)]
+pub enum CaKeyInformation {
+    Ed25519(KeyName),
+    EcdsaSecp256k1(KeyName),
+}
+
+#[derive(CandidType, Serialize, Deserialize, Debug)]
+pub struct X509CertificateString {
+    pub x509_certificate_string: String,
+}
+
+#[derive(CandidType, Deserialize, Debug)]
+pub struct PemCertificateRequest {
+    pub pem_certificate_request: String,
 }
