@@ -27,11 +27,17 @@ upgrade: build
 .PHONY: test
 .SILENT: test
 test: install
-	dfx canister call minimal_dapp count \
+	dfx canister call minimal_dapp_backend increment \
 		| grep '(1 : nat)' && echo 'PASS'
-	dfx canister call minimal_dapp getCount \
+	dfx canister call minimal_dapp_backend increment \
+		| grep '(2 : nat)' && echo 'PASS'
+	dfx canister call minimal_dapp_backend getCount \
+		| grep '(2 : nat)' && echo 'PASS'
+	dfx canister call minimal_dapp_backend decrement \
 		| grep '(1 : nat)' && echo 'PASS'
-        dfx canister call minimal_dapp reset \
+	dfx canister call minimal_dapp_backend reset \
+		| grep '(0 : nat)' && echo 'PASS'
+	dfx canister call minimal_dapp_backend decrement \
 		| grep '(0 : nat)' && echo 'PASS'
 
 .PHONY: clean

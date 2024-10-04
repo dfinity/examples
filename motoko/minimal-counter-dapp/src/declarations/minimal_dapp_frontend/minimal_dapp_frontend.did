@@ -109,6 +109,18 @@ type SetAssetPropertiesArguments = record {
   is_aliased: opt opt bool;
 };
 
+type ConfigurationResponse = record {
+  max_batches: opt nat64;
+  max_chunks: opt nat64;
+  max_bytes: opt nat64;
+};
+
+type ConfigureArguments = record {
+  max_batches: opt opt nat64;
+  max_chunks: opt opt nat64;
+  max_bytes: opt opt nat64;
+};
+
 type Permission = variant {
   Commit;
   ManagePermissions;
@@ -127,7 +139,25 @@ type ListPermitted = record { permission: Permission };
 
 type ValidationResult = variant { Ok : text; Err : text };
 
-service: {
+type AssetCanisterArgs = variant {
+  Init: InitArgs;
+  Upgrade: UpgradeArgs;
+};
+
+type InitArgs = record {};
+
+type UpgradeArgs = record {
+  set_permissions: opt SetPermissions;
+};
+
+/// Sets the list of principals granted each permission.
+type SetPermissions = record {
+  prepare: vec principal;
+  commit: vec principal;
+  manage_permissions: vec principal;
+};
+
+service: (asset_canister_args: opt AssetCanisterArgs) -> {
   api_version: () -> (nat16) query;
 
   get: (record {
@@ -169,6 +199,7 @@ service: {
   create_batch : (record {}) -> (record { batch_id: BatchId });
 
   create_chunk: (record { batch_id: BatchId; content: blob }) -> (record { chunk_id: ChunkId });
+  create_chunks: (record { batch_id: BatchId; content: vec blob }) -> (record { chunk_ids: vec ChunkId });
 
   // Perform all operations successfully, or reject
   commit_batch: (CommitBatchArguments) -> ();
@@ -208,10 +239,10 @@ service: {
 
   authorize: (principal) -> ();
   deauthorize: (principal) -> ();
-  list_authorized: () -> (vec principal) query;
+  list_authorized: () -> (vec principal);
   grant_permission: (GrantPermission) -> ();
   revoke_permission: (RevokePermission) -> ();
-  list_permitted: (ListPermitted) -> (vec principal) query;
+  list_permitted: (ListPermitted) -> (vec principal);
   take_ownership: () -> ();
 
   get_asset_properties : (key: Key) -> (record {
@@ -221,8 +252,12 @@ service: {
     is_aliased: opt bool; } ) query;
   set_asset_properties: (SetAssetPropertiesArguments) -> ();
 
+  get_configuration: () -> (ConfigurationResponse);
+  configure: (ConfigureArguments) -> ();
+
   validate_grant_permission: (GrantPermission) -> (ValidationResult);
   validate_revoke_permission: (RevokePermission) -> (ValidationResult);
   validate_take_ownership: () -> (ValidationResult);
   validate_commit_proposed_batch: (CommitProposedBatchArguments) -> (ValidationResult);
+  validate_configure: (ConfigureArguments) -> (ValidationResult);
 }
