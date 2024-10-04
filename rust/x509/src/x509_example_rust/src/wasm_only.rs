@@ -463,11 +463,15 @@ fn verify_ecdsa_secp256k1_signature(
     )
     .map_err(|e| format!("couldn't create veryfing key: {e:?}"))?;
 
-    let signature = Signature::from_der(der_signature_bytes)
+    let mut signature = Signature::from_der(der_signature_bytes)
         .map_err(|e| format!("malformed signature: {e:?}"))?;
-    verifying_key
+    if let Some(normalized_signature) = signature.normalize_s() {
+        signature = normalized_signature;
+    };
+    let result = verifying_key
         .verify(message_bytes, &signature)
-        .map_err(|e| format!("invalid signature: {:?}", e))
+        .map_err(|e| format!("invalid signature: {:?}", e));
+    result
 }
 
 fn next_child_certificate_serial_number() -> u32 {
