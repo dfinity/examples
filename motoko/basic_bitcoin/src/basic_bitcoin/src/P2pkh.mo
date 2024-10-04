@@ -105,7 +105,7 @@ module {
         amount : Satoshi,
         fee_per_vbyte : MillisatoshiPerVByte,
     ) : async [Nat8] {
-        let dst_address_typed = Utils.get_ok_except(Address.addressFromText(dst_address), "failed to decode destination address");
+        let dst_address_typed = Utils.get_ok_expect(Address.addressFromText(dst_address), "failed to decode destination address");
 
         // We have a chicken-and-egg problem where we need to know the length
         // of the transaction in order to compute its proper fee, but we need
@@ -119,7 +119,7 @@ module {
         Debug.print("Building transaction...");
         var total_fee : Nat = 0;
         loop {
-            let transaction = Utils.get_ok_except(Bitcoin.buildTransaction(2, own_utxos, [(dst_address_typed, amount)], #p2pkh own_address, Nat64.fromNat(total_fee)), "Error building transaction.");
+            let transaction = Utils.get_ok_expect(Bitcoin.buildTransaction(2, own_utxos, [(dst_address_typed, amount)], #p2pkh own_address, Nat64.fromNat(total_fee)), "Error building transaction.");
 
             // Sign the transaction. In this case, we only care about the size
             // of the signed transaction, so we use a mock signer here for efficiency.

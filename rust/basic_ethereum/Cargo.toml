@@ -21,5 +21,7 @@ ic-crypto-extended-bip32 = { git = "https://github.com/dfinity/ic", tag = "relea
 ic-crypto-sha3 = { git = "https://github.com/dfinity/ic", tag = "release-2024-06-26_23-01-base", package = "ic-crypto-sha3" }
 ic-ethereum-types = { git = "https://github.com/dfinity/ic", tag = "release-2024-06-26_23-01-base", package = "ic-ethereum-types" }
 serde = "1.0"
+serde_json = "1.0"
 serde_bytes = "0.11.15"
 num-traits = "0.2.19"
+num = "0.4.3"

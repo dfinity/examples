@@ -50,10 +50,10 @@ impl State {
     pub fn single_evm_rpc_service(&self) -> RpcServices {
         match self.ethereum_network {
             EthereumNetwork::Mainnet => {
-                RpcServices::EthMainnet(Some(vec![EthMainnetService::Ankr]))
+                RpcServices::EthMainnet(Some(vec![EthMainnetService::PublicNode]))
             }
             EthereumNetwork::Sepolia => {
-                RpcServices::EthSepolia(Some(vec![EthSepoliaService::Ankr]))
+                RpcServices::EthSepolia(Some(vec![EthSepoliaService::PublicNode]))
             }
         }
     }

@@ -21,7 +21,7 @@ module {
     };
 
     /// Returns the value of the result and traps with a custom message if there isn't any value to return.
-    public func get_ok_except<T>(result : Result<T, Text>, expect : Text) : T {
+    public func get_ok_expect<T>(result : Result<T, Text>, expect : Text) : T {
         switch result {
             case (#ok value)
                 value;
