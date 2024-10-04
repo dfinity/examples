@@ -27,7 +27,7 @@ jobs:
         run: |
           brew install openssl
           pushd rust/x509
-          dfx build
+          dfx build --check
           cargo test
   rust-x509-linux:
     runs-on: ubuntu-20.04
@@ -41,5 +41,5 @@ jobs:
         run: |
           sudo apt-get install --yes openssl
           pushd rust/x509
-          dfx build
+          dfx build --check
           cargo test
