@@ -30,4 +30,4 @@ x509-cert = { version = "0.2.5", features = ["builder"] }
 
 [dev-dependencies]
 openssl = "0.10.66"
-pocket-ic = "5.0.0"
+pocket-ic = "4.0.0"
