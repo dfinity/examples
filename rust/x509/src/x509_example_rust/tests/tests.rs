@@ -37,113 +37,113 @@ mod smoke {
     }
 }
 
-// mod ed25519 {
-//     use super::*;
+mod ed25519 {
+    use super::*;
 
-//     #[test]
-//     fn root_ca_certificate_should_be_valid() {
-//         let (pic, canister_id) = pic_and_canister_id(CaKeyInformation::Ed25519(KeyName::TestKey1));
+    #[test]
+    fn root_ca_certificate_should_be_valid() {
+        let (pic, canister_id) = pic_and_canister_id(CaKeyInformation::Ed25519(KeyName::TestKey1));
 
-//         let root_certificate = fetch_root_ca_certificate(&pic, canister_id);
+        let root_certificate = fetch_root_ca_certificate(&pic, canister_id);
 
-//         assert!(
-//             root_certificate
-//                 .verify(
-//                     &root_certificate
-//                         .public_key()
-//                         .expect("failed to get public key")
-//                 )
-//                 .expect("errors occurred while verifying root certificate"),
-//             "failed to verify root certificate"
-//         );
-//     }
+        assert!(
+            root_certificate
+                .verify(
+                    &root_certificate
+                        .public_key()
+                        .expect("failed to get public key")
+                )
+                .expect("errors occurred while verifying root certificate"),
+            "failed to verify root certificate"
+        );
+    }
 
-//     #[test]
-//     fn child_certificate_should_be_valid() {
-//         let (pic, canister_id) = pic_and_canister_id(CaKeyInformation::Ed25519(KeyName::TestKey1));
+    #[test]
+    fn child_certificate_should_be_valid() {
+        let (pic, canister_id) = pic_and_canister_id(CaKeyInformation::Ed25519(KeyName::TestKey1));
 
-//         let root_certificate = fetch_root_ca_certificate(&pic, canister_id);
+        let root_certificate = fetch_root_ca_certificate(&pic, canister_id);
 
-//         for (key, digest_type) in generate_child_keys() {
-//             println!("Requesting child certificate with key: {key:?}");
+        for (key, digest_type) in generate_child_keys() {
+            println!("Requesting child certificate with key: {key:?}");
 
-//             let req = generate_child_certificate_request(&key, digest_type);
-//             req.verify(&key)
-//                 .expect("failed to verify child certificate request");
-//             let pem_req = req
-//                 .to_pem()
-//                 .expect("failed to convert child certificate request to PEM");
+            let req = generate_child_certificate_request(&key, digest_type);
+            req.verify(&key)
+                .expect("failed to verify child certificate request");
+            let pem_req = req
+                .to_pem()
+                .expect("failed to convert child certificate request to PEM");
 
-//             let child_certificate = generate_child_certificate(pem_req, &pic, canister_id);
+            let child_certificate = generate_child_certificate(pem_req, &pic, canister_id);
 
-//             assert!(
-//                 child_certificate
-//                     .verify(
-//                         &root_certificate
-//                             .public_key()
-//                             .expect("failed to get public key")
-//                     )
-//                     .expect("errors occurred while verifying child certificate"),
-//                 "failed to verify child certificate"
-//             );
-//         }
-//     }
-// }
+            assert!(
+                child_certificate
+                    .verify(
+                        &root_certificate
+                            .public_key()
+                            .expect("failed to get public key")
+                    )
+                    .expect("errors occurred while verifying child certificate"),
+                "failed to verify child certificate"
+            );
+        }
+    }
+}
 
-// mod ecdsa_secp256k1 {
-//     use super::*;
+mod ecdsa_secp256k1 {
+    use super::*;
 
-//     #[test]
-//     fn root_ca_certificate_should_be_valid() {
-//         let (pic, canister_id) =
-//             pic_and_canister_id(CaKeyInformation::EcdsaSecp256k1(KeyName::TestKey1));
+    #[test]
+    fn root_ca_certificate_should_be_valid() {
+        let (pic, canister_id) =
+            pic_and_canister_id(CaKeyInformation::EcdsaSecp256k1(KeyName::TestKey1));
 
-//         let root_certificate = fetch_root_ca_certificate(&pic, canister_id);
+        let root_certificate = fetch_root_ca_certificate(&pic, canister_id);
 
-//         assert!(
-//             root_certificate
-//                 .verify(
-//                     &root_certificate
-//                         .public_key()
-//                         .expect("failed to get public key")
-//                 )
-//                 .expect("errors occurred while verifying root certificate"),
-//             "failed to verify root certificate"
-//         );
-//     }
+        assert!(
+            root_certificate
+                .verify(
+                    &root_certificate
+                        .public_key()
+                        .expect("failed to get public key")
+                )
+                .expect("errors occurred while verifying root certificate"),
+            "failed to verify root certificate"
+        );
+    }
 
-//     #[test]
-//     fn child_certificate_should_be_valid() {
-//         let (pic, canister_id) =
-//             pic_and_canister_id(CaKeyInformation::EcdsaSecp256k1(KeyName::TestKey1));
+    #[test]
+    fn child_certificate_should_be_valid() {
+        let (pic, canister_id) =
+            pic_and_canister_id(CaKeyInformation::EcdsaSecp256k1(KeyName::TestKey1));
 
-//         let root_certificate = fetch_root_ca_certificate(&pic, canister_id);
+        let root_certificate = fetch_root_ca_certificate(&pic, canister_id);
 
-//         for (key, digest_type) in generate_child_keys() {
-//             println!("Requesting child certificate with key: {key:?}");
+        for (key, digest_type) in generate_child_keys() {
+            println!("Requesting child certificate with key: {key:?}");
 
-//             let req = generate_child_certificate_request(&key, digest_type);
-//             req.verify(&key)
-//                 .expect("failed to verify child certificate request");
-//             let pem_req = req
-//                 .to_pem()
-//                 .expect("failed to convert child certificate request to PEM");
+            let req = generate_child_certificate_request(&key, digest_type);
+            req.verify(&key)
+                .expect("failed to verify child certificate request");
+            let pem_req = req
+                .to_pem()
+                .expect("failed to convert child certificate request to PEM");
 
-//             let child_certificate = generate_child_certificate(pem_req, &pic, canister_id);
+            let child_certificate = generate_child_certificate(pem_req, &pic, canister_id);
 
-//             assert!(
-//                 child_certificate
-//                     .verify(
-//                         &root_certificate
-//                             .public_key()
-//                             .expect("failed to get public key")
-//                     )
-//                     .expect("errors occurred while verifying child certificate"),
-//                 "failed to verify child certificate"
-//             );
-//         }
-//     }
-// }
+            assert!(
+                child_certificate
+                    .verify(
+                        &root_certificate
+                            .public_key()
+                            .expect("failed to get public key")
+                    )
+                    .expect("errors occurred while verifying child certificate"),
+                "failed to verify child certificate"
+            );
+        }
+    }
+}
 
 fn pic_and_canister_id(ca_key_information: CaKeyInformation) -> (PocketIc, Principal) {
     let pic = PocketIcBuilder::new()
