@@ -237,7 +237,17 @@ module {
         );
 
         // Sign the transaction.
-        let signed_transaction_bytes = await sign_transaction(own_tweaked_address, own_leaf_script, own_bip340_public_key, is_even, transaction, amounts, key_name, Array.map(derivation_path, Blob.fromArray), SchnorrApi.sign_with_schnorr);
+        let signed_transaction_bytes = await sign_transaction(
+            own_tweaked_address,
+            own_leaf_script,
+            own_bip340_public_key,
+            is_even,
+            transaction,
+            amounts,
+            key_name,
+            Array.map(derivation_path, Blob.fromArray),
+            SchnorrApi.sign_with_schnorr,
+        );
         Debug.print("Sending transaction : " # debug_show (signed_transaction_bytes));
         let signed_transaction = Utils.get_ok(Transaction.fromBytes(Iter.fromArray(signed_transaction_bytes)));
 
