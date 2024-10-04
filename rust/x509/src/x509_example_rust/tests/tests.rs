@@ -12,6 +12,24 @@ use x509_example_rust::{CaKeyInformation, KeyName, PemCertificateRequest, X509Ce
 
 const WASM_PATH: &str = "../../target/wasm32-unknown-unknown/release/x509_example_rust.wasm";
 
+mod smoke {
+    use super::*;
+
+    #[test]
+    fn should_instantiate_pic() {
+        let _pic = PocketIcBuilder::new()
+            .with_application_subnet()
+            .with_ii_subnet()
+            .with_fiduciary_subnet()
+            .build();
+    }
+
+    #[test]
+    fn should_instantiate_pic_and_canister_id() {
+        let (_pic, _canister_id) = pic_and_canister_id(CaKeyInformation::Ed25519(KeyName::TestKey1));
+    }
+}
+
 mod ed25519 {
     use super::*;
 
