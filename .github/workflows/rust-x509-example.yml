@@ -1,21 +1,21 @@
 # Known failure: https://dfinity.atlassian.net/browse/EM-7
-name: rust-threshold-schnorr
+name: rust-x509
 on:
   push:
     branches:
       - master
   pull_request:
     paths:
-      - rust/threshold-schnorr/**
+      - rust/x509/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/provision-pocket-ic-server.sh
-      - .github/workflows/rust-threshold-schnorr-example.yml
+      - .github/workflows/rust-x509-example.yml
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  rust-threshold-schnorr-darwin:
+  rust-x509-darwin:
     runs-on: macos-12
     steps:
       - uses: actions/checkout@v1
@@ -23,15 +23,13 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Provision PocketIC
         run: bash .github/workflows/provision-pocket-ic-server.sh
-      - name: Rust Threshold Schnorr Darwin
+      - name: Rust X.509 Darwin
         run: |
-          dfx start --background
-          pushd rust/threshold-schnorr
-          make deploy
-# This should be re-enabled when Pocket IC supports threshold Schnorr
-# sleep 10
-# make test
-  rust-threshold-schnorr-linux:
+          brew install openssl
+          pushd rust/x509
+          dfx build --check
+          cargo test
+  rust-x509-linux:
     runs-on: ubuntu-20.04
     steps:
       - uses: actions/checkout@v1
@@ -39,11 +37,9 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Provision PocketIC
         run: bash .github/workflows/provision-pocket-ic-server.sh
-      - name: Rust Threshold Schnorr Linux
+      - name: Rust X.509 Linux
         run: |
-          dfx start --background
-          pushd rust/threshold-schnorr
-          make deploy
-# This should be re-enabled when Pocket IC supports threshold Schnorr
-# sleep 10
-# make test
+          sudo apt-get install --yes openssl
+          pushd rust/x509
+          dfx build --check
+          cargo test
