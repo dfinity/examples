@@ -25,7 +25,7 @@ async fn get_icp_usd_exchange() -> String {
     type Timestamp = u64;
     let start_timestamp: Timestamp = 1682978460; //May 1, 2023 22:01:00 GMT
     let seconds_of_time: u64 = 60; //we start with 60 seconds
-    let host = "api.pro.coinbase.com";
+    let host = "api.exchange.coinbase.com";
     let url = format!(
         "https://{}/products/ICP-USD/candles?start={}&end={}&granularity={}",
         host,

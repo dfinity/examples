@@ -4,28 +4,29 @@ import Iter "mo:base/Iter";
 import Nat8 "mo:base/Nat8";
 import Prelude "mo:base/Prelude";
 import Text "mo:base/Text";
+import Blob "mo:base/Blob";
+import Array "mo:base/Array";
 
 module {
     type Result<Ok, Err> = Result.Result<Ok, Err>;
 
     /// Returns the value of the result and traps if there isn't any value to return.
-    public func get_ok<T, U>(result : Result<T, U>) : T {
+    public func get_ok<T>(result : Result<T, Text>) : T {
         switch result {
             case (#ok value)
                 value;
             case (#err error)
-                Debug.trap("pattern failed");
+                Debug.trap("pattern failed: " # error);
         }
     };
 
     /// Returns the value of the result and traps with a custom message if there isn't any value to return.
-    public func get_ok_except<T, U>(result : Result<T, U>, expect : Text) : T {
+    public func get_ok_expect<T>(result : Result<T, Text>, expect : Text) : T {
         switch result {
             case (#ok value)
                 value;
             case (#err error) {
-                Debug.print("pattern failed");
-                Debug.trap(expect);
+                Debug.trap(expect # " pattern failed: " # error);
             };
         }
     };
@@ -73,6 +74,11 @@ module {
     /// Returns the hexadecimal representation of a byte array.
     public func bytesToText(bytes : [Nat8]) : Text {
         Text.join("", Iter.map<Nat8, Text>(Iter.fromArray(bytes), func (n) { nat8ToText(n) }))
+    };
+
+    /// A mock for rubber-stamping 64B ECDSA/BIP340 signatures.
+    public func mock_signer(_key_name : Text, _derivation_path : [Blob], _message_hash : Blob) : async Blob {
+      Blob.fromArray(Array.freeze(Array.init<Nat8>(64, 255)));
     };
 }
 
