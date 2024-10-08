@@ -85,10 +85,8 @@ Candid:
 
 Your canister is live and ready to use! You can interact with it using either the command line or the Candid UI, which is the link you see in the output above.
 
-In the output above, to see the Candid Web UI for your bitcoin canister, you would use the URL `https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=<YOUR-CANISTER-ID>`. Here are the two methods you will see:
-
-* `public_key`
-* `sign`
+In the output above, to see the Candid Web UI for your bitcoin canister, you would use the URL `https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=<YOUR-CANISTER-ID>`. Candid
+Web UI will contain all methods implemented by the canister.
 
 ## Step 2: Generating a Bitcoin address
 
@@ -99,7 +97,7 @@ if you are interested in a high-level comparison of different address types.
 These addresses can be generated from an ECDSA public key or a Schnorr
 ([BIP340](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki))
 public key. The example code showcases how your canister can generate and spend
-from two types of addresses:
+from three types of addresses:
 1. A [P2PKH address](https://en.bitcoin.it/wiki/Transaction#Pay-to-PubkeyHash)
    using the
    [ecdsa_public_key](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-method-ecdsa_public_key)
@@ -117,6 +115,11 @@ from two types of addresses:
    taproot multisigner addresses using specific multisignature schemes. However,
    the Schnorr API of the internet computer does not support Schnorr
    multisignatures.
+3. A [P2TR
+   address](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki)
+   where the funds can be spent using the provided public key with the script
+   path, where the Merkelized Alternative Script Tree (MAST) consists of a
+   single script allowing to spend funds by exactly one key.
 
 Note that P2TR *key path* spending with a tweaked key is currently not available
 on the IC because the threshold Schnorr signing interface does not allow
@@ -128,7 +131,7 @@ post](https://bitcoin.stackexchange.com/a/111100) by Pieter Wuille.
 
 On the Candid UI of your canister, click the "Call" button under
 `get_${type}_address` to generate a `${type}` Bitcoin address, where `${type}`
-is one of `[p2pkh, p2tr_raw_key_spend]`.
+is one of `[p2pkh, p2tr_raw_key_spend, p2tr_script_spend]`.
 
 Or, if you prefer the command line:
 
@@ -173,7 +176,7 @@ Checking the balance of a Bitcoin address relies on the [bitcoin_get_balance](ht
 ## Step 5: Sending bitcoin
 
 You can send bitcoin using the `send_from_${type}` endpoint on your canister, where
-`${type}` is on of `[p2pkh, p2tr_raw_key_spend]`.
+`${type}` is on of `[p2pkh, p2tr_raw_key_spend, p2tr_script_spend]`.
 
 In the Candid UI, add a destination address and an amount to send. In the example
 below, we're sending 4'321 Satoshi (0.00004321 BTC) back to the testnet faucet.
@@ -225,16 +228,5 @@ If you base your application on this example, we recommend you familiarize yours
 For example, the following aspects are particularly relevant for this app:
 * [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since the app e.g. offers a method to read balances.
 * [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/overview)
-
-## Taproot transactions
-In addition to P2PKH transactions, this example now also suppots P2TR
-transactions, namely the so-called untweaked key path P2TR transactions, which
-is the most efficient way of performing a P2TR transaction. The limitation of
-this type of transactions is that it cannot be used in combination with scripts.
-IMPORTANT: Note that BIP341 advises against using taproot addresses that can be
-spent with an untweaked key. This precaution is to prevent attacks that can
-occur when creating taproot multisigner addresses using specific multisignature
-schemes. However, the Schnorr API of the internet computer does not support
-Schnorr multisignatures.
 
 This implementation has only been tested locally with regtest.
