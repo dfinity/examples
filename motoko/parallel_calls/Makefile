@@ -4,7 +4,7 @@ all: test
 .PHONY: deploy
 .SILENT: deploy
 build:
-	dfx deploy
+	dfx deploy --no-wallet
 
 .PHONY: test
 .SILENT: test

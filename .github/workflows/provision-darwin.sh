@@ -18,7 +18,7 @@ rm node.pkg
 
 # Install DFINITY SDK.
 curl --location --output install-dfx.sh "https://raw.githubusercontent.com/dfinity/sdk/master/public/install-dfxvm.sh"
-DFX_VERSION=${DFX_VERSION:=0.23.0} DFXVM_INIT_YES=true bash install-dfx.sh
+DFX_VERSION=${DFX_VERSION:=0.24.1-beta.0} DFXVM_INIT_YES=true bash install-dfx.sh
 rm install-dfx.sh
 echo "$HOME/Library/Application Support/org.dfinity.dfx/bin" >> $GITHUB_PATH
 source "$HOME/Library/Application Support/org.dfinity.dfx/env"
@@ -38,7 +38,7 @@ if [ -f "${GITHUB_WORKSPACE}/.ic-commit" ]; then
 fi
 
 # Install ic-repl
-version=0.7.0
+version=0.7.6
 curl --location --output ic-repl "https://github.com/chenyan2002/ic-repl/releases/download/$version/ic-repl-macos"
 mv ./ic-repl /usr/local/bin/ic-repl
 chmod a+x /usr/local/bin/ic-repl
