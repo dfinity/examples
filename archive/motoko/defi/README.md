@@ -14,7 +14,7 @@ The sample exchange is implemented in [Motoko](https://github.com/dfinity/exampl
 
 ## Architecture
 
-The design of the IC allows for more complex on-chain computation. In combination with cheap storage, it is possible to have on-chain order books. This sample code takes advantage of these features and stores user balances and orders inside the exchange canister. The sample exchange functionality can be condensed into the following steps:
+The design of the IC allows for more complex onchain computation. In combination with cheap storage, it is possible to have onchain order books. This sample code takes advantage of these features and stores user balances and orders inside the exchange canister. The sample exchange functionality can be condensed into the following steps:
 
 -   Exchange takes custody of funds (different mechanism for tokens and ICP, see below).
 
@@ -78,7 +78,7 @@ There are a number of token standards in development (e.g. IS20, DFT, and DRC20)
 
 ### Placing orders
 
-After depositing funds to the exchange, the user can place orders. An order consists of two tuples. `from: (Token1, amount1)` and `to: (Token2, amount2)`. These orders get added to the exchange. What happens to these orders is specific to the exchange implementation. This sample provides a simple exchange that only executes exactly matching orders. Be aware this is just a toy exchange, and the exchange functionality is just for completeness. 
+After depositing funds to the exchange, the user can place orders. An order consists of two tuples. `from: (Token1, amount1)` and `to: (Token2, amount2)`. These orders get added to the exchange. What happens to these orders is specific to the exchange implementation. This sample provides a simple exchange that only executes exactly matching orders. Be aware this is just a toy exchange, and the exchange functionality is just for completeness.
 
 ### Withdrawing funds
 
@@ -112,7 +112,7 @@ or you can regenerate the URL `http://127.0.0.1:4943?canisterId=$(dfx canister i
 
 ### Step 2: To interact with the exchange, you can create a local Internet Identity by clicking the login button.
 
-This sample project uses a local test version of Internet Identity. Do not use your mainnet Internet Identity, and this testnet Internet Identity will not work on the mainnet. 
+This sample project uses a local test version of Internet Identity. Do not use your mainnet Internet Identity, and this testnet Internet Identity will not work on the mainnet.
 
 ### Step 3: When prompted, select **Create Internet Identity**.
 
@@ -130,7 +130,7 @@ This sample project uses a local test version of Internet Identity. Do not use y
 
 `make init-local II_PRINCIPAL=<YOUR II PRINCIPAL>`
 
-### Step 10: Refresh the web browser to verify that your tokens were deposited. 
+### Step 10: Refresh the web browser to verify that your tokens were deposited.
 
 To trade tokens with yourself, you can open a second incognito browser window.
 
