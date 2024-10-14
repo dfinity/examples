@@ -41,7 +41,7 @@ We wanted to build an example of a simple (but not too simple) dapp running pure
 1. Client-side **end-to-end encryption**. 
 2. **Multi-user** and **multi-device** support.
 
-To demonstrate the potential of the IC as a platform for developing such dapps, we implemented this example using two distinct canister development kits (CDKs). The Motoko CDK allows developers to implement actor-based dapps using the [Motoko](https://internetcomputer.org/docs/current/motoko/getting-started/motoko-introduction) language. The Rust CDK allows implementing dapps in [Rust](https://internetcomputer.org/docs/current/developer-docs/backend/rust/index). In both cases, canisters are compiled into WebAssembly files that are then deployed onto the IC.
+To demonstrate the potential of the IC as a platform for developing such dapps, we implemented this example using two distinct canister development kits (CDKs). The Motoko CDK allows developers to implement actor-based dapps using the [Motoko](https://internetcomputer.org/docs/current/motoko/getting-started/motoko-introduction) language. The Rust CDK allows implementing dapps in [Rust](https://internetcomputer.org/docs/current/developer-docs/backend/rust/). In both cases, canisters are compiled into WebAssembly files that are then deployed onto the IC.
 
 ## Architecture
 
@@ -110,7 +110,7 @@ Follow the steps below to deploy this sample project.
 
 ## Prerequisites
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index).
-- [x] Download and install [Docker](https://docs.docker.com/get-docker/) if using the Docker option. 
+- [x] Download and install [Docker](https://docs.docker.com/get-docker/) if using the Docker option.
 - [x] Download the GitHub repo containing this project's files: `git clone https://github.com/dfinity/examples`
 
 ### Step 1. Navigate inside of the project's folder:
@@ -139,7 +139,7 @@ export BUILD_ENV=motoko
 
 - #### Step 1: Install and start Docker by following the instructions.
 - #### Step 2: For Motoko build/deployment set environmental variable:
-        
+
 ```bash
 export BUILD_ENV=motoko
 ```
@@ -247,7 +247,7 @@ npm run dev
 
 
 :::caution
-If you have opened this page previously, please remove all local store data for this page from your web browser, and hard-reload the page. 
+If you have opened this page previously, please remove all local store data for this page from your web browser, and hard-reload the page.
 
 For example in Chrome, go to Inspect → Application → Local Storage → http://localhost:3000/ → Clear All, and then reload.
 :::
@@ -320,9 +320,9 @@ Fig. 2. Basic single-device scenario for a user.
 
 - #### Step 3: Once logged in for the first time, your notes list should be empty.
 
-At this moment, your _Local Storage_ should be populated with additional variables (see Fig. 2(d)): **ic-identity**, **ic-delegation**. 
+At this moment, your _Local Storage_ should be populated with additional variables (see Fig. 2(d)): **ic-identity**, **ic-delegation**.
 
-These variables are used for storing/retrieving notes from the backend canister. 
+These variables are used for storing/retrieving notes from the backend canister.
 
 In addition, another two variables are generated in the _IndexedDB_: **PrivateKey**, **PublicKey**. These two variables are used for encrypting/decrypting the shared secret key.
 
@@ -341,7 +341,7 @@ Fig. 3. Scenario for a user with multiple registered devices.
 
 - #### Step 1: Perform steps 1-3 of Scenario I on Device A.
 
-- #### Step 2:. Perform steps 1-3 of Scenario I on Device B. 
+- #### Step 2:. Perform steps 1-3 of Scenario I on Device B.
 
 One subtle difference that you might observe on Device B is that the message "Synchronizing..." (Fig. 3(a)) appears for a short time. As Device A was the first to log in, it was also the first one to generate a shared secret. Device B has to retrieve it. To do that, Device B first uploads its public key (pub B) to the backend canister. Device A retrieves pub B using periodic polling. Device A then re-encrypts the shared secret with pub B and uploads it to the backend. Afterward, Device B can retrieve the encrypted shared secret and decrypt it with its private key.
 
@@ -380,7 +380,7 @@ Fig. 4. Scenario for a user adding/removing devices.
 
 ## Unit testing
 
-The unit tests are implemented in `src/encrypted_notes_motoko/test/test.mo` using the [Motoko Matchers](https://kritzcreek.github.io/motoko-matchers/) library. 
+The unit tests are implemented in `src/encrypted_notes_motoko/test/test.mo` using the [Motoko Matchers](https://kritzcreek.github.io/motoko-matchers/) library.
 
 The easiest way to run all tests involves the following steps:
 
@@ -508,7 +508,7 @@ This dapp uses the web browser's `_Local Storage_` and `_IndexedDB_` for storing
 
 :::
 
-A symmetric key for encrypting/decrypting the notes is stored in RAM (this key is shared between multiple devices). For a better understanding of the mechanics of the dapp, please see the `_Local Storage_`/`_IndexedDB_` windows in your web browser. 
+A symmetric key for encrypting/decrypting the notes is stored in RAM (this key is shared between multiple devices). For a better understanding of the mechanics of the dapp, please see the `_Local Storage_`/`_IndexedDB_` windows in your web browser.
 
 In Chrome, go to: _Developer Tools→Application→Local Storage_/_IndexedDB_.
 
