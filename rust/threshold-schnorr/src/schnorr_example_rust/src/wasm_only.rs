@@ -42,7 +42,7 @@ async fn public_key(algorithm: SchnorrAlgorithm) -> Result<PublicKeyReply, Strin
     let request = ManagementCanisterSchnorrPublicKeyRequest {
         canister_id: None,
         derivation_path: vec![ic_cdk::api::caller().as_slice().to_vec()],
-        key_id: SchnorrKeyIds::TestKeyLocalDevelopment.to_key_id(algorithm),
+        key_id: SchnorrKeyIds::TestKey1.to_key_id(algorithm),
     };
 
     let (res,): (ManagementCanisterSchnorrPublicKeyReply,) = ic_cdk::call(
@@ -63,7 +63,7 @@ async fn sign(message: String, algorithm: SchnorrAlgorithm) -> Result<SignatureR
     let internal_request = ManagementCanisterSignatureRequest {
         message: message.as_bytes().to_vec(),
         derivation_path: vec![ic_cdk::api::caller().as_slice().to_vec()],
-        key_id: SchnorrKeyIds::TestKeyLocalDevelopment.to_key_id(algorithm),
+        key_id: SchnorrKeyIds::TestKey1.to_key_id(algorithm),
     };
 
     let (internal_reply,): (ManagementCanisterSignatureReply,) =
@@ -71,7 +71,7 @@ async fn sign(message: String, algorithm: SchnorrAlgorithm) -> Result<SignatureR
             Principal::management_canister(),
             "sign_with_schnorr",
             (internal_request,),
-            25_000_000_000,
+            26_153_846_153,
         )
         .await
         .map_err(|e| format!("sign_with_schnorr failed {e:?}"))?;
