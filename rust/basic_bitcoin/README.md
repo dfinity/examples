@@ -33,7 +33,7 @@ For a deeper understanding of the ICP < > BTC integration, see the [Bitcoin inte
 
 This tutorial has the same smart contract written in
 [Motoko](https://internetcomputer.org/docs/current/developer-docs/backend/motoko/index.md)
-using ECDSA and Bitcoin API but currently not Schnorr API.
+using ECDSA, Schnorr, and Bitcoin API.
 
 You can clone and deploy either one, as they both function in the same way.
 
