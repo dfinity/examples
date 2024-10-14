@@ -6,7 +6,7 @@ This repository is meant to give [Svelte](https://svelte.dev/) developers an eas
 
 This template contains:
 
-- A Svelte frontend app under `src/frontend` to be hosted on-chain, with support for authentication using Internet Identity.
+- A Svelte frontend app under `src/frontend` to be hosted onchain, with support for authentication using Internet Identity.
 - A Motoko dapp under `src/backend` to serve as a backend to the Svelte frontend.
 
 You can see a deployed version of this template here: https://zixfv-4yaaa-aaaam-aaatq-cai.ic0.app/
@@ -188,7 +188,7 @@ dfx deploy --network ic
 
 The command will build the project, create a new canister on ICP and deploy the Svelte app into it. The command will also create a new file `canister_ids.json` which will help the dfx tool deploy to the same canister in future updates. You can commit this file in your repository.
 
-You can now open your Svelte app running on-chain. You can find the canister ID in the deploy command output, or use the ID in `canister_ids.json`.
+You can now open your Svelte app running onchain. You can find the canister ID in the deploy command output, or use the ID in `canister_ids.json`.
 
 The link to your app is `<canister_id>.ic0.app`. For example, if your canister ID is `zgvi5-hiaaa-aaaam-aaasq-cai`, your app will be at `https://zgvi5-hiaaa-aaaam-aaasq-cai.ic0.app/`.
 
