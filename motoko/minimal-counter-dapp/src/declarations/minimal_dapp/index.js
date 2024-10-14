@@ -10,8 +10,7 @@ export { idlFactory } from "./minimal_dapp.did.js";
  * beginning in dfx 0.15.0
  */
 export const canisterId =
-  process.env.CANISTER_ID_MINIMAL_DAPP ||
-  process.env.MINIMAL_DAPP_CANISTER_ID;
+  process.env.CANISTER_ID_MINIMAL_DAPP;
 
 export const createActor = (canisterId, options = {}) => {
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
@@ -40,4 +39,4 @@ export const createActor = (canisterId, options = {}) => {
   });
 };
 
-export const minimal_dapp = createActor(canisterId);
+export const minimal_dapp = canisterId ? createActor(canisterId) : undefined;

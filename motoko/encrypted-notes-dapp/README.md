@@ -26,7 +26,7 @@ This is an **example dapp** that demonstrates the potential of building **canist
 
 - The frontend re-uses the generated public and private key pair for every identity in the same browser. In a better implementation, this key pair should be unique per principal.
 - The public/private key pair should not be managed by the web browser at all. [WebAuthn](https://en.wikipedia.org/wiki/WebAuthn) should be used to push the key management to the operating system.
-- Integer overflows are possible in the Rust canister, e.g., for `NEXT_NOTE`. 
+- Integer overflows are possible in the Rust canister, e.g., for `NEXT_NOTE`.
 - Users may lose their notes if they accidentally clean the browser data (localStorage) while no other device is synced to the dapp.
 - Lack of key update: Given that the key used to encrypt the notes is never refreshed, the privacy of the data is no longer guaranteed if an attacker learns this key (for instance, by corrupting the local storage in one of the connected devices).
 
@@ -37,11 +37,11 @@ This is an **example dapp** that demonstrates the potential of building **canist
 
 You can play around with the [dapp deployed on ICP](https://cvhrw-2yaaa-aaaaj-aaiqa-cai.icp0.io/) and see a quick introduction on [YouTube](https://youtu.be/DZQmtPSxvbs).
 
-We wanted to build an example of a simple (but not too simple) dapp running purely on the IC. This example relies upon the **web-serving** and **storage capabilities** of the IC. We focused on the following two key features for our example dapp: 
-1. Client-side **end-to-end encryption**. 
+We wanted to build an example of a simple (but not too simple) dapp running purely on the IC. This example relies upon the **web-serving** and **storage capabilities** of the IC. We focused on the following two key features for our example dapp:
+1. Client-side **end-to-end encryption**.
 2. **Multi-user** and **multi-device** support.
 
-To demonstrate the potential of the IC as a platform for developing such dapps, we implemented this example using two distinct canister development kits (CDKs). The Motoko CDK allows developers to implement actor-based dapps using the [Motoko](https://internetcomputer.org/docs/current/motoko/getting-started/motoko-introduction) language. The Rust CDK allows implementing dapps in [Rust](https://internetcomputer.org/docs/current/developer-docs/backend/rust/index). In both cases, canisters are compiled into WebAssembly files that are then deployed onto the IC.
+To demonstrate the potential of the IC as a platform for developing such dapps, we implemented this example using two distinct canister development kits (CDKs). The Motoko CDK allows developers to implement actor-based dapps using the [Motoko](https://internetcomputer.org/docs/current/motoko/getting-started/motoko-introduction) language. The Rust CDK allows implementing dapps in [Rust](https://internetcomputer.org/docs/current/developer-docs/backend/rust/). In both cases, canisters are compiled into WebAssembly files that are then deployed onto the IC.
 
 ## Architecture
 
@@ -110,7 +110,7 @@ Follow the steps below to deploy this sample project.
 
 ## Prerequisites
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index).
-- [x] Download and install [Docker](https://docs.docker.com/get-docker/) if using the Docker option. 
+- [x] Download and install [Docker](https://docs.docker.com/get-docker/) if using the Docker option.
 - [x] Download the GitHub repo containing this project's files: `git clone https://github.com/dfinity/examples`
 
 ### Step 1. Navigate inside of the project's folder:
@@ -131,20 +131,20 @@ export BUILD_ENV=motoko
 
 
 **Building the Rust canister requires either the Rust toolchain installed on your system or Docker-backed deployment (see below).**
- 
-### Step 3: Deploy locally. 
+
+### Step 3: Deploy locally.
 
 ### Option 1: Docker deployment
 **This option does not yet work on Apple M1; the combination of DFX and Docker do not currently support the required architecture.**
 
 - #### Step 1: Install and start Docker by following the instructions.
 - #### Step 2: For Motoko build/deployment set environmental variable:
-        
+
 ```bash
 export BUILD_ENV=motoko
 ```
 
-- #### Step 3: Run the following Bash script that builds a Docker image, compiles the canister, and deploys this dapp (all inside the Docker instance). 
+- #### Step 3: Run the following Bash script that builds a Docker image, compiles the canister, and deploys this dapp (all inside the Docker instance).
 
 Execution can take a few minutes:
 
@@ -247,11 +247,11 @@ npm run dev
 
 
 :::caution
-If you have opened this page previously, please remove all local store data for this page from your web browser, and hard-reload the page. 
+If you have opened this page previously, please remove all local store data for this page from your web browser, and hard-reload the page.
 
 For example in Chrome, go to Inspect → Application → Local Storage → http://localhost:3000/ → Clear All, and then reload.
 :::
- 
+
 
 ### Mainnet deployment
 
@@ -286,11 +286,11 @@ dfx canister --network ic install www --mode=upgrade
 
 ## Security considerations and best practices
 
-If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices, see also the [disclaimer](#disclaimer-please-read-carefully) above.  
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices, see also the [disclaimer](#disclaimer-please-read-carefully) above.
 
-For example, the following aspects are particularly relevant for this app: 
+For example, the following aspects are particularly relevant for this app:
 * [Make sure any action that only a specific user should be able to do requires authentication](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/overview), since a user should only be able to manage their own notes.
-* [Protect key material against XSS using Web Crypto API](https://internetcomputer.org/docs/current/references/security/web-app-development-security-best-practices#crypto-protect-key-material-against-xss-using-web-crypto-api), since this app stores private keys in the browser. 
+* [Protect key material against XSS using Web Crypto API](https://internetcomputer.org/docs/current/references/security/web-app-development-security-best-practices#crypto-protect-key-material-against-xss-using-web-crypto-api), since this app stores private keys in the browser.
 * [Use secure cryptographic schemes](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#use-secure-cryptographic-schemes), since notes are being encrypted.
 
 ## User interaction with "Encrypted Notes" dapp
@@ -320,9 +320,9 @@ Fig. 2. Basic single-device scenario for a user.
 
 - #### Step 3: Once logged in for the first time, your notes list should be empty.
 
-At this moment, your _Local Storage_ should be populated with additional variables (see Fig. 2(d)): **ic-identity**, **ic-delegation**. 
+At this moment, your _Local Storage_ should be populated with additional variables (see Fig. 2(d)): **ic-identity**, **ic-delegation**.
 
-These variables are used for storing/retrieving notes from the backend canister. 
+These variables are used for storing/retrieving notes from the backend canister.
 
 In addition, another two variables are generated in the _IndexedDB_: **PrivateKey**, **PublicKey**. These two variables are used for encrypting/decrypting the shared secret key.
 
@@ -341,7 +341,7 @@ Fig. 3. Scenario for a user with multiple registered devices.
 
 - #### Step 1: Perform steps 1-3 of Scenario I on Device A.
 
-- #### Step 2:. Perform steps 1-3 of Scenario I on Device B. 
+- #### Step 2:. Perform steps 1-3 of Scenario I on Device B.
 
 One subtle difference that you might observe on Device B is that the message "Synchronizing..." (Fig. 3(a)) appears for a short time. As Device A was the first to log in, it was also the first one to generate a shared secret. Device B has to retrieve it. To do that, Device B first uploads its public key (pub B) to the backend canister. Device A retrieves pub B using periodic polling. Device A then re-encrypts the shared secret with pub B and uploads it to the backend. Afterward, Device B can retrieve the encrypted shared secret and decrypt it with its private key.
 
@@ -380,7 +380,7 @@ Fig. 4. Scenario for a user adding/removing devices.
 
 ## Unit testing
 
-The unit tests are implemented in `src/encrypted_notes_motoko/test/test.mo` using the [Motoko Matchers](https://kritzcreek.github.io/motoko-matchers/) library. 
+The unit tests are implemented in `src/encrypted_notes_motoko/test/test.mo` using the [Motoko Matchers](https://kritzcreek.github.io/motoko-matchers/) library.
 
 The easiest way to run all tests involves the following steps:
 
@@ -483,7 +483,7 @@ frontend www canister (an "asset" canister) is the way we describe a set of file
 `dependencies`: an array of whatever canisters are being used to serve your app, to ensure that `dfx` builds and deploys them before your app.
 `frontend: { entrypoint: ""}`: This set of keys tells `dfx` to build it as a frontend canister, and entrypoint is wherever your app entrypoint winds up residing at the end of an npm build
 `source`: where the rest of your app resides at the end of npm build
-`type`: "assets" for an assets or static canister.  
+`type`: "assets" for an assets or static canister.
 
 **Binary targets**:
 You can also just deploy arbitrary binary targets as long as they're wasm binaries. For that, use the keys:
@@ -508,7 +508,7 @@ This dapp uses the web browser's `_Local Storage_` and `_IndexedDB_` for storing
 
 :::
 
-A symmetric key for encrypting/decrypting the notes is stored in RAM (this key is shared between multiple devices). For a better understanding of the mechanics of the dapp, please see the `_Local Storage_`/`_IndexedDB_` windows in your web browser. 
+A symmetric key for encrypting/decrypting the notes is stored in RAM (this key is shared between multiple devices). For a better understanding of the mechanics of the dapp, please see the `_Local Storage_`/`_IndexedDB_` windows in your web browser.
 
 In Chrome, go to: _Developer Tools→Application→Local Storage_/_IndexedDB_.
 

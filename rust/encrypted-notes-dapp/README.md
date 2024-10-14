@@ -27,7 +27,7 @@ This is an **example dapp** that demonstrates the potential of building **canist
 
 - The frontend re-uses the generated public and private key pair for every identity in the same browser. In a better implementation, this key pair should be unique per principal.
 - The public/private key pair should not be managed by the web browser at all. [WebAuthn](https://en.wikipedia.org/wiki/WebAuthn) should be used to push the key management to the operating system.
-- Integer overflows are possible in the Rust canister, e.g., for `NEXT_NOTE`. 
+- Integer overflows are possible in the Rust canister, e.g., for `NEXT_NOTE`.
 - Users may lose their notes if they accidentally clean the browser data (localStorage) while no other device is synced to the dapp.
 - Lack of key update: Given that the key used to encrypt the notes is never refreshed, the privacy of the data is no longer guaranteed if an attacker learns this key (for instance, by corrupting the local storage in one of the connected devices).
 
@@ -38,11 +38,11 @@ This is an **example dapp** that demonstrates the potential of building **canist
 
 You can play around with the [dapp deployed on the IC](https://cvhrw-2yaaa-aaaaj-aaiqa-cai.icp0.io/) and see a quick introduction on [YouTube](https://youtu.be/DZQmtPSxvbs).
 
-We wanted to build an example of a simple (but not too simple) dapp running purely on the IC. This example relies upon the **web-serving** and **storage capabilities** of the IC. We focused on the following two key features for our example dapp: 
-1. Client-side **end-to-end encryption**. 
+We wanted to build an example of a simple (but not too simple) dapp running purely on the IC. This example relies upon the **web-serving** and **storage capabilities** of the IC. We focused on the following two key features for our example dapp:
+1. Client-side **end-to-end encryption**.
 2. **Multi-user** and **multi-device** support.
 
-To demonstrate the potential of the IC as a platform for developing such dapps, we implemented this example using two distinct canister development kits (CDKs). The Motoko CDK allows developers to implement actor-based dapps using the [Motoko](https://internetcomputer.org/docs/current/motoko/getting-started/motoko-introduction) language. The Rust CDK allows implementing dapps in [Rust](https://internetcomputer.org/docs/current/developer-docs/backend/rust/index.md). In both cases, canisters are compiled into WebAssembly files that are then deployed onto the IC.
+To demonstrate the potential of the IC as a platform for developing such dapps, we implemented this example using two distinct canister development kits (CDKs). The Motoko CDK allows developers to implement actor-based dapps using the [Motoko](https://internetcomputer.org/docs/current/motoko/getting-started/motoko-introduction) language. The Rust CDK allows implementing dapps in [Rust](https://internetcomputer.org/docs/current/developer-docs/backend/rust/). In both cases, canisters are compiled into WebAssembly files that are then deployed onto the IC.
 
 ## Architecture
 
@@ -132,8 +132,8 @@ export BUILD_ENV=rust
 ```
 
 **Building the Rust canister requires either the Rust toolchain installed on your system or Docker-backed deployment (see below).**
- 
-### Step 3: Deploy locally. 
+
+### Step 3: Deploy locally.
 
 ### Option 1: Docker deployment
 **This option does not yet work on Apple M1; the combination of `dfx` and Docker does not currently support the required architecture.**
@@ -145,7 +145,7 @@ export BUILD_ENV=rust
 export BUILD_ENV=rust
 ```
 
-- #### Step 3: Run the following Bash script that builds a Docker image, compiles the canister, and deploys this dapp (all inside the Docker instance). 
+- #### Step 3: Run the following Bash script that builds a Docker image, compiles the canister, and deploys this dapp (all inside the Docker instance).
 
 Execution can take a few minutes:
 
@@ -242,7 +242,7 @@ Visit the URL from above in a web browser. To run the frontend with hot-reloadin
 :::caution
 If you have opened this page previously, please remove all local store data for this page from your web browser, and hard-reload the page. For example in Chrome, go to Inspect → Application → Local Storage → http://localhost:3000/ → Clear All, and then reload.
 :::
- 
+
 
 ### Mainnet deployment
 
@@ -277,11 +277,11 @@ dfx canister --network ic install www --mode=upgrade
 
 ## Security considerations and best practices
 
-If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices, see also the [disclaimer](#disclaimer-please-read-carefully) above.  
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices, see also the [disclaimer](#disclaimer-please-read-carefully) above.
 
-For example, the following aspects are particularly relevant for this app: 
+For example, the following aspects are particularly relevant for this app:
 * [Make sure any action that only a specific user should be able to do requires authentication](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/overview), since a user should only be able to manage their own notes.
-* [Protect key material against XSS using Web Crypto API](https://internetcomputer.org/docs/current/references/security/web-app-development-security-best-practices#crypto-protect-key-material-against-xss-using-web-crypto-api), since this app stores private keys in the browser. 
+* [Protect key material against XSS using Web Crypto API](https://internetcomputer.org/docs/current/references/security/web-app-development-security-best-practices#crypto-protect-key-material-against-xss-using-web-crypto-api), since this app stores private keys in the browser.
 * [Use secure cryptographic schemes](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#use-secure-cryptographic-schemes), since notes are being encrypted.
 
 
@@ -310,7 +310,7 @@ Fig. 2. Basic single-device scenario for a user.
    1. If you already have an `anchor`, you may continue with it. Click "Authenticate", then verify your identity and finally click "Proceed", see Fig. 2(c).
    2. If you do not have an anchor yet, you should [create one](https://internetcomputer.org/how-it-works/web-authentication-identity/). Once an `anchor` is created, please follow 2.1.
 
-- #### Step 3: Once logged in for the first time, your notes list should be empty. 
+- #### Step 3: Once logged in for the first time, your notes list should be empty.
 
 At this moment, your _Local Storage_ should be populated with additional variables (see Fig. 2(d)): **ic-identity**, **ic-delegation**. These variables are used for storing/retrieving notes from the backend canister. In addition, another two variables are generated in the _IndexedDB_: **PrivateKey**, **PublicKey**. These two variable are used for encrypting/decrypting the shared secret key.
 
@@ -448,7 +448,7 @@ Frontend www canister (an "asset" canister) is the way to describe a set of file
 `dependencies`: An array of whatever canisters are being used to serve your app, to ensure that `dfx` builds and deploys them before your app.
 `frontend: { entrypoint: ""}`: This set of keys tells `dfx` to build it as a frontend canister, and entrypoint is wherever your app entrypoint winds up residing at the end of an npm build.
 `source`: Where the rest of your app resides at the end of npm build.
-`type`: "assets" for an assets or static canister.  
+`type`: "assets" for an assets or static canister.
 
 **Binary targets**:
 You can also just deploy arbitrary binary targets as long as they're Wasm binaries. For that, use the keys:

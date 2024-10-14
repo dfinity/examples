@@ -1,3 +1,8 @@
 service : {
+  /// Given n, returns a maze of n * n cells,
+  /// separated by n + 1 partial walls.
+  /// 
+  /// https://en.wikipedia.org/wiki/Maze_generation_algorithm
+  /// https://en.wikipedia.org/wiki/Maze_generation_algorithm#Iterative_implementation
   generate: (nat) -> (text);
 }
