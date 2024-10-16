@@ -27,6 +27,9 @@ For a deeper understanding of the ICP < > BTC integration, see the [Bitcoin inte
   SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
   For local testing, `dfx >= 0.22.0-beta.0` is required.
 
+On Mac, `llvm` with the `wasm32-unknown-unknown` target (which is not included in the XCode installation by default) is required.
+To install, run `brew install llvm`.
+
 ## Step 1: Building and deploying sample code
 
 ### Clone the smart contract
