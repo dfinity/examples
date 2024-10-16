@@ -1,4 +1,17 @@
 export const idlFactory = ({ IDL }) => {
+  const SetPermissions = IDL.Record({
+    'prepare' : IDL.Vec(IDL.Principal),
+    'commit' : IDL.Vec(IDL.Principal),
+    'manage_permissions' : IDL.Vec(IDL.Principal),
+  });
+  const UpgradeArgs = IDL.Record({
+    'set_permissions' : IDL.Opt(SetPermissions),
+  });
+  const InitArgs = IDL.Record({});
+  const AssetCanisterArgs = IDL.Variant({
+    'Upgrade' : UpgradeArgs,
+    'Init' : InitArgs,
+  });
   const ClearArguments = IDL.Record({});
   const BatchId = IDL.Nat;
   const Key = IDL.Text;
@@ -50,7 +63,17 @@ export const idlFactory = ({ IDL }) => {
     'batch_id' : BatchId,
     'max_iterations' : IDL.Opt(IDL.Nat16),
   });
+  const ConfigureArguments = IDL.Record({
+    'max_batches' : IDL.Opt(IDL.Opt(IDL.Nat64)),
+    'max_bytes' : IDL.Opt(IDL.Opt(IDL.Nat64)),
+    'max_chunks' : IDL.Opt(IDL.Opt(IDL.Nat64)),
+  });
   const DeleteBatchArguments = IDL.Record({ 'batch_id' : BatchId });
+  const ConfigurationResponse = IDL.Record({
+    'max_batches' : IDL.Opt(IDL.Nat64),
+    'max_bytes' : IDL.Opt(IDL.Nat64),
+    'max_chunks' : IDL.Opt(IDL.Nat64),
+  });
   const Permission = IDL.Variant({
     'Prepare' : IDL.Null,
     'ManagePermissions' : IDL.Null,
@@ -121,6 +144,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Opt(IDL.Vec(IDL.Nat8))],
         [],
       ),
+    'configure' : IDL.Func([ConfigureArguments], [], []),
     'create_asset' : IDL.Func([CreateAssetArguments], [], []),
     'create_batch' : IDL.Func(
         [IDL.Record({})],
@@ -130,6 +154,16 @@ export const idlFactory = ({ IDL }) => {
     'create_chunk' : IDL.Func(
         [IDL.Record({ 'content' : IDL.Vec(IDL.Nat8), 'batch_id' : BatchId })],
         [IDL.Record({ 'chunk_id' : ChunkId })],
+        [],
+      ),
+    'create_chunks' : IDL.Func(
+        [
+          IDL.Record({
+            'content' : IDL.Vec(IDL.Vec(IDL.Nat8)),
+            'batch_id' : BatchId,
+          }),
+        ],
+        [IDL.Record({ 'chunk_ids' : IDL.Vec(ChunkId) })],
         [],
       ),
     'deauthorize' : IDL.Func([IDL.Principal], [], []),
@@ -172,6 +206,7 @@ export const idlFactory = ({ IDL }) => {
         [IDL.Record({ 'content' : IDL.Vec(IDL.Nat8) })],
         ['query'],
       ),
+    'get_configuration' : IDL.Func([], [ConfigurationResponse], []),
     'grant_permission' : IDL.Func([GrantPermission], [], []),
     'http_request' : IDL.Func([HttpRequest], [HttpResponse], ['query']),
     'http_request_streaming_callback' : IDL.Func(
@@ -199,12 +234,8 @@ export const idlFactory = ({ IDL }) => {
         ],
         ['query'],
       ),
-    'list_authorized' : IDL.Func([], [IDL.Vec(IDL.Principal)], ['query']),
-    'list_permitted' : IDL.Func(
-        [ListPermitted],
-        [IDL.Vec(IDL.Principal)],
-        ['query'],
-      ),
+    'list_authorized' : IDL.Func([], [IDL.Vec(IDL.Principal)], []),
+    'list_permitted' : IDL.Func([ListPermitted], [IDL.Vec(IDL.Principal)], []),
     'propose_commit_batch' : IDL.Func([CommitBatchArguments], [], []),
     'revoke_permission' : IDL.Func([RevokePermission], [], []),
     'set_asset_content' : IDL.Func([SetAssetContentArguments], [], []),
@@ -229,6 +260,11 @@ export const idlFactory = ({ IDL }) => {
         [ValidationResult],
         [],
       ),
+    'validate_configure' : IDL.Func(
+        [ConfigureArguments],
+        [ValidationResult],
+        [],
+      ),
     'validate_grant_permission' : IDL.Func(
         [GrantPermission],
         [ValidationResult],
@@ -242,4 +278,19 @@ export const idlFactory = ({ IDL }) => {
     'validate_take_ownership' : IDL.Func([], [ValidationResult], []),
   });
 };
-export const init = ({ IDL }) => { return []; };
+export const init = ({ IDL }) => {
+  const SetPermissions = IDL.Record({
+    'prepare' : IDL.Vec(IDL.Principal),
+    'commit' : IDL.Vec(IDL.Principal),
+    'manage_permissions' : IDL.Vec(IDL.Principal),
+  });
+  const UpgradeArgs = IDL.Record({
+    'set_permissions' : IDL.Opt(SetPermissions),
+  });
+  const InitArgs = IDL.Record({});
+  const AssetCanisterArgs = IDL.Variant({
+    'Upgrade' : UpgradeArgs,
+    'Init' : InitArgs,
+  });
+  return [IDL.Opt(AssetCanisterArgs)];
+};
