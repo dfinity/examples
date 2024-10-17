@@ -16,11 +16,11 @@ concurrency:
   cancel-in-progress: true
 jobs:
   rust-canister-info-darwin:
-    runs-on: macos-12
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
-        run: DFX_VERSION="0.14.2" bash .github/workflows/provision-darwin.sh
+        run: bash .github/workflows/provision-darwin.sh
       - name: Rust Canister info Darwin
         run: |
           dfx start --background
@@ -33,7 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
-        run: DFX_VERSION="0.18.0" bash .github/workflows/provision-linux.sh
+        run: bash .github/workflows/provision-linux.sh
       - name: Rust Canister info Linux
         run: |
           dfx start --background

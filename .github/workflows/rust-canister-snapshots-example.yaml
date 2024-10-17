@@ -15,11 +15,11 @@ concurrency:
   cancel-in-progress: true
 jobs:
   rust-canister-snapshots-example-darwin:
-    runs-on: macos-12
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
-        run: DFX_VERSION="0.23.0-beta.3" bash .github/workflows/provision-darwin.sh
+        run: bash .github/workflows/provision-darwin.sh
       - name: Remove networks.json
         run: rm -f ~/.config/dfx/networks.json
       - name: Rust Canister Snapshots Darwin
@@ -33,7 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
-        run: DFX_VERSION="0.23.0-beta.3" bash .github/workflows/provision-linux.sh
+        run: bash .github/workflows/provision-linux.sh
       - name: Remove networks.json
         run: rm -f ~/.config/dfx/networks.json
       - name: Rust Canister Snapshots Linux
