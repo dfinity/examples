@@ -26,7 +26,6 @@
       "type": "assets"
     }
   },
-  "dfx": "0.22.0-beta.0",
   "defaults": {
     "build": {
       "args": "",
