@@ -1,0 +1,26 @@
+[package]
+name = "password_manager_rust"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[lib]
+crate-type = ["lib", "cdylib"]
+
+[dependencies]
+candid = "0.10.10"
+ic-cdk = "0.13.0"
+ic-cdk-macros = "0.13.0"
+ic-stable-structures = "0.6.5"
+lazy_static = "1.5.0"
+serde_json = "1.0.128"
+anyhow = "1.0.89"
+serde = "1.0.210"
+ic-types = "0.7.0"
+hex = "0.4.3"
+
+[dev-dependencies]
+assert_matches = "1.5.0"
+ic-agent = "0.38.2"
+pocket-ic = "5.0.0"
+ic-vetkd-utils = { version = "0.1.0", git = "https://github.com/dfinity/ic.git", rev = "1eae28c1ecd93560813f09f9bf492d173674f92d" }
