@@ -728,25 +728,25 @@ async fn encrypted_symmetric_key_for_vault(
 async fn next_encrypted_symmetric_key_for_locked_vault(
     vault_id: VaultId,
     encryption_public_key: Vec<u8>,
-) -> (VaultVersion, String) {
+) -> (VaultVersion, String, Vec<u8>) {
     use ic_stable_structures::Storable;
-
-    VAULT_STATUS.with_borrow(|vault_status| match vault_status.get(&vault_id) {
-        None => {
-            ic_cdk::trap("vault not found");
-        }
-        Some(VaultStatus::UpToDate) => {
-            ic_cdk::trap("next key for vault only makes sense for reencryption, but the target vault is not locked");
-        }
-        Some(VaultStatus::RequiresReencryption(_)) => {}
-    });
 
     let user_str = caller().to_string();
     let (next_vault_version, request) = VAULTS.with_borrow(|vaults| {
         if let Some(vault) = vaults.get(&vault_id) {
-            if !vault.can_read(&user_str) {
+            if !vault.can_write(&user_str) {
                 ic_cdk::trap("unauthorized user");
             }
+
+            VAULT_STATUS.with_borrow(|vault_status| match vault_status.get(&vault_id) {
+                None => {
+                    ic_cdk::trap("vault not found");
+                }
+                Some(VaultStatus::UpToDate) => {
+                    ic_cdk::trap("vault must be locked to obtain next encrypted symmetric key");
+                }
+                Some(VaultStatus::RequiresReencryption(_)) => {}
+            });
             let next_vault_version = vault.version + 1;
             (
                 next_vault_version,
@@ -767,6 +767,8 @@ async fn next_encrypted_symmetric_key_for_locked_vault(
         }
     });
 
+    let derivation_id = request.derivation_id.clone();
+
     let (response,): (VetKDEncryptedKeyReply,) = ic_cdk::call(
         utils::vetkd_system_api_canister_id(),
         "vetkd_encrypted_key",
@@ -775,7 +777,7 @@ async fn next_encrypted_symmetric_key_for_locked_vault(
     .await
     .expect("call to vetkd_encrypted_key failed");
 
-    (next_vault_version, hex::encode(response.encrypted_key))
+    (next_vault_version, hex::encode(response.encrypted_key), derivation_id)
 }
 
 pub mod utils {

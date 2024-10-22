@@ -186,6 +186,139 @@ mod password_manager {
             );
             assert_matches!(result, Err(e) if e.description.contains("unauthorized user"));
         }
+
+        #[test]
+        fn fails_to_get_encryption_key_for_new_user_before_vault_is_reencrypted() {
+            let test = Test::new();
+            let vault_id = test.create_vault(principal_1());
+            let transport_key = dummy_transport_key();
+            let derived_public_key_bytes = hex::decode(&test.get_verification_key())
+                .expect("failed to decode verification key");
+            test.add_user(principal_1(), vault_id, principal_2(), AccessRights::Read)
+                .expect("failed to add user");
+            assert_matches!(
+                test.get_symmetric_encryption_key(
+                    principal_2(),
+                    vault_id,
+                    derived_public_key_bytes.as_slice(),
+                    &transport_key
+                ),
+                Err(e) if e.description.contains("unauthorized user")
+            );
+        }
+
+        #[test]
+        fn can_get_next_encryption_key_for_locked_vault() {
+            let test = Test::new();
+            let vault_id = test.create_vault(principal_1());
+            let transport_key = dummy_transport_key();
+            let derived_public_key_bytes = hex::decode(&test.get_verification_key())
+                .expect("failed to decode verification key");
+
+            test.rotate_vault_key(principal_1(), vault_id)
+                .expect("failed to rotate vault key");
+
+            let next_encryption_key = test
+                .get_next_symmetric_encryption_key(
+                    principal_1(),
+                    vault_id,
+                    derived_public_key_bytes.as_slice(),
+                    &transport_key,
+                )
+                .expect("failed to get next encrypted symmetric key");
+
+            test.dummy_reencrypt_vault(principal_1(), vault_id)
+                .expect("failed to reencrypt vault");
+
+            let rotated_encryption_key = test
+                .get_symmetric_encryption_key(
+                    principal_1(),
+                    vault_id,
+                    derived_public_key_bytes.as_slice(),
+                    &transport_key,
+                )
+                .expect("failed to get encrypted symmetric key");
+
+            assert_eq!(rotated_encryption_key, next_encryption_key);
+        }
+
+        #[test]
+        fn different_users_get_same_next_encryption_key_for_same_locked_vault_and_version() {
+            let test = Test::new();
+            let vault_id = test.create_vault(principal_1());
+            test.add_user(
+                principal_1(),
+                vault_id,
+                principal_2(),
+                AccessRights::ReadWrite,
+            )
+            .expect("failed to add user");
+            test.dummy_reencrypt_vault(principal_1(), vault_id)
+                .expect("reencrypt vault");
+
+            let transport_key = dummy_transport_key();
+            let derived_public_key_bytes = hex::decode(&test.get_verification_key())
+                .expect("failed to decode verification key");
+
+            test.rotate_vault_key(principal_1(), vault_id)
+                .expect("failed to rotate vault key");
+            assert_eq!(
+                test.get_next_symmetric_encryption_key(
+                    principal_1(),
+                    vault_id,
+                    derived_public_key_bytes.as_slice(),
+                    &transport_key
+                )
+                .expect("failed to get encrypted symmetric key"),
+                test.get_next_symmetric_encryption_key(
+                    principal_2(),
+                    vault_id,
+                    derived_public_key_bytes.as_slice(),
+                    &transport_key
+                )
+                .expect("failed to get encrypted symmetric key")
+            )
+        }
+
+        #[test]
+        fn fails_to_fetch_next_encryption_key_for_not_locked_vault() {
+            let test = Test::new();
+            let vault_id = test.create_vault(principal_1());
+            let transport_key = dummy_transport_key();
+            let derived_public_key_bytes = hex::decode(&test.get_verification_key())
+                .expect("failed to decode verification key");
+            assert_matches!(
+                test.get_next_symmetric_encryption_key(
+                    principal_1(),
+                    vault_id,
+                    derived_public_key_bytes.as_slice(),
+                    &transport_key
+                ),
+                Err(e) if e.description.contains("vault must be locked to obtain next encrypted symmetric key")
+            );
+        }
+
+        #[test]
+        fn fails_to_fetch_next_encryption_key_for_unauthorized_user() {
+            let test = Test::new();
+            let vault_id = test.create_vault(principal_1());
+
+            let transport_key = dummy_transport_key();
+            let derived_public_key_bytes = hex::decode(&test.get_verification_key())
+                .expect("failed to decode verification key");
+
+            test.rotate_vault_key(principal_1(), vault_id)
+                .expect("failed to rotate vault key");
+            assert_matches!(
+                test.get_next_symmetric_encryption_key(
+                    principal_2(),
+                    vault_id,
+                    derived_public_key_bytes.as_slice(),
+                    &transport_key
+                ),
+                Err(e) if e.description.contains("unauthorized user")
+            );
+        }
     }
 
     mod vault {
@@ -1141,30 +1274,6 @@ impl Test {
         }
     }
 
-    fn get_encrypted_symmetric_key(
-        &self,
-        caller: Principal,
-        vault_id: VaultId,
-        encryption_public_key: Vec<u8>,
-    ) -> Result<(VaultVersion, String, Vec<u8>), UserError> {
-        let reply = self.pic.update_call(
-            self.password_manager_canister_id,
-            caller,
-            "encrypted_symmetric_key_for_vault",
-            Encode!(&vault_id, &encryption_public_key).unwrap(),
-        )?;
-
-        let result = match reply {
-            pocket_ic::WasmResult::Reply(bytes) => {
-                candid::Decode!(bytes.as_slice(), VaultVersion, String, Vec<u8>).unwrap()
-            }
-            pocket_ic::WasmResult::Reject(_) => {
-                panic!("get_encrypted_symmetric_key call was rejected")
-            }
-        };
-        Ok(result)
-    }
-
     fn add_user(
         &self,
         caller: Principal,
@@ -1241,6 +1350,30 @@ impl Test {
         Ok(())
     }
 
+    fn get_encrypted_symmetric_key(
+        &self,
+        caller: Principal,
+        vault_id: VaultId,
+        encryption_public_key: Vec<u8>,
+    ) -> Result<(VaultVersion, String, Vec<u8>), UserError> {
+        let reply = self.pic.update_call(
+            self.password_manager_canister_id,
+            caller,
+            "encrypted_symmetric_key_for_vault",
+            Encode!(&vault_id, &encryption_public_key).unwrap(),
+        )?;
+
+        let result = match reply {
+            pocket_ic::WasmResult::Reply(bytes) => {
+                candid::Decode!(bytes.as_slice(), VaultVersion, String, Vec<u8>).unwrap()
+            }
+            pocket_ic::WasmResult::Reject(_) => {
+                panic!("get_encrypted_symmetric_key call was rejected")
+            }
+        };
+        Ok(result)
+    }
+
     fn get_symmetric_encryption_key(
         &self,
         caller: Principal,
@@ -1250,6 +1383,51 @@ impl Test {
     ) -> Result<(VaultVersion, Vec<u8>, Vec<u8>), UserError> {
         let (vault_version, encrypted_symmetric_key, derivation_id) =
             self.get_encrypted_symmetric_key(caller, vault_id, transport_key.public_key())?;
+        let encryption_key = transport_key
+            .decrypt(
+                hex::decode(encrypted_symmetric_key)
+                    .expect("failed to decode encrypted key")
+                    .as_slice(),
+                derived_public_key_bytes,
+                derivation_id.as_slice(),
+            )
+            .expect("failed to decrypt key");
+        Ok((vault_version, encryption_key, derivation_id))
+    }
+
+    fn get_next_encrypted_symmetric_key(
+        &self,
+        caller: Principal,
+        vault_id: VaultId,
+        encryption_public_key: Vec<u8>,
+    ) -> Result<(VaultVersion, String, Vec<u8>), UserError> {
+        let reply = self.pic.update_call(
+            self.password_manager_canister_id,
+            caller,
+            "next_encrypted_symmetric_key_for_locked_vault",
+            Encode!(&vault_id, &encryption_public_key).unwrap(),
+        )?;
+
+        let result = match reply {
+            pocket_ic::WasmResult::Reply(bytes) => {
+                candid::Decode!(bytes.as_slice(), VaultVersion, String, Vec<u8>).unwrap()
+            }
+            pocket_ic::WasmResult::Reject(_) => {
+                panic!("get_encrypted_symmetric_key call was rejected")
+            }
+        };
+        Ok(result)
+    }
+
+    fn get_next_symmetric_encryption_key(
+        &self,
+        caller: Principal,
+        vault_id: VaultId,
+        derived_public_key_bytes: &[u8],
+        transport_key: &TransportSecretKey,
+    ) -> Result<(VaultVersion, Vec<u8>, Vec<u8>), UserError> {
+        let (vault_version, encrypted_symmetric_key, derivation_id) =
+            self.get_next_encrypted_symmetric_key(caller, vault_id, transport_key.public_key())?;
         let encryption_key = transport_key
             .decrypt(
                 hex::decode(encrypted_symmetric_key)
