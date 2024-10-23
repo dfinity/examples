@@ -67,7 +67,7 @@ thread_local! {
     static ROOT_CA_PUBLIC_KEY: OnceCell<Vec<u8>> = OnceCell::new();
     static ROOT_CA_CERTIFICATE_PEM: OnceCell<String> = OnceCell::new();
 
-    static CHILD_CERTIFICATE_SERIAL_NUMBER: RefCell<u32> = RefCell::new(0);
+    static CHILD_CERTIFICATE_SERIAL_NUMBER: RefCell<u32> = RefCell::new(1);
 }
 
 #[init]
@@ -90,7 +90,7 @@ async fn root_ca_certificate() -> Result<X509CertificateString, String> {
 
     // if the certificate is not cached, create it and try to cache it
 
-    let serial_number = SerialNumber::from(0u32);
+    let serial_number = SerialNumber::from(1u32);
 
     let subject = Name::from_str(
         "CN=Web3 certification authority corporation,O=Web3 ceritifcation authority Inc,C=US",
