@@ -108,7 +108,8 @@ from three types of addresses:
    (so-called P2TR key path spend, but untweaked). The advantage of this
    approach compared to P2TR script spends is its significantly smaller fee per
    transaction because checking the transaction signature is analogous to P2PK
-   but uses Schnorr instead of ECDSA. IMPORTANT: Note that
+   but uses Schnorr instead of ECDSA. The limitation of untweaked P2TR addresses
+   is that they cannot be used with scripts. IMPORTANT: Note that
    [BIP341](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki#cite_note-23)
    advises against using taproot addresses that can be spent with an untweaked
    key. This precaution is to prevent attacks that can occur when creating
