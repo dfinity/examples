@@ -663,7 +663,7 @@ fn rotate_vault_key(vault_id: VaultId) {
 /// Verification key for the password manager that can be used to verify the
 /// symmetric keys related to vaults.
 #[update]
-async fn verification_key_for_vault() -> String {
+async fn verification_key_for_password_manager() -> String {
     let request = VetKDPublicKeyRequest {
         canister_id: None,
         derivation_path: utils::derivation_path(),

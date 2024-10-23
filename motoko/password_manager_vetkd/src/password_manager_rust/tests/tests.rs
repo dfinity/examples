@@ -1261,7 +1261,7 @@ impl Test {
             .update_call(
                 self.password_manager_canister_id,
                 Principal::anonymous(),
-                "verification_key_for_vault",
+                "verification_key_for_password_manager",
                 Encode!(&()).unwrap(),
             )
             .expect("failed to get_verification_key");
