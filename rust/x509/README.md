@@ -182,7 +182,7 @@ async fn root_ca_certificate() -> Result<X509CertificateString, String> {
     let serial_number = SerialNumber::from(0u32);
 
     let subject = Name::from_str(
-        "CN=Web3 certification authority corporation,O=Web3 ceritifcation authority Inc,C=US",
+        "CN=DEMO Web3 certification authority corporation,O=DEMO Web3 ceritifcation authority Inc,C=US",
     )
     .unwrap();
 
