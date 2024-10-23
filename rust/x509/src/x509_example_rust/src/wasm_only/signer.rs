@@ -3,7 +3,6 @@ use std::{convert::TryFrom, ops::Deref};
 use candid::Principal;
 use elliptic_curve::sec1::ToEncodedPoint;
 use ic_cdk::api::management_canister::ecdsa as cdk_ecdsa;
-use pkcs8::AssociatedOid;
 use sha2::Digest;
 use spki::{AlgorithmIdentifierOwned, DynSignatureAlgorithmIdentifier};
 
@@ -136,7 +135,7 @@ impl DynSignatureAlgorithmIdentifier for EcdsaSecp256k1Signer {
     fn signature_algorithm_identifier(&self) -> spki::Result<AlgorithmIdentifierOwned> {
         Ok(AlgorithmIdentifierOwned {
             oid: ecdsa::ECDSA_SHA256_OID,
-            parameters: Some(der::Any::from(k256::Secp256k1::OID)),
+            parameters: None,
         })
     }
 }

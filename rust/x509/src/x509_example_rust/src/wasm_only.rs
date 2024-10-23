@@ -410,18 +410,6 @@ fn verify_certificate_request_signature(certificate_request: &CertReq) -> Result
                 public_key_bytes.as_slice(),
             )
         }
-        AlgorithmIdentifier::<der::Any> {
-            oid: ecdsa::ECDSA_SHA256_OID,
-            parameters: Some(curve),
-        } if curve == &der::Any::from(k256::Secp256k1::OID) => {
-            let (message, public_key_bytes) =
-                certificate_as_message_and_public_key_bytes(certificate_request);
-            verify_ecdsa_secp256k1_signature(
-                certificate_request.signature.raw_bytes(),
-                message.as_slice(),
-                public_key_bytes.as_slice(),
-            )
-        }
         _ => Err(format!(
             "unsupported algorithm: {:?}",
             certificate_request.algorithm
