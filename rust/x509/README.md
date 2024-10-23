@@ -13,7 +13,7 @@ cases of [X.509](https://en.wikipedia.org/wiki/X.509).
 1) How to create an X.509 certification authority (CA) certificate, where the CA
    certificate's private key is a threshold signing key, which is never revealed
    in cleartext, and cannot be revealed due to the properties of the threshold
-   signature protocols on the internet computer. This means that only the
+   signature protocols on the Internet Computer. This means that only the
    canister can sign child certificates.
 2) How to create a child certificate from a certificate signing request (CSR)
   provided by an external party. The CSR is generated externally, i.e., with a
