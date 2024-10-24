@@ -48,10 +48,7 @@ async fn sign_with_ecdsa(args: SignWithEcdsaArgument) -> SignWithEcdsaResponse {
         &args.derivation_path,
     );
     let (derived_private_key, _chain_code) = MASTER_SK_SECP256K1.derive_subkey(&derivation_path);
-    ////////////////
-    // TODO: sign_message_with_ecdsa vs sign_digest_with_ecdsa
-    /////////////////
-    let signature = derived_private_key.sign_message_with_ecdsa(&args.message_hash);
+    let signature = derived_private_key.sign_digest_with_ecdsa(&args.message_hash);
     SignWithEcdsaResponse {
         signature: signature.to_vec(),
     }
