@@ -2,13 +2,9 @@ import { createActor, greet_backend } from "../../declarations/greet_backend";
 import { AuthClient } from "@dfinity/auth-client";
 import { HttpAgent } from "@dfinity/agent";
 
-/**
- * Put this on the window so we can access it from the console.
- * This is helpful for learning, but it's recommended to keep it in a closure in a real app.
- *
- * We can use the default (not authenticated) greet_backend actor to call the greet method, and then update it once the authClient is ready, and again when the user logs in.
- */
-window.greetActor = greet_backend;
+// Global variables that we will set up
+window.greetActor;
+window.authClient;
 
 const greetButton = document.getElementById("greet");
 const loginButton = document.getElementById("login");
@@ -24,12 +20,15 @@ AuthClient.create().then((client) => {
   greetButton.removeAttribute("disabled");
 });
 
-loginButton.onclick = async () => {
+loginButton.onclick = () => {
   // start the login process and wait for it to finish
   window.authClient.login({
     identityProvider: process.env.II_URL,
     onSuccess: () => {
       setActor(window.authClient);
+    },
+    onError: (err) => {
+      console.error(err);
     },
   });
 };
