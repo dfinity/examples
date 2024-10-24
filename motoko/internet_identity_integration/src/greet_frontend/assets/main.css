@@ -10,20 +10,19 @@ img {
     margin: auto;
 }
 
-form {
+#buttons {
     display: flex;
     justify-content: center;
-    gap: 0.5em;
-    flex-flow: row wrap;
-    max-width: 40vw;
-    margin: auto;
+    gap: 1.5em;
+    flex-direction: column;
+    width: max-content;
+    margin: 1.5em auto;
     align-items: baseline;
 }
 
-button[type="submit"] {
+button {
     padding: 5px 20px;
-    margin: 10px auto;
-    float: right;
+    width: 100%;
 }
 
 #greeting {
