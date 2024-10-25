@@ -1998,6 +1998,7 @@ version = "0.1.0"
 dependencies = [
  "assert_matches",
  "candid",
+ "ed25519-dalek",
  "getrandom",
  "hex",
  "ic-cdk 0.16.0",

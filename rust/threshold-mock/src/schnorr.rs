@@ -7,13 +7,13 @@ use ic_cdk::update;
 
 pub type CanisterId = Principal;
 
-#[derive(CandidType, Deserialize)]
-struct SchnorrKeyId {
+#[derive(Clone, CandidType, Deserialize)]
+pub struct SchnorrKeyId {
     pub algorithm: SchnorrAlgorithm,
     pub name: String,
 }
 
-#[derive(CandidType, Deserialize, PartialEq, Eq)]
+#[derive(Clone, PartialEq, Eq, CandidType, Deserialize)]
 pub enum SchnorrAlgorithm {
     #[serde(rename = "bip340secp256k1")]
     Bip340Secp256k1,
@@ -22,26 +22,26 @@ pub enum SchnorrAlgorithm {
 }
 
 #[derive(CandidType, Deserialize)]
-struct SchnorrPublicKeyArgs {
+pub struct SchnorrPublicKeyArgs {
     pub canister_id: Option<CanisterId>,
     pub derivation_path: Vec<Vec<u8>>,
     pub key_id: SchnorrKeyId,
 }
 
-#[derive(CandidType)]
+#[derive(CandidType, Deserialize)]
 pub struct SchnorrPublicKeyResult {
     pub public_key: Vec<u8>,
     pub chain_code: Vec<u8>,
 }
 
 #[derive(CandidType, Deserialize)]
-struct SignWithSchnorrArgs {
+pub struct SignWithSchnorrArgs {
     pub message: Vec<u8>,
     pub derivation_path: Vec<Vec<u8>>,
     pub key_id: SchnorrKeyId,
 }
 
-#[derive(CandidType)]
+#[derive(CandidType, Deserialize)]
 pub struct SignWithSchnorrResult {
     pub signature: Vec<u8>,
 }

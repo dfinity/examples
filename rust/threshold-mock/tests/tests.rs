@@ -9,6 +9,12 @@ use ic_cdk::api::management_canister::ecdsa::EcdsaPublicKeyArgument;
 use ic_cdk::api::management_canister::ecdsa::EcdsaPublicKeyResponse;
 use ic_cdk::api::management_canister::ecdsa::SignWithEcdsaArgument;
 use ic_cdk::api::management_canister::ecdsa::SignWithEcdsaResponse;
+use threshold_mock::schnorr::SchnorrAlgorithm;
+use threshold_mock::schnorr::SchnorrKeyId;
+use threshold_mock::schnorr::SchnorrPublicKeyArgs;
+use threshold_mock::schnorr::SchnorrPublicKeyResult;
+use threshold_mock::schnorr::SignWithSchnorrArgs;
+use threshold_mock::schnorr::SignWithSchnorrResult;
 
 pub const CANISTER_WASM: &[u8] =
     include_bytes!("../target/wasm32-unknown-unknown/release/threshold_mock.wasm");
@@ -40,13 +46,86 @@ fn should_verify_ecdsa_signature() {
         })
         .signature;
 
-    use k256::ecdsa::signature::Verifier;
     let signature = k256::ecdsa::Signature::try_from(signature_raw.as_slice())
         .expect("failed to deserialize signature");
     let verifying_key = k256::ecdsa::VerifyingKey::from_sec1_bytes(&public_key_raw)
         .expect("failed to sec1 deserialize public key");
 
+    use k256::ecdsa::signature::Verifier;
     assert_matches!(verifying_key.verify(&message_hash, &signature), Ok(()));
+}
+
+#[test]
+fn should_verify_schnorr_bip340_secp256k1_signature() {
+    let canister = CanisterSetup::default();
+
+    let derivation_path = vec!["test-derivation-path".as_bytes().to_vec()];
+    let key_id = SchnorrKeyId {
+        algorithm: SchnorrAlgorithm::Bip340Secp256k1,
+        name: "insecure_mock_key_1".to_string(),
+    };
+    let message = b"test-message".to_vec();
+
+    let public_key_raw = canister
+        .schnorr_public_key(SchnorrPublicKeyArgs {
+            canister_id: None,
+            derivation_path: derivation_path.clone(),
+            key_id: key_id.clone(),
+        })
+        .public_key;
+
+    let signature_raw = canister
+        .sign_with_schnorr(SignWithSchnorrArgs {
+            message: message.clone(),
+            derivation_path,
+            key_id,
+        })
+        .signature;
+
+    let signature = k256::schnorr::Signature::try_from(signature_raw.as_slice())
+        .expect("failed to deserialize signature");
+    let verifying_key = k256::schnorr::VerifyingKey::from_bytes(&public_key_raw[1..])
+        .expect("failed to sec1 deserialize public key");
+
+    assert_matches!(verifying_key.verify_raw(&message, &signature), Ok(()));
+}
+
+#[test]
+fn should_verify_schnorr_ed25519_signature() {
+    let canister = CanisterSetup::default();
+
+    let derivation_path = vec!["test-derivation-path".as_bytes().to_vec()];
+    let key_id = SchnorrKeyId {
+        algorithm: SchnorrAlgorithm::Ed25519,
+        name: "insecure_mock_key_1".to_string(),
+    };
+    let message = b"test-message".to_vec();
+
+    let public_key_raw = canister
+        .schnorr_public_key(SchnorrPublicKeyArgs {
+            canister_id: None,
+            derivation_path: derivation_path.clone(),
+            key_id: key_id.clone(),
+        })
+        .public_key;
+
+    let signature_raw = canister
+        .sign_with_schnorr(SignWithSchnorrArgs {
+            message: message.clone(),
+            derivation_path,
+            key_id,
+        })
+        .signature;
+
+    let signature = ed25519_dalek::Signature::try_from(signature_raw.as_slice())
+        .expect("failed to deserialize signature");
+    let verifying_key = ed25519_dalek::VerifyingKey::from_bytes(
+        &<[u8; 32]>::try_from(public_key_raw).expect("ed25519 public key should be 32 bytes"),
+    )
+    .expect("failed to sec1 deserialize public key");
+
+    use ed25519_dalek::Verifier;
+    assert_matches!(verifying_key.verify(&message, &signature), Ok(()));
 }
 
 pub struct CanisterSetup {
@@ -88,11 +167,49 @@ impl CanisterSetup {
             self.canister_id,
             Principal::anonymous(),
             method,
-            Encode!(&args).expect("failed to encode ecdsa_public_key args"),
+            Encode!(&args).expect("failed to encode args"),
         );
         match result {
             Ok(WasmResult::Reply(bytes)) => {
                 Decode!(&bytes, SignWithEcdsaResponse).expect("failed to decode {method} result")
+            }
+            Ok(WasmResult::Reject(error)) => {
+                panic!("canister rejected call to {method}: {error}")
+            }
+            Err(user_error) => panic!("{method} user error: {user_error}"),
+        }
+    }
+
+    pub fn schnorr_public_key(&self, args: SchnorrPublicKeyArgs) -> SchnorrPublicKeyResult {
+        let method = "schnorr_public_key";
+        let result = self.env.update_call(
+            self.canister_id,
+            Principal::anonymous(),
+            method,
+            Encode!(&args).expect("failed to encode args"),
+        );
+        match result {
+            Ok(WasmResult::Reply(bytes)) => {
+                Decode!(&bytes, SchnorrPublicKeyResult).expect("failed to decode {method} result")
+            }
+            Ok(WasmResult::Reject(error)) => {
+                panic!("canister rejected call to {method}: {error}")
+            }
+            Err(user_error) => panic!("{method} user error: {user_error}"),
+        }
+    }
+
+    pub fn sign_with_schnorr(&self, args: SignWithSchnorrArgs) -> SignWithSchnorrResult {
+        let method = "sign_with_schnorr";
+        let result = self.env.update_call(
+            self.canister_id,
+            Principal::anonymous(),
+            method,
+            Encode!(&args).expect("failed to encode args"),
+        );
+        match result {
+            Ok(WasmResult::Reply(bytes)) => {
+                Decode!(&bytes, SignWithSchnorrResult).expect("failed to decode {method} result")
             }
             Ok(WasmResult::Reject(error)) => {
                 panic!("canister rejected call to {method}: {error}")
