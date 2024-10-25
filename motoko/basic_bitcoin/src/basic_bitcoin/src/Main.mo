@@ -3,6 +3,7 @@ import Text "mo:base/Text";
 import BitcoinApi "BitcoinApi";
 import P2pkh "P2pkh";
 import P2trRawKeySpend "P2trRawKeySpend";
+import P2trScriptSpend "P2trScriptSpend";
 import Types "Types";
 import Utils "Utils";
 
@@ -13,6 +14,7 @@ actor class BasicBitcoin(_network : Types.Network) {
   type Network = Types.Network;
   type BitcoinAddress = Types.BitcoinAddress;
   type Satoshi = Types.Satoshi;
+  type TransactionId = Text;
 
   // The Bitcoin network to connect to.
   //
@@ -55,7 +57,7 @@ actor class BasicBitcoin(_network : Types.Network) {
 
   /// Sends the given amount of bitcoin from this canister to the given address.
   /// Returns the transaction ID.
-  public func send_from_p2pkh_address(request : SendRequest) : async Text {
+  public func send_from_p2pkh_address(request : SendRequest) : async TransactionId {
     Utils.bytesToText(await P2pkh.send(NETWORK, DERIVATION_PATH, KEY_NAME, request.destination_address, request.amount_in_satoshi));
   };
 
@@ -63,7 +65,15 @@ actor class BasicBitcoin(_network : Types.Network) {
     await P2trRawKeySpend.get_address(NETWORK, KEY_NAME, DERIVATION_PATH);
   };
 
-  public func send_from_p2tr_raw_key_spend_address(request : SendRequest) : async Text {
+  public func send_from_p2tr_raw_key_spend_address(request : SendRequest) : async TransactionId {
     Utils.bytesToText(await P2trRawKeySpend.send(NETWORK, DERIVATION_PATH, KEY_NAME, request.destination_address, request.amount_in_satoshi));
+  };
+
+  public func get_p2tr_script_spend_address() : async BitcoinAddress {
+    await P2trScriptSpend.get_address(NETWORK, KEY_NAME, DERIVATION_PATH);
+  };
+
+  public func send_from_p2tr_script_spend_address(request : SendRequest) : async TransactionId {
+    Utils.bytesToText(await P2trScriptSpend.send(NETWORK, DERIVATION_PATH, KEY_NAME, request.destination_address, request.amount_in_satoshi));
   };
 };

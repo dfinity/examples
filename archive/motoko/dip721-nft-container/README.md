@@ -28,7 +28,7 @@ When upgrading canister code, however, it is necessary to explicitly handle cani
  ### 2. Certified data.
 Generally, when a function only reads data, instead of modifying the state of the canister, it is
 beneficial to use a [query call instead of an update call](https://internetcomputer.org/docs/current/concepts/canisters-code.md#query-and-update-methods).
-But, since query calls do not go through consensus, [certified responses](https://internetcomputer.org/docs/current/developer-docs/security/general-security-best-practices)
+But, since query calls do not go through consensus, [certified responses](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/overview )
 should be used wherever possible. The HTTP interface of the Rust implementation shows how certified data can be handled.
 
  ### 3. Delegating control over assets.
@@ -47,7 +47,7 @@ In case an error occurs during any part of the upgrade (including `post_upgdrade
 
 The Rust CDK (Canister Development Kit) currently only supports one value in stable memory, so it is necessary to create an object that can hold everything you care about.
 In addition, not every data type can be stored in stable memory; only ones that implement the [CandidType trait](https://docs.rs/candid/latest/candid/types/trait.CandidType.html)
-(usually via the [CandidType derive macro](https://docs.rs/candid/latest/candid/derive.CandidType.html)) can be written to stable memory. 
+(usually via the [CandidType derive macro](https://docs.rs/candid/latest/candid/derive.CandidType.html)) can be written to stable memory.
 
 Since the state of our canister includes a `RbTree` which does not implement the `CandidType`, it has to be converted into a data structure (in this case a `Vec`) that implements `CandidType`.
 Luckily, both `RbTree` and `Vec` implement functions that allow converting to/from iterators, so the conversion can be done quite easily.
@@ -76,7 +76,7 @@ For a much more detailed explanation of how certification works, see [this expla
 - **Operator**: sort of a delegated owner. The operator does not own the NFT but can do the same actions an owner can do.
 - **Custodian**: creator of the NFT collection/canister. They can do anything (transfer, add/remove operators, burn, and even un-burn) to NFTs, but also mint new ones or change the symbol or description of the collection.
 
-The NFT example canister keeps access control in these three levels very simple: 
+The NFT example canister keeps access control in these three levels very simple:
 - For every level of control, a separate list (or set) of principals is kept.
 - Those three levels are then manually checked every single time someone attempts to do something for which they require authorization.
 - If a user is not authorized to call a certain function an error is returned.
@@ -88,7 +88,7 @@ Using this management canister address, we can construct its principal and set t
 
 ## NFT sample code tutorial
 
-### Prerequisites 
+### Prerequisites
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Download and install [git.](https://git-scm.com/downloads)
@@ -108,7 +108,7 @@ cd examples/motoko/dip721-nft-container
  ### Step 3: Run a local instance of the Internet Computer:
 
 ```bash
-dfx start --background 
+dfx start --background
 ```
 
 **If this is not a new installation, you may need to run `start` with the `--clean` flag.**
@@ -123,7 +123,7 @@ This command deploys the DIP721 NFT canister with the following initialization a
 
 ```bash
 dfx deploy --argument "(
-  principal\"$(dfx identity get-principal)\", 
+  principal\"$(dfx identity get-principal)\",
   record {
     logo = record {
       logo_type = \"image/png\";
@@ -137,7 +137,7 @@ dfx deploy --argument "(
 ```
 
 #### What this does
-- `principal`: the initial custodian of the collection. A custodian is a user who can administrate the collection i.e. an "Admin" user. 
+- `principal`: the initial custodian of the collection. A custodian is a user who can administrate the collection i.e. an "Admin" user.
 
   :::info
   `"$(dfx identity get-principal)"` automatically interpolates the default identity used by dfx on your machine into the argument that gets passed to `deploy`.
@@ -145,7 +145,7 @@ dfx deploy --argument "(
 
 - `logo`: The image that represents this NFT collection.
 - `name`: The name of the NFT collection.
-- `symbol`: A short, unique symbol to identify the token. 
+- `symbol`: A short, unique symbol to identify the token.
 - `maxLimit`: The maximum number of NFTs that are allowed in this collection.
 
 You will receive output that resembles the following:
@@ -164,8 +164,8 @@ Use the following command to mint an NFT:
 ```bash
 dfx canister call dip721_nft_container mintDip721 \
 "(
-  principal\"$(dfx identity get-principal)\", 
-  vec { 
+  principal\"$(dfx identity get-principal)\",
+  vec {
     record {
       purpose = variant{Rendered};
       data = blob\"hello\";
@@ -208,7 +208,7 @@ You should see a principal returned:
 o4f3h-cbpnm-4hnl7-pejut-c4vii-a5u5u-bk2va-e72lb-edvgw-z4wuq-5qe
 ```
 
-Transfer the NFT from the default user to `ALICE`. 
+Transfer the NFT from the default user to `ALICE`.
 
 Here the arguments are:
 `from`: principal that owns the NFT
@@ -255,7 +255,7 @@ Output:
 
 ### `getMetadataDip721`
 
-Provide a token ID. 
+Provide a token ID.
 The token ID was provided to you when you ran `mintDip721`, e.g. `(variant { Ok = record { id = 1 : nat; token_id = 0 : nat64 } })` So, the token ID is 0 in this case.
 
 ```bash
@@ -410,7 +410,7 @@ Output:
 
 ### `ownerOfDip721`
 
-Provide a token ID. 
+Provide a token ID.
 The token ID was provided to you when you ran `mintDip721`, e.g. `(variant { Ok = record { id = 1 : nat; token_id = 0 : nat64 } })` So, the token ID is 0 in this case.
 
 ```bash

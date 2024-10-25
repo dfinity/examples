@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   motoko-internet-identity-integration-example-darwin:
-    runs-on: macos-12
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin

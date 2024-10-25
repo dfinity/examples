@@ -52,4 +52,11 @@ service : (network) -> {
       destination_address: bitcoin_address;
       amount_in_satoshi: satoshi;
     }) -> (transaction_id);
+
+    "get_p2tr_script_spend_address": () -> (bitcoin_address);
+
+    "send_from_p2tr_script_spend_address": (record {
+      destination_address: bitcoin_address;
+      amount_in_satoshi: satoshi;
+    }) -> (transaction_id);
 }

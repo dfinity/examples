@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   rust-face-recognition-example-darwin:
-    runs-on: macos-12
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
@@ -24,7 +24,6 @@ jobs:
         run: rm -f ~/.config/dfx/networks.json
       - name: Rust Face Recognition Darwin
         run: |
-          dfxvm install 0.22.0-beta.0
           dfx start --background --clean --pocketic
           pushd rust/face-recognition
           npm install
@@ -40,7 +39,6 @@ jobs:
         run: rm -f ~/.config/dfx/networks.json
       - name: Rust Face Recognition Linux
         run: |
-          dfxvm install 0.22.0-beta.0
           dfx start --background --clean --pocketic
           pushd rust/face-recognition
           npm install

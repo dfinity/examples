@@ -42,7 +42,7 @@ We wanted to build an example of a simple (but not too simple) dapp running pure
 1. Client-side **end-to-end encryption**. 
 2. **Multi-user** and **multi-device** support.
 
-To demonstrate the potential of the IC as a platform for developing such dapps, we implemented this example using two distinct canister development kits (CDKs). The Motoko CDK allows developers to implement actor-based dapps using the [Motoko](https://internetcomputer.org/docs/current/motoko/getting-started/motoko-introduction) language. The Rust CDK allows implementing dapps in [Rust](https://internetcomputer.org/docs/current/developer-docs/backend/rust/index.md). In both cases, canisters are compiled into WebAssembly files that are then deployed onto the IC.
+To demonstrate the potential of the IC as a platform for developing such dapps, we implemented this example using two distinct canister development kits (CDKs). The Motoko CDK allows developers to implement actor-based dapps using the [Motoko](https://internetcomputer.org/docs/current/motoko/getting-started/motoko-introduction) language. The Rust CDK allows implementing dapps in [Rust](https://internetcomputer.org/docs/current/developer-docs/backend/rust/). In both cases, canisters are compiled into WebAssembly files that are then deployed onto the IC.
 
 ## Architecture
 
