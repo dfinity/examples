@@ -1,3 +1,5 @@
+use crate::inc_call_count;
+
 use super::ensure_derivation_path_is_valid;
 use super::with_rng;
 use candid::CandidType;
@@ -79,6 +81,7 @@ async fn schnorr_public_key(args: SchnorrPublicKeyArgs) -> SchnorrPublicKeyResul
     ensure_derivation_path_is_valid(&args.derivation_path);
     match args.key_id.algorithm {
         SchnorrAlgorithm::Bip340Secp256k1 => {
+            inc_call_count("schnorr_public_key_bip340Secp256k1".to_string());
             ensure_bip340secp256k1_insecure_mock_key_1(&args.key_id);
             let derivation_path = ic_crypto_secp256k1::DerivationPath::from_canister_id_and_path(
                 args.canister_id.unwrap_or_else(ic_cdk::caller).as_slice(),
@@ -91,6 +94,7 @@ async fn schnorr_public_key(args: SchnorrPublicKeyArgs) -> SchnorrPublicKeyResul
             }
         }
         SchnorrAlgorithm::Ed25519 => {
+            inc_call_count("schnorr_public_key_ed25519".to_string());
             ensure_ed25519_insecure_mock_key_1(&args.key_id);
             let derivation_path = ic_crypto_ed25519::DerivationPath::from_canister_id_and_path(
                 args.canister_id.unwrap_or_else(ic_cdk::caller).as_slice(),
@@ -110,6 +114,7 @@ async fn sign_with_schnorr(args: SignWithSchnorrArgs) -> SignWithSchnorrResult {
     ensure_derivation_path_is_valid(&args.derivation_path);
     match args.key_id.algorithm {
         SchnorrAlgorithm::Bip340Secp256k1 => {
+            inc_call_count("sign_with_schnorr_bip340Secp256k1".to_string());
             ensure_bip340secp256k1_insecure_mock_key_1(&args.key_id);
             let derivation_path = ic_crypto_secp256k1::DerivationPath::from_canister_id_and_path(
                 ic_cdk::caller().as_slice(),
@@ -125,6 +130,7 @@ async fn sign_with_schnorr(args: SignWithSchnorrArgs) -> SignWithSchnorrResult {
             }
         }
         SchnorrAlgorithm::Ed25519 => {
+            inc_call_count("sign_with_schnorr_ed25519".to_string());
             ensure_ed25519_insecure_mock_key_1(&args.key_id);
             let derivation_path = ic_crypto_ed25519::DerivationPath::from_canister_id_and_path(
                 ic_cdk::caller().as_slice(),

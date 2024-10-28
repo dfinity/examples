@@ -1,3 +1,5 @@
+use crate::inc_call_count;
+
 use super::ensure_derivation_path_is_valid;
 use ic_cdk::api::management_canister::ecdsa::EcdsaCurve;
 use ic_cdk::api::management_canister::ecdsa::EcdsaKeyId;
@@ -23,6 +25,7 @@ lazy_static::lazy_static! {
 
 #[update]
 async fn ecdsa_public_key(args: EcdsaPublicKeyArgument) -> EcdsaPublicKeyResponse {
+    inc_call_count("ecdsa_public_key".to_string());
     ensure_secp256k1_insecure_mock_key_1(&args.key_id);
     ensure_derivation_path_is_valid(&args.derivation_path);
     let derivation_path = ic_crypto_secp256k1::DerivationPath::from_canister_id_and_path(
@@ -38,6 +41,7 @@ async fn ecdsa_public_key(args: EcdsaPublicKeyArgument) -> EcdsaPublicKeyRespons
 
 #[update]
 async fn sign_with_ecdsa(args: SignWithEcdsaArgument) -> SignWithEcdsaResponse {
+    inc_call_count("sign_with_ecdsa".to_string());
     ensure_secp256k1_insecure_mock_key_1(&args.key_id);
     ensure_derivation_path_is_valid(&args.derivation_path);
     if args.message_hash.len() != 32 {

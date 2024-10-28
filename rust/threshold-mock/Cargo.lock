@@ -884,6 +884,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "ic-stable-structures"
+version = "0.6.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "03f3044466a69802de74e710dc0300b706a05696a0531c942ca856751a13b0db"
+dependencies = [
+ "ic_principal",
+]
+
+[[package]]
 name = "ic-vetkd-utils"
 version = "0.1.0"
 source = "git+https://github.com/dfinity/ic#36cbd803b7f6e5f811c720361e648b614ef66162"
@@ -2025,6 +2034,7 @@ dependencies = [
  "ic-crypto-internal-bls12-381-type",
  "ic-crypto-internal-bls12-381-vetkd",
  "ic-crypto-secp256k1",
+ "ic-stable-structures",
  "ic-vetkd-utils",
  "k256",
  "lazy_static",

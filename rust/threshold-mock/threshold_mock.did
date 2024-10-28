@@ -73,6 +73,10 @@ type vetkd_encrypted_key_result = record {
   encrypted_key : blob;
 };
 
+type call_counts_result = record {
+  call_counts : vec record { method_name : text; call_count : nat64 };
+};
+
 service : {
   // Threshold ECDSA signature
   ecdsa_public_key : (ecdsa_public_key_args) -> (ecdsa_public_key_result);
@@ -85,4 +89,7 @@ service : {
   // Threshold key derivation
   vetkd_public_key : (vetkd_public_key_args) -> (vetkd_public_key_result);
   vetkd_encrypted_key : (vetkd_encrypted_key_args) -> (vetkd_encrypted_key_result);
+
+  // Statistics: call counts
+  call_counts : () -> (call_counts_result);
 };

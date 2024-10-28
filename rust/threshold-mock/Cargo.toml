@@ -25,6 +25,7 @@ ic-crypto-ed25519 = { git = "https://github.com/dfinity/ic" }
 ic-crypto-secp256k1 = { git = "https://github.com/dfinity/ic" }
 ic-crypto-internal-bls12-381-vetkd = { git = "https://github.com/dfinity/ic" }
 ic-crypto-internal-bls12-381-type = { git = "https://github.com/dfinity/ic" }
+ic-stable-structures = "0.6.5"
 ic-vetkd-utils = { git = "https://github.com/dfinity/ic" }
 k256 = "0.13.4"
 lazy_static = "1.4"

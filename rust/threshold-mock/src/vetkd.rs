@@ -1,3 +1,5 @@
+use crate::inc_call_count;
+
 use super::ensure_derivation_path_is_valid;
 use super::with_rng;
 use candid::CandidType;
@@ -69,6 +71,7 @@ lazy_static::lazy_static! {
 
 #[update]
 async fn vetkd_public_key(request: VetKDPublicKeyRequest) -> VetKDPublicKeyReply {
+    inc_call_count("vetkd_public_key".to_string());
     ensure_bls12_381_insecure_mock_key_1(request.key_id);
     ensure_derivation_path_is_valid(&request.derivation_path);
     let derivation_path = {
@@ -83,6 +86,7 @@ async fn vetkd_public_key(request: VetKDPublicKeyRequest) -> VetKDPublicKeyReply
 
 #[update]
 async fn vetkd_encrypted_key(request: VetKDEncryptedKeyRequest) -> VetKDEncryptedKeyReply {
+    inc_call_count("vetkd_encrypted_key".to_string());
     ensure_call_is_paid(ENCRYPTED_KEY_CYCLE_COSTS);
     ensure_bls12_381_insecure_mock_key_1(request.key_id);
     ensure_derivation_path_is_valid(&request.public_key_derivation_path);
