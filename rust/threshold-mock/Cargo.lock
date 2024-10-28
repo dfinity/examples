@@ -819,7 +819,7 @@ dependencies = [
 [[package]]
 name = "ic-crypto-ed25519"
 version = "0.9.0"
-source = "git+https://github.com/dfinity/ic#d3def2417b1a50cda3b41d55b6426592b2110980"
+source = "git+https://github.com/dfinity/ic#36cbd803b7f6e5f811c720361e648b614ef66162"
 dependencies = [
  "curve25519-dalek",
  "ed25519-dalek",
@@ -833,7 +833,7 @@ dependencies = [
 [[package]]
 name = "ic-crypto-internal-bls12-381-type"
 version = "0.9.0"
-source = "git+https://github.com/dfinity/ic#d3def2417b1a50cda3b41d55b6426592b2110980"
+source = "git+https://github.com/dfinity/ic#36cbd803b7f6e5f811c720361e648b614ef66162"
 dependencies = [
  "hex",
  "ic_bls12_381",
@@ -851,7 +851,7 @@ dependencies = [
 [[package]]
 name = "ic-crypto-internal-bls12-381-vetkd"
 version = "0.9.0"
-source = "git+https://github.com/dfinity/ic#d3def2417b1a50cda3b41d55b6426592b2110980"
+source = "git+https://github.com/dfinity/ic#36cbd803b7f6e5f811c720361e648b614ef66162"
 dependencies = [
  "ic-crypto-internal-bls12-381-type",
  "ic-sha3",
@@ -862,7 +862,7 @@ dependencies = [
 [[package]]
 name = "ic-crypto-secp256k1"
 version = "0.9.0"
-source = "git+https://github.com/dfinity/ic#d3def2417b1a50cda3b41d55b6426592b2110980"
+source = "git+https://github.com/dfinity/ic#36cbd803b7f6e5f811c720361e648b614ef66162"
 dependencies = [
  "hmac",
  "k256",
@@ -878,9 +878,27 @@ dependencies = [
 [[package]]
 name = "ic-sha3"
 version = "1.0.0"
-source = "git+https://github.com/dfinity/ic#d3def2417b1a50cda3b41d55b6426592b2110980"
+source = "git+https://github.com/dfinity/ic#36cbd803b7f6e5f811c720361e648b614ef66162"
 dependencies = [
  "sha3",
+]
+
+[[package]]
+name = "ic-vetkd-utils"
+version = "0.1.0"
+source = "git+https://github.com/dfinity/ic#36cbd803b7f6e5f811c720361e648b614ef66162"
+dependencies = [
+ "getrandom",
+ "ic_bls12_381",
+ "lazy_static",
+ "pairing",
+ "rand",
+ "rand_chacha",
+ "sha2",
+ "sha3",
+ "subtle",
+ "wasm-bindgen",
+ "zeroize",
 ]
 
 [[package]]
@@ -2007,6 +2025,7 @@ dependencies = [
  "ic-crypto-internal-bls12-381-type",
  "ic-crypto-internal-bls12-381-vetkd",
  "ic-crypto-secp256k1",
+ "ic-vetkd-utils",
  "k256",
  "lazy_static",
  "pocket-ic",

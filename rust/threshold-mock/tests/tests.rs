@@ -1,6 +1,7 @@
 use assert_matches::assert_matches;
 use candid::{Decode, Encode, Principal};
 use ic_cdk::api::management_canister::main::CanisterId;
+use ic_vetkd_utils::TransportSecretKey;
 use pocket_ic::{PocketIc, WasmResult};
 
 use ic_cdk::api::management_canister::ecdsa::EcdsaCurve;
@@ -15,6 +16,12 @@ use threshold_mock::schnorr::SchnorrPublicKeyArgs;
 use threshold_mock::schnorr::SchnorrPublicKeyResult;
 use threshold_mock::schnorr::SignWithSchnorrArgs;
 use threshold_mock::schnorr::SignWithSchnorrResult;
+use threshold_mock::vetkd::VetKDCurve;
+use threshold_mock::vetkd::VetKDEncryptedKeyReply;
+use threshold_mock::vetkd::VetKDEncryptedKeyRequest;
+use threshold_mock::vetkd::VetKDKeyId;
+use threshold_mock::vetkd::VetKDPublicKeyReply;
+use threshold_mock::vetkd::VetKDPublicKeyRequest;
 
 pub const CANISTER_WASM: &[u8] =
     include_bytes!("../target/wasm32-unknown-unknown/release/threshold_mock.wasm");
@@ -128,6 +135,56 @@ fn should_verify_schnorr_ed25519_signature() {
     assert_matches!(verifying_key.verify(&message, &signature), Ok(()));
 }
 
+#[test]
+fn should_consistently_derive_vetkey() {
+    let canister = CanisterSetup::default();
+
+    let derivation_path = vec!["test-derivation-path".as_bytes().to_vec()];
+    let key_id = VetKDKeyId {
+        curve: VetKDCurve::Bls12_381,
+        name: "insecure_mock_key_1".to_string(),
+    };
+    let derivation_id = b"test-derivation-id".to_vec();
+
+    let public_key_bytes = canister
+        .vetkd_public_key(VetKDPublicKeyRequest {
+            canister_id: None,
+            derivation_path: derivation_path.clone(),
+            key_id: key_id.clone(),
+        })
+        .public_key;
+
+    let tsk_1 = TransportSecretKey::from_seed([101; 32].to_vec())
+        .expect("failed to create transport secret key");
+    let encrypted_key_1 = canister
+        .vetkd_encrypted_key(VetKDEncryptedKeyRequest {
+            public_key_derivation_path: derivation_path.clone(),
+            derivation_id: derivation_id.clone(),
+            encryption_public_key: tsk_1.public_key(),
+            key_id: key_id.clone(),
+        })
+        .encrypted_key;
+    let decrypted_key_1 = tsk_1
+        .decrypt(&encrypted_key_1, &public_key_bytes, &derivation_id)
+        .expect("failed to decrypted vetKey");
+
+    let tsk_2 = TransportSecretKey::from_seed([102; 32].to_vec())
+        .expect("failed to create transport secret key");
+    let encrypted_key_2 = canister
+        .vetkd_encrypted_key(VetKDEncryptedKeyRequest {
+            public_key_derivation_path: derivation_path,
+            derivation_id: derivation_id.clone(),
+            encryption_public_key: tsk_2.public_key(),
+            key_id,
+        })
+        .encrypted_key;
+    let decrypted_key_2 = tsk_2
+        .decrypt(&encrypted_key_2, &public_key_bytes, &derivation_id)
+        .expect("failed to decrypted vetKey");
+
+    assert_eq!(decrypted_key_1, decrypted_key_2);
+}
+
 pub struct CanisterSetup {
     env: PocketIc,
     canister_id: CanisterId,
@@ -210,6 +267,44 @@ impl CanisterSetup {
         match result {
             Ok(WasmResult::Reply(bytes)) => {
                 Decode!(&bytes, SignWithSchnorrResult).expect("failed to decode {method} result")
+            }
+            Ok(WasmResult::Reject(error)) => {
+                panic!("canister rejected call to {method}: {error}")
+            }
+            Err(user_error) => panic!("{method} user error: {user_error}"),
+        }
+    }
+
+    pub fn vetkd_public_key(&self, args: VetKDPublicKeyRequest) -> VetKDPublicKeyReply {
+        let method = "vetkd_public_key";
+        let result = self.env.update_call(
+            self.canister_id,
+            Principal::anonymous(),
+            method,
+            Encode!(&args).expect("failed to encode args"),
+        );
+        match result {
+            Ok(WasmResult::Reply(bytes)) => {
+                Decode!(&bytes, VetKDPublicKeyReply).expect("failed to decode {method} result")
+            }
+            Ok(WasmResult::Reject(error)) => {
+                panic!("canister rejected call to {method}: {error}")
+            }
+            Err(user_error) => panic!("{method} user error: {user_error}"),
+        }
+    }
+
+    pub fn vetkd_encrypted_key(&self, args: VetKDEncryptedKeyRequest) -> VetKDEncryptedKeyReply {
+        let method = "vetkd_encrypted_key";
+        let result = self.env.update_call(
+            self.canister_id,
+            Principal::anonymous(),
+            method,
+            Encode!(&args).expect("failed to encode args"),
+        );
+        match result {
+            Ok(WasmResult::Reply(bytes)) => {
+                Decode!(&bytes, VetKDEncryptedKeyReply).expect("failed to decode {method} result")
             }
             Ok(WasmResult::Reject(error)) => {
                 panic!("canister rejected call to {method}: {error}")
