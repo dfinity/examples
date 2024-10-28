@@ -3,16 +3,7 @@
     "threshold_mock": {
       "candid": "threshold_mock.did",
       "package": "threshold_mock",
-      "type": "custom",
-      "build": [
-        "cargo build --target wasm32-unknown-unknown --release"
-      ],
-      "wasm": "target/wasm32-unknown-unknown/release/threshold_mock.wasm",
-      "metadata": [
-        {
-          "name": "candid:service"
-        }
-      ]
+      "type": "rust"
     }
   },
   "defaults": {
