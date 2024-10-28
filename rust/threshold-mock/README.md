@@ -11,8 +11,8 @@ Provides an insecure mock implementation of the following features of the Intern
     * `ecdsa_public_key`, `sign_with_ecdsa`
 * [Threshold Schnorr](https://internetcomputer.org/docs/current/developer-docs/smart-contracts/signatures/t-schnorr)
     * `schnorr_public_key`, `sign_with_schnorr`
-* Preview: [Threshold Key Derivation (vetKeys)](https://internetcomputer.org/docs/current/developer-docs/smart-contracts/encryption/vetkeys)
-    * `vetkd_public_key`, `vetkd_encrypted_key`
+* Preview: [Threshold Key Derivation: vetKeys](https://internetcomputer.org/docs/current/developer-docs/smart-contracts/encryption/vetkeys)
+    * `vetkd_public_key`, `vetkd_encrypted_key` (see [API proposal PR](https://github.com/dfinity/interface-spec/pull/158))
 
 ## Mainnet deployment
 
