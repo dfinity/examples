@@ -58,8 +58,11 @@ fn should_verify_ecdsa_signature() {
     let verifying_key = k256::ecdsa::VerifyingKey::from_sec1_bytes(&public_key_raw)
         .expect("failed to sec1 deserialize public key");
 
-    use k256::ecdsa::signature::Verifier;
-    assert_matches!(verifying_key.verify(&message_hash, &signature), Ok(()));
+    use k256::ecdsa::signature::hazmat::PrehashVerifier;
+    assert_matches!(
+        verifying_key.verify_prehash(&message_hash, &signature),
+        Ok(())
+    );
 }
 
 #[test]
