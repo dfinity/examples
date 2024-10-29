@@ -98,14 +98,13 @@ async fn call_counts() -> CallCountsResult {
 }
 
 // In the following, we register a custom getrandom implementation because
-// otherwise getrandom (which is a dependency of k256) fails to compile.
+// otherwise getrandom (which is an indirect dependency) fails to compile.
 // This is necessary because getrandom by default fails to compile for the
 // wasm32-unknown-unknown target (which is required for deploying a canister).
 // Our custom implementation always fails, which is sufficient here because
-// whenever we use use k256 such that is requires randomness, we provide it
-// as part of the call from an RNG that is seeded from the IC's `raw_rand`
-// management canister API, which means that the k256 crate itself is never
-// requesting randomness from the system.
+// we always provide randomness explicitly in API calls (via an RNG that is
+// seeded from the IC's `raw_rand`) and never request randomness from the
+// environment.
 getrandom::register_custom_getrandom!(always_fail);
 pub fn always_fail(_buf: &mut [u8]) -> Result<(), getrandom::Error> {
     Err(getrandom::Error::UNSUPPORTED)
