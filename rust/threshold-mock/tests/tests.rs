@@ -10,21 +10,21 @@ use ic_cdk::api::management_canister::ecdsa::EcdsaPublicKeyArgument;
 use ic_cdk::api::management_canister::ecdsa::EcdsaPublicKeyResponse;
 use ic_cdk::api::management_canister::ecdsa::SignWithEcdsaArgument;
 use ic_cdk::api::management_canister::ecdsa::SignWithEcdsaResponse;
-use threshold_mock::schnorr::SchnorrAlgorithm;
-use threshold_mock::schnorr::SchnorrKeyId;
-use threshold_mock::schnorr::SchnorrPublicKeyArgs;
-use threshold_mock::schnorr::SchnorrPublicKeyResult;
-use threshold_mock::schnorr::SignWithSchnorrArgs;
-use threshold_mock::schnorr::SignWithSchnorrResult;
-use threshold_mock::vetkd::VetKDCurve;
-use threshold_mock::vetkd::VetKDEncryptedKeyReply;
-use threshold_mock::vetkd::VetKDEncryptedKeyRequest;
-use threshold_mock::vetkd::VetKDKeyId;
-use threshold_mock::vetkd::VetKDPublicKeyReply;
-use threshold_mock::vetkd::VetKDPublicKeyRequest;
+use chainkey_testing_canister::schnorr::SchnorrAlgorithm;
+use chainkey_testing_canister::schnorr::SchnorrKeyId;
+use chainkey_testing_canister::schnorr::SchnorrPublicKeyArgs;
+use chainkey_testing_canister::schnorr::SchnorrPublicKeyResult;
+use chainkey_testing_canister::schnorr::SignWithSchnorrArgs;
+use chainkey_testing_canister::schnorr::SignWithSchnorrResult;
+use chainkey_testing_canister::vetkd::VetKDCurve;
+use chainkey_testing_canister::vetkd::VetKDEncryptedKeyReply;
+use chainkey_testing_canister::vetkd::VetKDEncryptedKeyRequest;
+use chainkey_testing_canister::vetkd::VetKDKeyId;
+use chainkey_testing_canister::vetkd::VetKDPublicKeyReply;
+use chainkey_testing_canister::vetkd::VetKDPublicKeyRequest;
 
 pub const CANISTER_WASM: &[u8] =
-    include_bytes!("../target/wasm32-unknown-unknown/release/threshold_mock.wasm");
+    include_bytes!("../target/wasm32-unknown-unknown/release/chainkey_testing_canister.wasm");
 
 #[test]
 fn should_verify_ecdsa_signature() {

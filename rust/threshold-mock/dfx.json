@@ -1,8 +1,8 @@
 {
   "canisters": {
-    "threshold_mock": {
-      "candid": "threshold_mock.did",
-      "package": "threshold_mock",
+    "chainkey_testing_canister": {
+      "candid": "chainkey_testing_canister.did",
+      "package": "chainkey_testing_canister",
       "type": "rust"
     }
   },

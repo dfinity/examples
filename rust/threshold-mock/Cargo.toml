@@ -1,5 +1,5 @@
 [package]
-name = "threshold_mock"
+name = "chainkey_testing_canister"
 version = "0.1.0"
 edition = "2021"
 
