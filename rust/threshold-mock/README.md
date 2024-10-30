@@ -1,6 +1,6 @@
-# Chain-key testing canister: testing tECDSA, tSchnorr, and vetKD
+# Chain-key testing canister
 
-The chain-key testing canister is a canister smart contract that provides a [fake](https://www.martinfowler.com/articles/mocksArentStubs.html#TheDifferenceBetweenMocksAndStubs) implementation of the APIs of various chain-key-related features **for testing purposes**. The shortcut that canister takes compared to the production APIs is that it relies on a cryptographic key that is hard-coded into the canister, rather than relying on a key that is distributed among the subnet nodes. With this, the implementation is inherently **insecure**: see [Disclaimer](#disclaimer).
+The chain-key testing canister is a canister smart contract that provides a [fake](https://www.martinfowler.com/articles/mocksArentStubs.html#TheDifferenceBetweenMocksAndStubs) implementation of the APIs of various chain-key-related features including threshold ECDSA, threshold Schnorr, and threshold key derivation (vetKeys) **for testing purposes**. The shortcut that this canister takes (compared to the production APIs) is that it relies on a cryptographic key that is hard-coded into the canister, rather than relying on a key that is distributed among the subnet nodes. With this, the implementation is inherently **insecure**: see [Disclaimer](#disclaimer).
 
 The main advantage of using this canister is to *save costs during testing*, because there are [fees](https://internetcomputer.org/docs/current/references/t-sigs-how-it-works#api-fees) associated with using the chain-key features via the Internet Computer's management canister APIs.
 
@@ -16,7 +16,7 @@ In particular, the canister provides fake implementations of the following Inter
 
 The canister is deployed on mainnet: the canister ID is `vrqyr-saaaa-aaaan-qzn4q-cai` ([dashboard](https://dashboard.internetcomputer.org/canister/vrqyr-saaaa-aaaan-qzn4q-cai), [candid-ui](https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=vrqyr-saaaa-aaaan-qzn4q-cai)).
 
-All APIs support a single key ID: `insecure_mock_key_1`.
+All APIs support a single key ID: `insecure_test_key_1`.
 
 For the time being, no fees are charged. If canister usage becomes excessive, we will introduce fees but aim to keep these fees significantly lower than the [fees of the production APIs](https://internetcomputer.org/docs/current/references/t-sigs-how-it-works#api-fee). The community is invited to top up the canister with cycles.
 

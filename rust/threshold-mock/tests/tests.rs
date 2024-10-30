@@ -4,12 +4,6 @@ use ic_cdk::api::management_canister::main::CanisterId;
 use ic_vetkd_utils::TransportSecretKey;
 use pocket_ic::{PocketIc, WasmResult};
 
-use ic_cdk::api::management_canister::ecdsa::EcdsaCurve;
-use ic_cdk::api::management_canister::ecdsa::EcdsaKeyId;
-use ic_cdk::api::management_canister::ecdsa::EcdsaPublicKeyArgument;
-use ic_cdk::api::management_canister::ecdsa::EcdsaPublicKeyResponse;
-use ic_cdk::api::management_canister::ecdsa::SignWithEcdsaArgument;
-use ic_cdk::api::management_canister::ecdsa::SignWithEcdsaResponse;
 use chainkey_testing_canister::schnorr::SchnorrAlgorithm;
 use chainkey_testing_canister::schnorr::SchnorrKeyId;
 use chainkey_testing_canister::schnorr::SchnorrPublicKeyArgs;
@@ -22,6 +16,12 @@ use chainkey_testing_canister::vetkd::VetKDEncryptedKeyRequest;
 use chainkey_testing_canister::vetkd::VetKDKeyId;
 use chainkey_testing_canister::vetkd::VetKDPublicKeyReply;
 use chainkey_testing_canister::vetkd::VetKDPublicKeyRequest;
+use ic_cdk::api::management_canister::ecdsa::EcdsaCurve;
+use ic_cdk::api::management_canister::ecdsa::EcdsaKeyId;
+use ic_cdk::api::management_canister::ecdsa::EcdsaPublicKeyArgument;
+use ic_cdk::api::management_canister::ecdsa::EcdsaPublicKeyResponse;
+use ic_cdk::api::management_canister::ecdsa::SignWithEcdsaArgument;
+use ic_cdk::api::management_canister::ecdsa::SignWithEcdsaResponse;
 
 pub const CANISTER_WASM: &[u8] =
     include_bytes!("../target/wasm32-unknown-unknown/release/chainkey_testing_canister.wasm");
@@ -33,7 +33,7 @@ fn should_verify_ecdsa_signature() {
     let derivation_path = vec!["test-derivation-path".as_bytes().to_vec()];
     let key_id = EcdsaKeyId {
         curve: EcdsaCurve::Secp256k1,
-        name: "insecure_mock_key_1".to_string(),
+        name: "insecure_test_key_1".to_string(),
     };
     let message_hash = b"12345678901234567890123456789012".to_vec();
 
@@ -72,7 +72,7 @@ fn should_verify_schnorr_bip340_secp256k1_signature() {
     let derivation_path = vec!["test-derivation-path".as_bytes().to_vec()];
     let key_id = SchnorrKeyId {
         algorithm: SchnorrAlgorithm::Bip340Secp256k1,
-        name: "insecure_mock_key_1".to_string(),
+        name: "insecure_test_key_1".to_string(),
     };
     let message = b"test-message".to_vec();
 
@@ -107,7 +107,7 @@ fn should_verify_schnorr_ed25519_signature() {
     let derivation_path = vec!["test-derivation-path".as_bytes().to_vec()];
     let key_id = SchnorrKeyId {
         algorithm: SchnorrAlgorithm::Ed25519,
-        name: "insecure_mock_key_1".to_string(),
+        name: "insecure_test_key_1".to_string(),
     };
     let message = b"test-message".to_vec();
 
@@ -145,7 +145,7 @@ fn should_consistently_derive_vetkey() {
     let derivation_path = vec!["test-derivation-path".as_bytes().to_vec()];
     let key_id = VetKDKeyId {
         curve: VetKDCurve::Bls12_381,
-        name: "insecure_mock_key_1".to_string(),
+        name: "insecure_test_key_1".to_string(),
     };
     let derivation_id = b"test-derivation-id".to_vec();
 

@@ -1,3 +1,4 @@
+use crate::ensure_call_is_paid;
 use crate::inc_call_count;
 
 use super::ensure_derivation_path_is_valid;
@@ -26,7 +27,7 @@ lazy_static::lazy_static! {
 #[update]
 async fn ecdsa_public_key(args: EcdsaPublicKeyArgument) -> EcdsaPublicKeyResponse {
     inc_call_count("ecdsa_public_key".to_string());
-    ensure_secp256k1_insecure_mock_key_1(&args.key_id);
+    ensure_secp256k1_insecure_test_key_1(&args.key_id);
     ensure_derivation_path_is_valid(&args.derivation_path);
     let derivation_path = ic_crypto_secp256k1::DerivationPath::from_canister_id_and_path(
         args.canister_id.unwrap_or_else(ic_cdk::caller).as_slice(),
@@ -42,7 +43,8 @@ async fn ecdsa_public_key(args: EcdsaPublicKeyArgument) -> EcdsaPublicKeyRespons
 #[update]
 async fn sign_with_ecdsa(args: SignWithEcdsaArgument) -> SignWithEcdsaResponse {
     inc_call_count("sign_with_ecdsa".to_string());
-    ensure_secp256k1_insecure_mock_key_1(&args.key_id);
+    ensure_call_is_paid(0);
+    ensure_secp256k1_insecure_test_key_1(&args.key_id);
     ensure_derivation_path_is_valid(&args.derivation_path);
     if args.message_hash.len() != 32 {
         ic_cdk::trap("message hash must be 32 bytes");
@@ -58,11 +60,11 @@ async fn sign_with_ecdsa(args: SignWithEcdsaArgument) -> SignWithEcdsaResponse {
     }
 }
 
-fn ensure_secp256k1_insecure_mock_key_1(key_id: &EcdsaKeyId) {
+fn ensure_secp256k1_insecure_test_key_1(key_id: &EcdsaKeyId) {
     if key_id.curve != EcdsaCurve::Secp256k1 {
         ic_cdk::trap("unsupported key ID curve");
     }
-    if key_id.name.as_str() != "insecure_mock_key_1" {
+    if key_id.name.as_str() != "insecure_test_key_1" {
         ic_cdk::trap("unsupported key ID name");
     }
 }

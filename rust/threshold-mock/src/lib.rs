@@ -97,6 +97,12 @@ async fn call_counts() -> CallCountsResult {
     })
 }
 
+fn ensure_call_is_paid(cycles: u64) {
+    if ic_cdk::api::call::msg_cycles_accept(cycles) < cycles {
+        ic_cdk::trap("insufficient cycles");
+    }
+}
+
 // In the following, we register a custom getrandom implementation because
 // otherwise getrandom (which is an indirect dependency) fails to compile.
 // This is necessary because getrandom by default fails to compile for the
