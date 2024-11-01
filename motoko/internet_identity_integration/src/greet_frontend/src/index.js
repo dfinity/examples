@@ -2,7 +2,7 @@ import { createActor, greet_backend } from "../../declarations/greet_backend";
 import { AuthClient } from "@dfinity/auth-client";
 import { HttpAgent } from "@dfinity/agent";
 
-// Global variables that we will set up
+// Global variables for convenience while you're becoming familiar with the interface. You should use local variables or closures in production
 window.greetActor;
 window.authClient;
 
