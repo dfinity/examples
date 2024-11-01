@@ -1,8 +1,0 @@
-{
-  "canisters": {
-    "http_counter": {
-      "main": "src/main.mo"
-    }
-  },
-  "version": 1
-}

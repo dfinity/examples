@@ -1,6 +1,11 @@
 .PHONY: all
 all: build
 
+.PHONY: build
+.SILENT: build
+build:
+	dfx build --check
+
 .PHONY: deploy
 .SILENT: deploy
 deploy:
@@ -8,7 +13,7 @@ deploy:
 
 .PHONY: test
 .SILENT: test
-test:
+test: build
 	cargo test
 
 .PHONY: clean

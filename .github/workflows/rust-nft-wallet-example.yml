@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   rust-nft-wallet-darwin:
-    runs-on: macos-12
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v2
         with:
@@ -27,7 +27,7 @@ jobs:
       - name: Rust NFT Wallet Darwin
         run: |
           pushd rust/nft-wallet
-          dfx start --background --host 127.0.0.1:8000
+          dfx start --background --host 127.0.0.1:4943
           bash ./deploy.sh
           dfx canister call nftwallet owned_nfts
           popd
@@ -44,7 +44,7 @@ jobs:
       - name: Rust NFT Wallet Linux
         run: |
           pushd rust/nft-wallet
-          dfx start --background --host 127.0.0.1:8000
+          dfx start --background --host 127.0.0.1:4943
           bash ./deploy.sh
           dfx canister call nftwallet owned_nfts
           popd

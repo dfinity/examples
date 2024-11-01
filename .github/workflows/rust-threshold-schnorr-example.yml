@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   rust-threshold-schnorr-darwin:
-    runs-on: macos-12
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
@@ -25,7 +25,6 @@ jobs:
         run: bash .github/workflows/provision-pocket-ic-server.sh
       - name: Rust Threshold Schnorr Darwin
         run: |
-          dfxvm default 0.22.0-beta.0
           dfx start --background
           pushd rust/threshold-schnorr
           make deploy
@@ -42,7 +41,6 @@ jobs:
         run: bash .github/workflows/provision-pocket-ic-server.sh
       - name: Rust Threshold Schnorr Linux
         run: |
-          dfxvm default 0.22.0-beta.0
           dfx start --background
           pushd rust/threshold-schnorr
           make deploy

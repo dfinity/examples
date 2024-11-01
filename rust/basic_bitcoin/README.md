@@ -26,6 +26,8 @@ For a deeper understanding of the ICP < > BTC integration, see the [Bitcoin inte
 * [x] Install the [IC
   SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
   For local testing, `dfx >= 0.22.0-beta.0` is required.
+* [x] On macOS, `llvm` with the `wasm32-unknown-unknown` target (which is not included in the XCode installation by default) is required.
+To install, run `brew install llvm`.
 
 ## Step 1: Building and deploying sample code
 
@@ -33,7 +35,7 @@ For a deeper understanding of the ICP < > BTC integration, see the [Bitcoin inte
 
 This tutorial has the same smart contract written in
 [Motoko](https://internetcomputer.org/docs/current/developer-docs/backend/motoko/index.md)
-using ECDSA and Bitcoin API but currently not Schnorr API.
+using ECDSA, Schnorr, and Bitcoin API.
 
 You can clone and deploy either one, as they both function in the same way.
 
