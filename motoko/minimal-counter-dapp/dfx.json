@@ -1,18 +1,21 @@
 {
   "canisters": {
-    "minimal_dapp_backend": {
-      "main": "src/minimal_dapp_backend/main.mo",
+    "minimal_dapp": {
+      "main": "src/minimal_dapp/main.mo",
       "type": "motoko"
     },
-    "minimal_dapp_frontend": {
+    "minimal_dapp_assets": {
       "dependencies": [
-        "minimal_dapp_backend"
+        "minimal_dapp"
       ],
+      "frontend": {
+        "entrypoint": "src/minimal_dapp_assets/src/index.html"
+      },
       "source": [
-        "src/minimal_dapp_frontend/dist"
+        "src/minimal_dapp_assets/assets",
+        "dist/minimal_dapp_assets/"
       ],
-      "type": "assets",
-      "workspace": "minimal_dapp_frontend"
+      "type": "assets"
     }
   },
   "defaults": {
@@ -21,6 +24,5 @@
       "packtool": ""
     }
   },
-  "output_env_file": ".env",
   "version": 1
 }
