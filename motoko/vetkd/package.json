@@ -17,10 +17,10 @@
     "generate": "dfx generate app_backend"
   },
   "dependencies": {
-    "@dfinity/agent": "^0.15.6",
-    "@dfinity/auth-client": "^0.15.6",
-    "@dfinity/candid": "^0.15.6",
-    "@dfinity/principal": "^0.15.6",
+    "@dfinity/agent": "^2.1.3",
+    "@dfinity/auth-client": "^2.1.3",
+    "@dfinity/candid": "^2.1.3",
+    "@dfinity/principal": "^2.1.3",
     "ic-vetkd-utils": "file:ic-vetkd-utils-0.1.0.tgz"
   },
   "devDependencies": {

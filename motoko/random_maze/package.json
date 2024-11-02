@@ -16,9 +16,9 @@
     "generate": "dfx generate random_maze"
   },
   "devDependencies": {
-    "@dfinity/agent": "^0.15.1",
-    "@dfinity/candid": "^0.15.1",
-    "@dfinity/principal": "^0.15.1",
+    "@dfinity/agent": "^2.1.3",
+    "@dfinity/candid": "^2.1.3",
+    "@dfinity/principal": "^2.1.3",
     "assert": "2.0.0",
     "buffer": "6.0.3",
     "css-loader": "^6.0.0",
