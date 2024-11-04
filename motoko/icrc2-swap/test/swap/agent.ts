@@ -61,7 +61,7 @@ export function createActor<T>(
 // around `dfx start` launching on a random port each time.
 const dfxPort = execSync("dfx info replica-port", { encoding: "utf-8" });
 
-export function agent(identity?: Identity) {
+export async function agent(identity?: Identity) {
   const a = new HttpAgent({
     identity,
     host: `http://127.0.0.1:${dfxPort}`,
@@ -70,12 +70,15 @@ export function agent(identity?: Identity) {
 
   // Fetch root key for certificate validation during development
   if (process.env.DFX_NETWORK !== "ic") {
-    a.fetchRootKey().catch((err: any) => {
+    try {
+      await a.fetchRootKey();
+    }
+    catch(err: any) {
       console.warn(
         "Unable to fetch root key. Check to ensure that your local replica is running",
       );
       console.error(err);
-    });
+    };
   }
 
   return a;
@@ -89,9 +92,10 @@ export const swapCanisterId = Principal.fromText(
   process.env.SWAP_CANISTER_ID?.toString() ?? findCanisterId("swap"),
 );
 
-export function swap(identity?: Identity) {
+export async function swap(identity?: Identity) {
+  let a = await agent(identity);
   return createActor<Swap>(swapCanisterId, swapIdlFactory, {
-    agent: agent(identity),
+    agent: a,
   });
 }
 
@@ -99,9 +103,10 @@ export const tokenACanisterId = Principal.fromText(
   process.env.TOKEN_A_CANISTER_ID?.toString() ?? findCanisterId("token_a"),
 );
 
-export function tokenA(identity?: Identity) {
+export async function tokenA(identity?: Identity) {
+  let a = await agent(identity);
   return createActor<Token>(tokenACanisterId, tokenIdlFactory, {
-    agent: agent(identity),
+    agent: a,
   });
 }
 
@@ -109,9 +114,10 @@ export const tokenBCanisterId = Principal.fromText(
   process.env.TOKEN_B_CANISTER_ID?.toString() ?? findCanisterId("token_b"),
 );
 
-export function tokenB(identity?: Identity) {
+export async function tokenB(identity?: Identity) {
+  let a = await agent(identity);
   return createActor<Token>(tokenBCanisterId, tokenIdlFactory, {
-    agent: agent(identity),
+    agent: a,
   });
 }
 

@@ -15,28 +15,34 @@ describe("swap", () => {
   test("happy path: deposit, swap, and withdraw", async () => {
     // Give alice just enough A
     const alice = newIdentity();
-    await fundIdentity(tokenA(minter), alice, 100_020_000n);
+    let tokenAMinter = await tokenA(minter);
+    await fundIdentity(tokenAMinter, alice, 100_020_000n);
 
     // Give bob just enough B
     const bob = newIdentity();
-    await fundIdentity(tokenB(minter), bob, 100_020_000n);
+    let tokenBMinter = await tokenB(minter);
+    await fundIdentity(tokenBMinter, bob, 100_020_000n);
 
     // Check the initial wallet token balances
+    let tokenAAlice = await tokenA(alice);
+    let tokenABob = await tokenA(bob);
+    let tokenBAlice = await tokenB(alice);
+    let tokenBBob = await tokenB(bob);
     expect(
       await Promise.all([
-        tokenA(alice).icrc1_balance_of({
+        tokenAAlice.icrc1_balance_of({
           owner: alice.getPrincipal(),
           subaccount: [],
         }),
-        tokenB(alice).icrc1_balance_of({
+        tokenBAlice.icrc1_balance_of({
           owner: alice.getPrincipal(),
           subaccount: [],
         }),
-        tokenA(bob).icrc1_balance_of({
+        tokenABob.icrc1_balance_of({
           owner: bob.getPrincipal(),
           subaccount: [],
         }),
-        tokenB(bob).icrc1_balance_of({
+        tokenBBob.icrc1_balance_of({
           owner: bob.getPrincipal(),
           subaccount: [],
         }),
@@ -44,7 +50,7 @@ describe("swap", () => {
     ).toEqual([100_020_000n, 0n, 0n, 100_020_000n]);
 
     // Alice approves 1 A + 0.0001 for fees
-    const approvalA = await tokenA(alice).icrc2_approve({
+    const approvalA = await tokenAAlice.icrc2_approve({
       amount: 100_010_000n,
       created_at_time: [],
       expected_allowance: [],
@@ -57,7 +63,8 @@ describe("swap", () => {
     expect(approvalA).toHaveProperty("Ok");
 
     // Alice deposits 1 A
-    const depositA = await swap(alice).deposit({
+    let swapAlice = await swap(alice);
+    const depositA = await swapAlice.deposit({
       amount: 100_000_000n,
       created_at_time: [],
       fee: [],
@@ -69,7 +76,7 @@ describe("swap", () => {
     expect(depositA).toHaveProperty("ok");
 
     // Bob approves 1 B + 0.0001 for fees
-    const approvalB = await tokenB(bob).icrc2_approve({
+    const approvalB = await tokenBBob.icrc2_approve({
       amount: 100_010_000n,
       created_at_time: [],
       expected_allowance: [],
@@ -82,7 +89,8 @@ describe("swap", () => {
     expect(approvalB).toHaveProperty("Ok");
 
     // Bob deposits 1 A
-    const depositB = await swap(bob).deposit({
+    let swapBob = await swap(bob);
+    const depositB = await swapBob.deposit({
       amount: 100_000_000n,
       created_at_time: [],
       fee: [],
@@ -94,7 +102,8 @@ describe("swap", () => {
     expect(depositB).toHaveProperty("ok");
 
     // Check deposited balances
-    var balances = await swap(minter).balances();
+    let swapMinter = await swap(minter);
+    var balances = await swapMinter.balances();
     var tokenABalances: Record<string, bigint> = Object.fromEntries(
       balances[0],
     );
@@ -111,14 +120,14 @@ describe("swap", () => {
     expect(tokenBBalances[bobPrincipal]).toBe(100_000_000n);
 
     // Do the swap
-    const swapResult = await swap(minter).swap({
+    const swapResult = await swapMinter.swap({
       user_a: alice.getPrincipal(),
       user_b: bob.getPrincipal(),
     });
     expect(swapResult).toHaveProperty("ok");
 
     // Check deposited balances
-    balances = await swap(minter).balances();
+    balances = await swapMinter.balances();
     tokenABalances = Object.fromEntries(balances[0]);
     tokenBBalances = Object.fromEntries(balances[1]);
 
@@ -129,7 +138,7 @@ describe("swap", () => {
     expect(tokenABalances[bobPrincipal]).toBe(100_000_000n);
 
     // Alice withdraws TokenB
-    const withdrawalA = await swap(alice).withdraw({
+    const withdrawalA = await swapAlice.withdraw({
       amount: 100_000_000n - 10_000n,
       created_at_time: [],
       fee: [],
@@ -140,7 +149,7 @@ describe("swap", () => {
     expect(withdrawalA).toHaveProperty("ok");
 
     // Bob withdraws TokenA
-    const withdrawalB = await swap(bob).withdraw({
+    const withdrawalB = await swapBob.withdraw({
       amount: 100_000_000n - 10_000n,
       created_at_time: [],
       fee: [],
@@ -153,19 +162,19 @@ describe("swap", () => {
     // Check the wallet token balances have changed as expected
     expect(
       await Promise.all([
-        tokenA(alice).icrc1_balance_of({
+        tokenAAlice.icrc1_balance_of({
           owner: alice.getPrincipal(),
           subaccount: [],
         }),
-        tokenB(alice).icrc1_balance_of({
+        tokenBAlice.icrc1_balance_of({
           owner: alice.getPrincipal(),
           subaccount: [],
         }),
-        tokenA(bob).icrc1_balance_of({
+        tokenABob.icrc1_balance_of({
           owner: bob.getPrincipal(),
           subaccount: [],
         }),
-        tokenB(bob).icrc1_balance_of({
+        tokenBBob.icrc1_balance_of({
           owner: bob.getPrincipal(),
           subaccount: [],
         }),
@@ -184,7 +193,8 @@ describe("swap", () => {
       const alice = newIdentity();
 
       // Alice tries to deposit a token that does not exist
-      await swap(alice)
+      let swapAlice = await swap(alice);
+      await swapAlice
         .deposit({
           amount: 100_000_000n,
           created_at_time: [],
@@ -202,10 +212,12 @@ describe("swap", () => {
     test("deposit fails with insufficient approval", async () => {
       // Give alice just enough A
       const alice = newIdentity();
-      await fundIdentity(tokenA(minter), alice, 100_020_000n);
+      let tokenAMinter = await tokenA(minter);
+      await fundIdentity(tokenAMinter, alice, 100_020_000n);
 
       // Alice approves 0.5 A + 0.0001 for fees
-      const approvalA = await tokenA(alice).icrc2_approve({
+      let tokenAAlice = await tokenA(alice);
+      const approvalA = await tokenAAlice.icrc2_approve({
         amount: 50_010_000n,
         created_at_time: [],
         expected_allowance: [],
@@ -220,7 +232,7 @@ describe("swap", () => {
       // Check the initial wallet token balances
       expect(
         await Promise.all([
-          tokenA(alice).icrc1_balance_of({
+          tokenAAlice.icrc1_balance_of({
             owner: alice.getPrincipal(),
             subaccount: [],
           }),
@@ -229,7 +241,8 @@ describe("swap", () => {
 
       // Alice tries to deposit 1 A. This will fail because only 0.5A has
       // been approved.
-      const depositA = await swap(alice).deposit({
+      let swapAlice = await swap(alice);
+      const depositA = await swapAlice.deposit({
         amount: 100_000_000n,
         created_at_time: [],
         fee: [],
@@ -251,7 +264,7 @@ describe("swap", () => {
       // Check the user's wallet token balance is unchanged
       expect(
         await Promise.all([
-          tokenA(alice).icrc1_balance_of({
+          tokenAAlice.icrc1_balance_of({
             owner: alice.getPrincipal(),
             subaccount: [],
           }),
@@ -265,7 +278,8 @@ describe("swap", () => {
 
       // Alice tries to withdrawal 1 A. This will fail because their
       // deposited A balance is 0.
-      const withdrawalA = await swap(alice).withdraw({
+      let swapAlice = await swap(alice);
+      const withdrawalA = await swapAlice.withdraw({
         amount: 100_000_000n,
         created_at_time: [],
         fee: [],
