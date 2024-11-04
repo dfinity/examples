@@ -38,8 +38,8 @@ if [ -f "${GITHUB_WORKSPACE}/.ic-commit" ]; then
 fi
 
 # Install ic-repl
-version=0.7.6
-curl --location --output ic-repl "https://github.com/chenyan2002/ic-repl/releases/download/$version/ic-repl-macos"
+version=effective-canister-id
+curl --location --output ic-repl "https://github.com/mraszyk/ic-repl/releases/download/$version/ic-repl-macos"
 mv ./ic-repl /usr/local/bin/ic-repl
 chmod a+x /usr/local/bin/ic-repl
 
