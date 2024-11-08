@@ -69,6 +69,7 @@
 /rust/send_http_post/ @dfinity/growth
 /rust/simd/ @dfinity/execution
 /rust/threshold-ecdsa/ @dfinity/crypto-team
+/rust/threshold-mock/ @dfinity/crypto-team
 /rust/threshold-schnorr/ @dfinity/crypto-team
 /rust/token_transfer/ @dfinity/growth
 /rust/token_transfer_from/ @dfinity/growth
