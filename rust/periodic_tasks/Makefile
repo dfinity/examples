@@ -30,11 +30,11 @@ deploy:
 .SILENT: test
 test: deploy
 	# Validate the counters are non-zero.
-	while [ "$(dfx canister call heartbeat counter --output json)" = "0" ]; do sleep 1; done && dfx canister call heartbeat counter --output json | grep -vw 0 && echo 'PASS'
-	while [ "$(dfx canister call timer counter --output json)" = "0" ]; do sleep 1; done && dfx canister call timer counter --output json | grep -vw 0 && echo 'PASS'
+	while [ "$(dfx canister call heartbeat counter --output json)" = "0" ]; do sleep 1; done && dfx canister call heartbeat counter --output json | grep -vw "0" && echo 'PASS'
+	while [ "$(dfx canister call timer counter --output json)" = "0" ]; do sleep 1; done && dfx canister call timer counter --output json | grep -vw "0" && echo 'PASS'
 	# Validate the cycles used for periodic tasks are non-zero.
-	while [ "$(dfx canister call heartbeat cycles_used --output json)" = "0" ]; do sleep 1; done && dfx canister call heartbeat cycles_used --output json | grep -vw 0 && echo 'PASS'
-	while [ "$(dfx canister call timer cycles_used --output json)" = "0" ]; do sleep 1; done && dfx canister call timer cycles_used --output json | grep -vw 0 && echo 'PASS'
+	while [ "$(dfx canister call heartbeat cycles_used --output json)" = "0" ]; do sleep 1; done && dfx canister call heartbeat cycles_used --output json | grep -vw "0" && echo 'PASS'
+	while [ "$(dfx canister call timer cycles_used --output json)" = "0" ]; do sleep 1; done && dfx canister call timer cycles_used --output json | grep -vw "0" && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean
