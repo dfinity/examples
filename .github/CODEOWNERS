@@ -74,6 +74,7 @@
 /rust/token_transfer/ @dfinity/growth
 /rust/token_transfer_from/ @dfinity/growth
 /rust/vetkd/ @dfinity/crypto-team
+/rust/x509/ @dfinity/crypto-team
 
 /svelte/svelte-motoko-starter/ @dfinity/sdk
 /svelte/svelte-starter/ @dfinity/sdk
