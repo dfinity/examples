@@ -231,8 +231,12 @@ fn generate_child_certificate_request(
     let mut req_builder = X509Req::builder().expect("failed to create X509Req builder");
 
     req_builder
+    .set_version(0)
+    .expect("failed to set version in child certificate");
+
+    req_builder
         .set_subject_name(&subject_name)
-        .expect("failed to set subject name");
+        .expect("failed to set subject name in child certificate");
     req_builder
         .set_pubkey(&key)
         .expect("failed to set public key in child certificate");
