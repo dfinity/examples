@@ -5,7 +5,7 @@ on:
       - master
   pull_request:
     paths:
-      - rust/parallel-calls/**
+      - rust/parallel_calls/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/rust-parallel-calls-example.yml

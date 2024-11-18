@@ -1,0 +1,16 @@
+{
+  "canisters": {
+    "chainkey_testing_canister": {
+      "candid": "chainkey_testing_canister.did",
+      "package": "chainkey_testing_canister",
+      "type": "rust"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "version": 1
+}

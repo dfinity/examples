@@ -14,8 +14,7 @@ thread_local! {
     // The bitcoin network to connect to.
     //
     // When developing locally this should be `Regtest`.
-    // When deploying to the IC this should be `Testnet`.
-    // `Mainnet` is currently unsupported.
+    // When deploying to the IC this should be `Testnet` or `Mainnet`.
     static NETWORK: Cell<BitcoinNetwork> = Cell::new(BitcoinNetwork::Testnet);
 
     // The derivation path to use for the threshold key.
