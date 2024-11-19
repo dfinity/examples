@@ -1,4 +1,4 @@
-import { Transaction } from "@dfinity/ledger/dist/candid/icrc1_index";
+import { Transaction } from "@dfinity/ledger-icrc/dist/candid/icrc_index";
 import { formatCkBtc } from "../../../utils/formatCkBtc";
 import { shortenPrincipal } from "../../../utils/shortenPrincipal";
 import { useAuth } from "../../../auth/hooks/useAuth";

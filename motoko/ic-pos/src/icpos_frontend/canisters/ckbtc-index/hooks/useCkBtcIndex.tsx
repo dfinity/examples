@@ -1,4 +1,4 @@
-import { IcrcIndexCanister } from "@dfinity/ledger";
+import { IcrcIndexCanister } from "@dfinity/ledger-icrc";
 import { Principal } from "@dfinity/principal";
 import React from "react";
 import { useAuth } from "../../../auth/hooks/useAuth";

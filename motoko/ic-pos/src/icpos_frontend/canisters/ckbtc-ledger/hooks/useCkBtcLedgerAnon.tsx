@@ -6,8 +6,8 @@ import {
 } from "@dfinity/agent";
 
 import React from "react";
-import { _SERVICE } from "@dfinity/ledger/dist/candid/icrc1_ledger";
-import { idlFactory } from "@dfinity/ledger/dist/candid/icrc1_ledger.idl";
+import { _SERVICE } from "@dfinity/ledger-icrc/dist/candid/icrc_ledger";
+import { idlFactory } from "@dfinity/ledger-icrc/dist/candid/icrc_ledger.idl";
 
 export function useCkBtcLedgerAnon() {
   const [ckBtcLedger, setCkBtcLedger] = React.useState<
