@@ -43,10 +43,7 @@ git submodule update --init --recursive
 
 ### Acquire cycles to deploy
 
-Deploying to the Internet Computer
-requires [cycles](https://internetcomputer.org/docs/current/developer-docs/setup/cycles) (the equivalent of "gas" in
-other blockchains). You can get free cycles from
-the [cycles faucet](https://internetcomputer.org/docs/current/developer-docs/setup/cycles/cycles-faucet.md).
+Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/getting-started/tokens-and-cycles) (the equivalent of "gas" on other blockchains).
 
 ### Deploy the smart contract to the Internet Computer
 
@@ -156,7 +153,7 @@ to track the transaction on an Ethereum blockchain explorer.
 In this tutorial, you were able to:
 
 * Deploy a canister smart contract on the ICP blockchain that can receive and send ETH.
-* Use a cycles faucet to deploy the canister to ICP blockchain on the mainnet for free.
+* Acquire cycles to deploy the canister to the ICP mainnet.
 * Connect the canister to the Ethereum Sepolia testnet.
 * Send the canister some Sepolia ETH.
 * Use the canister to send ETH to another Ethereum address.
