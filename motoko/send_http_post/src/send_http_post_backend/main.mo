@@ -63,7 +63,10 @@ actor {
     //See: https://internetcomputer.org/docs/current/motoko/main/cycles
 
     //The way Cycles.add() works is that it adds those cycles to the next asynchronous call
-    //See: https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-http_request
+    //See: 
+    // - https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-http_request
+    // - https://internetcomputer.org/docs/current/references/https-outcalls-how-it-works#pricing
+    // - https://internetcomputer.org/docs/current/developer-docs/gas-cost
     Cycles.add<system>(230_850_258_000);
 
     //3. MAKE HTTPS REQUEST AND WAIT FOR RESPONSE
