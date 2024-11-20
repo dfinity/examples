@@ -23,30 +23,14 @@ actor {
     // ]
 
     //function to transform the response
-    public query func transform({
-        context : Blob;
-        response : IC.http_request_result;
-    }) : async IC.http_request_result {
-        let transformed : IC.http_request_result = {
-            status = response.status;
-            body = response.body;
-            headers = [
-                {
-                    name = "Content-Security-Policy";
-                    value = "default-src 'self'";
-                },
-                { name = "Referrer-Policy"; value = "strict-origin" },
-                { name = "Permissions-Policy"; value = "geolocation=(self)" },
-                {
-                    name = "Strict-Transport-Security";
-                    value = "max-age=63072000";
-                },
-                { name = "X-Frame-Options"; value = "DENY" },
-                { name = "X-Content-Type-Options"; value = "nosniff" },
-            ];
-        };
-        transformed;
+  public query func transform({
+    context : Blob;
+    response : IC.http_request_result;
+  }) : async IC.http_request_result {
+    {
+      response with headers = []; // not intersted in the headers
     };
+  };
 
     public func get_icp_usd_exchange() : async Text {
 
@@ -93,7 +77,7 @@ actor {
 
         //We need to decode that Blob that is the body into readable text.
         //To do this, we:
-        //  1. Use Blob.decodeUtf8() method to convert the Blob to a ?Text optional
+        //  1. Use Text.decodeUtf8() method to convert the Blob to a ?Text optional
         //  2. We use a switch to explicitly call out both cases of decoding the Blob into ?Text
         let decoded_text : Text = switch (Text.decodeUtf8(http_response.body)) {
             case (null) { "No value returned" };
