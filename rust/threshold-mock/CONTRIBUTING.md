@@ -16,5 +16,4 @@ We always appreciate bug reports through [GitHub issues].
 [GitHub issues]: https://github.com/dfinity/TODO/issues
 [forum]: https://forum.dfinity.org/
 [LICENSE]: LICENSE
-[HACKING]: HACKING.md
 [README]: README.md
