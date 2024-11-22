@@ -1,4 +1,4 @@
-import { IcrcLedgerCanister, IcrcTokenMetadataResponse } from "@dfinity/ledger";
+import { IcrcLedgerCanister, IcrcTokenMetadataResponse } from "@dfinity/ledger-icrc";
 import { useCallback, useEffect, useState } from "react";
 
 import { Principal } from "@dfinity/principal";

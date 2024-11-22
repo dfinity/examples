@@ -1,4 +1,4 @@
-import { Account } from "@dfinity/ledger/dist/candid/icrc1_ledger";
+import { Account } from "@dfinity/ledger-icrc/dist/candid/icrc_ledger";
 
 export type Transfer = {
   to: Account;

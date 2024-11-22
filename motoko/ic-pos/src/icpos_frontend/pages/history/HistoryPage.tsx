@@ -8,7 +8,7 @@ import MainSection from "../../components/MainSection";
 import Page from "../../components/Page";
 import { Principal } from "@dfinity/principal";
 import TransactionRow from "./components/TransactionRow";
-import { TransactionWithId } from "@dfinity/ledger/dist/candid/icrc1_index";
+import { TransactionWithId } from "@dfinity/ledger-icrc/dist/candid/icrc_index";
 import { X } from "lucide-react";
 import { useAuth } from "../../auth/hooks/useAuth";
 import useCkBtcIndex from "../../canisters/ckbtc-index/hooks/useCkBtcIndex";
