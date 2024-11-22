@@ -13,7 +13,7 @@ Make sure to read the [README] and [LICENSE] first.
 
 We always appreciate bug reports through [GitHub issues].
 
-[GitHub issues]: https://github.com/dfinity/TODO/issues
+[GitHub issues]: https://github.com/dfinity/examples/issues
 [forum]: https://forum.dfinity.org/
 [LICENSE]: LICENSE
 [README]: README.md
