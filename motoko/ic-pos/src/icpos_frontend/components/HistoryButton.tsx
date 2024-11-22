@@ -1,6 +1,6 @@
+import { Link } from "@tanstack/react-router";
 import { Button } from "./ui/button";
 import { Inbox } from "lucide-react";
-import { Link } from "@tanstack/router";
 
 type HistoryButtonProps = {
   principal: string;

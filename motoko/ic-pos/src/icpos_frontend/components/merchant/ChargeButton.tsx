@@ -1,11 +1,11 @@
-import { Button } from "../../../components/ui/button";
-import { Link } from "@tanstack/router";
+import { Link } from "@tanstack/react-router";
+import { Button } from "../ui/button";
 
 export default function ReceiveButton() {
   return (
-    <Link to="/send">
+    <Link to="/charge">
       <Button size={"lg"} className="w-56">
-        Send
+        Charge
       </Button>
     </Link>
   );

@@ -7,18 +7,20 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "../../../components/ui/form";
+} from "@/components/ui/form";
 
-import { Button } from "../../../components/ui/button";
-import { Input } from "../../../components/ui/input";
 import { Loader2 } from "lucide-react";
-import React from "react";
+import { useEffect } from "react";
 import toast from "react-hot-toast";
 import { useForm } from "react-hook-form";
-import { useIcPos } from "../../../canisters/ic-pos/hooks/useIcPos";
-import { useNavigate } from "@tanstack/router";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import useMerchant from "@/hooks/useMerchant";
+import { Button } from "../ui/button";
+import { Input } from "../ui/input";
+import { useIcPosActor } from "@/actors";
+import { useNavigate } from "@tanstack/react-router";
+import { queryClient } from "@/main";
 
 const MerchantSchema = z.object({
   name: z.string().min(2, {
@@ -29,7 +31,8 @@ const MerchantSchema = z.object({
 type MerchantSchemaType = z.infer<typeof MerchantSchema>;
 
 export default function ConfigForm() {
-  const { merchantState, updateMerchant } = useIcPos();
+  const { data: merchant } = useMerchant();
+  const { actor: pos } = useIcPosActor();
   const navigate = useNavigate();
 
   const form = useForm<MerchantSchemaType>({
@@ -39,26 +42,28 @@ export default function ConfigForm() {
     },
   });
 
-  React.useEffect(() => {
-    if (!merchantState.initialized || !merchantState.merchant) return;
-    form.setValue("name", merchantState.merchant.name);
-  }, [form, merchantState]);
+  useEffect(() => {
+    if (!merchant) return
+    form.setValue("name", merchant.name);
+  }, [merchant]);
 
   async function onSubmit(values: MerchantSchemaType) {
-    const response = await updateMerchant({
+    const response = await pos?.updateMerchant({
       ...values,
-      email_address: merchantState.merchant?.email_address || "",
-      email_notifications: merchantState.merchant?.email_notifications || false,
-      phone_number: merchantState.merchant?.phone_number || "",
-      phone_notifications: merchantState.merchant?.phone_notifications || false,
+      email_address: merchant?.email_address || "",
+      email_notifications: merchant?.email_notifications || false,
+      phone_number: merchant?.phone_number || "",
+      phone_notifications: merchant?.phone_notifications || false,
     });
 
     if (response && response.status === 200) {
       toast.success("Merchant settings updated.");
-      navigate({ to: "/merchant" });
+      queryClient.invalidateQueries({ queryKey: ['merchant'] })
+      navigate({ to: "/" });
     } else {
-      response?.error_text &&
+      if (response?.error_text) {
         toast.error(response?.error_text[0] || "An error occurred.");
+      }
     }
   }
 

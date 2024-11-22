@@ -1,3 +1,4 @@
+import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import { defineConfig } from "vite";
 import dotenv from "dotenv";
 import environment from "vite-plugin-environment";
@@ -18,7 +19,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": path.resolve(__dirname, "./src/frontend"),
+      "@": path.resolve(__dirname, "./src/icpos_frontend"),
     },
   },
   optimizeDeps: {
@@ -37,6 +38,10 @@ export default defineConfig({
     },
   },
   plugins: [
+    TanStackRouterVite({
+      routesDirectory: "src/icpos_frontend/routes",
+      generatedRouteTree: "src/icpos_frontend/routeTree.gen.ts",
+    }),
     viteReact(),
     environment("all", { prefix: "CANISTER_" }),
     environment("all", { prefix: "DFX_" }),
