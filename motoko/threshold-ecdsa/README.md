@@ -63,12 +63,12 @@ If you open the URL in a web browser, you will see a web UI that shows the publi
 
 To deploy this canister to the mainnet, one needs to do two things:
 
-- Acquire cycles (the equivalent of "gas" in other blockchains). This is necessary for all canisters.
+- Acquire cycles (the equivalent of "gas" on other blockchains). This is necessary for all canisters.
 - Update the sample source code to have the right key ID. This is unique to this canister.
 
 #### Acquire cycles to deploy
 
-Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/setup/cycles). You can get free cycles from the [cycles faucet](https://internetcomputer.org/docs/current/developer-docs/setup/cycles/cycles-faucet.md).
+Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/getting-started/tokens-and-cycles) (the equivalent of "gas" on other blockchains).
 
 #### Update source code with the right key ID
 
