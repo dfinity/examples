@@ -1,7 +1,7 @@
 {
   "name": "ic-pos",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.4.0",
   "type": "module",
   "description": "Accept Bitcoin payments (ckBTC) on the Internet Computer using this simple Point of Sale (POS) application.",
   "license": "MIT",
