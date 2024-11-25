@@ -19,7 +19,7 @@
 /motoko/encrypted-notes-dapp-vetkd/ @dfinity/crypto-team
 /motoko/encrypted-notes-dapp/ @dfinity/crypto-team
 /motoko/hello_cycles/ @dfinity/languages
-/motoko/ic-pos/ @dfinity/div-Crypto
+/motoko/ic-pos/ @dfinity/growth
 /motoko/icrc2-swap/ @dfinity/div-Crypto
 /motoko/internet_identity_integration/ @dfinity/gix
 /motoko/life/ @dfinity/languages
@@ -73,6 +73,7 @@
 /rust/token_transfer/ @dfinity/growth
 /rust/token_transfer_from/ @dfinity/growth
 /rust/vetkd/ @dfinity/crypto-team
+/rust/x509/ @dfinity/crypto-team
 
 /svelte/svelte-motoko-starter/ @dfinity/sdk
 /svelte/svelte-starter/ @dfinity/sdk
