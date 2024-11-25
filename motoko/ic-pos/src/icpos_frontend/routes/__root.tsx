@@ -17,7 +17,7 @@ export const Route = createRootRouteWithContext<RouterContext>()({
 function Root() {
   return (
     <div className="min-h-screen md:flex md:flex-col md:items-center md:justify-center">
-      <div className="container flex flex-col max-w-lg print:w-full print:max-w-none min-h-screen p-0 m-0 mx-auto prose prose-xl text-black md:rounded-lg bg-slate-50 md:shadow-xl md:h-[750px] md:min-h-0 print-maincontainer">
+      <div className="container flex flex-col max-w-lg print:w-full print:max-w-none h-dvh p-0 m-0 mx-auto prose prose-xl text-black md:rounded-lg bg-slate-50 md:shadow-xl md:h-[750px] md:min-h-0 print-maincontainer">
         <React.Suspense fallback={null}>
           <Outlet />
         </React.Suspense>
