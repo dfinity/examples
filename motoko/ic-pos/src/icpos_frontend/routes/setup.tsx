@@ -9,7 +9,6 @@ export const Route = createFileRoute('/setup')({
   component: SetupPage,
 })
 
-
 function SetupPage() {
   return (
     <Page>

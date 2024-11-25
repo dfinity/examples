@@ -49,12 +49,10 @@
     "@tanstack/react-query": "^5.61.0",
     "@tanstack/react-router": "^1.82.1",
     "@tanstack/router-plugin": "^1.81.9",
-    "axios": "^1.7.4",
     "class-variance-authority": "^0.6.0",
     "clsx": "^1.2.1",
     "ic-use-actor": "^0.1.0",
     "ic-use-internet-identity": "^0.1.0",
-    "local-storage": "^2.0.0",
     "lucide-react": "^0.460.0",
     "qrcode.react": "^3.1.0",
     "react": "^18.2.0",
@@ -62,9 +60,9 @@
     "react-hook-form": "^7.45.0",
     "react-hot-toast": "^2.4.1",
     "react-zxing": "^1.1.4",
-    "recoil": "^0.7.7",
-    "tailwind-merge": "^1.13.2",
-    "use-sound": "^4.0.1",
+    "tailwind-merge": "^2.5.3",
+    "tailwindcss-animate": "^1.0.7",
+    "use-sound": "^4.0.3",
     "vite-plugin-environment": "^1.1.3",
     "zod": "^3.22.3"
   },
@@ -83,11 +81,9 @@
     "eslint-plugin-react": "^7.37.2",
     "globals": "^15.12.0",
     "postcss": "^8.4.24",
-    "tailwindcss": "^3.3.2",
-    "tailwindcss-animate": "^1.0.6",
+    "tailwindcss": "^3.4.13",
     "typescript": "^5.0.2",
     "typescript-eslint": "^8.15.0",
-    "vite": "^5.4.8",
-    "vite-plugin-svgr": "^3.2.0"
+    "vite": "^5.4.8"
   }
 }

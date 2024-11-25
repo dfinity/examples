@@ -13,10 +13,10 @@ export default function LogoutButton() {
     setTimeout(() => {
       router.invalidate();
       navigate({ to: '/' });
-    }, 500)
+    }, 100)
   }
 
-  return <Button variant="ghost" size="icon" onClick={logout}>
+  return <Button variant="ghost" size="icon" onClick={logout} className="hover:text-black">
     <LogOut
       className="w-4 h-4"
     />

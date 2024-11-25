@@ -8,7 +8,6 @@ import { createRoot } from "react-dom/client";
 import { routeTree } from "./routeTree.gen";
 import Actors from "./actors";
 import useMerchant from "./hooks/useMerchant";
-import FullpageLoading from "./components/FullpageLoading";
 
 export const router = createRouter({
   routeTree, context: {
@@ -38,7 +37,7 @@ function InnerRoot() {
   const { identity, isInitializing } = useInternetIdentity();
   const { data: merchant, isPending } = useMerchant();
 
-  if (isInitializing || (identity && isPending)) return <FullpageLoading />
+  if (isInitializing || (identity && isPending)) return null;
 
   return <RouterProvider router={router} context={{ identity, merchant }} />
 }

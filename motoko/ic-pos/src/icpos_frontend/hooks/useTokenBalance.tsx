@@ -4,7 +4,7 @@ import { useInternetIdentity } from "ic-use-internet-identity";
 import { icrc1_ledger } from "../../declarations/icrc1_ledger/index";
 import { Account } from "src/declarations/icrc1_ledger/icrc1_ledger.did";
 
-export default function useMerchant() {
+export default function useTokeBalance() {
   const { handleAgentError } = useHandleAgentError();
   const { identity } = useInternetIdentity();
 

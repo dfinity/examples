@@ -59,7 +59,9 @@ export default function ConfigForm() {
     if (response && response.status === 200) {
       toast.success("Merchant settings updated.");
       queryClient.invalidateQueries({ queryKey: ['merchant'] })
-      navigate({ to: "/" });
+      setTimeout(() => {
+        navigate({ to: "/" });
+      }, 500);
     } else {
       if (response?.error_text) {
         toast.error(response?.error_text[0] || "An error occurred.");

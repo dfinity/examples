@@ -13,22 +13,14 @@ import LogoutButton from '@/components/LogoutButton';
 import ChargeButton from '@/components/merchant/ChargeButton';
 import SendButton from '@/components/merchant/SendButton';
 import HistoryButton from '@/components/HistoryButton';
-import useNewTransactions from '@/hooks/useNewTransactions';
-import { useEffect } from 'react';
-import toast from 'react-hot-toast';
-import { queryClient } from '@/main';
-
 
 export const Route = createFileRoute('/')({
   beforeLoad: ({ context }) => {
-    console.log("MERCHANT: ", context.merchant);
-    console.log("IDENTITY: ", context.identity);
     if (!context.identity) {
       throw redirect({
         to: '/login',
       })
     }
-
     if (!context.merchant) {
       throw redirect({
         to: '/setup'
@@ -42,31 +34,9 @@ function MerchantPage() {
   const { identity } = useInternetIdentity();
   const { data: merchant } = useMerchant();
   const { data: balance } = useTokenBalance();
-  const { data: new_transactions } = useNewTransactions();
-
-  useEffect(() => {
-    if (!new_transactions || new_transactions.length === 0) return;
-    toast.success("New transfer received")
-    queryClient.invalidateQueries({ queryKey: ['balance'] })
-    queryClient.invalidateQueries({ queryKey: ['new_transactions'] })
-  }, [new_transactions]);
-
-  // const { merchantState } = useIcPos();
-  // const { balance, getBalance } = useCkBtcLedger();
-
-  // const [receivedTransfer, setReceivedTransfer] = useState<Transfer>();
-  //
-  // const handleReceivedTransfer = (transfer: Transfer) => {
-  //   void getBalance();
-  //   setReceivedTransfer(transfer);
-  // };
-
-
-
-  // if (!merchantState || !merchantState.merchant || !identity)
-  // return <FullpageLoading />;
 
   if (!identity) return;
+
   return (
     <Page>
       <div className="relative flex flex-col grow">
@@ -91,7 +61,7 @@ function MerchantPage() {
               Show store QR code <QrCodeIcon />
             </Link>
             <div className="flex flex-col items-center justify-end grow">
-              <HistoryButton principal={identity!.getPrincipal().toString()} />
+              <HistoryButton />
             </div>
           </div>
         </MainSection>
