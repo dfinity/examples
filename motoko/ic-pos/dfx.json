@@ -3,24 +3,16 @@
     "icpos": {
       "main": "src/icpos/main.mo",
       "type": "motoko",
-      "dependencies": [
-        "icrc1_ledger"
-      ]
+      "dependencies": ["icrc1_ledger"]
     },
     "icpos_frontend": {
-      "dependencies": [
-        "icpos"
-      ],
+      "dependencies": ["icpos"],
       "frontend": {
         "entrypoint": "dist/index.html"
       },
-      "source": [
-        "dist"
-      ],
+      "source": ["dist"],
       "type": "assets",
-      "build": [
-        "npm run build"
-      ]
+      "build": ["npm run build"]
     },
     "internet_identity": {
       "type": "custom",
