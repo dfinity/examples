@@ -50,9 +50,16 @@ export default function SendPage() {
 
     const text = result.getText();
     try {
-      const { principal, amount } = parseQrString(text);
-      setAmount(amount);
-      setPrincipal(principal);
+      // If text contains ':', we assume it to be an ICRC-22
+      // payment request string. If not, we assume it to be
+      // just a principal.
+      if (text.includes(':')) {
+        const { principal, amount } = parseQrString(text);
+        setAmount(amount);
+        setPrincipal(principal);
+      } else {
+        setPrincipal(text)
+      }
     } catch {
       toast.error("Couldn't parse QR code");
     }
