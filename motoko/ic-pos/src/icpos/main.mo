@@ -114,7 +114,7 @@ shared (actorContext) actor class Main(_startBlock : Nat) {
     logData.insert(0, text);
     // Cap the log at 100 items
     if (logData.size() == 100) {
-      let x = logData.removeLast();
+      let _ = logData.removeLast();
     };
     return;
   };
@@ -217,7 +217,7 @@ shared (actorContext) actor class Main(_startBlock : Nat) {
     // Cycle cost of sending a notification
     // 49.14M + 5200 * request_size + 10400 * max_response_bytes
     // 49.14M + (5200 * 1000) + (10400 * 1000) = 64.74M
-    Cycles.add(70_000_000);
+    Cycles.add<system>(70_000_000);
 
     // Send the request
     let httpResponse : HttpTypes.HttpResponsePayload = await ic.http_request(httpRequest);
