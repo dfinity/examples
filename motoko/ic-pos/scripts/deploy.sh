@@ -6,10 +6,11 @@ set -e
 # Change to the script's directory
 cd "$(dirname "$0")"
 
+# Kills all dfx-related processes on the system.
+dfx killall
 
 # Start the local Internet Computer replica
 dfx start --clean --background
-
 
 # Deploy the internet identity canister
 dfx deploy internet_identity
