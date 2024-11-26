@@ -1,0 +1,6 @@
+[
+  {
+    match: "**/*",
+    security_policy: "standard",
+  },
+]
