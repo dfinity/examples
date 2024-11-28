@@ -49,7 +49,7 @@ cargo build --release --target wasm32-unknown-unknown
 
 ### Acquire cycles to deploy
 
-Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/setup/cycles) (the equivalent of "gas" in other blockchains). You can get free cycles from the [cycles faucet](https://internetcomputer.org/docs/current/developer-docs/setup/cycles/cycles-faucet.md).
+Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/getting-started/tokens-and-cycles) (the equivalent of "gas" on other blockchains).
 
 ### Deploy the smart contract to the Internet Computer
 
@@ -238,7 +238,7 @@ dfx canister --network=ic call basic_bitcoin get_block_headers "(0: nat32, 11: n
 In this tutorial, you were able to:
 
 * Deploy a canister smart contract on the ICP blockchain that can receive & send bitcoin.
-* Use a cycles faucet to deploy the canister to ICP blockchain on the mainnet for free.
+* Acquire cycles to deploy the canister to the ICP mainnet.
 * Connect the canister to the Bitcoin testnet.
 * Send the canister some testnet BTC.
 * Check the testnet BTC balance of the canister.

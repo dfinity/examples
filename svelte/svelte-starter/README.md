@@ -101,15 +101,7 @@ npm run dev
 
 ## Deploying to the mainnet
 
-To host the Svelte app on ICP, you'll need to have some cycles available. Cycles pay for the execution of your app, and they are also needed to create canisters.
-
-You can get cycles for free from the cycles faucet. To claim them, follow [this guide](https://internetcomputer.org/docs/current/developer-docs/setup/cycles/cycles-faucet).
-
-After following that guide, you should have a balance of cycles to use. You can check the balance by running:
-
-```
-dfx wallet --network ic balance
-```
+To host the Svelte app on ICP, you'll need to acquire [cycles](https://internetcomputer.org/docs/current/developer-docs/getting-started/tokens-and-cycles) (the equivalent of "gas" on other blockchains). Cycles pay for the execution of your app, and they are also needed to create canisters.
 
 After making sure you have cycles available, you can run
 
