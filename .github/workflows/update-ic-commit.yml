@@ -10,14 +10,10 @@ on:
 jobs:
   ic-update:
     runs-on: ubuntu-latest
-    steps:
-      - name: Create GitHub App Token
-        uses: actions/create-github-app-token@v1
-        id: app-token
-        with:
-          app-id: ${{ vars.PR_AUTOMATION_BOT_PUBLIC_APP_ID }}
-          private-key: ${{ secrets.PR_AUTOMATION_BOT_PUBLIC_PRIVATE_KEY }}
-          
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:   
       - uses: actions/checkout@v4
 
         # First, check if there is a newer version and update the file referencing the version
@@ -75,7 +71,6 @@ jobs:
         if: ${{ steps.update.outputs.updated == '1' }}
         uses: peter-evans/create-pull-request@v6
         with:
-          token: ${{ steps.app-token.outputs.token }}
           base: master
           add-paths: ./.ic-commit
           commit-message: Update commit of IC artifacts
