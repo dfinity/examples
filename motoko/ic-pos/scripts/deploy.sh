@@ -10,7 +10,7 @@ cd "$(dirname "$0")"
 dfx killall
 
 # Start the local Internet Computer replica
-dfx start --clean --background
+dfx start --clean --background --pocketic
 
 # Deploy the internet identity canister
 dfx deploy internet_identity
