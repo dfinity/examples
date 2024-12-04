@@ -30,6 +30,7 @@ export default defineConfig({
     environment("all", { prefix: "DFX_" }),
   ],
   resolve: {
+    dedupe: ['@dfinity/agent'],
     alias: [
       {
         find: "declarations",

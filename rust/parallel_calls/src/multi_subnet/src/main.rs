@@ -2,7 +2,7 @@ use candid::{decode_one, encode_one, Principal};
 use pocket_ic::{PocketIcBuilder, WasmResult};
 use std::time::Instant;
 
-const INIT_CYCLES: u128 = 2_000_000_000_000;
+const INIT_CYCLES: u128 = 10_000_000_000_000;
 
 fn main() {
     let num_calls: u64 = 90;
@@ -57,6 +57,9 @@ fn main() {
         WasmResult::Reject(code) => panic!("Unexpected reject code for parallel calls: {}", code),
     };
     let parallel_duration = parallel_start.elapsed();
+
+    assert_eq!(sequential_num_calls, num_calls, "Some sequential calls failed");
+    assert_eq!(parallel_num_calls, num_calls, "Some parallel calls failed");
 
     println!(
         "Sequential calls: {}/{} successful calls in {:?}",

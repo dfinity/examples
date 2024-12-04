@@ -50,7 +50,7 @@ curl -fsSL cli.mops.one/install.sh | sh
 
 ### Acquire cycles to deploy
 
-Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/setup/cycles) (the equivalent of "gas" in other blockchains). You can get free cycles from the [cycles faucet](https://internetcomputer.org/docs/current/developer-docs/setup/cycles/cycles-faucet.md).
+Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/getting-started/tokens-and-cycles) (the equivalent of "gas" on other blockchains).
 
 ### Deploy the smart contract to the Internet Computer
 
@@ -211,7 +211,7 @@ reflected in your current balance.
 In this tutorial, you were able to:
 
 * Deploy a canister smart contract on the ICP blockchain that can receive & send Bitcoin.
-* Use a cycles faucet to deploy the canister to ICP blockchain on the mainnet for free.
+* Acquire cycles to deploy the canister to the ICP mainnet.
 * Connect the canister to the Bitcoin testnet.
 * Send the canister some testnet BTC.
 * Check the testnet BTC balance of the canister.

@@ -1,6 +1,6 @@
 import List "mo:base/List";
 import Option "mo:base/Option";
-import Trie "mo:base/Trie";
+import Map "mo:base/OrderedMap";
 import Nat32 "mo:base/Nat32";
 
 actor Superheroes {
@@ -15,7 +15,7 @@ actor Superheroes {
   // The type of a superhero.
   public type Superhero = {
     name : Text;
-    superpowers : List.List<Text>;
+    superpowers : List.List<Text>
   };
 
   /**
@@ -23,10 +23,11 @@ actor Superheroes {
    */
 
   // The next available superhero identifier.
-  private stable var next : SuperheroId = 0;
+  stable var next : SuperheroId = 0;
 
   // The superhero data store.
-  private stable var superheroes : Trie.Trie<SuperheroId, Superhero> = Trie.empty();
+  let Ops = Map.Make<SuperheroId>(Nat32.compare);
+  stable var map : Map.Map<SuperheroId, Superhero> = Ops.empty();
 
   /**
    * High-Level API
@@ -36,57 +37,33 @@ actor Superheroes {
   public func create(superhero : Superhero) : async SuperheroId {
     let superheroId = next;
     next += 1;
-    superheroes := Trie.replace(
-      superheroes,
-      key(superheroId),
-      Nat32.equal,
-      ?superhero,
-    ).0;
-    return superheroId;
+    map := Ops.put(map, superheroId, superhero);
+    return superheroId
   };
 
   // Read a superhero.
   public query func read(superheroId : SuperheroId) : async ?Superhero {
-    let result = Trie.find(superheroes, key(superheroId), Nat32.equal);
-    return result;
+    let result = Ops.get(map, superheroId);
+    return result
   };
 
   // Update a superhero.
   public func update(superheroId : SuperheroId, superhero : Superhero) : async Bool {
-    let result = Trie.find(superheroes, key(superheroId), Nat32.equal);
-    let exists = Option.isSome(result);
+    let (result, old_value) = Ops.replace(map, superheroId, superhero);
+    let exists = Option.isSome(old_value);
     if (exists) {
-      superheroes := Trie.replace(
-        superheroes,
-        key(superheroId),
-        Nat32.equal,
-        ?superhero,
-      ).0;
+      map := result
     };
-    return exists;
+    return exists
   };
 
   // Delete a superhero.
   public func delete(superheroId : SuperheroId) : async Bool {
-    let result = Trie.find(superheroes, key(superheroId), Nat32.equal);
-    let exists = Option.isSome(result);
+    let (result, old_value) = Ops.remove(map, superheroId);
+    let exists = Option.isSome(old_value);
     if (exists) {
-      superheroes := Trie.replace(
-        superheroes,
-        key(superheroId),
-        Nat32.equal,
-        null,
-      ).0;
+      map := result
     };
-    return exists;
-  };
-
-  /**
-   * Utilities
-   */
-
-  // Create a trie key from a superhero identifier.
-  private func key(x : SuperheroId) : Trie.Key<SuperheroId> {
-    return { hash = x; key = x };
-  };
-};
+    return exists
+  }
+}

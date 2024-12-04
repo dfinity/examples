@@ -42,3 +42,26 @@ jobs:
           dfx start --background --clean --pocketic
           make test
           popd
+  rust-parallel-calls-pocket-ic-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Install PocketIC server
+        uses: dfinity/pocketic@main
+      - name: Test parallel calls with PocketIC
+        run: |
+          pushd rust/parallel_calls
+          cargo build --release --target wasm32-unknown-unknown -p callee
+          cargo build --release --target wasm32-unknown-unknown -p caller
+          export CALLER_WASM=$(cargo build --target wasm32-unknown-unknown -p caller --message-format=json \
+            | jq -r 'select(.reason == "compiler-artifact") | .filenames[] | select(endswith(".wasm"))')
+          export CALLEE_WASM=$(cargo build --target wasm32-unknown-unknown -p callee --message-format=json \
+            | jq -r 'select(.reason == "compiler-artifact") | .filenames[] | select(endswith(".wasm"))')
+          cargo run
+          popd
+          
