@@ -4,7 +4,7 @@ all: build
 .PHONY: build
 .SILENT: build
 build:
-	dfx canister create --all
+	dfx canister create --all --no-wallet
 	dfx build
 
 .PHONY: install
