@@ -115,7 +115,7 @@ dfx start --background --clean
 
 Deploy the canister with the command:
 ```sh
-dfx deploy --no-wallet --argument \
+dfx deploy dip721_nft_container --no-wallet --argument \
 "(record {
     name = \"Numbers One Through Fifty\";
     symbol = \"NOTF\";
