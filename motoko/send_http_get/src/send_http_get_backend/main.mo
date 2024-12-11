@@ -69,7 +69,6 @@ actor {
 
     // 2.2 prepare headers for the system http_request call
     let request_headers = [
-        { name = "Host"; value = host # ":443" },
         { name = "User-Agent"; value = "exchange_rate_canister" },
     ];
 
