@@ -1,5 +1,5 @@
 set -e
-dfx stop && dfx start --background --clean --host 127.0.0.1:8000
+dfx stop && dfx start --pocketic --background --clean --host 127.0.0.1:8000
 
 
 ### === DEPLOY LOCAL LEDGER =====

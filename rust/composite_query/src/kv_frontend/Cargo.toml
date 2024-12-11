@@ -8,7 +8,7 @@ crate-type = ["cdylib"]
 path = "lib.rs"
 
 [dependencies]
-candid = "0.8.4"
-ic-cdk = "0.8.1"
-ic-cdk-macros = "0.6.10"
+candid = "0.10.10"
+ic-cdk = "0.16.0"
+ic-cdk-macros = "0.16.0"
 ic-cdk-optimizer = "0.3.5"
