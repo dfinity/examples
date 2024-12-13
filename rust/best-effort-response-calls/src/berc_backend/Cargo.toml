@@ -1,0 +1,13 @@
+[package]
+name = "berc_backend"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+candid = "0.10"
+ic-cdk = { git = "https://github.com/dfinity/cdk-rs.git", branch = "next" } 

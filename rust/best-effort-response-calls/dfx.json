@@ -1,0 +1,18 @@
+{
+  "dfx": "0.24.3",
+  "canisters": {
+    "berc_backend": {
+      "candid": "src/berc_backend/ber_backend.did",
+      "package": "berc_backend",
+      "type": "rust"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
