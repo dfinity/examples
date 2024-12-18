@@ -1,12 +1,8 @@
----
-keywords: [beginner, rust, counter]
----
-
 # Counter
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/counter)
+This example demonstrates a counter application.
 
-## Prerequisites
+### Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
@@ -14,38 +10,41 @@ This example requires an installation of:
 
 Begin by opening a terminal window.
 
-### Step 1: Navigate into the folder containing the project's files and start a local instance of the replica with the command:
+## Step 1: Setup the project environment
+
+Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
+
 
 ```bash
 cd examples/rust/counter
 dfx start --background
 ```
 
-### Step 2: Test the canister:
+## Step 2: Test the canister
 
 ```bash
 cargo test
 ```
 
-### Step 3: Deploy the canister:
+## Step 3: Deploy the canister
 
 ```bash
 dfx deploy
 ```
 
-### Step 4: Set the value of the counter:
+## Step 4: Set the value of the counter
 
 ```bash
 dfx canister call counter set '(7)'
 ```
 
-### Step 5: Increment the value of the counter:
+## Step 5: Increment the value of the counter
 
 ```bash
 dfx canister call counter inc
 ```
 
-### Step 6: Get the value of the counter:
+## Step 6: Get the value of the counter
 
 ```bash
 dfx canister call counter get

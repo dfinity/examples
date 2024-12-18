@@ -1,12 +1,4 @@
----
-keywords: [advanced, rust, periodic, timer, heartbeats]
----
-
 # Periodic tasks and timers
-
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/periodic_tasks)
-
-## Overview
 
 Unlike other blockchains, the Internet Computer can automatically execute canister smart contracts after a specified delay or periodically.
 

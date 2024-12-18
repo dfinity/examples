@@ -1,12 +1,5 @@
----
-keywords: [advanced, rust, bitcoin, btc, integration, bitcoin integration]
----
-
 # Basic Bitcoin 
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/basic_bitcoin)
-
-## Overview 
 This tutorial will walk you through how to deploy a sample [canister smart contract](https://internetcomputer.org/docs/current/developer-docs/multi-chain/bitcoin/overview) **that can send and receive Bitcoin** on the Internet Computer.
 
 ## Architecture
@@ -21,17 +14,15 @@ of the Internet Computer.
 
 For a deeper understanding of the ICP < > BTC integration, see the [Bitcoin integration documentation](https://wiki.internetcomputer.org/wiki/Bitcoin_Integration).
 
-## Prerequisites
+### Prerequisites
 
 * [x] Install the [IC
-  SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+  SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
   For local testing, `dfx >= 0.22.0-beta.0` is required.
 * [x] On macOS, `llvm` with the `wasm32-unknown-unknown` target (which is not included in the XCode installation by default) is required.
 To install, run `brew install llvm`.
 
 ## Step 1: Building and deploying sample code
-
-### Clone the smart contract
 
 This tutorial has the same smart contract written in
 [Motoko](https://internetcomputer.org/docs/current/developer-docs/backend/motoko/index.md)
@@ -130,7 +121,7 @@ from three types of addresses:
 Note that P2TR *key path* spending with a tweaked key is currently not available
 on the IC because the threshold Schnorr signing interface does not allow
 applying BIP341 tweaks to the private key. In contrast, the
-tweaked public key is used to spend in the script path, which is availble on the
+tweaked public key is used to spend in the script path, which is available on the
 IC. For a technical comparison of different ways of how single-signer P2TR
 addresses can be constructed and used, you may want to take a look at [this
 post](https://bitcoin.stackexchange.com/a/111100) by Pieter Wuille.

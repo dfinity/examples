@@ -1,17 +1,18 @@
----
-keywords: [intermediate, rust, composite query, queries]
----
-
 # Composite queries
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/composite_query)
+### Prerequisites
+This example requires an installation of:
 
-## Building the example
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+
+Begin by opening a terminal window.
+
+## Step 1: Setup the project environment
 
 We first need to build the data partition backend canister.
 
 ```bash
-git clone https://github.com/dfinity/examples
 cd examples/rust/composite_query
 dfx start --background
 dfx canister create data_partition
@@ -26,7 +27,7 @@ dfx build kv_frontend
 dfx canister install kv_frontend
 ```
 
-## Using the canister
+## Step 2: Using the canister
 
 Now we add some key value pairs via the frontend canister.
 
