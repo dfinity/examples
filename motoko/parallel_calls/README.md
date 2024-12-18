@@ -1,12 +1,4 @@
----
-keywords: [advanced, motoko, defi]
----
-
 # Parallel inter-canister calls
-
-[View this sample code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/parallel_calls).
-
-## Overview
 
 This example demonstrates how to implement inter-canister calls that run in parallel in Motoko, and highlights some differences between parallel and sequential calls. Running independent calls in parallel can lower the latency, especially when messages are sent across subnets. For example, a canister that swaps two tokens might want to launch both token transfer operations in parallel.
 
@@ -18,38 +10,38 @@ The sample code revolves around two simple canisters, `caller` and `callee`. `Ca
 
 The callee exposes a simple `ping` endpoint that takes no parameters and returns nothing.
 
-## Prerequisites
-
-To run this example you should:
+### Prerequisites
+This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
-## Running the example
-
 Begin by opening a terminal window.
 
-### Step 1: Navigate into the example folder and start a local Internet Computer replica
+## Step 1: Setup the project environment
+
+Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
 
 ```bash
 cd examples/motoko/parallel_calls
 dfx start --background
 ```
 
-### Step 2: Deploy the canister
+## Step 2: Deploy the canisters
 
 ```bash
 dfx deploy
 ```
 
-### Step 3: Set up the caller canister
+## Step 3: Set up the caller canister
 
 We now provide the ID of the callee to the caller, such that the caller can initiate calls.
+
 ```
 dfx canister call caller setup_callee "(principal \"`dfx canister id callee`\")"
 ```
 
-### Step 4: Invoke sequential and parallel calls
+## Step 4: Invoke sequential and parallel calls
 
 Let's first call the different endpoints of the `caller` canister using `dfx`
 
@@ -68,7 +60,7 @@ And the other endpoint:
 dfx canister call caller parallel_calls 100
 ```
 
-which outputs:
+This should output:
 
 ```bash
 (100 : nat64)
@@ -102,7 +94,7 @@ All the sequential calls succeed, but most parallel calls fail. The reason is th
 
 Lastly, the parallel calls here complete sooner -- because most of them fail!
 
-### Step 5: Multi-subnet setting
+## Step 5: Multi-subnet setting
 
 Parallel calls are a lot more useful in multi-subnet settings. We can create such a setting locally using Pocket IC. 
 

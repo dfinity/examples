@@ -1,14 +1,6 @@
----
-keywords: [beginner, motoko, counter]
----
-
 # Minimal counter dapp
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/minimal-counter-dapp)
-
 ![Counter Frontend](README_images/frontend.png)
-
-## Overview
 
 The example dapp shows how to build a very basic dapp with both backend and frontend, using Motoko for the backend functionality and plain HTML and JavaScript for the frontend. The dapp is a simple counter, which will increment, decrement or reset a counter by clicking a button in the frontend.
 
@@ -18,31 +10,29 @@ This example covers:
 
 - Create a new canister smart contract using the IC SDK (`dfx`).
 - Use the default project as a template as the starting point for the new project.
-- Add backend functions for a counter (increment, getCount, decreent and reset).
+- Add backend functions for a counter (increment, getCount, decrement and reset).
 - Implement backend functions in the frontend.
 - Deploy the canister smart contract locally.
 - Test backend with Candid UI and command line using `dfx`, and test frontend in browser.
 
-## Prerequisites
-
+### Prerequisites
 This example requires an installation of:
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
-- [x] Install [Node.js](https://nodejs.org/en/download/).
-- [x] Download and install [git.](https://git-scm.com/downloads)
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
 
-### Step 1: Navigate into the folder containing the project's files and start a local instance of the replica with the command:
+## Step 1: Setup the project environment
+
+Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
 
 ```bash
 cd examples/motoko/minimal-counter-dapp
-npm install
 dfx start --background
 ```
 
-### Step 2: Build and deploy the canister:
+## Step 2: Build and deploy the canister
 
 ```bash
 dfx deploy
@@ -61,7 +51,7 @@ URLs:
     minimal_dapp_backend: http://127.0.0.1:4943/?canisterId=be2us-64aaa-aaaaa-qaabq-cai&id=bkyz2-fmaaa-aaaaa-qaaaq-cai
 ```
 
-### Step 3: Open the `minimal_dapp_frontend` URL in a web browser.
+## Step 3: Open the `minimal_dapp_frontend` URL in a web browser
 
 You will see a GUI interface with following buttons:
 
@@ -75,7 +65,6 @@ The three main parts of the example dapp are the backend, the Candid interface, 
 
 ### Motoko backend
 The backend functions are located in the `src/minimal_dapp_backend/main.mo` Motoko file. The backend stores the counter value and has functions to get, increment, decrement and reset the counter value.
-
 
 #### Counter variable
 Four functions are created to make the counter work: `increment()`, `decrement()`, `getCount()` and `reset()`. The current counter value is stored as a number in the actor.

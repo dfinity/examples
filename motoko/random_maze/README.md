@@ -1,12 +1,4 @@
----
-keywords: [beginner, motoko, random, randomness, maze, game]
----
-
 # Random maze
-
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/random_maze)
-
-## Overview
 
 The example generates a random maze using cryptographic randomness.
 
@@ -26,7 +18,7 @@ The function `generate` calls library function `Random.blob()` asynchronously to
 
 This is a Motoko example that does not currently have a Rust variant. 
 
-## Prerequisites
+### Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
@@ -34,26 +26,28 @@ This example requires an installation of:
 
 Begin by opening a terminal window.
 
-### Step 1: Navigate into the folder containing the project's files and start a local instance of the replica with the command:
+## Step 1: Setup the project environment
+
+Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
 
 ```bash
 cd examples/motoko/random_maze
 dfx start --background
 ```
 
-### Step 2: Install front-end dependencies:
+## Step 2: Install front-end dependencies
 
 ```bash
 npm install
 ```
 
-### Step 3: Deploy the canister:
+## Step 3: Deploy the canisters
 
 ```bash
 dfx deploy
 ```
 
-### Step 4: Take note of the URL at which the user interface is accessible.
+## Step 4: Take note of the URL at which the user interface is accessible
 
 ```bash
 echo "http://127.0.0.1:4943/?canisterId=$(dfx canister id random_maze_assets)"

@@ -1,10 +1,4 @@
----
-keywords: [advanced, motoko, vetkd, vetkeys]
----
-
 # vetKD API
-
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/vetkd)
 
 This repository provides a canister (`src/system_api`) that offers the vetKD system API proposed in https://github.com/dfinity/interface-spec/pull/158, implemented in an **unsafe** manner **for demonstration purposes**.
 
@@ -21,38 +15,33 @@ Additionally, the repository provides:
 
 The implementation of [the proposed vetKD system API](https://github.com/dfinity/interface-spec/pull/158) used in this example is **unsafe**, e.g., we hard-code a master secret key, rather than using a master secret key that is distributed among sufficiently many Internet Computer nodes through distributed key generation. **Do not use this in production or for sensitive data**! This example is solely provided **for demonstration purposes** to collect feedback on the mentioned vetKD system API. See also the respective disclaimer [in the system API canister implementation](https://github.com/dfinity/examples/blob/master/rust/vetkd/src/system_api/src/lib.rs#L19-L26).
 
-## Prerequisites
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
-- [x] Install [Node.js](https://nodejs.org/en/download/).
+### Prerequisites
+This example requires an installation of:
+
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Install [Rust](https://www.rust-lang.org/tools/install), and add Wasm as a target (`rustup target add wasm32-unknown-unknown`). Note that Rust is only needed for compiling the (insecure) canister offering the vetKD system API, which later would be directly integrated into ICP.
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
-## Running locally
+Begin by opening a terminal window.
 
-- #### Step 1: Start a local replica:
+## Step 1: Setup the project environment
 
-```sh
-dfx start
+Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
+
+```bash
+cd examples/motoko/vetkd
+dfx start --background
 ```
 
-- #### Step 2: Open a new terminal window.
+## Step 2: Ensure `dfx` uses the canister IDs that are hard-coded in the Rust source code:
 
-- #### Step 3: Ensure `dfx` uses the canister IDs that are hard-coded in the Rust source code:
-
-```sh
-cd examples/motoko/vetkd
+```bash
 dfx canister create system_api --specified-id s55qq-oqaaa-aaaaa-aaakq-cai
 ```
 
 Without this, `dfx` may use different canister IDs for the `system_api` and `app_backend` canisters in your local environment.
 
-- #### Step 4: Ensure that the required node modules are available in your project directory, if needed, by running the following command:
-
-```sh
-npm install
-```
-
-- #### Step 5: Register, build, and deploy the project:
+## Step 3: Register, build, and deploy the project:
 
 ```sh
 dfx deploy
@@ -71,4 +60,4 @@ Backend canister via Candid interface:
    system_api: http://127.0.0.1:4943/?canisterId=avqkn-guaaa-aaaaa-qaaea-cai&id=s55qq-oqaaa-aaaaa-aaakq-cai
 ```
 
-- #### Step 6: Open the printed URL for the `app_frontend_js` in your browser.
+## Step 4: Open the printed URL for the `app_frontend_js` in your browser.

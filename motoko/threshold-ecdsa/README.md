@@ -1,12 +1,4 @@
----
-keywords: [advanced, motoko, threshold ecdsa, signature, ecdsa]
----
-
 # Threshold ECDSA sample
-
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/threshold-ecdsa)
-
-## Overview
 
 We present a minimal example canister smart contract for showcasing the [threshold ECDSA](https://internetcomputer.org/docs/current/developer-docs/integrations/t-ecdsa) API. 
 
@@ -20,32 +12,35 @@ More specifically:
 
 This tutorial gives a complete overview of the development, starting with downloading the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/index.md), up to the deployment and trying out the code on the IC mainnet.
 
-:::info
-This walkthrough focuses on the version of the sample canister code written in [Motoko](https://internetcomputer.org/docs/current/developer-docs/backend/motoko/index.md) programming language, but no specific knowledge of Motoko is needed to follow along. There is also a [Rust](https://github.com/dfinity/examples/tree/master/rust/threshold-ecdsa) version available in the same repo and follows the same commands for deploying.
-:::
-
-## Prerequisites
--   [x] Download and [install the IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/index.md) if you do not already have it.
--   [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+> [!TIP]
+> This walkthrough focuses on the version of the sample canister code written in [Motoko](https://internetcomputer.org/docs/current/developer-docs/backend/motoko/index.md) programming language, but no specific knowledge of Motoko is needed to follow along. There is also a [Rust](https://github.com/dfinity/examples/tree/master/rust/threshold-ecdsa) version available in the same repo and follows the same commands for deploying.
 
 ## Getting started
 
 Sample code for `threshold-ecdsa` is provided in the [examples repository](https://github.com/dfinity/examples), under either [`/motoko`](https://github.com/dfinity/examples/tree/master/motoko/threshold-ecdsa) or [`/rust`](https://github.com/dfinity/examples/tree/master/rust/threshold-ecdsa) sub-directories. It requires at least [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/index.md) version 0.11.0 for local development.
 
-## Deploy and test the canister locally 
+### Prerequisites
+This example requires an installation of:
 
-This tutorial will use the Motoko version of the canister:
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+
+Begin by opening a terminal window.
+
+## Step 1: Setup the project environment
+
+Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
 
 ```bash
 cd examples/motoko/threshold-ecdsa
 dfx start --background
-npm install
-dfx deploy
 ```
 
-#### What this does
-- `dfx start --background` starts a local instance of the IC via the IC SDK
-- `dfx deploy` deploys the code in the user's directory as a canister on the local version of the IC
+## Step 2: Deploy the canisters
+
+```bash
+dfx deploy
+```
 
 If successful, you should see something like this:
 
@@ -58,19 +53,18 @@ URLs:
 
 If you open the URL in a web browser, you will see a web UI that shows the public methods the canister exposes. Since the canister exposes `public_key` and `sign` methods, those are rendered in the web UI.
 
-
-### Deploying the canister on the mainnet
+## Deploying the canister on the mainnet
 
 To deploy this canister to the mainnet, one needs to do two things:
 
 - Acquire cycles (the equivalent of "gas" on other blockchains). This is necessary for all canisters.
 - Update the sample source code to have the right key ID. This is unique to this canister.
 
-#### Acquire cycles to deploy
+### Acquire cycles to deploy
 
 Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/getting-started/tokens-and-cycles) (the equivalent of "gas" on other blockchains).
 
-#### Update source code with the right key ID
+### Update source code with the right key ID
 
 To deploy the sample code, the canister needs the right key ID for the right environment. Specifically, one needs to replace the value of the `key_id` in the `src/ecdsa_example_motoko/main.mo` file of the sample code. Before deploying to the mainnet, one should modify the code to use the right name of the `key_id`.
 
@@ -102,11 +96,10 @@ let { signature } = await ic.sign_with_ecdsa({
 });
 ```
 
-:::caution
-To deploy to IC mainnet, one needs to replace the value in `key_id` fields with the values `"dfx_test_key"` to instead have either `"test_key_1"` or `"key_1"` depending on the desired intent.
-:::
+> [!WARNING]
+> To deploy to IC mainnet, one needs to replace the value in `key_id` fields with the values `"dfx_test_key"` to instead have either `"test_key_1"` or `"key_1"` depending on the desired intent.
 
-### Deploy to the mainnet via IC SDK
+### Deploying
 
 To [deploy via mainnet](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-mainnet.md), run the following commands:
 
@@ -127,7 +120,7 @@ In the example above, `ecdsa_example_motoko` has the URL https://a3gq9-oaaaa-aaa
 
 ## Obtaining public keys
 
-### Using the Candid Web UI
+### Using the Candid UI
 
 If you deployed your canister locally or to the mainnet, you should have a URL to the Candid web UI where you can access the public methods. We can call the `public-key` method.
 

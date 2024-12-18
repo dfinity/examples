@@ -33,7 +33,8 @@ This example requires an installation of:
 
 Begin by opening a terminal window.
 
-### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
+### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
+
 
 ```bash
 cd examples/motoko/persistent-storage
