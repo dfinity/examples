@@ -6,7 +6,7 @@ The `remove_spam` canister method intentionally includes a bug to simulate data 
 The example outlines the steps to install the canister, create a snapshot,
 and subsequently restore the data after the simulated data loss.
 
-### Prerequisites
+## Prerequisites
 
 This example requires an installation of:
 

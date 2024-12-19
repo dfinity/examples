@@ -10,7 +10,7 @@ The sample code revolves around two simple canisters, `caller` and `callee`. `Ca
 
 The callee exposes a simple `ping` endpoint that takes no parameters and returns nothing.
 
-### Prerequisites
+## Prerequisites
 
 - [x] Install the [IC
   SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.

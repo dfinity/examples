@@ -1,4 +1,4 @@
-# Basic Bitcoin 
+# Basic Bitcoin
 
 This tutorial will walk you through how to deploy a sample [canister smart contract](https://internetcomputer.org/docs/current/developer-docs/multi-chain/bitcoin/overview) **that can send and receive Bitcoin** on the Internet Computer.
 
@@ -14,7 +14,7 @@ of the Internet Computer.
 
 For a deeper understanding of the ICP < > BTC integration, see the [Bitcoin integration documentation](https://wiki.internetcomputer.org/wiki/Bitcoin_Integration).
 
-### Prerequisites
+## Prerequisites
 
 * [x] Install the [IC
   SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
@@ -111,7 +111,7 @@ from three types of addresses:
    key. This precaution is to prevent attacks that can occur when creating
    taproot multisigner addresses using specific multisignature schemes. However,
    the Schnorr API of the internet computer does not support Schnorr
-   multisignatures. 
+   multisignatures.
 3. A [P2TR
    address](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki)
    where the funds can be spent using the provided public key with the script
@@ -209,7 +209,7 @@ reflected in your current balance.
 
 ## Step 6: Retrieving block headers
 
-You can also get a range of Bitcoin block headers by using the `get_block_headers` 
+You can also get a range of Bitcoin block headers by using the `get_block_headers`
 endpoint on your canister.
 
 In the Candid UI, write the desired start height and optionally end height, and click on "Call":
@@ -233,7 +233,7 @@ In this tutorial, you were able to:
 * Connect the canister to the Bitcoin testnet.
 * Send the canister some testnet BTC.
 * Check the testnet BTC balance of the canister.
-* Use the canister to send testnet BTC to another testnet BTC address. 
+* Use the canister to send testnet BTC to another testnet BTC address.
 
 This example is extensively documented in the following tutorials:
 

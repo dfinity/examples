@@ -13,7 +13,7 @@ The sample code revolves around one core transfer function which takes as input 
 
 This sample will use the Rust variant.
 
-### Prerequisites
+## Prerequisites
 
 - [x] Install the [IC
   SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.

@@ -36,7 +36,7 @@ This example is based on the default project created by running `dfx new hello`.
 
 This example is based on the default project created by running `dfx new --type=rust hello`.
 
-### Prerequisites
+## Prerequisites
 
 This example requires an installation of:
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).

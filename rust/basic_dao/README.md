@@ -10,7 +10,7 @@ Certain system parameters, like the number of `Yes` votes needed to pass a propo
 
 View the [canister service definition](https://github.com/dfinity/examples/blob/master/rust/basic_dao/src/basic_dao/src/basic_dao.did) for more details.
 
-### Prerequisites
+## Prerequisites
 This example requires an installation of:
 
 - [x] The Rust toolchain (e.g. cargo).

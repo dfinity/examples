@@ -31,10 +31,7 @@ In the future, ICP might expose more performance counters.
 
 ## Prerequisites
 
-## Prerequisites
-
-- [x] Install the [IC
-  SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 ## Step 1: Setup project environment

@@ -49,7 +49,7 @@ torch.onnx.export(resnet, input, "face-recognition.onnx", verbose=False, opset_v
 
 - #### Step 4: This should produce `face-recognition.onnx`. Copy the file to the root of this repository.
 
-### Prerequisites
+## Prerequisites
 
 - [x] Install the [IC
   SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.

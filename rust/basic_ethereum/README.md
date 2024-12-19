@@ -14,7 +14,7 @@ features of the Internet Computer.
 For a deeper understanding of the ICP < > ETH integration, see
 the [Ethereum integration overview](https://internetcomputer.org/docs/current/developer-docs/multi-chain/ethereum/overview).
 
-### Prerequisites
+## Prerequisites
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
 

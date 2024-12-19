@@ -2,7 +2,7 @@
 
 This is an NFT wallet example dapp that utilizes minted NFTs from the Rust dip721-nft-container. Among some of its essential features, the wallet can register NFTs, transfer out NFTs, and check how many NFTs it contains. This dapp includes a frontend UI for interaction. 
 
-### Prerequisites
+## Prerequisites
 
 - [x] Install the [IC
   SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.
