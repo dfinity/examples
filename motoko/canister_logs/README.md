@@ -43,7 +43,7 @@ Expect to see logs from timer traps.
 
 ```shell
 # Terminal B
-dfx canister logs CanisterLogs
+$ dfx canister logs CanisterLogs
 [0. 2024-05-23T08:32:26.203980235Z]: right before timer trap
 [1. 2024-05-23T08:32:26.203980235Z]: [TRAP]: timer trap
 [2. 2024-05-23T08:32:31.836721763Z]: right before timer trap
@@ -54,11 +54,11 @@ dfx canister logs CanisterLogs
 
 ```shell
 # Terminal B
-dfx canister call CanisterLogs print hi
+$ dfx canister call CanisterLogs print hi
 ()
 
 # Expect to see new log entry.
-dfx canister logs CanisterLogs
+$ dfx canister logs CanisterLogs
 ...
 [8. 2024-05-23T08:32:46.598972616Z]: right before timer trap
 [9. 2024-05-23T08:32:46.598972616Z]: [TRAP]: timer trap
@@ -88,21 +88,21 @@ $ ./poll_logs.sh
 
 ```shell
 # Terminal B
-dfx canister call CanisterLogs print hi!
+$ dfx canister call CanisterLogs print hi!
 ()
 
-dfx canister call CanisterLogs print hello!
+$ dfx canister call CanisterLogs print hello!
 ()
 
-dfx canister call CanisterLogs print yey!
+$ dfx canister call CanisterLogs print yey!
 ()
 
-dfx canister call CanisterLogs trap oops!
+$ dfx canister call CanisterLogs trap oops!
 Error: Failed update call.
 Caused by: Failed update call.
   The replica returned a rejection error: reject code CanisterError, reject message Canister bkyz2-fmaaa-aaaaa-qaaaq-cai trapped explicitly: oops!, error code None
 
-dfx canister call CanisterLogs memory_oob
+$ dfx canister call CanisterLogs memory_oob
 Error: Failed update call.
 Caused by: Failed update call.
   The replica returned a rejection error: reject code CanisterError, reject message Canister bkyz2-fmaaa-aaaaa-qaaaq-cai trapped explicitly: StableMemory range out of bounds, error code None
