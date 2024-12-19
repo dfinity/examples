@@ -61,7 +61,7 @@ async fn public_key(algorithm: SchnorrAlgorithm) -> Result<PublicKeyReply, Strin
     let request = ManagementCanisterSchnorrPublicKeyRequest {
         canister_id: None,
         derivation_path: vec![ic_cdk::api::caller().as_slice().to_vec()],
-        key_id: SchnorrKeyIds::TestKey1.to_key_id(algorithm),
+        key_id: SchnorrKeyIds::TestKeyChainkeyTestingCanister1.to_key_id(algorithm),
     };
 
     let (res,): (ManagementCanisterSchnorrPublicKeyReply,) = ic_cdk::call(
@@ -105,7 +105,7 @@ async fn sign(
     let internal_request = ManagementCanisterSignatureRequest {
         message: message.as_bytes().to_vec(),
         derivation_path: vec![ic_cdk::api::caller().as_slice().to_vec()],
-        key_id: SchnorrKeyIds::TestKey1.to_key_id(algorithm),
+        key_id: SchnorrKeyIds::TestKeyChainkeyTestingCanister1.to_key_id(algorithm),
         aux,
     };
 
@@ -230,6 +230,8 @@ fn verify_ed25519(
 
 enum SchnorrKeyIds {
     #[allow(unused)]
+    TestKeyChainkeyTestingCanister1,
+    #[allow(unused)]
     TestKeyLocalDevelopment,
     #[allow(unused)]
     TestKey1,
@@ -242,7 +244,8 @@ impl SchnorrKeyIds {
         SchnorrKeyId {
             algorithm,
             name: match self {
-                Self::TestKeyLocalDevelopment => "insecure_test_key_1",
+                Self::TestKeyChainkeyTestingCanister1 => "insecure_test_key_1",
+                Self::TestKeyLocalDevelopment => "dfx_test_key_1",
                 Self::TestKey1 => "test_key_1",
                 Self::ProductionKey1 => "key_1",
             }

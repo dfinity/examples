@@ -62,22 +62,24 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
     // Make sure the canister is properly initialized
     fast_forward(&pic, 5);
 
+    let _dummy_reply: () = update(
+        &pic,
+        my_principal,
+        example_canister_id,
+        "for_test_only_change_management_canister_id",
+        encode_one(schnorr_mock_canister_id.to_text()).unwrap(),
+    )
+    .expect("failed to update management canister id");
+    // Make sure the example canister uses mock schnorr canister instead of
+    // the management canister
+    fast_forward(&pic, 5);
+
     // a message we can reverse to break the signature
     // currently pocket IC only supports 32B messages for BIP340
     let message: String = std::iter::repeat('a')
         .take(16)
         .chain(std::iter::repeat('b').take(16))
         .collect();
-
-    let sig_reply: Result<SignatureReply, String> = update(
-        &pic,
-        my_principal,
-        example_canister_id,
-        "sign",
-        encode_args((message.clone(), algorithm)).unwrap(),
-    );
-
-    let signature_hex = sig_reply.expect("failed to sign").signature_hex;
 
     let pk_reply: Result<PublicKeyReply, String> = update(
         &pic,
@@ -98,7 +100,7 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
         my_principal,
         example_canister_id,
         "sign",
-        encode_args((message_hex.clone(), algorithm, merkle_tree_root_hex.clone())).unwrap(),
+        encode_args((message.clone(), algorithm, merkle_tree_root_hex.clone())).unwrap(),
     );
 
     if sig_reply.is_err() {
@@ -112,7 +114,7 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
                 "verify",
                 encode_args((
                     dummy_signature_hex,
-                    message_hex.clone(),
+                    message.clone(),
                     public_key_hex.clone(),
                     merkle_tree_root_hex.clone(),
                     algorithm,
