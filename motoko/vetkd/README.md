@@ -11,9 +11,13 @@ Additionally, the repository provides:
   
   Because the `ic-vetkd-utils` are not yet published as NPM package at [npmjs.com](https://npmjs.com), a respective package file (`ic-vetkd-utils-0.1.0.tgz`) is included in this repository.
 
+---
+
 ## Disclaimer
 
 The implementation of [the proposed vetKD system API](https://github.com/dfinity/interface-spec/pull/158) used in this example is **unsafe**, e.g., we hard-code a master secret key, rather than using a master secret key that is distributed among sufficiently many Internet Computer nodes through distributed key generation. **Do not use this in production or for sensitive data**! This example is solely provided **for demonstration purposes** to collect feedback on the mentioned vetKD system API. See also the respective disclaimer [in the system API canister implementation](https://github.com/dfinity/examples/blob/master/rust/vetkd/src/system_api/src/lib.rs#L19-L26).
+
+---
 
 ### Prerequisites
 This example requires an installation of:

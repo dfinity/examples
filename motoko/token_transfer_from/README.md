@@ -151,7 +151,7 @@ URLs:
 
 ## Step 7: Verify that the ledger canister is healthy and working as expected by using the command
 
-> ![TIP]
+> [!TIP]
 > [Learn more about how to interact with the ICRC-1 ledger](https://internetcomputer.org/docs/current/developer-docs/defi/icrc-1/using-icrc1-ledger#icrc-1-and-icrc-1-extension-endpoints).
 
 ````bash

@@ -39,24 +39,29 @@ Begin by opening a terminal window.
 
 ## Step 1: Setup the project environment
 
-Navigate into the folder containing the project's files, start a local instance of the Internet Computer and deploy the project with the commands:
+Navigate into the folder containing the project's files, start a local instance of the Internet Computer and with the commands:
 
 ```bash
 cd examples/motoko/threshold-schnorr
 dfx start --background
+```
+
+#### What this does
+- `dfx start --background` starts a local instance of the IC via the IC SDK
+
+## Step 2: Deploy the canisters
+
+```bash
 make deploy
 ```
 
 To test (includes deploying):
 ```bash
-cd examples/motoko/threshold-schnorr
-dfx start --background
 npm install @noble/curves
 make test
 ```
 
 #### What this does
-- `dfx start --background` starts a local instance of the IC via the IC SDK
 - `make deploy` deploys the canister code on the local version of the IC
 - `npm install @noble/curves` installs a test javascript dependency
 - `make test` deploys and tests the canister code on the local version of the IC
