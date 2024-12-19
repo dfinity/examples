@@ -10,19 +10,17 @@ More specifically:
 - The sample canister hashes the message and uses the key derivation string for the derivation path.
 - The sample canister uses the above to request a signature from the threshold ECDSA [subnet](https://wiki.internetcomputer.org/wiki/Subnet_blockchain) (the threshold ECDSA is a subnet specializing in generating threshold ECDSA signatures).
 
-This tutorial gives a complete overview of the development, starting with downloading the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/index.md), up to the deployment and trying out the code on the IC mainnet.
+This tutorial gives a complete overview of the development, starting with downloading the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install), up to the deployment and trying out the code on the IC mainnet.
 
 > [!TIP]
 > This walkthrough focuses on the version of the sample canister code written in [Motoko](https://internetcomputer.org/docs/current/developer-docs/backend/motoko/index.md) programming language, but no specific knowledge of Motoko is needed to follow along. There is also a [Rust](https://github.com/dfinity/examples/tree/master/rust/threshold-ecdsa) version available in the same repo and follows the same commands for deploying.
 
 ## Getting started
 
-Sample code for `threshold-ecdsa` is provided in the [examples repository](https://github.com/dfinity/examples), under either [`/motoko`](https://github.com/dfinity/examples/tree/master/motoko/threshold-ecdsa) or [`/rust`](https://github.com/dfinity/examples/tree/master/rust/threshold-ecdsa) sub-directories. It requires at least [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/index.md) version 0.11.0 for local development.
-
 ## Prerequisites
 This example requires an installation of:
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install) v0.11.0 or newer.
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
