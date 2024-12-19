@@ -7,7 +7,6 @@ use candid::{CandidType, Principal};
 use ic_cdk::{query, update};
 use serde::{Deserialize, Serialize};
 use serde_bytes::ByteBuf;
-use std::cell::RefCell;
 use std::convert::TryFrom;
 use std::convert::TryInto;
 
