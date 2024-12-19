@@ -1,0 +1,57 @@
+type InitArg = record {
+    // The canister will interact with this Ethereum network.
+    ethereum_network : opt EthereumNetwork;
+
+    // The name of the ECDSA key to use.
+    ecdsa_key_name : opt EcdsaKeyName;
+};
+
+type EthereumNetwork = variant {
+    // The public Ethereum mainnet.
+    Mainnet;
+    // The public Ethereum Sepolia testnet.
+    Sepolia;
+};
+
+type EcdsaKeyName = variant {
+    // For local development with `dfx`
+    TestKeyLocalDevelopment;
+    // For testing with the Internet Computer's test key.
+    TestKey1;
+    // For running the canister in a production environment using the Internet Computer's production key.
+    ProductionKey1;
+};
+
+type BlockTag = variant {
+    Earliest;
+    Safe;
+    Finalized;
+    Latest;
+    Number : nat;
+    Pending;
+};
+
+// Base unit of ETH, i.e., 1 ETH = 10^18 Wei.
+type Wei = nat;
+
+service : (opt InitArg) -> {
+    // Returns the Ethereum address to which the owner should send ETH
+    // before sending the amount to another address via the canister using the [send_eth]
+    // endpoint.
+    //
+    // If the owner is not set, it defaults to the caller's principal.
+    ethereum_address : (owner: opt principal) -> (text);
+
+    // Returns the balance of the given Ethereum address.
+    // If no address is provided, the address derived from the caller's principal is used.
+    get_balance : (address: opt text) -> (Wei);
+
+    // Returns the transaction count for the Ethereum address derived for the given principal.
+    //
+    // If the owner is not set, it defaults to the caller's principal.
+    transaction_count : (owner: opt principal, block_height: opt BlockTag) -> (nat);
+
+    // Sends the given amount of ETH in base unit (Wei) to the given Ethereum address.
+    // Returns the transaction hash
+    send_eth : (to: text, amount: Wei) -> (text);
+}

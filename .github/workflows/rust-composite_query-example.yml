@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   rust-composite_query-darwin:
-    runs-on: macos-12
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin

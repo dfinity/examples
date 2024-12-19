@@ -1,5 +1,5 @@
 use candid::{decode_one, encode_args, encode_one, CandidType, Principal};
-use pocket_ic::{PocketIc, WasmResult};
+use pocket_ic::{PocketIc, PocketIcBuilder, WasmResult};
 use schnorr_example_rust::{
     PublicKeyReply, SchnorrAlgorithm, SignatureReply, SignatureVerificationReply,
 };
@@ -13,7 +13,11 @@ fn signing_and_verification_should_work_correctly() {
     let merkle_root_hashes: [Option<Vec<u8>>; 4] =
         [None, Some(vec![]), Some(vec![0; 8]), Some(vec![0; 32])];
 
-    let pic = PocketIc::new();
+    let pic = PocketIcBuilder::new()
+        .with_application_subnet()
+        .with_ii_subnet()
+        .with_fiduciary_subnet()
+        .build();
 
     for algorithm in ALGORITHMS {
         for merkle_root_hash in merkle_root_hashes.iter() {
@@ -58,20 +62,22 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
     // Make sure the canister is properly initialized
     fast_forward(&pic, 5);
 
-    let _dummy_reply: () = update(
+    // a message we can reverse to break the signature
+    // currently pocket IC only supports 32B messages for BIP340
+    let message: String = std::iter::repeat('a')
+        .take(16)
+        .chain(std::iter::repeat('b').take(16))
+        .collect();
+
+    let sig_reply: Result<SignatureReply, String> = update(
         &pic,
         my_principal,
         example_canister_id,
-        "for_test_only_change_management_canister_id",
-        encode_one(schnorr_mock_canister_id.to_text()).unwrap(),
-    )
-    .expect("failed to update management canister id");
+        "sign",
+        encode_args((message.clone(), algorithm)).unwrap(),
+    );
 
-    // Make sure the example canister uses mock schnorr canister instead of
-    // the management canister
-    fast_forward(&pic, 5);
-
-    let message_hex = hex::encode("Test message");
+    let signature_hex = sig_reply.expect("failed to sign").signature_hex;
 
     let pk_reply: Result<PublicKeyReply, String> = update(
         &pic,
@@ -128,7 +134,7 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
             "verify",
             encode_args((
                 signature_hex.clone(),
-                message_hex.clone(),
+                message.clone(),
                 public_key_hex.clone(),
                 merkle_tree_root_hex.clone(),
                 algorithm,
@@ -151,7 +157,7 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
             "verify",
             encode_args((
                 clone_and_reverse_chars(&signature_hex),
-                message_hex.clone(),
+                message.clone(),
                 public_key_hex.clone(),
                 merkle_tree_root_hex.clone(),
                 algorithm,
@@ -170,7 +176,7 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
             "verify",
             encode_args((
                 signature_hex.clone(),
-                clone_and_reverse_chars(&message_hex),
+                clone_and_reverse_chars(&message),
                 public_key_hex.clone(),
                 merkle_tree_root_hex.clone(),
                 algorithm,
@@ -189,7 +195,7 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
             "verify",
             encode_args((
                 signature_hex.clone(),
-                message_hex.clone(),
+                message.clone(),
                 clone_and_reverse_chars(&public_key_hex),
                 merkle_tree_root_hex.clone(),
                 algorithm,
@@ -211,7 +217,7 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
             "verify",
             encode_args((
                 signature_hex.clone(),
-                message_hex.clone(),
+                message.clone(),
                 public_key_hex.clone(),
                 merkle_tree_root_hex.clone(),
                 other_algorithm(algorithm),

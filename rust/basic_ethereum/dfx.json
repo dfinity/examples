@@ -1,0 +1,37 @@
+{
+  "canisters": {
+    "basic_ethereum": {
+      "candid": "basic_ethereum.did",
+      "package": "basic_ethereum",
+      "type": "custom",
+      "build": [
+        "cargo build --no-default-features --target wasm32-unknown-unknown --release"
+      ],
+      "wasm": "target/wasm32-unknown-unknown/release/basic_ethereum.wasm",
+      "metadata": [
+        {
+          "name": "candid:service"
+        }
+      ]
+    },
+    "evm_rpc": {
+      "type": "custom",
+      "candid": "https://github.com/internet-computer-protocol/evm-rpc-canister/releases/download/release-2024-05-23/evm_rpc.did",
+      "wasm": "https://github.com/internet-computer-protocol/evm-rpc-canister/releases/download/release-2024-05-23/evm_rpc.wasm.gz",
+      "remote": {
+        "id": {
+          "ic": "7hfb6-caaaa-aaaar-qadga-cai"
+        }
+      },
+      "specified_id": "7hfb6-caaaa-aaaar-qadga-cai",
+      "init_arg": "(record { nodesInSubnet = 28 })"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "version": 1
+}

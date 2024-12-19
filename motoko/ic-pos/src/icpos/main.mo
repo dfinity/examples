@@ -1,20 +1,14 @@
 // Importing base modules
 import Array "mo:base/Array";
 import Blob "mo:base/Blob";
-import Char "mo:base/Char";
 import Cycles "mo:base/ExperimentalCycles";
 import Debug "mo:base/Debug";
-import HashMap "mo:base/HashMap";
-import Hash "mo:base/Hash";
 import Nat "mo:base/Nat";
-import Nat32 "mo:base/Nat32";
 import Nat64 "mo:base/Nat64";
-import Option "mo:base/Option";
 import Principal "mo:base/Principal";
 import Text "mo:base/Text";
 import Time "mo:base/Time";
 import Trie "mo:base/Trie";
-import TrieMap "mo:base/TrieMap";
 import Buffer "mo:base/Buffer";
 
 // Importing local modules
@@ -120,7 +114,7 @@ shared (actorContext) actor class Main(_startBlock : Nat) {
     logData.insert(0, text);
     // Cap the log at 100 items
     if (logData.size() == 100) {
-      let x = logData.removeLast();
+      let _ = logData.removeLast();
     };
     return;
   };
@@ -223,7 +217,7 @@ shared (actorContext) actor class Main(_startBlock : Nat) {
     // Cycle cost of sending a notification
     // 49.14M + 5200 * request_size + 10400 * max_response_bytes
     // 49.14M + (5200 * 1000) + (10400 * 1000) = 64.74M
-    Cycles.add(70_000_000);
+    Cycles.add<system>(70_000_000);
 
     // Send the request
     let httpResponse : HttpTypes.HttpResponsePayload = await ic.http_request(httpRequest);

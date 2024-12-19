@@ -1,0 +1,13 @@
+.dfx/
+build/
+node_modules/
+dist/
+.DS_Store
+_MACOSX
+.vscode/
+target/
+*.old.did
+.idea
+src/backend/assets/version-RFB-320.onnx
+src/backend/assets/facerec.onnx
+.env

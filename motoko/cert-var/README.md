@@ -256,4 +256,4 @@ If you base your application on this example, we recommend you familiarize yours
 
 For example, the following aspects are particularly relevant for this app:
 * [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since this app is all about response certification!
-* [Validate Inputs](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices/#validate-inputs), since for incrementing the nat32 variable, the argument the inc call may be too big for the addition to be possible. 
+* [Validate Inputs](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/overview), since for incrementing the nat32 variable, the argument the inc call may be too big for the addition to be possible.
