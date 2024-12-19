@@ -17,12 +17,5 @@ else
   cargo build --target $TARGET --release
 fi
 
-cargo install ic-wasm --version 0.2.0 --root ./
-
-./bin/ic-wasm \
-      "$SCRIPT_DIR/../../target/$TARGET/release/$CANISTER.wasm" \
-      -o "$SCRIPT_DIR/../../target/$TARGET/release/$CANISTER.wasm" \
-      metadata candid:service -f "$SCRIPT_DIR/basic_bitcoin.did" -v public
-
 popd
 
