@@ -20,7 +20,7 @@
 /motoko/encrypted-notes-dapp/ @dfinity/crypto-team
 /motoko/hello_cycles/ @dfinity/languages
 /motoko/ic-pos/ @dfinity/growth
-/motoko/icrc2-swap/ @dfinity/div-Crypto
+/motoko/icrc2-swap/ @dfinity/growth
 /motoko/internet_identity_integration/ @dfinity/gix
 /motoko/life/ @dfinity/languages
 /motoko/minimal-counter-dapp/ @dfinity/growth
@@ -49,7 +49,7 @@
 /rust/canister_logs/ @dfinity/execution
 /rust/composite_query/ @dfinity/execution
 /rust/counter/ @dfinity/growth
-/rust/defi/ @dfinity/div-Crypto
+/rust/defi/ @dfinity/growth
 /rust/dip721-nft-container/ @dfinity/sdk
 /rust/encrypted-notes-dapp-vetkd/ @dfinity/crypto-team
 /rust/encrypted-notes-dapp/ @dfinity/crypto-team
