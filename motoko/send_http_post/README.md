@@ -8,7 +8,7 @@ If you want to start working on your project right away, you might want to try t
 
 ```bash
 git clone https://github.com/dfinity/examples
-cd examples/motoko/send_http_post_motoko
+cd examples/motoko/send_http_post
 dfx start --background
 dfx deploy
 ```
