@@ -92,7 +92,7 @@ A running instance of the Rust canister for demonstration purposes is available 
 The interface is meant to be programmatic, but the Rust version additionally contains HTTP functionality so you can view a metadata file at `<canister URL>/<NFT ID>/<file ID>`.
 It contains six NFTs, so you can look at items from `<canister URL>/0/0` to `<canister URL>/5/0`.
 
-## Prerequisites
+### Prerequisites 
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Download and install [git.](https://git-scm.com/downloads)
