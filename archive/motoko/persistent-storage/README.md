@@ -24,7 +24,7 @@ This example covers:
 ## Installation
 This example project can be cloned, installed, and deployed locally, for learning and testing purposes. The instructions are based on running the example on either macOS or Linux, but when using WSL2 on Windows, the instructions will be the same.
 
-### Prerequisites
+## Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).

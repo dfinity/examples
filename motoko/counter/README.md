@@ -10,7 +10,7 @@ The application provides an interface that exposes the following methods:
 - `inc`: increments the value of the counter.
 - `get`: gets the value of the counter.
 
-### Prerequisites
+## Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).

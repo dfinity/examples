@@ -1,13 +1,13 @@
 # Threshold ECDSA sample
 
-We present a minimal example canister smart contract for showcasing the [threshold ECDSA](https://internetcomputer.org/docs/current/developer-docs/integrations/t-ecdsa) API. 
+We present a minimal example canister smart contract for showcasing the [threshold ECDSA](https://internetcomputer.org/docs/current/developer-docs/integrations/t-ecdsa) API.
 
-The example canister is a signing oracle that creates ECDSA signatures with keys derived from an input string. 
+The example canister is a signing oracle that creates ECDSA signatures with keys derived from an input string.
 
 More specifically:
 
 - The sample canister receives a request that provides a message.
-- The sample canister hashes the message and uses the key derivation string for the derivation path. 
+- The sample canister hashes the message and uses the key derivation string for the derivation path.
 - The sample canister uses the above to request a signature from the threshold ECDSA [subnet](https://wiki.internetcomputer.org/wiki/Subnet_blockchain) (the threshold ECDSA is a subnet specializing in generating threshold ECDSA signatures).
 
 This tutorial gives a complete overview of the development, starting with downloading the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/index.md), up to the deployment and trying out the code on the IC mainnet.
@@ -19,7 +19,7 @@ This tutorial gives a complete overview of the development, starting with downlo
 
 Sample code for `threshold-ecdsa` is provided in the [examples repository](https://github.com/dfinity/examples), under either [`/motoko`](https://github.com/dfinity/examples/tree/master/motoko/threshold-ecdsa) or [`/rust`](https://github.com/dfinity/examples/tree/master/rust/threshold-ecdsa) sub-directories. It requires at least [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/index.md) version 0.11.0 for local development.
 
-### Prerequisites
+## Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
@@ -131,21 +131,21 @@ In the example below, the method returns `03c22bef676644dba524d4a24132ea8463221a
   "Ok":
   {
     "public_key_hex": "03c22bef676644dba524d4a24132ea8463221a55540a27fc86d690fda8e688e31a"
-  }  
+  }
 }
 ```
 
 
 ### Code walkthrough
-Open the file `main.mo`, which will show the following Motoko code that demonstrates how to obtain an ECDSA public key. 
+Open the file `main.mo`, which will show the following Motoko code that demonstrates how to obtain an ECDSA public key.
 
 ```motoko
-  //declare "ic" to be the management canister, which is evoked by `actor("aaaaa-aa")`. This is how we will obtain an ECDSA public key 
+  //declare "ic" to be the management canister, which is evoked by `actor("aaaaa-aa")`. This is how we will obtain an ECDSA public key
   let ic : IC = actor("aaaaa-aa");
 
   public shared (msg) func public_key() : async { #Ok : { public_key: Blob }; #Err : Text } {
     let caller = Principal.toBlob(msg.caller);
-    
+
     try {
 
       //request the management canister to compute an ECDSA public key
@@ -157,19 +157,19 @@ Open the file `main.mo`, which will show the following Motoko code that demonstr
           //this code uses the mainnet test key
           key_id = { curve = #secp256k1; name = "test_key_1" };
       });
-      
+
       #Ok({ public_key })
-    
+
     } catch (err) {
-    
+
       #Err(Error.message(err))
-    
+
     }
 
   };
 ```
 
-In the code above, the canister calls the `ecdsa_public_key` method of the [IC management canister](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-management-canister) (`aaaaa-aa`). 
+In the code above, the canister calls the `ecdsa_public_key` method of the [IC management canister](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-management-canister) (`aaaaa-aa`).
 
 
 **The [IC management canister](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-management-canister) is just a facade; it does not exist as a canister (with isolated state, Wasm code, etc.). It is an ergonomic way for canisters to call the system API of the IC (as if it were a single canister). In the code below, we use the management canister to create an ECDSA public key. `let ic : IC = actor("aaaaa-aa")` declares the IC management canister in the code above.**

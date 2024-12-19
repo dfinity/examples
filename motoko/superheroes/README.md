@@ -2,9 +2,9 @@
 
 This example demonstrates how to build a CRUD application on ICP using Motoko and React.
 
-This is a Motoko example that does not currently have a Rust variant. 
+This is a Motoko example that does not currently have a Rust variant.
 
-### Prerequisites
+## Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).

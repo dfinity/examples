@@ -8,7 +8,7 @@ The sample code revolves around one core transfer function which takes as input 
 
 This sample will use the Rust variant.
 
-### Prerequisites
+## Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
@@ -240,7 +240,7 @@ dfx deploy token_transfer_from_backend
 
 ## Step 10: Approve the canister to transfer funds on behalf of the user
 
-:::info 
+:::info
 
 Make sure that you are using the default `dfx` account that we minted tokens to in step 5 for the following steps.
 

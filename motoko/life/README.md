@@ -12,9 +12,9 @@ Directories `versions/v1` and `versions/v2` contain sequential upgrades to src u
 
 To make upgrades apparent, each version uses a different digit to display live cells (0,1,2).
 
-This is a Motoko example that does not currently have a Rust variant. 
+This is a Motoko example that does not currently have a Rust variant.
 
-### Prerequisites
+## Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).

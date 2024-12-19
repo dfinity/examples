@@ -15,7 +15,7 @@ This example covers:
 - Deploy the canister smart contract locally.
 - Test backend with Candid UI and command line using `dfx`, and test frontend in browser.
 
-### Prerequisites
+## Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
@@ -123,7 +123,7 @@ public func reset() : async Nat {
 ```
 
 ### Candid interface
-The Candid interface is automatically created, and it has a convenient UI, which provides an easy, user-friendly way to test the backend. Learn how to access the Candid UI in the **Testing** section below. 
+The Candid interface is automatically created, and it has a convenient UI, which provides an easy, user-friendly way to test the backend. Learn how to access the Candid UI in the **Testing** section below.
 
 ### Frontend
 The default project installed with `dfx new project_name` implements the logic that serves the frontend in the `src/minimal_dapp_frontend/src/App.js` file, and most of the HTML is carried over from the default project.

@@ -10,7 +10,7 @@ The sample code revolves around two simple canisters, `caller` and `callee`. `Ca
 
 The callee exposes a simple `ping` endpoint that takes no parameters and returns nothing.
 
-### Prerequisites
+## Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
@@ -54,7 +54,7 @@ This should output:
 (100 : nat64)
 ```
 
-And the other endpoint: 
+And the other endpoint:
 
 ```bash
 dfx canister call caller parallel_calls 100
@@ -96,9 +96,9 @@ Lastly, the parallel calls here complete sooner -- because most of them fail!
 
 ## Step 5: Multi-subnet setting
 
-Parallel calls are a lot more useful in multi-subnet settings. We can create such a setting locally using Pocket IC. 
+Parallel calls are a lot more useful in multi-subnet settings. We can create such a setting locally using Pocket IC.
 
-First, follow the [installation instructions](https://github.com/dfinity/pocketic) to install `pocket-ic` in the `parallel_calls` directory. 
+First, follow the [installation instructions](https://github.com/dfinity/pocketic) to install `pocket-ic` in the `parallel_calls` directory.
 
 Then, run the pre-made test, which now installs the `caller` and `callee` canisters on different subnets, and then runs 90 calls sequentially/in parallel.
 

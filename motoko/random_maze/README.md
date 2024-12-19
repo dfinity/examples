@@ -16,9 +16,9 @@ This actor uses Motoko's random library to generate a cryptographically random m
 
 The function `generate` calls library function `Random.blob()` asynchronously to obtain 256 bits of raw entropy (256 random bits as 32 bytes) from the Internet Computer. It makes these calls on demand as it is constructing a maze. The bits of these blobs are consumed to generate samples from a variety of discrete distributions using some of the other classes and functions of library Random.mo.
 
-This is a Motoko example that does not currently have a Rust variant. 
+This is a Motoko example that does not currently have a Rust variant.
 
-### Prerequisites
+## Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).

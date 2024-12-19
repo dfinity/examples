@@ -8,7 +8,7 @@ The sample code revolves around one core transfer function which takes as input 
 
 This sample will use the Motoko variant.
 
-### Prerequisites
+## Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).

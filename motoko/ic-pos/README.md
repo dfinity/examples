@@ -50,7 +50,7 @@ The frontend interacts with the following IC canisters:
 - `ckbtc index` - to fetch transaction history.
 - `internet identity` - to authenticate users.
 
-### Prerequisites
+## Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
@@ -171,7 +171,7 @@ dfx canister call icpos setCourierApiKey "pk_prod_..."
 
 ### Step 8: Build and run the frontend
 
-Run npm to install dependencies and start a development version of the frontend. 
+Run npm to install dependencies and start a development version of the frontend.
 
 ```bash
 pnpm install
@@ -203,7 +203,7 @@ dfx canister call icrc1_ledger icrc1_transfer '
 
 ### Step 11: Create the second store
 
-Log in to the frontend using **a new Internet Identity using another web browser**. Give this store a name as well and copy the store principal like in the previous step. 
+Log in to the frontend using **a new Internet Identity using another web browser**. Give this store a name as well and copy the store principal like in the previous step.
 
 Now, go back to the first browser/store, navigate to the `Send` page, and transfer some tokens to the second store.
 
@@ -213,7 +213,7 @@ If everything is working, you should see a notification in the second store.
 
 ## Possible improvements
 
-- Show more information about transactions. 
+- Show more information about transactions.
   - A transaction detail page.
   - Pagination, currently only the first 5 transactions are shown.
 - Show a confirmation dialog after the user clicks on the `Send` button.

@@ -27,7 +27,7 @@ The `load` function just returns a timestamp.
 It just exists such that there is a query endpoint to call.
 The `get_query_stats` is the function that queries the status endpoint and returns the collected query statistics.
 
-### Prerequisites 
+## Prerequisites
 This example requires an installation of:
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Install `node.js` (to build the web frontend).

@@ -16,9 +16,9 @@ This example consists of the following functions (see `src/hello_cycles/main.mo`
 The wallet's `wallet_receive` return type differs from hello_cycle's `wallet_receive`.
 :::
 
-This is a Motoko example that does not currently have a Rust variant. 
+This is a Motoko example that does not currently have a Rust variant.
 
-### Prerequisites
+## Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
@@ -124,7 +124,7 @@ The amount is only increased by 10_000_000 because the implementation of `wallet
 dfx canister call hello_cycles transfer "(func \"$(dfx identity get-wallet)\".\"wallet_receive\", 5000000)"
 ```
 
-Output: 
+Output:
 
 ```bash
 (record { refunded = 0 : nat })

@@ -16,7 +16,7 @@ This example uses an **insecure** implementation of [the proposed vetKD system A
 
 ## Manual local deployment
 
-### Prerequisites
+## Prerequisites
 
 This example requires an installation of:
 

@@ -19,7 +19,7 @@ different from other synchronous blockchains.
 
 ## Local deployment
 
-### Prerequisites
+## Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
@@ -265,7 +265,7 @@ the token balances.
 The example comes with a test suite to demonstrate the basic functionality. It
 shows how to use this repo from a Javascript client.
 
-### Prerequisites
+## Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).

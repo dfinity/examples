@@ -29,7 +29,7 @@ version available in the same repo and follows the same commands for deploying.
 
 Sample code for `threshold-schnorr-example` is provided in the [examples repository](https://github.com/dfinity/examples), under either [`/motoko`](https://github.com/dfinity/examples/tree/master/motoko/threshold-schnorr) or [`/rust`](https://github.com/dfinity/examples/tree/master/rust/threshold-schnorr) sub-directories.
 
-### Prerequisites
+## Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
@@ -156,7 +156,7 @@ Ed25519 public key.
 
 ### Code walkthrough
 Open the file `lib.rs`, which will show the following Motoko code that
-demonstrates how to obtain a Schnorr public key. 
+demonstrates how to obtain a Schnorr public key.
 
 ```motoko
   public shared ({ caller }) func public_key(algorithm_arg : SchnorrAlgotirhm) : async {
@@ -176,7 +176,7 @@ demonstrates how to obtain a Schnorr public key.
   };
 ```
 
-In the code above, the canister calls the `schnorr_public_key` method of the [IC management canister](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-management-canister) (`aaaaa-aa`). 
+In the code above, the canister calls the `schnorr_public_key` method of the [IC management canister](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-management-canister) (`aaaaa-aa`).
 
 
 **The [IC management
