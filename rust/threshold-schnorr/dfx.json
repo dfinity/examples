@@ -4,7 +4,7 @@
       "candid": "src/schnorr_example_rust/schnorr_example.did",
       "package": "schnorr_example_rust",
       "type": "rust",
-      "build": "src/basic_bitcoin/build.sh"
+      "build": "src/schnorr_example_rust/build.sh"
     },
     "chainkey_testing_canister": {
       "type": "custom",
