@@ -3,7 +3,8 @@
     "schnorr_example_rust": {
       "candid": "src/schnorr_example_rust/schnorr_example.did",
       "package": "schnorr_example_rust",
-      "type": "rust"
+      "type": "rust",
+      "build": "src/basic_bitcoin/build.sh"
     },
     "chainkey_testing_canister": {
       "type": "custom",
