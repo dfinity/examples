@@ -1,12 +1,4 @@
----
-keywords: [beginner, motoko, game of life]
----
-
 # Game of life
-
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/life)
-
-## Overview
 
 This example contains a series of implementations of Conway's Game of Life.
 
@@ -22,24 +14,24 @@ To make upgrades apparent, each version uses a different digit to display live c
 
 This is a Motoko example that does not currently have a Rust variant. 
 
-
-## Prerequisites
+### Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
-- [x] Install [Node.js](https://nodejs.org/en/download/).
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
 
-### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
+## Step 1: Setup the project environment
+
+Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
 
 ```bash
 cd examples/motoko/life
 dfx start --background
 ```
 
-### Step 2: Deploy the canister:
+## Step 2: Deploy the canisters
 
 ```bash
 dfx deploy
@@ -53,7 +45,7 @@ Take note of the URL at which the life_assets is accessible using the command:
 echo "http://127.0.0.1:4943/?canisterId=$(dfx canister id life_assets)"
 ```
 
-### Step 3: Open the frontend in your browser by clicking on the link returned in the output of the previous command.
+## Step 3: Open the frontend in your browser by clicking on the link returned in the output of the previous command.
 
 Click the button **Step**. The grid will advance to the next generation of the Game of Life.
 
@@ -131,7 +123,7 @@ After first upgrading from v0 the state will be random, as on deploying v0. This
 However, if you re-deploy the v1 project a second time, perhaps after making a minor edit, you'll see the last state of the grid, before deployment, preserved across the deployment, in a state-preserving upgrade. The random initializer for state is skipped and state just assumes the value it had before the upgrade.
 
 
-### Upgrading to v2:
+### Upgrading to v2
 To upgrade to the v2 implementation, issue these commands:
 
 ```bash

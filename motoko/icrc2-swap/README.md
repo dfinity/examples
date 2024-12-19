@@ -1,12 +1,4 @@
----
-keywords: [advanced, motoko, swap, token swap, icrc2]
----
-
 # ICRC-2 swap
-
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/icrc2-swap)
-
-## Overview
 
 ICRC-2 Swap is a simple canister demonstrating how to safely work with ICRC-2
 tokens. It handles depositing, swapping, and withdrawing ICRC-2 tokens.
@@ -27,19 +19,24 @@ different from other synchronous blockchains.
 
 ## Local deployment
 
-## Prerequisites
+### Prerequisites
+This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
-- [x] Install [Node.js](https://nodejs.org/en/).
-- [ ] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
-### Step 1: Start a local instance of the replica:
+Begin by opening a terminal window.
+
+### Step 1: Setup the project environment
+
+Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
 
 ```bash
-dfx start --clean --background
+cd examples/motoko/icrc2-swap
+dfx start --background
 ```
 
-### Step 2: Create your user accounts:
+### Step 2: Create your user accounts
 
 ```bash
 export OWNER=$(dfx identity get-principal)
@@ -51,7 +48,7 @@ dfx identity new bob
 export BOB=$(dfx identity get-principal --identity bob)
 ```
 
-### Step 2: Deploy two tokens:
+### Step 3: Deploy two tokens
 
 Deploy Token A:
 
@@ -122,7 +119,7 @@ dfx deploy token_b --argument '
 '
 ```
 
-### Step 3: Deploy the swap canister:
+### Step 4: Deploy the swap canister
 
 The swap canister accepts deposits and performs the swap.
 
@@ -140,7 +137,7 @@ dfx deploy swap --argument '
 export SWAP=$(dfx canister id swap)
 ```
 
-### Step 4: Approve & deposit tokens:
+### Step 5: Approve & deposit tokens
 
 Before you can swap the tokens, they must be transferred to the swap canister.
 With ICRC-2, this is a two-step process. First, approve the transfer:
@@ -199,7 +196,7 @@ dfx canister call --identity bob swap deposit 'record {
 }'
 ```
 
-### Step 5: Perform a swap:
+### Step 6: Perform a swap
 
 ```bash
 dfx canister call swap swap 'record {
@@ -217,7 +214,7 @@ dfx canister call swap balances
 That should show us that now Bob holds Token A, and Alice holds Token B in
 the swap contract.
 
-### Step 6: Withdraw tokens:
+### Step 7: Withdraw tokens
 
 After the swap, your balances in the swap canister will have been updated, and you
 can withdraw your newly received tokens into your wallet.
@@ -244,7 +241,7 @@ dfx canister call --identity bob swap withdraw 'record {
 }'
 ```
 
-### Step 7: Check token balances:
+### Step 8: Check token balances
 
 ```bash
 # Check Alice's Token A balance. They should now have 998.99980000 A
@@ -268,24 +265,31 @@ the token balances.
 The example comes with a test suite to demonstrate the basic functionality. It
 shows how to use this repo from a Javascript client.
 
-## Prerequisites
+### Prerequisites
+This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
-- [x] Install [Node.js](https://nodejs.org/en/).
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
-### Step 1: Start a local instance of the replica:
+Begin by opening a terminal window.
+
+### Step 1: Setup the project environment
+
+Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
+
 
 ```bash
-dfx start --clean --background
+cd examples/motoko/icrc2-swap
+dfx start --background
 ```
 
-### Step 2: Install npm dependencies:
+### Step 2: Install npm dependencies
 
 ```bash
 npm install
 ```
 
-### Step 3: Run the test suite:
+### Step 3: Run the test suite
 
 ```bash
 make test

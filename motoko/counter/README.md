@@ -1,12 +1,4 @@
----
-keywords: [beginner, motoko, counter, count]
----
-
 # Counter
-
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/counter)
-
-## Overview
 
 This example demonstrates a counter application. It uses an orthogonally persistent counter variable to store an arbitrary precision natural number that represents the current value of the counter.
 
@@ -26,32 +18,35 @@ This example requires an installation of:
 
 Begin by opening a terminal window.
 
- ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
+## Step 1: Setup the project environment
+
+Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
+
 
 ```bash
 cd examples/motoko/counter
 dfx start --background
 ```
 
- ### Step 2: Deploy the canister:
+## Step 2: Deploy the canister
 
 ```bash
 dfx deploy
 ```
 
- ### Step 3: Set the value of the counter:
+ ## Step 3: Set the value of the counter
 
 ```bash
 dfx canister call counter set '(7)'
 ```
 
- ### Step 4: Increment the value of the counter:
+## Step 4: Increment the value of the counter
 
 ```bash
 dfx canister call counter inc
 ```
 
- ### Step 5: Get the value of the counter:
+## Step 5: Get the value of the counter
 
 ```bash
 dfx canister call counter get
@@ -63,7 +58,7 @@ The following output should be returned:
 (8 : nat)
 ```
 
-### Resources
+## Resources
 To learn more about these features of Motoko, see:
 
 - [Orthogonal persistence](https://internetcomputer.org/docs/current/motoko/main/motoko#orthogonal-persistence).
