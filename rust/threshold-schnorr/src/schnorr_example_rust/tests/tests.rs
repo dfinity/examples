@@ -86,7 +86,7 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
         my_principal,
         example_canister_id,
         "public_key",
-        encode_args((algorithm, merkle_tree_root_hex.clone())).unwrap(),
+        encode_one(algorithm).unwrap(),
     );
 
     let public_key_hex = pk_reply.unwrap().public_key_hex;

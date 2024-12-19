@@ -7,6 +7,7 @@ use candid::{CandidType, Principal};
 use ic_cdk::{query, update};
 use serde::{Deserialize, Serialize};
 use serde_bytes::ByteBuf;
+use std::cell::RefCell;
 use std::convert::TryFrom;
 use std::convert::TryInto;
 
@@ -55,21 +56,35 @@ struct ManagementCanisterSignatureReply {
     pub signature: Vec<u8>,
 }
 
+thread_local! {
+    static STATE: RefCell<String> = RefCell::new("aaaaa-aa".to_string());
+}
+
+#[update]
+async fn for_test_only_change_management_canister_id(id: String) -> Result<(), String> {
+    let _ = CanisterId::from_text(&id).map_err(|e| panic!("invalid canister id: {}: {}", id, e));
+    STATE.with_borrow_mut(move |current_id| {
+        println!(
+            "Changing management canister id from {} to {id}",
+            *current_id
+        );
+        *current_id = id;
+    });
+    Ok(())
+}
+
 #[update]
 async fn public_key(algorithm: SchnorrAlgorithm) -> Result<PublicKeyReply, String> {
     let request = ManagementCanisterSchnorrPublicKeyRequest {
         canister_id: None,
         derivation_path: vec![ic_cdk::api::caller().as_slice().to_vec()],
-        key_id: SchnorrKeyIds::TestKeyChainkeyTestingCanister1.to_key_id(algorithm),
+        key_id: SchnorrKeyIds::ChainkeyTestingCanisterKey1.to_key_id(algorithm),
     };
 
-    let (res,): (ManagementCanisterSchnorrPublicKeyReply,) = ic_cdk::call(
-        Principal::management_canister(),
-        "schnorr_public_key",
-        (request,),
-    )
-    .await
-    .map_err(|e| format!("schnorr_public_key failed {}", e.1))?;
+    let (res,): (ManagementCanisterSchnorrPublicKeyReply,) =
+        ic_cdk::call(mgmt_canister_id(), "schnorr_public_key", (request,))
+            .await
+            .map_err(|e| format!("schnorr_public_key failed {}", e.1))?;
 
     Ok(PublicKeyReply {
         public_key_hex: hex::encode(&res.public_key),
@@ -104,13 +119,13 @@ async fn sign(
     let internal_request = ManagementCanisterSignatureRequest {
         message: message.as_bytes().to_vec(),
         derivation_path: vec![ic_cdk::api::caller().as_slice().to_vec()],
-        key_id: SchnorrKeyIds::TestKeyChainkeyTestingCanister1.to_key_id(algorithm),
+        key_id: SchnorrKeyIds::ChainkeyTestingCanisterKey1.to_key_id(algorithm),
         aux,
     };
 
     let (internal_reply,): (ManagementCanisterSignatureReply,) =
         ic_cdk::api::call::call_with_payment(
-            Principal::management_canister(),
+            mgmt_canister_id(),
             "sign_with_schnorr",
             (internal_request,),
             26_153_846_153,
@@ -229,7 +244,7 @@ fn verify_ed25519(
 
 enum SchnorrKeyIds {
     #[allow(unused)]
-    TestKeyChainkeyTestingCanister1,
+    ChainkeyTestingCanisterKey1,
     #[allow(unused)]
     TestKeyLocalDevelopment,
     #[allow(unused)]
@@ -243,7 +258,7 @@ impl SchnorrKeyIds {
         SchnorrKeyId {
             algorithm,
             name: match self {
-                Self::TestKeyChainkeyTestingCanister1 => "insecure_test_key_1",
+                Self::ChainkeyTestingCanisterKey1 => "insecure_test_key_1",
                 Self::TestKeyLocalDevelopment => "dfx_test_key_1",
                 Self::TestKey1 => "test_key_1",
                 Self::ProductionKey1 => "key_1",
@@ -251,6 +266,10 @@ impl SchnorrKeyIds {
             .to_string(),
         }
     }
+}
+
+fn mgmt_canister_id() -> CanisterId {
+    STATE.with_borrow(|state| CanisterId::from_text(&state).unwrap())
 }
 
 // In the following, we register a custom getrandom implementation because
