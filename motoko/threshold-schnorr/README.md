@@ -1,9 +1,6 @@
 # Threshold Schnorr
 
-We present a minimal example canister smart contract for showcasing the
-[threshold
-Schnorr](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr)
-API.
+We present a minimal example canister smart contract for showcasing the [threshold Schnorr](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr) API.
 
 The example canister is a signing oracle that creates Schnorr signatures with
 keys derived based on the canister ID and the chosen algorithm, either BIP340 or
@@ -18,21 +15,15 @@ More specifically:
   (the threshold Schnorr subnet is a subnet generating threshold Schnorr
   signatures).
 
-This tutorial gives a complete overview of the development, starting with downloading [`dfx`](https://internetcomputer.org/docs/current/developer-docs/setup/index.md), up to the deployment and trying out the code on the mainnet.
-
 This walkthrough focuses on the version of the sample canister code written in
 Motoko programming language. There is also a
 [Rust](https://github.com/dfinity/examples/tree/master/rust/threshold-schnorr)
 version available in the same repo and follows the same commands for deploying.
 
-## Getting started
-
-Sample code for `threshold-schnorr-example` is provided in the [examples repository](https://github.com/dfinity/examples), under either [`/motoko`](https://github.com/dfinity/examples/tree/master/motoko/threshold-schnorr) or [`/rust`](https://github.com/dfinity/examples/tree/master/rust/threshold-schnorr) sub-directories.
-
 ## Prerequisites
 This example requires an installation of:
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
