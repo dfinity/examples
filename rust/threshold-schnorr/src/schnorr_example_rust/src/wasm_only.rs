@@ -1,8 +1,14 @@
 use super::{PublicKeyReply, SchnorrAlgorithm, SignatureReply, SignatureVerificationReply};
+use bitcoin::{
+    key::{Secp256k1, TapTweak},
+    XOnlyPublicKey,
+};
 use candid::{CandidType, Principal};
 use ic_cdk::{query, update};
 use serde::{Deserialize, Serialize};
-use std::convert::{TryFrom, TryInto};
+use serde_bytes::ByteBuf;
+use std::convert::TryFrom;
+use std::convert::TryInto;
 
 type CanisterId = Principal;
 
@@ -28,8 +34,20 @@ struct SchnorrKeyId {
 #[derive(CandidType, Serialize, Debug)]
 struct ManagementCanisterSignatureRequest {
     pub message: Vec<u8>,
+    pub aux: Option<SignWithSchnorrAux>,
     pub derivation_path: Vec<Vec<u8>>,
     pub key_id: SchnorrKeyId,
+}
+
+#[derive(Eq, PartialEq, Debug, CandidType, Serialize)]
+pub enum SignWithSchnorrAux {
+    #[serde(rename = "bip341")]
+    Bip341(SignWithBip341Aux),
+}
+
+#[derive(Eq, PartialEq, Debug, CandidType, Serialize)]
+pub struct SignWithBip341Aux {
+    pub merkle_root_hash: ByteBuf,
 }
 
 #[derive(CandidType, Deserialize, Debug)]
@@ -42,7 +60,7 @@ async fn public_key(algorithm: SchnorrAlgorithm) -> Result<PublicKeyReply, Strin
     let request = ManagementCanisterSchnorrPublicKeyRequest {
         canister_id: None,
         derivation_path: vec![ic_cdk::api::caller().as_slice().to_vec()],
-        key_id: SchnorrKeyIds::TestKey1.to_key_id(algorithm),
+        key_id: SchnorrKeyIds::TestKeyChainkeyTestingCanister1.to_key_id(algorithm),
     };
 
     let (res,): (ManagementCanisterSchnorrPublicKeyReply,) = ic_cdk::call(
@@ -59,11 +77,35 @@ async fn public_key(algorithm: SchnorrAlgorithm) -> Result<PublicKeyReply, Strin
 }
 
 #[update]
-async fn sign(message: String, algorithm: SchnorrAlgorithm) -> Result<SignatureReply, String> {
+async fn sign(
+    message: String,
+    algorithm: SchnorrAlgorithm,
+    opt_merkle_tree_root_hex: Option<String>,
+) -> Result<SignatureReply, String> {
+    let aux = opt_merkle_tree_root_hex
+        .map(|hex| {
+            hex::decode(&hex)
+                .map_err(|e| format!("failed to decode hex: {e:?}"))
+                .and_then(|bytes| {
+                    if bytes.len() == 32 || bytes.is_empty() {
+                        Ok(SignWithSchnorrAux::Bip341(SignWithBip341Aux {
+                            merkle_root_hash: ByteBuf::from(bytes),
+                        }))
+                    } else {
+                        Err(format!(
+                            "merkle tree root bytes must be 0 or 32 bytes long but got {}",
+                            bytes.len()
+                        ))
+                    }
+                })
+        })
+        .transpose()?;
+
     let internal_request = ManagementCanisterSignatureRequest {
         message: message.as_bytes().to_vec(),
         derivation_path: vec![ic_cdk::api::caller().as_slice().to_vec()],
-        key_id: SchnorrKeyIds::TestKey1.to_key_id(algorithm),
+        key_id: SchnorrKeyIds::TestKeyChainkeyTestingCanister1.to_key_id(algorithm),
+        aux,
     };
 
     let (internal_reply,): (ManagementCanisterSignatureReply,) =
@@ -86,6 +128,7 @@ async fn verify(
     signature_hex: String,
     message: String,
     public_key_hex: String,
+    opt_merkle_tree_root_hex: Option<String>,
     algorithm: SchnorrAlgorithm,
 ) -> Result<SignatureVerificationReply, String> {
     let sig_bytes = hex::decode(&signature_hex).expect("failed to hex-decode signature");
@@ -93,10 +136,20 @@ async fn verify(
     let pk_bytes = hex::decode(&public_key_hex).expect("failed to hex-decode public key");
 
     match algorithm {
-        SchnorrAlgorithm::Bip340Secp256k1 => {
-            verify_bip340_secp256k1(&sig_bytes, msg_bytes, &pk_bytes)
+        SchnorrAlgorithm::Bip340Secp256k1 => match opt_merkle_tree_root_hex {
+            Some(merkle_tree_root_hex) => {
+                let merkle_tree_root_bytes = hex::decode(&merkle_tree_root_hex)
+                    .expect("failed to hex-decode merkle tree root");
+                verify_bip341_secp256k1(&sig_bytes, msg_bytes, &pk_bytes, &merkle_tree_root_bytes)
+            }
+            None => verify_bip340_secp256k1(&sig_bytes, msg_bytes, &pk_bytes),
+        },
+        SchnorrAlgorithm::Ed25519 => {
+            if let Some(_) = opt_merkle_tree_root_hex {
+                return Err("ed25519 does not support merkle tree root verification".to_string());
+            }
+            verify_ed25519(&sig_bytes, &msg_bytes, &pk_bytes)
         }
-        SchnorrAlgorithm::Ed25519 => verify_ed25519(&sig_bytes, &msg_bytes, &pk_bytes),
     }
 }
 
@@ -111,6 +164,43 @@ fn verify_bip340_secp256k1(
         k256::schnorr::Signature::try_from(sig_bytes).expect("failed to deserialize signature");
 
     let vk = k256::schnorr::VerifyingKey::from_bytes(&secp1_pk_bytes[1..])
+        .expect("failed to deserialize BIP340 encoding into public key");
+
+    let is_signature_valid = vk.verify_raw(&msg_bytes, &sig).is_ok();
+
+    Ok(SignatureVerificationReply { is_signature_valid })
+}
+
+fn verify_bip341_secp256k1(
+    sig_bytes: &[u8],
+    msg_bytes: &[u8],
+    secp1_pk_bytes: &[u8],
+    merkle_tree_root_bytes: &[u8],
+) -> Result<SignatureVerificationReply, String> {
+    assert_eq!(secp1_pk_bytes.len(), 33);
+
+    let pk = XOnlyPublicKey::from_slice(&secp1_pk_bytes[1..]).unwrap();
+    let tweaked_pk_bytes = {
+        let secp256k1_engine = Secp256k1::new();
+        let merkle_root = if merkle_tree_root_bytes.len() == 0 {
+            None
+        } else {
+            Some(
+                bitcoin::hashes::Hash::from_slice(&merkle_tree_root_bytes)
+                    .expect("failed to create TapBranchHash"),
+            )
+        };
+
+        pk.tap_tweak(&secp256k1_engine, merkle_root)
+            .0
+            .to_inner()
+            .serialize()
+    };
+
+    let sig =
+        k256::schnorr::Signature::try_from(sig_bytes).expect("failed to deserialize signature");
+
+    let vk = k256::schnorr::VerifyingKey::from_bytes(&tweaked_pk_bytes)
         .expect("failed to deserialize BIP340 encoding into public key");
 
     let is_signature_valid = vk.verify_raw(&msg_bytes, &sig).is_ok();
@@ -139,6 +229,8 @@ fn verify_ed25519(
 
 enum SchnorrKeyIds {
     #[allow(unused)]
+    TestKeyChainkeyTestingCanister1,
+    #[allow(unused)]
     TestKeyLocalDevelopment,
     #[allow(unused)]
     TestKey1,
@@ -151,7 +243,8 @@ impl SchnorrKeyIds {
         SchnorrKeyId {
             algorithm,
             name: match self {
-                Self::TestKeyLocalDevelopment => "dfx_test_key",
+                Self::TestKeyChainkeyTestingCanister1 => "insecure_test_key_1",
+                Self::TestKeyLocalDevelopment => "dfx_test_key_1",
                 Self::TestKey1 => "test_key_1",
                 Self::ProductionKey1 => "key_1",
             }
