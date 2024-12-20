@@ -1,7 +1,7 @@
 use ic_cdk::api::management_canister::ecdsa::{
-    ecdsa_public_key, sign_with_ecdsa, EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgument,
-    SignWithEcdsaArgument,
+    EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgument, SignWithEcdsaArgument,
 };
+use ic_cdk::api::management_canister::main::CanisterId;
 use std::cell::RefCell;
 use std::collections::HashMap;
 
@@ -14,7 +14,10 @@ thread_local! {
 pub async fn get_ecdsa_public_key(key_name: String, derivation_path: Vec<Vec<u8>>) -> Vec<u8> {
     // Retrieve already stored public key
     if let Some(key) = ECDSA.with(|ecdsa| {
-        ecdsa.borrow().as_ref().and_then(|map| map.get(&derivation_path).cloned())
+        ecdsa
+            .borrow()
+            .as_ref()
+            .and_then(|map| map.get(&derivation_path).cloned())
     }) {
         return key;
     }
@@ -26,12 +29,25 @@ pub async fn get_ecdsa_public_key(key_name: String, derivation_path: Vec<Vec<u8>
         name: key_name,
     };
 
-    let res = ecdsa_public_key(EcdsaPublicKeyArgument {
-        canister_id,
-        derivation_path: derivation_path.clone(),
-        key_id,
-    })
+    let res: ic_cdk::api::call::CallResult<(
+        ic_cdk::api::management_canister::ecdsa::EcdsaPublicKeyResponse,
+    )> = ic_cdk::call(
+        mgmt_canister_id(),
+        "ecdsa_public_key",
+        (EcdsaPublicKeyArgument {
+            canister_id,
+            derivation_path: derivation_path.clone(),
+            key_id,
+        },),
+    )
     .await;
+
+    // let res = ecdsa_public_key(EcdsaPublicKeyArgument {
+    //     canister_id,
+    //     derivation_path: derivation_path.clone(),
+    //     key_id,
+    // })
+    // .await;
 
     let public_key = res.unwrap().0.public_key;
 
@@ -41,7 +57,9 @@ pub async fn get_ecdsa_public_key(key_name: String, derivation_path: Vec<Vec<u8>
         if map.is_none() {
             *map = Some(HashMap::new());
         }
-        map.as_mut().unwrap().insert(derivation_path, public_key.clone());
+        map.as_mut()
+            .unwrap()
+            .insert(derivation_path, public_key.clone());
     });
 
     public_key
@@ -57,12 +75,32 @@ pub async fn get_ecdsa_signature(
         name: key_name,
     };
 
-    let res = sign_with_ecdsa(SignWithEcdsaArgument {
-        message_hash,
-        derivation_path,
-        key_id,
-    })
+    let res: ic_cdk::api::call::CallResult<(
+        ic_cdk::api::management_canister::ecdsa::SignWithEcdsaResponse,
+    )> = ic_cdk::api::call::call_with_payment128(
+        mgmt_canister_id(),
+        "sign_with_ecdsa",
+        (SignWithEcdsaArgument {
+            message_hash,
+            derivation_path,
+            key_id,
+        },),
+        26_153_846_153,
+    )
     .await;
 
+    // let res = sign_with_ecdsa(SignWithEcdsaArgument {
+    //     message_hash,
+    //     derivation_path,
+    //     key_id,
+    // })
+    // .await;
+
     res.unwrap().0.signature
+}
+
+fn mgmt_canister_id() -> CanisterId {
+    crate::MGMT_CANISTER_ID
+        .with_borrow(|id| CanisterId::from_text(id))
+        .expect("invalid management canister principal string")
 }

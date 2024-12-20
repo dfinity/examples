@@ -25,7 +25,6 @@ For a deeper understanding of the ICP < > BTC integration, see the [Bitcoin inte
 
 * [x] Install the [IC
   SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
-  For local testing, `dfx >= 0.22.0-beta.0` is required.
 * [x] On macOS, `llvm` with the `wasm32-unknown-unknown` target (which is not included in the XCode installation by default) is required.
 To install, run `brew install llvm`.
 
@@ -101,43 +100,29 @@ to check [this
 article](https://bitcoinmagazine.com/technical/bitcoin-address-types-compared-p2pkh-p2sh-p2wpkh-and-more)
 if you are interested in a high-level comparison of different address types.
 These addresses can be generated from an ECDSA public key or a Schnorr
-([BIP340](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki))
-public key. The example code showcases how your canister can generate and spend
-from three types of addresses:
+([BIP340](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki),
+[BIP341](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki)) public
+key. The example code showcases how your canister can generate and spend from
+three types of addresses:
 1. A [P2PKH address](https://en.bitcoin.it/wiki/Transaction#Pay-to-PubkeyHash)
    using the
    [ecdsa_public_key](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-method-ecdsa_public_key)
    API.
 2. A [P2TR
    address](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki)
-   where the funds can be spent using the raw (untweaked) internal key
-   (so-called P2TR key path spend, but untweaked). The advantage of this
-   approach compared to the one below is its significantly smaller fee per
-   transaction because checking the transaction signature is analogous to P2PK
-   but uses Schnorr instead of ECDSA. IMPORTANT: Note that
-   [BIP341](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki#cite_note-23)
-   advises against using taproot addresses that can be spent with an untweaked
-   key. This precaution is to prevent attacks that can occur when creating
-   taproot multisigner addresses using specific multisignature schemes. However,
-   the Schnorr API of the internet computer does not support Schnorr
-   multisignatures. 
+   where the funds can be spent using the internal key only ([P2TR key path
+   spend with unspendable script
+   tree](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki#cite_note-23)).
 3. A [P2TR
    address](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki)
-   where the funds can be spent using the provided public key with the script
-   path, where the Merkelized Alternative Script Tree (MAST) consists of a
-   single script allowing to spend funds by exactly one key.
-
-Note that P2TR *key path* spending with a tweaked key is currently not available
-on the IC because the threshold Schnorr signing interface does not allow
-applying BIP341 tweaks to the private key. In contrast, the
-tweaked public key is used to spend in the script path, which is availble on the
-IC. For a technical comparison of different ways of how single-signer P2TR
-addresses can be constructed and used, you may want to take a look at [this
-post](https://bitcoin.stackexchange.com/a/111100) by Pieter Wuille.
+   where the funds can be spent using either 1) the internal key or 2) the
+   provided public key with the script path, where the Merkelized Alternative
+   Script Tree (MAST) consists of a single script allowing to spend funds by
+   exactly one key.
 
 On the Candid UI of your canister, click the "Call" button under
 `get_${type}_address` to generate a `${type}` Bitcoin address, where `${type}`
-is one of `[p2pkh, p2tr_raw_key_spend, p2tr_script_spend]`.
+is one of `[p2pkh, p2tr, p2tr_key_only]`.
 
 Or, if you prefer the command line:
    `dfx canister --network=ic call basic_bitcoin get_${type}_address`
@@ -185,7 +170,8 @@ Checking the balance of a Bitcoin address relies on the [bitcoin_get_balance](ht
 ## Step 5: Sending bitcoin
 
 You can send bitcoin using the `send_from_${type}` endpoint on your canister, where
-`${type}` is on of `[p2pkh, p2tr_raw_key_spend, p2tr_script_spend]`.
+`${type}` is one of
+`[p2pkh_address, p2tr_address_key_path, p2tr_address_script_path, p2tr_key_only_address]`.
 
 In the Candid UI, add a destination address and an amount to send. In the example
 below, we're sending 4'321 Satoshi (0.00004321 BTC) back to the testnet faucet.
@@ -193,7 +179,7 @@ below, we're sending 4'321 Satoshi (0.00004321 BTC) back to the testnet faucet.
 Via command line, the same call would look like this:
 
 ```bash
-dfx canister --network=ic call basic_bitcoin send_from_p2pkh '(record { destination_address = "tb1ql7w62elx9ucw4pj5lgw4l028hmuw80sndtntxt"; amount_in_satoshi = 4321; })'
+dfx canister --network=ic call basic_bitcoin send_from_p2pkh_address '(record { destination_address = "tb1ql7w62elx9ucw4pj5lgw4l028hmuw80sndtntxt"; amount_in_satoshi = 4321; })'
 ```
 
 The `send_from_${type}` endpoint can send bitcoin by:

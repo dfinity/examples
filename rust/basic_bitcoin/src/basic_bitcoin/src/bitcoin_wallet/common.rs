@@ -110,6 +110,7 @@ pub async fn get_fee_per_byte(network: BitcoinNetwork) -> u64 {
 pub async fn mock_signer(
     _key_name: String,
     _derivation_path: Vec<Vec<u8>>,
+    _merkle_root_hash: Option<Vec<u8>>,
     _message_hash: Vec<u8>,
 ) -> Vec<u8> {
     vec![255; 64]

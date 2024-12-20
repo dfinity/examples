@@ -1,5 +1,7 @@
 use candid::{CandidType, Deserialize, Principal};
+use ic_cdk::api::management_canister::main::CanisterId;
 use serde::Serialize;
+use serde_bytes::ByteBuf;
 
 const SIGN_WITH_SCHNORR_FEE: u128 = 25_000_000_000;
 
@@ -30,11 +32,23 @@ struct SchnorrPublicKeyReply {
     pub chain_code: Vec<u8>,
 }
 
-#[derive(CandidType, Deserialize, Serialize, Debug)]
+#[derive(CandidType, Serialize, Debug)]
 struct SignWithSchnorr {
     pub message: Vec<u8>,
     pub derivation_path: Vec<Vec<u8>>,
     pub key_id: SchnorrKeyId,
+    pub aux: Option<SignWithSchnorrAux>,
+}
+
+#[derive(Eq, PartialEq, Debug, CandidType, Serialize)]
+pub enum SignWithSchnorrAux {
+    #[serde(rename = "bip341")]
+    Bip341(SignWithBip341Aux),
+}
+
+#[derive(Eq, PartialEq, Debug, CandidType, Serialize)]
+pub struct SignWithBip341Aux {
+    pub merkle_root_hash: ByteBuf,
 }
 
 #[derive(CandidType, Deserialize, Debug)]
@@ -45,7 +59,7 @@ struct SignWithSchnorrReply {
 /// Returns the Schnorr public key of this canister at the given derivation path.
 pub async fn schnorr_public_key(key_name: String, derivation_path: Vec<Vec<u8>>) -> Vec<u8> {
     let res: Result<(SchnorrPublicKeyReply,), _> = ic_cdk::call(
-        Principal::management_canister(),
+        mgmt_canister_id(),
         "schnorr_public_key",
         (SchnorrPublicKey {
             canister_id: None,
@@ -61,13 +75,23 @@ pub async fn schnorr_public_key(key_name: String, derivation_path: Vec<Vec<u8>>)
     res.unwrap().0.public_key
 }
 
+/// Returns the signature for `message` by a private and *distributed* private
+/// key derived from `key_name`, `derivation_path`, and the optional
+/// [BIP341](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki)
+/// `merkle_root_hash`.
 pub async fn sign_with_schnorr(
     key_name: String,
     derivation_path: Vec<Vec<u8>>,
+    merkle_root_hash: Option<Vec<u8>>,
     message: Vec<u8>,
 ) -> Vec<u8> {
+    let aux = merkle_root_hash.map(|bytes| {
+        SignWithSchnorrAux::Bip341(SignWithBip341Aux {
+            merkle_root_hash: ByteBuf::from(bytes),
+        })
+    });
     let res: Result<(SignWithSchnorrReply,), _> = ic_cdk::api::call::call_with_payment128(
-        Principal::management_canister(),
+        mgmt_canister_id(),
         "sign_with_schnorr",
         (SignWithSchnorr {
             message,
@@ -76,10 +100,20 @@ pub async fn sign_with_schnorr(
                 name: key_name,
                 algorithm: SchnorrAlgorithm::Bip340Secp256k1,
             },
+            aux,
         },),
         SIGN_WITH_SCHNORR_FEE,
     )
     .await;
 
     res.unwrap().0.signature
+}
+
+/// The current management canister Schnorr API in Pocket IC / `dfx` is not yet
+/// fully supported. Therefore, we install the `chainkey_testing_canister` via
+/// `dfx` and use that instead of the management canister for local testing.
+fn mgmt_canister_id() -> CanisterId {
+    crate::MGMT_CANISTER_ID
+        .with_borrow(|id| CanisterId::from_text(id))
+        .expect("invalid management canister principal string")
 }
