@@ -101,7 +101,7 @@ article](https://bitcoinmagazine.com/technical/bitcoin-address-types-compared-p2
 if you are interested in a high-level comparison of different address types.
 These addresses can be generated from an ECDSA public key or a Schnorr
 ([BIP340](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki),
-[BIP341](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki)) public
+[BIP341](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki)) public
 key. The example code showcases how your canister can generate and spend from
 three types of addresses:
 1. A [P2PKH address](https://en.bitcoin.it/wiki/Transaction#Pay-to-PubkeyHash)
