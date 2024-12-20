@@ -75,7 +75,6 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
     fast_forward(&pic, 5);
 
     // a message we can reverse to break the signature
-    // currently pocket IC only supports 32B messages for BIP340
     let message: String = std::iter::repeat('a')
         .take(16)
         .chain(std::iter::repeat('b').take(16))
@@ -104,6 +103,8 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
     );
 
     if sig_reply.is_err() {
+        // If we failed to produce a signature with particular testing
+        // parameters, still test that the verification fails on dummy inputs.
         assert!(!should_validate);
         let dummy_signature_hex = String::from("a".repeat(64));
         assert_ne!(
@@ -205,10 +206,7 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
             .unwrap(),
         );
 
-        assert!(
-            verification_reply.is_err() || !verification_reply.unwrap().is_signature_valid,
-            "either the public key should fail to deserialize or the verification should fail"
-        );
+        assert_ne!(verification_reply, successful_validation.clone());
     }
 
     {

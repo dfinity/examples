@@ -40,6 +40,7 @@ version available in the same repo and follows the same commands for deploying.
     if you do not already have it. For local testing, `dfx >= 0.22.0-beta.0` is
     required.
 -   [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+-   [x] On macOS, llvm with the `wasm32-unknown-unknown` target (which is not included in the XCode installation by default) is required. To install, run `brew install llvm`.
 
 ## Getting started
 
@@ -210,13 +211,13 @@ For obtaining the canister's root public key, the derivation path in the API can
 
 Computing threshold Schnorr signatures is the core functionality of this feature. **Canisters do not hold Schnorr keys themselves**, but keys are derived from a master key held by dedicated subnets. A canister can request the computation of a signature through the management canister API. The request is then routed to a subnet holding the specified key and the subnet computes the requested signature using threshold cryptography. Thereby, it derives the canister root key or a key obtained through further derivation, as part of the signature protocol, from a shared secret and the requesting canister's principal identifier. Thus, a canister can only request signatures to be created for its canister root key or a key derived from it. This means, that canisters "control" their private Schnorr keys in that they decide when signatures are to be created with them, but don't hold a private key themselves.
 
-Threschold Schnorr signature API allows to pass auxiliary information for
-signing. This is different from obtaining the public key, where the public key
-is known locally by the user and, therefore, the auxiliary information can be
-used directly. In signing, no one knows the private key in the clear, and,
-therefore, the auxiliary information needs to be used on the key shares.
+The threschold Schnorr signature API allows to pass auxiliary information for
+signing. This is different in the API for obtaining the public key, where the
+auxiliary information can be used directly on the public key because the public
+key is known by the user. In signing, no one knows the private key in the clear,
+and, therefore, the auxiliary information needs to be used on the key shares.
 
-Currently, the only type of auxiliary information supported on ICP is
+Currently, the only type of auxiliary information supported on ICP is a
 [BIP341](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki) Merkle
 tree root hash, which is part of Bitcoin taproot addresses. For BIP341, the key
 is "tweaked" by adding to it a hash over the untweaked public key and the
