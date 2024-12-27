@@ -26,6 +26,17 @@ $ dfx canister call berc_backend demonstrate_deadlines false
 (0 : nat64)
 ```
 
+The following examples demonstrate that best-effort response calls can be issued in composite and replicated queries, but the downstream canisters always observe the deadline as 0.
+
+```bash
+# Makes best-effort response calls to the downstream canister in a replicated query
+# One call is made to a query method, the other to a composite query, and the observed deadlines are returned.
+$ dfx canister call berc_backend test_deadlines_in_composite_query
+(0 : nat64, 0 : nat64)
+# Calls an update method which makes a replicated call to a query method which reports its observed deadline.
+$ dfx canister call berc_backend deadline_in_replicated_query
+(0 : nat64)
+```
 As an alternative to using `dfx canister call`, you can also use the Candid UI to interact with the canister.
 
 ## Second example: timeouts in best-effort response calls
