@@ -1,9 +1,9 @@
 {
   "dfx": "0.24.3",
   "canisters": {
-    "berc_backend": {
-      "candid": "src/berc_backend/berc_backend.did",
-      "package": "berc_backend",
+    "ber_backend": {
+      "candid": "src/ber_backend/ber_backend.did",
+      "package": "ber_backend",
       "type": "rust"
     }
   },

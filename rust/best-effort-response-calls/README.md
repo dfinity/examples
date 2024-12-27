@@ -19,10 +19,10 @@ In this example you can instruct the canister to issue a downstream call, which 
 $ dfx start
 $ dfx deploy
 # "true" below indicates that the call should be a best-effort response call
-$ dfx canister call berc_backend demonstrate_deadlines true
+$ dfx canister call ber_backend demonstrate_deadlines true
 (1_634_120_000_000 : nat64)
 # "false" below indicates that the call should be a guaranteed response call
-$ dfx canister call berc_backend demonstrate_deadlines false
+$ dfx canister call ber_backend demonstrate_deadlines false
 (0 : nat64)
 ```
 
@@ -31,10 +31,10 @@ The following examples demonstrate that best-effort response calls can be issued
 ```bash
 # Makes best-effort response calls to the downstream canister in a replicated query
 # One call is made to a query method, the other to a composite query, and the observed deadlines are returned.
-$ dfx canister call berc_backend test_deadlines_in_composite_query
+$ dfx canister call ber_backend test_deadlines_in_composite_query
 (0 : nat64, 0 : nat64)
 # Calls an update method which makes a replicated call to a query method which reports its observed deadline.
-$ dfx canister call berc_backend deadline_in_replicated_query
+$ dfx canister call ber_backend deadline_in_replicated_query
 (0 : nat64)
 ```
 As an alternative to using `dfx canister call`, you can also use the Candid UI to interact with the canister.
@@ -54,7 +54,7 @@ $ dfx deploy
 Then, run:
 
 ```
-$ dfx canister call berc_backend demonstrate_timeouts
+$ dfx canister call ber_backend demonstrate_timeouts
 (true)
 ```
 

@@ -1,5 +1,5 @@
 [workspace]
 members = [
-    "src/berc_backend"
+    "src/ber_backend"
 ]
 resolver = "2"

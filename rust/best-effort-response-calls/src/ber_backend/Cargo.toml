@@ -1,5 +1,5 @@
 [package]
-name = "berc_backend"
+name = "ber_backend"
 version = "0.1.0"
 edition = "2021"
 

@@ -9,11 +9,11 @@ build:
 .PHONY: test
 .SILENT: test
 test: build
-	dfx canister call berc_backend demonstrate_deadlines true | grep -E '\([1-9][0-9_]* : nat64\)' && echo 'PASS'
-	dfx canister call berc_backend demonstrate_deadlines false | grep '(0 : nat64)' && echo 'PASS'
-	dfx canister call berc_backend test_deadlines_in_composite_query  | grep '(0 : nat64, 0 : nat64)' && echo 'PASS'
-	dfx canister call berc_backend deadline_in_replicated_query | grep '(0 : nat64)' && echo 'PASS'
-	dfx canister call berc_backend demonstrate_timeouts | grep '(true)' && echo 'PASS'
+	dfx canister call ber_backend demonstrate_deadlines true | grep -E '\([1-9][0-9_]* : nat64\)' && echo 'PASS'
+	dfx canister call ber_backend demonstrate_deadlines false | grep '(0 : nat64)' && echo 'PASS'
+	dfx canister call ber_backend test_deadlines_in_composite_query  | grep '(0 : nat64, 0 : nat64)' && echo 'PASS'
+	dfx canister call ber_backend deadline_in_replicated_query | grep '(0 : nat64)' && echo 'PASS'
+	dfx canister call ber_backend demonstrate_timeouts | grep '(true)' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean
