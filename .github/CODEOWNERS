@@ -44,6 +44,7 @@
 /rust/basic_bitcoin/ @dfinity/execution
 /rust/basic_dao/ @dfinity/testing-verification
 /rust/basic_ethereum/ @dfinity/cross-chain-team
+/rust/best-effort-response-calls/ @dfinity/message-routing
 /rust/canister-info/ @dfinity/testing-verification
 /rust/canister-snapshots/ @dfinity/execution
 /rust/canister_logs/ @dfinity/execution
