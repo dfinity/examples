@@ -1,5 +1,12 @@
 use ic_cdk::call::CallError;
 use ic_cdk::prelude::*;
+use ic0::msg_deadline as unsafe_msg_deadline;
+
+fn msg_deadline() -> u64 {
+    unsafe {
+        unsafe_msg_deadline()
+    }
+}
 
 /// Demonstrates that the system accepts best-effort calls, and that the receiver observes a deadline.
 ///
@@ -8,17 +15,17 @@ use ic_cdk::prelude::*;
 /// receiver method.
 #[ic_cdk::update]
 async fn demonstrate_deadlines(use_best_effort_response: bool) -> u64 {
-    let call_builder = Call::new(ic_cdk::id(), "deadline_in_update").with_args(());
+    let call_builder = Call::new(ic_cdk::api::canister_self(), "deadline_in_update").with_args(());
     let call_builder = if use_best_effort_response {
         call_builder.change_timeout(1)
     } else {
         call_builder.with_guaranteed_response()
     };
-    let res: (u64,) = call_builder
+    let res: u64= call_builder
         .call()
         .await
         .expect("Didn't expect the call to fail");
-    res.0
+    res
 }
 
 /// Endpoint that demonstrates that timeouts can trigger with best-effort responses.
@@ -27,7 +34,7 @@ async fn demonstrate_deadlines(use_best_effort_response: bool) -> u64 {
 /// the caller to indicate whether a timeout has occured (true = yes, false = no)
 #[ic_cdk::update]
 async fn demonstrate_timeouts() -> bool {
-    let res: CallResult<(u64,)> = Call::new(ic_cdk::id(), "busy")
+    let res: CallResult<u64> = Call::new(ic_cdk::api::canister_self(), "busy")
         .change_timeout(1)
         .with_args(((),))
         .call()
@@ -41,7 +48,7 @@ async fn demonstrate_timeouts() -> bool {
             ic_cdk::println!("Unexpected error returned by the call: {:?}", e);
             false
         }
-        Ok((r, )) => {
+        Ok(r) => {
             ic_cdk::println!("Unexpected successful result returned by the call: {:?}", r);
             false
         }
@@ -63,44 +70,43 @@ async fn busy() -> u64 {
 
 #[ic_cdk::update]
 async fn deadline_in_update() -> u64 {
-    ic_cdk::api::call::msg_deadline()
+    msg_deadline()
 }
 
 #[ic_cdk::query]
 async fn deadline_in_query() -> u64 {
-    ic_cdk::api::call::msg_deadline()
+    msg_deadline()
 }
 
 #[ic_cdk::query(composite = true)]
 async fn deadline_in_composite_query() -> u64 {
-    ic_cdk::api::call::msg_deadline()
+    msg_deadline()
 }
 
 #[ic_cdk::query(composite = true)]
 async fn test_deadlines_in_composite_query() -> (u64, u64) {
-    let deadline_in_query: (u64,) = Call::new(ic_cdk::id(), "deadline_in_query")
-        .with_args(((),))
+    let deadline_in_query: u64 = Call::new(ic_cdk::api::canister_self(), "deadline_in_query")
+        .with_args(())
         .change_timeout(1)
         .call()
         .await
         .expect("Failed to call deadline_in_query");
-    let deadline_of_query_in_composite_query: (u64,) =
-        Call::new(ic_cdk::id(), "deadline_in_composite_query")
-            .with_args(((),))
+    let deadline_of_query_in_composite_query: u64 =
+        Call::new(ic_cdk::api::canister_self(), "deadline_in_composite_query")
+            .with_args(())
             .change_timeout(1)
             .call()
             .await
             .expect("Failed to call deadline_in_composite_query");
-    (deadline_in_query.0, deadline_of_query_in_composite_query.0)
+    (deadline_in_query, deadline_of_query_in_composite_query)
 }
 
 #[ic_cdk::update]
 async fn deadline_in_replicated_query() -> u64 {
-    Call::new(ic_cdk::id(), "deadline_in_query")
-        .with_args(((),))
+    Call::new(ic_cdk::api::canister_self(), "deadline_in_query")
+        .with_args(())
         .change_timeout(1)
-        .call::<(u64,)>()
+        .call::<u64>()
         .await
         .expect("Failed to call deadline_in_query")
-        .0
 }

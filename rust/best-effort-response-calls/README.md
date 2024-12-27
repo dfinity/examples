@@ -20,7 +20,7 @@ $ dfx start
 $ dfx deploy
 # "true" below indicates that the call should be a best-effort response call
 $ dfx canister call berc_backend demonstrate_deadlines true
-(1634120000000 : nat64)
+(1_634_120_000_000 : nat64)
 # "false" below indicates that the call should be a guaranteed response call
 $ dfx canister call berc_backend demonstrate_deadlines false
 (0 : nat64)
@@ -44,7 +44,7 @@ Then, run:
 
 ```
 $ dfx canister call berc_backend demonstrate_timeouts
-(true : bool)
+(true)
 ```
 
 The above command returning true indicates that the downstream call timed out.

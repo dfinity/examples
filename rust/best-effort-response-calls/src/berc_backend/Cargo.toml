@@ -10,4 +10,5 @@ crate-type = ["cdylib"]
 
 [dependencies]
 candid = "0.10"
-ic-cdk = { git = "https://github.com/dfinity/cdk-rs.git", branch = "next" } 
+ic-cdk = { git = "https://github.com/dfinity/cdk-rs.git", rev = "c2ba198447deb422b16c2034274b7416b6e0134a", package = "ic-cdk" }
+ic0 = { git = "https://github.com/dfinity/cdk-rs.git", rev = "c2ba198447deb422b16c2034274b7416b6e0134a", package = "ic0" }
