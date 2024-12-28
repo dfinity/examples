@@ -8,9 +8,6 @@
 [submodule "rust/defi/DIP20"]
 	path = rust/defi/src/DIP20
 	url = https://github.com/Psychedelic/DIP20.git
-[submodule "motoko/basic_bitcoin/motoko-bitcoin"]
-	path = motoko/basic_bitcoin/motoko-bitcoin
-	url = https://github.com/tgalal/motoko-bitcoin
 [submodule "svelte/svelte-starter/internet-identity"]
 	path = svelte/svelte-starter/internet-identity
 	url = https://github.com/dfinity/internet-identity.git

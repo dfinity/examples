@@ -235,10 +235,22 @@ async function ibe_decrypt(ibe_ciphertext_hex) {
 
 document.getElementById("login").onclick = async (e) => {
   e.preventDefault();
+
+  // According to https://github.com/dfinity/internet-identity?tab=readme-ov-file#local-replica,
+  // for local deployments, the II URL must be different depending on the browser:
+  // Chrome, Firefox: http://<canister_id>.localhost:4943
+  // Safari: http://localhost:4943?canisterId=<canister_id>
+  // 
+  // Safari detection rules are according to: https://developer.mozilla.org/en-US/docs/Web/HTTP/Browser_detection_using_the_user_agent#browser_name_and_version
+  let isSafari = /^(?!.*chrome\/\d+)(?!.*chromium\/\d+).*safari\/\d+/i.test(navigator.userAgent);
+  let identityProvider = isSafari ?
+    `http://127.0.0.1:4943/?canisterId=${process.env.CANISTER_ID_INTERNET_IDENTITY}` :
+    `http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943/`;
+
   let authClient = await AuthClient.create();
   await new Promise((resolve) => {
     authClient.login({
-      identityProvider: `http://127.0.0.1:4943/?canisterId=${process.env.INTERNET_IDENTITY_CANISTER_ID}`,
+      identityProvider: identityProvider,
       onSuccess: resolve,
     });
   });
@@ -247,7 +259,7 @@ document.getElementById("login").onclick = async (e) => {
   // Using the identity obtained from the auth client, we can create an agent to interact with the IC.
   const agent = new HttpAgent({ identity });
   // Using the interface description of our webapp, we create an actor that we use to call the service methods. We override the global actor, such that the other button handler will automatically use the new actor with the Internet Identity provided delegation.
-  app_backend_actor = createActor(process.env.APP_BACKEND_CANISTER_ID, {
+  app_backend_actor = createActor(process.env.CANISTER_ID_APP_BACKEND, {
     agent,
   });
   app_backend_principal = identity.getPrincipal();

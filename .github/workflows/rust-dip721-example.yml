@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   rust-dip721-darwin:
-    runs-on: macos-12
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v2
         with:

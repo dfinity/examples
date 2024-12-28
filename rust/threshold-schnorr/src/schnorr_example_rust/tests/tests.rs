@@ -1,5 +1,5 @@
 use candid::{decode_one, encode_args, encode_one, CandidType, Principal};
-use pocket_ic::{PocketIc, WasmResult};
+use pocket_ic::{PocketIc, PocketIcBuilder, WasmResult};
 use schnorr_example_rust::{
     PublicKeyReply, SchnorrAlgorithm, SignatureReply, SignatureVerificationReply,
 };
@@ -11,7 +11,11 @@ fn signing_and_verification_should_work_correctly() {
     const ALGORITHMS: [SchnorrAlgorithm; 2] =
         [SchnorrAlgorithm::Bip340Secp256k1, SchnorrAlgorithm::Ed25519];
 
-    let pic = PocketIc::new();
+    let pic = PocketIcBuilder::new()
+        .with_application_subnet()
+        .with_ii_subnet()
+        .with_fiduciary_subnet()
+        .build();
 
     for algorithm in ALGORITHMS {
         for _trial in 0..5 {
@@ -23,18 +27,6 @@ fn signing_and_verification_should_work_correctly() {
 fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm) {
     let my_principal = Principal::anonymous();
 
-    // Create an empty canister as the anonymous principal and add cycles.
-    let schnorr_mock_canister_id = pic.create_canister();
-    pic.add_cycles(schnorr_mock_canister_id, 2_000_000_000_000);
-
-    let schnorr_mock_wasm_bytes = load_schnorr_mock_canister_wasm();
-    pic.install_canister(
-        schnorr_mock_canister_id,
-        schnorr_mock_wasm_bytes,
-        vec![],
-        None,
-    );
-
     // Create an empty example canister as the anonymous principal and add cycles.
     let example_canister_id = pic.create_canister();
     pic.add_cycles(example_canister_id, 2_000_000_000_000);
@@ -45,27 +37,19 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm) {
     // Make sure the canister is properly initialized
     fast_forward(&pic, 5);
 
-    let _dummy_reply: () = update(
-        &pic,
-        my_principal,
-        example_canister_id,
-        "for_test_only_change_management_canister_id",
-        encode_one(schnorr_mock_canister_id.to_text()).unwrap(),
-    )
-    .expect("failed to update management canister id");
-
-    // Make sure the example canister uses mock schnorr canister instead of
-    // the management canister
-    fast_forward(&pic, 5);
-
-    let message_hex = hex::encode("Test message");
+    // a message we can reverse to break the signature
+    // currently pocket IC only supports 32B messages for BIP340
+    let message: String = std::iter::repeat('a')
+        .take(16)
+        .chain(std::iter::repeat('b').take(16))
+        .collect();
 
     let sig_reply: Result<SignatureReply, String> = update(
         &pic,
         my_principal,
         example_canister_id,
         "sign",
-        encode_args((message_hex.clone(), algorithm)).unwrap(),
+        encode_args((message.clone(), algorithm)).unwrap(),
     );
 
     let signature_hex = sig_reply.expect("failed to sign").signature_hex;
@@ -88,7 +72,7 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm) {
             "verify",
             encode_args((
                 signature_hex.clone(),
-                message_hex.clone(),
+                message.clone(),
                 public_key_hex.clone(),
                 algorithm,
             ))
@@ -106,7 +90,7 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm) {
             "verify",
             encode_args((
                 clone_and_reverse_chars(&signature_hex),
-                message_hex.clone(),
+                message.clone(),
                 public_key_hex.clone(),
                 algorithm,
             ))
@@ -124,7 +108,7 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm) {
             "verify",
             encode_args((
                 signature_hex.clone(),
-                clone_and_reverse_chars(&message_hex),
+                clone_and_reverse_chars(&message),
                 public_key_hex.clone(),
                 algorithm,
             ))
@@ -142,7 +126,7 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm) {
             "verify",
             encode_args((
                 signature_hex.clone(),
-                message_hex.clone(),
+                message.clone(),
                 clone_and_reverse_chars(&public_key_hex),
                 algorithm,
             ))
@@ -163,7 +147,7 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm) {
             "verify",
             encode_args((
                 signature_hex.clone(),
-                message_hex.clone(),
+                message.clone(),
                 public_key_hex.clone(),
                 other_algorithm(algorithm),
             ))
@@ -199,15 +183,6 @@ fn load_schnorr_example_canister_wasm() -> Vec<u8> {
     let zipped_bytes = e.finish().unwrap();
 
     zipped_bytes
-}
-
-fn load_schnorr_mock_canister_wasm() -> Vec<u8> {
-    let wasm_url = "https://github.com/domwoe/schnorr_canister/releases/download/v0.4.0/schnorr_canister.wasm.gz";
-    reqwest::blocking::get(wasm_url)
-        .unwrap()
-        .bytes()
-        .unwrap()
-        .to_vec()
 }
 
 pub fn update<T: CandidType + for<'de> Deserialize<'de>>(

@@ -1,0 +1,138 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+body {
+    font-family: monospace;
+    width: 100%;
+    color: #2563eb;
+}
+
+h1 {
+    font-size: larger;
+    display: flex;
+    align-items: center;
+}
+
+form {
+    display: flex;
+    justify-content: center;
+    max-width: 80vw;
+    margin: auto;
+}
+
+div {
+    display: flex;
+    max-width: 80vw;
+    flex-flow: column;
+    align-items: baseline;
+}
+
+#camera {
+    position: relative;
+    margin-top: 10px;
+    height: 320px;
+    cursor: pointer;
+}
+
+#camera>video,
+#camera>canvas,
+#camera>img {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    border: 1px solid #2563eb;
+    max-width: 450px;
+    width: auto;
+    height: 320px;
+    border-radius: 0.6rem;
+}
+
+
+.invisible {
+    visibility: hidden;
+}
+
+@keyframes astrodance {
+    0% {
+        transform: translate(-50%, -50%) rotate(-20deg)
+    }
+
+    50% {
+        transform: translate(-50%, -50%) rotate(10deg)
+    }
+
+    to {
+        transform: translate(-50%, -50%) rotate(-20deg)
+    }
+}
+
+#loader {
+    width: 32px;
+    margin-top: -64px;
+    margin-left: 32px;
+    display: block;
+    -webkit-user-select: none;
+    user-select: none;
+    animation-name: astrodance;
+    animation-duration: 5s;
+    animation-iteration-count: infinite;
+    animation-timing-function: ease-in-out;
+    border: none;
+    background-color: transparent;
+}
+
+#toolbar {
+    position: relative;
+    margin-top: 30px;
+}
+
+#buttons {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    display: flex;
+    flex-direction: row;
+    gap: 1rem;
+    justify-content: center;
+}
+
+button,
+#buttons label {
+    text-wrap: nowrap;
+    display: inline;
+    padding: 0.75rem 1rem;
+    border: none;
+    border-radius: 0.5rem;
+    background-color: #2563eb;
+    color: #fff;
+    cursor: pointer;
+}
+
+button:hover,
+#buttons label:hover {
+    background-color: #3583fb;
+}
+
+button i {
+    margin-right: 0.5rem;
+    font-size: 1rem;
+}
+
+#message {
+    max-width: 300px;
+    font-size: 120%;
+}
+
+input.file {
+    display: none;
+}
+
+.container {
+    margin: 0 auto;
+    width: 450px;
+}
+
+#inline-logo {
+    height: 1em;
+    margin-left: 0.2ch;
+    margin-right: 1ch;
+}

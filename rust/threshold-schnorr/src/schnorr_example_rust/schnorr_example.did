@@ -1,7 +1,6 @@
 type SchnorrAlgorithm = variant {bip340secp256k1; ed25519};
 
 service : {
-  for_test_only_change_management_canister_id : (text) -> (variant { Ok: null; Err: text });
   public_key : (SchnorrAlgorithm) -> (variant { Ok: record { public_key_hex: text; }; Err: text });
   sign : (text, SchnorrAlgorithm) -> (variant { Ok: record { signature_hex: text; }; Err: text });
   verify : (text, text, text, SchnorrAlgorithm) -> (variant { Ok: record { is_signature_valid: bool; }; Err: text });

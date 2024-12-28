@@ -10,15 +10,8 @@ keywords: [advanced, rust, threshold schnorr, schnorr, signature]
 
 We present a minimal example canister smart contract for showcasing the
 [threshold
-Schnorr](https://org5p-7iaaa-aaaak-qckna-cai.icp0.io/docs#ic-sign_with_schnorr)
+Schnorr](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr)
 API.
-
-WARNING: the current version of this canister calls not the management canister
-but a custom canister, which produces Schnorr signatures in an INSECURE way.
-This is done for testing purposes ONLY and MUST NOT be done in production. In
-production, ONLY the management canister API MUST be used. The reason is that
-the management canister API is not yet fully implemented and instead of the
-management canister we use a mock canister that provides Schnorr signatures.
 
 The example canister is a signing oracle that creates Schnorr signatures with
 keys derived based on the canister ID and the chosen algorithm, either BIP340 or
@@ -42,29 +35,29 @@ version available in the same repo and follows the same commands for deploying.
 
 
 ## Prerequisites
--   [x] Download and [install the IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/index.md) if you do not already have it.
+-   [x] Download and [install the IC
+    SDK](https://internetcomputer.org/docs/current/developer-docs/setup/index.md)
+    if you do not already have it. For local testing, `dfx >= 0.22.0-beta.0` is
+    required.
 -   [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 ## Getting started
 
 Sample code for `threshold-schnorr-example` is provided in the [examples repository](https://github.com/dfinity/examples), under either [`/motoko`](https://github.com/dfinity/examples/tree/master/motoko/threshold-schnorr) or [`/rust`](https://github.com/dfinity/examples/tree/master/rust/threshold-schnorr) sub-directories.
 
-### Deploy and test the canister locally 
+### Deploy the canister locally
 
 This tutorial will use the Rust version of the canister:
 
 ```bash
 cd examples/rust/threshold-schnorr
 dfx start --background
-npm install
-make mock
+make deploy
 ```
 
 #### What this does
 - `dfx start --background` starts a local instance of the IC via the IC SDK
-- `make mock` deploys the canister code on the local version of the IC and
-  updates the canister ID that produces Schnorr signatures (see the WARNING at
-  the beginning of this document)
+- `make deploy` deploys the canister code on the local version of the IC
 
 If successful, you should see something like this:
 
@@ -88,7 +81,7 @@ To deploy this canister the mainnet, one needs to do two things:
 
 #### Acquire cycles to deploy
 
-Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/setup/cycles). You can get free cycles from the [cycles faucet](https://internetcomputer.org/docs/current/developer-docs/getting-started/cycles/cycles-faucet).
+Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/getting-started/tokens-and-cycles) (the equivalent of "gas" on other blockchains).
 
 #### Update source code with the right key ID
 
@@ -117,7 +110,6 @@ Both uses of key ID in `src/schnorr_example_rust/src/lib.rs` must be consistent.
 To [deploy via the mainnet](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-mainnet.md), run the following commands:
 
 ```bash
-npm install
 dfx deploy --network ic
 ```
 If successful, you should see something like this:
@@ -126,10 +118,10 @@ If successful, you should see something like this:
 Deployed canisters.
 URLs:
   Backend canister via Candid interface:
-    schnorr_example_rust: https://a3gq9-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=736w4-cyaaa-aaaal-qb3wq-cai
+    schnorr_example_rust: https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=enb64-iaaaa-aaaap-ahnkq-cai
 ```
 
-# In the example above, `schnorr_example_rust` has the URL https://a3gq9-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=736w4-cyaaa-aaaal-qb3wq-cai and serves up the Candid web UI for this particular canister deployed on mainnet.
+In the example above, `schnorr_example_rust` has the URL https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=enb64-iaaaa-aaaap-ahnkq-cai and serves up the Candid web UI for this particular canister deployed on mainnet.
 
 ## Obtaining public keys
 
@@ -165,7 +157,7 @@ async fn public_key(algorithm: SchnorrAlgorithm) -> Result<PublicKeyReply, Strin
     };
 
     let (res,): (ManagementCanisterSchnorrPublicKeyReply,) =
-        ic_cdk::call(mgmt_canister_id(), "schnorr_public_key", (request,))
+        ic_cdk::call(Principal::management_canister(), "schnorr_public_key", (request,))
             .await
             .map_err(|e| format!("schnorr_public_key failed {}", e.1))?;
 
@@ -210,7 +202,7 @@ async fn sign(message: String, algorithm: SchnorrAlgorithm) -> Result<SignatureR
 
     let (internal_reply,): (ManagementCanisterSignatureReply,) =
         ic_cdk::api::call::call_with_payment(
-            mgmt_canister_id(),
+            Principal::management_canister(),
             "sign_with_schnorr",
             (internal_request,),
             25_000_000_000,

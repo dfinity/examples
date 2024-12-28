@@ -37,7 +37,7 @@ module {
   };
 
   public func sign_with_ecdsa(key_name : Text, derivation_path : [Blob], message_hash : Blob) : async Blob {
-    ExperimentalCycles.add(SIGN_WITH_ECDSA_COST_CYCLES);
+    ExperimentalCycles.add<system>(SIGN_WITH_ECDSA_COST_CYCLES);
     let res = await ecdsa_canister_actor.sign_with_ecdsa({
         message_hash;
         derivation_path;

@@ -10,49 +10,45 @@ export const idlFactory = ({ IDL }) => {
     'start' : IDL.Opt(TxId),
     'account' : Account,
   });
+  const Burn = IDL.Record({
+    'from' : Account,
+    'memo' : IDL.Opt(IDL.Vec(IDL.Nat8)),
+    'created_at_time' : IDL.Opt(IDL.Nat64),
+    'amount' : IDL.Nat,
+    'spender' : IDL.Opt(Account),
+  });
+  const Mint = IDL.Record({
+    'to' : Account,
+    'memo' : IDL.Opt(IDL.Vec(IDL.Nat8)),
+    'created_at_time' : IDL.Opt(IDL.Nat64),
+    'amount' : IDL.Nat,
+  });
+  const Approve = IDL.Record({
+    'fee' : IDL.Opt(IDL.Nat),
+    'from' : Account,
+    'memo' : IDL.Opt(IDL.Vec(IDL.Nat8)),
+    'created_at_time' : IDL.Opt(IDL.Nat64),
+    'amount' : IDL.Nat,
+    'expected_allowance' : IDL.Opt(IDL.Nat),
+    'expires_at' : IDL.Opt(IDL.Nat64),
+    'spender' : Account,
+  });
+  const Transfer = IDL.Record({
+    'to' : Account,
+    'fee' : IDL.Opt(IDL.Nat),
+    'from' : Account,
+    'memo' : IDL.Opt(IDL.Vec(IDL.Nat8)),
+    'created_at_time' : IDL.Opt(IDL.Nat64),
+    'amount' : IDL.Nat,
+    'spender' : IDL.Opt(Account),
+  });
   const Transaction = IDL.Record({
-    'burn' : IDL.Opt(
-      IDL.Record({
-        'from' : Account,
-        'memo' : IDL.Opt(IDL.Vec(IDL.Nat8)),
-        'created_at_time' : IDL.Opt(IDL.Nat64),
-        'amount' : IDL.Nat,
-        'spender' : IDL.Opt(Account),
-      })
-    ),
+    'burn' : IDL.Opt(Burn),
     'kind' : IDL.Text,
-    'mint' : IDL.Opt(
-      IDL.Record({
-        'to' : Account,
-        'memo' : IDL.Opt(IDL.Vec(IDL.Nat8)),
-        'created_at_time' : IDL.Opt(IDL.Nat64),
-        'amount' : IDL.Nat,
-      })
-    ),
-    'approve' : IDL.Opt(
-      IDL.Record({
-        'fee' : IDL.Opt(IDL.Nat),
-        'from' : Account,
-        'memo' : IDL.Opt(IDL.Vec(IDL.Nat8)),
-        'created_at_time' : IDL.Opt(IDL.Nat64),
-        'amount' : IDL.Nat,
-        'expected_allowance' : IDL.Opt(IDL.Nat),
-        'expires_at' : IDL.Opt(IDL.Nat64),
-        'spender' : IDL.Opt(Account),
-      })
-    ),
+    'mint' : IDL.Opt(Mint),
+    'approve' : IDL.Opt(Approve),
     'timestamp' : IDL.Nat64,
-    'transfer' : IDL.Opt(
-      IDL.Record({
-        'to' : Account,
-        'fee' : IDL.Opt(IDL.Nat),
-        'from' : Account,
-        'memo' : IDL.Opt(IDL.Vec(IDL.Nat8)),
-        'created_at_time' : IDL.Opt(IDL.Nat64),
-        'amount' : IDL.Nat,
-        'spender' : IDL.Opt(Account),
-      })
-    ),
+    'transfer' : IDL.Opt(Transfer),
   });
   const TransactionWithId = IDL.Record({
     'id' : TxId,

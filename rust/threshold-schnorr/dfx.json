@@ -4,11 +4,6 @@
       "candid": "src/schnorr_example_rust/schnorr_example.did",
       "package": "schnorr_example_rust",
       "type": "rust"
-    },
-    "schnorr_canister": {
-      "type": "custom",
-      "candid": "https://github.com/domwoe/schnorr_canister/releases/download/v0.4.0//schnorr_canister.did",
-      "wasm": "https://github.com/domwoe/schnorr_canister/releases/download/v0.4.0/schnorr_canister.wasm.gz"
     }
   }
 }
