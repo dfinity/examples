@@ -8,7 +8,6 @@ use ic_cdk::{query, update};
 use serde::{Deserialize, Serialize};
 use serde_bytes::ByteBuf;
 use std::cell::RefCell;
-use std::convert::TryFrom;
 use std::convert::TryInto;
 
 type CanisterId = Principal;
@@ -175,13 +174,16 @@ fn verify_bip340_secp256k1(
 ) -> Result<SignatureVerificationReply, String> {
     assert_eq!(secp1_pk_bytes.len(), 33);
 
-    let sig =
-        k256::schnorr::Signature::try_from(sig_bytes).expect("failed to deserialize signature");
+    let sig = bitcoin::secp256k1::schnorr::Signature::from_slice(sig_bytes)
+        .expect("failed to deserialize signature");
 
-    let vk = k256::schnorr::VerifyingKey::from_bytes(&secp1_pk_bytes[1..])
+    let pk = bitcoin::secp256k1::XOnlyPublicKey::from_slice(&secp1_pk_bytes[1..])
         .expect("failed to deserialize BIP340 encoding into public key");
 
-    let is_signature_valid = vk.verify_raw(&msg_bytes, &sig).is_ok();
+    let secp256k1_engine = Secp256k1::new();
+    let msg =
+        bitcoin::secp256k1::Message::from_digest_slice(msg_bytes).expect("failed to parse message");
+    let is_signature_valid = pk.verify(&secp256k1_engine, &msg, &sig).is_ok();
 
     Ok(SignatureVerificationReply { is_signature_valid })
 }
@@ -212,13 +214,16 @@ fn verify_bip341_secp256k1(
             .serialize()
     };
 
-    let sig =
-        k256::schnorr::Signature::try_from(sig_bytes).expect("failed to deserialize signature");
+    let sig = bitcoin::secp256k1::schnorr::Signature::from_slice(sig_bytes)
+        .expect("failed to deserialize signature");
 
-    let vk = k256::schnorr::VerifyingKey::from_bytes(&tweaked_pk_bytes)
-        .expect("failed to deserialize BIP340 encoding into public key");
+    let pk = bitcoin::secp256k1::XOnlyPublicKey::from_slice(&tweaked_pk_bytes)
+        .expect("failed to deserialize tweaked BIP340 encoding into public key");
 
-    let is_signature_valid = vk.verify_raw(&msg_bytes, &sig).is_ok();
+    let secp256k1_engine = Secp256k1::new();
+    let msg =
+        bitcoin::secp256k1::Message::from_digest_slice(msg_bytes).expect("failed to parse message");
+    let is_signature_valid = pk.verify(&secp256k1_engine, &msg, &sig).is_ok();
 
     Ok(SignatureVerificationReply { is_signature_valid })
 }
