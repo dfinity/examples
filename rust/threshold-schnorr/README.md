@@ -211,7 +211,7 @@ For obtaining the canister's root public key, the derivation path in the API can
 
 Computing threshold Schnorr signatures is the core functionality of this feature. **Canisters do not hold Schnorr keys themselves**, but keys are derived from a master key held by dedicated subnets. A canister can request the computation of a signature through the management canister API. The request is then routed to a subnet holding the specified key and the subnet computes the requested signature using threshold cryptography. Thereby, it derives the canister root key or a key obtained through further derivation, as part of the signature protocol, from a shared secret and the requesting canister's principal identifier. Thus, a canister can only request signatures to be created for its canister root key or a key derived from it. This means, that canisters "control" their private Schnorr keys in that they decide when signatures are to be created with them, but don't hold a private key themselves.
 
-The threschold Schnorr signature API allows to pass auxiliary information for
+The threshold Schnorr signature API allows to pass auxiliary information for
 signing. This is different in the API for obtaining the public key, where the
 auxiliary information can be used directly on the public key because the public
 key is known by the user. In signing, no one knows the private key in the clear,
