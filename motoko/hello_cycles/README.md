@@ -1,12 +1,4 @@
----
-keywords: [beginner, motoko, hello, hello cycles, cycles]
----
-
 # Hello, cycles!
-
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/hello_cycles)
-
-## Overview
 
 The `hello_cycle`s sample project provides a simple example to illustrate how you might add functions to receive cycles, transfer cycles, and check your cycle balance with a simple Motoko actor (canister).
 
@@ -24,30 +16,33 @@ This example consists of the following functions (see `src/hello_cycles/main.mo`
 The wallet's `wallet_receive` return type differs from hello_cycle's `wallet_receive`.
 :::
 
-This is a Motoko example that does not currently have a Rust variant. 
+This is a Motoko example that does not currently have a Rust variant.
 
 ## Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
-- [x] Download the following project files from GitHub: `git clone https://github.com/dfinity/examples`
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
 
-### Step 1: Navigate into the folder containing the project's files and start a local instance of the replica with the command:
+## Step 1: Setup the project environment
+
+Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
+
 
 ```bash
 cd examples/motoko/hello_cycles
 dfx start --background
 ```
 
-### Step 2: Deploy the canister:
+## Step 2: Deploy the canister
 
 ```bash
 dfx deploy
 ```
 
-### Step 3: Check that the current cycles balance of canister hello_cycles by running the following command:
+## Step 3: Check that the current cycles balance of the `hello_cycles` canister
 
 ```bash
 dfx canister call hello_cycles wallet_balance
@@ -59,7 +54,7 @@ The output should resemble the following:
 (3_091_662_816_985 : nat)
 ```
 
-You can also see the cycles balance of hello_cycles (or any canister you control) by calling:
+You can also see the cycles balance of `hello_cycles` (or any canister you control) by calling:
 
 ```bash
 dfx canister status hello_cycles
@@ -79,7 +74,7 @@ Balance: 3_092_278_099_590 Cycles
 Module hash: 0x09198be65e161bdb5c75c705dfec4b707a8091ac5d1a095dd45c025142a1fc43
 ```
 
-### Step 4: To display the default wallet and hello_cycles canister principals, run the commands:
+## Step 4: Display the default wallet and hello_cycles canister principals
 
 ```bash
 dfx identity get-wallet
@@ -95,7 +90,7 @@ dzh22-nuaaa-aaaaa-qaaoa-cai
 
 Below, we'll frequently use `$(dfx identity get-wallet)` and `$(dfx canister id hello_cycles)` to splice canister principals into longer bash commands.
 
-### Step 5: Attempt to send 2 trillion cycles from the default wallet to the hello_cycles canister by running the following command:
+## Step 5: Attempt to send 2 trillion cycles from the default wallet to the hello_cycles canister
 
 ```bash
 dfx canister call $(dfx identity get-wallet) wallet_send "(record { canister = principal \"$(dfx canister id hello_cycles)\"; amount = (2000000000000:nat64); } )"
@@ -109,7 +104,7 @@ If successful, the output will look similar to:
 (variant { 17_724 })
 ```
 
-#### Step 6: Verify that the cycles balance for the hello_cycles canister has increased by 10_000_000 by running the following command:
+## Step 6: Verify that the cycles balance for the hello_cycles canister has increased by 10_000_000
 
 ```bash
 dfx canister call hello_cycles wallet_balance
@@ -123,19 +118,19 @@ Output:
 
 The amount is only increased by 10_000_000 because the implementation of `wallet_receive` is coded to accept at most 10_000_000 cycles, even when more cycles were transferred with the call. The unaccepted cycles are not lost but implicitly refunded to the caller (in this case, the wallet).
 
-### Step 7: Send some cycles from the hello_cycles canister back to the wallet by running the command:
+## Step 7: Send some cycles from the hello_cycles canister back to the wallet
 
 ```bash
 dfx canister call hello_cycles transfer "(func \"$(dfx identity get-wallet)\".\"wallet_receive\", 5000000)"
 ```
 
-Output: 
+Output:
 
 ```bash
 (record { refunded = 0 : nat })
 ```
 
-### Step 8: Verify that the cycles balance of the `hello_cycles` canister has decreased with:
+## Step 8: Verify that the cycles balance of the `hello_cycles` canister has decreased
 
 ```bash
 dfx canister call hello_cycles wallet_balance
