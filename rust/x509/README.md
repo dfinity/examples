@@ -38,7 +38,6 @@ up to the deployment and trying out the code on the mainnet.
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install) v`0.23.0` or newer.
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
-The minimum version of `dfx` thatrun this example locally is
 -   [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 ## Deploy and test the canister locally
