@@ -71,7 +71,7 @@ web UI.
 
 ## Deploying the canister on the mainnet
 
-To deploy this canister the mainnet, you must do two things:
+Before deploying this canister to the mainnet, you must do the following:
 
 - Acquire cycles (equivalent of "gas" in other blockchains). This is necessary for all canisters.
 - Update the sample source code to have the right key ID. This is unique to this canister.
