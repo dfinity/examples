@@ -1,12 +1,4 @@
----
-keywords: [advanced, rust, periodic, timer, heartbeats]
----
-
 # Periodic tasks and timers
-
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/periodic_tasks)
-
-## Overview
 
 Unlike other blockchains, the Internet Computer can automatically execute canister smart contracts after a specified delay or periodically.
 
@@ -22,21 +14,17 @@ The example consists of two canisters named `heartbeat` and `timer`, both implem
 ## Prerequisites
 This example requires an installation of:
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
-### Example 1:
+## Example 1: heartbeats and timers
 
-- #### Step 1: Begin by opening a terminal window and navigating into the project's directory.
+- ### Step 1: Setup project environment
+
+Navigate into the folder containing the project's files and start a local instance of the replica with the command:
 
 ```sh
 cd examples/rust/periodic_tasks
-```
-
-- #### Step 2: Start a clean local Internet Computer replica and a web server:
-
-```sh
-dfx stop
 dfx start --clean
 ```
 
@@ -45,18 +33,18 @@ This terminal will stay blocked, printing log messages, until the `Ctrl+C` is pr
 Example output:
 
 ```sh
-% dfx stop && dfx start --clean
+dfx start --clean
 [...]
 Dashboard: http://localhost:63387/_/dashboard
 ```
 
-- #### Step 3: Open another terminal window in the same directory:
+- #### Step 2: Open another terminal window in the same directory:
 
 ```sh
 cd examples/rust/periodic_tasks
 ```
 
-- #### Step 4: Compile and deploy `heartbeat` and `timer` canisters, setting the interval for periodic tasks to 10s:
+- #### Step 3: Compile and deploy the `heartbeat` and `timer` canisters, setting the interval for periodic tasks to 10s:
 
 ```sh
 dfx deploy heartbeat --argument 10
@@ -85,25 +73,25 @@ URLs:
       timer: http://127.0.0.1/...
 ```
 
-- #### Step 5: After 10s, observe similar non-zero counters in both canisters:
+- #### Step 4: After 10s, observe similar non-zero counters in both canisters:
 
 ```sh
 dfx canister call heartbeat counter
 dfx canister call timer counter
 ```
 
-Note, as the canisters deployed one by one, there might be a minor discrepancy in the counters.
+Note: As the canisters deployed one by one, there might be a minor discrepancy in the counters.
 
 Example output:
 
 ```sh
-% dfx canister call heartbeat counter               
+% dfx canister call heartbeat counter
 (8 : nat32)
-% dfx canister call timer counter    
+% dfx canister call timer counter
 (7 : nat32)
 ```
 
-- #### Step 6: Compare the amount of cycles used to schedule the periodic task with 10s interval:
+- #### Step 5: Compare the amount of cycles used to schedule the periodic task with 10s interval:
 
 ```sh
 dfx canister call heartbeat cycles_used
@@ -123,36 +111,40 @@ For periodic tasks with 10 sec intervals, the `heartbeat` canister uses *more* c
 
 Not only do timers use fewer cycles, but they are also more composable. As there is no global state or methods to export, different libraries with timers could be easily used in the same project.
 
-Also, timers provide isolation between the scheduling logic and the periodic task. If the periodic task fails, all the changes made by this task will be reverted, but the timers library state will be updated, i.e. the failed task will be removed from the list of timers to execute.
+Also, timers provide isolation between the scheduling logic and the periodic task. If the periodic task fails, all the changes made by this task will be reverted, but the timers library state will be updated, i.e., the failed task will be removed from the list of timers to execute.
 
 For such isolation of execution and scheduling contexts, the internal timers library uses self-canister calls:
 
-   ```rust
-   # This is a pseudo-code of a self call:
-   ic_cdk::call(ic_cdk::id(), "periodic_task", ());
-   ```
+```rust
+# This is a pseudo-code of a self call:
+ic_cdk::call(ic_cdk::id(), "periodic_task", ());
+```
 
-Despite the [costs](https://internetcomputer.org/docs/current/developer-docs/production/computation-and-storage-costs) associated with such self-canister calls, the timers library still uses fewer cycles than the heartbeats.
+Despite the [costs](https://internetcomputer.org/docs/current/developer-docs/gas-cost) associated with such self-canister calls, the timers library still uses fewer cycles than the heartbeats.
 
-### Example 2: Cycles usage for tasks with 1s interval
+## Example 2: Cycles usage for tasks with 1s interval
 
 
-- #### Step 1: Open a new terminal window in the example root directory:
+- ### Step 1: Setup project environment
+
+Navigate into the folder containing the project's files and start a local instance of the replica with the command:
 
 ```sh
 cd examples/rust/periodic_tasks
-```
-
-- #### Step 2: Start a clean local Internet Computer replica and a web server:
-
-```sh
-dfx stop
 dfx start --clean
 ```
 
 This terminal will stay blocked, printing log messages, until the `Ctrl+C` is pressed or `dfx stop` command is run.
 
-- #### Step 3: Open another terminal window in the same directory:
+Example output:
+
+```sh
+dfx start --clean
+[...]
+Dashboard: http://localhost:63387/_/dashboard
+```
+
+- #### Step 2: Open another terminal window in the same directory:
 
 ```sh
 cd examples/rust/periodic_tasks
@@ -161,12 +153,12 @@ cd examples/rust/periodic_tasks
 Example output:
 
 ```sh
-% dfx stop && dfx start --clean
+dfx start --clean
 [...]
 Dashboard: http://localhost:63387/_/dashboard
 ```
 
-- #### Step 4:. Compile and deploy `heartbeat` and `timer` canisters, setting the interval for periodic tasks to 1s:
+- #### Step 3:. Compile and deploy `heartbeat` and `timer` canisters, setting the interval for periodic tasks to 1s:
 
 ```sh
 dfx deploy --argument 1 heartbeat
@@ -195,25 +187,25 @@ URLs:
       timer: http://127.0.0.1/...
 ```
 
-- #### Step 5: After a few seconds, observe similar non-zero counters in both canisters:
+- #### Step 4: After a few seconds, observe similar non-zero counters in both canisters:
 
 ```sh
 dfx canister call heartbeat counter
 dfx canister call timer counter
 ```
 
-Note, as the canisters deployed one by one, there might be a minor discrepancy in the counters.
+Note: As the canisters deployed one by one, there might be a minor discrepancy in the counters.
 
 Example output:
 
 ```sh
-% dfx canister call heartbeat counter               
+% dfx canister call heartbeat counter
 (8 : nat32)
-% dfx canister call timer counter    
+% dfx canister call timer counter
 (9 : nat32)
 ```
 
-- #### Step 6: Compare the number of cycles used to schedule the periodic task with 1s interval:
+- #### Step 5: Compare the number of cycles used to schedule the periodic task with 1s interval:
 
 ```sh
 dfx canister call heartbeat cycles_used
@@ -238,6 +230,7 @@ Also, there is no isolation between the scheduling logic and the periodic task. 
 For such isolation of execution and scheduling contexts, the timers library uses internal self-canister calls as described in `Demo 1`. Due to the [costs](https://internetcomputer.org/docs/current/developer-docs/production/computation-and-storage-costs) associated with such self-canister calls, `timer` canister uses more cycles for very frequent periodic tasks.
 
 ## Further learning
+
 1. Have a look at the locally running dashboard. The URL is at the end of the `dfx start` command: `Dashboard: http://localhost/...`
 2. Check out `heartbeat` and `timer` canisters Candid user interface. The URLs are at the end of the `dfx deploy` command: `heartbeat: http://127.0.0.1/...`
 3. Find which interval makes even the costs of running periodic tasks in the `timer` and `heartbeat` canisters: `dfx deploy heartbeat --argument 5 && dfx deploy timer --argument 5`

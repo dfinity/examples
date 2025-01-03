@@ -1,17 +1,6 @@
----
-keywords: [advanced, rust, threshold schnorr, schnorr, signature]
----
-
 # Threshold Schnorr
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/threshold-schnorr)
-
-## Overview
-
-We present a minimal example canister smart contract for showcasing the
-[threshold
-Schnorr](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr)
-API.
+We present a minimal example canister smart contract for showcasing the [threshold Schnorr](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr) API.
 
 The example canister is a signing oracle that creates Schnorr signatures with
 keys derived based on the canister ID and the chosen algorithm, either
@@ -26,41 +15,48 @@ More specifically:
   (the threshold Schnorr subnet is a subnet generating threshold Schnorr
   signatures).
 
-This tutorial gives a complete overview of the development, starting with downloading [`dfx`](https://internetcomputer.org/docs/current/developer-docs/setup/index.md), up to the deployment and trying out the code on the mainnet.
-
 This walkthrough focuses on the version of the sample canister code written in
-Rust programming language.. There is also a
-[Motoko](https://github.com/dfinity/examples/tree/master/motoko/threshold-schnorr)
-version available in the same repo and follows the same commands for deploying.
-
+[Rust](https://github.com/dfinity/examples/tree/master/rust/threshold-schnorr).
+There is also a Motoko version available in the same repo and follows the same commands for deploying.
 
 ## Prerequisites
--   [x] Download and [install the IC
-    SDK](https://internetcomputer.org/docs/current/developer-docs/setup/index.md)
-    if you do not already have it. For local testing, `dfx >= 0.22.0-beta.0` is
-    required.
--   [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
--   [x] On macOS, llvm with the `wasm32-unknown-unknown` target (which is not included in the XCode installation by default) is required. To install, run `brew install llvm`.
+This example requires an installation of:
 
-## Getting started
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
-Sample code for `threshold-schnorr-example` is provided in the [examples repository](https://github.com/dfinity/examples), under either [`/motoko`](https://github.com/dfinity/examples/tree/master/motoko/threshold-schnorr) or [`/rust`](https://github.com/dfinity/examples/tree/master/rust/threshold-schnorr) sub-directories.
+Begin by opening a terminal window.
 
-### Deploy the canister locally
+## Step 1: Setup the project environment
 
-This tutorial will use the Rust version of the canister:
+Navigate into the folder containing the project's files, start a local instance of the Internet Computer and with the commands:
 
 ```bash
 cd examples/rust/threshold-schnorr
 dfx start --background
-make deploy
 ```
 
 #### What this does
 - `dfx start --background` starts a local instance of the IC via the IC SDK
-- `make deploy` deploys the canister code on the local version of the IC
 
-If successful, you should see something like this:
+## Step 2: Deploy the canisters
+
+```bash
+make deploy
+```
+
+To test (includes deploying):
+```bash
+npm install @noble/curves
+make test
+```
+
+#### What this does
+- `make deploy` deploys the canister code on the local version of the IC
+- `npm install @noble/curves` installs a test javascript dependency
+- `make test` deploys and tests the canister code on the local version of the IC
+
+If deployment was successful, you should see something like this:
 
 ```bash
 Deployed canisters.
@@ -70,17 +66,17 @@ URLs:
 ```
 
 If you open the URL in a web browser, you will see a web UI that shows the
-public methods the canister exposes. Since the canister exposes `public_key`,
-`sign`, and `verify` methods, those are rendered in the web UI.
+public methods the canister exposes. Since the canister exposes `public_key` and
+`sign`, those are rendered in the web UI.
 
-### Deploying the canister on the mainnet
+## Deploying the canister on the mainnet
 
 To deploy this canister the mainnet, one needs to do two things:
 
 - Acquire cycles (equivalent of "gas" in other blockchains). This is necessary for all canisters.
 - Update the sample source code to have the right key ID. This is unique to this canister.
 
-#### Acquire cycles to deploy
+### Acquire cycles to deploy
 
 Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/getting-started/tokens-and-cycles) (the equivalent of "gas" on other blockchains).
 
@@ -112,26 +108,18 @@ There are four options that are planed to be supported:
 * `test_key_1`: a master **test** key ID that is used in mainnet.
 * `key_1`: a master **production** key ID that is used in mainnet.
 
-For example, the default code in `src/schnorr_example_rust/src/lib.rs` derives
-the key ID as follows and can be deployed locally:
-```rust
-SchnorrKeyIds::ChainkeyTestingCanisterKey1.to_key_id(algorithm)
-```
+IMPORTANT: To deploy to IC mainnet, one needs to replace `"dfx_test_key"` with
+either "test_key_1"` or `"key_1"` depending on the desired intent. Both uses of
+key ID in `src/schnorr_example_rust/src/main.mo` must be consistent.
 
-IMPORTANT: To deploy to IC mainnet, one needs to replace
-`SchnorrKeyIds::ChainkeyTestingCanisterKey1` (which maps to the
-`"insecure_test_key_1"` key id) with either `SchnorrKeyIds::TestKey1`
-(`"test_key_1"`) or `SchnorrKeyIds::ProductionKey1` (`"key_1"`) depending on the
-desired intent. Both uses of key ID in `src/schnorr_example_rust/src/lib.rs`
-must be consistent.
-
-#### Deploy to the mainnet via IC SDK
+### Deploying
 
 To [deploy via the mainnet](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-mainnet.md), run the following commands:
 
 ```bash
 dfx deploy --network ic
 ```
+
 If successful, you should see something like this:
 
 ```bash
@@ -141,11 +129,15 @@ URLs:
     schnorr_example_rust: https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=enb64-iaaaa-aaaap-ahnkq-cai
 ```
 
-In the example above, `schnorr_example_rust` has the URL https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=enb64-iaaaa-aaaap-ahnkq-cai and serves up the Candid web UI for this particular canister deployed on mainnet.
+The implementation of this canister in Rust (`schnorr_example_rust`) is
+deployed on mainnet. It has the URL
+https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=enb64-iaaaa-aaaap-ahnkq-cai
+and serves up the Candid web UI for this particular canister deployed on
+mainnet.
 
 ## Obtaining public keys
 
-### Using the Candid Web UI
+### Using the Candid UI
 
 If you deployed your canister locally or to the mainnet, you should have a URL to the Candid web UI where you can access the public methods. We can call the `public-key` method.
 
@@ -162,9 +154,9 @@ Ed25519 public key.
 }
 ```
 
-
 ### Code walkthrough
-Open the file `lib.rs`, which will show the following Rust code that
+
+Open the file `wasm_only.rs`, which will show the following Rust code that
 demonstrates how to obtain a Schnorr public key. 
 
 ```rust
@@ -186,7 +178,6 @@ async fn public_key(algorithm: SchnorrAlgorithm) -> Result<PublicKeyReply, Strin
     })
 }
 ```
-
 In the code above, the canister calls the `schnorr_public_key` method of the [IC management canister](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-management-canister) (`aaaaa-aa`). 
 
 
@@ -198,6 +189,7 @@ IC (as if it were a single canister). In the code below, we use the management
 canister to create a Schnorr public key. Canister ID `"aaaaa-aa"`
 declares the IC management canister in the canister code.**
 
+
 ### Canister root public key
 
 For obtaining the canister's root public key, the derivation path in the API can be simply left empty.
@@ -205,7 +197,7 @@ For obtaining the canister's root public key, the derivation path in the API can
 ### Key derivation
 
 -   For obtaining a canister's public key below its root key in the BIP-32 key derivation hierarchy, a derivation path needs to be specified. As explained in the general documentation, each element in the array of the derivation path is either a 32-bit integer encoded as 4 bytes in big endian or a byte array of arbitrary length. The element is used to derive the key in the corresponding level at the derivation hierarchy.
--   In the example code above, we use the bytes extracted from the msg.caller principal in the `derivation_path`, so that different callers of `public_key()` method of our canister will be able to get their own public keys.
+-   In the example code above, we use the bytes extracted from the `msg.caller` principal in the `derivation_path`, so that different callers of `public_key()` method of our canister will be able to get their own public keys.
 
 ## Signing
 
@@ -273,11 +265,12 @@ async fn sign(
 }
 ```
 
+
 ## Signature verification
 
 For completeness of the example, we show that the created signatures can be
 verified with the public key corresponding to the same canister and derivation
-path. Note that the first byte of the BIP340 public key needs to be removed for
+path path. Note that the first byte of the BIP340 public key needs to be removed for
 verification, which is done by the verification function below internally.
 
 ```rust
@@ -292,32 +285,6 @@ async fn verify(
     let sig_bytes = hex::decode(&signature_hex).expect("failed to hex-decode signature");
     let msg_bytes = message.as_bytes();
     let pk_bytes = hex::decode(&public_key_hex).expect("failed to hex-decode public key");
-
-    match algorithm {
-        SchnorrAlgorithm::Bip340Secp256k1 => match opt_merkle_tree_root_hex {
-            Some(merkle_tree_root_hex) => {
-                let merkle_tree_root_bytes = hex::decode(&merkle_tree_root_hex)
-                    .expect("failed to hex-decode merkle tree root");
-                verify_bip341_secp256k1(&sig_bytes, msg_bytes, &pk_bytes, &merkle_tree_root_bytes)
-            }
-            None => verify_bip340_secp256k1(&sig_bytes, msg_bytes, &pk_bytes),
-        },
-        SchnorrAlgorithm::Ed25519 => {
-            if let Some(_) = opt_merkle_tree_root_hex {
-                return Err("ed25519 does not support merkle tree root verification".to_string());
-            }
-            verify_ed25519(&sig_bytes, &msg_bytes, &pk_bytes)
-        }
-    }
-}
-
-fn verify_bip340_secp256k1(
-    sig_bytes: &[u8],
-    msg_bytes: &[u8],
-    secp1_pk_bytes: &[u8],
-) -> Result<SignatureVerificationReply, String> {
-    assert_eq!(secp1_pk_bytes.len(), 33);
-    assert_eq!(sig_bytes.len(), 64);
 
     let sig =
         k256::schnorr::Signature::try_from(sig_bytes).expect("failed to deserialize signature");

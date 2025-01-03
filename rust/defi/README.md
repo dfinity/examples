@@ -4,7 +4,7 @@
 
 To enable DeFi applications on the IC, canisters need to interact with token canisters and the ledger canister. This sample dapp illustrates how to facilitate these interactions. You can see a quick introduction on [YouTube](https://youtu.be/fLbaOmH24Gs).
 
-The sample exchange is implemented in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/defi) and [Rust](https://github.com/dfinity/examples/tree/master/rust/defi) and can be seen [running on the IC](https://gzz56-daaaa-aaaal-qai2a-cai.ic0.app/).
+The sample exchange is implemented in [Rust](https://github.com/dfinity/examples/tree/master/rust/defi) and can be seen [running on the IC](https://gzz56-daaaa-aaaal-qai2a-cai.ic0.app/).
 
 ## Architecture
 
@@ -79,19 +79,16 @@ After depositing funds to the exchange, the user can place orders. An order cons
 Compared to depositing funds, withdrawing funds is simpler. Since the exchange has custody of the funds, the exchange will send funds back to the user on `withdraw` requests. The internal exchange balances are adjusted accordingly.
 
 ## Prerequisites
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
 - [x] Download [cmake](https://cmake.org/).
-- [x] Download [npm](https://nodejs.org/en/download/).
-- [x] If you want to deploy the Rust version, make sure you add Wasm as a target:
+- [x] Add Wasm as a target:
     `rustup target add wasm32-unknown-unknown`
-
 
 ## Step 1: Download the project's GitHub repo and install the dependencies:
 
-```
+```bash
 git clone --recurse-submodules --shallow-submodules https://github.com/dfinity/examples.git
-# for the rust implementation examples/rust/defi
-cd examples/motoko/defi
+cd examples/rust/defi
 make install
 ```
 
@@ -105,35 +102,31 @@ http://127.0.0.1:4943?canisterId=by6od-j4aaa-aaaaa-qaadq-cai
 
 or you can regenerate the URL "http://127.0.0.1:4943?canisterId=$(dfx canister id frontend)". Open this URL in a web browser.
 
-## Step 2: To interact with the exchange, you can create a local Internet Identity by clicking the login button.
+## Step 2: Create a local Internet Identity by clicking the login button
 
 This sample project uses a local test version of Internet Identity. Do not use your mainnet Internet Identity, and this testnet Internet Identity will not work on the mainnet.
 
 
-## Step 3: When prompted, select **Create Internet Identity**.
+## Step 3: When prompted, select **Create Internet Identity**
 
 
-## Step 4: Then select **Create Passkey**.
+## Step 4: Then select **Create Passkey**
 
 
-## Step 5: Complete the CAPTCHA.
+## Step 5: Complete the CAPTCHA
 
 
-## Step 6: Save the II number and click **I saved it, continue**.
+## Step 6: Save the II number and click **I saved it, continue**
 
+You will be redirected to the exchange's frontend webpage
 
-## Step 7: You will be redirected to the exchange's frontend webpage.
+## Step 7: Get tokens
 
-
-## Step 8: You can give yourself some tokens and ICP by running an initialization script with your II principal that you can copy from the frontend.
-
-
-## Step 9: Then run the following command:
+You can give yourself some tokens and ICP by running an initialization script with your II principal that you can copy from the frontend
 
 `make init-local II_PRINCIPAL=<YOUR II PRINCIPAL>`
 
-## Step 10: Refresh the web browser to verify that your tokens were deposited.
-
+## Step 8: Refresh the web browser to verify that your tokens were deposited.
 
 To trade tokens with yourself, you can open a second incognito browser window.
 

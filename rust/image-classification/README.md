@@ -1,4 +1,4 @@
-# ICP Image Classification
+# ICP image classification
 
 This is an ICP smart contract that accepts an image from the user and runs image classification inference.
 The smart contract consists of two canisters:
@@ -10,42 +10,19 @@ The smart contract consists of two canisters:
 
 This example uses Wasm SIMD instructions that are available in `dfx` version `0.20.2-beta.0` or newer.
 
-# Dependencies
+## Prerequisites
 
-Install `dfx`, Rust, etc: https://internetcomputer.org/docs/current/developer-docs/getting-started/hello-world
+- [x] Install the [IC
+  SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+- [x] Install WASI SDK 21:
+  - [x] Install `wasi-skd-21.0` from https://github.com/WebAssembly/wasi-sdk/releases/tag/wasi-sdk-21
+  - [x] Export `CC_wasm32_wasi` in your shell such that it points to WASI clang and sysroot. Example: `export CC_wasm32_wasi="/path/to/wasi-sdk-21.0/bin/clang --sysroot=/path/to/wasi-sdk-21.0/share/wasi-sysroot`
+- [x] Install `wasi2ic`: Follow the steps in https://github.com/wasm-forge/wasi2ic and make sure that `wasi2ic` binary is in your `$PATH`.
+- [x] Download MobileNet v2-7 to `src/backend/assets/mobilenetv2-7.onnx`: `./downdload_model.sh`
+- [x] Install `wasm-opt`: `cargo install wasm-opt`
 
-Install WASI SDK 21:
-
-- Install `wasi-skd-21.0` from https://github.com/WebAssembly/wasi-sdk/releases/tag/wasi-sdk-21
-- Export `CC_wasm32_wasi` in your shell such that it points to WASI clang and sysroot. Example:
-
-```
-export CC_wasm32_wasi="/path/to/wasi-sdk-21.0/bin/clang --sysroot=/path/to/wasi-sdk-21.0/share/wasi-sysroot"
-``` 
-
-Install `wasi2ic`:
-- Follow the steps in https://github.com/wasm-forge/wasi2ic
-- Make sure that `wasi2ic` binary is in your `$PATH`.
-
-Download MobileNet v2-7 to `src/backend/assets/mobilenetv2-7.onnx`:
-
-```
-./downdload_model.sh
-```
-
-Install NodeJS dependencies for the frontend:
-
-```
-npm install
-```
-
-Install `wasm-opt`:
-
-```
-cargo install wasm-opt
-```
-
-# Build
+## Build the application
 
 ```
 dfx start --background

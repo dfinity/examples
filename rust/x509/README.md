@@ -1,10 +1,4 @@
----
-keywords: [advanced, rust, X.509, certificate, certificate signing request, certification authority, ed25519, threshold schnorr, schnorr, threshold ecdsa, ecdsa, secp256k1, signature]
----
-
 # X.509
-
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/x509)
 
 ## Overview
 
@@ -41,19 +35,14 @@ up to the deployment and trying out the code on the mainnet.
 
 
 ## Prerequisites
--   [x] Download and [install the IC
-    SDK](https://internetcomputer.org/docs/current/developer-docs/setup/index.md)
-    if you do not already have it.The minimum version of `dfx` that allows to
-    run this example locally is `0.23.0`.
--   [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install) v`0.23.0` or newer.
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
-## Getting started
+
+## Deploy and test the canister locally
 
 Sample code for `x509-example` is provided in the [examples repository](https://github.com/dfinity/examples), under [`/rust`](https://github.com/dfinity/examples/tree/master/rust/x509) sub-directory.
 
-### Deploy and test the canister locally 
-
-This tutorial will use the Rust version of the canister:
 
 ```bash
 cd examples/rust/x509
@@ -79,18 +68,18 @@ public methods the canister exposes. Since the canister exposes
 `root_ca_certificate` and `child_certificate` methods, those are rendered in the
 web UI.
 
-### Deploying the canister on the mainnet
+## Deploying the canister on the mainnet
 
-To deploy this canister the mainnet, one needs to do two things:
+Before deploying this canister to the mainnet, you must do the following:
 
 - Acquire cycles (equivalent of "gas" in other blockchains). This is necessary for all canisters.
 - Update the sample source code to have the right key ID. This is unique to this canister.
 
-#### Acquire cycles to deploy
+#### Step 1: Acquire cycles to deploy
 
 Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/getting-started/tokens-and-cycles) (the equivalent of "gas" on other blockchains).
 
-#### Update source code with the right key ID
+#### Step 2: Update source code with the right key ID
 
 To deploy the sample code, the canister needs the right key name for the right
 environment. Specifically, one needs to initialize the canister with the key
@@ -104,9 +93,9 @@ There are three options that are supported:
 * `key_1`: a master **production** key ID that is used in mainnet.
 
 Note that `dfx deploy` formats those name in `PascalCase` instead of
-`snake_case` due to the formating of types in `rust`.
+`snake_case` due to the formatting of types in `rust`.
 
-#### Deploy to the mainnet via IC SDK
+#### Step 3: Deploy to the mainnet using the IC SDK
 
 To [deploy via the mainnet](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-mainnet.md), run the following commands:
 
@@ -114,6 +103,7 @@ To [deploy via the mainnet](https://internetcomputer.org/docs/current/developer-
 npm install
 dfx deploy --network ic
 ```
+
 If successful, you should see something like this:
 
 ```bash
@@ -125,7 +115,7 @@ URLs:
 
 In the example above, `x509_example_rust` has the URL https://a3gq9-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=736w4-cyaaa-aaaal-qb3wq-cai and serves up the Candid web UI for this particular canister deployed on mainnet.
 
-## Obtaining root CA certificate
+## Obtaining the root CA certificate
 
 ### Using the Candid Web UI
 

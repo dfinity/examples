@@ -1,12 +1,4 @@
----
-keywords: [advanced, rust, backup, restore, snapshots]
----
-
-# Canister Snapshots Example
-
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/canister-snapshots)
-
-## Overview
+# Canister snapshots
 
 This example demonstrates the process of taking and loading canister snapshots.
 It features a canister named `chat`, which functions as a miniature database.
@@ -18,20 +10,19 @@ and subsequently restore the data after the simulated data loss.
 
 This example requires an installation of:
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx). Note: the Canister Snapshots feature requires `dfx` version `0.23.0-beta.3` or later.
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). Note: the Canister Snapshots feature requires `dfx` version `0.23.0-beta.3` or later.
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
-- ### Step 1: Begin by opening a terminal window and navigating into the project's directory
+Begin by opening a terminal window.
 
-```sh
+## Step 1: Setup the project environment
+
+Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
+
+
+```bash
 cd examples/rust/canister-snapshots
-```
-
-- ### Step 2: Start a clean local Internet Computer replica and a web server
-
-```sh
-dfx stop
-dfx start --clean
+dfx start
 ```
 
 This terminal will stay blocked, printing log messages, until the `Ctrl+C` is pressed or `dfx stop` command is run.
@@ -39,19 +30,18 @@ This terminal will stay blocked, printing log messages, until the `Ctrl+C` is pr
 Example output:
 
 ```sh
-% dfx stop && dfx start --clean
 Running dfx start for version 0.23.0-beta.3
 [...]
 Replica API running on 127.0.0.1:4943
 ```
 
-- ### Step 3: Open another terminal window in the same directory
+## Step 2: Open another terminal window in the same directory
 
 ```sh
 cd examples/rust/canister-snapshots
 ```
 
-- ### Step 4: Compile and deploy `chat` canister
+## Step 3: Compile and deploy `chat` canister
 
 ```sh
 dfx deploy
@@ -69,7 +59,7 @@ URLs:
       chat: http://127.0.0.1:4943/?canisterId=...
 ```
 
-- ### Step 5: Populate the database with data
+## Step 4: Populate the database with data
 
 ```sh
 dfx canister call chat append 'Hi there!'
@@ -85,7 +75,7 @@ Example output:
 (vec { "Hi there!" })
 ```
 
-- ### Step 6: Take canister snapshot
+## Step 5: Take canister snapshot
 
 Canister `chat` is currently running, and snapshots should not be taken of active canisters.
 Therefore, the canister should be stopped before taking a snapshot and then restarted.
@@ -107,7 +97,7 @@ Created a new snapshot of canister chat. Snapshot ID: 00000000000000008000000000
 Starting code for canister chat, with canister_id bkyz2-fmaaa-aaaaa-qaaaq-cai
 ```
 
-- ### Step 7: Simulate data loss
+## Step 6: Simulate data loss
 
 The `remove_spam` canister method intentionally includes a bug to simulate data loss.
 
@@ -127,7 +117,7 @@ Example output:
 
 There is no more data in the database.
 
-- ### Step 8: Restore the canister state from the snapshot
+## Step 7: Restore the canister state from the snapshot
 
 Canister `chat` is currently running, and snapshots should not be applied to active canisters.
 Therefore, the canister must be stopped before applying the snapshot and then restarted.
