@@ -62,7 +62,7 @@ Deploying to the Internet Computer requires [cycles](https://internetcomputer.or
 
 ### Update source code with the right key ID
 
-To deploy the sample code, the canister needs the right key ID for the right environment. Specifically, one needs to replace the value of the `key_id` in the `src/ecdsa_example_rust/main.mo` file of the sample code. Before deploying to the mainnet, one should modify the code to use the right name of the `key_id`.
+To deploy the sample code, the canister needs the right key ID for the right environment. Specifically, one needs to replace the value of the `key_id` in the `src/ecdsa_example_rust/src/lib.rs` file of the sample code. Before deploying to the mainnet, one should modify the code to use the right name of the `key_id`.
 
 There are three options:
 
