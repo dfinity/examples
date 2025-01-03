@@ -75,11 +75,11 @@ Before deploying this canister to the mainnet, you must do the following:
 - Acquire cycles (equivalent of "gas" in other blockchains). This is necessary for all canisters.
 - Update the sample source code to have the right key ID. This is unique to this canister.
 
-- #### Step 1: Acquire cycles to deploy
+#### Step 1: Acquire cycles to deploy
 
 Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/getting-started/tokens-and-cycles) (the equivalent of "gas" on other blockchains).
 
-- #### Step 2: Update source code with the right key ID
+#### Step 2: Update source code with the right key ID
 
 To deploy the sample code, the canister needs the right key name for the right
 environment. Specifically, one needs to initialize the canister with the key
@@ -95,7 +95,7 @@ There are three options that are supported:
 Note that `dfx deploy` formats those name in `PascalCase` instead of
 `snake_case` due to the formatting of types in `rust`.
 
-- #### Step 3: Deploy to the mainnet using the IC SDK
+#### Step 3: Deploy to the mainnet using the IC SDK
 
 To [deploy via the mainnet](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-mainnet.md), run the following commands:
 
