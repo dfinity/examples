@@ -140,7 +140,7 @@ async fn build_p2pkh_spend_tx(
             transaction.clone(),
             String::from(""), // mock key name
             vec![],           // mock derivation path
-            super::common::mock_signer,
+            mock_signer,
         )
         .await;
 
@@ -257,4 +257,12 @@ fn sec1_to_der(sec1_signature: Vec<u8>) -> Vec<u8> {
     .into_iter()
     .flatten()
     .collect()
+}
+
+async fn mock_signer(
+    _key_name: String,
+    _derivation_path: Vec<Vec<u8>>,
+    _signing_data: Vec<u8>,
+) -> Vec<u8> {
+    vec![0; 64]
 }
