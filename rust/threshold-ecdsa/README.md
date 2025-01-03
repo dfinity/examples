@@ -71,14 +71,13 @@ There are three options:
 * `key_1`: a master **production** key ID that is used in mainnet.
 
 > [!WARNING]
-> To deploy to IC mainnet, one needs to replace the value in `key_id` fields with the values `"dfx_test_key"` to instead have either `"test_key_1"` or `"key_1"` depending on the desired intent.
+> To deploy to IC mainnet, one needs to replace the value in `key_id `fields with the values `EcdsaKeyIds::TestKeyLocalDevelopment.to_key_id()` (mapping to `dfx_test_key`) to instead have either `EcdsaKeyIds::TestKey1.to_key_id()` (mapping to `test_key_1`) or `EcdsaKeyIds::ProductionKey1.to_key_id()` (mapping to `key_1`) depending on the desired intent.
 
 ### Deploying
 
 To [deploy via mainnet](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-mainnet.md), run the following commands:
 
 ```bash
-npm install
 dfx deploy --network ic
 ```
 If successful, you should see something like this:
