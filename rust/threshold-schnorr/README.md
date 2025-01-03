@@ -88,15 +88,15 @@ Deploying to the Internet Computer requires [cycles](https://internetcomputer.or
 
 The latest version of `dfx`, `v0.24.3`, does not yet support
 `opt_merkle_tree_root_hex` that is not `None`. Therefore, for local tests, [the
-chainkey testing canister](https://github.com/dfinity/chainkey-testing-canister)
+chain-key testing canister](https://github.com/dfinity/chainkey-testing-canister)
 can be installed and used instead of the management canister. Note also that the
-chainkey testing canister is deployed on mainnet and can be used for mainnet
+chain-key testing canister is deployed on the mainnet and can be used for mainnet
 testing to reduce the costs, see the linked repo for more details.
 
 This sample canister allows the caller to change the management canister address
 for Schnorr by calling the `for_test_only_change_management_canister_id`
 endpoint with the target canister principal. With `dfx`, this can be done
-automatically with `make mock`, which will install the chainkey testing canister
+automatically with `make mock`, which will install the chain-key testing canister
 and use it instead of the management canister. Note that `dfx` should be running
 to successfully run `make mock`.
 
