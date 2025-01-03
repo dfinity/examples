@@ -1,0 +1,9 @@
+service : {
+    "demonstrate_deadlines" : (bool) -> (nat64);
+    "demonstrate_timeouts" : () -> (bool);
+    "busy" : () -> (nat64);
+    "deadline_in_replicated_query" : () -> (nat64);
+    "test_deadlines_in_composite_query" : () -> (nat64, nat64) composite_query;
+    "deadline_in_query" : () -> (nat64) query;
+    "deadline_in_composite_query" : () -> (nat64) composite_query;
+};
