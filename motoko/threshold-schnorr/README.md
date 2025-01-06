@@ -85,17 +85,18 @@ There are three options that are planed to be supported:
 * `test_key_1`: a master **test** key ID that is used in mainnet.
 * `key_1`: a master **production** key ID that is used in mainnet.
 
-For example, the default code in `src/schnorr_example_rust/src/lib.rs` derives
-the key ID as follows and can be deployed locally:
-```rust
-SchnorrKeyIds::TestKeyLocalDevelopment.to_key_id(algorithm)
+For example, the default code in `src/schnorr_example_motoko/src/main.mo`
+hard-codes the used of `dfx_test_key` and derives the key ID as follows and can
+be deployed locally:
+
+
+```motoko
+key_id = { algorithm = algorithm_arg; name = "dfx_test_key" }
 ```
 
-IMPORTANT: To deploy to the mainnet, one needs to replace
-`SchnorrKeyIds::TestKeyLocalDevelopment` (which maps to the `"dfx_test_key"` key
-id) with either `SchnorrKeyIds::TestKey1` (`"test_key_1"`) or
-`SchnorrKeyIds::ProductionKey1` (`"key_1"`) depending on the desired intent.
-Both uses of key ID in `src/schnorr_example_rust/src/lib.rs` must be consistent.
+IMPORTANT: To deploy to IC mainnet, one needs to replace `"dfx_test_key"` with
+either `"test_key_1"` or `"key_1"` depending on the desired intent. Both uses of
+key ID in `src/schnorr_example_motoko/src/main.mo` must be consistent.
 
 ### Deploying
 
