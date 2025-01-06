@@ -20,7 +20,9 @@ Motoko programming language. There is also a
 [Rust](https://github.com/dfinity/examples/tree/master/rust/threshold-schnorr)
 version available in the same repo and follows the same commands for deploying.
 
-## Prerequisites
+## Local development
+
+### Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
@@ -28,7 +30,7 @@ This example requires an installation of:
 
 Begin by opening a terminal window.
 
-## Step 1: Setup the project environment
+### Step 1: Setup the project environment
 
 Navigate into the folder containing the project's files, start a local instance of the Internet Computer and with the commands:
 
@@ -40,7 +42,7 @@ dfx start --background
 #### What this does
 - `dfx start --background` starts a local instance of the IC via the IC SDK
 
-## Step 2: Deploy the canisters
+### Step 2: Deploy the canisters
 
 ```bash
 make deploy
