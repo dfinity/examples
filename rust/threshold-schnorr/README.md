@@ -47,7 +47,6 @@ make deploy
 
 To test (includes deploying):
 ```bash
-npm install @noble/curves
 make test
 ```
 
