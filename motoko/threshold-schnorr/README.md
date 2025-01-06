@@ -40,7 +40,7 @@ dfx start --background
 ```
 
 #### What this does
-- `dfx start --background` starts a local instance of the IC via the IC SDK
+- `dfx start --background` starts a local instance of the IC via the IC SDK.
 
 ### Step 2: Deploy the canisters
 
@@ -49,7 +49,7 @@ make deploy
 ```
 
 #### What this does
-- `make deploy` deploys the canister code on the local version of the IC
+- `make deploy` deploys the canister code on the local version of the IC.
 
 If deployment was successful, you should see something like this:
 
