@@ -63,6 +63,7 @@ URLs:
 ```
 
 If you open the URL in a web browser, you will see a web UI that shows the
+public methods the canister exposes. Since the canister exposes `public_key`,
 `sign`, and `verify` methods, those are rendered in the web UI.
 
 ## Deploying the canister on the mainnet
