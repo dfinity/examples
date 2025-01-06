@@ -239,7 +239,7 @@ npm start
 ```
 
 
-## Step 8: Visit the frontend, and interact with application
+## Step 8: Visit the frontend, and interact with the application
 
 ```bash
 http://localhost:8080/
