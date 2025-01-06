@@ -51,9 +51,7 @@ make test
 ```
 
 #### What this does
-- `make deploy` deploys the canister code on the local version of the IC
-- `npm install @noble/curves` installs a test javascript dependency
-- `make test` deploys and tests the canister code on the local version of the IC
+- `make deploy` deploys the canister code on the local version of the IC.
 
 If deployment was successful, you should see something like this:
 
@@ -66,8 +64,6 @@ URLs:
 
 If you open the URL in a web browser, you will see a web UI that shows the
 `sign`, and `verify` methods, those are rendered in the web UI.
-public methods the canister exposes. Since the canister exposes `public_key` and
-`sign`, those are rendered in the web UI.
 
 ## Deploying the canister on the mainnet
 
@@ -80,7 +76,7 @@ To deploy this canister the mainnet, one needs to do two things:
 
 Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/getting-started/tokens-and-cycles) (the equivalent of "gas" on other blockchains).
 
-#### Update management canister ID reference for testing
+### Update management canister ID reference for testing
 
 The latest version of `dfx`, `v0.24.3`, does not yet support
 `opt_merkle_tree_root_hex` that is not `None`. Therefore, for local tests, [the
@@ -96,7 +92,7 @@ automatically with `make mock`, which will install the chain-key testing caniste
 and use it instead of the management canister. Note that `dfx` should be running
 to successfully run `make mock`.
 
-#### Update source code with the right key ID
+### Update source code with the right key ID
 
 To deploy the sample code, the canister needs the right key ID for the right environment. Specifically, one needs to replace the value of the `key_id` in the `src/schnorr_example_rust/src/lib.rs` file of the sample code. Before deploying to mainnet, one should modify the code to use the right name of the `key_id`.
 
@@ -113,8 +109,8 @@ the key ID as follows and can be deployed locally:
 `SchnorrKeyIds::TestKeyLocalDevelopment.to_key_id(algorithm)`
 
 IMPORTANT: To deploy to IC mainnet, one needs to replace `"dfx_test_key"` with
-either "test_key_1"` or `"key_1"` depending on the desired intent. Both uses of
-key ID in `src/schnorr_example_rust/src/main.mo` must be consistent.
+either `"test_key_1"` or `"key_1"` depending on the desired intent. Both uses of
+key ID in `src/schnorr_example_rust/src/lib.rs` must be consistent.
 
 ### Deploying
 
@@ -274,7 +270,7 @@ async fn sign(
 
 For completeness of the example, we show that the created signatures can be
 verified with the public key corresponding to the same canister and derivation
-path path. Note that the first byte of the BIP340 public key needs to be removed for
+path. Note that the first byte of the BIP340 public key needs to be removed for
 verification, which is done by the verification function below internally.
 
 ```rust
