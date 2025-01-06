@@ -287,6 +287,32 @@ async fn verify(
     let msg_bytes = message.as_bytes();
     let pk_bytes = hex::decode(&public_key_hex).expect("failed to hex-decode public key");
 
+     match algorithm {
+        SchnorrAlgorithm::Bip340Secp256k1 => match opt_merkle_tree_root_hex {
+            Some(merkle_tree_root_hex) => {
+                let merkle_tree_root_bytes = hex::decode(&merkle_tree_root_hex)
+                    .expect("failed to hex-decode merkle tree root");
+                verify_bip341_secp256k1(&sig_bytes, msg_bytes, &pk_bytes, &merkle_tree_root_bytes)
+            }
+            None => verify_bip340_secp256k1(&sig_bytes, msg_bytes, &pk_bytes),
+        },
+        SchnorrAlgorithm::Ed25519 => {
+            if let Some(_) = opt_merkle_tree_root_hex {
+                return Err("ed25519 does not support merkle tree root verification".to_string());
+            }
+            verify_ed25519(&sig_bytes, &msg_bytes, &pk_bytes)
+        }
+    }
+}
+
+fn verify_bip340_secp256k1(
+    sig_bytes: &[u8],
+    msg_bytes: &[u8],
+    secp1_pk_bytes: &[u8],
+) -> Result<SignatureVerificationReply, String> {
+    assert_eq!(secp1_pk_bytes.len(), 33);
+    assert_eq!(sig_bytes.len(), 64);
+
     let sig =
         k256::schnorr::Signature::try_from(sig_bytes).expect("failed to deserialize signature");
 
