@@ -97,7 +97,7 @@ to successfully run `make mock`.
 
 To deploy the sample code, the canister needs the right key ID for the right environment. Specifically, one needs to replace the value of the `key_id` in the `src/schnorr_example_rust/src/lib.rs` file of the sample code. Before deploying to mainnet, one should modify the code to use the right name of the `key_id`.
 
-There are four options that are planed to be supported:
+There are four options that are supported:
 
 * `insecure_test_key_1`: the key ID supported by the `chainkey_testing_canister`
   ([link](https://github.com/dfinity/chainkey-testing-canister/)).
