@@ -52,8 +52,8 @@ Replace its contents with this but adapt the URLs to be the ones you determined 
 ```json
 {
     "canisters": {
-        "token_transfer_backend": {
-            "main": "src/token_transfer_backend/main.mo",
+        "token_transfer_from_backend": {
+            "main": "src/token_transfer_from_backend/main.mo",
             "type": "motoko",
             "dependencies": ["icrc1_ledger_canister"]
         },
