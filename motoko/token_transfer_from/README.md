@@ -242,7 +242,7 @@ dfx deploy token_transfer_from_backend
 
 :::info
 
-Make sure that you are using the default `dfx` account that we minted tokens to in step 5 for the following steps.
+Make sure that you are using the default `dfx` account that we minted tokens to in step 6 for the following steps.
 
 :::
 
