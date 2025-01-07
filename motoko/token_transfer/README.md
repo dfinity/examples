@@ -222,7 +222,7 @@ dfx deploy token_transfer_backend
 ## Step 10: Transfer funds to your canister
 
 > [!TIP]
-> Make sure that you are using the default `dfx` account that we minted tokens to in step 7 for the following steps.
+> Make sure that you are using the default `dfx` account that we minted tokens to in step 6 for the following steps.
 
 Make the following call to transfer 10 tokens to the canister:
 
