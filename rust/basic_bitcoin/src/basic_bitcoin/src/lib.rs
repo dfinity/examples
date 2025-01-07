@@ -236,3 +236,12 @@ pub struct SendRequest {
     pub destination_address: String,
     pub amount_in_satoshi: u64,
 }
+
+/// The current management canister Schnorr API in Pocket IC / `dfx` is not yet
+/// fully supported. Therefore, we install the `chainkey_testing_canister` via
+/// `dfx` and use that instead of the management canister for local testing.
+fn mgmt_canister_id() -> CanisterId {
+    MGMT_CANISTER_ID
+        .with_borrow(|id| CanisterId::from_text(id))
+        .expect("invalid management canister principal string")
+}

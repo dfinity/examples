@@ -1,5 +1,4 @@
 use candid::{CandidType, Deserialize, Principal};
-use ic_cdk::api::management_canister::main::CanisterId;
 use serde::Serialize;
 use serde_bytes::ByteBuf;
 
@@ -59,7 +58,7 @@ struct SignWithSchnorrReply {
 /// Returns the Schnorr public key of this canister at the given derivation path.
 pub async fn schnorr_public_key(key_name: String, derivation_path: Vec<Vec<u8>>) -> Vec<u8> {
     let res: Result<(SchnorrPublicKeyReply,), _> = ic_cdk::call(
-        mgmt_canister_id(),
+        super::mgmt_canister_id(),
         "schnorr_public_key",
         (SchnorrPublicKey {
             canister_id: None,
@@ -91,7 +90,7 @@ pub async fn sign_with_schnorr(
         })
     });
     let res: Result<(SignWithSchnorrReply,), _> = ic_cdk::api::call::call_with_payment128(
-        mgmt_canister_id(),
+        super::mgmt_canister_id(),
         "sign_with_schnorr",
         (SignWithSchnorr {
             message,
@@ -107,13 +106,4 @@ pub async fn sign_with_schnorr(
     .await;
 
     res.unwrap().0.signature
-}
-
-/// The current management canister Schnorr API in Pocket IC / `dfx` is not yet
-/// fully supported. Therefore, we install the `chainkey_testing_canister` via
-/// `dfx` and use that instead of the management canister for local testing.
-fn mgmt_canister_id() -> CanisterId {
-    crate::MGMT_CANISTER_ID
-        .with_borrow(|id| CanisterId::from_text(id))
-        .expect("invalid management canister principal string")
 }
