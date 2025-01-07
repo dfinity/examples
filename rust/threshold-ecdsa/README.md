@@ -15,7 +15,9 @@ This tutorial gives a complete overview of the development, starting with downlo
 > [!TIP]
 > This walkthrough focuses on the version of the sample canister code written in the Rust programming language. There is also a [Motoko](https://internetcomputer.org/docs/current/developer-docs/backend/motoko/index.md) version available in the same repo and follows the same commands for deploying.
 
-## Prerequisites
+## Local deployment
+
+### Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install) v0.11.0 or newer.
@@ -23,7 +25,7 @@ This example requires an installation of:
 
 Begin by opening a terminal window.
 
-## Step 1: Setup the project environment
+### Step 1: Setup the project environment
 
 Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
 
@@ -32,7 +34,7 @@ cd examples/rust/threshold-ecdsa
 dfx start --background
 ```
 
-## Step 2: Deploy the canisters
+### Step 2: Deploy the canisters
 
 ```bash
 dfx deploy
