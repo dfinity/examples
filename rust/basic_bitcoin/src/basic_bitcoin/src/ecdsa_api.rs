@@ -42,13 +42,6 @@ pub async fn get_ecdsa_public_key(key_name: String, derivation_path: Vec<Vec<u8>
     )
     .await;
 
-    // let res = ecdsa_public_key(EcdsaPublicKeyArgument {
-    //     canister_id,
-    //     derivation_path: derivation_path.clone(),
-    //     key_id,
-    // })
-    // .await;
-
     let public_key = res.unwrap().0.public_key;
 
     // Cache the public key
@@ -88,13 +81,6 @@ pub async fn get_ecdsa_signature(
         26_153_846_153,
     )
     .await;
-
-    // let res = sign_with_ecdsa(SignWithEcdsaArgument {
-    //     message_hash,
-    //     derivation_path,
-    //     key_id,
-    // })
-    // .await;
 
     res.unwrap().0.signature
 }

@@ -122,7 +122,8 @@ three types of addresses:
 
 On the Candid UI of your canister, click the "Call" button under
 `get_${type}_address` to generate a `${type}` Bitcoin address, where `${type}`
-is one of `[p2pkh, p2tr, p2tr_key_only]`.
+is one of `[p2pkh, p2tr_key_only, p2tr]` (corresponding to the three types of
+addresses described above, in the same order).
 
 Or, if you prefer the command line:
    `dfx canister --network=ic call basic_bitcoin get_${type}_address`
@@ -171,7 +172,7 @@ Checking the balance of a Bitcoin address relies on the [bitcoin_get_balance](ht
 
 You can send bitcoin using the `send_from_${type}` endpoint on your canister, where
 `${type}` is one of
-`[p2pkh_address, p2tr_address_key_path, p2tr_address_script_path, p2tr_key_only_address]`.
+`[p2pkh_address, p2tr_key_only_address, p2tr_address_key_path, p2tr_address_script_path]`.
 
 In the Candid UI, add a destination address and an amount to send. In the example
 below, we're sending 4'321 Satoshi (0.00004321 BTC) back to the testnet faucet.

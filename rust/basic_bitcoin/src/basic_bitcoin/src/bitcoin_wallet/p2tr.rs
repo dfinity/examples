@@ -46,11 +46,11 @@ pub fn public_keys_to_p2tr_script_spend_address(
     script_key: &[u8],
 ) -> Address {
     let network = super::common::transform_network(bitcoin_network);
-    let taproot_spend_info = p2tr_scipt_spend_info(internal_key, script_key);
+    let taproot_spend_info = p2tr_script_spend_info(internal_key, script_key);
     Address::p2tr_tweaked(taproot_spend_info.output_key(), network)
 }
 
-fn p2tr_scipt_spend_info(internal_key_bytes: &[u8], script_key_bytes: &[u8]) -> TaprootSpendInfo {
+fn p2tr_script_spend_info(internal_key_bytes: &[u8], script_key_bytes: &[u8]) -> TaprootSpendInfo {
     // Script used in script path spending.
     let spend_script = p2tr_script(script_key_bytes);
     let secp256k1_engine = Secp256k1::new();
@@ -90,7 +90,7 @@ pub async fn send_script_path(
     // Fetch our public keys and UTXOs, and compute the P2TR address.
     let (internal_key, script_key) =
         get_public_keys(key_name.clone(), derivation_path.clone()).await;
-    let taproot_spend_info = p2tr_scipt_spend_info(internal_key.as_slice(), script_key.as_slice());
+    let taproot_spend_info = p2tr_script_spend_info(internal_key.as_slice(), script_key.as_slice());
 
     let own_address = Address::p2tr_tweaked(
         taproot_spend_info.output_key(),
@@ -162,7 +162,7 @@ pub async fn send_key_path(
     // Fetch our public key, P2PKH address, and UTXOs.
     let (internal_key, script_key) =
         get_public_keys(key_name.clone(), derivation_path.clone()).await;
-    let taproot_spend_info = p2tr_scipt_spend_info(internal_key.as_slice(), script_key.as_slice());
+    let taproot_spend_info = p2tr_script_spend_info(internal_key.as_slice(), script_key.as_slice());
 
     let own_address = Address::p2tr_tweaked(
         taproot_spend_info.output_key(),
@@ -319,7 +319,7 @@ where
                 leaf_hash,
                 TapSighashType::Default,
             )
-            .expect("Failed to ecnode signing data")
+            .expect("Failed to encode signing data")
             .as_byte_array()
             .to_vec();
 
@@ -386,7 +386,7 @@ where
                 &bitcoin::sighash::Prevouts::All(&prevouts),
                 TapSighashType::Default,
             )
-            .expect("Failed to ecnode signing data")
+            .expect("Failed to encode signing data")
             .as_byte_array()
             .to_vec();
 
