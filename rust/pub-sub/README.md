@@ -30,7 +30,7 @@ dfx canister id publisher
 ## Step 3: Subscribe to the "Apples" topic
 
 ```bash
-dfx canister call subscriber setup_subscribe '(principal "<publisher ID from Step 3>", "Apples")'
+dfx canister call subscriber setup_subscribe '(principal "<publisher ID from Step 2>", "Apples")'
 ```
 
 ## Step 4: Publish to the "Apples" topic
