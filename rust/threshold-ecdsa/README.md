@@ -15,13 +15,13 @@ This tutorial gives a complete overview of the development, starting with downlo
 > [!TIP]
 > This walkthrough focuses on the version of the sample canister code written in the Rust programming language. There is also a [Motoko](https://internetcomputer.org/docs/current/developer-docs/backend/motoko/index.md) version available in the same repo and follows the same commands for deploying.
 
-## Local deployment
-
-### Prerequisites
+## Prerequisites
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install) v0.11.0 or newer.
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+
+## Local deployment
 
 Begin by opening a terminal window.
 
