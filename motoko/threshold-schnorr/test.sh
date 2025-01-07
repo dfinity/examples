@@ -34,7 +34,7 @@ function test_impl() {
 #     }
 # END
 
-    bip340_sign_cmd="dfx canister call schnorr_example_motoko sign '(\"${message}\" ,(variant { bip340secp256k1 }))'"
+    bip340_sign_cmd="dfx canister call schnorr_example_motoko sign '(\"${message}\" ,(variant { bip340secp256k1 }), null)'"
     bip340_sig_raw_output="$(eval ${bip340_sign_cmd} | grep signature_hex)"
     bip340_sig_hex=$(get_text_in_double_quotes "${bip340_sig_raw_output}")
     echo bip340_signature_hex="${bip340_sig_hex}"
@@ -49,6 +49,22 @@ function test_impl() {
 
     function verify(bip340) {
         const sig = '${bip340_sig_hex}';
+        const pubkey = '${bip340_public_key_hex}'.substring(2);
+        const msg = Uint8Array.from(Buffer.from("${message}", 'utf8'));
+
+        console.log(bip340.verify(sig, msg, pubkey));
+    }
+END
+
+    node <<END
+    import { Tap } from '@cmdcode/tapscript'
+    import { schnorr } from '@noble/curves/secp256k1'
+    verify(bip340.schnorr))
+    .catch((err) => { console.log(err) });
+
+    function verify(bip340, Tap) {
+        const sig = '${bip340_sig_hex}';
+        const tweak = '${bip341_tweak_hex}'
         const pubkey = '${bip340_public_key_hex}'.substring(2);
         const msg = Uint8Array.from(Buffer.from("${message}", 'utf8'));
 
