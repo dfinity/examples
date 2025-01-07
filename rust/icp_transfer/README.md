@@ -269,7 +269,7 @@ TOKENS_TRANSFER_ACCOUNT_ID_BYTES="$(python3 -c 'print("vec{" + ";".join([str(b) 
 ## Step 11: Transfer funds to your canister
 
 > [!TIP]
-> Make sure that you are using the default `dfx` account that we minted tokens to in step 7 for the following steps.
+> Make sure that you are using the default `dfx` account that we minted tokens to in step 6 for the following steps.
 
 Make the following call to transfer funds to the canister:
 
