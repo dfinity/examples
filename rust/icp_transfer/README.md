@@ -1,9 +1,5 @@
 # ICP transfer
 
-[View this samples code on GitHub](https://github.com/dfinity/examples/tree/master/rust/icp_transfer).
-
-## Overview
-
 ICP transfer is a canister that can transfer ICP from its account to other accounts. It is an example of a canister that uses the ledger canister. Sample code is available in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/icp_transfer) and [Rust](https://github.com/dfinity/examples/tree/master/rust/icp_transfer).
 
 :::info 
@@ -19,52 +15,40 @@ This sample will use the Rust variant.
 
 ## Prerequisites
 
-This example requires an installation of:
+- [x] Install the [IC
+  SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.
 
--   [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
--   [x] Download and install [git.](https://git-scm.com/downloads)
+## Step 1: Setup project environment
 
-## How to get there
+Start a local instance of the replica and create a new project with the commands:
 
-The following steps will guide you through the process of setting up the token transfer canister for your own project.
-
-:::info 
-
-If you just want to interact with this example, follow steps 4-8 and 10-13 below.
-
-:::
-
-### Step 1: Create a new `dfx` project and navigate into the project's directory.
-
-```bash
+```
+dfx start --background
 dfx new --type=rust icp_transfer --no-frontend
 cd icp_transfer
 ```
 
 ### Step 2: Determine ledger file locations
 
-:::info 
+> [!TIP]
+> You can read more about how to [setup the ICP ledger locally](https://internetcomputer.org/docs/current/developer-docs/defi/icp-tokens/ledger-local-setup).
 
-You can read more about how to [setup the ICP ledger locally](https://internetcomputer.org/docs/current/developer-docs/defi/icp-tokens/ledger-local-setup).
+Go to the [releases overview](https://dashboard.internetcomputer.org/releases) and copy the latest replica binary revision.
 
-:::
+The URL for the ledger Wasm module is `https://download.dfinity.systems/ic/<REVISION>/canisters/ledger-canister.wasm.gz`.
 
-Go to the [releases overview](https://dashboard.internetcomputer.org/releases) and copy the latest replica binary revision. At the time of writing, this is `d87954601e4b22972899e9957e800406a0a6b929`.
-
-The URL for the ledger Wasm module is `https://download.dfinity.systems/ic/<REVISION>/canisters/ledger-canister.wasm.gz`, so with the above revision it would be `https://download.dfinity.systems/ic/d87954601e4b22972899e9957e800406a0a6b929/canisters/ledger-canister.wasm.gz`.
-
-The URL for the ledger.did file is `https://raw.githubusercontent.com/dfinity/ic/<REVISION>/rs/rosetta-api/icp_ledger/ledger.did`, so with the above revision it would be `https://raw.githubusercontent.com/dfinity/ic/d87954601e4b22972899e9957e800406a0a6b929/rs/rosetta-api/icp_ledger/ledger.did`.
+The URL for the ledger.did file is `https://raw.githubusercontent.com/dfinity/ic/<REVISION>/rs/rosetta-api/icp_ledger/ledger.did`.
 
 [OPTIONAL]
 If you want to make sure you have the latest ICP ledger files, you can run the following script. Please ensure that you have [`jq`](https://jqlang.github.io/jq/) installed as the script relies on it.
 
 ```sh
-curl -o download_latest_icp_ledger.sh "https://raw.githubusercontent.com/dfinity/ic/00a4ab409e6236d4082cee4a47544a2d87b7190d/rs/rosetta-api/scripts/download_latest_icp_ledger.sh"
+curl -o download_latest_icp_ledger.sh "https://raw.githubusercontent.com/dfinity/ic/<REVISION>/rs/rosetta-api/scripts/download_latest_icp_ledger.sh"
 chmod +x download_latest_icp_ledger.sh
 ./download_latest_icp_ledger.sh
 ```
 
-### Step 3: Configure the `dfx.json` file to use the ledger :
+## Step 3: Configure the `dfx.json` file to use the ledger
 
 Replace its contents with this but adapt the URLs to be the ones you determined in step 2:
 
@@ -78,8 +62,8 @@ Replace its contents with this but adapt the URLs to be the ones you determined 
         },
         "icp_ledger_canister": {
             "type": "custom",
-            "candid": "https://raw.githubusercontent.com/dfinity/ic/d87954601e4b22972899e9957e800406a0a6b929/rs/rosetta-api/icp_ledger/ledger.did",
-            "wasm": "https://download.dfinity.systems/ic/d87954601e4b22972899e9957e800406a0a6b929/canisters/ledger-canister.wasm.gz",
+            "candid": "https://raw.githubusercontent.com/dfinity/ic/<REVISION>/rs/rosetta-api/icp_ledger/ledger.did",
+            "wasm": "https://download.dfinity.systems/ic/<REVISION>/canisters/ledger-canister.wasm.gz",
             "remote": {
                 "id": {
                     "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
@@ -98,13 +82,7 @@ Replace its contents with this but adapt the URLs to be the ones you determined 
 }
 ```
 
-### Step 4: Start a local replica:
-
-```bash
-dfx start --background --clean
-```
-
-### Step 5: Create a new identity that will work as a minting account:
+## Step 4: Create a new identity that will work as a minting account
 
 ```bash
 dfx identity new minter --storage-mode plaintext
@@ -115,14 +93,14 @@ export MINTER_ACCOUNT_ID=$(dfx ledger account-id)
 > [!IMPORTANT]
 > Transfers from the minting account will create Mint transactions. Transfers to the minting account will create Burn transactions.
 
-### Step 6: Switch back to your default identity and record its ledger account identifier:
+## Step 5: Switch back to your default identity and record its ledger account identifier
 
 ```bash
 dfx identity use default
 export DEFAULT_ACCOUNT_ID=$(dfx ledger account-id)
 ```
 
-### Step 7: Deploy the ledger canister to your network:
+## Step 6: Deploy the ledger canister to your network
 
 Take a moment to read the details of the call made below. Not only are you deploying the ICP ledger canister, you are also:
 
@@ -165,7 +143,7 @@ URLs:
     icp_ledger_canister: http://127.0.0.1:4943/?canisterId=bnz7o-iuaaa-aaaaa-qaaaa-cai&id=ryjl3-tyaaa-aaaaa-aaaba-cai
 ```
 
-### Step 8: Verify that the ledger canister is healthy and working as expected by using the command:
+## Step 7: Verify that the ledger canister is healthy and working as expected
 
 ```bash
 dfx canister call icp_ledger_canister account_balance '(record { account = '$(python3 -c 'print("vec{" + ";".join([str(b) for b in bytes.fromhex("'$DEFAULT_ACCOUNT_ID'")]) + "}")')'})'
@@ -177,7 +155,7 @@ The output should be:
 (record { e8s = 10_000_000_000 : nat64 })
 ```
 
-### Step 9: Prepare the token transfer canister:
+## Step 8: Prepare the token transfer canister
 
 Replace the contents of the `src/icp_transfer_backend/Cargo.toml` file with the following:
 
@@ -275,26 +253,23 @@ service : {
 
 ```
 
-### Step 10: Deploy the token transfer canister:
+## Step 9: Deploy the token transfer canister
 
 ```bash
 dfx deploy icp_transfer_backend
 ```
 
-### Step 11: Determine out the address of your canister:
+## Step 10: Determine out the address of your canister
 
 ```bash
 TOKENS_TRANSFER_ACCOUNT_ID="$(dfx ledger account-id --of-canister icp_transfer_backend)"
 TOKENS_TRANSFER_ACCOUNT_ID_BYTES="$(python3 -c 'print("vec{" + ";".join([str(b) for b in bytes.fromhex("'$TOKENS_TRANSFER_ACCOUNT_ID'")]) + "}")')"
 ```
 
-### Step 12: Transfer funds to your canister:
+## Step 11: Transfer funds to your canister
 
-:::info 
-
-Make sure that you are using the default `dfx` account that we minted tokens to in step 7 for the following steps.
-
-:::
+> [!TIP]
+> Make sure that you are using the default `dfx` account that we minted tokens to in step 6 for the following steps.
 
 Make the following call to transfer funds to the canister:
 
@@ -308,7 +283,7 @@ If successful, the output should be:
 (variant { Ok = 1 : nat64 })
 ```
 
-### Step 13: Transfer funds from the canister:
+## Step 12: Transfer funds from the canister
 
 Now that the canister owns ICP on the ledger, you can transfer funds from the canister to another account, in this case back to the default account:
 

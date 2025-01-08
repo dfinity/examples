@@ -1,12 +1,4 @@
----
-keywords: [ advanced, rust, ethereum, eth, integration, ethereum integration ]
----
-
 # Basic Ethereum
-
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/basic_ethereum)
-
-## Overview
 
 This tutorial will walk you through how to deploy a
 sample [canister smart contract](https://internetcomputer.org/docs/current/developer-docs/multi-chain/ethereum/overview)
@@ -24,7 +16,7 @@ the [Ethereum integration overview](https://internetcomputer.org/docs/current/de
 
 ## Prerequisites
 
-* [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
 
 ## Step 1: Building and deploying sample code
 
