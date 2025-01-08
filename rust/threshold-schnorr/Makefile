@@ -1,6 +1,11 @@
 .PHONY: all
 all: build
 
+.PHONY: build
+.SILENT: build
+build:
+	dfx build --check
+
 .PHONY: deploy
 .SILENT: deploy
 deploy:
@@ -9,7 +14,7 @@ deploy:
 .PHONY: mock
 .SILENT: mock
 mock: deploy
-	SCHNORR_MOCK_CANISTER_ID=$(shell dfx canister id schnorr_canister); \
+	SCHNORR_MOCK_CANISTER_ID=$(shell dfx canister id chainkey_testing_canister); \
 	SCHNORR_EXAMPLE_CANISTER_ID=$(shell dfx canister id schnorr_example_rust); \
 	echo "Changing to using mock canister instead of management canister for signing"; \
 	CMD="dfx canister call "$${SCHNORR_EXAMPLE_CANISTER_ID}" for_test_only_change_management_canister_id '("\"$${SCHNORR_MOCK_CANISTER_ID}\"")'"; \
@@ -17,7 +22,7 @@ mock: deploy
 
 .PHONY: test
 .SILENT: test
-test: mock
+test: build
 	cargo test
 
 .PHONY: clean

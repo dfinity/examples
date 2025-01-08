@@ -2,7 +2,7 @@
 keywords: [advanced, rust, nft, dip721]
 ---
 
-# DIP721 NFT 
+# DIP721 NFT
 
 [View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/dip721-nft-container)
 
@@ -28,7 +28,7 @@ When upgrading canister code, however, it is necessary to explicitly handle cani
  ### 2. Certified data.
 Generally, when a function only reads data, instead of modifying the state of the canister, it is
 beneficial to use a [query call instead of an update call](https://internetcomputer.org/docs/current/concepts/canisters-code.md#query-and-update-methods).
-But, since query calls do not go through consensus, [certified responses](https://internetcomputer.org/docs/current/developer-docs/security/general-security-best-practices)
+But, since query calls do not go through consensus, [certified responses](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/overview )
 should be used wherever possible. The HTTP interface of the Rust implementation shows how certified data can be handled.
 
  ### 3. Delegating control over assets.
@@ -47,7 +47,7 @@ In case an error occurs during any part of the upgrade (including `post_upgdrade
 
 The Rust CDK (Canister Development Kit) currently only supports one value in stable memory, so it is necessary to create an object that can hold everything you care about.
 In addition, not every data type can be stored in stable memory; only ones that implement the [CandidType trait](https://docs.rs/candid/latest/candid/types/trait.CandidType.html)
-(usually via the [CandidType derive macro](https://docs.rs/candid/latest/candid/derive.CandidType.html)) can be written to stable memory. 
+(usually via the [CandidType derive macro](https://docs.rs/candid/latest/candid/derive.CandidType.html)) can be written to stable memory.
 
 Since the state of our canister includes an `RbTree` which does not implement the `CandidType`, it has to be converted into a data structure (in this case a `Vec`) that implements `CandidType`.
 Luckily, both `RbTree` and `Vec` implement functions that allow converting to/from iterators, so the conversion can be done quite easily.
@@ -76,7 +76,7 @@ For a much more detailed explanation of how certification works, see [this expla
 - **Operator**: sort of a delegated owner. The operator does not own the NFT but can do the same actions an owner can do.
 - **Custodian**: creator of the NFT collection/canister. They can do anything (transfer, add/remove operators, burn, and even un-burn) to NFTs, but also mint new ones or change the symbol or description of the collection.
 
-The NFT example canister keeps access control in these three levels very simple: 
+The NFT example canister keeps access control in these three levels very simple:
 - For every level of control, a separate list (or set) of principals is kept.
 - Those three levels are then manually checked every single time someone attempts to do something for which they require authorization.
 - If a user is not authorized to call a certain function an error is returned.
@@ -111,7 +111,7 @@ cd examples/rust/dip721-nft-container
 dfx start --background --clean
 ```
 
- ### Step 3: Install the canister. 
+ ### Step 3: Install the canister.
 
 Deploy the canister with the command:
 ```sh
@@ -145,9 +145,9 @@ The canister also supports a certified HTTP interface; going to `/<nft>/<id>` wi
 
 Remember that query functions are uncertified; the result of functions like `ownerOfDip721` can be modified arbitrarily by a single malicious node. If queried information is depended on, for example, if someone might send ICP to the owner of a particular NFT to buy it from them, those calls should be performed as update calls instead. You can force an update call by passing the `--update` flag to `dfx` or using the `Agent::update` function in `agent-rs`.
 
- ### Step 5: Mint an NFT. 
+ ### Step 5: Mint an NFT.
 
-Due to size limitations on the length of a terminal command, an image- or video-based NFT would be impossible to send via `dfx`. To that end, there is an experimental [minting tool](https://github.com/dfinity/experimental-minting-tool) you can use to mint a single-file NFT. 
+Due to size limitations on the length of a terminal command, an image- or video-based NFT would be impossible to send via `dfx`. To that end, there is an experimental [minting tool](https://github.com/dfinity/experimental-minting-tool) you can use to mint a single-file NFT.
 
 To use this tool, install the minting tool with the command:
 
@@ -165,7 +165,7 @@ The output of this command should look like this:
 Successfully minted token 0 to x4d3z-ufpaj-lpxs4-v7gmt-v56ze-aub3k-bvifl-y4lsq-soafd-d3i4k-fqe (transaction id 0)
 ```
 
-Minting is restricted to anyone authorized with the `custodians` parameter or the `set_custodians` function. Since the contents of `--file` are stored on-chain, it's important to prevent arbitrary users from minting tokens, or they will be able to store arbitrarily-sized data in the contract and exhaust the canister's cycles. Be careful not to upload too much data to the canister yourself, or the contract will no longer be able to be upgraded afterward.
+Minting is restricted to anyone authorized with the `custodians` parameter or the `set_custodians` function. Since the contents of `--file` are stored onchain, it's important to prevent arbitrary users from minting tokens, or they will be able to store arbitrarily-sized data in the contract and exhaust the canister's cycles. Be careful not to upload too much data to the canister yourself, or the contract will no longer be able to be upgraded afterward.
 
 #### Demo
 
@@ -176,9 +176,9 @@ This Rust example comes with a demo script, `demo.sh`, which runs through an exa
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 
 For example, the following aspects are particularly relevant for this app:
-* [Inter-canister calls and rollbacks](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices/#inter-canister-calls-and-rollbacks), since issues around inter-canister calls can e.g. lead to time-of-check time-of-use or double spending security bugs.
+* [Inter-canister calls and rollbacks](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/overview), since issues around inter-canister calls can e.g. lead to time-of-check time-of-use or double spending security bugs.
 * [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since this is essential when e.g. displaying important NFT data in the frontend that may be used by users to decide on future transactions.
-* [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#use-a-decentralized-governance-system-like-sns-to-make-a-canister-have-a-decentralized-controller), since decentralizing control is a fundamental aspect when dealing with NFTs.
+* [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/overview), since decentralizing control is a fundamental aspect when dealing with NFTs.
 
 ## Resources
 - [Rust](https://rustup.rs).

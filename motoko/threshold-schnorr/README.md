@@ -10,15 +10,8 @@ keywords: [advanced, motoko, threshold schnorr, schnorr, signature]
 
 We present a minimal example canister smart contract for showcasing the
 [threshold
-Schnorr](https://org5p-7iaaa-aaaak-qckna-cai.icp0.io/docs#ic-sign_with_schnorr)
+Schnorr](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr)
 API.
-
-WARNING: the current version of this canister calls not the management canister
-but a custom canister, which produces Schnorr signatures in an INSECURE way.
-This is done for testing purposes ONLY and MUST NOT be done in production. In
-production, ONLY the management canister API MUST be used. The reason is that
-the management canister API is not yet fully implemented and instead of the
-management canister we use a mock canister that provides Schnorr signatures.
 
 The example canister is a signing oracle that creates Schnorr signatures with
 keys derived based on the canister ID and the chosen algorithm, either BIP340 or
@@ -36,13 +29,16 @@ More specifically:
 This tutorial gives a complete overview of the development, starting with downloading [`dfx`](https://internetcomputer.org/docs/current/developer-docs/setup/index.md), up to the deployment and trying out the code on the mainnet.
 
 This walkthrough focuses on the version of the sample canister code written in
-Motoko programming language.. There is also a
+Motoko programming language. There is also a
 [Rust](https://github.com/dfinity/examples/tree/master/rust/threshold-schnorr)
 version available in the same repo and follows the same commands for deploying.
 
 
 ## Prerequisites
--   [x] Download and [install the IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/index.md) if you do not already have it.
+-   [x] Download and [install the IC
+    SDK](https://internetcomputer.org/docs/current/developer-docs/setup/index.md)
+    if you do not already have it. For local testing, `dfx >= 0.22.0-beta.0` is
+    required.
 -   [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 ## Getting started
@@ -51,22 +47,30 @@ Sample code for `threshold-schnorr-example` is provided in the [examples reposit
 
 ### Deploy and test the canister locally 
 
-This tutorial will use the Motoko version of the canister:
+This tutorial will use the Motoko version of the canister.
 
+To deploy:
 ```bash
 cd examples/motoko/threshold-schnorr
 dfx start --background
-npm install
-make mock
+make deploy
+```
+
+To test (includes deploying):
+```bash
+cd examples/motoko/threshold-schnorr
+dfx start --background
+npm install @noble/curves
+make test
 ```
 
 #### What this does
 - `dfx start --background` starts a local instance of the IC via the IC SDK
-- `make mock` deploys the canister code on the local version of the IC and
-  updates the canister ID that produces Schnorr signatures (see the WARNING at
-  the beginning of this document)
+- `make deploy` deploys the canister code on the local version of the IC
+- `npm install @noble/curves` installs a test javascript dependency
+- `make test` deploys and tests the canister code on the local version of the IC
 
-If successful, you should see something like this:
+If deployment was successful, you should see something like this:
 
 ```bash
 Deployed canisters.
@@ -76,8 +80,8 @@ URLs:
 ```
 
 If you open the URL in a web browser, you will see a web UI that shows the
-public methods the canister exposes. Since the canister exposes `public_key`,
-`sign`, and `verify` methods, those are rendered in the web UI.
+public methods the canister exposes. Since the canister exposes `public_key` and
+`sign`, those are rendered in the web UI.
 
 ### Deploying the canister on the mainnet
 
@@ -88,7 +92,7 @@ To deploy this canister the mainnet, one needs to do two things:
 
 #### Acquire cycles to deploy
 
-Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/setup/cycles). You can get free cycles from the [cycles faucet](https://internetcomputer.org/docs/current/developer-docs/getting-started/cycles/cycles-faucet).
+Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/getting-started/tokens-and-cycles) (the equivalent of "gas" on other blockchains).
 
 #### Update source code with the right key ID
 
@@ -116,7 +120,6 @@ key ID in `src/schnorr_example_motoko/src/main.mo` must be consistent.
 To [deploy via the mainnet](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-mainnet.md), run the following commands:
 
 ```bash
-npm install
 dfx deploy --network ic
 ```
 If successful, you should see something like this:
@@ -125,8 +128,14 @@ If successful, you should see something like this:
 Deployed canisters.
 URLs:
   Backend canister via Candid interface:
-    schnorr_example_motoko: https://a3gq9-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=736w4-cyaaa-aaaal-qb3wq-cai
+    schnorr_example_motoko: https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=enb64-iaaaa-aaaap-ahnkq-cai
 ```
+
+The implementation of this canister in Rust is (`schnorr_example_rust`) is
+deployed on mainnet. It has the URL
+https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=enb64-iaaaa-aaaap-ahnkq-cai
+and serves up the Candid web UI for this particular canister deployed on
+mainnet.
 
 ## Obtaining public keys
 
@@ -215,7 +224,11 @@ Computing threshold Schnorr signatures is the core functionality of this feature
 
 ## Signature verification
 
-For completeness of the example, we show that the created signatures can be verified with the public key corresponding to the same canister and derivation path.
+For completeness of the example, we show that the created signatures can be
+verified with the public key corresponding to the same canister and derivation
+path in javascript. Note that in contrast to the Rust implementation of this
+example, the signature verification is not part of the canister API and happens
+externally.
 
 Ed25519 can be verified as follows:
 ```javascript

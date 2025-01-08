@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width" />
+  <title>Onchain ICP face recognition</title>
+  <base href="/" />
+  <link rel="icon" href="favicon.ico" />
+  <link type="text/css" rel="stylesheet" href="main.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <div class="container">
+    <h1>Onchain ICP <img id="inline-logo" src="logo_small.png"></img> face recognition</h1>
+    <div>
+      <label id="filelabel" for="file" class="clickable">
+        <div id="camera">
+          <img id="image" src="logo_transparent.png"></img>
+          <video playsinline id="video" class="invisible"></video>
+          <canvas id="canvas" class="invisible"></canvas>
+        </div>
+      </label>
+      <input id="file" class="file" name="file" type="file" accept="image/png, image/jpeg" />
+    </div>
+
+    <div>
+      <img id="loader" src="loader.svg" class="invisible" />
+    </div>
+
+    <div id="toolbar">
+      <div id="buttons" class="invisible">
+        <button id="recognize"><i class="fa-solid fa-magnifying-glass"></i>Recognize</button>
+        <button id="store"><i class="fa-solid fa-user"></i>Add person</button>
+      </div>
+      <div id="message"></div>
+      <button id="restart" class="invisible" style="margin-top: 30px"><i
+          class="fa-solid fa-rotate-right"></i>Back</button>
+    </div>
+  </div>
+</body>
+
+</html>

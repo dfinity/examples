@@ -29,14 +29,12 @@ deploy:
 .PHONY: test
 .SILENT: test
 test: deploy
-	# Wait at least 2 seconds.
-	sleep 2
 	# Validate the counters are non-zero.
-	dfx canister call heartbeat counter | grep -vw '0' && echo 'PASS'
-	dfx canister call timer counter | grep -vw '0' && echo 'PASS'
+	while [ "$$(dfx canister call heartbeat counter --output json)" = "0" ]; do sleep 1; done && dfx canister call heartbeat counter --output json | grep -vw "0" && echo 'PASS'
+	while [ "$$(dfx canister call timer counter --output json)" = "0" ]; do sleep 1; done && dfx canister call timer counter --output json | grep -vw "0" && echo 'PASS'
 	# Validate the cycles used for periodic tasks are non-zero.
-	dfx canister call heartbeat cycles_used | grep -vw '0' && echo 'PASS'
-	dfx canister call timer cycles_used | grep -vw '0' && echo 'PASS'
+	while [ "$$(dfx canister call heartbeat cycles_used --output json)" = "\"0\"" ]; do sleep 1; done && dfx canister call heartbeat cycles_used --output json | grep -vw "0" && echo 'PASS'
+	while [ "$$(dfx canister call timer cycles_used --output json)" = "\"0\"" ]; do sleep 1; done && dfx canister call timer cycles_used --output json | grep -vw "0" && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean

@@ -22,7 +22,7 @@ actor {
 
     let vetkd_system_api : VETKD_SYSTEM_API = actor ("s55qq-oqaaa-aaaaa-aaakq-cai");
 
-    public shared ({ caller }) func app_vetkd_public_key(derivation_path : [Blob]) : async Text {
+    public shared ({ caller = _ }) func app_vetkd_public_key(derivation_path : [Blob]) : async Text {
         let { public_key } = await vetkd_system_api.vetkd_public_key({
             canister_id = null;
             derivation_path;
@@ -31,7 +31,7 @@ actor {
         Hex.encode(Blob.toArray(public_key));
     };
 
-    public shared ({ caller }) func symmetric_key_verification_key() : async Text {
+    public shared ({ caller = _ }) func symmetric_key_verification_key() : async Text {
         let { public_key } = await vetkd_system_api.vetkd_public_key({
             canister_id = null;
             derivation_path = Array.make(Text.encodeUtf8("symmetric_key"));
@@ -52,7 +52,7 @@ actor {
         Hex.encode(Blob.toArray(encrypted_key));
     };
 
-    public shared ({ caller }) func ibe_encryption_key() : async Text {
+    public shared ({ caller = _ }) func ibe_encryption_key() : async Text {
         let { public_key } = await vetkd_system_api.vetkd_public_key({
             canister_id = null;
             derivation_path = Array.make(Text.encodeUtf8("ibe_encryption"));

@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   motoko-threshold-schnorr-darwin:
-    runs-on: macos-12
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
@@ -22,8 +22,8 @@ jobs:
       - name: Motoko Threshold Schnorr Darwin
         run: |
           dfx start --background
+          npm install @noble/curves
           pushd motoko/threshold-schnorr
-          make mock
           make test
   motoko-threshold-schnorr-linux:
     runs-on: ubuntu-20.04
@@ -34,6 +34,6 @@ jobs:
       - name: Motoko Threshold Schnorr Linux
         run: |
           dfx start --background
+          npm install @noble/curves
           pushd motoko/threshold-schnorr
-          make mock
           make test

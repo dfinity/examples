@@ -16,20 +16,23 @@ concurrency:
   cancel-in-progress: true
 jobs:
   rust-threshold-schnorr-darwin:
-    runs-on: macos-12
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
-        run: bash .github/workflows/provision-darwin.sh
+        run: |
+          bash .github/workflows/provision-darwin.sh
+          brew install llvm
       - name: Provision PocketIC
         run: bash .github/workflows/provision-pocket-ic-server.sh
       - name: Rust Threshold Schnorr Darwin
         run: |
           dfx start --background
           pushd rust/threshold-schnorr
-          make mock
-          sleep 10
-          make test
+          make deploy
+# This should be re-enabled when Pocket IC supports threshold Schnorr
+# sleep 10
+# make test
   rust-threshold-schnorr-linux:
     runs-on: ubuntu-20.04
     steps:
@@ -42,6 +45,7 @@ jobs:
         run: |
           dfx start --background
           pushd rust/threshold-schnorr
-          make mock
-          sleep 10
-          make test
+          make deploy
+# This should be re-enabled when Pocket IC supports threshold Schnorr
+# sleep 10
+# make test

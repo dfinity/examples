@@ -29,14 +29,6 @@ actor {
 
   var ic : IC = actor ("aaaaa-aa");
 
-  public func for_test_only_change_management_canister_id(mock_id : Text) : async {
-    #Ok : ();
-    #Err : Text;
-  } {
-    ic := actor (mock_id);
-    #Ok(());
-  };
-
   public shared ({ caller }) func public_key(algorithm_arg : SchnorrAlgorithm) : async {
     #Ok : { public_key_hex : Text };
     #Err : Text;

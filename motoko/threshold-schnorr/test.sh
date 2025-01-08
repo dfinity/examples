@@ -10,27 +10,29 @@ function test_impl() {
     message="$1"
     echo message="$message"
 
-    ed25519_sign_cmd="dfx canister call schnorr_example_motoko sign '(\"${message}\" ,(variant { ed25519 }))'"
-    ed25519_sig_raw_output="$(eval ${ed25519_sign_cmd} | grep signature_hex)"
-    ed25519_sig_hex="$(get_text_in_double_quotes "${ed25519_sig_raw_output}")"
-    echo ed25519_signature_hex="$ed25519_sig_hex"
+#     This should be uncommented when dfx deploys an Ed25519 key
 
-    ed25519_public_key_raw_output="$(dfx canister call schnorr_example_motoko public_key '(variant { ed25519 })' | grep public_key_hex)"
-    ed25519_public_key_hex="$(get_text_in_double_quotes "${ed25519_public_key_raw_output}")"
-    echo ed25519_public_key_hex="$ed25519_public_key_hex"
+#     ed25519_sign_cmd="dfx canister call schnorr_example_motoko sign '(\"${message}\" ,(variant { ed25519 }))'"
+#     ed25519_sig_raw_output="$(eval ${ed25519_sign_cmd} | grep signature_hex)"
+#     ed25519_sig_hex="$(get_text_in_double_quotes "${ed25519_sig_raw_output}")"
+#     echo ed25519_signature_hex="$ed25519_sig_hex"
 
-    node <<END
-    import('@noble/curves/ed25519').then((ed25519) => { verify(ed25519.ed25519); })
-    .catch((err) => { console.log(err) });
+#     ed25519_public_key_raw_output="$(dfx canister call schnorr_example_motoko public_key '(variant { ed25519 })' | grep public_key_hex)"
+#     ed25519_public_key_hex="$(get_text_in_double_quotes "${ed25519_public_key_raw_output}")"
+#     echo ed25519_public_key_hex="$ed25519_public_key_hex"
 
-    function verify(ed25519) {
-        const sig = '${ed25519_sig_hex}';
-        const pubkey = '${ed25519_public_key_hex}';
-        const msg = Uint8Array.from(Buffer.from("${message}", 'utf8'));
+#     node <<END
+#     import('@noble/curves/ed25519').then((ed25519) => { verify(ed25519.ed25519); })
+#     .catch((err) => { console.log(err) });
 
-        console.log(ed25519.verify(sig, msg, pubkey));
-    }
-END
+#     function verify(ed25519) {
+#         const sig = '${ed25519_sig_hex}';
+#         const pubkey = '${ed25519_public_key_hex}';
+#         const msg = Uint8Array.from(Buffer.from("${message}", 'utf8'));
+
+#         console.log(ed25519.verify(sig, msg, pubkey));
+#     }
+# END
 
     bip340_sign_cmd="dfx canister call schnorr_example_motoko sign '(\"${message}\" ,(variant { bip340secp256k1 }))'"
     bip340_sig_raw_output="$(eval ${bip340_sign_cmd} | grep signature_hex)"
@@ -57,10 +59,10 @@ END
 
 test_output=$(test_impl "$1")
 echo $test_output
-if echo $test_output | grep "false"; then
-    echo "failed to validate signatures"
-    exit 1
-else
+if echo $test_output | grep "true"; then
     echo "successfully validated signatures"
     exit 0
+else
+    echo "failed to validate signatures"
+    exit 1
 fi
