@@ -82,7 +82,6 @@ actor {
         key_id = { algorithm; name = "insecure_test_key_1" };
         aux;
       };
-      Debug.print("signArgs: " # debug_show (signArgs));
       let { signature } = await ic.sign_with_schnorr(signArgs);
       #Ok({ signature_hex = Hex.encode(Blob.toArray(signature)) });
     } catch (err) {
