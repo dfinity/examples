@@ -15,7 +15,7 @@ actor {
   };
 
   public type SchnorrAux = {
-    bip341 : {
+    #bip341 : {
       merkle_root_hash : Blob;
     };
   };
@@ -41,7 +41,7 @@ actor {
     ic := actor (mock_id);
   };
 
-  public shared ({ caller }) func public_key(algorithm_arg : SchnorrAlgorithm) : async {
+  public shared ({ caller }) func public_key(algorithm : SchnorrAlgorithm) : async {
     #Ok : { public_key_hex : Text };
     #Err : Text;
   } {
@@ -49,7 +49,7 @@ actor {
       let { public_key } = await ic.schnorr_public_key({
         canister_id = null;
         derivation_path = [Principal.toBlob(caller)];
-        key_id = { algorithm = algorithm_arg; name = "insecure_test_key_1" };
+        key_id = { algorithm; name = "insecure_test_key_1" };
       });
       #Ok({ public_key_hex = Hex.encode(Blob.toArray(public_key)) });
     } catch (err) {
@@ -57,33 +57,33 @@ actor {
     };
   };
 
-  public shared ({ caller }) func sign(message_arg : Text, algorithm_arg : SchnorrAlgorithm, bip341Tweak : ?Text) : async {
+  public shared ({ caller }) func sign(message_arg : Text, algorithm : SchnorrAlgorithm, bip341Tweak : ?Text) : async {
     #Ok : { signature_hex : Text };
     #Err : Text;
   } {
     let aux = switch (bip341Tweak) {
       case (?tweak) {
-        ?{
-          bip341 = {
-            merkle_root_hash = Blob.fromArray(
-              switch (Hex.decode(tweak)) {
-                case (#ok bytes) bytes;
-                case (#err _) Debug.trap("failed to decode tweak");
-              }
-            );
-          };
-        };
+        ?#bip341({
+          merkle_root_hash = Blob.fromArray(
+            switch (Hex.decode(tweak)) {
+              case (#ok bytes) bytes;
+              case (#err _) Debug.trap("failed to decode tweak");
+            }
+          );
+        });
       };
       case (null) null;
     };
     try {
       Cycles.add<system>(25_000_000_000);
-      let { signature } = await ic.sign_with_schnorr({
+      let signArgs = {
         message = Text.encodeUtf8(message_arg);
         derivation_path = [Principal.toBlob(caller)];
-        key_id = { algorithm = algorithm_arg; name = "insecure_test_key_1" };
+        key_id = { algorithm; name = "insecure_test_key_1" };
         aux;
-      });
+      };
+      Debug.print("signArgs: " # debug_show (signArgs));
+      let { signature } = await ic.sign_with_schnorr(signArgs);
       #Ok({ signature_hex = Hex.encode(Blob.toArray(signature)) });
     } catch (err) {
       #Err(Error.message(err));

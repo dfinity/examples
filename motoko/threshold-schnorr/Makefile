@@ -18,7 +18,7 @@ mock: deploy
 .PHONY: test
 .SILENT: test
 test: mock
-	bash test.sh hello
+	bash test.sh hellohellohellohellohellohello12
 
 .PHONY: clean
 .SILENT: clean
