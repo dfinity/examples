@@ -3,7 +3,7 @@ import Error "mo:base/Error";
 import Principal "mo:base/Principal";
 import Text "mo:base/Text";
 import Blob "mo:base/Blob";
-import Debug "mo:base/Debug";
+import Option "mo:base/Option";
 import Hex "./utils/Hex";
 
 actor {
@@ -57,23 +57,16 @@ actor {
     };
   };
 
-  public shared ({ caller }) func sign(message_arg : Text, algorithm : SchnorrAlgorithm, bip341Tweak : ?Text) : async {
-    #Ok : { signature_hex : Text };
-    #Err : Text;
+  public shared ({ caller }) func sign(message_arg : Text, algorithm : SchnorrAlgorithm, bip341TweakHex : ?Text) : async {
+    #ok : { signature_hex : Text };
+    #err : Text;
   } {
-    let aux = switch (bip341Tweak) {
-      case (?tweak) {
-        ?#bip341({
-          merkle_root_hash = Blob.fromArray(
-            switch (Hex.decode(tweak)) {
-              case (#ok bytes) bytes;
-              case (#err _) Debug.trap("failed to decode tweak");
-            }
-          );
-        });
-      };
+    let aux = switch (Option.map(bip341TweakHex, tryHexToTweak)) {
       case (null) null;
+      case (?#ok some) ?some;
+      case (?#err err) return #err err;
     };
+
     try {
       Cycles.add<system>(25_000_000_000);
       let signArgs = {
@@ -83,9 +76,26 @@ actor {
         aux;
       };
       let { signature } = await ic.sign_with_schnorr(signArgs);
-      #Ok({ signature_hex = Hex.encode(Blob.toArray(signature)) });
+      #ok({ signature_hex = Hex.encode(Blob.toArray(signature)) });
     } catch (err) {
-      #Err(Error.message(err));
+      #err(Error.message(err));
+    };
+  };
+
+  func tryHexToTweak(hex : Text) : { #ok : SchnorrAux; #err : Text } {
+    switch (Hex.decode(hex)) {
+      case (#ok bytes) {
+        #ok(
+          #bip341({
+            merkle_root_hash = Blob.fromArray(
+              bytes
+            );
+          })
+        );
+      };
+      case (#err _) {
+        return #err "failed to decode tweak hex";
+      };
     };
   };
 };
