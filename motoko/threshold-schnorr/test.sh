@@ -22,16 +22,25 @@ function test_impl() {
     echo ed25519_public_key_hex="$ed25519_public_key_hex"
 
     node <<END
-    import * as ed25519 from '@noble/ed25519';
-    import { sha512 } from '@noble/hashes/sha512';
+    async function run() {
+        try {
+            const ed25519 = await import('@noble/ed25519');
+            const sha512 = await import('@noble/hashes/sha512');
 
-    ed25519.etc.sha512Sync = (...m) => sha512(ed25519.etc.concatBytes(...m));
+            ed25519.etc.sha512Sync = (...m) => sha512.sha512(ed25519.etc.concatBytes(...m));
 
-    const sig = '${ed25519_sig_hex}';
-    const pubkey = '${ed25519_public_key_hex}';
-    const msg = Uint8Array.from(Buffer.from("${message}", 'utf8'));
+            const sig = '${ed25519_sig_hex}';
+            const pubkey = '${ed25519_public_key_hex}';
+            const msg = Uint8Array.from(Buffer.from("${message}", 'utf8'));
 
-    console.log(ed25519.verify(sig, msg, pubkey));
+            console.log(ed25519.verify(sig, msg, pubkey));
+        }
+        catch(err) {
+            console.log(err);
+        }
+    }
+
+    run();
 END
 
     bip340_sign_cmd="dfx canister call schnorr_example_motoko sign '(\"${message}\" ,(variant { bip340secp256k1 }), null)'"
@@ -44,13 +53,22 @@ END
     echo bip340_public_key_hex="${bip340_public_key_hex}"
 
     node <<END
-    import * as ecc from 'tiny-secp256k1';
+    async function run() {
+        try {
+            const ecc = await import('tiny-secp256k1');
 
-    const sig = Buffer.from('${bip340_sig_hex}', 'hex');
-    const pubkey = Buffer.from('${bip340_public_key_hex}'.substring(2), 'hex');
-    const msg = Buffer.from("${message}", 'utf8');
+            const sig = Buffer.from('${bip340_sig_hex}', 'hex');
+            const pubkey = Buffer.from('${bip340_public_key_hex}'.substring(2), 'hex');
+            const msg = Buffer.from("${message}", 'utf8');
 
-    console.log(ecc.verifySchnorr(msg, pubkey, sig));
+            console.log(ecc.verifySchnorr(msg, pubkey, sig));
+        }
+        catch(err) {
+            console.log(err);
+        }
+    }
+
+    run();
 END
 
     bip341_tweak_hex="012345678901234567890123456789012345678901234567890123456789abcd"
@@ -60,20 +78,29 @@ END
     echo bip341_signature_hex="${bip341_sig_hex}"
 
     node <<END
-    import { tweakKey } from 'bitcoinjs-lib/src/payments/bip341.js';
-    import * as bitcoin from 'bitcoinjs-lib';
-    import * as ecc from 'tiny-secp256k1';
+    async function run() {
+        try {
+            const bip341 = await import('bitcoinjs-lib/src/payments/bip341.js');
+            const bitcoin = await import('bitcoinjs-lib');
+            const ecc = await import('tiny-secp256k1');
 
-    bitcoin.initEccLib(ecc);
+            bitcoin.initEccLib(ecc);
 
-    const sig = Buffer.from('${bip341_sig_hex}', 'hex');
-    const tweak = Buffer.from('${bip341_tweak_hex}', 'hex');
-    const pubkey = Buffer.from('${bip340_public_key_hex}'.substring(2), 'hex');
-    const msg = Buffer.from("${message}", 'utf8');
+            const sig = Buffer.from('${bip341_sig_hex}', 'hex');
+            const tweak = Buffer.from('${bip341_tweak_hex}', 'hex');
+            const pubkey = Buffer.from('${bip340_public_key_hex}'.substring(2), 'hex');
+            const msg = Buffer.from("${message}", 'utf8');
 
-    const tweaked_pubkey = tweakKey(pubkey, tweak).x;
+            const tweaked_pubkey = bip341.tweakKey(pubkey, tweak).x;
 
-    console.log(ecc.verifySchnorr(msg, tweaked_pubkey, sig));
+            console.log(ecc.verifySchnorr(msg, tweaked_pubkey, sig));
+        }
+        catch(err) {
+            console.log(err);
+        }
+    }
+
+    run();
 END
 }
 
