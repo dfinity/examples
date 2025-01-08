@@ -63,7 +63,7 @@ actor {
   } {
     let aux = switch (Option.map(bip341TweakHex, tryHexToTweak)) {
       case (null) null;
-      case (?#ok some) ?some;
+      case (?#ok aux) ?aux;
       case (?#err err) return #err err;
     };
 
@@ -94,7 +94,7 @@ actor {
         );
       };
       case (#err _) {
-        return #err "failed to decode tweak hex";
+        #err "failed to decode tweak hex";
       };
     };
   };
