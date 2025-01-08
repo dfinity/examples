@@ -9,7 +9,7 @@ pushd /tmp
 wget --output-document nodesource_setup.sh "https://deb.nodesource.com/setup_lts.x"
 sudo bash nodesource_setup.sh
 sudo apt-get install --yes nodejs
-rm install-node.sh
+rm nodesource_setup.sh
 
 # Install DFINITY SDK.
 wget --output-document install-dfx.sh "https://raw.githubusercontent.com/dfinity/sdk/master/public/install-dfxvm.sh"
