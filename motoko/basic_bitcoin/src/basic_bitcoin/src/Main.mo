@@ -1,13 +1,14 @@
+import Principal "mo:base/Principal";
 import Text "mo:base/Text";
 
 import BitcoinApi "BitcoinApi";
 import P2pkh "P2pkh";
-import P2trRawKeySpend "P2trRawKeySpend";
-import P2trScriptSpend "P2trScriptSpend";
+import P2trKeyOnly "P2trKeyOnly";
+import P2tr "P2tr";
 import Types "Types";
 import Utils "Utils";
 
-actor class BasicBitcoin(_network : Types.Network) {
+actor class BasicBitcoin(network : Types.Network) {
   type GetUtxosResponse = Types.GetUtxosResponse;
   type MillisatoshiPerVByte = Types.MillisatoshiPerVByte;
   type SendRequest = Types.SendRequest;
@@ -15,13 +16,15 @@ actor class BasicBitcoin(_network : Types.Network) {
   type BitcoinAddress = Types.BitcoinAddress;
   type Satoshi = Types.Satoshi;
   type TransactionId = Text;
+  type EcdsaCanisterActor = Types.EcdsaCanisterActor;
+  type SchnorrCanisterActor = Types.SchnorrCanisterActor;
 
   // The Bitcoin network to connect to.
   //
   // When developing locally this should be `regtest`.
   // When deploying to the IC this should be `testnet`.
   // `mainnet` is currently unsupported.
-  stable let NETWORK : Network = _network;
+  stable let NETWORK : Network = network;
 
   // The derivation path to use for ECDSA secp256k1.
   let DERIVATION_PATH : [[Nat8]] = [];
@@ -29,9 +32,17 @@ actor class BasicBitcoin(_network : Types.Network) {
   // The ECDSA key name.
   let KEY_NAME : Text = switch NETWORK {
     // For local development, we use a special test key with dfx.
-    case (#regtest) "dfx_test_key";
+    case (#regtest) "insecure_test_key_1";
     // On the IC we're using a test ECDSA key.
     case _ "test_key_1";
+  };
+
+  var ecdsa_canister_actor : EcdsaCanisterActor = actor ("aaaaa-aa");
+  var schnorr_canister_actor : SchnorrCanisterActor = actor ("aaaaa-aa");
+
+  public func for_test_only_change_management_canister_id(p : Principal) {
+    ecdsa_canister_actor := actor (Principal.toText(p));
+    schnorr_canister_actor := actor (Principal.toText(p));
   };
 
   /// Returns the balance of the given Bitcoin address.
@@ -52,28 +63,32 @@ actor class BasicBitcoin(_network : Types.Network) {
 
   /// Returns the P2PKH address of this canister at a specific derivation path.
   public func get_p2pkh_address() : async BitcoinAddress {
-    await P2pkh.get_address(NETWORK, KEY_NAME, DERIVATION_PATH);
+    await P2pkh.get_address(ecdsa_canister_actor, NETWORK, KEY_NAME, DERIVATION_PATH);
   };
 
   /// Sends the given amount of bitcoin from this canister to the given address.
   /// Returns the transaction ID.
   public func send_from_p2pkh_address(request : SendRequest) : async TransactionId {
-    Utils.bytesToText(await P2pkh.send(NETWORK, DERIVATION_PATH, KEY_NAME, request.destination_address, request.amount_in_satoshi));
+    Utils.bytesToText(await P2pkh.send(ecdsa_canister_actor, NETWORK, DERIVATION_PATH, KEY_NAME, request.destination_address, request.amount_in_satoshi));
   };
 
-  public func get_p2tr_raw_key_spend_address() : async BitcoinAddress {
-    await P2trRawKeySpend.get_address(NETWORK, KEY_NAME, DERIVATION_PATH);
+  public func get_p2tr_key_only_address() : async BitcoinAddress {
+    await P2trKeyOnly.get_address(schnorr_canister_actor, NETWORK, KEY_NAME, DERIVATION_PATH);
   };
 
-  public func send_from_p2tr_raw_key_spend_address(request : SendRequest) : async TransactionId {
-    Utils.bytesToText(await P2trRawKeySpend.send(NETWORK, DERIVATION_PATH, KEY_NAME, request.destination_address, request.amount_in_satoshi));
+  public func send_from_p2tr_key_only_address(request : SendRequest) : async TransactionId {
+    Utils.bytesToText(await P2trKeyOnly.send(schnorr_canister_actor, NETWORK, DERIVATION_PATH, KEY_NAME, request.destination_address, request.amount_in_satoshi));
   };
 
-  public func get_p2tr_script_spend_address() : async BitcoinAddress {
-    await P2trScriptSpend.get_address(NETWORK, KEY_NAME, DERIVATION_PATH);
+  public func get_p2tr_address() : async BitcoinAddress {
+    await P2tr.get_address(schnorr_canister_actor, NETWORK, KEY_NAME, DERIVATION_PATH);
   };
 
-  public func send_from_p2tr_script_spend_address(request : SendRequest) : async TransactionId {
-    Utils.bytesToText(await P2trScriptSpend.send(NETWORK, DERIVATION_PATH, KEY_NAME, request.destination_address, request.amount_in_satoshi));
+  public func send_from_p2tr_address_key_spend(request : SendRequest) : async TransactionId {
+    Utils.bytesToText(await P2tr.send_key_spend(schnorr_canister_actor, NETWORK, DERIVATION_PATH, KEY_NAME, request.destination_address, request.amount_in_satoshi));
+  };
+
+  public func send_from_p2tr_address_script_spend(request : SendRequest) : async TransactionId {
+    Utils.bytesToText(await P2tr.send_script_spend(schnorr_canister_actor, NETWORK, DERIVATION_PATH, KEY_NAME, request.destination_address, request.amount_in_satoshi));
   };
 };

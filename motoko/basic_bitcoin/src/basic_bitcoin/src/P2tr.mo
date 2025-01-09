@@ -20,13 +20,14 @@ import Option "mo:base/Option";
 
 import Address "mo:bitcoin/bitcoin/Address";
 import Bitcoin "mo:bitcoin/bitcoin/Bitcoin";
+import { taggedHash } "mo:bitcoin/Hash";
 import { leafHash; leafScript; tweakFromKeyAndHash; tweakPublicKey } "mo:bitcoin/bitcoin/P2tr";
 import Transaction "mo:bitcoin/bitcoin/Transaction";
 import TxInput "mo:bitcoin/bitcoin/TxInput";
 import Script "mo:bitcoin/bitcoin/Script";
+import Segwit "mo:bitcoin/Segwit";
 
 import BitcoinApi "BitcoinApi";
-import P2trRawKeySpend "P2trRawKeySpend";
 import SchnorrApi "SchnorrApi";
 import Types "Types";
 import Utils "Utils";
@@ -39,10 +40,11 @@ module {
     type MillisatoshiPerVByte = Types.MillisatoshiPerVByte;
     type Transaction = Transaction.Transaction;
     type Script = Script.Script;
+    type SchnorrCanisterActor = Types.SchnorrCanisterActor;
 
-    public func get_address(network : Network, key_name : Text, derivation_path : [[Nat8]]) : async BitcoinAddress {
+    public func get_address(schnorr_canister_actor : SchnorrCanisterActor, network : Network, key_name : Text, derivation_path : [[Nat8]]) : async BitcoinAddress {
         // Fetch the public key of the given derivation path.
-        let sec1_public_key = await SchnorrApi.schnorr_public_key(key_name, Array.map(derivation_path, Blob.fromArray));
+        let sec1_public_key = await SchnorrApi.schnorr_public_key(schnorr_canister_actor, key_name, Array.map(derivation_path, Blob.fromArray));
         assert sec1_public_key.size() == 33;
         let bip340_public_key_bytes = Array.subArray(Blob.toArray(sec1_public_key), 1, 32);
         let { tweaked_address; is_even = _ } = public_key_to_p2tr_script_spend_address(network, bip340_public_key_bytes);
@@ -62,18 +64,16 @@ module {
         // we can reuse `public_key_to_p2tr_key_spend_address` because this
         // essentially encodes the input public key as a P2TR address without tweaking
         {
-            tweaked_address = P2trRawKeySpend.public_key_to_p2tr_key_spend_address(network, tweaked_public_key);
+            tweaked_address = tweaked_public_key_to_p2tr_address(network, tweaked_public_key);
             is_even;
         };
     };
 
     // Builds a transaction to send the given `amount` of satoshis to the
     // destination address.
-    func build_transaction(
+    public func build_transaction(
+        schnorr_canister_actor : SchnorrCanisterActor,
         own_address : BitcoinAddress,
-        leaf_script : Script.Script,
-        internal_public_key : [Nat8],
-        tweaked_key_is_even : Bool,
         own_utxos : [Utxo],
         dst_address : BitcoinAddress,
         amount : Satoshi,
@@ -109,16 +109,15 @@ module {
 
             // Sign the transaction. In this case, we only care about the size
             // of the signed transaction, so we use a mock signer here for efficiency.
-            let signed_transaction_bytes = await sign_transaction(
+            let signed_transaction_bytes = await sign_key_spend_transaction(
+                schnorr_canister_actor,
                 own_address,
-                leaf_script,
-                internal_public_key,
-                tweaked_key_is_even,
                 transaction,
                 amounts,
                 "", // mock key name
                 [], // mock derivation path
-                Utils.mock_signer,
+                null, // mock aux
+                Utils.schnorr_mock_signer,
             );
 
             let signed_tx_bytes_len : Nat = signed_transaction_bytes.size();
@@ -138,8 +137,51 @@ module {
     // supports signing transactions if:
     //
     // 1. All the inputs are referencing outpoints that are owned by `own_address`.
+    // 2. `own_address` is a P2TR raw key spend address.
+    public func sign_key_spend_transaction(
+        schnorr_canister_actor : SchnorrCanisterActor,
+        own_address : BitcoinAddress,
+        transaction : Transaction,
+        amounts : [Nat64],
+        key_name : Text,
+        derivation_path : [Blob],
+        aux : ?Types.SchnorrAux,
+        signer : Types.SchnorrSignFunction,
+    ) : async [Nat8] {
+        // Obtain the scriptPubKey of the source address which is also the
+        // scriptPubKey of the Tx output being spent.
+        switch (Address.scriptPubKey(#p2tr_key own_address)) {
+            case (#ok scriptPubKey) {
+                assert scriptPubKey.size() == 2;
+
+                // Obtain a witness for each Tx input.
+                for (i in Iter.range(0, transaction.txInputs.size() - 1)) {
+                    let sighash = transaction.createTaprootKeySpendSignatureHash(
+                        amounts,
+                        scriptPubKey,
+                        Nat32.fromIntWrap(i),
+                    );
+
+                    let signature = Blob.toArray(await signer(schnorr_canister_actor, key_name, derivation_path, Blob.fromArray(sighash), aux));
+                    transaction.witnesses[i] := [signature];
+                };
+            };
+            // Verify that our own address is P2TR key spend address.
+            case (#err msg) Debug.trap("This example supports signing p2tr key spend addresses only: " # msg);
+        };
+
+        transaction.toBytes();
+    };
+
+    // Sign a bitcoin transaction.
+    //
+    // IMPORTANT: This method is for demonstration purposes only and it only
+    // supports signing transactions if:
+    //
+    // 1. All the inputs are referencing outpoints that are owned by `own_address`.
     // 2. `own_address` is a P2TR script spend address.
-    func sign_transaction(
+    func sign_script_spend_transaction(
+        schnorr_canister_actor : SchnorrCanisterActor,
         own_address : BitcoinAddress,
         leaf_script : Script.Script,
         internal_public_key : [Nat8],
@@ -148,17 +190,18 @@ module {
         amounts : [Nat64],
         key_name : Text,
         derivation_path : [Blob],
-        signer : Types.SignFunction,
+        signer : Types.SchnorrSignFunction,
     ) : async [Nat8] {
         let leaf_hash = leafHash(leaf_script);
 
         assert internal_public_key.size() == 32;
 
         let script_bytes_sized = Script.toBytes(leaf_script);
+        let script_len : Nat = script_bytes_sized.size() - 1;
         // remove the size prefix
-        let script_bytes = Array.subArray(script_bytes_sized, 1, script_bytes_sized.size() - 1);
+        let script_bytes = Array.subArray(script_bytes_sized, 1, script_len);
 
-        let _control_block = control_block(tweaked_key_is_even, internal_public_key);
+        let control_block_bytes = control_block(tweaked_key_is_even, internal_public_key);
         // Obtain the scriptPubKey of the source address which is also the
         // scriptPubKey of the Tx output being spent.
         switch (Address.scriptPubKey(#p2tr_key own_address)) {
@@ -176,8 +219,8 @@ module {
 
                     Debug.print("Signing sighash: " # debug_show (sighash));
 
-                    let signature = Blob.toArray(await signer(key_name, derivation_path, Blob.fromArray(sighash)));
-                    transaction.witnesses[i] := [signature, script_bytes, _control_block];
+                    let signature = Blob.toArray(await signer(schnorr_canister_actor, key_name, derivation_path, Blob.fromArray(sighash), null));
+                    transaction.witnesses[i] := [signature, script_bytes, control_block_bytes];
                 };
             };
             // Verify that our own address is P2TR key spend address.
@@ -190,7 +233,7 @@ module {
     /// Sends a transaction to the network that transfers the given amount to the
     /// given destination, where the source of the funds is the canister itself
     /// at the given derivation path.
-    public func send(network : Network, derivation_path : [[Nat8]], key_name : Text, dst_address : BitcoinAddress, amount : Satoshi) : async [Nat8] {
+    public func send_key_spend(schnorr_canister_actor : SchnorrCanisterActor, network : Network, derivation_path : [[Nat8]], key_name : Text, dst_address : BitcoinAddress, amount : Satoshi) : async [Nat8] {
         // Get fee percentiles from previous transactions to estimate our own fee.
         let fee_percentiles = await BitcoinApi.get_current_fee_percentiles(network);
 
@@ -205,7 +248,73 @@ module {
         };
 
         // Fetch our public key, P2TR script spend address, and UTXOs.
-        let own_sec1_public_key = Blob.toArray(await SchnorrApi.schnorr_public_key(key_name, Array.map(derivation_path, Blob.fromArray)));
+        let own_sec1_public_key = Blob.toArray(await SchnorrApi.schnorr_public_key(schnorr_canister_actor, key_name, Array.map(derivation_path, Blob.fromArray)));
+        let own_bip340_public_key = Array.subArray(own_sec1_public_key, 1, 32);
+        let { tweaked_address = own_tweaked_address } = public_key_to_p2tr_script_spend_address(network, own_bip340_public_key);
+
+        let own_leaf_script = Utils.get_ok(leafScript(own_bip340_public_key));
+
+        Debug.print("Fetching UTXOs...");
+        // Note that pagination may have to be used to get all UTXOs for the given address.
+        // For the sake of simplicity, it is assumed here that the `utxo` field in the response
+        // contains all UTXOs.
+        let own_utxos = (await BitcoinApi.get_utxos(network, own_tweaked_address)).utxos;
+
+        // Build the transaction that sends `amount` to the destination address.
+        let tx_bytes = await build_transaction(schnorr_canister_actor, own_tweaked_address, own_utxos, dst_address, amount, fee_per_vbyte);
+        let transaction = Utils.get_ok(Transaction.fromBytes(Iter.fromArray(tx_bytes)));
+
+        let tx_in_outpoints = Array.map<TxInput.TxInput, Types.OutPoint>(transaction.txInputs, func(txin) { txin.prevOutput });
+
+        let amounts = Array.mapFilter<Utxo, Satoshi>(
+            own_utxos,
+            func(utxo) {
+                if (Option.isSome(Array.find<Types.OutPoint>(tx_in_outpoints, func(tx_in_outpoint) { tx_in_outpoint == utxo.outpoint }))) {
+                    ?utxo.value;
+                } else {
+                    null;
+                };
+            },
+        );
+
+        let tapTweak = taggedHash(Array.flatten([own_bip340_public_key, leafHash(own_leaf_script)]), "TapTweak");
+
+        Debug.print("tapTweak in aux" # debug_show (tapTweak));
+
+        let aux = #bip341({
+            merkle_root_hash = Blob.fromArray(tapTweak);
+        });
+
+        let signed_transaction_bytes = await sign_key_spend_transaction(schnorr_canister_actor, own_tweaked_address, transaction, amounts, key_name, Array.map(derivation_path, Blob.fromArray), ?aux, SchnorrApi.sign_with_schnorr);
+
+        Debug.print("Sending transaction : " # debug_show (signed_transaction_bytes));
+        let signed_transaction = Utils.get_ok(Transaction.fromBytes(Iter.fromArray(signed_transaction_bytes)));
+
+        Debug.print("Sending transaction...");
+        await BitcoinApi.send_transaction(network, signed_transaction_bytes);
+
+        signed_transaction.txid();
+    };
+
+    /// Sends a transaction to the network that transfers the given amount to the
+    /// given destination, where the source of the funds is the canister itself
+    /// at the given derivation path.
+    public func send_script_spend(schnorr_canister_actor : SchnorrCanisterActor, network : Network, derivation_path : [[Nat8]], key_name : Text, dst_address : BitcoinAddress, amount : Satoshi) : async [Nat8] {
+        // Get fee percentiles from previous transactions to estimate our own fee.
+        let fee_percentiles = await BitcoinApi.get_current_fee_percentiles(network);
+
+        let fee_per_vbyte : MillisatoshiPerVByte = if (fee_percentiles.size() == 0) {
+            // There are no fee percentiles. This case can only happen on a regtest
+            // network where there are no non-coinbase transactions. In this case,
+            // we use a default of 1000 millisatoshis/vbyte (i.e. 2 satoshi/byte)
+            2000;
+        } else {
+            // Choose the 50th percentile for sending fees.
+            fee_percentiles[50];
+        };
+
+        // Fetch our public key, P2TR script spend address, and UTXOs.
+        let own_sec1_public_key = Blob.toArray(await SchnorrApi.schnorr_public_key(schnorr_canister_actor, key_name, Array.map(derivation_path, Blob.fromArray)));
         let own_bip340_public_key = Array.subArray(own_sec1_public_key, 1, 32);
         let { tweaked_address = own_tweaked_address; is_even } = public_key_to_p2tr_script_spend_address(network, own_bip340_public_key);
 
@@ -220,7 +329,7 @@ module {
         let own_utxos = (await BitcoinApi.get_utxos(network, own_tweaked_address)).utxos;
 
         // Build the transaction that sends `amount` to the destination address.
-        let tx_bytes = await build_transaction(own_tweaked_address, own_leaf_script, own_bip340_public_key, is_even, own_utxos, dst_address, amount, fee_per_vbyte);
+        let tx_bytes = await build_transaction(schnorr_canister_actor, own_tweaked_address, own_utxos, dst_address, amount, fee_per_vbyte);
         let transaction = Utils.get_ok(Transaction.fromBytes(Iter.fromArray(tx_bytes)));
 
         let tx_in_outpoints = Array.map<TxInput.TxInput, Types.OutPoint>(transaction.txInputs, func(txin) { txin.prevOutput });
@@ -237,7 +346,8 @@ module {
         );
 
         // Sign the transaction.
-        let signed_transaction_bytes = await sign_transaction(
+        let signed_transaction_bytes = await sign_script_spend_transaction(
+            schnorr_canister_actor,
             own_tweaked_address,
             own_leaf_script,
             own_bip340_public_key,
@@ -273,5 +383,23 @@ module {
         };
 
         result;
+    };
+
+    // Converts a tweaked public key to a P2TR address.
+    public func tweaked_public_key_to_p2tr_address(network : Network, bip340_public_key_bytes : [Nat8]) : BitcoinAddress {
+        // human-readable part of the address
+        let hrp = switch (network) {
+            case (#mainnet) "bc";
+            case (#testnet) "tb";
+            case (#regtest) "bcrt";
+        };
+
+        let version : Nat8 = 1;
+        assert bip340_public_key_bytes.size() == 32;
+
+        switch (Segwit.encode(hrp, { version; program = bip340_public_key_bytes })) {
+            case (#ok address) address;
+            case (#err msg) Debug.trap("Error encoding segwit address: " # msg);
+        };
     };
 };
