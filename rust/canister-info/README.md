@@ -1,10 +1,4 @@
----
-keywords: [beginner, rust, canister info]
----
-
 # Canister info
-
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/canister-info)
 
 The purpose of this dapp is to give developers a small (backend) dapp that uses the IC's `canister_info` management call to retrieve information about canisters including canister history.
 

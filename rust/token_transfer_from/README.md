@@ -1,9 +1,5 @@
 # Token transfer_from
 
-[View this samples code on GitHub](https://github.com/dfinity/examples/tree/master/rust/token_transfer_from).
-
-## Overview
-
 `token_transfer_from_backend` is a canister that can transfer ICRC-1 tokens on behalf of accounts to other accounts. It is an example of a canister that uses an ICRC-1 ledger canister that supports the [ICRC-2](https://github.com/dfinity/ICRC-1/tree/main/standards/ICRC-2) approve and transfer from standard. Sample code is available in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/token_transfer_from) and [Rust](https://github.com/dfinity/examples/tree/master/rust/token_transfer_from).
 
 ## Architecture
@@ -16,27 +12,17 @@ This sample will use the Rust variant.
 
 This example requires an installation of:
 
--   [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
--   [x] Download and install [git.](https://git-scm.com/downloads)
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
-## How to get there
-
-The following steps will guide you through the process of setting up the token transfer canister for your own project.
-
-:::info 
-
-If you just want to interact with this example, follow steps 4-6 and 8-10 below.
-
-:::
-
-### Step 1: Create a new `dfx` project and navigate into the project's directory.
+## Step 1: Create a new `dfx` project and navigate into the project's directory
 
 ```bash
 dfx new --type=rust token_transfer_from --no-frontend
 cd token_transfer_from
 ```
 
-### Step 2: Determine ICRC-1 ledger file locations
+## Step 2: Determine ICRC-1 ledger file locations
 
 :::info 
 
@@ -44,22 +30,22 @@ You can read more about how to [setup the ICRC-1 ledger locally](https://interne
 
 :::
 
-Go to the [releases overview](https://dashboard.internetcomputer.org/releases) and copy the latest replica binary revision. At the time of writing, this is `d87954601e4b22972899e9957e800406a0a6b929`.
+Go to the [releases overview](https://dashboard.internetcomputer.org/releases) and copy the latest replica binary revision.
 
-The URL for the ledger Wasm module is `https://download.dfinity.systems/ic/<REVISION>/canisters/ic-icrc1-ledger.wasm.gz`, so with the above revision it would be `https://download.dfinity.systems/ic/d87954601e4b22972899e9957e800406a0a6b929/canisters/ic-icrc1-ledger.wasm.gz`.
+The URL for the ledger Wasm module is `https://download.dfinity.systems/ic/<REVISION>/canisters/ic-icrc1-ledger.wasm.gz`.
 
-The URL for the ledger .did file is `https://raw.githubusercontent.com/dfinity/ic/<REVISION>/rs/rosetta-api/icrc1/ledger/ledger.did`, so with the above revision it would be `https://raw.githubusercontent.com/dfinity/ic/d87954601e4b22972899e9957e800406a0a6b929/rs/rosetta-api/icrc1/ledger/ledger.did`.
+The URL for the ledger .did file is `https://raw.githubusercontent.com/dfinity/ic/<REVISION>/rs/rosetta-api/icrc1/ledger/ledger.did`.
 
 **OPTIONAL:**
 If you want to make sure, you have the latest ICRC-1 ledger files you can run the following script.
 
 ```sh
-curl -o download_latest_icrc1_ledger.sh "https://raw.githubusercontent.com/dfinity/ic/326df23607fc8280a047daba2d8462f1dfc57466/rs/rosetta-api/scripts/download_latest_icrc1_ledger.sh"
+curl -o download_latest_icrc1_ledger.sh "https://raw.githubusercontent.com/dfinity/ic/<REVISION>/rs/rosetta-api/scripts/download_latest_icrc1_ledger.sh"
 chmod +x download_latest_icrc1_ledger.sh
 ./download_latest_icrc1_ledger.sh
 ```
 
-### Step 3: Configure the `dfx.json` file to use the ledger :
+## Step 3: Configure the `dfx.json` file to use the ledger
 
 Replace its contents with this but adapt the URLs to be the ones you determined in step 2. Note that we are deploying the ICRC-1 ledger to the same canister id the ckBTC ledger uses on mainnet. This will make it easier to interact with it later.
 
@@ -73,8 +59,8 @@ Replace its contents with this but adapt the URLs to be the ones you determined 
         },
         "icrc1_ledger_canister": {
             "type": "custom",
-            "candid": "https://raw.githubusercontent.com/dfinity/ic/d87954601e4b22972899e9957e800406a0a6b929/rs/rosetta-api/icrc1/ledger/ledger.did",
-            "wasm": "https://download.dfinity.systems/ic/d87954601e4b22972899e9957e800406a0a6b929/canisters/ic-icrc1-ledger.wasm.gz",
+            "candid": "https://raw.githubusercontent.com/dfinity/ic/<REVISION>/rs/rosetta-api/icrc1/ledger/ledger.did",
+            "wasm": "https://download.dfinity.systems/ic/<REVISION>/canisters/ic-icrc1-ledger.wasm.gz",
             "specified_id": "mxzaz-hqaaa-aaaar-qaada-cai"
         }
     },
@@ -98,19 +84,16 @@ If you chose to download the ICRC-1 ledger files with the script, you need to re
 ...
 ```
 
-### Step 4: Start a local replica:
+## Step 4: Start a local replica
 
 ```bash
 dfx start --background --clean
 ```
 
-### Step 5: Deploy the ICRC-1 ledger locally:
+## Step 5: Deploy the ICRC-1 ledger locally
 
-:::info 
-
-Transfers from the `minting_account` will create Mint transactions. Transfers to the minting account will create Burn transactions.
-
-:::
+> [!TIP]
+> Transfers from the `minting_account` will create Mint transactions. Transfers to the minting account will create Burn transactions.
 
 Take a moment to read the details of the call made below. Not only are you deploying an ICRC-1 ledger canister, you are also:
 
@@ -159,13 +142,10 @@ URLs:
     icrc1_ledger_canister: http://127.0.0.1:4943/?canisterId=bnz7o-iuaaa-aaaaa-qaaaa-cai&id=mxzaz-hqaaa-aaaar-qaada-cai
 ```
 
-### Step 6: Verify that the ledger canister is healthy and working as expected by using the command:
+## Step 6: Verify that the ledger canister is healthy and working as expected
 
-:::info 
-
-You can find more information on how to [interact with the ICRC-1 ledger](https://internetcomputer.org/docs/current/developer-docs/defi/icrc-1/using-icrc1-ledger#icrc-1-and-icrc-1-extension-endpoints)
-
-:::
+> [!TIP]
+> You can find more information on how to [interact with the ICRC-1 ledger](https://internetcomputer.org/docs/current/developer-docs/defi/icrc-1/using-icrc1-ledger#icrc-1-and-icrc-1-extension-endpoints)
 
 ````bash
 dfx canister call icrc1_ledger_canister icrc1_balance_of "(record {
@@ -179,7 +159,7 @@ The output should be:
 (10_000_000_000 : nat)
 ````
 
-### Step 7: Prepare the token transfer canister:
+## Step 7: Prepare the token transfer canister
 
 Replace the contents of the `src/token_transfer_from_backend/Cargo.toml` file with the following:
 
@@ -271,11 +251,8 @@ ic_cdk::export_candid!();
 
 Replace the contents of the `src/token_transfer_from_backend/token_transfer_from_backend.did` file with the following:
 
-:::info 
-
-The `token_transfer_from.did` file is a Candid file that describes the service interface of the canister. It was generated from the Rust code using the `candid-extractor` tool. You can read more about the [necessary steps](https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid).
-
-:::
+> [!TIP]
+> The `token_transfer_from.did` file is a Candid file that describes the service interface of the canister. It was generated from the Rust code using the `candid-extractor` tool. You can read more about the [necessary steps](https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid).
 
 ```did
 type Account = record { owner : principal; subaccount : opt blob };
@@ -284,19 +261,16 @@ type TransferArgs = record { to_account : Account; amount : nat };
 service : { transfer : (TransferArgs) -> (Result) }
 ```
 
-### Step 8: Deploy the token transfer canister:
+## Step 8: Deploy the token transfer canister
 
 ```bash
 dfx deploy token_transfer_from_backend
 ```
 
-### Step 9: Approve the canister to transfer funds on behalf of the user:
+## Step 9: Approve the canister to transfer funds on behalf of the user
 
-:::info 
-
-Make sure that you are using the default `dfx` account that we minted tokens to in step 5 for the following steps.
-
-:::
+> [!TIP]
+> Make sure that you are using the default `dfx` account that we minted tokens to in step 5 for the following steps.
 
 Make the following call to approve the `token_transfer_from_backend` canister to transfer 100 tokens on behalf of the `default` identity:
 
@@ -317,7 +291,7 @@ If successful, the output should be:
 (variant { Ok = 1 : nat })
 ```
 
-### Step 10: Let the canister transfer funds on behalf of the user:
+## Step 10: Let the canister transfer funds on behalf of the user
 
 Now that the canister has an approval for the `default` identities tokens on the ledger, the canister can transfer 1 token on behalf of the `default` identity to another account, in this case to the canisters own account.
 
