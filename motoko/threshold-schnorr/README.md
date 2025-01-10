@@ -61,6 +61,10 @@ URLs:
     schnorr_example_motoko: http://127.0.0.1:4943/?canisterId=t6rzw-2iaaa-aaaaa-aaama-cai&id=st75y-vaaaa-aaaaa-aaalq-cai
 ```
 
+If you open the URL in a web browser, you will see a web UI that shows the
+public methods the canister exposes. Since the canister exposes `public_key`, 
+`sign`, and `verify`, those are rendered in the web UI.
+
 ### Step 3 (optional): Run tests
 
 ```bash
