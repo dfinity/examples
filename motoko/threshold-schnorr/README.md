@@ -61,7 +61,7 @@ URLs:
     schnorr_example_motoko: http://127.0.0.1:4943/?canisterId=t6rzw-2iaaa-aaaaa-aaama-cai&id=st75y-vaaaa-aaaaa-aaalq-cai
 ```
 
-### Step 2: Run tests
+### Step 3 (optional): Run tests
 
 ```bash
 npm install
