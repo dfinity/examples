@@ -1,12 +1,5 @@
----
-keywords: [advanced, motoko, bitcoin, bitcoin integration, btc]
----
-
 # Basic Bitcoin
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/basic_bitcoin)
-
-## Overview 
 This tutorial will walk you through how to deploy a sample [canister smart contract](https://wiki.internetcomputer.org/wiki/Canister_smart_contract) **that can send and receive Bitcoin** on the Internet Computer.
 
 ## Architecture
@@ -21,22 +14,23 @@ For a deeper understanding of the ICP < > BTC integration, see the [Bitcoin inte
 
 ## Prerequisites
 
-* [x] Install the [IC
-  SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx). For local testing, `dfx >= 0.22.0` is required.
+- [x] Install the [IC
+  SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
-:::info 
-This example is designed to be deployed on the mainnet. It will return errors when deployed locally; these errors are expected.
-:::
+> [!WARNING]
+> This example is designed to be deployed on the mainnet. It will return errors when deployed locally; these errors are expected.
 
-## Step 1: Building and deploying sample code
+Begin by opening a terminal window.
 
-### Clone the smart contract
+## Step 1: Setup the project environment
 
-To clone and build the smart contract in **Motoko**:
+Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
+
 
 ```bash
-git clone https://github.com/dfinity/examples
 cd examples/motoko/basic_bitcoin
+dfx start --background
 ```
 
 ### Install MOPS

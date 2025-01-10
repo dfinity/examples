@@ -10,6 +10,8 @@ use std::path::Path;
 fn signing_and_verification_should_work_correctly() {
     const ALGORITHMS: [SchnorrAlgorithm; 2] =
         [SchnorrAlgorithm::Bip340Secp256k1, SchnorrAlgorithm::Ed25519];
+    let merkle_root_hashes: [Option<Vec<u8>>; 4] =
+        [None, Some(vec![]), Some(vec![0; 8]), Some(vec![0; 32])];
 
     let pic = PocketIcBuilder::new()
         .with_application_subnet()
@@ -18,14 +20,37 @@ fn signing_and_verification_should_work_correctly() {
         .build();
 
     for algorithm in ALGORITHMS {
-        for _trial in 0..5 {
-            test_impl(&pic, algorithm);
+        for merkle_root_hash in merkle_root_hashes.iter() {
+            for _trial in 0..5 {
+                test_impl(&pic, algorithm, merkle_root_hash.clone());
+            }
         }
     }
 }
 
-fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm) {
+fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes: Option<Vec<u8>>) {
     let my_principal = Principal::anonymous();
+
+    // Create an empty canister as the anonymous principal and add cycles.
+    let schnorr_mock_canister_id = pic.create_canister();
+    pic.add_cycles(schnorr_mock_canister_id, 2_000_000_000_000);
+
+    let schnorr_mock_wasm_bytes = load_schnorr_mock_canister_wasm();
+    pic.install_canister(
+        schnorr_mock_canister_id,
+        schnorr_mock_wasm_bytes,
+        vec![],
+        None,
+    );
+
+    let should_validate = (merkle_tree_root_bytes
+        .as_ref()
+        .map(|v| v.len() == 0 || v.len() == 32)
+        != Some(false)
+        && algorithm == SchnorrAlgorithm::Bip340Secp256k1)
+        || merkle_tree_root_bytes.is_none();
+
+    let merkle_tree_root_hex = merkle_tree_root_bytes.map(|v| hex::encode(v));
 
     // Create an empty example canister as the anonymous principal and add cycles.
     let example_canister_id = pic.create_canister();
@@ -37,22 +62,23 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm) {
     // Make sure the canister is properly initialized
     fast_forward(&pic, 5);
 
+    let _dummy_reply: () = update(
+        &pic,
+        my_principal,
+        example_canister_id,
+        "for_test_only_change_management_canister_id",
+        encode_one(schnorr_mock_canister_id.to_text()).unwrap(),
+    )
+    .expect("failed to update management canister id");
+    // Make sure the example canister uses mock schnorr canister instead of
+    // the management canister
+    fast_forward(&pic, 5);
+
     // a message we can reverse to break the signature
-    // currently pocket IC only supports 32B messages for BIP340
     let message: String = std::iter::repeat('a')
         .take(16)
         .chain(std::iter::repeat('b').take(16))
         .collect();
-
-    let sig_reply: Result<SignatureReply, String> = update(
-        &pic,
-        my_principal,
-        example_canister_id,
-        "sign",
-        encode_args((message.clone(), algorithm)).unwrap(),
-    );
-
-    let signature_hex = sig_reply.expect("failed to sign").signature_hex;
 
     let pk_reply: Result<PublicKeyReply, String> = update(
         &pic,
@@ -64,8 +90,47 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm) {
 
     let public_key_hex = pk_reply.unwrap().public_key_hex;
 
+    let successful_validation = Ok(SignatureVerificationReply {
+        is_signature_valid: true,
+    });
+
+    let sig_reply: Result<SignatureReply, String> = update(
+        &pic,
+        my_principal,
+        example_canister_id,
+        "sign",
+        encode_args((message.clone(), algorithm, merkle_tree_root_hex.clone())).unwrap(),
+    );
+
+    if sig_reply.is_err() {
+        // If we failed to produce a signature with particular testing
+        // parameters, still test that the verification fails on dummy inputs.
+        assert!(!should_validate);
+        let dummy_signature_hex = String::from("a".repeat(64));
+        assert_ne!(
+            update(
+                &pic,
+                my_principal,
+                example_canister_id,
+                "verify",
+                encode_args((
+                    dummy_signature_hex,
+                    message.clone(),
+                    public_key_hex.clone(),
+                    merkle_tree_root_hex.clone(),
+                    algorithm,
+                ))
+                .unwrap(),
+            ),
+            successful_validation.clone()
+        );
+        return;
+    }
+
+    let signature_hex = sig_reply.expect("failed to sign").signature_hex;
+
     {
-        let verification_reply: Result<SignatureVerificationReply, String> = update(
+        let verification_reply = update(
             &pic,
             my_principal,
             example_canister_id,
@@ -74,12 +139,17 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm) {
                 signature_hex.clone(),
                 message.clone(),
                 public_key_hex.clone(),
+                merkle_tree_root_hex.clone(),
                 algorithm,
             ))
             .unwrap(),
         );
 
-        assert!(verification_reply.unwrap().is_signature_valid);
+        if should_validate {
+            assert_eq!(verification_reply, successful_validation.clone());
+        } else {
+            assert_ne!(verification_reply, successful_validation.clone());
+        }
     }
 
     {
@@ -92,12 +162,13 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm) {
                 clone_and_reverse_chars(&signature_hex),
                 message.clone(),
                 public_key_hex.clone(),
+                merkle_tree_root_hex.clone(),
                 algorithm,
             ))
             .unwrap(),
         );
 
-        assert!(!verification_reply.unwrap().is_signature_valid);
+        assert_ne!(verification_reply, successful_validation.clone());
     }
 
     {
@@ -110,12 +181,13 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm) {
                 signature_hex.clone(),
                 clone_and_reverse_chars(&message),
                 public_key_hex.clone(),
+                merkle_tree_root_hex.clone(),
                 algorithm,
             ))
             .unwrap(),
         );
 
-        assert!(!verification_reply.unwrap().is_signature_valid);
+        assert_ne!(verification_reply, successful_validation.clone());
     }
 
     {
@@ -128,15 +200,13 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm) {
                 signature_hex.clone(),
                 message.clone(),
                 clone_and_reverse_chars(&public_key_hex),
+                merkle_tree_root_hex.clone(),
                 algorithm,
             ))
             .unwrap(),
         );
 
-        assert!(
-            verification_reply.is_err() || !verification_reply.unwrap().is_signature_valid,
-            "either the public key should fail to deserialize or the verification should fail"
-        );
+        assert_ne!(verification_reply, successful_validation.clone());
     }
 
     {
@@ -149,6 +219,7 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm) {
                 signature_hex.clone(),
                 message.clone(),
                 public_key_hex.clone(),
+                merkle_tree_root_hex.clone(),
                 other_algorithm(algorithm),
             ))
             .unwrap(),
@@ -183,6 +254,15 @@ fn load_schnorr_example_canister_wasm() -> Vec<u8> {
     let zipped_bytes = e.finish().unwrap();
 
     zipped_bytes
+}
+
+fn load_schnorr_mock_canister_wasm() -> Vec<u8> {
+    let wasm_url = "https://github.com/dfinity/chainkey-testing-canister/releases/download/v0.1.0/chainkey_testing_canister.wasm.gz";
+    reqwest::blocking::get(wasm_url)
+        .unwrap()
+        .bytes()
+        .unwrap()
+        .to_vec()
 }
 
 pub fn update<T: CandidType + for<'de> Deserialize<'de>>(

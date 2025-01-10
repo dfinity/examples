@@ -41,7 +41,7 @@ This example demonstrates a dead simple dapp consisting of two canister smart co
 
 This example is based on the default project created by running `dfx new hello`.
 
-### Prerequisites
+## Prerequisites
 This example requires an installation of:
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Install `node.js` (to build the web frontend).

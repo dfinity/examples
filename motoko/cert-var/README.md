@@ -1,12 +1,5 @@
----
-keywords: [intermediate, motoko, cert var, certified variables]
----
-
 # Certified variables
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/cert-var)
-
-## Overview
 This example demonstrates the use of a single cryptographically certified variable, as supported by the Internet Computer.
 
 In a nutshell, this example code demonstrates "response certification" for a canister that holds a single 32-bit variable. It has two sides:
@@ -49,32 +42,39 @@ This is a Motoko example that does not currently have a Rust variant.
 ## Prerequisites
 This example requires an installation of:
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
-- [x] Download [npm](https://nodejs.org/en/download/).
+## Prerequisites
+
+- [x] Install the [IC
+  SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
 
-### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
+## Step 1: Setup the project environment
+
+Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
+
 
 ```bash
 cd examples/motoko/cert-var
 dfx start --background
 ```
 
-### Step 2: Install the front-end dependencies:
+## Step 2: Install the front-end dependencies
 
 ```bash
 npm install
 ```
 
-### Step 3: Deploy the canister:
+## Step 3: Deploy the canister
 
 ```bash
 dfx deploy
 ```
 
-### Step 4: Next, open the `webpack.config.js` file and replace the contents with the following:
+## Step 4: Next, open the `webpack.config.js` file.
+
+Replace the contents with the following:
 
 ```javascript
 const path = require("path");
@@ -188,7 +188,9 @@ module.exports = {
 };
 ```
 
-### Step 5: Create a new file called `server.js` with the following content:
+## Step 5: Create a new file called `server.js`.
+
+Add the following content:
 
 ```javascript
 var express = require('express');
@@ -203,7 +205,7 @@ app.listen(8000, function () {
  });
 ```
 
-### Step 6: Replace the content of the `src/cert_var_assets/src/index.html` with the following content:
+## Step 6: Replace the content of the `src/cert_var_assets/src/index.html` with the following:
 
 ```html
 <!doctype html>
@@ -230,14 +232,14 @@ app.listen(8000, function () {
 </html>
 ```
 
-### Step 7: Start a local web server that hosts the frontend.
+## Step 7: Start a local web server that hosts the frontend
 
 ```bash
 npm start
 ```
 
 
-### Step 8: Visit the frontend, and interact with the demo there:
+## Step 8: Visit the frontend, and interact with the application
 
 ```bash
 http://localhost:8080/
