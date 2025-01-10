@@ -1,17 +1,6 @@
----
-keywords: [advanced, motoko, threshold schnorr, schnorr, signature]
----
-
 # Threshold Schnorr
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/threshold-schnorr)
-
-## Overview
-
-We present a minimal example canister smart contract for showcasing the
-[threshold
-Schnorr](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr)
-API.
+We present a minimal example canister smart contract for showcasing the [threshold Schnorr](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr) API.
 
 The example canister is a signing oracle that creates Schnorr signatures with
 keys derived based on the canister ID and the chosen algorithm, either BIP340/BIP341 or
@@ -26,48 +15,42 @@ More specifically:
   (the threshold Schnorr subnet is a subnet generating threshold Schnorr
   signatures).
 
-This tutorial gives a complete overview of the development, starting with downloading [`dfx`](https://internetcomputer.org/docs/current/developer-docs/setup/index.md), up to the deployment and trying out the code on the mainnet.
-
 This walkthrough focuses on the version of the sample canister code written in
 Motoko programming language. There is also a
 [Rust](https://github.com/dfinity/examples/tree/master/rust/threshold-schnorr)
 version available in the same repo and follows the same commands for deploying.
 
-## Prerequisites
+## Local development
+
+### Prerequisites
+This example requires an installation of:
+
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
-- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`.
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 - [x] For running tests also install [`npm`](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
 
-## Getting started
+Begin by opening a terminal window.
 
-Sample code for `threshold-schnorr-example` is provided in the [examples repository](https://github.com/dfinity/examples), under either [`/motoko`](https://github.com/dfinity/examples/tree/master/motoko/threshold-schnorr) or [`/rust`](https://github.com/dfinity/examples/tree/master/rust/threshold-schnorr) sub-directories.
+### Step 1: Setup the project environment
 
-### Deploy and test the canister locally 
+Navigate into the folder containing the project's files, start a local instance of the Internet Computer and with the commands:
 
-This tutorial will use the Motoko version of the canister.
-
-To deploy:
 ```bash
 cd examples/motoko/threshold-schnorr
 dfx start --background
-make deploy
-```
-
-To test (includes deploying):
-```bash
-cd examples/motoko/threshold-schnorr
-dfx start --background
-npm install
-make test
 ```
 
 #### What this does
-- `dfx start --background` starts a local instance of the IC via the IC SDK
-- `make deploy` deploys the canister code on the local version of the IC
-- `npm install` installs test javascript dependencies
-- `make test` deploys and tests the canister code on the local version of the
-  IC, and also makes the canister call a mock canister for Schnorr API instead
-  of the management canister.
+- `dfx start --background` starts a local instance of the IC via the IC SDK.
+
+### Step 2: Deploy the canisters
+
+```bash
+make deploy
+```
+
+#### What this does
+- `make deploy` deploys the canister code on the local version of the IC.
 
 If deployment was successful, you should see something like this:
 
@@ -78,18 +61,29 @@ URLs:
     schnorr_example_motoko: http://127.0.0.1:4943/?canisterId=t6rzw-2iaaa-aaaaa-aaama-cai&id=st75y-vaaaa-aaaaa-aaalq-cai
 ```
 
-If you open the URL in a web browser, you will see a web UI that shows the
-public methods the canister exposes. Since the canister exposes `public_key` and
-`sign`, those are rendered in the web UI.
+### Step 2: Run tests
 
-### Deploying the canister on the mainnet
+```bash
+npm install
+make test
+```
+
+#### What this does
+
+- `npm install` installs test javascript dependencies
+- `make test` deploys and tests the canister code on the local version of the
+  IC, and also makes the canister call a mock canister for Schnorr API instead
+  of the management canister
+
+
+## Deploying the canister on the mainnet
 
 To deploy this canister on the mainnet, one needs to do two things:
 
 - Acquire cycles (equivalent of "gas" in other blockchains). This is necessary for all canisters.
 - Update the sample source code to have the right key ID. This is unique to this canister.
 
-#### Acquire cycles to deploy
+### Acquire cycles to deploy
 
 Deploying to the Internet Computer requires
 [cycles](https://internetcomputer.org/docs/current/developer-docs/getting-started/tokens-and-cycles)
@@ -111,7 +105,7 @@ automatically with `make mock`, which will install the chain-key testing caniste
 and use it instead of the management canister. Note that `dfx` should be running
 to successfully run `make mock`.
 
-#### Update source code with the right key ID
+### Update source code with the right key ID
 
 To deploy the sample code, the canister needs the right key ID for the right environment. Specifically, one needs to replace the value of the `key_id` in the `src/schnorr_example_motoko/src/lib.rs` file of the sample code. Before deploying to mainnet, one should modify the code to use the right name of the `key_id`.
 
@@ -123,19 +117,19 @@ There are four options that are supported:
 * `test_key_1`: a master **test** key ID that is used in mainnet.
 * `key_1`: a master **production** key ID that is used in mainnet.
 
-For example, the default code in `src/schnorr_example_motoko/src/lib.rs`
+For example, the default code in `src/schnorr_example_motoko/src/main.mo`
 hard-codes the used of `insecure_test_key_1` and derives the key ID as follows and can
 be deployed locally:
+
 ```motoko
 key_id = { algorithm = algorithm_arg; name = "insecure_test_key_1" }
 ```
 
-IMPORTANT: To deploy to IC mainnet and use distributed keys, one needs to
- replace `"insecure_test_key_1"` with either `"test_key_1"` or `"key_1"`
-depending on the desired intent. Both uses of key ID in
-`src/schnorr_example_motoko/src/main.mo` must be consistent.
+IMPORTANT: To deploy to IC mainnet, one needs to replace `"insecure_test_key_1"` with
+either `"test_key_1"` or `"key_1"` depending on the desired intent. Both uses of
+key ID in `src/schnorr_example_motoko/src/main.mo` must be consistent.
 
-#### Deploy to the mainnet via IC SDK
+### Deploying
 
 To [deploy via the mainnet](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-mainnet.md), run the following commands:
 
@@ -159,7 +153,7 @@ mainnet.
 
 ## Obtaining public keys
 
-### Using the Candid Web UI
+### Using the Candid UI
 
 If you deployed your canister locally or to the mainnet, you should have a URL to the Candid web UI where you can access the public methods. We can call the `public_key` method.
 
@@ -179,7 +173,7 @@ Ed25519 public key.
 
 ### Code walkthrough
 Open the file `main.mo`, which will show the following Motoko code that
-demonstrates how to obtain a Schnorr public key. 
+demonstrates how to obtain a Schnorr public key.
 
 ```motoko
   public shared ({ caller }) func public_key(algorithm : SchnorrAlgorithm) : async {
@@ -199,7 +193,7 @@ demonstrates how to obtain a Schnorr public key.
   };
 ```
 
-In the code above, the canister calls the `schnorr_public_key` method of the [IC management canister](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-management-canister) (`aaaaa-aa`). 
+In the code above, the canister calls the `schnorr_public_key` method of the [IC management canister](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-management-canister) (`aaaaa-aa`).
 
 
 **The [IC management

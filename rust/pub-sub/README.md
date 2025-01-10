@@ -1,12 +1,5 @@
----
-keywords: [beginner, rust, pubsub, publisher, subscriber]
----
-
 # PubSub
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/pub-sub)
-
-## Overview
 This sample project demonstrates how functions may be passed as arguments of inter-canister calls to be used as callbacks.
 
 A common problem in both distributed and decentralized systems is keeping separate services (or canisters) synchronized with one another. While there are many potential solutions to this problem, a popular one is the Publisher/Subscriber pattern or "PubSub". PubSub is an especially valuable pattern on the Internet Computer as its primary drawback, message delivery failures, does not apply.
@@ -14,43 +7,39 @@ A common problem in both distributed and decentralized systems is keeping separa
 ## Prerequisites
 This example requires an installation of:
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
 
-### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
+## Step 1: Setup project environment
 
-```bash
+Navigate into the folder containing the project's files and start a local instance of the replica with the command:
+
+```sh
 cd examples/rust/pub-sub
 dfx start --background
 ```
 
-### Step 2: Deploy the canister:
-
-```bash
-dfx deploy
-```
-
-### Step 3: Get the publisher ID
+## Step 2: Get the publisher ID
 
 ```bash
 dfx canister id publisher
 ```
 
-### Step 4: Subscribe to the "Apples" topic:
+## Step 3: Subscribe to the "Apples" topic
 
 ```bash
-dfx canister call subscriber setup_subscribe '(principal "<publisher ID from Step 3>", "Apples")'
+dfx canister call subscriber setup_subscribe '(principal "<publisher ID from Step 2>", "Apples")'
 ```
 
-### Step 5: Publish to the "Apples" topic:
+## Step 4: Publish to the "Apples" topic
 
 ```bash
 dfx canister call publisher publish '(record { "topic" = "Apples"; "value" = 2 })'
 ```
 
-### Step 6: Receive your subscription:
+## Step 5: Receive your subscription
 
 ```bash
 dfx canister call subscriber get_count
