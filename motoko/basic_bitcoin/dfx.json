@@ -2,7 +2,13 @@
   "version": 1,
   "canisters": {
     "basic_bitcoin": {
-      "main": "src/basic_bitcoin/src/Main.mo"
+      "main": "src/basic_bitcoin/src/Main.mo",
+      "type": "motoko"
+    },
+    "chainkey_testing_canister": {
+      "type": "custom",
+      "candid": "https://github.com/dfinity/chainkey-testing-canister/releases/download/v0.1.0/chainkey_testing_canister.did",
+      "wasm": "https://github.com/dfinity/chainkey-testing-canister/releases/download/v0.1.0/chainkey_testing_canister.wasm.gz"
     }
   },
   "defaults": {

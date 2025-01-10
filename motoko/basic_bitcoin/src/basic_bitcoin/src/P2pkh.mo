@@ -43,13 +43,14 @@ module {
     type Transaction = Transaction.Transaction;
     type Script = Script.Script;
     type SighashType = Nat32;
+    type EcdsaCanisterActor = Types.EcdsaCanisterActor;
 
     let SIGHASH_ALL : SighashType = 0x01;
 
     /// Returns the P2PKH address of this canister at the given derivation path.
-    public func get_address(network : Network, key_name : Text, derivation_path : [[Nat8]]) : async BitcoinAddress {
+    public func get_address(ecdsa_canister_actor : EcdsaCanisterActor, network : Network, key_name : Text, derivation_path : [[Nat8]]) : async BitcoinAddress {
         // Fetch the public key of the given derivation path.
-        let public_key = await EcdsaApi.ecdsa_public_key(key_name, Array.map(derivation_path, Blob.fromArray));
+        let public_key = await EcdsaApi.ecdsa_public_key(ecdsa_canister_actor, key_name, Array.map(derivation_path, Blob.fromArray));
 
         // Compute the address.
         public_key_to_p2pkh_address(network, Blob.toArray(public_key));
@@ -58,7 +59,7 @@ module {
     /// Sends a transaction to the network that transfers the given amount to the
     /// given destination, where the source of the funds is the canister itself
     /// at the given derivation path.
-    public func send(network : Network, derivation_path : [[Nat8]], key_name : Text, dst_address : BitcoinAddress, amount : Satoshi) : async [Nat8] {
+    public func send(ecdsa_canister_actor : EcdsaCanisterActor, network : Network, derivation_path : [[Nat8]], key_name : Text, dst_address : BitcoinAddress, amount : Satoshi) : async [Nat8] {
         // Get fee percentiles from previous transactions to estimate our own fee.
         let fee_percentiles = await BitcoinApi.get_current_fee_percentiles(network);
 
@@ -73,7 +74,7 @@ module {
         };
 
         // Fetch our public key, P2PKH address, and UTXOs.
-        let own_public_key = Blob.toArray(await EcdsaApi.ecdsa_public_key(key_name, Array.map(derivation_path, Blob.fromArray)));
+        let own_public_key = Blob.toArray(await EcdsaApi.ecdsa_public_key(ecdsa_canister_actor, key_name, Array.map(derivation_path, Blob.fromArray)));
         let own_address = public_key_to_p2pkh_address(network, own_public_key);
 
         // Note that pagination may have to be used to get all UTXOs for the given address.
@@ -82,11 +83,11 @@ module {
         let own_utxos = (await BitcoinApi.get_utxos(network, own_address)).utxos;
 
         // Build the transaction that sends `amount` to the destination address.
-        let tx_bytes = await build_transaction(own_public_key, own_address, own_utxos, dst_address, amount, fee_per_vbyte);
+        let tx_bytes = await build_transaction(ecdsa_canister_actor, own_public_key, own_address, own_utxos, dst_address, amount, fee_per_vbyte);
         let transaction = Utils.get_ok(Transaction.fromBytes(Iter.fromArray(tx_bytes)));
 
         // Sign the transaction.
-        let signed_transaction_bytes = await sign_transaction(own_public_key, own_address, transaction, key_name, Array.map(derivation_path, Blob.fromArray), EcdsaApi.sign_with_ecdsa);
+        let signed_transaction_bytes = await sign_transaction(ecdsa_canister_actor, own_public_key, own_address, transaction, key_name, Array.map(derivation_path, Blob.fromArray), EcdsaApi.sign_with_ecdsa);
         let signed_transaction = Utils.get_ok(Transaction.fromBytes(Iter.fromArray(signed_transaction_bytes)));
 
         Debug.print("Sending transaction");
@@ -98,6 +99,7 @@ module {
     // Builds a transaction to send the given `amount` of satoshis to the
     // destination address.
     func build_transaction(
+        ecdsa_canister_actor : EcdsaCanisterActor,
         own_public_key : [Nat8],
         own_address : BitcoinAddress,
         own_utxos : [Utxo],
@@ -124,12 +126,13 @@ module {
             // Sign the transaction. In this case, we only care about the size
             // of the signed transaction, so we use a mock signer here for efficiency.
             let signed_transaction_bytes = await sign_transaction(
+                ecdsa_canister_actor,
                 own_public_key,
                 own_address,
                 transaction,
                 "", // mock key name
                 [], // mock derivation path
-                Utils.mock_signer,
+                Utils.ecdsa_mock_signer,
             );
 
             let signed_tx_bytes_len : Nat = signed_transaction_bytes.size();
@@ -151,12 +154,13 @@ module {
     // 1. All the inputs are referencing outpoints that are owned by `own_address`.
     // 2. `own_address` is a P2PKH address.
     func sign_transaction(
+        ecdsa_canister_actor : EcdsaCanisterActor,
         own_public_key : [Nat8],
         own_address : BitcoinAddress,
         transaction : Transaction,
         key_name : Text,
         derivation_path : [Blob],
-        signer : Types.SignFunction,
+        signer : Types.EcdsaSignFunction,
     ) : async [Nat8] {
         // Obtain the scriptPubKey of the source address which is also the
         // scriptPubKey of the Tx output being spent.
@@ -172,7 +176,7 @@ module {
                         SIGHASH_ALL,
                     );
 
-                    let signature_sec = await signer(key_name, derivation_path, Blob.fromArray(sighash));
+                    let signature_sec = await signer(ecdsa_canister_actor, key_name, derivation_path, Blob.fromArray(sighash));
                     let signature_der = Blob.toArray(Der.encodeSignature(signature_sec));
 
                     // Append the sighash type.
