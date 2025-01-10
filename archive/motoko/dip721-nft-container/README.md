@@ -88,7 +88,7 @@ Using this management canister address, we can construct its principal and set t
 
 ## NFT sample code tutorial
 
-### Prerequisites
+## Prerequisites
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 - [x] Download and install [git.](https://git-scm.com/downloads)

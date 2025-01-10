@@ -1,12 +1,5 @@
----
-keywords: [advanced, rust, bitcoin, btc, integration, bitcoin integration]
----
+# Basic Bitcoin
 
-# Basic Bitcoin 
-
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/basic_bitcoin)
-
-## Overview 
 This tutorial will walk you through how to deploy a sample [canister smart contract](https://internetcomputer.org/docs/current/developer-docs/multi-chain/bitcoin/overview) **that can send and receive Bitcoin** on the Internet Computer.
 
 ## Architecture
@@ -24,13 +17,11 @@ For a deeper understanding of the ICP < > BTC integration, see the [Bitcoin inte
 ## Prerequisites
 
 * [x] Install the [IC
-  SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+  SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
 * [x] On macOS, `llvm` with the `wasm32-unknown-unknown` target (which is not included in the XCode installation by default) is required.
 To install, run `brew install llvm`.
 
 ## Step 1: Building and deploying sample code
-
-### Clone the smart contract
 
 This tutorial has the same smart contract written in
 [Motoko](https://internetcomputer.org/docs/current/developer-docs/backend/motoko/index.md)
@@ -205,7 +196,7 @@ reflected in your current balance.
 
 ## Step 6: Retrieving block headers
 
-You can also get a range of Bitcoin block headers by using the `get_block_headers` 
+You can also get a range of Bitcoin block headers by using the `get_block_headers`
 endpoint on your canister.
 
 In the Candid UI, write the desired start height and optionally end height, and click on "Call":
@@ -229,7 +220,7 @@ In this tutorial, you were able to:
 * Connect the canister to the Bitcoin testnet.
 * Send the canister some testnet BTC.
 * Check the testnet BTC balance of the canister.
-* Use the canister to send testnet BTC to another testnet BTC address. 
+* Use the canister to send testnet BTC to another testnet BTC address.
 
 This example is extensively documented in the following tutorials:
 

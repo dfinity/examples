@@ -1,12 +1,4 @@
----
-keywords: [beginner, motoko, classes, actor classes]
----
-
 # Classes
-
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/classes)
-
-## Overview
 
 This example demonstrates a simple use of actor classes, allowing a program to dynamically install new actors (that is, canisters). It also demonstrates a multi-canister project, and actors using inter-actor communication through shared functions.
 
@@ -26,29 +18,32 @@ The `Test.mo` actor imports the (installed) `Map` canister, using `Maps` Candid 
 
 This is a Motoko example that does not currently have a Rust variant. 
 
-
 ## Prerequisites
-This example requires an installation of:
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
+- [x] Install the [IC
+  SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
 
-### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
+## Step 1: Setup the project environment
+
+Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
+
 
 ```bash
 cd examples/motoko/classes
 dfx start --background
 ```
 
-### Step 2: Deploy the canisters `Map` and `Test`:
+## Step 2: Deploy the canisters `Map` and `Test`
 
 ```bash
-dfx deploy
+dfx deploy Map
+dfx deploy Test
 ```
 
-### Step 3: Invoke the run method of canister Test:
+## Step 3: Invoke the run method of canister `Test`
 
 ```bash
 dfx canister call Test run '()'
