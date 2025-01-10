@@ -22,14 +22,15 @@ actor class BasicBitcoin(network : Types.Network) {
   type SchnorrCanisterActor = Types.SchnorrCanisterActor;
   type P2trDerivationPaths = Types.P2trDerivationPaths;
 
-  // The Bitcoin network to connect to.
-  //
-  // When developing locally this should be `regtest`.
-  // When deploying to the IC this should be `testnet`.
-  // `mainnet` is currently unsupported.
+  /// The Bitcoin network to connect to.
+  ///
+  /// When developing locally this should be `regtest`.
+  /// When deploying to the IC this should be `testnet`.
+  /// `mainnet` is currently unsupported.
   stable let NETWORK : Network = network;
 
-  // The derivation path to use for ECDSA secp256k1.
+  /// The derivation path to use for ECDSA secp256k1 or Schnorr BIP340/BIP341 key
+  /// derivation.
   let DERIVATION_PATH : [[Nat8]] = [];
 
   // The ECDSA key name.
@@ -76,7 +77,7 @@ actor class BasicBitcoin(network : Types.Network) {
   };
 
   public func get_p2tr_key_only_address() : async BitcoinAddress {
-    await P2tr.get_address_key_only(schnorr_canister_actor, NETWORK, KEY_NAME, p2trKeyOnlyDerivationPath(), null);
+    await P2trKeyOnly.get_address_key_only(schnorr_canister_actor, NETWORK, KEY_NAME, p2trKeyOnlyDerivationPath());
   };
 
   public func send_from_p2tr_key_only_address(request : SendRequest) : async TransactionId {
@@ -88,11 +89,11 @@ actor class BasicBitcoin(network : Types.Network) {
   };
 
   public func send_from_p2tr_address_key_spend(request : SendRequest) : async TransactionId {
-    Utils.bytesToText(await P2tr.send_key_spend(schnorr_canister_actor, NETWORK, DERIVATION_PATH, KEY_NAME, request.destination_address, request.amount_in_satoshi));
+    Utils.bytesToText(await P2tr.send_key_spend(schnorr_canister_actor, NETWORK, p2trDerivationPaths(), KEY_NAME, request.destination_address, request.amount_in_satoshi));
   };
 
   public func send_from_p2tr_address_script_spend(request : SendRequest) : async TransactionId {
-    Utils.bytesToText(await P2tr.send_script_spend(schnorr_canister_actor, NETWORK, DERIVATION_PATH, KEY_NAME, request.destination_address, request.amount_in_satoshi));
+    Utils.bytesToText(await P2tr.send_script_spend(schnorr_canister_actor, NETWORK, p2trDerivationPaths(), KEY_NAME, request.destination_address, request.amount_in_satoshi));
   };
 
   func p2pkhDerivationPath() : [[Nat8]] {

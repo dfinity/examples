@@ -12,6 +12,7 @@ module {
     type Result<Ok, Err> = Result.Result<Ok, Err>;
     type EcdsaCanisterActor = Types.EcdsaCanisterActor;
     type SchnorrCanisterActor = Types.SchnorrCanisterActor;
+    type SchnorrAux = Types.SchnorrAux;
 
     /// Returns the value of the result and traps if there isn't any value to return.
     public func get_ok<T>(result : Result<T, Text>) : T {
@@ -82,7 +83,7 @@ module {
     };
 
     /// A mock for rubber-stamping 64B Schnorr signatures.
-    public func schnorr_mock_signer(_schnorr_canister_actor : SchnorrCanisterActor, _key_name : Text, _derivation_path : [Blob], _message_hash : Blob, _aux : ?Types.SchnorrAux) : async Blob {
+    public func schnorr_mock_signer(_schnorr_canister_actor : SchnorrCanisterActor, _key_name : Text, _derivation_path : [Blob], _message_hash : Blob, _aux : ?SchnorrAux) : async Blob {
         Blob.fromArray(Array.freeze(Array.init<Nat8>(64, 255)));
     };
 };

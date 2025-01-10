@@ -1,10 +1,7 @@
 import ExperimentalCycles "mo:base/ExperimentalCycles";
-import Debug "mo:base/Debug";
 import Blob "mo:base/Blob";
-import Option "mo:base/Option";
 
 import Types "Types";
-import Hex "Hex";
 
 module {
   type SchnorrPublicKeyArgs = Types.SchnorrPublicKeyArgs;
@@ -44,19 +41,6 @@ module {
       };
       aux;
     });
-
-    Debug.print(
-      "signing with Schnorr: key_name=" # key_name # ", derivation_path=" # debug_show (derivation_path) # ", message=" # Hex.encode(Blob.toArray(message)) # " aux=" # debug_show (
-        Option.map<Types.SchnorrAux, Text>(
-          aux,
-          func(v : Types.SchnorrAux) {
-            switch (v) {
-              case (#bip341 x) { Hex.encode(Blob.toArray(x.merkle_root_hash)) };
-            };
-          },
-        )
-      ) # " signature=" # Hex.encode(Blob.toArray(res.signature))
-    );
 
     res.signature;
   };
