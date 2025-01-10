@@ -41,7 +41,7 @@ module {
     #bip341({
       merkle_root_hash = Blob.fromArray(P2tr.unspendableMerkleRoot(untweaked_bip340_public_key_bytes));
     });
-    await P2tr.send_key_spend_generic(schnorr_canister_actor, own_address, network, derivation_path, key_name, ?aux, dst_address, amount);
+    await P2tr.send_key_path_generic(schnorr_canister_actor, own_address, network, derivation_path, key_name, ?aux, dst_address, amount);
   };
 
   /// Returns the P2TR key-only address of this canister at a specific

@@ -88,12 +88,12 @@ actor class BasicBitcoin(network : Types.Network) {
     await P2tr.get_address(schnorr_canister_actor, NETWORK, KEY_NAME, p2trDerivationPaths());
   };
 
-  public func send_from_p2tr_address_key_spend(request : SendRequest) : async TransactionId {
-    Utils.bytesToText(await P2tr.send_key_spend(schnorr_canister_actor, NETWORK, p2trDerivationPaths(), KEY_NAME, request.destination_address, request.amount_in_satoshi));
+  public func send_from_p2tr_address_key_path(request : SendRequest) : async TransactionId {
+    Utils.bytesToText(await P2tr.send_key_path(schnorr_canister_actor, NETWORK, p2trDerivationPaths(), KEY_NAME, request.destination_address, request.amount_in_satoshi));
   };
 
-  public func send_from_p2tr_address_script_spend(request : SendRequest) : async TransactionId {
-    Utils.bytesToText(await P2tr.send_script_spend(schnorr_canister_actor, NETWORK, p2trDerivationPaths(), KEY_NAME, request.destination_address, request.amount_in_satoshi));
+  public func send_from_p2tr_address_script_path(request : SendRequest) : async TransactionId {
+    Utils.bytesToText(await P2tr.send_script_path(schnorr_canister_actor, NETWORK, p2trDerivationPaths(), KEY_NAME, request.destination_address, request.amount_in_satoshi));
   };
 
   func p2pkhDerivationPath() : [[Nat8]] {

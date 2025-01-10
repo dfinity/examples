@@ -245,7 +245,7 @@ module {
     /// Sends a key spend transaction with a non-empty MAST to the network that
     /// transfers the given amount to the given destination, where the source
     /// of the funds is the canister itself at the given derivation path.
-    public func send_key_spend(schnorr_canister_actor : SchnorrCanisterActor, network : Network, derivation_paths : P2trDerivationPaths, key_name : Text, dst_address : BitcoinAddress, amount : Satoshi) : async [Nat8] {
+    public func send_key_path(schnorr_canister_actor : SchnorrCanisterActor, network : Network, derivation_paths : P2trDerivationPaths, key_name : Text, dst_address : BitcoinAddress, amount : Satoshi) : async [Nat8] {
         let internal_bip340_public_key = await fetch_bip340_public_key(schnorr_canister_actor, key_name, derivation_paths.key_path_derivation_path);
         let script_bip340_public_key = await fetch_bip340_public_key(schnorr_canister_actor, key_name, derivation_paths.script_path_derivation_path);
         let { tweaked_address = own_tweaked_address } = internal_key_and_script_key_to_p2tr_address(internal_bip340_public_key, script_bip340_public_key, network);
@@ -256,13 +256,13 @@ module {
             merkle_root_hash = Blob.fromArray(leafHash(leaf_script));
         });
 
-        await send_key_spend_generic(schnorr_canister_actor, own_tweaked_address, network, derivation_paths.key_path_derivation_path, key_name, ?aux, dst_address, amount);
+        await send_key_path_generic(schnorr_canister_actor, own_tweaked_address, network, derivation_paths.key_path_derivation_path, key_name, ?aux, dst_address, amount);
     };
 
     /// Sends a key spend transaction to the network that transfers the given amount to the
     /// given destination, where the source of the funds is the canister itself
     /// at the given derivation path.
-    public func send_key_spend_generic(schnorr_canister_actor : SchnorrCanisterActor, own_address : BitcoinAddress, network : Network, signer_derivation_path : [[Nat8]], key_name : Text, aux : ?Types.SchnorrAux, dst_address : BitcoinAddress, amount : Satoshi) : async [Nat8] {
+    public func send_key_path_generic(schnorr_canister_actor : SchnorrCanisterActor, own_address : BitcoinAddress, network : Network, signer_derivation_path : [[Nat8]], key_name : Text, aux : ?Types.SchnorrAux, dst_address : BitcoinAddress, amount : Satoshi) : async [Nat8] {
         // Get fee percentiles from previous transactions to estimate our own fee.
         let fee_percentiles = await BitcoinApi.get_current_fee_percentiles(network);
 
@@ -313,7 +313,7 @@ module {
     /// Sends a script spend transaction to the network that transfers the given amount to the
     /// given destination, where the source of the funds is the canister itself
     /// at the given derivation path.
-    public func send_script_spend(schnorr_canister_actor : SchnorrCanisterActor, network : Network, derivation_paths : P2trDerivationPaths, key_name : Text, dst_address : BitcoinAddress, amount : Satoshi) : async [Nat8] {
+    public func send_script_path(schnorr_canister_actor : SchnorrCanisterActor, network : Network, derivation_paths : P2trDerivationPaths, key_name : Text, dst_address : BitcoinAddress, amount : Satoshi) : async [Nat8] {
         // Get fee percentiles from previous transactions to estimate our own fee.
         let fee_percentiles = await BitcoinApi.get_current_fee_percentiles(network);
 
