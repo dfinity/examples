@@ -20,17 +20,23 @@ import Option "mo:base/Option";
 
 import Address "mo:bitcoin/bitcoin/Address";
 import Bitcoin "mo:bitcoin/bitcoin/Bitcoin";
-import { taggedHash } "mo:bitcoin/Hash";
-import { leafHash; leafScript; tweakFromKeyAndHash; tweakPublicKey } "mo:bitcoin/bitcoin/P2tr";
+import {
+    leafHash;
+    leafScript;
+    tweakFromKeyAndHash;
+    tweakPublicKey;
+} "mo:bitcoin/bitcoin/P2tr";
 import Transaction "mo:bitcoin/bitcoin/Transaction";
 import TxInput "mo:bitcoin/bitcoin/TxInput";
 import Script "mo:bitcoin/bitcoin/Script";
 import Segwit "mo:bitcoin/Segwit";
+import Hash "mo:bitcoin/Hash";
 
 import BitcoinApi "BitcoinApi";
 import SchnorrApi "SchnorrApi";
 import Types "Types";
 import Utils "Utils";
+import Hex "Hex";
 
 module {
     type Network = Types.Network;
@@ -41,18 +47,19 @@ module {
     type Transaction = Transaction.Transaction;
     type Script = Script.Script;
     type SchnorrCanisterActor = Types.SchnorrCanisterActor;
+    type P2trDerivationPaths = Types.P2trDerivationPaths;
 
-    public func get_address(schnorr_canister_actor : SchnorrCanisterActor, network : Network, key_name : Text, derivation_path : [[Nat8]]) : async BitcoinAddress {
+    public func get_address(schnorr_canister_actor : SchnorrCanisterActor, network : Network, key_name : Text, derivation_paths : P2trDerivationPaths) : async BitcoinAddress {
         // Fetch the public key of the given derivation path.
-        let sec1_public_key = await SchnorrApi.schnorr_public_key(schnorr_canister_actor, key_name, Array.map(derivation_path, Blob.fromArray));
+        let sec1_public_key = await SchnorrApi.schnorr_public_key(schnorr_canister_actor, key_name, Array.map(derivation_paths.key_path_derivation_path, Blob.fromArray));
         assert sec1_public_key.size() == 33;
         let bip340_public_key_bytes = Array.subArray(Blob.toArray(sec1_public_key), 1, 32);
-        let { tweaked_address; is_even = _ } = public_key_to_p2tr_script_spend_address(network, bip340_public_key_bytes);
+        let { tweaked_address; is_even = _ } = public_key_to_p2tr_address(network, bip340_public_key_bytes);
         tweaked_address;
     };
 
     // Converts a public key to a P2TR script spend address.
-    public func public_key_to_p2tr_script_spend_address(network : Network, bip340_public_key_bytes : [Nat8]) : {
+    public func public_key_to_p2tr_address(network : Network, bip340_public_key_bytes : [Nat8]) : {
         tweaked_address : BitcoinAddress;
         is_even : Bool;
     } {
@@ -234,6 +241,27 @@ module {
     /// given destination, where the source of the funds is the canister itself
     /// at the given derivation path.
     public func send_key_spend(schnorr_canister_actor : SchnorrCanisterActor, network : Network, derivation_path : [[Nat8]], key_name : Text, dst_address : BitcoinAddress, amount : Satoshi) : async [Nat8] {
+        let internal_sec1_public_key = Blob.toArray(await SchnorrApi.schnorr_public_key(schnorr_canister_actor, key_name, Array.map(derivation_path, Blob.fromArray)));
+        let internal_bip340_public_key = Array.subArray(internal_sec1_public_key, 1, 32);
+        Debug.print("Initial internal_bip340_public_key=" # Hex.encode(internal_bip340_public_key));
+        let { tweaked_address = own_tweaked_address } = public_key_to_p2tr_address(network, internal_bip340_public_key);
+        Debug.print("internal untweaked public key: " # Hex.encode(internal_bip340_public_key));
+
+        Debug.print("in sending computed own address: " # own_tweaked_address);
+        let leaf_script = Utils.get_ok(leafScript(internal_bip340_public_key));
+
+        let aux =
+        #bip341({
+            merkle_root_hash = Blob.fromArray(leafHash(leaf_script));
+        });
+
+        await send_key_spend_generic(schnorr_canister_actor, own_tweaked_address, internal_bip340_public_key, network, derivation_path, key_name, ?aux, dst_address, amount);
+    };
+
+    /// Sends a transaction to the network that transfers the given amount to the
+    /// given destination, where the source of the funds is the canister itself
+    /// at the given derivation path.
+    public func send_key_spend_generic(schnorr_canister_actor : SchnorrCanisterActor, own_address : BitcoinAddress, internal_bip340_public_key : [Nat8], network : Network, derivation_path : [[Nat8]], key_name : Text, aux : ?Types.SchnorrAux, dst_address : BitcoinAddress, amount : Satoshi) : async [Nat8] {
         // Get fee percentiles from previous transactions to estimate our own fee.
         let fee_percentiles = await BitcoinApi.get_current_fee_percentiles(network);
 
@@ -247,21 +275,17 @@ module {
             fee_percentiles[50];
         };
 
-        // Fetch our public key, P2TR script spend address, and UTXOs.
-        let own_sec1_public_key = Blob.toArray(await SchnorrApi.schnorr_public_key(schnorr_canister_actor, key_name, Array.map(derivation_path, Blob.fromArray)));
-        let own_bip340_public_key = Array.subArray(own_sec1_public_key, 1, 32);
-        let { tweaked_address = own_tweaked_address } = public_key_to_p2tr_script_spend_address(network, own_bip340_public_key);
-
-        let own_leaf_script = Utils.get_ok(leafScript(own_bip340_public_key));
+        Debug.print("internal untweaked public key: " # Hex.encode(internal_bip340_public_key));
+        Debug.print("in sending computed own address: " # own_address);
 
         Debug.print("Fetching UTXOs...");
         // Note that pagination may have to be used to get all UTXOs for the given address.
         // For the sake of simplicity, it is assumed here that the `utxo` field in the response
         // contains all UTXOs.
-        let own_utxos = (await BitcoinApi.get_utxos(network, own_tweaked_address)).utxos;
+        let own_utxos = (await BitcoinApi.get_utxos(network, own_address)).utxos;
 
         // Build the transaction that sends `amount` to the destination address.
-        let tx_bytes = await build_transaction(schnorr_canister_actor, own_tweaked_address, own_utxos, dst_address, amount, fee_per_vbyte);
+        let tx_bytes = await build_transaction(schnorr_canister_actor, own_address, own_utxos, dst_address, amount, fee_per_vbyte);
         let transaction = Utils.get_ok(Transaction.fromBytes(Iter.fromArray(tx_bytes)));
 
         let tx_in_outpoints = Array.map<TxInput.TxInput, Types.OutPoint>(transaction.txInputs, func(txin) { txin.prevOutput });
@@ -277,15 +301,22 @@ module {
             },
         );
 
-        let tapTweak = taggedHash(Array.flatten([own_bip340_public_key, leafHash(own_leaf_script)]), "TapTweak");
+        // do {
+        //     let hash = switch (aux) {
+        //         case (?#bip341 aux) {
+        //             aux.merkle_root_hash;
+        //         };
+        //         case (null) { Debug.trap("oh no!") };
+        //     };
+        //     let tweak = Common.readBE256(Blob.toArray(hash), 0);
 
-        Debug.print("tapTweak in aux" # debug_show (tapTweak));
+        //     let { bip340_public_key = tweaked_public_key } = Utils.get_ok(tweakPublicKey(internal_bip340_public_key, tweak));
 
-        let aux = #bip341({
-            merkle_root_hash = Blob.fromArray(tapTweak);
-        });
+        //     Debug.print("assert: tweaked_public_key=" # Hex.encode(tweaked_public_key) # " untweaked_public_key=" # Hex.encode(internal_bip340_public_key) # " merkle_root_hash = " # debug_show (Blob.toArray(hash)));
+        //     assert tweaked_public_key_to_p2tr_address(network, tweaked_public_key) == own_address;
+        // };
 
-        let signed_transaction_bytes = await sign_key_spend_transaction(schnorr_canister_actor, own_tweaked_address, transaction, amounts, key_name, Array.map(derivation_path, Blob.fromArray), ?aux, SchnorrApi.sign_with_schnorr);
+        let signed_transaction_bytes = await sign_key_spend_transaction(schnorr_canister_actor, own_address, transaction, amounts, key_name, Array.map(derivation_path, Blob.fromArray), aux, SchnorrApi.sign_with_schnorr);
 
         Debug.print("Sending transaction : " # debug_show (signed_transaction_bytes));
         let signed_transaction = Utils.get_ok(Transaction.fromBytes(Iter.fromArray(signed_transaction_bytes)));
@@ -316,11 +347,9 @@ module {
         // Fetch our public key, P2TR script spend address, and UTXOs.
         let own_sec1_public_key = Blob.toArray(await SchnorrApi.schnorr_public_key(schnorr_canister_actor, key_name, Array.map(derivation_path, Blob.fromArray)));
         let own_bip340_public_key = Array.subArray(own_sec1_public_key, 1, 32);
-        let { tweaked_address = own_tweaked_address; is_even } = public_key_to_p2tr_script_spend_address(network, own_bip340_public_key);
+        let { tweaked_address = own_tweaked_address; is_even } = public_key_to_p2tr_address(network, own_bip340_public_key);
 
         let own_leaf_script = Utils.get_ok(leafScript(own_bip340_public_key));
-
-        let _control_block = control_block(is_even, own_bip340_public_key);
 
         Debug.print("Fetching UTXOs...");
         // Note that pagination may have to be used to get all UTXOs for the given address.
@@ -358,6 +387,7 @@ module {
             Array.map(derivation_path, Blob.fromArray),
             SchnorrApi.sign_with_schnorr,
         );
+
         Debug.print("Sending transaction : " # debug_show (signed_transaction_bytes));
         let signed_transaction = Utils.get_ok(Transaction.fromBytes(Iter.fromArray(signed_transaction_bytes)));
 
@@ -401,5 +431,31 @@ module {
             case (#ok address) address;
             case (#err msg) Debug.trap("Error encoding segwit address: " # msg);
         };
+    };
+
+    public func unspendableMerkleRoot(untweaked_bip340_public_key : [Nat8]) : [Nat8] {
+        Hash.taggedHash(untweaked_bip340_public_key, "TapTweak");
+    };
+
+    public func get_address_key_only(schnorr_canister_actor : SchnorrCanisterActor, network : Network, key_name : Text, derivation_path : [[Nat8]], opt_merkle_root : ?[Nat8]) : async BitcoinAddress {
+        // Fetch the public key of the given derivation path.
+        let sec1_public_key = await SchnorrApi.schnorr_public_key(schnorr_canister_actor, key_name, Array.map(derivation_path, Blob.fromArray));
+        assert sec1_public_key.size() == 33;
+
+        Debug.print("_Un_tweaked public key: " # Hex.encode(Blob.toArray(sec1_public_key)));
+
+        let bip340_public_key_bytes = Array.subArray(Blob.toArray(sec1_public_key), 1, 32);
+
+        let merkleRoot = switch (opt_merkle_root) {
+            case (?root) root;
+            case (null) unspendableMerkleRoot(bip340_public_key_bytes);
+        };
+        Debug.print("unspendableMerkleRoot: " # Hex.encode(merkleRoot));
+        let tweak = Utils.get_ok(tweakFromKeyAndHash(bip340_public_key_bytes, merkleRoot));
+        let tweaked_public_key = Utils.get_ok(tweakPublicKey(bip340_public_key_bytes, tweak)).bip340_public_key;
+        assert tweaked_public_key.size() == 32;
+        Debug.print("Tweaked public key: " # Hex.encode(tweaked_public_key));
+
+        tweaked_public_key_to_p2tr_address(network, tweaked_public_key);
     };
 };

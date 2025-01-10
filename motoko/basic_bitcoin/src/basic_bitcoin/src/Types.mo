@@ -177,4 +177,9 @@ module Types {
         schnorr_public_key : SchnorrPublicKeyArgs -> async SchnorrPublicKeyReply;
         sign_with_schnorr : SignWithSchnorrArgs -> async SignWithSchnorrReply;
     };
+
+    public type P2trDerivationPaths = {
+        key_path_derivation_path : [[Nat8]];
+        script_path_derivation_path : [[Nat8]];
+    };
 };

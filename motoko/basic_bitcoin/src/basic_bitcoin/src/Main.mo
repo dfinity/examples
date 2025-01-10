@@ -1,5 +1,7 @@
 import Principal "mo:base/Principal";
 import Text "mo:base/Text";
+import Array "mo:base/Array";
+import Blob "mo:base/Blob";
 
 import BitcoinApi "BitcoinApi";
 import P2pkh "P2pkh";
@@ -18,6 +20,7 @@ actor class BasicBitcoin(network : Types.Network) {
   type TransactionId = Text;
   type EcdsaCanisterActor = Types.EcdsaCanisterActor;
   type SchnorrCanisterActor = Types.SchnorrCanisterActor;
+  type P2trDerivationPaths = Types.P2trDerivationPaths;
 
   // The Bitcoin network to connect to.
   //
@@ -63,25 +66,25 @@ actor class BasicBitcoin(network : Types.Network) {
 
   /// Returns the P2PKH address of this canister at a specific derivation path.
   public func get_p2pkh_address() : async BitcoinAddress {
-    await P2pkh.get_address(ecdsa_canister_actor, NETWORK, KEY_NAME, DERIVATION_PATH);
+    await P2pkh.get_address(ecdsa_canister_actor, NETWORK, KEY_NAME, p2pkhDerivationPath());
   };
 
   /// Sends the given amount of bitcoin from this canister to the given address.
   /// Returns the transaction ID.
   public func send_from_p2pkh_address(request : SendRequest) : async TransactionId {
-    Utils.bytesToText(await P2pkh.send(ecdsa_canister_actor, NETWORK, DERIVATION_PATH, KEY_NAME, request.destination_address, request.amount_in_satoshi));
+    Utils.bytesToText(await P2pkh.send(ecdsa_canister_actor, NETWORK, p2pkhDerivationPath(), KEY_NAME, request.destination_address, request.amount_in_satoshi));
   };
 
   public func get_p2tr_key_only_address() : async BitcoinAddress {
-    await P2trKeyOnly.get_address(schnorr_canister_actor, NETWORK, KEY_NAME, DERIVATION_PATH);
+    await P2tr.get_address_key_only(schnorr_canister_actor, NETWORK, KEY_NAME, p2trKeyOnlyDerivationPath(), null);
   };
 
   public func send_from_p2tr_key_only_address(request : SendRequest) : async TransactionId {
-    Utils.bytesToText(await P2trKeyOnly.send(schnorr_canister_actor, NETWORK, DERIVATION_PATH, KEY_NAME, request.destination_address, request.amount_in_satoshi));
+    Utils.bytesToText(await P2trKeyOnly.send(schnorr_canister_actor, NETWORK, p2trKeyOnlyDerivationPath(), KEY_NAME, request.destination_address, request.amount_in_satoshi));
   };
 
   public func get_p2tr_address() : async BitcoinAddress {
-    await P2tr.get_address(schnorr_canister_actor, NETWORK, KEY_NAME, DERIVATION_PATH);
+    await P2tr.get_address(schnorr_canister_actor, NETWORK, KEY_NAME, p2trDerivationPaths());
   };
 
   public func send_from_p2tr_address_key_spend(request : SendRequest) : async TransactionId {
@@ -90,5 +93,24 @@ actor class BasicBitcoin(network : Types.Network) {
 
   public func send_from_p2tr_address_script_spend(request : SendRequest) : async TransactionId {
     Utils.bytesToText(await P2tr.send_script_spend(schnorr_canister_actor, NETWORK, DERIVATION_PATH, KEY_NAME, request.destination_address, request.amount_in_satoshi));
+  };
+
+  func p2pkhDerivationPath() : [[Nat8]] {
+    derivationPathWithSuffix("p2pkh");
+  };
+
+  func p2trKeyOnlyDerivationPath() : [[Nat8]] {
+    derivationPathWithSuffix("p2tr_key_only");
+  };
+
+  func p2trDerivationPaths() : P2trDerivationPaths {
+    {
+      key_path_derivation_path = derivationPathWithSuffix("p2tr_internal_key");
+      script_path_derivation_path = derivationPathWithSuffix("p2tr_script_key");
+    };
+  };
+
+  func derivationPathWithSuffix(suffix : Blob) : [[Nat8]] {
+    Array.flatten([DERIVATION_PATH, [Blob.toArray(suffix)]]);
   };
 };
