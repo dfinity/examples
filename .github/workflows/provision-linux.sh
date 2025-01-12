@@ -32,8 +32,8 @@ if [ -f "${GITHUB_WORKSPACE}/.ic-commit" ]; then
 fi
 
 # Install ic-repl
-version=effective-canister-id
-curl --location --output ic-repl "https://github.com/mraszyk/ic-repl/releases/download/$version/ic-repl-linux64"
+version=0.7.7
+curl --location --output ic-repl "https://github.com/dfinity/ic-repl/releases/download/$version/ic-repl-linux64"
 mv ./ic-repl /usr/local/bin/ic-repl
 chmod a+x /usr/local/bin/ic-repl
 
