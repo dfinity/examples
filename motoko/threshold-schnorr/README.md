@@ -86,7 +86,7 @@ There are three options that are planed to be supported:
 * `key_1`: a master **production** key ID that is used in mainnet.
 
 For example, the default code in `src/schnorr_example_motoko/src/main.mo`
-hard-codes the used of `dfx_test_key` and derives the key ID as follows and can
+hard-codes the use of `dfx_test_key` and derives the key ID as follows and can
 be deployed locally:
 
 
