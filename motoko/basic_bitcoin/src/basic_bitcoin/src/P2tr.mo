@@ -142,7 +142,7 @@ module {
         };
     };
 
-    // Sign a bitcoin transaction.
+    // Sign a key spend bitcoin taproot transaction.
     //
     // IMPORTANT: This method is for demonstration purposes only and it only
     // supports signing transactions if:
@@ -184,7 +184,7 @@ module {
         transaction.toBytes();
     };
 
-    /// Sign a bitcoin transaction.
+    /// Sign a script spend bitcoin taproot transaction.
     ///
     /// IMPORTANT: This method is for demonstration purposes only and it only
     /// supports signing transactions if:
