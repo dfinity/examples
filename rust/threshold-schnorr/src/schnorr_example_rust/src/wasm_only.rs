@@ -146,7 +146,7 @@ async fn verify(
     algorithm: SchnorrAlgorithm,
 ) -> Result<SignatureVerificationReply, String> {
     let sig_bytes = hex::decode(&signature_hex).expect("failed to hex-decode signature");
-    let msg_bytes = hex::decode(&message).expect("failed to hex-decode message");
+    let msg_bytes = message.as_bytes();
     let pk_bytes = hex::decode(&public_key_hex).expect("failed to hex-decode public key");
 
     match algorithm {
@@ -154,9 +154,9 @@ async fn verify(
             Some(merkle_tree_root_hex) => {
                 let merkle_tree_root_bytes = hex::decode(&merkle_tree_root_hex)
                     .expect("failed to hex-decode merkle tree root");
-                verify_bip341_secp256k1(&sig_bytes, &msg_bytes, &pk_bytes, &merkle_tree_root_bytes)
+                verify_bip341_secp256k1(&sig_bytes, msg_bytes, &pk_bytes, &merkle_tree_root_bytes)
             }
-            None => verify_bip340_secp256k1(&sig_bytes, &msg_bytes, &pk_bytes),
+            None => verify_bip340_secp256k1(&sig_bytes, msg_bytes, &pk_bytes),
         },
         SchnorrAlgorithm::Ed25519 => {
             if let Some(_) = opt_merkle_tree_root_hex {
