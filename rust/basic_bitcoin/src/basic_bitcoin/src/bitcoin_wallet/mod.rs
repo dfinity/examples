@@ -11,5 +11,5 @@
 
 mod common;
 pub mod p2pkh;
-pub mod p2tr_raw_key_spend;
-pub mod p2tr_script_spend;
+pub mod p2tr;
+pub mod p2tr_key_only;
