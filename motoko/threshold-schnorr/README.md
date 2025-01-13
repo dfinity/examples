@@ -122,7 +122,7 @@ There are four options that are supported:
 * `key_1`: a master **production** key ID that is used in mainnet.
 
 For example, the default code in `src/schnorr_example_motoko/src/main.mo`
-hard-codes the used of `insecure_test_key_1` and derives the key ID as follows and can
+hard-codes the use of `insecure_test_key_1` and derives the key ID as follows and can
 be deployed locally:
 
 ```motoko
