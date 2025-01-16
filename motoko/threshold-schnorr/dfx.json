@@ -5,6 +5,11 @@
       "package": "schnorr_example_motoko",
       "main": "src/schnorr_example_motoko/main.mo",
       "type": "motoko"
+    },
+    "chainkey_testing_canister": {
+      "type": "custom",
+      "candid": "https://github.com/dfinity/chainkey-testing-canister/releases/download/v0.1.0/chainkey_testing_canister.did",
+      "wasm": "https://github.com/dfinity/chainkey-testing-canister/releases/download/v0.1.0/chainkey_testing_canister.wasm.gz"
     }
   }
 }
