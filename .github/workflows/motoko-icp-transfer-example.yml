@@ -1,0 +1,39 @@
+# Known failure: https://dfinity.atlassian.net/browse/EM-5
+name: motoko-icp_transfer
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - motoko/icp_transfer/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-icp-transfer-example.yml
+      - .ic-commit
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  motoko-icp_transfer-darwin:
+    runs-on: macos-12
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Motoko Ledger Transfer Darwin
+        run: |
+          pushd motoko/icp_transfer
+          bash ./demo.sh
+          popd
+  motoko-icp_transfer-linux:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Motoko Ledger Transfer Linux
+        run: |
+          pushd motoko/icp_transfer
+          bash ./demo.sh
+          popd
