@@ -43,7 +43,7 @@ The URL for the ledger.did file is `https://raw.githubusercontent.com/dfinity/ic
 If you want to make sure you have the latest ICP ledger files, you can run the following script. Please ensure that you have [`jq`](https://jqlang.github.io/jq/) installed as the script relies on it.
 
 ```sh
-curl -o download_latest_icp_ledger.sh "https://raw.githubusercontent.com/dfinity/ic/<REVISION>/rs/rosetta-api/scripts/download_latest_icp_ledger.sh"
+curl -o download_latest_icp_ledger.sh "https://raw.githubusercontent.com/dfinity/ic/1f1d8dd8c294d19a5551a022e3f00f25da7dc944/rs/rosetta-api/scripts/download_latest_icp_ledger.sh"
 chmod +x download_latest_icp_ledger.sh
 ./download_latest_icp_ledger.sh
 ```

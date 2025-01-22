@@ -20,6 +20,7 @@
 /motoko/encrypted-notes-dapp/ @dfinity/crypto-team
 /motoko/hello_cycles/ @dfinity/languages
 /motoko/ic-pos/ @dfinity/growth
+/motoko/icp_transfer/ @dfinity/growth
 /motoko/icrc2-swap/ @dfinity/growth
 /motoko/internet_identity_integration/ @dfinity/identity
 /motoko/life/ @dfinity/languages
