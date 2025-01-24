@@ -41,7 +41,7 @@ The URL for the ledger .did file is `https://raw.githubusercontent.com/dfinity/i
 If you want to make sure, you have the latest ICRC-1 ledger files you can run the following script.
 
 ```sh
-curl -o download_latest_icrc1_ledger.sh "https://raw.githubusercontent.com/dfinity/ic/1f1d8dd8c294d19a5551a022e3f00f25da7dc944/rs/rosetta-api/scripts/download_latest_icrc1_ledger.sh"
+curl -o download_latest_icrc1_ledger.sh "https://raw.githubusercontent.com/dfinity/ic/69988ae40e4cc0db7ef758da7dd5c0606075e926/rs/rosetta-api/scripts/download_latest_icrc1_ledger.sh"
 chmod +x download_latest_icrc1_ledger.sh
 ./download_latest_icrc1_ledger.sh
 ```
