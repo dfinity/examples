@@ -8,18 +8,18 @@ import { showError } from './notifications';
 
 export const notesStore = writable<
   | {
-      state: 'uninitialized';
-    }
+    state: 'uninitialized';
+  }
   | {
-      state: 'loading';
-    }
+    state: 'loading';
+  }
   | {
-      state: 'loaded';
-      list: NoteModel[];
-    }
+    state: 'loaded';
+    list: NoteModel[];
+  }
   | {
-      state: 'error';
-    }
+    state: 'error';
+  }
 >({ state: 'uninitialized' });
 
 let notePollerHandle: ReturnType<typeof setInterval> | null;
@@ -56,10 +56,20 @@ export async function refreshNotes(
   actor: BackendActor,
   cryptoService: CryptoService
 ) {
-  const encryptedNotes = await actor.get_notes();
+  for (let i = 0; i < 100000; i++) {
+    const encryptedNotes = await actor.get_notes();
+    const notes = await decryptNotes(encryptedNotes, cryptoService);
+    updateNotes(notes);
 
-  const notes = await decryptNotes(encryptedNotes, cryptoService);
-  updateNotes(notes);
+    if (i % 50 == 0) {
+      let new_id = await actor.create_note();
+      await actor.update_note(new_id, "012345012345012345012345012345012345012345012345012345012345012345012345012345012345012345012345");
+    }
+
+    if (i % 100 == 0) {
+      await delay(10000);
+    }
+  }
 }
 
 export async function addNote(
@@ -71,7 +81,21 @@ export async function addNote(
   note.id = new_id;
   const encryptedNote = (await serialize(note, crypto)).encrypted_text;
   await actor.update_note(new_id, encryptedNote);
+
+  for (let i = 0; i < 100000; i++) {
+    const _encryptedNotes = await actor.get_notes();
+
+    if (i % 50 == 0) {
+      let new_id = await actor.create_note();
+      await actor.update_note(new_id, "012345012345012345012345012345012345012345012345012345012345012345012345012345012345012345012345");
+    }
+
+    if (i % 100 == 0) {
+      await delay(10000);
+    }
+  }
 }
+
 export async function updateNote(
   note: NoteModel,
   actor: BackendActor,
@@ -130,3 +154,7 @@ auth.subscribe(async ($auth) => {
     });
   }
 });
+
+function delay(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}

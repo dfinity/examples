@@ -155,7 +155,7 @@ shared ({ caller = initializer }) actor class () {
     //      Future of array of EncryptedNote
     // Traps:
     //      [caller] is the anonymous identity
-    public shared ({ caller }) func get_notes() : async [EncryptedNote] {
+    public shared query ({ caller }) func get_notes() : async [EncryptedNote] {
         assert not Principal.isAnonymous(caller);
         let user = Principal.toText(caller);
 
