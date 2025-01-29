@@ -33,7 +33,7 @@ lazy_static::lazy_static! {
 }
 
 thread_local! {
-    static RNG: RefCell<Option<ChaCha20Rng>> = RefCell::new(None);
+    static RNG: RefCell<Option<ChaCha20Rng>> = const { RefCell::new(None) }
 }
 
 #[update]
@@ -102,7 +102,7 @@ fn ensure_bls12_381_g2_test_key_1(key_id: VetKDKeyId) {
     }
 }
 
-fn ensure_derivation_path_is_valid(derivation_path: &Vec<Vec<u8>>) {
+fn ensure_derivation_path_is_valid(derivation_path: &[Vec<u8>]) {
     if derivation_path.len() > 255 {
         ic_cdk::trap("derivation path too long")
     }
