@@ -38,7 +38,7 @@ Make sure you have [node.js](https://nodejs.org/) installed.
 To clone this template without downloading the entire repository, run the following command:
 
 ```
-npx degit dfinity/examples/svelte-starter svelte-starter
+npx degit dfinity/examples/svelte/svelte-starter svelte-starter
 ```
 
 ### DFX
