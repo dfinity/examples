@@ -1,0 +1,45 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Hello World</title>
+    <style>
+      body {
+        padding: 10px 60px;
+        font-family: sans-serif;
+        font-size: 1.5rem;
+      }
+      #greeting {
+        margin: 10px auto;
+        padding: 10px 60px;
+        border: 1px solid #222;
+      }
+      #greeting:empty {
+        display: none;
+      }
+    </style>
+    <script type="module">
+      // Import the backend actor
+      import { backend } from 'declarations/backend';
+      // Add an event listener to the form
+      document.querySelector('form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        // Get the name from the input field
+        const name = document.getElementById('name').value.toString();
+        // Calling the method "greet" on the backend actor with the name
+        const greeting = await backend.greet(name);
+        // Display the greeting returned by the backend actor
+        document.getElementById('greeting').innerText = greeting;
+      });
+    </script>
+  </head>
+  <body>
+    <main>
+      <form>
+        <label for="name">Enter your name: &nbsp;</label>
+        <input id="name" alt="Name" type="text" />
+        <button type="submit">Click Me!</button>
+      </form>
+      <section id="greeting"></section>
+    </main>
+  </body>
+</html>
