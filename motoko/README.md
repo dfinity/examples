@@ -10,7 +10,6 @@ These examples show the Motoko language as a backend language for the IC, operat
 - [`counter`](https://github.com/dfinity/examples/tree/master/motoko/counter) -- basic (stable) variable demo.
 - [`echo`](https://github.com/dfinity/examples/tree/master/motoko/echo) -- basic query function demo.
 - [`factorial`](https://github.com/dfinity/examples/tree/master/motoko/factorial) -- basic factorial demo.
-- [`hello-world`](https://github.com/dfinity/examples/tree/master/motoko/hello-world) -- basic hello world demo.
 - [`hello_cycles`](https://github.com/dfinity/examples/tree/master/motoko/hello_cycles) -- basic cycles demo.
 - [`persistent-storage`](https://github.com/dfinity/examples/tree/master/motoko/persistent-storage) -- basic stable var demo.
 - [`whoami`](https://github.com/dfinity/examples/tree/master/motoko/whoami) -- basic caller identification demo.
