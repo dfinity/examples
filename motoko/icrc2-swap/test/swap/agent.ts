@@ -41,7 +41,8 @@ export function createActor<T>(
   idlFactory: IDL.InterfaceFactory,
   options: CreateActorOptions = {},
 ): ActorSubclass<T> {
-  const agent = options.agent || new HttpAgent({ ...options.agentOptions });
+  const shouldFetchRootKey = process.env.DFX_NETWORK !== "ic";
+  const agent = options.agent || new HttpAgent({ ...options.agentOptions, shouldFetchRootKey });
 
   if (options.agent && options.agentOptions) {
     console.warn(
@@ -62,22 +63,14 @@ export function createActor<T>(
 const dfxPort = execSync("dfx info webserver-port", { encoding: "utf-8" });
 
 export function agent(identity?: Identity) {
-  const a = new HttpAgent({
+  const shouldFetchRootKey = process.env.DFX_NETWORK !== "ic";
+  const a = HttpAgent.createSync({
     identity,
     host: `http://127.0.0.1:${dfxPort}`,
     fetch,
+    shouldFetchRootKey
   });
-
-  // Fetch root key for certificate validation during development
-  if (process.env.DFX_NETWORK !== "ic") {
-    a.fetchRootKey().catch((err: any) => {
-      console.warn(
-        "Unable to fetch root key. Check to ensure that your local replica is running",
-      );
-      console.error(err);
-    });
-  }
-
+  
   return a;
 }
 
