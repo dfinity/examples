@@ -29,6 +29,12 @@ For **Motoko** deployment use:
 export BUILD_ENV=motoko
 ```
 
+For **Rust** deployment use:
+
+```sh
+export BUILD_ENV=rust
+```
+
 ## Step 2: To generate `$BUILD_ENV`-specific files run:
 
 ```sh
