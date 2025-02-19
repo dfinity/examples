@@ -4,25 +4,28 @@ import Publisher "canister:pub";
 
 actor Subscriber {
 
-  type Counter = {
+
+type NewsMessage = {
     topic : Text;
-    value : Nat;
+    content : Text;
+    readingTime : Nat;
   };
 
-  var count: Nat = 0;
+  var totalReadingTime: Nat = 0;
 
-  public func init(topic0 : Text) {
+  public func subscribeToTopic(subscribedTopic : Text) {
     Publisher.subscribe({
-      topic = topic0;
-      callback = updateCount;
+      topic = subscribedTopic;
+      callback = updateTotalReadingTime;
     });
   };
 
-  public func updateCount(counter : Counter) {
-    count += counter.value;
+  public func updateCount(newsMessage : NewsMessage) {
+    totalReadingTime += newsMessage.readingTime;
   };
 
-  public query func getCount() : async Nat {
-    count;
+  public query func getTotalReadingTime() : async Nat {
+    totalReadingTime;
   };
 }
+

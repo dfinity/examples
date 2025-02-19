@@ -3,14 +3,15 @@ import List "mo:base/List";
 
 actor Publisher {
 
-  type Counter = {
+  type NewsMessage = {
     topic : Text;
-    value : Nat;
+    content : Text;
+    readingTime : Nat;
   };
 
   type Subscriber = {
     topic : Text;
-    callback : shared Counter -> ();
+    callback : shared NewsMessage -> ();
   };
 
   stable var subscribers = List.nil<Subscriber>();
@@ -19,10 +20,10 @@ actor Publisher {
     subscribers := List.push(subscriber, subscribers);
   };
 
-  public func publish(counter : Counter) {
+  public func publish(newsMessage : NewsMessage) {
     for (subscriber in List.toArray(subscribers).vals()) {
-      if (subscriber.topic == counter.topic) {
-        subscriber.callback(counter);
+      if (subscriber.topic == newsMessage.topic) {
+        subscriber.callback(newsMessage);
       };
     };
   };
