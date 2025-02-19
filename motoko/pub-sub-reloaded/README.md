@@ -197,6 +197,14 @@ This example requires an installation of:
 
 Begin by opening a terminal window.
 
+In this example, we'll demonstrate how the pub/sub system works with three subscribers:
+
+- sub1: Will subscribe to both "Astronauts" and "Aliens" topics
+- sub2: Will subscribe only to "Astronauts" topic
+- sub3: Will subscribe only to "Aliens" topic
+
+This setup will show how subscribers can handle multiple topics and how different subscribers can receive updates for the same topic.
+
 ## Step 1: Setup the project environment
 
 Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
@@ -212,29 +220,91 @@ dfx start --background
 dfx deploy
 ```
 
-## Step 3: Subscribe to the "Apples" topic
+## Step 3: Subscribe to the "Astronauts" topic
 
 ```bash
-dfx canister call sub init '("Apples")'
+dfx canister call sub1 subscribeToTopic '("Astronauts")'
 ```
 
-## Step 4: Publish to the "Apples" topic
+## Step 4: Publish news about the Moon landing
 
 ```bash
-dfx canister call pub publish '(record { "topic" = "Apples"; "value" = 2 })'
+dfx canister call pub publish '(record {
+    "topic" = "Astronauts";
+    "content" = "Historic moment: Humans first landed on the Moon!";
+    "readingTime" = 3
+})'
 ```
 
-## Step 5: Receive your subscription
+## Step 5: Check sub1's reading time
 
 ```bash
-dfx canister call sub getCount
+dfx canister call sub1 getTotalReadingTime
 ```
 
-The output should resemble the following:
+The output should be `(3 : nat)`, indicating 3 time units spent reading about the Moon landing.
+
+## Step 6: Add another subscriber to Astronauts
 
 ```bash
-(2 : nat)
+dfx canister call sub2 subscribeToTopic '("Astronauts")'
 ```
+
+## Step 7: Publish Mars mission news
+
+```bash
+dfx canister call pub publish '(record {
+    "topic" = "Astronauts";
+    "content" = "Elon Musk announces plans for first human Mars landing";
+    "readingTime" = 5
+})'
+```
+
+## Step 8: Check both subscribers' reading times
+
+```bash
+dfx canister call sub1 getTotalReadingTime
+dfx canister call sub2 getTotalReadingTime
+```
+
+Sub1 should show `(8 : nat)` (Moon + Mars news), while sub2 shows `(5 : nat)` (only Mars news).
+
+## Step 9: Subscribe to Aliens news
+
+```bash
+dfx canister call sub1 subscribeToTopic '("Aliens")'
+dfx canister call sub3 subscribeToTopic '("Aliens")'
+```
+
+## Step 10: Publish Aliens news
+
+```bash
+dfx canister call pub publish '(record {
+    "topic" = "Aliens";
+    "content" = "Today aliens have visited the Earth. They are green as expected. They came in peace";
+    "readingTime" = 4
+})'
+```
+
+## Step 11: Final reading time check
+
+```bash
+dfx canister call sub1 getTotalReadingTime
+dfx canister call sub2 getTotalReadingTime
+dfx canister call sub3 getTotalReadingTime
+```
+
+You should see:
+
+- sub1: `(12 : nat)` (Moon + Mars + Aliens news)
+- sub2: `(5 : nat)` (only Mars news)
+- sub3: `(4 : nat)` (only Aliens news)
+
+This demonstrates how:
+
+1. Subscribers can subscribe to multiple topics (sub1)
+2. Multiple subscribers can subscribe to the same topic (sub1 and sub2 for Astronauts)
+3. Reading times accumulate across all subscribed topics
 
 ## Security considerations and best practices
 
