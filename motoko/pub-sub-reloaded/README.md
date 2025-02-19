@@ -12,7 +12,98 @@ This project enhances the original [PubSub example](link-to-original) to provide
 
 3. Supporting multiple subscribers out of the box, with a pre-configured setup that demonstrates how multiple subscribers can receive updates for the same topics
 
-The example try to maintain the original's simplicity while providing a more practical and comprehensive demonstration of pub/sub principles.
+The example maintains the original's simplicity while providing a more practical and comprehensive demonstration of inter-canister communication.
+
+## Overview and Architecture of the Original PubSub App
+
+The original PubSub example implements a system similar to a mailing list or feed subscription service.
+
+### Subscription
+
+Subscribers can register their interest in specific topics through their public `init` function.
+
+```motoko
+  public func init(topic0 : Text) {
+    Publisher.subscribe({
+      topic = topic0;
+      callback = updateCount;
+    });
+  };
+```
+
+Note that:
+
+- `init` takes a topic as an argument, which is of type Text. The topic can be whatever topic: the subscriber is not just subscribing topics made available by the publisher, but any possible topic.
+
+- `init` triggers an inter-canister call to the Publisher's `subscribe` function, passing, the topic they're interested in and a callback function (`updateCount`) that will be invoked when new messages arrive. This inter-canister communication is made possible by the Subscriber importing the Publisher canister: `import Publisher "canister:pub"` and the callback function being `public` in the Subscriber actor - Motoko automatically treats public functions from actors as shared when used as inter-canister calls.
+
+The publisher's subscribe function definition and the definition of the type Subscriber and the list subscribers are the following:
+
+```motoko
+type Subscriber = {
+	topic : Text;
+	callback : shared Counter -> ();
+};
+stable var subscribers = List.nil<Subscriber>();
+
+ public func subscribe(subscriber : Subscriber) {
+    subscribers := List.push(subscriber, subscribers);
+  };
+```
+
+As we can see from the definitions, when the subscribe function is called, an instance of the Subscriber type is added to the list of subscribers.
+
+Note that:
+
+1. The `subscribers` list doesn't track unique subscribers, but rather subscription entries. Each call to `init` adds a new entry to the list, regardless of whether the calling canister has already subscribed to the same or different topics. This means a single subscriber canister can appear multiple times in the list with different topic subscriptions.
+
+2. Every subscriber passes the same function 'updateCount' as the callback function required in the Subscriber type. The different canisters are identified through the fact that the reference of the passed function is different.
+
+3. The `shared` keyword in Motoko is used to designate functions that can be called across canisters. While public actor methods are implicitly shared, the type system needs explicit `shared` annotations when describing function types that will be used for inter-canister calls. For a detailed explanation of sharing functions between actors, see the [Motoko documentation on sharing](https://internetcomputer.org/docs/current/motoko/main/writing-motoko/sharing#the-shared-keyword).
+
+### Content creation and publishing (broadcasting)
+
+If we imagine the PubSub model as a mailing list or a blog, normally we have some content creators and subscribers of the content. The PubSub app resembles the model of a mailing list, where anyone can send a message. The message of the original PubSub app was of type Counter:
+
+```motoko
+type Counter = {
+	topic : Text;
+	value : Nat;
+};
+```
+
+Each subscriber maintains a counter variable and an update function:
+
+```motoko
+var count: Nat = 0;
+public func updateCount(counter : Counter) {
+	count += counter.value;
+};
+```
+
+For example, the topic could be "Astronauts" and the value "5". Every time a message of type Counter is published, if the subscriber has subscribed to that message's topic, its internal count variable is increased by the amount specified in the value.
+
+So if a subscriber subscribes to "Astronauts", and then a Counter message is published with an "Astronauts" topic and a value of 5, and then another message with topic of "Astronauts" is published with value 3, the internal counter of the subscriber will be 8. Note that if a subscriber subscribes to multiple topics, the counter will maintain a unique sum for all of them.
+
+## Proposed Enhancements
+
+To make this small application more realistic, we will change the type of the broadcasted message to NewsMessage:
+
+```motoko
+type NewsMessage = {
+    topic : Text;
+    content : Text;
+    readingTime : Nat;
+};
+```
+
+This change makes the example more intuitive by:
+
+- Keeping the topic-based subscription mechanism
+- Adding actual content (Text) that represents the news message
+- Replacing the arbitrary `value` field with a meaningful `readingTime` field that represents the estimated time to read the message
+
+The `readingTime` field maintains the original example's counter functionality (subscribers can track total reading time for their topics) while making the application represent a more realistic news broadcasting scenario.
 
 ## Prerequisites
 
