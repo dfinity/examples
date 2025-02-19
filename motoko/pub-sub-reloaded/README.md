@@ -85,7 +85,7 @@ For example, the topic could be "Astronauts" and the value "5". Every time a mes
 
 So if a subscriber subscribes to "Astronauts", and then a Counter message is published with an "Astronauts" topic and a value of 5, and then another message with topic of "Astronauts" is published with value 3, the internal counter of the subscriber will be 8. Note that if a subscriber subscribes to multiple topics, the counter will maintain a unique sum for all of them.
 
-## Proposed Enhancements
+## Enhancements
 
 To make this small application more realistic, we will change the type of the broadcasted message to NewsMessage:
 
@@ -104,6 +104,89 @@ This change makes the example more intuitive by:
 - Replacing the arbitrary `value` field with a meaningful `readingTime` field that represents the estimated time to read the message
 
 The `readingTime` field maintains the original example's counter functionality (subscribers can track total reading time for their topics) while making the application represent a more realistic news broadcasting scenario.
+
+Therefore, the `count` state of the subscriber has been changed to `totalReadingTime`, which represents the time subscribers would have spent if they had read all the messages they subscribed to. In this context, it makes sense to have an increasing counter even if the subscriber subscribes to multiple topics, as it tracks total reading time across all subscriptions.
+
+The function `init` has been renamed to `subscribeToTopic` as it better reflects its purpose - it's not really initializing anything and can be called multiple times. The new name makes the function's behavior more explicit and self-documenting.
+
+Similarly, `updateCount` becomes `updateTotalReadingTime` to align with the new message type and state variable. This function now adds the reading time of each new message to the subscriber's total, providing a meaningful metric of content consumption.
+
+Finally, the query function `getCount` is renamed to `getTotalReadingTime` to maintain consistency with the new terminology and provide a clearer indication of what information it returns.
+
+### Summary of Changes
+
+1. Message Type:
+
+```motoko
+// OLD
+type Counter = {
+    topic : Text;
+    value : Nat;
+};
+
+// NEW
+type NewsMessage = {
+    topic : Text;
+    content : Text;
+    readingTime : Nat;
+};
+```
+
+2. Subscriber State:
+
+```motoko
+// OLD
+var count: Nat = 0;
+
+// NEW
+var totalReadingTime: Nat = 0;
+```
+
+3. Subscriber Functions:
+
+```motoko
+// OLD
+public func init(topic0 : Text)
+
+// NEW
+public func subscribeToTopic(subscribedTopic : Text)
+```
+
+```motoko
+// OLD
+public func updateCount(counter : Counter) {
+    count += counter.value;
+};
+
+// NEW
+public func updateTotalReadingTime(message : NewsMessage) {
+    totalReadingTime += message.readingTime;
+};
+```
+
+```motoko
+// OLD
+public query func getCount() : async Nat
+
+// NEW
+public query func getTotalReadingTime() : async Nat
+```
+
+4. Publisher Type:
+
+```motoko
+// OLD
+type Subscriber = {
+    topic : Text;
+    callback : shared Counter -> ();
+};
+
+// NEW
+type Subscriber = {
+    topic : Text;
+    callback : shared NewsMessage -> ();
+};
+```
 
 ## Prerequisites
 
