@@ -20,8 +20,8 @@ type NewsMessage = {
     });
   };
 
-  public func updateCount(newsMessage : NewsMessage) {
-    totalReadingTime += newsMessage.readingTime;
+  public func updateTotalReadingTime(message : NewsMessage) {
+    totalReadingTime += message.readingTime;
   };
 
   public query func getTotalReadingTime() : async Nat {
