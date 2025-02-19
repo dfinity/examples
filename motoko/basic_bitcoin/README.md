@@ -10,7 +10,7 @@ API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-
 API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin-api)
 of the Internet Computer.
 
-For a deeper understanding of the ICP < > BTC integration, see the [Bitcoin integration documentation](/docs/current/developer-docs/multi-chain/bitcoin/overview).
+For a deeper understanding of the ICP < > BTC integration, see the [Bitcoin integration documentation](https://internetcomputer.org/docs/current/developer-docs/multi-chain/bitcoin/overview).
 
 ## Prerequisites
 
