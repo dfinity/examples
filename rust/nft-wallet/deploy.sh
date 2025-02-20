@@ -8,7 +8,7 @@ for param do
         export DFX_NETWORK=ic
     fi
 done
-dfx deploy nftwallet "$@"
+dfx deploy nftwallet --no-wallet "$@"
 canister=$(dfx canister ${networkparam:+"$networkparam"} id nftwallet)
 PATH="$PATH:$PWD/target/bin"
 if ! command -v icx-asset &> /dev/null ; then

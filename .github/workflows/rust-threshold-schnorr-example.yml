@@ -27,7 +27,7 @@ jobs:
         run: bash .github/workflows/provision-pocket-ic-server.sh
       - name: Rust Threshold Schnorr Darwin
         run: |
-          dfx start --background
+          dfx start --background --clean --pocketic
           pushd rust/threshold-schnorr
           make deploy
 # This should be re-enabled when Pocket IC supports threshold Schnorr
@@ -43,7 +43,7 @@ jobs:
         run: bash .github/workflows/provision-pocket-ic-server.sh
       - name: Rust Threshold Schnorr Linux
         run: |
-          dfx start --background
+          dfx start --background --clean --pocketic
           pushd rust/threshold-schnorr
           make deploy
 # This should be re-enabled when Pocket IC supports threshold Schnorr

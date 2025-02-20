@@ -3,7 +3,7 @@ dfx stop
 set -e
 trap 'dfx stop' EXIT
 
-dfx start --background --clean
+dfx start --pocketic --background --clean
 dfx deploy --argument 'record{name="DFX Blobs";symbol="DFXB";custodians=null;logo=null}' dip721_nft_container
 dfx identity new alice --disable-encryption || true
 dfx identity new bob --disable-encryption || true

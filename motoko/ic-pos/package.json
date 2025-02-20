@@ -28,7 +28,7 @@
     "build": "tsc && vite build",
     "lint": "eslint src --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "dfx:start": "dfx start --background",
+    "dfx:start": "dfx start --pocketic --background",
     "dfx:deploy:local": "dfx deploy --network=local --argument '(0)'",
     "dfx:deploy:ic": "dfx deploy --network=ic --argument '(64051)'",
     "dfx:generate": "dfx generate"
