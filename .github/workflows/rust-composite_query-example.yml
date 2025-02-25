@@ -24,10 +24,10 @@ jobs:
       - name: Rust composite_query Darwin
         run: |
           pushd rust/composite_query
-          dfx start --background
-          dfx canister create data_partition
+          dfx start --background --clean --pocketic
+          dfx canister create data_partition --no-wallet
           dfx build data_partition
-          dfx canister create kv_frontend
+          dfx canister create kv_frontend --no-wallet
           dfx build kv_frontend
           dfx canister install kv_frontend
           dfx canister call kv_frontend put '(1, 1337)'
@@ -42,10 +42,10 @@ jobs:
       - name: Rust composite_query Linux
         run: |
           pushd rust/composite_query
-          dfx start --background
-          dfx canister create data_partition
+          dfx start --background --clean --pocketic
+          dfx canister create data_partition --no-wallet
           dfx build data_partition
-          dfx canister create kv_frontend
+          dfx canister create kv_frontend --no-wallet
           dfx build kv_frontend
           dfx canister install kv_frontend
           dfx canister call kv_frontend put '(1, 1337)'
