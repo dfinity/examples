@@ -1,12 +1,4 @@
----
-keywords: [beginner, motoko, composite queries, queries]
----
-
 # Composite queries
-
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/composite_query)
-
-## Overview
 
 This example modifies the simple actor class example to demonstrate the implementation of composite queries.
 
@@ -37,38 +29,35 @@ Each new `Bucket` must be provisioned with enough cycles to pay for its installa
 
 ## Prerequisites
 
-Verify the following before running this demo:
-
-- [x] You have downloaded and installed [dfx](https://sdk.dfinity.org).
-
-- [x] You have stopped any process that would create a port conflict on `8000`.
-
+- [x] Install the [IC
+  SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
-## Install
+Begin by opening a terminal window.
 
-### Step 1: Start a local internet computer.
+## Step 1: Setup the project environment
 
-```bash
-dfx start
-```
+Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
 
-### Step 2: Open a new terminal window.
-
-### Step 3: Deploy the `Map` canister:
 
 ```bash
 cd examples/motoko/composite_query
-dfx deploy
+dfx start --background
 ```
 
-### Step 4: Invoke the `test` method of canister `Map` to add some entries:
+## Step 2: Deploy the `Map` canister
+
+```bash
+dfx deploy Map
+```
+
+## Step 3: Invoke the `test` method of canister `Map` to add some entries
 
 ```bash
 dfx canister call Map test '()'
 ```
 
-### Step 5: Observe the following result.
+## Step 4: Observe the following result
 
 ```bash
 debug.print: putting: (0, "0")
@@ -90,13 +79,13 @@ debug.print: putting: (15, "15")
 ()
 ```
 
-### Step 6: Invoke the `get` composite query method of canister `Main`:
+## Step 5: Invoke the `get` composite query method of canister `Main`
 
 ```bash
 dfx canister call --query Map get '(15)'
 ```
 
-### Step 7: Observe the following result:
+### Step 6: Observe the result
 
 ```bash
 (opt "15")

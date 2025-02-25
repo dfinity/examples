@@ -1,12 +1,4 @@
----
-keywords: [intermediate, rust, qrcode]
----
-
 # QR code generator
-
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/qrcode)
-
-## Overview
 
 This example shows that an Internet Computer dapp can perform a long-running computation, like image processing, in a single message execution.
 This is possible due to a unique feature called Deterministic Time Slicing (DTS), which automatically divides long computations into smaller slices executed across multiple blocks.
@@ -17,20 +9,19 @@ You try the live version of the dapp running on the mainnet here: [https://khpe2
 ## Prerequisites
 This example requires an installation of:
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
-- [x] Install `node.js` to build the web frontend. Make sure the version is at least `12.20`.
-- [x] Make sure your rust version is up-to-date (e.g., run `rustup update`).
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
+- [x] Make sure your Rust version is up-to-date (e.g., run `rustup update`).
 - [x] Add the `wasm32` target to your rust installation (by running `rustup target add wasm32-unknown-unknown`).
-- [x] Clone this project to a local directory.
 - [x] Install `node.js` dependencies by running `npm install`.
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 ## Running locally
 
-Start a local replica of the Internet Computer by running:
+Navigate into the folder containing the project's files and start a local instance of the replica with the command:
 
-```bash
-dfx start --background
+```sh
+cd examples/rust/qrcode
+dfx start --clean --background
 ```
 
 You can omit the `--background` argument if you want to see log messages of the dapp.

@@ -33,12 +33,12 @@ lazy_static::lazy_static! {
 }
 
 thread_local! {
-    static RNG: RefCell<Option<ChaCha20Rng>> = RefCell::new(None);
+    static RNG: RefCell<Option<ChaCha20Rng>> = const { RefCell::new(None) }
 }
 
 #[update]
 async fn vetkd_public_key(request: VetKDPublicKeyRequest) -> VetKDPublicKeyReply {
-    ensure_bls12_381_test_key_1(request.key_id);
+    ensure_bls12_381_g2_test_key_1(request.key_id);
     ensure_derivation_path_is_valid(&request.derivation_path);
     let derivation_path = {
         let canister_id = request.canister_id.unwrap_or_else(ic_cdk::caller);
@@ -51,13 +51,13 @@ async fn vetkd_public_key(request: VetKDPublicKeyRequest) -> VetKDPublicKeyReply
 }
 
 #[update]
-async fn vetkd_encrypted_key(request: VetKDEncryptedKeyRequest) -> VetKDEncryptedKeyReply {
+async fn vetkd_derive_encrypted_key(request: VetKDEncryptedKeyRequest) -> VetKDEncryptedKeyReply {
     ensure_call_is_paid(ENCRYPTED_KEY_CYCLE_COSTS);
-    ensure_bls12_381_test_key_1(request.key_id);
-    ensure_derivation_path_is_valid(&request.public_key_derivation_path);
+    ensure_bls12_381_g2_test_key_1(request.key_id);
+    ensure_derivation_path_is_valid(&request.derivation_path);
     let derivation_path = DerivationPath::new(
         ic_cdk::caller().as_slice(),
-        &request.public_key_derivation_path,
+        &request.derivation_path,
     );
     let tpk =
         TransportPublicKey::deserialize(&request.encryption_public_key).unwrap_or_else(
@@ -93,8 +93,8 @@ async fn vetkd_encrypted_key(request: VetKDEncryptedKeyRequest) -> VetKDEncrypte
     }
 }
 
-fn ensure_bls12_381_test_key_1(key_id: VetKDKeyId) {
-    if key_id.curve != VetKDCurve::Bls12_381 {
+fn ensure_bls12_381_g2_test_key_1(key_id: VetKDKeyId) {
+    if key_id.curve != VetKDCurve::Bls12_381_G2 {
         ic_cdk::trap("unsupported key ID curve");
     }
     if key_id.name.as_str() != "test_key_1" {
@@ -102,7 +102,7 @@ fn ensure_bls12_381_test_key_1(key_id: VetKDKeyId) {
     }
 }
 
-fn ensure_derivation_path_is_valid(derivation_path: &Vec<Vec<u8>>) {
+fn ensure_derivation_path_is_valid(derivation_path: &[Vec<u8>]) {
     if derivation_path.len() > 255 {
         ic_cdk::trap("derivation path too long")
     }

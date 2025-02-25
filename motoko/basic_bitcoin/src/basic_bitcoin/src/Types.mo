@@ -60,6 +60,13 @@ module Types {
         message : Blob;
         derivation_path : [Blob];
         key_id : SchnorrKeyId;
+        aux : ?SchnorrAux;
+    };
+
+    public type SchnorrAux = {
+        #bip341 : {
+            merkle_root_hash : Blob;
+        };
     };
 
     public type SignWithSchnorrReply = {
@@ -155,5 +162,24 @@ module Types {
         network : Network;
     };
 
-    public type SignFunction = (Text, [Blob], Blob) -> async Blob;
+    public type EcdsaSignFunction = (EcdsaCanisterActor, Text, [Blob], Blob) -> async Blob;
+
+    /// Actor definition to handle interactions with the ECDSA canister.
+    public type EcdsaCanisterActor = actor {
+        ecdsa_public_key : ECDSAPublicKey -> async ECDSAPublicKeyReply;
+        sign_with_ecdsa : SignWithECDSA -> async SignWithECDSAReply;
+    };
+
+    public type SchnorrSignFunction = (SchnorrCanisterActor, Text, [Blob], Blob, ?SchnorrAux) -> async Blob;
+
+    /// Actor definition to handle interactions with the Schnorr canister.
+    public type SchnorrCanisterActor = actor {
+        schnorr_public_key : SchnorrPublicKeyArgs -> async SchnorrPublicKeyReply;
+        sign_with_schnorr : SignWithSchnorrArgs -> async SignWithSchnorrReply;
+    };
+
+    public type P2trDerivationPaths = {
+        key_path_derivation_path : [[Nat8]];
+        script_path_derivation_path : [[Nat8]];
+    };
 };

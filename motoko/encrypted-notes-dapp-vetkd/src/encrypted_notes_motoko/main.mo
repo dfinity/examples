@@ -315,12 +315,12 @@ shared ({ caller = initializer }) actor class () {
         vetkd_public_key : ({
             canister_id : ?Principal;
             derivation_path : [Blob];
-            key_id : { curve : { #bls12_381 }; name : Text };
+            key_id : { curve : { #bls12_381_g2 }; name : Text };
         }) -> async ({ public_key : Blob });
-        vetkd_encrypted_key : ({
-            public_key_derivation_path : [Blob];
+        vetkd_derive_encrypted_key : ({
+            derivation_path : [Blob];
             derivation_id : Blob;
-            key_id : { curve : { #bls12_381 }; name : Text };
+            key_id : { curve : { #bls12_381_g2 }; name : Text };
             encryption_public_key : Blob;
         }) -> async ({ encrypted_key : Blob });
     };
@@ -331,7 +331,7 @@ shared ({ caller = initializer }) actor class () {
         let { public_key } = await vetkd_system_api.vetkd_public_key({
             canister_id = null;
             derivation_path = Array.make(Text.encodeUtf8("note_symmetric_key"));
-            key_id = { curve = #bls12_381; name = "test_key_1" };
+            key_id = { curve = #bls12_381_g2; name = "test_key_1" };
         });
         Hex.encode(Blob.toArray(public_key));
     };
@@ -348,10 +348,10 @@ shared ({ caller = initializer }) actor class () {
         buf.append(Buffer.fromArray(Blob.toArray(Text.encodeUtf8(note.owner))));
         let derivation_id = Blob.fromArray(Buffer.toArray(buf)); // prefix-free
 
-        let { encrypted_key } = await vetkd_system_api.vetkd_encrypted_key({
+        let { encrypted_key } = await vetkd_system_api.vetkd_derive_encrypted_key({
             derivation_id;
-            public_key_derivation_path = Array.make(Text.encodeUtf8("note_symmetric_key"));
-            key_id = { curve = #bls12_381; name = "test_key_1" };
+            derivation_path = Array.make(Text.encodeUtf8("note_symmetric_key"));
+            key_id = { curve = #bls12_381_g2; name = "test_key_1" };
             encryption_public_key;
         });
         Hex.encode(Blob.toArray(encrypted_key));

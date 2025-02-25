@@ -1,14 +1,6 @@
----
-keywords: [advanced, motoko, dao, decentralized organization, decentralized org]
----
-
 # Basic DAO
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/basic_dao)
-
 This sample project demonstrates a basic [decentralized autonomous organization](https://en.wikipedia.org/wiki/Decentralized_autonomous_organization) (DAO) that can be deployed to the [Internet Computer](https://github.com/dfinity/ic). The basic DAO sample code is available in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/basic_dao) and [Rust](https://github.com/dfinity/examples/tree/master/rust/basic_dao). You can see a quick introduction on [YouTube](https://youtu.be/3IcYlieA-EE).
-
-## Overview
 
 A `basic_dao` can be initialized with a set of accounts: mappings from principal IDs to a number of tokens. Account owners can query their account balance by calling `account_balance` and transfer tokens to other accounts by calling `transfer`. Anyone can call `list_accounts` to view all accounts.
 
@@ -19,30 +11,35 @@ This workflow is demonstrated below.
 
 View the [canister service definition](https://github.com/dfinity/examples/blob/master/rust/basic_dao/src/basic_dao/src/basic_dao.did) for more details.
  
-### Prerequisites
-This example requires an installation of:
+## Prerequisites
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/).
+- [x] Install the [IC
+  SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.
 - [x] To run the test scripts, you need to download [ic-repl](https://github.com/chenyan2002/ic-repl/releases).
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Begin by opening a terminal window.
 
- ### Step 1: Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the command:
+## Step 1: Setup the project environment
+
+Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
+
 
 ```bash
 cd examples/motoko/basic_dao
 dfx start --background
 ```
 
- ### Step 2: Create test identities with the commands:
+## Step 2: Create identities
+
+Create test identities with the commands:
 
 ```bash
 dfx identity new Alice --disable-encryption; dfx identity use Alice; export ALICE=$(dfx identity get-principal);
 dfx identity new Bob --disable-encryption; dfx identity use Bob; export BOB=$(dfx identity get-principal);
 ```
 
- ### Step 3: Deploy `basic_dao` with initial test accounts.
+## Step 3: Deploy `basic_dao` with initial test accounts
 
 ```bash
 dfx deploy --argument "(record {
@@ -57,7 +54,7 @@ dfx deploy --argument "(record {
 })"
 ```
 
- ### Step 4: Run the ic-repl test scripts:
+## Step 4: Run the `ic-repl` test scripts:
 
 ```bash
 ic-repl tests/account.test.sh

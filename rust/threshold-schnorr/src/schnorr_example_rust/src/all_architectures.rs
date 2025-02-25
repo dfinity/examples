@@ -1,7 +1,7 @@
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
 
-#[derive(CandidType, Serialize, Deserialize, Debug, Copy, Clone)]
+#[derive(CandidType, Serialize, Deserialize, Debug, Copy, Clone, PartialEq)]
 pub enum SchnorrAlgorithm {
     #[serde(rename = "bip340secp256k1")]
     Bip340Secp256k1,
@@ -19,7 +19,7 @@ pub struct SignatureReply {
     pub signature_hex: String,
 }
 
-#[derive(CandidType, Serialize, Deserialize, Debug)]
+#[derive(CandidType, Serialize, Deserialize, Debug, PartialEq, Clone)]
 pub struct SignatureVerificationReply {
     pub is_signature_valid: bool,
 }

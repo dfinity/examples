@@ -31,7 +31,6 @@ actor {
     //idempotency keys should be unique so we create a function that generates them.
     let idempotency_key : Text = generateUUID();
     let request_headers = [
-      { name = "Host"; value = host # ":443" },
       { name = "User-Agent"; value = "http_post_sample" },
       { name = "Content-Type"; value = "application/json" },
       { name = "Idempotency-Key"; value = idempotency_key },

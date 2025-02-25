@@ -41,11 +41,13 @@ type get_block_headers_response = record {
 };
 
 service : (network) -> {
+  "for_test_only_change_management_canister_id" : (text) -> (variant { Ok: null; Err: text });
+
   "get_p2pkh_address" : () -> (bitcoin_address);
 
-  "get_p2tr_script_spend_address" : () -> (bitcoin_address);
+  "get_p2tr_address" : () -> (bitcoin_address);
 
-  "get_p2tr_raw_key_spend_address" : () -> (bitcoin_address);
+  "get_p2tr_key_only_address" : () -> (bitcoin_address);
 
   "get_balance" : (address : bitcoin_address) -> (satoshi);
 
@@ -55,21 +57,28 @@ service : (network) -> {
 
   "get_current_fee_percentiles" : () -> (vec millisatoshi_per_vbyte);
 
-  "send_from_p2pkh" : (
+  "send_from_p2pkh_address" : (
     record {
       destination_address : bitcoin_address;
       amount_in_satoshi : satoshi;
     }
   ) -> (transaction_id);
 
-  "send_from_p2tr_script_spend" : (
+  "send_from_p2tr_address_key_path" : (
     record {
       destination_address : bitcoin_address;
       amount_in_satoshi : satoshi;
     }
   ) -> (transaction_id);
 
-  "send_from_p2tr_raw_key_spend" : (
+  "send_from_p2tr_address_script_path" : (
+    record {
+      destination_address : bitcoin_address;
+      amount_in_satoshi : satoshi;
+    }
+  ) -> (transaction_id);
+
+  "send_from_p2tr_key_only_address" : (
     record {
       destination_address : bitcoin_address;
       amount_in_satoshi : satoshi;

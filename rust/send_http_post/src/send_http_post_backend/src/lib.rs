@@ -29,10 +29,6 @@ async fn send_http_post_request() -> String {
     //Note that `HttpHeader` is declared in line 4
     let request_headers = vec![
         HttpHeader {
-            name: "Host".to_string(),
-            value: format!("{host}:443"),
-        },
-        HttpHeader {
             name: "User-Agent".to_string(),
             value: "demo_HTTP_POST_canister".to_string(),
         },

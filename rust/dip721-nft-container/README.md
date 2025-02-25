@@ -1,10 +1,4 @@
----
-keywords: [advanced, rust, nft, dip721]
----
-
 # DIP721 NFT
-
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/dip721-nft-container)
 
 This example demonstrates implementing an NFT canister. NFTs (non-fungible tokens) are unique tokens with arbitrary
 metadata, usually an image of some kind, to form the digital equivalent of trading cards. There are a few different
@@ -12,7 +6,7 @@ NFT standards for the Internet Computer (e.g [EXT](https://github.com/Toniq-Labs
 
 The canister is a basic implementation of the standard, with support for the minting, burning, and notification interface extensions.
 
-The sample code is available in the [samples repository](https://github.com/dfinity/examples) in [Rust](https://github.com/dfinity/examples/tree/master/rust/dip721-nft-container) and [Motoko](https://github.com/dfinity/examples/tree/master/motoko/dip721-nft-container).
+The sample code is available in the [samples repository](https://github.com/dfinity/examples) in [Rust](https://github.com/dfinity/examples/tree/master/rust/dip721-nft-container).
 
 Command-line length limitations would prevent you from minting an NFT with a large file, like an image or video, via `dfx`. To that end,
 there is a [command-line minting tool](https://github.com/dfinity/experimental-minting-tool) provided for minting simple NFTs.
@@ -92,26 +86,25 @@ A running instance of the Rust canister for demonstration purposes is available 
 The interface is meant to be programmatic, but the Rust version additionally contains HTTP functionality so you can view a metadata file at `<canister URL>/<NFT ID>/<file ID>`.
 It contains six NFTs, so you can look at items from `<canister URL>/0/0` to `<canister URL>/5/0`.
 
-### Prerequisites
+## Prerequisites
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
-- [x] Download and install [git.](https://git-scm.com/downloads)
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 - [x] `wasm32-unknown-unknown` targets; these can be installed with `rustup target add wasm32-unknown-unknown`.
 
- ### Step 1: Clone the Github repo for the project's files and navigate into the directory:
+Begin by opening a terminal window.
 
-```sh
-git clone https://github.com/dfinity/examples
+## Step 1: Setup the project environment
+
+Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
+
+
+```bash
 cd examples/rust/dip721-nft-container
+dfx start --background
 ```
 
- ### Step 2: Start the local replica before installing the canister:
-
-```sh
-dfx start --background --clean
-```
-
- ### Step 3: Install the canister.
+## Step 2: Deploy the canister
 
 Deploy the canister with the command:
 ```sh
@@ -134,7 +127,7 @@ The canister expects a record parameter with the following fields:
 - `symbol`: A short slug identifying your NFT collection. Required.
 - `logo`: The logo of your NFT collection, represented as a record with fields `data` (the base-64 encoded logo) and `logo_type` (the MIME type of the logo file). If unset, it will default to the Internet Computer logo.
 
- ### Step 4: Interact with the canister.
+## Step 3: Interact with the canister
 
 Aside from the standard functions, it has five extra functions:
 
@@ -145,7 +138,7 @@ The canister also supports a certified HTTP interface; going to `/<nft>/<id>` wi
 
 Remember that query functions are uncertified; the result of functions like `ownerOfDip721` can be modified arbitrarily by a single malicious node. If queried information is depended on, for example, if someone might send ICP to the owner of a particular NFT to buy it from them, those calls should be performed as update calls instead. You can force an update call by passing the `--update` flag to `dfx` or using the `Agent::update` function in `agent-rs`.
 
- ### Step 5: Mint an NFT.
+### Step 4: Mint an NFT
 
 Due to size limitations on the length of a terminal command, an image- or video-based NFT would be impossible to send via `dfx`. To that end, there is an experimental [minting tool](https://github.com/dfinity/experimental-minting-tool) you can use to mint a single-file NFT.
 
