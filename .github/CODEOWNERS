@@ -59,11 +59,11 @@
 /rust/hello/ @dfinity/sdk
 /rust/icp_transfer/ @dfinity/growth
 /rust/image-classification/ @dfinity/execution
+/rust/inter-canister-calls/ @dfinity/ic-message-routing-owners
 /rust/nft-wallet/ @dfinity/growth
 /rust/parallel_calls/ @dfinity/research
 /rust/performance_counters/ @dfinity/execution
 /rust/periodic_tasks/ @dfinity/execution
-/rust/pub-sub/ @dfinity/growth
 /rust/qrcode/ @dfinity/execution
 /rust/query_stats/ @dfinity/consensus
 /rust/send_http_get/ @dfinity/growth
