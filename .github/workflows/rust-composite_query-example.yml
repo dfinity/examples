@@ -34,7 +34,7 @@ jobs:
           dfx canister call kv_frontend get '(1)' | grep '1_337'
           popd
   rust-composite_query-linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
