@@ -79,22 +79,6 @@ To deploy this canister the mainnet, one needs to do two things:
 
 Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/getting-started/tokens-and-cycles) (the equivalent of "gas" on other blockchains).
 
-### Update management canister ID reference for testing
-
-The latest version of `dfx`, `v0.24.3`, does not yet support
-`opt_merkle_tree_root_hex` that is not `None`. Therefore, for local tests, [the
-chain-key testing canister](https://github.com/dfinity/chainkey-testing-canister)
-can be installed and used instead of the management canister. Note also that the
-chain-key testing canister is deployed on the mainnet and can be used for mainnet
-testing to reduce the costs, see the linked repo for more details.
-
-This sample canister allows the caller to change the management canister address
-for Schnorr by calling the `for_test_only_change_management_canister_id`
-endpoint with the target canister principal. With `dfx`, this can be done
-automatically with `make mock`, which will install the chain-key testing canister
-and use it instead of the management canister. Note that `dfx` should be running
-to successfully run `make mock`.
-
 ### Update source code with the right key ID
 
 To deploy the sample code, the canister needs the right key ID for the right environment. Specifically, one needs to replace the value of the `key_id` in the `src/schnorr_example_rust/src/lib.rs` file of the sample code. Before deploying to mainnet, one should modify the code to use the right name of the `key_id`.

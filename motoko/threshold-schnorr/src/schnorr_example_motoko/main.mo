@@ -37,10 +37,6 @@ actor {
 
   var ic : IC = actor ("aaaaa-aa");
 
-  public func for_test_only_change_management_canister_id(mock_id : Text) {
-    ic := actor (mock_id);
-  };
-
   public shared ({ caller }) func public_key(algorithm : SchnorrAlgorithm) : async {
     #Ok : { public_key_hex : Text };
     #Err : Text;
@@ -49,7 +45,7 @@ actor {
       let { public_key } = await ic.schnorr_public_key({
         canister_id = null;
         derivation_path = [Principal.toBlob(caller)];
-        key_id = { algorithm; name = "insecure_test_key_1" };
+        key_id = { algorithm; name = "dfx_test_key" };
       });
       #Ok({ public_key_hex = Hex.encode(Blob.toArray(public_key)) });
     } catch (err) {
@@ -72,7 +68,7 @@ actor {
       let signArgs = {
         message = Text.encodeUtf8(message_arg);
         derivation_path = [Principal.toBlob(caller)];
-        key_id = { algorithm; name = "insecure_test_key_1" };
+        key_id = { algorithm; name = "dfx_test_key" };
         aux;
       };
       let { signature } = await ic.sign_with_schnorr(signArgs);
