@@ -31,18 +31,6 @@ fn signing_and_verification_should_work_correctly() {
 fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes: Option<Vec<u8>>) {
     let my_principal = Principal::anonymous();
 
-    // Create an empty canister as the anonymous principal and add cycles.
-    let schnorr_mock_canister_id = pic.create_canister();
-    pic.add_cycles(schnorr_mock_canister_id, 2_000_000_000_000);
-
-    let schnorr_mock_wasm_bytes = load_schnorr_mock_canister_wasm();
-    pic.install_canister(
-        schnorr_mock_canister_id,
-        schnorr_mock_wasm_bytes,
-        vec![],
-        None,
-    );
-
     let should_validate = (merkle_tree_root_bytes
         .as_ref()
         .map(|v| v.len() == 0 || v.len() == 32)
@@ -60,18 +48,6 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
     pic.install_canister(example_canister_id, example_wasm_bytes, vec![], None);
 
     // Make sure the canister is properly initialized
-    fast_forward(&pic, 5);
-
-    let _dummy_reply: () = update(
-        &pic,
-        my_principal,
-        example_canister_id,
-        "for_test_only_change_management_canister_id",
-        encode_one(schnorr_mock_canister_id.to_text()).unwrap(),
-    )
-    .expect("failed to update management canister id");
-    // Make sure the example canister uses mock schnorr canister instead of
-    // the management canister
     fast_forward(&pic, 5);
 
     // a message we can reverse to break the signature
@@ -146,7 +122,13 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
         );
 
         if should_validate {
-            assert_eq!(verification_reply, successful_validation.clone());
+            assert_eq!(
+                verification_reply,
+                successful_validation.clone(),
+                "algorithm={:?}, merkle_tree_root_bytes={:?}",
+                algorithm,
+                merkle_tree_root_hex.clone()
+            );
         } else {
             assert_ne!(verification_reply, successful_validation.clone());
         }
@@ -254,15 +236,6 @@ fn load_schnorr_example_canister_wasm() -> Vec<u8> {
     let zipped_bytes = e.finish().unwrap();
 
     zipped_bytes
-}
-
-fn load_schnorr_mock_canister_wasm() -> Vec<u8> {
-    let wasm_url = "https://github.com/dfinity/chainkey-testing-canister/releases/download/v0.1.0/chainkey_testing_canister.wasm.gz";
-    reqwest::blocking::get(wasm_url)
-        .unwrap()
-        .bytes()
-        .unwrap()
-        .to_vec()
 }
 
 pub fn update<T: CandidType + for<'de> Deserialize<'de>>(
