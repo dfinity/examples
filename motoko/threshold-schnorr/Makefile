@@ -8,7 +8,7 @@ deploy:
 
 .PHONY: test
 .SILENT: test
-test:
+test: deploy
 	bash test.sh hellohellohellohellohellohello12
 
 .PHONY: clean
