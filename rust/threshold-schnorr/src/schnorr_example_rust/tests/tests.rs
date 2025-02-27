@@ -1,5 +1,5 @@
 use candid::{decode_one, encode_args, encode_one, CandidType, Principal};
-use pocket_ic::{PocketIc, PocketIcBuilder, WasmResult};
+use pocket_ic::{PocketIc, PocketIcBuilder};
 use schnorr_example_rust::{
     PublicKeyReply, SchnorrAlgorithm, SignatureReply, SignatureVerificationReply,
 };
@@ -125,7 +125,10 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
             assert_eq!(
                 verification_reply,
                 successful_validation.clone(),
-                "algorithm={:?}, merkle_tree_root_bytes={:?}",
+                "signature={:?} message={:?} pubkey={:?} algorithm={:?}, merkle_tree_root_bytes={:?}",
+                signature_hex.clone(),
+                message.clone(),
+                public_key_hex.clone(),
                 algorithm,
                 merkle_tree_root_hex.clone()
             );
@@ -246,12 +249,7 @@ pub fn update<T: CandidType + for<'de> Deserialize<'de>>(
     args: Vec<u8>,
 ) -> Result<T, String> {
     match ic.update_call(canister_id, sender, method, args) {
-        Ok(WasmResult::Reply(data)) => {
-            decode_one(&data).map_err(|e| format!("failed to decode reply: {e:?}"))?
-        }
-        Ok(WasmResult::Reject(error_message)) => {
-            Err(format!("canister rejected the message: {error_message}"))
-        }
+        Ok(data) => decode_one(&data).map_err(|e| format!("failed to decode reply: {e:?}"))?,
         Err(user_error) => Err(format!("canister returned a user error: {user_error}")),
     }
 }
