@@ -40,7 +40,7 @@ pub fn init(network: BitcoinNetwork) {
     KEY_NAME.with(|key_name| {
         key_name.replace(String::from(match network {
             // For local development, we use a special test key.
-            BitcoinNetwork::Regtest => "insecure_test_key_1",
+            BitcoinNetwork::Regtest => "dfx_test_key",
             // On the IC we're using a test ECDSA key.
             BitcoinNetwork::Mainnet | BitcoinNetwork::Testnet => "test_key_1",
         }))
