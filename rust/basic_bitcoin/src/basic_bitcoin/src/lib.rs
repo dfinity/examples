@@ -28,9 +28,6 @@ thread_local! {
 
     // The ECDSA key name.
     static KEY_NAME: RefCell<String> = RefCell::new(String::from(""));
-
-    // Management canister ID. Can be replaced for testing.
-    static MGMT_CANISTER_ID: RefCell<String> = RefCell::new("aaaaa-aa".to_string());
 }
 
 #[init]
@@ -40,7 +37,7 @@ pub fn init(network: BitcoinNetwork) {
     KEY_NAME.with(|key_name| {
         key_name.replace(String::from(match network {
             // For local development, we use a special test key.
-            BitcoinNetwork::Regtest => "insecure_test_key_1",
+            BitcoinNetwork::Regtest => "dfx_test_key",
             // On the IC we're using a test ECDSA key.
             BitcoinNetwork::Mainnet | BitcoinNetwork::Testnet => "test_key_1",
         }))
@@ -79,19 +76,6 @@ pub struct GetBlockHeadersRequest {
 pub struct GetBlockHeadersResponse {
     pub tip_height: Height,
     pub block_headers: Vec<BlockHeader>,
-}
-
-#[update]
-async fn for_test_only_change_management_canister_id(id: String) -> Result<(), String> {
-    let _ = CanisterId::from_text(&id).map_err(|e| panic!("invalid canister id: {}: {}", id, e));
-    MGMT_CANISTER_ID.with_borrow_mut(move |current_id| {
-        println!(
-            "Changing management canister id from {} to {id}",
-            *current_id
-        );
-        *current_id = id;
-    });
-    Ok(())
 }
 
 /// Returns the block headers in the given height range.
@@ -237,11 +221,7 @@ pub struct SendRequest {
     pub amount_in_satoshi: u64,
 }
 
-/// The current management canister Schnorr API in Pocket IC / `dfx` is not yet
-/// fully supported. Therefore, we install the `chainkey_testing_canister` via
-/// `dfx` and use that instead of the management canister for local testing.
 fn mgmt_canister_id() -> CanisterId {
-    MGMT_CANISTER_ID
-        .with_borrow(|id| CanisterId::from_text(id))
-        .expect("invalid management canister principal string")
+    // Management canister ID. Can be replaced for cheaper testing.
+    candid::Principal::management_canister()
 }

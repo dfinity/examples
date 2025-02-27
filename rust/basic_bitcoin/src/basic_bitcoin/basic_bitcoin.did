@@ -41,8 +41,6 @@ type get_block_headers_response = record {
 };
 
 service : (network) -> {
-  "for_test_only_change_management_canister_id" : (text) -> (variant { Ok: null; Err: text });
-
   "get_p2pkh_address" : () -> (bitcoin_address);
 
   "get_p2tr_address" : () -> (bitcoin_address);
