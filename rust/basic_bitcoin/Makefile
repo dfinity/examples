@@ -4,7 +4,6 @@ all: deploy
 .PHONY: deploy
 .SILENT: deploy
 deploy:
-	dfx deploy chainkey_testing_canister
 	dfx deploy basic_bitcoin --argument '(variant { regtest })'
 
 .PHONY: regtest_topup
