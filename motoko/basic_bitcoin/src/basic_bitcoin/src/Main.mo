@@ -36,18 +36,15 @@ actor class BasicBitcoin(network : Types.Network) {
   // The ECDSA key name.
   let KEY_NAME : Text = switch NETWORK {
     // For local development, we use a special test key with dfx.
-    case (#regtest) "insecure_test_key_1";
+    case (#regtest) "dfx_test_key";
     // On the IC we're using a test ECDSA key.
     case _ "test_key_1";
   };
 
+  // Threshold signing APIs instantiated with the management canister ID. Can be
+  // replaced for cheaper testing.
   var ecdsa_canister_actor : EcdsaCanisterActor = actor ("aaaaa-aa");
   var schnorr_canister_actor : SchnorrCanisterActor = actor ("aaaaa-aa");
-
-  public func for_test_only_change_management_canister_id(p : Principal) {
-    ecdsa_canister_actor := actor (Principal.toText(p));
-    schnorr_canister_actor := actor (Principal.toText(p));
-  };
 
   /// Returns the balance of the given Bitcoin address.
   public func get_balance(address : BitcoinAddress) : async Satoshi {

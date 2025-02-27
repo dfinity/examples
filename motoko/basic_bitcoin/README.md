@@ -195,6 +195,11 @@ This example is extensively documented in the following tutorials:
 * [Deploying your first Bitcoin dapp](https://internetcomputer.org/docs/current/samples/deploying-your-first-bitcoin-dapp).
 * [Developing Bitcoin dapps locally](https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/local-development).
 
+Note that for *testing* on mainnet, the [chain-key testing
+canister](https://github.com/dfinity/chainkey-testing-canister) can be used to
+save on costs for calling the threshold signing APIs for signing the BTC
+transactions.
+
 ## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
