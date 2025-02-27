@@ -122,16 +122,7 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
         );
 
         if should_validate {
-            assert_eq!(
-                verification_reply,
-                successful_validation.clone(),
-                "signature={:?} message={:?} pubkey={:?} algorithm={:?}, merkle_tree_root_bytes={:?}",
-                signature_hex.clone(),
-                message.clone(),
-                public_key_hex.clone(),
-                algorithm,
-                merkle_tree_root_hex.clone()
-            );
+            assert_eq!(verification_reply, successful_validation.clone());
         } else {
             assert_ne!(verification_reply, successful_validation.clone());
         }
