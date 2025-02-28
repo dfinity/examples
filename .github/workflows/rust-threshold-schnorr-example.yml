@@ -29,10 +29,7 @@ jobs:
         run: |
           dfx start --background
           pushd rust/threshold-schnorr
-          make deploy
-# This should be re-enabled when Pocket IC supports threshold Schnorr
-# sleep 10
-# make test
+          make test
   rust-threshold-schnorr-linux:
     runs-on: ubuntu-22.04
     steps:
@@ -45,7 +42,4 @@ jobs:
         run: |
           dfx start --background
           pushd rust/threshold-schnorr
-          make deploy
-# This should be re-enabled when Pocket IC supports threshold Schnorr
-# sleep 10
-# make test
+          make test
