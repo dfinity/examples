@@ -50,8 +50,6 @@ brew install cmake
 curl --location --output install-rustup.sh "https://sh.rustup.rs"
 bash install-rustup.sh -y
 rustup target add wasm32-unknown-unknown
-echo "Install active Rust toolchain"
-rustup show active-toolchain || rustup toolchain install
 
 # Install matchers
 matchers_version=1.2.0
