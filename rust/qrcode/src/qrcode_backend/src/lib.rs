@@ -53,3 +53,20 @@ fn qrcode(input: String, options: Options) -> QrResult {
 fn qrcode_query(input: String, options: Options) -> QrResult {
     qrcode_impl(input, options)
 }
+
+#[ic_cdk::update]
+fn update_empty() {}
+
+#[ic_cdk::query]
+fn go() {
+    let data = "Some dummy info that should go in the qr code";
+    let input = std::iter::repeat(data).take(20).collect();
+    let _result = qrcode_impl(
+        input,
+        Options {
+            add_logo: true,
+            add_gradient: true,
+            add_transparency: Some(true),
+        },
+    );
+}
