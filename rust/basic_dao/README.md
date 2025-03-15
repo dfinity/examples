@@ -45,7 +45,7 @@ dfx identity new --disable-encryption Bob; dfx identity use Bob; export BOB=$(df
 ## Step 4: Deploy basic_dao with the initial test accounts
 
 ```bash
-dfx deploy --argument "(record {
+dfx deploy basic_dao --argument "(record {
  accounts = vec { record { owner = principal \"$ALICE\"; tokens = record { amount_e8s = 100_000_000:nat64 }; }; 
                   record { owner = principal \"$BOB\"; tokens = record { amount_e8s = 100_000_000:nat64 };}; };
  proposals = vec {};
@@ -95,7 +95,7 @@ You should see the output:
 ## Step 7: Transfer tokens to Alice
 
 ```bash
-dfx canister call basic_dao transfer "(record { to = principal \"$ALICE\"; amount = record { amount_e8s = 90_000_000:nat;};})";
+dfx canister call basic_dao transfer "(record { to = principal \"$ALICE\"; amount = record { amount_e8s = 90_000_000:nat64;};})";
 ```
 
 Output:
@@ -176,7 +176,15 @@ blob "DIDL\03l\01\f2\c7\94\ae\03\01n\02l\01\b9\ef\93\80\08x\01\00\01 N\00\00\00\
 ## Step 10: We can then submit the proposal
 
 ```bash
-dfx canister call basic_dao submit_proposal '(record { canister_id = principal "rrkah-fqaaa-aaaaa-aaaaq-cai";
+dfx canister id basic_dao
+```
+Output:
+
+```bash
+<YOUR_CANISTER_ID>
+```
+
+dfx canister call basic_dao submit_proposal '(record { canister_id = principal "<YOUR_CANISTER_ID>";
 method = "update_system_params":text;
 message = blob "DIDL\03l\01\f2\c7\94\ae\03\01n\02l\01\b9\ef\93\80\08x\01\00\01 N\00\00\00\00\00\00"; })'
 ```
