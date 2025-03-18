@@ -1,6 +1,6 @@
 persistent actor HelloWorld {
   // We store the greeting in a stable variable such that it gets persisted over canister upgrades.
-  stable var greeting : Text = "Hello, ";
+  var greeting : Text = "Hello, ";
 
   // This update method stores the greeting prefix in stable memory.
   public func setGreeting(prefix : Text) : async () {
