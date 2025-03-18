@@ -1,20 +1,20 @@
-name: rust-hello
+name: rust-hello-world
 on:
   push:
     branches:
       - master
   pull_request:
     paths:
-      - rust/hello/**
+      - rust/hello_world/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
-      - .github/workflows/rust-hello-example.yml
+      - .github/workflows/rust-hello-world-example.yml
       - .ic-commit
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  rust-hello-darwin:
+  rust-hello-world-darwin:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v1
@@ -23,10 +23,10 @@ jobs:
       - name: Rust Hello Darwin
         run: |
           dfx start --background
-          pushd rust/hello
+          pushd rust/hello_world
           make test
           popd
-  rust-hello-linux:
+  rust-hello-world-linux:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v1
@@ -35,6 +35,6 @@ jobs:
       - name: Rust Hello Linux
         run: |
           dfx start --background
-          pushd rust/hello
+          pushd rust/hello_world
           make test
           popd
