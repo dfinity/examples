@@ -50,6 +50,7 @@ brew install cmake
 curl --location --output install-rustup.sh "https://sh.rustup.rs"
 bash install-rustup.sh -y
 rustup target add wasm32-unknown-unknown
+cargo install candid-extractor
 
 # Install matchers
 matchers_version=1.2.0

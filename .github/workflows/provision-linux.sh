@@ -44,6 +44,7 @@ sudo apt-get install --yes cmake
 wget --output-document install-rustup.sh "https://sh.rustup.rs"
 sudo bash install-rustup.sh -y
 rustup target add wasm32-unknown-unknown
+cargo install candid-extractor
 
 # Install matchers
 matchers_version=1.2.0
