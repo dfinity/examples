@@ -1,24 +1,19 @@
-# Flying ninja
+# Flying Ninja
 
 ![Flying ninja!](flying_ninja.png)
 
-Flying Ninja is a 2D side-scroller game where players interact with the flying ninja character using their keyboard's spacebar to move the ninja character up and down. The goal is to avoid the obstacles and obtain points for each obstacle you dodge. When the game ends, the user can add their score to the leaderboard.
+Flying Ninja is a 2D side-scroller game where players interact with the flying ninja character using their keyboard's space bar to move up and down. The goal is to avoid the obstacles and obtain points for each obstacle you dodge. When the game ends, the user can add their score to the leaderboard.
 
-This variation of "Flying Ninja" is written in [Rust](https://internetcomputer.org/docs/building-apps/developer-tools/cdks/rust/intro-to-rust).
+The game's logic is written in [Motoko](https://internetcomputer.org/docs/motoko/main/getting-started/motoko-introduction), a programming language designed specifically for developing canisters on ICP.
 
 ## Project structure
 
-The `/backend` folder contains the Rust smart contract:
-
-- `Cargo.toml`, which defines the crate that will form the backend
-- `lib.rs`, which contains the actual smart contract, and exports its interface
-
-The `/frontend` folder contains web assets for the application's user interface. The user interface is written using the React framework.
+The `/backend` folder contains the Motoko canister, `app.mo`. The `/frontend` folder contains web assets for the application's user interface. The user interface is written using the React framework. Edit the `mops.toml` file to add [Motoko dependencies](https://mops.one/) to the project.
 
 ## Deploying from ICP Ninja
 
 When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner.
-To open this project in ICP Ninja, click [here](https://icp.ninja/i?url=https://github.com/dfinity/examples/tree/master/rust/flying_ninja).
+To open this project in ICP Ninja, click [here](https://icp.ninja/i?url=https://github.com/dfinity/examples/tree/master/motoko/flying_ninja).
 
 To **download** or **reset** the project files, click the menu option next to the deploy button.
 

@@ -16,7 +16,7 @@ The `/frontend` folder contains web assets for the application's user interface.
 ## Deploying from ICP Ninja
 
 When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner.
-To open this project in ICP Ninja, click [here](https://next-icp.ninja/i?url=https://github.com/dfinity/examples/tree/master/rust/hello_world).
+To open this project in ICP Ninja, click [here](https://icp.ninja/i?url=https://github.com/dfinity/examples/tree/master/rust/hello_world).
 
 To **download** or **reset** the project files, click the menu option next to the deploy button.
 
