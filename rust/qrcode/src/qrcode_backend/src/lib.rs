@@ -54,10 +54,12 @@ fn qrcode_query(input: String, options: Options) -> QrResult {
     qrcode_impl(input, options)
 }
 
-#[ic_cdk::update]
-fn update_empty() {}
+#[export_name = "canister_update update_empty"]
+fn update_empty() {
+    ic_cdk::api::call::reply_raw(&[]);
+}
 
-#[ic_cdk::query]
+#[export_name = "canister_query go"]
 fn go() {
     let data = "Some dummy info that should go in the qr code";
     let input = std::iter::repeat(data).take(20).collect();
@@ -69,4 +71,5 @@ fn go() {
             add_transparency: Some(true),
         },
     );
+    ic_cdk::api::call::reply_raw(&[]);
 }
