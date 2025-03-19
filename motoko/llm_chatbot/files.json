@@ -1,0 +1,18 @@
+[
+  "README.md",
+  "backend/app.mo",
+  "dfx.json",
+  "frontend/index.css",
+  "frontend/index.html",
+  "frontend/package.json",
+  "frontend/postcss.config.js",
+  "frontend/public/bot.svg",
+  "frontend/public/favicon.ico",
+  "frontend/public/user.svg",
+  "frontend/src/main.jsx",
+  "frontend/tailwind.config.js",
+  "frontend/vite.config.js",
+  "mops.toml",
+  "package-lock.json",
+  "package.json"
+]
