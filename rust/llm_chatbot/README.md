@@ -5,22 +5,21 @@
 The LLM Chatbot example demonstrates how an ICP smart contract can be used to interact with a large language model (LLM) to generate text. The user can input a prompt, and the smart contract will use the LLM to generate a response.
 The response is then returned to the user, and the user can submit some follow-up prompts to continue the conversation.
 
-This application's logic is written in [Motoko](https://internetcomputer.org/docs/motoko/main/getting-started/motoko-introduction), a programming language designed specifically for developing canisters on ICP.
+This application's logic is written in [Rust](https://internetcomputer.org/docs/building-apps/developer-tools/cdks/rust/intro-to-rust).
 
 ## Project structure
 
-The `/backend` folder contains the Motoko canister, `app.mo`. The `/frontend` folder contains web assets for the application's user interface. The user interface is written using the React framework. Edit the `mops.toml` file to add [Motoko dependencies](https://mops.one/) to the project.
+The `/backend` folder contains the Rust smart contract:
 
-## Deploying from ICP Ninja
+- `Cargo.toml`, which defines the crate that will form the backend
+- `lib.rs`, which contains the actual smart contract, and exports its interface
 
-When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner.
-To open this project in ICP Ninja, click [here](https://icp.ninja/i?url=https://github.com/dfinity/examples/tree/master/motoko/llm_chatbot).
+The `/frontend` folder contains web assets for the application's user interface. The user interface is written using the React framework.
 
-To **download** or **reset** the project files, click the menu option next to the deploy button.
+## Continue building locally
 
-## Build and deploy from the command-line
-
-To migrate your ICP Ninja project off of the web browser and develop it locally, follow these steps. These steps are necessary if you want to deploy this project for long-term, production use on the mainnet.
+To migrate your ICP Ninja project off of the web browser and develop it locally, follow these steps.
+To open this project in ICP Ninja, click [here](https://icp.ninja/i?url=https://github.com/dfinity/examples/tree/master/rust/llm_chatbot).
 
 ### 1. Download your project from ICP Ninja using the 'Download files' button on the upper left corner under the pink ninja star icon.
 

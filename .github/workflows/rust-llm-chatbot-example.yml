@@ -1,40 +1,40 @@
-name: motoko-llm-chatbot
+name: rust-llm-chatbot
 on:
   push:
     branches:
       - master
   pull_request:
     paths:
-      - motoko/llm_chatbot/**
+      - rust/llm_chatbot/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
-      - .github/workflows/motoko-llm-chatbot-example.yml
+      - .github/workflows/rust-llm-chatbot-example.yml
       - .ic-commit
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  motoko-llm-chatbot-darwin:
+  rust-llm-chatbot-darwin:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
-      - name: Motoko LLM Chatbot Darwin
+      - name: Rust LLM Chatbot Darwin
         run: |
           dfx start --background
-          pushd motoko/llm_chatbot
+          pushd rust/llm_chatbot
           make install
           popd
-  motoko-llm-chatbot-linux:
+  rust-llm-chatbot-linux:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
-      - name: Motoko LLM Chatbot Linux
+      - name: Rust LLM Chatbot Linux
         run: |
           dfx start --background
-          pushd motoko/llm_chatbot
+          pushd rust/llm_chatbot
           make install
           popd
