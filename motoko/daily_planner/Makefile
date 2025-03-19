@@ -26,7 +26,7 @@ upgrade: build
 .SILENT: test
 test: install
 	dfx canister call backend fetchAndStoreOnThisDay '("2025-01-01")' \
-		| grep '(variant {ok="data successfully obtained and stored for date: 2025-01-01"})' && echo 'PASS'
+		| grep '(variant { ok = "data successfully obtained and stored for date: 2025-01-01" })' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean
