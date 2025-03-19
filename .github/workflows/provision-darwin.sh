@@ -16,6 +16,9 @@ curl --location --output node.pkg "https://nodejs.org/dist/v$version/node-v$vers
 sudo installer -pkg node.pkg -store -target /
 rm node.pkg
 
+# Install MOPS
+npm i -g ic-mops
+
 # Install DFINITY SDK.
 curl --location --output install-dfx.sh "https://raw.githubusercontent.com/dfinity/sdk/master/public/install-dfxvm.sh"
 DFX_VERSION=${DFX_VERSION:=0.25.0} DFXVM_INIT_YES=true bash install-dfx.sh
