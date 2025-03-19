@@ -1,14 +1,9 @@
 .PHONY: all
 all: build
 
-.PHONY: node_modules
-.SILENT: node_modules
-node_modules:
-	npm install
-
 .PHONY: build
 .SILENT: build
-build: node_modules
+build:
 	dfx canister create --all
 	dfx build
 
