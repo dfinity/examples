@@ -1,0 +1,17 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+crate-type = ["cdylib"]
+path = "lib.rs"
+
+[dependencies]
+candid = "0.10.13"
+evm-rpc-canister-types = "4.0.1"
+hex = "0.4.3"
+ic-cdk = "0.17.1"
+sha2 = "0.10.8"
