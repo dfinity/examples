@@ -36,5 +36,5 @@ jobs:
         run: |
           dfx start --background
           pushd motoko/tokenmania
-          make install
+          make test
           popd
