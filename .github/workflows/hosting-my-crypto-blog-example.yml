@@ -1,0 +1,40 @@
+name: hosting-my-crypto-blog
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - hosting/my_crypto_blog/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/hosting-my-crypto-blog-example.yml
+      - .ic-commit
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  hosting-my-crypto-blog-darwin:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Hosting My Crypto Blog Darwin
+        run: |
+          dfx start --background
+          pushd hosting/my_crypto_blog
+          make install
+          popd
+  hosting-my-crypto-blog-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Hosting My Crypto Blog Linux
+        run: |
+          dfx start --background
+          pushd hosting/my_crypto_blog
+          make install
+          popd
