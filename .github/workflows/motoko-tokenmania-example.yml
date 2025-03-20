@@ -1,0 +1,40 @@
+name: motoko-tokenmania
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - motoko/tokenmania/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-tokenmania-example.yml
+      - .ic-commit
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  motoko-tokenmania-darwin:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Motoko Tokenmania Darwin
+        run: |
+          dfx start --background
+          pushd motoko/tokenmania
+          make install
+          popd
+  motoko-tokenmania-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Motoko Tokenmania Linux
+        run: |
+          dfx start --background
+          pushd motoko/tokenmania
+          make install
+          popd
