@@ -1,0 +1,40 @@
+name: motoko-evm-block-explorer
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - motoko/evm_block_explorer/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-evm-block-explorer-example.yml
+      - .ic-commit
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  motoko-evm-block-explorer-darwin:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Motoko Evm Block Explorer Darwin
+        run: |
+          dfx start --background
+          pushd motoko/evm_block_explorer
+          make install
+          popd
+  motoko-evm-block-explorer-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Motoko Evm Block Explorer Linux
+        run: |
+          dfx start --background
+          pushd motoko/evm_block_explorer
+          make install
+          popd
