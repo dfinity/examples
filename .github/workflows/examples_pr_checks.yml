@@ -97,8 +97,5 @@ jobs:
           if [ -f "Makefile" ]; then
             make test
           else
-            if [ -f "package.json" ]; then
-              npm install
-            fi
             dfx deploy
           fi
