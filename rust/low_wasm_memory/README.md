@@ -4,7 +4,7 @@ Unlike other blockchains, the Internet Computer can automatically execute specia
 
 This example demonstrates the ways of using low Wasm memory hook on the Internet Computer.
 
-The example consists of canister named `low_wasm_memory_hook` both implementing the functionality that it increases usage of Wasm memory in every 'heartbeat' execution, until the low Wasm memory hook is runned.
+The example consists of canister named `low_wasm_memory_hook` implementing the functionality that it increases usage of Wasm memory in every 'heartbeat' execution, until the low Wasm memory hook is runned.
 
 ## Prerequisites
 This example requires an installation of:
