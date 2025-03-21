@@ -1,6 +1,6 @@
 # Low Wasm memory hook
 
-Unlike other blockchains, the Internet Computer can automatically execute special type of function called low Wasm memory hook, which runs when the available Wasm memory of the canister falls below 'wasm-memory-threshold'.
+Internet Computer can automatically execute special type of function called low Wasm memory hook, which runs when the available Wasm memory of the canister falls below 'wasm-memory-threshold'.
 
 This example demonstrates the ways of using low Wasm memory hook on the Internet Computer.
 
