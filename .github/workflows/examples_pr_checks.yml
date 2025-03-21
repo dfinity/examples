@@ -1,4 +1,4 @@
-name: Examples pull request checks
+name: Test examples
 
 on:
   pull_request:
@@ -11,7 +11,7 @@ concurrency:
 
 jobs:
   check-example-changes:
-    name: Check example folders for changes
+    name: Filter projects
     runs-on: ubuntu-22.04
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
@@ -58,11 +58,6 @@ jobs:
             if echo "$changed_files" | grep -q "^$path/"; then
               examples+=("{\"name\": \"$name\", \"path\": \"$path\"}")
               echo "Added example: $name with path $path"
-            else
-              if echo "$changed_files" | grep -q "^\.github/workflows/provision_"; then
-                examples+=("{\"name\": \"$name\", \"path\": \"$path\"}")
-                echo "Added example: $name with path $path (due to provision workflow change)"
-              fi
             fi
           done
 
@@ -77,8 +72,8 @@ jobs:
             echo "matrix=$matrix" >> $GITHUB_OUTPUT
           fi
 
-  build-examples-devcontainer:
-    name: Build updated examples
+  build-examples:
+    name: Build
     needs: check-example-changes
     if: needs.check-example-changes.outputs.has_examples == 'true'
     runs-on: ubuntu-22.04
@@ -92,36 +87,6 @@ jobs:
 
       - name: Install dfx # This is a temporary workaround. Dfx is already installed in the container, but it does not start in the next step if we don't install it here again.
         uses: dfinity/setup-dfx@main
-
-      - name: Start dfx
-        run: dfx start --background
-
-      - name: Build project
-        working-directory: ${{ matrix.example.path }}
-        run: |
-          if [ -f "Makefile" ]; then
-            make test
-          else
-            if [ -f "package.json" ]; then
-              npm install
-            fi
-            dfx deploy
-          fi
-
-  build-examples-no-container:
-    name: Build updated examples
-    needs: check-example-changes
-    if: needs.check-example-changes.outputs.has_examples == 'true'
-    runs-on: ubuntu-22.04
-    strategy:
-      matrix: ${{ fromJson(needs.check-example-changes.outputs.matrix) }}
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Provision Linux
-        run: bash .github/workflows/provision-linux.sh
 
       - name: Start dfx
         run: dfx start --background
