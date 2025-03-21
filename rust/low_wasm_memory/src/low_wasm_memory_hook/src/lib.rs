@@ -74,11 +74,3 @@ pub fn hook() {
 }
 
 ic_cdk::export_candid!();
-
-/*
-dfx start --background --clean
-dfx deploy
-dfx canister update-settings low_wasm_memory_hook --wasm-memory-limit 3000000 --wasm-memory-threshold 2000000
-dfx canister status low_wasm_memory_hook
-dfx canister call low_wasm_memory_hook --query get_executed_functions_order
-*/

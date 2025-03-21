@@ -26,9 +26,11 @@ jobs:
           pushd rust/low_wasm_memory
           dfx start --background
           dfx deploy low_wasm_memory_hook
-          dfx canister update-settings low_wasm_memory_hook --wasm-memory-limit 1000000 --wasm-memory-threshold 1000000
+          dfx canister update-settings low_wasm_memory_hook --wasm-memory-limit 3000000 --wasm-memory-threshold 2000000
           dfx canister status low_wasm_memory_hook
-          dfx canister call low_wasm_memory_hook --query get_executed_functions_order | grep 'OnLowWasmMemory'
+          dfx canister call low_wasm_memory_hook --query get_executed_functions_order | grep -q 'OnLowWasmMemory' || while ! dfx canister call low_wasm_memory_hook --query get_executed_functions_order | grep -q 'OnLowWasmMemory'; do
+            sleep 1
+          done
           popd
   rust-low_wasm_memory-linux:
     runs-on: ubuntu-22.04
@@ -41,7 +43,9 @@ jobs:
           pushd rust/low_wasm_memory
           dfx start --background
           dfx deploy low_wasm_memory_hook
-          dfx canister update-settings low_wasm_memory_hook --wasm-memory-limit 1000000 --wasm-memory-threshold 1000000
+          dfx canister update-settings low_wasm_memory_hook --wasm-memory-limit 3000000 --wasm-memory-threshold 2000000
           dfx canister status low_wasm_memory_hook
-          dfx canister call low_wasm_memory_hook --query get_executed_functions_order | grep 'OnLowWasmMemory'
+          dfx canister call low_wasm_memory_hook --query get_executed_functions_order | grep -q 'OnLowWasmMemory' || while ! dfx canister call low_wasm_memory_hook --query get_executed_functions_order | grep -q 'OnLowWasmMemory'; do
+            sleep 1
+          done
           popd
