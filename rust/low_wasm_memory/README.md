@@ -4,7 +4,7 @@ The Internet Computer can automatically execute a special type of function calle
 
 This example demonstrates the ways of using low Wasm memory hook on the Internet Computer.
 
-The example consists of canister named `low_wasm_memory_hook` implementing the functionality that it increases usage of Wasm memory in every 'heartbeat' execution, until the low Wasm memory hook is runned.
+The example consists of a canister named `low_wasm_memory_hook` implementing the functionality that it increases usage of Wasm memory in every 'heartbeat' execution, until the low Wasm memory hook is run.
 
 ## Prerequisites
 This example requires an installation of:
