@@ -1,0 +1,47 @@
+name: rust-low_wasm_memory
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - rust/low_wasm_memory/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-low_wasm_memory-example.yml
+      - .github/workflows/rust-low_wasm_memory-skip.yml
+      - .ic-commit
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rust-low_wasm_memory-darwin:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Rust low_wasm_memory Darwin
+        run: |
+          pushd rust/low_wasm_memory
+          dfx start --background
+          dfx deploy low_wasm_memory_hook
+          dfx canister update-settings low_wasm_memory_hook --wasm-memory-limit 1000000 --wasm-memory-threshold 1000000
+          dfx canister status low_wasm_memory_hook
+          dfx canister call low_wasm_memory_hook --query get_executed_functions_order | grep 'OnLowWasmMemory'
+          popd
+  rust-low_wasm_memory-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Rust low_wasm_memory Linux
+        run: |
+          pushd rust/low_wasm_memory
+          dfx start --background
+          dfx deploy low_wasm_memory_hook
+          dfx canister update-settings low_wasm_memory_hook --wasm-memory-limit 1000000 --wasm-memory-threshold 1000000
+          dfx canister status low_wasm_memory_hook
+          dfx canister call low_wasm_memory_hook --query get_executed_functions_order | grep 'OnLowWasmMemory'
+          popd
