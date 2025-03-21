@@ -1,0 +1,26 @@
+{
+  "canisters": {
+    "low_wasm_memory_backend": {
+      "candid": "src/low_wasm_memory_backend/low_wasm_memory_backend.did",
+      "package": "low_wasm_memory_backend",
+      "type": "rust"
+    },
+    "low_wasm_memory_frontend": {
+      "dependencies": [
+        "low_wasm_memory_backend"
+      ],
+      "source": [
+        "src/low_wasm_memory_frontend/assets"
+      ],
+      "type": "assets"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
