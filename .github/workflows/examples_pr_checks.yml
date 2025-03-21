@@ -81,7 +81,7 @@ jobs:
     container: ${{ matrix.environment == 'container' && 'ghcr.io/dfinity/icp-dev-env-slim:17' || null }}
     strategy:
       matrix:
-        example: ${{ fromJson(needs.check-example-changes.outputs.matrix) }}
+        example: ${{ fromJson(needs.check-example-changes.outputs.matrix).example }}
         environment: ['container', 'bare-ubuntu']
 
     steps:
