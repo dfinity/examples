@@ -98,8 +98,8 @@ Log visibility: controllers
 
 
 In example above we set 'wasm-memory-limit' on 3MB and 'wasm-memory-threshold' on 2MB. Hence whenever Wasm memory
-used by the canister is above 1MB (in other words reamining Wasm memory is less than 'wasm-memory-threshold') 
-low Wasm memory hook will run.
+used by the canister is above 1MB (in other words, the remaining Wasm memory is less than 'wasm-memory-threshold') 
+the low Wasm memory hook will run.
 
 
 
