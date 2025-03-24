@@ -24,7 +24,7 @@ jobs:
       - name: Rust composite_query Darwin
         run: |
           pushd rust/composite_query
-          dfx start --background --clean --pocketic
+          dfx start --background
           dfx canister create data_partition --no-wallet
           dfx build data_partition
           dfx canister create kv_frontend --no-wallet
@@ -42,7 +42,7 @@ jobs:
       - name: Rust composite_query Linux
         run: |
           pushd rust/composite_query
-          dfx start --background --clean --pocketic
+          dfx start --background
           dfx canister create data_partition --no-wallet
           dfx build data_partition
           dfx canister create kv_frontend --no-wallet
