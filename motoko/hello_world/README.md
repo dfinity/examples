@@ -1,7 +1,5 @@
 # Hello, world!
 
-![Hello, world!](hello_world.png)
-
 This simple example demonstrates how applications on ICP are structured using a backend smart contract and a frontend smart contract, and provides an introduction to the programming language Motoko.
 
 This variation of "Hello, world!" is written in [Motoko](https://internetcomputer.org/docs/motoko/main/getting-started/motoko-introduction), a programming language designed specifically for developing canisters (referred to as **canisters**) on ICP.

@@ -1,7 +1,5 @@
 # Tokenmania!
 
-![Tokenmania](tokenmania.jpg)
-
 Tokenmania is a simplified token minting application. When the application is ran, it will automatically mint tokens based on the backend smart contract's hardcoded configuration values for things such as token name, token symbol, and total supply.
 
 > [!CAUTION]

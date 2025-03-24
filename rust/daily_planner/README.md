@@ -1,7 +1,5 @@
 # Daily planner
 
-![Daily planner](../../_attachments/daily_planner.png)
-
 Daily planner features a monthly calender that can be used to track daily activities, appointments, or tasks. Data for each task is stored onchain. For each day, a historic fact can be queried using HTTPS outcalls, which is a feature that allows ICP canisters to obtain data from external sources.
 
 This variation of "Daily planner" is written in [Rust](https://internetcomputer.org/docs/building-apps/developer-tools/cdks/rust/intro-to-rust).

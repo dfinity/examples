@@ -1,7 +1,5 @@
 # My crypto blog
 
-![My Crypto Blog](my_crypto_blog.png)
-
 This frontend-only asset canister allows you to serve static files without a backend canister.
 Asset canisters can be used to serve static frontend files, such as HTML, CSS, and JavaScript files, to users through a web browser.
 

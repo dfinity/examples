@@ -1,7 +1,5 @@
 # Flying Ninja
 
-![Flying ninja!](flying_ninja.png)
-
 Flying Ninja is a 2D side-scroller game where players interact with the flying ninja character using their keyboard's space bar to move up and down. The goal is to avoid the obstacles and obtain points for each obstacle you dodge. When the game ends, the user can add their score to the leaderboard.
 
 The game's logic is written in [Motoko](https://internetcomputer.org/docs/motoko/main/getting-started/motoko-introduction), a programming language designed specifically for developing canisters on ICP.
