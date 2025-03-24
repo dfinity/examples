@@ -1,0 +1,36 @@
+{
+  "canisters": {
+    "backend": {
+      "dependencies": ["evm_rpc"],
+      "main": "backend/app.mo",
+      "type": "motoko",
+      "args": "--enhanced-orthogonal-persistence"
+    },
+    "frontend": {
+      "dependencies": ["backend"],
+      "frontend": {
+        "entrypoint": "frontend/index.html"
+      },
+      "source": ["frontend/dist"],
+      "type": "assets"
+    },
+    "evm_rpc": {
+      "candid": "https://github.com/dfinity/evm-rpc-canister/releases/latest/download/evm_rpc.did",
+      "type": "custom",
+      "specified_id": "7hfb6-caaaa-aaaar-qadga-cai",
+      "remote": {
+        "id": {
+          "ic": "7hfb6-caaaa-aaaar-qadga-cai"
+        }
+      },
+      "wasm": "https://github.com/dfinity/evm-rpc-canister/releases/latest/download/evm_rpc.wasm.gz",
+      "init_arg": "(record {})"
+    }
+  },
+  "output_env_file": ".env",
+  "defaults": {
+    "build": {
+      "packtool": "mops sources"
+    }
+  }
+}

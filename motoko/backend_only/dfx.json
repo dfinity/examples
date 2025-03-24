@@ -1,0 +1,14 @@
+{
+  "canisters": {
+    "backend": {
+      "main": "backend/app.mo",
+      "type": "motoko",
+      "args": "--enhanced-orthogonal-persistence"
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": "mops sources"
+    }
+  }
+}

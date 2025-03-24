@@ -5,25 +5,34 @@
 /c/reverse/ @dfinity/growth
 
 /hosting/godot-html5-template/ @dfinity/sdk
+/hosting/my_crypto_blog/ @dfinity/ninja-devs
 /hosting/photo-storage/ @dfinity/sdk
+/hosting/react/ @dfinity/ninja-devs
 /hosting/static-website/ @dfinity/sdk
 /hosting/unity-webgl-template/ @dfinity/sdk
 
 /motoko/basic_bitcoin/ @dfinity/execution
 /motoko/basic_dao/ @dfinity/languages
+/motoko/backend_only/ @dfinity/ninja-devs
 /motoko/canister_logs/ @dfinity/execution
 /motoko/cert-var/ @dfinity/trust
 /motoko/classes/ @dfinity/languages
 /motoko/composite_query/ @dfinity/languages
 /motoko/counter/ @dfinity/languages
+/motoko/daily_planner/ @dfinity/ninja-devs
 /motoko/encrypted-notes-dapp-vetkd/ @dfinity/crypto-team
 /motoko/encrypted-notes-dapp/ @dfinity/crypto-team
+/motoko/evm_block_explorer/ @dfinity/ninja-devs
+/motoko/filevault/ @dfinity/ninja-devs
+/motoko/flying_ninja/ @dfinity/ninja-devs
 /motoko/hello_cycles/ @dfinity/languages
+/motoko/hello_world/ @dfinity/ninja-devs
 /motoko/ic-pos/ @dfinity/growth
 /motoko/icp_transfer/ @dfinity/growth
 /motoko/icrc2-swap/ @dfinity/growth
 /motoko/internet_identity_integration/ @dfinity/identity
 /motoko/life/ @dfinity/languages
+/motoko/llm_chatbot/ @dfinity/ninja-devs
 /motoko/minimal-counter-dapp/ @dfinity/growth
 /motoko/parallel_calls/ @dfinity/languages
 /motoko/pub-sub/ @dfinity/growth
@@ -34,10 +43,12 @@
 /motoko/superheroes/ @dfinity/growth
 /motoko/threshold-ecdsa/ @dfinity/crypto-team
 /motoko/threshold-schnorr/ @dfinity/crypto-team
+/motoko/tokenmania/ @dfinity/ninja-devs
 /motoko/token_transfer/ @dfinity/growth
 /motoko/token_transfer_from/ @dfinity/growth
 /motoko/vetkd/ @dfinity/crypto-team
 /motoko/whoami/ @dfinity/growth
+/motoko/who_am_i/ @dfinity/ninja-devs
 
 /native-apps/unity_ii_applink/ @dfinity/sdk
 /native-apps/unity_ii_deeplink/ @dfinity/sdk
@@ -45,21 +56,26 @@
 /rust/basic_bitcoin/ @dfinity/execution
 /rust/basic_dao/ @dfinity/testing-verification
 /rust/basic_ethereum/ @dfinity/cross-chain-team
+/rust/backend_only/ @dfinity/ninja-devs
 /rust/canister-info/ @dfinity/testing-verification
 /rust/canister-snapshots/ @dfinity/execution
 /rust/canister_logs/ @dfinity/execution
 /rust/composite_query/ @dfinity/execution
 /rust/counter/ @dfinity/growth
+/rust/daily_planner/ @dfinity/ninja-devs
 /rust/defi/ @dfinity/growth
 /rust/dip721-nft-container/ @dfinity/sdk
 /rust/encrypted-notes-dapp-vetkd/ @dfinity/crypto-team
 /rust/encrypted-notes-dapp/ @dfinity/crypto-team
+/rust/evm_block_explorer/ @dfinity/ninja-devs
 /rust/face-recognition/ @dfinity/execution
+/rust/flying_ninja/ @dfinity/ninja-devs
 /rust/guards/ @dfinity/cross-chain-team
-/rust/hello/ @dfinity/sdk
+/rust/hello_world/ @dfinity/ninja-devs
 /rust/icp_transfer/ @dfinity/growth
 /rust/image-classification/ @dfinity/execution
 /rust/inter-canister-calls/ @dfinity/ic-message-routing-owners
+/rust/llm_chatbot/ @dfinity/ninja-devs
 /rust/low_wasm_memory/ @dfinity/execution
 /rust/nft-wallet/ @dfinity/growth
 /rust/parallel_calls/ @dfinity/research
@@ -72,9 +88,11 @@
 /rust/simd/ @dfinity/execution
 /rust/threshold-ecdsa/ @dfinity/crypto-team
 /rust/threshold-schnorr/ @dfinity/crypto-team
+/rust/tokenmania/ @dfinity/ninja-devs
 /rust/token_transfer/ @dfinity/growth
 /rust/token_transfer_from/ @dfinity/growth
 /rust/vetkd/ @dfinity/crypto-team
+/rust/who_am_i/ @dfinity/ninja-devs
 /rust/x509/ @dfinity/crypto-team
 
 /svelte/svelte-motoko-starter/ @dfinity/sdk

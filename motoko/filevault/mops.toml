@@ -1,0 +1,5 @@
+# Motoko dependencies (https://mops.one/)
+
+[dependencies]
+base = "0.14.1"
+map = "9.0.1"
