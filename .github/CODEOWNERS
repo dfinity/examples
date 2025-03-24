@@ -76,6 +76,7 @@
 /rust/image-classification/ @dfinity/execution
 /rust/inter-canister-calls/ @dfinity/ic-message-routing-owners
 /rust/llm_chatbot/ @dfinity/ninja-devs
+/rust/low_wasm_memory/ @dfinity/execution
 /rust/nft-wallet/ @dfinity/growth
 /rust/parallel_calls/ @dfinity/research
 /rust/performance_counters/ @dfinity/execution
