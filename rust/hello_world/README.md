@@ -1,7 +1,5 @@
 # Hello, world!
 
-![Hello, world!](hello_world.png)
-
 This variation of "Hello, world!" is written in [Rust](https://internetcomputer.org/docs/building-apps/developer-tools/cdks/rust/intro-to-rust).
 
 ## Project structure

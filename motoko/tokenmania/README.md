@@ -1,7 +1,5 @@
 # Tokenmania!
 
-![Tokenmania](tokenmania.jpg)
-
 Tokenmania is a simplified token minting application. When the application is ran, you will be prompted to sign in with Internet Identity. Once signed in, select the 'Mint' function. It will mint tokens based on the backend smart contract's hardcoded configuration values for things such as token name, token symbol, and total supply. The owner principal of the token will be your Internet Identity principal.
 
 > [!CAUTION]

@@ -1,7 +1,5 @@
 # Flying ninja
 
-![Flying ninja!](flying_ninja.png)
-
 Flying Ninja is a 2D side-scroller game where players interact with the flying ninja character using their keyboard's spacebar to move the ninja character up and down. The goal is to avoid the obstacles and obtain points for each obstacle you dodge. When the game ends, the user can add their score to the leaderboard.
 
 This variation of "Flying Ninja" is written in [Rust](https://internetcomputer.org/docs/building-apps/developer-tools/cdks/rust/intro-to-rust).

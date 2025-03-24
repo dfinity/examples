@@ -1,7 +1,5 @@
 # Daily planner
 
-![Daily planner](daily_planner.png)
-
 ## Project structure
 
 The `/backend` folder contains the Motoko canister, `app.mo`. The `/frontend` folder contains web assets for the application's user interface. The user interface is written using the React framework. Edit the `mops.toml` file to add [Motoko dependencies](https://mops.one/) to the project.

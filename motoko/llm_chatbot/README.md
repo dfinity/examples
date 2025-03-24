@@ -1,7 +1,5 @@
 # LLM Chatbot
 
-![LLM Chatbot](llm_chatbot.png)
-
 The LLM Chatbot example demonstrates how an ICP smart contract can be used to interact with a large language model (LLM) to generate text. The user can input a prompt, and the smart contract will use the LLM to generate a response.
 The response is then returned to the user, and the user can submit some follow-up prompts to continue the conversation.
 
