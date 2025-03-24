@@ -24,7 +24,7 @@ jobs:
         run: rm -f ~/.config/dfx/networks.json
       - name: Rust Face Recognition Darwin
         run: |
-          dfx start --background --clean --pocketic
+          dfx start --background
           pushd rust/face-recognition
           npm install
           dfx deploy --yes 
@@ -39,7 +39,7 @@ jobs:
         run: rm -f ~/.config/dfx/networks.json
       - name: Rust Face Recognition Linux
         run: |
-          dfx start --background --clean --pocketic
+          dfx start --background
           pushd rust/face-recognition
           npm install
           dfx deploy --yes 

@@ -2,7 +2,7 @@
 
 npm install
 rm -fr .dfx
-dfx start --pocketic --clean --background
+dfx start --clean --background
 dfx deploy internet_identity --argument '(null)'
 dfx deploy encrypted_notes_${BUILD_ENV}
 dfx generate encrypted_notes_${BUILD_ENV}

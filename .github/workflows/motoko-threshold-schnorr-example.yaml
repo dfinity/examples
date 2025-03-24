@@ -21,7 +21,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko Threshold Schnorr Darwin
         run: |
-          dfx start --background --clean --pocketic
+          dfx start --background
           pushd motoko/threshold-schnorr
           npm install
           make test
@@ -33,7 +33,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko Threshold Schnorr Linux
         run: |
-          dfx start --background --clean --pocketic
+          dfx start --background
           pushd motoko/threshold-schnorr
           npm install
           make test

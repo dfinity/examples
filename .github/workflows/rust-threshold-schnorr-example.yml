@@ -27,7 +27,7 @@ jobs:
         run: bash .github/workflows/provision-pocket-ic-server.sh
       - name: Rust Threshold Schnorr Darwin
         run: |
-          dfx start --background --clean --pocketic
+          dfx start --background
           pushd rust/threshold-schnorr
           make test
   rust-threshold-schnorr-linux:
@@ -40,6 +40,6 @@ jobs:
         run: bash .github/workflows/provision-pocket-ic-server.sh
       - name: Rust Threshold Schnorr Linux
         run: |
-          dfx start --background --clean --pocketic
+          dfx start --background
           pushd rust/threshold-schnorr
           make test

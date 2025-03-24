@@ -23,7 +23,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Rust Canister info Darwin
         run: |
-          dfx start --background --clean --pocketic
+          dfx start --background
           pushd rust/canister-info
           cargo test
           make test
@@ -36,7 +36,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Rust Canister info Linux
         run: |
-          dfx start --background --clean --pocketic
+          dfx start --background
           pushd rust/canister-info
           cargo test
           make test
