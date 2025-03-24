@@ -18,6 +18,15 @@ fn set(n: Nat) {
     COUNTER.with(|count| *count.borrow_mut() = n);
 }
 
+#[ic_cdk_macros::update]
+fn get_and_set(n: Nat) -> Nat {
+    COUNTER.with(|counter| {
+        let old = counter.borrow().clone();
+        *counter.borrow_mut() = n;
+        old
+    })
+}
+
 /// Increment the value of the counter.
 #[ic_cdk_macros::update]
 fn inc() {
@@ -46,5 +55,13 @@ mod tests {
             inc();
             assert_eq!(get(), Nat::from(i));
         }
+    }
+
+    #[test]
+    fn test_get_and_set() {
+        let old = get_and_set(Nat::from(1 as u32));
+        let new = get();
+        assert_eq!(old, Nat::from(0 as u32));
+        assert_eq!(new, Nat::from(1 as u32));
     }
 }

@@ -4,17 +4,7 @@ all: deploy
 .PHONY: deploy
 .SILENT: deploy
 deploy:
-	dfx deploy chainkey_testing_canister
 	dfx deploy basic_bitcoin --argument '(variant { regtest })'
-
-.PHONY: mock
-.SILENT: mock
-mock: deploy
-	SCHNORR_MOCK_CANISTER_ID=$(shell dfx canister id chainkey_testing_canister); \
-	BASIC_BITCOIN_CANISTER_ID=$(shell dfx canister id basic_bitcoin); \
-	echo "Changing to using mock canister instead of management canister"; \
-	CMD="dfx canister call "$${BASIC_BITCOIN_CANISTER_ID}" for_test_only_change_management_canister_id '("\"$${SCHNORR_MOCK_CANISTER_ID}\"")'"; \
-	eval "$${CMD}"
 
 .PHONY: regtest_topup
 .SILENT: regtest_topup

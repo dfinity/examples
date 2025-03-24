@@ -1,21 +1,20 @@
-# Known failure: https://dfinity.atlassian.net/browse/EM-6
-name: rust-pub-sub
+name: rust-inter-canister-calls
 on:
   push:
     branches:
       - master
   pull_request:
     paths:
-      - rust/pub-sub/**
+      - rust/inter-canistert-calls/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
-      - .github/workflows/rust-pub-sub-example.yml
+      - .github/workflows/rust-inter-canister-calls-example.yml
       - .ic-commit
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  rust-pub-sub-darwin:
+  rust-inter-canister-calls-darwin:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v2
@@ -23,25 +22,23 @@ jobs:
           submodules: recursive
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
-      - name: Rust Pub-Sub Darwin
+      - name: Rust Parallel-Calls Darwin
         run: |
-          pushd rust/pub-sub
-          dfx start --background --clean --pocketic
-          make install
+          pushd rust/inter-canister-calls
+          dfx start --background
           make test
           popd
-  rust-pub-sub-linux:
-    runs-on: ubuntu-20.04
+  rust-inter-canister-calls-linux:
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
         with:
           submodules: recursive
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
-      - name: Rust Pub-Sub Linux
+      - name: Rust Parallel-Calls Linux
         run: |
-          pushd rust/pub-sub
-          dfx start --background --clean --pocketic
-          make install
+          pushd rust/inter-canister-calls
+          dfx start --background
           make test
           popd

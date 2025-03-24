@@ -313,6 +313,7 @@ make test
   which would cost tokens. For a real canister, you should calculate the maximum
   size of your canister, limit it to a reasonable amount, and monitor the
   current size to know when to re-architect.
+- **Async Bug Trap**. The ICRC-2 swap implementation in this repository contains potential bug traps related to async calls. For example, the `deposit` function calls `icrc2_transfer_from`, but there is no guarantee that the callback code will execute correctly once the call succeeds. This can happen if the canister runs out of cycles or due to other side effects in the Internet Computer environment. To properly address these types of issues, for example by implemeting journaling, please refer to the [inter-canister calls security best practices](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/inter-canister-calls).
 
 ## Contributing
 
