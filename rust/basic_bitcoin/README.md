@@ -9,7 +9,7 @@ API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-
 [Schnorr
 API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr),
 and [Bitcoin
-API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin-api)
+API](https://github.com/dfinity/bitcoin-canister/blob/master/INTERFACE_SPECIFICATION.md)
 of the Internet Computer.
 
 For a deeper understanding of the ICP < > BTC integration, see the [Bitcoin integration documentation](https://wiki.internetcomputer.org/wiki/Bitcoin_Integration).
@@ -22,10 +22,6 @@ For a deeper understanding of the ICP < > BTC integration, see the [Bitcoin inte
 To install, run `brew install llvm`.
 
 ## Step 1: Building and deploying sample code
-
-This tutorial has the same smart contract written in
-[Motoko](https://internetcomputer.org/docs/current/developer-docs/backend/motoko/index.md)
-using ECDSA, Schnorr, and Bitcoin API.
 
 You can clone and deploy either one, as they both function in the same way.
 
@@ -53,10 +49,9 @@ dfx deploy --network=ic basic_bitcoin --argument '(variant { testnet })'
 - `--argument '(variant { testnet })'` passes the argument `testnet` to initialize the smart contract, telling it to connect to the Bitcoin testnet
 
 **We're initializing the canister with `variant { testnet }` so that the
-canister connects to the [Bitcoin testnet](https://en.bitcoin.it/wiki/Testnet).
-To be specific, this connects to `Testnet3`, which is the current Bitcoin test
-network used by the Bitcoin community. This means that the addresses generated
-in the smart contract can only be used to receive or send funds only on Bitcoin
+canister connects to the Bitcoin testnet.
+To be specific, the canister interacts with [testnet4](https://mempool.space/testnet4), which is the latest Bitcoin test network used by the Bitcoin community. This means that the addresses generated
+in the smart contract can only be used to receive or send funds on this Bitcoin
 testnet.**
 
 If successful, you should see an output that looks like this:
@@ -122,28 +117,18 @@ Or, if you prefer the command line:
 ## Step 3: Receiving bitcoin
 
 Now that the canister is deployed and you have a Bitcoin address, it's time to receive
-some testnet bitcoin. You can use one of the Bitcoin faucets, such as [coinfaucet.eu](https://coinfaucet.eu),
-to receive some bitcoin.
+some testnet bitcoin. You can use one of the Bitcoin faucets, such as [coinfaucet.eu](https://coinfaucet.eu), to receive some bitcoin. **Make sure to choose Bitcoin testnet4!**
 
-Enter your address and click on "Send testnet bitcoins". This example will use
-the Bitcoin P2PHK address `mot21Ef7HNDpDJa4CBzt48WpEX7AxNyaqx`, but you will use
+Enter your address and click on "Get bitcoins!". This example will use
+the Bitcoin P2PHK address `n3eGjsKEciCW52xPJf8j18MQEdDqowtb3X`, but you will use
 your address. The Bitcoin address you see will be different from the one above
 because the ECDSA/Schnorr public key your canister retrieves is unique.
 
-Once the transaction has at least one confirmation, which can take a few minutes,
+Once the transaction has at least one confirmation, which takes ten minutes on average,
 you'll be able to see it in your canister's balance.
 
-The addresses that have been used for the testing of this canister on Bitcoin
-testnet are `mot21Ef7HNDpDJa4CBzt48WpEX7AxNyaqx` (P2PKH,
-[transactions](https://blockstream.info/testnet/address/mot21Ef7HNDpDJa4CBzt48WpEX7AxNyaqx)),
-`tb1pkkrwg6e9s5zf3jmftu224rc5ppax26g5yzdg03rhmqw84359xgpsv5mn2y` (P2TR raw key
-spend,
-[transactions](https://blockstream.info/testnet/address/tb1pkkrwg6e9s5zf3jmftu224rc5ppax26g5yzdg03rhmqw84359xgpsv5mn2y)),
-and `tb1pnm743sjkw9tq3zf9uyetgqkrx7tauthmxnsl5dtyrwnyz9r7lu8qdtcnnc` (P2TR
-script path spend,
-[transactions](https://blockstream.info/testnet/address/tb1pnm743sjkw9tq3zf9uyetgqkrx7tauthmxnsl5dtyrwnyz9r7lu8qdtcnnc)).
-It may be useful to click on "transactions" links if you are interested in how
-they are structured.
+The P2PKH address that has been used for the testing of this canister on Bitcoin
+testnet is [n3eGjsKEciCW52xPJf8j18MQEdDqowtb3X](https://mempool.space/testnet4/address/n3eGjsKEciCW52xPJf8j18MQEdDqowtb3X).
 
 ## Step 4: Checking your bitcoin balance
 
@@ -151,13 +136,13 @@ You can check a Bitcoin address's balance by using the `get_balance` endpoint on
 
 In the Candid UI, paste in your canister's address, and click on "Call":
 
-Alternatively, make the call using the command line. Be sure to replace `mot21Ef7HNDpDJa4CBzt48WpEX7AxNyaqx` with your own generated address:
+Alternatively, make the call using the command line. Be sure to replace `n3eGjsKEciCW52xPJf8j18MQEdDqowtb3X` with your own generated address:
 
 ```bash
-dfx canister --network=ic call basic_bitcoin get_balance '("mot21Ef7HNDpDJa4CBzt48WpEX7AxNyaqx")'
+dfx canister --network=ic call basic_bitcoin get_balance '("n3eGjsKEciCW52xPJf8j18MQEdDqowtb3X")'
 ```
 
-Checking the balance of a Bitcoin address relies on the [bitcoin_get_balance](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_balance) API.
+Checking the balance of a Bitcoin address relies on the [bitcoin_get_balance](https://github.com/dfinity/bitcoin-canister/blob/master/INTERFACE_SPECIFICATION.md#bitcoin_get_balance) API.
 
 ## Step 5: Sending bitcoin
 
@@ -176,8 +161,8 @@ dfx canister --network=ic call basic_bitcoin send_from_p2pkh_address '(record { 
 
 The `send_from_${type}` endpoint can send bitcoin by:
 
-1. Getting the percentiles of the most recent fees on the Bitcoin network using the [bitcoin_get_current_fee_percentiles API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-method-bitcoin_get_current_fee_percentiles).
-2. Fetching your unspent transaction outputs (UTXOs), using the [bitcoin_get_utxos API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-method-bitcoin_get_utxos).
+1. Getting the percentiles of the most recent fees on the Bitcoin network using the [bitcoin_get_current_fee_percentiles API](https://github.com/dfinity/bitcoin-canister/blob/master/INTERFACE_SPECIFICATION.md#bitcoin_get_current_fee_percentiles).
+2. Fetching your unspent transaction outputs (UTXOs), using the [bitcoin_get_utxos API](https://github.com/dfinity/bitcoin-canister/blob/master/INTERFACE_SPECIFICATION.md#bitcoin_get_utxos).
 3. Building a transaction, using some of the UTXOs from step 2 as input and the destination address and amount to send as output.
    The fee percentiles obtained from step 1 is used to set an appropriate fee.
 4. Signing the inputs of the transaction using the
@@ -186,7 +171,7 @@ The `send_from_${type}` endpoint can send bitcoin by:
    [sign_with_schnorr](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr).
 5. Sending the signed transaction to the Bitcoin network using the
    [bitcoin_send_transaction
-   API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_send_transaction).
+   API](https://github.com/dfinity/bitcoin-canister/blob/master/INTERFACE_SPECIFICATION.md#bitcoin_send_transaction).
 
 This canister's `send_from_${type}` endpoint returns the ID of the transaction
 it sent to the network. You can track the status of this transaction using a
@@ -222,10 +207,8 @@ In this tutorial, you were able to:
 * Check the testnet BTC balance of the canister.
 * Use the canister to send testnet BTC to another testnet BTC address.
 
-This example is extensively documented in the following tutorials:
 
-* [Deploying your first Bitcoin dapp](https://internetcomputer.org/docs/current/samples/deploying-your-first-bitcoin-dapp).
-* [Developing Bitcoin dapps locally](https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/local-development).
+The steps to develop Bitcoin dapps locally are extensively documented in [this tutorial](https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/local-development).
 
 Note that for *testing* on mainnet, the [chain-key testing
 canister](https://github.com/dfinity/chainkey-testing-canister) can be used to
@@ -238,4 +221,4 @@ If you base your application on this example, we recommend you familiarize yours
 
 For example, the following aspects are particularly relevant for this app:
 * [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since the app e.g. offers a method to read balances.
-* [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/overview), since decentralized control may be essential for canisters holding Bitcoin on behalf of users.
+* [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/overview), since decentralized control may be essential for canisters holding bitcoins on behalf of users.
