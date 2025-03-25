@@ -26,7 +26,7 @@ jobs:
       - name: Set matrix based on changes
         id: set-matrix
         run: |
-          changed_files=$(git diff --name-only origin/main ${{ github.sha }})
+          changed_files=$(git diff --name-only origin/master ${{ github.sha }})
           echo "Changed files: $changed_files"
 
           examples=()
