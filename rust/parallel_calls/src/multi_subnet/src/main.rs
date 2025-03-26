@@ -1,5 +1,5 @@
 use candid::{decode_one, encode_one, Principal};
-use pocket_ic::{PocketIcBuilder, WasmResult};
+use pocket_ic::PocketIcBuilder;
 use std::time::Instant;
 
 const INIT_CYCLES: u128 = 10_000_000_000_000;
@@ -35,11 +35,10 @@ fn main() {
             Principal::anonymous(),
             "sequential_calls",
             encode_one(num_calls).unwrap(),
-        )
-        .expect("Failed to execute sequential calls");
+        );
     let sequential_num_calls: u64 = match sequential_result {
-        WasmResult::Reply(reply) => decode_one(&reply).unwrap(),
-        WasmResult::Reject(code) => panic!("Unexpected reject code for sequential calls: {}", code),
+        Ok(reply) => decode_one(&reply).unwrap(),
+        Err(reject) => panic!("Unexpected reject for sequential calls: {}", reject),
     };
     let sequential_duration = sequential_start.elapsed();
 
@@ -50,11 +49,10 @@ fn main() {
             Principal::anonymous(),
             "parallel_calls",
             encode_one(num_calls).unwrap(),
-        )
-        .expect("Failed to execute parallel calls");
+        );
     let parallel_num_calls: u64 = match parallel_result {
-        WasmResult::Reply(reply) => decode_one(&reply).unwrap(),
-        WasmResult::Reject(code) => panic!("Unexpected reject code for parallel calls: {}", code),
+        Ok(reply) => decode_one(&reply).unwrap(),
+        Err(reject) => panic!("Unexpected reject for parallel calls: {}", reject),
     };
     let parallel_duration = parallel_start.elapsed();
 

@@ -1,0 +1,4 @@
+type FnType = variant { OnLowWasmMemory; Heartbeat };
+service : () -> {
+  get_executed_functions_order : () -> (vec FnType) query;
+}
