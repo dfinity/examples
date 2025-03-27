@@ -5,7 +5,7 @@ If you do that, your project will naturally be in the correct format and can be 
 Once the example is done, you can download the source files from ICP Ninja.
 Alternatively, you can start off an existing Ninja project from this repo (see CODEOWNERS file for Ninja examples) and modify it.
 
-Ideally, your project has a frontend and backend, and if you provide a Rust example, you should also provide a Motoko example, and vice versa with an identical frontend.
+Ideally, your project should have a frontend and backend.
 
 1) Place your example in either
 * `/motoko` for a Motoko project
