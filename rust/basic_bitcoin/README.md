@@ -19,7 +19,9 @@ For a deeper understanding of the ICP < > BTC integration, see the [Bitcoin inte
 * [x] Install the [IC
   SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
 * [x] On macOS, `llvm` with the `wasm32-unknown-unknown` target (which is not included in the XCode installation by default) is required.
-To install, run `brew install llvm`.
+  To install, run `brew install llvm`.
+* [x] On macOS, ensure that Cargo is using the correct `clang` installed by Homebrew. By default, Cargo might use the system’s clang,
+  which doesn’t support WebAssembly targets. To make sure Cargo uses the correct one, run `export CC_wasm32_unknown_unknown=/opt/homebrew/opt/llvm/bin/clang`.
 
 ## Step 1: Building and deploying sample code
 
@@ -54,7 +56,7 @@ dfx deploy --network=ic basic_bitcoin --argument '(variant { testnet })'
 
 **We're initializing the canister with `variant { testnet }` so that the
 canister connects to the [Bitcoin testnet](https://en.bitcoin.it/wiki/Testnet).
-To be specific, this connects to `Testnet3`, which is the current Bitcoin test
+To be specific, this connects to `Testnet4`, which is the current Bitcoin test
 network used by the Bitcoin community. This means that the addresses generated
 in the smart contract can only be used to receive or send funds only on Bitcoin
 testnet.**
@@ -117,7 +119,7 @@ is one of `[p2pkh, p2tr_key_only, p2tr]` (corresponding to the three types of
 addresses described above, in the same order).
 
 Or, if you prefer the command line:
-   `dfx canister --network=ic call basic_bitcoin get_${type}_address`
+`dfx canister --network=ic call basic_bitcoin get_${type}_address`
 
 ## Step 3: Receiving bitcoin
 
@@ -176,8 +178,8 @@ dfx canister --network=ic call basic_bitcoin send_from_p2pkh_address '(record { 
 
 The `send_from_${type}` endpoint can send bitcoin by:
 
-1. Getting the percentiles of the most recent fees on the Bitcoin network using the [bitcoin_get_current_fee_percentiles API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-method-bitcoin_get_current_fee_percentiles).
-2. Fetching your unspent transaction outputs (UTXOs), using the [bitcoin_get_utxos API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-method-bitcoin_get_utxos).
+1. Getting the percentiles of the most recent fees on the Bitcoin network using the [bitcoin_get_current_fee_percentiles API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_current_fee_percentiles).
+2. Fetching your unspent transaction outputs (UTXOs), using the [bitcoin_get_utxos API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_utxos).
 3. Building a transaction, using some of the UTXOs from step 2 as input and the destination address and amount to send as output.
    The fee percentiles obtained from step 1 is used to set an appropriate fee.
 4. Signing the inputs of the transaction using the
@@ -222,10 +224,7 @@ In this tutorial, you were able to:
 * Check the testnet BTC balance of the canister.
 * Use the canister to send testnet BTC to another testnet BTC address.
 
-This example is extensively documented in the following tutorials:
-
-* [Deploying your first Bitcoin dapp](https://internetcomputer.org/docs/current/samples/deploying-your-first-bitcoin-dapp).
-* [Developing Bitcoin dapps locally](https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/local-development).
+This example is extensively documented in the following tutorial: [Developing Bitcoin dapps locally](https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/local-development).
 
 Note that for *testing* on mainnet, the [chain-key testing
 canister](https://github.com/dfinity/chainkey-testing-canister) can be used to
