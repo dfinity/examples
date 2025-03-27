@@ -32,6 +32,7 @@ Ideally, your project should have a frontend and backend.
 5) PR to ICP Ninja
 * add your newly added project to `frontend/public/projects.json`
 * bump the commit hash in `submodules/examples` to a commit hash after you merged into the examples repo
+* ask the Ninja team or AI to give you a beautiful image for your project
 
 ## Templates
 
