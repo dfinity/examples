@@ -24,6 +24,12 @@ Additional frontend samples can be found in the following folders:
 
 ## Deploying samples 
 
+### ICP Ninja
+
+You can try and deploy examples with [ICP Ninja](https://icp.ninja/), a web-based tool that allows you to deploy and manage Internet Computer projects without downloading any tools or setting up a local environment.
+
+To contribute an example that will be featured on ICP Ninja, check out the [NINJA_CONTRIBUTING.md](./NINJA_CONTRIBUTING.md) file.
+
 ### GitHub Codespaces or Gitpod
 
 This repo can be opened in a web-based developer environment such as [GitHub Codespaces](https://github.com/codespaces) or [Gitpod](https://www.gitpod.io/), allowing you to edit and deploy the sample projects without downloading any tools or setting up a local environment. 
@@ -31,10 +37,6 @@ This repo can be opened in a web-based developer environment such as [GitHub Cod
 [Get started with GitHub codespaces](https://internetcomputer.org/docs/current/developer-docs/developer-tools/ide/codespaces).
 
 [Get started with Gitpod](https://internetcomputer.org/docs/current/developer-docs/developer-tools/ide/gitpod).
-
-### Motoko Playground
-
-Motoko Playground is a web-based developer environment for Motoko projects. To use Motoko Playground, navigate to the [playground UI](https://m7sm4-2iaaa-aaaab-qabra-cai.ic0.app/) and select a template to get started, or start a new project.
 
 ### dfx 
 

@@ -1,5 +1,7 @@
 # How to Add a New Example
 
+> For ICP Ninja: check [NINJA_CONTRIBUTING.md](./NINJA_CONTRIBUTING.md) for how to contribute a project to ICP Ninja.
+
 Ideally, each example should come with both Rust and Motoko implementations,
 implementing the same Candid interface (and, ideally, semantics).
 
