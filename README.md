@@ -26,7 +26,7 @@ Additional frontend samples can be found in the following folders:
 
 ### ICP Ninja
 
-You can try and deploy examples with [ICP Ninja](https://icp.ninja/), a web-based tool that allows you to deploy and manage Internet Computer projects without downloading any tools or setting up a local environment.
+You can open and deploy examples with [ICP Ninja](https://icp.ninja/), a web-based tool that allows you to create and manage Internet Computer projects without downloading any tools or setting up a local environment.
 
 To contribute an example that will be featured on ICP Ninja, check out the [NINJA_CONTRIBUTING.md](./NINJA_CONTRIBUTING.md) file.
 
