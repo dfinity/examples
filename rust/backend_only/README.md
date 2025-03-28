@@ -1,8 +1,14 @@
-# Hello, world!
+# Rust Backend
 
-"Hello, world!" projects are a common starting point for developers learning new languages or platforms, as it provides a simple demonstration of how a programming language can be written for an application.
+This backend only project demonstrates how to write a simple smart contract for ICP.
 
-This variation of "Hello, world!" is written in [Rust](https://internetcomputer.org/docs/building-apps/developer-tools/cdks/rust/intro-to-rust),a programming language designed specifically for developing canisters on ICP. Smart contracts on ICP are called **canisters.**
+This application's logic is written in [Rust](https://internetcomputer.org/docs/building-apps/developer-tools/cdks/rust/intro-to-rust), a primary programming language for developing canisters on ICP.
+
+## Deploying from ICP Ninja
+
+When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner. Open this project in ICP Ninja:
+
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?url=https://github.com/dfinity/examples/rust/backend_only)
 
 ## Project structure
 
@@ -10,13 +16,6 @@ The `/backend` folder contains the Rust smart contract:
 
 - `Cargo.toml`, which defines the crate that will form the backend
 - `lib.rs`, which contains the actual smart contract, and exports its interface
-
-## Deploying from ICP Ninja
-
-When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner.
-To open this project in ICP Ninja, click [here](https://icp.ninja/i?url=https://github.com/dfinity/examples/tree/master/rust/backend_only).
-
-To **download** or **reset** the project files, click the menu option next to the deploy button.
 
 ## Build and deploy from the command-line
 

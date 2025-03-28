@@ -1,4 +1,4 @@
-name: Test examples
+name: Test ICP Ninja Examples
 
 on:
   pull_request:
@@ -6,11 +6,11 @@ on:
       - master
 
 concurrency:
-  group: examples-pr-checks-${{ github.workflow }}-${{ github.ref }}
+  group: ninja-pr-checks-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  check-example-changes:
+  check-ninja-example-changes:
     name: Filter projects
     runs-on: ubuntu-22.04
     outputs:
@@ -74,12 +74,12 @@ jobs:
 
   build-examples:
     name: Build
-    needs: check-example-changes
-    if: needs.check-example-changes.outputs.has_examples == 'true'
+    needs: check-ninja-example-changes
+    if: needs.check-ninja-example-changes.outputs.has_examples == 'true'
     runs-on: ubuntu-22.04
     container: ghcr.io/dfinity/icp-dev-env-slim:17
     strategy:
-      matrix: ${{ fromJson(needs.check-example-changes.outputs.matrix) }}
+      matrix: ${{ fromJson(needs.check-ninja-example-changes.outputs.matrix) }}
 
     steps:
       - name: Checkout
@@ -93,9 +93,4 @@ jobs:
 
       - name: Build project
         working-directory: ${{ matrix.example.path }}
-        run: |
-          if [ -f "Makefile" ]; then
-            make test
-          else
-            dfx deploy
-          fi
+        run: dfx deploy

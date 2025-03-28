@@ -6,7 +6,13 @@ Tokenmania is a simplified token minting application. When the application is ra
 > This sample application is not production-ready code. Actual tokens deployed on ICP will require a ledger and an index smart contract. For this example's demonstration, this functionality has been simplified and the ledger functionality has been included in the backend. Tokens deployed using this example are only available for 20 minutes and will be deleted afterwards. They should be treated as "testnet" assets and should not be given real value.
 > For more information on creating tokens using a recommended production workflow, view the [create a token documentation](https://internetcomputer.org/docs/current/developer-docs/defi/tokens/create).
 
-This example application is written in [Rust](https://internetcomputer.org/docs/building-apps/developer-tools/cdks/rust/intro-to-rust).
+This application's logic is written in [Rust](https://internetcomputer.org/docs/building-apps/developer-tools/cdks/rust/intro-to-rust), a primary programming language for developing canisters on ICP.
+
+## Deploying from ICP Ninja
+
+When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner. Open this project in ICP Ninja:
+
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?url=https://github.com/dfinity/examples/rust/tokenmania)
 
 ## Project structure
 
@@ -17,13 +23,6 @@ The `/backend` folder contains the Rust smart contract:
 - `types.rs`, which contains type declarations and some conversion functions to keep the main logic cleaner.
 
 The `/frontend` folder contains web assets for the application's user interface. The user interface is written using the React framework.
-
-## Deploying from ICP Ninja
-
-When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner.
-To open this project in ICP Ninja, click [here](https://icp.ninja/i?url=https://github.com/dfinity/examples/tree/master/rust/tokenmania).
-
-To **download** or **reset** the project files, click the menu option next to the deploy button.
 
 ## Build and deploy from the command-line
 

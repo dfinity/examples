@@ -10,16 +10,9 @@ The `/backend` folder contains the Motoko canister, `app.mo`. The `/frontend` fo
 
 ## Deploying from ICP Ninja
 
-When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner.
-To open this project in ICP Ninja, click [here](https://icp.ninja/i?url=https://github.com/dfinity/examples/tree/master/motoko/flying_ninja).
+When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner. Open this project in ICP Ninja:
 
-To **download** or **reset** the project files, click the menu option next to the deploy button.
-
-## Editing files
-
-To make adjustments to this project, you can edit any file that is unlocked. Then, redeploy your application to view your changes.
-
-To edit files that are immutable in ICP Ninja, you can export the project to GitHub or download the project to your local environment using the "Download files" option.
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?url=https://github.com/dfinity/examples/motoko/flying_ninja)
 
 ## Build and deploy from the command-line
 
