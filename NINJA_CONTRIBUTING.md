@@ -83,7 +83,7 @@ Ideally, your project should have a frontend and backend.
 
 ```
 
-### Recommended dfx.json for a frontend/asset canister:
+### Recommended `dfx.json` for a frontend/asset canister:
 
 ```json
 {
