@@ -62,7 +62,7 @@ Ideally, your project should have a frontend and backend.
 }
 ```
 
-### Recommended dfx.json for a Motoko canister:
+### Recommended `dfx.json` for a Motoko canister:
 
 ```json
 {
