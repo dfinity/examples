@@ -1,4 +1,4 @@
-# Motoko Backend
+# Motoko backend
 
 This backend only project demonstrates how to write a simple smart contract for ICP.
 
