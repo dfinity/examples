@@ -12,26 +12,26 @@ Ideally, your project should have a frontend and backend.
 * `/rust` for a Rust project
 * `/hosting` for a frontend-only project
 
-2) Compilation requirements
-* make sure the project compiles and runs with `dfx deploy` inside the latest `ghcr.io/dfinity/icp-dev-env-slim` container
-* make sure `npm run dev` works and the canister can be called through the browser (if applicable)
-* make sure II login works (if applicable)
-* if you use Rust, make sure the project has `ic_cdk::export_candid!();` in the lib.rs file, such that the candid interface can be auto derived
-* if you use Motoko, use mops as a package manager
+### Compilation requirements
+* Make sure the project compiles and runs with `dfx deploy` inside the latest `ghcr.io/dfinity/icp-dev-env-slim` container.
+* Make sure `npm run dev` works and the canister can be called through the browser (if applicable).
+* Make sure II login works (if applicable).
+* If you use Rust, make sure the project has `ic_cdk::export_candid!();` in the `lib.rs` file, such that the Candid interface can be auto derived.
+* If you use Motoko, use Mops as the package manager.
 
-3) Frontend tooling requirements
-* use React
-* use vite for the build system
-* use tailwind for styling (recommended), or plain CSS
+### Frontend tooling requirements
+* React
+* Vite for the build system
+* Tailwind CSS for styling (recommended), or plain CSS
 
-4) Preparing the PR
-* add your project in the CODEOWNERS file, with your team plus `@dfinity/ninja-devs` as reviewers
-* add your project to the matrix in `.github/workflows/ninja_pr_checks.yml` to run PR tests
-* Add a README.md file, copy the BUILD.md and devcontainer.json file
+## Preparing the PR
+1. Add your project in the `CODEOWNERS` file, with your team plus `@dfinity/ninja-devs` as reviewers.
+2. Add your project to the matrix in `.github/workflows/ninja_pr_checks.yml` to run PR tests.
+3. Add a `README.md` file, copy the `BUILD.md` and `devcontainer.json` files.
 
-5) PR to ICP Ninja
-* add your newly added project to `frontend/public/projects.json`
-* bump the commit hash in `submodules/examples` to a commit hash after you merged into the examples repo
+## Submit a PR to ICP Ninja
+1. Add your newly added project to `frontend/public/projects.json`
+2. Bump the commit hash in `submodules/examples` to a commit hash after your PR has been merged into the examples repo.
 * ask the Ninja team or AI to give you a beautiful image for your project
 
 ## Templates
