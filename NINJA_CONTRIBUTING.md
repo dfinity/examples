@@ -7,7 +7,7 @@ Alternatively, you can start with an existing Ninja project from this repo (see 
 
 Ideally, your project should have a frontend and backend.
 
-1) Place your example in either
+### Where to place your example
 * `/motoko` for a Motoko project
 * `/rust` for a Rust project
 * `/hosting` for a frontend-only project
