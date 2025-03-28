@@ -1,4 +1,4 @@
-# How to Add a New Example
+# How to add a new example
 
 > For ICP Ninja: check [NINJA_CONTRIBUTING.md](./NINJA_CONTRIBUTING.md) for how to contribute a project to ICP Ninja.
 
