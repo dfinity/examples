@@ -36,7 +36,7 @@ Ideally, your project should have a frontend and backend.
 
 ## Templates
 
-### Recommended dfx.json for a Rust canister:
+### Recommended `dfx.json` for a Rust canister:
 
 ```json
 {
