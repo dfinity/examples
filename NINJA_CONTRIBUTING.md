@@ -3,7 +3,7 @@
 We recommend to build your example directly within ICP Ninja, such that it starts out with the correct tooling, structure and configs.
 If you do that, your project will naturally be in the correct format and can be easily added to ICP Ninja.
 Once the example is done, you can download the source files from ICP Ninja.
-Alternatively, you can start off an existing Ninja project from this repo (see CODEOWNERS file for Ninja examples) and modify it.
+Alternatively, you can start with an existing Ninja project from this repo (see CODEOWNERS file for Ninja examples) and modify it.
 
 Ideally, your project should have a frontend and backend.
 
