@@ -101,7 +101,7 @@ Ideally, your project should have a frontend and backend.
 }
 ```
 
-### Recommended vite.config.js
+### Recommended `vite.config.js`
 
 ```js
 import react from '@vitejs/plugin-react';
