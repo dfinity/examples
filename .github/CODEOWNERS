@@ -47,7 +47,6 @@
 /motoko/token_transfer/ @dfinity/growth
 /motoko/token_transfer_from/ @dfinity/growth
 /motoko/vetkd/ @dfinity/crypto-team
-/motoko/whoami/ @dfinity/growth
 /motoko/who_am_i/ @dfinity/ninja-devs
 
 /native-apps/unity_ii_applink/ @dfinity/sdk
