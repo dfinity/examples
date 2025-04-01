@@ -4,16 +4,15 @@ FileVault is a file storage application that allows you to upload files from you
 
 This application's logic is written in [Motoko](https://internetcomputer.org/docs/motoko/main/getting-started/motoko-introduction), a programming language designed specifically for developing canisters on ICP.
 
+## Deploying from ICP Ninja
+
+When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner. Open this project in ICP Ninja:
+
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?url=https://github.com/dfinity/examples/motoko/filevault)
+
 ## Project structure
 
 The `/backend` folder contains the Motoko canister, `app.mo`. The `/frontend` folder contains web assets for the application's user interface. The user interface is written using the React framework. Edit the `mops.toml` file to add [Motoko dependencies](https://mops.one/) to the project.
-
-## Deploying from ICP Ninja
-
-When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner.
-To open this project in ICP Ninja, click [here](https://icp.ninja/i?url=https://github.com/dfinity/examples/tree/master/motoko/filevault).
-
-To **download** or **reset** the project files, click the menu option next to the deploy button.
 
 ## Build and deploy from the command-line
 

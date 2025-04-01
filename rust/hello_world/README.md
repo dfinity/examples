@@ -1,6 +1,14 @@
 # Hello, world!
 
-This variation of "Hello, world!" is written in [Rust](https://internetcomputer.org/docs/building-apps/developer-tools/cdks/rust/intro-to-rust).
+"Hello, world!" projects are a common starting point for developers learning new languages or platforms, as it provides a simple demonstration of how a programming language can be written for an application.
+
+This application's logic is written in [Rust](https://internetcomputer.org/docs/building-apps/developer-tools/cdks/rust/intro-to-rust), a primary programming language for developing canisters on ICP.
+
+## Deploying from ICP Ninja
+
+When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner. Open this project in ICP Ninja:
+
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?url=https://github.com/dfinity/examples/rust/hello_world)
 
 ## Project structure
 
@@ -10,13 +18,6 @@ The `/backend` folder contains the Rust smart contract:
 - `lib.rs`, which contains the actual smart contract, and exports its interface
 
 The `/frontend` folder contains web assets for the application's user interface. The user interface is written with plain JavaScript, but any frontend framework can be used.
-
-## Deploying from ICP Ninja
-
-When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner.
-To open this project in ICP Ninja, click [here](https://icp.ninja/i?url=https://github.com/dfinity/examples/tree/master/rust/hello_world).
-
-To **download** or **reset** the project files, click the menu option next to the deploy button.
 
 ## Build and deploy from the command-line
 

@@ -2,7 +2,13 @@
 
 Who am I? demonstrates how entities on the Internet Computer are identified. Every entity, such as a user or canister smart contract, has a principal identifier. Principals can be used for identification and authentication. Who am I? uses Internet Identity (II) for user authentication, then displays the principal identifier associated with that Internet Identity on the user interface.
 
-This variation of "Who am I" is written in [Rust](https://internetcomputer.org/docs/building-apps/developer-tools/cdks/rust/intro-to-rust),a programming language designed specifically for developing canisters on ICP. Smart contracts on ICP are called **canisters.**
+This application's logic is written in [Rust](https://internetcomputer.org/docs/building-apps/developer-tools/cdks/rust/intro-to-rust), a primary programming language for developing canisters on ICP.
+
+## Deploying from ICP Ninja
+
+When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner. Open this project in ICP Ninja:
+
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?url=https://github.com/dfinity/examples/rust/who_am_i)
 
 ## Project structure
 
@@ -12,13 +18,6 @@ The `/backend` folder contains the Rust smart contract:
 - `lib.rs`, which contains the actual smart contract, and exports its interface
 
 The `/frontend` folder contains web assets for the application's user interface. The user interface is written using the React framework.
-
-## Deploying from ICP Ninja
-
-When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner.
-To open this project in ICP Ninja, click [here](https://icp.ninja/i?url=https://github.com/dfinity/examples/tree/master/rust/who_am_i).
-
-To **download** or **reset** the project files, click the menu option next to the deploy button.
 
 ## Build and deploy from the command-line
 

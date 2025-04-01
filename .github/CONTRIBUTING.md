@@ -1,5 +1,7 @@
 # Contributing
 
+> For ICP Ninja: check [NINJA_CONTRIBUTING.md](./../NINJA_CONTRIBUTING.md) for how to contribute a project to ICP Ninja.
+
 Thank you for your interest in contributing to example apps for the Internet Computer.
 By participating in this project, you agree to abide by our [Code of Conduct](./CODE_OF_CONDUCT.md).
 

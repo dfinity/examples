@@ -1,18 +1,17 @@
-# My crypto blog
+# My Crypto Blog
 
 This frontend-only asset canister allows you to serve static files without a backend canister.
 Asset canisters can be used to serve static frontend files, such as HTML, CSS, and JavaScript files, to users through a web browser.
 
+## Deploying from ICP Ninja
+
+When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner. Open this project in ICP Ninja:
+
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?url=https://github.com/dfinity/examples/hosting/my_crypto_blog)
+
 ## Project structure
 
 The `/frontend` folder contains web assets for the application's user interface. The user interface is written using the React framework.
-
-## Deploying from ICP Ninja
-
-When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner.
-To open this project in ICP Ninja, click [here](https://icp.ninja/i?url=https://github.com/dfinity/examples/tree/master/hosting/my_crypto_blog).
-
-To **download** or **reset** the project files, click the menu option next to the deploy button.
 
 ## Build and deploy from the command-line
 

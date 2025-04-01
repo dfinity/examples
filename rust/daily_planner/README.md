@@ -2,7 +2,13 @@
 
 Daily planner features a monthly calender that can be used to track daily activities, appointments, or tasks. Data for each task is stored onchain. For each day, a historic fact can be queried using HTTPS outcalls, which is a feature that allows ICP canisters to obtain data from external sources.
 
-This variation of "Daily planner" is written in [Rust](https://internetcomputer.org/docs/building-apps/developer-tools/cdks/rust/intro-to-rust).
+This application's logic is written in [Rust](https://internetcomputer.org/docs/building-apps/developer-tools/cdks/rust/intro-to-rust), a primary programming language for developing canisters on ICP.
+
+## Deploying from ICP Ninja
+
+When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner. Open this project in ICP Ninja:
+
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?url=https://github.com/dfinity/examples/rust/daily_planner)
 
 ## Project structure
 
@@ -12,13 +18,6 @@ The `/backend` folder contains the Rust smart contract:
 - `lib.rs`, which contains the actual smart contract, and exports its interface
 
 The `/frontend` folder contains web assets for the application's user interface. The user interface is written using the React framework.
-
-## Deploying from ICP Ninja
-
-When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner.
-To open this project in ICP Ninja, click [here](https://icp.ninja/i?url=https://github.com/dfinity/examples/tree/master/rust/daily_planner).
-
-To **download** or **reset** the project files, click the menu option next to the deploy button.
 
 ## Build and deploy from the command-line
 
