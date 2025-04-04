@@ -27,6 +27,12 @@ dfx build kv_frontend
 dfx canister install kv_frontend
 ```
 
+Make sure the frontend canister has enough cycles to create all the data partition canisters.
+
+```bash
+dfx canister deposit-cycles 10_000_000_000_000 kv_frontend
+```
+
 ## Step 2: Using the canister
 
 Now we add some key value pairs via the frontend canister.
@@ -49,7 +55,7 @@ We can also query it via a (duplicate) method by doing update calls:
 
 ```bash
 dfx canister call kv_frontend get_update '(1:nat)'
-(opt (1_337 : nat))
+(opt (42 : nat))
 ```
 
 It's also possible to do *two* query calls, first into the frontend and then into the data partition:
@@ -58,5 +64,5 @@ It's also possible to do *two* query calls, first into the frontend and then int
 $ dfx canister call kv_frontend lookup '(1: nat)'
 (1 : nat, "dmalx-m4aaa-aaaaa-qaanq-cai")
 $ dfx canister call dmalx-m4aaa-aaaaa-qaanq-cai get '(1: nat)' --query
-(1_337 : nat)
+(42 : nat)
 ```
