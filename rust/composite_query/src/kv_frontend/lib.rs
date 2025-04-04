@@ -89,13 +89,16 @@ async fn create_data_partition_canister_from_wasm() {
     let create_args = CreateCanisterArgument {
         settings: Some(CanisterSettings {
             controllers: Some(vec![ic_cdk::id()]),
-            compute_allocation: Some(0.into()),
-            memory_allocation: Some(0.into()),
-            freezing_threshold: Some(0.into()),
+            compute_allocation: Some(0_u64.into()),
+            memory_allocation: Some(0_u64.into()),
+            freezing_threshold: Some(0_u64.into()),
+            ..Default::default()
         })
     };
 
-    let canister_record = create_canister(create_args).await.unwrap();
+    const T: u128 = 1_000_000_000_000;
+
+    let canister_record = create_canister(create_args, 10 * T).await.unwrap();
     let canister_id = canister_record.0.canister_id;
 
     ic_cdk::println!("Created canister {}", canister_id);

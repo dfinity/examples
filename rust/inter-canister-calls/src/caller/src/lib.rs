@@ -156,8 +156,8 @@ pub async fn sign_message(message: String) -> Result<String, String> {
     // fairly low, and losing the attached cycles isn't catastrophic.
     match Call::bounded_wait(Principal::management_canister(), "sign_with_ecdsa")
         .with_arg(&request)
-        // Signing with a test key requires 10 billion cycles
-        .with_cycles(10_000_000_000)
+        // Signing with a test key requires 30 billion cycles
+        .with_cycles(30_000_000_000)
         .await
     {
         Ok(resp) => match resp.candid::<SignWithEcdsaResponse>() {
