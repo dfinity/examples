@@ -72,7 +72,7 @@ When the process completes you'll have a frontend canister running locally. To f
 dfx canister id frontend
 ```
 
-It will output something similar to `rno2w-sqaaa-aaaaa-aaacq-cai`. Copy this ID and open it in the browser using `http://<canister ID>localhost:8000`, eg. `http://rno2w-sqaaa-aaaaa-aaacq-cai.localhost:8000`.
+It will output something similar to `rno2w-sqaaa-aaaaa-aaacq-cai`. Copy this ID and open it in the browser using `http://<canister ID>.localhost:4943`, eg. `http://rno2w-sqaaa-aaaaa-aaacq-cai.localhost:4943`.
 
 ## Local development
 
