@@ -8,7 +8,7 @@ These examples show the Motoko language as a backend language for the IC, operat
 
 - [`counter`](https://github.com/dfinity/examples/tree/master/motoko/counter) -- basic (stable) variable demo.
 - [`hello_cycles`](https://github.com/dfinity/examples/tree/master/motoko/hello_cycles) -- basic cycles demo.
-- [`whoami`](https://github.com/dfinity/examples/tree/master/motoko/whoami) -- basic caller identification demo.
+- [`who_am_i`](https://github.com/dfinity/examples/tree/master/motoko/who_am_i) -- basic caller identification demo.
 
 ### Intermediate
 
