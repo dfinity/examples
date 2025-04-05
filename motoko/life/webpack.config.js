@@ -25,7 +25,7 @@ function initCanisterIds() {
   canisters = network === "local" ? localCanisters : prodCanisters;
 
   for (const canister in canisters) {
-    process.env[canister.toUpperCase() + "_CANISTER_ID"] =
+    process.env["CANISTER_ID_" + canister.toUpperCase()] =
       canisters[canister][network];
   }
 }
@@ -85,7 +85,7 @@ module.exports = {
     }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development',
-      LIFE_CANISTER_ID: canisters["life"]
+      ...process.env
     }),
     new webpack.ProvidePlugin({
       Buffer: [require.resolve("buffer/"), "Buffer"],
@@ -96,7 +96,7 @@ module.exports = {
   devServer: {
     proxy: {
       "/api": {
-        target: "http://localhost:8000",
+        target: "http://localhost:4943",
         changeOrigin: true,
         pathRewrite: {
           "^/api": "/api",
@@ -104,7 +104,9 @@ module.exports = {
       },
     },
     hot: true,
-    contentBase: path.resolve(__dirname, "./src/life_assets"),
-    watchContentBase: true
+    static: [
+      path.resolve(__dirname, "./src/life_assets")
+    ],
+    liveReload: true
   },
 };
