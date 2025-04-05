@@ -10,6 +10,7 @@ type List =
        List;
      };
 service : {
+  /// * High-Level API
   create: (Superhero) -> (SuperheroId);
   delete: (SuperheroId) -> (bool);
   read: (SuperheroId) -> (opt Superhero) query;
