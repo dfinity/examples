@@ -92,7 +92,7 @@ module.exports = {
       process: require.resolve("process/browser"),
     }),
   ],
-  // proxy /api to port 8000 during development
+  // proxy /api to the local replica port 4943 during development
   devServer: {
     proxy: {
       "/api": {
