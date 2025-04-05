@@ -25,7 +25,7 @@ function initCanisterIds() {
   canisters = network === "local" ? localCanisters : prodCanisters;
 
   for (const canister in canisters) {
-    process.env[canister.toUpperCase() + "_CANISTER_ID"] =
+    process.env["CANISTER_ID_" + canister.toUpperCase()] =
       canisters[canister][network];
   }
 }
@@ -38,6 +38,7 @@ const asset_entry = path.join(
   "src",
   "index.html"
 );
+
 
 module.exports = {
   target: "web",
@@ -85,7 +86,7 @@ module.exports = {
     }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development',
-      RANDOM_MAZE_CANISTER_ID: canisters["random_maze"]
+      ...process.env
     }),
     new webpack.ProvidePlugin({
       Buffer: [require.resolve("buffer/"), "Buffer"],
@@ -96,7 +97,7 @@ module.exports = {
   devServer: {
     proxy: {
       "/api": {
-        target: "http://localhost:8000",
+        target: "http://localhost:4943",
         changeOrigin: true,
         pathRewrite: {
           "^/api": "/api",
@@ -104,7 +105,10 @@ module.exports = {
       },
     },
     hot: true,
-    contentBase: path.resolve(__dirname, "./src/random_maze_assets"),
-    watchContentBase: true
+    static: [
+      path.join(__dirname, "dist", "random_maze_assets"),
+      path.join(__dirname, "src", "random_maze_assets", "assets"),
+    ],
+    liveReload: true
   },
 };
