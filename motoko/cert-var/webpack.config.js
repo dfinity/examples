@@ -25,7 +25,7 @@ function initCanisterIds() {
   canisters = network === "local" ? localCanisters : prodCanisters;
 
   for (const canister in canisters) {
-    process.env[canister.toUpperCase() + "_CANISTER_ID"] =
+    process.env["CANISTER_ID_" + canister.toUpperCase()] =
       canisters[canister][network];
   }
 }
@@ -85,18 +85,18 @@ module.exports = {
     }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development',
-      CERT_VAR_CANISTER_ID: canisters["cert_var"]
+      ...process.env
     }),
     new webpack.ProvidePlugin({
       Buffer: [require.resolve("buffer/"), "Buffer"],
       process: require.resolve("process/browser"),
     }),
   ],
-  // proxy /api to port 8000 during development
+  // proxy /api to the local replica during development
   devServer: {
     proxy: {
       "/api": {
-        target: "http://localhost:8000",
+        target: "http://localhost:4943",
         changeOrigin: true,
         pathRewrite: {
           "^/api": "/api",
@@ -104,7 +104,10 @@ module.exports = {
       },
     },
     hot: true,
-    contentBase: path.resolve(__dirname, "./src/cert_var_assets"),
-    watchContentBase: true
+    static: [
+      path.resolve(__dirname, "./src/cert_var_assets/assets"),
+      path.join(__dirname, "dist", "cert_var_assets")
+    ],
+    liveReload: true
   },
 };

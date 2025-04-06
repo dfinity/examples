@@ -2,7 +2,7 @@ import { HttpAgent } from '@dfinity/agent';
 import { Certificate } from '@dfinity/agent';
 import { IDL, PipeArrayBuffer, lebDecode } from '@dfinity/candid';
 import { Principal } from '@dfinity/principal'
-import { cert_var, canisterId } from '../../declarations'
+import { cert_var, canisterId } from '../../declarations/cert_var'
 
 const agent = new HttpAgent({});
 if (process.env.NODE_ENV !== "production") {
