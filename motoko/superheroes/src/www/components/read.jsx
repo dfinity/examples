@@ -1,6 +1,6 @@
 import React from 'react';
 
-import { superheroes } from "../../declarations";
+import { superheroes } from "../../declarations/superheroes";
 
 const $ = document.getElementById.bind(document);
 const idl = require('../utilities/idl');
