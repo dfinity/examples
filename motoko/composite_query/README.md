@@ -48,7 +48,7 @@ dfx start --background
 ## Step 2: Deploy the `Map` canister
 
 ```bash
-dfx deploy Map
+dfx deploy Map --no-wallet
 ```
 
 ## Step 3: Invoke the `test` method of canister `Map` to add some entries
