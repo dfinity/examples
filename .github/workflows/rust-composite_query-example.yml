@@ -25,9 +25,9 @@ jobs:
         run: |
           pushd rust/composite_query
           dfx start --background
-          dfx canister create data_partition
+          dfx canister create data_partition --no-wallet
           dfx build data_partition
-          dfx canister create kv_frontend
+          dfx canister create kv_frontend --no-wallet
           dfx build kv_frontend
           dfx canister install kv_frontend
           dfx canister deposit-cycles 10_000_000_000_000 kv_frontend
@@ -44,9 +44,9 @@ jobs:
         run: |
           pushd rust/composite_query
           dfx start --background
-          dfx canister create data_partition
+          dfx canister create data_partition --no-wallet
           dfx build data_partition
-          dfx canister create kv_frontend
+          dfx canister create kv_frontend --no-wallet
           dfx build kv_frontend
           dfx canister install kv_frontend
           dfx canister deposit-cycles 10_000_000_000_000 kv_frontend

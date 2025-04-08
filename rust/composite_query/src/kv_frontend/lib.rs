@@ -98,7 +98,9 @@ async fn create_data_partition_canister_from_wasm() {
         })
     };
 
-    let canister_record = create_canister(create_args, 1_000_000_000_000).await.unwrap();
+    const T: u128 = 1_000_000_000_000;
+
+    let canister_record = create_canister(create_args, 10 * T).await.unwrap();
     let canister_id = canister_record.0.canister_id;
 
     ic_cdk::println!("Created canister {}", canister_id);
