@@ -15,22 +15,16 @@ We first need to build the data partition backend canister.
 ```bash
 cd examples/rust/composite_query
 dfx start --background
-dfx canister create data_partition
+dfx canister create data_partition --no-wallet
 dfx build data_partition
 ```
 
 During the compilation of the fronted canister, the canister's wasm code will be inlined in the frontend canister's wasm code.
 
 ```bash
-dfx canister create kv_frontend
+dfx canister create kv_frontend --no-wallet
 dfx build kv_frontend
 dfx canister install kv_frontend
-```
-
-Make sure the frontend canister has enough cycles to create all the data partition canisters.
-
-```bash
-dfx canister deposit-cycles 10_000_000_000_000 kv_frontend
 ```
 
 ## Step 2: Using the canister

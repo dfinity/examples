@@ -25,12 +25,11 @@ jobs:
         run: |
           pushd rust/composite_query
           dfx start --background
-          dfx canister create data_partition
+          dfx canister create data_partition --no-wallet
           dfx build data_partition
-          dfx canister create kv_frontend
+          dfx canister create kv_frontend --no-wallet
           dfx build kv_frontend
           dfx canister install kv_frontend
-          dfx canister deposit-cycles 10_000_000_000_000 kv_frontend
           dfx canister call kv_frontend put '(1, 1337)'
           dfx canister call kv_frontend get '(1)' | grep '1_337'
           popd
@@ -44,12 +43,11 @@ jobs:
         run: |
           pushd rust/composite_query
           dfx start --background
-          dfx canister create data_partition
+          dfx canister create data_partition --no-wallet
           dfx build data_partition
-          dfx canister create kv_frontend
+          dfx canister create kv_frontend --no-wallet
           dfx build kv_frontend
           dfx canister install kv_frontend
-          dfx canister deposit-cycles 10_000_000_000_000 kv_frontend
           dfx canister call kv_frontend put '(1, 1337)'
           dfx canister call kv_frontend get '(1)' | grep '1_337'
           popd
