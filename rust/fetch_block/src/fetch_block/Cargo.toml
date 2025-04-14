@@ -1,0 +1,17 @@
+[package]
+name = "fetch_block"
+version = "0.1.0"
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+candid = "0.7.10"
+ic-cdk = "0.5"
+ic-cdk-macros = "0.5"
+ic-ledger-types = { git = "https://github.com/dfinity/cdk-rs", rev = "7d461057a24eacd48c5afd628c951693227c6257" }
+
+[profile.release]
+lto = true
+opt-level = 'z'
+panic = 'abort'
