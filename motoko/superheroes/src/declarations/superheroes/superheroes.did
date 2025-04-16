@@ -1,0 +1,18 @@
+type SuperheroId = nat32;
+type Superhero = 
+ record {
+   name: text;
+   superpowers: List;
+ };
+type List = 
+ opt record {
+       text;
+       List;
+     };
+service : {
+  /// * High-Level API
+  create: (Superhero) -> (SuperheroId);
+  delete: (SuperheroId) -> (bool);
+  read: (SuperheroId) -> (opt Superhero) query;
+  update: (SuperheroId, Superhero) -> (bool);
+}

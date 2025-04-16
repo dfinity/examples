@@ -1,0 +1,29 @@
+{
+  "canisters": {
+    "backend": {
+      "candid": "backend/backend.did",
+      "type": "custom",
+      "shrink": true,
+      "gzip": true,
+      "wasm": "target/wasm32-unknown-unknown/release/backend.wasm",
+      "build": [
+        "cargo build --target wasm32-unknown-unknown --release -p backend",
+        "candid-extractor target/wasm32-unknown-unknown/release/backend.wasm > backend/backend.did"
+      ],
+      "metadata": [
+        {
+          "name": "candid:service"
+        }
+      ]
+    },
+    "frontend": {
+      "dependencies": ["backend"],
+      "frontend": {
+        "entrypoint": "frontend/index.html"
+      },
+      "source": ["frontend/dist"],
+      "type": "assets"
+    }
+  },
+  "output_env_file": ".env"
+}

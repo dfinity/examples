@@ -30,7 +30,7 @@ dfx start --background
 ## Step 2: Deploy the canisters
 
 ```bash
-dfx deploy
+dfx deploy --no-wallet
 ```
 
 ## Step 3: Set up the caller canister

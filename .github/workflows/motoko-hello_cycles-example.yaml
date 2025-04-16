@@ -34,7 +34,6 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko Hello Cycles Linux
         run: |
-          dfxvm update
           dfx start --background --clean
           pushd motoko/hello_cycles
           make test

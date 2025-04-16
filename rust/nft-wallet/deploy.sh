@@ -1,14 +1,18 @@
 #!/usr/bin/env bash
 set -e
+
+walletparam="--no-wallet"  # to bypass the cycles wallet for local deployments
+
 for param do
     if [ "$param" = "ic" ] || [ "$param" = "--network=ic" ] ; then
         replicaparam="--replica=https://ic0.app"
-        networkparam="--network=ic"
+        networkparam="--network ic"
+        walletparam=""
         export NODE_ENV=production
         export DFX_NETWORK=ic
     fi
 done
-dfx deploy nftwallet "$@"
+dfx deploy nftwallet $walletparam $networkparam
 canister=$(dfx canister ${networkparam:+"$networkparam"} id nftwallet)
 PATH="$PATH:$PWD/target/bin"
 if ! command -v icx-asset &> /dev/null ; then

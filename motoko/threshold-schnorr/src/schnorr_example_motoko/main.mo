@@ -64,7 +64,7 @@ actor {
     };
 
     try {
-      Cycles.add<system>(25_000_000_000);
+      Cycles.add<system>(30_000_000_000);
       let signArgs = {
         message = Text.encodeUtf8(message_arg);
         derivation_path = [Principal.toBlob(caller)];

@@ -39,8 +39,8 @@ dfx start --background
 ## Step 2: Deploy the canisters `Map` and `Test`
 
 ```bash
-dfx deploy Map
-dfx deploy Test
+dfx deploy Map --no-wallet
+dfx deploy Test --no-wallet
 ```
 
 ## Step 3: Invoke the run method of canister `Test`

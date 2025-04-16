@@ -1,0 +1,28 @@
+{
+  "name": "frontend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prebuild": "npm i --include=dev && dfx generate backend",
+    "build": "vite build",
+    "dev": "vite"
+  },
+  "dependencies": {
+    "@dfinity/agent": "2.2.0",
+    "@dfinity/auth-client": "2.2.0",
+    "@dfinity/candid": "2.2.0",
+    "@dfinity/principal": "2.2.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@vitejs/plugin-react": "4.3.3",
+    "autoprefixer": "^10.4.20",
+    "postcss": "8.4.48",
+    "tailwindcss": "3.4.14",
+    "vite": "5.4.11",
+    "vite-plugin-environment": "1.1.3"
+  }
+}

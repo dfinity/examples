@@ -10,7 +10,7 @@ import { defineConfig, loadEnv } from 'vite';
 // dfx deploy = local
 // dfx deploy --network ic = ic
 const network = process.env.DFX_NETWORK ?? 'local';
-const host = network === 'local' ? 'http://localhost:8000' : 'https://ic0.app';
+const host = network === 'local' ? 'http://localhost:4943' : 'https://ic0.app';
 
 const readCanisterIds = ({ prefix }: { prefix?: string }): Record<string, string> => {
 	const canisterIdsJsonFile =

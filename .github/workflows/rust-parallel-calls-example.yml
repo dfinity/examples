@@ -53,6 +53,8 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Install PocketIC server
         uses: dfinity/pocketic@main
+        with:
+          pocket-ic-server-version: "7.0.0"
       - name: Test parallel calls with PocketIC
         run: |
           pushd rust/parallel_calls

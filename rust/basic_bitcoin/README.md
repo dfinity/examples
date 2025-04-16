@@ -19,7 +19,9 @@ For a deeper understanding of the ICP < > BTC integration, see the [Bitcoin inte
 * [x] Install the [IC
   SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
 * [x] On macOS, `llvm` with the `wasm32-unknown-unknown` target (which is not included in the XCode installation by default) is required.
-To install, run `brew install llvm`.
+  To install, run `brew install llvm`.
+* [x] On macOS, ensure that Cargo is using the correct `clang` installed by Homebrew. By default, Cargo might use the system’s clang,
+  which doesn’t support WebAssembly targets. To make sure Cargo uses the correct one, run `export CC_wasm32_unknown_unknown=/opt/homebrew/opt/llvm/bin/clang`.
 
 ## Step 1: Building and deploying sample code
 
@@ -112,7 +114,7 @@ is one of `[p2pkh, p2tr_key_only, p2tr]` (corresponding to the three types of
 addresses described above, in the same order).
 
 Or, if you prefer the command line:
-   `dfx canister --network=ic call basic_bitcoin get_${type}_address`
+`dfx canister --network=ic call basic_bitcoin get_${type}_address`
 
 ## Step 3: Receiving bitcoin
 
@@ -206,7 +208,6 @@ In this tutorial, you were able to:
 * Send the canister some testnet BTC.
 * Check the testnet BTC balance of the canister.
 * Use the canister to send testnet BTC to another testnet BTC address.
-
 
 The steps to develop Bitcoin dapps locally are extensively documented in [this tutorial](https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/local-development).
 
