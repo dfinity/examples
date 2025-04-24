@@ -104,7 +104,7 @@ The URL for the frontend depends on the canister ID.  Local canister IDs can be 
 
 ```
 
-http://\{canister_id\}.localhost:4943
+http://{canister_id}.localhost:4943
 
 ```
 
