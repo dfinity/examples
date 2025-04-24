@@ -1,7 +1,5 @@
 ---
-
 keywords: [static website, basic website, html, host a website, beginner]
-
 ---
 
 # Static website
@@ -27,31 +25,18 @@ This example requires an installation of:
 The website consists of an HTML file, a CSS file, and a PNG file.
 
 ```html
-
 <!doctype html>
-
 <html lang="en">
-
     <head>
-
         <meta charset="UTF-8">
-
         <meta name="viewport" content="width=device-width">
-
         <title>Static Website</title>
-
         <base href="/">
-
         <link type="text/css" rel="stylesheet" href="styles.css" />
-
     </head>
-
     <body>
-
         <img src="logo.png" alt="DFINITY logo" />
-
     </body>
-
 </html>
 
 ```
@@ -59,19 +44,12 @@ The website consists of an HTML file, a CSS file, and a PNG file.
 The only styling done in the CSS file is aligning the logo image:
 
 ```css
-
 img {
-
     max-width: 50vw;
-
     max-height: 25vw;
-
     display: block;
-
     margin: auto;
-
 }
-
 ```
 
 ## `dfx.json`
@@ -79,49 +57,27 @@ img {
 The `dfx.json` file is a configuration file that specifies the canister used for the dapp. In this case only one canister is needed. Besides the canister configuration, `dfx.json` also includes information about the project's build settings.
 
 ```json
-
 {
-
     "canisters": {
-
         "www": {
-
             "frontend": {
-
                 "entrypoint": "assets/src/index.html"
-
             },
-
             "source": [
-
                 "assets/assets",
-
                 "assets/src"
-
             ],
-
             "type": "assets"
-
         }
-
     },
-
     "defaults": {
-
         "build": {
-
             "args": "",
-
             "packtool": ""
-
         }
-
     },
-
     "version": 1
-
 }
-
 ```
 
 This is all needed for creating a canister smart contract for hosting a static website on ICP.
