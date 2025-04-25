@@ -52,6 +52,18 @@ img {
 }
 ```
 
+The project folder will then look like this:
+
+```
+  static-website
+  ├── dfx.json
+  └── frontend
+      ├── assets
+      │   ├── logo.png
+      │   └── main.css
+      └── src
+          └── index.html
+```
 ## `dfx.json`
 
 The `dfx.json` file is a configuration file that specifies the canister used for the dapp. In this case only one canister is needed. Besides the canister configuration, `dfx.json` also includes information about the project's build settings.
@@ -59,13 +71,13 @@ The `dfx.json` file is a configuration file that specifies the canister used for
 ```json
 {
     "canisters": {
-        "www": {
+        "frontend": {
             "frontend": {
-                "entrypoint": "assets/src/index.html"
+                "entrypoint": "frontend/src/index.html"
             },
             "source": [
-                "assets/assets",
-                "assets/src"
+                "frontend/assets",
+                "frontend/src"
             ],
             "type": "assets"
         }
