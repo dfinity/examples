@@ -59,9 +59,9 @@ mod tests {
 
     #[test]
     fn test_get_and_set() {
-        let old = get_and_set(Nat::from(1 as u32));
+        let old = get_and_set(Nat::from(1_u32));
         let new = get();
-        assert_eq!(old, Nat::from(0 as u32));
-        assert_eq!(new, Nat::from(1 as u32));
+        assert_eq!(old, Nat::from(0_u32));
+        assert_eq!(new, Nat::from(1_u32));
     }
 }
