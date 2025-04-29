@@ -1,6 +1,6 @@
-use ic_cdk::api::management_canister::ecdsa::{
-    ecdsa_public_key, sign_with_ecdsa, EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgument,
-    SignWithEcdsaArgument,
+use ic_cdk::management_canister::{
+    ecdsa_public_key, sign_with_ecdsa, EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgs,
+    SignWithEcdsaArgs,
 };
 
 /// Returns the ECDSA public key of this canister at the given derivation path.
@@ -13,14 +13,14 @@ pub async fn get_ecdsa_public_key(key_name: String, derivation_path: Vec<Vec<u8>
         name: key_name,
     };
 
-    let res = ecdsa_public_key(EcdsaPublicKeyArgument {
+    let res = ecdsa_public_key(&EcdsaPublicKeyArgs {
         canister_id,
         derivation_path,
         key_id,
     })
     .await;
 
-    res.unwrap().0.public_key
+    res.unwrap().public_key
 }
 
 pub async fn get_ecdsa_signature(
@@ -33,12 +33,12 @@ pub async fn get_ecdsa_signature(
         name: key_name,
     };
 
-    let res = sign_with_ecdsa(SignWithEcdsaArgument {
+    let res = sign_with_ecdsa(&SignWithEcdsaArgs {
         message_hash,
         derivation_path,
         key_id,
     })
     .await;
 
-    res.unwrap().0.signature
+    res.unwrap().signature
 }

@@ -2,11 +2,12 @@
 keywords: [advanced, rust, bitcoin, btc, integration, bitcoin integration]
 ---
 
-# Basic Bitcoin 
+# Basic Bitcoin
 
 [View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/basic_bitcoin)
 
-## Overview 
+## Overview
+
 This tutorial will walk you through how to deploy a sample [canister smart contract](/docs/current/developer-docs/multi-chain/bitcoin/overview) **that can send and receive Bitcoin** on the Internet Computer.
 
 ## Architecture
@@ -18,7 +19,7 @@ For a deeper understanding of the ICP < > BTC integration, see the [Bitcoin inte
 
 ## Prerequisites
 
-* [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
 
 ## Step 1: Building and deploying sample code
 
@@ -33,10 +34,7 @@ To clone and build the smart contract in **Rust**:
 ```bash
 git clone https://github.com/dfinity/examples
 cd examples/rust/basic_bitcoin
-git submodule update --init --recursive
 ```
-
-**If you choose Rust and are using MacOS, you'll need to install Homebrew and run `brew install llvm` to be able to compile the example.**
 
 ### Acquire cycles to deploy
 
@@ -49,12 +47,12 @@ dfx deploy --network=ic basic_bitcoin --argument '(variant { testnet })'
 ```
 
 #### What this does
+
 - `dfx deploy` tells the command line interface to `deploy` the smart contract
 - `--network=ic` tells the command line to deploy the smart contract to the mainnet ICP blockchain
 - `--argument '(variant { testnet })'` passes the argument `testnet` to initialize the smart contract, telling it to connect to the Bitcoin testnet
 
 **We're initializing the canister with `variant { testnet }` so that the canister connects to the [Bitcoin testnet](https://en.bitcoin.it/wiki/Testnet). To be specific, this connects to `Testnet3`, which is the current Bitcoin test network used by the Bitcoin community.**
-
 
 If successful, you should see an output that looks like this:
 
@@ -72,8 +70,8 @@ Your canister is live and ready to use! You can interact with it using either th
 
 In the output above, to see the Candid Web UI for your bitcoin canister, you would use the URL `https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=<YOUR-CANISTER-ID>`. Here are the two methods you will see:
 
-* `public_key`
-* `sign`
+- `public_key`
+- `sign`
 
 ## Step 2: Generating a Bitcoin address
 
@@ -88,12 +86,11 @@ Or, if you prefer the command line:
 
     dfx canister --network=ic call basic_bitcoin get_p2pkh_address
 
-* The Bitcoin address you see will be different from the one above because the
+- The Bitcoin address you see will be different from the one above because the
   ECDSA public key your canister retrieves is unique.
 
-* We are generating a Bitcoin testnet address, which can only be
-used for sending/receiving Bitcoin on the Bitcoin testnet.
-
+- We are generating a Bitcoin testnet address, which can only be
+  used for sending/receiving Bitcoin on the Bitcoin testnet.
 
 ## Step 3: Receiving bitcoin
 
@@ -151,22 +148,23 @@ reflected in your current balance.
 
 In this tutorial, you were able to:
 
-* Deploy a canister smart contract on the ICP blockchain that can receive & send bitcoin.
-* Use a cycles faucet to deploy the canister to ICP blockchain on the mainnet for free.
-* Connect the canister to the Bitcoin testnet.
-* Send the canister some testnet BTC.
-* Check the testnet BTC balance of the canister.
-* Use the canister to send testnet BTC to another BTC address. 
+- Deploy a canister smart contract on the ICP blockchain that can receive & send bitcoin.
+- Use a cycles faucet to deploy the canister to ICP blockchain on the mainnet for free.
+- Connect the canister to the Bitcoin testnet.
+- Send the canister some testnet BTC.
+- Check the testnet BTC balance of the canister.
+- Use the canister to send testnet BTC to another BTC address.
 
 This example is extensively documented in the following tutorials:
 
-* [Deploying your first Bitcoin dapp](https://internetcomputer.org/docs/current/samples/deploying-your-first-bitcoin-dapp).
-* [Developing Bitcoin dapps locally](https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/local-development).
+- [Deploying your first Bitcoin dapp](https://internetcomputer.org/docs/current/samples/deploying-your-first-bitcoin-dapp).
+- [Developing Bitcoin dapps locally](https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/local-development).
 
 ## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 
 For example, the following aspects are particularly relevant for this app:
-* [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since the app e.g. offers a method to read balances.
-* [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#use-a-decentralized-governance-system-like-sns-to-make-a-canister-have-a-decentralized-controller), since decentralized control may be essential for canisters holding Bitcoin on behalf of users.
+
+- [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since the app e.g. offers a method to read balances.
+- [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://internetcomputer.org/docs/current/references/security/rust-canister-development-security-best-practices#use-a-decentralized-governance-system-like-sns-to-make-a-canister-have-a-decentralized-controller), since decentralized control may be essential for canisters holding Bitcoin on behalf of users.

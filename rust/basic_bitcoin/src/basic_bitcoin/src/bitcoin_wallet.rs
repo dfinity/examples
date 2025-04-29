@@ -14,10 +14,8 @@ use bitcoin::{
     hashes::Hash,
     Address, AddressType, EcdsaSighashType, OutPoint, Script, Transaction, TxIn, TxOut, Txid,
 };
-use ic_cdk::api::management_canister::bitcoin::{
-    BitcoinNetwork, MillisatoshiPerByte, Satoshi, Utxo,
-};
-use ic_cdk::print;
+use ic_cdk::api::debug_print;
+use ic_cdk::bitcoin_canister::{MillisatoshiPerByte, Network, Satoshi, Utxo};
 use sha2::Digest;
 use std::str::FromStr;
 
@@ -25,7 +23,7 @@ const SIG_HASH_TYPE: EcdsaSighashType = EcdsaSighashType::All;
 
 /// Returns the P2PKH address of this canister at the given derivation path.
 pub async fn get_p2pkh_address(
-    network: BitcoinNetwork,
+    network: Network,
     key_name: String,
     derivation_path: Vec<Vec<u8>>,
 ) -> String {
@@ -40,7 +38,7 @@ pub async fn get_p2pkh_address(
 /// given destination, where the source of the funds is the canister itself
 /// at the given derivation path.
 pub async fn send(
-    network: BitcoinNetwork,
+    network: Network,
     derivation_path: Vec<Vec<u8>>,
     key_name: String,
     dst_address: String,
@@ -64,7 +62,7 @@ pub async fn send(
         ecdsa_api::get_ecdsa_public_key(key_name.clone(), derivation_path.clone()).await;
     let own_address = public_key_to_p2pkh_address(network, &own_public_key);
 
-    print("Fetching UTXOs...");
+    debug_print("Fetching UTXOs...");
     // Note that pagination may have to be used to get all UTXOs for the given address.
     // For the sake of simplicity, it is assumed here that the `utxo` field in the response
     // contains all UTXOs.
@@ -87,7 +85,7 @@ pub async fn send(
     .await;
 
     let tx_bytes = transaction.serialize();
-    print(format!("Transaction to sign: {}", hex::encode(tx_bytes)));
+    debug_print(format!("Transaction to sign: {}", hex::encode(tx_bytes)));
 
     // Sign the transaction.
     let signed_transaction = sign_transaction(
@@ -101,14 +99,15 @@ pub async fn send(
     .await;
 
     let signed_transaction_bytes = signed_transaction.serialize();
-    print(format!(
+    debug_print(format!(
         "Signed transaction: {}",
         hex::encode(&signed_transaction_bytes)
     ));
 
-    print("Sending transaction...");
+    debug_print("Sending transaction...");
+
     bitcoin_api::send_transaction(network, signed_transaction_bytes).await;
-    print("Done");
+    debug_print("Done");
 
     signed_transaction.txid()
 }
@@ -131,7 +130,7 @@ async fn build_transaction(
     // We solve this problem iteratively. We start with a fee of zero, build
     // and sign a transaction, see what its size is, and then update the fee,
     // rebuild the transaction, until the fee is set to the correct amount.
-    print("Building transaction...");
+    debug_print("Building transaction...");
     let mut total_fee = 0;
     loop {
         let transaction =
@@ -153,7 +152,7 @@ async fn build_transaction(
         let signed_tx_bytes_len = signed_transaction.serialize().len() as u64;
 
         if (signed_tx_bytes_len * fee_per_byte) / 1000 == total_fee {
-            print(format!("Transaction built with fee {}.", total_fee));
+            debug_print(format!("Transaction built with fee {}.", total_fee));
             return transaction;
         } else {
             total_fee = (signed_tx_bytes_len * fee_per_byte) / 1000;
@@ -288,13 +287,13 @@ fn ripemd160(data: &[u8]) -> Vec<u8> {
 }
 
 // Converts a public key to a P2PKH address.
-fn public_key_to_p2pkh_address(network: BitcoinNetwork, public_key: &[u8]) -> String {
+fn public_key_to_p2pkh_address(network: Network, public_key: &[u8]) -> String {
     // SHA-256 & RIPEMD-160
     let result = ripemd160(&sha256(public_key));
 
     let prefix = match network {
-        BitcoinNetwork::Testnet | BitcoinNetwork::Regtest => 0x6f,
-        BitcoinNetwork::Mainnet => 0x00,
+        Network::Testnet | Network::Regtest => 0x6f,
+        Network::Mainnet => 0x00,
     };
     let mut data_with_prefix = vec![prefix];
     data_with_prefix.extend(result);
