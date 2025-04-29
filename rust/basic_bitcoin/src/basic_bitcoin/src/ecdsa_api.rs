@@ -1,8 +1,10 @@
-use ic_cdk::api::management_canister::ecdsa::{
-    EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgument, SignWithEcdsaArgument,
-};
 use std::cell::RefCell;
 use std::collections::HashMap;
+
+use ic_cdk::management_canister::{
+    EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgs, EcdsaPublicKeyResult, SignWithEcdsaArgs,
+    SignWithEcdsaResult,
+};
 
 // stores the ecdsa to maintain state across different calls to the canister (not across updates)
 thread_local! {
@@ -28,12 +30,10 @@ pub async fn get_ecdsa_public_key(key_name: String, derivation_path: Vec<Vec<u8>
         name: key_name,
     };
 
-    let res: ic_cdk::api::call::CallResult<(
-        ic_cdk::api::management_canister::ecdsa::EcdsaPublicKeyResponse,
-    )> = ic_cdk::call(
+    let res: ic_cdk::api::call::CallResult<(EcdsaPublicKeyResult,)> = ic_cdk::call(
         super::mgmt_canister_id(),
         "ecdsa_public_key",
-        (EcdsaPublicKeyArgument {
+        (EcdsaPublicKeyArgs {
             canister_id,
             derivation_path: derivation_path.clone(),
             key_id,
@@ -67,19 +67,18 @@ pub async fn get_ecdsa_signature(
         name: key_name,
     };
 
-    let res: ic_cdk::api::call::CallResult<(
-        ic_cdk::api::management_canister::ecdsa::SignWithEcdsaResponse,
-    )> = ic_cdk::api::call::call_with_payment128(
-        super::mgmt_canister_id(),
-        "sign_with_ecdsa",
-        (SignWithEcdsaArgument {
-            message_hash,
-            derivation_path,
-            key_id,
-        },),
-        26_153_846_153,
-    )
-    .await;
+    let res: ic_cdk::api::call::CallResult<(SignWithEcdsaResult,)> =
+        ic_cdk::api::call::call_with_payment128(
+            super::mgmt_canister_id(),
+            "sign_with_ecdsa",
+            (SignWithEcdsaArgs {
+                message_hash,
+                derivation_path,
+                key_id,
+            },),
+            26_153_846_153,
+        )
+        .await;
 
     res.unwrap().0.signature
 }

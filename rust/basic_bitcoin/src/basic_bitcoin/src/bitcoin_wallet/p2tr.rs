@@ -9,10 +9,10 @@ use bitcoin::{
     taproot::{ControlBlock, LeafVersion, TapLeafHash, TaprootBuilder, TaprootSpendInfo},
     Address, AddressType, ScriptBuf, Sequence, Transaction, TxOut, Txid,
 };
-use ic_cdk::api::management_canister::bitcoin::{
-    BitcoinNetwork, MillisatoshiPerByte, Satoshi, Utxo,
+use ic_cdk::{
+    api::debug_print,
+    bitcoin_canister::{MillisatoshiPerByte, Network, Satoshi, Utxo},
 };
-use ic_cdk::print;
 use std::str::FromStr;
 
 /// Returns the P2TR address of this canister at the given derivation path. This
@@ -23,7 +23,7 @@ use std::str::FromStr;
 /// The keys are derived by appending additional information to the provided
 /// `derivation_path`.
 pub async fn get_address(
-    network: BitcoinNetwork,
+    network: Network,
     key_name: String,
     derivation_path: Vec<Vec<u8>>,
 ) -> Address {
@@ -41,7 +41,7 @@ pub async fn get_address(
 // containing scripts, in our case just one). Addresses are computed differently
 // for different Bitcoin networks.
 pub fn public_keys_to_p2tr_script_spend_address(
-    bitcoin_network: BitcoinNetwork,
+    bitcoin_network: Network,
     internal_key: &[u8],
     script_key: &[u8],
 ) -> Address {
@@ -79,7 +79,7 @@ fn p2tr_script(public_key: &[u8]) -> ScriptBuf {
 /// given amount to the given destination, where the source of the funds is the
 /// canister itself at the given derivation path.
 pub async fn send_script_path(
-    network: BitcoinNetwork,
+    network: Network,
     derivation_path: Vec<Vec<u8>>,
     key_name: String,
     dst_address: String,
@@ -97,7 +97,7 @@ pub async fn send_script_path(
         super::common::transform_network(network),
     );
 
-    print("Fetching UTXOs...");
+    debug_print("Fetching UTXOs...");
     // Note that pagination may have to be used to get all UTXOs for the given address.
     // For the sake of simplicity, it is assumed here that the `utxo` field in the response
     // contains all UTXOs.
@@ -119,7 +119,7 @@ pub async fn send_script_path(
         build_p2tr_tx(&own_address, &own_utxos, &dst_address, amount, fee_per_byte).await;
 
     let tx_bytes = serialize(&transaction);
-    print(format!("Transaction to sign: {}", hex::encode(tx_bytes)));
+    debug_print(format!("Transaction to sign: {}", hex::encode(tx_bytes)));
 
     // Sign the transaction.
     let signed_transaction = schnorr_sign_script_spend_transaction(
@@ -135,14 +135,14 @@ pub async fn send_script_path(
     .await;
 
     let signed_transaction_bytes = serialize(&signed_transaction);
-    print(format!(
+    debug_print(format!(
         "Signed transaction: {}",
         hex::encode(&signed_transaction_bytes)
     ));
 
-    print("Sending transaction...");
+    debug_print("Sending transaction...");
     bitcoin_api::send_transaction(network, signed_transaction_bytes).await;
-    print("Done");
+    debug_print("Done");
 
     signed_transaction.txid()
 }
@@ -151,7 +151,7 @@ pub async fn send_script_path(
 /// given amount to the given destination, where the source of the funds is the
 /// canister itself at the given derivation path.
 pub async fn send_key_path(
-    network: BitcoinNetwork,
+    network: Network,
     derivation_path: Vec<Vec<u8>>,
     key_name: String,
     dst_address: String,
@@ -169,7 +169,7 @@ pub async fn send_key_path(
         super::common::transform_network(network),
     );
 
-    print("Fetching UTXOs...");
+    debug_print("Fetching UTXOs...");
     // Note that pagination may have to be used to get all UTXOs for the given address.
     // For the sake of simplicity, it is assumed here that the `utxo` field in the response
     // contains all UTXOs.
@@ -187,7 +187,7 @@ pub async fn send_key_path(
         build_p2tr_tx(&own_address, &own_utxos, &dst_address, amount, fee_per_byte).await;
 
     let tx_bytes = serialize(&transaction);
-    print(format!("Transaction to sign: {}", hex::encode(tx_bytes)));
+    debug_print(format!("Transaction to sign: {}", hex::encode(tx_bytes)));
 
     // Sign the transaction.
     let signed_transaction = schnorr_sign_key_spend_transaction(
@@ -206,14 +206,14 @@ pub async fn send_key_path(
     .await;
 
     let signed_transaction_bytes = serialize(&signed_transaction);
-    print(format!(
+    debug_print(format!(
         "Signed transaction: {}",
         hex::encode(&signed_transaction_bytes)
     ));
 
-    print("Sending transaction...");
+    debug_print("Sending transaction...");
     bitcoin_api::send_transaction(network, signed_transaction_bytes).await;
-    print("Done");
+    debug_print("Done");
 
     signed_transaction.txid()
 }
@@ -235,7 +235,7 @@ pub(crate) async fn build_p2tr_tx(
     // We solve this problem iteratively. We start with a fee of zero, build
     // and sign a transaction, see what its size is, and then update the fee,
     // rebuild the transaction, until the fee is set to the correct amount.
-    print("Building transaction...");
+    debug_print("Building transaction...");
     let mut total_fee = 0;
     loop {
         let (transaction, prevouts) = super::common::build_transaction_with_fee(
@@ -268,7 +268,7 @@ pub(crate) async fn build_p2tr_tx(
         let tx_vsize = signed_transaction.vsize() as u64;
 
         if (tx_vsize * fee_per_byte) / 1000 == total_fee {
-            print(format!("Transaction built with fee {}.", total_fee));
+            debug_print(format!("Transaction built with fee {}.", total_fee));
             return (transaction, prevouts);
         } else {
             total_fee = (tx_vsize * fee_per_byte) / 1000;

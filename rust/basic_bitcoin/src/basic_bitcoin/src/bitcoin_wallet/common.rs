@@ -1,9 +1,9 @@
 use crate::bitcoin_api;
 use bitcoin::{
-    absolute::LockTime, blockdata::witness::Witness, hashes::Hash, Address, Network, OutPoint,
+    self, absolute::LockTime, blockdata::witness::Witness, hashes::Hash, Address, OutPoint,
     ScriptBuf, Sequence, Transaction, TxIn, TxOut, Txid,
 };
-use ic_cdk::api::management_canister::bitcoin::{BitcoinNetwork, Utxo};
+use ic_cdk::bitcoin_canister::{Network, Utxo};
 
 pub fn build_transaction_with_fee(
     own_utxos: &[Utxo],
@@ -83,15 +83,15 @@ pub fn build_transaction_with_fee(
     ))
 }
 
-pub fn transform_network(network: BitcoinNetwork) -> Network {
+pub fn transform_network(network: Network) -> bitcoin::Network {
     match network {
-        BitcoinNetwork::Mainnet => Network::Bitcoin,
-        BitcoinNetwork::Testnet => Network::Testnet,
-        BitcoinNetwork::Regtest => Network::Regtest,
+        Network::Mainnet => bitcoin::Network::Bitcoin,
+        Network::Testnet => bitcoin::Network::Testnet,
+        Network::Regtest => bitcoin::Network::Regtest,
     }
 }
 
-pub async fn get_fee_per_byte(network: BitcoinNetwork) -> u64 {
+pub async fn get_fee_per_byte(network: Network) -> u64 {
     // Get fee percentiles from previous transactions to estimate our own fee.
     let fee_percentiles = bitcoin_api::get_current_fee_percentiles(network).await;
 

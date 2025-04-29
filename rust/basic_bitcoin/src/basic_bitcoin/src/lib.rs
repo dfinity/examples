@@ -4,9 +4,9 @@ mod ecdsa_api;
 mod schnorr_api;
 
 use candid::{CandidType, Deserialize};
-use ic_cdk::api::management_canister::{
-    bitcoin::{BitcoinNetwork, GetUtxosResponse, MillisatoshiPerByte},
-    main::CanisterId,
+use ic_cdk::{
+    bitcoin_canister::{GetUtxosResponse, MillisatoshiPerByte, Network},
+    management_canister::CanisterId,
 };
 use ic_cdk_macros::{init, update};
 use std::cell::{Cell, RefCell};
@@ -21,25 +21,25 @@ thread_local! {
     //
     // When developing locally this should be `Regtest`.
     // When deploying to the IC this should be `Testnet` or `Mainnet`.
-    static NETWORK: Cell<BitcoinNetwork> = Cell::new(BitcoinNetwork::Testnet);
+    static NETWORK: Cell<Network> = const { Cell::new(Network::Testnet) };
 
     // The derivation path to use for the threshold key.
-    static DERIVATION_PATH: Vec<Vec<u8>> = vec![];
+    static DERIVATION_PATH: Vec<Vec<u8>> = const {vec![]};
 
     // The ECDSA key name.
     static KEY_NAME: RefCell<String> = RefCell::new(String::from(""));
 }
 
 #[init]
-pub fn init(network: BitcoinNetwork) {
+pub fn init(network: Network) {
     NETWORK.with(|n| n.set(network));
 
     KEY_NAME.with(|key_name| {
         key_name.replace(String::from(match network {
             // For local development, we use a special test key.
-            BitcoinNetwork::Regtest => "dfx_test_key",
+            Network::Regtest => "dfx_test_key",
             // On the IC we're using a test ECDSA key.
-            BitcoinNetwork::Mainnet | BitcoinNetwork::Testnet => "test_key_1",
+            Network::Mainnet | Network::Testnet => "test_key_1",
         }))
     });
 
@@ -68,7 +68,7 @@ pub type BlockHeader = Vec<u8>;
 pub struct GetBlockHeadersRequest {
     pub start_height: Height,
     pub end_height: Option<Height>,
-    pub network: BitcoinNetwork,
+    pub network: Network,
 }
 
 /// The response returned for a request for getting the block headers from a given height.

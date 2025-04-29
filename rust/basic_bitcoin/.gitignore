@@ -12,3 +12,6 @@
 
 # rust
 target/
+
+# bitcoin
+bitcoin_data/**

@@ -3,8 +3,10 @@ use bitcoin::{
     consensus::serialize, key::Secp256k1, secp256k1::PublicKey, taproot::TaprootSpendInfo, Address,
     Txid,
 };
-use ic_cdk::api::management_canister::bitcoin::{BitcoinNetwork, Satoshi};
-use ic_cdk::print;
+use ic_cdk::{
+    api::debug_print,
+    bitcoin_canister::{Network, Satoshi},
+};
 use std::str::FromStr;
 
 /// Returns the P2TR key-only address of this canister at the given derivation
@@ -18,7 +20,7 @@ use std::str::FromStr;
 /// instead of having no script path. This is achieved by computing the output key point as
 /// `Q = P + int(hashTapTweak(bytes(P)))G`. See also [`TaprootSpendInfo::tap_tweak`].
 pub async fn get_address(
-    network: BitcoinNetwork,
+    network: Network,
     key_name: String,
     derivation_path: Vec<Vec<u8>>,
 ) -> Address {
@@ -38,7 +40,7 @@ pub async fn get_address(
 /// given amount to the given destination, where the source of the funds is the
 /// canister itself at the given derivation path.
 pub async fn send(
-    network: BitcoinNetwork,
+    network: Network,
     derivation_path: Vec<Vec<u8>>,
     key_name: String,
     dst_address: String,
@@ -61,7 +63,7 @@ pub async fn send(
         super::common::transform_network(network),
     );
 
-    print("Fetching UTXOs...");
+    debug_print("Fetching UTXOs...");
     // Note that pagination may have to be used to get all UTXOs for the given address.
     // For the sake of simplicity, it is assumed here that the `utxo` field in the response
     // contains all UTXOs.
@@ -79,7 +81,7 @@ pub async fn send(
             .await;
 
     let tx_bytes = serialize(&transaction);
-    print(format!("Transaction to sign: {}", hex::encode(tx_bytes)));
+    debug_print(format!("Transaction to sign: {}", hex::encode(tx_bytes)));
 
     // Sign the transaction.
     let signed_transaction = super::p2tr::schnorr_sign_key_spend_transaction(
@@ -94,14 +96,14 @@ pub async fn send(
     .await;
 
     let signed_transaction_bytes = serialize(&signed_transaction);
-    print(format!(
+    debug_print(format!(
         "Signed transaction: {}",
         hex::encode(&signed_transaction_bytes)
     ));
 
-    print("Sending transaction...");
+    debug_print("Sending transaction...");
     bitcoin_api::send_transaction(network, signed_transaction_bytes).await;
-    print("Done");
+    debug_print("Done");
 
     signed_transaction.txid()
 }

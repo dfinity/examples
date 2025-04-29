@@ -16,12 +16,7 @@ For a deeper understanding of the ICP < > BTC integration, see the [Bitcoin inte
 
 ## Prerequisites
 
-* [x] Install the [IC
-  SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
-* [x] On macOS, `llvm` with the `wasm32-unknown-unknown` target (which is not included in the XCode installation by default) is required.
-  To install, run `brew install llvm`.
-* [x] On macOS, ensure that Cargo is using the correct `clang` installed by Homebrew. By default, Cargo might use the system’s clang,
-  which doesn’t support WebAssembly targets. To make sure Cargo uses the correct one, run `export CC_wasm32_unknown_unknown=/opt/homebrew/opt/llvm/bin/clang`.
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
 
 ## Step 1: Building and deploying sample code
 
@@ -46,6 +41,7 @@ dfx deploy --network=ic basic_bitcoin --argument '(variant { testnet })'
 ```
 
 #### What this does
+
 - `dfx deploy` tells the command line interface to `deploy` the smart contract
 - `--network=ic` tells the command line to deploy the smart contract to the mainnet ICP blockchain
 - `--argument '(variant { testnet })'` passes the argument `testnet` to initialize the smart contract, telling it to connect to the Bitcoin testnet
@@ -92,6 +88,7 @@ These addresses can be generated from an ECDSA public key or a Schnorr
 [BIP341](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki)) public
 key. The example code showcases how your canister can generate and spend from
 three types of addresses:
+
 1. A [P2PKH address](https://en.bitcoin.it/wiki/Transaction#Pay-to-PubkeyHash)
    using the
    [ecdsa_public_key](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-method-ecdsa_public_key)
@@ -193,7 +190,9 @@ Alternatively, make the call using the command line. Be sure to replace `10` wit
 ```bash
 dfx canister --network=ic call basic_bitcoin get_block_headers "(10: nat32)"
 ```
+
 or replace `0` and `11` with your desired start and end height respectively:
+
 ```bash
 dfx canister --network=ic call basic_bitcoin get_block_headers "(0: nat32, 11: nat32)"
 ```
@@ -202,16 +201,16 @@ dfx canister --network=ic call basic_bitcoin get_block_headers "(0: nat32, 11: n
 
 In this tutorial, you were able to:
 
-* Deploy a canister smart contract on the ICP blockchain that can receive & send bitcoin.
-* Acquire cycles to deploy the canister to the ICP mainnet.
-* Connect the canister to the Bitcoin testnet.
-* Send the canister some testnet BTC.
-* Check the testnet BTC balance of the canister.
-* Use the canister to send testnet BTC to another testnet BTC address.
+- Deploy a canister smart contract on the ICP blockchain that can receive & send bitcoin.
+- Acquire cycles to deploy the canister to the ICP mainnet.
+- Connect the canister to the Bitcoin testnet.
+- Send the canister some testnet BTC.
+- Check the testnet BTC balance of the canister.
+- Use the canister to send testnet BTC to another testnet BTC address.
 
 The steps to develop Bitcoin dapps locally are extensively documented in [this tutorial](https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/local-development).
 
-Note that for *testing* on mainnet, the [chain-key testing
+Note that for _testing_ on mainnet, the [chain-key testing
 canister](https://github.com/dfinity/chainkey-testing-canister) can be used to
 save on costs for calling the threshold signing APIs for signing the BTC
 transactions.
@@ -221,5 +220,6 @@ transactions.
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 
 For example, the following aspects are particularly relevant for this app:
-* [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since the app e.g. offers a method to read balances.
-* [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/overview), since decentralized control may be essential for canisters holding bitcoins on behalf of users.
+
+- [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since the app e.g. offers a method to read balances.
+- [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/overview), since decentralized control may be essential for canisters holding bitcoins on behalf of users.

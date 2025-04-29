@@ -1,58 +1,65 @@
-use candid::Principal;
-use ic_cdk::api::management_canister::bitcoin::{
-    bitcoin_get_balance, bitcoin_get_current_fee_percentiles, bitcoin_get_utxos,
-    bitcoin_send_transaction, BitcoinNetwork, GetBalanceRequest, GetCurrentFeePercentilesRequest,
-    GetUtxosRequest, GetUtxosResponse, MillisatoshiPerByte, SendTransactionRequest,
-};
 use crate::{GetBlockHeadersRequest, GetBlockHeadersResponse};
+use candid::Principal;
+use ic_cdk::bitcoin_canister::{
+    bitcoin_get_balance, bitcoin_get_current_fee_percentiles, bitcoin_get_utxos,
+    bitcoin_send_transaction, GetBalanceRequest, GetCurrentFeePercentilesRequest, GetUtxosRequest,
+    GetUtxosResponse, MillisatoshiPerByte, Network, SendTransactionRequest,
+};
 
 /// Returns the balance of the given bitcoin address.
 ///
 /// Relies on the `bitcoin_get_balance` endpoint.
 /// See https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_balance
-pub async fn get_balance(network: BitcoinNetwork, address: String) -> u64 {
+pub async fn get_balance(network: Network, address: String) -> u64 {
     let min_confirmations = None;
-    let balance_res = bitcoin_get_balance(GetBalanceRequest {
+    let balance_res = bitcoin_get_balance(&GetBalanceRequest {
         address,
         network,
         min_confirmations,
     })
     .await;
 
-    balance_res.unwrap().0
+    balance_res.unwrap()
 }
 
 /// Returns the UTXOs of the given bitcoin address.
 ///
 /// NOTE: Relies on the `bitcoin_get_utxos` endpoint.
 /// See https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_utxos
-pub async fn get_utxos(network: BitcoinNetwork, address: String) -> GetUtxosResponse {
+pub async fn get_utxos(network: Network, address: String) -> GetUtxosResponse {
     let filter = None;
-    let utxos_res = bitcoin_get_utxos(GetUtxosRequest {
+    let utxos_res = bitcoin_get_utxos(&GetUtxosRequest {
         address,
         network,
         filter,
     })
     .await;
 
-    utxos_res.unwrap().0
+    utxos_res.unwrap()
 }
 
 /// Returns the block headers in the given height range.
-pub(crate) async fn get_block_headers(network: BitcoinNetwork, start_height: u32, end_height: Option<u32>) -> GetBlockHeadersResponse{
+pub(crate) async fn get_block_headers(
+    network: Network,
+    start_height: u32,
+    end_height: Option<u32>,
+) -> GetBlockHeadersResponse {
     let cycles = match network {
-        BitcoinNetwork::Mainnet => 10_000_000_000,
-        BitcoinNetwork::Testnet => 10_000_000_000,
-        BitcoinNetwork::Regtest => 0,
+        Network::Mainnet => 10_000_000_000,
+        Network::Testnet => 10_000_000_000,
+        Network::Regtest => 0,
     };
 
-    let request = GetBlockHeadersRequest{
+    let request = GetBlockHeadersRequest {
         start_height,
         end_height,
-        network
+        network,
     };
 
-    let res = ic_cdk::api::call::call_with_payment128::<(GetBlockHeadersRequest,), (GetBlockHeadersResponse,)>(
+    let res = ic_cdk::api::call::call_with_payment128::<
+        (GetBlockHeadersRequest,),
+        (GetBlockHeadersResponse,),
+    >(
         Principal::management_canister(),
         "bitcoin_get_block_headers",
         (request,),
@@ -68,19 +75,19 @@ pub(crate) async fn get_block_headers(network: BitcoinNetwork, start_height: u32
 ///
 /// Relies on the `bitcoin_get_current_fee_percentiles` endpoint.
 /// See https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_current_fee_percentiles
-pub async fn get_current_fee_percentiles(network: BitcoinNetwork) -> Vec<MillisatoshiPerByte> {
+pub async fn get_current_fee_percentiles(network: Network) -> Vec<MillisatoshiPerByte> {
     let res =
-        bitcoin_get_current_fee_percentiles(GetCurrentFeePercentilesRequest { network }).await;
+        bitcoin_get_current_fee_percentiles(&GetCurrentFeePercentilesRequest { network }).await;
 
-    res.unwrap().0
+    res.unwrap()
 }
 
 /// Sends a (signed) transaction to the bitcoin network.
 ///
 /// Relies on the `bitcoin_send_transaction` endpoint.
 /// See https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_send_transaction
-pub async fn send_transaction(network: BitcoinNetwork, transaction: Vec<u8>) {
-    let res = bitcoin_send_transaction(SendTransactionRequest {
+pub async fn send_transaction(network: Network, transaction: Vec<u8>) {
+    let res = bitcoin_send_transaction(&SendTransactionRequest {
         network,
         transaction,
     })
@@ -88,4 +95,3 @@ pub async fn send_transaction(network: BitcoinNetwork, transaction: Vec<u8>) {
 
     res.unwrap();
 }
-
