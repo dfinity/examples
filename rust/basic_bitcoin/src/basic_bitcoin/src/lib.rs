@@ -11,7 +11,7 @@ use ic_cdk::{
     },
     init, post_upgrade, update,
 };
-use std::cell::{Cell, RefCell};
+use std::cell::Cell;
 
 // Different derivation paths for different addresses to use different keys.
 const P2PKH_DERIVATION_PATH: &str = "p2pkh";
@@ -25,33 +25,23 @@ thread_local! {
     // When deploying to the IC this should be `Testnet` or `Mainnet`.
     static NETWORK: Cell<Network> = const { Cell::new(Network::Testnet) };
 
-    // The ECDSA key name.
-    static KEY_NAME: RefCell<String> = RefCell::new(String::from(""));
 }
 
-pub fn init_upgrade(network: Network) {
-    NETWORK.with(|n| n.set(network));
-
-    KEY_NAME.with(|key_name| {
-        key_name.replace(String::from(match network {
-            // For local development, we use a special test key.
-            Network::Regtest => "dfx_test_key",
-            // On the IC we're using a test ECDSA key.
-            Network::Mainnet | Network::Testnet => "test_key_1",
-        }))
-    });
-
-    KEY_NAME.with_borrow(|key_name| assert_ne!(key_name, ""));
+fn get_key_name(network: Network) -> String {
+    match network {
+        Network::Regtest => "dfx_test_key".to_string(),
+        Network::Mainnet | Network::Testnet => "test_key_1".to_string(),
+    }
 }
 
 #[init]
 pub fn init(network: Network) {
-    init_upgrade(network);
+    NETWORK.with(|n| n.set(network));
 }
 
 #[post_upgrade]
 fn upgrade(network: Network) {
-    init_upgrade(network);
+    NETWORK.with(|n| n.set(network));
 }
 
 /// Returns the balance of the given bitcoin address.
@@ -87,6 +77,7 @@ pub async fn get_block_headers(
     end_height: Option<u32>,
 ) -> GetBlockHeadersResponse {
     let network = NETWORK.with(|n| n.get());
+
     bitcoin_get_block_headers(&GetBlockHeadersRequest {
         start_height,
         end_height,
@@ -101,6 +92,7 @@ pub async fn get_block_headers(
 #[update]
 pub async fn get_current_fee_percentiles() -> Vec<MillisatoshiPerByte> {
     let network = NETWORK.with(|n| n.get());
+
     bitcoin_get_current_fee_percentiles(&GetCurrentFeePercentilesRequest { network })
         .await
         .unwrap()
@@ -110,8 +102,9 @@ pub async fn get_current_fee_percentiles() -> Vec<MillisatoshiPerByte> {
 #[update]
 pub async fn get_p2pkh_address() -> String {
     let derivation_path: Vec<Vec<u8>> = vec![P2PKH_DERIVATION_PATH.as_bytes().to_vec()];
-    let key_name = KEY_NAME.with(|kn| kn.borrow().to_string());
     let network = NETWORK.with(|n| n.get());
+    let key_name = get_key_name(network);
+
     bitcoin_wallet::p2pkh::get_address(network, key_name, derivation_path).await
 }
 
@@ -121,25 +114,25 @@ pub async fn get_p2pkh_address() -> String {
 pub async fn send_from_p2pkh_address(request: SendRequest) -> String {
     let derivation_path = vec![P2PKH_DERIVATION_PATH.as_bytes().to_vec()];
     let network = NETWORK.with(|n| n.get());
-    let key_name = KEY_NAME.with(|kn| kn.borrow().to_string());
-    let tx_id = bitcoin_wallet::p2pkh::send(
+    let key_name = get_key_name(network);
+
+    bitcoin_wallet::p2pkh::send(
         network,
         derivation_path,
         key_name,
         request.destination_address,
         request.amount_in_satoshi,
     )
-    .await;
-
-    tx_id.to_string()
+    .await
+    .to_string()
 }
 
 /// Returns the P2TR address of this canister at a specific derivation path.
 #[update]
 pub async fn get_p2tr_address() -> String {
     let derivation_path = vec![P2TR_DERIVATION_PATH_PREFIX.as_bytes().to_vec()];
-    let key_name = KEY_NAME.with(|kn| kn.borrow().to_string());
     let network = NETWORK.with(|n| n.get());
+    let key_name = get_key_name(network);
 
     bitcoin_wallet::p2tr::get_address(network, key_name, derivation_path)
         .await
@@ -152,42 +145,42 @@ pub async fn get_p2tr_address() -> String {
 pub async fn send_from_p2tr_address_key_path(request: SendRequest) -> String {
     let derivation_path = vec![P2TR_DERIVATION_PATH_PREFIX.as_bytes().to_vec()];
     let network = NETWORK.with(|n| n.get());
-    let key_name = KEY_NAME.with(|kn| kn.borrow().to_string());
-    let tx_id = bitcoin_wallet::p2tr::send_key_path(
+    let key_name = get_key_name(network);
+
+    bitcoin_wallet::p2tr::send_key_path(
         network,
         derivation_path,
         key_name,
         request.destination_address,
         request.amount_in_satoshi,
     )
-    .await;
-
-    tx_id.to_string()
+    .await
+    .to_string()
 }
 
 #[update]
 pub async fn send_from_p2tr_address_script_path(request: SendRequest) -> String {
     let derivation_path = vec![P2TR_DERIVATION_PATH_PREFIX.as_bytes().to_vec()];
     let network = NETWORK.with(|n| n.get());
-    let key_name = KEY_NAME.with(|kn| kn.borrow().to_string());
-    let tx_id = bitcoin_wallet::p2tr::send_script_path(
+    let key_name = get_key_name(network);
+
+    bitcoin_wallet::p2tr::send_script_path(
         network,
         derivation_path,
         key_name,
         request.destination_address,
         request.amount_in_satoshi,
     )
-    .await;
-
-    tx_id.to_string()
+    .await
+    .to_string()
 }
 
 /// Returns the P2TR address of this canister at a specific derivation path.
 #[update]
 pub async fn get_p2tr_key_only_address() -> String {
     let derivation_path = vec![P2TR_KEY_ONLY_DERIVATION_PATH_PREFIX.as_bytes().to_vec()];
-    let key_name = KEY_NAME.with(|kn| kn.borrow().to_string());
     let network = NETWORK.with(|n| n.get());
+    let key_name = get_key_name(network);
 
     bitcoin_wallet::p2tr_key_only::get_address(network, key_name, derivation_path)
         .await
@@ -205,7 +198,7 @@ pub async fn get_p2tr_key_only_address() -> String {
 pub async fn send_from_p2tr_key_only_address(request: SendRequest) -> String {
     let derivation_path = vec![P2TR_KEY_ONLY_DERIVATION_PATH_PREFIX.as_bytes().to_vec()];
     let network = NETWORK.with(|n| n.get());
-    let key_name = KEY_NAME.with(|kn| kn.borrow().to_string());
+    let key_name = get_key_name(network);
     let tx_id = bitcoin_wallet::p2tr_key_only::send(
         network,
         derivation_path,
