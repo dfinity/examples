@@ -27,7 +27,7 @@ pub async fn get_address(
     derivation_path: Vec<Vec<u8>>,
 ) -> String {
     // Fetch the public key of the given derivation path.
-    let public_key = ecdsa_api::get_ecdsa_public_key(key_name, derivation_path).await;
+    let public_key = ecdsa_api::ecdsa_public_key(key_name, derivation_path).await;
 
     // Compute the address.
     public_key_to_p2pkh_address(network, &public_key)
@@ -47,7 +47,7 @@ pub async fn send(
 
     // Fetch our public key, P2PKH address, and UTXOs.
     let own_public_key =
-        ecdsa_api::get_ecdsa_public_key(key_name.clone(), derivation_path.clone()).await;
+        ecdsa_api::ecdsa_public_key(key_name.clone(), derivation_path.clone()).await;
     let own_address = public_key_to_p2pkh_address(network, &own_public_key);
 
     debug_print("Fetching UTXOs...");
@@ -93,7 +93,7 @@ pub async fn send(
         transaction,
         key_name,
         derivation_path,
-        ecdsa_api::get_ecdsa_signature,
+        ecdsa_api::sign_with_ecdsa,
     )
     .await;
 

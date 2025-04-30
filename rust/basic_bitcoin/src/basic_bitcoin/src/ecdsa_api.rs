@@ -11,7 +11,7 @@ thread_local! {
 }
 
 /// Returns the ECDSA public key of this canister at the given derivation path.
-pub async fn get_ecdsa_public_key(key_name: String, derivation_path: Vec<Vec<u8>>) -> Vec<u8> {
+pub async fn ecdsa_public_key(key_name: String, derivation_path: Vec<Vec<u8>>) -> Vec<u8> {
     // Retrieve already stored public key
     if let Some(key) = ECDSA.with(|ecdsa| {
         ecdsa
@@ -52,7 +52,7 @@ pub async fn get_ecdsa_public_key(key_name: String, derivation_path: Vec<Vec<u8>
     public_key
 }
 
-pub async fn get_ecdsa_signature(
+pub async fn sign_with_ecdsa(
     key_name: String,
     derivation_path: Vec<Vec<u8>>,
     message_hash: Vec<u8>,
