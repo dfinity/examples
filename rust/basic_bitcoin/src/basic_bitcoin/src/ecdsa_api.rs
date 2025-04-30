@@ -2,8 +2,7 @@ use std::cell::RefCell;
 use std::collections::HashMap;
 
 use ic_cdk::management_canister::{
-    EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgs, EcdsaPublicKeyResult, SignWithEcdsaArgs,
-    SignWithEcdsaResult,
+    self, EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgs, SignWithEcdsaArgs,
 };
 
 // stores the ecdsa to maintain state across different calls to the canister (not across updates)
@@ -30,16 +29,14 @@ pub async fn get_ecdsa_public_key(key_name: String, derivation_path: Vec<Vec<u8>
         name: key_name,
     };
 
-    let res = ic_cdk::call::Call::unbounded_wait(super::mgmt_canister_id(), "ecdsa_public_key")
-        .with_arg(EcdsaPublicKeyArgs {
-            canister_id,
-            derivation_path: derivation_path.clone(),
-            key_id,
-        })
-        .await
-        .unwrap();
-
-    let public_key = res.candid::<EcdsaPublicKeyResult>().unwrap().public_key;
+    let public_key = management_canister::ecdsa_public_key(&EcdsaPublicKeyArgs {
+        canister_id,
+        derivation_path: derivation_path.clone(),
+        key_id,
+    })
+    .await
+    .unwrap()
+    .public_key;
 
     // Cache the public key
     ECDSA.with(|ecdsa| {
@@ -65,15 +62,12 @@ pub async fn get_ecdsa_signature(
         name: key_name,
     };
 
-    let res = ic_cdk::call::Call::unbounded_wait(super::mgmt_canister_id(), "sign_with_ecdsa")
-        .with_arg(SignWithEcdsaArgs {
-            message_hash,
-            derivation_path,
-            key_id,
-        })
-        .with_cycles(26_153_846_153)
-        .await
-        .unwrap();
-
-    res.candid::<SignWithEcdsaResult>().unwrap().signature
+    management_canister::sign_with_ecdsa(&SignWithEcdsaArgs {
+        message_hash,
+        derivation_path,
+        key_id,
+    })
+    .await
+    .unwrap()
+    .signature
 }

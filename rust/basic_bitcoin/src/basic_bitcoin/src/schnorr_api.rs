@@ -1,75 +1,20 @@
-use candid::{CandidType, Deserialize, Principal};
-use serde::Serialize;
-use serde_bytes::ByteBuf;
-
-const SIGN_WITH_SCHNORR_FEE: u128 = 25_000_000_000;
-
-#[derive(CandidType, Deserialize, Serialize, Debug, Clone, PartialEq, Eq, PartialOrd, Ord)]
-pub enum SchnorrAlgorithm {
-    #[serde(rename = "bip340secp256k1")]
-    Bip340Secp256k1,
-    #[serde(rename = "ed25519")]
-    Ed25519,
-}
-
-#[derive(CandidType, Deserialize, Serialize, Debug, Clone)]
-struct SchnorrKeyId {
-    pub name: String,
-    pub algorithm: SchnorrAlgorithm,
-}
-
-#[derive(CandidType, Deserialize, Serialize, Debug)]
-struct SchnorrPublicKey {
-    pub canister_id: Option<Principal>,
-    pub derivation_path: Vec<Vec<u8>>,
-    pub key_id: SchnorrKeyId,
-}
-
-#[derive(CandidType, Deserialize, Debug)]
-struct SchnorrPublicKeyReply {
-    pub public_key: Vec<u8>,
-    pub chain_code: Vec<u8>,
-}
-
-#[derive(CandidType, Serialize, Debug)]
-struct SignWithSchnorr {
-    pub message: Vec<u8>,
-    pub derivation_path: Vec<Vec<u8>>,
-    pub key_id: SchnorrKeyId,
-    pub aux: Option<SignWithSchnorrAux>,
-}
-
-#[derive(Eq, PartialEq, Debug, CandidType, Serialize)]
-pub enum SignWithSchnorrAux {
-    #[serde(rename = "bip341")]
-    Bip341(SignWithBip341Aux),
-}
-
-#[derive(Eq, PartialEq, Debug, CandidType, Serialize)]
-pub struct SignWithBip341Aux {
-    pub merkle_root_hash: ByteBuf,
-}
-
-#[derive(CandidType, Deserialize, Debug)]
-struct SignWithSchnorrReply {
-    pub signature: Vec<u8>,
-}
+use ic_cdk::management_canister::{
+    self, SchnorrAlgorithm, SchnorrAux, SchnorrKeyId, SchnorrPublicKeyArgs, SignWithSchnorrArgs,
+};
 
 /// Returns the Schnorr public key of this canister at the given derivation path.
 pub async fn schnorr_public_key(key_name: String, derivation_path: Vec<Vec<u8>>) -> Vec<u8> {
-    let res = ic_cdk::call::Call::unbounded_wait(super::mgmt_canister_id(), "schnorr_public_key")
-        .with_arg(SchnorrPublicKey {
-            canister_id: None,
-            derivation_path,
-            key_id: SchnorrKeyId {
-                name: key_name,
-                algorithm: SchnorrAlgorithm::Bip340Secp256k1,
-            },
-        })
-        .await
-        .unwrap();
-
-    res.candid::<SchnorrPublicKeyReply>().unwrap().public_key
+    management_canister::schnorr_public_key(&SchnorrPublicKeyArgs {
+        canister_id: None,
+        derivation_path,
+        key_id: SchnorrKeyId {
+            name: key_name,
+            algorithm: SchnorrAlgorithm::Bip340secp256k1,
+        },
+    })
+    .await
+    .unwrap()
+    .public_key
 }
 
 /// Returns the signature for `message` by a private and *distributed* private
@@ -83,24 +28,21 @@ pub async fn sign_with_schnorr(
     message: Vec<u8>,
 ) -> Vec<u8> {
     let aux = merkle_root_hash.map(|bytes| {
-        SignWithSchnorrAux::Bip341(SignWithBip341Aux {
-            merkle_root_hash: ByteBuf::from(bytes),
+        SchnorrAux::Bip341(management_canister::Bip341 {
+            merkle_root_hash: bytes,
         })
     });
 
-    let res = ic_cdk::call::Call::unbounded_wait(super::mgmt_canister_id(), "sign_with_schnorr")
-        .with_arg(SignWithSchnorr {
-            message,
-            derivation_path,
-            key_id: SchnorrKeyId {
-                name: key_name,
-                algorithm: SchnorrAlgorithm::Bip340Secp256k1,
-            },
-            aux,
-        })
-        .with_cycles(SIGN_WITH_SCHNORR_FEE)
-        .await
-        .unwrap();
-
-    res.candid::<SignWithSchnorrReply>().unwrap().signature
+    management_canister::sign_with_schnorr(&SignWithSchnorrArgs {
+        message,
+        derivation_path,
+        key_id: SchnorrKeyId {
+            name: key_name,
+            algorithm: SchnorrAlgorithm::Bip340secp256k1,
+        },
+        aux,
+    })
+    .await
+    .unwrap()
+    .signature
 }

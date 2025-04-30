@@ -9,9 +9,7 @@ use ic_cdk::{
         GetCurrentFeePercentilesRequest, GetUtxosRequest, GetUtxosResponse, MillisatoshiPerByte,
         Network,
     },
-    init,
-    management_canister::CanisterId,
-    post_upgrade, update,
+    init, post_upgrade, update,
 };
 use std::cell::{Cell, RefCell};
 
@@ -237,9 +235,4 @@ pub async fn send_from_p2tr_key_only_address(request: SendRequest) -> String {
 pub struct SendRequest {
     pub destination_address: String,
     pub amount_in_satoshi: u64,
-}
-
-fn mgmt_canister_id() -> CanisterId {
-    // Management canister ID. Can be replaced for cheaper testing.
-    candid::Principal::management_canister()
 }
