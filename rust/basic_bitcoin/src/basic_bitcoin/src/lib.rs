@@ -1,14 +1,18 @@
-mod bitcoin_api;
 mod bitcoin_wallet;
 mod ecdsa_api;
 mod schnorr_api;
 
-use candid::{CandidType, Deserialize};
 use ic_cdk::{
-    bitcoin_canister::{GetUtxosResponse, MillisatoshiPerByte, Network},
+    bitcoin_canister::{
+        bitcoin_get_balance, bitcoin_get_block_headers, bitcoin_get_current_fee_percentiles,
+        bitcoin_get_utxos, GetBalanceRequest, GetBlockHeadersRequest, GetBlockHeadersResponse,
+        GetCurrentFeePercentilesRequest, GetUtxosRequest, GetUtxosResponse, MillisatoshiPerByte,
+        Network,
+    },
+    init,
     management_canister::CanisterId,
+    post_upgrade, update,
 };
-use ic_cdk_macros::{init, update};
 use std::cell::{Cell, RefCell};
 
 // Different derivation paths for different addresses to use different keys.
@@ -30,8 +34,7 @@ thread_local! {
     static KEY_NAME: RefCell<String> = RefCell::new(String::from(""));
 }
 
-#[init]
-pub fn init(network: Network) {
+pub fn init_upgrade(network: Network) {
     NETWORK.with(|n| n.set(network));
 
     KEY_NAME.with(|key_name| {
@@ -46,37 +49,44 @@ pub fn init(network: Network) {
     KEY_NAME.with_borrow(|key_name| assert_ne!(key_name, ""));
 }
 
+#[init]
+pub fn init(network: Network) {
+    init_upgrade(network);
+}
+
+#[post_upgrade]
+fn upgrade(network: Network) {
+    init_upgrade(network);
+}
+
 /// Returns the balance of the given bitcoin address.
 #[update]
 pub async fn get_balance(address: String) -> u64 {
     let network = NETWORK.with(|n| n.get());
-    bitcoin_api::get_balance(network, address).await
+    bitcoin_get_balance(&GetBalanceRequest {
+        address,
+        network,
+        min_confirmations: None,
+    })
+    .await
+    .unwrap()
 }
 
 /// Returns the UTXOs of the given bitcoin address.
 #[update]
 pub async fn get_utxos(address: String) -> GetUtxosResponse {
     let network = NETWORK.with(|n| n.get());
-    bitcoin_api::get_utxos(network, address).await
+    bitcoin_get_utxos(&GetUtxosRequest {
+        address,
+        network,
+        filter: None,
+    })
+    .await
+    .unwrap()
 }
 
 pub type Height = u32;
 pub type BlockHeader = Vec<u8>;
-
-/// A request for getting the block headers for a given height range.
-#[derive(CandidType, Debug, Deserialize, PartialEq, Eq)]
-pub struct GetBlockHeadersRequest {
-    pub start_height: Height,
-    pub end_height: Option<Height>,
-    pub network: Network,
-}
-
-/// The response returned for a request for getting the block headers from a given height.
-#[derive(CandidType, Debug, Deserialize, PartialEq, Eq, Clone)]
-pub struct GetBlockHeadersResponse {
-    pub tip_height: Height,
-    pub block_headers: Vec<BlockHeader>,
-}
 
 /// Returns the block headers in the given height range.
 #[update]
@@ -85,7 +95,13 @@ pub async fn get_block_headers(
     end_height: Option<u32>,
 ) -> GetBlockHeadersResponse {
     let network = NETWORK.with(|n| n.get());
-    bitcoin_api::get_block_headers(network, start_height, end_height).await
+    bitcoin_get_block_headers(&GetBlockHeadersRequest {
+        start_height,
+        end_height,
+        network,
+    })
+    .await
+    .unwrap()
 }
 
 /// Returns the 100 fee percentiles measured in millisatoshi/byte.
@@ -93,7 +109,9 @@ pub async fn get_block_headers(
 #[update]
 pub async fn get_current_fee_percentiles() -> Vec<MillisatoshiPerByte> {
     let network = NETWORK.with(|n| n.get());
-    bitcoin_api::get_current_fee_percentiles(network).await
+    bitcoin_get_current_fee_percentiles(&GetCurrentFeePercentilesRequest { network })
+        .await
+        .unwrap()
 }
 
 /// Returns the P2PKH address of this canister at a specific derivation path.

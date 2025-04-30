@@ -1,11 +1,14 @@
-use crate::{bitcoin_api, schnorr_api};
+use crate::schnorr_api;
 use bitcoin::{
     consensus::serialize, key::Secp256k1, secp256k1::PublicKey, taproot::TaprootSpendInfo, Address,
     Txid,
 };
 use ic_cdk::{
     api::debug_print,
-    bitcoin_canister::{Network, Satoshi},
+    bitcoin_canister::{
+        bitcoin_get_utxos, bitcoin_send_transaction, GetUtxosRequest, Network, Satoshi,
+        SendTransactionRequest,
+    },
 };
 use std::str::FromStr;
 
@@ -67,9 +70,14 @@ pub async fn send(
     // Note that pagination may have to be used to get all UTXOs for the given address.
     // For the sake of simplicity, it is assumed here that the `utxo` field in the response
     // contains all UTXOs.
-    let own_utxos = bitcoin_api::get_utxos(network, own_address.to_string())
-        .await
-        .utxos;
+    let own_utxos = bitcoin_get_utxos(&GetUtxosRequest {
+        address: own_address.to_string(),
+        network,
+        filter: None,
+    })
+    .await
+    .unwrap()
+    .utxos;
 
     let dst_address = Address::from_str(&dst_address)
         .unwrap()
@@ -102,8 +110,13 @@ pub async fn send(
     ));
 
     debug_print("Sending transaction...");
-    bitcoin_api::send_transaction(network, signed_transaction_bytes).await;
+    bitcoin_send_transaction(&SendTransactionRequest {
+        network,
+        transaction: signed_transaction_bytes,
+    })
+    .await
+    .unwrap();
     debug_print("Done");
 
-    signed_transaction.txid()
+    signed_transaction.compute_txid()
 }

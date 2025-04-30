@@ -30,18 +30,16 @@ pub async fn get_ecdsa_public_key(key_name: String, derivation_path: Vec<Vec<u8>
         name: key_name,
     };
 
-    let res: ic_cdk::api::call::CallResult<(EcdsaPublicKeyResult,)> = ic_cdk::call(
-        super::mgmt_canister_id(),
-        "ecdsa_public_key",
-        (EcdsaPublicKeyArgs {
+    let res = ic_cdk::call::Call::unbounded_wait(super::mgmt_canister_id(), "ecdsa_public_key")
+        .with_arg(EcdsaPublicKeyArgs {
             canister_id,
             derivation_path: derivation_path.clone(),
             key_id,
-        },),
-    )
-    .await;
+        })
+        .await
+        .unwrap();
 
-    let public_key = res.unwrap().0.public_key;
+    let public_key = res.candid::<EcdsaPublicKeyResult>().unwrap().public_key;
 
     // Cache the public key
     ECDSA.with(|ecdsa| {
@@ -67,18 +65,15 @@ pub async fn get_ecdsa_signature(
         name: key_name,
     };
 
-    let res: ic_cdk::api::call::CallResult<(SignWithEcdsaResult,)> =
-        ic_cdk::api::call::call_with_payment128(
-            super::mgmt_canister_id(),
-            "sign_with_ecdsa",
-            (SignWithEcdsaArgs {
-                message_hash,
-                derivation_path,
-                key_id,
-            },),
-            26_153_846_153,
-        )
-        .await;
+    let res = ic_cdk::call::Call::unbounded_wait(super::mgmt_canister_id(), "sign_with_ecdsa")
+        .with_arg(SignWithEcdsaArgs {
+            message_hash,
+            derivation_path,
+            key_id,
+        })
+        .with_cycles(26_153_846_153)
+        .await
+        .unwrap();
 
-    res.unwrap().0.signature
+    res.candid::<SignWithEcdsaResult>().unwrap().signature
 }

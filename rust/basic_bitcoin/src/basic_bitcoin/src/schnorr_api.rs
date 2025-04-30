@@ -57,21 +57,19 @@ struct SignWithSchnorrReply {
 
 /// Returns the Schnorr public key of this canister at the given derivation path.
 pub async fn schnorr_public_key(key_name: String, derivation_path: Vec<Vec<u8>>) -> Vec<u8> {
-    let res: Result<(SchnorrPublicKeyReply,), _> = ic_cdk::call(
-        super::mgmt_canister_id(),
-        "schnorr_public_key",
-        (SchnorrPublicKey {
+    let res = ic_cdk::call::Call::unbounded_wait(super::mgmt_canister_id(), "schnorr_public_key")
+        .with_arg(SchnorrPublicKey {
             canister_id: None,
             derivation_path,
             key_id: SchnorrKeyId {
                 name: key_name,
                 algorithm: SchnorrAlgorithm::Bip340Secp256k1,
             },
-        },),
-    )
-    .await;
+        })
+        .await
+        .unwrap();
 
-    res.unwrap().0.public_key
+    res.candid::<SchnorrPublicKeyReply>().unwrap().public_key
 }
 
 /// Returns the signature for `message` by a private and *distributed* private
@@ -89,10 +87,9 @@ pub async fn sign_with_schnorr(
             merkle_root_hash: ByteBuf::from(bytes),
         })
     });
-    let res: Result<(SignWithSchnorrReply,), _> = ic_cdk::api::call::call_with_payment128(
-        super::mgmt_canister_id(),
-        "sign_with_schnorr",
-        (SignWithSchnorr {
+
+    let res = ic_cdk::call::Call::unbounded_wait(super::mgmt_canister_id(), "sign_with_schnorr")
+        .with_arg(SignWithSchnorr {
             message,
             derivation_path,
             key_id: SchnorrKeyId {
@@ -100,10 +97,10 @@ pub async fn sign_with_schnorr(
                 algorithm: SchnorrAlgorithm::Bip340Secp256k1,
             },
             aux,
-        },),
-        SIGN_WITH_SCHNORR_FEE,
-    )
-    .await;
+        })
+        .with_cycles(SIGN_WITH_SCHNORR_FEE)
+        .await
+        .unwrap();
 
-    res.unwrap().0.signature
+    res.candid::<SignWithSchnorrReply>().unwrap().signature
 }

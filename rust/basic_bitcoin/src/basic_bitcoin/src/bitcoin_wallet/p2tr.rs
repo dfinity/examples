@@ -1,4 +1,4 @@
-use crate::{bitcoin_api, schnorr_api};
+use crate::schnorr_api;
 use bitcoin::{
     blockdata::witness::Witness,
     consensus::serialize,
@@ -11,7 +11,10 @@ use bitcoin::{
 };
 use ic_cdk::{
     api::debug_print,
-    bitcoin_canister::{MillisatoshiPerByte, Network, Satoshi, Utxo},
+    bitcoin_canister::{
+        bitcoin_get_utxos, bitcoin_send_transaction, GetUtxosRequest, MillisatoshiPerByte, Network,
+        Satoshi, SendTransactionRequest, Utxo,
+    },
 };
 use std::str::FromStr;
 
@@ -55,7 +58,7 @@ fn p2tr_script_spend_info(internal_key_bytes: &[u8], script_key_bytes: &[u8]) ->
     let spend_script = p2tr_script(script_key_bytes);
     let secp256k1_engine = Secp256k1::new();
     // Key used in the key path spending.
-    let internal_key = XOnlyPublicKey::from(PublicKey::from_slice(&internal_key_bytes).unwrap());
+    let internal_key = XOnlyPublicKey::from(PublicKey::from_slice(internal_key_bytes).unwrap());
 
     // Taproot with an internal key and a single script.
     TaprootBuilder::new()
@@ -101,9 +104,14 @@ pub async fn send_script_path(
     // Note that pagination may have to be used to get all UTXOs for the given address.
     // For the sake of simplicity, it is assumed here that the `utxo` field in the response
     // contains all UTXOs.
-    let own_utxos = bitcoin_api::get_utxos(network, own_address.to_string())
-        .await
-        .utxos;
+    let own_utxos = bitcoin_get_utxos(&GetUtxosRequest {
+        address: own_address.to_string(),
+        network,
+        filter: None,
+    })
+    .await
+    .unwrap()
+    .utxos;
 
     let dst_address = Address::from_str(&dst_address)
         .unwrap()
@@ -141,10 +149,17 @@ pub async fn send_script_path(
     ));
 
     debug_print("Sending transaction...");
-    bitcoin_api::send_transaction(network, signed_transaction_bytes).await;
+
+    bitcoin_send_transaction(&SendTransactionRequest {
+        network,
+        transaction: signed_transaction_bytes,
+    })
+    .await
+    .unwrap();
+
     debug_print("Done");
 
-    signed_transaction.txid()
+    signed_transaction.compute_txid()
 }
 
 /// Sends a P2TR key spend transaction to the network that transfers the
@@ -173,9 +188,14 @@ pub async fn send_key_path(
     // Note that pagination may have to be used to get all UTXOs for the given address.
     // For the sake of simplicity, it is assumed here that the `utxo` field in the response
     // contains all UTXOs.
-    let own_utxos = bitcoin_api::get_utxos(network, own_address.to_string())
-        .await
-        .utxos;
+    let own_utxos = bitcoin_get_utxos(&GetUtxosRequest {
+        address: own_address.to_string(),
+        network,
+        filter: None,
+    })
+    .await
+    .unwrap()
+    .utxos;
 
     let dst_address = Address::from_str(&dst_address)
         .unwrap()
@@ -212,10 +232,15 @@ pub async fn send_key_path(
     ));
 
     debug_print("Sending transaction...");
-    bitcoin_api::send_transaction(network, signed_transaction_bytes).await;
+    bitcoin_send_transaction(&SendTransactionRequest {
+        network,
+        transaction: signed_transaction_bytes,
+    })
+    .await
+    .unwrap();
     debug_print("Done");
 
-    signed_transaction.txid()
+    signed_transaction.compute_txid()
 }
 
 // Builds a P2TR transaction to send the given `amount` of satoshis to the
@@ -310,12 +335,12 @@ where
     for i in 0..num_inputs {
         let mut sighasher = SighashCache::new(&mut transaction);
 
-        let leaf_hash = TapLeafHash::from_script(&script, LeafVersion::TapScript);
+        let leaf_hash = TapLeafHash::from_script(script, LeafVersion::TapScript);
 
         let signing_data = sighasher
             .taproot_script_spend_signature_hash(
                 i,
-                &bitcoin::sighash::Prevouts::All(&prevouts),
+                &bitcoin::sighash::Prevouts::All(prevouts),
                 leaf_hash,
                 TapSighashType::Default,
             )
@@ -336,11 +361,11 @@ where
         let witness = sighasher.witness_mut(i).unwrap();
         witness.clear();
         let signature = bitcoin::taproot::Signature {
-            sig: Signature::from_slice(&raw_signature).expect("failed to parse signature"),
-            hash_ty: TapSighashType::Default,
+            signature: Signature::from_slice(&raw_signature).expect("failed to parse signature"),
+            sighash_type: TapSighashType::Default,
         };
         witness.push(signature.to_vec());
-        witness.push(&script.to_bytes());
+        witness.push(script.to_bytes());
         witness.push(control_block.serialize());
     }
 
@@ -383,7 +408,7 @@ where
         let signing_data = sighasher
             .taproot_key_spend_signature_hash(
                 i,
-                &bitcoin::sighash::Prevouts::All(&prevouts),
+                &bitcoin::sighash::Prevouts::All(prevouts),
                 TapSighashType::Default,
             )
             .expect("Failed to encode signing data")
@@ -401,10 +426,10 @@ where
         // Update the witness stack.
         let witness = sighasher.witness_mut(i).unwrap();
         let signature = bitcoin::taproot::Signature {
-            sig: Signature::from_slice(&raw_signature).expect("failed to parse signature"),
-            hash_ty: TapSighashType::Default,
+            signature: Signature::from_slice(&raw_signature).expect("failed to parse signature"),
+            sighash_type: TapSighashType::Default,
         };
-        witness.push(&signature.to_vec());
+        witness.push(signature.to_vec());
     }
 
     transaction

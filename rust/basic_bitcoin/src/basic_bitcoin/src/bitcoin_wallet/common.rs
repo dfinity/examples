@@ -1,9 +1,10 @@
-use crate::bitcoin_api;
 use bitcoin::{
-    self, absolute::LockTime, blockdata::witness::Witness, hashes::Hash, Address, OutPoint,
-    ScriptBuf, Sequence, Transaction, TxIn, TxOut, Txid,
+    self, absolute::LockTime, blockdata::witness::Witness, hashes::Hash, transaction::Version,
+    Address, Amount, OutPoint, ScriptBuf, Sequence, Transaction, TxIn, TxOut, Txid,
 };
-use ic_cdk::bitcoin_canister::{Network, Utxo};
+use ic_cdk::bitcoin_canister::{
+    bitcoin_get_current_fee_percentiles, GetCurrentFeePercentilesRequest, Network, Utxo,
+};
 
 pub fn build_transaction_with_fee(
     own_utxos: &[Utxo],
@@ -44,7 +45,7 @@ pub fn build_transaction_with_fee(
                 txid: Txid::from_raw_hash(Hash::from_slice(&utxo.outpoint.txid).unwrap()),
                 vout: utxo.outpoint.vout,
             },
-            sequence: Sequence::max_value(),
+            sequence: Sequence::MAX,
             witness: Witness::new(),
             script_sig: ScriptBuf::new(),
         })
@@ -53,14 +54,14 @@ pub fn build_transaction_with_fee(
     let prevouts = utxos_to_spend
         .into_iter()
         .map(|utxo| TxOut {
-            value: utxo.value,
+            value: Amount::from_sat(utxo.value),
             script_pubkey: own_address.script_pubkey(),
         })
         .collect();
 
     let mut outputs = vec![TxOut {
         script_pubkey: dst_address.script_pubkey(),
-        value: amount,
+        value: Amount::from_sat(amount),
     }];
 
     let remaining_amount = total_spent - amount - fee;
@@ -68,7 +69,7 @@ pub fn build_transaction_with_fee(
     if remaining_amount >= DUST_THRESHOLD {
         outputs.push(TxOut {
             script_pubkey: own_address.script_pubkey(),
-            value: remaining_amount,
+            value: Amount::from_sat(remaining_amount),
         });
     }
 
@@ -77,7 +78,7 @@ pub fn build_transaction_with_fee(
             input: inputs,
             output: outputs,
             lock_time: LockTime::ZERO,
-            version: 2,
+            version: Version::TWO,
         },
         prevouts,
     ))
@@ -93,7 +94,10 @@ pub fn transform_network(network: Network) -> bitcoin::Network {
 
 pub async fn get_fee_per_byte(network: Network) -> u64 {
     // Get fee percentiles from previous transactions to estimate our own fee.
-    let fee_percentiles = bitcoin_api::get_current_fee_percentiles(network).await;
+    let fee_percentiles =
+        bitcoin_get_current_fee_percentiles(&GetCurrentFeePercentilesRequest { network })
+            .await
+            .unwrap();
 
     if fee_percentiles.is_empty() {
         // There are no fee percentiles. This case can only happen on a regtest

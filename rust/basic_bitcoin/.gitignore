@@ -14,4 +14,4 @@
 target/
 
 # bitcoin
-bitcoin_data/**
+bitcoin_data
