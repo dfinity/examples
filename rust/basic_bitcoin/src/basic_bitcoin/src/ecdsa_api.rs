@@ -5,48 +5,38 @@ use ic_cdk::management_canister::{
     self, EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgs, SignWithEcdsaArgs,
 };
 
-// stores the ecdsa to maintain state across different calls to the canister (not across updates)
+type DerivationPath = Vec<Vec<u8>>;
+type EcdsaKey = Vec<u8>;
+
+// Cache for ECDSA public keys. Cache does not persist across canister upgrades.
 thread_local! {
-    /* flexible */ static ECDSA: RefCell<Option<HashMap<Vec<Vec<u8>> /*derivation path*/, Vec<u8> /*public key*/>>> = RefCell::default();
+    static ECDSA_KEY_CACHE: RefCell<HashMap<DerivationPath, EcdsaKey>> = RefCell::new(HashMap::new());
 }
 
 /// Returns the ECDSA public key of this canister at the given derivation path.
 pub async fn ecdsa_public_key(key_name: String, derivation_path: Vec<Vec<u8>>) -> Vec<u8> {
-    // Retrieve already stored public key
-    if let Some(key) = ECDSA.with(|ecdsa| {
-        ecdsa
-            .borrow()
-            .as_ref()
-            .and_then(|map| map.get(&derivation_path).cloned())
-    }) {
+    // Retrieve and return already stored public key
+    if let Some(key) = ECDSA_KEY_CACHE.with_borrow(|map| map.get(&derivation_path).cloned()) {
         return key;
     }
+
     // Retrieve the public key of this canister at the given derivation path
     // from the ECDSA API.
-    let canister_id = None;
-    let key_id = EcdsaKeyId {
-        curve: EcdsaCurve::Secp256k1,
-        name: key_name,
-    };
-
     let public_key = management_canister::ecdsa_public_key(&EcdsaPublicKeyArgs {
-        canister_id,
+        canister_id: None,
         derivation_path: derivation_path.clone(),
-        key_id,
+        key_id: EcdsaKeyId {
+            curve: EcdsaCurve::Secp256k1,
+            name: key_name,
+        },
     })
     .await
     .unwrap()
     .public_key;
 
     // Cache the public key
-    ECDSA.with(|ecdsa| {
-        let mut map = ecdsa.borrow_mut();
-        if map.is_none() {
-            *map = Some(HashMap::new());
-        }
-        map.as_mut()
-            .unwrap()
-            .insert(derivation_path, public_key.clone());
+    ECDSA_KEY_CACHE.with_borrow_mut(|map| {
+        map.insert(derivation_path, public_key.clone());
     });
 
     public_key
