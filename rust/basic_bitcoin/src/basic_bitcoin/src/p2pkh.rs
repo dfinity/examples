@@ -1,4 +1,7 @@
-use crate::ecdsa_api;
+use crate::{
+    common::{build_transaction_with_fee, get_fee_per_byte, transform_network},
+    ecdsa::{self, ecdsa_public_key, sign_with_ecdsa},
+};
 use bitcoin::{
     consensus::serialize,
     hashes::Hash,
@@ -16,8 +19,6 @@ use ic_cdk::{
 use std::convert::TryFrom;
 use std::str::FromStr;
 
-use super::common::transform_network;
-
 const ECDSA_SIG_HASH_TYPE: EcdsaSighashType = EcdsaSighashType::All;
 
 /// Returns the P2PKH address of this canister at the given derivation path.
@@ -27,7 +28,7 @@ pub async fn get_address(
     derivation_path: Vec<Vec<u8>>,
 ) -> String {
     // Fetch the public key of the given derivation path.
-    let public_key = ecdsa_api::ecdsa_public_key(key_name, derivation_path).await;
+    let public_key = ecdsa::ecdsa_public_key(key_name, derivation_path).await;
 
     // Compute the address.
     public_key_to_p2pkh_address(network, &public_key)
@@ -43,11 +44,10 @@ pub async fn send(
     dst_address: String,
     amount: Satoshi,
 ) -> Txid {
-    let fee_per_byte = super::common::get_fee_per_byte(network).await;
+    let fee_per_byte = get_fee_per_byte(network).await;
 
     // Fetch our public key, P2PKH address, and UTXOs.
-    let own_public_key =
-        ecdsa_api::ecdsa_public_key(key_name.clone(), derivation_path.clone()).await;
+    let own_public_key = ecdsa_public_key(key_name.clone(), derivation_path.clone()).await;
     let own_address = public_key_to_p2pkh_address(network, &own_public_key);
 
     debug_print("Fetching UTXOs...");
@@ -65,11 +65,11 @@ pub async fn send(
 
     let own_address = Address::from_str(&own_address)
         .unwrap()
-        .require_network(super::common::transform_network(network))
+        .require_network(transform_network(network))
         .expect("should be valid address for the network");
     let dst_address = Address::from_str(&dst_address)
         .unwrap()
-        .require_network(super::common::transform_network(network))
+        .require_network(transform_network(network))
         .expect("should be valid address for the network");
 
     // Build the transaction that sends `amount` to the destination address.
@@ -93,7 +93,7 @@ pub async fn send(
         transaction,
         key_name,
         derivation_path,
-        ecdsa_api::sign_with_ecdsa,
+        sign_with_ecdsa,
     )
     .await;
 
@@ -138,14 +138,9 @@ async fn build_p2pkh_spend_tx(
     debug_print("Building transaction...");
     let mut total_fee = 0;
     loop {
-        let (transaction, _prevouts) = super::common::build_transaction_with_fee(
-            own_utxos,
-            own_address,
-            dst_address,
-            amount,
-            total_fee,
-        )
-        .expect("Error building transaction.");
+        let (transaction, _prevouts) =
+            build_transaction_with_fee(own_utxos, own_address, dst_address, amount, total_fee)
+                .expect("Error building transaction.");
 
         // Sign the transaction. In this case, we only care about the size
         // of the signed transaction, so we use a mock signer here for efficiency.

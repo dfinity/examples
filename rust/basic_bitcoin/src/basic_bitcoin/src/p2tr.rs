@@ -1,4 +1,3 @@
-use crate::schnorr_api;
 use bitcoin::{
     blockdata::witness::Witness,
     consensus::serialize,
@@ -17,6 +16,11 @@ use ic_cdk::{
     },
 };
 use std::str::FromStr;
+
+use crate::{
+    common::{build_transaction_with_fee, get_fee_per_byte, mock_signer, transform_network},
+    schnorr::{schnorr_public_key, sign_with_schnorr},
+};
 
 /// Returns the P2TR address of this canister at the given derivation path. This
 /// address uses two public keys:
@@ -48,7 +52,7 @@ pub fn public_keys_to_p2tr_script_spend_address(
     internal_key: &[u8],
     script_key: &[u8],
 ) -> Address {
-    let network = super::common::transform_network(bitcoin_network);
+    let network = transform_network(bitcoin_network);
     let taproot_spend_info = p2tr_script_spend_info(internal_key, script_key);
     Address::p2tr_tweaked(taproot_spend_info.output_key(), network)
 }
@@ -88,17 +92,15 @@ pub async fn send_script_path(
     dst_address: String,
     amount: Satoshi,
 ) -> Txid {
-    let fee_per_byte = super::common::get_fee_per_byte(network).await;
+    let fee_per_byte = get_fee_per_byte(network).await;
 
     // Fetch our public keys and UTXOs, and compute the P2TR address.
     let (internal_key, script_key) =
         get_public_keys(key_name.clone(), derivation_path.clone()).await;
     let taproot_spend_info = p2tr_script_spend_info(internal_key.as_slice(), script_key.as_slice());
 
-    let own_address = Address::p2tr_tweaked(
-        taproot_spend_info.output_key(),
-        super::common::transform_network(network),
-    );
+    let own_address =
+        Address::p2tr_tweaked(taproot_spend_info.output_key(), transform_network(network));
 
     debug_print("Fetching UTXOs...");
     // Note that pagination may have to be used to get all UTXOs for the given address.
@@ -115,7 +117,7 @@ pub async fn send_script_path(
 
     let dst_address = Address::from_str(&dst_address)
         .unwrap()
-        .require_network(super::common::transform_network(network))
+        .require_network(transform_network(network))
         .expect("should be valid address for the network");
 
     let script = p2tr_script(script_key.as_slice());
@@ -138,7 +140,7 @@ pub async fn send_script_path(
         &script,
         key_name,
         extend_derivation_path_2(&derivation_path).1,
-        schnorr_api::sign_with_schnorr,
+        sign_with_schnorr,
     )
     .await;
 
@@ -172,17 +174,15 @@ pub async fn send_key_path(
     dst_address: String,
     amount: Satoshi,
 ) -> Txid {
-    let fee_per_byte = super::common::get_fee_per_byte(network).await;
+    let fee_per_byte = get_fee_per_byte(network).await;
 
     // Fetch our public key, P2PKH address, and UTXOs.
     let (internal_key, script_key) =
         get_public_keys(key_name.clone(), derivation_path.clone()).await;
     let taproot_spend_info = p2tr_script_spend_info(internal_key.as_slice(), script_key.as_slice());
 
-    let own_address = Address::p2tr_tweaked(
-        taproot_spend_info.output_key(),
-        super::common::transform_network(network),
-    );
+    let own_address =
+        Address::p2tr_tweaked(taproot_spend_info.output_key(), transform_network(network));
 
     debug_print("Fetching UTXOs...");
     // Note that pagination may have to be used to get all UTXOs for the given address.
@@ -199,7 +199,7 @@ pub async fn send_key_path(
 
     let dst_address = Address::from_str(&dst_address)
         .unwrap()
-        .require_network(super::common::transform_network(network))
+        .require_network(transform_network(network))
         .expect("should be valid address for the network");
 
     // Build the transaction that sends `amount` to the destination address.
@@ -221,7 +221,7 @@ pub async fn send_key_path(
             .unwrap()
             .as_byte_array()
             .to_vec(),
-        schnorr_api::sign_with_schnorr,
+        sign_with_schnorr,
     )
     .await;
 
@@ -263,14 +263,9 @@ pub(crate) async fn build_p2tr_tx(
     debug_print("Building transaction...");
     let mut total_fee = 0;
     loop {
-        let (transaction, prevouts) = super::common::build_transaction_with_fee(
-            own_utxos,
-            own_address,
-            dst_address,
-            amount,
-            total_fee,
-        )
-        .expect("Error building transaction.");
+        let (transaction, prevouts) =
+            build_transaction_with_fee(own_utxos, own_address, dst_address, amount, total_fee)
+                .expect("Error building transaction.");
 
         // Sign the transaction. In this case, we only care about the size
         // of the signed transaction, so we use a mock signer here for
@@ -286,7 +281,7 @@ pub(crate) async fn build_p2tr_tx(
             String::from(""), // mock key name
             vec![],           // mock derivation path
             vec![],
-            super::common::mock_signer,
+            mock_signer,
         )
         .await;
 
@@ -439,8 +434,8 @@ where
 /// the `derivation_path`.
 async fn get_public_keys(key_name: String, derivation_path: Vec<Vec<u8>>) -> (Vec<u8>, Vec<u8>) {
     let (dpkp, dpsp) = extend_derivation_path_2(&derivation_path);
-    let internal_key = schnorr_api::schnorr_public_key(key_name.clone(), dpkp).await;
-    let script_path_key = schnorr_api::schnorr_public_key(key_name, dpsp).await;
+    let internal_key = schnorr_public_key(key_name.clone(), dpkp).await;
+    let script_path_key = schnorr_public_key(key_name, dpsp).await;
     (internal_key, script_path_key)
 }
 

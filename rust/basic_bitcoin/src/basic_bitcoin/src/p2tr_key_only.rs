@@ -1,4 +1,3 @@
-use crate::schnorr_api;
 use bitcoin::{
     consensus::serialize, key::Secp256k1, secp256k1::PublicKey, taproot::TaprootSpendInfo, Address,
     Txid,
@@ -11,6 +10,8 @@ use ic_cdk::{
     },
 };
 use std::str::FromStr;
+
+use crate::schnorr::{schnorr_public_key, sign_with_schnorr};
 
 /// Returns the P2TR key-only address of this canister at the given derivation
 /// path.
@@ -27,7 +28,7 @@ pub async fn get_address(
     key_name: String,
     derivation_path: Vec<Vec<u8>>,
 ) -> Address {
-    let public_key = schnorr_api::schnorr_public_key(key_name, derivation_path).await;
+    let public_key = schnorr_public_key(key_name, derivation_path).await;
     let x_only_pubkey =
         bitcoin::key::XOnlyPublicKey::from(PublicKey::from_slice(&public_key).unwrap());
     let secp256k1_engine = Secp256k1::new();
@@ -52,8 +53,7 @@ pub async fn send(
     let fee_per_byte = super::common::get_fee_per_byte(network).await;
 
     // Fetch our public key, P2TR key-only address, and UTXOs.
-    let own_public_key =
-        schnorr_api::schnorr_public_key(key_name.clone(), derivation_path.clone()).await;
+    let own_public_key = schnorr_public_key(key_name.clone(), derivation_path.clone()).await;
     let x_only_pubkey =
         bitcoin::key::XOnlyPublicKey::from(PublicKey::from_slice(&own_public_key).unwrap());
 
@@ -99,7 +99,7 @@ pub async fn send(
         key_name,
         derivation_path,
         vec![],
-        schnorr_api::sign_with_schnorr,
+        sign_with_schnorr,
     )
     .await;
 

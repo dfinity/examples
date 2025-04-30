@@ -1,6 +1,9 @@
-mod bitcoin_wallet;
-mod ecdsa_api;
-mod schnorr_api;
+mod common;
+mod ecdsa;
+mod p2pkh;
+mod p2tr;
+mod p2tr_key_only;
+mod schnorr;
 
 use ic_cdk::{
     bitcoin_canister::{
@@ -48,6 +51,7 @@ fn upgrade(network: Network) {
 #[update]
 pub async fn get_balance(address: String) -> u64 {
     let network = NETWORK.with(|n| n.get());
+
     bitcoin_get_balance(&GetBalanceRequest {
         address,
         network,
@@ -61,6 +65,7 @@ pub async fn get_balance(address: String) -> u64 {
 #[update]
 pub async fn get_utxos(address: String) -> GetUtxosResponse {
     let network = NETWORK.with(|n| n.get());
+
     bitcoin_get_utxos(&GetUtxosRequest {
         address,
         network,
@@ -105,7 +110,7 @@ pub async fn get_p2pkh_address() -> String {
     let network = NETWORK.with(|n| n.get());
     let key_name = get_key_name(network);
 
-    bitcoin_wallet::p2pkh::get_address(network, key_name, derivation_path).await
+    p2pkh::get_address(network, key_name, derivation_path).await
 }
 
 /// Sends the given amount of bitcoin from this canister's p2pkh address to the given address.
@@ -116,7 +121,7 @@ pub async fn send_from_p2pkh_address(request: SendRequest) -> String {
     let network = NETWORK.with(|n| n.get());
     let key_name = get_key_name(network);
 
-    bitcoin_wallet::p2pkh::send(
+    p2pkh::send(
         network,
         derivation_path,
         key_name,
@@ -134,7 +139,7 @@ pub async fn get_p2tr_address() -> String {
     let network = NETWORK.with(|n| n.get());
     let key_name = get_key_name(network);
 
-    bitcoin_wallet::p2tr::get_address(network, key_name, derivation_path)
+    p2tr::get_address(network, key_name, derivation_path)
         .await
         .to_string()
 }
@@ -147,7 +152,7 @@ pub async fn send_from_p2tr_address_key_path(request: SendRequest) -> String {
     let network = NETWORK.with(|n| n.get());
     let key_name = get_key_name(network);
 
-    bitcoin_wallet::p2tr::send_key_path(
+    p2tr::send_key_path(
         network,
         derivation_path,
         key_name,
@@ -164,7 +169,7 @@ pub async fn send_from_p2tr_address_script_path(request: SendRequest) -> String 
     let network = NETWORK.with(|n| n.get());
     let key_name = get_key_name(network);
 
-    bitcoin_wallet::p2tr::send_script_path(
+    p2tr::send_script_path(
         network,
         derivation_path,
         key_name,
@@ -182,7 +187,7 @@ pub async fn get_p2tr_key_only_address() -> String {
     let network = NETWORK.with(|n| n.get());
     let key_name = get_key_name(network);
 
-    bitcoin_wallet::p2tr_key_only::get_address(network, key_name, derivation_path)
+    p2tr_key_only::get_address(network, key_name, derivation_path)
         .await
         .to_string()
 }
@@ -199,7 +204,7 @@ pub async fn send_from_p2tr_key_only_address(request: SendRequest) -> String {
     let derivation_path = vec![P2TR_KEY_ONLY_DERIVATION_PATH_PREFIX.as_bytes().to_vec()];
     let network = NETWORK.with(|n| n.get());
     let key_name = get_key_name(network);
-    let tx_id = bitcoin_wallet::p2tr_key_only::send(
+    let tx_id = p2tr_key_only::send(
         network,
         derivation_path,
         key_name,
