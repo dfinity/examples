@@ -57,15 +57,13 @@ pub async fn sign_with_ecdsa(
     derivation_path: Vec<Vec<u8>>,
     message_hash: Vec<u8>,
 ) -> Vec<u8> {
-    let key_id = EcdsaKeyId {
-        curve: EcdsaCurve::Secp256k1,
-        name: key_name,
-    };
-
     management_canister::sign_with_ecdsa(&SignWithEcdsaArgs {
         message_hash,
         derivation_path,
-        key_id,
+        key_id: EcdsaKeyId {
+            curve: EcdsaCurve::Secp256k1,
+            name: key_name,
+        },
     })
     .await
     .unwrap()
