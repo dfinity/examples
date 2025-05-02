@@ -24,9 +24,7 @@ thread_local! {
 // This update method stores the greeting prefix in stable memory.
 #[ic_cdk::update]
 fn set_greeting(prefix: String) {
-    GREETING.with_borrow_mut(|greeting| {
-        greeting.set(prefix).unwrap();
-    });
+    GREETING.with_borrow_mut(|greeting| greeting.set(prefix).unwrap());
 }
 
 // This query method returns the currently persisted greeting with the given name.
