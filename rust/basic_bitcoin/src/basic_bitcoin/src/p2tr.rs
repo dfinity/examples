@@ -1,3 +1,8 @@
+use crate::{
+    common::{build_transaction_with_fee, get_fee_per_byte, mock_signer},
+    schnorr::{get_schnorr_public_key, sign_with_schnorr},
+    BitcoinContext,
+};
 use bitcoin::{
     blockdata::witness::Witness,
     consensus::serialize,
@@ -11,53 +16,16 @@ use bitcoin::{
 use ic_cdk::{
     api::debug_print,
     bitcoin_canister::{
-        bitcoin_get_utxos, bitcoin_send_transaction, GetUtxosRequest, MillisatoshiPerByte, Network,
-        Satoshi, SendTransactionRequest, Utxo,
+        bitcoin_get_utxos, bitcoin_send_transaction, GetUtxosRequest, MillisatoshiPerByte, Satoshi,
+        SendTransactionRequest, Utxo,
     },
 };
 use std::str::FromStr;
 
-use crate::{
-    common::{build_transaction_with_fee, get_fee_per_byte, mock_signer, transform_network},
-    schnorr::{schnorr_public_key, sign_with_schnorr},
-};
-
-/// Returns the P2TR address of this canister at the given derivation path. This
-/// address uses two public keys:
-/// 1) an internal key,
-/// 2) a key that can be used to spend from a script.
-///
-/// The keys are derived by appending additional information to the provided
-/// `derivation_path`.
-pub async fn get_address(
-    network: Network,
-    key_name: String,
-    derivation_path: Vec<Vec<u8>>,
-) -> Address {
-    let (internal_key, script_path_key) = get_public_keys(key_name, derivation_path).await;
-    public_keys_to_p2tr_script_spend_address(
-        network,
-        internal_key.as_slice(),
-        script_path_key.as_slice(),
-    )
-}
-
-// Converts a public key to a P2TR address. To compute the address, the public
-// key is tweaked with the taproot value, which is computed from the public key
-// and the Merkelized Abstract Syntax Tree (MAST, essentially a Merkle tree
-// containing scripts, in our case just one). Addresses are computed differently
-// for different Bitcoin networks.
-pub fn public_keys_to_p2tr_script_spend_address(
-    bitcoin_network: Network,
-    internal_key: &[u8],
-    script_key: &[u8],
-) -> Address {
-    let network = transform_network(bitcoin_network);
-    let taproot_spend_info = p2tr_script_spend_info(internal_key, script_key);
-    Address::p2tr_tweaked(taproot_spend_info.output_key(), network)
-}
-
-fn p2tr_script_spend_info(internal_key_bytes: &[u8], script_key_bytes: &[u8]) -> TaprootSpendInfo {
+pub fn p2tr_script_spend_info(
+    internal_key_bytes: &[u8],
+    script_key_bytes: &[u8],
+) -> TaprootSpendInfo {
     // Script used in script path spending.
     let spend_script = p2tr_script(script_key_bytes);
     let secp256k1_engine = Secp256k1::new();
@@ -86,21 +54,18 @@ fn p2tr_script(public_key: &[u8]) -> ScriptBuf {
 /// given amount to the given destination, where the source of the funds is the
 /// canister itself at the given derivation path.
 pub async fn send_script_path(
-    network: Network,
+    ctx: &BitcoinContext,
     derivation_path: Vec<Vec<u8>>,
-    key_name: String,
     dst_address: String,
     amount: Satoshi,
 ) -> Txid {
-    let fee_per_byte = get_fee_per_byte(network).await;
+    let fee_per_byte = get_fee_per_byte(ctx).await;
 
     // Fetch our public keys and UTXOs, and compute the P2TR address.
-    let (internal_key, script_key) =
-        get_public_keys(key_name.clone(), derivation_path.clone()).await;
+    let (internal_key, script_key) = get_public_keys(ctx, derivation_path.clone()).await;
     let taproot_spend_info = p2tr_script_spend_info(internal_key.as_slice(), script_key.as_slice());
 
-    let own_address =
-        Address::p2tr_tweaked(taproot_spend_info.output_key(), transform_network(network));
+    let own_address = Address::p2tr_tweaked(taproot_spend_info.output_key(), ctx.bitcoin_network);
 
     debug_print("Fetching UTXOs...");
     // Note that pagination may have to be used to get all UTXOs for the given address.
@@ -108,7 +73,7 @@ pub async fn send_script_path(
     // contains all UTXOs.
     let own_utxos = bitcoin_get_utxos(&GetUtxosRequest {
         address: own_address.to_string(),
-        network,
+        network: ctx.network,
         filter: None,
     })
     .await
@@ -117,7 +82,7 @@ pub async fn send_script_path(
 
     let dst_address = Address::from_str(&dst_address)
         .unwrap()
-        .require_network(transform_network(network))
+        .require_network(ctx.bitcoin_network)
         .expect("should be valid address for the network");
 
     let script = p2tr_script(script_key.as_slice());
@@ -125,21 +90,28 @@ pub async fn send_script_path(
         .control_block(&(script.clone(), LeafVersion::TapScript))
         .expect("should compute control block");
     // Build the transaction that sends `amount` to the destination address.
-    let (transaction, prevouts) =
-        build_p2tr_tx(&own_address, &own_utxos, &dst_address, amount, fee_per_byte).await;
+    let (transaction, prevouts) = build_p2tr_tx(
+        ctx,
+        &own_address,
+        &own_utxos,
+        &dst_address,
+        amount,
+        fee_per_byte,
+    )
+    .await;
 
     let tx_bytes = serialize(&transaction);
     debug_print(format!("Transaction to sign: {}", hex::encode(tx_bytes)));
 
     // Sign the transaction.
     let signed_transaction = schnorr_sign_script_spend_transaction(
+        ctx,
         &own_address,
         transaction,
         prevouts.as_slice(),
         &control_block,
         &script,
-        key_name,
-        extend_derivation_path_2(&derivation_path).1,
+        extend_derivation_path(&derivation_path).1,
         sign_with_schnorr,
     )
     .await;
@@ -153,7 +125,7 @@ pub async fn send_script_path(
     debug_print("Sending transaction...");
 
     bitcoin_send_transaction(&SendTransactionRequest {
-        network,
+        network: ctx.network,
         transaction: signed_transaction_bytes,
     })
     .await
@@ -168,21 +140,18 @@ pub async fn send_script_path(
 /// given amount to the given destination, where the source of the funds is the
 /// canister itself at the given derivation path.
 pub async fn send_key_path(
-    network: Network,
+    ctx: &BitcoinContext,
     derivation_path: Vec<Vec<u8>>,
-    key_name: String,
     dst_address: String,
     amount: Satoshi,
 ) -> Txid {
-    let fee_per_byte = get_fee_per_byte(network).await;
+    let fee_per_byte = get_fee_per_byte(ctx).await;
 
     // Fetch our public key, P2PKH address, and UTXOs.
-    let (internal_key, script_key) =
-        get_public_keys(key_name.clone(), derivation_path.clone()).await;
+    let (internal_key, script_key) = get_public_keys(ctx, derivation_path.clone()).await;
     let taproot_spend_info = p2tr_script_spend_info(internal_key.as_slice(), script_key.as_slice());
 
-    let own_address =
-        Address::p2tr_tweaked(taproot_spend_info.output_key(), transform_network(network));
+    let own_address = Address::p2tr_tweaked(taproot_spend_info.output_key(), ctx.bitcoin_network);
 
     debug_print("Fetching UTXOs...");
     // Note that pagination may have to be used to get all UTXOs for the given address.
@@ -190,7 +159,7 @@ pub async fn send_key_path(
     // contains all UTXOs.
     let own_utxos = bitcoin_get_utxos(&GetUtxosRequest {
         address: own_address.to_string(),
-        network,
+        network: ctx.network,
         filter: None,
     })
     .await
@@ -199,23 +168,30 @@ pub async fn send_key_path(
 
     let dst_address = Address::from_str(&dst_address)
         .unwrap()
-        .require_network(transform_network(network))
+        .require_network(ctx.bitcoin_network)
         .expect("should be valid address for the network");
 
     // Build the transaction that sends `amount` to the destination address.
-    let (transaction, prevouts) =
-        build_p2tr_tx(&own_address, &own_utxos, &dst_address, amount, fee_per_byte).await;
+    let (transaction, prevouts) = build_p2tr_tx(
+        ctx,
+        &own_address,
+        &own_utxos,
+        &dst_address,
+        amount,
+        fee_per_byte,
+    )
+    .await;
 
     let tx_bytes = serialize(&transaction);
     debug_print(format!("Transaction to sign: {}", hex::encode(tx_bytes)));
 
     // Sign the transaction.
     let signed_transaction = schnorr_sign_key_spend_transaction(
+        ctx,
         &own_address,
         transaction,
         prevouts.as_slice(),
-        key_name,
-        extend_derivation_path_2(&derivation_path).0,
+        extend_derivation_path(&derivation_path).0,
         taproot_spend_info
             .merkle_root()
             .unwrap()
@@ -233,7 +209,7 @@ pub async fn send_key_path(
 
     debug_print("Sending transaction...");
     bitcoin_send_transaction(&SendTransactionRequest {
-        network,
+        network: ctx.network,
         transaction: signed_transaction_bytes,
     })
     .await
@@ -246,6 +222,7 @@ pub async fn send_key_path(
 // Builds a P2TR transaction to send the given `amount` of satoshis to the
 // destination address.
 pub(crate) async fn build_p2tr_tx(
+    ctx: &BitcoinContext,
     own_address: &Address,
     own_utxos: &[Utxo],
     dst_address: &Address,
@@ -260,7 +237,6 @@ pub(crate) async fn build_p2tr_tx(
     // We solve this problem iteratively. We start with a fee of zero, build
     // and sign a transaction, see what its size is, and then update the fee,
     // rebuild the transaction, until the fee is set to the correct amount.
-    debug_print("Building transaction...");
     let mut total_fee = 0;
     loop {
         let (transaction, prevouts) =
@@ -275,11 +251,11 @@ pub(crate) async fn build_p2tr_tx(
         // script path, since the difference is only how the signature is
         // computed, which is a dummy signing function in our case.
         let signed_transaction = schnorr_sign_key_spend_transaction(
+            ctx,
             own_address,
             transaction.clone(),
             &prevouts,
-            String::from(""), // mock key name
-            vec![],           // mock derivation path
+            vec![], // mock derivation path
             vec![],
             mock_signer,
         )
@@ -304,12 +280,12 @@ pub(crate) async fn build_p2tr_tx(
 // 1. All the inputs are referencing outpoints that are owned by `own_address`.
 // 2. `own_address` is a P2TR address that includes a script.
 async fn schnorr_sign_script_spend_transaction<SignFun, Fut>(
+    ctx: &BitcoinContext,
     own_address: &Address,
     mut transaction: Transaction,
     prevouts: &[TxOut],
     control_block: &ControlBlock,
     script: &ScriptBuf,
-    key_name: String,
     derivation_path: Vec<Vec<u8>>,
     signer: SignFun,
 ) -> Transaction
@@ -344,7 +320,7 @@ where
             .to_vec();
 
         let raw_signature = signer(
-            key_name.clone(),
+            ctx.key_name.to_string(),
             derivation_path.clone(),
             None,
             signing_data.clone(),
@@ -375,10 +351,10 @@ where
 // 1. All the inputs are referencing outpoints that are owned by `own_address`.
 // 2. `own_address` is a P2TR address.
 pub async fn schnorr_sign_key_spend_transaction<SignFun, Fut>(
+    ctx: &BitcoinContext,
     own_address: &Address,
     mut transaction: Transaction,
     prevouts: &[TxOut],
-    key_name: String,
     derivation_path: Vec<Vec<u8>>,
     merkle_root_hash: Vec<u8>,
     signer: SignFun,
@@ -411,7 +387,7 @@ where
             .to_vec();
 
         let raw_signature = signer(
-            key_name.clone(),
+            ctx.key_name.to_string(),
             derivation_path.clone(),
             Some(merkle_root_hash.clone()),
             signing_data.clone(),
@@ -432,15 +408,18 @@ where
 
 /// Derives two public keys by appending different  additional information to
 /// the `derivation_path`.
-async fn get_public_keys(key_name: String, derivation_path: Vec<Vec<u8>>) -> (Vec<u8>, Vec<u8>) {
-    let (dpkp, dpsp) = extend_derivation_path_2(&derivation_path);
-    let internal_key = schnorr_public_key(key_name.clone(), dpkp).await;
-    let script_path_key = schnorr_public_key(key_name, dpsp).await;
+pub async fn get_public_keys(
+    ctx: &BitcoinContext,
+    derivation_path: Vec<Vec<u8>>,
+) -> (Vec<u8>, Vec<u8>) {
+    let (dpkp, dpsp) = extend_derivation_path(&derivation_path);
+    let internal_key = get_schnorr_public_key(ctx, dpkp).await;
+    let script_path_key = get_schnorr_public_key(ctx, dpsp).await;
     (internal_key, script_path_key)
 }
 
 /// Appends two constant strings to the derivation path to produce two different keys.
-fn extend_derivation_path_2(derivation_path: &[Vec<u8>]) -> (Vec<Vec<u8>>, Vec<Vec<u8>>) {
+fn extend_derivation_path(derivation_path: &[Vec<u8>]) -> (Vec<Vec<u8>>, Vec<Vec<u8>>) {
     let derivation_path_key_path = derivation_path
         .iter()
         .cloned()

@@ -3,8 +3,10 @@ use bitcoin::{
     Address, Amount, OutPoint, ScriptBuf, Sequence, Transaction, TxIn, TxOut, Txid,
 };
 use ic_cdk::bitcoin_canister::{
-    bitcoin_get_current_fee_percentiles, GetCurrentFeePercentilesRequest, Network, Utxo,
+    bitcoin_get_current_fee_percentiles, GetCurrentFeePercentilesRequest, Utxo,
 };
+
+use crate::BitcoinContext;
 
 pub fn build_transaction_with_fee(
     own_utxos: &[Utxo],
@@ -84,20 +86,13 @@ pub fn build_transaction_with_fee(
     ))
 }
 
-pub fn transform_network(network: Network) -> bitcoin::Network {
-    match network {
-        Network::Mainnet => bitcoin::Network::Bitcoin,
-        Network::Testnet => bitcoin::Network::Testnet,
-        Network::Regtest => bitcoin::Network::Regtest,
-    }
-}
-
-pub async fn get_fee_per_byte(network: Network) -> u64 {
+pub async fn get_fee_per_byte(ctx: &BitcoinContext) -> u64 {
     // Get fee percentiles from previous transactions to estimate our own fee.
-    let fee_percentiles =
-        bitcoin_get_current_fee_percentiles(&GetCurrentFeePercentilesRequest { network })
-            .await
-            .unwrap();
+    let fee_percentiles = bitcoin_get_current_fee_percentiles(&GetCurrentFeePercentilesRequest {
+        network: ctx.network,
+    })
+    .await
+    .unwrap();
 
     if fee_percentiles.is_empty() {
         // There are no fee percentiles. This case can only happen on a regtest

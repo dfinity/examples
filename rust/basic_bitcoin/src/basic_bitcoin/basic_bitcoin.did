@@ -42,6 +42,8 @@ type get_block_headers_response = record {
 
 service : (network) -> {
   "get_p2pkh_address" : () -> (bitcoin_address);
+  
+  "get_p2wpkh_address" : () -> (bitcoin_address);
 
   "get_p2tr_address" : () -> (bitcoin_address);
 

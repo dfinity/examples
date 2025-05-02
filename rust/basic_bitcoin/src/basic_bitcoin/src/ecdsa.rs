@@ -1,9 +1,8 @@
-use std::cell::RefCell;
-use std::collections::HashMap;
-
+use crate::BitcoinContext;
 use ic_cdk::management_canister::{
     self, EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgs, SignWithEcdsaArgs,
 };
+use std::{cell::RefCell, collections::HashMap};
 
 type DerivationPath = Vec<Vec<u8>>;
 type EcdsaKey = Vec<u8>;
@@ -14,7 +13,7 @@ thread_local! {
 }
 
 /// Returns the ECDSA public key of this canister at the given derivation path.
-pub async fn ecdsa_public_key(key_name: String, derivation_path: Vec<Vec<u8>>) -> Vec<u8> {
+pub async fn get_ecdsa_public_key(ctx: &BitcoinContext, derivation_path: Vec<Vec<u8>>) -> Vec<u8> {
     // Retrieve and return already stored public key
     if let Some(key) = ECDSA_KEY_CACHE.with_borrow(|map| map.get(&derivation_path).cloned()) {
         return key;
@@ -27,7 +26,7 @@ pub async fn ecdsa_public_key(key_name: String, derivation_path: Vec<Vec<u8>>) -
         derivation_path: derivation_path.clone(),
         key_id: EcdsaKeyId {
             curve: EcdsaCurve::Secp256k1,
-            name: key_name,
+            name: ctx.key_name.to_string(),
         },
     })
     .await
