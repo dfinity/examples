@@ -1,20 +1,46 @@
+use std::{cell::RefCell, collections::HashMap};
+
+use crate::BitcoinContext;
 use ic_cdk::management_canister::{
     self, SchnorrAlgorithm, SchnorrAux, SchnorrKeyId, SchnorrPublicKeyArgs, SignWithSchnorrArgs,
 };
 
+type DerivationPath = Vec<Vec<u8>>;
+type SchnorrKey = Vec<u8>;
+
+// Cache for Schnorr public keys. Cache does not persist across canister upgrades.
+thread_local! {
+    static SCHNORR_KEY_CACHE: RefCell<HashMap<DerivationPath, SchnorrKey>> = RefCell::new(HashMap::new());
+}
+
 /// Returns the Schnorr public key of this canister at the given derivation path.
-pub async fn schnorr_public_key(key_name: String, derivation_path: Vec<Vec<u8>>) -> Vec<u8> {
-    management_canister::schnorr_public_key(&SchnorrPublicKeyArgs {
+pub async fn get_schnorr_public_key(
+    ctx: &BitcoinContext,
+    derivation_path: Vec<Vec<u8>>,
+) -> Vec<u8> {
+    // Retrieve and return already stored public key
+    if let Some(key) = SCHNORR_KEY_CACHE.with_borrow(|map| map.get(&derivation_path).cloned()) {
+        return key;
+    }
+
+    let public_key = management_canister::schnorr_public_key(&SchnorrPublicKeyArgs {
         canister_id: None,
-        derivation_path,
+        derivation_path: derivation_path.clone(),
         key_id: SchnorrKeyId {
-            name: key_name,
+            name: ctx.key_name.to_string(),
             algorithm: SchnorrAlgorithm::Bip340secp256k1,
         },
     })
     .await
     .unwrap()
-    .public_key
+    .public_key;
+
+    // Cache the public key
+    SCHNORR_KEY_CACHE.with_borrow_mut(|map| {
+        map.insert(derivation_path, public_key.clone());
+    });
+
+    public_key
 }
 
 /// Returns the signature for `message` by a private and *distributed* private
