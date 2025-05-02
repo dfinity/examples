@@ -32,8 +32,7 @@ fn set_greeting(prefix: String) {
 // This query method returns the currently persisted greeting with the given name.
 #[ic_cdk::query]
 fn greet(name: String) -> String {
-    let greeting = GREETING.with_borrow(|greeting| greeting.get().clone());
-    format!("{greeting}{name}!")
+    GREETING.with_borrow(|greeting| format!("{}{name}!", greeting.get()))
 }
 
 // Export the interface for the smart contract.
