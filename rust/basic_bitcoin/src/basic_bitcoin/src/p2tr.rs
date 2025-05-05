@@ -1,5 +1,5 @@
 use crate::{
-    common::{build_transaction_with_fee, get_fee_per_byte, mock_signer},
+    common::{build_transaction_with_fee, get_fee_per_byte},
     schnorr::{get_schnorr_public_key, mock_sign_with_schnorr, sign_with_schnorr},
     BitcoinContext,
 };

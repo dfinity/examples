@@ -1,18 +1,13 @@
-use crate::{
-    common::{build_transaction_with_fee, sec1_to_der},
-    ecdsa::mock_sign_with_ecdsa,
-    BitcoinContext,
-};
+use crate::{common::build_transaction_with_fee, ecdsa::mock_sign_with_ecdsa, BitcoinContext};
 use bitcoin::{
     hashes::Hash,
     script::{Builder, PushBytesBuf},
+    secp256k1::ecdsa::Signature as SecpSignature,
     sighash::{EcdsaSighashType, SighashCache},
-    Address, AddressType, PublicKey, Transaction,
+    Address, AddressType, PublicKey, Transaction, Witness,
 };
 use ic_cdk::bitcoin_canister::{MillisatoshiPerByte, Satoshi, Utxo};
 use std::convert::TryFrom;
-
-const ECDSA_SIG_HASH_TYPE: EcdsaSighashType = EcdsaSighashType::All;
 
 // Builds a transaction to send the given `amount` of satoshis to the
 // destination address.
@@ -60,7 +55,7 @@ pub async fn build_transaction(
     }
 }
 
-// Sign a bitcoin transaction.
+// Sign a P2PKH bitcoin transaction.
 //
 // IMPORTANT: This method is for demonstration purposes only and it only
 // supports signing transactions if:
@@ -77,22 +72,23 @@ pub async fn sign_transaction<SignFun, Fut>(
 ) -> Transaction
 where
     SignFun: Fn(String, Vec<Vec<u8>>, Vec<u8>) -> Fut,
-    Fut: std::future::Future<Output = Vec<u8>>,
+    Fut: std::future::Future<Output = SecpSignature>,
 {
-    // Verify that our own address is P2PKH.
     assert_eq!(
         own_address.address_type(),
         Some(AddressType::P2pkh),
-        "This example supports signing p2pkh addresses only."
+        "Only P2PKH addresses are supported"
     );
 
-    let txclone = transaction.clone();
+    let transaction_clone = transaction.clone();
+    let sighash_cache = SighashCache::new(&transaction_clone);
+
     for (index, input) in transaction.input.iter_mut().enumerate() {
-        let sighash = SighashCache::new(&txclone)
+        let sighash = sighash_cache
             .legacy_signature_hash(
                 index,
                 &own_address.script_pubkey(),
-                ECDSA_SIG_HASH_TYPE.to_u32(),
+                EcdsaSighashType::All.to_u32(),
             )
             .unwrap();
 
@@ -103,19 +99,18 @@ where
         )
         .await;
 
-        // Convert signature to DER.
-        let der_signature = sec1_to_der(signature);
+        let mut signature = signature.serialize_der().to_vec();
+        signature.push(EcdsaSighashType::All.to_u32() as u8);
 
-        let mut sig_with_hashtype: Vec<u8> = der_signature;
-        sig_with_hashtype.push(ECDSA_SIG_HASH_TYPE.to_u32() as u8);
+        let sig_bytes = PushBytesBuf::try_from(signature).unwrap();
+        let pubkey_bytes = PushBytesBuf::try_from(own_public_key.to_bytes()).unwrap();
 
-        let sig_with_hashtype_push_bytes = PushBytesBuf::try_from(sig_with_hashtype).unwrap();
-        let own_public_key_push_bytes = PushBytesBuf::try_from(own_public_key.to_bytes()).unwrap();
         input.script_sig = Builder::new()
-            .push_slice(sig_with_hashtype_push_bytes)
-            .push_slice(own_public_key_push_bytes)
+            .push_slice(sig_bytes)
+            .push_slice(pubkey_bytes)
             .into_script();
-        input.witness.clear();
+
+        input.witness = Witness::new();
     }
 
     transaction

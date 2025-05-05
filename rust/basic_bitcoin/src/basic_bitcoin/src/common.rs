@@ -66,12 +66,12 @@ pub fn build_transaction_with_fee(
         value: Amount::from_sat(amount),
     }];
 
-    let remaining_amount = total_spent - amount - fee;
+    let change = total_spent - amount - fee;
 
-    if remaining_amount >= DUST_THRESHOLD {
+    if change >= DUST_THRESHOLD {
         outputs.push(TxOut {
             script_pubkey: own_address.script_pubkey(),
-            value: Amount::from_sat(remaining_amount),
+            value: Amount::from_sat(change),
         });
     }
 
@@ -103,48 +103,4 @@ pub async fn get_fee_per_byte(ctx: &BitcoinContext) -> u64 {
         // Choose the 50th percentile for sending fees.
         fee_percentiles[50]
     }
-}
-
-// A mock for rubber-stamping signatures.
-pub async fn mock_signer(
-    _key_name: String,
-    _derivation_path: Vec<Vec<u8>>,
-    _merkle_root_hash: Option<Vec<u8>>,
-    _message_hash: Vec<u8>,
-) -> Vec<u8> {
-    vec![255; 64]
-}
-
-// Converts a SEC1 ECDSA signature to the DER format.
-pub fn sec1_to_der(sec1_signature: Vec<u8>) -> Vec<u8> {
-    let r: Vec<u8> = if sec1_signature[0] & 0x80 != 0 {
-        // r is negative. Prepend a zero byte.
-        let mut tmp = vec![0x00];
-        tmp.extend(sec1_signature[..32].to_vec());
-        tmp
-    } else {
-        // r is positive.
-        sec1_signature[..32].to_vec()
-    };
-
-    let s: Vec<u8> = if sec1_signature[32] & 0x80 != 0 {
-        // s is negative. Prepend a zero byte.
-        let mut tmp = vec![0x00];
-        tmp.extend(sec1_signature[32..].to_vec());
-        tmp
-    } else {
-        // s is positive.
-        sec1_signature[32..].to_vec()
-    };
-
-    // Convert signature to DER.
-    vec![
-        vec![0x30, 4 + r.len() as u8 + s.len() as u8, 0x02, r.len() as u8],
-        r,
-        vec![0x02, s.len() as u8],
-        s,
-    ]
-    .into_iter()
-    .flatten()
-    .collect()
 }

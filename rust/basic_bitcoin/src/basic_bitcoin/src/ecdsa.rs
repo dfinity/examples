@@ -1,4 +1,5 @@
 use crate::BitcoinContext;
+use bitcoin::secp256k1::ecdsa::Signature;
 use ic_cdk::management_canister::{
     self, EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgs, SignWithEcdsaArgs,
 };
@@ -45,8 +46,8 @@ pub async fn sign_with_ecdsa(
     key_name: String,
     derivation_path: Vec<Vec<u8>>,
     message_hash: Vec<u8>,
-) -> Vec<u8> {
-    management_canister::sign_with_ecdsa(&SignWithEcdsaArgs {
+) -> Signature {
+    let signature = management_canister::sign_with_ecdsa(&SignWithEcdsaArgs {
         message_hash,
         derivation_path,
         key_id: EcdsaKeyId {
@@ -56,13 +57,15 @@ pub async fn sign_with_ecdsa(
     })
     .await
     .unwrap()
-    .signature
+    .signature;
+    Signature::from_compact(&signature).unwrap()
 }
 
 pub async fn mock_sign_with_ecdsa(
     _key_name: String,
     _derivation_path: Vec<Vec<u8>>,
     _signing_data: Vec<u8>,
-) -> Vec<u8> {
-    vec![0; 64]
+) -> Signature {
+    let r_s = [1u8; 64];
+    Signature::from_compact(&r_s).unwrap()
 }
