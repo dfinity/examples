@@ -9,7 +9,7 @@ use ic_cdk::{
     bitcoin_canister::{
         bitcoin_get_utxos, bitcoin_send_transaction, GetUtxosRequest, SendTransactionRequest,
     },
-    update,
+    trap, update,
 };
 use std::str::FromStr;
 
@@ -19,6 +19,17 @@ use std::str::FromStr;
 pub async fn send_from_p2pkh_address(request: SendRequest) -> String {
     let ctx = BTC_CONTEXT.with(|ctx| ctx.get());
 
+    if request.amount_in_satoshi == 0 {
+        trap("Amount must be greater than 0");
+    }
+
+    // Parse and validate the destination address. The address type needs to be
+    // valid for the bitcoin network we are on.
+    let dst_address = Address::from_str(&request.destination_address)
+        .unwrap()
+        .require_network(ctx.bitcoin_network)
+        .unwrap();
+
     // Unique derivation paths are used for every address type generated, to ensure
     // each address has its own unique key pair. To generate a user-specific address,
     // you would typically use a derivation path based on the user's identity or some other unique identifier.
@@ -27,14 +38,11 @@ pub async fn send_from_p2pkh_address(request: SendRequest) -> String {
     // Get the ECDSA public key of this canister at the given derivation path
     let own_public_key = get_ecdsa_public_key(&ctx, derivation_path.clone()).await;
 
-    // Get the ECDSA public key of this canister at the given derivation path
-    let public_key = get_ecdsa_public_key(&ctx, derivation_path.clone()).await;
-
     // Convert the public key to the format used by the Bitcoin library
-    let public_key = PublicKey::from_slice(&public_key).unwrap();
+    let own_public_key = PublicKey::from_slice(&own_public_key).unwrap();
 
     // Generate a P2PKH address from the public key
-    let own_address = Address::p2pkh(public_key, ctx.bitcoin_network);
+    let own_address = Address::p2pkh(own_public_key, ctx.bitcoin_network);
 
     // Note that pagination may have to be used to get all UTXOs for the given address.
     // For the sake of simplicity, it is assumed here that the `utxo` field in the response
@@ -48,16 +56,9 @@ pub async fn send_from_p2pkh_address(request: SendRequest) -> String {
     .unwrap()
     .utxos;
 
-    // Parse and validate the destination address. The address type needs to be
-    // valid for the bitcoin network we are on.
-    let dst_address = Address::from_str(&request.destination_address)
-        .unwrap()
-        .require_network(ctx.bitcoin_network)
-        .unwrap();
-
-    // Build the transaction that sends `amount` to the destination address.
+    // Build the transaction
     let fee_per_byte = get_fee_per_byte(&ctx).await;
-    let transaction = p2pkh::build_send_tx(
+    let transaction = p2pkh::build_transaction(
         &ctx,
         &own_public_key,
         &own_address,

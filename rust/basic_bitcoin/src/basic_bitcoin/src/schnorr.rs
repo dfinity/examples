@@ -72,3 +72,13 @@ pub async fn sign_with_schnorr(
     .unwrap()
     .signature
 }
+
+// A mock for rubber-stamping signatures.
+pub async fn mock_sign_with_schnorr(
+    _key_name: String,
+    _derivation_path: Vec<Vec<u8>>,
+    _merkle_root_hash: Option<Vec<u8>>,
+    _message_hash: Vec<u8>,
+) -> Vec<u8> {
+    vec![255; 64]
+}

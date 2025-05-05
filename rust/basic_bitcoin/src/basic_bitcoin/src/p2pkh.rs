@@ -1,9 +1,13 @@
-use crate::{common::build_transaction_with_fee, BitcoinContext};
+use crate::{
+    common::{build_transaction_with_fee, sec1_to_der},
+    ecdsa::mock_sign_with_ecdsa,
+    BitcoinContext,
+};
 use bitcoin::{
     hashes::Hash,
     script::{Builder, PushBytesBuf},
     sighash::{EcdsaSighashType, SighashCache},
-    Address, AddressType, Transaction,
+    Address, AddressType, PublicKey, Transaction,
 };
 use ic_cdk::bitcoin_canister::{MillisatoshiPerByte, Satoshi, Utxo};
 use std::convert::TryFrom;
@@ -12,9 +16,9 @@ const ECDSA_SIG_HASH_TYPE: EcdsaSighashType = EcdsaSighashType::All;
 
 // Builds a transaction to send the given `amount` of satoshis to the
 // destination address.
-pub async fn build_send_tx(
+pub async fn build_transaction(
     ctx: &BitcoinContext,
-    own_public_key: &[u8],
+    own_public_key: &PublicKey,
     own_address: &Address,
     own_utxos: &[Utxo],
     dst_address: &Address,
@@ -29,11 +33,10 @@ pub async fn build_send_tx(
     // We solve this problem iteratively. We start with a fee of zero, build
     // and sign a transaction, see what its size is, and then update the fee,
     // rebuild the transaction, until the fee is set to the correct amount.
-    let mut total_fee = 0;
+    let mut fee = 0;
     loop {
-        let (transaction, _prevouts) =
-            build_transaction_with_fee(own_utxos, own_address, dst_address, amount, total_fee)
-                .expect("Error building transaction.");
+        let (transaction, _) =
+            build_transaction_with_fee(own_utxos, own_address, dst_address, amount, fee).unwrap();
 
         // Sign the transaction. In this case, we only care about the size
         // of the signed transaction, so we use a mock signer here for efficiency.
@@ -43,16 +46,16 @@ pub async fn build_send_tx(
             own_address,
             transaction.clone(),
             vec![], // mock derivation path
-            mock_signer,
+            mock_sign_with_ecdsa,
         )
         .await;
 
         let tx_vsize = signed_transaction.vsize() as u64;
 
-        if (tx_vsize * fee_per_vbyte) / 1000 == total_fee {
+        if (tx_vsize * fee_per_vbyte) / 1000 == fee {
             return transaction;
         } else {
-            total_fee = (tx_vsize * fee_per_vbyte) / 1000;
+            fee = (tx_vsize * fee_per_vbyte) / 1000;
         }
     }
 }
@@ -66,7 +69,7 @@ pub async fn build_send_tx(
 // 2. `own_address` is a P2PKH address.
 pub async fn sign_transaction<SignFun, Fut>(
     ctx: &BitcoinContext,
-    own_public_key: &[u8],
+    own_public_key: &PublicKey,
     own_address: &Address,
     mut transaction: Transaction,
     derivation_path: Vec<Vec<u8>>,
@@ -107,7 +110,7 @@ where
         sig_with_hashtype.push(ECDSA_SIG_HASH_TYPE.to_u32() as u8);
 
         let sig_with_hashtype_push_bytes = PushBytesBuf::try_from(sig_with_hashtype).unwrap();
-        let own_public_key_push_bytes = PushBytesBuf::try_from(own_public_key.to_vec()).unwrap();
+        let own_public_key_push_bytes = PushBytesBuf::try_from(own_public_key.to_bytes()).unwrap();
         input.script_sig = Builder::new()
             .push_slice(sig_with_hashtype_push_bytes)
             .push_slice(own_public_key_push_bytes)
@@ -116,46 +119,4 @@ where
     }
 
     transaction
-}
-
-// Converts a SEC1 ECDSA signature to the DER format.
-fn sec1_to_der(sec1_signature: Vec<u8>) -> Vec<u8> {
-    let r: Vec<u8> = if sec1_signature[0] & 0x80 != 0 {
-        // r is negative. Prepend a zero byte.
-        let mut tmp = vec![0x00];
-        tmp.extend(sec1_signature[..32].to_vec());
-        tmp
-    } else {
-        // r is positive.
-        sec1_signature[..32].to_vec()
-    };
-
-    let s: Vec<u8> = if sec1_signature[32] & 0x80 != 0 {
-        // s is negative. Prepend a zero byte.
-        let mut tmp = vec![0x00];
-        tmp.extend(sec1_signature[32..].to_vec());
-        tmp
-    } else {
-        // s is positive.
-        sec1_signature[32..].to_vec()
-    };
-
-    // Convert signature to DER.
-    vec![
-        vec![0x30, 4 + r.len() as u8 + s.len() as u8, 0x02, r.len() as u8],
-        r,
-        vec![0x02, s.len() as u8],
-        s,
-    ]
-    .into_iter()
-    .flatten()
-    .collect()
-}
-
-async fn mock_signer(
-    _key_name: String,
-    _derivation_path: Vec<Vec<u8>>,
-    _signing_data: Vec<u8>,
-) -> Vec<u8> {
-    vec![0; 64]
 }

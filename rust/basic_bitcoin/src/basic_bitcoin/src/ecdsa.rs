@@ -58,3 +58,11 @@ pub async fn sign_with_ecdsa(
     .unwrap()
     .signature
 }
+
+pub async fn mock_sign_with_ecdsa(
+    _key_name: String,
+    _derivation_path: Vec<Vec<u8>>,
+    _signing_data: Vec<u8>,
+) -> Vec<u8> {
+    vec![0; 64]
+}

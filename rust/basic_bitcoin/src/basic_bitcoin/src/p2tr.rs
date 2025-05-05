@@ -1,6 +1,6 @@
 use crate::{
     common::{build_transaction_with_fee, get_fee_per_byte, mock_signer},
-    schnorr::{get_schnorr_public_key, sign_with_schnorr},
+    schnorr::{get_schnorr_public_key, mock_sign_with_schnorr, sign_with_schnorr},
     BitcoinContext,
 };
 use bitcoin::{
@@ -241,7 +241,7 @@ pub(crate) async fn build_p2tr_tx(
     loop {
         let (transaction, prevouts) =
             build_transaction_with_fee(own_utxos, own_address, dst_address, amount, total_fee)
-                .expect("Error building transaction.");
+                .unwrap();
 
         // Sign the transaction. In this case, we only care about the size
         // of the signed transaction, so we use a mock signer here for
@@ -257,7 +257,7 @@ pub(crate) async fn build_p2tr_tx(
             &prevouts,
             vec![], // mock derivation path
             vec![],
-            mock_signer,
+            mock_sign_with_schnorr,
         )
         .await;
 
