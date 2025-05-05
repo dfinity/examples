@@ -64,6 +64,13 @@ service : (network) -> {
     }
   ) -> (transaction_id);
 
+  "send_from_p2wpkh_address" : (
+    record {
+      destination_address : bitcoin_address;
+      amount_in_satoshi : satoshi;
+    }
+  ) -> (transaction_id);
+
   "send_from_p2tr_address_key_path" : (
     record {
       destination_address : bitcoin_address;
