@@ -4,7 +4,7 @@ use crate::{
     schnorr::{get_schnorr_public_key, sign_with_schnorr},
     SendRequest, BTC_CONTEXT,
 };
-use bitcoin::{consensus::serialize, key::Secp256k1, Address, PublicKey, XOnlyPublicKey};
+use bitcoin::{consensus::serialize, hashes::Hash, Address};
 use ic_cdk::{
     bitcoin_canister::{
         bitcoin_get_utxos, bitcoin_send_transaction, GetUtxosRequest, SendTransactionRequest,
@@ -13,13 +13,17 @@ use ic_cdk::{
 };
 use std::str::FromStr;
 
-/// Sends Bitcoin from this canister’s **key-path-only Taproot address** (P2TR, BIP-86).
+/// Sends Bitcoin from this canister’s **script-path-enabled Taproot address** using **key path spending**.
 ///
 /// This function constructs and broadcasts a transaction that spends from a Taproot output
-/// using **key path spending only** — that is, a single Schnorr signature derived from the
-/// internal key with **no script path committed** (the Merkle root is `None`).
+/// with a committed script tree (i.e. the address was constructed with both an internal key
+/// and a Merkle root), but the spend path taken is **key path spending only** — a single
+/// Schnorr signature derived from the internal key.
+///
+/// This is functionally similar to `send_from_p2tr_key_path_only_address`, but uses a different
+/// derivation path to reflect that the address also supports an alternate script path.
 #[update]
-pub async fn send_from_p2tr_key_path_only_address(request: SendRequest) -> String {
+pub async fn send_from_p2tr_script_path_enabled_address_key_spend(request: SendRequest) -> String {
     let ctx = BTC_CONTEXT.with(|ctx| ctx.get());
 
     if request.amount_in_satoshi == 0 {
@@ -38,20 +42,22 @@ pub async fn send_from_p2tr_key_path_only_address(request: SendRequest) -> Strin
     // - Index 0: key-path-only Taproot (no script tree committed)
     // - Index 1: internal key for a Taproot output that includes a script tree
     // - Index 2: script leaf key committed to in the Merkle tree
-    let internal_key_path = DerivationPath::p2tr(0, 0);
+    let internal_key_path = DerivationPath::p2tr(0, 1);
+    let script_leaf_key_path = DerivationPath::p2tr(0, 2);
 
-    // Derive the public key used as the internal key (untweaked key path base).
-    // This key is used for key path spending only, without any committed script tree.
+    // Derive the Schnorr public keys used in this Taproot output:
+    // - `internal_key` is used as the untweaked base key (for key path spending)
+    // - `script_key` is used inside a Taproot leaf script (for script path spending)
     let internal_key = get_schnorr_public_key(&ctx, internal_key_path.to_vec_u8_path()).await;
+    let script_key = get_schnorr_public_key(&ctx, script_leaf_key_path.to_vec_u8_path()).await;
 
-    // Convert the internal key to an x-only public key, as required by Taproot (BIP-341).
-    let internal_key = XOnlyPublicKey::from(PublicKey::from_slice(&internal_key).unwrap());
+    // Construct the Taproot leaf script: <script_key> OP_CHECKSIG
+    // This is a simple script that allows spending via the script_key alone.
+    let taproot_spend_info = p2tr::create_taproot_spend_info(&internal_key, &script_key);
 
-    // Create a Taproot address using the internal key only.
-    // We pass `None` as the Merkle root, which per BIP-341 means the address commits
-    // to an unspendable script path, enabling only key path spending.
-    let secp256k1_engine = Secp256k1::new();
-    let own_address = Address::p2tr(&secp256k1_engine, internal_key, None, ctx.bitcoin_network);
+    // Construct  the Taproot address. The address encodes the tweaked output key and is
+    // network-aware (mainnet, testnet, etc.).
+    let own_address = Address::p2tr_tweaked(taproot_spend_info.output_key(), ctx.bitcoin_network);
 
     // Note that pagination may have to be used to get all UTXOs for the given address.
     // For the sake of simplicity, it is assumed here that the `utxo` field in the response
@@ -84,12 +90,15 @@ pub async fn send_from_p2tr_key_path_only_address(request: SendRequest) -> Strin
         transaction,
         prevouts.as_slice(),
         internal_key_path.to_vec_u8_path(),
-        vec![],
+        taproot_spend_info
+            .merkle_root()
+            .unwrap()
+            .as_byte_array()
+            .to_vec(),
         sign_with_schnorr,
     )
     .await;
 
-    // Send the transaction to the Bitcoin canister.
     bitcoin_send_transaction(&SendTransactionRequest {
         network: ctx.network,
         transaction: serialize(&signed_transaction),
@@ -97,6 +106,5 @@ pub async fn send_from_p2tr_key_path_only_address(request: SendRequest) -> Strin
     .await
     .unwrap();
 
-    // Return the transaction ID.
     signed_transaction.compute_txid().to_string()
 }

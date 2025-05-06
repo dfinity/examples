@@ -8,6 +8,17 @@ use ic_cdk::bitcoin_canister::{
 };
 use std::fmt;
 
+/// Constructs a Bitcoin transaction from the given UTXOs, sending the specified `amount`
+/// to `dst_address`, subtracting a fixed `fee`, and returning any remaining change
+/// to `own_address` (if it's not considered dust).
+///
+/// Returns the constructed unsigned transaction and the list of previous outputs (`prevouts`)
+/// used for signing.
+///
+/// Assumes that:
+/// - Inputs are unspent and valid
+/// - Dust threshold is 1_000 satoshis (outputs below this are omitted)
+/// - UTXOs are already filtered to be spendable (e.g., confirmed, mature)
 pub fn build_transaction_with_fee(
     own_utxos: &[Utxo],
     own_address: &Address,
@@ -15,24 +26,22 @@ pub fn build_transaction_with_fee(
     amount: u64,
     fee: u64,
 ) -> Result<(Transaction, Vec<TxOut>), String> {
-    // Assume that any amount below this threshold is dust.
+    // Define a dust threshold below which change outputs are discarded.
     const DUST_THRESHOLD: u64 = 1_000;
 
-    // Select which UTXOs to spend. We naively spend the oldest available UTXOs,
-    // even if they were previously spent in a transaction. This isn't a
-    // problem as long as at most one transaction is created per block and
-    // we're using min_confirmations of 1.
+    // --- Input Selection ---
+    // Greedily select UTXOs in reverse order (oldest last) until we cover amount + fee.
     let mut utxos_to_spend = vec![];
     let mut total_spent = 0;
     for utxo in own_utxos.iter().rev() {
         total_spent += utxo.value;
         utxos_to_spend.push(utxo);
         if total_spent >= amount + fee {
-            // We have enough inputs to cover the amount we want to spend.
             break;
         }
     }
 
+    // Abort if we can't cover the payment + fee.
     if total_spent < amount + fee {
         return Err(format!(
             "Insufficient balance: {}, trying to transfer {} satoshi with fee {}",
@@ -40,6 +49,7 @@ pub fn build_transaction_with_fee(
         ));
     }
 
+    // --- Build Inputs ---
     let inputs: Vec<TxIn> = utxos_to_spend
         .iter()
         .map(|utxo| TxIn {
@@ -48,11 +58,13 @@ pub fn build_transaction_with_fee(
                 vout: utxo.outpoint.vout,
             },
             sequence: Sequence::MAX,
-            witness: Witness::new(),
-            script_sig: ScriptBuf::new(),
+            witness: Witness::new(),      // Will be filled in during signing
+            script_sig: ScriptBuf::new(), // Empty for SegWit or Taproot
         })
         .collect();
 
+    // --- Collect Prevouts for Signing ---
+    // These are the TxOuts we are spending from; used when signing inputs.
     let prevouts = utxos_to_spend
         .into_iter()
         .map(|utxo| TxOut {
@@ -61,13 +73,15 @@ pub fn build_transaction_with_fee(
         })
         .collect();
 
+    // --- Build Outputs ---
+    // Primary output: send amount to destination.
     let mut outputs = vec![TxOut {
         script_pubkey: dst_address.script_pubkey(),
         value: Amount::from_sat(amount),
     }];
 
+    // Add a change output if the remainder is above the dust threshold.
     let change = total_spent - amount - fee;
-
     if change >= DUST_THRESHOLD {
         outputs.push(TxOut {
             script_pubkey: own_address.script_pubkey(),
@@ -75,6 +89,7 @@ pub fn build_transaction_with_fee(
         });
     }
 
+    // --- Assemble Transaction ---
     Ok((
         Transaction {
             input: inputs,
@@ -86,8 +101,18 @@ pub fn build_transaction_with_fee(
     ))
 }
 
+/// Estimates a reasonable fee rate (in millisatoshis per byte) for sending a Bitcoin transaction.
+///
+/// This function fetches recent fee percentiles from the Bitcoin canister and returns
+/// the median (50th percentile) fee rate, which is a reasonable default for timely inclusion.
+///
+/// - On **regtest** networks (with no non-coinbase transactions), no fee data is available,
+///   so the function falls back to a static default of `2000` millisatoshis/byte (i.e., `2 sat/vB`).
+///
+/// # Returns
+/// A fee rate in millisatoshis per byte (1000 msat = 1 satoshi).
 pub async fn get_fee_per_byte(ctx: &BitcoinContext) -> u64 {
-    // Get fee percentiles from previous transactions to estimate our own fee.
+    // Query recent fee percentiles from the Bitcoin canister.
     let fee_percentiles = bitcoin_get_current_fee_percentiles(&GetCurrentFeePercentilesRequest {
         network: ctx.network,
     })
@@ -95,12 +120,11 @@ pub async fn get_fee_per_byte(ctx: &BitcoinContext) -> u64 {
     .unwrap();
 
     if fee_percentiles.is_empty() {
-        // There are no fee percentiles. This case can only happen on a regtest
-        // network where there are no non-coinbase transactions. In this case,
-        // we use a default of 2000 millisatoshis/byte (i.e. 2 satoshi/byte)
-        2000
+        // If the percentiles list is empty, we're likely on a regtest network
+        // with no standard transactions. Use a fixed fallback value.
+        2000 // 2 sat/vB in millisatoshis
     } else {
-        // Choose the 50th percentile for sending fees.
+        // Use the 50th percentile (median) fee for balanced confirmation time and cost.
         fee_percentiles[50]
     }
 }

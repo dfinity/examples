@@ -71,21 +71,21 @@ service : (network) -> {
     }
   ) -> (transaction_id);
 
-  "send_from_p2tr_address_key_path" : (
-    record {
-      destination_address : bitcoin_address;
-      amount_in_satoshi : satoshi;
-    }
-  ) -> (transaction_id);
-
-  "send_from_p2tr_address_script_path" : (
-    record {
-      destination_address : bitcoin_address;
-      amount_in_satoshi : satoshi;
-    }
-  ) -> (transaction_id);
-
   "send_from_p2tr_key_path_only_address" : (
+    record {
+      destination_address : bitcoin_address;
+      amount_in_satoshi : satoshi;
+    }
+  ) -> (transaction_id);
+
+  "send_from_p2tr_script_path_enabled_address_key_spend" : (
+    record {
+      destination_address : bitcoin_address;
+      amount_in_satoshi : satoshi;
+    }
+  ) -> (transaction_id);
+
+  "send_from_p2tr_script_path_enabled_address_script_spend" : (
     record {
       destination_address : bitcoin_address;
       amount_in_satoshi : satoshi;

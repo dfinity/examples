@@ -8,20 +8,23 @@ use std::{cell::RefCell, collections::HashMap};
 type DerivationPath = Vec<Vec<u8>>;
 type EcdsaKey = Vec<u8>;
 
-// Cache for ECDSA public keys. Cache does not persist across canister upgrades.
+// In-memory cache for ECDSA public keys. Note: this cache is not persistent across canister upgrades.
 thread_local! {
     static ECDSA_KEY_CACHE: RefCell<HashMap<DerivationPath, EcdsaKey>> = RefCell::new(HashMap::new());
 }
 
-/// Returns the ECDSA public key of this canister at the given derivation path.
+/// Retrieves the ECDSA public key for the given derivation path using the management canister.
+///
+/// This function checks a local in-memory cache first. If no cached key exists,
+/// it queries the IC management canister for the public key at the given derivation path
+/// and stores the result in the cache.
 pub async fn get_ecdsa_public_key(ctx: &BitcoinContext, derivation_path: Vec<Vec<u8>>) -> Vec<u8> {
-    // Retrieve and return already stored public key
+    // Check in-memory cache first.
     if let Some(key) = ECDSA_KEY_CACHE.with_borrow(|map| map.get(&derivation_path).cloned()) {
         return key;
     }
 
-    // Retrieve the public key of this canister at the given derivation path
-    // from the ECDSA API.
+    // Request the ECDSA public key from the management canister.
     let public_key = management_canister::ecdsa_public_key(&EcdsaPublicKeyArgs {
         canister_id: None,
         derivation_path: derivation_path.clone(),
@@ -34,7 +37,7 @@ pub async fn get_ecdsa_public_key(ctx: &BitcoinContext, derivation_path: Vec<Vec
     .unwrap()
     .public_key;
 
-    // Cache the public key
+    // Store it in the in-memory cache for future reuse.
     ECDSA_KEY_CACHE.with_borrow_mut(|map| {
         map.insert(derivation_path, public_key.clone());
     });
@@ -42,6 +45,10 @@ pub async fn get_ecdsa_public_key(ctx: &BitcoinContext, derivation_path: Vec<Vec
     public_key
 }
 
+/// Signs a 32-byte message hash using the ECDSA key derived from the given path.
+///
+/// This function uses the IC management canister's ECDSA signing interface to produce
+/// a compact (64-byte) ECDSA signature.
 pub async fn sign_with_ecdsa(
     key_name: String,
     derivation_path: Vec<Vec<u8>>,
@@ -58,9 +65,18 @@ pub async fn sign_with_ecdsa(
     .await
     .unwrap()
     .signature;
+
     Signature::from_compact(&signature).unwrap()
 }
 
+/// Returns a mock ECDSA signature used solely for **transaction size estimation**.
+///
+/// This function returns a fixed-size, syntactically valid but cryptographically invalid
+/// ECDSA signature (`r = 1`, `s = 1`). It is **not** suitable for use in real transactions
+/// but is useful when constructing a Bitcoin transaction to estimate its weight or fee.
+///
+/// # Safety
+/// Do not broadcast transactions signed with this signature.
 pub async fn mock_sign_with_ecdsa(
     _key_name: String,
     _derivation_path: Vec<Vec<u8>>,

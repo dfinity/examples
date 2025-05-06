@@ -1,5 +1,5 @@
-use crate::{common::DerivationPath, schnorr::get_schnorr_public_key, BTC_CONTEXT};
-use bitcoin::{key::Secp256k1, taproot::TaprootBuilder, Address, PublicKey, XOnlyPublicKey};
+use crate::{common::DerivationPath, p2tr, schnorr::get_schnorr_public_key, BTC_CONTEXT};
+use bitcoin::Address;
 use ic_cdk::update;
 
 /// Returns a Taproot (P2TR) address with a spendable script path.
@@ -29,29 +29,9 @@ pub async fn get_p2tr_script_path_enabled_address() -> String {
     let internal_key = get_schnorr_public_key(&ctx, internal_key_path.to_vec_u8_path()).await;
     let script_key = get_schnorr_public_key(&ctx, script_leaf_key_path.to_vec_u8_path()).await;
 
-    // Convert both keys to x-only public key format, which Taproot requires.
-    // Taproot uses 32-byte x-only keys (no y parity) for all internal and leaf keys.
-    let internal_key = XOnlyPublicKey::from(PublicKey::from_slice(&internal_key).unwrap());
-    let script_key = XOnlyPublicKey::from(PublicKey::from_slice(&script_key).unwrap());
-
     // Construct the Taproot leaf script: <script_key> OP_CHECKSIG
     // This is a simple script that allows spending via the script_key alone.
-    // This script will be committed into the Taproot Merkle tree (MAST).
-    let spend_script = bitcoin::blockdata::script::Builder::new()
-        .push_x_only_key(&script_key)
-        .push_opcode(bitcoin::blockdata::opcodes::all::OP_CHECKSIG)
-        .into_script();
-
-    // Build the Taproot output key:
-    // - The internal key is tweaked with the Merkle root of the script tree.
-    // - We use a TaprootBuilder to create a MAST with a single leaf (our script).
-    // - The result is a Taproot output key that supports both key and script path spending.
-    let secp256k1_engine = Secp256k1::new();
-    let taproot_spend_info = TaprootBuilder::new()
-        .add_leaf(0, spend_script.clone())
-        .expect("adding leaf should work")
-        .finalize(&secp256k1_engine, internal_key)
-        .expect("finalizing taproot builder should work");
+    let taproot_spend_info = p2tr::create_taproot_spend_info(&internal_key, &script_key);
 
     // Construct and return the final Taproot address.
     // The address encodes the tweaked output key and is network-aware (mainnet, testnet, etc.).
