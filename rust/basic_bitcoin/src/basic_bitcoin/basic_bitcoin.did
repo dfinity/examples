@@ -45,9 +45,9 @@ service : (network) -> {
   
   "get_p2wpkh_address" : () -> (bitcoin_address);
 
-  "get_p2tr_address" : () -> (bitcoin_address);
+  "get_p2tr_script_path_enabled_address" : () -> (bitcoin_address);
 
-  "get_p2tr_key_only_address" : () -> (bitcoin_address);
+  "get_p2tr_key_path_only_address" : () -> (bitcoin_address);
 
   "get_balance" : (address : bitcoin_address) -> (satoshi);
 
