@@ -1,28 +1,25 @@
 # Basic Bitcoin
 
-This tutorial will walk you through how to deploy a sample [canister smart contract](https://internetcomputer.org/docs/current/developer-docs/multi-chain/bitcoin/overview) **that can send and receive Bitcoin** on the Internet Computer.
+This example demonstrates how to deploy a canister smart contract on the Internet Computer that can receive and send Bitcoin, including support for legacy (P2PKH), SegWit (P2WPKH), and Taproot (P2TR) address types.
 
 ## Architecture
 
-This example internally leverages the [ECDSA
-API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-ecdsa_public_key),
-[Schnorr
-API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr),
-and [Bitcoin
-API](https://github.com/dfinity/bitcoin-canister/blob/master/INTERFACE_SPECIFICATION.md)
-of the Internet Computer.
+This example integrates with the Internet Computer's built-in:
 
-For a deeper understanding of the ICP < > BTC integration, see the [Bitcoin integration documentation](https://wiki.internetcomputer.org/wiki/Bitcoin_Integration).
+* [ECDSA API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-ecdsa_public_key)
+* [Schnorr API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr)
+* [Bitcoin API](https://github.com/dfinity/bitcoin-canister/blob/master/INTERFACE_SPECIFICATION.md)
+
+For background on the ICP <-> BTC integration, refer to the [Bitcoin integration documentation](https://wiki.internetcomputer.org/wiki/Bitcoin_Integration).
 
 ## Prerequisites
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
+* Install the [IC SDK](https://internetcomputer.org/docs/building-apps/getting-started/install)
+* Install `cargo` (Rust toolchain)
 
-## Step 1: Building and deploying sample code
+## Step 1: Building and deploying the canister
 
-You can clone and deploy either one, as they both function in the same way.
-
-To clone and build the smart contract in **Rust**:
+Clone the repo and build the Rust canister:
 
 ```bash
 git clone https://github.com/dfinity/examples
@@ -30,172 +27,104 @@ cd examples/rust/basic_bitcoin
 cargo build --release --target wasm32-unknown-unknown
 ```
 
-### Acquire cycles to deploy
+### Deploy to the Internet Computer
 
-Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/getting-started/tokens-and-cycles) (the equivalent of "gas" on other blockchains).
-
-### Deploy the smart contract to the Internet Computer
+Make sure you have cycles, then deploy the canister:
 
 ```bash
-dfx deploy --network=ic basic_bitcoin --argument '(variant { testnet })'
+dfx deploy --ic basic_bitcoin --argument '(variant { testnet })'
 ```
 
 #### What this does
 
 - `dfx deploy` tells the command line interface to `deploy` the smart contract
-- `--network=ic` tells the command line to deploy the smart contract to the mainnet ICP blockchain
+- `--ic` tells the command line to deploy the smart contract to the mainnet ICP blockchain
 - `--argument '(variant { testnet })'` passes the argument `testnet` to initialize the smart contract, telling it to connect to the Bitcoin testnet
 
-**We're initializing the canister with `variant { testnet }` so that the
-canister connects to the Bitcoin testnet.
-To be specific, the canister interacts with [testnet4](https://mempool.space/testnet4), which is the latest Bitcoin test network used by the Bitcoin community. This means that the addresses generated
-in the smart contract can only be used to receive or send funds on this Bitcoin
-testnet.**
+#### After deploy
 
-If successful, you should see an output that looks like this:
+Your canister is live and ready to use! You can interact with it using either the command line or using the Candid UI, which is the link you see in the terminal.
 
-```bash
-Deploying: basic_bitcoin
-Building canisters...
-...
-Deployed canisters.
-URLs:
-Candid:
-    basic_bitcoin: https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=<YOUR-CANISTER-ID>
-```
+The `basic_bitcoin` example is deployed on mainnet for illustration purposes and is interacting with Bitcoin **testnet4**. It has the URL https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=vvha6-7qaaa-aaaap-ahodq-cai and serves up the Candid web UI for this particular canister deployed on mainnet.
 
-Your canister is live and ready to use! You can interact with it using either the command line or using the Candid UI, which is the link you see in the output above.
+## 2. Supported Bitcoin address types
 
-In the output above, to see the Candid Web UI for your bitcoin canister, you
-would use the URL
-`https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=<YOUR-CANISTER-ID>`. Candid
-Web UI will contain all methods implemented by the canister.
+This example demonstrates how to generate and use the following address types:
 
-The `basic_bitcoin` example is deployed on mainnet for illustration purposes and
-is interacting with Bitcoin testnet. It has the URL
-https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=vvha6-7qaaa-aaaap-ahodq-cai
-and serves up the Candid web UI for this particular canister deployed on
-mainnet.
+1. **P2PKH (Legacy)** — using ECDSA and `sign_with_ecdsa`
+2. **P2WPKH (SegWit v0)** — using ECDSA and `sign_with_ecdsa`
+3. **P2TR (Taproot, key-path-only)** — using Schnorr keys and `sign_with_schnorr`
+4. **P2TR (Taproot, script-path-enabled)** — commits to a script allowing both key path and script path spending
 
-## Step 2: Generating a Bitcoin address
-
-Bitcoin has different types of addresses (e.g. P2PKH, P2SH, P2TR). You may want
-to check [this
-article](https://bitcoinmagazine.com/technical/bitcoin-address-types-compared-p2pkh-p2sh-p2wpkh-and-more)
-if you are interested in a high-level comparison of different address types.
-These addresses can be generated from an ECDSA public key or a Schnorr
-([BIP340](https://github.com/bitcoin/bips/blob/master/bip-0340.mediawiki),
-[BIP341](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki)) public
-key. The example code showcases how your canister can generate and spend from
-three types of addresses:
-
-1. A [P2PKH address](https://en.bitcoin.it/wiki/Transaction#Pay-to-PubkeyHash)
-   using the
-   [ecdsa_public_key](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-method-ecdsa_public_key)
-   API.
-2. A [P2TR
-   address](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki)
-   where the funds can be spent using the internal key only ([P2TR key path
-   spend with unspendable script
-   tree](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki#cite_note-23)).
-3. A [P2TR
-   address](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki)
-   where the funds can be spent using either 1) the internal key or 2) the
-   provided public key with the script path, where the Merkelized Alternative
-   Script Tree (MAST) consists of a single script allowing to spend funds by
-   exactly one key.
-
-On the Candid UI of your canister, click the "Call" button under
-`get_${type}_address` to generate a `${type}` Bitcoin address, where `${type}`
-is one of `[p2pkh, p2tr_key_only, p2tr]` (corresponding to the three types of
-addresses described above, in the same order).
-
-Or, if you prefer the command line:
-`dfx canister --network=ic call basic_bitcoin get_${type}_address`
-
-## Step 3: Receiving bitcoin
-
-Now that the canister is deployed and you have a Bitcoin address, it's time to receive
-some testnet bitcoin. You can use one of the Bitcoin faucets, such as [coinfaucet.eu](https://coinfaucet.eu), to receive some bitcoin. **Make sure to choose Bitcoin testnet4!**
-
-Enter your address and click on "Get bitcoins!". This example will use
-the Bitcoin P2PHK address `n3eGjsKEciCW52xPJf8j18MQEdDqowtb3X`, but you will use
-your address. The Bitcoin address you see will be different from the one above
-because the ECDSA/Schnorr public key your canister retrieves is unique.
-
-Once the transaction has at least one confirmation, which takes ten minutes on average,
-you'll be able to see it in your canister's balance.
-
-The P2PKH address that has been used for the testing of this canister on Bitcoin
-testnet is [n3eGjsKEciCW52xPJf8j18MQEdDqowtb3X](https://mempool.space/testnet4/address/n3eGjsKEciCW52xPJf8j18MQEdDqowtb3X).
-
-## Step 4: Checking your bitcoin balance
-
-You can check a Bitcoin address's balance by using the `get_balance` endpoint on your canister.
-
-In the Candid UI, paste in your canister's address, and click on "Call":
-
-Alternatively, make the call using the command line. Be sure to replace `n3eGjsKEciCW52xPJf8j18MQEdDqowtb3X` with your own generated address:
+Use the Candid UI or command line to generate these addresses with:
 
 ```bash
-dfx canister --network=ic call basic_bitcoin get_balance '("n3eGjsKEciCW52xPJf8j18MQEdDqowtb3X")'
+dfx canister call basic_bitcoin get_p2pkh_address
+# or get_p2wpkh_address, get_p2tr_key_path_only_address, get_p2tr_script_path_enabled_address
 ```
 
-Checking the balance of a Bitcoin address relies on the [bitcoin_get_balance](https://github.com/dfinity/bitcoin-canister/blob/master/INTERFACE_SPECIFICATION.md#bitcoin_get_balance) API.
+## 3. Receiving Bitcoin
 
-## Step 5: Sending bitcoin
+Send testnet Bitcoin to one of the generated addresses using a [testnet faucet](https://coinfaucet.eu/en/btc-testnet/). Make sure to select **testnet4**.
 
-You can send bitcoin using the `send_from_${type}` endpoint on your canister, where
-`${type}` is one of
-`[p2pkh_address, p2tr_key_only_address, p2tr_address_key_path, p2tr_address_script_path]`.
+Once the transaction confirms (usually within \~10 minutes), the canister will be able to spend the received BTC.
 
-In the Candid UI, add a destination address and an amount to send. In the example
-below, we're sending 4'321 Satoshi (0.00004321 BTC) back to the testnet faucet.
+## 4. Checking balance
 
-Via command line, the same call would look like this:
+Check the balance of any Bitcoin address:
 
 ```bash
-dfx canister --network=ic call basic_bitcoin send_from_p2pkh_address '(record { destination_address = "tb1ql7w62elx9ucw4pj5lgw4l028hmuw80sndtntxt"; amount_in_satoshi = 4321; })'
+dfx canister call basic_bitcoin get_balance '("<bitcoin_address>")'
 ```
 
-The `send_from_${type}` endpoint can send bitcoin by:
+This uses `bitcoin_get_balance` and works for any supported address type. Requires at least one confirmation to be reflected.
 
-1. Getting the percentiles of the most recent fees on the Bitcoin network using the [bitcoin_get_current_fee_percentiles API](https://github.com/dfinity/bitcoin-canister/blob/master/INTERFACE_SPECIFICATION.md#bitcoin_get_current_fee_percentiles).
-2. Fetching your unspent transaction outputs (UTXOs), using the [bitcoin_get_utxos API](https://github.com/dfinity/bitcoin-canister/blob/master/INTERFACE_SPECIFICATION.md#bitcoin_get_utxos).
-3. Building a transaction, using some of the UTXOs from step 2 as input and the destination address and amount to send as output.
-   The fee percentiles obtained from step 1 is used to set an appropriate fee.
-4. Signing the inputs of the transaction using the
-   [sign_with_ecdsa
-   API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_ecdsa)/\
-   [sign_with_schnorr](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr).
-5. Sending the signed transaction to the Bitcoin network using the
-   [bitcoin_send_transaction
-   API](https://github.com/dfinity/bitcoin-canister/blob/master/INTERFACE_SPECIFICATION.md#bitcoin_send_transaction).
+## 5. Sending Bitcoin
 
-This canister's `send_from_${type}` endpoint returns the ID of the transaction
-it sent to the network. You can track the status of this transaction using a
-[block explorer](https://en.bitcoin.it/wiki/Block_chain_browser). Once the
-transaction has at least one confirmation, you should be able to see it
-reflected in your current balance.
+You can send BTC using the following endpoints:
 
-## Step 6: Retrieving block headers
+* `send_from_p2pkh_address`
+* `send_from_p2wpkh_address`
+* `send_from_p2tr_key_path_only_address`
+* `send_from_p2tr_script_path_enabled_address_key_spend`
+* `send_from_p2tr_script_path_enabled_address_script_spend`
 
-You can also get a range of Bitcoin block headers by using the `get_block_headers`
-endpoint on your canister.
+Each endpoint internally:
 
-In the Candid UI, write the desired start height and optionally end height, and click on "Call":
+1. Estimates fees 
+2. Looks up spendable UTXOs
+3. Builds a transaction to the target address
+4. Signs using ECDSA or Schnorr, depending on address type
+5. Broadcasts the transaction using `bitcoin_send_transaction`
 
-Alternatively, make the call using the command line. Be sure to replace `10` with your desired start height:
+Example:
 
 ```bash
-dfx canister --network=ic call basic_bitcoin get_block_headers "(10: nat32)"
+dfx canister call basic_bitcoin send_from_p2pkh_address '(record {
+  destination_address = "tb1ql7w62elx9ucw4pj5lgw4l028hmuw80sndtntxt";
+  amount_in_satoshi = 4321;
+})'
 ```
 
-or replace `0` and `11` with your desired start and end height respectively:
+The function returns the transaction ID, which you can track on [mempool.space testnet4](https://mempool.space/testnet4/).
+
+## 6. Retrieving block headers
+
+You can query historical block headers:
 
 ```bash
-dfx canister --network=ic call basic_bitcoin get_block_headers "(0: nat32, 11: nat32)"
+dfx canister call basic_bitcoin get_block_headers '(10: nat32)'
+# or a range:
+dfx canister call basic_bitcoin get_block_headers '(0: nat32, 11: nat32)'
 ```
+
+This calls `bitcoin_get_block_headers`, useful for validating blockchains or light client logic.
+
+## Notes on Implementation
+
+* Keys are derived using structured derivation paths, according to BIP-32.
+* Key caching is used to avoid repeated calls to `get_ecdsa_public_key` and `get_schnorr_public_key`.
+* Transactions are assembled and signed manually, ensuring maximum flexibility in construction and fee estimation.
 
 ## Conclusion
 
@@ -210,10 +139,7 @@ In this tutorial, you were able to:
 
 The steps to develop Bitcoin dapps locally are extensively documented in [this tutorial](https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/local-development).
 
-Note that for _testing_ on mainnet, the [chain-key testing
-canister](https://github.com/dfinity/chainkey-testing-canister) can be used to
-save on costs for calling the threshold signing APIs for signing the BTC
-transactions.
+Note that for _testing_ on mainnet, the [chain-key testing canister](https://github.com/dfinity/chainkey-testing-canister) can be used to save on costs for calling the threshold signing APIs for signing the BTC transactions.
 
 ## Security considerations and best practices
 
@@ -223,3 +149,8 @@ For example, the following aspects are particularly relevant for this app:
 
 - [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since the app e.g. offers a method to read balances.
 - [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/overview), since decentralized control may be essential for canisters holding bitcoins on behalf of users.
+
+
+---
+
+*Last updated: May 2025*
