@@ -2,7 +2,6 @@ mod common;
 mod ecdsa;
 mod p2pkh;
 mod p2tr;
-mod p2tr_key_only;
 mod p2wpkh;
 mod schnorr;
 mod service;

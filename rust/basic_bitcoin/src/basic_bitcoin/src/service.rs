@@ -9,5 +9,5 @@ pub mod get_utxos;
 pub mod send_from_p2pkh_address;
 pub mod send_from_p2tr_address_key_path;
 pub mod send_from_p2tr_address_script_path;
-pub mod send_from_p2tr_key_only_address;
+pub mod send_from_p2tr_key_path_only_address;
 pub mod send_from_p2wpkh_address;

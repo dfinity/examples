@@ -98,7 +98,7 @@ pub async fn send_script_path(ctx: &BitcoinContext, dst_address: String, amount:
         .control_block(&(script.clone(), LeafVersion::TapScript))
         .expect("should compute control block");
     // Build the transaction that sends `amount` to the destination address.
-    let (transaction, prevouts) = build_p2tr_tx(
+    let (transaction, prevouts) = build_transaction(
         ctx,
         &own_address,
         &own_utxos,
@@ -188,7 +188,7 @@ pub async fn send_key_path(ctx: &BitcoinContext, dst_address: String, amount: Sa
         .expect("should be valid address for the network");
 
     // Build the transaction that sends `amount` to the destination address.
-    let (transaction, prevouts) = build_p2tr_tx(
+    let (transaction, prevouts) = build_transaction(
         ctx,
         &own_address,
         &own_utxos,
@@ -202,7 +202,7 @@ pub async fn send_key_path(ctx: &BitcoinContext, dst_address: String, amount: Sa
     debug_print(format!("Transaction to sign: {}", hex::encode(tx_bytes)));
 
     // Sign the transaction.
-    let signed_transaction = schnorr_sign_key_spend_transaction(
+    let signed_transaction = sign_transaction(
         ctx,
         &own_address,
         transaction,
@@ -237,7 +237,7 @@ pub async fn send_key_path(ctx: &BitcoinContext, dst_address: String, amount: Sa
 
 // Builds a P2TR transaction to send the given `amount` of satoshis to the
 // destination address.
-pub(crate) async fn build_p2tr_tx(
+pub(crate) async fn build_transaction(
     ctx: &BitcoinContext,
     own_address: &Address,
     own_utxos: &[Utxo],
@@ -266,7 +266,7 @@ pub(crate) async fn build_p2tr_tx(
         // Note: it doesn't matter which particular spending path to use, key or
         // script path, since the difference is only how the signature is
         // computed, which is a dummy signing function in our case.
-        let signed_transaction = schnorr_sign_key_spend_transaction(
+        let signed_transaction = sign_transaction(
             ctx,
             own_address,
             transaction.clone(),
@@ -366,7 +366,7 @@ where
 //
 // 1. All the inputs are referencing outpoints that are owned by `own_address`.
 // 2. `own_address` is a P2TR address.
-pub async fn schnorr_sign_key_spend_transaction<SignFun, Fut>(
+pub async fn sign_transaction<SignFun, Fut>(
     ctx: &BitcoinContext,
     own_address: &Address,
     mut transaction: Transaction,

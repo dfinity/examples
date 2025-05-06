@@ -1,4 +1,4 @@
-use bitcoin::{key::Secp256k1, Address, PublicKey};
+use bitcoin::{key::Secp256k1, Address, PublicKey, XOnlyPublicKey};
 use ic_cdk::update;
 
 use crate::{common::DerivationPath, schnorr::get_schnorr_public_key, BTC_CONTEXT};
@@ -23,8 +23,7 @@ pub async fn get_p2tr_key_path_only_address() -> String {
     let internal_key = get_schnorr_public_key(&ctx, internal_key_path.to_vec_u8_path()).await;
 
     // Convert the internal key to an x-only public key, as required by Taproot (BIP-341).
-    let internal_key =
-        bitcoin::key::XOnlyPublicKey::from(PublicKey::from_slice(&internal_key).unwrap());
+    let internal_key = XOnlyPublicKey::from(PublicKey::from_slice(&internal_key).unwrap());
 
     // Create a Taproot address using the internal key only.
     // We pass `None` as the Merkle root, which per BIP-341 means the address commits
