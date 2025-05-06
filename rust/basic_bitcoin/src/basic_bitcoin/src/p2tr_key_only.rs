@@ -17,24 +17,6 @@ use crate::{
     BitcoinContext,
 };
 
-/// Returns the P2TR key-only address of this canister at the given derivation
-/// path.
-///
-/// Quoting the `bitcoin` crate's rustdoc:
-///
-/// *Note*: As per BIP341
-///
-/// When the Merkle root is [`None`], the output key commits to an unspendable script path
-/// instead of having no script path. This is achieved by computing the output key point as
-/// `Q = P + int(hashTapTweak(bytes(P)))G`. See also [`TaprootSpendInfo::tap_tweak`].
-pub async fn get_address(ctx: &BitcoinContext, derivation_path: Vec<Vec<u8>>) -> Address {
-    let public_key = get_schnorr_public_key(ctx, derivation_path).await;
-    let x_only_pubkey =
-        bitcoin::key::XOnlyPublicKey::from(PublicKey::from_slice(&public_key).unwrap());
-    let secp256k1_engine = Secp256k1::new();
-    Address::p2tr(&secp256k1_engine, x_only_pubkey, None, ctx.bitcoin_network)
-}
-
 /// Sends a P2TR key-only transaction to the network that transfers the
 /// given amount to the given destination, where the source of the funds is the
 /// canister itself at the given derivation path.

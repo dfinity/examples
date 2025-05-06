@@ -10,13 +10,6 @@ mod service;
 use ic_cdk::{bitcoin_canister::Network, init, post_upgrade};
 use std::cell::Cell;
 
-// Different derivation paths for different addresses ensures each address
-// type gets their own key pair.
-const P2PKH_DERIVATION_PATH_PREFIX: &str = "p2pkh";
-const P2WPKH_DERIVATION_PATH_PREFIX: &str = "p2wpkh";
-const P2TR_DERIVATION_PATH_PREFIX: &str = "p2tr_key_and_script_path";
-const P2TR_KEY_ONLY_DERIVATION_PATH_PREFIX: &str = "p2tr_key_path_only";
-
 #[derive(Clone, Copy)]
 pub struct BitcoinContext {
     network: Network,
@@ -25,10 +18,6 @@ pub struct BitcoinContext {
 }
 
 thread_local! {
-    // The bitcoin network to connect to.
-    //
-    // When developing locally this should be `Regtest`.
-    // When deploying to the IC this should be `Testnet` or `Mainnet`.
     static BTC_CONTEXT: Cell<BitcoinContext> = const {
         Cell::new(BitcoinContext {
             network: Network::Testnet,

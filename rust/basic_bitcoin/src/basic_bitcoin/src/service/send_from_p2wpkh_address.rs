@@ -1,7 +1,7 @@
 use crate::{
-    common::get_fee_per_byte,
+    common::{get_fee_per_byte, DerivationPath},
     ecdsa::{get_ecdsa_public_key, sign_with_ecdsa},
-    p2wpkh, SendRequest, BTC_CONTEXT, P2WPKH_DERIVATION_PATH_PREFIX,
+    p2wpkh, SendRequest, BTC_CONTEXT,
 };
 use bitcoin::{consensus::serialize, Address, CompressedPublicKey, PublicKey};
 use ic_cdk::{
@@ -32,10 +32,10 @@ pub async fn send_from_p2wpkh_address(request: SendRequest) -> String {
     // Unique derivation paths are used for every address type generated, to ensure
     // each address has its own unique key pair. To generate a user-specific address,
     // you would typically use a derivation path based on the user's identity or some other unique identifier.
-    let derivation_path: Vec<Vec<u8>> = vec![P2WPKH_DERIVATION_PATH_PREFIX.as_bytes().to_vec()];
+    let derivation_path = DerivationPath::p2wpkh(0, 0);
 
     // Get the ECDSA public key of this canister at the given derivation path
-    let own_public_key = get_ecdsa_public_key(&ctx, derivation_path.clone()).await;
+    let own_public_key = get_ecdsa_public_key(&ctx, derivation_path.to_vec_u8_path()).await;
 
     // Create a CompressedPublicKey from the raw public key bytes
     let own_compressed_public_key = CompressedPublicKey::from_slice(&own_public_key).unwrap();
@@ -78,7 +78,7 @@ pub async fn send_from_p2wpkh_address(request: SendRequest) -> String {
         &own_address,
         transaction,
         &prevouts,
-        derivation_path,
+        derivation_path.to_vec_u8_path(),
         sign_with_ecdsa,
     )
     .await;
