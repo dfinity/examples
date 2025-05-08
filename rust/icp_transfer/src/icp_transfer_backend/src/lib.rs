@@ -1,6 +1,6 @@
 use candid::{CandidType, Principal};
 
-use ic_cdk_macros::*;
+use ic_cdk::update;
 use ic_ledger_types::{
     AccountIdentifier, BlockIndex, Memo, Subaccount, Tokens, DEFAULT_SUBACCOUNT,
     MAINNET_LEDGER_CANISTER_ID,
@@ -34,7 +34,7 @@ async fn transfer(args: TransferArgs) -> Result<BlockIndex, String> {
         to: AccountIdentifier::new(&args.to_principal, &to_subaccount),
         created_at_time: None,
     };
-    ic_ledger_types::transfer(MAINNET_LEDGER_CANISTER_ID, transfer_args)
+    ic_ledger_types::transfer(MAINNET_LEDGER_CANISTER_ID, &transfer_args)
         .await
         .map_err(|e| format!("failed to call ledger: {:?}", e))?
         .map_err(|e| format!("ledger transfer error {:?}", e))
