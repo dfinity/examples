@@ -2,8 +2,13 @@ use std::cell::RefCell;
 use std::convert::TryInto;
 
 use candid::{candid_method, export_service, Nat, Principal};
-use ic_cdk::caller;
-use ic_cdk_macros::*;
+use ic_cdk::api::canister_self;
+use ic_cdk::api::msg_caller;
+use ic_cdk::init;
+use ic_cdk::post_upgrade;
+use ic_cdk::pre_upgrade;
+use ic_cdk::query;
+use ic_cdk::update;
 use ic_ledger_types::{
     AccountIdentifier, Memo, Tokens, DEFAULT_SUBACCOUNT, MAINNET_LEDGER_CANISTER_ID,
 };
@@ -35,7 +40,7 @@ pub struct State {
 #[update]
 #[candid_method(update)]
 pub async fn deposit(token_canister_id: Principal) -> DepositReceipt {
-    let caller = caller();
+    let caller = msg_caller();
     let ledger_canister_id = STATE
         .with(|s| s.borrow().ledger)
         .unwrap_or(MAINNET_LEDGER_CANISTER_ID);
@@ -55,7 +60,7 @@ pub async fn deposit(token_canister_id: Principal) -> DepositReceipt {
 }
 
 async fn deposit_icp(caller: Principal) -> Result<Nat, DepositErr> {
-    let canister_id = ic_cdk::api::id();
+    let canister_id = canister_self();
     let ledger_canister_id = STATE
         .with(|s| s.borrow().ledger)
         .unwrap_or(MAINNET_LEDGER_CANISTER_ID);
@@ -63,7 +68,7 @@ async fn deposit_icp(caller: Principal) -> Result<Nat, DepositErr> {
     let account = AccountIdentifier::new(&canister_id, &principal_to_subaccount(&caller));
 
     let balance_args = ic_ledger_types::AccountBalanceArgs { account };
-    let balance = ic_ledger_types::account_balance(ledger_canister_id, balance_args)
+    let balance = ic_ledger_types::account_balance(ledger_canister_id, &balance_args)
         .await
         .map_err(|_| DepositErr::TransferFailure)?;
 
@@ -79,7 +84,7 @@ async fn deposit_icp(caller: Principal) -> Result<Nat, DepositErr> {
         to: AccountIdentifier::new(&canister_id, &DEFAULT_SUBACCOUNT),
         created_at_time: None,
     };
-    ic_ledger_types::transfer(ledger_canister_id, transfer_args)
+    ic_ledger_types::transfer(ledger_canister_id, &transfer_args)
         .await
         .map_err(|_| DepositErr::TransferFailure)?
         .map_err(|_| DepositErr::TransferFailure)?;
@@ -97,12 +102,12 @@ async fn deposit_token(caller: Principal, token: Principal) -> Result<Nat, Depos
     let token = DIP20::new(token);
     let dip_fee = token.get_metadata().await.fee;
 
-    let allowance = token.allowance(caller, ic_cdk::api::id()).await;
+    let allowance = token.allowance(caller, canister_self()).await;
 
     let available = allowance - dip_fee;
 
     token
-        .transfer_from(caller, ic_cdk::api::id(), available.to_owned())
+        .transfer_from(caller, canister_self(), available.to_owned())
         .await
         .map_err(|_| DepositErr::TransferFailure)?;
 
@@ -142,8 +147,8 @@ pub fn get_orders() -> Vec<Order> {
 #[update(name = "getDepositAddress")]
 #[candid_method(update, rename = "getDepositAddress")]
 pub fn get_deposit_address() -> AccountIdentifier {
-    let canister_id = ic_cdk::api::id();
-    let subaccount = principal_to_subaccount(&caller());
+    let canister_id = canister_self();
+    let subaccount = principal_to_subaccount(&msg_caller());
 
     AccountIdentifier::new(&canister_id, &subaccount)
 }
@@ -193,7 +198,7 @@ pub async fn withdraw(
     amount: Nat,
     address: Principal,
 ) -> WithdrawReceipt {
-    let caller = caller();
+    let caller = msg_caller();
     let ledger_canister_id = STATE
         .with(|s| s.borrow().ledger)
         .unwrap_or(MAINNET_LEDGER_CANISTER_ID);
@@ -216,7 +221,7 @@ pub async fn withdraw(
 }
 
 async fn withdraw_icp(amount: &Nat, account_id: AccountIdentifier) -> Result<Nat, WithdrawErr> {
-    let caller = caller();
+    let caller = msg_caller();
     let ledger_canister_id = STATE
         .with(|s| s.borrow().ledger)
         .unwrap_or(MAINNET_LEDGER_CANISTER_ID);
@@ -247,7 +252,7 @@ async fn withdraw_icp(amount: &Nat, account_id: AccountIdentifier) -> Result<Nat
         to: account_id,
         created_at_time: None,
     };
-    let icp_reciept = ic_ledger_types::transfer(ledger_canister_id, transfer_args)
+    let icp_reciept = ic_ledger_types::transfer(ledger_canister_id, &transfer_args)
         .await
         .map_err(|_| WithdrawErr::TransferFailure)
         .and_then(|v| v.map_err(|_| WithdrawErr::TransferFailure));
@@ -274,7 +279,7 @@ async fn withdraw_token(
     amount: &Nat,
     address: Principal,
 ) -> Result<Nat, WithdrawErr> {
-    let caller = caller();
+    let caller = msg_caller();
     let dip = DIP20::new(token);
     let dip_fee = dip.get_metadata().await.fee;
 
@@ -312,7 +317,7 @@ async fn withdraw_token(
 #[query]
 #[candid_method(query)]
 pub fn whoami() -> Principal {
-    caller()
+    msg_caller()
 }
 
 // For testing
@@ -323,8 +328,8 @@ pub fn credit(user: Principal, token_canister_id: Principal, amount: Nat) {
         let mut state = s.borrow_mut();
         let owner = state.owner.unwrap();
 
-        ic_cdk::println!("credit {} {}", caller(), owner);
-        assert!(owner == caller());
+        ic_cdk::println!("credit {} {}", msg_caller(), owner);
+        assert!(owner == msg_caller());
         state
             .exchange
             .balances
@@ -339,7 +344,7 @@ pub fn clear() {
     STATE.with(|s| {
         let mut state = s.borrow_mut();
 
-        assert!(state.owner.unwrap() == caller());
+        assert!(state.owner.unwrap() == msg_caller());
         state.exchange.orders.clear();
         state.exchange.balances.0.clear();
     })
@@ -347,9 +352,8 @@ pub fn clear() {
 
 #[init]
 fn init(ledger: Option<Principal>) {
-    ic_cdk::setup();
     STATE.with(|s| {
-        s.borrow_mut().owner = Some(caller());
+        s.borrow_mut().owner = Some(msg_caller());
         s.borrow_mut().ledger = ledger;
     });
 }
@@ -387,7 +391,7 @@ fn post_upgrade() {
 
 export_service!();
 
-#[ic_cdk_macros::query(name = "__get_candid_interface_tmp_hack")]
+#[query(name = "__get_candid_interface_tmp_hack")]
 fn export_candid() -> String {
     __export_service()
 }
