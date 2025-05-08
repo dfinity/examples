@@ -14,10 +14,10 @@ For background on the ICP <-> BTC integration, refer to the [Bitcoin integration
 
 ## Prerequisites
 
-- [x] [The Rust toolchain](https://www.rust-lang.org/tools/install)
-- [x] [The Internet Computer SDK](https://internetcomputer.org/docs/building-apps/getting-started/install)
+- [x] [Rust toolchain](https://www.rust-lang.org/tools/install)
+- [x] [Internet Computer SDK](https://internetcomputer.org/docs/building-apps/getting-started/install)
 - [x] [Local installation of bitcoin](https://internetcomputer.org/docs/bitcoin) 
-- [x] On MacOS, an `llvm` version that supports the `wasm32-unknown-unknown` target is required. The default `llvm` version provided by XCode does not meet that requirement. Instead, install the [Homebrew version](https://formulae.brew.sh/formula/llvm), using `brew install llvm`.
+- [x] On MacOS, an `llvm` version that supports the `wasm32-unknown-unknown` target is required. The default `llvm` version provided by XCode does not meet that requirement. Instead, install the [Homebrew version](https://formulae.brew.sh/formula/llvm), using `brew install llvm`. This is because the `bitcoin` library relies on `secp256k1-sys`, which requires `llvm` to build.
 
 ## Step 1: Building and deploying the canister
 
@@ -80,7 +80,7 @@ dfx canister call basic_bitcoin get_p2pkh_address
 
 ## 3. Receiving Bitcoin
 
-Use the `bitcoin-cli` to mine a bitcoin block and send some local testnet bitcoin to one of the canister addresses.
+Use the `bitcoin-cli` to mine a bitcoin block and send the block reward in the form of local testnet bitcoin to one of the canister addresses.
 
 ```bash
 bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 1 <bitcoin_address>
