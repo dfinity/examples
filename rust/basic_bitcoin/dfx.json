@@ -3,12 +3,12 @@
   "canisters": {
     "basic_bitcoin": {
       "build": "build.sh",
-      "candid": "src/basic_bitcoin/basic_bitcoin.did",
+      "candid": "basic_bitcoin.did",
       "gzip": true,
       "metadata": [
         {
           "name": "candid:service",
-          "path": "src/basic_bitcoin/basic_bitcoin.did",
+          "path": "basic_bitcoin.did",
           "visibility": "public"
         }
       ],
