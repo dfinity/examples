@@ -6,46 +6,61 @@ This example demonstrates how to deploy a canister smart contract on the Interne
 
 This example integrates with the Internet Computer's built-in:
 
-* [ECDSA API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-ecdsa_public_key)
-* [Schnorr API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr)
-* [Bitcoin API](https://github.com/dfinity/bitcoin-canister/blob/master/INTERFACE_SPECIFICATION.md)
+- [ECDSA API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-ecdsa_public_key)
+- [Schnorr API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr)
+- [Bitcoin API](https://github.com/dfinity/bitcoin-canister/blob/master/INTERFACE_SPECIFICATION.md)
 
 For background on the ICP <-> BTC integration, refer to the [Bitcoin integration documentation](https://wiki.internetcomputer.org/wiki/Bitcoin_Integration).
 
 ## Prerequisites
 
-* Install the [IC SDK](https://internetcomputer.org/docs/building-apps/getting-started/install)
-* Install `cargo` (Rust toolchain)
+- [x] [The Rust toolchain](https://www.rust-lang.org/tools/install)
+- [x] [The Internet Computer SDK](https://internetcomputer.org/docs/building-apps/getting-started/install)
+- [x] [Local installation of bitcoin](https://internetcomputer.org/docs/bitcoin) 
+- [x] On MacOS, an `llvm` version that supports the `wasm32-unknown-unknown` target is required. The default `llvm` version provided by XCode does not meet that requirement. Instead, install the [Homebrew version](https://formulae.brew.sh/formula/llvm), using `brew install llvm`.
 
 ## Step 1: Building and deploying the canister
 
-Clone the repo and build the Rust canister:
+### Clone the repo
 
 ```bash
 git clone https://github.com/dfinity/examples
 cd examples/rust/basic_bitcoin
-cargo build --release --target wasm32-unknown-unknown
 ```
 
-### Deploy to the Internet Computer
-
-Make sure you have cycles, then deploy the canister:
+### Start the local IC replica
 
 ```bash
-dfx deploy --ic basic_bitcoin --argument '(variant { testnet })'
+dfx start --clean --background
 ```
 
-#### What this does
+### Start the local bitcoin testnet
 
-- `dfx deploy` tells the command line interface to `deploy` the smart contract
-- `--ic` tells the command line to deploy the smart contract to the mainnet ICP blockchain
-- `--argument '(variant { testnet })'` passes the argument `testnet` to initialize the smart contract, telling it to connect to the Bitcoin testnet
+In a separate terminal window, run the following: 
 
-#### After deploy
+```bash
+bitcoind -conf=$(pwd)/bitcoin.conf -datadir=$(pwd)/bitcoin_data --port=18444
+```
+
+### Deploy the canister
+
+```bash
+dfx deploy basic_bitcoin --argument '(variant { regtest })'
+```
+
+What this does:
+
+- `dfx deploy` tells the command line interface to `deploy` the smart contract.
+- `--argument '(variant { regtest })'` passes the argument `regtest` to initialize the smart contract, telling it to connect to the local Bitcoin regtest network.
+
+### Done!
 
 Your canister is live and ready to use! You can interact with it using either the command line or using the Candid UI, which is the link you see in the terminal.
 
-The `basic_bitcoin` example is deployed on mainnet for illustration purposes and is interacting with Bitcoin **testnet4**. It has the URL https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=vvha6-7qaaa-aaaap-ahodq-cai and serves up the Candid web UI for this particular canister deployed on mainnet.
+> [!NOTE]
+> You can also interact with a pre deployed version of the `basic_bitcoin` example. The canister is deployed to IC mainnet and is configured to interact with Bitcoin **testnet4**.
+> 
+> Access the Candid UI of the example: https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=vvha6-7qaaa-aaaap-ahodq-cai
 
 ## 2. Supported Bitcoin address types
 
@@ -65,9 +80,11 @@ dfx canister call basic_bitcoin get_p2pkh_address
 
 ## 3. Receiving Bitcoin
 
-Send testnet Bitcoin to one of the generated addresses using a [testnet faucet](https://coinfaucet.eu/en/btc-testnet/). Make sure to select **testnet4**.
+Use the `bitcoin-cli` to mine a bitcoin block and send some local testnet bitcoin to one of the canister addresses.
 
-Once the transaction confirms (usually within \~10 minutes), the canister will be able to spend the received BTC.
+```bash
+bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 1 <bitcoin_address>
+```
 
 ## 4. Checking balance
 
@@ -83,15 +100,15 @@ This uses `bitcoin_get_balance` and works for any supported address type. Requir
 
 You can send BTC using the following endpoints:
 
-* `send_from_p2pkh_address`
-* `send_from_p2wpkh_address`
-* `send_from_p2tr_key_path_only_address`
-* `send_from_p2tr_script_path_enabled_address_key_spend`
-* `send_from_p2tr_script_path_enabled_address_script_spend`
+- `send_from_p2pkh_address`
+- `send_from_p2wpkh_address`
+- `send_from_p2tr_key_path_only_address`
+- `send_from_p2tr_script_path_enabled_address_key_spend`
+- `send_from_p2tr_script_path_enabled_address_script_spend`
 
 Each endpoint internally:
 
-1. Estimates fees 
+1. Estimates fees
 2. Looks up spendable UTXOs
 3. Builds a transaction to the target address
 4. Signs using ECDSA or Schnorr, depending on address type
@@ -105,6 +122,13 @@ dfx canister call basic_bitcoin send_from_p2pkh_address '(record {
   amount_in_satoshi = 4321;
 })'
 ```
+
+> [!IMPORTANT]
+> Newly created bitcoin, like those you created with the above `bitcoin-cli` command cannot be spent until 10 additional blocks have been added to the chain. To make your bitcoin spendable, create 10 additional blocks. Choose one of the canister addresses as receiver of the block reward or use any valid bitcoin dummy addres.
+> 
+> ```bash
+> bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 10 <bitcoin_address>
+> ```
 
 The function returns the transaction ID, which you can track on [mempool.space testnet4](https://mempool.space/testnet4/).
 
@@ -122,9 +146,9 @@ This calls `bitcoin_get_block_headers`, useful for validating blockchains or lig
 
 ## Notes on Implementation
 
-* Keys are derived using structured derivation paths, according to BIP-32.
-* Key caching is used to avoid repeated calls to `get_ecdsa_public_key` and `get_schnorr_public_key`.
-* Transactions are assembled and signed manually, ensuring maximum flexibility in construction and fee estimation.
+- Keys are derived using structured derivation paths, according to BIP-32.
+- Key caching is used to avoid repeated calls to `get_ecdsa_public_key` and `get_schnorr_public_key`.
+- Transactions are assembled and signed manually, ensuring maximum flexibility in construction and fee estimation.
 
 ## Conclusion
 
@@ -150,7 +174,6 @@ For example, the following aspects are particularly relevant for this app:
 - [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since the app e.g. offers a method to read balances.
 - [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/overview), since decentralized control may be essential for canisters holding bitcoins on behalf of users.
 
-
 ---
 
-*Last updated: May 2025*
+_Last updated: May 2025_
