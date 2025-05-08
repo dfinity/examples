@@ -2,12 +2,19 @@
   "version": 1,
   "canisters": {
     "basic_bitcoin": {
+      "build": "build.sh",
       "candid": "src/basic_bitcoin/basic_bitcoin.did",
+      "gzip": true,
+      "metadata": [
+        {
+          "name": "candid:service",
+          "path": "src/basic_bitcoin/basic_bitcoin.did",
+          "visibility": "public"
+        }
+      ],
       "package": "basic_bitcoin",
-      "type": "rust",
-      "declarations": {
-        "output": "src/basic_bitcoin/declarations"
-      }
+      "type": "custom",
+      "wasm": "target/wasm32-unknown-unknown/release/basic_bitcoin.wasm"
     }
   },
   "defaults": {
