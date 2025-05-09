@@ -55,7 +55,7 @@ pub async fn send_from_p2tr_script_path_enabled_address_key_spend(request: SendR
     // This is a simple script that allows spending via the script_key alone.
     let taproot_spend_info = p2tr::create_taproot_spend_info(&internal_key, &script_key);
 
-    // Construct  the Taproot address. The address encodes the tweaked output key and is
+    // Construct the Taproot address. The address encodes the tweaked output key and is
     // network-aware (mainnet, testnet, etc.).
     let own_address = Address::p2tr_tweaked(taproot_spend_info.output_key(), ctx.bitcoin_network);
 
