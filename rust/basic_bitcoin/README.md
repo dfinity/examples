@@ -65,10 +65,10 @@ Your canister is live and ready to use! You can interact with it using either th
 
 This example demonstrates how to generate and use the following address types:
 
-1. **P2PKH (Legacy)** — using ECDSA and `sign_with_ecdsa`
-2. **P2WPKH (SegWit v0)** — using ECDSA and `sign_with_ecdsa`
-3. **P2TR (Taproot, key-path-only)** — using Schnorr keys and `sign_with_schnorr`
-4. **P2TR (Taproot, script-path-enabled)** — commits to a script allowing both key path and script path spending
+1. **P2PKH (Legacy)** using ECDSA and `sign_with_ecdsa`
+2. **P2WPKH (SegWit v0)** using ECDSA and `sign_with_ecdsa`
+3. **P2TR (Taproot, key-path-only)** using Schnorr keys and `sign_with_schnorr`
+4. **P2TR (Taproot, script-path-enabled)** commits to a script allowing both key path and script path spending
 
 Use the Candid UI or command line to generate these addresses with:
 
