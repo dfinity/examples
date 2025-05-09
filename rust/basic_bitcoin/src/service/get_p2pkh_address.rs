@@ -5,7 +5,7 @@ use ic_cdk::update;
 /// Returns a legacy P2PKH (Pay-to-PubKey-Hash) address for this canister.
 ///
 /// This address uses an ECDSA public key and encodes it in the legacy Base58 format.
-/// It is supported by all Bitcoin wallets and full nodes.
+/// It is supported by all bitcoin wallets and full nodes.
 #[update]
 pub async fn get_p2pkh_address() -> String {
     let ctx = BTC_CONTEXT.with(|ctx| ctx.get());
