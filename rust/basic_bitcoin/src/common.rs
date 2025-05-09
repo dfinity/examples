@@ -106,7 +106,7 @@ pub fn build_transaction_with_fee(
 /// This function fetches recent fee percentiles from the Bitcoin canister and returns
 /// the median (50th percentile) fee rate, which is a reasonable default for timely inclusion.
 ///
-/// - On **regtest** networks (with no non-coinbase transactions), no fee data is available,
+/// - On **regtest** networks (without any coinbase mature transactions), no fee data is available,
 ///   so the function falls back to a static default of `2000` millisatoshis/byte (i.e., `2 sat/vB`).
 ///
 /// # Returns
