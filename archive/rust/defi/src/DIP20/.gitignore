@@ -1,0 +1,6 @@
+.DS_Store
+.dfx/
+build/
+target
+.config
+.cache

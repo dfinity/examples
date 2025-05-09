@@ -1,0 +1,22 @@
+{
+  "canisters": {
+	  "token": {
+		  "build": "cargo build --target wasm32-unknown-unknown --release",
+		  "candid": "token.did",
+		  "wasm": "target/wasm32-unknown-unknown/release/token.wasm",
+		  "type": "custom"
+	  }
+  },
+  "defaults": {
+    "build": {
+      "packtool": ""
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  },
+  "version": 1
+}

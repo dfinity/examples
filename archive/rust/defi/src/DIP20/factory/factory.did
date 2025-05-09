@@ -1,0 +1,28 @@
+type FactoryError = variant {
+  CanisterStatusNotAvailableError;
+  CreateCanisterError;
+  EncodeError;
+  CodeAlreadyInstalled;
+  InstallCodeError;
+};
+
+type TokenType = variant {
+  DIP20Motoko;
+};
+
+type Result = variant { Ok : principal; Err : FactoryError };
+service : (principal) -> {
+  create : (
+      text,
+      text,
+      text,
+      nat8,
+      nat,
+      principal,
+      vec principal,
+      nat64,
+      nat,
+      TokenType,
+    ) -> (Result);
+  owner : () -> (principal) query;
+}
