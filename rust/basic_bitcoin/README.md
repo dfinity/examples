@@ -53,7 +53,6 @@ What this does:
 - `dfx deploy` tells the command line interface to `deploy` the smart contract.
 - `--argument '(variant { regtest })'` passes the argument `regtest` to initialize the smart contract, telling it to connect to the local Bitcoin regtest network.
 
-### Done!
 
 Your canister is live and ready to use! You can interact with it using either the command line or using the Candid UI, which is the link you see in the terminal.
 
