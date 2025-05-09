@@ -10,7 +10,7 @@ use std::fmt;
 
 /// Constructs a Bitcoin transaction from the given UTXOs, sending the specified `amount`
 /// to `dst_address`, subtracting a fixed `fee`, and returning any remaining change
-/// to `own_address` (if it's not considered dust).
+/// to `own_address` (if it's not considered dust (leftover bitcoin that is lower in value than the minimum limit of a valid transaction)).
 ///
 /// Returns the constructed unsigned transaction and the list of previous outputs (`prevouts`)
 /// used for signing.
