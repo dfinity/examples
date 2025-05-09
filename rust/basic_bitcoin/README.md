@@ -95,7 +95,7 @@ dfx canister call basic_bitcoin get_balance '("<bitcoin_address>")'
 
 This uses `bitcoin_get_balance` and works for any supported address type. Requires at least one confirmation to be reflected.
 
-## 5. Sending Bitcoin
+## 5. Sending bitcoin
 
 You can send BTC using the following endpoints:
 
