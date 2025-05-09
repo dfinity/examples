@@ -1,7 +1,0 @@
-{
-  "canisters": {
-    "token": {
-      "main": "src/token.mo"
-    }
-  }
-}
