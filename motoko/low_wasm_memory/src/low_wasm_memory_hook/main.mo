@@ -24,7 +24,7 @@ actor {
     if (not hookExecuted) {
       fnOrderBuffer.add(#heartbeat);
       // Allocate more memory by creating a large array
-      let chunk = Array.tabulate<Nat>(20_000, func _ = 0);
+      let chunk = Array.tabulate<Nat>(10_000, func _ = 0);
       bytes := Deque.pushBack(bytes, chunk);
     };
   };
