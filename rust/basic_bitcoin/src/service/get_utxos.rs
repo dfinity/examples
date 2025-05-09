@@ -4,7 +4,7 @@ use ic_cdk::{
     update,
 };
 
-/// Returns the UTXOs of the given bitcoin address.
+/// Returns the UTXOs of the given Bitcoin address.
 #[update]
 pub async fn get_utxos(address: String) -> GetUtxosResponse {
     let ctx = BTC_CONTEXT.with(|ctx| ctx.get());
