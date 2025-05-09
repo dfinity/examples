@@ -21,7 +21,7 @@ For background on the ICP <-> BTC integration, refer to the [Bitcoin integration
 
 ## Step 1: Building and deploying the canister
 
-### Clone the repo
+### Clone the examples repo
 
 ```bash
 git clone https://github.com/dfinity/examples
