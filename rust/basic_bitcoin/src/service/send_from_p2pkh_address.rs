@@ -38,7 +38,7 @@ pub async fn send_from_p2pkh_address(request: SendRequest) -> String {
     // Get the ECDSA public key of this canister at the given derivation path
     let own_public_key = get_ecdsa_public_key(&ctx, derivation_path.to_vec_u8_path()).await;
 
-    // Convert the public key to the format used by the Bitcoin library
+    // Convert the public key to the format used by the Bitcoin library.
     let own_public_key = PublicKey::from_slice(&own_public_key).unwrap();
 
     // Generate a P2PKH address from the public key
