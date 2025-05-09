@@ -77,7 +77,7 @@ dfx canister call basic_bitcoin get_p2pkh_address
 # or get_p2wpkh_address, get_p2tr_key_path_only_address, get_p2tr_script_path_enabled_address
 ```
 
-## 3. Receiving Bitcoin
+## 3. Receiving bitcoin
 
 Use the `bitcoin-cli` to mine a bitcoin block and send the block reward in the form of local testnet bitcoin to one of the canister addresses.
 
