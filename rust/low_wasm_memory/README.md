@@ -19,7 +19,7 @@ This example requires an installation of:
 Navigate into the folder containing the project's files and start a local instance of the replica with the command:
 
 ```sh
-cd examples/rust/low_wasm_memory_hook
+cd examples/rust/low_wasm_memory
 dfx start --clean
 ```
 
@@ -36,7 +36,7 @@ Dashboard: http://localhost:63387/_/dashboard
 - #### Step 2: Open another terminal window in the same directory:
 
 ```sh
-cd examples/rust/low_wasm_memory_hook
+cd examples/rust/low_wasm_memory
 ```
 
 - #### Step 3: Compile and deploy the `low_wasm_memory_hook` canister, setting the interval for periodic tasks to 10s:
