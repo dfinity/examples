@@ -144,7 +144,7 @@ dfx canister call basic_bitcoin get_block_headers '(0: nat32, 11: nat32)'
 
 This calls `bitcoin_get_block_headers`, useful for validating blockchains or light client logic.
 
-## Notes on Implementation
+## Notes on implementation
 
 - Keys are derived using structured derivation paths, according to BIP-32.
 - Key caching is used to avoid repeated calls to `get_ecdsa_public_key` and `get_schnorr_public_key`.
