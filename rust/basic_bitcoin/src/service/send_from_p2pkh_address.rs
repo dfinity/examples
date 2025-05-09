@@ -56,7 +56,7 @@ pub async fn send_from_p2pkh_address(request: SendRequest) -> String {
     .unwrap()
     .utxos;
 
-    // Build the transaction
+    // Build the transaction.
     let fee_per_byte = get_fee_per_byte(&ctx).await;
     let transaction = p2pkh::build_transaction(
         &ctx,
