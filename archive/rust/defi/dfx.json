@@ -44,13 +44,15 @@
       "main": "src/DIP20/motoko/src/token.mo",
       "declarations": {
         "output": "src/frontend/declarations/AkitaDIP20"
-      }
+      },
+      "type": "motoko"
     },
     "GoldenDIP20": {
       "main": "src/DIP20/motoko/src/token.mo",
       "declarations": {
         "output": "src/frontend/declarations/GoldenDIP20"
-      }
+      },
+      "type": "motoko"
     }
   },
   "networks": {
