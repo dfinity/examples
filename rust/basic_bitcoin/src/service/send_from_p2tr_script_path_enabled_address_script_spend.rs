@@ -33,7 +33,7 @@ pub async fn send_from_p2tr_script_path_enabled_address_script_spend(
     }
 
     // Parse and validate the destination address. The address type needs to be
-    // valid for the bitcoin network we are on.
+    // valid for the Bitcoin network we are on.
     let dst_address = Address::from_str(&request.destination_address)
         .unwrap()
         .require_network(ctx.bitcoin_network)
