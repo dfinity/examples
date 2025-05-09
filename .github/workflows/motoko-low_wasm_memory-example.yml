@@ -28,8 +28,15 @@ jobs:
           dfx deploy low_wasm_memory_hook
           dfx canister update-settings low_wasm_memory_hook --wasm-memory-limit 4000000 --wasm-memory-threshold 1000000
           dfx canister status low_wasm_memory_hook
-          dfx canister call low_wasm_memory_hook --query getExecutedFunctionsOrder | grep -q 'onLowWasmMemory' || while ! dfx canister call low_wasm_memory_hook --query getExecutedFunctionsOrder | grep -q 'onLowWasmMemory'; do
+          max_wait=20
+          waited=0
+          until [[ $(dfx canister call low_wasm_memory_hook --query getExecutedFunctionsOrder) == *onLowWasmMemory* ]]; do
             sleep 1
+            waited=$((waited+1))
+            if [ $waited -ge $max_wait ]; then
+              echo "Timed out waiting for onLowWasmMemory event"
+              exit 1
+            fi
           done
           popd
   motoko-low_wasm_memory-linux:
@@ -45,7 +52,14 @@ jobs:
           dfx deploy low_wasm_memory_hook
           dfx canister update-settings low_wasm_memory_hook --wasm-memory-limit 4000000 --wasm-memory-threshold 1000000
           dfx canister status low_wasm_memory_hook
-          dfx canister call low_wasm_memory_hook --query getExecutedFunctionsOrder | grep -q 'onLowWasmMemory' || while ! dfx canister call low_wasm_memory_hook --query getExecutedFunctionsOrder | grep -q 'onLowWasmMemory'; do
+          max_wait=20
+          waited=0
+          until [[ $(dfx canister call low_wasm_memory_hook --query getExecutedFunctionsOrder) == *onLowWasmMemory* ]]; do
             sleep 1
+            waited=$((waited+1))
+            if [ $waited -ge $max_wait ]; then
+              echo "Timed out waiting for onLowWasmMemory event"
+              exit 1
+            fi
           done
           popd
