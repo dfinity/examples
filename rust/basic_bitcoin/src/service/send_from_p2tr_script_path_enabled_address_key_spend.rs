@@ -13,7 +13,7 @@ use ic_cdk::{
 };
 use std::str::FromStr;
 
-/// Sends Bitcoin from this canister’s **script-path-enabled Taproot address** using **key path spending**.
+/// Sends bitcoin from this canister’s **script-path-enabled Taproot address** using **key path spending**.
 ///
 /// This function constructs and broadcasts a transaction that spends from a Taproot output
 /// with a committed script tree (i.e. the address was constructed with both an internal key
