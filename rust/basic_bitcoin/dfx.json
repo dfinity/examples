@@ -2,25 +2,26 @@
   "version": 1,
   "canisters": {
     "basic_bitcoin": {
-      "type": "custom",
-      "package": "basic_bitcoin",
-      "candid": "src/basic_bitcoin/basic_bitcoin.did",
-      "wasm": "target/wasm32-unknown-unknown/release/basic_bitcoin.wasm",
-      "build": "src/basic_bitcoin/build.sh",
+      "build": "build.sh",
+      "candid": "basic_bitcoin.did",
+      "gzip": true,
       "metadata": [
         {
-          "name": "candid:service"
+          "name": "candid:service",
+          "path": "basic_bitcoin.did",
+          "visibility": "public"
         }
-      ]
+      ],
+      "package": "basic_bitcoin",
+      "type": "custom",
+      "wasm": "target/wasm32-unknown-unknown/release/basic_bitcoin.wasm"
     }
   },
   "defaults": {
     "bitcoin": {
       "enabled": true,
-      "nodes": [
-        "127.0.0.1:18444"
-      ],
-      "log_level": "info"
+      "nodes": ["127.0.0.1:18444"],
+      "log_level": "error"
     },
     "build": {
       "packtool": "",

@@ -12,3 +12,8 @@
 
 # rust
 target/
+
+# bitcoin
+bitcoin_data
+
+canister_ids.json
