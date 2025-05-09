@@ -13,7 +13,7 @@ use ic_cdk::{
 };
 use std::str::FromStr;
 
-/// Sends Bitcoin from this canister’s **key-path-only Taproot address** (P2TR, BIP-86).
+/// Sends bitcoin from this smart contract’s **key-path-only Taproot address** (P2TR, BIP-86).
 ///
 /// This function constructs and broadcasts a transaction that spends from a Taproot output
 /// using **key path spending only** — that is, a single Schnorr signature derived from the
@@ -27,7 +27,7 @@ pub async fn send_from_p2tr_key_path_only_address(request: SendRequest) -> Strin
     }
 
     // Parse and validate the destination address. The address type needs to be
-    // valid for the bitcoin network we are on.
+    // valid for the Bitcoin network we are on.
     let dst_address = Address::from_str(&request.destination_address)
         .unwrap()
         .require_network(ctx.bitcoin_network)
@@ -89,7 +89,7 @@ pub async fn send_from_p2tr_key_path_only_address(request: SendRequest) -> Strin
     )
     .await;
 
-    // Send the transaction to the Bitcoin canister.
+    // Send the transaction to the Bitcoin API.
     bitcoin_send_transaction(&SendTransactionRequest {
         network: ctx.network,
         transaction: serialize(&signed_transaction),

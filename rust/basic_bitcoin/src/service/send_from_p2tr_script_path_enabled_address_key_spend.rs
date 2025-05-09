@@ -13,7 +13,7 @@ use ic_cdk::{
 };
 use std::str::FromStr;
 
-/// Sends bitcoin from this canister’s **script-path-enabled Taproot address** using **key path spending**.
+/// Sends bitcoin from this smart contract’s **script-path-enabled Taproot address** using **key path spending**.
 ///
 /// This function constructs and broadcasts a transaction that spends from a Taproot output
 /// with a committed script tree (i.e. the address was constructed with both an internal key
@@ -31,7 +31,7 @@ pub async fn send_from_p2tr_script_path_enabled_address_key_spend(request: SendR
     }
 
     // Parse and validate the destination address. The address type needs to be
-    // valid for the bitcoin network we are on.
+    // valid for the Bitcoin network we are on.
     let dst_address = Address::from_str(&request.destination_address)
         .unwrap()
         .require_network(ctx.bitcoin_network)

@@ -12,7 +12,7 @@ use ic_cdk::{
 };
 use std::str::FromStr;
 
-/// Sends the given amount of bitcoin from this canister's p2pkh address to the given address.
+/// Sends the given amount of bitcoin from this smart contract's p2pkh address to the given address.
 /// Returns the transaction ID.
 #[update]
 pub async fn send_from_p2wpkh_address(request: SendRequest) -> String {
@@ -34,7 +34,7 @@ pub async fn send_from_p2wpkh_address(request: SendRequest) -> String {
     // you would typically use a derivation path based on the user's identity or some other unique identifier.
     let derivation_path = DerivationPath::p2wpkh(0, 0);
 
-    // Get the ECDSA public key of this canister at the given derivation path
+    // Get the ECDSA public key of this smart contract at the given derivation path
     let own_public_key = get_ecdsa_public_key(&ctx, derivation_path.to_vec_u8_path()).await;
 
     // Create a CompressedPublicKey from the raw public key bytes
@@ -83,7 +83,7 @@ pub async fn send_from_p2wpkh_address(request: SendRequest) -> String {
     )
     .await;
 
-    // Send the transaction to the Bitcoin canister.
+    // Send the transaction to the Bitcoin API.
     bitcoin_send_transaction(&SendTransactionRequest {
         network: ctx.network,
         transaction: serialize(&signed_transaction),

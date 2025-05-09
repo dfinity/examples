@@ -63,8 +63,9 @@ pub fn build_transaction_with_fee(
         })
         .collect();
 
-    // --- Collect Prevouts for Signing ---
-    // These are the TxOuts we are spending from; used when signing inputs.
+    // --- Create Previous Outputs ---
+    // Each TxOut struct represents an output of a previous transaction that is now being spent.
+    // This information is needed later when signing transactions for P2TR and P2WPKH.
     let prevouts = utxos_to_spend
         .into_iter()
         .map(|utxo| TxOut {
@@ -103,7 +104,7 @@ pub fn build_transaction_with_fee(
 
 /// Estimates a reasonable fee rate (in millisatoshis per byte) for sending a Bitcoin transaction.
 ///
-/// This function fetches recent fee percentiles from the Bitcoin canister and returns
+/// This function fetches recent fee percentiles from the Bitcoin API and returns
 /// the median (50th percentile) fee rate, which is a reasonable default for timely inclusion.
 ///
 /// - On **regtest** networks (without any coinbase mature transactions), no fee data is available,
@@ -112,7 +113,7 @@ pub fn build_transaction_with_fee(
 /// # Returns
 /// A fee rate in millisatoshis per byte (1000 msat = 1 satoshi).
 pub async fn get_fee_per_byte(ctx: &BitcoinContext) -> u64 {
-    // Query recent fee percentiles from the Bitcoin canister.
+    // Query recent fee percentiles from the Bitcoin API.
     let fee_percentiles = bitcoin_get_current_fee_percentiles(&GetCurrentFeePercentilesRequest {
         network: ctx.network,
     })
@@ -155,7 +156,7 @@ impl Purpose {
 ///
 /// This abstraction is suitable for BIP-44 (legacy), BIP-84 (SegWit), and BIP-86 (Taproot),
 /// and provides convenience constructors and binary serialization for use with ECDSA/Schnorr
-/// key derivation APIs (such as ICP's management canister).
+/// key derivation APIs.
 pub struct DerivationPath {
     /// Purpose according to BIP-43 (e.g., 44 for legacy, 84 for SegWit, 86 for Taproot)
     purpose: Purpose,
@@ -169,7 +170,7 @@ pub struct DerivationPath {
     /// Chain: 0 = external (receive), 1 = internal (change)
     change: u32,
 
-    /// Address index: used to derive multiple addresses within the same account/chain.
+    /// Address index: used to derive multiple addresses within the same account.
     address_index: u32,
 }
 
@@ -178,7 +179,7 @@ impl DerivationPath {
     ///
     /// - `purpose`: Determines the address type (BIP-44 for P2PKH, BIP-84 for P2WPKH, BIP-86 for P2TR).
     /// - `account`: Use to separate logical users or wallets. For multi-user wallets, assign each user a unique account number.
-    /// - `address_index`: Used to derive multiple addresses within the same account and chain (e.g., receiving addresses).
+    /// - `address_index`: Used to derive multiple addresses within the same account.
     ///
     /// The coin type is set to 0 (Bitcoin), and change is set to 0 (external chain).
     fn new(purpose: Purpose, account: u32, address_index: u32) -> Self {

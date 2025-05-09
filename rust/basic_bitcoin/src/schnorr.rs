@@ -8,12 +8,16 @@ use ic_cdk::management_canister::{
 type DerivationPath = Vec<Vec<u8>>;
 type SchnorrKey = Vec<u8>;
 
-// Cache for Schnorr public keys. Cache does not persist across canister upgrades.
+// In-memory cache for Schnorr public keys. Note: this cache is not persistent across smart contract upgrades.
 thread_local! {
     static SCHNORR_KEY_CACHE: RefCell<HashMap<DerivationPath, SchnorrKey>> = RefCell::new(HashMap::new());
 }
 
-/// Returns the Schnorr public key of this canister at the given derivation path.
+/// Retrieves the Schnorr public key for the given derivation path from the Schnorr API.
+///     
+/// This function checks the local in-memory cache first. If no cached key exists,
+/// it queries the Schnorr API for the public key at the given derivation path
+/// and stores the result in the cache.
 pub async fn get_schnorr_public_key(
     ctx: &BitcoinContext,
     derivation_path: Vec<Vec<u8>>,
@@ -43,8 +47,8 @@ pub async fn get_schnorr_public_key(
     public_key
 }
 
-/// Returns the signature for `message` by a private and *distributed* private
-/// key derived from `key_name`, `derivation_path`, and the optional
+/// Returns the Schnorr signature for `message`. The message will be signed
+/// with the private key derived from `key_name`, `derivation_path`, and the optional
 /// [BIP341](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki)
 /// `merkle_root_hash`.
 pub async fn sign_with_schnorr(
@@ -73,7 +77,14 @@ pub async fn sign_with_schnorr(
     .signature
 }
 
-// A mock for rubber-stamping signatures.
+/// Returns a mock Schnorr signature used solely for **transaction size estimation**.
+///
+/// This function returns a fixed-size, syntactically valid but cryptographically invalid
+/// Schnorr signature. It is **not** suitable for use in real transactions
+/// but is useful when constructing a Bitcoin transaction to estimate its weight or fee.
+///
+/// # Safety
+/// Do not broadcast transactions signed with this signature.
 pub async fn mock_sign_with_schnorr(
     _key_name: String,
     _derivation_path: Vec<Vec<u8>>,

@@ -3,7 +3,7 @@ use ic_cdk::update;
 
 use crate::{common::DerivationPath, schnorr::get_schnorr_public_key, BTC_CONTEXT};
 
-/// Returns a Taproot (P2TR) address of this canister that supports **key path spending only**.
+/// Returns a Taproot (P2TR) address of this smart contract that supports **key path spending only**.
 ///
 /// This address does not commit to a script path (it commits to an unspendable path per BIP-341).
 /// It allows spending using a single Schnorr signature corresponding to the internal key.

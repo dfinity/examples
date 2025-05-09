@@ -12,12 +12,13 @@ use std::cell::Cell;
 /// Runtime configuration shared across all Bitcoin-related operations.
 ///
 /// This struct carries network-specific context:
-/// - `network`: The IC Bitcoin API network enum (used with the management canister).
+/// - `network`: The ICP Bitcoin API network enum.
 /// - `bitcoin_network`: The corresponding network enum from the `bitcoin` crate, used
 ///    for address formatting and transaction construction.
-/// - `key_name`: The ECDSA key name registered for this canister.
+/// - `key_name`: The global ECDSA key name used when requesting derived keys or making
+///    signatures. Different key names are used locally and when deployed on the IC.
 ///
-/// Note: Both `network` and `bitcoin_network` are needed because the IC and the
+/// Note: Both `network` and `bitcoin_network` are needed because ICP and the
 /// Bitcoin library use distinct network enum types.
 #[derive(Clone, Copy)]
 pub struct BitcoinContext {
@@ -27,7 +28,7 @@ pub struct BitcoinContext {
 }
 
 // Global, thread-local instance of the Bitcoin context.
-// This is initialized at canister init/upgrade time and reused across all API calls.
+// This is initialized at smart contract init/upgrade time and reused across all API calls.
 thread_local! {
     static BTC_CONTEXT: Cell<BitcoinContext> = const {
         Cell::new(BitcoinContext {
@@ -60,7 +61,7 @@ fn init_upgrade(network: Network) {
     });
 }
 
-/// Canister init hook.
+/// Smart contract init hook.
 /// Sets up the BitcoinContext based on the given IC Bitcoin network.
 #[init]
 pub fn init(network: Network) {
