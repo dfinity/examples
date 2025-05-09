@@ -192,17 +192,17 @@ impl DerivationPath {
         }
     }
 
-    /// Convenience constructor for p2pkh (legacy) addresses.
+    /// Convenience constructor for P2PKH (legacy) addresses.
     pub fn p2pkh(account: u32, address_index: u32) -> Self {
         Self::new(Purpose::P2PKH, account, address_index)
     }
 
-    /// Convenience constructor for p2wpkh (native SegWit) addresses.
+    /// Convenience constructor for P2WPKH (native SegWit) addresses.
     pub fn p2wpkh(account: u32, address_index: u32) -> Self {
         Self::new(Purpose::P2WPKH, account, address_index)
     }
 
-    /// Convenience constructor for p2tr (Taproot) addresses.
+    /// Convenience constructor for P2TR (Taproot) addresses.
     pub fn p2tr(account: u32, address_index: u32) -> Self {
         Self::new(Purpose::P2TR, account, address_index)
     }

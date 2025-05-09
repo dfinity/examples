@@ -13,7 +13,7 @@ use ic_cdk::{
 };
 use std::str::FromStr;
 
-/// Sends the given amount of bitcoin from this smart contract's p2pkh address to the given address.
+/// Sends the given amount of bitcoin from this smart contract's P2PKH address to the given address.
 /// Returns the transaction ID.
 #[update]
 pub async fn send_from_p2pkh_address(request: SendRequest) -> String {
