@@ -155,7 +155,7 @@ In this tutorial, you were able to:
 
 - Deploy a canister smart contract on the ICP blockchain that can receive & send bitcoin.
 - Acquire cycles to deploy the canister to the ICP mainnet.
-- Connect the canister to the Bitcoin testnet.
+- Connect the canister to the local Bitcoin testnet.
 - Send the canister some testnet BTC.
 - Check the testnet BTC balance of the canister.
 - Use the canister to send testnet BTC to another testnet BTC address.
