@@ -30,7 +30,7 @@ jobs:
           dfx canister status low_wasm_memory_hook
           max_wait=20
           waited=0
-          until [[ $(dfx canister call low_wasm_memory_hook --query getExecutedFunctionsOrder) == *onLowWasmMemory* ]]; do
+          until dfx canister call low_wasm_memory_hook --query getExecutedFunctionsOrder | grep -q onLowWasmMemory; do
             sleep 1
             waited=$((waited+1))
             if [ $waited -ge $max_wait ]; then
@@ -54,7 +54,7 @@ jobs:
           dfx canister status low_wasm_memory_hook
           max_wait=20
           waited=0
-          until [[ $(dfx canister call low_wasm_memory_hook --query getExecutedFunctionsOrder) == *onLowWasmMemory* ]]; do
+          until dfx canister call low_wasm_memory_hook --query getExecutedFunctionsOrder | grep -q onLowWasmMemory; do
             sleep 1
             waited=$((waited+1))
             if [ $waited -ge $max_wait ]; then
