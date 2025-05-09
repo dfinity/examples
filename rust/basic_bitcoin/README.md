@@ -57,7 +57,7 @@ What this does:
 Your canister is live and ready to use! You can interact with it using either the command line or using the Candid UI, which is the link you see in the terminal.
 
 > [!NOTE]
-> You can also interact with a pre deployed version of the `basic_bitcoin` example. The canister is deployed to IC mainnet and is configured to interact with Bitcoin **testnet4**.
+> You can also interact with a pre-deployed version of the `basic_bitcoin` example running on the IC mainnet and configured to interact with Bitcoin **testnet4**.
 > 
 > Access the Candid UI of the example: https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=vvha6-7qaaa-aaaap-ahodq-cai
 
