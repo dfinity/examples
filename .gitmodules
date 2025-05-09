@@ -11,3 +11,6 @@
 [submodule "archive/motoko/defi/src/DIP20"]
 	path = archive/motoko/defi/src/DIP20
 	url = https://github.com/Psychedelic/DIP20.git
+[submodule "archive/rust/defi/src/DIP20"]
+	path = archive/rust/defi/src/DIP20
+	url = https://github.com/Psychedelic/DIP20.git
