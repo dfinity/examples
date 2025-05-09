@@ -23,6 +23,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Motoko low_wasm_memory Darwin
         run: |
+          set -euo pipefail
           pushd motoko/low_wasm_memory
           dfx start --background
           dfx deploy low_wasm_memory_hook
@@ -47,6 +48,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko low_wasm_memory Linux
         run: |
+          set -euo pipefail
           pushd motoko/low_wasm_memory
           dfx start --background
           dfx deploy low_wasm_memory_hook
