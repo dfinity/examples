@@ -13,7 +13,7 @@ use ic_cdk::{
 };
 use std::str::FromStr;
 
-/// Sends Bitcoin from this canister’s **script-path-enabled Taproot address** using **script path spending**.
+/// Sends bitcoin from this canister’s **script-path-enabled Taproot address** using **script path spending**.
 ///
 /// This function constructs and broadcasts a transaction that spends from a Taproot output
 /// via a **script path**. Specifically, it uses a script leaf committed in the Merkle tree
