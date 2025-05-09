@@ -28,7 +28,7 @@ git clone https://github.com/dfinity/examples
 cd examples/rust/basic_bitcoin
 ```
 
-### Start the local IC replica
+### Start the ICP local development environment
 
 ```bash
 dfx start --clean --background
