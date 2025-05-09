@@ -16,7 +16,7 @@ For background on the ICP <-> BTC integration, refer to the [Bitcoin integration
 
 - [x] [Rust toolchain](https://www.rust-lang.org/tools/install)
 - [x] [Internet Computer SDK](https://internetcomputer.org/docs/building-apps/getting-started/install)
-- [x] [Local installation of bitcoin](https://internetcomputer.org/docs/bitcoin) 
+- [x] [Local installation of Bitcoin](https://internetcomputer.org/docs/bitcoin) 
 - [x] On MacOS, an `llvm` version that supports the `wasm32-unknown-unknown` target is required. The default `llvm` version provided by XCode does not meet that requirement. Instead, install the [Homebrew version](https://formulae.brew.sh/formula/llvm), using `brew install llvm`. This is because the `bitcoin` library relies on `secp256k1-sys`, which requires `llvm` to build.
 
 ## Step 1: Building and deploying the canister
