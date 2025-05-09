@@ -34,7 +34,7 @@ cd examples/rust/basic_bitcoin
 dfx start --clean --background
 ```
 
-### Start the local bitcoin testnet
+### Start the local Bitcoin testnet (regtest)
 
 In a separate terminal window, run the following: 
 
