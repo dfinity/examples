@@ -55,7 +55,7 @@ Update canister settings:
 dfx canister update-settings low_wasm_memory_hook --wasm-memory-limit 4000000 --wasm-memory-threshold 1000000
 ```
 
-and test that setting are correctly updated:
+and test that settings are correctly updated:
 
 ```sh
 dfx canister status low_wasm_memory_hook
@@ -86,9 +86,8 @@ Total query response payload size: 0 Bytes
 Log visibility: controllers
 ```
 
-In the example above we set the 'wasm-memory-limit' to 4MB and 'wasm-memory-threshold' to 1MB. Hence whenever the Wasm memory
-used by the canister is above 3MB (in other words, the remaining Wasm memory is less than 'wasm-memory-threshold') 
-the low Wasm memory hook will run.
+With the `dfx canister update-settings` command we set the 'wasm-memory-limit' to 4MB and 'wasm-memory-threshold' to 1MB.
+Hence whenever the Wasm memory used by the canister is above 3MB (in other words, the remaining Wasm memory is less than 'wasm-memory-threshold') the low Wasm memory hook will be triggered.
 
 Notice that the current Memory Size is low, because the canister is not yet deployed.
 
@@ -121,13 +120,13 @@ dfx canister status low_wasm_memory_hook | grep 'Memory Size'
 
 - ### Step 6: After 10s, observe the output of the `getExecutedFunctionsOrder` query:
 
-Query the canister calling 'getExecutedFunctionsOrder' to get the order of executed functions.
+Query the canister by calling `getExecutedFunctionsOrder` to get the order of executed functions.
 
 ```sh
 dfx canister call low_wasm_memory_hook --query getExecutedFunctionsOrder
 ```
 
-Repeat the call until the last executed method is 'onLowWasmMemory' hook.
+Repeat the call until the last executed method is `onLowWasmMemory`.
 
 Example output:
 
@@ -138,7 +137,7 @@ Example output:
 )
 ```
 
-To repeat the example, you can redeploy the canister and reset its state, with the following command:
+To repeat the example, you can redeploy the canister and reset its state with the following command:
 
 ```sh
 dfx deploy low_wasm_memory_hook --mode reinstall
@@ -146,11 +145,11 @@ dfx deploy low_wasm_memory_hook --mode reinstall
 
 ## Further learning
 1. Have a look at the locally running dashboard. The URL is at the end of the `dfx start` command: `Dashboard: http://localhost/...`
-2. Check out `low_wasm_memory_hook` canisters Candid user interface. The URLs are at the end of the `dfx deploy` command: `low_wasm_memory_hook: http://127.0.0.1/...`
+2. Check out `low_wasm_memory_hook` canister's Candid user interface. The URLs are at the end of the `dfx deploy` command: `low_wasm_memory_hook: http://127.0.0.1/...`
 
 ### Canister interface
 
-The `low_wasm_memory_hook` canister provide the following interface:
+The `low_wasm_memory_hook` canister provides the following interface:
 * `getExecutedFunctionsOrder` ; returns the vector with values of `FnType` (a variant with `#heartbeat` or `#onLowWasmMemory` ) representing the order of functions executed.
 
 Example usage:
