@@ -2,7 +2,7 @@
 
 The Internet Computer can automatically execute a special type of function called low Wasm memory hook, which runs when the available Wasm memory of the canister falls below the 'wasm-memory-threshold'.
 
-This example demonstrates the ways of using low Wasm memory hook on the Internet Computer.
+This Rust example demonstrates the ways of using low Wasm memory hook on the Internet Computer. If you're interested in how this example is implemented in Motoko, check out the [Motoko version of the Low Wasm memory hook example](../../motoko/low_wasm_memory).
 
 The example consists of a canister named `low_wasm_memory_hook` implementing the functionality that it increases usage of Wasm memory in every 'heartbeat' execution, until the low Wasm memory hook is run.
 
