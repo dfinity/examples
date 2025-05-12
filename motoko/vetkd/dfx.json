@@ -1,21 +1,12 @@
 {
   "canisters": {
-    "system_api": {
-      "candid": "src/system_api/vetkd_system_api.did",
-      "package": "vetkd_system_api",
-      "type": "rust"
-    },
     "app_backend": {
-      "dependencies": [
-        "system_api"
-      ],
       "main": "src/app_backend/Main.mo",
       "type": "motoko"
     },
     "app_frontend_js": {
       "dependencies": [
-        "app_backend",
-        "system_api"
+        "app_backend"
       ],
       "frontend": {
         "entrypoint": "src/app_frontend_js/src/index.html"

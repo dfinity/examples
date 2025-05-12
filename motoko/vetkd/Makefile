@@ -9,7 +9,6 @@ node_modules:
 .PHONY: deploy
 .SILENT: deploy
 deploy: node_modules
-	dfx canister create system_api --specified-id s55qq-oqaaa-aaaaa-aaakq-cai
 	dfx deploy
 
 .PHONY: test
@@ -25,4 +24,3 @@ clean:
 	rm -rf node_modules
 	rm -rf src/declarations
 	rm -f .env
-	cargo clean

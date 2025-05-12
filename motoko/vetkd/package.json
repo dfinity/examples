@@ -37,14 +37,5 @@
     "webpack": "^5.94.0",
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^4.8.1"
-  },
-  "engines": {
-    "node": "^12 || ^14 || ^16 || ^18 || ^19"
-  },
-  "browserslist": [
-    "last 2 chrome version",
-    "last 2 firefox version",
-    "last 2 safari version",
-    "last 2 edge version"
-  ]
+  }
 }
