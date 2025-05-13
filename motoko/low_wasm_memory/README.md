@@ -52,44 +52,8 @@ low_wasm_memory_hook canister created with canister id: uxrrr-q7777-77774-qaaaq-
 Update canister settings:
 
 ```sh
-dfx canister update-settings low_wasm_memory_hook --wasm-memory-limit 4000000 --wasm-memory-threshold 1000000
+dfx canister update-settings low_wasm_memory_hook --wasm-memory-limit 5000000 --wasm-memory-threshold 2000000
 ```
-
-and test that settings are correctly updated:
-
-```sh
-dfx canister status low_wasm_memory_hook
-```
-
-Example output:
-
-```sh
-% dfx canister status low_wasm_memory_hook
-Canister status call result for low_wasm_memory_hook.
-Status: Running
-Controllers: 3apfx-fn75o-xtwmf-svjzg-hu5xt-bg2dr-ubczq-uhvlq-2a5gf-ya4fn-dqe uqqxf-5h777-77774-qaaaa-cai
-Memory allocation: 0 Bytes
-Compute allocation: 0 %
-Freezing threshold: 2_592_000 Seconds
-Idle cycles burned per day: 1_757 Cycles
-Memory Size: 172 Bytes
-Balance: 2_999_997_206_000 Cycles
-Reserved: 0 Cycles
-Reserved cycles limit: 5_000_000_000_000 Cycles
-Wasm memory limit: 4_000_000 Bytes
-Wasm memory threshold: 1_000_000 Bytes
-Module hash: None
-Number of queries: 0
-Instructions spent in queries: 0
-Total query request payload size: 0 Bytes
-Total query response payload size: 0 Bytes
-Log visibility: controllers
-```
-
-With the `dfx canister update-settings` command we set the 'wasm_memory_limit' to 4MB and 'wasm_memory_threshold' to 1MB.
-Hence whenever the Wasm memory used by the canister is above 3MB (in other words, the remaining Wasm memory is less than 'wasm_memory_threshold') the low Wasm memory hook will be triggered.
-
-Notice that the current Memory Size is low, because the canister is not yet deployed.
 
 - ### Step 5: Compile and deploy the `low_wasm_memory_hook` canister:
 
@@ -100,7 +64,6 @@ dfx deploy low_wasm_memory_hook
 Example output:
 
 ```sh
-% dfx deploy low_wasm_memory_hook
 Deploying: low_wasm_memory_hook
 All canisters have already been created.
 Building canister 'low_wasm_memory_hook'.
@@ -112,13 +75,41 @@ URLs:
 ```
 
 After the deployment, the memory usage periodically increases as defined in the `heartbeat` function.
-You can observe the Memory Size with the following command:
+
+With the `dfx canister update-settings` command we set the 'wasm_memory_limit' to 5MB and 'wasm_memory_threshold' to 2MB.
+Hence whenever the Wasm memory used by the canister is above 3MB (in other words, the remaining Wasm memory is less than 'wasm_memory_threshold') the low Wasm memory hook will be triggered.
+
+You can verify that the canister settings got updated and check the current 'Memory Size' with the following command:
 
 ```sh
-dfx canister status low_wasm_memory_hook | grep 'Memory Size'
+dfx canister status low_wasm_memory_hook
 ```
 
-- ### Step 6: After 10s, observe the output of the `getExecutedFunctionsOrder` query:
+Example output:
+
+```sh
+Canister status call result for low_wasm_memory_hook.
+Status: Running
+Controllers: 3apfx-fn75o-xtwmf-svjzg-hu5xt-bg2dr-ubczq-uhvlq-2a5gf-ya4fn-dqe uqqxf-5h777-77774-qaaaa-cai
+Memory allocation: 0 Bytes
+Compute allocation: 0 %
+Freezing threshold: 2_592_000 Seconds
+Idle cycles burned per day: 24_269_759 Cycles
+Memory Size: 2_374_914 Bytes
+Balance: 2_996_231_412_893 Cycles
+Reserved: 0 Cycles
+Reserved cycles limit: 5_000_000_000_000 Cycles
+Wasm memory limit: 5_000_000 Bytes
+Wasm memory threshold: 2_000_000 Bytes
+Module hash: 0x0c100162e1be161b9ef6fd95efb07f0541903c77a47e85a49a800705d6a09a11
+Number of queries: 0
+Instructions spent in queries: 0
+Total query request payload size: 0 Bytes
+Total query response payload size: 0 Bytes
+Log visibility: controllers
+```
+
+- ### Step 6: After a few seconds, observe the output of the `getExecutedFunctionsOrder` query:
 
 Query the canister by calling `getExecutedFunctionsOrder` to get the order of executed functions.
 
@@ -131,7 +122,6 @@ Repeat the call until the last executed method is `onLowWasmMemory`.
 Example output:
 
 ```sh
-% dfx canister call low_wasm_memory_hook --query getExecutedFunctionsOrder
 (
   vec { variant { heartbeat }; variant { heartbeat }; variant { heartbeat }; variant { heartbeat }; variant { heartbeat }; variant { heartbeat }; variant { heartbeat }; variant { heartbeat }; variant { heartbeat }; variant { heartbeat }; variant { heartbeat }; variant { heartbeat }; variant { heartbeat }; variant { heartbeat }; variant { heartbeat }; variant { heartbeat }; variant { heartbeat }; variant { heartbeat }; variant { heartbeat }; variant { heartbeat }; variant { heartbeat }; variant { onLowWasmMemory };},
 )

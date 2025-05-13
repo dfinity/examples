@@ -34,12 +34,13 @@ jobs:
           pushd motoko/low_wasm_memory
           dfx start --background
           dfx deploy low_wasm_memory_hook
-          dfx canister update-settings low_wasm_memory_hook --wasm-memory-limit 4000000 --wasm-memory-threshold 1000000
+          dfx canister update-settings low_wasm_memory_hook --wasm-memory-limit 5000000 --wasm-memory-threshold 2000000
           dfx canister status low_wasm_memory_hook
           max_wait=20
           waited=0
           until [[ $(dfx canister call low_wasm_memory_hook --query getExecutedFunctionsOrder) == *onLowWasmMemory* ]]; do
             sleep 1
+            dfx canister status low_wasm_memory_hook | grep 'Memory Size'
             waited=$((waited+1))
             if [ $waited -ge $max_wait ]; then
               echo "Timed out waiting for onLowWasmMemory event"
