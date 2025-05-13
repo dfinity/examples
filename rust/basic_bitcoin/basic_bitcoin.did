@@ -42,10 +42,12 @@ type get_block_headers_response = record {
 
 service : (network) -> {
   "get_p2pkh_address" : () -> (bitcoin_address);
+  
+  "get_p2wpkh_address" : () -> (bitcoin_address);
 
-  "get_p2tr_address" : () -> (bitcoin_address);
+  "get_p2tr_script_path_enabled_address" : () -> (bitcoin_address);
 
-  "get_p2tr_key_only_address" : () -> (bitcoin_address);
+  "get_p2tr_key_path_only_address" : () -> (bitcoin_address);
 
   "get_balance" : (address : bitcoin_address) -> (satoshi);
 
@@ -62,21 +64,28 @@ service : (network) -> {
     }
   ) -> (transaction_id);
 
-  "send_from_p2tr_address_key_path" : (
+  "send_from_p2wpkh_address" : (
     record {
       destination_address : bitcoin_address;
       amount_in_satoshi : satoshi;
     }
   ) -> (transaction_id);
 
-  "send_from_p2tr_address_script_path" : (
+  "send_from_p2tr_key_path_only_address" : (
     record {
       destination_address : bitcoin_address;
       amount_in_satoshi : satoshi;
     }
   ) -> (transaction_id);
 
-  "send_from_p2tr_key_only_address" : (
+  "send_from_p2tr_script_path_enabled_address_key_spend" : (
+    record {
+      destination_address : bitcoin_address;
+      amount_in_satoshi : satoshi;
+    }
+  ) -> (transaction_id);
+
+  "send_from_p2tr_script_path_enabled_address_script_spend" : (
     record {
       destination_address : bitcoin_address;
       amount_in_satoshi : satoshi;
