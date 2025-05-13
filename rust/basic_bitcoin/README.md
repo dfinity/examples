@@ -10,13 +10,13 @@ This example integrates with the Internet Computer's built-in:
 - [Schnorr API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr)
 - [Bitcoin API](https://github.com/dfinity/bitcoin-canister/blob/master/INTERFACE_SPECIFICATION.md)
 
-For background on the ICP <-> BTC integration, refer to the [Bitcoin integration documentation](https://wiki.internetcomputer.org/wiki/Bitcoin_Integration).
+For background on the ICP <-> BTC integration, refer to the [Learn Hub](https://learn.internetcomputer.org/hc/en-us/articles/34211154520084-Bitcoin-Integration).
 
 ## Prerequisites
 
 - [x] [Rust toolchain](https://www.rust-lang.org/tools/install)
 - [x] [Internet Computer SDK](https://internetcomputer.org/docs/building-apps/getting-started/install)
-- [x] [Local installation of Bitcoin](https://internetcomputer.org/docs/bitcoin) 
+- [x] [Local installation of Bitcoin](https://internetcomputer.org/docs/building-apps/chain-fusion/bitcoin/using-btc/local-development) 
 - [x] On macOS, an `llvm` version that supports the `wasm32-unknown-unknown` target is required. This is because the `bitcoin` library relies on `secp256k1-sys`, which requires `llvm` to build. The default `llvm` version provided by XCode does not meet this requirement. Instead, install the [Homebrew version](https://formulae.brew.sh/formula/llvm), using `brew install llvm`. 
 
 ## Step 1: Building and deploying the smart contract
@@ -123,7 +123,7 @@ dfx canister call basic_bitcoin send_from_p2pkh_address '(record {
 ```
 
 > [!IMPORTANT]
-> Newly created bitcoin, like those you created with the above `bitcoin-cli` command cannot be spent until 10 additional blocks have been added to the chain. To make your bitcoin spendable, create 10 additional blocks. Choose one of the smart contract addresses as receiver of the block reward or use any valid bitcoin dummy addres.
+> Newly created bitcoin, like those you created with the above `bitcoin-cli` command cannot be spent until 10 additional blocks have been added to the chain. To make your bitcoin spendable, create 10 additional blocks. Choose one of the smart contract addresses as receiver of the block reward or use any valid bitcoin dummy address.
 > 
 > ```bash
 > bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 10 <bitcoin_address>
@@ -169,8 +169,8 @@ If you base your application on this example, we recommend you familiarize yours
 
 For example, the following aspects are particularly relevant for this app:
 
-- [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/current/references/security/general-security-best-practices#certify-query-responses-if-they-are-relevant-for-security), since the app e.g. offers a method to read balances.
-- [Use a decentralized governance system like SNS to make a smart contract have a decentralized controller](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/overview), since decentralized control may be essential for smart contracts holding bitcoins on behalf of users.
+- [Certify query responses if they are relevant for security](https://internetcomputer.org/docs/building-apps/security/data-integrity-and-authenticity#using-certified-variables-for-secure-queries), since the app e.g. offers a method to read balances.
+- [Use a decentralized governance system like SNS to make a smart contract have a decentralized controller](https://internetcomputer.org/docs/building-apps/security/decentralization), since decentralized control may be essential for smart contracts holding bitcoins on behalf of users.
 
 ---
 
