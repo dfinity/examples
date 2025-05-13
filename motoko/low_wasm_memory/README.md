@@ -1,6 +1,6 @@
 # Low Wasm memory hook
 
-The Internet Computer can automatically execute a special type of function called low Wasm memory hook, which runs when the available Wasm memory of the canister falls below the 'wasm-memory-threshold'.
+The Internet Computer can automatically execute a special type of function called low Wasm memory hook, which runs when the available Wasm memory of the canister falls below the 'wasm_memory_threshold'.
 
 This Motoko example demonstrates the ways of using low Wasm memory hook on the Internet Computer. If you're interested in how this example is implemented in Rust, check out the [Rust version of the Low Wasm memory hook example](../../rust/low_wasm_memory).
 
@@ -15,11 +15,11 @@ This example requires an installation of:
 ## Example: Low Wasm memory hook
 
 In this example, the canister will periodically increase its memory usage (as defined in the `heartbeat` function) until the low Wasm memory hook is run
-when the memory usage exceeds the `wasm-memory-threshold`.
+when the memory usage exceeds the `wasm_memory_threshold`.
 
 - ### Step 1: Setup project environment
 
-Navigate into the folder containing the project's files and start a local instance of the replica with the command:
+Navigate into the folder containing the project's files and start a local PocketIC instance with the command:
 
 ```sh
 cd examples/motoko/low_wasm_memory
@@ -86,8 +86,8 @@ Total query response payload size: 0 Bytes
 Log visibility: controllers
 ```
 
-With the `dfx canister update-settings` command we set the 'wasm-memory-limit' to 4MB and 'wasm-memory-threshold' to 1MB.
-Hence whenever the Wasm memory used by the canister is above 3MB (in other words, the remaining Wasm memory is less than 'wasm-memory-threshold') the low Wasm memory hook will be triggered.
+With the `dfx canister update-settings` command we set the 'wasm_memory_limit' to 4MB and 'wasm_memory_threshold' to 1MB.
+Hence whenever the Wasm memory used by the canister is above 3MB (in other words, the remaining Wasm memory is less than 'wasm_memory_threshold') the low Wasm memory hook will be triggered.
 
 Notice that the current Memory Size is low, because the canister is not yet deployed.
 
@@ -144,13 +144,13 @@ dfx deploy low_wasm_memory_hook --mode reinstall
 ```
 
 ## Further learning
-1. Have a look at the locally running dashboard. The URL is at the end of the `dfx start` command: `Dashboard: http://localhost/...`
-2. Check out `low_wasm_memory_hook` canister's Candid user interface. The URLs are at the end of the `dfx deploy` command: `low_wasm_memory_hook: http://127.0.0.1/...`
+1. Have a look at the locally running dashboard. The URL is at the end of the `dfx start` command: `Dashboard: http://localhost:...`
+2. Check out `low_wasm_memory_hook` canister's Candid user interface. The URLs are at the end of the `dfx deploy` command: `low_wasm_memory_hook: http://127.0.0.1:...`
 
 ### Canister interface
 
 The `low_wasm_memory_hook` canister provides the following interface:
-* `getExecutedFunctionsOrder` ; returns the vector with values of `FnType` (a variant with `#heartbeat` or `#onLowWasmMemory` ) representing the order of functions executed.
+* `getExecutedFunctionsOrder` ; returns the vector with values of `FnType` (a variant with `#heartbeat` or `#onLowWasmMemory`) representing the order of functions executed.
 
 Example usage:
 ```sh
