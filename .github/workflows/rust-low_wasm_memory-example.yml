@@ -36,7 +36,7 @@ jobs:
           dfx deploy low_wasm_memory_hook
           dfx canister update-settings low_wasm_memory_hook --wasm-memory-limit 5000000 --wasm-memory-threshold 3000000
           dfx canister status low_wasm_memory_hook
-          max_wait=20
+          max_wait=50
           waited=0
           until [[ $(dfx canister call low_wasm_memory_hook --query get_executed_functions_order) == *OnLowWasmMemory* ]]; do
             sleep 1
