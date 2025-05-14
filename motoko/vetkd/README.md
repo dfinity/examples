@@ -24,23 +24,20 @@ Begin by opening a terminal window.
 
 ## Step 1: Setup the project environment
 
-## Step 2: Open a new terminal window.
-
-Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
-
 ```bash
 cd examples/motoko/vetkd
-dfx start --background
+dfx start --background --clean
 ```
 
-## Step 3: Ensure that the required node modules are available in your project directory, if needed, by running the following command:
+## Step 2: Set up dependencies for a Node.js
+
+Ensure that the required node modules are available in your project directory, if needed, by running the following command:
 
 ```sh
-cd examples/motoko/vetkd
 npm install
 ```
 
-## Step 4: Register, build, and deploy the project:
+## Step 3: Register, build, and deploy the project:
 
 ```sh
 dfx deploy
@@ -63,4 +60,6 @@ URLs:
     internet_identity: http://127.0.0.1:4943/?canisterId=x4hhs-wh777-77774-qaaka-cai&id=xjaw7-xp777-77774-qaajq-cai
 ```
 
-## Step 5: Open the printed URL for the `app_frontend_js` in your browser.
+## Step 4: Open frontend
+
+Open the URL for the `app_frontend_js` (printed in the previous step) in your browser.
