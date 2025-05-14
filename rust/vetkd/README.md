@@ -1,4 +1,4 @@
-# Basic vetKeys example
+# Basic vetKeys example (Motoko)
 
 This example demonstrates how to use the Internet Computer's **vetKeys** feature to:
 
@@ -21,25 +21,26 @@ It includes:
 - [x] Install [Node.js](https://nodejs.org/en/download/).
 - [x] Install [Rust](https://www.rust-lang.org/tools/install), and add Wasm as a target (`rustup target add wasm32-unknown-unknown`).
 
+Begin by opening a terminal window.
+
 ## Step 1: Setup project environment
 
 Navigate into the folder containing the project's files and start a local instance of the replica with the command:
 
 ```sh
 cd examples/rust/vetkd
-dfx start --clean
+dfx start --background --clean
 ```
 
-## Step 2: Open a new terminal window.
+## Step 2: Set up dependencies for a Node.js
 
-## Step 3: Ensure that the required node modules are available in your project directory, if needed, by running the following command:
+Ensure that the required node modules are available in your project directory, if needed, by running the following command:
 
 ```sh
-cd examples/rust/vetkd
 npm install
 ```
 
-## Step 4:. Register, build, and deploy the project:
+## Step 3: Register, build, and deploy the project:
 
 ```sh
 dfx deploy
@@ -62,4 +63,6 @@ URLs:
     internet_identity: http://127.0.0.1:4943/?canisterId=x4hhs-wh777-77774-qaaka-cai&id=xjaw7-xp777-77774-qaajq-cai
 ```
 
-## Step 5: Open the printed URL for the `app_frontend_js` in your browser.
+## Step 4: Open frontend
+
+Open the URL for the `app_frontend_js` (printed in the previous step) in your browser.
