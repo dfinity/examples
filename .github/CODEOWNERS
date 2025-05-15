@@ -11,7 +11,7 @@
 /hosting/static-website/ @dfinity/sdk
 /hosting/unity-webgl-template/ @dfinity/sdk
 
-/motoko/basic_bitcoin/ @dfinity/execution
+/motoko/basic_bitcoin/ @dfinity/cross-chain-team
 /motoko/basic_dao/ @dfinity/languages
 /motoko/backend_only/ @dfinity/ninja-devs
 /motoko/canister_logs/ @dfinity/execution
@@ -53,7 +53,7 @@
 /native-apps/unity_ii_applink/ @dfinity/sdk
 /native-apps/unity_ii_deeplink/ @dfinity/sdk
 
-/rust/basic_bitcoin/ @dfinity/execution
+/rust/basic_bitcoin/ @dfinity/cross-chain-team
 /rust/basic_dao/ @dfinity/testing-verification
 /rust/basic_ethereum/ @dfinity/cross-chain-team
 /rust/backend_only/ @dfinity/ninja-devs
@@ -63,8 +63,6 @@
 /rust/composite_query/ @dfinity/execution
 /rust/counter/ @dfinity/growth
 /rust/daily_planner/ @dfinity/ninja-devs
-/rust/defi/ @dfinity/growth
-/rust/dip721-nft-container/ @dfinity/sdk
 /rust/encrypted-notes-dapp-vetkd/ @dfinity/crypto-team
 /rust/encrypted-notes-dapp/ @dfinity/crypto-team
 /rust/evm_block_explorer/ @dfinity/ninja-devs
@@ -77,7 +75,6 @@
 /rust/inter-canister-calls/ @dfinity/ic-message-routing-owners
 /rust/llm_chatbot/ @dfinity/ninja-devs
 /rust/low_wasm_memory/ @dfinity/execution
-/rust/nft-wallet/ @dfinity/growth
 /rust/parallel_calls/ @dfinity/research
 /rust/performance_counters/ @dfinity/execution
 /rust/periodic_tasks/ @dfinity/execution

@@ -1,4 +1,5 @@
 use candid::{CandidType, Deserialize, Nat, Principal};
+use ic_cdk::call::Call;
 
 pub struct DIP20 {
     principal: Principal,
@@ -36,10 +37,15 @@ impl DIP20 {
     }
 
     pub async fn transfer(&self, target: Principal, amount: Nat) -> TxReceipt {
-        let call_result: Result<(TxReceipt,), _> =
-            ic_cdk::api::call::call(self.principal, "transfer", (target, amount)).await;
+        // let call_result: Result<(TxReceipt,), _> =
+        //     ic_cdk::api::call::call(self.principal, "transfer", (target, amount)).await;
 
-        call_result.unwrap().0
+        Call::unbounded_wait(self.principal, "transfer")
+            .with_args(&(target, amount))
+            .await
+            .unwrap()
+            .candid()
+            .unwrap()
     }
 
     pub async fn transfer_from(
@@ -48,23 +54,29 @@ impl DIP20 {
         target: Principal,
         amount: Nat,
     ) -> TxReceipt {
-        let call_result: Result<(TxReceipt,), _> =
-            ic_cdk::api::call::call(self.principal, "transferFrom", (source, target, amount)).await;
-
-        call_result.unwrap().0
+        Call::unbounded_wait(self.principal, "transferFrom")
+            .with_args(&(source, target, amount))
+            .await
+            .unwrap()
+            .candid()
+            .unwrap()
     }
 
     pub async fn allowance(&self, owner: Principal, spender: Principal) -> Nat {
-        let call_result: Result<(Nat,), _> =
-            ic_cdk::api::call::call(self.principal, "allowance", (owner, spender)).await;
-
-        call_result.unwrap().0
+        Call::unbounded_wait(self.principal, "allowance")
+            .with_args(&(owner, spender))
+            .await
+            .unwrap()
+            .candid()
+            .unwrap()
     }
 
     pub async fn get_metadata(&self) -> Metadata {
-        let call_result: Result<(Metadata,), _> =
-            ic_cdk::api::call::call(self.principal, "getMetadata", ()).await;
-
-        call_result.unwrap().0
+        Call::unbounded_wait(self.principal, "getMetadata")
+            .with_args(&())
+            .await
+            .unwrap()
+            .candid()
+            .unwrap()
     }
 }

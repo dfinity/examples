@@ -1,7 +1,8 @@
 use std::collections::HashMap;
 
 use candid::{Nat, Principal};
-use ic_cdk::caller;
+use ic_cdk::api::msg_caller;
+use ic_cdk::api::canister_self;
 
 use crate::types::*;
 use crate::{utils, OrderId};
@@ -58,18 +59,18 @@ impl Exchange {
     pub fn get_balance(&self, token_canister_id: Principal) -> Nat {
         self.balances
             .0
-            .get(&caller())
+            .get(&msg_caller())
             .and_then(|v| v.get(&token_canister_id))
             .map_or(utils::zero(), |v| v.to_owned())
     }
 
     pub fn get_balances(&self) -> Vec<Balance> {
-        match self.balances.0.get(&caller()) {
+        match self.balances.0.get(&msg_caller()) {
             None => Vec::new(),
             Some(v) => v
                 .iter()
                 .map(|(token_canister_id, amount)| Balance {
-                    owner: caller(),
+                    owner: msg_caller(),
                     token: *token_canister_id,
                     amount: amount.to_owned(),
                 })
@@ -124,7 +125,7 @@ impl Exchange {
             id,
             Order {
                 id,
-                owner: caller(),
+                owner: msg_caller(),
                 from: from_token_canister_id,
                 fromAmount: from_amount,
                 to: to_token_canister_id,
@@ -143,12 +144,12 @@ impl Exchange {
     pub fn check_for_sell_orders(&self, from_token_canister_id: Principal) -> bool {
         self.orders
             .values()
-            .any(|v| (v.from == from_token_canister_id) && (v.owner == caller()))
+            .any(|v| (v.from == from_token_canister_id) && (v.owner == msg_caller()))
     }
 
     pub fn cancel_order(&mut self, order: OrderId) -> CancelOrderReceipt {
         if let Some(o) = self.orders.get(&order) {
-            if o.owner == caller() {
+            if o.owner == msg_caller() {
                 self.orders.remove(&order);
                 CancelOrderReceipt::Ok(order)
             } else {
@@ -264,12 +265,12 @@ impl Exchange {
         // The DEX keeps any tokens not required to satisfy the parties.
         let dex_amount_a = a_from_amount - b_to_amount;
         if dex_amount_a > utils::zero() {
-            balances.add_balance(&ic_cdk::id(), &order_a.from, dex_amount_a);
+            balances.add_balance(&canister_self(), &order_a.from, dex_amount_a);
         }
 
         let dex_amount_b = b_from_amount - a_to_amount;
         if dex_amount_b > utils::zero() {
-            balances.add_balance(&ic_cdk::id(), &order_b.from, dex_amount_b);
+            balances.add_balance(&canister_self(), &order_b.from, dex_amount_b);
         }
 
         // Maintain the order only if not empty
