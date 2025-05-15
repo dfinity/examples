@@ -1,4 +1,4 @@
-# Basic vetKeys example (Motoko)
+# Basic vetKeys example (Rust)
 
 This example demonstrates how to use the Internet Computer's **vetKeys** feature to:
 
