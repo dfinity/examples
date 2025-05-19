@@ -1,7 +1,5 @@
 //1. IMPORT IC MANAGEMENT CANISTER
 //This includes all methods and types needed
-
-use candid::Deserialize;
 use ic_cdk::{
     api::canister_self,
     management_canister::{
@@ -9,14 +7,6 @@ use ic_cdk::{
         TransformContext, TransformFunc,
     },
 };
-use serde::Serialize;
-
-// This struct is legacy code and is not really used in the code.
-#[derive(Serialize, Deserialize)]
-struct Context {
-    bucket_start_time_index: usize,
-    closing_price_index: usize,
-}
 
 //Update method using the HTTPS outcalls feature
 #[ic_cdk::update]
@@ -37,22 +27,11 @@ async fn get_icp_usd_exchange() -> String {
     );
 
     // 2.2 prepare headers for the system http_request call
-    //Note that `HttpHeader` is declared in line 4
     let request_headers = vec![HttpHeader {
         name: "User-Agent".to_string(),
         value: "exchange_rate_canister".to_string(),
     }];
 
-    // This struct is legacy code and is not really used in the code. Need to be removed in the future
-    // The "TransformContext" function does need a CONTEXT parameter, but this implementation is not necessary
-    // the TransformContext(transform, context) below accepts this "context", but it does nothing with it in this implementation.
-    // bucket_start_time_index and closing_price_index are meaninglesss
-    let context = Context {
-        bucket_start_time_index: 0,
-        closing_price_index: 4,
-    };
-
-    //note "CanisterHttpRequestArgument" and "HttpMethod" are declared in line 4
     let request = HttpRequestArgs {
         url: url.to_string(),
         method: HttpMethod::GET,
@@ -61,7 +40,7 @@ async fn get_icp_usd_exchange() -> String {
         // transform: None,          //optional for request
         transform: Some(TransformContext {
             function: TransformFunc::new(canister_self(), "transform".to_string()),
-            context: serde_json::to_vec(&context).unwrap(),
+            context: vec![],
         }),
         headers: request_headers,
     };
@@ -73,19 +52,17 @@ async fn get_icp_usd_exchange() -> String {
     match http_request(&request).await {
         //4. DECODE AND RETURN THE RESPONSE
 
-        //See:https://docs.rs/ic-cdk/latest/ic_cdk/api/management_canister/http_request/struct.HttpResponse.html
+        //See: https://docs.rs/ic-cdk/latest/ic_cdk/management_canister/struct.HttpRequestResult.html
         Ok(response) => {
-            //if successful, `HttpResponse` has this structure:
-            // pub struct HttpResponse {
+            //if successful, `HttpRequestResult` has this structure:
+            // pub struct HttpRequestResult {
             //     pub status: Nat,
             //     pub headers: Vec<HttpHeader>,
             //     pub body: Vec<u8>,
             // }
 
             //We need to decode that Vec<u8> that is the body into readable text.
-            //To do this, we:
-            //  1. Call `String::from_utf8()` on response.body
-            //  3. We use a switch to explicitly call out both cases of decoding the Blob into ?Text
+            //To do this, we call `String::from_utf8()` on response.body
             let str_body = String::from_utf8(response.body)
                 .expect("Transformed response is not UTF-8 encoded.");
 
@@ -105,17 +82,18 @@ async fn get_icp_usd_exchange() -> String {
             //     ],
             //  ]
 
-            //Return the body as a string and end the method
+            //Return the body as a string
             str_body
         }
         Err(error) => {
-            //Return the error as a string and end the method
+            //Return the error as a string
             error.to_string()
         }
     }
 }
 
 // Strips all data that is not needed from the original response.
+// Read more here https://internetcomputer.org/docs/references/ic-interface-spec#ic-http_request
 #[ic_cdk::query(hidden = true)]
 fn transform(raw: TransformArgs) -> HttpRequestResult {
     let headers = vec![
