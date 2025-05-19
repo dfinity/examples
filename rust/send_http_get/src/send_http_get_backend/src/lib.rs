@@ -1,13 +1,15 @@
 //1. IMPORT IC MANAGEMENT CANISTER
 //This includes all methods and types needed
-use ic_cdk::api::management_canister::http_request::{
-    http_request, CanisterHttpRequestArgument, HttpHeader, HttpMethod, HttpResponse, TransformArgs,
-    TransformContext,
-};
 
-use ic_cdk_macros::{self, query, update};
-use serde::{Serialize, Deserialize};
-use serde_json::{self, Value};
+use candid::Deserialize;
+use ic_cdk::{
+    api::canister_self,
+    management_canister::{
+        http_request, HttpHeader, HttpMethod, HttpRequestArgs, HttpRequestResult, TransformArgs,
+        TransformContext, TransformFunc,
+    },
+};
+use serde::Serialize;
 
 // This struct is legacy code and is not really used in the code.
 #[derive(Serialize, Deserialize)]
@@ -36,13 +38,10 @@ async fn get_icp_usd_exchange() -> String {
 
     // 2.2 prepare headers for the system http_request call
     //Note that `HttpHeader` is declared in line 4
-    let request_headers = vec![
-        HttpHeader {
-            name: "User-Agent".to_string(),
-            value: "exchange_rate_canister".to_string(),
-        },
-    ];
-
+    let request_headers = vec![HttpHeader {
+        name: "User-Agent".to_string(),
+        value: "exchange_rate_canister".to_string(),
+    }];
 
     // This struct is legacy code and is not really used in the code. Need to be removed in the future
     // The "TransformContext" function does need a CONTEXT parameter, but this implementation is not necessary
@@ -54,13 +53,16 @@ async fn get_icp_usd_exchange() -> String {
     };
 
     //note "CanisterHttpRequestArgument" and "HttpMethod" are declared in line 4
-    let request = CanisterHttpRequestArgument {
+    let request = HttpRequestArgs {
         url: url.to_string(),
         method: HttpMethod::GET,
         body: None,               //optional for request
         max_response_bytes: None, //optional for request
         // transform: None,          //optional for request
-        transform: Some(TransformContext::new(transform, serde_json::to_vec(&context).unwrap())),
+        transform: Some(TransformContext {
+            function: TransformFunc::new(canister_self(), "transform".to_string()),
+            context: serde_json::to_vec(&context).unwrap(),
+        }),
         headers: request_headers,
     };
 
@@ -68,11 +70,11 @@ async fn get_icp_usd_exchange() -> String {
 
     //Note: in Rust, `http_request()` already sends the cycles needed
     //so no need for explicit Cycles.add() as in Motoko
-    match http_request(request).await {
+    match http_request(&request).await {
         //4. DECODE AND RETURN THE RESPONSE
 
         //See:https://docs.rs/ic-cdk/latest/ic_cdk/api/management_canister/http_request/struct.HttpResponse.html
-        Ok((response,)) => {
+        Ok(response) => {
             //if successful, `HttpResponse` has this structure:
             // pub struct HttpResponse {
             //     pub status: Nat,
@@ -103,25 +105,19 @@ async fn get_icp_usd_exchange() -> String {
             //     ],
             //  ]
 
-
             //Return the body as a string and end the method
             str_body
         }
-        Err((r, m)) => {
-            let message =
-                format!("The http_request resulted into error. RejectionCode: {r:?}, Error: {m}");
-
+        Err(error) => {
             //Return the error as a string and end the method
-            message
+            error.to_string()
         }
     }
 }
 
-
 // Strips all data that is not needed from the original response.
-#[query]
-fn transform(raw: TransformArgs) -> HttpResponse {
-
+#[ic_cdk::query(hidden = true)]
+fn transform(raw: TransformArgs) -> HttpRequestResult {
     let headers = vec![
         HttpHeader {
             name: "Content-Security-Policy".to_string(),
@@ -148,20 +144,18 @@ fn transform(raw: TransformArgs) -> HttpResponse {
             value: "nosniff".to_string(),
         },
     ];
-    
 
-    let mut res = HttpResponse {
+    let mut res = HttpRequestResult {
         status: raw.response.status.clone(),
         body: raw.response.body.clone(),
         headers,
         ..Default::default()
     };
 
-    if res.status == 200 {
-
+    if res.status == 200u8 {
         res.body = raw.response.body;
     } else {
-        ic_cdk::api::print(format!("Received an error from coinbase: err = {:?}", raw));
+        ic_cdk::api::debug_print(format!("Received an error from coinbase: err = {:?}", raw));
     }
     res
 }
