@@ -3,7 +3,7 @@ all: build
 
 .PHONY: build
 .SILENT: build
-build: node_modules
+build: 
 	dfx canister create send_http_get_backend
 	dfx build
 

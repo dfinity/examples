@@ -1,13 +1,14 @@
 //1. IMPORT IC MANAGEMENT CANISTER
 //This includes all methods and types needed
-use ic_cdk::api::management_canister::http_request::{
-    http_request, CanisterHttpRequestArgument, HttpHeader, HttpMethod, HttpResponse, TransformArgs,
-    TransformContext,
+use candid::Deserialize;
+use ic_cdk::{
+    api::canister_self,
+    management_canister::{
+        http_request, HttpHeader, HttpMethod, HttpRequestArgs, HttpRequestResult, TransformArgs,
+        TransformContext, TransformFunc,
+    },
 };
-
-use ic_cdk_macros::{self, query, update};
-use serde::{Serialize, Deserialize};
-use serde_json::{self, Value};
+use serde::Serialize;
 
 // This struct is legacy code and is not really used in the code.
 #[derive(Serialize, Deserialize)]
@@ -22,7 +23,6 @@ async fn send_http_post_request() -> String {
     //2. SETUP ARGUMENTS FOR HTTP GET request
 
     // 2.1 Setup the URL
-    let host = "putsreq.com";
     let url = "https://putsreq.com/aL1QS5IbaQd4NTqN3a81";
 
     // 2.2 prepare headers for the system http_request call
@@ -70,7 +70,8 @@ async fn send_http_post_request() -> String {
     //1. Declare a JSON string to send
     //2. Convert that JSON string to array of UTF8 (u8)
     //3. Wrap that array in an optional
-    let json_string : String = "{ \"name\" : \"Grogu\", \"force_sensitive\" : \"true\" }".to_string();
+    let json_string: String =
+        "{ \"name\" : \"Grogu\", \"force_sensitive\" : \"true\" }".to_string();
 
     //note: here, r#""# is used for raw strings in Rust, which allows you to include characters like " and \ without needing to escape them.
     //We could have used "serde_json" as well.
@@ -86,13 +87,16 @@ async fn send_http_post_request() -> String {
         closing_price_index: 4,
     };
 
-    let request = CanisterHttpRequestArgument {
+    let request = HttpRequestArgs {
         url: url.to_string(),
         max_response_bytes: None, //optional for request
         method: HttpMethod::POST,
         headers: request_headers,
         body: request_body,
-        transform: Some(TransformContext::new(transform, serde_json::to_vec(&context).unwrap())),
+        transform: Some(TransformContext {
+            function: TransformFunc::new(canister_self(), "transform".to_string()),
+            context: serde_json::to_vec(&context).unwrap(),
+        }),
         // transform: None, //optional for request
     };
 
@@ -100,11 +104,11 @@ async fn send_http_post_request() -> String {
 
     //Note: in Rust, `http_request()` already sends the cycles needed
     //so no need for explicit Cycles.add() as in Motoko
-    match http_request(request).await {
+    match http_request(&request).await {
         //4. DECODE AND RETURN THE RESPONSE
 
         //See:https://docs.rs/ic-cdk/latest/ic_cdk/api/management_canister/http_request/struct.HttpResponse.html
-        Ok((response,)) => {
+        Ok(response) => {
             //if successful, `HttpResponse` has this structure:
             // pub struct HttpResponse {
             //     pub status: Nat,
@@ -118,7 +122,7 @@ async fn send_http_post_request() -> String {
             //  3. We use a switch to explicitly call out both cases of decoding the Blob into ?Text
             let str_body = String::from_utf8(response.body)
                 .expect("Transformed response is not UTF-8 encoded.");
-            ic_cdk::api::print(format!("{:?}", str_body));
+            ic_cdk::api::debug_print(format!("{:?}", str_body));
 
             //The API response will looks like this:
             // { successful: true }
@@ -130,21 +134,16 @@ async fn send_http_post_request() -> String {
             );
             result
         }
-        Err((r, m)) => {
-            let message =
-                format!("The http_request resulted into error. RejectionCode: {r:?}, Error: {m}");
-
+        Err(error) => {
             //Return the error as a string and end the method
-            message
+            error.to_string()
         }
     }
-
 }
 
 // Strips all data that is not needed from the original response.
-#[query]
-fn transform(raw: TransformArgs) -> HttpResponse {
-
+#[ic_cdk::query]
+fn transform(raw: TransformArgs) -> HttpRequestResult {
     let headers = vec![
         HttpHeader {
             name: "Content-Security-Policy".to_string(),
@@ -171,20 +170,18 @@ fn transform(raw: TransformArgs) -> HttpResponse {
             value: "nosniff".to_string(),
         },
     ];
-    
 
-    let mut res = HttpResponse {
+    let mut res = HttpRequestResult {
         status: raw.response.status.clone(),
         body: raw.response.body.clone(),
         headers,
         ..Default::default()
     };
 
-    if res.status == 200 {
-
+    if res.status == 200u8 {
         res.body = raw.response.body;
     } else {
-        ic_cdk::api::print(format!("Received an error from coinbase: err = {:?}", raw));
+        ic_cdk::api::debug_print(format!("Received an error from coinbase: err = {:?}", raw));
     }
     res
 }
