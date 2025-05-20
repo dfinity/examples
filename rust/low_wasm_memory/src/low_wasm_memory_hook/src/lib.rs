@@ -57,7 +57,7 @@ pub fn increase_wasm_memory_usage() {
     with_state_mut(|s| {
         if !s.hook_executed {
             s.fn_order.push(FnType::Heartbeat);
-            let temp = vec![0u8; 1024];
+            let temp = vec![0u8; 15_000];
             for i in temp {
                 s.bytes.push(i);
             }
