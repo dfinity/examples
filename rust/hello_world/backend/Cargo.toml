@@ -11,5 +11,5 @@ path = "lib.rs"
 
 [dependencies]
 candid = "0.10.10"
-ic-cdk = "0.18.0"
+ic-cdk = "0.18.2"
 ic-stable-structures = "0.6.7"
