@@ -80,6 +80,8 @@ After the deployment, the memory usage periodically increases as defined in the 
 The `dfx canister update-settings` command sets the 'wasm_memory_limit' to 5MiB and 'wasm_memory_threshold' to 3MiB.
 Hence whenever the Wasm memory used by the canister is above 2MiB (in other words, the remaining Wasm memory is less than 'wasm_memory_threshold'), the low Wasm memory hook will be triggered.
 
+This Rust canister starts with ~1.5MiB of memory usage after the deployment, so it will trigger the low Wasm memory hook after allocating ~0.5MiB of memory.
+
 You can verify that the canister settings got updated and check the current 'Memory Size' with the following command:
 
 ```sh

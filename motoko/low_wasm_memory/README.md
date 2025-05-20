@@ -79,6 +79,8 @@ After the deployment, the memory usage periodically increases as defined in the 
 The `dfx canister update-settings` command sets the 'wasm_memory_limit' to 5MiB and 'wasm_memory_threshold' to 2MiB.
 Hence, whenever the Wasm memory used by the canister is above 3MiB (in other words, the remaining Wasm memory is less than 'wasm_memory_threshold'), the low Wasm memory hook will be triggered.
 
+This Motoko canister starts with ~2.3MiB of memory usage after the deployment, so it will trigger the low Wasm memory hook after allocating ~0.7MiB of memory.
+
 You can verify that the canister settings got updated and check the current 'Memory Size' with the following command:
 
 ```sh
@@ -134,8 +136,9 @@ dfx deploy low_wasm_memory_hook --mode reinstall
 ```
 
 ## Further learning
-1. Have a look at the locally running dashboard. The URL is at the end of the `dfx start` command: `Dashboard: http://localhost:...`
-2. Check out `low_wasm_memory_hook` canister's Candid user interface. The URLs are at the end of the `dfx deploy` command: `low_wasm_memory_hook: http://127.0.0.1:...`
+1. [Low memory hook](https://internetcomputer.org/docs/motoko/main/canister-maintenance/memory) in Motoko documentation
+2. Have a look at the locally running dashboard. The URL is at the end of the `dfx start` command: `Dashboard: http://localhost:...`
+3. Check out `low_wasm_memory_hook` canister's Candid user interface. The URLs are at the end of the `dfx deploy` command: `low_wasm_memory_hook: http://127.0.0.1:...`
 
 ### Canister interface
 
