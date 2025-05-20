@@ -77,8 +77,8 @@ URLs:
 
 After the deployment, the memory usage periodically increases as defined in the `heartbeat` function.
 
-With the `dfx canister update-settings` command we set the 'wasm_memory_limit' to 5MB and 'wasm_memory_threshold' to 3MB.
-Hence whenever the Wasm memory used by the canister is above 2MB (in other words, the remaining Wasm memory is less than 'wasm_memory_threshold') the low Wasm memory hook will be triggered.
+The `dfx canister update-settings` command sets the 'wasm_memory_limit' to 5MiB and 'wasm_memory_threshold' to 3MiB.
+Hence whenever the Wasm memory used by the canister is above 2MiB (in other words, the remaining Wasm memory is less than 'wasm_memory_threshold'), the low Wasm memory hook will be triggered.
 
 You can verify that the canister settings got updated and check the current 'Memory Size' with the following command:
 
