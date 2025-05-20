@@ -2,9 +2,9 @@
 
 The Internet Computer can automatically execute a special type of function called low Wasm memory hook, which runs when the available Wasm memory of the canister falls below the 'wasm_memory_threshold'.
 
-This Rust example demonstrates the ways of using low Wasm memory hook on the Internet Computer. If you're interested in how this example is implemented in Motoko, check out the [Motoko version of the Low Wasm memory hook example](../../motoko/low_wasm_memory).
+This Rust example demonstrates using the low Wasm memory hook on ICP. If you're interested in how this example is implemented in Motoko, check out the [Motoko variation](../../motoko/low_wasm_memory).
 
-The example consists of a canister named `low_wasm_memory_hook` implementing the functionality that it increases usage of Wasm memory in every 'heartbeat' execution, until the low Wasm memory hook is run.
+The example consists of a canister named `low_wasm_memory_hook` that increases usage of Wasm memory in every 'heartbeat' execution, until the low Wasm memory hook is run.
 
 ## Prerequisites
 This example requires an installation of:
@@ -12,14 +12,14 @@ This example requires an installation of:
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
-## Example: Low Wasm memory hook
+## Using the example
 
 In this example, the canister will periodically increase its memory usage (as defined in the `heartbeat` function) until the low Wasm memory hook is run
 when the memory usage exceeds the `wasm_memory_threshold`.
 
-- ### Step 1: Setup project environment
+- #### Step 1: Setup project environment
 
-Navigate into the folder containing the project's files and start a local PocketIC instance with the command:
+Navigate into the folder containing the project's files and start a local developer environment with the commands:
 
 ```sh
 cd examples/rust/low_wasm_memory
@@ -28,13 +28,13 @@ dfx start --clean
 
 This terminal will stay blocked, printing log messages, until the `Ctrl+C` is pressed or `dfx stop` command is run.
 
-- ### Step 2: Open another terminal window in the same directory:
+- #### Step 2: Open another terminal window in the same directory:
 
 ```sh
 cd examples/rust/low_wasm_memory
 ```
 
-- ### Step 3: Create a new canister
+- #### Step 3: Create a new canister
 
 ```sh
 dfx canister create low_wasm_memory_hook
@@ -47,15 +47,15 @@ Created a wallet canister on the "local" network for user "default" with ID "uqq
 low_wasm_memory_hook canister created with canister id: uxrrr-q7777-77774-qaaaq-cai
 ```
 
-- ### Step 4: Update canister settings
+- #### Step 4: Update canister settings
 
-Update canister settings:
+Update the canister's settings to modify the Wasm memory limit and threshold:
 
 ```sh
 dfx canister update-settings low_wasm_memory_hook --wasm-memory-limit 5000000 --wasm-memory-threshold 3000000
 ```
 
-- ### Step 5: Compile and deploy the `low_wasm_memory_hook` canister:
+- #### Step 5: Compile and deploy the `low_wasm_memory_hook` canister:
 
 ```sh
 dfx deploy low_wasm_memory_hook
@@ -110,7 +110,7 @@ Total query response payload size: 0 Bytes
 Log visibility: controllers
 ```
 
-- ### Step 6: After a few seconds, observe the output of the `get_executed_functions_order` query:
+- #### Step 6: After a few seconds, observe the output of the `get_executed_functions_order` query:
 
 Query the canister by calling `get_executed_functions_order` to get the order of executed functions.
 
