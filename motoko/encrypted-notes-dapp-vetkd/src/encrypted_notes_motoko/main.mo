@@ -311,32 +311,32 @@ shared ({ caller = initializer }) actor class () {
     };
 
     // Only the vetKD methods in the IC management canister are required here.
-    type VETKD_SYSTEM_API = actor {
+    type VETKD_API = actor {
         vetkd_public_key : ({
             canister_id : ?Principal;
-            derivation_path : [Blob];
+            context : Blob;
             key_id : { curve : { #bls12_381_g2 }; name : Text };
         }) -> async ({ public_key : Blob });
-        vetkd_derive_encrypted_key : ({
-            derivation_path : [Blob];
-            derivation_id : Blob;
+        vetkd_derive_key : ({
+            input : Blob;
+            context : Blob;
             key_id : { curve : { #bls12_381_g2 }; name : Text };
-            encryption_public_key : Blob;
+            transport_public_key : Blob;
         }) -> async ({ encrypted_key : Blob });
     };
 
-    let vetkd_system_api : VETKD_SYSTEM_API = actor ("s55qq-oqaaa-aaaaa-aaakq-cai");
+    let management_canister : VETKD_API = actor ("aaaaa-aa");
 
     public shared ({ caller }) func symmetric_key_verification_key_for_note() : async Text {
-        let { public_key } = await vetkd_system_api.vetkd_public_key({
+        let { public_key } = await management_canister.vetkd_public_key({
             canister_id = null;
-            derivation_path = Array.make(Text.encodeUtf8("note_symmetric_key"));
+            context = Text.encodeUtf8("note_symmetric_key");
             key_id = { curve = #bls12_381_g2; name = "test_key_1" };
         });
         Hex.encode(Blob.toArray(public_key));
     };
 
-    public shared ({ caller }) func encrypted_symmetric_key_for_note(note_id : NoteId, encryption_public_key : Blob) : async Text {
+    public shared ({ caller }) func encrypted_symmetric_key_for_note(note_id : NoteId, transport_public_key : Blob) : async Text {
         let caller_text = Principal.toText(caller);
         let (?note) = notesById.get(note_id) else Debug.trap("note with id " # Nat.toText(note_id) # "not found");
         if (not is_authorized(caller_text, note)) {
@@ -346,13 +346,13 @@ shared ({ caller = initializer }) actor class () {
         let buf = Buffer.Buffer<Nat8>(32);
         buf.append(Buffer.fromArray(natToBigEndianByteArray(16, note_id))); // fixed-size encoding
         buf.append(Buffer.fromArray(Blob.toArray(Text.encodeUtf8(note.owner))));
-        let derivation_id = Blob.fromArray(Buffer.toArray(buf)); // prefix-free
+        let input = Blob.fromArray(Buffer.toArray(buf)); // prefix-free
 
-        let { encrypted_key } = await vetkd_system_api.vetkd_derive_encrypted_key({
-            derivation_id;
-            derivation_path = Array.make(Text.encodeUtf8("note_symmetric_key"));
+        let { encrypted_key } = await (with cycles = 26_153_846_153) management_canister.vetkd_derive_key({
+            input;
+            context = Text.encodeUtf8("note_symmetric_key");
             key_id = { curve = #bls12_381_g2; name = "test_key_1" };
-            encryption_public_key;
+            transport_public_key;
         });
         Hex.encode(Blob.toArray(encrypted_key));
     };

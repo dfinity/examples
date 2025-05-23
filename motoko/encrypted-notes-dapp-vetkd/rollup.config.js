@@ -9,7 +9,6 @@ import css from 'rollup-plugin-css-only';
 import inject from 'rollup-plugin-inject';
 import json from '@rollup/plugin-json';
 import injectProcessEnv from 'rollup-plugin-inject-process-env';
-import { wasm } from '@rollup/plugin-wasm';
 
 const production = !process.env.ROLLUP_WATCH;
 
@@ -112,12 +111,6 @@ export default (config) => {
         preferBuiltins: false,
         browser: true,
         dedupe: ['svelte'],
-      }),
-      wasm({
-        // Without setting targetEnv to auto-inline, we run into
-        // a HTTP 404 on the respective .wasm file. See also
-        // https://github.com/rollup/plugins/issues/1025
-        targetEnv: "auto-inline",
       }),
       commonjs(),
       typescript({

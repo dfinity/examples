@@ -1,18 +1,16 @@
 import type { BackendActor } from './actor';
 import { get, set } from 'idb-keyval';
 
-import * as agent from "@dfinity/agent";
-
 // Usage of the imported bindings only works if the respective .wasm was loaded, which is done in main.ts.
 // See also https://github.com/rollup/plugins/tree/master/packages/wasm#using-with-wasm-bindgen-and-wasm-pack
-import * as vetkd from "../../../../vetkd_user_lib/ic_vetkd_utils.js";
+import * as vetkd from "@dfinity/vetkeys";
 
 export class CryptoService {
   constructor(private actor: BackendActor) {
   }
 
   // The function encrypts data with the note-id-specific secretKey.
-  public async encryptWithNoteKey(note_id: bigint, owner: string, data: string) {
+  public async encryptWithNoteKey(note_id: bigint, owner: string, data: string): Promise<string> {
     await this.fetch_note_key_if_needed(note_id, owner);
     const note_key: CryptoKey = await get([note_id.toString(), owner]);
 
@@ -58,28 +56,25 @@ export class CryptoService {
     return decrypted_data_decoded;
   }
 
-  private async fetch_note_key_if_needed(note_id: bigint, owner: string) {
+  private async fetch_note_key_if_needed(note_id: bigint, owner: string): Promise<void> {
     if (!await get([note_id.toString(), owner])) {
-      const seed = window.crypto.getRandomValues(new Uint8Array(32));
-      const tsk = new vetkd.TransportSecretKey(seed);
+      const tsk = vetkd.TransportSecretKey.random();
 
-      const ek_bytes_hex = await this.actor.encrypted_symmetric_key_for_note(note_id, tsk.public_key());
+      const ek_bytes_hex = await this.actor.encrypted_symmetric_key_for_note(note_id, tsk.publicKeyBytes());
+      const encryptedVetKey = new vetkd.EncryptedVetKey(hex_decode(ek_bytes_hex));
+
       const pk_bytes_hex = await this.actor.symmetric_key_verification_key_for_note();
+      const dpk = vetkd.DerivedPublicKey.deserialize(hex_decode(pk_bytes_hex));
 
       const note_id_bytes: Uint8Array = bigintTo128BitBigEndianUint8Array(note_id);
       const owner_utf8: Uint8Array = new TextEncoder().encode(owner);
-      let derivation_id = new Uint8Array(note_id_bytes.length + owner_utf8.length);
-      derivation_id.set(note_id_bytes);
-      derivation_id.set(owner_utf8, note_id_bytes.length);
+      let input = new Uint8Array(note_id_bytes.length + owner_utf8.length);
+      input.set(note_id_bytes);
+      input.set(owner_utf8, note_id_bytes.length);
 
-      const aes_256_gcm_key_raw = tsk.decrypt_and_hash(
-        hex_decode(ek_bytes_hex),
-        hex_decode(pk_bytes_hex),
-        derivation_id,
-        32,
-        new TextEncoder().encode("aes-256-gcm")
-      );
-      const note_key: CryptoKey = await window.crypto.subtle.importKey("raw", aes_256_gcm_key_raw, "AES-GCM", false, ["encrypt", "decrypt"]);
+      const vetKey = encryptedVetKey.decryptAndVerify(tsk, dpk, input);
+
+      const note_key = await (await vetKey.asDerivedKeyMaterial()).deriveAesGcmCryptoKey("note-key");
       await set([note_id.toString(), owner], note_key)
     }
   }

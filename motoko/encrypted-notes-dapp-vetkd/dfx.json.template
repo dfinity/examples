@@ -1,29 +1,17 @@
 {
   "canisters": {
-    "vetkd_system_api": {
-      "candid": "vetkd_system_api.did",
-      "type": "custom",
-      "wasm": "vetkd_system_api.wasm"
-    },
     "encrypted_notes_motoko": {
-      "dependencies": [
-        "vetkd_system_api"
-      ],
       "main": "src/encrypted_notes_motoko/main.mo",
       "type": "motoko"
     },
     "encrypted_notes_rust": {
-      "dependencies": [
-        "vetkd_system_api"
-      ],
       "type": "rust",
       "candid": "src/encrypted_notes_rust/src/encrypted_notes_rust.did",
       "package": "encrypted_notes_rust"
     },
     "www": {
       "dependencies": [
-        "encrypted_notes_{{ BUILD_ENV }}",
-        "vetkd_system_api"
+        "encrypted_notes_{{ BUILD_ENV }}"
       ],
       "frontend": {
         "entrypoint": "src/frontend/public/index.html"
@@ -36,12 +24,18 @@
     "internet_identity": {
       "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
       "type": "custom",
-      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz"
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz",
+      "remote": {
+        "id": {
+          "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
+        }
+      },
+      "frontend": {}
     }
   },
   "networks": {
     "local": {
-      "bind": "0.0.0.0:8000",
+      "bind": "localhost:8000",
       "type": "ephemeral"
     }
   },

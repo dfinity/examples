@@ -1,5 +1,6 @@
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
-use ic_cdk_macros::*;
+use ic_cdk::api::msg_caller;
+use ic_cdk::update;
 use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
 use ic_stable_structures::{
     storable::Bound, DefaultMemoryImpl, StableBTreeMap, StableCell, Storable,
@@ -99,13 +100,13 @@ thread_local! {
     );
 }
 
-/// Unlike Motoko, the caller identity is not built into Rust. 
+/// Unlike Motoko, the caller identity is not built into Rust.
 /// Thus, we use the ic_cdk::caller() method inside this wrapper function.
-/// The wrapper prevents the use of the anonymous identity. Forbidding anonymous 
-/// interactions is the recommended default behavior for IC canisters. 
+/// The wrapper prevents the use of the anonymous identity. Forbidding anonymous
+/// interactions is the recommended default behavior for IC canisters.
 fn caller() -> Principal {
-    let caller = ic_cdk::caller();
-    // The anonymous principal is not allowed to interact with the 
+    let caller = msg_caller();
+    // The anonymous principal is not allowed to interact with the
     // encrypted notes canister.
     if caller == Principal::anonymous() {
         panic!("Anonymous principal not allowed to make calls.")
@@ -113,35 +114,35 @@ fn caller() -> Principal {
     caller
 }
 
-/// --- Queries vs. Updates ---
-///
-/// Note that our public methods are declared as an *updates* rather than *queries*, e.g.:
-/// #[update(name = "notesCnt")] ...
-/// rather than
-/// #[query(name = "notesCnt")] ...
-///
-/// While queries are significantly faster than updates, they are not certified by the IC. 
-/// Thus, we avoid using queries throughout this dapp, ensuring that the result of our 
-/// methods gets through consensus. Otherwise, this method could e.g. omit some notes 
-/// if it got executed by a malicious node. (To make the dapp more efficient, one could 
-/// use an approach in which both queries and updates are combined.)
-///
-/// See https://internetcomputer.org/docs/current/concepts/canisters-code#query-and-update-methods
+// --- Queries vs. Updates ---
+//
+// Note that our public methods are declared as an *updates* rather than *queries*, e.g.:
+// #[update(name = "notesCnt")] ...
+// rather than
+// #[query(name = "notesCnt")] ...
+//
+// While queries are significantly faster than updates, they are not certified by the IC.
+// Thus, we avoid using queries throughout this dapp, ensuring that the result of our
+// methods gets through consensus. Otherwise, this method could e.g. omit some notes
+// if it got executed by a malicious node. (To make the dapp more efficient, one could
+// use an approach in which both queries and updates are combined.)
+//
+// See https://internetcomputer.org/docs/current/concepts/canisters-code#query-and-update-methods
 
-/// Reflects the [caller]'s identity by returning (a future of) its principal. 
+/// Reflects the [caller]'s identity by returning (a future of) its principal.
 /// Useful for debugging.
 #[update]
 fn whoami() -> String {
-    ic_cdk::caller().to_string()
+    msg_caller().to_string()
 }
 
-/// General assumptions
-/// -------------------
-/// All the functions of this canister's public API should be available only to
-/// registered users, with the exception of [whoami].
+// General assumptions
+// -------------------
+// All the functions of this canister's public API should be available only to
+// registered users, with the exception of [whoami].
 
 /// Returns (a future of) this [caller]'s notes.
-/// Panics: 
+/// Panics:
 ///     [caller] is the anonymous identity
 #[update]
 fn get_notes() -> Vec<EncryptedNote> {
@@ -170,13 +171,13 @@ fn get_notes() -> Vec<EncryptedNote> {
     })
 }
 
-/// Delete this [caller]'s note with given id. If none of the 
-/// existing notes have this id, do nothing. 
+/// Delete this [caller]'s note with given id. If none of the
+/// existing notes have this id, do nothing.
 /// [id]: the id of the note to be deleted
 ///
-/// Returns: 
+/// Returns:
 ///      Future of unit
-/// Panics: 
+/// Panics:
 ///      [caller] is the anonymous identity
 ///      [caller] is not the owner of note with id `note_id`
 #[update]
@@ -217,7 +218,7 @@ fn delete_note(note_id: u128) {
 
 /// Replaces the encrypted text of note with ID [id] with [encrypted_text].
 ///
-/// Panics: 
+/// Panics:
 ///     [caller] is the anonymous identity
 ///     [caller] is not the note's owner and not a user with whom the note is shared
 ///     [encrypted_text] exceeds [MAX_NOTE_CHARS]
@@ -239,9 +240,9 @@ fn update_note(id: NoteId, encrypted_text: String) {
 
 /// Add new empty note for this [caller].
 ///
-/// Returns: 
+/// Returns:
 ///      Future of ID of new empty note
-/// Panics: 
+/// Panics:
 ///      [caller] is the anonymous identity
 ///      User already has [MAX_NOTES_PER_USER] notes
 ///      This is the first note for [caller] and [MAX_USERS] is exceeded
@@ -350,30 +351,27 @@ fn remove_user(note_id: NoteId, user: PrincipalName) {
     });
 }
 
-mod vetkd_types;
-
-const VETKD_SYSTEM_API_CANISTER_ID: &str = "s55qq-oqaaa-aaaaa-aaakq-cai";
-
-use vetkd_types::{
-    CanisterId, VetKDCurve, VetKDEncryptedKeyReply, VetKDEncryptedKeyRequest, VetKDKeyId,
-    VetKDPublicKeyReply, VetKDPublicKeyRequest,
+use ic_cdk::call::Call;
+use ic_cdk::management_canister::{
+    VetKDCurve, VetKDDeriveKeyArgs, VetKDDeriveKeyResult, VetKDKeyId, VetKDPublicKeyArgs,
+    VetKDPublicKeyResult,
 };
 
 #[update]
 async fn symmetric_key_verification_key_for_note() -> String {
-    let request = VetKDPublicKeyRequest {
+    let request = VetKDPublicKeyArgs {
         canister_id: None,
-        derivation_path: vec![b"note_symmetric_key".to_vec()],
-        key_id: bls12_381_g2_test_key_1(),
+        context: b"note_symmetric_key".to_vec(),
+        key_id: bls12_381_g2_dfx_test_key(),
     };
 
-    let (response,): (VetKDPublicKeyReply,) = ic_cdk::call(
-        vetkd_system_api_canister_id(),
-        "vetkd_public_key",
-        (request,),
-    )
-    .await
-    .expect("call to vetkd_public_key failed");
+    let response: VetKDPublicKeyResult =
+        Call::unbounded_wait(Principal::management_canister(), "vetkd_public_key")
+            .with_arg(request)
+            .await
+            .expect("call to vetkd_public_key failed")
+            .candid()
+            .expect("decoding failed");
 
     hex::encode(response.public_key)
 }
@@ -381,49 +379,45 @@ async fn symmetric_key_verification_key_for_note() -> String {
 #[update]
 async fn encrypted_symmetric_key_for_note(
     note_id: NoteId,
-    encryption_public_key: Vec<u8>,
+    transport_public_key: Vec<u8>,
 ) -> String {
     let user_str = caller().to_string();
     let request = NOTES.with_borrow(|notes| {
         if let Some(note) = notes.get(&note_id) {
             if !note.is_authorized(&user_str) {
-                ic_cdk::trap(&format!("unauthorized key request by user {user_str}"));
+                ic_cdk::trap(format!("unauthorized key request by user {user_str}"));
             }
-            VetKDEncryptedKeyRequest {
-                derivation_id: {
+            VetKDDeriveKeyArgs {
+                input: {
                     let mut buf = vec![];
                     buf.extend_from_slice(&note_id.to_be_bytes()); // fixed-size encoding
                     buf.extend_from_slice(note.owner.as_bytes());
                     buf // prefix-free
                 },
-                derivation_path: vec![b"note_symmetric_key".to_vec()],
-                key_id: bls12_381_g2_test_key_1(),
-                encryption_public_key,
+                context: b"note_symmetric_key".to_vec(),
+                key_id: bls12_381_g2_dfx_test_key(),
+                transport_public_key,
             }
         } else {
-            ic_cdk::trap(&format!("note with ID {note_id} does not exist"));
+            ic_cdk::trap(format!("note with ID {note_id} does not exist"));
         }
     });
 
-    let (response,): (VetKDEncryptedKeyReply,) = ic_cdk::call(
-        vetkd_system_api_canister_id(),
-        "vetkd_derive_encrypted_key",
-        (request,),
-    )
-    .await
-    .expect("call to vetkd_derive_encrypted_key failed");
+    let response: VetKDDeriveKeyResult =
+        Call::unbounded_wait(Principal::management_canister(), "vetkd_derive_key")
+            .with_arg(request)
+            .with_cycles(26_153_846_153)
+            .await
+            .expect("call to vetkd_derive_key failed")
+            .candid()
+            .expect("decoding failed");
 
     hex::encode(response.encrypted_key)
 }
 
-fn bls12_381_g2_test_key_1() -> VetKDKeyId {
+fn bls12_381_g2_dfx_test_key() -> VetKDKeyId {
     VetKDKeyId {
         curve: VetKDCurve::Bls12_381_G2,
-        name: "test_key_1".to_string(),
+        name: "dfx_test_key".to_string(),
     }
-}
-
-fn vetkd_system_api_canister_id() -> CanisterId {
-    use std::str::FromStr;
-    CanisterId::from_str(VETKD_SYSTEM_API_CANISTER_ID).expect("failed to create canister ID")
 }
