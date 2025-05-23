@@ -10,10 +10,6 @@ Currently, the only way to use this dapp is via manual local deployment (see bel
 
 Please also see the [README of the original encrypted-notes-dapp](../encrypted-notes-dapp/README.md) for further details.
 
-## Disclaimer
-
-This example uses an **insecure** implementation of [the proposed vetKD system API](https://github.com/dfinity/interface-spec/pull/158) in a pre-compiled form via the [vetkd_system_api.wasm](./vetkd_system_api.wasm). **Do not use this in production or for sensitive data**! This example is solely provided **for demonstration purposes** to collect feedback on the mentioned vetKD system API.
-
 ## Prerequisites
 
 This example requires an installation of:
@@ -74,17 +70,7 @@ dfx start --clean
       ```
    3. Visit the URL from above and create at least one local internet identity.
 
-## Step 6: Install the vetKD system API canister:
-   1. Ensure the Canister SDK (dfx) uses the canister ID that is hard-coded in the backend canister Rust source code:
-      ```sh
-      dfx canister create vetkd_system_api --specified-id s55qq-oqaaa-aaaaa-aaakq-cai
-      ```
-   2. Install and deploy the canister:
-      ```sh
-      dfx deploy vetkd_system_api
-      ```
-
-## Step 7: Deploy the encrypted notes backend canister:
+## Step 6: Deploy the encrypted notes backend canister:
 
 ```sh
 dfx deploy "encrypted_notes_$BUILD_ENV"
@@ -93,13 +79,13 @@ dfx deploy "encrypted_notes_$BUILD_ENV"
 > [!WARNING]
 > Before deploying the Rust canister, you should first run `rustup target add wasm32-unknown-unknown`.
 
-## Step 8: Update the generated canister interface bindings:
+## Step 7: Update the generated canister interface bindings:
 
 ```sh
 dfx generate "encrypted_notes_$BUILD_ENV"
 ```
 
-## Step 9: Deploy the frontend canister:
+## Step 8: Deploy the frontend canister:
 
 ```sh
 dfx deploy www
@@ -107,7 +93,7 @@ dfx deploy www
 
 You can check its URL with `npm run print-dfx-www`.
 
-### Step 10: Open the frontend:
+### Step 9: Open the frontend:
 
    1. Start the local development server, which also supports hot-reloading:
       ```sh
