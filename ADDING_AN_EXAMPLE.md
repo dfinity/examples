@@ -2,68 +2,39 @@
 
 > For ICP Ninja: check [NINJA_CONTRIBUTING.md](./NINJA_CONTRIBUTING.md) for how to contribute a project to ICP Ninja.
 
-Ideally, each example should come with both Rust and Motoko implementations,
-implementing the same Candid interface (and, ideally, semantics).
+Each example should be available in both Rust and Motoko variations, implementing the same Candid interface (and, ideally, semantics).
 
-To illustrate the pattern, this repo now contains one such example, project `hello`.
+To illustrate the pattern, this repo now contains one such example, project `hello_world`:
 
-The (dual) sources for the projects live in:
+`motoko/hello_world`
+`rust/hello_world`
 
-motoko/hello
-rust/hello
+When adding a new `dfx` generated project, make sure to delete its GitHub metadata files (`.gitignore`, `.git` etc).
 
-When adding a new dfx generated project, make sure to delete its GH metadata files (.gitignore, .git etc).
+Each project should include a language-specific README.md that also links to the corresponding README.md of its counterpart in another language, making it easy for language-curious readers to explore both implementations.
 
-Each project should have a similar, but language specific `README.md`. E.g.
+## CI
 
-motoko/hello/README.md
-rust/hello/README.md
+Apart from the standard `dfx` material, each project should provide a `Makefile` used by GitHub Actions CI to run (very) basic tests.
 
-Each `README.md` should link to the other project's README.md for
-language-curious readers.
+For each example, there is a single CI file with four build actions to produce Darwin and Linux builds and tests of the Motoko/Rust, projects, such as:
 
-# CI
+```
+.github/workflows/hello_world.yml
+```
 
-Apart from the standard dfx material, each project should provide a
-`Makefile` used by GitHub Actions CI to run (very) basic tests. E.g.
+Implementing the GitHub action will ensure it runs in CI and helps keep examples in sync with releases of `dfx`.
 
-motoko/hello/Makefile
-rust/hello/Makefile
+## Documentation
 
-For each example, there is a single CI file with four build actions to
-produce darwin and linux builds and tests of the motoko/rust
-projects. E.g.
-
-.github/workflows/hello.yml
-
-Implementing the GH action will ensure it runs in CI and gives us some
-hope of keeping examples in sync with releases of dfx.
-
-# Documentation
-
-Make sure to add documentation for the example in the [dfinity/portal](https://github.com/dfinity/portal) repository once your example has been merged.
-
-Add a quick section to [`docs/samples/overview.mdx`](https://github.com/dfinity/portal/blob/master/docs/samples/overview.mdx) and make sure the example is listed in the "Sample apps" category in [`sidebars.js`](https://github.com/dfinity/portal/blob/master/sidebars.js).
-
-Also make sure to add an entry in [`src/components/Common/sampleItems.ts`](https://github.com/dfinity/portal/blob/master/src/components/Common/sampleItems.ts) for your example.
-
-The content of the documentation is generated automatically from the `README.md` files in the examples repository, make sure your `README.md` contains a link to the actual example so people can easily find it. The following could be the first sentence of your `README.md`:
-
-> [View this samples code on GitHub](https://github.com/dfinity/examples/tree/master/rust/token_transfer_from).
-
-For your new example to be included in the auto generated documentation, make sure you update the submodule in the portal repository to point to the latest commit in the examples repository with the following command:
+For your new example to be included in the ICP developer documentation, make sure you update the `samples` submodule in the portal repository to point to the latest commit in this examples repository using the following command:
 
 ```bash
 git submodule update --remote submodules/samples
 ```
 
-# Issues
+After you run this command, commit the changes to a new PR to have them merged into the portal repo. 
 
-This structuring of examples isn't ideal since it requires duplication
-of similar files (typically frontend code) but has the advantage that
-Motoko users only need to see Motoko specific content and dually for
-Rust.
+## Issues
 
-It also makes it possible to have language restricted examples, for
-example, when the other language does not support a particular example
-well.
+While this structure leads to some duplication (especially shared components like frontend code) it ensures that Motoko users can focus solely on Motoko-specific content, and likewise for Rust users. It also enables easily finding language-specific examples when a given use case is not easily supported in the other language.
