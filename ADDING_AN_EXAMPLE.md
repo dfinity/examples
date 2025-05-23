@@ -23,7 +23,7 @@ For each example, there is a single CI file with four build actions to produce D
 .github/workflows/hello_world.yml
 ```
 
-Implementing the GItHub action will ensure it runs in CI and helps keep examples in sync with releases of `dfx`.
+Implementing the GitHub action will ensure it runs in CI and helps keep examples in sync with releases of `dfx`.
 
 ## Documentation
 
