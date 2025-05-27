@@ -60,7 +60,7 @@
     "@dfinity/candid": "^2.1.3",
     "@dfinity/identity": "^2.1.3",
     "@dfinity/principal": "^2.1.3",
-    "@dfinity/vetkeys": "file:dfinity-vetkeys-0.1.0.tgz",
+    "@dfinity/vetkeys": "^0.1.0",
     "sirv-cli": "^1.0.0",
     "svelte-icons": "^2.1.0",
     "svelte-router-spa": "^6.0.3",
