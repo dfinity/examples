@@ -351,7 +351,6 @@ fn remove_user(note_id: NoteId, user: PrincipalName) {
     });
 }
 
-use ic_cdk::call::Call;
 use ic_cdk::management_canister::{
     VetKDCurve, VetKDDeriveKeyArgs, VetKDDeriveKeyResult, VetKDKeyId, VetKDPublicKeyArgs,
     VetKDPublicKeyResult,
@@ -365,13 +364,9 @@ async fn symmetric_key_verification_key_for_note() -> String {
         key_id: bls12_381_g2_dfx_test_key(),
     };
 
-    let response: VetKDPublicKeyResult =
-        Call::unbounded_wait(Principal::management_canister(), "vetkd_public_key")
-            .with_arg(request)
-            .await
-            .expect("call to vetkd_public_key failed")
-            .candid()
-            .expect("decoding failed");
+    let response: VetKDPublicKeyResult = ic_cdk::management_canister::vetkd_public_key(&request)
+        .await
+        .expect("call to vetkd_public_key failed");
 
     hex::encode(response.public_key)
 }
