@@ -403,14 +403,9 @@ async fn encrypted_symmetric_key_for_note(
         }
     });
 
-    let response: VetKDDeriveKeyResult =
-        Call::unbounded_wait(Principal::management_canister(), "vetkd_derive_key")
-            .with_arg(request)
-            .with_cycles(26_153_846_153)
-            .await
-            .expect("call to vetkd_derive_key failed")
-            .candid()
-            .expect("decoding failed");
+    let response: VetKDDeriveKeyResult = ic_cdk::management_canister::vetkd_derive_key(&request)
+        .await
+        .expect("call to vetkd_derive_key failed");
 
     hex::encode(response.encrypted_key)
 }
