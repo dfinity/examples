@@ -52,26 +52,23 @@ jobs:
             ["Who Am I (Rust)"]="rust/who_am_i"
           )
 
-          # Check if the workflow file itself has changed
+          # Check if we should run all examples (workflow file changed) or just changed ones
+          run_all_examples=false
           if echo "$changed_files" | grep -q "^\.github/workflows/ninja_pr_checks\.yml$"; then
             echo "Workflow file changed. Running all examples."
-            for name in "${!example_paths[@]}"; do
-              path=${example_paths[$name]}
+            run_all_examples=true
+          fi
+
+          for name in "${!example_paths[@]}"; do
+            path=${example_paths[$name]}
+            
+            if [ "$run_all_examples" = true ] || echo "$changed_files" | grep -q "^$path/"; then
               examples+=("{\"name\": \"$name\", \"path\": \"$path\"}")
               echo "Added example: $name with path $path"
-            done
-          else
-            # Only check for changed examples if workflow file hasn't changed
-            for name in "${!example_paths[@]}"; do
-              path=${example_paths[$name]}
-              echo "Checking path: $path"
-              
-              if echo "$changed_files" | grep -q "^$path/"; then
-                examples+=("{\"name\": \"$name\", \"path\": \"$path\"}")
-                echo "Added example: $name with path $path"
-              fi
-            done
-          fi
+            else
+              echo "Skipping example: $name (no changes in $path)"
+            fi
+          done
 
           if [ ${#examples[@]} -eq 0 ]; then
             echo "No examples detected. Setting has_examples to false."
@@ -97,10 +94,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      # - name: Install dfx # This is a temporary workaround. Dfx is already installed in the container, but it does not start in the next step if we don't install it here again.
-      #   uses: dfinity/setup-dfx@main
-      #   with:
-      #     dfx-version: "0.27.0"
+      - name: Install dfx # This is a temporary workaround. Dfx is already installed in the container, but it does not start in the next step if we don't install it here again.
+        uses: dfinity/setup-dfx@main
+        with:
+          dfx-version: "0.27.0"
 
       - name: Start dfx
         run: dfx start --background
