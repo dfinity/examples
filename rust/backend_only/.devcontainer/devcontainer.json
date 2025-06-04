@@ -1,6 +1,6 @@
 {
   "name": "ICP Dev Environment",
-  "image": "ghcr.io/dfinity/icp-dev-env-slim:17",
+  "image": "ghcr.io/dfinity/icp-dev-env-slim:19",
   "forwardPorts": [4943, 5173],
   "portsAttributes": {
     "4943": {
