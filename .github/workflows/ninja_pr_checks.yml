@@ -99,12 +99,6 @@ jobs:
         with:
           dfx-version: "0.27.0"
 
-      - name: Sync system time, otherwise AgentJS inside ic-mops will complain when running `mops sources` during dfx deploy
-        run: |
-          apt-get update
-          apt-get install -y ntpdate
-          ntpdate time.google.com
-
       - name: Start dfx
         run: dfx start --background
 
