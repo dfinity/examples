@@ -1,20 +1,13 @@
 //1. IMPORT IC MANAGEMENT CANISTER
 //This includes all methods and types needed
-use ic_cdk::api::management_canister::http_request::{
-    http_request, CanisterHttpRequestArgument, HttpHeader, HttpMethod, HttpResponse, TransformArgs,
-    TransformContext,
+use ic_cdk::{
+    api::canister_self,
+    management_canister::{
+        http_request, HttpHeader, HttpMethod, HttpRequestArgs, HttpRequestResult, TransformArgs,
+        TransformContext, TransformFunc,
+    },
 };
-
-use ic_cdk_macros::{self, query, update};
-use serde::{Serialize, Deserialize};
-use serde_json::{self, Value};
-
-// This struct is legacy code and is not really used in the code.
-#[derive(Serialize, Deserialize)]
-struct Context {
-    bucket_start_time_index: usize,
-    closing_price_index: usize,
-}
+use serde_json::json;
 
 //Update method using the HTTPS outcalls feature
 #[ic_cdk::update]
@@ -22,11 +15,9 @@ async fn send_http_post_request() -> String {
     //2. SETUP ARGUMENTS FOR HTTP GET request
 
     // 2.1 Setup the URL
-    let host = "putsreq.com";
     let url = "https://putsreq.com/aL1QS5IbaQd4NTqN3a81";
 
     // 2.2 prepare headers for the system http_request call
-    //Note that `HttpHeader` is declared in line 4
     let request_headers = vec![
         HttpHeader {
             name: "User-Agent".to_string(),
@@ -44,10 +35,8 @@ async fn send_http_post_request() -> String {
         },
     ];
 
-    //note "CanisterHttpRequestArgument" and "HttpMethod" are declared in line 4.
-    //CanisterHttpRequestArgument has the following types:
-
-    // pub struct CanisterHttpRequestArgument {
+    //HttpRequestArgs has the following types:
+    // pub struct HttpRequestArgs{
     //     pub url: String,
     //     pub max_response_bytes: Option<u64>,
     //     pub method: HttpMethod,
@@ -55,7 +44,7 @@ async fn send_http_post_request() -> String {
     //     pub body: Option<Vec<u8>>,
     //     pub transform: Option<TransformContext>,
     // }
-    //see: https://docs.rs/ic-cdk/latest/ic_cdk/api/management_canister/http_request/struct.CanisterHttpRequestArgument.html
+    //see: https://docs.rs/ic-cdk/latest/ic_cdk/management_canister/struct.HttpRequestArgs.html
 
     //Where "HttpMethod" has structure:
     // pub enum HttpMethod {
@@ -63,36 +52,32 @@ async fn send_http_post_request() -> String {
     //     POST,
     //     HEAD,
     // }
-    //See: https://docs.rs/ic-cdk/latest/ic_cdk/api/management_canister/http_request/enum.HttpMethod.html
+    //See: https://docs.rs/ic-cdk/latest/ic_cdk/management_canister/enum.HttpMethod.html
 
     //Since the body in HTTP request has type Option<Vec<u8>> it needs to look something like this: Some(vec![104, 101, 108, 108, 111]) ("hello" in ASCII)
     //where the vector of u8s are the UTF. In order to send JSON via POST we do the following:
     //1. Declare a JSON string to send
     //2. Convert that JSON string to array of UTF8 (u8)
     //3. Wrap that array in an optional
-    let json_string : String = "{ \"name\" : \"Grogu\", \"force_sensitive\" : \"true\" }".to_string();
 
-    //note: here, r#""# is used for raw strings in Rust, which allows you to include characters like " and \ without needing to escape them.
-    //We could have used "serde_json" as well.
-    let json_utf8: Vec<u8> = json_string.into_bytes();
-    let request_body: Option<Vec<u8>> = Some(json_utf8);
+    let json_body = json!(
+        {
+            "name": "Grogu",
+            "force_sensitive": true
+        }
+    );
+    let request_body: Option<Vec<u8>> = Some(serde_json::to_vec(&json_body).unwrap());
 
-    // This struct is legacy code and is not really used in the code. Need to be removed in the future
-    // The "TransformContext" function does need a CONTEXT parameter, but this implementation is not necessary
-    // the TransformContext(transform, context) below accepts this "context", but it does nothing with it in this implementation.
-    // bucket_start_time_index and closing_price_index are meaninglesss
-    let context = Context {
-        bucket_start_time_index: 0,
-        closing_price_index: 4,
-    };
-
-    let request = CanisterHttpRequestArgument {
+    let request = HttpRequestArgs {
         url: url.to_string(),
         max_response_bytes: None, //optional for request
         method: HttpMethod::POST,
         headers: request_headers,
         body: request_body,
-        transform: Some(TransformContext::new(transform, serde_json::to_vec(&context).unwrap())),
+        transform: Some(TransformContext {
+            function: TransformFunc::new(canister_self(), "transform".to_string()),
+            context: vec![],
+        }),
         // transform: None, //optional for request
     };
 
@@ -100,13 +85,13 @@ async fn send_http_post_request() -> String {
 
     //Note: in Rust, `http_request()` already sends the cycles needed
     //so no need for explicit Cycles.add() as in Motoko
-    match http_request(request).await {
+    match http_request(&request).await {
         //4. DECODE AND RETURN THE RESPONSE
 
-        //See:https://docs.rs/ic-cdk/latest/ic_cdk/api/management_canister/http_request/struct.HttpResponse.html
-        Ok((response,)) => {
-            //if successful, `HttpResponse` has this structure:
-            // pub struct HttpResponse {
+        //See: https://docs.rs/ic-cdk/latest/ic_cdk/management_canister/struct.HttpRequestResult.html
+        Ok(response) => {
+            //if successful, `HttpRequestResult` has this structure:
+            // pub struct HttpRequestResult{
             //     pub status: Nat,
             //     pub headers: Vec<HttpHeader>,
             //     pub body: Vec<u8>,
@@ -115,13 +100,12 @@ async fn send_http_post_request() -> String {
             //We need to decode that Vec<u8> that is the body into readable text.
             //To do this, we:
             //  1. Call `String::from_utf8()` on response.body
-            //  3. We use a switch to explicitly call out both cases of decoding the Blob into ?Text
             let str_body = String::from_utf8(response.body)
                 .expect("Transformed response is not UTF-8 encoded.");
-            ic_cdk::api::print(format!("{:?}", str_body));
+            ic_cdk::api::debug_print(format!("{:?}", str_body));
 
             //The API response will looks like this:
-            // { successful: true }
+            // Hello Grogu
 
             //Return the body as a string and end the method
             let result: String = format!(
@@ -130,21 +114,16 @@ async fn send_http_post_request() -> String {
             );
             result
         }
-        Err((r, m)) => {
-            let message =
-                format!("The http_request resulted into error. RejectionCode: {r:?}, Error: {m}");
-
+        Err(error) => {
             //Return the error as a string and end the method
-            message
+            error.to_string()
         }
     }
-
 }
 
 // Strips all data that is not needed from the original response.
-#[query]
-fn transform(raw: TransformArgs) -> HttpResponse {
-
+#[ic_cdk::query]
+fn transform(raw: TransformArgs) -> HttpRequestResult {
     let headers = vec![
         HttpHeader {
             name: "Content-Security-Policy".to_string(),
@@ -171,20 +150,18 @@ fn transform(raw: TransformArgs) -> HttpResponse {
             value: "nosniff".to_string(),
         },
     ];
-    
 
-    let mut res = HttpResponse {
+    let mut res = HttpRequestResult {
         status: raw.response.status.clone(),
         body: raw.response.body.clone(),
         headers,
         ..Default::default()
     };
 
-    if res.status == 200 {
-
+    if res.status == 200u8 {
         res.body = raw.response.body;
     } else {
-        ic_cdk::api::print(format!("Received an error from coinbase: err = {:?}", raw));
+        ic_cdk::api::debug_print(format!("Received an error from coinbase: err = {:?}", raw));
     }
     res
 }
