@@ -86,7 +86,7 @@ jobs:
     needs: check-ninja-example-changes
     if: needs.check-ninja-example-changes.outputs.has_examples == 'true'
     runs-on: ubuntu-22.04
-    container: ghcr.io/dfinity/icp-dev-env-slim:17
+    container: ghcr.io/dfinity/icp-dev-env-slim:20
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.check-ninja-example-changes.outputs.matrix) }}
@@ -98,7 +98,7 @@ jobs:
       - name: Install dfx # This is a temporary workaround. Dfx is already installed in the container, but it does not start in the next step if we don't install it here again.
         uses: dfinity/setup-dfx@main
         with:
-          dfx-version: "0.25.0"
+          dfx-version: "0.27.0"
 
       - name: Start dfx
         run: dfx start --background
