@@ -95,11 +95,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install dfx # This is a temporary workaround. Dfx is already installed in the container, but it does not start in the next step if we don't install it here again.
-        uses: dfinity/setup-dfx@main
-        with:
-          dfx-version: "0.27.0"
-
       - name: Start dfx
         run: RUST_LOG=trace dfx start --background --verbose
 
