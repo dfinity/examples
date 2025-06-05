@@ -104,5 +104,4 @@ jobs:
         working-directory: ${{ matrix.example.path }}
         run: |
           dfx start --background
-          sleep 5
           dfx deploy --no-wallet
