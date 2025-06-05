@@ -109,5 +109,5 @@ jobs:
           sleep 5
           date
           dfx ping
-          dfx canister call rwlgt-iiaaa-aaaaa-aaaaa-cai foo
+          dfx canister create backend --no-wallet
           dfx deploy --no-wallet
