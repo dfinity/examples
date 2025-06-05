@@ -107,4 +107,6 @@ jobs:
         working-directory: ${{ matrix.example.path }}
         run: |
           sleep 5
+          date
+          dfx ping
           dfx deploy
