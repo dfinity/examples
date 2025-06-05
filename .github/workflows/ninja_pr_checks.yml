@@ -109,4 +109,5 @@ jobs:
           sleep 5
           date
           dfx ping
+          dfx canister call rwlgt-iiaaa-aaaaa-aaaaa-cai foo
           dfx deploy --no-wallet
