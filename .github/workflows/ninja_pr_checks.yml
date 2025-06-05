@@ -103,5 +103,5 @@ jobs:
       - name: Build project
         working-directory: ${{ matrix.example.path }}
         run: |
-          dfx start --background --artificial-delay 2000
+          RUST_LOG=trace dfx start --background --verbose --artificial-delay 0
           dfx deploy
