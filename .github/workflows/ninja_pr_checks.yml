@@ -100,8 +100,9 @@ jobs:
         with:
           dfx-version: "0.27.0"
 
+      - name: Start dfx
+        run: dfx start --background --artificial-delay 2000
+
       - name: Build project
         working-directory: ${{ matrix.example.path }}
-        run: |
-          RUST_LOG=trace dfx start --background --verbose --artificial-delay 0
-          dfx deploy
+        run: dfx deploy
