@@ -101,7 +101,7 @@ jobs:
           dfx-version: "0.27.0"
 
       - name: Start dfx
-        run: dfx start --background --artificial-delay 2000
+        run: dfx start --background
 
       - name: Build project
         working-directory: ${{ matrix.example.path }}
