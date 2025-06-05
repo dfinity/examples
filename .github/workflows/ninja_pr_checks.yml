@@ -109,4 +109,4 @@ jobs:
           sleep 5
           date
           dfx ping
-          dfx deploy
+          dfx deploy --no-wallet
