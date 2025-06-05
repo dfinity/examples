@@ -100,8 +100,9 @@ jobs:
         with:
           dfx-version: "0.27.0"
 
+      - name: Start dfx
+        run: dfx start --background
+
       - name: Build project
         working-directory: ${{ matrix.example.path }}
-        run: |
-          dfx start --background
-          dfx deploy
+        run: dfx deploy
