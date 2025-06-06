@@ -1,4 +1,4 @@
-# Rust Backend (Wasm64)
+# Rust backend (Wasm64)
 
 This backend-only project demonstrates how to write a simple smart contract for ICP using **Wasm64** compilation target.
 
