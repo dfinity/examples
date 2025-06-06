@@ -85,8 +85,9 @@ jobs:
     name: Build
     needs: check-ninja-example-changes
     if: needs.check-ninja-example-changes.outputs.has_examples == 'true'
-    runs-on: ubuntu-24.04-arm
-    container: ghcr.io/dfinity/icp-dev-env-slim:20
+    runs-on: ubuntu-24.04
+    # TODO: Uncomment this when PocketIC addresses 502 Bad Gateway issue in LLM Chatbot example
+    # container: ghcr.io/dfinity/icp-dev-env-slim:20
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.check-ninja-example-changes.outputs.matrix) }}
