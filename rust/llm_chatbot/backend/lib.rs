@@ -8,7 +8,12 @@ async fn prompt(prompt_str: String) -> String {
 
 #[update]
 async fn chat(messages: Vec<ChatMessage>) -> String {
-    ic_llm::chat(Model::Llama3_1_8B, messages).await
+    let response = ic_llm::chat(Model::Llama3_1_8B)
+        .with_messages(messages)
+        .send()
+        .await;
+    
+    response.message.content.unwrap_or_default()
 }
 
 // Export the interface for the smart contract.
