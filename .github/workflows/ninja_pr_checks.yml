@@ -83,7 +83,8 @@ jobs:
     if: needs.check-ninja-example-changes.outputs.has_examples == 'true'
     runs-on: ubuntu-24.04
     # container: ghcr.io/dfinity/icp-dev-env-slim:20
-    container: ubuntu:24.04
+    #container: ubuntu:24.04
+    container: rust:1.83-slim-bookworm
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.check-ninja-example-changes.outputs.matrix) }}
