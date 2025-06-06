@@ -93,7 +93,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Install curl and libunwind-dev
+      - name: Install curl, libunwind-dev, and python3
         run: apt update && apt install curl libunwind-dev python3 --yes
 
       - name: Start server in the background
