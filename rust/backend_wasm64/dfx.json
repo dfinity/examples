@@ -1,0 +1,19 @@
+{
+  "canisters": {
+    "backend": {
+      "candid": "backend/backend.did",
+      "type": "custom",
+      "shrink": true,
+      "gzip": true,
+      "wasm": "target/backend.wasm",
+      "build": [
+        "./build.sh"
+      ],
+      "metadata": [
+        {
+          "name": "candid:service"
+        }
+      ]
+    }
+  }
+}
