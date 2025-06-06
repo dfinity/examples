@@ -12,7 +12,7 @@ The `/backend` folder contains the Motoko canister, `app.mo`. The `/frontend` fo
 
 When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner. Open this project in ICP Ninja:
 
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?url=https://github.com/dfinity/examples/motoko/flying_ninja)
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/motoko/flying_ninja)
 
 ## Build and deploy from the command-line
 

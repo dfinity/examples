@@ -6,6 +6,11 @@ persistent actor {
   };
 
   public func chat(messages : [LLM.ChatMessage]) : async Text {
-    await LLM.chat(#Llama3_1_8B, messages);
+    let response = await LLM.chat(#Llama3_1_8B).withMessages(messages).send();
+
+    switch (response.message.content) {
+      case (?text) text;
+      case null "";
+    };
   };
 };

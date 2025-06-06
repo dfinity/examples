@@ -10,6 +10,5 @@ crate-type = ["cdylib"]
 path = "lib.rs"
 
 [dependencies]
-candid = "0.10.13"
-ic-cdk = "0.17.1"
-ic-llm = "1.0.0"
+candid = "0.10.10"
+ic-cdk = "0.18.0"
