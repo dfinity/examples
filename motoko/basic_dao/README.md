@@ -1,6 +1,6 @@
 # Basic DAO
 
-This sample project demonstrates a basic [decentralized autonomous organization](https://en.wikipedia.org/wiki/Decentralized_autonomous_organization) (DAO) that can be deployed to the [Internet Computer](https://github.com/dfinity/ic). The basic DAO sample code is available in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/basic_dao) and [Rust](https://github.com/dfinity/examples/tree/master/rust/basic_dao). You can see a quick introduction on [YouTube](https://youtu.be/3IcYlieA-EE).
+This sample project demonstrates a basic [decentralized autonomous organization](https://en.wikipedia.org/wiki/Decentralized_autonomous_organization) (DAO) that can be deployed to the [Internet Computer](https://github.com/dfinity/ic). The basic DAO sample code is available in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/basic_dao). You can see a quick introduction on [YouTube](https://youtu.be/3IcYlieA-EE).
 
 A `basic_dao` can be initialized with a set of accounts: mappings from principal IDs to a number of tokens. Account owners can query their account balance by calling `account_balance` and transfer tokens to other accounts by calling `transfer`. Anyone can call `list_accounts` to view all accounts.
 
@@ -8,8 +8,6 @@ Account owners can submit proposals by calling `submit_proposal`. A proposal spe
 
 Certain system parameters, like the number of `Yes` votes needed to pass a proposal, can be queried by calling `get_system_params`. These system parameters can be modified via the proposal process, i.e. a proposal can be made to call `update_system_params` with updated values. 
 This workflow is demonstrated below.
-
-View the [canister service definition](https://github.com/dfinity/examples/blob/master/rust/basic_dao/src/basic_dao/src/basic_dao.did) for more details.
  
 ## Prerequisites
 
