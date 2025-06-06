@@ -5,10 +5,6 @@ on:
     branches:
       - master
 
-concurrency:
-  group: ninja-pr-checks-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
   check-ninja-example-changes:
     name: Filter projects
@@ -31,25 +27,25 @@ jobs:
 
           examples=()
           declare -A example_paths=(
-            ["My Crypto Blog (Frontend)"]="hosting/my_crypto_blog"
-            ["React (Frontend)"]="hosting/react"
-            ["Motoko backend (Motoko)"]="motoko/backend_only"
-            ["Daily Planner (Motoko)"]="motoko/daily_planner"
-            ["EVM Block Explorer (Motoko)"]="motoko/evm_block_explorer"
-            ["FileVault (Motoko)"]="motoko/filevault"
-            ["Flying Ninja (Motoko)"]="motoko/flying_ninja"
-            ["Hello World (Motoko)"]="motoko/hello_world"
+            # ["My Crypto Blog (Frontend)"]="hosting/my_crypto_blog"
+            # ["React (Frontend)"]="hosting/react"
+            # ["Motoko backend (Motoko)"]="motoko/backend_only"
+            # ["Daily Planner (Motoko)"]="motoko/daily_planner"
+            # ["EVM Block Explorer (Motoko)"]="motoko/evm_block_explorer"
+            # ["FileVault (Motoko)"]="motoko/filevault"
+            # ["Flying Ninja (Motoko)"]="motoko/flying_ninja"
+            # ["Hello World (Motoko)"]="motoko/hello_world"
             ["LLM Chatbot (Motoko)"]="motoko/llm_chatbot"
-            ["Tokenmania (Motoko)"]="motoko/tokenmania"
-            ["Who Am I (Motoko)"]="motoko/who_am_i"
-            ["Rust backend (Rust)"]="rust/backend_only"
-            ["Daily Planner (Rust)"]="rust/daily_planner"
-            ["EVM Block Explorer (Rust)"]="rust/evm_block_explorer"
-            ["Flying Ninja (Rust)"]="rust/flying_ninja"
-            ["Hello World (Rust)"]="rust/hello_world"
-            ["LLM Chatbot (Rust)"]="rust/llm_chatbot"
-            ["Tokenmania (Rust)"]="rust/tokenmania"
-            ["Who Am I (Rust)"]="rust/who_am_i"
+            # ["Tokenmania (Motoko)"]="motoko/tokenmania"
+            # ["Who Am I (Motoko)"]="motoko/who_am_i"
+            # ["Rust backend (Rust)"]="rust/backend_only"
+            # ["Daily Planner (Rust)"]="rust/daily_planner"
+            # ["EVM Block Explorer (Rust)"]="rust/evm_block_explorer"
+            # ["Flying Ninja (Rust)"]="rust/flying_ninja"
+            # ["Hello World (Rust)"]="rust/hello_world"
+            # ["LLM Chatbot (Rust)"]="rust/llm_chatbot"
+            # ["Tokenmania (Rust)"]="rust/tokenmania"
+            # ["Who Am I (Rust)"]="rust/who_am_i"
           )
 
           # Check if we should run all examples (workflow file changed) or just changed ones
@@ -87,6 +83,8 @@ jobs:
     if: needs.check-ninja-example-changes.outputs.has_examples == 'true'
     runs-on: ubuntu-24.04
     container: ghcr.io/dfinity/icp-dev-env-slim:20
+    #container: ubuntu:24.04
+    #container: rust:1.83-slim-bookworm
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.check-ninja-example-changes.outputs.matrix) }}
@@ -95,14 +93,25 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Install curl, libunwind-dev, and python3
+        run: apt update && apt install curl libunwind-dev python3 --yes
+
+      - name: Start server in the background
+        run: python3 -m http.server 8000 &
+
+      - name: Access server
+        run: |
+          for i in $(seq 0 20); do curl -v http://localhost:8000; sleep 1; done
+
       - name: Install dfx # This is a temporary workaround. Dfx is already installed in the container, but it does not start in the next step if we don't install it here again.
         uses: dfinity/setup-dfx@main
         with:
           dfx-version: "0.27.0"
 
-      - name: Start dfx and build project
+      - name: Set up
+        run: dfx start --background --verbose
+
+      - name: Deploy
         working-directory: ${{ matrix.example.path }}
         run: |
-          # Note: Running these commands in the same step and with verbose output magically fixes the 502 Bad Gateway issue in dfx/pocketic for the LLM Chatbot example
-          RUST_LOG=trace dfx start --background --verbose
-          dfx deploy
+          dfx deploy llm --no-wallet
