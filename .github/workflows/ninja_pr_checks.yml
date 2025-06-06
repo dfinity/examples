@@ -12,7 +12,7 @@ concurrency:
 jobs:
   check-ninja-example-changes:
     name: Filter projects
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     outputs:
       matrix: ${{ steps.set-matrix.outputs.matrix }}
       has_examples: ${{ steps.set-matrix.outputs.has_examples }}
@@ -51,13 +51,22 @@ jobs:
             ["Tokenmania (Rust)"]="rust/tokenmania"
             ["Who Am I (Rust)"]="rust/who_am_i"
           )
+
+          # Check if we should run all examples (workflow file changed) or just changed ones
+          run_all_examples=false
+          if echo "$changed_files" | grep -q "^\.github/workflows/ninja_pr_checks\.yml$"; then
+            echo "Workflow file changed. Running all examples."
+            run_all_examples=true
+          fi
+
           for name in "${!example_paths[@]}"; do
             path=${example_paths[$name]}
-            echo "Checking path: $path"
             
-            if echo "$changed_files" | grep -q "^$path/"; then
+            if [ "$run_all_examples" = true ] || echo "$changed_files" | grep -q "^$path/"; then
               examples+=("{\"name\": \"$name\", \"path\": \"$path\"}")
               echo "Added example: $name with path $path"
+            else
+              echo "Skipping example: $name (no changes in $path)"
             fi
           done
 
@@ -76,9 +85,10 @@ jobs:
     name: Build
     needs: check-ninja-example-changes
     if: needs.check-ninja-example-changes.outputs.has_examples == 'true'
-    runs-on: ubuntu-22.04
-    container: ghcr.io/dfinity/icp-dev-env-slim:17
+    runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-slim:20
     strategy:
+      fail-fast: false
       matrix: ${{ fromJson(needs.check-ninja-example-changes.outputs.matrix) }}
 
     steps:
@@ -87,10 +97,12 @@ jobs:
 
       - name: Install dfx # This is a temporary workaround. Dfx is already installed in the container, but it does not start in the next step if we don't install it here again.
         uses: dfinity/setup-dfx@main
+        with:
+          dfx-version: "0.27.0"
 
-      - name: Start dfx
-        run: dfx start --background
-
-      - name: Build project
+      - name: Start dfx and build project
         working-directory: ${{ matrix.example.path }}
-        run: dfx deploy
+        run: |
+          # Note: Running these commands in the same step and with verbose output magically fixes the 502 Bad Gateway issue in dfx/pocketic for the LLM Chatbot example
+          RUST_LOG=trace dfx start --background --verbose
+          dfx deploy

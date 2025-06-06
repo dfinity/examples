@@ -8,10 +8,10 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@dfinity/agent": "2.2.0",
-    "@dfinity/auth-client": "2.2.0",
-    "@dfinity/candid": "2.2.0",
-    "@dfinity/principal": "2.2.0",
+    "@dfinity/agent": "2.4.1",
+    "@dfinity/auth-client": "2.4.1",
+    "@dfinity/candid": "2.4.1",
+    "@dfinity/principal": "2.4.1",
     "react-json-view-lite": "2.3.0",
     "react": "18.3.1",
     "react-dom": "18.3.1"
