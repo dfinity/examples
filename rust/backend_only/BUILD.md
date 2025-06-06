@@ -78,11 +78,6 @@ dfx deploy
 
 ```
 
-If you would like to build your canister as wasm64, run:
-```
-WASM_TARGET=wasm64 dfx deploy
-```
-
 Your project will be hosted on your local machine. The local canister URLs for your project will be shown in the terminal window as output of the `dfx deploy` command. You can open these URLs in your web browser to view the local instance of your project.
 
 ### 4. Obtain cycles.
