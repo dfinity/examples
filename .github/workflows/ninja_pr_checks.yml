@@ -31,25 +31,25 @@ jobs:
 
           examples=()
           declare -A example_paths=(
-            ["My Crypto Blog (Frontend)"]="hosting/my_crypto_blog"
-            ["React (Frontend)"]="hosting/react"
-            ["Motoko backend (Motoko)"]="motoko/backend_only"
-            ["Daily Planner (Motoko)"]="motoko/daily_planner"
-            ["EVM Block Explorer (Motoko)"]="motoko/evm_block_explorer"
-            ["FileVault (Motoko)"]="motoko/filevault"
-            ["Flying Ninja (Motoko)"]="motoko/flying_ninja"
-            ["Hello World (Motoko)"]="motoko/hello_world"
+            # ["My Crypto Blog (Frontend)"]="hosting/my_crypto_blog"
+            # ["React (Frontend)"]="hosting/react"
+            # ["Motoko backend (Motoko)"]="motoko/backend_only"
+            # ["Daily Planner (Motoko)"]="motoko/daily_planner"
+            # ["EVM Block Explorer (Motoko)"]="motoko/evm_block_explorer"
+            # ["FileVault (Motoko)"]="motoko/filevault"
+            # ["Flying Ninja (Motoko)"]="motoko/flying_ninja"
+            # ["Hello World (Motoko)"]="motoko/hello_world"
             ["LLM Chatbot (Motoko)"]="motoko/llm_chatbot"
-            ["Tokenmania (Motoko)"]="motoko/tokenmania"
-            ["Who Am I (Motoko)"]="motoko/who_am_i"
-            ["Rust backend (Rust)"]="rust/backend_only"
-            ["Daily Planner (Rust)"]="rust/daily_planner"
-            ["EVM Block Explorer (Rust)"]="rust/evm_block_explorer"
-            ["Flying Ninja (Rust)"]="rust/flying_ninja"
-            ["Hello World (Rust)"]="rust/hello_world"
-            ["LLM Chatbot (Rust)"]="rust/llm_chatbot"
-            ["Tokenmania (Rust)"]="rust/tokenmania"
-            ["Who Am I (Rust)"]="rust/who_am_i"
+            # ["Tokenmania (Motoko)"]="motoko/tokenmania"
+            # ["Who Am I (Motoko)"]="motoko/who_am_i"
+            # ["Rust backend (Rust)"]="rust/backend_only"
+            # ["Daily Planner (Rust)"]="rust/daily_planner"
+            # ["EVM Block Explorer (Rust)"]="rust/evm_block_explorer"
+            # ["Flying Ninja (Rust)"]="rust/flying_ninja"
+            # ["Hello World (Rust)"]="rust/hello_world"
+            # ["LLM Chatbot (Rust)"]="rust/llm_chatbot"
+            # ["Tokenmania (Rust)"]="rust/tokenmania"
+            # ["Who Am I (Rust)"]="rust/who_am_i"
           )
 
           # Check if we should run all examples (workflow file changed) or just changed ones
@@ -101,8 +101,10 @@ jobs:
           dfx-version: "0.27.0"
 
       - name: Start dfx and build project
-        working-directory: ${{ matrix.example.path }}
         run: |
           # Note: Running these commands in the same step and with verbose output magically fixes the 502 Bad Gateway issue in dfx/pocketic for the LLM Chatbot example
           RUST_LOG=trace dfx start --background --verbose
-          dfx deploy
+
+      - name: Deploy
+        working-directory: ${{ matrix.example.path }}
+        run: dfx deploy llm
