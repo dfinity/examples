@@ -116,7 +116,7 @@ jobs:
           dfx-version: "0.27.0"
 
       - name: Start dfx
-        run: RUST_LOG=pocket_ic_server=info,tower_http=info,axum::rejection=trace dfx start --background --verbose
+        run: dfx start --background
 
       - name: Build project
         working-directory: ${{ matrix.example.path }}
