@@ -107,4 +107,4 @@ jobs:
       - name: Deploy
         working-directory: ${{ matrix.example.path }}
         run: |
-          dfx deploy llm --no-wallet
+          RUST_LOG=trace dfx deploy llm --no-wallet
