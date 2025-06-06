@@ -24,12 +24,12 @@ The `/backend` folder contains the Rust smart contract:
 
 ## Build and deploy from the command-line
 
-To build and deploy this wasm64 example locally, follow the instructions in the `BUILD.md` file.
+To build and deploy this Wasm64 example locally, follow the instructions in the `BUILD.md` file.
 
 The build process will automatically:
-1. Install the Rust nightly toolchain if needed
-2. Add the `rust-src` component for `build-std`
-3. Build the canister for the `wasm64-unknown-unknown` target
-4. Extract the Candid interface
-5. Prepare the wasm file for deployment
+1. Install the Rust nightly toolchain if needed.
+2. Add the `rust-src` component for `build-std`.
+3. Build the canister for the `wasm64-unknown-unknown` target.
+4. Extract the Candid interface.
+5. Prepare the Wasm file for deployment.
 
