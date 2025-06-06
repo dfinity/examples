@@ -107,5 +107,5 @@ jobs:
       - name: Deploy
         working-directory: ${{ matrix.example.path }}
         run: |
-          RUST_LOG=error dfx start --background --verbose
+          dfx start --background --verbose
           dfx deploy internet_identity
