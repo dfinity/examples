@@ -1,4 +1,4 @@
-# Building the Wasm64 Example locally
+# Building the Wasm64 example locally
 
 This is a wasm64-specific backend example that demonstrates building canisters with 64-bit memory addressing capabilities.
 
