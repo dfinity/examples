@@ -1,0 +1,126 @@
+type BasicDaoStableStorage = record {
+    accounts: vec Account;
+    proposals: vec Proposal;
+    system_params: SystemParams;
+};
+
+type Tokens = record {
+    amount_e8s: nat64;
+};
+
+type ProposalState = variant {
+    // The proposal is open for voting
+    Open;
+
+    // Enough "yes" votes have been cast to accept the proposal, and it will soon be executed
+    Accepted;
+
+    // Enough "no" votes have been cast to reject the proposal, and it will not be executed
+    Rejected;
+
+    // The proposal is currently being executed
+    Executing;
+
+    // The proposal has been successfully executed
+    Succeeded;
+
+    // A failure occurred while executing the proposal
+    Failed: text;
+};
+
+type Proposal = record {
+    id: nat64;
+    timestamp: nat64;
+    proposer: principal;
+    payload: ProposalPayload;
+    state: ProposalState;
+    votes_yes: Tokens;
+    votes_no: Tokens;
+    voters: vec principal;
+};
+
+type ProposalPayload = record {
+    canister_id: principal;
+    method: text;
+    message: blob;
+};
+
+type SubmitProposalResult = variant {
+    Ok: nat64;
+    Err: text;
+};
+
+type Vote = variant {
+    Yes;
+    No;
+};
+
+type Account = record {
+    owner: principal;
+    tokens: Tokens;
+};
+
+type TransferArgs = record {
+    to: principal;
+    amount: Tokens;
+};
+
+type TransferResult = variant {
+    Ok;
+    Err: text;
+};
+
+type VoteArgs = record {
+    proposal_id: nat64;
+    vote: Vote;
+};
+
+type VoteResult = variant {
+    Ok: ProposalState;
+    Err: text;
+};
+
+type SystemParams = record {
+    transfer_fee: Tokens;
+    proposal_vote_threshold: Tokens;
+    proposal_submission_deposit: Tokens;
+};
+
+type UpdateSystemParamsPayload = record {
+    transfer_fee: opt Tokens;
+    proposal_vote_threshold: opt Tokens;
+    proposal_submission_deposit: opt Tokens;
+};
+
+service : (BasicDaoStableStorage) -> {
+    // Get the current system params
+    get_system_params: () -> (SystemParams);
+
+    // Transfer tokens from the caller's account to another account
+    transfer: (TransferArgs) -> (TransferResult);
+
+    // Returns the amount of Tokens the caller owns
+    account_balance: () -> (Tokens) query;
+
+    // Lists all accounts
+    list_accounts: () -> (vec Account) query;
+
+    // Submit a proposal
+    //
+    // A proposal contains a canister ID, method name and method args. If enough users
+    // vote "yes" on the proposal, the given method will be called with the given method
+    // args on the given canister.
+    submit_proposal: (ProposalPayload) -> (SubmitProposalResult);
+
+    // Return the proposal with the given ID, if one exists
+    get_proposal: (nat64) -> (opt Proposal);
+
+    // Return the list of all proposals
+    list_proposals: () -> (vec Proposal);
+
+    // Vote on an open proposal
+    vote: (VoteArgs) -> (VoteResult);
+
+    // Update system params. Only callable via proposal execution.
+    update_system_params: (UpdateSystemParamsPayload) -> ();
+}
