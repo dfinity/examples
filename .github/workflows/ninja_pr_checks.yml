@@ -107,4 +107,4 @@ jobs:
 
       - name: Deploy
         working-directory: ${{ matrix.example.path }}
-        run: dfx deploy llm
+        run: dfx deploy
