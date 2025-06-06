@@ -18,9 +18,9 @@ This example always builds for Wasm64 using Rust's nightly toolchain and the `-Z
 
 The `/backend` folder contains the Rust smart contract:
 
-- `Cargo.toml`, which defines the crate that will form the backend
-- `lib.rs`, which contains the actual smart contract, and exports its interface
-- The `build.sh` script automatically builds for wasm64 using the nightly toolchain
+- `Cargo.toml`, which defines the crate that will form the backend.
+- `lib.rs`, which contains the actual smart contract, and exports its interface.
+- The `build.sh` script that automatically builds for Wasm64 using the nightly toolchain.
 
 ## Build and deploy from the command-line
 
