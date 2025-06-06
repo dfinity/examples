@@ -35,9 +35,9 @@ jobs:
             # ["FileVault (Motoko)"]="motoko/filevault"
             # ["Flying Ninja (Motoko)"]="motoko/flying_ninja"
             # ["Hello World (Motoko)"]="motoko/hello_world"
-            # ["LLM Chatbot (Motoko)"]="motoko/llm_chatbot"
+            ["LLM Chatbot (Motoko)"]="motoko/llm_chatbot"
             # ["Tokenmania (Motoko)"]="motoko/tokenmania"
-            ["Who Am I (Motoko)"]="motoko/who_am_i"
+            # ["Who Am I (Motoko)"]="motoko/who_am_i"
             # ["Rust backend (Rust)"]="rust/backend_only"
             # ["Daily Planner (Rust)"]="rust/daily_planner"
             # ["EVM Block Explorer (Rust)"]="rust/evm_block_explorer"
@@ -107,4 +107,4 @@ jobs:
       - name: Deploy
         working-directory: ${{ matrix.example.path }}
         run: |
-          dfx deploy internet_identity
+          dfx deploy
