@@ -5,9 +5,10 @@
       "type": "custom",
       "shrink": true,
       "gzip": true,
-      "wasm": "target/backend.wasm",
+      "wasm": "target/wasm32-unknown-unknown/release/backend.wasm",
       "build": [
-        "./build.sh"
+        "cargo build --target wasm32-unknown-unknown --release -p backend",
+        "candid-extractor target/wasm32-unknown-unknown/release/backend.wasm > backend/backend.did"
       ],
       "metadata": [
         {
