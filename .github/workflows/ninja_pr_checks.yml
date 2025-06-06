@@ -5,9 +5,6 @@ on:
     branches:
       - master
 
-concurrency:
-  group: ninja-pr-checks-${{ github.workflow }}-${{ github.ref }}
-
 jobs:
   check-ninja-example-changes:
     name: Filter projects
