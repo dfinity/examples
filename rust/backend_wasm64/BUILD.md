@@ -1,6 +1,6 @@
 # Building the Wasm64 example locally
 
-This is a wasm64-specific backend example that demonstrates building canisters with 64-bit memory addressing capabilities.
+This is a Wasm64-specific backend example that demonstrates building canisters with 64-bit memory addressing capabilities.
 
 ### 1. Install developer tools.
 
