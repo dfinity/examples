@@ -85,7 +85,7 @@ jobs:
     name: Build
     needs: check-ninja-example-changes
     if: needs.check-ninja-example-changes.outputs.has_examples == 'true'
-    runs-on: namespace-profile-ubuntu-24-04
+    runs-on: macos-13
     container: ghcr.io/dfinity/icp-dev-env-slim:20
     strategy:
       fail-fast: false
