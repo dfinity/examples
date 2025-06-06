@@ -87,7 +87,7 @@ jobs:
     if: needs.check-ninja-example-changes.outputs.has_examples == 'true'
     runs-on: ubuntu-24.04
     # TODO: Uncomment this when PocketIC addresses 502 Bad Gateway issue in LLM Chatbot example
-    # container: ghcr.io/dfinity/icp-dev-env-slim:20
+    container: ghcr.io/dfinity/icp-dev-env-slim:20
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.check-ninja-example-changes.outputs.matrix) }}
@@ -96,28 +96,27 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-        ###### Install dependencies of ghcr.io/dfinity/icp-dev-env-slim ######
-      - name: Install
-        run: |
-          IC_MOPS_VERSION=1.8.0
+      #   ###### Install dependencies of ghcr.io/dfinity/icp-dev-env-slim ######
+      # - name: Install
+      #   run: |
+      #     IC_MOPS_VERSION=1.8.0
 
-          # Install candid-extractor
-          curl -fsSL https://github.com/dfinity/candid-extractor/releases/download/0.1.5/candid-extractor-x86_64-unknown-linux-gnu.tar.gz -o candid-extractor.tar.gz
-          tar -xvf candid-extractor.tar.gz && rm candid-extractor.tar.gz
-          sudo mv candid-extractor /usr/local/bin
+      #     # Install candid-extractor
+      #     curl -fsSL https://github.com/dfinity/candid-extractor/releases/download/0.1.5/candid-extractor-x86_64-unknown-linux-gnu.tar.gz -o candid-extractor.tar.gz
+      #     tar -xvf candid-extractor.tar.gz && rm candid-extractor.tar.gz
+      #     sudo mv candid-extractor /usr/local/bin
 
-          # Install ic-mops
-          npm install -g ic-mops@${IC_MOPS_VERSION}
+      #     # Install ic-mops
+      #     npm install -g ic-mops@${IC_MOPS_VERSION}
 
-        ################################################################
+      #   ################################################################
       - name: Install dfx # This is a temporary workaround. Dfx is already installed in the container, but it does not start in the next step if we don't install it here again.
         uses: dfinity/setup-dfx@main
         with:
           dfx-version: "0.27.0"
 
-      - name: Start dfx
-        run: dfx start --background
-
-      - name: Build project
+      - name: Start dfx and build project
         working-directory: ${{ matrix.example.path }}
-        run: dfx deploy
+        run: |
+          RUST_LOG=trace dfx start --background --verbose
+          dfx deploy
