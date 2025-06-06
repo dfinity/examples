@@ -101,8 +101,10 @@ jobs:
         with:
           dfx-version: "0.27.0"
 
+      - name: Set up
+        run: dfx start --background --verbose
+
       - name: Deploy
         working-directory: ${{ matrix.example.path }}
         run: |
-          dfx start --background --verbose
           dfx deploy llm --no-wallet
