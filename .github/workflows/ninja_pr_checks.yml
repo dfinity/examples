@@ -100,9 +100,12 @@ jobs:
         with:
           dfx-version: "0.27.0"
 
-      - name: Start dfx and build project
-        working-directory: ${{ matrix.example.path }}
+      - name: Start dfx
+        # working-directory: ${{ matrix.example.path }}
         run: |
           # Note: Running these commands in the same step and with verbose output magically fixes the 502 Bad Gateway issue in dfx/pocketic for the LLM Chatbot example
           RUST_LOG=trace dfx start --background --verbose
-          dfx deploy
+
+      - name: Deploy
+        working-directory: ${{ matrix.example.path }}
+        run: dfx deploy
