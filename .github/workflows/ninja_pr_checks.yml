@@ -7,7 +7,6 @@ on:
 
 concurrency:
   group: ninja-pr-checks-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
 
 jobs:
   check-ninja-example-changes:
