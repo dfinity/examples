@@ -9,7 +9,7 @@ This application's logic is written in [Rust](https://internetcomputer.org/docs/
 ## What is Wasm64?
 
 The Wasm64 target allows canisters to:
-- Access larger memory spaces (up to 6GiB, compared to the 4GiB limit of wasm32)
+- Access larger memory spaces (up to 6GiB, compared to the 4GiB limit of Wasm32)
 - Use 64-bit memory addressing
 
 This example always builds for Wasm64 using Rust's nightly toolchain and the `-Z build-std` feature.
