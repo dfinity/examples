@@ -8,8 +8,7 @@ import '/index.css';
 const App = () => {
   const [chat, setChat] = useState([
     {
-      role: { system: null },
-      content: "I'm a sovereign AI agent living on the Internet Computer. Ask me anything."
+      system: { content: "I'm a sovereign AI agent living on the Internet Computer. Ask me anything." }
     }
   ]);
   const [inputValue, setInputValue] = useState('');
@@ -28,7 +27,7 @@ const App = () => {
       setChat((prevChat) => {
         const newChat = [...prevChat];
         newChat.pop();
-        newChat.push({ role: { system: null }, content: response });
+        newChat.push({ system: { content: response } });
         return newChat;
       });
     } catch (e) {
@@ -53,16 +52,15 @@ const App = () => {
     if (!inputValue.trim() || isLoading) return;
 
     const userMessage = {
-      role: { user: null },
-      content: inputValue
+      user: { content: inputValue }
     };
     const thinkingMessage = {
-      role: { system: null },
-      content: 'Thinking ...'
+      system: { content: 'Thinking ...' }
     };
     setChat((prevChat) => [...prevChat, userMessage, thinkingMessage]);
     setInputValue('');
     setIsLoading(true);
+
     const messagesToSend = chat.slice(1).concat(userMessage);
     askAgent(messagesToSend);
   };
@@ -78,10 +76,10 @@ const App = () => {
       <div className="flex h-[80vh] w-full max-w-2xl flex-col rounded-lg bg-white shadow-lg">
         <div className="flex-1 overflow-y-auto rounded-t-lg bg-gray-100 p-4" ref={chatBoxRef}>
           {chat.map((message, index) => {
-            const isUser = 'user' in message.role;
+            const isUser = 'user' in message;
             const img = isUser ? userImg : botImg;
             const name = isUser ? 'User' : 'System';
-            const text = message.content;
+            const text = isUser ? message.user.content : message.system.content;
 
             return (
               <div key={index} className={`flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`}>
