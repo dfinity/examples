@@ -55,11 +55,10 @@
 /native-apps/unity_ii_deeplink/ @dfinity/sdk
 
 /rust/basic_bitcoin/ @dfinity/cross-chain-team
-/rust/basic_dao/ @dfinity/testing-verification
 /rust/basic_ethereum/ @dfinity/cross-chain-team
 /rust/backend_only/ @dfinity/ninja-devs
 /rust/backend_wasm64/ @dfinity/sdk
-/rust/canister-info/ @dfinity/testing-verification
+/rust/canister-info/ @dfinity/execution
 /rust/canister-snapshots/ @dfinity/execution
 /rust/canister_logs/ @dfinity/execution
 /rust/composite_query/ @dfinity/execution
