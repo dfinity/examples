@@ -1,4 +1,5 @@
 * @dfinity/editorial
+.github/workflows/ninja_pr_checks.yml @dfinity/ninja-devs
 
 /c/adventure/ @dfinity/growth
 /c/qr/ @dfinity/growth
@@ -98,10 +99,3 @@
 /svelte/sveltekit-starter/ @dfinity/sdk
 
 /wasm/counter @dfinity/languages
-
-
-
-
-
-
-

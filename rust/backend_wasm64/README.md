@@ -6,6 +6,13 @@ This example specifically showcases building and deploying canisters compiled to
 
 This application's logic is written in [Rust](https://internetcomputer.org/docs/building-apps/developer-tools/cdks/rust/intro-to-rust), a programming language that can be used develop canisters on ICP.
 
+## Deploying from ICP Ninja
+
+When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner. Open this project in ICP Ninja:
+
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/rust/backend_wasm64)
+
+
 ## What is Wasm64?
 
 The Wasm64 target allows canisters to:
