@@ -49,23 +49,36 @@ const App = () => {
   };
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-    if (!inputValue.trim() || isLoading) return;
+  e.preventDefault();
+  if (!inputValue.trim() || isLoading) return;
 
-    const userMessage = {
-      role: { user: null },
-      content: inputValue
-    };
-    const thinkingMessage = {
-      role: { system: null },
-      content: 'Thinking ...'
-    };
-    setChat((prevChat) => [...prevChat, userMessage, thinkingMessage]);
-    setInputValue('');
-    setIsLoading(true);
-    const messagesToSend = chat.slice(1).concat(userMessage);
-    askAgent(messagesToSend);
+  const userMessage = {
+    role: { user: null },
+    content: inputValue
   };
+  const thinkingMessage = {
+    role: { system: null },
+    content: 'Thinking ...'
+  };
+  setChat((prevChat) => [...prevChat, userMessage, thinkingMessage]);
+  setInputValue('');
+  setIsLoading(true);
+
+  // Transform internal format to Motoko-compatible variant
+  const rawMessages = chat.slice(1).concat(userMessage);
+  const messagesToSend = rawMessages.map((msg) => {
+    if ('user' in msg.role) {
+      return { user: { content: msg.content } };
+    }
+    if ('system' in msg.role) {
+      return { system: { content: msg.content } };
+    }
+    // Fallback
+    return { system: { content: msg.content } };
+  });
+
+  askAgent(messagesToSend);
+};
 
   useEffect(() => {
     if (chatBoxRef.current) {
