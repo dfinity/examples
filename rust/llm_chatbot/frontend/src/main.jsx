@@ -61,7 +61,6 @@ const App = () => {
     setInputValue('');
     setIsLoading(true);
 
-    // No conversion needed - messages are already in backend format!
     const messagesToSend = chat.slice(1).concat(userMessage);
     askAgent(messagesToSend);
   };
