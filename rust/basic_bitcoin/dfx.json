@@ -20,12 +20,7 @@
   "defaults": {
     "bitcoin": {
       "enabled": true,
-      "nodes": ["127.0.0.1:18444"],
-      "log_level": "error"
-    },
-    "build": {
-      "packtool": "",
-      "args": ""
+      "nodes": ["127.0.0.1:18444"]
     }
   },
   "networks": {

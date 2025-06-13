@@ -10,31 +10,31 @@ This example integrates with the Internet Computer's built-in:
 - [Schnorr API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr)
 - [Bitcoin API](https://github.com/dfinity/bitcoin-canister/blob/master/INTERFACE_SPECIFICATION.md)
 
-For background on the ICP <-> BTC integration, refer to the [Learn Hub](https://learn.internetcomputer.org/hc/en-us/articles/34211154520084-Bitcoin-Integration).
+For background on the ICP<>BTC integration, refer to the [Learn Hub](https://learn.internetcomputer.org/hc/en-us/articles/34211154520084-Bitcoin-Integration).
 
 ## Prerequisites
 
 - [x] [Rust toolchain](https://www.rust-lang.org/tools/install)
 - [x] [Internet Computer SDK](https://internetcomputer.org/docs/building-apps/getting-started/install)
-- [x] [Local installation of Bitcoin](https://internetcomputer.org/docs/building-apps/chain-fusion/bitcoin/using-btc/local-development) 
-- [x] On macOS, an `llvm` version that supports the `wasm32-unknown-unknown` target is required. This is because the `bitcoin` library relies on `secp256k1-sys`, which requires `llvm` to build. The default `llvm` version provided by XCode does not meet this requirement. Instead, install the [Homebrew version](https://formulae.brew.sh/formula/llvm), using `brew install llvm`. 
+- [x] [Local Bitcoin testnet (regtest)](https://internetcomputer.org/docs/build-on-btc/btc-dev-env#create-a-local-bitcoin-testnet-regtest-with-bitcoind) 
+- [x] On macOS, an `llvm` version that supports the `wasm32-unknown-unknown` target is required. This is because the Rust `bitcoin` library relies on the `secp256k1-sys` crate, which requires `llvm` to build. The default `llvm` version provided by XCode does not meet this requirement. Instead, install the [Homebrew version](https://formulae.brew.sh/formula/llvm), using `brew install llvm`. 
 
-## Step 1: Building and deploying the smart contract
+## Building and deploying the smart contract
 
-### Clone the examples repo
+### 1. Clone the examples repo
 
 ```bash
 git clone https://github.com/dfinity/examples
 cd examples/rust/basic_bitcoin
 ```
 
-### Start the ICP local development environment
+### 2. Start the ICP execution environment
 
 ```bash
 dfx start --clean --background
 ```
 
-### Start the local Bitcoin testnet (regtest)
+### 3. Start the Bitcoin testnet (regtest)
 
 In a separate terminal window, run the following: 
 
@@ -42,7 +42,7 @@ In a separate terminal window, run the following:
 bitcoind -conf=$(pwd)/bitcoin.conf -datadir=$(pwd)/bitcoin_data --port=18444
 ```
 
-### Deploy the smart contract
+### 4. Deploy the smart contract
 
 ```bash
 dfx deploy basic_bitcoin --argument '(variant { regtest })'
@@ -61,9 +61,9 @@ Your smart contract is live and ready to use! You can interact with it using eit
 > 
 > Access the Candid UI of the example: https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=vvha6-7qaaa-aaaap-ahodq-cai
 
-## 2. Supported Bitcoin address types
+## Generating Bitcoin addresses
 
-This example demonstrates how to generate and use the following address types:
+The example demonstrates how to generate and use the following address types:
 
 1. **P2PKH (Legacy)** using ECDSA and `sign_with_ecdsa`
 2. **P2WPKH (SegWit v0)** using ECDSA and `sign_with_ecdsa`
@@ -77,7 +77,7 @@ dfx canister call basic_bitcoin get_p2pkh_address
 # or get_p2wpkh_address, get_p2tr_key_path_only_address, get_p2tr_script_path_enabled_address
 ```
 
-## 3. Receiving bitcoin
+## Receiving Bitcoin
 
 Use the `bitcoin-cli` to mine a Bitcoin block and send the block reward in the form of local testnet BTC to one of the smart contract addresses.
 
@@ -85,7 +85,7 @@ Use the `bitcoin-cli` to mine a Bitcoin block and send the block reward in the f
 bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 1 <bitcoin_address>
 ```
 
-## 4. Checking balance
+## Checking balance
 
 Check the balance of any Bitcoin address:
 
@@ -95,7 +95,7 @@ dfx canister call basic_bitcoin get_balance '("<bitcoin_address>")'
 
 This uses `bitcoin_get_balance` and works for any supported address type. Requires at least one confirmation to be reflected.
 
-## 5. Sending bitcoin
+## Sending Bitcoin
 
 You can send BTC using the following endpoints:
 
@@ -123,15 +123,15 @@ dfx canister call basic_bitcoin send_from_p2pkh_address '(record {
 ```
 
 > [!IMPORTANT]
-> Newly created bitcoin, like those you created with the above `bitcoin-cli` command cannot be spent until 10 additional blocks have been added to the chain. To make your bitcoin spendable, create 10 additional blocks. Choose one of the smart contract addresses as receiver of the block reward or use any valid bitcoin dummy address.
+> Newly mined bitcoin, like those you created with the above `bitcoin-cli` command cannot be spent until 100 additional blocks have been added to the chain. To make your bitcoin spendable, create 100 additional blocks. Choose one of the smart contract addresses as receiver of the block reward or use any valid bitcoin dummy address.
 > 
 > ```bash
-> bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 10 <bitcoin_address>
+> bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 100 <bitcoin_address>
 > ```
 
-The function returns the transaction ID, which you can track on [mempool.space testnet4](https://mempool.space/testnet4/).
+The function returns the transaction ID. When interacting with the contract deployed on IC mainnet, you can track testnet transactions on [mempool.space](https://mempool.space/testnet4/).
 
-## 6. Retrieving block headers
+## Retrieving block headers
 
 You can query historical block headers:
 
@@ -148,20 +148,7 @@ This calls `bitcoin_get_block_headers`, useful for validating blockchains or lig
 - Keys are derived using structured derivation paths according to BIP-32.
 - Key caching is used to avoid repeated calls to `get_ecdsa_public_key` and `get_schnorr_public_key`.
 - Transactions are assembled and signed manually, ensuring maximum flexibility in construction and fee estimation.
-
-## Conclusion
-
-In this tutorial, you were able to:
-
-- Deploy a smart contract locally that can receive & send bitcoin.
-- Connect the smart contract to the local Bitcoin testnet.
-- Send the smart contract some local testnet BTC.
-- Check the local testnet BTC balance of the smart contract.
-- Use the smart contract to send local testnet BTC to another local testnet BTC address.
-
-The steps to develop Bitcoin dapps locally are extensively documented in [this tutorial](https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/local-development).
-
-Note that for _testing_ on mainnet, the [chain-key testing canister](https://github.com/dfinity/chainkey-testing-canister) can be used to save on costs for calling the threshold signing APIs for signing the BTC transactions.
+- When _testing_ on mainnet, the [chain-key testing canister](https://github.com/dfinity/chainkey-testing-canister) can be used to save on costs for calling the threshold signing APIs for signing the BTC transactions.
 
 ## Security considerations and best practices
 
@@ -174,4 +161,4 @@ For example, the following aspects are particularly relevant for this app:
 
 ---
 
-_Last updated: May 2025_
+_Last updated: June 2025_
