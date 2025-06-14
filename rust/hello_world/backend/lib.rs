@@ -24,16 +24,13 @@ thread_local! {
 // This update method stores the greeting prefix in stable memory.
 #[ic_cdk::update]
 fn set_greeting(prefix: String) {
-    GREETING.with_borrow_mut(|greeting| {
-        greeting.set(prefix).unwrap();
-    });
+    GREETING.with_borrow_mut(|greeting| greeting.set(prefix).unwrap());
 }
 
 // This query method returns the currently persisted greeting with the given name.
 #[ic_cdk::query]
 fn greet(name: String) -> String {
-    let greeting = GREETING.with_borrow(|greeting| greeting.get().clone());
-    format!("{greeting}{name}!")
+    GREETING.with_borrow(|greeting| format!("{}{name}!", greeting.get()))
 }
 
 // Export the interface for the smart contract.
