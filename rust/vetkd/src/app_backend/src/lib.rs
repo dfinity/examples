@@ -1,10 +1,6 @@
 use candid::Principal;
 use ic_cdk::api::msg_caller;
-use ic_cdk::call::Call;
-use ic_cdk::management_canister::{
-    VetKDCurve, VetKDDeriveKeyArgs, VetKDDeriveKeyResult, VetKDKeyId, VetKDPublicKeyArgs,
-    VetKDPublicKeyResult,
-};
+use ic_cdk::management_canister::{VetKDCurve, VetKDDeriveKeyArgs, VetKDKeyId, VetKDPublicKeyArgs};
 use ic_cdk::update;
 
 #[update]
@@ -15,13 +11,9 @@ async fn symmetric_key_verification_key() -> String {
         key_id: bls12_381_g2_dfx_test_key(),
     };
 
-    let response: VetKDPublicKeyResult =
-        Call::unbounded_wait(Principal::management_canister(), "vetkd_public_key")
-            .with_arg(request)
-            .await
-            .expect("call to vetkd_public_key failed")
-            .candid()
-            .expect("decoding failed");
+    let response = ic_cdk::management_canister::vetkd_public_key(&request)
+        .await
+        .expect("call to vetkd_public_key failed");
 
     hex::encode(response.public_key)
 }
@@ -37,14 +29,9 @@ async fn encrypted_symmetric_key_for_caller(transport_public_key: Vec<u8>) -> St
         transport_public_key,
     };
 
-    let response: VetKDDeriveKeyResult =
-        Call::unbounded_wait(Principal::management_canister(), "vetkd_derive_key")
-            .with_arg(request)
-            .with_cycles(26_153_846_153)
-            .await
-            .expect("call to vetkd_derive_key failed")
-            .candid()
-            .expect("decoding failed");
+    let response = ic_cdk::management_canister::vetkd_derive_key(&request)
+        .await
+        .expect("call to vetkd_derive_key failed");
 
     hex::encode(response.encrypted_key)
 }
@@ -57,13 +44,9 @@ async fn ibe_encryption_key() -> String {
         key_id: bls12_381_g2_dfx_test_key(),
     };
 
-    let response: VetKDPublicKeyResult =
-        Call::unbounded_wait(Principal::management_canister(), "vetkd_public_key")
-            .with_arg(request)
-            .await
-            .expect("call to vetkd_public_key failed")
-            .candid()
-            .expect("decoding failed");
+    let response = ic_cdk::management_canister::vetkd_public_key(&request)
+        .await
+        .expect("call to vetkd_public_key failed");
 
     hex::encode(response.public_key)
 }
@@ -79,14 +62,9 @@ async fn encrypted_ibe_decryption_key_for_caller(transport_public_key: Vec<u8>) 
         transport_public_key,
     };
 
-    let response: VetKDDeriveKeyResult =
-        Call::unbounded_wait(Principal::management_canister(), "vetkd_derive_key")
-            .with_arg(request)
-            .with_cycles(26_153_846_153)
-            .await
-            .expect("call to vetkd_derive_key failed")
-            .candid()
-            .expect("decoding failed");
+    let response = ic_cdk::management_canister::vetkd_derive_key(&request)
+        .await
+        .expect("call to vetkd_derive_key failed");
 
     hex::encode(response.encrypted_key)
 }
