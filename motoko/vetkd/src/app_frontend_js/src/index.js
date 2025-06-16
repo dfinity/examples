@@ -181,7 +181,7 @@ async function ibe_encrypt(message) {
   document.getElementById("ibe_encrypt_result").innerText = "IBE-encrypting for principal" + ibe_principal.toText() + "...";
   const ibe_ciphertext = IbeCiphertext.encrypt(
     dpk,
-    IbeIdentity.fromBytes(ibe_principal.toUint8Array()),
+    IbeIdentity.fromPrincipal(ibe_principal),
     message_encoded,
     IbeSeed.random(),
   );
