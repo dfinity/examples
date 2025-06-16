@@ -11,9 +11,7 @@ It includes:
 
 * An example frontend (`src/app_frontend_js`) that uses the backend from Javascript in the browser.
 
-  The frontend uses the [ic-vetkd-utils](https://github.com/dfinity/ic/tree/master/packages/ic-vetkd-utils) to create a transport key pair that is used to obtain a verifiably encrypted key from the system API, to decrypt this key, and to derive a symmetric key to be used for AES encryption/decryption.
-
-  Because the `ic-vetkd-utils` are not yet published as NPM package at [npmjs.com](https://npmjs.com), a respective package file (`ic-vetkd-utils-0.1.0.tgz`) is included in this repository.
+  The frontend uses [@dfinity/vetkeys](https://www.npmjs.com/package/@dfinity/vetkeys) to create a transport key pair that is used to obtain a verifiably encrypted key from the system API, to decrypt this key, and to derive a symmetric key to be used for AES encryption/decryption.
 
 ## Prerequisites
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
