@@ -1,5 +1,5 @@
 import { createActor, app_backend } from "../../declarations/app_backend";
-import * as vetkd from "@dfinity/vetkeys";
+import { TransportSecretKey, EncryptedVetKey, DerivedPublicKey, IbeCiphertext, IbeIdentity, IbeSeed } from "@dfinity/vetkeys";
 import { AuthClient } from "@dfinity/auth-client"
 import { HttpAgent, Actor } from "@dfinity/agent";
 import { Principal } from "@dfinity/principal";
@@ -92,13 +92,13 @@ function update_ciphertext_button_state() {
 }
 
 async function get_derived_key_material() {
-  const tsk = vetkd.TransportSecretKey.random();
+  const tsk = TransportSecretKey.random();
 
   const ek_bytes_hex = await app_backend_actor.encrypted_symmetric_key_for_caller(tsk.publicKeyBytes());
-  const encryptedVetKey = new vetkd.EncryptedVetKey(hex_decode(ek_bytes_hex));
+  const encryptedVetKey = new EncryptedVetKey(hex_decode(ek_bytes_hex));
 
   const pk_bytes_hex = await app_backend_actor.symmetric_key_verification_key();
-  const dpk = vetkd.DerivedPublicKey.deserialize(hex_decode(pk_bytes_hex));
+  const dpk = DerivedPublicKey.deserialize(hex_decode(pk_bytes_hex));
 
   const vetKey = encryptedVetKey.decryptAndVerify(tsk, dpk, app_backend_principal.toUint8Array());
 
@@ -172,18 +172,18 @@ function update_ibe_decrypt_button_state() {
 async function ibe_encrypt(message) {
   document.getElementById("ibe_encrypt_result").innerText = "Fetching IBE encryption key..."
   const pk_bytes_hex = await app_backend_actor.ibe_encryption_key();
-  const dpk = vetkd.DerivedPublicKey.deserialize(hex_decode(pk_bytes_hex));
+  const dpk = DerivedPublicKey.deserialize(hex_decode(pk_bytes_hex));
 
   document.getElementById("ibe_encrypt_result").innerText = "Preparing IBE-encryption..."
   const message_encoded = new TextEncoder().encode(message);
   let ibe_principal = Principal.fromText(document.getElementById("ibe_principal").value);
 
   document.getElementById("ibe_encrypt_result").innerText = "IBE-encrypting for principal" + ibe_principal.toText() + "...";
-  const ibe_ciphertext = vetkd.IbeCiphertext.encrypt(
+  const ibe_ciphertext = IbeCiphertext.encrypt(
     dpk,
-    vetkd.IbeIdentity.fromBytes(ibe_principal.toUint8Array()),
+    IbeIdentity.fromBytes(ibe_principal.toUint8Array()),
     message_encoded,
-    vetkd.IbeSeed.random(),
+    IbeSeed.random(),
   );
   return hex_encode(ibe_ciphertext.serialize());
 }
@@ -191,12 +191,12 @@ async function ibe_encrypt(message) {
 async function ibe_decrypt(ibe_ciphertext_hex) {
   document.getElementById("ibe_decrypt_result").innerText = "Fetching IBE enryption key (needed for verification)..."
   const pk_bytes_hex = await app_backend_actor.ibe_encryption_key();
-  const dpk = vetkd.DerivedPublicKey.deserialize(hex_decode(pk_bytes_hex));
+  const dpk = DerivedPublicKey.deserialize(hex_decode(pk_bytes_hex));
 
   document.getElementById("ibe_decrypt_result").innerText = "Fetching IBE decryption key..."
-  const tsk = vetkd.TransportSecretKey.random();
+  const tsk = TransportSecretKey.random();
   const ek_bytes_hex = await app_backend_actor.encrypted_ibe_decryption_key_for_caller(tsk.publicKeyBytes());
-  const encryptedVetKey = new vetkd.EncryptedVetKey(hex_decode(ek_bytes_hex));
+  const encryptedVetKey = new EncryptedVetKey(hex_decode(ek_bytes_hex));
 
   document.getElementById("ibe_decrypt_result").innerText = "Decrypting and verifying IBE decryption key..."
   const vetKey = encryptedVetKey.decryptAndVerify(
@@ -206,7 +206,7 @@ async function ibe_decrypt(ibe_ciphertext_hex) {
   );
 
   document.getElementById("ibe_decrypt_result").innerText = "Using IBE decryption key to decrypt ciphertext..."
-  const ibe_ciphertext = vetkd.IbeCiphertext.deserialize(hex_decode(ibe_ciphertext_hex));
+  const ibe_ciphertext = IbeCiphertext.deserialize(hex_decode(ibe_ciphertext_hex));
   const ibe_plaintext = ibe_ciphertext.decrypt(vetKey);
   return new TextDecoder().decode(ibe_plaintext);
 }
