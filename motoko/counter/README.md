@@ -6,65 +6,24 @@ By using the Motoko keyword stable when declaring the counter variable, the valu
 
 The application provides an interface that exposes the following methods:
 
-- `set`: sets the value of the counter.
-- `inc`: increments the value of the counter.
-- `get`: gets the value of the counter.
+- `set`: Sets the value of the counter.
+- `inc`: Increments the value of the counter.
+- `get`: Gets the value of the counter.
 
-## Prerequisites
-This example requires an installation of:
+## Deploying from ICP Ninja
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
-- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/motoko/canister_logs)
 
-Begin by opening a terminal window.
+## Build and deploy from the command-line
 
-## Step 1: Setup the project environment
+### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
 
-Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
+### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
 
+### 3. Navigate into the project's directory.
 
-```bash
-cd examples/motoko/counter
-dfx start --background
-```
-
-## Step 2: Deploy the canister
-
-```bash
-dfx deploy
-```
-
- ## Step 3: Set the value of the counter
-
-```bash
-dfx canister call counter set '(7)'
-```
-
-## Step 4: Increment the value of the counter
-
-```bash
-dfx canister call counter inc
-```
-
-## Step 5: Get the value of the counter
-
-```bash
-dfx canister call counter get
-```
-
-The following output should be returned:
-
-```bash
-(8 : nat)
-```
-
-## Resources
-To learn more about these features of Motoko, see:
-
-- [Orthogonal persistence](https://internetcomputer.org/docs/current/motoko/main/motoko#orthogonal-persistence).
-- [Declaring stable values](https://internetcomputer.org/docs/current/motoko/main/upgrades#declaring-stable-variables).
-
+### 4. Run `dfx start --background --clean && dfx deploy` to deploy the project to your local environment. 
 
 ## Security considerations and best practices
 
-If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
