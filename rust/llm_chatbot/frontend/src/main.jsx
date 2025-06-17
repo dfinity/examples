@@ -27,7 +27,7 @@ const App = () => {
       setChat((prevChat) => {
         const newChat = [...prevChat];
         newChat.pop();
-        newChat.push({ system: { content: response } });
+        newChat.push({ assistant: { content: response } });
         return newChat;
       });
     } catch (e) {
