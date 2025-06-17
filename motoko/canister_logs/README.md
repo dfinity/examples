@@ -17,3 +17,7 @@ This application's logic is written in [Motoko](https://internetcomputer.org/doc
 ### 3. Navigate into the project's directory.
 
 ### 4. Run `dfx start --background --clean && dfx deploy` to deploy the project to your local environment. 
+
+## Security considerations and best practices
+
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
