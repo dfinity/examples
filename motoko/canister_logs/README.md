@@ -10,9 +10,9 @@ This application's logic is written in [Motoko](https://internetcomputer.org/doc
 
 ## Build and deploy from the command-line
 
-### 1. Download and install the IC SDK.
+### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
 
-### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or clone the GitHub examples repository.
+### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
 
 ### 3. Navigate into the project's directory.
 
