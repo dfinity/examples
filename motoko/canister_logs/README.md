@@ -2,7 +2,7 @@
 
 This backend only project demonstrates how to use basic logging functionalities in a Motoko application.
 
-This application's logic is written in [Motoko](https://internetcomputer.org/docs/motoko/main/getting-started/motoko-introduction), a programming language designed specifically for developing canisters on ICP.
+This application's logic is written in [Motoko](https://internetcomputer.org/docs/motoko/home), a programming language designed specifically for developing canisters on ICP.
 
 ## Deploying from ICP Ninja
 
