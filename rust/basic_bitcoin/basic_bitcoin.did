@@ -42,7 +42,7 @@ type get_block_headers_response = record {
 
 service : (network) -> {
   "get_p2pkh_address" : () -> (bitcoin_address);
-  
+
   "get_p2wpkh_address" : () -> (bitcoin_address);
 
   "get_p2tr_script_path_enabled_address" : () -> (bitcoin_address);
@@ -56,6 +56,8 @@ service : (network) -> {
   "get_block_headers" : (start_height : block_height, end_height : opt block_height) -> (get_block_headers_response);
 
   "get_current_fee_percentiles" : () -> (vec millisatoshi_per_vbyte);
+
+  "inscribe_ordinal": (text: text) -> (transaction_id);
 
   "send_from_p2pkh_address" : (
     record {

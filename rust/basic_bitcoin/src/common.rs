@@ -8,28 +8,11 @@ use ic_cdk::bitcoin_canister::{
 };
 use std::fmt;
 
-/// Constructs a Bitcoin transaction from the given UTXOs, sending the specified `amount`
-/// to `dst_address`, subtracting a fixed `fee`, and returning any remaining change
-/// to `own_address` (if it's not considered dust (leftover bitcoin that is lower in value than the minimum limit of a valid transaction)).
-///
-/// Returns the constructed unsigned transaction and the list of previous outputs (`prevouts`)
-/// used for signing.
-///
-/// Assumes that:
-/// - Inputs are unspent and valid
-/// - Dust threshold is 1_000 satoshis (outputs below this are omitted)
-/// - UTXOs are already filtered to be spendable (e.g., confirmed, mature)
-pub fn build_transaction_with_fee(
+pub fn select_utxos_greedy(
     own_utxos: &[Utxo],
-    own_address: &Address,
-    dst_address: &Address,
     amount: u64,
     fee: u64,
-) -> Result<(Transaction, Vec<TxOut>), String> {
-    // Define a dust threshold below which change outputs are discarded.
-    const DUST_THRESHOLD: u64 = 1_000;
-
-    // --- Input Selection ---
+) -> Result<Vec<&Utxo>, String> {
     // Greedily select UTXOs in reverse order (oldest last) until we cover amount + fee.
     let mut utxos_to_spend = vec![];
     let mut total_spent = 0;
@@ -49,6 +32,43 @@ pub fn build_transaction_with_fee(
         ));
     }
 
+    Ok(utxos_to_spend)
+}
+
+pub fn select_one_utxo(own_utxos: &[Utxo], amount: u64, fee: u64) -> Result<Vec<&Utxo>, String> {
+    for utxo in own_utxos.iter().rev() {
+        if utxo.value >= amount + fee {
+            return Ok(vec![&utxo]);
+        }
+    }
+
+    Err(format!(
+        "No sufficiently large utxo found: amount {} satoshi, fee {}",
+        amount, fee
+    ))
+}
+
+/// Constructs a Bitcoin transaction from the given UTXOs, sending the specified `amount`
+/// to `dst_address`, subtracting a fixed `fee`, and returning any remaining change
+/// to `own_address` (if it's not considered dust (leftover bitcoin that is lower in value than the minimum limit of a valid transaction)).
+///
+/// Returns the constructed unsigned transaction and the list of previous outputs (`prevouts`)
+/// used for signing.
+///
+/// Assumes that:
+/// - Inputs are unspent and valid
+/// - Dust threshold is 1_000 satoshis (outputs below this are omitted)
+/// - UTXOs are already filtered to be spendable (e.g., confirmed, mature)
+pub fn build_transaction_with_fee(
+    utxos_to_spend: Vec<&Utxo>,
+    own_address: &Address,
+    dst_address: &Address,
+    amount: u64,
+    fee: u64,
+) -> Result<(Transaction, Vec<TxOut>), String> {
+    // Define a dust threshold below which change outputs are discarded.
+    const DUST_THRESHOLD: u64 = 1_000;
+
     // --- Build Inputs ---
     let inputs: Vec<TxIn> = utxos_to_spend
         .iter()
@@ -67,6 +87,7 @@ pub fn build_transaction_with_fee(
     // Each TxOut struct represents an output of a previous transaction that is now being spent.
     // This information is needed later when signing transactions for P2TR and P2WPKH.
     let prevouts = utxos_to_spend
+        .clone()
         .into_iter()
         .map(|utxo| TxOut {
             value: Amount::from_sat(utxo.value),
@@ -82,6 +103,7 @@ pub fn build_transaction_with_fee(
     }];
 
     // Add a change output if the remainder is above the dust threshold.
+    let total_spent: u64 = utxos_to_spend.iter().map(|utxo| utxo.value).sum();
     let change = total_spent - amount - fee;
     if change >= DUST_THRESHOLD {
         outputs.push(TxOut {
