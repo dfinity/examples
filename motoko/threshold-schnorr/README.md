@@ -1,6 +1,6 @@
 # Threshold Schnorr
 
-We present a minimal example canister smart contract for showcasing the [threshold Schnorr](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr) API.
+We present a minimal example canister smart contract for showcasing the [threshold Schnorr](https://internetcomputer.org/docs/building-apps/network-features/signatures/t-schnorr) API.
 
 The example canister is a signing oracle that creates Schnorr signatures with
 keys derived based on the canister ID and the chosen algorithm, either BIP340/BIP341 or
@@ -15,84 +15,21 @@ More specifically:
   (the threshold Schnorr subnet is a subnet generating threshold Schnorr
   signatures).
 
-This walkthrough focuses on the version of the sample canister code written in
-Motoko programming language. There is also a
-[Rust](https://github.com/dfinity/examples/tree/master/rust/threshold-schnorr)
-version available in the same repo and follows the same commands for deploying.
+## Deploying from ICP Ninja
 
-## Local development
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/motoko/threshold-schnorr)
 
-### Prerequisites
-This example requires an installation of:
+## Build and deploy from the command-line
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
-- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
-- [x] For running tests also install [`npm`](https://docs.npmjs.com/downloading-and-installing-node-js-and-npm).
+### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
 
-Begin by opening a terminal window.
+### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
 
-### Step 1: Setup the project environment
+### 3. Navigate into the project's directory.
 
-Navigate into the folder containing the project's files, start a local instance of the Internet Computer and with the commands:
+### 4. Run `dfx start --background --clean && dfx deploy` to deploy the project to your local environment. 
 
-```bash
-cd examples/motoko/threshold-schnorr
-dfx start --background
-```
-
-#### What this does
-- `dfx start --background` starts a local instance of the IC via the IC SDK.
-
-### Step 2: Deploy the canisters
-
-```bash
-make deploy
-```
-
-#### What this does
-- `make deploy` deploys the canister code on the local version of the IC.
-
-If deployment was successful, you should see something like this:
-
-```bash
-Deployed canisters.
-URLs:
-  Backend canister via Candid interface:
-    schnorr_example_motoko: http://127.0.0.1:4943/?canisterId=t6rzw-2iaaa-aaaaa-aaama-cai&id=st75y-vaaaa-aaaaa-aaalq-cai
-```
-
-If you open the URL in a web browser, you will see a web UI that shows the
-public methods the canister exposes. Since the canister exposes `public_key`, 
-`sign`, and `verify`, those are rendered in the web UI.
-
-### Step 3 (optional): Run tests
-
-```bash
-npm install
-make test
-```
-
-#### What this does
-
-- `npm install` installs test javascript dependencies
-- `make test` deploys and tests the canister code on the local version of the
-  IC
-
-
-## Deploying the canister on the mainnet
-
-To deploy this canister on the mainnet, one needs to do two things:
-
-- Acquire cycles (equivalent of "gas" in other blockchains). This is necessary for all canisters.
-- Update the sample source code to have the right key ID. This is unique to this canister.
-
-### Acquire cycles to deploy
-
-Deploying to the Internet Computer requires
-[cycles](https://internetcomputer.org/docs/current/developer-docs/getting-started/tokens-and-cycles)
-(the equivalent of "gas" on other blockchains).
-
-### Update source code with the right key ID
+### 5. Update source code with the right key ID
 
 To deploy the sample code, the canister needs the right key ID for the right environment. Specifically, one needs to replace the value of the `key_id` in the `src/schnorr_example_motoko/src/lib.rs` file of the sample code. Before deploying to mainnet, one should modify the code to use the right name of the `key_id`.
 
@@ -112,84 +49,21 @@ be deployed locally:
 key_id = { algorithm = algorithm_arg; name = "insecure_test_key_1" }
 ```
 
-IMPORTANT: To deploy to IC mainnet, one needs to replace `"insecure_test_key_1"` with
-either `"test_key_1"` or `"key_1"` depending on the desired intent. Both uses of
-key ID in `src/schnorr_example_motoko/src/main.mo` must be consistent.
+> [!WARNING]
+> IMPORTANT: To deploy to IC mainnet, one needs to replace `"insecure_test_key_1"` with either `"test_key_1"` or `"key_1"` depending on the desired intent. Both uses of key ID in `src/schnorr_example_motoko/src/main.mo` must be consistent.
 
 ### Deploying
 
-To [deploy via the mainnet](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-mainnet.md), run the following commands:
+To [deploy via mainnet](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-mainnet.md), run the following commands:
 
 ```bash
+npm install
 dfx deploy --network ic
 ```
-If successful, you should see something like this:
-
-```bash
-Deployed canisters.
-URLs:
-  Backend canister via Candid interface:
-    schnorr_example_motoko: https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=enb64-iaaaa-aaaap-ahnkq-cai
-```
-
-The implementation of this canister in Rust is (`schnorr_example_rust`) is
-deployed on mainnet. It has the URL
-https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=enb64-iaaaa-aaaap-ahnkq-cai
-and serves up the Candid web UI for this particular canister deployed on
-mainnet.
 
 ## Obtaining public keys
 
-### Using the Candid UI
-
-If you deployed your canister locally or to the mainnet, you should have a URL to the Candid web UI where you can access the public methods. We can call the `public_key` method.
-
-In the example below, the method returns
-`6e48e755842d0323be83edc7fc8766a20423c8127f7731993873d2f123d01a34` as the
-Ed25519 public key.
-
-```json
-{
-  "Ok":
-  {
-    "public_key_hex": "6e48e755842d0323be83edc7fc8766a20423c8127f7731993873d2f123d01a34"
-  }
-}
-```
-
-
-### Code walkthrough
-Open the file `main.mo`, which will show the following Motoko code that
-demonstrates how to obtain a Schnorr public key.
-
-```motoko
-  public shared ({ caller }) func public_key(algorithm : SchnorrAlgorithm) : async {
-    #ok : { public_key_hex : Text };
-    #err : Text;
-  } {
-    try {
-      let { public_key } = await ic.schnorr_public_key({
-        canister_id = null;
-        derivation_path = [Principal.toBlob(caller)];
-        key_id = { algorithm; name = "insecure_test_key_1" };
-      });
-      #Ok({ public_key_hex = Hex.encode(Blob.toArray(public_key)) });
-    } catch (err) {
-      #err(Error.message(err));
-    };
-  };
-```
-
-In the code above, the canister calls the `schnorr_public_key` method of the [IC management canister](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-management-canister) (`aaaaa-aa`).
-
-
-**The [IC management
-canister](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-management-canister)
-is just a facade; it does not exist as a canister (with isolated state, Wasm
-code, etc.). It is an ergonomic way for canisters to call the system API of the
-IC (as if it were a single canister). In the code below, we use the management
-canister to create a Schnorr public key. Canister ID `"aaaaa-aa"`
-declares the IC management canister in the canister code.**
+If you deployed your canister locally or to the mainnet, you should have a URL to the Candid web UI where you can access the public methods. You can call the `public_key` method.
 
 ### Canister root public key
 
@@ -203,33 +77,6 @@ For obtaining the canister's root public key, the derivation path in the API can
 ## Signing
 
 Computing threshold Schnorr signatures is the core functionality of this feature. **Canisters do not hold Schnorr keys themselves**, but keys are derived from a master key held by dedicated subnets. A canister can request the computation of a signature through the management canister API. The request is then routed to a subnet holding the specified key and the subnet computes the requested signature using threshold cryptography. Thereby, it derives the canister root key or a key obtained through further derivation, as part of the signature protocol, from a shared secret and the requesting canister's principal identifier. Thus, a canister can only request signatures to be created for its canister root key or a key derived from it. This means, that canisters "control" their private Schnorr keys in that they decide when signatures are to be created with them, but don't hold a private key themselves.
-
-```motoko
-  public shared ({ caller }) func sign(message_arg : Text, algorithm : SchnorrAlgorithm, bip341TweakHex : ?Text) : async {
-    #ok : { signature_hex : Text };
-    #err : Text;
-  } {
-    let aux = switch (Option.map(bip341TweakHex, tryHexToTweak)) {
-      case (null) null;
-      case (?#ok some) ?some;
-      case (?#err err) return #err err;
-    };
-
-    try {
-      Cycles.add<system>(25_000_000_000);
-      let signArgs = {
-        message = Text.encodeUtf8(message_arg);
-        derivation_path = [Principal.toBlob(caller)];
-        key_id = { algorithm; name = "insecure_test_key_1" };
-        aux;
-      };
-      let { signature } = await ic.sign_with_schnorr(signArgs);
-      #ok({ signature_hex = Hex.encode(Blob.toArray(signature)) });
-    } catch (err) {
-      #err(Error.message(err));
-    };
-  };
-```
 
 ## Signature verification
 
@@ -315,10 +162,6 @@ and `false` or error otherwise.
 Similar verifications can be done in many other languages with the help of
 cryptographic libraries that support the BIP340/BIP341 and `ed25519` signing.
 
-## Conclusion
+## Security considerations and best practices
 
-In this walkthrough, we deployed a sample smart contract that:
-
-* Signed with private Schnorr keys even though **canisters do not hold Schnorr keys themselves**.
-* Requested a public key.
-* Performed signature verification.
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
