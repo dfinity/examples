@@ -8,22 +8,22 @@ Tokenmania is a simplified token minting application. When the application is ra
 > Tokens deployed using this example are only available for 20 minutes and will be deleted afterwards. They should be treated as "testnet" assets and should not be given real value.
 > For more information on creating tokens using a recommended production workflow, view the [create a token documentation](https://internetcomputer.org/docs/current/developer-docs/defi/tokens/create).
 
-This application's logic is written in [Motoko](https://internetcomputer.org/docs/motoko/main/getting-started/motoko-introduction), a programming language designed specifically for developing canisters on ICP.
-
 ## Deploying from ICP Ninja
 
 When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner. Open this project in ICP Ninja:
 
 [![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/motoko/tokenmania)
 
-## Project structure
-
-The `/backend` folder contains the Motoko canister, `app.mo`. The `/frontend` folder contains web assets for the application's user interface. The user interface is written using the React framework. Edit the `mops.toml` file to add [Motoko dependencies](https://mops.one/) to the project.
-
 ## Build and deploy from the command-line
 
-To migrate your ICP Ninja project off of the web browser and develop it locally, follow these steps. These steps are necessary if you want to deploy this project for long-term, production use on the mainnet.
+### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
 
-### 1. Download your project from ICP Ninja using the 'Download files' button on the upper left corner under the pink ninja star icon.
+### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
 
-### 2. Open the `BUILD.md` file for further instructions.
+### 3. Navigate into the project's directory.
+
+### 4. Run `dfx start --background --clean && dfx deploy` to deploy the project to your local environment. 
+
+## Security considerations and best practices
+
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
