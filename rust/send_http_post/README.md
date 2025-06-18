@@ -6,7 +6,7 @@ This demo goes in hand with the [developer documentation on HTTPS outcalls](http
 
 ## Deploying from ICP Ninja
 
-[![](https://icp.ninja/assets/open.svg)](https://github.com/dfinity/examples/tree/master/rust/send_http_post)
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/send_http_post)
 
 ## Build and deploy from the command-line
 
