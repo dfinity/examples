@@ -6,76 +6,28 @@ The `remove_spam` canister method intentionally includes a bug to simulate data 
 The example outlines the steps to install the canister, create a snapshot,
 and subsequently restore the data after the simulated data loss.
 
-## Prerequisites
+## Deploying from ICP Ninja
 
-This example requires an installation of:
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/canister-snapshots)
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). Note: the Canister Snapshots feature requires `dfx` version `0.23.0-beta.3` or later.
-- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+## Build and deploy from the command-line
 
-Begin by opening a terminal window.
+### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
 
-## Step 1: Setup the project environment
+### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
 
-Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
+### 3. Navigate into the project's directory.
 
+### 4. Run `dfx start --background --clean && dfx deploy` to deploy the project to your local environment. 
 
-```bash
-cd examples/rust/canister-snapshots
-dfx start
-```
-
-This terminal will stay blocked, printing log messages, until the `Ctrl+C` is pressed or `dfx stop` command is run.
-
-Example output:
-
-```sh
-Running dfx start for version 0.23.0-beta.3
-[...]
-Replica API running on 127.0.0.1:4943
-```
-
-## Step 2: Open another terminal window in the same directory
-
-```sh
-cd examples/rust/canister-snapshots
-```
-
-## Step 3: Compile and deploy `chat` canister
-
-```sh
-dfx deploy
-```
-
-Example output:
-
-```sh
-% dfx deploy
-Deploying all canisters.
-[...]
-Deployed canisters.
-URLs:
-   Backend canister via Candid interface:
-      chat: http://127.0.0.1:4943/?canisterId=...
-```
-
-## Step 4: Populate the database with data
+### 5. Populate the database with data.
 
 ```sh
 dfx canister call chat append 'Hi there!'
 dfx canister call chat dump
 ```
 
-Example output:
-
-```sh
-% dfx canister call chat append 'Hi there!'
-()
-% dfx canister call chat dump
-(vec { "Hi there!" })
-```
-
-## Step 5: Take canister snapshot
+### 6. Take canister snapshot.
 
 Canister `chat` is currently running, and snapshots should not be taken of active canisters.
 Therefore, the canister should be stopped before taking a snapshot and then restarted.
@@ -86,18 +38,7 @@ dfx canister snapshot create chat
 dfx canister start chat
 ```
 
-Example output:
-
-```sh
-% dfx canister stop chat
-Stopping code for canister chat, with canister_id bkyz2-fmaaa-aaaaa-qaaaq-cai
-% dfx canister snapshot create chat
-Created a new snapshot of canister chat. Snapshot ID: 000000000000000080000000001000010101
-% dfx canister start chat
-Starting code for canister chat, with canister_id bkyz2-fmaaa-aaaaa-qaaaq-cai
-```
-
-## Step 6: Simulate data loss
+### 7. Simulate data loss.
 
 The `remove_spam` canister method intentionally includes a bug to simulate data loss.
 
@@ -106,18 +47,7 @@ dfx canister call chat remove_spam
 dfx canister call chat dump
 ```
 
-Example output:
-
-```sh
-% dfx canister call chat remove_spam
-(0 : nat64)
-% dfx canister call chat dump
-(vec {})
-```
-
-There is no more data in the database.
-
-## Step 7: Restore the canister state from the snapshot
+### 8. Restore the canister state from the snapshot
 
 Canister `chat` is currently running, and snapshots should not be applied to active canisters.
 Therefore, the canister must be stopped before applying the snapshot and then restarted.
@@ -130,33 +60,6 @@ dfx canister start chat
 dfx canister call chat dump
 ```
 
-Example output:
-
-```sh
-% dfx canister stop chat
-Stopping code for canister chat, with canister_id bkyz2-fmaaa-aaaaa-qaaaq-cai
-% dfx canister snapshot list chat
-000000000000000080000000001000010101: 1.61MiB, taken at 2024-08-27 18:19:20 UTC
-% dfx canister snapshot load chat 000000000000000080000000001000010101
-Loaded snapshot 000000000000000080000000001000010101 in canister chat
-% dfx canister start chat
-Starting code for canister chat, with canister_id bkyz2-fmaaa-aaaaa-qaaaq-cai
-% dfx canister call chat dump
-(vec { "Hi there!" })
-```
-
-The canister state has been successfully restored from the snapshot.
-
-## Conclusion
-
-Canister Snapshots are a powerful new tool for developers.
-In the event of accidental data loss, bugs, or configuration errors,
-canisters can be quickly restored to a previous working state.
-Snapshots help ensure that critical data and services remain accessible
-even in the face of unexpected events, providing developers with peace of mind.
-
 ## Security considerations and best practices
 
-If you base your application on this example, we recommend you familiarize
-yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/)
-for developing on the Internet Computer. This example may not implement all the best practices.
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
