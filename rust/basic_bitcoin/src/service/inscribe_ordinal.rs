@@ -30,17 +30,17 @@ use ic_cdk::{
     trap, update,
 };
 
-// Placeholder for the 64-byte Schnorr signature during fee calculation.
+// Placeholder for the 64-byte Schnorr signature during fee estimation.
 // We need this because Bitcoin transaction fees depend on transaction size,
 // but we can't sign until we know the fee. This creates a chicken-and-egg problem
 // that we solve by using a placeholder of the correct size.
-const SIG64_PLACEHOLDER: [u8; 64] = [0u8; 64];
+const SCHNORR_SIGNATURE_PLACEHOLDER: [u8; 64] = [0u8; 64];
 
 // The amount of satoshis to lock in the inscription output.
 // This value must be high enough to ensure the UTXO isn't considered "dust"
 // by Bitcoin nodes (typically around 546 sats minimum).
 // We use 15,000 sats to be safely above dust limits and account for fees.
-const INSCRIPTION_VALUE_SAT: u64 = 15_000;
+const INSCRIPTION_OUTPUT_VALUE: u64 = 15_000;
 
 /// Creates an Ordinal inscription on the Bitcoin blockchain.
 ///
@@ -69,8 +69,10 @@ pub async fn inscribe_ordinal(text: String) -> String {
 
     // Convert the inscription text to bytes for embedding in the script.
     // Bitcoin scripts work with raw bytes, not strings, so we need this conversion.
-    let mut text_bytes = PushBytesBuf::new();
-    text_bytes.extend_from_slice(text.as_bytes()).unwrap();
+    let mut inscription_payload = PushBytesBuf::new();
+    inscription_payload
+        .extend_from_slice(text.as_bytes())
+        .unwrap();
 
     // Build the inscription reveal script according to the Ordinals protocol.
     // This script has two execution paths:
@@ -89,7 +91,7 @@ pub async fn inscribe_ordinal(text: String) -> String {
         .push_int(1) // Content type field number
         .push_slice(b"text/plain") // MIME type of the inscription
         .push_int(0) // Data push field number
-        .push_slice(&text_bytes) // The actual inscription content
+        .push_slice(&inscription_payload) // The actual inscription content
         .push_opcode(OP_ENDIF) // End inscription envelope
         .into_script();
 
@@ -108,10 +110,10 @@ pub async fn inscribe_ordinal(text: String) -> String {
 
     ic_cdk::println!("Reveal script: {:?}", reveal_script.to_bytes());
 
-    // Create the inscription address from our Taproot commitment.
+    // Create the commit address from our Taproot commitment.
     // This address secretly commits to our inscription script - no one can tell
     // it contains an inscription just by looking at the address.
-    let inscription_address =
+    let commit_address =
         Address::p2tr_tweaked(taproot_spend_info.output_key(), ctx.bitcoin_network);
 
     // Create a simple key-path-only address for funding.
@@ -134,7 +136,7 @@ pub async fn inscribe_ordinal(text: String) -> String {
     .utxos;
 
     // Build the commit transaction.
-    // This transaction sends funds to the inscription address, "committing" to
+    // This transaction sends funds to the commit address, "committing" to
     // the inscription without revealing it yet. The inscription data remains
     // hidden until we spend these funds in the reveal transaction.
     let fee_per_byte = get_fee_per_byte(&ctx).await;
@@ -143,8 +145,8 @@ pub async fn inscribe_ordinal(text: String) -> String {
         &funding_address,
         &own_utxos,
         p2tr::SelectUtxosMode::Single, // Use a single UTXO for simplicity
-        &inscription_address,
-        INSCRIPTION_VALUE_SAT,
+        &commit_address,
+        INSCRIPTION_OUTPUT_VALUE,
         fee_per_byte,
     )
     .await;
@@ -164,7 +166,7 @@ pub async fn inscribe_ordinal(text: String) -> String {
     .await;
 
     // Broadcast the commit transaction to the Bitcoin network.
-    // Once confirmed, our funds will be locked at the inscription address.
+    // Once confirmed, our funds will be locked at the commit address.
     bitcoin_send_transaction(&SendTransactionRequest {
         network: ctx.network,
         transaction: serialize(&signed_transaction),
@@ -175,11 +177,11 @@ pub async fn inscribe_ordinal(text: String) -> String {
     // Calculate transaction IDs for tracking and building the reveal transaction.
     // txid: Traditional transaction ID (without witness data)
     // wtxid: Witness transaction ID (includes witness data)
-    let commit_txid = signed_transaction.compute_txid();
-    let commit_wtxid = signed_transaction.compute_wtxid();
+    let commit_tx_id = signed_transaction.compute_txid();
+    let commit_wtx_id = signed_transaction.compute_wtxid();
 
-    ic_cdk::println!("commit txid: {}", commit_txid);
-    ic_cdk::println!("commit wtxid: {}", commit_wtxid);
+    ic_cdk::println!("commit txid: {}", commit_tx_id);
+    ic_cdk::println!("commit wtxid: {}", commit_wtx_id);
     ic_cdk::println!("commit hex: {}", encode(serialize(&signed_transaction)));
 
     // --- Begin Reveal Transaction ---
@@ -196,11 +198,11 @@ pub async fn inscribe_ordinal(text: String) -> String {
     // Build the reveal transaction structure.
     // This transaction spends the output we just created in the commit transaction,
     // revealing the inscription script in the process.
-    let mut reveal_tx = build_reveal_transaction(
+    let mut reveal_transaction = build_reveal_transaction(
         &funding_address, // Where to send remaining funds after inscription
         &reveal_script,
         &control_block,
-        &commit_txid,
+        &commit_tx_id,
         fee_per_byte,
     )
     .await;
@@ -208,8 +210,8 @@ pub async fn inscribe_ordinal(text: String) -> String {
     // --- Calculate the signature hash for Taproot script-path spending ---
     // Script-path spending requires a different signature than key-path spending.
     // We need to sign a hash that commits to the specific script being executed.
-    let mut sighasher = SighashCache::new(&mut reveal_tx);
-    let prevout = signed_transaction.output[0].clone(); // The output we're spending from commit tx
+    let mut sighash_cache = SighashCache::new(&mut reveal_transaction);
+    let commit_output = signed_transaction.output[0].clone(); // The output we're spending from commit tx
     let leaf_hash = TapLeafHash::from_script(&reveal_script, LeafVersion::TapScript);
 
     // Compute the signature hash that we need to sign.
@@ -219,27 +221,27 @@ pub async fn inscribe_ordinal(text: String) -> String {
     // - The input being spent
     // This prevents signature reuse attacks and ensures the signature is only valid
     // for this exact transaction and script.
-    let signing_data = sighasher
+    let sighash = sighash_cache
         .taproot_script_spend_signature_hash(
-            0,                          // Input index we're signing
-            &Prevouts::All(&[prevout]), // Previous outputs being spent
-            leaf_hash,                  // Hash of the script being executed
-            TapSighashType::Default,    // Sign all inputs and outputs
+            0,                                // Input index we're signing
+            &Prevouts::All(&[commit_output]), // Previous outputs being spent
+            leaf_hash,                        // Hash of the script being executed
+            TapSighashType::Default,          // Sign all inputs and outputs
         )
         .unwrap()
         .as_byte_array()
         .to_vec();
 
-    ic_cdk::println!("signing_data: {}", hex::encode(signing_data.clone()));
+    ic_cdk::println!("sighash: {}", hex::encode(sighash.clone()));
 
     // Sign the computed hash using our private key.
     // This proves we have the authority to spend these funds according to
     // the rules in our inscription script (which requires a valid signature).
-    let raw_signature = sign_with_schnorr(
+    let schnorr_signature_bytes = sign_with_schnorr(
         ctx.key_name.to_string(),           // Key identifier in the IC canister
         internal_key_path.to_vec_u8_path(), // Same derivation path as commit tx
         None,                               // No merkle root for script-path signing
-        signing_data,
+        sighash,
     )
     .await;
 
@@ -247,11 +249,15 @@ pub async fn inscribe_ordinal(text: String) -> String {
     // The sighash type tells verifiers what parts of the transaction this
     // signature commits to (in our case, everything).
     let taproot_script_signature = bitcoin::taproot::Signature {
-        signature: bitcoin::secp256k1::schnorr::Signature::from_slice(&raw_signature).unwrap(),
+        signature: bitcoin::secp256k1::schnorr::Signature::from_slice(&schnorr_signature_bytes)
+            .unwrap(),
         sighash_type: TapSighashType::Default,
     };
 
-    ic_cdk::println!("sig: {}", hex::encode(&raw_signature));
+    ic_cdk::println!(
+        "schnorr signature: {}",
+        hex::encode(&schnorr_signature_bytes)
+    );
 
     // Construct the witness stack for script-path spending.
     // The witness contains all data needed to validate the script execution:
@@ -261,13 +267,13 @@ pub async fn inscribe_ordinal(text: String) -> String {
     //
     // When validators process this transaction, they'll execute our script
     // with the signature, revealing our inscription data in the process.
-    let witness = sighasher.witness_mut(0).unwrap();
-    witness.clear();
-    witness.push(taproot_script_signature.to_vec());
-    witness.push(reveal_script.to_bytes());
-    witness.push(control_block.serialize());
+    let witness_stack = sighash_cache.witness_mut(0).unwrap();
+    witness_stack.clear();
+    witness_stack.push(taproot_script_signature.to_vec());
+    witness_stack.push(reveal_script.to_bytes());
+    witness_stack.push(control_block.serialize());
 
-    ic_cdk::println!("Reveal hex: {}", encode(serialize(&reveal_tx)));
+    ic_cdk::println!("Reveal hex: {}", encode(serialize(&reveal_transaction)));
 
     // Broadcast the reveal transaction.
     // Once confirmed, the inscription is permanently recorded on Bitcoin.
@@ -275,25 +281,25 @@ pub async fn inscribe_ordinal(text: String) -> String {
     // sent to the funding address, creating a unique digital artifact.
     bitcoin_send_transaction(&SendTransactionRequest {
         network: ctx.network,
-        transaction: serialize(&reveal_tx),
+        transaction: serialize(&reveal_transaction),
     })
     .await
     .unwrap();
 
     // Return the reveal transaction ID so users can track their inscription
-    reveal_tx.compute_txid().to_string()
+    reveal_transaction.compute_txid().to_string()
 }
 
-/// Builds the reveal transaction that spends the inscription output.
+/// Builds the reveal transaction that spends the commit output.
 ///
 /// This function handles the complexity of calculating proper fees for the reveal
 /// transaction. Since fees depend on transaction size, and size depends on witness
 /// data (including signatures), we use an iterative approach to find the right fee.
 pub(crate) async fn build_reveal_transaction(
-    dst_address: &Address,
+    destination_address: &Address,
     reveal_script: &ScriptBuf,
     control_block: &ControlBlock,
-    commit_txid: &Txid,
+    commit_tx_id: &Txid,
     fee_per_byte: MillisatoshiPerByte,
 ) -> Transaction {
     // Fee calculation requires knowing transaction size, but size depends on fee
@@ -308,20 +314,20 @@ pub(crate) async fn build_reveal_transaction(
         let transaction = build_reveal_transaction_with_fee(
             reveal_script,
             control_block,
-            commit_txid,
-            dst_address,
+            &commit_tx_id,
+            destination_address,
             fee,
         )
         .unwrap();
 
         // Calculate fee based on virtual size (vsize accounts for witness discount)
-        let tx_vsize = transaction.vsize() as u64;
-        if (tx_vsize * fee_per_byte) / 1000 == fee {
+        let virtual_size = transaction.vsize() as u64;
+        if (virtual_size * fee_per_byte) / 1000 == fee {
             // Fee calculation has stabilized
             return transaction;
         } else {
             // Update fee and try again
-            fee = (tx_vsize * fee_per_byte) / 1000;
+            fee = (virtual_size * fee_per_byte) / 1000;
         }
     }
 }
@@ -329,21 +335,21 @@ pub(crate) async fn build_reveal_transaction(
 /// Constructs a reveal transaction with a specific fee amount.
 ///
 /// The reveal transaction has a simple structure:
-/// - Input: Spends the inscription output from the commit transaction
+/// - Input: Spends the commit output from the commit transaction
 /// - Output: Sends remaining value (after fee) to the destination address
 /// - Witness: Contains the inscription script and proof of authorization
 fn build_reveal_transaction_with_fee(
     reveal_script: &ScriptBuf,
     control_block: &ControlBlock,
-    commit_txid: &Txid,
-    dst_address: &Address,
+    commit_tx_id: &Txid,
+    destination_address: &Address,
     fee: u64,
 ) -> Result<Transaction, String> {
-    // Create input that spends the inscription output.
+    // Create input that spends the commit output.
     // The commit transaction created an output at index 0 that we now spend.
     let input = TxIn {
         previous_output: OutPoint {
-            txid: commit_txid.to_owned(),
+            txid: commit_tx_id.to_owned(),
             vout: 0, // Output index 0 from commit transaction
         },
         script_sig: ScriptBuf::new(), // Empty for Taproot (uses witness instead)
@@ -354,8 +360,8 @@ fn build_reveal_transaction_with_fee(
     // Create output that sends remaining funds (minus fee) to destination.
     // The inscription is now "bound" to these satoshis according to ordinal theory.
     let output = TxOut {
-        value: Amount::from_sat(INSCRIPTION_VALUE_SAT - fee),
-        script_pubkey: dst_address.script_pubkey(),
+        value: Amount::from_sat(INSCRIPTION_OUTPUT_VALUE - fee),
+        script_pubkey: destination_address.script_pubkey(),
     };
 
     // Construct the transaction with witness data.
@@ -373,7 +379,9 @@ fn build_reveal_transaction_with_fee(
     // - Stack bottom: control block (proves script validity)
     // - Stack middle: reveal script (the code to execute)
     // - Stack top: signature (satisfies OP_CHECKSIG in script)
-    transaction.input[0].witness.push(SIG64_PLACEHOLDER);
+    transaction.input[0]
+        .witness
+        .push(SCHNORR_SIGNATURE_PLACEHOLDER);
     transaction.input[0].witness.push(reveal_script.to_bytes());
     transaction.input[0].witness.push(control_block.serialize());
 
