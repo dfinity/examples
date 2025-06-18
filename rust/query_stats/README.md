@@ -1,11 +1,6 @@
 # Query statistics
 
-This example shows to work with the query stats feature.
-
-## Architecture
-
-The example consists of a single canister called `query_stats`.
-It exports the following candid interface:
+This example shows to work with the query stats feature. It consists of a single canister called `query_stats`. It exports the following candid interface:
 
 ```candid
 service : {
@@ -15,70 +10,22 @@ service : {
 
 ```
 
-The `load` function just returns a timestamp.
-It just exists such that there is a query endpoint to call.
-The `get_query_stats` is the function that queries the status endpoint and returns the collected query statistics.
+The `load` function just returns a timestamp. It just exists such that there is a query endpoint to call. The method `get_query_stats` queries the status endpoint and returns the collected query statistics.
 
-## Prerequisites
+## Deploying from ICP Ninja
 
-This example requires an installation of:
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
-- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/query_stats)
 
+## Build and deploy from the command-line
 
-## Step 1: Setup project environment
+### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
 
-Navigate into the folder containing the project's files and start a local instance of the replica with the command:
+### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
 
-```sh
-cd examples/rust/query_stats
-dfx start --clean
-```
+### 3. Navigate into the project's directory.
 
-## Step 2: Compile and deploy `query_stats` canister
+### 4. Run `dfx start --background --clean && dfx deploy` to deploy the project to your local environment. 
 
-```sh
-dfx deploy
-```
+## Security considerations and best practices
 
-## Step 3: Call the canister's load function a few times to generate query traffic
-
-```
-dfx canister call query_stats load
-```
-
-## Step 4: Observe the following result
-
-```
-dfx canister call query_stats get_query_stats
-```
-
-## Step 5: After a while, the values should become populated
-
-```
-"Number of calls: 19 - Number of instructions 414_083 - Request payload bytes: 114 - Response payload bytes: 270"
-```
-
-Alternatively, you can use the candid interface to make those calls.
-
-### Troubleshooting
-
-On the local `dfx` replica, the aggregation epoch is set to 60 seconds.
-So calling the load function a couple of times should result in values showing up a couple minutes later.
-
-On mainnet, the aggregation epoch is 10 minutes, thus it will up to half an hour before the values appear on mainnet.
-
-### Possible next steps
-
-Query statistics are simple counters that increase.
-Their raw values are not that useful, you may want to implement some sort of metering system.
-
-One way to go from here is to get the query stats in a regular interval using a timer and compare to the last values, calculating rates.
-
-## Resources
-
-- [ic-cdk](https://docs.rs/ic-cdk/latest/ic_cdk/).
-
-## Security considerations and security best practices
-
-If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
