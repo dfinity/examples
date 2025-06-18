@@ -1,5 +1,6 @@
 mod common;
 mod ecdsa;
+mod ordinals;
 mod p2pkh;
 mod p2tr;
 mod p2wpkh;
