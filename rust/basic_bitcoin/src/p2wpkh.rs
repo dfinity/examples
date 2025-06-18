@@ -1,4 +1,8 @@
-use crate::{common::build_transaction_with_fee, ecdsa::mock_sign_with_ecdsa, BitcoinContext};
+use crate::{
+    common::{build_transaction_with_fee, select_utxos_greedy},
+    ecdsa::mock_sign_with_ecdsa,
+    BitcoinContext,
+};
 use bitcoin::{
     ecdsa::Signature as BitcoinSignature,
     secp256k1::{ecdsa::Signature as SecpSignature, Message},
@@ -28,8 +32,10 @@ pub async fn build_transaction(
     // rebuild the transaction, until the fee is set to the correct amount.
     let mut fee = 0;
     loop {
+        let utxos_to_spend = select_utxos_greedy(own_utxos, amount, fee).unwrap();
         let (transaction, prevouts) =
-            build_transaction_with_fee(own_utxos, own_address, dst_address, amount, fee).unwrap();
+            build_transaction_with_fee(utxos_to_spend, own_address, dst_address, amount, fee)
+                .unwrap();
 
         // Sign the transaction. In this case, we only care about the size
         // of the signed transaction, so we use a mock signer here for efficiency.

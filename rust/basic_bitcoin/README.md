@@ -16,8 +16,8 @@ For background on the ICP<>BTC integration, refer to the [Learn Hub](https://lea
 
 - [x] [Rust toolchain](https://www.rust-lang.org/tools/install)
 - [x] [Internet Computer SDK](https://internetcomputer.org/docs/building-apps/getting-started/install)
-- [x] [Local Bitcoin testnet (regtest)](https://internetcomputer.org/docs/build-on-btc/btc-dev-env#create-a-local-bitcoin-testnet-regtest-with-bitcoind) 
-- [x] On macOS, an `llvm` version that supports the `wasm32-unknown-unknown` target is required. This is because the Rust `bitcoin` library relies on the `secp256k1-sys` crate, which requires `llvm` to build. The default `llvm` version provided by XCode does not meet this requirement. Instead, install the [Homebrew version](https://formulae.brew.sh/formula/llvm), using `brew install llvm`. 
+- [x] [Local Bitcoin testnet (regtest)](https://internetcomputer.org/docs/build-on-btc/btc-dev-env#create-a-local-bitcoin-testnet-regtest-with-bitcoind)
+- [x] On macOS, an `llvm` version that supports the `wasm32-unknown-unknown` target is required. This is because the Rust `bitcoin` library relies on the `secp256k1-sys` crate, which requires `llvm` to build. The default `llvm` version provided by XCode does not meet this requirement. Instead, install the [Homebrew version](https://formulae.brew.sh/formula/llvm), using `brew install llvm`.
 
 ## Building and deploying the smart contract
 
@@ -36,7 +36,7 @@ dfx start --clean --background
 
 ### 3. Start the Bitcoin testnet (regtest)
 
-In a separate terminal window, run the following: 
+In a separate terminal window, run the following:
 
 ```bash
 bitcoind -conf=$(pwd)/bitcoin.conf -datadir=$(pwd)/bitcoin_data --port=18444
@@ -58,7 +58,7 @@ Your smart contract is live and ready to use! You can interact with it using eit
 
 > [!NOTE]
 > You can also interact with a pre-deployed version of the `basic_bitcoin` example running on the IC mainnet and configured to interact with Bitcoin **testnet4**.
-> 
+>
 > Access the Candid UI of the example: https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=vvha6-7qaaa-aaaap-ahodq-cai
 
 ## Generating Bitcoin addresses
@@ -124,7 +124,7 @@ dfx canister call basic_bitcoin send_from_p2pkh_address '(record {
 
 > [!IMPORTANT]
 > Newly mined bitcoin, like those you created with the above `bitcoin-cli` command cannot be spent until 100 additional blocks have been added to the chain. To make your bitcoin spendable, create 100 additional blocks. Choose one of the smart contract addresses as receiver of the block reward or use any valid bitcoin dummy address.
-> 
+>
 > ```bash
 > bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 100 <bitcoin_address>
 > ```
@@ -142,6 +142,35 @@ dfx canister call basic_bitcoin get_block_headers '(0: nat32, 11: nat32)'
 ```
 
 This calls `bitcoin_get_block_headers`, useful for validating blockchains or light client logic.
+
+## Inscribe an ordinal
+
+Make sure bitcoind is configured to accept non standard transactions.
+
+The `acceptnonstdtxn` setting needs to be included in your `bitcoin.conf` file. Example:
+
+```
+regtest=1
+acceptnonstdtxn=1
+txindex=1
+rpcuser=<username>
+rpcpassword=<password>
+```
+
+```
+ord --bitcoin-data-dir $(pwd)/bitcoin_data --bitcoin-rpc-username <username> --bitcoin-rpc-password <password> --bitcoin-rpc-url http://127.0.0.1:18444 --regtest server
+
+dfx canister call basic_bitcoin get_p2tr_key_path_only_address '()'
+
+bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 100 <p2tr_key_path_only_address>
+
+dfx canister call basic_bitcoin get_p2tr_key_path_only_address '()'
+
+dfx canister call basic_bitcoin inscribe_ordinal '("ORD!")'
+
+bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 1 <p2tr_key_path_only_address>
+
+```
 
 ## Notes on implementation
 

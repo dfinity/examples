@@ -77,6 +77,7 @@ pub async fn send_from_p2tr_script_path_enabled_address_key_spend(request: SendR
         &ctx,
         &own_address,
         &own_utxos,
+        p2tr::SelectUtxosMode::Greedy,
         &dst_address,
         request.amount_in_satoshi,
         fee_per_byte,

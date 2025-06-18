@@ -1,4 +1,8 @@
-use crate::{common::build_transaction_with_fee, schnorr::mock_sign_with_schnorr, BitcoinContext};
+use crate::{
+    common::{build_transaction_with_fee, select_one_utxo, select_utxos_greedy},
+    schnorr::mock_sign_with_schnorr,
+    BitcoinContext,
+};
 use bitcoin::{
     blockdata::witness::Witness,
     hashes::Hash,
@@ -8,10 +12,7 @@ use bitcoin::{
     taproot::{ControlBlock, LeafVersion, TapLeafHash, TaprootBuilder, TaprootSpendInfo},
     Address, AddressType, ScriptBuf, Sequence, Transaction, TxOut,
 };
-use ic_cdk::{
-    api::debug_print,
-    bitcoin_canister::{MillisatoshiPerByte, Satoshi, Utxo},
-};
+use ic_cdk::bitcoin_canister::{MillisatoshiPerByte, Satoshi, Utxo};
 
 /// Constructs the full Taproot spend info for a script-path-enabled Taproot output.
 ///
@@ -60,12 +61,18 @@ pub fn create_spend_script(script_key_bytes: &[u8]) -> ScriptBuf {
         .into_script()
 }
 
+pub enum SelectUtxosMode {
+    Greedy,
+    Single,
+}
+
 // Builds a P2TR transaction to send the given `amount` of satoshis to the
 // destination address.
 pub(crate) async fn build_transaction(
     ctx: &BitcoinContext,
     own_address: &Address,
     own_utxos: &[Utxo],
+    utxos_mode: SelectUtxosMode,
     dst_address: &Address,
     amount: Satoshi,
     fee_per_byte: MillisatoshiPerByte,
@@ -80,8 +87,14 @@ pub(crate) async fn build_transaction(
     // rebuild the transaction, until the fee is set to the correct amount.
     let mut total_fee = 0;
     loop {
+        let utxos_to_spend = match utxos_mode {
+            SelectUtxosMode::Greedy => select_utxos_greedy(own_utxos, amount, total_fee),
+            SelectUtxosMode::Single => select_one_utxo(own_utxos, amount, total_fee),
+        }
+        .unwrap();
+
         let (transaction, prevouts) =
-            build_transaction_with_fee(own_utxos, own_address, dst_address, amount, total_fee)
+            build_transaction_with_fee(utxos_to_spend, own_address, dst_address, amount, total_fee)
                 .unwrap();
 
         // Sign the transaction. In this case, we only care about the size
@@ -103,9 +116,7 @@ pub(crate) async fn build_transaction(
         .await;
 
         let tx_vsize = signed_transaction.vsize() as u64;
-
         if (tx_vsize * fee_per_byte) / 1000 == total_fee {
-            debug_print(format!("Transaction built with fee {}.", total_fee));
             return (transaction, prevouts);
         } else {
             total_fee = (tx_vsize * fee_per_byte) / 1000;

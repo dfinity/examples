@@ -71,6 +71,7 @@ pub async fn send_from_p2tr_key_path_only_address(request: SendRequest) -> Strin
         &ctx,
         &own_address,
         &own_utxos,
+        p2tr::SelectUtxosMode::Greedy,
         &dst_address,
         request.amount_in_satoshi,
         fee_per_byte,
