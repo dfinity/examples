@@ -113,7 +113,7 @@ pub async fn inscribe_ordinal(text: String) -> String {
         &ctx,
         &funding_address,
         &own_utxos,
-        p2tr::SelectUtxosMode::Single, // Use a single UTXO for simplicity
+        p2tr::SelectUtxosMode::Single, // An inscription needs to be tied to a single UTXO
         &commit_address,
         INSCRIPTION_OUTPUT_VALUE,
         fee_per_byte,

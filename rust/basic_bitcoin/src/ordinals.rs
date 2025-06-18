@@ -1,7 +1,3 @@
-// This module implements Bitcoin Ordinals inscription functionality.
-// Ordinals allow arbitrary data to be inscribed on individual satoshis,
-// creating unique digital artifacts on the Bitcoin blockchain.
-
 use crate::{schnorr::sign_with_schnorr, BitcoinContext};
 use bitcoin::{
     absolute::LockTime,
