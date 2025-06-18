@@ -1,6 +1,6 @@
 # Threshold Schnorr
 
-We present a minimal example canister smart contract for showcasing the [threshold Schnorr](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr) API.
+We present a minimal example canister smart contract for showcasing the [threshold Schnorr](https://internetcomputer.org/docs/building-apps/network-features/signatures/t-schnorr) API.
 
 The example canister is a signing oracle that creates Schnorr signatures with
 keys derived based on the canister ID and the chosen algorithm, either
@@ -15,71 +15,21 @@ More specifically:
   (the threshold Schnorr subnet is a subnet generating threshold Schnorr
   signatures).
 
-This walkthrough focuses on the version of the sample canister code written in
-[Rust](https://github.com/dfinity/examples/tree/master/rust/threshold-schnorr).
-There is also a Motoko version available in the same repo and follows the same commands for deploying.
+## Deploying from ICP Ninja
 
-## Prerequisites
-This example requires an installation of:
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/threshold-schnorr)
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
-- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+## Build and deploy from the command-line
 
-## Local deployment 
+### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
 
-Begin by opening a terminal window.
+### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
 
-### Step 1: Setup the project environment
+### 3. Navigate into the project's directory.
 
-Navigate into the folder containing the project's files, start a local instance of the Internet Computer and with the commands:
+### 4. Run `dfx start --background --clean && dfx deploy` to deploy the project to your local environment. 
 
-```bash
-cd examples/rust/threshold-schnorr
-dfx start --background
-```
-
-#### What this does
-- `dfx start --background` starts a local instance of the IC via the IC SDK
-
-### Step 2: Deploy the canisters
-
-```bash
-make deploy
-```
-
-To test (includes deploying):
-```bash
-make test
-```
-
-#### What this does
-- `make deploy` deploys the canister code on the local version of the IC.
-
-If deployment was successful, you should see something like this:
-
-```bash
-Deployed canisters.
-URLs:
-  Backend canister via Candid interface:
-    schnorr_example_rust: http://127.0.0.1:4943/?canisterId=t6rzw-2iaaa-aaaaa-aaama-cai&id=st75y-vaaaa-aaaaa-aaalq-cai
-```
-
-If you open the URL in a web browser, you will see a web UI that shows the
-public methods the canister exposes. Since the canister exposes `public_key`,
-`sign`, and `verify` methods, those are rendered in the web UI.
-
-## Deploying the canister on the mainnet
-
-To deploy this canister the mainnet, one needs to do two things:
-
-- Acquire cycles (equivalent of "gas" in other blockchains). This is necessary for all canisters.
-- Update the sample source code to have the right key ID. This is unique to this canister.
-
-### Acquire cycles to deploy
-
-Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/getting-started/tokens-and-cycles) (the equivalent of "gas" on other blockchains).
-
-### Update source code with the right key ID
+### 5. Update source code with the right key ID.
 
 To deploy the sample code, the canister needs the right key ID for the right environment. Specifically, one needs to replace the value of the `key_id` in the `src/schnorr_example_rust/src/lib.rs` file of the sample code. Before deploying to mainnet, one should modify the code to use the right name of the `key_id`.
 
@@ -99,83 +49,15 @@ IMPORTANT: To deploy to IC mainnet, one needs to replace `"dfx_test_key"` with
 either `"test_key_1"` or `"key_1"` depending on the desired intent. Both uses of
 key ID in `src/schnorr_example_rust/src/lib.rs` must be consistent.
 
-### Deploying
-
 To [deploy via the mainnet](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-mainnet.md), run the following commands:
 
 ```bash
 dfx deploy --network ic
 ```
 
-If successful, you should see something like this:
-
-```bash
-Deployed canisters.
-URLs:
-  Backend canister via Candid interface:
-    schnorr_example_rust: https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=enb64-iaaaa-aaaap-ahnkq-cai
-```
-
-The implementation of this canister in Rust (`schnorr_example_rust`) is
-deployed on mainnet. It has the URL
-https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=enb64-iaaaa-aaaap-ahnkq-cai
-and serves up the Candid web UI for this particular canister deployed on
-mainnet.
-
 ## Obtaining public keys
 
-### Using the Candid UI
-
 If you deployed your canister locally or to the mainnet, you should have a URL to the Candid web UI where you can access the public methods. We can call the `public-key` method.
-
-In the example below, the method returns
-`6e48e755842d0323be83edc7fc8766a20423c8127f7731993873d2f123d01a34` as the
-Ed25519 public key.
-
-```json
-{
-  "Ok":
-  {
-    "public_key_hex": "6e48e755842d0323be83edc7fc8766a20423c8127f7731993873d2f123d01a34"
-  }
-}
-```
-
-### Code walkthrough
-
-Open the file `wasm_only.rs`, which will show the following Rust code that
-demonstrates how to obtain a Schnorr public key. 
-
-```rust
-#[update]
-async fn public_key(algorithm: SchnorrAlgorithm) -> Result<PublicKeyReply, String> {
-    let request = ManagementCanisterSchnorrPublicKeyRequest {
-        canister_id: None,
-        derivation_path: vec![ic_cdk::api::caller().as_slice().to_vec()],
-        key_id: SchnorrKeyIds::ChainkeyTestingCanisterKey1.to_key_id(algorithm),
-    };
-
-    let (res,): (ManagementCanisterSchnorrPublicKeyReply,) =
-        ic_cdk::call(mgmt_canister_id(), "schnorr_public_key", (request,))
-            .await
-            .map_err(|e| format!("schnorr_public_key failed {}", e.1))?;
-
-    Ok(PublicKeyReply {
-        public_key_hex: hex::encode(&res.public_key),
-    })
-}
-```
-In the code above, the canister calls the `schnorr_public_key` method of the [IC management canister](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-management-canister) (`aaaaa-aa`). 
-
-
-**The [IC management
-canister](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-management-canister)
-is just a facade; it does not exist as a canister (with isolated state, Wasm
-code, etc.). It is an ergonomic way for canisters to call the system API of the
-IC (as if it were a single canister). In the code below, we use the management
-canister to create a Schnorr public key. Canister ID `"aaaaa-aa"`
-declares the IC management canister in the canister code.**
-
 
 ### Canister root public key
 
@@ -202,55 +84,6 @@ tree root hash, which is part of Bitcoin taproot addresses. For BIP341, the key
 is "tweaked" by adding to it a hash over the untweaked public key and the
 user-provided Merkle tree root. Also see the `basic_bitcoin` example to find out
 more about how this is used in practice.
-
-```rust
-#[update]
-async fn sign(
-    message: String,
-    algorithm: SchnorrAlgorithm,
-    opt_merkle_tree_root_hex: Option<String>,
-) -> Result<SignatureReply, String> {
-    let aux = opt_merkle_tree_root_hex
-        .map(|hex| {
-            hex::decode(&hex)
-                .map_err(|e| format!("failed to decode hex: {e:?}"))
-                .and_then(|bytes| {
-                    if bytes.len() == 32 || bytes.is_empty() {
-                        Ok(SignWithSchnorrAux::Bip341(SignWithBip341Aux {
-                            merkle_root_hash: ByteBuf::from(bytes),
-                        }))
-                    } else {
-                        Err(format!(
-                            "merkle tree root bytes must be 0 or 32 bytes long but got {}",
-                            bytes.len()
-                        ))
-                    }
-                })
-        })
-        .transpose()?;
-
-    let internal_request = ManagementCanisterSignatureRequest {
-        message: message.as_bytes().to_vec(),
-        derivation_path: vec![ic_cdk::api::caller().as_slice().to_vec()],
-        key_id: SchnorrKeyIds::ChainkeyTestingCanisterKey1.to_key_id(algorithm),
-        aux,
-    };
-
-    let (internal_reply,): (ManagementCanisterSignatureReply,) =
-        ic_cdk::api::call::call_with_payment(
-            mgmt_canister_id(),
-            "sign_with_schnorr",
-            (internal_request,),
-            26_153_846_153,
-        )
-        .await
-        .map_err(|e| format!("sign_with_schnorr failed {e:?}"))?;
-
-    Ok(SignatureReply {
-        signature_hex: hex::encode(&internal_reply.signature),
-    })
-}
-```
 
 
 ## Signature verification
@@ -377,10 +210,6 @@ arbitrary message length* as specified in
 [BIP341](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki) and
 `ed25519` signing.
 
-## Conclusion
+## Security considerations and best practices
 
-In this walkthrough, we deployed a sample smart contract that:
-
-* Signed with private Schnorr keys even though **canisters do not hold Schnorr keys themselves**.
-* Requested a public key.
-* Performed signature verification.
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
