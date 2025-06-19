@@ -31,7 +31,7 @@ jobs:
               echo "sha: $sha"
               # Send a HEAD to the URL to see if it exists
               if curl --fail --head --silent --location \
-                  "https://download.dfinity.systems/ic/$sha/binaries/x86_64-linux/ic-test-state-machine.gz"
+                  "https://download.dfinity.systems/ic/$sha/binaries/x86_64-linux/pocket-ic.gz"
               then
                   echo "$sha appears to have associated binary, using"
                   latest_sha="$sha"
