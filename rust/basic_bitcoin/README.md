@@ -158,19 +158,34 @@ rpcpassword=<password>
 ```
 
 ```
-ord --bitcoin-data-dir $(pwd)/bitcoin_data --bitcoin-rpc-username <username> --bitcoin-rpc-password <password> --bitcoin-rpc-url http://127.0.0.1:18444 --regtest server
+ord --config-dir . server
 
 dfx canister call basic_bitcoin get_p2tr_key_path_only_address '()'
 
 bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 100 <p2tr_key_path_only_address>
 
-dfx canister call basic_bitcoin get_p2tr_key_path_only_address '()'
-
-dfx canister call basic_bitcoin inscribe_ordinal '("ORD!")'
+dfx canister call basic_bitcoin inscribe_ordinal '("ORDINAL")'
 
 bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 1 <p2tr_key_path_only_address>
 
 ```
+
+## Etch a Rune
+
+```
+ord --config-dir . server
+
+dfx canister call basic_bitcoin get_p2tr_key_path_only_address '()'
+
+bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 100 <p2tr_key_path_only_address>
+
+dfx canister call basic_bitcoin etch_rune '("RUNE")'
+
+bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 1 <p2tr_key_path_only_address>
+
+ord --config-dir . decode --txid <transaction_id>
+```
+
 
 ## Notes on implementation
 

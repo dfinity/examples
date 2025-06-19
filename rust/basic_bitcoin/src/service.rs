@@ -1,3 +1,4 @@
+pub mod etch_rune;
 pub mod get_balance;
 pub mod get_block_headers;
 pub mod get_current_fee_percentiles;
