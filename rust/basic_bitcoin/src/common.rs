@@ -48,6 +48,13 @@ pub fn select_one_utxo(own_utxos: &[Utxo], amount: u64, fee: u64) -> Result<Vec<
     ))
 }
 
+pub enum PrimaryOutput {
+    /// Pay someone (spendable).
+    Address(Address, u64), // dest, amount
+    /// Embed data (unspendable).
+    OpReturn(ScriptBuf), // script already starts with OP_RETURN
+}
+
 /// Constructs a Bitcoin transaction from the given UTXOs, sending the specified `amount`
 /// to `dst_address`, subtracting a fixed `fee`, and returning any remaining change
 /// to `own_address` (if it's not considered dust (leftover bitcoin that is lower in value than the minimum limit of a valid transaction)).
@@ -62,8 +69,7 @@ pub fn select_one_utxo(own_utxos: &[Utxo], amount: u64, fee: u64) -> Result<Vec<
 pub fn build_transaction_with_fee(
     utxos_to_spend: Vec<&Utxo>,
     own_address: &Address,
-    dst_address: &Address,
-    amount: u64,
+    primary_output: &PrimaryOutput,
     fee: u64,
 ) -> Result<(Transaction, Vec<TxOut>), String> {
     // Define a dust threshold below which change outputs are discarded.
@@ -97,14 +103,27 @@ pub fn build_transaction_with_fee(
 
     // --- Build Outputs ---
     // Primary output: send amount to destination.
-    let mut outputs = vec![TxOut {
-        script_pubkey: dst_address.script_pubkey(),
-        value: Amount::from_sat(amount),
-    }];
+    let mut outputs = Vec::<TxOut>::new();
+
+    match primary_output {
+        PrimaryOutput::Address(addr, amt) => outputs.push(TxOut {
+            script_pubkey: addr.script_pubkey(),
+            value: Amount::from_sat(*amt),
+        }),
+        PrimaryOutput::OpReturn(script) => outputs.push(TxOut {
+            script_pubkey: script.clone(),
+            value: Amount::from_sat(0), // OP_RETURN outputs are 0-sat
+        }),
+    }
 
     // Add a change output if the remainder is above the dust threshold.
-    let total_spent: u64 = utxos_to_spend.iter().map(|utxo| utxo.value).sum();
-    let change = total_spent - amount - fee;
+
+    let total_in: u64 = utxos_to_spend.iter().map(|u| u.value).sum();
+    let change = total_in
+        .checked_sub(outputs.iter().map(|o| o.value.to_sat()).sum::<u64>() + fee)
+        .ok_or("fee exceeds inputs")?;
+    // let total_spent: u64 = utxos_to_spend.iter().map(|utxo| utxo.value).sum();
+    // let change = total_spent - amount - fee;
     if change >= DUST_THRESHOLD {
         outputs.push(TxOut {
             script_pubkey: own_address.script_pubkey(),

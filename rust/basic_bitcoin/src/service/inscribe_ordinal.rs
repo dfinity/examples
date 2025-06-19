@@ -3,7 +3,7 @@
 // creating unique digital artifacts on the Bitcoin blockchain.
 
 use crate::{
-    common::{get_fee_per_byte, DerivationPath},
+    common::{get_fee_per_byte, DerivationPath, PrimaryOutput},
     ordinals::{
         build_ordinal_reveal_script, build_reveal_transaction, create_script_path_witness,
         INSCRIPTION_OUTPUT_VALUE,
@@ -114,8 +114,7 @@ pub async fn inscribe_ordinal(text: String) -> String {
         &funding_address,
         &own_utxos,
         p2tr::SelectUtxosMode::Single, // An inscription needs to be tied to a single UTXO
-        &commit_address,
-        INSCRIPTION_OUTPUT_VALUE,
+        &PrimaryOutput::Address(commit_address, INSCRIPTION_OUTPUT_VALUE),
         fee_per_byte,
     )
     .await;

@@ -1,5 +1,5 @@
 use crate::{
-    common::{get_fee_per_byte, DerivationPath},
+    common::{get_fee_per_byte, DerivationPath, PrimaryOutput},
     p2tr::{self},
     schnorr::{get_schnorr_public_key, sign_with_schnorr},
     SendRequest, BTC_CONTEXT,
@@ -90,8 +90,7 @@ pub async fn send_from_p2tr_script_path_enabled_address_script_spend(
         &own_address,
         &own_utxos,
         p2tr::SelectUtxosMode::Greedy,
-        &dst_address,
-        request.amount_in_satoshi,
+        &PrimaryOutput::Address(dst_address, request.amount_in_satoshi),
         fee_per_byte,
     )
     .await;

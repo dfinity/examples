@@ -1,5 +1,5 @@
 use crate::{
-    common::{get_fee_per_byte, DerivationPath},
+    common::{get_fee_per_byte, DerivationPath, PrimaryOutput},
     ecdsa::{get_ecdsa_public_key, sign_with_ecdsa},
     p2pkh::{self},
     SendRequest, BTC_CONTEXT,
@@ -63,8 +63,7 @@ pub async fn send_from_p2pkh_address(request: SendRequest) -> String {
         &own_public_key,
         &own_address,
         &own_utxos,
-        &dst_address,
-        request.amount_in_satoshi,
+        &PrimaryOutput::Address(dst_address, request.amount_in_satoshi),
         fee_per_byte,
     )
     .await;

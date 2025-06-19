@@ -1,5 +1,5 @@
 use crate::{
-    common::{build_transaction_with_fee, select_one_utxo, select_utxos_greedy},
+    common::{build_transaction_with_fee, select_one_utxo, select_utxos_greedy, PrimaryOutput},
     schnorr::mock_sign_with_schnorr,
     BitcoinContext,
 };
@@ -12,7 +12,7 @@ use bitcoin::{
     taproot::{ControlBlock, LeafVersion, TapLeafHash, TaprootBuilder, TaprootSpendInfo},
     Address, AddressType, ScriptBuf, Sequence, Transaction, TxOut,
 };
-use ic_cdk::bitcoin_canister::{MillisatoshiPerByte, Satoshi, Utxo};
+use ic_cdk::bitcoin_canister::{MillisatoshiPerByte, Utxo};
 
 /// Constructs the full Taproot spend info for a script-path-enabled Taproot output.
 ///
@@ -73,8 +73,7 @@ pub(crate) async fn build_transaction(
     own_address: &Address,
     own_utxos: &[Utxo],
     utxos_mode: SelectUtxosMode,
-    dst_address: &Address,
-    amount: Satoshi,
+    primary_output: &PrimaryOutput,
     fee_per_byte: MillisatoshiPerByte,
 ) -> (Transaction, Vec<TxOut>) {
     // We have a chicken-and-egg problem where we need to know the length
@@ -85,6 +84,10 @@ pub(crate) async fn build_transaction(
     // We solve this problem iteratively. We start with a fee of zero, build
     // and sign a transaction, see what its size is, and then update the fee,
     // rebuild the transaction, until the fee is set to the correct amount.
+    let amount = match primary_output {
+        PrimaryOutput::Address(_, amount) => *amount,
+        PrimaryOutput::OpReturn(_) => 0,
+    };
     let mut total_fee = 0;
     loop {
         let utxos_to_spend = match utxos_mode {
@@ -94,7 +97,7 @@ pub(crate) async fn build_transaction(
         .unwrap();
 
         let (transaction, prevouts) =
-            build_transaction_with_fee(utxos_to_spend, own_address, dst_address, amount, total_fee)
+            build_transaction_with_fee(utxos_to_spend, own_address, primary_output, total_fee)
                 .unwrap();
 
         // Sign the transaction. In this case, we only care about the size

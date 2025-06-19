@@ -1,5 +1,5 @@
 use crate::{
-    common::{build_transaction_with_fee, select_utxos_greedy},
+    common::{build_transaction_with_fee, select_utxos_greedy, PrimaryOutput},
     ecdsa::mock_sign_with_ecdsa,
     BitcoinContext,
 };
@@ -10,7 +10,10 @@ use bitcoin::{
     sighash::{EcdsaSighashType, SighashCache},
     Address, AddressType, PublicKey, Transaction, Witness,
 };
-use ic_cdk::bitcoin_canister::{MillisatoshiPerByte, Satoshi, Utxo};
+use ic_cdk::{
+    bitcoin_canister::{MillisatoshiPerByte, Utxo},
+    trap,
+};
 use std::convert::TryFrom;
 
 // Builds a transaction to send the given `amount` of satoshis to the
@@ -20,8 +23,7 @@ pub async fn build_transaction(
     own_public_key: &PublicKey,
     own_address: &Address,
     own_utxos: &[Utxo],
-    dst_address: &Address,
-    amount: Satoshi,
+    primary_output: &PrimaryOutput,
     fee_per_vbyte: MillisatoshiPerByte,
 ) -> Transaction {
     // We have a chicken-and-egg problem where we need to know the length
@@ -32,12 +34,17 @@ pub async fn build_transaction(
     // We solve this problem iteratively. We start with a fee of zero, build
     // and sign a transaction, see what its size is, and then update the fee,
     // rebuild the transaction, until the fee is set to the correct amount.
+
+    let amount = match primary_output {
+        PrimaryOutput::Address(_, amt) => *amt, // grab the amount
+        PrimaryOutput::OpReturn(_) => trap("expected an address output, got OP_RETURN"),
+    };
+
     let mut fee = 0;
     loop {
         let utxos_to_spend = select_utxos_greedy(own_utxos, amount, fee).unwrap();
         let (transaction, _) =
-            build_transaction_with_fee(utxos_to_spend, own_address, dst_address, amount, fee)
-                .unwrap();
+            build_transaction_with_fee(utxos_to_spend, own_address, primary_output, fee).unwrap();
 
         // Sign the transaction. In this case, we only care about the size
         // of the signed transaction, so we use a mock signer here for efficiency.
