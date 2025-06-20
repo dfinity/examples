@@ -41,7 +41,9 @@ In the future, ICP might expose more performance counters.
 
 ### 3. Navigate into the project's directory.
 
-### 4. Run `dfx start`, then open a new terminal and run `dfx deploy` to deploy the project to your local environment. 
+### 4. Deploy the project to your local environment.
+
+Run `dfx start`, then open a new terminal and run `dfx deploy` to deploy the project to your local environment. 
 
 Call `performance_counters` canister `for_update` method:
 
