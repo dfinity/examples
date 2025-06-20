@@ -20,7 +20,11 @@ The callee exposes a simple `ping` endpoint that takes no parameters and returns
 
 ### 3. Navigate into the project's directory.
 
-### 4. Run `dfx start --background --clean && dfx deploy` to deploy the project to your local environment. 
+### 4. Deploy the project to your local environment:
+
+```
+dfx start --background --clean && dfx deploy
+```
 
 Invoke sequential and parallel calls. First call the different endpoints of the `caller` canister using `dfx`:
 
