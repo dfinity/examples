@@ -15,7 +15,7 @@ requests by contacting a ledger canister, where crucially double minting should 
 
 One tricky part in this scenario is that an item can therefore only be marked as processed after the asynchronous code
 has completed, meaning in the callback. As mentioned in
-the [security best-practices](https://internetcomputer.org/docs/building-apps/security/inter-canister-calls#inter-canister-calls-and-rollbacks),
+the [security best-practices](https://internetcomputer.org/docs/building-apps/security/inter-canister-calls#securely-handle-traps-in-callbacks),
 it's not always feasible to guarantee that the callback will not trap, which in that case would break the invariant due
 to the state being rolled back.
 
@@ -37,11 +37,11 @@ until completion directly, everything will be executed in a single message.
 
 ### 3. Navigate into the project's directory.
 
-### 4. Run `dfx start --background --clean && dfx deploy` to deploy the project to your local environment. 
+### 4. Deploy the project to your local environment:
 
-## Security considerations and best practices
-
-If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
+```
+dfx start --background --clean && dfx deploy
+```
 
 ## Automated integration tests
 
@@ -82,3 +82,7 @@ dfx canister call guards is_item_processed 'mint'
 ```
 
 This should return `(opt true)`.
+
+## Security considerations and best practices
+
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
