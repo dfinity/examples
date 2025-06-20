@@ -39,7 +39,11 @@ ollama run llama3.1:8b
 
 The above command will download an 8B parameter model, which is around 4GiB. Once the command executes and the model is loaded, you can terminate it. You won't need to do this step again.
 
-### 5. Run `dfx start --background --clean && dfx deploy` to deploy the project to your local environment. 
+### 5. Deploy the project to your local environment:
+
+```
+dfx start --background --clean && dfx deploy
+```
 
 ## Security considerations and best practices
 
