@@ -20,7 +20,11 @@ The sample code revolves around one core transfer function which takes as input 
 
 ### 3. Navigate into the project's directory.
 
-### 4. Run `dfx start --background --clean && dfx deploy` to deploy the project to your local environment. 
+### 4. Deploy the project to your local environment:
+
+```
+dfx start --background --clean && dfx deploy
+```
 
 ## Security considerations and best practices
 
