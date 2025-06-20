@@ -16,23 +16,9 @@ This tutorial gives a complete overview of the development, starting with downlo
 
 [![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/motoko/threshold-ecdsa)
 
-## Build and deploy from the command-line
+### 1. Update source code with the right key ID
 
-### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
-
-### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
-
-### 3. Navigate into the project's directory.
-
-### 4. Deploy the project to your local environment:
-
-```
-dfx start --background --clean && dfx deploy
-```
-
-### 5. Update source code with the right key ID
-
-To deploy the sample code, the canister needs the right key ID for the right environment. Specifically, one needs to replace the value of the `key_id` in the `src/ecdsa_example_motoko/main.mo` file of the sample code. Before deploying to the mainnet, one should modify the code to use the right name of the `key_id`.
+To deploy the sample code from ICP Ninja, the canister needs the right key ID for the right environment. Specifically, one needs to replace the value of the `key_id` in the `src/ecdsa_example_motoko/main.mo` file of the sample code. Before deploying to the mainnet from ICP Ninja, one should modify the code to use the right name of the `key_id`.
 
 There are three options:
 
@@ -65,11 +51,19 @@ let { signature } = await ic.sign_with_ecdsa({
 > [!WARNING]
 > To deploy to IC mainnet, one needs to replace the value in `key_id` fields with the values `"dfx_test_key"` to instead have either `"test_key_1"` or `"key_1"` depending on the desired intent.
 
-To [deploy via mainnet](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-mainnet.md), run the following commands:
 
-```bash
-npm install
-dfx deploy --network ic
+## Build and deploy from the command-line
+
+### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
+
+### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
+
+### 3. Navigate into the project's directory.
+
+### 4. Deploy the project to your local environment:
+
+```
+dfx start --background --clean && dfx deploy
 ```
 
 ## Obtaining public keys
