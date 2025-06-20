@@ -20,20 +20,26 @@ The callee exposes a simple `ping` endpoint that takes no parameters and returns
 
 ### 3. Navigate into the project's directory.
 
-### 4. Run `dfx start --background --clean && dfx deploy` to deploy the project to your local environment. 
+### 4. Deploy the project to your local environment:
 
-## Security considerations and best practices
+```
+dfx start --background --clean && dfx deploy
+```
 
-If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
+### 5. Setup the caller canister.
 
+Provide the ID of the callee to the caller, such that the caller can initiate calls:
 
-#### 5: Invoke sequential and parallel calls
+```
+dfx canister call caller setup_callee "(principal \"`dfx canister id callee`\")"
+```
+
+#### 6. Invoke sequential and parallel calls
 
 ```bash
 dfx canister call caller sequential_calls 100
 dfx canister call caller parallel_calls 100
 ```
-
 
 The results are identical: all calls succeed. There also isn't a large difference in performance between these calls:
 
@@ -80,3 +86,7 @@ Parallel calls: 90/90 successful calls in 353.738958ms
 ```
 
 As you can see, parallel calls run a lot faster than sequential calls here. The difference on the IC mainnet would be significantly larger still, as Pocket IC executes rounds much faster than the IC mainnet.
+
+## Security considerations and best practices
+
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
