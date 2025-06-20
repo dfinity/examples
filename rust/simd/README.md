@@ -21,7 +21,11 @@ The example consists of a canister named `mat_mat_mul` (matrix-matrix multiplica
 
 ### 3. Navigate into the project's directory.
 
-### 4. Run `dfx start --background --clean && dfx deploy` to deploy the project to your local environment. 
+### 4. Deploy the project to your local environment:
+
+```
+dfx start --background --clean && dfx deploy
+```
 
 Compare the amount of instructions used for different matrix multiplication implementations. Call a loop performing 1K element-wise multiplications of `K x 4` packed slices
 from matrices `A` and `B` using optimized algorithm, the same algorithm with Rust auto-vectorization enabled, and WebAssembly SIMD instructions:
