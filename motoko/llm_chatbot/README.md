@@ -35,7 +35,11 @@ The above command will download an 8B parameter model, which is around 4GiB. Onc
 
 ### 4. Navigate into the project's directory.
 
-### 5. Run `dfx start --background --clean && dfx deploy` to deploy the project to your local environment. 
+### 5. Deploy the project to your local environment:
+
+```
+dfx start --background --clean && dfx deploy
+```
 
 ## Security considerations and best practices
 
