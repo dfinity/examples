@@ -44,15 +44,19 @@ Make sure Docker is running, then navigate into your project's directory that yo
 
 > Note that local development ports (e.g. the ports used by `dfx` or `vite`) are forwarded from the Dev Container to your local machine. In the VS code terminal, use Ctrl/Cmd+Click on the displayed local URLs to open them in your browser. To view the current port mappings, click the "Ports" tab in the VS Code terminal window.
 
-### 2. Create a local developer identity.
+### 2. Start the local development environment.
+
+```
+dfx start --background
+```
+
+### 3. Create a local developer identity.
 
 To manage your project's canisters, it is recommended that you create a local [developer identity](https://internetcomputer.org/docs/building-apps/getting-started/identities) rather than use the `dfx` default identity that is not stored securely.
 
 To create a new identity, run the commands:
 
 ```
-
-dfx start --background
 
 dfx identity new IDENTITY_NAME
 

@@ -19,15 +19,19 @@ sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
 - Install [Rust](https://doc.rust-lang.org/cargo/getting-started/installation.html#install-rust-and-cargo): `curl https://sh.rustup.rs -sSf | sh`
 
 
-### 2. Create a local developer identity.
+### 2. Start the local development environment.
+
+```
+dfx start --background
+```
+
+### 3. Create a local developer identity.
 
 To manage your project's canisters, it is recommended that you create a local [developer identity](https://internetcomputer.org/docs/building-apps/getting-started/identities) rather than use the `dfx` default identity that is not stored securely.
 
 To create a new identity, run the commands:
 
 ```
-
-dfx start --background
 
 dfx identity new IDENTITY_NAME
 
