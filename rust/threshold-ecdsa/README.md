@@ -14,6 +14,19 @@ More specifically:
 
 [![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/threshold-ecdsa)
 
+### 1. Update source code with the right key ID.
+
+To deploy the sample code on ICP Ninja, the canister needs the right key ID for the right environment. Specifically, one needs to replace the value of the `key_id` in the `src/ecdsa_example_rust/src/lib.rs` file of the sample code. Before deploying to the mainnet from ICP Ninja, one should modify the code to use the right name of the `key_id`.
+
+There are three options:
+
+* `dfx_test_key`: a default key ID that is used in deploying to a local version of IC (via IC SDK).
+* `test_key_1`: a master **test** key ID that is used in mainnet.
+* `key_1`: a master **production** key ID that is used in mainnet.
+
+> [!WARNING]
+> To deploy to IC mainnet, one needs to replace the value in `key_id `fields with the values `EcdsaKeyIds::TestKeyLocalDevelopment.to_key_id()` (mapping to `dfx_test_key`) to instead have either `EcdsaKeyIds::TestKey1.to_key_id()` (mapping to `test_key_1`) or `EcdsaKeyIds::ProductionKey1.to_key_id()` (mapping to `key_1`) depending on the desired intent.
+
 ## Build and deploy from the command-line
 
 ### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
@@ -26,25 +39,6 @@ More specifically:
 
 ```
 dfx start --background --clean && dfx deploy
-```
-
-### 5. Update source code with the right key ID.
-
-To deploy the sample code, the canister needs the right key ID for the right environment. Specifically, one needs to replace the value of the `key_id` in the `src/ecdsa_example_rust/src/lib.rs` file of the sample code. Before deploying to the mainnet, one should modify the code to use the right name of the `key_id`.
-
-There are three options:
-
-* `dfx_test_key`: a default key ID that is used in deploying to a local version of IC (via IC SDK).
-* `test_key_1`: a master **test** key ID that is used in mainnet.
-* `key_1`: a master **production** key ID that is used in mainnet.
-
-> [!WARNING]
-> To deploy to IC mainnet, one needs to replace the value in `key_id `fields with the values `EcdsaKeyIds::TestKeyLocalDevelopment.to_key_id()` (mapping to `dfx_test_key`) to instead have either `EcdsaKeyIds::TestKey1.to_key_id()` (mapping to `test_key_1`) or `EcdsaKeyIds::ProductionKey1.to_key_id()` (mapping to `key_1`) depending on the desired intent.
-
-To [deploy via mainnet](https://internetcomputer.org/docs/current/developer-docs/setup/deploy-mainnet.md), run the following commands:
-
-```bash
-dfx deploy --network ic
 ```
 
 ## Obtaining public keys
