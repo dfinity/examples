@@ -16,7 +16,11 @@ This Motoko example demonstrates using the low Wasm memory hook on ICP. For more
 
 ### 3. Navigate into the project's directory.
 
-### 4. Run `dfx start --background --clean && dfx deploy` to deploy the project to your local environment. 
+### 4. Deploy the project to your local environment:
+
+```
+dfx start --background --clean && dfx deploy
+```
 
 After the deployment, the memory usage periodically increases as defined in the `heartbeat` function.
 
