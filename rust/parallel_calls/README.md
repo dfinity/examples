@@ -48,7 +48,7 @@ dfx canister call caller parallel_calls 100  0.11s user 0.03s system 8% cpu 1.72
 
 The reason why the performance is similar is because the local replica has only a single subnet. Inter-canister calls normally have almost no latency on a single subnet, so it doesn't matter much if we run them sequentially or in parallel.
 
-However, once you increase the number of calls, youw will observe a difference in both the results and performance.
+However, once you increase the number of calls, you will observe a difference in both the results and performance.
 
 ```bash
 time dfx canister call caller sequential_calls 2000
