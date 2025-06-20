@@ -24,7 +24,11 @@ This tutorial gives a complete overview of the development, starting with downlo
 
 ### 3. Navigate into the project's directory.
 
-### 4. Run `dfx start --background --clean && dfx deploy` to deploy the project to your local environment. 
+### 4. Deploy the project to your local environment:
+
+```
+dfx start --background --clean && dfx deploy
+```
 
 ### 5. Update source code with the right key ID
 
