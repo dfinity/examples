@@ -59,6 +59,8 @@ service : (network) -> {
 
   "get_current_fee_percentiles" : () -> (vec millisatoshi_per_vbyte);
 
+  "inscribe_brc20": (ticker: text) -> (transaction_id);
+
   "inscribe_ordinal": (text: text) -> (transaction_id);
 
   "send_from_p2pkh_address" : (

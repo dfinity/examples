@@ -1,3 +1,4 @@
+mod brc20;
 mod common;
 mod ecdsa;
 mod ordinals;
