@@ -1,0 +1,9 @@
+bitcoin_data_dir: ./bitcoin_data
+bitcoin_rpc_password: QPQiNaph19FqUsCrBRN0FII7lyM26B51fAMeBQzCb-E=
+bitcoin_rpc_url: http://127.0.0.1:18443
+bitcoin_rpc_username: ic-btc-integration
+chain: regtest
+index_addresses: true
+index_runes: true
+index_sats: true
+index_transactions: true
