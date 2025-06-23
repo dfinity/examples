@@ -233,14 +233,18 @@ impl Purpose {
 
 /// Represents a complete BIP-32 hierarchical deterministic wallet derivation path.
 ///
-/// The path follows the standard format: m / purpose' / coin_type' / account' / change / address_index
-/// where ' indicates hardened derivation. This structure enables:
+/// The path follows the standard format: m / purpose / coin_type / account / change / address_index
+/// This structure enables:
 /// - Deterministic key generation from a single seed
 /// - Logical separation of different address types and accounts
 /// - Privacy through address rotation within accounts
 ///
 /// This implementation supports BIP-44 (P2PKH), BIP-84 (P2WPKH), and BIP-86 (P2TR) standards
 /// and provides serialization compatible with the Internet Computer's key derivation APIs.
+///
+/// The concept of a wallet derivation path being hardened does not apply on ICP, since key
+/// derivation is entirely handled by the subnet and private keys are never accessible. Derivation paths
+/// function purely as deterministic identifiers.
 pub struct DerivationPath {
     /// Purpose according to BIP-43 (e.g., 44 for legacy, 84 for SegWit, 86 for Taproot)
     purpose: Purpose,
@@ -294,30 +298,16 @@ impl DerivationPath {
         Self::new(Purpose::P2TR, account, address_index)
     }
 
-    const HARDENED_OFFSET: u32 = 0x8000_0000;
-
     /// Converts the derivation path to the binary format expected by IC's key derivation APIs.
     ///
     /// Returns a Vec<Vec<u8>> where each inner Vec represents one level of the path
-    /// as a 4-byte big-endian encoded integer. Hardened derivation is indicated by
-    /// setting the most significant bit (adding 0x80000000 to the value).
+    /// as a 4-byte big-endian encoded integer.
     pub fn to_vec_u8_path(&self) -> Vec<Vec<u8>> {
         vec![
-            // Purpose is hardened (purpose')
-            (self.purpose.to_u32() | Self::HARDENED_OFFSET)
-                .to_be_bytes()
-                .to_vec(),
-            // Coin type is hardened (coin_type')
-            (self.coin_type | Self::HARDENED_OFFSET)
-                .to_be_bytes()
-                .to_vec(),
-            // Account is hardened (account')
-            (self.account | Self::HARDENED_OFFSET)
-                .to_be_bytes()
-                .to_vec(),
-            // Change is not hardened (allows extended public key sharing)
+            self.purpose.to_u32().to_be_bytes().to_vec(),
+            self.coin_type.to_be_bytes().to_vec(),
+            self.account.to_be_bytes().to_vec(),
             self.change.to_be_bytes().to_vec(),
-            // Address index is not hardened (enables address generation without private keys)
             self.address_index.to_be_bytes().to_vec(),
         ]
     }
@@ -327,7 +317,7 @@ impl fmt::Display for DerivationPath {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "m/{}'/{}'/{}'/{}/{}",
+            "m/{}/{}/{}/{}/{}",
             self.purpose.to_u32(),
             self.coin_type,
             self.account,
