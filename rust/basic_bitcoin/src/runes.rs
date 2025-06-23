@@ -7,6 +7,7 @@ use bitcoin::{
     script::{Builder, PushBytesBuf},
     ScriptBuf,
 };
+use leb128::write;
 
 #[allow(dead_code)]
 const MAX_DIVISIBILITY: u8 = 38;
@@ -40,30 +41,6 @@ enum Tag {
     Nop = 127,
 }
 
-impl Tag {
-    fn into_u128(self) -> u128 {
-        match self {
-            Tag::Body => 0,
-            Tag::Flags => 2,
-            Tag::Rune => 4,
-            Tag::Premine => 6,
-            Tag::Cap => 8,
-            Tag::Amount => 10,
-            Tag::HeightStart => 12,
-            Tag::HeightEnd => 14,
-            Tag::OffsetStart => 16,
-            Tag::OffsetEnd => 18,
-            Tag::Mint => 20,
-            Tag::Pointer => 22,
-            Tag::Cenotaph => 126,
-            Tag::Divisibility => 1,
-            Tag::Spacers => 3,
-            Tag::Symbol => 5,
-            Tag::Nop => 127,
-        }
-    }
-}
-
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 enum Flag {
     Etching = 0,
@@ -89,32 +66,22 @@ impl Flag {
 ///
 /// The Runes protocol uses LEB128 encoding for all integer values in the runestone
 /// to create compact, variable-length representations that minimize transaction size.
-pub fn encode_leb128(mut value: u128) -> Vec<u8> {
-    let mut bytes = Vec::new();
-    loop {
-        let mut byte = (value & 0x7F) as u8;
-        value >>= 7;
-        if value != 0 {
-            byte |= 0x80; // Set continuation bit
-        }
-        bytes.push(byte);
-        if value == 0 {
-            break;
-        }
-    }
-    bytes
+pub fn encode_leb128(value: u64) -> Vec<u8> {
+    let mut buf = Vec::new();
+    write::unsigned(&mut buf, value).unwrap();
+    buf
 }
 
 /// Encodes a rune name into its numeric representation.
 ///
 /// Runes use a modified base-26 encoding where A=0, B=1, ... Z=25.
 /// Names are encoded with A as the least significant digit for compact storage.
-pub fn encode_rune_name(name: &str) -> Result<u128, String> {
+pub fn encode_rune_name(name: &str) -> Result<u64, String> {
     if name.is_empty() {
         return Err("Rune name cannot be empty".to_string());
     }
 
-    let mut value = 0u128;
+    let mut value = 0u64;
     for (i, ch) in name.chars().enumerate() {
         if i >= 28 {
             return Err("Rune name cannot exceed 28 characters".to_string());
@@ -123,7 +90,7 @@ pub fn encode_rune_name(name: &str) -> Result<u128, String> {
             return Err("Rune name must contain only uppercase letters A-Z".to_string());
         }
 
-        let digit = (ch as u8 - b'A') as u128;
+        let digit = (ch as u8 - b'A') as u64;
         if i == 0 {
             value = digit;
         } else {
@@ -188,61 +155,61 @@ pub fn build_etching_script(etching: &Etching) -> Result<ScriptBuf, String> {
 
     // Tag 1: Divisibility (odd tag)
     if etching.divisibility > 0 {
-        payload.extend_from_slice(&encode_leb128(Tag::Divisibility.into_u128()));
-        payload.extend_from_slice(&encode_leb128(etching.divisibility as u128));
+        payload.extend_from_slice(&encode_leb128(Tag::Divisibility as u64));
+        payload.extend_from_slice(&encode_leb128(etching.divisibility as u64));
     }
 
     // Tag 2: Flags
-    payload.extend_from_slice(&encode_leb128(Tag::Flags.into_u128()));
-    payload.extend_from_slice(&encode_leb128(flags));
+    payload.extend_from_slice(&encode_leb128(Tag::Flags as u64));
+    payload.extend_from_slice(&encode_leb128(flags as u64));
 
     // Tag 3: Spacers (odd tag)
     if etching.spacers > 0 {
-        payload.extend_from_slice(&encode_leb128(Tag::Spacers.into_u128()));
-        payload.extend_from_slice(&encode_leb128(etching.spacers as u128));
+        payload.extend_from_slice(&encode_leb128(Tag::Spacers as u64));
+        payload.extend_from_slice(&encode_leb128(etching.spacers as u64));
     }
 
     // Tag 4: Rune name
-    payload.extend_from_slice(&encode_leb128(Tag::Rune.into_u128()));
-    payload.extend_from_slice(&encode_leb128(encoded_name));
+    payload.extend_from_slice(&encode_leb128(Tag::Rune as u64));
+    payload.extend_from_slice(&encode_leb128(encoded_name as u64));
 
     // Tag 5: Symbol (odd tag)
     if let Some(symbol) = etching.symbol {
-        payload.extend_from_slice(&encode_leb128(Tag::Symbol.into_u128()));
-        payload.extend_from_slice(&encode_leb128(symbol as u128));
+        payload.extend_from_slice(&encode_leb128(Tag::Symbol as u64));
+        payload.extend_from_slice(&encode_leb128(symbol as u64));
     }
 
     // Tag 6: Premine
     if etching.premine > 0 {
-        payload.extend_from_slice(&encode_leb128(Tag::Premine.into_u128()));
-        payload.extend_from_slice(&encode_leb128(etching.premine));
+        payload.extend_from_slice(&encode_leb128(Tag::Premine as u64));
+        payload.extend_from_slice(&encode_leb128(etching.premine as u64));
     }
 
     // Add mint terms if present
     if let Some(terms) = &etching.terms {
         if let Some(amount) = terms.amount {
-            payload.extend_from_slice(&encode_leb128(Tag::Amount.into_u128()));
-            payload.extend_from_slice(&encode_leb128(amount));
+            payload.extend_from_slice(&encode_leb128(Tag::Amount as u64));
+            payload.extend_from_slice(&encode_leb128(amount as u64));
         }
         if let Some(cap) = terms.cap {
-            payload.extend_from_slice(&encode_leb128(Tag::Cap.into_u128()));
-            payload.extend_from_slice(&encode_leb128(cap));
+            payload.extend_from_slice(&encode_leb128(Tag::Cap as u64));
+            payload.extend_from_slice(&encode_leb128(cap as u64));
         }
         if let Some(start) = terms.height.0 {
-            payload.extend_from_slice(&encode_leb128(Tag::HeightStart.into_u128()));
-            payload.extend_from_slice(&encode_leb128(start as u128));
+            payload.extend_from_slice(&encode_leb128(Tag::HeightStart as u64));
+            payload.extend_from_slice(&encode_leb128(start as u64));
         }
         if let Some(end) = terms.height.1 {
-            payload.extend_from_slice(&encode_leb128(Tag::HeightEnd.into_u128()));
-            payload.extend_from_slice(&encode_leb128(end as u128));
+            payload.extend_from_slice(&encode_leb128(Tag::HeightEnd as u64));
+            payload.extend_from_slice(&encode_leb128(end as u64));
         }
         if let Some(start) = terms.offset.0 {
-            payload.extend_from_slice(&encode_leb128(Tag::OffsetStart.into_u128()));
-            payload.extend_from_slice(&encode_leb128(start as u128));
+            payload.extend_from_slice(&encode_leb128(Tag::OffsetStart as u64));
+            payload.extend_from_slice(&encode_leb128(start as u64));
         }
         if let Some(end) = terms.offset.1 {
-            payload.extend_from_slice(&encode_leb128(Tag::OffsetEnd.into_u128()));
-            payload.extend_from_slice(&encode_leb128(end as u128));
+            payload.extend_from_slice(&encode_leb128(Tag::OffsetEnd as u64));
+            payload.extend_from_slice(&encode_leb128(end as u64));
         }
     }
 
