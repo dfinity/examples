@@ -2,6 +2,25 @@
 
 This example demonstrates how to deploy a smart contract on the Internet Computer that can receive and send Bitcoin, including support for legacy (P2PKH), SegWit (P2WPKH), and Taproot (P2TR) address types.
 
+The repository also includes examples of how to work with Bitcoin assets such as Ordinals, Runes and BRC-20 tokens.
+
+## Table of Contents
+
+- [Architecture](#architecture)
+- [Prerequisites](#prerequisites)
+- [Building and deploying the smart contract](#building-and-deploying-the-smart-contract)
+- [Generating Bitcoin addresses](#generating-bitcoin-addresses)
+- [Receiving Bitcoin](#receiving-bitcoin)
+- [Checking balance](#checking-balance)
+- [Sending Bitcoin](#sending-bitcoin)
+- [Retrieving block headers](#retrieving-block-headers)
+- [Bitcoin Assets](#bitcoin-assets)
+- [Inscribe an Ordinal](#inscribe-an-ordinal)
+- [Etch a Rune](#etch-a-rune)
+- [Deploy a BRC-20 Token](#deploy-a-brc-20-token)
+- [Notes on implementation](#notes-on-implementation)
+- [Security considerations and best practices](#security-considerations-and-best-practices)
+
 ## Architecture
 
 This example integrates with the Internet Computer's built-in:
@@ -30,19 +49,23 @@ cd examples/rust/basic_bitcoin
 
 ### 2. Start the ICP execution environment
 
+In terminal 1, run the following:
 ```bash
-dfx start --clean --background
+dfx start --enable-bitcoin --bitcoin-node 127.0.0.1:18444
 ```
+This starts a local canister execution environment with Bitcoin support enabled.
 
 ### 3. Start the Bitcoin testnet (regtest)
 
-In a separate terminal window, run the following:
+In terminal 2, run the following to start the local Bitcoin testnet:
 
 ```bash
 bitcoind -conf=$(pwd)/bitcoin.conf -datadir=$(pwd)/bitcoin_data --port=18444
 ```
 
 ### 4. Deploy the smart contract
+
+Finllay, in terminal 3, run the following to deploy the smart contract:
 
 ```bash
 dfx deploy basic_bitcoin --argument '(variant { regtest })'
@@ -143,48 +166,143 @@ dfx canister call basic_bitcoin get_block_headers '(0: nat32, 11: nat32)'
 
 This calls `bitcoin_get_block_headers`, useful for validating blockchains or light client logic.
 
+## Bitcoin Assets
+
+Bitcoin's scripting capabilities enable various digital assets beyond simple transfers. This example demonstrates how to create and interact with three major Bitcoin asset protocols from an ICP smart contract:
+
+- **Ordinals**: Inscribe arbitrary data onto individual satoshis
+- **Runes**: Create fungible tokens using OP_RETURN outputs
+- **BRC-20**: Build fungible tokens on top of Ordinals using JSON
+
+### Prerequisites for Bitcoin Assets
+
+All Bitcoin assets rely on offchain indexing since the Bitcoin protocol doesn't natively support querying these assets. The `ord` CLI tool is the standard indexer for Bitcoin assets like Ordinals and Runes.
+
+Install `ord` using a package manager. For example, on macOS:
+
+```bash
+brew install ord
+```
+
+For other platforms, see the [ord repository](https://github.com/ordinals/ord) for installation instructions.
+
+>[!IMPORTANT]
+>**Bitcoin Configuration**: Make sure bitcoind is configured to accept non-standard transactions by including this setting in your `bitcoin.conf`:
+>
+>```
+>acceptnonstdtxn=1
+>```
+
 ## Inscribe an Ordinal
 
-Make sure bitcoind is configured to accept non standard transactions.
+[Ordinals](https://ordinals.com) is a protocol that allows inscribing arbitrary data (text, images, etc.) onto individual satoshis, creating unique digital artifacts on Bitcoin. Each inscription is permanently stored in the Bitcoin blockchain using a two-transaction commit/reveal process.
 
-The `acceptnonstdtxn` setting needs to be included in your `bitcoin.conf` file, for example:
+### Step-by-step Process:
 
-```
-regtest=1
-acceptnonstdtxn=1
-txindex=1
-rpcuser=<username>
-rpcpassword=<password>
-```
+1. **Start the ord server** to index transactions:
+   ```bash
+   ord --config-dir . server
+   ```
 
-```
-ord --config-dir . server
+2. **Get a Taproot address** for funding the inscription:
+   ```bash
+   dfx canister call basic_bitcoin get_p2tr_key_path_only_address '()'
+   ```
 
-dfx canister call basic_bitcoin get_p2tr_key_path_only_address '()'
+3. **Fund the address** with sufficient bitcoin (100 blocks ensures spendability):
+   ```bash
+   bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 100 <p2tr_key_path_only_address>
+   ```
 
-bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 100 <p2tr_key_path_only_address>
+4. **Create the inscription** with your desired text:
+   ```bash
+   dfx canister call basic_bitcoin inscribe_ordinal '("Hello Bitcoin")'
+   ```
 
-dfx canister call basic_bitcoin inscribe_ordinal '("ORDINAL")'
+5. **Mine a block** to confirm the transactions:
+   ```bash
+   bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 1 <p2tr_key_path_only_address>
+   ```
 
-bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 1 <p2tr_key_path_only_address>
-
-```
+The function returns the reveal transaction ID. Your inscription is now permanently stored on Bitcoin and can be viewed using ord or other Ordinals explorers. The default address of the local `ord` server is `http://0.0.0.0/`.
 
 ## Etch a Rune
 
-```
-ord --config-dir . server
+[Runes](https://docs.ordinals.com/runes.html) is a fungible token protocol that embeds token metadata directly into Bitcoin transactions using OP_RETURN outputs. Unlike Ordinals, Runes are created in a single transaction and support standard fungible token operations.
 
-dfx canister call basic_bitcoin get_p2tr_key_path_only_address '()'
+### Step-by-step Process:
 
-bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 100 <p2tr_key_path_only_address>
+1. **Start the ord server** to track rune balances:
+   ```bash
+   ord --config-dir . server
+   ```
 
-dfx canister call basic_bitcoin etch_rune '("RUNE")'
+2. **Get a Taproot address** for the rune etching:
+   ```bash
+   dfx canister call basic_bitcoin get_p2tr_key_path_only_address '()'
+   ```
 
-bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 1 <p2tr_key_path_only_address>
+3. **Fund the address** with bitcoin to pay for the etching:
+   ```bash
+   bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 100 <p2tr_key_path_only_address>
+   ```
 
-ord --config-dir . decode --txid <transaction_id>
-```
+4. **Etch the rune** with a uppercase name, maximum 28 characters:
+   ```bash
+   dfx canister call basic_bitcoin etch_rune '("ICPRUNE")'
+   ```
+
+5. **Mine a block** to confirm the etching:
+   ```bash
+   bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 1 <p2tr_key_path_only_address>
+   ```
+
+6. **Decode the runestone** to verify the etching:
+   ```bash
+   ord --config-dir . decode --txid <transaction_id>
+   ```
+
+The rune is now etched with 1,000,000 tokens minted to your address. The tokens can be transferred using standard Bitcoin transactions with runestone data.
+
+## Deploy a BRC-20 Token
+
+[BRC-20](https://domo-2.gitbook.io/brc-20-experiment/) is a token standard built on top of Ordinals that uses structured JSON payloads to create fungible tokens. BRC-20 tokens follow the same inscription process as Ordinals but with standardized JSON formats.
+
+### Step-by-step Process:
+
+1. **Start the ord server** to index BRC-20 inscriptions:
+   ```bash
+   ord --config-dir . server
+   ```
+
+2. **Get a Taproot address** for the token deployment:
+   ```bash
+   dfx canister call basic_bitcoin get_p2tr_key_path_only_address '()'
+   ```
+
+3. **Fund the address** with bitcoin:
+   ```bash
+   bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 100 <p2tr_key_path_only_address>
+   ```
+
+4. **Deploy the BRC-20 token** with a 4-character ticker:
+   ```bash
+   dfx canister call basic_bitcoin inscribe_brc20 '("DEMO")'
+   ```
+
+5. **Mine a block** to confirm the deployment:
+   ```bash
+   bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 1 <p2tr_key_path_only_address>
+   ```
+
+This creates a BRC-20 token with:
+- Ticker: "DEMO"
+- Max supply: 21,000,000 tokens
+- Mint limit: 1,000 tokens per mint
+
+The deployment inscription contains JSON metadata that BRC-20 indexers use to track token balances and transfers. Additional mint and transfer operations require separate inscriptions following the BRC-20 protocol.
+
+To view view the deployed BRC-20 token, see the local `ord` explorer.
 
 
 ## Notes on implementation
