@@ -143,7 +143,7 @@ dfx canister call basic_bitcoin get_block_headers '(0: nat32, 11: nat32)'
 
 This calls `bitcoin_get_block_headers`, useful for validating blockchains or light client logic.
 
-## Inscribe an ordinal
+## Inscribe an Ordinal
 
 Make sure bitcoind is configured to accept non standard transactions.
 
