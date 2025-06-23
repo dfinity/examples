@@ -24,7 +24,7 @@ use ic_cdk::{
 /// Creates a new Rune token on the Bitcoin blockchain.
 ///
 /// Runes work by embedding token metadata directly into Bitcoin transactions using
-/// OP_RETURN outputs with OP_13 markers. Unlike Ordinals which require a two-transaction
+/// OP_RETURN outputs with OP_13 markers. Unlike Ordinals, which require a two-transaction
 /// commit/reveal process, Runes are etched in a single transaction - the token is
 /// created immediately when the transaction is confirmed.
 ///

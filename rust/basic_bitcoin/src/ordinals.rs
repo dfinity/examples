@@ -93,6 +93,8 @@ pub fn build_reveal_transaction_with_fee(
 
     // Create output that sends remaining funds (minus fee) to destination.
     // The inscription is now "bound" to these satoshis according to ordinal theory.
+    // In production: Ensure the fee is smaller than the output value to avoid 
+    // underflow scenarios.
     let output = TxOut {
         value: Amount::from_sat(INSCRIPTION_OUTPUT_VALUE - fee),
         script_pubkey: destination_address.script_pubkey(),

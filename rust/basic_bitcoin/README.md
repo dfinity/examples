@@ -1,6 +1,6 @@
 # Basic Bitcoin
 
-This example demonstrates how to deploy a smart contract on the Internet Computer that can receive and send Bitcoin, including support for legacy (P2PKH), SegWit (P2WPKH), and Taproot (P2TR) address types.
+This example demonstrates how to deploy a smart contract on the Internet Computer that can receive and send bitcoin, including support for legacy (P2PKH), SegWit (P2WPKH), and Taproot (P2TR) address types.
 
 The repository also includes examples of how to work with Bitcoin assets such as Ordinals, Runes, and BRC-20 tokens.
 
@@ -10,9 +10,9 @@ The repository also includes examples of how to work with Bitcoin assets such as
 - [Prerequisites](#prerequisites)
 - [Building and deploying the smart contract](#building-and-deploying-the-smart-contract)
 - [Generating Bitcoin addresses](#generating-bitcoin-addresses)
-- [Receiving Bitcoin](#receiving-bitcoin)
+- [Receiving bitcoin](#receiving-bitcoin)
 - [Checking balance](#checking-balance)
-- [Sending Bitcoin](#sending-bitcoin)
+- [Sending bitcoin](#sending-bitcoin)
 - [Retrieving block headers](#retrieving-block-headers)
 - [Bitcoin assets](#bitcoin-assets)
 - [Inscribe an Ordinal](#inscribe-an-ordinal)
@@ -99,9 +99,9 @@ dfx canister call basic_bitcoin get_p2pkh_address
 # or get_p2wpkh_address, get_p2tr_key_path_only_address, get_p2tr_script_path_enabled_address
 ```
 
-## Receiving Bitcoin
+## Receiving bitcoin
 
-Use the `bitcoin-cli` to mine a Bitcoin block and send the block reward in the form of local testnet BTC to one of the smart contract addresses.
+Use the `bitcoin-cli` to mine a Bitcoin block and send the block reward in the form of local testnet bitcoin (tBTC) to one of the smart contract addresses.
 
 ```bash
 bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 1 <bitcoin_address>
@@ -117,9 +117,9 @@ dfx canister call basic_bitcoin get_balance '("<bitcoin_address>")'
 
 This uses `bitcoin_get_balance` and works for any supported address type. The balance requires at least one confirmation to be reflected.
 
-## Sending Bitcoin
+## Sending bitcoin
 
-You can send BTC using the following endpoints:
+You can send bitcoin using the following endpoints:
 
 - `send_from_p2pkh_address`
 - `send_from_p2wpkh_address`
@@ -173,7 +173,7 @@ Bitcoin's scripting capabilities enable various digital assets beyond simple tra
 - **Runes**: Create fungible tokens using OP_RETURN outputs
 - **BRC-20**: Build fungible tokens on top of Ordinals using JSON
 
-### Prerequisites for Bitcoin Assets
+### Prerequisites for Bitcoin assets
 
 All Bitcoin assets rely on off-chain indexing since the Bitcoin protocol doesn't natively support querying these assets. The `ord` CLI tool is the standard indexer for Bitcoin assets like Ordinals and Runes.
 
@@ -318,6 +318,8 @@ This example implements several important patterns for Bitcoin integration:
 - **Asset protocols**: Bitcoin assets (Ordinals, Runes, BRC-20) demonstrate advanced scripting capabilities and witness data usage.
 
 ## Security considerations and best practices
+
+This example is provided for educational purposes and is not production-ready. It is important to consider security implications when developing applications that interact with Bitcoin or other cryptocurrencies. The code has **not been audited** and may contain vulnerabilities or security issues.
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
 
