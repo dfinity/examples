@@ -2,7 +2,7 @@
 
 This example demonstrates how to deploy a smart contract on the Internet Computer that can receive and send Bitcoin, including support for legacy (P2PKH), SegWit (P2WPKH), and Taproot (P2TR) address types.
 
-The repository also includes examples of how to work with Bitcoin assets such as Ordinals, Runes and BRC-20 tokens.
+The repository also includes examples of how to work with Bitcoin assets such as Ordinals, Runes, and BRC-20 tokens.
 
 ## Table of Contents
 
@@ -65,7 +65,7 @@ bitcoind -conf=$(pwd)/bitcoin.conf -datadir=$(pwd)/bitcoin_data --port=18444
 
 ### 4. Deploy the smart contract
 
-Finllay, in terminal 3, run the following to deploy the smart contract:
+Finally, in terminal 3, run the following to deploy the smart contract:
 
 ```bash
 dfx deploy basic_bitcoin --argument '(variant { regtest })'
@@ -76,8 +76,7 @@ What this does:
 - `dfx deploy` tells the command line interface to `deploy` the smart contract.
 - `--argument '(variant { regtest })'` passes the argument `regtest` to initialize the smart contract, telling it to connect to the local Bitcoin regtest network.
 
-
-Your smart contract is live and ready to use! You can interact with it using either the command line or using the Candid UI, which is the link you see in the terminal.
+Your smart contract is live and ready to use! You can interact with it using either the command line or the Candid UI, which is the link you see in the terminal.
 
 > [!NOTE]
 > You can also interact with a pre-deployed version of the `basic_bitcoin` example running on the IC mainnet and configured to interact with Bitcoin **testnet4**.
@@ -116,7 +115,7 @@ Check the balance of any Bitcoin address:
 dfx canister call basic_bitcoin get_balance '("<bitcoin_address>")'
 ```
 
-This uses `bitcoin_get_balance` and works for any supported address type. Requires at least one confirmation to be reflected.
+This uses `bitcoin_get_balance` and works for any supported address type. The balance requires at least one confirmation to be reflected.
 
 ## Sending Bitcoin
 
@@ -146,7 +145,7 @@ dfx canister call basic_bitcoin send_from_p2pkh_address '(record {
 ```
 
 > [!IMPORTANT]
-> Newly mined bitcoin, like those you created with the above `bitcoin-cli` command cannot be spent until 100 additional blocks have been added to the chain. To make your bitcoin spendable, create 100 additional blocks. Choose one of the smart contract addresses as receiver of the block reward or use any valid bitcoin dummy address.
+> Newly mined bitcoin, like those you created with the above `bitcoin-cli` command, cannot be spent until 100 additional blocks have been added to the chain. To make your bitcoin spendable, create 100 additional blocks. Choose one of the smart contract addresses as receiver of the block reward or use any valid Bitcoin dummy address.
 >
 > ```bash
 > bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 100 <bitcoin_address>
@@ -164,7 +163,7 @@ dfx canister call basic_bitcoin get_block_headers '(10: nat32)'
 dfx canister call basic_bitcoin get_block_headers '(0: nat32, 11: nat32)'
 ```
 
-This calls `bitcoin_get_block_headers`, useful for validating blockchains or light client logic.
+This calls `bitcoin_get_block_headers`, which is useful for blockchain validation or light client logic.
 
 ## Bitcoin Assets
 
@@ -176,7 +175,7 @@ Bitcoin's scripting capabilities enable various digital assets beyond simple tra
 
 ### Prerequisites for Bitcoin Assets
 
-All Bitcoin assets rely on offchain indexing since the Bitcoin protocol doesn't natively support querying these assets. The `ord` CLI tool is the standard indexer for Bitcoin assets like Ordinals and Runes.
+All Bitcoin assets rely on off-chain indexing since the Bitcoin protocol doesn't natively support querying these assets. The `ord` CLI tool is the standard indexer for Bitcoin assets like Ordinals and Runes.
 
 Install `ord` using a package manager. For example, on macOS:
 
@@ -186,12 +185,12 @@ brew install ord
 
 For other platforms, see the [ord repository](https://github.com/ordinals/ord) for installation instructions.
 
->[!IMPORTANT]
->**Bitcoin Configuration**: Make sure bitcoind is configured to accept non-standard transactions by including this setting in your `bitcoin.conf`:
+> [!IMPORTANT]
+> **Bitcoin Configuration**: Make sure bitcoind is configured to accept non-standard transactions by including this setting in your `bitcoin.conf`:
 >
->```
->acceptnonstdtxn=1
->```
+> ```
+> acceptnonstdtxn=1
+> ```
 
 ## Inscribe an Ordinal
 
@@ -224,7 +223,7 @@ For other platforms, see the [ord repository](https://github.com/ordinals/ord) f
    bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 1 <p2tr_key_path_only_address>
    ```
 
-The function returns the reveal transaction ID. Your inscription is now permanently stored on Bitcoin and can be viewed using ord or other Ordinals explorers. The default address of the local `ord` server is `http://0.0.0.0/`.
+The function returns the reveal transaction ID. Your inscription is now permanently stored on Bitcoin and can be viewed using ord or other Ordinals explorers. The default address of the local `ord` server is `http://127.0.0.1:80/`.
 
 ## Etch a Rune
 
@@ -247,7 +246,7 @@ The function returns the reveal transaction ID. Your inscription is now permanen
    bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 100 <p2tr_key_path_only_address>
    ```
 
-4. **Etch the rune** with a uppercase name, maximum 28 characters:
+4. **Etch the rune** with an uppercase name (maximum 28 characters):
    ```bash
    dfx canister call basic_bitcoin etch_rune '("ICPRUNE")'
    ```
@@ -302,15 +301,18 @@ This creates a BRC-20 token with:
 
 The deployment inscription contains JSON metadata that BRC-20 indexers use to track token balances and transfers. Additional mint and transfer operations require separate inscriptions following the BRC-20 protocol.
 
-To view view the deployed BRC-20 token, see the local `ord` explorer.
+To view the deployed BRC-20 token, use the local `ord` explorer at `http://127.0.0.1:80/`.
 
 
 ## Notes on implementation
 
-- Keys are derived using structured derivation paths according to BIP-32.
-- Key caching is used to avoid repeated calls to `get_ecdsa_public_key` and `get_schnorr_public_key`.
-- Transactions are assembled and signed manually, ensuring maximum flexibility in construction and fee estimation.
-- When _testing_ on mainnet, the [chain-key testing canister](https://github.com/dfinity/chainkey-testing-canister) can be used to save on costs for calling the threshold signing APIs for signing the BTC transactions.
+This example implements several important patterns for Bitcoin integration:
+
+- **Derivation paths**: Keys are derived using structured derivation paths according to BIP-32, ensuring reproducible key generation.
+- **Key caching**: Optimization is used to avoid repeated calls to `get_ecdsa_public_key` and `get_schnorr_public_key`.
+- **Manual transaction construction**: Transactions are assembled and signed manually, ensuring maximum flexibility in construction and fee estimation.
+- **Cost optimization**: When testing on mainnet, the [chain-key testing canister](https://github.com/dfinity/chainkey-testing-canister) can be used to save on costs for calling the threshold signing APIs.
+- **Asset protocols**: Bitcoin assets (Ordinals, Runes, BRC-20) demonstrate advanced scripting capabilities and witness data usage.
 
 ## Security considerations and best practices
 
