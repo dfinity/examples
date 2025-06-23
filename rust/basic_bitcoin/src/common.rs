@@ -1,3 +1,7 @@
+// This module provides common utilities for Bitcoin transaction construction and management.
+// It includes UTXO selection algorithms, transaction building, fee estimation, and
+// BIP-32 derivation path handling used across all Bitcoin address types.
+
 use crate::BitcoinContext;
 use bitcoin::{
     self, absolute::LockTime, blockdata::witness::Witness, hashes::Hash, transaction::Version,
@@ -8,6 +12,13 @@ use ic_cdk::bitcoin_canister::{
 };
 use std::fmt;
 
+/// Selects UTXOs using a greedy algorithm to cover the required amount plus fee.
+///
+/// This function iterates through UTXOs in reverse order (oldest last) and accumulates
+/// them until the total value covers the payment amount plus transaction fee.
+/// This approach helps consolidate older UTXOs and can reduce wallet fragmentation.
+///
+/// Returns an error if the total UTXO value is insufficient to cover the payment and fee.
 pub fn select_utxos_greedy(
     own_utxos: &[Utxo],
     amount: u64,
@@ -35,6 +46,13 @@ pub fn select_utxos_greedy(
     Ok(utxos_to_spend)
 }
 
+/// Selects a single UTXO that can cover the required amount plus fee.
+///
+/// This function is used when you need to tie a specific operation to a single UTXO,
+/// such as with Bitcoin inscriptions where the asset must be associated with specific
+/// satoshis. It searches for the first UTXO (in reverse order) that has sufficient value.
+///
+/// Returns an error if no single UTXO has enough value to cover the payment and fee.
 pub fn select_one_utxo(own_utxos: &[Utxo], amount: u64, fee: u64) -> Result<Vec<&Utxo>, String> {
     for utxo in own_utxos.iter().rev() {
         if utxo.value >= amount + fee {
@@ -48,24 +66,36 @@ pub fn select_one_utxo(own_utxos: &[Utxo], amount: u64, fee: u64) -> Result<Vec<
     ))
 }
 
+/// Represents the primary output type for a Bitcoin transaction.
+///
+/// This enum allows transaction builders to specify whether they want to send
+/// bitcoin to an address (normal payment) or embed data using OP_RETURN (for
+/// protocols like Runes that store metadata on-chain).
 pub enum PrimaryOutput {
-    /// Pay someone (spendable).
-    Address(Address, u64), // dest, amount
-    /// Embed data (unspendable).
+    /// Pay someone (spendable output).
+    Address(Address, u64), // destination address, amount in satoshis
+    /// Embed data (unspendable OP_RETURN output).
     OpReturn(ScriptBuf), // script already starts with OP_RETURN
 }
 
-/// Constructs a Bitcoin transaction from the given UTXOs, sending the specified `amount`
-/// to `dst_address`, subtracting a fixed `fee`, and returning any remaining change
-/// to `own_address` (if it's not considered dust (leftover bitcoin that is lower in value than the minimum limit of a valid transaction)).
+/// Constructs a Bitcoin transaction from the given UTXOs and primary output specification.
+///
+/// This function handles the common pattern of Bitcoin transaction construction:
+/// 1. Creates inputs from the selected UTXOs
+/// 2. Creates the primary output (payment or OP_RETURN data)
+/// 3. Adds a change output if the remainder exceeds the dust threshold
+/// 4. Returns both the unsigned transaction and prevouts needed for signing
+///
+/// The change output is sent back to `own_address` to prevent value loss, but only
+/// if the change amount is above the dust threshold to avoid creating uneconomical outputs.
 ///
 /// Returns the constructed unsigned transaction and the list of previous outputs (`prevouts`)
-/// used for signing.
+/// used for signing different address types (P2WPKH, P2TR, etc.).
 ///
 /// Assumes that:
-/// - Inputs are unspent and valid
-/// - Dust threshold is 1_000 satoshis (outputs below this are omitted)
-/// - UTXOs are already filtered to be spendable (e.g., confirmed, mature)
+/// - Inputs are unspent and valid (caller's responsibility)
+/// - Dust threshold is 1,000 satoshis (outputs below this are omitted)
+/// - UTXOs are already filtered to be spendable (confirmed, mature, etc.)
 pub fn build_transaction_with_fee(
     utxos_to_spend: Vec<&Utxo>,
     own_address: &Address,
@@ -73,9 +103,11 @@ pub fn build_transaction_with_fee(
     fee: u64,
 ) -> Result<(Transaction, Vec<TxOut>), String> {
     // Define a dust threshold below which change outputs are discarded.
+    // This prevents creating outputs that cost more to spend than they're worth.
     const DUST_THRESHOLD: u64 = 1_000;
 
     // --- Build Inputs ---
+    // Convert UTXOs into transaction inputs, preparing them for signing.
     let inputs: Vec<TxIn> = utxos_to_spend
         .iter()
         .map(|utxo| TxIn {
@@ -83,15 +115,15 @@ pub fn build_transaction_with_fee(
                 txid: Txid::from_raw_hash(Hash::from_slice(&utxo.outpoint.txid).unwrap()),
                 vout: utxo.outpoint.vout,
             },
-            sequence: Sequence::MAX,
+            sequence: Sequence::MAX,      // No relative timelock constraints
             witness: Witness::new(),      // Will be filled in during signing
-            script_sig: ScriptBuf::new(), // Empty for SegWit or Taproot
+            script_sig: ScriptBuf::new(), // Empty for SegWit and Taproot (uses witness)
         })
         .collect();
 
     // --- Create Previous Outputs ---
-    // Each TxOut struct represents an output of a previous transaction that is now being spent.
-    // This information is needed later when signing transactions for P2TR and P2WPKH.
+    // Each TxOut represents an output from previous transactions being spent.
+    // This data is required for signing P2WPKH and P2TR transactions.
     let prevouts = utxos_to_spend
         .clone()
         .into_iter()
@@ -102,7 +134,7 @@ pub fn build_transaction_with_fee(
         .collect();
 
     // --- Build Outputs ---
-    // Primary output: send amount to destination.
+    // Create the primary output based on the operation type.
     let mut outputs = Vec::<TxOut>::new();
 
     match primary_output {
@@ -112,18 +144,17 @@ pub fn build_transaction_with_fee(
         }),
         PrimaryOutput::OpReturn(script) => outputs.push(TxOut {
             script_pubkey: script.clone(),
-            value: Amount::from_sat(0), // OP_RETURN outputs are 0-sat
+            value: Amount::from_sat(0), // OP_RETURN outputs carry no bitcoin value
         }),
     }
 
-    // Add a change output if the remainder is above the dust threshold.
-
+    // Calculate change and add change output if above dust threshold.
+    // This prevents value loss while avoiding uneconomical outputs.
     let total_in: u64 = utxos_to_spend.iter().map(|u| u.value).sum();
     let change = total_in
         .checked_sub(outputs.iter().map(|o| o.value.to_sat()).sum::<u64>() + fee)
         .ok_or("fee exceeds inputs")?;
-    // let total_spent: u64 = utxos_to_spend.iter().map(|utxo| utxo.value).sum();
-    // let change = total_spent - amount - fee;
+
     if change >= DUST_THRESHOLD {
         outputs.push(TxOut {
             script_pubkey: own_address.script_pubkey(),
@@ -132,29 +163,33 @@ pub fn build_transaction_with_fee(
     }
 
     // --- Assemble Transaction ---
+    // Create the final unsigned transaction with version 2 for modern features.
     Ok((
         Transaction {
             input: inputs,
             output: outputs,
-            lock_time: LockTime::ZERO,
-            version: Version::TWO,
+            lock_time: LockTime::ZERO, // No absolute timelock
+            version: Version::TWO,     // Standard for modern Bitcoin transactions
         },
         prevouts,
     ))
 }
 
-/// Estimates a reasonable fee rate (in millisatoshis per byte) for sending a Bitcoin transaction.
+/// Estimates a reasonable fee rate for Bitcoin transactions based on network conditions.
 ///
-/// This function fetches recent fee percentiles from the Bitcoin API and returns
-/// the median (50th percentile) fee rate, which is a reasonable default for timely inclusion.
+/// This function queries the Bitcoin network for recent fee percentiles and returns
+/// the median (50th percentile) fee rate, which provides a good balance between
+/// confirmation time and cost. The fee rate is returned in millisatoshis per byte.
 ///
-/// - On **regtest** networks (without any coinbase mature transactions), no fee data is available,
-///   so the function falls back to a static default of `2000` millisatoshis/byte (i.e., `2 sat/vB`).
+/// On regtest networks (local development), fee data is typically unavailable since
+/// there are no standard transactions, so the function falls back to a static rate
+/// of 2,000 millisatoshis/byte (2 sat/vB) which is reasonable for testing.
 ///
 /// # Returns
-/// A fee rate in millisatoshis per byte (1000 msat = 1 satoshi).
+/// Fee rate in millisatoshis per byte (1,000 msat = 1 satoshi).
 pub async fn get_fee_per_byte(ctx: &BitcoinContext) -> u64 {
-    // Query recent fee percentiles from the Bitcoin API.
+    // Query recent fee percentiles from the Bitcoin network.
+    // This gives us real-time fee data based on recent transaction activity.
     let fee_percentiles = bitcoin_get_current_fee_percentiles(&GetCurrentFeePercentilesRequest {
         network: ctx.network,
     })
@@ -162,20 +197,24 @@ pub async fn get_fee_per_byte(ctx: &BitcoinContext) -> u64 {
     .unwrap();
 
     if fee_percentiles.is_empty() {
-        // If the percentiles list is empty, we're likely on a regtest network
-        // with no standard transactions. Use a fixed fallback value.
+        // Empty percentiles indicate we're likely on regtest with no standard transactions.
+        // Use a reasonable fallback that works for development and testing.
         2000 // 2 sat/vB in millisatoshis
     } else {
-        // Use the 50th percentile (median) fee for balanced confirmation time and cost.
+        // Use the 50th percentile (median) for balanced confirmation time and cost.
+        // This avoids both overpaying (high percentiles) and slow confirmation (low percentiles).
         fee_percentiles[50]
     }
 }
 
-/// Purpose field for a BIP-43/44-style derivation path.
-/// Determines the address type. Values are defined by:
-/// - BIP-44 for P2PKH (legacy): 44'
-/// - BIP-84 for P2WPKH (native SegWit): 84'
-/// - BIP-86 for P2TR (Taproot): 86'
+/// Purpose field for BIP-32 hierarchical deterministic wallet derivation paths.
+///
+/// The purpose field determines the address type according to Bitcoin Improvement Proposals:
+/// - BIP-44 for P2PKH (legacy addresses): purpose = 44'
+/// - BIP-84 for P2WPKH (native SegWit addresses): purpose = 84'
+/// - BIP-86 for P2TR (Taproot addresses): purpose = 86'
+///
+/// These standards ensure wallet compatibility and predictable address generation.
 pub enum Purpose {
     P2PKH,  // BIP-44
     P2WPKH, // BIP-84
@@ -192,12 +231,16 @@ impl Purpose {
     }
 }
 
-/// Represents a full BIP-32-compatible derivation path:
-/// m / purpose' / coin_type' / account' / change / address_index
+/// Represents a complete BIP-32 hierarchical deterministic wallet derivation path.
 ///
-/// This abstraction is suitable for BIP-44 (legacy), BIP-84 (SegWit), and BIP-86 (Taproot),
-/// and provides convenience constructors and binary serialization for use with ECDSA/Schnorr
-/// key derivation APIs.
+/// The path follows the standard format: m / purpose' / coin_type' / account' / change / address_index
+/// where ' indicates hardened derivation. This structure enables:
+/// - Deterministic key generation from a single seed
+/// - Logical separation of different address types and accounts
+/// - Privacy through address rotation within accounts
+///
+/// This implementation supports BIP-44 (P2PKH), BIP-84 (P2WPKH), and BIP-86 (P2TR) standards
+/// and provides serialization compatible with the Internet Computer's key derivation APIs.
 pub struct DerivationPath {
     /// Purpose according to BIP-43 (e.g., 44 for legacy, 84 for SegWit, 86 for Taproot)
     purpose: Purpose,
@@ -216,13 +259,16 @@ pub struct DerivationPath {
 }
 
 impl DerivationPath {
-    /// Constructs a new derivation path using the given purpose, account, and address index.
+    /// Constructs a new derivation path with the specified parameters.
     ///
-    /// - `purpose`: Determines the address type (BIP-44 for P2PKH, BIP-84 for P2WPKH, BIP-86 for P2TR).
-    /// - `account`: Use to separate logical users or wallets. For multi-user wallets, assign each user a unique account number.
-    /// - `address_index`: Used to derive multiple addresses within the same account.
+    /// Parameters:
+    /// - `purpose`: Determines the address type and BIP standard to follow
+    /// - `account`: Logical account separation (use different accounts for different users/purposes)
+    /// - `address_index`: Address index within the account (increment for new addresses)
     ///
-    /// The coin type is set to 0 (Bitcoin), and change is set to 0 (external chain).
+    /// Fixed values:
+    /// - `coin_type`: Always 0 (Bitcoin mainnet/testnet)
+    /// - `change`: Always 0 (external/receiving addresses, not internal change addresses)
     fn new(purpose: Purpose, account: u32, address_index: u32) -> Self {
         Self {
             purpose,
@@ -250,20 +296,28 @@ impl DerivationPath {
 
     const HARDENED_OFFSET: u32 = 0x8000_0000;
 
-    /// Returns the derivation path as a Vec<Vec<u8>> (one 4-byte big-endian element per level),
-    /// suitable for use with the Internet Computer's ECDSA/Schnorr APIs.
+    /// Converts the derivation path to the binary format expected by IC's key derivation APIs.
+    ///
+    /// Returns a Vec<Vec<u8>> where each inner Vec represents one level of the path
+    /// as a 4-byte big-endian encoded integer. Hardened derivation is indicated by
+    /// setting the most significant bit (adding 0x80000000 to the value).
     pub fn to_vec_u8_path(&self) -> Vec<Vec<u8>> {
         vec![
+            // Purpose is hardened (purpose')
             (self.purpose.to_u32() | Self::HARDENED_OFFSET)
                 .to_be_bytes()
                 .to_vec(),
+            // Coin type is hardened (coin_type')
             (self.coin_type | Self::HARDENED_OFFSET)
                 .to_be_bytes()
                 .to_vec(),
+            // Account is hardened (account')
             (self.account | Self::HARDENED_OFFSET)
                 .to_be_bytes()
                 .to_vec(),
+            // Change is not hardened (allows extended public key sharing)
             self.change.to_be_bytes().to_vec(),
+            // Address index is not hardened (enables address generation without private keys)
             self.address_index.to_be_bytes().to_vec(),
         ]
     }
