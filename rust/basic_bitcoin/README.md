@@ -147,7 +147,7 @@ This calls `bitcoin_get_block_headers`, useful for validating blockchains or lig
 
 Make sure bitcoind is configured to accept non standard transactions.
 
-The `acceptnonstdtxn` setting needs to be included in your `bitcoin.conf` file. Example:
+The `acceptnonstdtxn` setting needs to be included in your `bitcoin.conf` file, for example:
 
 ```
 regtest=1
