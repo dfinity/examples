@@ -185,7 +185,8 @@ brew install ord
 
 For other platforms, see the [ord repository](https://github.com/ordinals/ord) for installation instructions.
 
-This repository includes a [default ord config file](./ord.yaml) that matches the also provided [bitcoin config file](./bitcoin.conf).
+> [!NOTE]
+> This repository includes a [default ord config file](./ord.yaml) that matches the also provided [bitcoin config file](./bitcoin.conf).
 
 > [!IMPORTANT]
 > **Bitcoin Configuration**: To work with Bitcoin assets, make sure bitcoind is configured to accept non-standard transactions by including this setting in your `bitcoin.conf`:
