@@ -1,6 +1,6 @@
 // This module implements Bitcoin Runes protocol functionality.
-// Runes are a fungible token protocol on Bitcoin that allows creating
-// and transferring tokens using OP_RETURN outputs with OP_13 markers.
+// Runes are a fungible token protocol built on Bitcoin that creates tokens
+// using OP_RETURN outputs with OP_13 markers for on-chain metadata storage.
 
 use bitcoin::{
     opcodes::all::*,
@@ -86,7 +86,9 @@ impl Flag {
 }
 
 /// Encodes a u128 as LEB128 (Little Endian Base 128).
-/// Used by the Runes protocol for all integer encoding.
+///
+/// The Runes protocol uses LEB128 encoding for all integer values in the runestone
+/// to create compact, variable-length representations that minimize transaction size.
 pub fn encode_leb128(mut value: u128) -> Vec<u8> {
     let mut bytes = Vec::new();
     loop {
@@ -104,8 +106,9 @@ pub fn encode_leb128(mut value: u128) -> Vec<u8> {
 }
 
 /// Encodes a rune name into its numeric representation.
+///
 /// Runes use a modified base-26 encoding where A=0, B=1, ... Z=25.
-/// Names are encoded with A as the least significant digit.
+/// Names are encoded with A as the least significant digit for compact storage.
 pub fn encode_rune_name(name: &str) -> Result<u128, String> {
     if name.is_empty() {
         return Err("Rune name cannot be empty".to_string());
@@ -136,7 +139,10 @@ pub fn encode_rune_name(name: &str) -> Result<u128, String> {
     Ok(value)
 }
 
-/// Represents an etching - the creation of a new rune.
+/// Represents a rune etching configuration.
+///
+/// An etching defines all the parameters for creating a new rune token,
+/// including supply, divisibility, and minting terms.
 pub struct Etching {
     pub divisibility: u8,
     pub premine: u128,
@@ -147,7 +153,10 @@ pub struct Etching {
     pub spacers: u32,
 }
 
-/// Mint terms for open minting.
+/// Defines the terms for open minting of rune tokens.
+///
+/// Terms specify when and how much additional supply can be minted
+/// after the initial etching through public mint operations.
 pub struct Terms {
     pub amount: Option<u128>,               // Amount per mint
     pub cap: Option<u128>,                  // Maximum number of mints
@@ -155,18 +164,21 @@ pub struct Terms {
     pub offset: (Option<u64>, Option<u64>), // Relative block height range
 }
 
-/// Builds a runestone script for etching a new rune.
+/// Builds a runestone script for etching a new rune token.
 ///
-/// The runestone format is:
-/// OP_RETURN OP_13 [LEB128 encoded integers...]
+/// The runestone is encoded as an OP_RETURN output with the format:
+/// OP_RETURN OP_13 [LEB128 encoded tag-value pairs...]
+///
+/// All rune metadata is encoded as alternating tags and values using LEB128,
+/// creating a compact binary representation of the token parameters.
 pub fn build_etching_script(etching: &Etching) -> Result<ScriptBuf, String> {
     let mut payload = Vec::new();
 
-    // Encode rune name
+    // Encode rune name into numeric format for storage.
     let encoded_name = encode_rune_name(&etching.rune_name)?;
 
-    // Build flags
-    let mut flags = Flag::Etching.mask(); // We're etching
+    // Build flags bitmask to indicate which features are enabled.
+    let mut flags = Flag::Etching.mask(); // Mark this as an etching operation
     if etching.terms.is_some() {
         flags |= Flag::Terms.mask();
     }
@@ -240,9 +252,9 @@ pub fn build_etching_script(etching: &Etching) -> Result<ScriptBuf, String> {
     // Add OP_13 marker
     builder = builder.push_opcode(OP_PUSHNUM_13);
 
-    // Add the entire payload as a single data push
-    // This is crucial - the Runes protocol expects all data after OP_13
-    // to be concatenated, not split into chunks
+    // Add the entire payload as a single data push.
+    // Critical: All runestone data must be in one push after OP_13,
+    // not split into multiple chunks, per the Runes protocol specification.
     let mut push_bytes = PushBytesBuf::new();
     push_bytes
         .extend_from_slice(&payload)
