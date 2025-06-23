@@ -1,65 +1,41 @@
-# Pictures Gallery - Photo Gallery on Internet Computer
+# Photo gallery
 
 A decentralized photo gallery application built on the Internet Computer blockchain. Users can upload, view, and manage their photos in a decentralized environment.
 
-**WARNING** This is meant primarily as a demo to show how the response verification library and http gateways can be used to serve images with cache headers. It is not making use of authentication or certification - use it at your own risk.
+**WARNING:** This is meant primarily as a demo to show how the response verification library and HTTP gateways can be used to serve images with cache headers. It is not making use of authentication or certification. Use it at your own risk.
+
+## Deploying from ICP Ninja
 
 [![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?url=https://github.com/examples/rust/pictures-gallery)
 
+## Build and deploy from the command-line
 
-## Features
+### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
 
-- **Photo Upload**: Upload images directly to the Internet Computer
-- **Photo Gallery**: View all uploaded photos in a responsive grid layout
-- **Decentralized Storage**: Photos are stored on-chain using Internet Computer's asset storage
+### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
 
-## Architecture
+### 3. Navigate into the project's directory.
 
-### Backend (Rust)
+### 4. Deploy the project to your local environment:
 
-- **Canister**: `pictures-site-backend`
-- **Language**: Rust with ic-cdk
-- **Functionality**: Handles photo storage, retrieval, and metadata management
+```
+dfx start --background --clean && dfx deploy
+```
 
-### Frontend (TypeScript/React)
 
-- **Canister**: `pictures-site-frontend`
-- **Framework**: React with TypeScript
-- **Build Tool**: Vite
-- **Styling**: CSS with responsive design
+#### 5. Generate Candid interfaces after making changes to the backend:
 
-## Getting Started
+```
+npm run generate
+```
 
-### Prerequisites
+#### 6. Deploy frontend development server (if needed):
 
-- [DFX SDK](https://internetcomputer.org/docs/building-apps/getting-started/install) installed
-- Rust and cargo
-- Node.js and npm
+```
+npm start
+```
 
-### Local Development
+## Security considerations and best practices
 
-1. **Start the Internet Computer replica**:
-
-   ```bash
-   dfx start --clean --background
-   ```
-
-2. **Deploy the canisters**:
-
-   ```bash
-   dfx deploy
-   ```
-
-### Development Workflow
-
-- **Generate Candid interfaces** after backend changes:
-
-  ```bash
-  npm run generate
-  ```
-
-- **Frontend development server** (if needed):
-  ```bash
-  npm start
-  ```
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
 
