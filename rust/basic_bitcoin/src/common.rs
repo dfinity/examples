@@ -84,7 +84,7 @@ pub enum PrimaryOutput {
 /// 1. Creates inputs from the selected UTXOs
 /// 2. Creates the primary output (payment or OP_RETURN data)
 /// 3. Adds a change output if the remainder exceeds the dust threshold
-/// 4. Returns both the unsigned transaction and prevouts needed for signing
+/// 4. Returns both the unsigned transaction and previous outputs needed for signing
 ///
 /// The change output is sent back to `own_address` to prevent value loss, but only
 /// if the change amount is above the dust threshold to avoid creating uneconomical outputs.
@@ -183,7 +183,7 @@ pub fn build_transaction_with_fee(
 ///
 /// On regtest networks (local development), fee data is typically unavailable since
 /// there are no standard transactions, so the function falls back to a static rate
-/// of 2,000 millisatoshis/byte (2 sat/vB) which is reasonable for testing.
+/// of 2,000 millisatoshis/vbyte (2 sat/vB) which is reasonable for testing.
 ///
 /// # Returns
 /// Fee rate in millisatoshis per byte (1,000 msat = 1 satoshi).
@@ -197,7 +197,7 @@ pub async fn get_fee_per_byte(ctx: &BitcoinContext) -> u64 {
     .unwrap();
 
     if fee_percentiles.is_empty() {
-        // Empty percentiles indicate we're likely on regtest with no standard transactions.
+        // Empty percentiles indicate that we're likely on regtest with no standard transactions.
         // Use a reasonable fallback that works for development and testing.
         2000 // 2 sat/vB in millisatoshis
     } else {

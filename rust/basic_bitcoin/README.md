@@ -14,10 +14,10 @@ The repository also includes examples of how to work with Bitcoin assets such as
 - [Checking balance](#checking-balance)
 - [Sending Bitcoin](#sending-bitcoin)
 - [Retrieving block headers](#retrieving-block-headers)
-- [Bitcoin Assets](#bitcoin-assets)
+- [Bitcoin assets](#bitcoin-assets)
 - [Inscribe an Ordinal](#inscribe-an-ordinal)
 - [Etch a Rune](#etch-a-rune)
-- [Deploy a BRC-20 Token](#deploy-a-brc-20-token)
+- [Deploy a BRC-20 token](#deploy-a-brc-20-token)
 - [Notes on implementation](#notes-on-implementation)
 - [Security considerations and best practices](#security-considerations-and-best-practices)
 
@@ -165,7 +165,7 @@ dfx canister call basic_bitcoin get_block_headers '(0: nat32, 11: nat32)'
 
 This calls `bitcoin_get_block_headers`, which is useful for blockchain validation or light client logic.
 
-## Bitcoin Assets
+## Bitcoin assets
 
 Bitcoin's scripting capabilities enable various digital assets beyond simple transfers. This example demonstrates how to create and interact with three major Bitcoin asset protocols from an ICP smart contract:
 
@@ -199,7 +199,7 @@ For other platforms, see the [ord repository](https://github.com/ordinals/ord) f
 
 [Ordinals](https://ordinals.com) is a protocol that allows inscribing arbitrary data (text, images, etc.) onto individual satoshis, creating unique digital artifacts on Bitcoin. Each inscription is permanently stored in the Bitcoin blockchain using a two-transaction commit/reveal process.
 
-### Step-by-step Process:
+### Step-by-step process:
 
 1. **Start the ord server** to index transactions:
    ```bash
@@ -232,7 +232,7 @@ The function returns the reveal transaction ID. Your inscription is now permanen
 
 [Runes](https://docs.ordinals.com/runes.html) is a fungible token protocol that embeds token metadata directly into Bitcoin transactions using OP_RETURN outputs. Unlike Ordinals, Runes are created in a single transaction and support standard fungible token operations.
 
-### Step-by-step Process:
+### Step-by-step process:
 
 1. **Start the ord server** to track rune balances:
    ```bash
@@ -266,11 +266,11 @@ The function returns the reveal transaction ID. Your inscription is now permanen
 
 The rune is now etched with 1,000,000 tokens minted to your address. The tokens can be transferred using standard Bitcoin transactions with runestone data.
 
-## Deploy a BRC-20 Token
+## Deploy a BRC-20 token
 
 [BRC-20](https://domo-2.gitbook.io/brc-20-experiment/) is a token standard built on top of Ordinals that uses structured JSON payloads to create fungible tokens. BRC-20 tokens follow the same inscription process as Ordinals but with standardized JSON formats.
 
-### Step-by-step Process:
+### Step-by-step process:
 
 1. **Start the ord server** to index BRC-20 inscriptions:
    ```bash
