@@ -50,6 +50,7 @@ jobs:
             ["LLM Chatbot (Rust)"]="rust/llm_chatbot"
             ["Tokenmania (Rust)"]="rust/tokenmania"
             ["Who Am I (Rust)"]="rust/who_am_i"
+            ["Photo Gallery (Rust)"]="rust/photo_gallery"
           )
 
           # Check if we should run all examples (workflow file changed) or just changed ones
