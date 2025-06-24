@@ -27,8 +27,34 @@ The example consists of a canister named `mat_mat_mul` (matrix-matrix multiplica
 dfx start --background --clean && dfx deploy
 ```
 
-Compare the amount of instructions used for different matrix multiplication implementations. Call a loop performing 1K element-wise multiplications of `K x 4` packed slices
-from matrices `A` and `B` using optimized algorithm, the same algorithm with Rust auto-vectorization enabled, and WebAssembly SIMD instructions:
+### 5. Open another terminal window in the same directory.
+
+```sh
+cd examples/rust/simd
+```
+
+### 6. Compile and deploy mat_mat_mul canister.
+
+```sh
+dfx deploy
+```
+
+Example output:
+
+```sh
+% dfx deploy
+[...]
+Deployed canisters.
+URLs:
+   Backend canister via Candid interface:
+      mat_mat_mul: http://127.0.0.1/?canisterId=...
+```
+
+### 7. Compare the amount of instructions used for different matrix multiplication implementations.
+
+Call a loop performing 1K element-wise multiplications of `K x 4` packed slices
+from matrices `A` and `B` using optimized algorithm, the same algorithm with
+Rust auto-vectorization enabled, and WebAssembly SIMD instructions:
 
 ```sh
 dfx canister call mat_mat_mul optimized_f32
@@ -36,19 +62,45 @@ dfx canister call mat_mat_mul auto_vectorized_f32
 dfx canister call mat_mat_mul simd_f32
 ```
 
+Example output:
+
+```sh
+% dfx canister call mat_mat_mul optimized_f32
+(168_542_255 : nat64)
+% dfx canister call mat_mat_mul auto_vectorized_f32
+(13_697_228 : nat64)
+% dfx canister call mat_mat_mul simd_f32
+(13_697_228 : nat64)
+```
+
 In this example, Rust's auto-vectorization shines in optimizing matrix multiplication.
 The auto-vectorized code achieves over 10x speedup compared to the optimized version!
 Also, it's on par with the hand-crafted WebAssembly SIMD multiplication.
 
-Compare the amount of instructions used for different matrix multiplication implementations. Call a loop performing 1K element-wise multiplications of `K x 4` packed slices
-from matrices `A` and `B` using optimized algorithm and the same algorithm with Rust auto-vectorization enabled:
+
+### 8. Compare the amount of instructions used for different matrix multiplication implementations
+
+Call a loop performing 1K element-wise multiplications of `K x 4` packed slices
+from matrices `A` and `B` using optimized algorithm and the same algorithm
+with Rust auto-vectorization enabled:
 
 ```sh
 dfx canister call mat_mat_mul optimized_u32
 dfx canister call mat_mat_mul auto_vectorized_u32
 ```
 
-Rust auto-vectorization again demonstrates its power in this example. The auto-vectorized version of the integer matrix multiplication achieves more than a 2x speedup compared to the original code.
+Example output:
+
+```sh
+% dfx canister call mat_mat_mul optimized_u32
+(32_342_253 : nat64)
+% dfx canister call mat_mat_mul auto_vectorized_u32
+(16_164_254 : nat64)
+```
+
+Rust auto-vectorization again demonstrates its power in this example.
+The auto-vectorized version of the integer matrix multiplication achieves
+more than a 2x speedup compared to the original code.
 
 ## Security considerations and best practices
 
