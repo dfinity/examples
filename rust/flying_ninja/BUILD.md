@@ -72,7 +72,7 @@ Your identity will have a principal ID associated with it. Principal IDs are use
 
 [Learn more about ICP developer identities](https://internetcomputer.org/docs/building-apps/getting-started/identities).
 
-### 3. Deploy the project locally.
+### 4. Deploy the project locally.
 
 Deploy your project to your local developer environment with:
 
@@ -84,7 +84,7 @@ dfx deploy
 
 Your project will be hosted on your local machine. The local canister URLs for your project will be shown in the terminal window as output of the `dfx deploy` command. You can open these URLs in your web browser to view the local instance of your project.
 
-### 4. Obtain cycles.
+### 5. Obtain cycles.
 
 To deploy your project to the mainnet for long-term public accessibility, first you will need [cycles](https://internetcomputer.org/docs/building-apps/getting-started/tokens-and-cycles). Cycles are used to pay for the resources your project uses on the mainnet, such as storage and compute.
 
@@ -94,7 +94,7 @@ To deploy your project to the mainnet for long-term public accessibility, first 
 
 Cycles can be obtained through [converting ICP tokens into cycles using `dfx`](https://internetcomputer.org/docs/building-apps/developer-tools/dfx/dfx-cycles#dfx-cycles-convert).
 
-### 5. Deploy to the mainnet.
+### 6. Deploy to the mainnet.
 
 Once you have cycles, run the command:
 
