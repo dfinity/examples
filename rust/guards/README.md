@@ -1,12 +1,10 @@
 # Guards and async code
 
-## Summary
-
 This example canister shows some advanced behavior between guards and asynchronous code. This example is meant for Rust
 canister developers that are already familiar
-with [asynchronous code](https://internetcomputer.org/docs/current/developer-docs/smart-contracts/advanced-features/async-code/)
+with [asynchronous code](https://internetcomputer.org/docs/references/async-code)
 and the security best-practices related
-to [inter-canister calls and rollbacks](https://internetcomputer.org/docs/current/developer-docs/security/rust-canister-development-security-best-practices#inter-canister-calls-and-rollbacks).
+to [inter-canister calls and rollbacks](https://internetcomputer.org/docs/building-apps/security/inter-canister-calls#inter-canister-calls-and-rollbacks).
 
 ## Guard to maintain invariants
 
@@ -17,7 +15,7 @@ requests by contacting a ledger canister, where crucially double minting should 
 
 One tricky part in this scenario is that an item can therefore only be marked as processed after the asynchronous code
 has completed, meaning in the callback. As mentioned in
-the [security best-practices](https://internetcomputer.org/docs/current/developer-docs/security/rust-canister-development-security-best-practices#securely-handle-traps-in-callbacks),
+the [security best-practices](https://internetcomputer.org/docs/building-apps/security/inter-canister-calls#securely-handle-traps-in-callbacks),
 it's not always feasible to guarantee that the callback will not trap, which in that case would break the invariant due
 to the state being rolled back.
 
@@ -27,6 +25,24 @@ another message than the callback, which is the case for true asynchronous code 
 etc.). It's in particular not enough to `await` a function that's declared to be `async`, since if the future can polled
 until completion directly, everything will be executed in a single message.
 
+## Deploying from ICP Ninja
+
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/counter)
+
+## Build and deploy from the command-line
+
+### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
+
+### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
+
+### 3. Navigate into the project's directory.
+
+### 4. Deploy the project to your local environment:
+
+```
+dfx start --background --clean && dfx deploy
+```
+
 ## Automated integration tests
 
 To run the integration tests under `tests/` install [PocketIC server](https://github.com/dfinity/pocketic) and then run:
@@ -35,34 +51,9 @@ To run the integration tests under `tests/` install [PocketIC server](https://gi
 cargo build --target wasm32-unknown-unknown --release && cargo test
 ```
 
-## Manual testing with `dfx`
-
-### Setup
-
-Start `dfx`:
-
-```shell
-dfx start --background
-```
-
-Deploy the canister:
-
-```shell
-dfx deploy
-```
-
-You should now be able to query the canister, e.g., to check if an item is processed:
-
-```shell
-dfx canister call guards is_item_processed 'mint'
-```
-
-This should return `(null)` since the canister currently has an empty state.
-
 ### Test
 
-As an example, we show how the behavior tested in `should_process_single_item_and_mark_it_as_processed` can be tested
-manually.
+Below tests the behavior in `should_process_single_item_and_mark_it_as_processed` manually.
 
 Set the item `"mint"` to be processed:
 
@@ -76,21 +67,12 @@ As a sanity check, ensure that the item is not yet processed:
 dfx canister call guards is_item_processed 'mint'
 ```
 
-should return `(opt false)`.
+This should return `(opt false)`.
 
 Process the item by calling the *panicking* callback:
 
 ```shell
 dfx canister call guards process_single_item_with_panicking_callback  '("mint", variant { TrueAsyncCall })'
-```
-
-Since the queried endpoint panics on purpose, expect some error message similar to:
-
-```text
-2024-05-29 11:54:39.817800 UTC: [Canister bkyz2-fmaaa-aaaaa-qaaaq-cai] Panicked at 'panicking callback!', src/lib.rs:47:5
-Error: Failed update call.
-Caused by: Failed update call.
-  The replica returned a rejection error: reject code CanisterError, reject message Canister bkyz2-fmaaa-aaaaa-qaaaq-cai trapped explicitly: Panicked at 'panicking callback!', src/lib.rs:47:5, error code None
 ```
 
 Ensure that the guard was executed to ensure that the item is marked as processed despite the previous panic:
@@ -100,3 +82,7 @@ dfx canister call guards is_item_processed 'mint'
 ```
 
 This should return `(opt true)`.
+
+## Security considerations and best practices
+
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
