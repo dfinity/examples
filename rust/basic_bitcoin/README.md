@@ -2,9 +2,9 @@
 
 This example demonstrates how to deploy a smart contract on the Internet Computer that can receive and send bitcoin, including support for legacy (P2PKH), SegWit (P2WPKH), and Taproot (P2TR) address types.
 
-The repository also includes examples of how to work with Bitcoin assets such as Ordinals, Runes, and BRC-20 tokens.
+This example also includes examples of how to work with Bitcoin assets such as Ordinals, Runes, and BRC-20 tokens.
 
-## Table of Contents
+## Table of contents
 
 - [Architecture](#architecture)
 - [Prerequisites](#prerequisites)
@@ -49,7 +49,7 @@ cd examples/rust/basic_bitcoin
 
 ### 2. Start the ICP execution environment
 
-In terminal 1, run the following:
+Open a terminal window (terminal 1) and run the following:
 ```bash
 dfx start --enable-bitcoin --bitcoin-node 127.0.0.1:18444
 ```
@@ -57,7 +57,7 @@ This starts a local canister execution environment with Bitcoin support enabled.
 
 ### 3. Start the Bitcoin testnet (regtest)
 
-In terminal 2, run the following to start the local Bitcoin testnet:
+Open another terminal window (terminal 2) and run the following to start the local Bitcoin testnet:
 
 ```bash
 bitcoind -conf=$(pwd)/bitcoin.conf -datadir=$(pwd)/bitcoin_data --port=18444
@@ -65,7 +65,7 @@ bitcoind -conf=$(pwd)/bitcoin.conf -datadir=$(pwd)/bitcoin_data --port=18444
 
 ### 4. Deploy the smart contract
 
-Finally, in terminal 3, run the following to deploy the smart contract:
+Open a third terminal (terminal 3) and run the following to deploy the smart contract:
 
 ```bash
 dfx deploy basic_bitcoin --argument '(variant { regtest })'
@@ -76,7 +76,7 @@ What this does:
 - `dfx deploy` tells the command line interface to `deploy` the smart contract.
 - `--argument '(variant { regtest })'` passes the argument `regtest` to initialize the smart contract, telling it to connect to the local Bitcoin regtest network.
 
-Your smart contract is live and ready to use! You can interact with it using either the command line or the Candid UI, which is the link you see in the terminal.
+Your smart contract is live and ready to use! You can interact with it using either the command line or the Candid UI (the link you see in the terminal).
 
 > [!NOTE]
 > You can also interact with a pre-deployed version of the `basic_bitcoin` example running on the IC mainnet and configured to interact with Bitcoin **testnet4**.
@@ -101,7 +101,7 @@ dfx canister call basic_bitcoin get_p2pkh_address
 
 ## Receiving bitcoin
 
-Use the `bitcoin-cli` to mine a Bitcoin block and send the block reward in the form of local testnet bitcoin (tBTC) to one of the smart contract addresses.
+Use the `bitcoin-cli` to mine a Bitcoin block and send the block reward in the form of local testnet bitcoin to one of the smart contract addresses.
 
 ```bash
 bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 1 <bitcoin_address>
@@ -170,7 +170,7 @@ This calls `bitcoin_get_block_headers`, which is useful for blockchain validatio
 Bitcoin's scripting capabilities enable various digital assets beyond simple transfers. This example demonstrates how to create and interact with three major Bitcoin asset protocols from an ICP smart contract:
 
 - **Ordinals**: Inscribe arbitrary data onto individual satoshis
-- **Runes**: Create fungible tokens using OP_RETURN outputs
+- **Runes**: Create fungible tokens using `OP_RETURN` outputs
 - **BRC-20**: Build fungible tokens on top of Ordinals using JSON
 
 ### Prerequisites for Bitcoin assets
@@ -230,16 +230,16 @@ The function returns the reveal transaction ID. Your inscription is now permanen
 
 ## Etch a Rune
 
-[Runes](https://docs.ordinals.com/runes.html) is a fungible token protocol that embeds token metadata directly into Bitcoin transactions using OP_RETURN outputs. Unlike Ordinals, Runes are created in a single transaction and support standard fungible token operations.
+[Runes](https://docs.ordinals.com/runes.html) is a fungible token protocol that embeds token metadata directly into Bitcoin transactions using `OP_RETURN` outputs. Unlike Ordinals, Runes are created in a single transaction and support standard fungible token operations.
 
 ### Step-by-step process:
 
-1. **Start the ord server** to track rune balances:
+1. **Start the ord server** to track Rune balances:
    ```bash
    ord --config-dir . server
    ```
 
-2. **Get a Taproot address** for the rune etching:
+2. **Get a Taproot address** for the Rune etching:
    ```bash
    dfx canister call basic_bitcoin get_p2tr_key_path_only_address '()'
    ```
@@ -249,7 +249,7 @@ The function returns the reveal transaction ID. Your inscription is now permanen
    bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 100 <p2tr_key_path_only_address>
    ```
 
-4. **Etch the rune** with an uppercase name (maximum 28 characters):
+4. **Etch the Rune** with an uppercase name (maximum 28 characters):
    ```bash
    dfx canister call basic_bitcoin etch_rune '("ICPRUNE")'
    ```
@@ -259,12 +259,12 @@ The function returns the reveal transaction ID. Your inscription is now permanen
    bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 1 <p2tr_key_path_only_address>
    ```
 
-6. **Decode the runestone** to verify the etching:
+6. **Decode the Runestone** to verify the etching:
    ```bash
    ord --config-dir . decode --txid <transaction_id>
    ```
 
-The rune is now etched with 1,000,000 tokens minted to your address. The tokens can be transferred using standard Bitcoin transactions with runestone data.
+The Rune is now etched with 1_000_000 tokens minted to your address. The tokens can be transferred using standard Bitcoin transactions with Runestone data.
 
 ## Deploy a BRC-20 token
 
@@ -299,8 +299,8 @@ The rune is now etched with 1,000,000 tokens minted to your address. The tokens 
 
 This creates a BRC-20 token with:
 - Ticker: "DEMO"
-- Max supply: 21,000,000 tokens
-- Mint limit: 1,000 tokens per mint
+- Max supply: 21_000_000 tokens
+- Mint limit: 1_000 tokens per mint
 
 The deployment inscription contains JSON metadata that BRC-20 indexers use to track token balances and transfers. Additional mint and transfer operations require separate inscriptions following the BRC-20 protocol.
 
