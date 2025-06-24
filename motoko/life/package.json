@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "webpack",
-    "prebuild": "npm run generate",
+    "prebuild": "npm i --include=dev && npm run generate",
     "start": "webpack serve --mode development --env development",
     "prestart": "npm run generate",
     "generate": "dfx generate life"
