@@ -51,11 +51,18 @@ Call `performance_counters` canister `for_update` method:
 dfx canister call performance_counters for_update
 ```
 
+Example output:
+
+```sh
+% dfx canister call performance_counters for_update
+(6_618_678 : nat64, 19_886_107 : nat64)
+```
+
 Note how the current message execution counter (~6M instructions) is much different from the call context counter (~19M instructions).
 
-### 5. Check the replica terminal window for more details.
+### 5. Check the first terminal window for more details.
 
-Example replica log output:
+Example log output:
 
 ```text
 Performance counters for update call:    current (0)     call context (1)
@@ -72,6 +79,30 @@ By contrast, the call context performance counter (1) is monotonically increasin
 Also note, that both counters start over for each nested execution (~12K instructions).
 
 ### 6. Repeat the steps above calling `for_composite_query` method.
+
+```sh
+dfx canister call performance_counters for_composite_query
+```
+
+Example output:
+
+```sh
+% dfx canister call performance_counters for_update
+(6_621_477 : nat64, 19_893_467 : nat64)
+```
+
+Example log output:
+
+```text
+Perf. counters for composite query call: current (0)     call context (1)
+  before the nested call:                6614001         6614201        
+  > inside the 1st nested call:          13567           13767          
+  after the 1st nested call:             6623158         13254766       
+  > inside the 2nd nested call:          13567           13767          
+  after the 2nd nested call:             6621477         19893467 
+```
+
+Note the same performance counters behavior for composite queries.
 
 ## Security considerations and best practices
 
