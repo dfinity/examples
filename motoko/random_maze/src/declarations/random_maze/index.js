@@ -10,8 +10,7 @@ export { idlFactory } from "./random_maze.did.js";
  * beginning in dfx 0.15.0
  */
 export const canisterId =
-  process.env.CANISTER_ID_RANDOM_MAZE ||
-  process.env.RANDOM_MAZE_CANISTER_ID;
+  process.env.CANISTER_ID_RANDOM_MAZE;
 
 export const createActor = (canisterId, options = {}) => {
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
@@ -40,4 +39,4 @@ export const createActor = (canisterId, options = {}) => {
   });
 };
 
-export const random_maze = createActor(canisterId);
+export const random_maze = canisterId ? createActor(canisterId) : undefined;
