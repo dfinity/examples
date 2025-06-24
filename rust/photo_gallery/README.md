@@ -6,7 +6,7 @@ A decentralized photo gallery application built on the Internet Computer blockch
 
 ## Deploying from ICP Ninja
 
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/rust/pictures-gallery)
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/rust/photo_gallery)
 
 ## Build and deploy from the command-line
 
