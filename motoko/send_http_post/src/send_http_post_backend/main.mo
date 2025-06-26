@@ -56,22 +56,10 @@ actor {
       };
     };
 
-    //2. ADD CYCLES TO PAY FOR HTTP REQUEST
+    //2. MAKE HTTPS REQUEST AND WAIT FOR RESPONSE, BUT MAKE SURE TO ADD CYCLES.
+    let http_response : IC.http_request_result = await (with cycles = 230_949_972_000) IC.http_request(http_request);
 
-    //IC management canister will make the HTTP request so it needs cycles
-    //See: https://internetcomputer.org/docs/current/motoko/main/cycles
-
-    //The way Cycles.add() works is that it adds those cycles to the next asynchronous call
-    //See: 
-    // - https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-http_request
-    // - https://internetcomputer.org/docs/current/references/https-outcalls-how-it-works#pricing
-    // - https://internetcomputer.org/docs/current/developer-docs/gas-cost
-    Cycles.add<system>(230_850_258_000);
-
-    //3. MAKE HTTPS REQUEST AND WAIT FOR RESPONSE
-    let http_response : IC.http_request_result = await IC.http_request(http_request);
-
-    //4. DECODE THE RESPONSE
+    //3. DECODE THE RESPONSE
 
     //As per the type declarations, the BODY in the HTTP response
     //comes back as Blob. Type signature:
@@ -91,7 +79,7 @@ actor {
       case (?y) { y };
     };
 
-    //5. RETURN RESPONSE OF THE BODY
+    //4. RETURN RESPONSE OF THE BODY
     let result : Text = decoded_text # ". See more info of the request sent at: " # url # "/inspect";
     result;
   };
