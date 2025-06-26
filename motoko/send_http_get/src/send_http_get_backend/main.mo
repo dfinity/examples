@@ -1,5 +1,4 @@
 import Blob "mo:base/Blob";
-import Cycles "mo:base/ExperimentalCycles";
 import Nat64 "mo:base/Nat64";
 import Text "mo:base/Text";
 import IC "ic:aaaaa-aa";
