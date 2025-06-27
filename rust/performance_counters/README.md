@@ -29,54 +29,23 @@ The argument `type` decides which performance counter to return:
 
 In the future, ICP might expose more performance counters.
 
-## Prerequisites
+## Deploying from ICP Ninja
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.
-- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/performance_counters)
 
-## Step 1: Setup project environment
+## Build and deploy from the command-line
 
-Navigate into the folder containing the project's files and start a local instance of the replica with the command:
+### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
 
-```sh
-cd examples/rust/performance_counters
-dfx start --clean
-```
+### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
 
-This terminal will stay blocked, printing log messages, until the `Ctrl+C` is pressed or `dfx stop` command is run.
+### 3. Navigate into the project's directory.
 
-Example output:
+### 4. Deploy the project to your local environment.
 
-```sh
-dfx start --clean
-[...]
-Dashboard: http://localhost:63387/_/dashboard
-```
+Run `dfx start`, then open a new terminal and run `dfx deploy` to deploy the project to your local environment. 
 
-## Step 2: Open another terminal window in the same directory
-
-```sh
-cd examples/rust/performance_counters
-```
-
-## Step 3: Compile and deploy `performance_counters` canister
-
-```sh
-dfx deploy
-```
-
-Example output:
-
-```sh
-% dfx deploy
-[...]
-Deployed canisters.
-URLs:
-   Backend canister via Candid interface:
-      performance_counters: http://127.0.0.1/...
-```
-
-## Step 4: Call `performance_counters` canister `for_update` method
+Call `performance_counters` canister `for_update` method:
 
 ```sh
 dfx canister call performance_counters for_update
@@ -89,11 +58,11 @@ Example output:
 (6_618_678 : nat64, 19_886_107 : nat64)
 ```
 
-Note, how the current message execution counter (~6M instructions) is much different from the call context counter (~19M instructions).
+Note how the current message execution counter (~6M instructions) is much different from the call context counter (~19M instructions).
 
-## Step 5: Check the replica terminal window for more details
+### 5. Check the first terminal window for more details.
 
-Example replica log output:
+Example log output:
 
 ```text
 Performance counters for update call:    current (0)     call context (1)
@@ -104,12 +73,12 @@ Performance counters for update call:    current (0)     call context (1)
   after the 2nd nested call:             6618678         19886107       
 ```
 
-Note, how the current execution instruction counter (0) stays at ~6M instructions after each await point.
+Note how the current execution instruction counter (0) stays at ~6M instructions after each await point.
 By contrast, the call context performance counter (1) is monotonically increasing (~6M, ~13M, ~19M instructions).
 
 Also note, that both counters start over for each nested execution (~12K instructions).
 
-## Step 6: Repeat the steps above calling `for_composite_query` method
+### 6. Repeat the steps above calling `for_composite_query` method.
 
 ```sh
 dfx canister call performance_counters for_composite_query
@@ -122,7 +91,7 @@ Example output:
 (6_621_477 : nat64, 19_893_467 : nat64)
 ```
 
-Example replica log output:
+Example log output:
 
 ```text
 Perf. counters for composite query call: current (0)     call context (1)
@@ -135,22 +104,6 @@ Perf. counters for composite query call: current (0)     call context (1)
 
 Note the same performance counters behavior for composite queries.
 
-## Further learning
-
-1. Have a look at the locally running dashboard. The URL is at the end of the `dfx start` command: `Dashboard: http://localhost/...`
-2. Check out the Candid user interface for `performance_counters` canister. The URL is at the end of the `dfx deploy` command: `performance_counters: http://127.0.0.1/...`
-
-### Canister interface
-
-The `performance_counters` canisters provide the following interface:
-
-- `for_update` &mdash; return all the performance counters values after two nested update calls.
-- `for_composite_query` &mdash; return all the performance counters values after two nested composite query calls.
-
-## Conclusion
-
-Performance counters is a great tool to optimize canister performance, both for update calls and queries.
-
 ## Security considerations and best practices
 
-If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. This example may not implement all the best practices.
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
