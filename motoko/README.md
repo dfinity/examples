@@ -1,6 +1,6 @@
 # Motoko examples
 
-## Core Motoko
+## Standalone Motoko
 
 These examples show the Motoko language as a backend language for the IC, operating directly with clients, without a front end component.
 
