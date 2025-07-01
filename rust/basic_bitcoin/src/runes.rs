@@ -197,19 +197,19 @@ pub fn build_etching_script(etching: &Etching) -> Result<ScriptBuf, String> {
         }
         if let Some(start) = terms.height.0 {
             payload.extend_from_slice(&encode_leb128(Tag::HeightStart as u64));
-            payload.extend_from_slice(&encode_leb128(start as u64));
+            payload.extend_from_slice(&encode_leb128(start));
         }
         if let Some(end) = terms.height.1 {
             payload.extend_from_slice(&encode_leb128(Tag::HeightEnd as u64));
-            payload.extend_from_slice(&encode_leb128(end as u64));
+            payload.extend_from_slice(&encode_leb128(end));
         }
         if let Some(start) = terms.offset.0 {
             payload.extend_from_slice(&encode_leb128(Tag::OffsetStart as u64));
-            payload.extend_from_slice(&encode_leb128(start as u64));
+            payload.extend_from_slice(&encode_leb128(start));
         }
         if let Some(end) = terms.offset.1 {
             payload.extend_from_slice(&encode_leb128(Tag::OffsetEnd as u64));
-            payload.extend_from_slice(&encode_leb128(end as u64));
+            payload.extend_from_slice(&encode_leb128(end));
         }
     }
 
