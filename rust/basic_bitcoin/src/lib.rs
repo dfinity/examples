@@ -17,9 +17,9 @@ use std::cell::Cell;
 /// This struct carries network-specific context:
 /// - `network`: The ICP Bitcoin API network enum.
 /// - `bitcoin_network`: The corresponding network enum from the `bitcoin` crate, used
-///    for address formatting and transaction construction.
+///   for address formatting and transaction construction.
 /// - `key_name`: The global ECDSA key name used when requesting derived keys or making
-///    signatures. Different key names are used locally and when deployed on the IC.
+///   signatures. Different key names are used locally and when deployed on the IC.
 ///
 /// Note: Both `network` and `bitcoin_network` are needed because ICP and the
 /// Bitcoin library use distinct network enum types.

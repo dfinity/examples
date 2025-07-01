@@ -91,7 +91,7 @@ pub async fn etch_rune(name: String) -> String {
     // Build the runestone script containing the rune metadata.
     // This creates the OP_RETURN output that defines the new token.
     let runestone_script = build_etching_script(&etching)
-        .unwrap_or_else(|e| trap(&format!("Failed to build runestone: {}", e)));
+        .unwrap_or_else(|e| trap(format!("Failed to build runestone: {}", e)));
 
     // Build the rune etching transaction.
     // The transaction includes an OP_RETURN output with the encoded runestone.
