@@ -27,7 +27,7 @@ until completion directly, everything will be executed in a single message.
 
 ## Deploying from ICP Ninja
 
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/counter)
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/guards)
 
 ## Build and deploy from the command-line
 
