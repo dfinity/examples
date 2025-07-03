@@ -14,7 +14,8 @@
       ],
       "package": "basic_bitcoin",
       "type": "custom",
-      "wasm": "target/wasm32-unknown-unknown/release/basic_bitcoin.wasm"
+      "wasm": "target/wasm32-unknown-unknown/release/basic_bitcoin.wasm",
+      "init_arg": "(variant { testnet })"
     }
   },
   "defaults": {
