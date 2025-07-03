@@ -22,7 +22,6 @@
 /motoko/counter/ @dfinity/languages
 /motoko/daily_planner/ @dfinity/ninja-devs
 /motoko/encrypted-notes-dapp-vetkd/ @dfinity/crypto-team
-/motoko/encrypted-notes-dapp/ @dfinity/crypto-team
 /motoko/evm_block_explorer/ @dfinity/ninja-devs
 /motoko/filevault/ @dfinity/ninja-devs
 /motoko/flying_ninja/ @dfinity/ninja-devs
@@ -65,7 +64,6 @@
 /rust/counter/ @dfinity/growth
 /rust/daily_planner/ @dfinity/ninja-devs
 /rust/encrypted-notes-dapp-vetkd/ @dfinity/crypto-team
-/rust/encrypted-notes-dapp/ @dfinity/crypto-team
 /rust/evm_block_explorer/ @dfinity/ninja-devs
 /rust/face-recognition/ @dfinity/execution
 /rust/flying_ninja/ @dfinity/ninja-devs
