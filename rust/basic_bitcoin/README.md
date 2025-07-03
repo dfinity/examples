@@ -140,7 +140,7 @@ Example:
 
 ```bash
 dfx canister call basic_bitcoin send_from_p2pkh_address '(record {
-  destination_address = "tb1ql7w62elx9ucw4pj5lgw4l028hmuw80sndtntxt";
+  destination_address = "bcrt1qg8qknn6f3txqg97gt8ca0ctya0vw7ep6d02qmt";
   amount_in_satoshi = 4321;
 })'
 ```
@@ -159,9 +159,9 @@ The function returns the transaction ID. When interacting with the contract depl
 You can query historical block headers:
 
 ```bash
-dfx canister call basic_bitcoin get_block_headers '(10: nat32)'
+dfx canister call basic_bitcoin get_block_headers '(10: nat32, null)'
 # or a range:
-dfx canister call basic_bitcoin get_block_headers '(0: nat32, 11: nat32)'
+dfx canister call basic_bitcoin get_block_headers '(10: nat32, opt (11: nat32))'
 ```
 
 This calls `bitcoin_get_block_headers`, which is useful for blockchain validation or light client logic.
