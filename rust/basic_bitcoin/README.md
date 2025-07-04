@@ -38,7 +38,13 @@ For background on the ICP<>BTC integration, refer to the [Learn Hub](https://lea
 - [x] [Local Bitcoin testnet (regtest)](https://internetcomputer.org/docs/build-on-btc/btc-dev-env#create-a-local-bitcoin-testnet-regtest-with-bitcoind)
 - [x] On macOS, an `llvm` version that supports the `wasm32-unknown-unknown` target is required. This is because the Rust `bitcoin` library relies on the `secp256k1-sys` crate, which requires `llvm` to build. The default `llvm` version provided by XCode does not meet this requirement. Instead, install the [Homebrew version](https://formulae.brew.sh/formula/llvm), using `brew install llvm`.
 
-## Building and deploying the smart contract
+## Deploying from ICP Ninja
+
+This example can be deployed directly to the Internet Computer using ICP Ninja, where it will connect to Bitcoin **testnet4**. Note: Canisters deployed using ICP Ninja remain live for 50 minutes after signing in with your Internet Identity (accessible via the top-right button in ICP Ninja).
+
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/basic_bitcoin)
+
+## Building and deploying the smart contract locally
 
 ### 1. Clone the examples repo
 
@@ -55,9 +61,9 @@ dfx start --enable-bitcoin --bitcoin-node 127.0.0.1:18444
 ```
 This starts a local canister execution environment with Bitcoin support enabled.
 
-### 3. Start the Bitcoin testnet (regtest)
+### 3. Start Bitcoin regtest
 
-Open another terminal window (terminal 2) and run the following to start the local Bitcoin testnet:
+Open another terminal window (terminal 2) and run the following to start the local Bitcoin regtest network:
 
 ```bash
 bitcoind -conf=$(pwd)/bitcoin.conf -datadir=$(pwd)/bitcoin_data --port=18444
@@ -77,11 +83,6 @@ What this does:
 - `--argument '(variant { regtest })'` passes the argument `regtest` to initialize the smart contract, telling it to connect to the local Bitcoin regtest network.
 
 Your smart contract is live and ready to use! You can interact with it using either the command line or the Candid UI (the link you see in the terminal).
-
-> [!NOTE]
-> You can also interact with a pre-deployed version of the `basic_bitcoin` example running on the IC mainnet and configured to interact with Bitcoin **testnet4**.
->
-> Access the Candid UI of the example: https://a4gq6-oaaaa-aaaab-qaa4q-cai.raw.icp0.io/?id=vvha6-7qaaa-aaaap-ahodq-cai
 
 ## Generating Bitcoin addresses
 
@@ -139,7 +140,7 @@ Example:
 
 ```bash
 dfx canister call basic_bitcoin send_from_p2pkh_address '(record {
-  destination_address = "tb1ql7w62elx9ucw4pj5lgw4l028hmuw80sndtntxt";
+  destination_address = "bcrt1qg8qknn6f3txqg97gt8ca0ctya0vw7ep6d02qmt";
   amount_in_satoshi = 4321;
 })'
 ```
@@ -158,9 +159,9 @@ The function returns the transaction ID. When interacting with the contract depl
 You can query historical block headers:
 
 ```bash
-dfx canister call basic_bitcoin get_block_headers '(10: nat32)'
+dfx canister call basic_bitcoin get_block_headers '(10: nat32, null)'
 # or a range:
-dfx canister call basic_bitcoin get_block_headers '(0: nat32, 11: nat32)'
+dfx canister call basic_bitcoin get_block_headers '(10: nat32, opt (11: nat32))'
 ```
 
 This calls `bitcoin_get_block_headers`, which is useful for blockchain validation or light client logic.
