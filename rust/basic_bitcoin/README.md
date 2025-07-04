@@ -40,7 +40,7 @@ For background on the ICP<>BTC integration, refer to the [Learn Hub](https://lea
 
 ## Deploying from ICP Ninja
 
-This example can be deployed directly to the Internet Computer using ICP Ninja, where it will connect to Bitcoin **testnet4**.
+This example can be deployed directly to the Internet Computer using ICP Ninja, where it will connect to Bitcoin **testnet4**. Note: Canisters deployed using ICP Ninja remain live for 50 minutes after signing in with your Internet Identity (accessible via the top-right button in ICP Ninja).
 
 [![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/basic_bitcoin)
 
