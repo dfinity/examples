@@ -6,7 +6,7 @@ This application's logic is written in [Motoko](https://internetcomputer.org/doc
 
 ## Deploying from ICP Ninja
 
-When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner. Open this project in ICP Ninja:
+When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Run" in the upper right corner. Open this project in ICP Ninja:
 
 [![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/motoko/hello_world)
 
@@ -15,7 +15,6 @@ When viewing this project in ICP Ninja, you can deploy it directly to the mainne
 The `/backend` folder contains the Motoko canister, `app.mo`. The `/frontend` folder contains web assets for the application's user interface. The user interface is written with plain JavaScript, but any frontend framework can be used.
 
 Edit the `mops.toml` file to add [Motoko dependencies](https://mops.one/) to the project.
-
 
 ## Build and deploy from the command-line
 

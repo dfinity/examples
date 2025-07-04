@@ -5,7 +5,7 @@ In this example, you'll also see how to sign transactions with canister ECDSA or
 
 ## Deploying from ICP Ninja
 
-When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Deploy" in the upper right corner. Open this project in ICP Ninja:
+When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Run" in the upper right corner. Open this project in ICP Ninja:
 
 [![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/rust/evm_block_explorer)
 
@@ -26,4 +26,3 @@ dfx start --background --clean && dfx deploy
 ## Security considerations and best practices
 
 If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
-
