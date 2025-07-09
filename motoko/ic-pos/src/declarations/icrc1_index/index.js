@@ -10,8 +10,7 @@ export { idlFactory } from "./icrc1_index.did.js";
  * beginning in dfx 0.15.0
  */
 export const canisterId =
-  process.env.CANISTER_ID_ICRC1_INDEX ||
-  process.env.ICRC1_INDEX_CANISTER_ID;
+  process.env.CANISTER_ID_ICRC1_INDEX;
 
 export const createActor = (canisterId, options = {}) => {
   const agent = options.agent || new HttpAgent({ ...options.agentOptions });
@@ -40,4 +39,4 @@ export const createActor = (canisterId, options = {}) => {
   });
 };
 
-export const icrc1_index = createActor(canisterId);
+export const icrc1_index = canisterId ? createActor(canisterId) : undefined;

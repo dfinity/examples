@@ -18,6 +18,7 @@
       "type": "custom",
       "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
       "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz",
+      "specified_id": "rdmx6-jaaaa-aaaaa-aaadq-cai",
       "remote": {
         "id": {
           "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
@@ -26,8 +27,9 @@
     },
     "icrc1_ledger": {
       "type": "custom",
-      "candid": "https://raw.githubusercontent.com/dfinity/ic/95787355499f3be929f2ab302ed44cdad7c64061/rs/rosetta-api/icrc1/ledger/ledger.did",
-      "wasm": "https://download.dfinity.systems/ic/95787355499f3be929f2ab302ed44cdad7c64061/canisters/ic-icrc1-ledger.wasm.gz",
+      "candid": "https://raw.githubusercontent.com/dfinity/ic/2e3589427cd9648d4edaebc1b96b5daf8fdd94d8/rs/rosetta-api/icrc1/ledger/ledger.did",
+      "wasm": "https://download.dfinity.systems/ic/2e3589427cd9648d4edaebc1b96b5daf8fdd94d8/canisters/ic-icrc1-ledger.wasm.gz",
+      "specified_id": "mxzaz-hqaaa-aaaar-qaada-cai",
       "remote": {
         "id": {
           "ic": "mxzaz-hqaaa-aaaar-qaada-cai"
@@ -36,8 +38,9 @@
     },
     "icrc1_index": {
       "type": "custom",
-      "candid": "https://raw.githubusercontent.com/dfinity/ic/95787355499f3be929f2ab302ed44cdad7c64061/rs/rosetta-api/icrc1/index/index.did",
-      "wasm": "https://download.dfinity.systems/ic/95787355499f3be929f2ab302ed44cdad7c64061/canisters/ic-icrc1-index.wasm.gz",
+      "candid": "https://raw.githubusercontent.com/dfinity/ic/2e3589427cd9648d4edaebc1b96b5daf8fdd94d8/rs/rosetta-api/icrc1/index/index.did",
+      "wasm": "https://download.dfinity.systems/ic/2e3589427cd9648d4edaebc1b96b5daf8fdd94d8/canisters/ic-icrc1-index.wasm.gz",
+      "specified_id": "n5wcd-faaaa-aaaar-qaaea-cai",
       "remote": {
         "id": {
           "ic": "n5wcd-faaaa-aaaar-qaaea-cai"

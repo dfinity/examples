@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   rust-basic-bitcoin-darwin:
-    runs-on: macos-12
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
@@ -26,10 +26,11 @@ jobs:
         run: |
           dfx start --background
           pushd rust/basic_bitcoin
+          rustup show active-toolchain || rustup toolchain install
           make deploy
           popd
   rust-basic-bitcoin-linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux

@@ -1,0 +1,44 @@
+name: rust-canister-snapshots
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - rust/canister-snapshots/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-canister-snapshots-example.yaml
+      - .ic-commit
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rust-canister-snapshots-example-darwin:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Remove networks.json
+        run: rm -f ~/.config/dfx/networks.json
+      - name: Rust Canister Snapshots Darwin
+        run: |
+          dfx start --background
+          pushd rust/canister-snapshots
+          make test
+          popd
+  rust-canister-snapshots-example-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Remove networks.json
+        run: rm -f ~/.config/dfx/networks.json
+      - name: Rust Canister Snapshots Linux
+        run: |
+          dfx start --background
+          pushd rust/canister-snapshots
+          make test
+          popd

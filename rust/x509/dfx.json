@@ -1,0 +1,9 @@
+{
+  "canisters": {
+    "x509_example_rust": {
+      "candid": "src/x509_example_rust/x509_example.did",
+      "package": "x509_example_rust",
+      "type": "rust"
+    }
+  }
+}

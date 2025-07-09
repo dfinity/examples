@@ -6,20 +6,29 @@ thread_local! {
 }
 
 /// Get the value of the counter.
-#[ic_cdk_macros::query]
+#[ic_cdk::query]
 fn get() -> Nat {
     COUNTER.with(|counter| (*counter.borrow()).clone())
 }
 
 /// Set the value of the counter.
-#[ic_cdk_macros::update]
+#[ic_cdk::update]
 fn set(n: Nat) {
     // COUNTER.replace(n);  // requires #![feature(local_key_cell_methods)]
     COUNTER.with(|count| *count.borrow_mut() = n);
 }
 
+#[ic_cdk::update]
+fn get_and_set(n: Nat) -> Nat {
+    COUNTER.with(|counter| {
+        let old = counter.borrow().clone();
+        *counter.borrow_mut() = n;
+        old
+    })
+}
+
 /// Increment the value of the counter.
-#[ic_cdk_macros::update]
+#[ic_cdk::update]
 fn inc() {
     COUNTER.with(|counter| *counter.borrow_mut() += 1_u32);
 }
@@ -46,5 +55,13 @@ mod tests {
             inc();
             assert_eq!(get(), Nat::from(i));
         }
+    }
+
+    #[test]
+    fn test_get_and_set() {
+        let old = get_and_set(Nat::from(1_u32));
+        let new = get();
+        assert_eq!(old, Nat::from(0_u32));
+        assert_eq!(new, Nat::from(1_u32));
     }
 }

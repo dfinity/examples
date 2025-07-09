@@ -17,11 +17,11 @@
     "generate": "dfx generate app_backend"
   },
   "dependencies": {
-    "@dfinity/agent": "^0.18.1",
-    "@dfinity/auth-client": "^0.18.1",
-    "@dfinity/candid": "^0.18.1",
-    "@dfinity/principal": "^0.18.1",
-    "ic-vetkd-utils": "file:ic-vetkd-utils-0.1.0.tgz"
+    "@dfinity/agent": "^2.1.3",
+    "@dfinity/auth-client": "^2.1.3",
+    "@dfinity/candid": "^2.1.3",
+    "@dfinity/principal": "^2.1.3",
+    "@dfinity/vetkeys": "^0.1.0"
   },
   "devDependencies": {
     "assert": "2.0.0",
@@ -37,14 +37,5 @@
     "webpack": "^5.88.2",
     "webpack-cli": "^4.10.0",
     "webpack-dev-server": "^4.8.1"
-  },
-  "engines": {
-    "node": "^12 || ^14 || ^16 || ^18 || ^19"
-  },
-  "browserslist": [
-    "last 2 chrome version",
-    "last 2 firefox version",
-    "last 2 safari version",
-    "last 2 edge version"
-  ]
+  }
 }

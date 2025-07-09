@@ -1,12 +1,4 @@
----
-keywords: [beginner, motoko, composite queries, queries]
----
-
 # Composite queries
-
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/composite_query)
-
-## Overview
 
 This example modifies the simple actor class example to demonstrate the implementation of composite queries.
 
@@ -35,79 +27,24 @@ Each new `Bucket` must be provisioned with enough cycles to pay for its installa
 
 `Map`'s `test` method simply `put`s 16 consecutive entries into `Map`. These entries are distributed evenly amongst the buckets making up the key-value store. Adding the first entry to a bucket takes longer than adding a subsequent one, since the bucket needs to be installed on first use.
 
-## Prerequisites
+## Deploying from ICP Ninja
 
-Verify the following before running this demo:
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/motoko/composite_query)
 
-- [x] You have downloaded and installed [dfx](https://sdk.dfinity.org).
+## Build and deploy from the command-line
 
-- [x] You have stopped any process that would create a port conflict on `8000`.
+### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
 
-- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
 
-## Install
+### 3. Navigate into the project's directory.
 
-### Step 1: Start a local internet computer.
+### 4. Deploy the project to your local environment:
 
-```bash
-dfx start
 ```
-
-### Step 2: Open a new terminal window.
-
-### Step 3: Deploy the `Map` canister:
-
-```bash
-cd examples/motoko/composite_query
-dfx deploy
+dfx start --background --clean && dfx deploy
 ```
-
-### Step 4: Invoke the `test` method of canister `Map` to add some entries:
-
-```bash
-dfx canister call Map test '()'
-```
-
-### Step 5: Observe the following result.
-
-```bash
-debug.print: putting: (0, "0")
-debug.print: putting: (1, "1")
-debug.print: putting: (2, "2")
-debug.print: putting: (3, "3")
-debug.print: putting: (4, "4")
-debug.print: putting: (5, "5")
-debug.print: putting: (6, "6")
-debug.print: putting: (7, "7")
-debug.print: putting: (8, "8")
-debug.print: putting: (9, "9")
-debug.print: putting: (10, "10")
-debug.print: putting: (11, "11")
-debug.print: putting: (12, "12")
-debug.print: putting: (13, "13")
-debug.print: putting: (14, "14")
-debug.print: putting: (15, "15")
-()
-```
-
-### Step 6: Invoke the `get` composite query method of canister `Main`:
-
-```bash
-dfx canister call --query Map get '(15)'
-```
-
-### Step 7: Observe the following result:
-
-```bash
-(opt "15")
-```
-
-## Resources
-
-- [Actor classes](https://internetcomputer.org/docs/current/motoko/main/actor-classes).
-- [Managing cycles](https://internetcomputer.org/docs/current/motoko/main/cycles).
-- [Composite queries](https://internetcomputer.org/docs/current/motoko/main/actors-async#composite-query-functions).
 
 ## Security considerations and best practices
 
-If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on ICP. This example may not implement all the best practices.
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.

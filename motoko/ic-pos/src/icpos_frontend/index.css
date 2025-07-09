@@ -73,7 +73,7 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply text-foreground bg-gradient-to-br from-gray-200 to-gray-500 print-bg;
   }
 }
 

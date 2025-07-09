@@ -6,7 +6,7 @@ This repository is meant to give [Svelte](https://svelte.dev/) developers an eas
 
 This template contains:
 
-- A Svelte frontend app under `src/frontend` to be hosted on-chain, with support for authentication using Internet Identity.
+- A Svelte frontend app under `src/frontend` to be hosted onchain, with support for authentication using Internet Identity.
 - A Motoko dapp under `src/backend` to serve as a backend to the Svelte frontend.
 
 You can see a deployed version of this template here: https://zixfv-4yaaa-aaaam-aaatq-cai.ic0.app/
@@ -135,7 +135,7 @@ When the process completes you'll have a backend and a frontend canister running
 dfx canister id frontend
 ```
 
-It will output something similar to `rno2w-sqaaa-aaaaa-aaacq-cai`. Copy this ID and open it in the browser using `http://localhost:8000?canisterId=<canister ID>`, eg. `http://localhost:8000?canisterId=rno2w-sqaaa-aaaaa-aaacq-cai`.
+It will output something similar to `rno2w-sqaaa-aaaaa-aaacq-cai`. Copy this ID and open it in the browser using `http://localhost:4943?canisterId=<canister ID>`, eg. `http://localhost:4943?canisterId=rno2w-sqaaa-aaaaa-aaacq-cai`.
 
 ## Local development
 
@@ -170,15 +170,7 @@ npm run dev
 
 ## Deploying to the mainnet
 
-To host the Svelte app on ICP, you'll need to have some cycles available. Cycles pay for the execution of your app, and they are also needed to create canisters.
-
-You can get cycles for free from the cycles faucet. To claim them, follow [this guide](https://internetcomputer.org/docs/current/developer-docs/setup/cycles/cycles-faucet).
-
-After following that guide, you should have a balance of cycles to use. You can check the balance by running:
-
-```
-dfx wallet --network ic balance
-```
+To host the Svelte app on ICP, you'll need to acquire [cycles](https://internetcomputer.org/docs/current/developer-docs/getting-started/tokens-and-cycles) (the equivalent of "gas" on other blockchains). Cycles pay for the execution of your app, and they are also needed to create canisters.
 
 After making sure you have cycles available, you can run
 
@@ -188,7 +180,7 @@ dfx deploy --network ic
 
 The command will build the project, create a new canister on ICP and deploy the Svelte app into it. The command will also create a new file `canister_ids.json` which will help the dfx tool deploy to the same canister in future updates. You can commit this file in your repository.
 
-You can now open your Svelte app running on-chain. You can find the canister ID in the deploy command output, or use the ID in `canister_ids.json`.
+You can now open your Svelte app running onchain. You can find the canister ID in the deploy command output, or use the ID in `canister_ids.json`.
 
 The link to your app is `<canister_id>.ic0.app`. For example, if your canister ID is `zgvi5-hiaaa-aaaam-aaasq-cai`, your app will be at `https://zgvi5-hiaaa-aaaam-aaasq-cai.ic0.app/`.
 

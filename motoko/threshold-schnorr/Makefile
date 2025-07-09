@@ -9,7 +9,7 @@ deploy:
 .PHONY: test
 .SILENT: test
 test: deploy
-	bash test.sh hello
+	bash test.sh hellohellohellohellohellohello12
 
 .PHONY: clean
 .SILENT: clean

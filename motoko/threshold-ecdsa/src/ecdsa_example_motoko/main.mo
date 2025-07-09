@@ -41,7 +41,7 @@ actor {
     let caller = Principal.toBlob(msg.caller);
     try {
       let message_hash: Blob = Blob.fromArray(SHA256.sha256(Blob.toArray(Text.encodeUtf8(message))));
-      Cycles.add(25_000_000_000);
+      Cycles.add(30_000_000_000);
       let { signature } = await ic.sign_with_ecdsa({
           message_hash;
           derivation_path = [ caller ];

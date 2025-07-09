@@ -1,0 +1,28 @@
+type StubbornSetResult = variant {
+    "Ok" : null;
+    "Err" : text;
+};
+
+type IncrementResult = variant {
+    "Ok" : null;
+    "Err" : text;
+};
+
+type GetResult = variant {
+    "Ok" : nat;
+    "Err" : text;
+};
+
+type SignMessageResult = variant {
+    "Ok" : text;
+    "Err" : text;
+};
+
+service : {
+    "call_get_and_set": ( counter: principal, new_value: nat ) -> (nat);
+    "set_then_get": (counter: principal, new_value: nat) -> (nat);
+    "call_get": (counter: principal) -> (GetResult);
+    "call_increment": (counter: principal) -> (IncrementResult);
+    "stubborn_set": (counter: principal, new_value: nat) -> (StubbornSetResult);
+    "sign_message": (text)  -> (SignMessageResult);
+}

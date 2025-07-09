@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.4.0] - 2024-11-25
+
+### Changed
+- Major front-end overhaul, upgrading many libraries and components.
+  - Removed recoil for state management, now using Tanstack Router and Tanstack Query.
+  - Removed old axios based fetching, replacing with Tanstack Query.
+  - Replacing custom actor and session implementations with `ic-use-actor` and `ic-use-internet-identity`
+  - Upgraded Vite to new version.
+  - Upgraded eslint rules and version
+  - Cleaned up and refactored project setup, routes, and components.
+  - Upgrading to newer versions of the icrc canisters. 
+  
+### Fixed
+- User sessions now survive page reloads. 
+
 ## [0.3.0] - 2022-09-10
 
 ### Added

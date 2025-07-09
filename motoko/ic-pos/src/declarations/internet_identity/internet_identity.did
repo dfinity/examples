@@ -171,8 +171,9 @@ type InternetIdentityStats = record {
     };
     archive_info: ArchiveInfo;
     canister_creation_cycles_cost: nat64;
-    max_num_latest_delegation_origins: nat64;
-    latest_delegation_origins: vec FrontendHostname
+    // Map from event aggregation to a sorted list of top 100 sub-keys to their weights.
+    // Example: {"prepare_delegation_count 24h ic0.app": [{"https://dapp.com", 100}, {"https://dapp2.com", 50}]}
+    event_aggregations: vec record {text; vec record {text; nat64}};
 };
 
 // Configuration parameters related to the archive.
@@ -208,6 +209,33 @@ type RateLimitConfig = record {
     max_tokens: nat64;
 };
 
+// Captcha configuration
+// Default:
+// - max_unsolved_captchas: 500
+// - captcha_trigger: Static, CaptchaEnabled
+type CaptchaConfig = record {
+    // Maximum number of unsolved captchas.
+    max_unsolved_captchas : nat64;
+    // Configuration for when captcha protection should kick in.
+    captcha_trigger: variant {
+      // Based on the rate of registrations compared to some reference time frame and allowing some leeway.
+      Dynamic: record {
+        // Percentage of increased registration rate observed in the current rate sampling interval (compared to
+        // reference rate) at which II will enable captcha for new registrations.
+        threshold_pct: nat16;
+        // Length of the interval in seconds used to sample the current rate of registrations.
+        current_rate_sampling_interval_s: nat64;
+        // Length of the interval in seconds used to sample the reference rate of registrations.
+        reference_rate_sampling_interval_s: nat64;
+      };
+      // Statically enable / disable captcha
+      Static: variant {
+        CaptchaEnabled;
+        CaptchaDisabled;
+      }
+    };
+};
+
 // Init arguments of II which can be supplied on install and upgrade.
 // Setting a value to null keeps the previous value.
 type InternetIdentityInit = record {
@@ -227,12 +255,8 @@ type InternetIdentityInit = record {
     canister_creation_cycles_cost : opt nat64;
     // Rate limit for the `register` call.
     register_rate_limit : opt RateLimitConfig;
-    // Maximum number of latest delegation origins to track.
-    // Default: 1000
-    max_num_latest_delegation_origins : opt nat64;
-    // Maximum number of inflight captchas.
-    // Default: 500
-    max_inflight_captchas: opt nat64;
+    // Configuration of the captcha in the registration flow.
+    captcha_config: opt CaptchaConfig;
 };
 
 type ChallengeKey = text;
@@ -241,6 +265,7 @@ type ChallengeResult = record {
     key : ChallengeKey;
     chars : text;
 };
+type CaptchaResult = ChallengeResult;
 
 // Extra information about registration status for new devices
 type DeviceRegistrationInfo = record {
@@ -294,6 +319,13 @@ type BufferedArchiveEntry = record {
 
 type IdentityNumber = nat64;
 
+// Map with some variants for the value type.
+// Note, due to the Candid mapping this must be a tuple type thus we cannot name the fields `key` and `value`.
+type MetadataMapV2 = vec record {
+    text;
+    variant { Map : MetadataMapV2; String : text; Bytes : vec nat8 };
+};
+
 // Authentication method using WebAuthn signatures
 // See https://www.w3.org/TR/webauthn-2/
 // This is a separate type because WebAuthn requires to also store
@@ -312,30 +344,39 @@ type PublicKeyAuthn = record {
 
 // The authentication methods currently supported by II.
 type AuthnMethod = variant {
-    webauthn: WebAuthn;
-    pubkey: PublicKeyAuthn;
+    WebAuthn: WebAuthn;
+    PubKey: PublicKeyAuthn;
 };
 
 // This describes whether an authentication method is "protected" or not.
 // When protected, a authentication method can only be updated or removed if the
 // user is authenticated with that very authentication method.
 type AuthnMethodProtection = variant {
-    protected;
-    unprotected;
+    Protected;
+    Unprotected;
+};
+
+type AuthnMethodPurpose = variant {
+    Recovery;
+    Authentication;
+};
+
+type AuthnMethodSecuritySettings = record {
+    protection: AuthnMethodProtection;
+    purpose: AuthnMethodPurpose;
 };
 
 type AuthnMethodData = record {
     authn_method: AuthnMethod;
-    protection: AuthnMethodProtection;
-    purpose: Purpose;
+    security_settings: AuthnMethodSecuritySettings;
     // contains the following fields of the DeviceWithUsage type:
     // - alias
     // - origin
     // - authenticator_attachment: data taken from key_type and reduced to "platform", "cross_platform" or absent on migration
     // - usage: data taken from key_type and reduced to "recovery_phrase", "browser_storage_key" or absent on migration
     // Note: for compatibility reasons with the v1 API, the entries above (if present)
-    // must be of the `string` variant. This restriction may be lifted in the future.
-    metadata: MetadataMap;
+    // must be of the `String` variant. This restriction may be lifted in the future.
+    metadata: MetadataMapV2;
     last_authentication: opt Timestamp;
 };
 
@@ -350,32 +391,206 @@ type AuthnMethodRegistrationInfo = record {
     expiration: Timestamp;
 };
 
+type AuthnMethodConfirmationCode = record {
+    confirmation_code: text;
+    expiration: Timestamp;
+};
+
+type AuthnMethodRegisterError = variant {
+    // Authentication method registration mode is off, either due to timeout or because it was never enabled.
+    RegistrationModeOff;
+    // There is another authentication method already registered that needs to be confirmed first.
+    RegistrationAlreadyInProgress;
+    // The metadata of the provided authentication method contains invalid entries.
+    InvalidMetadata: text;
+};
+
+type AuthnMethodConfirmationError = variant {
+    // Wrong confirmation code entered. Retry with correct code.
+    WrongCode: record {
+        retries_left: nat8
+    };
+    // Authentication method registration mode is off, either due to timeout or because it was never enabled.
+    RegistrationModeOff;
+    // There is no registered authentication method to be confirmed.
+    NoAuthnMethodToConfirm;
+};
+
+type IdentityAuthnInfo = record {
+    authn_methods: vec AuthnMethod;
+    recovery_authn_methods: vec AuthnMethod;
+};
+
 type IdentityInfo = record {
     authn_methods: vec AuthnMethodData;
     authn_method_registration: opt AuthnMethodRegistrationInfo;
     // Authentication method independent metadata
-    metadata: MetadataMap;
+    metadata: MetadataMapV2;
 };
 
-type IdentityInfoResponse = variant {
-    ok: IdentityInfo;
+type IdentityInfoError = variant {
+    // The principal is not authorized to call this method with the given arguments.
+    Unauthorized: principal;
+    // Internal canister error. See the error message for details.
+    InternalCanisterError: text;
 };
 
-type AuthnMethodAddResponse = variant {
-    ok;
-    invalid_metadata: text;
+type AuthnMethodAddError = variant {
+    InvalidMetadata: text;
 };
 
-type AuthnMethodRemoveResponse = variant {
-    ok;
+type AuthnMethodReplaceError = variant {
+    InvalidMetadata: text;
+    // No authentication method found with the given public key.
+    AuthnMethodNotFound;
 };
 
-type IdentityMetadataReplaceResponse = variant {
-    ok;
+type AuthnMethodMetadataReplaceError = variant {
+    InvalidMetadata: text;
+    // No authentication method found with the given public key.
+    AuthnMethodNotFound;
+};
+
+type AuthnMethodSecuritySettingsReplaceError = variant {
+    // No authentication method found with the given public key.
+    AuthnMethodNotFound;
+};
+
+type IdentityMetadataReplaceError = variant {
+    // The principal is not authorized to call this method with the given arguments.
+    Unauthorized: principal;
+    // The identity including the new metadata exceeds the maximum allowed size.
+    StorageSpaceExceeded: record {space_available: nat64; space_required: nat64};
+    // Internal canister error. See the error message for details.
+    InternalCanisterError: text;
+};
+
+type PrepareIdAliasRequest = record {
+    // Origin of the issuer in the attribute sharing flow.
+    issuer : FrontendHostname;
+    // Origin of the relying party in the attribute sharing flow.
+    relying_party : FrontendHostname;
+    // Identity for which the IdAlias should be generated.
+    identity_number : IdentityNumber;
+};
+
+type PrepareIdAliasError = variant {
+    // The principal is not authorized to call this method with the given arguments.
+    Unauthorized: principal;
+    // Internal canister error. See the error message for details.
+    InternalCanisterError: text;
+};
+
+// The prepared id alias contains two (still unsigned) credentials in JWT format,
+// certifying the id alias for the issuer resp. the relying party.
+type PreparedIdAlias = record {
+    rp_id_alias_jwt : text;
+    issuer_id_alias_jwt : text;
+    canister_sig_pk_der : PublicKey;
+};
+
+// The request to retrieve the actual signed id alias credentials.
+// The field values should be equal to the values of corresponding
+// fields from the preceding `PrepareIdAliasRequest` and `PrepareIdAliasResponse`.
+type GetIdAliasRequest = record {
+    rp_id_alias_jwt : text;
+    issuer : FrontendHostname;
+    issuer_id_alias_jwt : text;
+    relying_party : FrontendHostname;
+    identity_number : IdentityNumber;
+};
+
+type GetIdAliasError = variant {
+    // The principal is not authorized to call this method with the given arguments.
+    Unauthorized: principal;
+    // The credential(s) are not available: may be expired or not prepared yet (call prepare_id_alias to prepare).
+    NoSuchCredentials : text;
+    // Internal canister error. See the error message for details.
+    InternalCanisterError: text;
+};
+
+// The signed id alias credentials for each involved party.
+type IdAliasCredentials = record {
+    rp_id_alias_credential : SignedIdAlias;
+    issuer_id_alias_credential : SignedIdAlias;
+};
+
+type SignedIdAlias = record {
+    credential_jws : text;
+    id_alias : principal;
+    id_dapp : principal;
+};
+
+type IdRegNextStepResult = record {
+    // The next step in the registration flow
+    next_step: RegistrationFlowNextStep;
+};
+
+type IdRegStartError = variant {
+    // The method was called anonymously, which is not supported.
+    InvalidCaller;
+    // Too many registrations. Please try again later.
+    RateLimitExceeded;
+    // A registration flow is already in progress.
+    AlreadyInProgress;
+};
+
+// The next step in the registration flow:
+// - CheckCaptcha: supply the solution to the captcha using `check_captcha`
+// - Finish: finish the registration using `identity_registration_finish`
+type RegistrationFlowNextStep = variant {
+    // Supply the captcha solution using check_captcha
+    CheckCaptcha: record {
+        captcha_png_base64: text;
+    };
+    // Finish the registration using identity_registration_finish
+    Finish;
+};
+
+type CheckCaptchaArg = record {
+    solution : text;
+};
+
+type CheckCaptchaError = variant {
+    // The supplied solution was wrong. Try again with the new captcha.
+    WrongSolution: record {
+        new_captcha_png_base64: text;
+    };
+    // This call is unexpected, see next_step.
+    UnexpectedCall: record {
+        next_step: RegistrationFlowNextStep;
+    };
+    // No registration flow ongoing for the caller.
+    NoRegistrationFlow;
+};
+
+type IdRegFinishArg = record {
+    authn_method: AuthnMethodData;
+};
+
+type IdRegFinishResult = record {
+    identity_number: nat64;
+};
+
+type IdRegFinishError = variant {
+    // The configured maximum number of identities has been reached.
+    IdentityLimitReached;
+    // This call is unexpected, see next_step.
+    UnexpectedCall: record {
+        next_step: RegistrationFlowNextStep;
+    };
+    // No registration flow ongoing for the caller.
+    NoRegistrationFlow;
+    // The supplied authn_method is not valid.
+    InvalidAuthnMethod: text;
+    // Error while persisting the new identity.
+    StorageError: text;
 };
 
 service : (opt InternetIdentityInit) -> {
-    init_salt: () -> ();
+    // Legacy identity management API
+    // ==============================
+
     create_challenge : () -> (Challenge);
     register : (DeviceData, ChallengeResult, opt principal) -> (RegisterResponse);
     add : (UserNumber, DeviceData) -> ();
@@ -390,48 +605,109 @@ service : (opt InternetIdentityInit) -> {
     get_anchor_credentials : (UserNumber) -> (AnchorCredentials) query;
     get_anchor_info : (UserNumber) -> (IdentityAnchorInfo);
     get_principal : (UserNumber, FrontendHostname) -> (principal) query;
-    stats : () -> (InternetIdentityStats) query;
 
     enter_device_registration_mode : (UserNumber) -> (Timestamp);
     exit_device_registration_mode : (UserNumber) -> ();
     add_tentative_device : (UserNumber, DeviceData) -> (AddTentativeDeviceResponse);
     verify_tentative_device : (UserNumber, verification_code: text) -> (VerifyTentativeDeviceResponse);
 
-    prepare_delegation : (UserNumber, FrontendHostname, SessionKey, maxTimeToLive : opt nat64) -> (UserKey, Timestamp);
-    get_delegation: (UserNumber, FrontendHostname, SessionKey, Timestamp) -> (GetDelegationResponse) query;
+    // V2 Identity Management API
+    // ==========================
+    // WARNING: The following methods are experimental and may ch 0ange in the future.
 
-    http_request: (request: HttpRequest) -> (HttpResponse) query;
-    http_request_update: (request: HttpRequest) -> (HttpResponse);
+    // Starts the identity registration flow to create a new identity.
+    identity_registration_start: () -> (variant {Ok: IdRegNextStepResult; Err: IdRegStartError;});
 
-    deploy_archive: (wasm: blob) -> (DeployArchiveResult);
-    /// Returns a batch of entries _sorted by sequence number_ to be archived.
-    /// This is an update call because the archive information _must_ be certified.
-    /// Only callable by this IIs archive canister.
-    fetch_entries: () -> (vec BufferedArchiveEntry);
-    acknowledge_entries: (sequence_number: nat64) -> ();
+    // Check the captcha challenge
+    // If successful, the registration can be finished with `identity_registration_finish`.
+    check_captcha: (CheckCaptchaArg) -> (variant {Ok: IdRegNextStepResult; Err: CheckCaptchaError;});
 
-    // V2 API
-    // WARNING: The following methods are experimental and may change in the future.
-    //
-    // Note: the responses of v2 API calls are `opt` for compatibility reasons
-    // with future variant extensions.
-    // A client decoding a response as `null` indicates outdated type information
-    // and should be treated as an error.
+    // Starts the identity registration flow to create a new identity.
+    identity_registration_finish: (IdRegFinishArg) -> (variant {Ok: IdRegFinishResult; Err: IdRegFinishError;});
+
+    // Returns information about the authentication methods of the identity with the given number.
+    // Only returns the minimal information required for authentication without exposing any metadata such as aliases.
+    identity_authn_info: (IdentityNumber) -> (variant {Ok: IdentityAuthnInfo; Err;}) query;
 
     // Returns information about the identity with the given number.
     // Requires authentication.
-    identity_info: (IdentityNumber) -> (opt IdentityInfoResponse);
+    identity_info: (IdentityNumber) -> (variant {Ok: IdentityInfo; Err: IdentityInfoError;});
 
     // Replaces the authentication method independent metadata map.
     // The existing metadata map will be overwritten.
     // Requires authentication.
-    identity_metadata_replace: (IdentityNumber, MetadataMap) -> (opt IdentityMetadataReplaceResponse);
+    identity_metadata_replace: (IdentityNumber, MetadataMapV2) -> (variant {Ok; Err: IdentityMetadataReplaceError;});
 
     // Adds a new authentication method to the identity.
     // Requires authentication.
-    authn_method_add: (IdentityNumber, AuthnMethodData) -> (opt AuthnMethodAddResponse);
+    authn_method_add: (IdentityNumber, AuthnMethodData) -> (variant {Ok; Err: AuthnMethodAddError;});
+
+    // Atomically replaces the authentication method matching the supplied public key with the new authentication method
+    // provided.
+    // Requires authentication.
+    authn_method_replace: (IdentityNumber, PublicKey, AuthnMethodData) -> (variant {Ok; Err: AuthnMethodReplaceError;});
+
+    // Replaces the authentication method metadata map.
+    // The existing metadata map will be overwritten.
+    // Requires authentication.
+    authn_method_metadata_replace: (IdentityNumber, PublicKey, MetadataMapV2) -> (variant {Ok; Err: AuthnMethodMetadataReplaceError;});
+
+    // Replaces the authentication method security settings.
+    // The existing security settings will be overwritten.
+    // Requires authentication.
+    authn_method_security_settings_replace: (IdentityNumber, PublicKey, AuthnMethodSecuritySettings) -> (variant {Ok; Err: AuthnMethodSecuritySettingsReplaceError;});
 
     // Removes the authentication method associated with the public key from the identity.
     // Requires authentication.
-    authn_method_remove: (IdentityNumber, PublicKey) -> (opt AuthnMethodRemoveResponse);
+    authn_method_remove: (IdentityNumber, PublicKey) -> (variant {Ok; Err;});
+
+    // Enters the authentication method registration mode for the identity.
+    // In this mode, a new authentication method can be registered, which then needs to be
+    // confirmed before it can be used for authentication on this identity.
+    // The registration mode is automatically exited after the returned expiration timestamp.
+    // Requires authentication.
+    authn_method_registration_mode_enter : (IdentityNumber) -> (variant {Ok: record { expiration: Timestamp; }; Err;});
+
+    // Exits the authentication method registration mode for the identity.
+    // Requires authentication.
+    authn_method_registration_mode_exit : (IdentityNumber) -> (variant {Ok; Err;});
+
+    // Registers a new authentication method to the identity.
+    // This authentication method needs to be confirmed before it can be used for authentication on this identity.
+    authn_method_register: (IdentityNumber, AuthnMethodData) -> (variant {Ok: AuthnMethodConfirmationCode; Err: AuthnMethodRegisterError;});
+
+    // Confirms a previously registered authentication method.
+    // On successful confirmation, the authentication method is permanently added to the identity and can
+    // subsequently be used for authentication for that identity.
+    // Requires authentication.
+    authn_method_confirm: (IdentityNumber, confirmation_code: text) -> (variant {Ok; Err: AuthnMethodConfirmationError;});
+
+    // Authentication protocol
+    // =======================
+    prepare_delegation : (UserNumber, FrontendHostname, SessionKey, maxTimeToLive : opt nat64) -> (UserKey, Timestamp);
+    get_delegation: (UserNumber, FrontendHostname, SessionKey, Timestamp) -> (GetDelegationResponse) query;
+
+    // Attribute Sharing MVP API
+    // =========================
+    // The methods below are used to generate ID-alias credentials during attribute sharing flow.
+    prepare_id_alias : (PrepareIdAliasRequest) -> (variant {Ok: PreparedIdAlias; Err: PrepareIdAliasError;});
+    get_id_alias : (GetIdAliasRequest) -> (variant {Ok: IdAliasCredentials; Err: GetIdAliasError;}) query;
+
+    // HTTP Gateway protocol
+    // =====================
+    http_request: (request: HttpRequest) -> (HttpResponse) query;
+    http_request_update: (request: HttpRequest) -> (HttpResponse);
+
+    // Internal Methods
+    // ================
+    init_salt: () -> ();
+    stats : () -> (InternetIdentityStats) query;
+    config : () -> (InternetIdentityInit) query;
+
+    deploy_archive: (wasm: blob) -> (DeployArchiveResult);
+    // Returns a batch of entries _sorted by sequence number_ to be archived.
+    // This is an update call because the archive information _must_ be certified.
+    // Only callable by this IIs archive canister.
+    fetch_entries: () -> (vec BufferedArchiveEntry);
+    acknowledge_entries: (sequence_number: nat64) -> ();
 }

@@ -2,36 +2,31 @@
   "version": 1,
   "canisters": {
     "basic_bitcoin": {
-      "type": "custom",
-      "package": "basic_bitcoin",
-      "candid": "src/basic_bitcoin/basic_bitcoin.did",
-      "wasm": "target/wasm32-unknown-unknown/release/basic_bitcoin.wasm",
-      "build": "src/basic_bitcoin/build.sh",
+      "build": "build.sh",
+      "candid": "basic_bitcoin.did",
+      "gzip": true,
       "metadata": [
         {
-          "name": "candid:service"
+          "name": "candid:service",
+          "path": "basic_bitcoin.did",
+          "visibility": "public"
         }
       ],
-      "specified_id": "om77v-qqaaa-aaaap-ahmrq-cai",
-      "remote": {
-        "id": {
-          "ic": "om77v-qqaaa-aaaap-ahmrq-cai",
-          "playground": "om77v-qqaaa-aaaap-ahmrq-cai"
-        }
-      }
+      "package": "basic_bitcoin",
+      "type": "custom",
+      "wasm": "target/wasm32-unknown-unknown/release/basic_bitcoin.wasm",
+      "init_arg": "(variant { testnet })"
     }
   },
   "defaults": {
     "bitcoin": {
       "enabled": true,
-      "nodes": [
-        "127.0.0.1:18444"
-      ],
-      "log_level": "info"
-    },
-    "build": {
-      "packtool": "",
-      "args": ""
+      "nodes": ["127.0.0.1:18444"]
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:4943"
     }
   }
 }

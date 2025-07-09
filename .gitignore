@@ -8,3 +8,5 @@ _MACOSX
 target/
 *.old.did
 .idea
+.mops
+.env

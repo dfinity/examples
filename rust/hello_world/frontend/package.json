@@ -1,0 +1,17 @@
+{
+  "name": "frontend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prebuild": "npm i --include=dev && dfx generate backend",
+    "build": "vite build",
+    "dev": "vite"
+  },
+  "dependencies": {
+    "@dfinity/agent": "2.2.0"
+  },
+  "devDependencies": {
+    "vite": "5.4.11",
+    "vite-plugin-environment": "1.1.3"
+  }
+}

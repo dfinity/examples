@@ -1,7 +1,0 @@
-{
-  "canisters": {
-    "whoami": {
-      "main": "src/Main.mo"
-    }
-  }
-}

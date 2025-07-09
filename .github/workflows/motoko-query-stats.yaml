@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   rust-basic-bitcoin-darwin:
-    runs-on: macos-12
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v2
         with:
@@ -28,7 +28,7 @@ jobs:
           dfx deploy query_stats
           popd
   rust-basic-bitcoin-linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v2
         with:

@@ -1,0 +1,32 @@
+name: rust-basic-bitcoin-release
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - rust/basic_bitcoin/**
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-basic-bitcoin-example-release.yml
+      - .ic-commit
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rust-basic-bitcoin-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Rust Basic Bitcoin Linux
+        run: |
+          pushd rust/basic_bitcoin
+          bash build.sh
+          cp target/wasm32-unknown-unknown/release/basic_bitcoin.wasm basic_bitcoin.wasm
+          gzip -9 basic_bitcoin.wasm
+      - uses: actions/upload-artifact@v4
+        with:
+          name: "basic_bitcoin.wasm.gz"
+          path: "rust/basic_bitcoin/basic_bitcoin.wasm.gz"
+          compression-level: 0

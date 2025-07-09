@@ -1,0 +1,50 @@
+name: rust-low_wasm_memory
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - rust/low_wasm_memory/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-low_wasm_memory-example.yml
+      - .github/workflows/rust-low_wasm_memory-skip.yml
+      - .ic-commit
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rust-low_wasm_memory:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-15
+            provision: .github/workflows/provision-darwin.sh
+          - os: ubuntu-22.04
+            provision: .github/workflows/provision-linux.sh
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision
+        run: bash ${{ matrix.provision }}
+      - name: Rust low_wasm_memory
+        run: |
+          set -euo pipefail
+          pushd rust/low_wasm_memory
+          dfx start --background
+          dfx deploy low_wasm_memory_hook
+          dfx canister update-settings low_wasm_memory_hook --wasm-memory-limit 5000000 --wasm-memory-threshold 3000000
+          dfx canister status low_wasm_memory_hook
+          max_wait=50
+          waited=0
+          until [[ $(dfx canister call low_wasm_memory_hook --query get_executed_functions_order) == *OnLowWasmMemory* ]]; do
+            sleep 1
+            dfx canister status low_wasm_memory_hook | grep 'Memory Size'
+            waited=$((waited+1))
+            if [ $waited -ge $max_wait ]; then
+              echo "Timed out waiting for OnLowWasmMemory event"
+              exit 1
+            fi
+          done
+          popd

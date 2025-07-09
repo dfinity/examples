@@ -16,7 +16,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   rust-basic-ethereum-darwin:
-    runs-on: macos-12
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
@@ -39,7 +39,7 @@ jobs:
           cargo test
           popd
   rust-basic-ethereum-linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux

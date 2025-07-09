@@ -9,7 +9,7 @@ import './App.css';
 // Should be replaced with authentication method e.g. Internet Identity when deployed on IC
 const identity = Ed25519KeyIdentity.generate(new Uint8Array(Array.from({length: 32}).fill(0)));
 const isLocal = !window.location.host.endsWith('ic0.app');
-const agent = new HttpAgent({
+const agent = HttpAgent.createSync({
     host: isLocal ? `http://127.0.0.1:${window.location.port}` : 'https://ic0.app', identity,
 });
 if (isLocal) {
@@ -78,7 +78,7 @@ const App = () => {
                 await batch.commit({onProgress: ({current, total}) => setProgress(current / total)});
                 setUploads(prevState => [...items, ...prevState])
             } catch (e) {
-                if (e.message.includes('Caller is not authorized')) {
+                if (e.message.includes('Caller does not have Prepare permission')) {
                     alert("Caller is not authorized, follow Authorization instructions in README");
                 } else {
                     throw e;

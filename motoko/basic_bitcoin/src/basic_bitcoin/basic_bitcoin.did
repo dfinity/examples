@@ -33,15 +33,29 @@ type get_utxos_response = record {
 };
 
 service : (network) -> {
-    "get_p2pkh_address": () -> (bitcoin_address);
-
     "get_balance": (address: bitcoin_address) -> (satoshi);
 
     "get_utxos": (bitcoin_address) -> (get_utxos_response);
 
     "get_current_fee_percentiles": () -> (vec millisatoshi_per_vbyte);
 
-    "send": (record {
+    "get_p2pkh_address": () -> (bitcoin_address);
+
+    "send_from_p2pkh_address": (record {
+      destination_address: bitcoin_address;
+      amount_in_satoshi: satoshi;
+    }) -> (transaction_id);
+
+    "get_p2tr_raw_key_spend_address": () -> (bitcoin_address);
+
+    "send_from_p2tr_raw_key_spend_address": (record {
+      destination_address: bitcoin_address;
+      amount_in_satoshi: satoshi;
+    }) -> (transaction_id);
+
+    "get_p2tr_script_spend_address": () -> (bitcoin_address);
+
+    "send_from_p2tr_script_spend_address": (record {
       destination_address: bitcoin_address;
       amount_in_satoshi: satoshi;
     }) -> (transaction_id);

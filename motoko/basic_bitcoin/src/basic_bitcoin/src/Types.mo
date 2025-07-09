@@ -1,4 +1,4 @@
-import Curves "../../../motoko-bitcoin/src/ec/Curves";
+import Curves "mo:bitcoin/ec/Curves";
 
 module Types {
     public type SendRequest = {
@@ -36,6 +36,43 @@ module Types {
         key_id : EcdsaKeyId;
     };
 
+    public type SchnorrKeyId = {
+        algorithm : SchnorrAlgorithm;
+        name : Text;
+    };
+
+    public type SchnorrAlgorithm = {
+        #bip340secp256k1;
+    };
+
+    public type SchnorrPublicKeyArgs = {
+        canister_id : ?Principal;
+        derivation_path : [Blob];
+        key_id : SchnorrKeyId;
+    };
+
+    public type SchnorrPublicKeyReply = {
+        public_key : Blob;
+        chain_code : Blob;
+    };
+
+    public type SignWithSchnorrArgs = {
+        message : Blob;
+        derivation_path : [Blob];
+        key_id : SchnorrKeyId;
+        aux : ?SchnorrAux;
+    };
+
+    public type SchnorrAux = {
+        #bip341 : {
+            merkle_root_hash : Blob;
+        };
+    };
+
+    public type SignWithSchnorrReply = {
+        signature : Blob;
+    };
+
     public type Satoshi = Nat64;
     public type MillisatoshiPerVByte = Nat64;
     public type Cycles = Nat;
@@ -44,7 +81,7 @@ module Types {
     public type Page = [Nat8];
 
     public let CURVE = Curves.secp256k1;
-    
+
     /// The type of Bitcoin network the dapp will be interacting with.
     public type Network = {
         #mainnet;
@@ -60,18 +97,18 @@ module Types {
         #Regtest;
     };
 
-    public func network_to_network_camel_case(network: Network) : NetworkCamelCase {
+    public func network_to_network_camel_case(network : Network) : NetworkCamelCase {
         switch (network) {
             case (#regtest) {
-                #Regtest
+                #Regtest;
             };
             case (#testnet) {
-                #Testnet
+                #Testnet;
             };
             case (#mainnet) {
-                #Mainnet
+                #Mainnet;
             };
-        }
+        };
     };
 
     /// A reference to a transaction output.
@@ -124,4 +161,25 @@ module Types {
         transaction : [Nat8];
         network : Network;
     };
-}
+
+    public type EcdsaSignFunction = (EcdsaCanisterActor, Text, [Blob], Blob) -> async Blob;
+
+    /// Actor definition to handle interactions with the ECDSA canister.
+    public type EcdsaCanisterActor = actor {
+        ecdsa_public_key : ECDSAPublicKey -> async ECDSAPublicKeyReply;
+        sign_with_ecdsa : SignWithECDSA -> async SignWithECDSAReply;
+    };
+
+    public type SchnorrSignFunction = (SchnorrCanisterActor, Text, [Blob], Blob, ?SchnorrAux) -> async Blob;
+
+    /// Actor definition to handle interactions with the Schnorr canister.
+    public type SchnorrCanisterActor = actor {
+        schnorr_public_key : SchnorrPublicKeyArgs -> async SchnorrPublicKeyReply;
+        sign_with_schnorr : SignWithSchnorrArgs -> async SignWithSchnorrReply;
+    };
+
+    public type P2trDerivationPaths = {
+        key_path_derivation_path : [[Nat8]];
+        script_path_derivation_path : [[Nat8]];
+    };
+};

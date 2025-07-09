@@ -4,11 +4,15 @@ import { Ed25519KeyIdentity } from "@dfinity/identity";
 //
 // This key is not a secret. Only use it for testing! It is from:
 // https://internetcomputer.org/docs/current/references/cli-reference/dfx-nns/#example-accessing-icp-on-the-command-line
+const minterPublicKey = Buffer.from(
+  "Uu8wv55BKmk9ZErr6OIt5XR1kpEGXcOSOC1OYzrAwuk=",
+  "base64",
+);
 const minterPrivateKey = Buffer.from(
   "N3HB8Hh2PrWqhWH2Qqgr1vbU9T3gb1zgdBD8ZOdlQnVS7zC/nkEqaT1kSuvo4i3ldHWSkQZdw5I4LU5jOsDC6Q==",
   "base64",
 );
-export const minter = Ed25519KeyIdentity.fromSecretKey(minterPrivateKey);
+export const minter = Ed25519KeyIdentity.fromKeyPair(minterPublicKey, minterPrivateKey);
 
 // Randomly generate a new test account each run so there are no collisions,
 // and our tests are forced to be robust.

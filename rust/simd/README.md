@@ -1,12 +1,4 @@
----
-keywords: [advanced, rust, simd, ai]
----
-
 # WebAssembly SIMD Example
-
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/simd)
-
-## Overview
 
 Unlike other blockchains, the Internet Computer supports WebAssembly
 SIMD ([Single Instruction, Multiple Data](https://en.wikipedia.org/wiki/Single_instruction,_multiple_data))
@@ -21,42 +13,34 @@ The example consists of a canister named `mat_mat_mul` (matrix-matrix multiplica
 
 This example requires an installation of:
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx). Note: the WebAssembly SIMD support requires `dfx` version `0.20.2-beta.0` or later.
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). Note: the WebAssembly SIMD support requires `dfx` version `0.20.2-beta.0` or later.
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 ### Example 1: Floating point matrices multiplications
 
-- #### Step 1.1: Begin by opening a terminal window and navigating into the project's directory
+- #### Step 1: Setup project environment
+
+Navigate into the folder containing the project's files and start a local instance of the replica with the command:
 
 ```sh
 cd examples/rust/simd
-```
-
-- #### Step 1.2: Start a clean local Internet Computer replica and a web server
-
-```sh
-dfx stop
 dfx start --clean
 ```
 
-This terminal will stay blocked, printing log messages, until the `Ctrl+C` is pressed or `dfx stop` command is run.
-
-Example output:
-
 ```sh
-% dfx stop && dfx start --clean
+dfx start --clean
 Running dfx start for version 0.20.2-beta.0
 [...]
 Dashboard: http://localhost:63387/_/dashboard
 ```
 
-- #### Step 1.3: Open another terminal window in the same directory
+- #### Step 2: Open another terminal window in the same directory
 
 ```sh
 cd examples/rust/simd
 ```
 
-- #### Step 1.4: Compile and deploy `mat_mat_mul` canister
+- #### Step 3: Compile and deploy `mat_mat_mul` canister
 
 ```sh
 dfx deploy
@@ -73,7 +57,7 @@ URLs:
       mat_mat_mul: http://127.0.0.1/?canisterId=...
 ```
 
-- #### Step 1.5: Compare the amount of instructions used for different matrix multiplication implementations
+- #### Step 4: Compare the amount of instructions used for different matrix multiplication implementations
 
 Call a loop performing 1K element-wise multiplications of `K x 4` packed slices
 from matrices `A` and `B` using optimized algorithm, the same algorithm with
@@ -100,44 +84,31 @@ In this example, Rust's auto-vectorization shines in optimizing matrix multiplic
 The auto-vectorized code achieves over 10x speedup compared to the optimized version!
 Also, it's on par with the hand-crafted WebAssembly SIMD multiplication.
 
-It's important to note that the optimized code's performance is currently limited
-due to a known issue with NaN canonicalization in `wasmtime`.
-This issue [has been fixed](https://github.com/bytecodealliance/wasmtime/commit/72a3b8b99d7c0343bacb7cd2cff3151b0144179d)
-by DFINITY, but not yet released at the time of writing.
-
 ### Example 2: Integer matrices multiplications
 
-- #### Step 2.1: Begin by opening a terminal window and navigating into the project's directory
+- #### Step 1: Setup project environment
+
+Navigate into the folder containing the project's files and start a local instance of the replica with the command:
 
 ```sh
 cd examples/rust/simd
-```
-
-- #### Step 2.2: Start a clean local Internet Computer replica and a web server
-
-```sh
-dfx stop
 dfx start --clean
 ```
 
-This terminal will stay blocked, printing log messages, until the `Ctrl+C` is pressed or `dfx stop` command is run.
-
-Example output:
-
 ```sh
-% dfx stop && dfx start --clean
+dfx start --clean
 Running dfx start for version 0.20.2-beta.0
 [...]
 Dashboard: http://localhost:63387/_/dashboard
 ```
 
-- #### Step 2.3: Open another terminal window in the same directory
+- #### Step 2: Open another terminal window in the same directory
 
 ```sh
 cd examples/rust/simd
 ```
 
-- #### Step 2.4: Compile and deploy `mat_mat_mul` canister
+- #### Step 3: Compile and deploy `mat_mat_mul` canister
 
 ```sh
 dfx deploy
@@ -154,7 +125,7 @@ URLs:
       mat_mat_mul: http://127.0.0.1/?canisterId=...
 ```
 
-- #### Step 2.5: Compare the amount of instructions used for different matrix multiplication implementations
+- #### Step 4: Compare the amount of instructions used for different matrix multiplication implementations
 
 Call a loop performing 1K element-wise multiplications of `K x 4` packed slices
 from matrices `A` and `B` using optimized algorithm and the same algorithm

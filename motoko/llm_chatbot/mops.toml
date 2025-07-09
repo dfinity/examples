@@ -1,0 +1,5 @@
+# Motoko dependencies (https://mops.one/)
+
+[dependencies]
+base = "0.14.9"
+llm = "2.1.0"

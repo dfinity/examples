@@ -15,7 +15,7 @@ concurrency:
   cancel-in-progress: true
 jobs:
   motoko-threshold-ecdsa-darwin:
-    runs-on: macos-12
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
@@ -29,7 +29,7 @@ jobs:
           sleep 10
           bash test.sh hello
   motoko-threshold-ecdsa-linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux

@@ -1,0 +1,14 @@
+[package]
+name = "caller"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+candid = "0.10"
+ic-cdk = { git = "https://github.com/dfinity/cdk-rs.git", rev="e372f882dd07c1b86c97c6fe96e4d89ca580a0e4", package = "ic-cdk" }
+ic-cdk-macros = { git = "https://github.com/dfinity/cdk-rs.git", rev="e372f882dd07c1b86c97c6fe96e4d89ca580a0e4", package = "ic-cdk-macros" }
+sha2 = "0.10"
+hex = "0.4"
