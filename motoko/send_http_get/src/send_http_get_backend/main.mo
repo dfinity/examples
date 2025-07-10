@@ -50,7 +50,6 @@ actor {
       max_response_bytes = null; //optional for request
       headers = request_headers;
       body = null; //optional for request
-      is_replicated = false;
       method = #get;
       transform = ?{
         function = transform;
