@@ -4,6 +4,12 @@ import {HttpAgent} from "@dfinity/agent";
 
 let actor = greet_backend;
 
+// create an auth client on page load.
+let authClient = undefined;
+AuthClient.create().then((client) => {
+    authClient = client;
+});
+
 const greetButton = document.getElementById("greet");
 greetButton.onclick = async (e) => {
     e.preventDefault();
@@ -24,9 +30,10 @@ const loginButton = document.getElementById("login");
 loginButton.onclick = async (e) => {
     e.preventDefault();
 
-    // create an auth client
-    let authClient = await AuthClient.create();
-
+    if (authClient === undefined) {
+        console.error("AuthClient is not initialized yet.");
+        return false;
+    }
     // start the login process and wait for it to finish
     await new Promise((resolve) => {
         authClient.login({
