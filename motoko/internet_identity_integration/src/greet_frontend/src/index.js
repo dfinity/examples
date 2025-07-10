@@ -5,6 +5,8 @@ import {HttpAgent} from "@dfinity/agent";
 let actor = greet_backend;
 
 // create an auth client on page load.
+// Safari might block the popup if the app performs other async actions before opening the popup.
+// This is why we create the auth client here, and not in the loginButton click handler
 let authClient = undefined;
 AuthClient.create().then((client) => {
     authClient = client;
