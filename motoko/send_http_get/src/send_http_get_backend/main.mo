@@ -56,6 +56,8 @@ actor {
         function = transform;
         context = Blob.fromArray([]);
       };
+      // Toggle this flag to switch between replicated and non-replicated http outcalls.
+      is_replicated = ?false;
     };
 
     //2. MAKE HTTPS REQUEST AND WAIT FOR RESPONSE, BUT MAKE SURE TO ADD CYCLES.
