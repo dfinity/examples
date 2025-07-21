@@ -2,58 +2,69 @@
 
 This example demonstrates how to deploy a smart contract on the Internet Computer that can receive and send bitcoin, including support for legacy (P2PKH), SegWit (P2WPKH), and Taproot (P2TR) address types.
 
-This example also includes examples of how to work with Bitcoin assets such as Ordinals, Runes, and BRC-20 tokens.
+This example also includes how to work with Bitcoin assets such as Ordinals, Runes, and BRC-20 tokens.
 
 ## Table of contents
 
-- [Architecture](#architecture)
-- [Prerequisites](#prerequisites)
-- [Building and deploying the smart contract](#building-and-deploying-the-smart-contract)
-- [Generating Bitcoin addresses](#generating-bitcoin-addresses)
-- [Receiving bitcoin](#receiving-bitcoin)
-- [Checking balance](#checking-balance)
-- [Sending bitcoin](#sending-bitcoin)
-- [Retrieving block headers](#retrieving-block-headers)
-- [Bitcoin assets](#bitcoin-assets)
-- [Inscribe an Ordinal](#inscribe-an-ordinal)
-- [Etch a Rune](#etch-a-rune)
-- [Deploy a BRC-20 token](#deploy-a-brc-20-token)
-- [Notes on implementation](#notes-on-implementation)
-- [Security considerations and best practices](#security-considerations-and-best-practices)
+* [Architecture](#architecture)
+* [Deploying from ICP Ninja](#deploying-from-icp-ninja)
+* [Building and deploying the smart contract locally](#building-and-deploying-the-smart-contract-locally)
+  * [1. Prerequisites](#1-prerequisites)
+  * [2. Clone the examples repo](#2-clone-the-examples-repo)
+  * [3. Start the ICP execution environment](#3-start-the-icp-execution-environment)
+  * [4. Start Bitcoin regtest](#4-start-bitcoin-regtest)
+  * [5. Deploy the smart contract](#4-deploy-the-smart-contract)
+* [Generating Bitcoin addresses](#generating-bitcoin-addresses)
+* [Receiving bitcoin](#receiving-bitcoin)
+* [Prerequisites](#prerequisites)
+* [Checking balance](#checking-balance)
+* [Sending bitcoin](#sending-bitcoin)
+* [Retrieving block headers](#retrieving-block-headers)
+* [Bitcoin assets](#bitcoin-assets)
+
+  * [Prerequisites for Bitcoin assets](#prerequisites-for-bitcoin-assets)
+* [Inscribe an Ordinal](#inscribe-an-ordinal)
+* [Etch a Rune](#etch-a-rune)
+* [Deploy a BRC-20 token](#deploy-a-brc-20-token)
+* [Notes on implementation](#notes-on-implementation)
+* [Security considerations and best practices](#security-considerations-and-best-practices)
 
 ## Architecture
 
 This example integrates with the Internet Computer's built-in:
 
-- [ECDSA API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-ecdsa_public_key)
-- [Schnorr API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr)
-- [Bitcoin API](https://github.com/dfinity/bitcoin-canister/blob/master/INTERFACE_SPECIFICATION.md)
+* [ECDSA API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-ecdsa_public_key)
+* [Schnorr API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr)
+* [Bitcoin API](https://github.com/dfinity/bitcoin-canister/blob/master/INTERFACE_SPECIFICATION.md)
 
 For background on the ICP<>BTC integration, refer to the [Learn Hub](https://learn.internetcomputer.org/hc/en-us/articles/34211154520084-Bitcoin-Integration).
 
-## Prerequisites
-
-- [x] [Rust toolchain](https://www.rust-lang.org/tools/install)
-- [x] [Internet Computer SDK](https://internetcomputer.org/docs/building-apps/getting-started/install)
-- [x] [Local Bitcoin testnet (regtest)](https://internetcomputer.org/docs/build-on-btc/btc-dev-env#create-a-local-bitcoin-testnet-regtest-with-bitcoind)
-- [x] On macOS, an `llvm` version that supports the `wasm32-unknown-unknown` target is required. This is because the Rust `bitcoin` library relies on the `secp256k1-sys` crate, which requires `llvm` to build. The default `llvm` version provided by XCode does not meet this requirement. Instead, install the [Homebrew version](https://formulae.brew.sh/formula/llvm), using `brew install llvm`.
 
 ## Deploying from ICP Ninja
 
-This example can be deployed directly to the Internet Computer using ICP Ninja, where it will connect to Bitcoin **testnet4**. Note: Canisters deployed using ICP Ninja remain live for 50 minutes after signing in with your Internet Identity (accessible via the top-right button in ICP Ninja).
+This example can be deployed directly to the Internet Computer using ICP Ninja, where it connects to Bitcoin **testnet4**. Note: Canisters deployed via ICP Ninja remain live for 50 minutes after signing in with your Internet Identity.
 
 [![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/basic_bitcoin)
 
 ## Building and deploying the smart contract locally
 
-### 1. Clone the examples repo
+### 1. Prerequisites
+
+* [x] [Rust toolchain](https://www.rust-lang.org/tools/install)
+* [x] [Internet Computer SDK](https://internetcomputer.org/docs/building-apps/getting-started/install)
+* [x] [Local Bitcoin testnet (regtest)](https://internetcomputer.org/docs/build-on-btc/btc-dev-env#create-a-local-bitcoin-testnet-regtest-with-bitcoind)
+* [x] On macOS, an `llvm` version that supports the `wasm32-unknown-unknown` target is required. The Rust `bitcoin` library relies on the `secp256k1-sys` crate, which requires `llvm` to build. The default `llvm` version provided by XCode does not meet this requirement. Install the [Homebrew version](https://formulae.brew.sh/formula/llvm) using `brew install llvm`.
+
+
+### 2. Clone the examples repo
 
 ```bash
 git clone https://github.com/dfinity/examples
 cd examples/rust/basic_bitcoin
 ```
 
-### 2. Start the ICP execution environment
+### 3. Start the ICP execution environment
+
 
 Open a terminal window (terminal 1) and run the following:
 ```bash
@@ -61,7 +72,7 @@ dfx start --enable-bitcoin --bitcoin-node 127.0.0.1:18444
 ```
 This starts a local canister execution environment with Bitcoin support enabled.
 
-### 3. Start Bitcoin regtest
+### 4. Start Bitcoin regtest
 
 Open another terminal window (terminal 2) and run the following to start the local Bitcoin regtest network:
 
@@ -69,7 +80,7 @@ Open another terminal window (terminal 2) and run the following to start the loc
 bitcoind -conf=$(pwd)/bitcoin.conf -datadir=$(pwd)/bitcoin_data --port=18444
 ```
 
-### 4. Deploy the smart contract
+### 5. Deploy the smart contract
 
 Open a third terminal (terminal 3) and run the following to deploy the smart contract:
 
@@ -83,7 +94,6 @@ What this does:
 - `--argument '(variant { regtest })'` passes the argument `regtest` to initialize the smart contract, telling it to connect to the local Bitcoin regtest network.
 
 Your smart contract is live and ready to use! You can interact with it using either the command line or the Candid UI (the link you see in the terminal).
-
 ## Generating Bitcoin addresses
 
 The example demonstrates how to generate and use the following address types:
@@ -92,18 +102,16 @@ The example demonstrates how to generate and use the following address types:
 2. **P2WPKH (SegWit v0)** using ECDSA and `sign_with_ecdsa`
 3. **P2TR (Taproot, key-path-only)** using Schnorr keys and `sign_with_schnorr`
 4. **P2TR (Taproot, script-path-enabled)** commits to a script allowing both key path and script path spending
-
-Use the Candid UI or command line to generate these addresses with:
+Use the Candid UI or CLI to generate:
 
 ```bash
 dfx canister call basic_bitcoin get_p2pkh_address
-# or get_p2wpkh_address, get_p2tr_key_path_only_address, get_p2tr_script_path_enabled_address
+# or: get_p2wpkh_address, get_p2tr_key_path_only_address, get_p2tr_script_path_enabled_address
 ```
 
 ## Receiving bitcoin
 
 Use the `bitcoin-cli` to mine a Bitcoin block and send the block reward in the form of local testnet bitcoin to one of the smart contract addresses.
-
 ```bash
 bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 1 <bitcoin_address>
 ```
@@ -111,16 +119,15 @@ bitcoin-cli -conf=$(pwd)/bitcoin.conf generatetoaddress 1 <bitcoin_address>
 ## Checking balance
 
 Check the balance of any Bitcoin address:
-
 ```bash
 dfx canister call basic_bitcoin get_balance '("<bitcoin_address>")'
 ```
 
 This uses `bitcoin_get_balance` and works for any supported address type. The balance requires at least one confirmation to be reflected.
-
 ## Sending bitcoin
 
 You can send bitcoin using the following endpoints:
+Endpoints:
 
 - `send_from_p2pkh_address`
 - `send_from_p2wpkh_address`
@@ -165,7 +172,6 @@ dfx canister call basic_bitcoin get_block_headers '(10: nat32, opt (11: nat32))'
 ```
 
 This calls `bitcoin_get_block_headers`, which is useful for blockchain validation or light client logic.
-
 ## Bitcoin assets
 
 Bitcoin's scripting capabilities enable various digital assets beyond simple transfers. This example demonstrates how to create and interact with three major Bitcoin asset protocols from an ICP smart contract:
@@ -307,7 +313,6 @@ The deployment inscription contains JSON metadata that BRC-20 indexers use to tr
 
 To view the deployed BRC-20 token, use the local `ord` explorer at `http://127.0.0.1:80/`.
 
-
 ## Notes on implementation
 
 This example implements several important patterns for Bitcoin integration:
@@ -331,4 +336,4 @@ For example, the following aspects are particularly relevant for this app:
 
 ---
 
-_Last updated: June 2025_
+*Last updated: July 2025*
