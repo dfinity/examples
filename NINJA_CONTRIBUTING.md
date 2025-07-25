@@ -13,7 +13,7 @@ Ideally, your project should have a frontend and backend.
 * `/hosting` for a frontend-only project
 
 ### Compilation requirements
-* Make sure the project compiles and runs with `dfx deploy` inside the latest `ghcr.io/dfinity/icp-dev-env-slim` container.
+* Make sure the project compiles and runs with `dfx deploy` inside the `ghcr.io/dfinity/icp-dev-env-slim` container.
 * Make sure `npm run dev` works and the canister can be called through the browser (if applicable).
 * Make sure II login works (if applicable).
 * If you use Rust, make sure the project has `ic_cdk::export_candid!();` in the `lib.rs` file, such that the Candid interface can be auto derived.
@@ -25,14 +25,15 @@ Ideally, your project should have a frontend and backend.
 * Tailwind CSS for styling (recommended), or plain CSS
 
 ## Preparing the PR
-1. Add your project in the `CODEOWNERS` file, with your team plus `@dfinity/ninja-devs` as reviewers.
+1. Add your project in the `CODEOWNERS` file, with your team as codeowner.
 2. Add your project to the matrix in `.github/workflows/ninja_pr_checks.yml` to run PR tests.
 3. Add a `README.md` file, copy the `BUILD.md` and `devcontainer.json` files.
+4. Request review from the `@dfinity/ninja-devs` team if it is not added automatically.
 
-## Submit a PR to ICP Ninja
+## Submit a PR to the ICP Ninja repo
 1. Add your newly added project to `frontend/public/projects.json`
 2. Bump the commit hash in `submodules/examples` to a commit hash after your PR has been merged into the examples repo.
-* ask the Ninja team or AI to give you a beautiful image for your project
+3. Ask the Ninja team or AI to give you a beautiful image for your project
 
 ## Templates
 
