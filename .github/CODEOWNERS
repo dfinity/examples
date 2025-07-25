@@ -71,7 +71,8 @@
 /rust/hello_world/ @dfinity/ninja-devs
 /rust/icp_transfer/ @dfinity/growth
 /rust/image-classification/ @dfinity/execution
-/rust/inter-canister-calls/ @dfinity/ic-message-routing-owners /rust/llm_chatbot/ @dfinity/ninja-devs
+/rust/inter-canister-calls/ @dfinity/ic-message-routing-owners
+/rust/llm_chatbot/ @dfinity/ninja-devs
 /rust/low_wasm_memory/ @dfinity/execution
 /rust/parallel_calls/ @dfinity/research
 /rust/performance_counters/ @dfinity/execution
