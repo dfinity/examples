@@ -14,7 +14,7 @@ Ideally, your project should have a frontend and backend.
 
 ### Compilation requirements
 * Make sure the project compiles and runs with `dfx deploy` inside the `ghcr.io/dfinity/icp-dev-env-slim` container.
-* Make sure there is no `Makefile` or custom scripts for building or running the project, as ICP Ninja has no terminal!
+* Make sure there are no custom scripts for building or running the project, as ICP Ninja has no terminal!
 * Make sure `npm run dev` works and the canister can be called through the browser (if applicable, this is if users download the project and run it locally).
 * Make sure II login works (if applicable).
 * If you use Rust, make sure the project has `ic_cdk::export_candid!();` in the `lib.rs` file, such that the Candid interface can be auto derived.
