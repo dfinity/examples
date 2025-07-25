@@ -5,7 +5,7 @@ on:
       - master
   pull_request:
     paths:
-      - rust/inter-canistert-calls/**
+      - rust/inter-canister-calls/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/rust-inter-canister-calls-example.yml
