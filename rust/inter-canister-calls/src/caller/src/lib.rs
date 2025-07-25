@@ -1,9 +1,8 @@
 // Some of the imports will only be used in later examples; we list them here for simplicity
 use candid::{Nat, Principal};
-use ic_cdk::api::management_canister::ecdsa::SignWithEcdsaResponse;
 use ic_cdk::api::time;
 use ic_cdk::call::{Call, CallErrorExt, RejectCode};
-use ic_cdk::management_canister::{EcdsaCurve, EcdsaKeyId, SignWithEcdsaArgs};
+use ic_cdk::management_canister::{EcdsaCurve, EcdsaKeyId, SignWithEcdsaArgs, SignWithEcdsaResult, cost_sign_with_ecdsa};
 use ic_cdk_macros::update;
 use sha2::{Digest, Sha256};
 
@@ -29,7 +28,7 @@ pub async fn call_get_and_set(counter: Principal, new_value: Nat) -> Nat {
         // you await it!
         .await
         // Calls can *always* fail. In this first example it's actually OK to just panic on error,
-        // but as will be explained later, panicking here is almost always a bad idea.
+        // but panicking here is almost always a bad idea due to how the ICP's messaging model works.
         .expect("Failed to get the old value. Bail out")
         // To deserialize the Candid-encoded response, the CDK needs to know the type to expect.
         // You can use the turbofish syntax to specify the type as show below, where we expect a Candid
@@ -55,7 +54,7 @@ pub async fn set_then_get(counter: Principal, new_value: Nat) -> Nat {
 
     // It looks like you should be able to assert:
     // assert!(current_value == new_value);
-    // As will be explained later, this is *NOT* guaranteed to hold!
+    // But due to how ICP's messaging model works, this is *NOT* guaranteed to hold!
     current_value
 }
 
@@ -82,7 +81,7 @@ pub async fn call_increment(counter: Principal) -> Result<(), String> {
 #[update]
 pub async fn call_get(counter: Principal) -> Result<Nat, String> {
     match Call::bounded_wait(counter, "get")
-        // The default timeout is 10 seconds. Here it is changed it to 1 second.
+        // The default timeout is 10 seconds. Here it is changed to 1 second.
         .change_timeout(1)
         .await
     {
@@ -152,15 +151,22 @@ pub async fn sign_message(message: String) -> Result<String, String> {
         },
     };
 
+    let cycles_cost = cost_sign_with_ecdsa(&request).map_err(|e| {
+        format!(
+            "Failed to compute cycles cost for signing with ECDSA: {:?}",
+            e
+        )
+    })?;
+
     // Use bounded-wait calls in this example, since the amount attached is
     // fairly low, and losing the attached cycles isn't catastrophic.
     match Call::bounded_wait(Principal::management_canister(), "sign_with_ecdsa")
         .with_arg(&request)
         // Signing with a test key requires 30 billion cycles
-        .with_cycles(30_000_000_000)
+        .with_cycles(cycles_cost)
         .await
     {
-        Ok(resp) => match resp.candid::<SignWithEcdsaResponse>() {
+        Ok(resp) => match resp.candid::<SignWithEcdsaResult>() {
             Ok(signature) => Ok(hex::encode(signature.signature)),
             Err(e) => Err(format!("Error decoding response: {:?}", e)),
         },
@@ -169,7 +175,7 @@ pub async fn sign_message(message: String) -> Result<String, String> {
         // if the call didn't make it to the callee. Here, this is fine since
         // only a small amount is used.
         Err(ic_cdk::call::CallFailed::CallRejected(e))
-        if e.reject_code() == RejectCode::SysUnknown =>
+        if e.reject_code() == Ok(RejectCode::SysUnknown) =>
             {
                 Err(format!(
                     "Got a SysUnknown error while signing message: {:?}; cycles are not refunded",
