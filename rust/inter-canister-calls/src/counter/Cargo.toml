@@ -8,5 +8,5 @@ crate-type = ["cdylib"]
 
 [dependencies]
 candid = "0.10"
-ic-cdk = { git = "https://github.com/dfinity/cdk-rs.git", rev ="d823cb53ceb5574ef511bbcdb0d6b8ef85a3ec2b" }
-ic-cdk-macros = { git = "https://github.com/dfinity/cdk-rs.git", rev ="d823cb53ceb5574ef511bbcdb0d6b8ef85a3ec2b" }
+ic-cdk = "0.18.5"
+ic-cdk-macros = "0.18.5"
