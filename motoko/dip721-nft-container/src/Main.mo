@@ -1,13 +1,13 @@
-import Nat "mo:base/Nat";
-import Nat8 "mo:base/Nat8";
-import Nat16 "mo:base/Nat16";
-import Nat32 "mo:base/Nat32";
-import Nat64 "mo:base/Nat64";
-import List "mo:base/List";
-import Array "mo:base/Array";
-import Option "mo:base/Option";
-import Bool "mo:base/Bool";
-import Principal "mo:base/Principal";
+import Nat "mo:core/Nat";
+import Nat8 "mo:core/Nat8";
+import Nat16 "mo:core/Nat16";
+import Nat32 "mo:core/Nat32";
+import Nat64 "mo:core/Nat64";
+import List "mo:core/List";
+import Array "mo:core/Array";
+import Option "mo:core/Option";
+import Bool "mo:core/Bool";
+import Principal "mo:core/Principal";
 import Types "./Types";
 
 shared actor class Dip721NFT(custodian: Principal, init : Types.Dip721NonFungibleToken) = Self {

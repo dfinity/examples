@@ -1,12 +1,12 @@
-import Blob "mo:base/Blob";
-import Debug "mo:base/Debug";
-import Iter "mo:base/Iter";
-import Nat "mo:base/Nat";
-import Option "mo:base/Option";
-import P "mo:base/Prelude";
-import Principal "mo:base/Principal";
-import Result "mo:base/Result";
-import TrieMap "mo:base/TrieMap";
+import Blob "mo:core/Blob";
+import Debug "mo:core/Debug";
+import Iter "mo:core/Iter";
+import Nat "mo:core/Nat";
+import Option "mo:core/Option";
+import P "mo:core/Prelude";
+import Principal "mo:core/Principal";
+import Result "mo:core/Result";
+import TrieMap "mo:core/TrieMap";
 
 // Import our ICRC type definitions
 import ICRC "./ICRC";

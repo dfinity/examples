@@ -1,4 +1,4 @@
-import Text "mo:base/Text";
+import Text "mo:core/Text";
 
 import BitcoinWallet "BitcoinWallet";
 import BitcoinApi "BitcoinApi";

@@ -1,10 +1,10 @@
-import Nat "mo:base/Nat";
-import Nat8 "mo:base/Nat8";
-import Nat16 "mo:base/Nat16";
-import Nat32 "mo:base/Nat32";
-import Nat64 "mo:base/Nat64";
-import Blob "mo:base/Blob";
-import Principal "mo:base/Principal";
+import Nat "mo:core/Nat";
+import Nat8 "mo:core/Nat8";
+import Nat16 "mo:core/Nat16";
+import Nat32 "mo:core/Nat32";
+import Nat64 "mo:core/Nat64";
+import Blob "mo:core/Blob";
+import Principal "mo:core/Principal";
 
 module {
   public type Dip721NonFungibleToken = {

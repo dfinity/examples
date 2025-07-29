@@ -1,9 +1,9 @@
-import Array "mo:base/Array";
-import Debug "mo:base/Debug";
-import Principal "mo:base/Principal";
-import Iter "mo:base/Iter";
+import Array "mo:core/Array";
+import Debug "mo:core/Debug";
+import Principal "mo:core/Principal";
+import Iter "mo:core/Iter";
 
-import M "mo:base/HashMap";
+import M "mo:core/HashMap";
 
 import T "types";
 

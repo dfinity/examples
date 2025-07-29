@@ -1,4 +1,4 @@
-import Iter "mo:base/Iter";
+import Iter "mo:core/Iter";
 import State "State";
 
 module {

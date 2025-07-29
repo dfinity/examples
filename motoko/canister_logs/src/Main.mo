@@ -1,8 +1,8 @@
-import Debug "mo:base/Debug";
-import { abs } = "mo:base/Int";
-import { now } = "mo:base/Time";
-import { setTimer; recurringTimer } = "mo:base/Timer";
-import StableMemory "mo:base/ExperimentalStableMemory";
+import Debug "mo:core/Debug";
+import { abs } = "mo:core/Int";
+import { now } = "mo:core/Time";
+import { setTimer; recurringTimer } = "mo:core/Timer";
+import StableMemory "mo:core/ExperimentalStableMemory";
 
 actor CanisterLogs {
 

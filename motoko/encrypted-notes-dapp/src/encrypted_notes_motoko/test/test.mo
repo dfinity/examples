@@ -1,11 +1,11 @@
-import Debug "mo:base/Debug";
+import Debug "mo:core/Debug";
 
-import Option "mo:base/Option";
-import Iter "mo:base/Iter";
-import Array "mo:base/Array";
-import List "mo:base/List";
-import Text "mo:base/Text";
-import Principal "mo:base/Principal";
+import Option "mo:core/Option";
+import Iter "mo:core/Iter";
+import Array "mo:core/Array";
+import List "mo:core/List";
+import Text "mo:core/Text";
+import Principal "mo:core/Principal";
 
 import M "mo:matchers/Matchers";
 import T "mo:matchers/Testable";

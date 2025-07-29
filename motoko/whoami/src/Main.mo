@@ -1,4 +1,4 @@
-import Principal "mo:base/Principal";
+import Principal "mo:core/Principal";
 
 shared (install) actor class WhoAmI(someone : Principal) =
   this { // Bind the optional `this` argument (any name will do)

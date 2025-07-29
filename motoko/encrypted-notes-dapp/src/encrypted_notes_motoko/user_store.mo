@@ -1,12 +1,12 @@
-import Option "mo:base/Option";
-import Iter "mo:base/Iter";
-import Map "mo:base/HashMap";
-import Buffer "mo:base/Buffer";
-import Array "mo:base/Array";
+import Option "mo:core/Option";
+import Iter "mo:core/Iter";
+import Map "mo:core/HashMap";
+import Buffer "mo:core/Buffer";
+import Array "mo:core/Array";
 
-import Principal "mo:base/Principal";
-import Text "mo:base/Text";
-import Nat "mo:base/Nat";
+import Principal "mo:core/Principal";
+import Text "mo:core/Text";
+import Nat "mo:core/Nat";
 
 import En "types";
 

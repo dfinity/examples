@@ -1,13 +1,13 @@
-import Trie "mo:base/Trie";
-import Principal "mo:base/Principal";
-import Option "mo:base/Option";
-import Iter "mo:base/Iter";
-import Nat "mo:base/Nat";
-import Result "mo:base/Result";
-import Error "mo:base/Error";
-import ICRaw "mo:base/ExperimentalInternetComputer";
-import List "mo:base/List";
-import Time "mo:base/Time";
+import Trie "mo:core/Trie";
+import Principal "mo:core/Principal";
+import Option "mo:core/Option";
+import Iter "mo:core/Iter";
+import Nat "mo:core/Nat";
+import Result "mo:core/Result";
+import Error "mo:core/Error";
+import ICRaw "mo:core/ExperimentalInternetComputer";
+import List "mo:core/List";
+import Time "mo:core/Time";
 import Types "./Types";
 
 shared actor class DAO(init : Types.BasicDaoStableStorage) = Self {

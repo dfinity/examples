@@ -1,9 +1,9 @@
-import Nat "mo:base/Nat";
-import Text "mo:base/Text";
-import Array "mo:base/Array";
-import Option "mo:base/Option";
+import Nat "mo:core/Nat";
+import Text "mo:core/Text";
+import Array "mo:core/Array";
+import Option "mo:core/Option";
 import Prim "mo:⛔";
-import Prelude "mo:base/Prelude";
+import Prelude "mo:core/Prelude";
 
 
 actor HttpCounter {

@@ -1,21 +1,21 @@
 // Importing base modules
-import Array "mo:base/Array";
-import Blob "mo:base/Blob";
-import Char "mo:base/Char";
-import Cycles "mo:base/ExperimentalCycles";
-import Debug "mo:base/Debug";
-import HashMap "mo:base/HashMap";
-import Hash "mo:base/Hash";
-import Nat "mo:base/Nat";
-import Nat32 "mo:base/Nat32";
-import Nat64 "mo:base/Nat64";
-import Option "mo:base/Option";
-import Principal "mo:base/Principal";
-import Text "mo:base/Text";
-import Time "mo:base/Time";
-import Trie "mo:base/Trie";
-import TrieMap "mo:base/TrieMap";
-import Buffer "mo:base/Buffer";
+import Array "mo:core/Array";
+import Blob "mo:core/Blob";
+import Char "mo:core/Char";
+import Cycles "mo:core/ExperimentalCycles";
+import Debug "mo:core/Debug";
+import HashMap "mo:core/HashMap";
+import Hash "mo:core/Hash";
+import Nat "mo:core/Nat";
+import Nat32 "mo:core/Nat32";
+import Nat64 "mo:core/Nat64";
+import Option "mo:core/Option";
+import Principal "mo:core/Principal";
+import Text "mo:core/Text";
+import Time "mo:core/Time";
+import Trie "mo:core/Trie";
+import TrieMap "mo:core/TrieMap";
+import Buffer "mo:core/Buffer";
 
 // Importing local modules
 import MainTypes "main.types";

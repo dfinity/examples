@@ -1,8 +1,8 @@
-import Map "mo:base/HashMap";
-import Hash "mo:base/Hash";
-import Nat "mo:base/Nat";
-import Iter "mo:base/Iter";
-import Text "mo:base/Text";
+import Map "mo:core/HashMap";
+import Hash "mo:core/Hash";
+import Nat "mo:core/Nat";
+import Iter "mo:core/Iter";
+import Text "mo:core/Text";
 
 // Define the actor
 actor Assistant {

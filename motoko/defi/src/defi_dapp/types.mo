@@ -1,4 +1,4 @@
-import Time "mo:base/Time";
+import Time "mo:core/Time";
 
 
 module {

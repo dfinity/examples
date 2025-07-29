@@ -1,6 +1,6 @@
-import Blob  "mo:base/Blob";
-import Nat8  "mo:base/Nat8";
-import Nat32 "mo:base/Nat32";
+import Blob  "mo:core/Blob";
+import Nat8  "mo:core/Nat8";
+import Nat32 "mo:core/Nat32";
 
 module {
 

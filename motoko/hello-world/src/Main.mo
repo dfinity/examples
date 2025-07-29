@@ -1,4 +1,4 @@
-import Debug "mo:base/Debug"
+import Debug "mo:core/Debug"
 
 actor HelloWorld {
   public func main() {

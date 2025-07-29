@@ -1,4 +1,4 @@
-import Int "mo:base/Int";
+import Int "mo:core/Int";
 import Quicksort "Quicksort";
 
 actor Main {

@@ -1,6 +1,6 @@
-import Array "mo:base/Array";
-import Order "mo:base/Order";
-import Int "mo:base/Int";
+import Array "mo:core/Array";
+import Order "mo:core/Order";
+import Int "mo:core/Int";
 
 module Quicksort {
 

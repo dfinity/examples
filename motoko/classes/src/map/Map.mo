@@ -1,5 +1,5 @@
-import Array "mo:base/Array";
-import Cycles "mo:base/ExperimentalCycles";
+import Array "mo:core/Array";
+import Cycles "mo:core/ExperimentalCycles";
 import Buckets "Buckets";
 
 actor Map {

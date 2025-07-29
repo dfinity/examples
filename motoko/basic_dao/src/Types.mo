@@ -1,9 +1,9 @@
-import Result "mo:base/Result";
-import Trie "mo:base/Trie";
-import Int "mo:base/Int";
-import Nat "mo:base/Nat";
-import List "mo:base/List";
-import Principal "mo:base/Principal";
+import Result "mo:core/Result";
+import Trie "mo:core/Trie";
+import Int "mo:core/Int";
+import Nat "mo:core/Nat";
+import List "mo:core/List";
+import Principal "mo:core/Principal";
 
 module {
   public type Result<T, E> = Result.Result<T, E>;

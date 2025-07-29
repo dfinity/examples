@@ -1,10 +1,10 @@
-import Array     "mo:base/Array";
-import Blob      "mo:base/Blob";
-import Nat8      "mo:base/Nat8";
-import Nat32     "mo:base/Nat32";
-import Principal "mo:base/Principal";
-import Text      "mo:base/Text";
-import Buffer      "mo:base/Buffer";
+import Array     "mo:core/Array";
+import Blob      "mo:core/Blob";
+import Nat8      "mo:core/Nat8";
+import Nat32     "mo:core/Nat32";
+import Principal "mo:core/Principal";
+import Text      "mo:core/Text";
+import Buffer      "mo:core/Buffer";
 import CRC32     "./CRC32";
 import SHA224    "./SHA224";
 

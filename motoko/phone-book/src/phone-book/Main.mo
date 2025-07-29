@@ -1,5 +1,5 @@
-import Map "mo:base/HashMap";
-import Text "mo:base/Text";
+import Map "mo:core/HashMap";
+import Text "mo:core/Text";
 
 actor {
 

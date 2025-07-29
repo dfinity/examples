@@ -1,20 +1,20 @@
-import Map "mo:base/HashMap";
-import Text "mo:base/Text";
-import Array "mo:base/Array";
-import Buffer "mo:base/Buffer";
-import List "mo:base/List";
-import Iter "mo:base/Iter";
-import Int "mo:base/Int";
-import Nat "mo:base/Nat";
-import Nat8 "mo:base/Nat8";
-import Bool "mo:base/Bool";
-import Principal "mo:base/Principal";
-import Result "mo:base/Result";
-import Option "mo:base/Option";
-import Debug "mo:base/Debug";
-import Order "mo:base/Order";
-import Blob "mo:base/Blob";
-import Hash "mo:base/Hash";
+import Map "mo:core/HashMap";
+import Text "mo:core/Text";
+import Array "mo:core/Array";
+import Buffer "mo:core/Buffer";
+import List "mo:core/List";
+import Iter "mo:core/Iter";
+import Int "mo:core/Int";
+import Nat "mo:core/Nat";
+import Nat8 "mo:core/Nat8";
+import Bool "mo:core/Bool";
+import Principal "mo:core/Principal";
+import Result "mo:core/Result";
+import Option "mo:core/Option";
+import Debug "mo:core/Debug";
+import Order "mo:core/Order";
+import Blob "mo:core/Blob";
+import Hash "mo:core/Hash";
 import Hex "./utils/Hex";
 
 // Declare a shared actor class

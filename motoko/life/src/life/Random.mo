@@ -1,5 +1,5 @@
-import Nat = "mo:base/Nat";
-import Nat32 = "mo:base/Nat32";
+import Nat = "mo:core/Nat";
+import Nat32 = "mo:core/Nat32";
 
 module {
   public func new() : { next : () -> Nat32 } =

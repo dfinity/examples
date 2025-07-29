@@ -1,11 +1,11 @@
-import Random "mo:base/Random";
-import Array "mo:base/Array";
-import List "mo:base/List";
-import Stack "mo:base/Stack";
-import Iter "mo:base/Iter";
-import Blob "mo:base/Blob";
-import Nat "mo:base/Nat";
-import Debug "mo:base/Debug";
+import Random "mo:core/Random";
+import Array "mo:core/Array";
+import List "mo:core/List";
+import Stack "mo:core/Stack";
+import Iter "mo:core/Iter";
+import Blob "mo:core/Blob";
+import Nat "mo:core/Nat";
+import Debug "mo:core/Debug";
 
 /// Generate a random maze using cryptographic randomness.
 ///

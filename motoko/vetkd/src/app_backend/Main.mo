@@ -1,9 +1,9 @@
-import Principal "mo:base/Principal";
-import Text "mo:base/Text";
-import Blob "mo:base/Blob";
-import Array "mo:base/Array";
+import Principal "mo:core/Principal";
+import Text "mo:core/Text";
+import Blob "mo:core/Blob";
+import Array "mo:core/Array";
 import Hex "./utils/Hex";
-import Debug "mo:base/Debug";
+import Debug "mo:core/Debug";
 
 actor {
     type VETKD_SYSTEM_API = actor {

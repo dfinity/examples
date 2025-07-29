@@ -8,13 +8,13 @@
 //! * Caching spent UTXOs so that they are not reused in future transactions.
 //! * Option to set the fee.
 
-import Debug "mo:base/Debug";
-import Array "mo:base/Array";
-import Nat8 "mo:base/Nat8";
-import Nat32 "mo:base/Nat32";
-import Nat64 "mo:base/Nat64";
-import Iter "mo:base/Iter";
-import Blob "mo:base/Blob";
+import Debug "mo:core/Debug";
+import Array "mo:core/Array";
+import Nat8 "mo:core/Nat8";
+import Nat32 "mo:core/Nat32";
+import Nat64 "mo:core/Nat64";
+import Iter "mo:core/Iter";
+import Blob "mo:core/Blob";
 
 import EcdsaTypes "../../../motoko-bitcoin/src/ecdsa/Types";
 import P2pkh "../../../motoko-bitcoin/src/bitcoin/P2pkh";

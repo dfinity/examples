@@ -1,9 +1,9 @@
-import Iter "mo:base/Iter";
-import List "mo:base/List";
-import Array "mo:base/Array";
-import Order "mo:base/Order";
+import Iter "mo:core/Iter";
+import List "mo:core/List";
+import Array "mo:core/Array";
+import Order "mo:core/Order";
 
-import Text "mo:base/Text";
+import Text "mo:core/Text";
 
 module BaseTypes {
     public type PublicKey = Text;

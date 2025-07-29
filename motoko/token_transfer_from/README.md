@@ -191,9 +191,9 @@ Replace the contents of the `src/token_transfer_from_backend/main.mo` file with 
 
 ```motoko
 import Icrc1Ledger "canister:icrc1_ledger_canister";
-import Debug "mo:base/Debug";
-import Result "mo:base/Result";
-import Error "mo:base/Error";
+import Debug "mo:core/Debug";
+import Result "mo:core/Result";
+import Error "mo:core/Error";
 
 actor {
 

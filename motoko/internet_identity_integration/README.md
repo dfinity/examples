@@ -351,7 +351,7 @@ We want our application to greet the caller principal. To do so, the backend Mot
 Replace the content of `src/greet_backend/main.mo` with the following:
 
 ```motoko
-import Principal "mo:base/Principal";
+import Principal "mo:core/Principal";
 
 actor {
   public query (message) func greet() : async Text {
