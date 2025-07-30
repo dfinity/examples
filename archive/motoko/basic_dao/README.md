@@ -1,7 +1,7 @@
 # Basic DAO
 
 > [!WARNING]
-> This example may have security issues.  It should not be used as a production implementation, and for that reason it is archived and no longer actively maintained.  However, it is still available for educational purposes.
+> This example has known security issues.  It should not be used as a production implementation, and for that reason it is archived and no longer actively maintained.  However, it is still available for educational purposes.
 
 This sample project demonstrates a basic [decentralized autonomous organization](https://en.wikipedia.org/wiki/Decentralized_autonomous_organization) (DAO) that can be deployed to the [Internet Computer](https://github.com/dfinity/ic). The basic DAO sample code is available in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/basic_dao). You can see a quick introduction on [YouTube](https://youtu.be/3IcYlieA-EE).
 
