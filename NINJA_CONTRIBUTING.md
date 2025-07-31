@@ -3,7 +3,7 @@
 We recommend to build your example directly within ICP Ninja, such that it starts out with the correct tooling, structure and configs.
 If you do that, your project will naturally be in the correct format and can be easily added to ICP Ninja.
 Once the example is done, you can download the source files from ICP Ninja.
-Alternatively, you can start with an existing Ninja project from this repo (see CODEOWNERS file for Ninja examples) and modify it.
+Alternatively, you can start with an existing Ninja project from this repo (see CODEOWNERS file for Ninja examples, e.g. `motoko/hello_world` or `rust/hello_world`) and modify it.
 
 Ideally, your project should have a frontend and backend.
 
@@ -19,11 +19,6 @@ Ideally, your project should have a frontend and backend.
 * Make sure II login works (if applicable).
 * If you use Rust, make sure the project has `ic_cdk::export_candid!();` in the `lib.rs` file, such that the Candid interface can be auto derived.
 * If you use Motoko, use Mops as the package manager.
-
-### Frontend tooling requirements
-* React
-* Vite for the build system
-* Tailwind CSS for styling (recommended), or plain CSS
 
 ## Preparing the PR
 1. Add your project in the `CODEOWNERS` file, with your team as codeowner.
