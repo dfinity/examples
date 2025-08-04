@@ -13,7 +13,6 @@
 /hosting/unity-webgl-template/ @dfinity/sdk
 
 /motoko/basic_bitcoin/ @dfinity/cross-chain-team
-/motoko/basic_dao/ @dfinity/languages
 /motoko/backend_only/ @dfinity/ninja-devs
 /motoko/canister_logs/ @dfinity/execution
 /motoko/cert-var/ @dfinity/trust
