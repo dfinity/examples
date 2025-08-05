@@ -98,6 +98,16 @@ Ideally, your project should have a frontend and backend.
 }
 ```
 
+### Recommended `package.json`
+Make sure to install all packages necessary in the prebuild step of your `package.json`, e.g., with
+
+```js
+"scripts": {
+    "prebuild": "npm i --include=dev && ...",
+    ...
+  },
+```
+
 ### Recommended `vite.config.js`
 
 ```js
