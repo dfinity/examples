@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "dfx generate",
+    "prebuild": "npm i --include=dev && dfx generate",
     "build": "tsc && vite build"
   },
   "dependencies": {
