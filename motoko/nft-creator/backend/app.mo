@@ -2,12 +2,12 @@
 // NFT Canister implementing ICRC-7 standard with minting functionality
 
 // --- Standard Library Imports ---
-import Vec "mo:vector";
 import Principal "mo:base/Principal";
 import Nat "mo:base/Nat";
 import D "mo:base/Debug";
 
 // --- Third-Party/External Imports ---
+import Vec "mo:vector";
 import ICRC7 "mo:icrc7-mo";
 import ClassPlus "mo:class-plus";
 
