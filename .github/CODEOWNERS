@@ -34,6 +34,7 @@
 /motoko/llm_chatbot/ @dfinity/ninja-devs
 /motoko/low_wasm_memory/ @dfinity/languages
 /motoko/minimal-counter-dapp/ @dfinity/growth
+/motoko/nft-creator/ @dfinity/growth
 /motoko/parallel_calls/ @dfinity/languages
 /motoko/pub-sub/ @dfinity/growth
 /motoko/query_stats/ @dfinity/sdk

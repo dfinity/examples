@@ -41,6 +41,7 @@ jobs:
             ["Hello World (Motoko)"]="motoko/hello_world"
             ["LLM Chatbot (Motoko)"]="motoko/llm_chatbot"
             ["Tokenmania (Motoko)"]="motoko/tokenmania"
+            ["NFT Creator (Motoko)"]="motoko/nft-creator"
             ["Who Am I (Motoko)"]="motoko/who_am_i"
             ["Rust backend (Rust)"]="rust/backend_only"
             ["Daily Planner (Rust)"]="rust/daily_planner"
