@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "prebuild": "npm i --include=dev && dfx generate",
-    "build": "tsc && vite build"
+    "build": "vite build"
   },
   "dependencies": {
     "@dfinity/agent": "^3.0.0",
@@ -21,12 +21,9 @@
     "tailwindcss": "^4.1.11"
   },
   "devDependencies": {
-    "@types/react": "^19.1.9",
-    "@types/react-dom": "^19.1.7",
     "@vitejs/plugin-react": "^4.7.0",
     "dotenv": "^17.2.1",
     "sass": "^1.89.2",
-    "typescript": "^5.8.3",
     "vite": "^7.0.6",
     "vite-plugin-environment": "^1.1.3"
   }

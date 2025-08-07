@@ -3,12 +3,14 @@ import { useCollectionOwner, useMintNFT } from "../hooks/useQueries";
 import { useInternetIdentity } from "ic-use-internet-identity";
 import { Principal } from "@dfinity/principal";
 import { Sparkles } from "lucide-react";
+import { useToast } from "../contexts/ToastContext";
 
 export function MintNFT() {
     const { identity } = useInternetIdentity();
     const { data: collectionOwner, isLoading: isLoadingOwner } =
         useCollectionOwner();
     const { mutate: mintNFT, isPending: isMinting } = useMintNFT();
+    const { addError } = useToast();
 
     const [recipient, setRecipient] = useState("");
 
@@ -56,6 +58,7 @@ export function MintNFT() {
             setRecipient("");
         } catch (error) {
             console.error("Invalid principal:", error);
+            addError("Invalid principal: " + (error?.message || error));
         }
     };
 
