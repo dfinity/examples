@@ -2,10 +2,6 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useInternetIdentity } from "ic-use-internet-identity";
 import { useActor } from "./useActor";
 import { useToast } from "../contexts/ToastContext";
-import type {
-    Account,
-    TransferArg,
-} from "declarations/backend/backend.did";
 
 // Collection Status
 export function useCollectionStatus() {
@@ -51,7 +47,7 @@ export function useClaimCollection() {
             queryClient.invalidateQueries({ queryKey: ["collectionOwner"] });
             addSuccess("Collection claimed successfully!");
         },
-        onError: (error: Error) => {
+        onError: (error) => {
             addError(`Failed to claim collection: ${error.message}`);
         },
     });
@@ -64,7 +60,7 @@ export function useMintNFT() {
     const { addError, addSuccess } = useToast();
 
     return useMutation({
-        mutationFn: async ({ to }: { to: Account }) => {
+        mutationFn: async ({ to }) => {
             if (!actor) throw new Error("Actor not available");
             const result = await actor.mint(to);
             if ("err" in result) {
@@ -76,7 +72,7 @@ export function useMintNFT() {
             queryClient.invalidateQueries({ queryKey: ["ownedNFTs"] });
             addSuccess("NFT minted successfully!");
         },
-        onError: (error: Error) => {
+        onError: (error) => {
             addError(`Failed to mint NFT: ${error.message}`);
         },
     });
@@ -102,12 +98,10 @@ export function useOwnedNFTs() {
             const metadataArray = await actor.icrc7_token_metadata(tokenIds);
 
             // Map token IDs to their corresponding metadata (same order)
-            const nftsWithMetadata = tokenIds.map(
-                (tokenId: bigint, index: number) => ({
-                    tokenId,
-                    metadata: metadataArray[index] || [],
-                })
-            );
+            const nftsWithMetadata = tokenIds.map((tokenId, index) => ({
+                tokenId,
+                metadata: metadataArray[index] || [],
+            }));
 
             return nftsWithMetadata;
         },
@@ -122,16 +116,10 @@ export function useTransferNFT() {
     const { addError, addSuccess } = useToast();
 
     return useMutation({
-        mutationFn: async ({
-            tokenId,
-            to,
-        }: {
-            tokenId: bigint;
-            to: Account;
-        }) => {
+        mutationFn: async ({ tokenId, to }) => {
             if (!actor) throw new Error("Actor not available");
 
-            const transferArg: TransferArg = {
+            const transferArg = {
                 token_id: tokenId,
                 to,
                 memo: [],
@@ -159,7 +147,7 @@ export function useTransferNFT() {
             queryClient.invalidateQueries({ queryKey: ["ownedNFTs"] });
             addSuccess("NFT transferred successfully!");
         },
-        onError: (error: Error) => {
+        onError: (error) => {
             addError(`Failed to transfer NFT: ${error.message}`);
         },
     });

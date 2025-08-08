@@ -2,24 +2,16 @@ import { useState } from "react";
 import { useTransferNFT } from "../hooks/useQueries";
 import { Principal } from "@dfinity/principal";
 import { Send, Image as ImageIcon } from "lucide-react";
-import type { Metadata } from "../types";
+import { useToast } from "../contexts/ToastContext";
 
-interface NFTData {
-    tokenId: bigint;
-    metadata: Metadata;
-}
-
-interface NFTCardProps {
-    nft: NFTData;
-}
-
-export function NFTCard({ nft }: NFTCardProps) {
+export function NFTCard({ nft }) {
     const [recipient, setRecipient] = useState("");
     const [imageError, setImageError] = useState(false);
     const { mutate: transferNFT, isPending: isTransferring } = useTransferNFT();
+    const { addError } = useToast();
 
     // Helper function to get metadata value by key
-    const getMetadataValue = (key: string): string => {
+    const getMetadataValue = (key) => {
         const entry = nft.metadata[0]?.find(([k]) => k === key);
         if (entry && entry[1] && "Text" in entry[1]) {
             return entry[1].Text;
@@ -39,6 +31,7 @@ export function NFTCard({ nft }: NFTCardProps) {
             setRecipient("");
         } catch (error) {
             console.error("Invalid principal:", error);
+            addError("Invalid principal: " + (error?.message || error));
         }
     };
 

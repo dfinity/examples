@@ -1,9 +1,5 @@
 import { useInternetIdentity } from "ic-use-internet-identity";
-import {
-    createActor,
-    canisterId,
-} from "declarations/backend";
-import { type _SERVICE as backendInterface } from "declarations/backend/backend.did";
+import { createActor, canisterId } from "declarations/backend";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect } from "react";
 
@@ -12,8 +8,11 @@ export function useActor() {
     const { identity } = useInternetIdentity();
     const queryClient = useQueryClient();
 
-    const actorQuery = useQuery<backendInterface>({
-        queryKey: [ACTOR_QUERY_KEY, identity?.getPrincipal().toString() || "anonymous"],
+    const actorQuery = useQuery({
+        queryKey: [
+            ACTOR_QUERY_KEY,
+            identity?.getPrincipal().toString() || "anonymous",
+        ],
         queryFn: async () => {
             if (!canisterId) {
                 throw new Error("Canister ID not available");
