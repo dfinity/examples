@@ -1,0 +1,11 @@
+[package]
+edition = "2021"
+name = "wotd"
+version = "0.1.0"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+candid = "0.10"
+ic-cdk = "0.16"
