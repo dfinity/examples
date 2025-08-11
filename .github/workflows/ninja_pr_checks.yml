@@ -33,6 +33,7 @@ jobs:
           declare -A example_paths=(
             ["My Crypto Blog (Frontend)"]="hosting/my_crypto_blog"
             ["React (Frontend)"]="hosting/react"
+            ["OISY Signer Demo (Frontend)"]="hosting/oisy-signer-demo"
             ["Motoko backend (Motoko)"]="motoko/backend_only"
             ["Daily Planner (Motoko)"]="motoko/daily_planner"
             ["EVM Block Explorer (Motoko)"]="motoko/evm_block_explorer"
