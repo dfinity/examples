@@ -16,8 +16,8 @@ export function useOisyWallet() {
   const [accountIdentifier, setAccountIdentifier] = useState(null);
   const [defaultAgent, setDefaultAgent] = useState(null);
   const [oisySignerAgent, setOisySignerAgent] = useState(null);
-  const [oisyIcpLedgerAgent, setOisyIcpLedgerAgent] = useState(null);
-  const [oisyCkUsdcLedgerAgent, setOisyCkUsdcLedgerAgent] = useState(null);
+  const [oisyIcpActor, setOisyIcpActor] = useState(null);
+  const [oisyCkUsdcActor, setOisyCkUsdcActor] = useState(null);
 
   const [icpMetadata, setIcpMetadata] = useState();
   const [ckUsdcMetadata, setCkUsdcMetadata] = useState();
@@ -29,17 +29,17 @@ export function useOisyWallet() {
   const oisySigner = new Signer({ transport: oisyTransport });
 
   useEffect(() => {
-    if (oisySignerAgent && !oisyIcpLedgerAgent && !oisyCkUsdcLedgerAgent) {
-      const oisyIcpLedgerAgent = IcrcLedgerCanister.create({
+    if (oisySignerAgent && !oisyIcpActor && !oisyCkUsdcActor) {
+      const oisyIcpActor = IcrcLedgerCanister.create({
         agent: oisySignerAgent,
         canisterId: Principal.fromText(ICP_LEDGER_ID),
       });
-      const oisyckUsdcLedgerAgent = IcrcLedgerCanister.create({
+      const oisyCkUsdcActor = IcrcLedgerCanister.create({
         agent: oisySignerAgent,
         canisterId: Principal.fromText(CKUSDC_LEDGER_ID),
       });
-      setOisyIcpLedgerAgent(oisyIcpLedgerAgent);
-      setOisyCkUsdcLedgerAgent(oisyckUsdcLedgerAgent);
+      setOisyIcpActor(oisyIcpActor);
+      setOisyCkUsdcActor(oisyCkUsdcActor);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [oisySignerAgent]);
@@ -90,7 +90,7 @@ export function useOisyWallet() {
     const principal = icrcAccount.owner;
     const accountIdentifier = AccountIdentifier.fromPrincipal({ principal });
 
-    const defaultAgent = await HttpAgent.create({ host: 'https://ic0.app' });
+    const defaultAgent = await HttpAgent.create({ host: 'https://icp0.io' });
     const signerAgent = await SignerAgent.create({
       agent: defaultAgent,
       signer: oisySigner,
@@ -110,8 +110,8 @@ export function useOisyWallet() {
     setAccountIdentifier(null);
     setDefaultAgent(null);
     setOisySignerAgent(null);
-    setOisyIcpLedgerAgent(null);
-    setOisyCkUsdcLedgerAgent(null);
+    setOisyIcpActor(null);
+    setOisyCkUsdcActor(null);
     setIcpBalance(null);
     setCkUsdcBalance(null);
     setIcpMetadata(undefined);
@@ -147,7 +147,7 @@ export function useOisyWallet() {
     ckUsdcBalance,
     icpMetadata,
     ckUsdcMetadata,
-    transferIcp: () => transfer(oisyIcpLedgerAgent, icpMetadata),
-    transferCkUsdc: () => transfer(oisyCkUsdcLedgerAgent, ckUsdcMetadata),
+    transferIcp: () => transfer(oisyIcpActor, icpMetadata),
+    transferCkUsdc: () => transfer(oisyCkUsdcActor, ckUsdcMetadata),
   };
 }
