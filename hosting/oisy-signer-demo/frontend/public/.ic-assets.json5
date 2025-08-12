@@ -26,7 +26,7 @@
 
             // Security: The permissions policy disables all features for security reasons. If your site needs such permissions, activate them.
             // To configure permissions go here https://www.permissionspolicy.com/
-            // This example updated the clipboard-write policy to allow writing to clipboard
+            // This example updated the clipboard-write permission to allow writing to clipboard
             "Permissions-Policy": "accelerometer=(), ambient-light-sensor=(), autoplay=(), battery=(), camera=(), cross-origin-isolated=(), display-capture=(), document-domain=(), encrypted-media=(), execution-while-not-rendered=(), execution-while-out-of-viewport=(), fullscreen=(), geolocation=(), gyroscope=(), keyboard-map=(), magnetometer=(), microphone=(), midi=(), navigation-override=(), payment=(), picture-in-picture=(), publickey-credentials-get=(), screen-wake-lock=(), sync-xhr=(), usb=(), web-share=(), xr-spatial-tracking=(), clipboard-read=(), clipboard-write=(self), gamepad=(), speaker-selection=(), conversion-measurement=(), focus-without-user-activation=(), hid=(), idle-detection=(), interest-cohort=(), serial=(), sync-script=(), trust-token-redemption=(), window-placement=(), vertical-scroll=()",
 
             // Security: Mitigates clickjacking attacks.

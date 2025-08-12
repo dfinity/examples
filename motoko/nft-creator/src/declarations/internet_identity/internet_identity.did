@@ -301,10 +301,12 @@ type CaptchaResult = ChallengeResult;
 
 // Extra information about registration status for new devices
 type DeviceRegistrationInfo = record {
-    // If present, the user has tentatively added a new device. This
-    // new device needs to be verified (see relevant endpoint) before
-    // 'expiration'.
+    // If present, the user has registered a new authentication method. This new authentication
+    // method needs to be confirmed before 'expiration' in order to be added to the identity.
     tentative_device : opt DeviceData;
+    // If present, the user has registered a new session. This new session needs to be confirmed before
+    // 'expiration' in order for it be authorized to register an authentication method to the identity.
+    tentative_session : opt principal;
     // The timestamp at which the anchor will turn off registration mode
     // (and the tentative device will be forgotten, if any, and if not verified)
     expiration : Timestamp;
@@ -481,10 +483,13 @@ type OpenIDRegFinishArg = record {
 
 // Extra information about registration status for new authentication methods
 type AuthnMethodRegistrationInfo = record {
-    // If present, the user has registered a new authentication method. This
-    // new authentication needs to be verified before 'expiration' in order to
-    // be added to the identity.
+
+    // If present, the user has registered a new authentication method. This new authentication
+    // method needs to be confirmed before 'expiration' in order to be added to the identity.
     authn_method : opt AuthnMethodData;
+    // If present, the user has registered a new session. This new session needs to be confirmed before
+    // 'expiration' in order for it be authorized to register an authentication method to the identity.
+    session : opt principal;
     // The timestamp at which the identity will turn off registration mode
     // (and the authentication method will be forgotten, if any, and if not verified)
     expiration : Timestamp;
@@ -493,6 +498,10 @@ type AuthnMethodRegistrationInfo = record {
 type AuthnMethodConfirmationCode = record {
     confirmation_code : text;
     expiration : Timestamp;
+};
+
+type AuthnMethodSessionInfo = record {
+    name : opt text;
 };
 
 type RegistrationId = text;
@@ -524,6 +533,13 @@ type AuthnMethodRegistrationModeEnterError = variant {
     Unauthorized : principal;
     AlreadyInProgress;
     InternalCanisterError : text;
+};
+
+type AuthnMethodRegistrationModeExitError = variant {
+    Unauthorized : principal;
+    InternalCanisterError : text;
+    RegistrationModeOff;
+    InvalidMetadata : text;
 };
 
 type LookupByRegistrationIdError = variant {
@@ -860,11 +876,18 @@ service : (opt InternetIdentityInit) -> {
 
     // Exits the authentication method registration mode for the identity.
     // Requires authentication.
-    authn_method_registration_mode_exit : (IdentityNumber) -> (variant { Ok; Err });
+    authn_method_registration_mode_exit : (IdentityNumber, opt AuthnMethodData) -> (variant { Ok; Err : AuthnMethodRegistrationModeExitError });
 
     // Registers a new authentication method to the identity.
     // This authentication method needs to be confirmed before it can be used for authentication on this identity.
     authn_method_register : (IdentityNumber, AuthnMethodData) -> (variant { Ok : AuthnMethodConfirmationCode; Err : AuthnMethodRegisterError });
+
+    // Registers a new session for the identity.
+    // This session needs to be confirmed before it can be used to register an authentication method on this identity.
+    authn_method_session_register : (IdentityNumber) -> (variant { Ok : AuthnMethodConfirmationCode; Err : AuthnMethodRegisterError });
+
+    // Returns session info when session is confirmed and caller matches session.
+    authn_method_session_info : (IdentityNumber) -> (opt AuthnMethodSessionInfo) query;
 
     // Confirms a previously registered authentication method.
     // On successful confirmation, the authentication method is permanently added to the identity and can
