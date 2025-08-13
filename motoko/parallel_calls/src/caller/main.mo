@@ -1,7 +1,7 @@
-import List "mo:base/List";
-import Error "mo:base/Error";
-import Principal "mo:base/Principal";
-import Iter "mo:base/Iter";
+import List "mo:core/List";
+import Error "mo:core/Error";
+import Principal "mo:core/Principal";
+import Iter "mo:core/Iter";
 
 actor {
 

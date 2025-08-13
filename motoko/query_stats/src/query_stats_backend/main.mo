@@ -1,6 +1,6 @@
-import Nat "mo:base/Nat";
-import Time "mo:base/Time";
-import Principal "mo:base/Principal";
+import Nat "mo:core/Nat";
+import Time "mo:core/Time";
+import Principal "mo:core/Principal";
 
 actor QueryStats {
 

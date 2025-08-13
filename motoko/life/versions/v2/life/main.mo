@@ -1,4 +1,4 @@
-import Debug = "mo:base/Debug";
+import Debug = "mo:core/Debug";
 // local imports
 import Random = "Random";
 import State = "State";

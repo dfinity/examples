@@ -1,11 +1,11 @@
-import Blob "mo:base/Blob";
-import Nat64 "mo:base/Nat64";
-import Text "mo:base/Text";
-import IC "ic:aaaaa-aa";
-
-//Actor
-actor {
-
+import Blob "mmo:core/lob";
+import Nat64 mo:core//Nat64";
+import Text "momo:core/xt";
+import IC "ic:mo:core/";
+mo:core/
+//Actormo:core/
+actor {mo:core/
+mo:core/
   //This method sends a GET request to a URL with a free API we can test.
   //This method returns Coinbase data on the exchange rate between USD and ICP
   //for a certain day.

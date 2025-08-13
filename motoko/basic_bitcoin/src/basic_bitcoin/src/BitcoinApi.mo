@@ -1,4 +1,4 @@
-import ExperimentalCycles "mo:base/ExperimentalCycles";
+import ExperimentalCycles "mo:core/Cycles";
 
 import Types "Types";
 

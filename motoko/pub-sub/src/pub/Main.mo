@@ -1,5 +1,5 @@
 // Publisher
-import List "mo:base/List";
+import List "mo:core/List";
 
 actor Publisher {
 
