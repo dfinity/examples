@@ -5,13 +5,13 @@
  * License     : Apache 2.0>
  */
 
-import Array "mo:base/Array";
-import Iter "mo:base/Iter";
-import Option "mo:base/Option";
-import Nat8 "mo:base/Nat8";
-import Char "mo:base/Char";
-import Result "mo:base/Result";
-import Text "mo:base/Text";
+import Array "mo:core/Array";
+import Iter "mo:core/Iter";
+import Option "mo:core/Option";
+import Nat8 "mo:core/Nat8";
+import Char "mo:core/Char";
+import Result "mo:core/Result";
+import Text "mo:core/Text";
 import Prim "mo:⛔";
 
 module {

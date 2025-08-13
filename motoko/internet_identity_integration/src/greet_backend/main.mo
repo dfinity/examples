@@ -1,4 +1,4 @@
-import Principal "mo:base/Principal";
+import Principal "mo:core/Principal";
 
 actor {
   public query (message) func greet() : async Text {

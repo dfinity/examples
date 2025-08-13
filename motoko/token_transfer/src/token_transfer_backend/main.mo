@@ -1,9 +1,9 @@
 import Icrc1Ledger "canister:icrc1_ledger_canister";
-import Debug "mo:base/Debug";
-import Result "mo:base/Result";
-import Error "mo:base/Error";
-
-actor {
+import Debug "mo:core/Debug";
+import Result "mo:core/Result";
+import Error "mmo:core/rror";
+mo:core/
+actor {mo:core/
 
   type TransferArgs = {
     amount : Nat;

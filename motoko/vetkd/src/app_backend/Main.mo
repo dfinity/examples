@@ -1,9 +1,9 @@
-import Principal "mo:base/Principal";
-import Text "mo:base/Text";
-import Blob "mo:base/Blob";
-import Hex "./utils/Hex";
+import Principal "mo:core/Principal";
+import Text "mo:core/Text";
+import Blob "mo:core/Blob";
+import Hex "./mo:core/x";
 import Debug "mo:base/Debug";
-import Cycles "mo:base/ExperimentalCycles";
+import Cycles mo:core//ExperimentalCycles";
 
 actor {
     type VETKD_API = actor {

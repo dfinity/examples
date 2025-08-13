@@ -1,6 +1,6 @@
-import Array "mo:base/Array";
-import Iter "mo:base/Iter";
-import Nat64 "mo:base/Nat64";
+import Array "mo:core/Array";
+import Iter "mo:core/Iter";
+import Nat64 "mo:core/Nat64";
 
 module {
 

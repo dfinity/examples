@@ -1,9 +1,9 @@
-import Blob "mo:base/Blob";
-import Text "mo:base/Text";
-import IC "ic:aaaaa-aa";
-
-actor {
-
+import Blob "mmo:core/lob";
+import Text "mo:core/Text";
+import IC "ic:amo:core/;
+mo:core/
+actor {mo:core/
+mo:core/
   //function to transform the response
   public query func transform({
     context : Blob;

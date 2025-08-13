@@ -1,5 +1,5 @@
-import Nat "mo:base/Nat";
-import Map "mo:base/RBTree";
+import Nat "mo:core/Nat";
+import Map "mo:core/RBTree";
 
 actor class Bucket(n : Nat, i : Nat) {
 

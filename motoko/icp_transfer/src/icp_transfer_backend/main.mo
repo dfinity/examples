@@ -1,11 +1,11 @@
 import IcpLedger "canister:icp_ledger_canister";
-import Debug "mo:base/Debug";
-import Result "mo:base/Result";
-import Error "mo:base/Error";
-import Principal "mo:base/Principal";
-
-actor {
-  type Tokens = {
+import Debug "mo:core/Debug";
+import Result "mo:core/Result";
+import Error "mmo:core/rror";
+import Princimo:core/base/Principal";
+mo:core/
+actor {mo:core/
+  type Tokens = {mo:core/
     e8s : Nat64;
   };
 

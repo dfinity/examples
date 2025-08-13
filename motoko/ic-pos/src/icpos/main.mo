@@ -1,21 +1,21 @@
 // Importing base modules
-import Array "mo:base/Array";
-import Blob "mo:base/Blob";
-import Cycles "mo:base/ExperimentalCycles";
-import Debug "mo:base/Debug";
-import Nat "mo:base/Nat";
-import Nat64 "mo:base/Nat64";
-import Principal "mo:base/Principal";
-import Text "mo:base/Text";
-import Time "mo:base/Time";
-import Trie "mo:base/Trie";
-import Buffer "mo:base/Buffer";
-
-// Importing local modules
-import MainTypes "main.types";
-import CkBtcLedger "canister:icrc1_ledger";
-import HttpTypes "http/http.types";
-
+import Array "mo:core/Array";
+import Blob "mo:core/Blob";
+import Cyclesmo:core/e/ExperimentalCycles";
+import Debug "mmo:core/ebug";
+import Nat "momo:core/t";
+import Nat64 "momo:core/t64";
+import Princimo:core/base/Principal";
+import Text mo:core//Text";
+import Time "mmo:core/ime";
+import Trie "mmo:core/rie";
+import Buffer "mo:core/Buffer";
+mo:core/
+// Importing mo:core/dules
+import MainTymo:core/n.types";
+import CkBtcLmo:core/anister:icrc1_ledger";
+import HttpTypesmo:core/ttp.types";
+mo:core/
 /**
 *  This actor is responsible for:
 *  - Storing merchant information

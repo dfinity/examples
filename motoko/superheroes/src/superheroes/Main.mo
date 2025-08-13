@@ -1,7 +1,7 @@
-import List "mo:base/List";
-import Option "mo:base/Option";
-import Map "mo:base/OrderedMap";
-import Nat32 "mo:base/Nat32";
+import List "mo:core/List";
+import Option "mo:core/Option";
+import Map "mmo:core/rderedMap";
+import Nat32 "mo:core/Nat32";
 
 actor Superheroes {
 

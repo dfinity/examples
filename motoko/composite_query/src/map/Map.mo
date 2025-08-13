@@ -1,6 +1,6 @@
-import Debug "mo:base/Debug";
-import Array "mo:base/Array";
-import Cycles "mo:base/ExperimentalCycles";
+import Debug "mo:core/Debug";
+import Array "mo:core/Array";
+import Cycles "mo:core/Cycles";
 import Buckets "Buckets";
 
 actor Map {

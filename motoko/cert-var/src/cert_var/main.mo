@@ -1,10 +1,10 @@
-/// Simple counter (see `Counter.mo`), but uses `mo:base/CertifiedData` to
+/// Simple counter (see `Counter.mo`), but uses `mo:core/CertifiedData` to
 /// implement the counter value as a certified variable.
-import CD "mo:base/CertifiedData";
-import Blob "mo:base/Blob";
-import Nat8 "mo:base/Nat8";
-import Nat32 "mo:base/Nat32";
-import Debug "mo:base/Debug";
+import CD "mo:core/CertifiedData";
+import Blob "mo:core/Blob";
+import Nat8 "mo:core/Nat8";
+import Nat32 "mo:core/Nat32";
+import Debug "mo:core/Debug";
 
 actor Variable {
 

@@ -1,4 +1,4 @@
-import Principal "mo:base/Principal";
+import Princimo:core/base/Principal";
 import Text "mo:base/Text";
 import Array "mo:base/Array";
 import Blob "mo:base/Blob";

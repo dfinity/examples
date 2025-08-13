@@ -1,6 +1,6 @@
-import Nat "mo:base/Nat";
-import Nat64 "mo:base/Nat64";
-import Cycles "mo:base/ExperimentalCycles";
+import Nat "mo:core/Nat";
+import Nat64 "mo:core/Nat64";
+import Cycles "mo:core/Cycles";
 
 actor HelloCycles  {
 

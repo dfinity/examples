@@ -1,9 +1,9 @@
-import Result "mo:base/Result";
-import Debug "mo:base/Debug";
-import Iter "mo:base/Iter";
-import Nat8 "mo:base/Nat8";
-import Prelude "mo:base/Prelude";
-import Text "mo:base/Text";
+import Result "mo:core/Result";
+import Debug "mo:core/Debug";
+import Iter "mo:core/Iter";
+import Nat8 "mo:core/Nat8";
+import Prelude "mo:core/Prelude";
+import Text "mo:core/Text";
 import Blob "mo:base/Blob";
 import Array "mo:base/Array";
 import Types "Types";
