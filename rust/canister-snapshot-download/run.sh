@@ -8,22 +8,22 @@ dfx stop
 dfx start --clean --background
 dfx deploy
 
-dfx canister call uxrrr-q7777-77774-qaaaq-cai "setup"
-dfx canister call uxrrr-q7777-77774-qaaaq-cai "print"
+dfx canister call quotes "setup"
+dfx canister call quotes "print"
 
-dfx canister stop uxrrr-q7777-77774-qaaaq-cai
-dfx canister snapshot create uxrrr-q7777-77774-qaaaq-cai
+dfx canister stop quotes
+dfx canister snapshot create quotes
 # snapshot id 0000000000000000ffffffffff9000010101
 
-dfx canister snapshot download --dir ./snapshots uxrrr-q7777-77774-qaaaq-cai 0000000000000000ffffffffff9000010101
+dfx canister snapshot download --dir ./snapshots quotes 0000000000000000ffffffffff9000010101
 
 # manipulate file
 sed -i -e 's/Colour/Color/g' ./snapshots/stable_memory.bin
 
-dfx canister snapshot upload --dir ./snapshots uxrrr-q7777-77774-qaaaq-cai
+dfx canister snapshot upload --dir ./snapshots quotes
 
-dfx canister snapshot load uxrrr-q7777-77774-qaaaq-cai 0000000000000001ffffffffff9000010101
-dfx canister start uxrrr-q7777-77774-qaaaq-cai
-dfx canister call uxrrr-q7777-77774-qaaaq-cai "print"
+dfx canister snapshot load quotes 0000000000000001ffffffffff9000010101
+dfx canister start quotes
+dfx canister call quotes "print"
 
 

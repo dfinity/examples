@@ -1,5 +1,5 @@
 [workspace]
 members = [
-    "src/wotd"
+    "src/quotes"
 ]
 resolver = "2"

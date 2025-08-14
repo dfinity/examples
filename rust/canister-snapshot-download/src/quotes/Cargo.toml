@@ -1,6 +1,6 @@
 [package]
 edition = "2021"
-name = "wotd"
+name = "quotes"
 version = "0.1.0"
 
 [lib]

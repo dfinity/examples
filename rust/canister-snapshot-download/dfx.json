@@ -1,8 +1,8 @@
 {
   "canisters": {
-    "wotd": {
-      "candid": "src/wotd/wotd.did",
-      "package": "wotd",
+    "quotes": {
+      "candid": "src/quotes/quotes.did",
+      "package": "quotes",
       "type": "rust"
     }
   },

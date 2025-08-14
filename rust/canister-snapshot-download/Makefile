@@ -10,23 +10,23 @@ build:
 .PHONY: install
 .SILENT: install
 install: build
-	dfx canister install wotd
+	dfx canister install quotes
 
 .PHONY: upgrade
 .SILENT: upgrade
 upgrade: build
-	dfx canister install wotd --mode=upgrade
+	dfx canister install quotes --mode=upgrade
 
 .PHONY: deploy
 .SILENT: deploy
 deploy:
-	dfx deploy wotd
+	dfx deploy quotes
 
 .PHONY: test
 .SILENT: test
 test: deploy
-	dfx canister call wotd setup | grep -qw '()' && echo 'PASS'
-	dfx canister call wotd print | grep -qw 'Colourless green ideas sleep furiously.' && echo 'PASS'
+	dfx canister call quotes setup | grep -qw '()' && echo 'PASS'
+	dfx canister call quotes print | grep -qw 'Colourless green ideas sleep furiously.' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean
