@@ -1,4 +1,4 @@
 [dependencies]
 base = "0.11.2"
-core = "1.0.0"
+core = "0.6.0"
 bitcoin = "0.1.0"

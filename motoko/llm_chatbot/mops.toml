@@ -2,5 +2,5 @@
 
 [dependencies]
 base = "0.14.9"
-core = "1.0.0"
+core = "0.6.0"
 llm = "2.1.0"
