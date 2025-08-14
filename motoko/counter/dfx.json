@@ -1,7 +1,0 @@
-{
-  "canisters": {
-    "counter": {
-      "main": "src/Main.mo"
-    }
-  }
-}

@@ -1,7 +1,0 @@
-{
-  "canisters": {
-    "calc": {
-      "main": "src/Main.mo"
-    }
-  }
-}
