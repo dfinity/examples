@@ -1,7 +1,0 @@
-{
-  "canisters": {
-    "echo": {
-      "main": "src/Main.mo"
-    }
-  }
-}

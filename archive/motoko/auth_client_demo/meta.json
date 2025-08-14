@@ -1,9 +1,0 @@
-{
-  "pullable": {
-    "wasm_url": 
-"https://github.com/krpeacock/auth-client-demo/releases/latest/download/whoami.wasm",
-    "wasm_hash": null,
-    "dependencies": [],
-    "init_guide": "null"
-  }
-}

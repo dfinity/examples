@@ -1,6 +1,0 @@
-.dfx/
-build/
-node_modules/
-target/
-declarations/
-ledger.did
