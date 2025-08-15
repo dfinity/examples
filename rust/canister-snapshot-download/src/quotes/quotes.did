@@ -1,0 +1,4 @@
+service : {
+    "setup": () -> ();
+    "print": () -> (text);
+}

@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "src/quotes"
+]
+resolver = "2"
