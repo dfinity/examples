@@ -60,6 +60,7 @@
 /rust/backend_wasm64/ @dfinity/sdk
 /rust/canister-info/ @dfinity/execution
 /rust/canister-snapshots/ @dfinity/execution
+/rust/canister-snapshot-download/ @dfinity/execution
 /rust/canister_logs/ @dfinity/execution
 /rust/composite_query/ @dfinity/execution
 /rust/counter/ @dfinity/growth

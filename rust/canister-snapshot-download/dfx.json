@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "quotes": {
+      "candid": "src/quotes/quotes.did",
+      "package": "quotes",
+      "type": "rust"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
