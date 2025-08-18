@@ -26,7 +26,7 @@ jobs:
         run: |
           dfx start --background
           pushd rust/canister-snapshot-download
-          ./run.sh
+          # ./run.sh # enable when download feature is out of beta
           popd
   rust-canister-snapshot-download-example-linux:
     runs-on: ubuntu-22.04
@@ -40,5 +40,5 @@ jobs:
         run: |
           dfx start --background
           pushd rust/canister-snapshot-download
-          ./run.sh
+          # ./run.sh # enable when download feature is out of beta
           popd
