@@ -1,10 +1,6 @@
 * @dfinity/editorial
 .github/workflows/ninja_pr_checks.yml @dfinity/ninja-devs
 
-/c/adventure/ @dfinity/growth
-/c/qr/ @dfinity/growth
-/c/reverse/ @dfinity/growth
-
 /hosting/godot-html5-template/ @dfinity/sdk
 /hosting/my_crypto_blog/ @dfinity/ninja-devs
 /hosting/photo-storage/ @dfinity/sdk
@@ -19,7 +15,6 @@
 /motoko/cert-var/ @dfinity/trust
 /motoko/classes/ @dfinity/languages
 /motoko/composite_query/ @dfinity/languages
-/motoko/counter/ @dfinity/languages
 /motoko/daily_planner/ @dfinity/ninja-devs
 /motoko/encrypted-notes-dapp-vetkd/ @dfinity/crypto-team
 /motoko/evm_block_explorer/ @dfinity/ninja-devs
@@ -31,10 +26,8 @@
 /motoko/icp_transfer/ @dfinity/growth
 /motoko/icrc2-swap/ @dfinity/growth
 /motoko/internet_identity_integration/ @dfinity/identity
-/motoko/life/ @dfinity/languages
 /motoko/llm_chatbot/ @dfinity/ninja-devs
 /motoko/low_wasm_memory/ @dfinity/languages
-/motoko/minimal-counter-dapp/ @dfinity/growth
 /motoko/nft-creator/ @dfinity/growth
 /motoko/parallel_calls/ @dfinity/languages
 /motoko/pub-sub/ @dfinity/growth
@@ -63,7 +56,6 @@
 /rust/canister-snapshot-download/ @dfinity/execution
 /rust/canister_logs/ @dfinity/execution
 /rust/composite_query/ @dfinity/execution
-/rust/counter/ @dfinity/growth
 /rust/daily_planner/ @dfinity/ninja-devs
 /rust/encrypted-notes-dapp-vetkd/ @dfinity/crypto-team
 /rust/evm_block_explorer/ @dfinity/ninja-devs
