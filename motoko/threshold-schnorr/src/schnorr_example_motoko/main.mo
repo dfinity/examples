@@ -6,7 +6,7 @@ import Blob "mo:base/Blob";
 import Option "mo:base/Option";
 import Hex "./utils/Hex";
 
-actor {
+persistent actor {
   public type SchnorrAlgorithm = { #bip340secp256k1; #ed25519 };
 
   public type KeyId = {
@@ -35,7 +35,7 @@ actor {
     }) -> async ({ signature : Blob });
   };
 
-  var ic : IC = actor ("aaaaa-aa");
+  transient var ic : IC = actor ("aaaaa-aa");
 
   public shared ({ caller }) func public_key(algorithm : SchnorrAlgorithm) : async {
     #Ok : { public_key_hex : Text };

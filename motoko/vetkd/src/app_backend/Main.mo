@@ -5,7 +5,7 @@ import Hex "./utils/Hex";
 import Debug "mo:base/Debug";
 import Cycles "mo:base/ExperimentalCycles";
 
-actor {
+persistent actor {
     type VETKD_API = actor {
         vetkd_public_key : ({
             canister_id : ?Principal;
@@ -20,7 +20,7 @@ actor {
         }) -> async ({ encrypted_key : Blob });
     };
 
-    let management_canister : VETKD_API = actor ("aaaaa-aa");
+    transient let management_canister : VETKD_API = actor ("aaaaa-aa");
 
     public shared ({ caller = _ }) func app_vetkd_public_key(context : Blob) : async Text {
         let { public_key } = await management_canister.vetkd_public_key({

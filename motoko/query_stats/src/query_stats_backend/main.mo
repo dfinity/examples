@@ -2,9 +2,9 @@ import Nat "mo:base/Nat";
 import Time "mo:base/Time";
 import Principal "mo:base/Principal";
 
-actor QueryStats {
+persistent actor QueryStats {
 
-  let IC = actor "aaaaa-aa" : actor {
+  transient let IC = actor "aaaaa-aa" : actor {
     canister_status : { canister_id : Principal } -> async {
       query_stats : {
         num_calls_total : Nat;

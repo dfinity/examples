@@ -15,12 +15,12 @@ import Debug "mo:base/Debug";
 ///   shared function `Random.blob()`; and
 /// * generating bounded, discrete random numbers using class `Random.Finite()`.
 
-actor {
+persistent actor {
 
   type Maze = [[var Nat8]];
 
-  let hall : Nat8 = 0;
-  let wall : Nat8 = 1;
+  transient let hall : Nat8 = 0;
+  transient let wall : Nat8 = 1;
 
   func visit(n : Nat8) : Nat8 {
     n | 2

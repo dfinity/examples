@@ -6,7 +6,7 @@ import Blob "mo:base/Blob";
 import Hex "./utils/Hex";
 import SHA256 "./utils/SHA256";
 
-actor {
+persistent actor {
   // Only the ecdsa methods in the IC management canister is required here.
   type IC = actor {
     ecdsa_public_key : ({
@@ -21,7 +21,7 @@ actor {
     }) -> async ({ signature : Blob });
   };
 
-  let ic : IC = actor("aaaaa-aa");
+  transient let ic : IC = actor("aaaaa-aa");
 
   public shared (msg) func public_key() : async { #Ok : { public_key_hex: Text }; #Err : Text } {
     let caller = Principal.toBlob(msg.caller);

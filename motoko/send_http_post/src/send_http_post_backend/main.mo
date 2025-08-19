@@ -2,7 +2,7 @@ import Blob "mo:base/Blob";
 import Text "mo:base/Text";
 import IC "ic:aaaaa-aa";
 
-actor {
+persistent actor {
 
   //function to transform the response
   public query func transform({

@@ -4,22 +4,24 @@ import { now } = "mo:base/Time";
 import { setTimer; recurringTimer } = "mo:base/Timer";
 import StableMemory "mo:base/ExperimentalStableMemory";
 
-actor CanisterLogs {
+persistent actor CanisterLogs {
 
-  let timerDelaySeconds = 5;
-  let second = 1_000_000_000;
-  let ic00_raw_rand = (actor "aaaaa-aa" : actor { raw_rand : () -> async Blob }).raw_rand;
+  transient let timerDelaySeconds = 5;
+  transient let second = 1_000_000_000;
+  transient let ic00_raw_rand = (actor "aaaaa-aa" : actor { raw_rand : () -> async Blob }).raw_rand;
 
   private func execute_timer() : async () {
     Debug.print("right before timer trap");
     Debug.trap("timer trap");
   };
 
-  ignore setTimer<system>(#seconds (timerDelaySeconds - abs(now() / second) % timerDelaySeconds),
-    func () : async () {
+  ignore setTimer<system>(
+    #seconds(timerDelaySeconds - abs(now() / second) % timerDelaySeconds),
+    func() : async () {
       ignore recurringTimer<system>(#seconds timerDelaySeconds, execute_timer);
       await execute_timer();
-  });
+    },
+  );
 
   public func print(text : Text) : async () {
     Debug.print(text);
@@ -43,7 +45,7 @@ actor CanisterLogs {
     Debug.print("right before memory out of bounds");
     let offset : Nat64 = 10;
     let value : Nat = 20;
-    let _blob = StableMemory.loadBlob(offset, value);  // Expect reading outside of memory bounds to trap.
+    let _blob = StableMemory.loadBlob(offset, value); // Expect reading outside of memory bounds to trap.
   };
 
   public func raw_rand() : async Blob {

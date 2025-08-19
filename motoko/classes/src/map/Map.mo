@@ -2,7 +2,7 @@ import Array "mo:base/Array";
 import Cycles "mo:base/ExperimentalCycles";
 import Buckets "Buckets";
 
-actor Map {
+persistent actor Map {
 
   let n = 4; // number of buckets
 

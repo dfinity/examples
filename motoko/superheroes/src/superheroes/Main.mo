@@ -3,7 +3,7 @@ import Option "mo:base/Option";
 import Map "mo:base/OrderedMap";
 import Nat32 "mo:base/Nat32";
 
-actor Superheroes {
+persistent actor Superheroes {
 
   /**
    * Types
@@ -23,11 +23,11 @@ actor Superheroes {
    */
 
   // The next available superhero identifier.
-  stable var next : SuperheroId = 0;
+  var next : SuperheroId = 0;
 
   // The superhero data store.
-  let Ops = Map.Make<SuperheroId>(Nat32.compare);
-  stable var map : Map.Map<SuperheroId, Superhero> = Ops.empty();
+  transient let Ops = Map.Make<SuperheroId>(Nat32.compare);
+  var map : Map.Map<SuperheroId, Superhero> = Ops.empty();
 
   /**
    * High-Level API

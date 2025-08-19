@@ -2,7 +2,7 @@ import Array "mo:base/Array";
 import Deque "mo:base/Deque";
 import Buffer "mo:base/Buffer";
 
-actor {
+persistent actor {
   // Types
   type FnType = {
     #heartbeat;

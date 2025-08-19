@@ -12,11 +12,11 @@ import Int "mo:base/Int";
 import Nat8 "mo:base/Nat8";
 import Nat64 "mo:base/Nat64";
 
-actor class Tokenmania() = this {
+persistent actor class Tokenmania() = this {
 
   // Set temporary values for the token.
   // These will be overritten when the token is created.
-  stable var init : {
+  var init : {
     initial_mints : [{
       account : { owner : Principal; subaccount : ?Blob };
       amount : Nat;
@@ -38,8 +38,8 @@ actor class Tokenmania() = this {
     transfer_fee = 0;
   };
 
-  stable var logo : Text = "";
-  stable var created : Bool = false;
+  var logo : Text = "";
+  var created : Bool = false;
 
   public query func token_created() : async Bool {
     created;
@@ -134,10 +134,10 @@ actor class Tokenmania() = this {
 
   public type Value = { #Nat : Nat; #Int : Int; #Blob : Blob; #Text : Text };
 
-  let maxMemoSize = 32;
-  let permittedDriftNanos : Duration = 60_000_000_000;
-  let transactionWindowNanos : Duration = 24 * 60 * 60 * 1_000_000_000;
-  let defaultSubaccount : Subaccount = Blob.fromArrayMut(Array.init(32, 0 : Nat8));
+  transient let maxMemoSize = 32;
+  transient let permittedDriftNanos : Duration = 60_000_000_000;
+  transient let transactionWindowNanos : Duration = 24 * 60 * 60 * 1_000_000_000;
+  transient let defaultSubaccount : Subaccount = Blob.fromArrayMut(Array.init(32, 0 : Nat8));
 
   public type Operation = {
     #Approve : Approve;

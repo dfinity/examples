@@ -1,7 +1,7 @@
 import Nat "mo:base/Nat";
 import Map "mo:base/RBTree";
 
-actor class Bucket(n : Nat, i : Nat) {
+persistent actor class Bucket(n : Nat, i : Nat) {
 
   type Key = Nat;
   type Value = Text;
