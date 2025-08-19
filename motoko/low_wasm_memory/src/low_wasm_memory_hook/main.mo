@@ -10,9 +10,9 @@ persistent actor {
   };
 
   // State
-  var fnOrderBuffer = Buffer.Buffer<FnType>(30);
-  var bytes : Deque.Deque<[Nat]> = Deque.empty();
-  var hookExecuted : Bool = false;
+  transient var fnOrderBuffer = Buffer.Buffer<FnType>(30);
+  transient var bytes : Deque.Deque<[Nat]> = Deque.empty();
+  transient var hookExecuted : Bool = false;
 
   // Query function to get execution order
   public query func getExecutedFunctionsOrder() : async [FnType] {

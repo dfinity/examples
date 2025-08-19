@@ -27,7 +27,7 @@ persistent actor class BasicBitcoin(network : Types.Network) {
   /// When developing locally this should be `regtest`.
   /// When deploying to the IC this should be `testnet`.
   /// `mainnet` is currently unsupported.
-  stable let NETWORK : Network = network;
+  let NETWORK : Network = network;
 
   /// The derivation path to use for ECDSA secp256k1 or Schnorr BIP340/BIP341 key
   /// derivation.

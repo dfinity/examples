@@ -6,7 +6,7 @@ persistent actor class Bucket(n : Nat, i : Nat) {
   type Key = Nat;
   type Value = Text;
 
-  let map = Map.RBTree<Key, Value>(Nat.compare);
+  transient let map = Map.RBTree<Key, Value>(Nat.compare);
 
   public query func get(k : Key) : async ?Value {
     assert ((k % n) == i);

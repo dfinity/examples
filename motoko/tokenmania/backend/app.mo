@@ -217,7 +217,7 @@ persistent actor class Tokenmania() = this {
 
     Principal.equal(lhs.owner, rhs.owner) and Blob.equal(
       lhsSubaccount,
-      rhsSubaccount
+      rhsSubaccount,
     );
   };
 
@@ -390,11 +390,11 @@ persistent actor class Tokenmania() = this {
   };
 
   // The list of all transactions.
-  var log : TxLog = makeGenesisChain();
+  transient var log : TxLog = makeGenesisChain();
 
   // The stable representation of the transaction log.
   // Used only during upgrades.
-  stable var persistedLog : [Transaction] = [];
+  var persistedLog : [Transaction] = [];
 
   system func preupgrade() {
     persistedLog := log.toArray();
@@ -557,7 +557,7 @@ persistent actor class Tokenmania() = this {
       {
         name = "ICRC-2";
         url = "https://github.com/dfinity/ICRC-1/tree/main/standards/ICRC-2";
-      }
+      },
     ];
   };
 
