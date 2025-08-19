@@ -68,7 +68,7 @@ rm "wasmtime-v${wasmtime_version}-x86_64-macos.tar.xz"
 
 # Install wasi2ic
 git clone https://github.com/wasm-forge/wasi2ic
-cargo install --path wasi2ic --root "${HOME}"
+cargo install --path wasi2ic --root "${HOME}" --locked
 
 # Install wasm-opt
 version=117
