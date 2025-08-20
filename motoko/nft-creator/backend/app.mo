@@ -15,16 +15,16 @@ import ClassPlus "mo:class-plus";
 import DefaultConfig "defaultConfig";
 
 // --- Actor Definition ---
-shared (init_msg) actor class NftCanister() : async (ICRC7.Service.Service) = this {
+shared (init_msg) persistent actor class NftCanister() : async (ICRC7.Service.Service) = this {
 
   // --- Initialization ---
-  let initManager = ClassPlus.ClassPlusInitializationManager(
+  transient let initManager = ClassPlus.ClassPlusInitializationManager(
     init_msg.caller,
     Principal.fromActor(this),
     true,
   );
 
-  stable var icrc7_migration_state = ICRC7.initialState();
+  var icrc7_migration_state = ICRC7.initialState();
 
   private func get_icrc7_environment() : ICRC7.Environment {
     {
@@ -36,7 +36,7 @@ shared (init_msg) actor class NftCanister() : async (ICRC7.Service.Service) = th
     };
   };
 
-  let icrc7 = ICRC7.Init<system>({
+  transient let icrc7 = ICRC7.Init<system>({
     manager = initManager;
     initialState = icrc7_migration_state;
     args = DefaultConfig.defaultConfig(init_msg.caller);
@@ -165,7 +165,7 @@ shared (init_msg) actor class NftCanister() : async (ICRC7.Service.Service) = th
     icrc7().transfer<system>(msg.caller, args);
   };
 
-  stable var hasBeenClaimed = false;
+  var hasBeenClaimed = false;
 
   public shared (msg) func claimCollection() : async () {
     if (hasBeenClaimed) {
@@ -177,7 +177,7 @@ shared (init_msg) actor class NftCanister() : async (ICRC7.Service.Service) = th
 
   // --- Custom NFT Minting Example ---
 
-  stable var nextTokenId = 0;
+  var nextTokenId = 0;
 
   public shared (msg) func mint(to : ICRC7.Account) : async [ICRC7.SetNFTResult] {
     let setNftRequest : ICRC7.SetNFTItemRequest = {

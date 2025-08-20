@@ -2,7 +2,7 @@ import Blob "mo:base/Blob";
 import Text "mo:base/Text";
 import IC "ic:aaaaa-aa";
 
-actor {
+persistent actor {
 
   //function to transform the response
   public query func transform({
@@ -23,7 +23,7 @@ actor {
     // 1.1 Setup the URL and its query parameters
     //This URL is used because it allows us to inspect the HTTP request sent from the canister
     let host : Text = "putsreq.com";
-    let url = "https://putsreq.com/aL1QS5IbaQd4NTqN3a81"; //HTTP that accepts IPV6
+    let url = "https://putsreq.com/XaTKyDHZ0O04gkgQwBKz"; //HTTP that accepts IPV6
 
     // 1.2 prepare headers for the system http_request call
 

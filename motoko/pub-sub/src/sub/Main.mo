@@ -2,7 +2,7 @@
 
 import Publisher "canister:pub";
 
-actor Subscriber {
+persistent actor Subscriber {
 
   type Counter = {
     topic : Text;

@@ -10,7 +10,7 @@ import P2tr "P2tr";
 import Types "Types";
 import Utils "Utils";
 
-actor class BasicBitcoin(network : Types.Network) {
+persistent actor class BasicBitcoin(network : Types.Network) {
   type GetUtxosResponse = Types.GetUtxosResponse;
   type MillisatoshiPerVByte = Types.MillisatoshiPerVByte;
   type SendRequest = Types.SendRequest;
@@ -27,14 +27,14 @@ actor class BasicBitcoin(network : Types.Network) {
   /// When developing locally this should be `regtest`.
   /// When deploying to the IC this should be `testnet`.
   /// `mainnet` is currently unsupported.
-  stable let NETWORK : Network = network;
+  let NETWORK : Network = network;
 
   /// The derivation path to use for ECDSA secp256k1 or Schnorr BIP340/BIP341 key
   /// derivation.
-  let DERIVATION_PATH : [[Nat8]] = [];
+  transient let DERIVATION_PATH : [[Nat8]] = [];
 
   // The ECDSA key name.
-  let KEY_NAME : Text = switch NETWORK {
+  transient let KEY_NAME : Text = switch NETWORK {
     // For local development, we use a special test key with dfx.
     case (#regtest) "dfx_test_key";
     // On the IC we're using a test ECDSA key.
@@ -43,8 +43,8 @@ actor class BasicBitcoin(network : Types.Network) {
 
   // Threshold signing APIs instantiated with the management canister ID. Can be
   // replaced for cheaper testing.
-  var ecdsa_canister_actor : EcdsaCanisterActor = actor ("aaaaa-aa");
-  var schnorr_canister_actor : SchnorrCanisterActor = actor ("aaaaa-aa");
+  transient var ecdsa_canister_actor : EcdsaCanisterActor = actor ("aaaaa-aa");
+  transient var schnorr_canister_actor : SchnorrCanisterActor = actor ("aaaaa-aa");
 
   /// Returns the balance of the given Bitcoin address.
   public func get_balance(address : BitcoinAddress) : async Satoshi {

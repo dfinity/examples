@@ -3,7 +3,7 @@ import Array "mo:base/Array";
 import Cycles "mo:base/ExperimentalCycles";
 import Buckets "Buckets";
 
-actor Map {
+persistent actor Map {
 
   let n = 4; // number of buckets
 
@@ -49,9 +49,9 @@ actor Map {
   public func test() : async () {
     var i = 0;
     while (i < 16) {
-      let t = debug_show(i);
+      let t = debug_show (i);
       assert (null == (await getUpdate(i)));
-      Debug.print("putting: " # debug_show(i, t));
+      Debug.print("putting: " # debug_show (i, t));
       await Map.put(i, t);
       assert (?t == (await getUpdate(i)));
       i += 1;

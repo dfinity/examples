@@ -6,7 +6,7 @@ import Nat8 "mo:base/Nat8";
 import Nat32 "mo:base/Nat32";
 import Debug "mo:base/Debug";
 
-actor Variable {
+persistent actor Variable {
 
   var value : Nat32 = 0;
 
@@ -15,13 +15,14 @@ actor Variable {
   func blobOfNat32(n : Nat32) : Blob {
     let byteMask : Nat32 = 0xff;
     func byte(x : Nat32) : Nat8 {
-      Nat8.fromNat(Nat32.toNat(x))
+      Nat8.fromNat(Nat32.toNat(x));
     };
-    Blob.fromArray(
-      [byte(((byteMask << 0 ) & value) >> 0),
-       byte(((byteMask << 8 ) & value) >> 8),
-       byte(((byteMask << 16) & value) >> 16),
-       byte(((byteMask << 24) & value) >> 24)])
+    Blob.fromArray([
+      byte(((byteMask << 0) & value) >> 0),
+      byte(((byteMask << 8) & value) >> 8),
+      byte(((byteMask << 16) & value) >> 16),
+      byte(((byteMask << 24) & value) >> 24),
+    ]);
   };
 
   /// Update counter and certificate (via system).
@@ -41,6 +42,6 @@ actor Variable {
   /// When called via update call or inter-canister call, no certificate is present (and not needed,
   /// as in these cases the system already certifies the response)
   public query func get() : async { value : Nat32; certificate : ?Blob } {
-    return { value; certificate = CD.getCertificate() }
+    return { value; certificate = CD.getCertificate() };
   };
-}
+};

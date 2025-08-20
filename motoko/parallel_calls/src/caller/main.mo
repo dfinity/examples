@@ -3,7 +3,7 @@ import Error "mo:base/Error";
 import Principal "mo:base/Principal";
 import Iter "mo:base/Iter";
 
-actor {
+persistent actor {
 
     type callee_interface = (actor { ping : () -> async () });
     var callee = null : ?callee_interface;

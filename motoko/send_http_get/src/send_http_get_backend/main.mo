@@ -4,7 +4,7 @@ import Text "mo:base/Text";
 import IC "ic:aaaaa-aa";
 
 //Actor
-actor {
+persistent actor {
 
   //This method sends a GET request to a URL with a free API we can test.
   //This method returns Coinbase data on the exchange rate between USD and ICP

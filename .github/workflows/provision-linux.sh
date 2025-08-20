@@ -13,7 +13,7 @@ rm nodesource_setup.sh
 
 # Install DFINITY SDK.
 wget --output-document install-dfx.sh "https://raw.githubusercontent.com/dfinity/sdk/master/public/install-dfxvm.sh"
-DFX_VERSION=${DFX_VERSION:=0.28.0} DFXVM_INIT_YES=true bash install-dfx.sh
+DFX_VERSION=${DFX_VERSION:=0.29.0} DFXVM_INIT_YES=true bash install-dfx.sh
 rm install-dfx.sh
 echo "$HOME/.local/share/dfx/bin" >>$GITHUB_PATH
 source "$HOME/.local/share/dfx/env"
@@ -62,7 +62,7 @@ rm "wasmtime-v${wasmtime_version}-x86_64-linux.tar.xz"
 
 # Install wasi2ic
 git clone https://github.com/wasm-forge/wasi2ic
-cargo install --path wasi2ic --root "${HOME}"
+cargo install --path wasi2ic --root "${HOME}" --locked
 
 # Install wasm-opt
 version=117

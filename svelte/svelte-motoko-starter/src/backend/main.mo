@@ -1,6 +1,6 @@
 import Principal "mo:base/Principal";
 
-actor {
+persistent actor {
     public shared query (msg) func whoami() : async Principal {
         return msg.caller;
     };
