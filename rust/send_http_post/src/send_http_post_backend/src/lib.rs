@@ -15,7 +15,7 @@ async fn send_http_post_request() -> String {
     //2. SETUP ARGUMENTS FOR HTTP GET request
 
     // 2.1 Setup the URL
-    let url = "https://putsreq.com/aL1QS5IbaQd4NTqN3a81";
+    let url = "https://putsreq.com/XaTKyDHZ0O04gkgQwBKz";
 
     // 2.2 prepare headers for the system http_request call
     let request_headers = vec![
