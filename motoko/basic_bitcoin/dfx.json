@@ -3,7 +3,8 @@
   "canisters": {
     "basic_bitcoin": {
       "main": "src/basic_bitcoin/src/Main.mo",
-      "type": "motoko"
+      "type": "motoko",
+      "init_arg": "(variant { regtest })"
     }
   },
   "defaults": {
