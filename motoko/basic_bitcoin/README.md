@@ -14,7 +14,7 @@ For a deeper understanding of the ICP < > BTC integration, see the [Bitcoin inte
 
 ## Deploying from ICP Ninja
 
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/motoko/daily_planner)
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/motoko/basic_bitcoin)
 
 ## Build and deploy from the command-line
 
