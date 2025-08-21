@@ -138,6 +138,7 @@ persistent actor DailyPlanner {
           function = transform;
           context = Blob.fromArray([]);
         };
+        is_replicated = ?true;
       };
 
       // Perform HTTPS outcall using roughly 100B cycles.

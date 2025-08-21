@@ -7,7 +7,7 @@ import '../index.css';
 const network = process.env.DFX_NETWORK;
 const identityProvider =
   network === 'ic'
-    ? 'https://identity.ic0.app' // Mainnet
+    ? 'https://id.ai/' // Mainnet
     : 'http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:4943'; // Local
 
 function App() {
