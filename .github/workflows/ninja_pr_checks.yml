@@ -45,6 +45,7 @@ jobs:
             ["Hello World (Motoko)"]="motoko/hello_world"
             ["LLM Chatbot (Motoko)"]="motoko/llm_chatbot"
             ["Query Stats (Motoko)"]="motoko/query_stats"
+            ["Send HTTP Get (Motoko)"]="motoko/send_http_get"
             ["Tokenmania (Motoko)"]="motoko/tokenmania"
             ["NFT Creator (Motoko)"]="motoko/nft-creator"
             ["Who Am I (Motoko)"]="motoko/who_am_i"
@@ -113,3 +114,9 @@ jobs:
         run: |
           dfx start --background
           dfx deploy
+          if [ -f "Makefile" ]; then
+            echo "Makefile found, running make test"
+            make test
+          else
+            echo "No Makefile found, skipping make test"
+          fi
