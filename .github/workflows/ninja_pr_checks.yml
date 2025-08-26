@@ -36,6 +36,7 @@ jobs:
             ["OISY Signer Demo (Frontend)"]="hosting/oisy-signer-demo"
             ["Motoko backend (Motoko)"]="motoko/backend_only"
             ["Canister Logs (Motoko)"]="motoko/canister_logs"
+            ["Classes (Motoko)"]="motoko/classes"
             ["Basic Bitcoin (Motoko)"]="motoko/basic_bitcoin"
             ["Daily Planner (Motoko)"]="motoko/daily_planner"
             ["EVM Block Explorer (Motoko)"]="motoko/evm_block_explorer"

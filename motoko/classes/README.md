@@ -12,7 +12,7 @@ Each call to `Buckets.Bucket(n, i)` within Map instantiates a new Bucket instanc
 
 Each asynchronous instantiation of the Bucket actor class corresponds to the dynamic, programmatic installation of a new Bucket canister.
 
-Each new Bucket must be provisioned with enough cycles to pay for its installation and running costs. Map achieves this by adding an equal share of Map's initial cycle balance to each asynchronous call to `Bucket(n, i)`, using a call to `Cycles.add(cycleShare`).
+Each new Bucket must be provisioned with enough cycles to pay for its installation and running costs. Map achieves this by adding an equal share of Map's initial cycle balance to each asynchronous call to `Bucket(n, i)`, using a call to `Cycles.add(cycleShare)`.
 
 The `Test.mo` actor imports the (installed) `Map` canister, using `Maps` Candid interface to determine its Motoko type. `Test`'s run method simply puts 24 consecutive entries into Map. These entries are distributed evenly amongst the buckets making up the key-value store. Adding the first entry to a bucket take longer than adding a subsequent one, since the bucket needs to be installed on first use.
 
