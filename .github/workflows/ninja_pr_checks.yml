@@ -47,6 +47,7 @@ jobs:
             ["Query Stats (Motoko)"]="motoko/query_stats"
             ["Send HTTP Get (Motoko)"]="motoko/send_http_get"
             ["Send HTTP Post (Motoko)"]="motoko/send_http_post"
+            ["Superheroes (Motoko)"]="motoko/superheroes"
             ["Tokenmania (Motoko)"]="motoko/tokenmania"
             ["NFT Creator (Motoko)"]="motoko/nft-creator"
             ["Who Am I (Motoko)"]="motoko/who_am_i"
