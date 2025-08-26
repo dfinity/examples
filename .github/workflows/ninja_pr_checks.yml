@@ -35,6 +35,7 @@ jobs:
             ["React (Frontend)"]="hosting/react"
             ["OISY Signer Demo (Frontend)"]="hosting/oisy-signer-demo"
             ["Motoko backend (Motoko)"]="motoko/backend_only"
+            ["Canister Logs (Motoko)"]="motoko/canister_logs"
             ["Daily Planner (Motoko)"]="motoko/daily_planner"
             ["EVM Block Explorer (Motoko)"]="motoko/evm_block_explorer"
             ["FileVault (Motoko)"]="motoko/filevault"

@@ -1,18 +1,22 @@
 # Canister logs
 
-## Prerequisites
+This project demonstrates how to use canister logs on ICP.
 
-- [x] Install the [IC
-  SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.
-- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+## Deploying from ICP Ninja
 
-## Step 1: Setup project environment
+When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Run" in the upper right corner. Open this project in ICP Ninja:
 
-Navigate into the folder containing the project's files and start a local instance of the replica with the command:
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/motoko/canister_logs)
 
-```shell
-dfx start --clean
-```
+## Build and deploy from the command-line
+
+### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
+
+### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
+
+### 3. Navigate into the project's directory.
+
+### 4. Deploy the project to your local environment:
 
 You will need to have 3 terminal windows:
 - Terminal A: Running a `dfx` instance and separating its output from anything else.
@@ -30,14 +34,12 @@ cd examples/motoko/canister_logs
 cd examples/motoko/canister_logs
 ```
 
-## Step 2: Deploy the canister
-
 ```shell
 # Terminal B
 dfx deploy
 ```
 
-## Step 3: Check canister logs
+### Step 5: Check canister logs
 
 Expect to see logs from timer traps.
 
@@ -50,7 +52,7 @@ $ dfx canister logs CanisterLogs
 [3. 2024-05-23T08:32:31.836721763Z]: [TRAP]: timer trap
 ```
 
-## Step 4: Call `print` method and check the logs
+### Step 6: Call `print` method and check the logs
 
 ```shell
 # Terminal B
@@ -68,7 +70,7 @@ $ dfx canister logs CanisterLogs
 ...
 ```
 
-## Step 5: Start constantly polling logs
+### Step 7: Start constantly polling logs
 
 In order not to call `dfx canister logs CanisterLogs` after every canister call in a separate terminal window/pane C start a script that will constantly poll logs:
 
@@ -84,7 +86,7 @@ $ ./poll_logs.sh
 ...
 ```
 
-## Step 6: Call `print`, `trap` and other canister methods
+### Step 8: Call `print`, `trap` and other canister methods
 
 ```shell
 # Terminal B
@@ -136,3 +138,7 @@ Observe recorded logs that might look similar to this:
 ...
 
 ```
+
+## Security considerations and best practices
+
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
