@@ -9,7 +9,7 @@ node_modules:
 .PHONY: deploy
 .SILENT: deploy
 deploy: node_modules
-	dfx canister deploy --all
+	dfx deploy --all
 
 .PHONY: test
 .SILENT: test
