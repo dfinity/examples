@@ -44,6 +44,7 @@ jobs:
             ["Flying Ninja (Motoko)"]="motoko/flying_ninja"
             ["Hello World (Motoko)"]="motoko/hello_world"
             ["LLM Chatbot (Motoko)"]="motoko/llm_chatbot"
+            ["Query Stats (Motoko)"]="motoko/query_stats"
             ["Tokenmania (Motoko)"]="motoko/tokenmania"
             ["NFT Creator (Motoko)"]="motoko/nft-creator"
             ["Who Am I (Motoko)"]="motoko/who_am_i"

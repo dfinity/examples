@@ -6,7 +6,7 @@ The example defines two Motoko actors, `Map` and `Test`.
 
 Map is a simple, distributed key-value store, mapping `Nat` to `Text` values, with entries stored in a small number of separate Bucket actors, installed on demand.
 
-`Map.mo` imports a Motoko actor class `Bucket(i, n`) from the library `Buckets.mo`. It also imports the `ExperimentalCycles` base library, naming it `Cycles` for short, to share its cycles amongst the buckets it creates.
+`Map.mo` imports a Motoko actor class `Bucket(i, n)` from the library `Buckets.mo`. It also imports the `ExperimentalCycles` base library, naming it `Cycles` for short, to share its cycles amongst the buckets it creates.
 
 Each call to `Buckets.Bucket(n, i)` within Map instantiates a new Bucket instance (the i-th of n) dedicated to those entries of the Map whose key hashes to i (by taking the remainder of the key modulo division by n).
 
