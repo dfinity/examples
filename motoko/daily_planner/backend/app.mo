@@ -52,7 +52,7 @@ persistent actor DailyPlanner {
         HashMap.entries(dayData),
         func((k, _) : (Text, DayData)) : Bool {
           Text.startsWith(k, #text monthPrefix);
-        }
+        },
       )
     );
   };
@@ -99,7 +99,7 @@ persistent actor DailyPlanner {
             } else {
               return note;
             };
-          }
+          },
         );
         let updatedData : DayData = {
           notes = updatedNotes;
@@ -198,7 +198,7 @@ persistent actor DailyPlanner {
     response : IC.http_request_result;
   }) : async IC.http_request_result {
     {
-      response with headers = []; // not intersted in the headers
+      response with headers = []; // not interested in the headers
     };
   };
 };
