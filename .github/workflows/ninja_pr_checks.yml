@@ -35,6 +35,8 @@ jobs:
             ["React (Frontend)"]="hosting/react"
             ["OISY Signer Demo (Frontend)"]="hosting/oisy-signer-demo"
             ["Motoko backend (Motoko)"]="motoko/backend_only"
+            ["Canister Logs (Motoko)"]="motoko/canister_logs"
+            ["Classes (Motoko)"]="motoko/classes"
             ["Basic Bitcoin (Motoko)"]="motoko/basic_bitcoin"
             ["Daily Planner (Motoko)"]="motoko/daily_planner"
             ["EVM Block Explorer (Motoko)"]="motoko/evm_block_explorer"
@@ -42,6 +44,10 @@ jobs:
             ["Flying Ninja (Motoko)"]="motoko/flying_ninja"
             ["Hello World (Motoko)"]="motoko/hello_world"
             ["LLM Chatbot (Motoko)"]="motoko/llm_chatbot"
+            ["Query Stats (Motoko)"]="motoko/query_stats"
+            ["Send HTTP Get (Motoko)"]="motoko/send_http_get"
+            ["Send HTTP Post (Motoko)"]="motoko/send_http_post"
+            ["Superheroes (Motoko)"]="motoko/superheroes"
             ["Tokenmania (Motoko)"]="motoko/tokenmania"
             ["NFT Creator (Motoko)"]="motoko/nft-creator"
             ["Who Am I (Motoko)"]="motoko/who_am_i"
@@ -105,8 +111,17 @@ jobs:
         with:
           dfx-version: "0.29.0"
 
+      - name: Install make
+        run: apt-get update && apt-get install -y make
+
       - name: Start dfx and build project
         working-directory: ${{ matrix.example.path }}
         run: |
           dfx start --background
           dfx deploy
+          if [ -f "Makefile" ]; then
+            echo "Makefile found, running make test"
+            make test
+          else
+            echo "No Makefile found, skipping make test"
+          fi
