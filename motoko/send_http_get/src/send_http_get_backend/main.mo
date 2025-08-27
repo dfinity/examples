@@ -27,7 +27,7 @@ persistent actor {
     response : IC.http_request_result;
   }) : async IC.http_request_result {
     {
-      response with headers = []; // not intersted in the headers
+      response with headers = []; // not interested in the headers
     };
   };
 
