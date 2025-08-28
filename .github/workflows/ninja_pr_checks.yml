@@ -64,6 +64,7 @@ jobs:
             ["Guards (Rust)"]="rust/guards"
             ["Hello World (Rust)"]="rust/hello_world"
             ["LLM Chatbot (Rust)"]="rust/llm_chatbot"
+            ["Performance Counters (Rust)"]="rust/performance_counters"
             ["Tokenmania (Rust)"]="rust/tokenmania"
             ["Who Am I (Rust)"]="rust/who_am_i"
             ["Photo Gallery (Rust)"]="rust/photo_gallery"
