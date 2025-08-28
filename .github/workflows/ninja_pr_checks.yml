@@ -54,6 +54,7 @@ jobs:
             ["NFT Creator (Motoko)"]="motoko/nft-creator"
             ["Who Am I (Motoko)"]="motoko/who_am_i"
             ["Rust backend (Rust)"]="rust/backend_only"
+            ["Rust backend Wasm64 (Rust)"]="rust/backend_wasm64"
             ["Daily Planner (Rust)"]="rust/daily_planner"
             ["EVM Block Explorer (Rust)"]="rust/evm_block_explorer"
             ["Flying Ninja (Rust)"]="rust/flying_ninja"
