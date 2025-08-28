@@ -77,7 +77,17 @@ async fn get_bitcoin_price() -> Result<String, String> {
         body: None,
         // No need to transform the response any longer, as it is not replicated
         transform: None,
-        // The request is not replicated. This means that a single node will attempt the outcall. This is ideal for fast moving data (such as eg crypto prices), non idempotent operations and so on.
+        // The request is not replicated. A single, randomly chosen replica node will make the outcall.
+        // This is ideal for fetching fast-moving data (like crypto prices) where consensus
+        // among replicas would likely fail due to small differences in timing.
+        //
+        // SECURITY WARNING: Because the response is not verified by consensus, a single malicious
+        // replica could tamper with the response. Do not trust the result for critical
+        // decisions without additional verification within your canister.
+        //
+        // Common mitigation strategies include:
+        // 1. Making multiple non-replicated calls to different, trusted APIs and validating their responses.
+        // 2. Using data sources that provide out-of-band verification, such as cryptographic signatures.
         is_replicated: Some(false),
     };
 

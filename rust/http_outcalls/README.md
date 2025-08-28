@@ -47,6 +47,8 @@ You will see the JSON body of the post, indicating a successful call.
 
 This method makes a non-replicated call to fetch volatile data—in this case, the price of Bitcoin.
 
+⚠️ **Important Security Note:** This call is *non-replicated*, meaning it is performed by a single replica and bypasses consensus. While this is necessary for volatile data, it means a single malicious replica could theoretically return a false or manipulated response. For production systems, data from such calls should not be trusted for high-value transactions without further verification inside the canister.
+
 ```shell
 dfx canister call http_outcalls get_bitcoin_price
 ```
