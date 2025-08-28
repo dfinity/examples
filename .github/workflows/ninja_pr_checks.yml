@@ -56,6 +56,7 @@ jobs:
             ["Rust backend (Rust)"]="rust/backend_only"
             ["Rust backend Wasm64 (Rust)"]="rust/backend_wasm64"
             ["Basic Ethereum (Rust)"]="rust/basic_ethereum"
+            ["Canister Info (Rust)"]="rust/canister-info"
             ["Daily Planner (Rust)"]="rust/daily_planner"
             ["EVM Block Explorer (Rust)"]="rust/evm_block_explorer"
             ["Flying Ninja (Rust)"]="rust/flying_ninja"
