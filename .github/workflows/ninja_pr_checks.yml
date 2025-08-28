@@ -68,6 +68,7 @@ jobs:
             ["Periodic Tasks (Rust)"]="rust/periodic_tasks"
             ["QR Code (Rust)"]="rust/qrcode"
             ["Query Stats (Rust)"]="rust/query_stats"
+            ["Send HTTP Get (Rust)"]="rust/send_http_get"
             ["Tokenmania (Rust)"]="rust/tokenmania"
             ["Who Am I (Rust)"]="rust/who_am_i"
             ["Photo Gallery (Rust)"]="rust/photo_gallery"

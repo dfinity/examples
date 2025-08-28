@@ -1,25 +1,14 @@
 .PHONY: all
-all: build
+all: deploy
 
-.PHONY: build
-.SILENT: build
-build: 
-	dfx canister create send_http_get_backend
-	dfx build
-
-.PHONY: install
-.SILENT: install
-install: build
-	dfx canister install send_http_get_backend --mode reinstall --yes
-
-.PHONY: upgrade
-.SILENT: upgrade
-upgrade: build
-	dfx canister install send_http_get_backend --mode=upgrade
+.PHONY: deploy
+.SILENT: deploy
+deploy:
+	dfx deploy send_http_get_backend
 
 .PHONY: test
 .SILENT: test
-test: install
+test: deploy
 	dfx canister call send_http_get_backend get_icp_usd_exchange \
 		| grep '\[1682978460,5\.714,5\.718,5\.714,5\.714,243\.5678\]' && echo 'PASS'
 
