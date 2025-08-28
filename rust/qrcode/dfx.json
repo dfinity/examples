@@ -3,7 +3,12 @@
     "qrcode_backend": {
       "candid": "src/qrcode_backend/qrcode_backend.did",
       "package": "qrcode_backend",
-      "type": "rust"
+      "type": "rust",
+      "metadata": [
+        {
+          "name": "candid:service"
+        }
+      ]
     },
     "qrcode_frontend": {
       "dependencies": [
@@ -17,12 +22,6 @@
         "dist/qrcode_frontend/"
       ],
       "type": "assets"
-    }
-  },
-  "defaults": {
-    "build": {
-      "args": "",
-      "packtool": ""
     }
   },
   "output_env_file": ".env",
