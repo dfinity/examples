@@ -1,0 +1,5 @@
+[workspace]
+members = [
+    "src/stake_neuron_backend"
+]
+resolver = "2"
