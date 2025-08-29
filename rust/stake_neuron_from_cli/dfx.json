@@ -1,34 +1,17 @@
 {
+  "version": 1,
   "canisters": {
     "icp_ledger": {
       "type": "custom",
-      "candid": "https://raw.githubusercontent.com/dfinity/ic/d87954601e4b22972899e9957e800406a0a6b929/rs/rosetta-api/icp_ledger/ledger.did",
-      "wasm": "https://download.dfinity.systems/ic/d87954601e4b22972899e9957e800406a0a6b929/canisters/ledger-canister.wasm.gz",
-      "remote": {
-        "id": {
-          "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
-        }
-      },
+      "candid": "https://raw.githubusercontent.com/dfinity/ic/master/rs/ledger_suite/icp/ledger.did",
+      "wasm": "/Users/maximiliansumme/.cache/dfinity/versions/0.25.0/wasms/ledger-canister_notify-method.wasm",
       "specified_id": "ryjl3-tyaaa-aaaaa-aaaba-cai"
     },
     "nns_governance": {
       "type": "custom",
-      "candid": "https://raw.githubusercontent.com/dfinity/ic/d87954601e4b22972899e9957e800406a0a6b929/rs/nns/governance/canister/governance.did",
-      "wasm": "https://download.dfinity.systems/ic/d87954601e4b22972899e9957e800406a0a6b929/canisters/governance-canister.wasm.gz",
-      "remote": {
-        "id": {
-          "ic": "rrkah-fqaaa-aaaaa-aaaaq-cai"
-        }
-      },
+      "candid": "https://raw.githubusercontent.com/dfinity/ic/master/rs/nns/governance/canister/governance.did",
+      "wasm": "/Users/maximiliansumme/.cache/dfinity/versions/0.25.0/wasms/governance-canister.wasm",
       "specified_id": "rrkah-fqaaa-aaaaa-aaaaq-cai"
     }
-  },
-  "defaults": {
-    "build": {
-      "args": "",
-      "packtool": ""
-    }
-  },
-  "output_env_file": ".env",
-  "version": 1
+  }
 }
