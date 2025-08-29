@@ -1,0 +1,45 @@
+# Known failure: https://dfinity.atlassian.net/browse/EM-7
+name: rust-threshold-schnorr
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - rust/threshold-schnorr/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/provision-pocket-ic-server.sh
+      - .github/workflows/rust-threshold-schnorr-example.yml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rust-threshold-schnorr-darwin:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: |
+          bash .github/workflows/provision-darwin.sh
+          brew install llvm
+      - name: Provision PocketIC
+        run: bash .github/workflows/provision-pocket-ic-server.sh
+      - name: Rust Threshold Schnorr Darwin
+        run: |
+          dfx start --background
+          pushd rust/threshold-schnorr
+          make test
+  rust-threshold-schnorr-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Provision PocketIC
+        run: bash .github/workflows/provision-pocket-ic-server.sh
+      - name: Rust Threshold Schnorr Linux
+        run: |
+          dfx start --background
+          pushd rust/threshold-schnorr
+          make test

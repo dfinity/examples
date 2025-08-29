@@ -19,12 +19,6 @@ This walkthrough focuses on the version of the sample canister code written in
 [Rust](https://github.com/dfinity/examples/tree/master/rust/threshold-schnorr).
 There is also a Motoko version available in the same repo and follows the same commands for deploying.
 
-## Deploying from ICP Ninja
-
-When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Run" in the upper right corner. Open this project in ICP Ninja:
-
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/rust/threshold-schnorr)
-
 ## Local deployment 
 This example requires an installation of:
 
