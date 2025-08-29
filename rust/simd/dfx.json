@@ -3,7 +3,12 @@
     "mat_mat_mul": {
       "candid": "mat_mat_mul/mat_mat_mul.did",
       "package": "mat_mat_mul",
-      "type": "rust"
+      "type": "rust",
+      "metadata": [
+        {
+          "name": "candid:service"
+        }
+      ]
     }
   },
   "version": 1

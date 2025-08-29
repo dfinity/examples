@@ -1,21 +1,5 @@
 .PHONY: all
-all: build
-
-.PHONY: build
-.SILENT: build
-build:
-	dfx canister create --all
-	dfx build
-
-.PHONY: install
-.SILENT: install
-install: build
-	dfx canister install mat_mat_mul
-
-.PHONY: upgrade
-.SILENT: upgrade
-upgrade: build
-	dfx canister install mat_mat_mul --mode=upgrade
+all: deploy
 
 .PHONY: deploy
 .SILENT: deploy
