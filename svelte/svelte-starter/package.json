@@ -11,7 +11,7 @@
   ],
   "scripts": {
     "build": "cd src/frontend && npm run build",
-    "prebuild": "dfx generate",
+    "prebuild": "npm install --include=dev && dfx generate",
     "dev": "cd src/frontend && npm run dev",
     "prestart": "dfx generate"
   }
