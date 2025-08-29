@@ -9,6 +9,7 @@ deploy:
 .PHONY: test
 .SILENT: test
 test: deploy
+    npm install
 	bash test.sh hellohellohellohellohellohello12
 
 .PHONY: clean

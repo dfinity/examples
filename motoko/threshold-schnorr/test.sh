@@ -21,7 +21,6 @@ function test_impl() {
     ed25519_public_key_hex="$(get_text_in_double_quotes "${ed25519_public_key_raw_output}")"
     echo ed25519_public_key_hex="$ed25519_public_key_hex"
 
-    npm install
     node <<END
     async function run() {
         try {
