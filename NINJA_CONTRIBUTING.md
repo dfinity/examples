@@ -13,7 +13,7 @@ Ideally, your project should have a frontend and backend.
 * `/hosting` for a frontend-only project
 
 ### Compilation requirements
-* Make sure the project compiles and runs with `dfx deploy` inside the `ghcr.io/dfinity/icp-dev-env-slim` container.
+* Make sure the project compiles and runs with `dfx deploy` inside the `ghcr.io/dfinity/icp-dev-env-slim:22` container.
 * Make sure there are no custom scripts for building or running the project, as ICP Ninja has no terminal!
 * Make sure `npm run dev` works and the canister can be called through the browser (if applicable, this is if users download the project and run it locally).
 * Make sure II login works (if applicable).
