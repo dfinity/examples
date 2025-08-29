@@ -4,6 +4,7 @@
       "candid": "src/x509_example_rust/x509_example.did",
       "package": "x509_example_rust",
       "type": "rust",
+      "init_arg": "(variant { Ed25519 = variant { DfxTestKey } })",
       "metadata": [
         {
           "name": "candid:service"

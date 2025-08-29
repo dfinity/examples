@@ -9,6 +9,9 @@
     "Canister",
     "Internet Identity"
   ],
+  "workspaces": [
+    "src/frontend"
+  ],
   "scripts": {
     "build": "cd src/frontend && npm run build",
     "prebuild": "npm install --include=dev && dfx generate",
