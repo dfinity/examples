@@ -18,4 +18,7 @@ fi
 cargo +nightly build -Z build-std=std,panic_abort --target wasm64-unknown-unknown --release -p backend
 
 # Copy wasm file to expected location
-cp target/wasm64-unknown-unknown/release/backend.wasm target/backend.wasm 
+cp target/wasm64-unknown-unknown/release/backend.wasm target/backend.wasm
+
+# Generate candid interface
+candid-extractor target/backend.wasm > backend/backend.did

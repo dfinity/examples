@@ -4,5 +4,10 @@
       "type": "motoko",
       "main": "src/ecdsa_example_motoko/main.mo"
     }
+  },
+  "defaults": {
+    "build": {
+      "packtool": "mops sources"
+    }
   }
 }

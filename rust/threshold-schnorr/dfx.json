@@ -5,7 +5,12 @@
       "wasm": "target/wasm32-unknown-unknown/release/schnorr_example_rust.wasm",
       "package": "schnorr_example_rust",
       "type": "custom",
-      "build": "src/schnorr_example_rust/build.sh"
+      "build": "src/schnorr_example_rust/build.sh",
+      "metadata": [
+        {
+          "name": "candid:service"
+        }
+      ]
     }
   }
 }

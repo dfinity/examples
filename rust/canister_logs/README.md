@@ -1,12 +1,21 @@
 # Canister logs
 
-## Prerequisites
+## Deploying from ICP Ninja
 
-- [x] Install the [IC
-  SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.
-- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Run" in the upper right corner. Open this project in ICP Ninja:
 
-## Step 1: Setup project environment
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/rust/canister_logs)
+
+
+## Build and deploy from the command-line
+
+### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
+
+### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
+
+### 3. Navigate into the project's directory.
+
+### 4. Setup project environment
 
 Navigate into the folder containing the project's files and start a local instance of the replica with the commandss:
 
@@ -30,14 +39,14 @@ cd examples/rust/canister_logs
 cd examples/rust/canister_logs
 ```
 
-## Step 2: Deploy the canister
+### 5. Deploy the canister
 
 ```shell
 # Terminal B
 dfx deploy
 ```
 
-## Step 3: Check canister logs
+### 6. Check canister logs
 
 Expect to see logs from timer traps.
 
@@ -50,7 +59,7 @@ dfx canister logs CanisterLogs
 [3. 2024-05-23T08:32:31.836721763Z]: [TRAP]: timer trap
 ```
 
-## Step 4: Call `print` method and check the logs
+### 7. Call `print` method and check the logs
 
 ```shell
 # Terminal B
@@ -68,7 +77,7 @@ dfx canister logs CanisterLogs
 ...
 ```
 
-## Step 5: Start constantly polling logs
+### 8. Start constantly polling logs
 
 In order not to call `dfx canister logs CanisterLogs` after every canister call in a separate terminal window/pane C start a script that will constantly poll logs:
 
@@ -84,7 +93,7 @@ $ ./poll_logs.sh
 ...
 ```
 
-## Step 6: Call `print`, `trap` and other canister methods
+### 9. Call `print`, `trap` and other canister methods
 
 ```shell
 # Terminal B

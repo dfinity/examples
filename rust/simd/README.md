@@ -9,7 +9,13 @@ This example showcases different approaches to utilizing the new SIMD instructio
 
 The example consists of a canister named `mat_mat_mul` (matrix-matrix multiplication).
 
-## Prerequisites
+## Deploying from ICP Ninja
+
+When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Run" in the upper right corner. Open this project in ICP Ninja:
+
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/rust/simd)
+
+## Build and deploy from the command-line
 
 This example requires an installation of:
 

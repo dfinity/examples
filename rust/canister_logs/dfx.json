@@ -6,11 +6,5 @@
       "type": "rust"
     }
   },
-  "defaults": {
-    "build": {
-      "args": "",
-      "packtool": ""
-    }
-  },
   "version": 1
 }

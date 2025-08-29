@@ -3,12 +3,14 @@
     "timer": {
       "candid": "timer/timer.did",
       "package": "timer",
-      "type": "rust"
+      "type": "rust",
+      "init_arg": "(10 : nat64)"
     },
     "heartbeat": {
       "candid": "heartbeat/heartbeat.did",
       "package": "heartbeat",
-      "type": "rust"
+      "type": "rust",
+      "init_arg": "(10 : nat64)"
     }
   },
   "version": 1

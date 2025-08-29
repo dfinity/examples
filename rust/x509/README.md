@@ -33,13 +33,18 @@ downloading
 [`dfx`](https://internetcomputer.org/docs/current/developer-docs/setup/index.md),
 up to the deployment and trying out the code on the mainnet.
 
+## Deploying from ICP Ninja
 
-## Prerequisites
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install) v`0.23.0` or newer.
-- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Run" in the upper right corner. Open this project in ICP Ninja:
+
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/rust/x509)
+
 
 
 ## Deploy and test the canister locally
+
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install) v`0.23.0` or newer.
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 Sample code for `x509-example` is provided in the [examples repository](https://github.com/dfinity/examples), under [`/rust`](https://github.com/dfinity/examples/tree/master/rust/x509) sub-directory.
 
@@ -438,3 +443,7 @@ In this walkthrough, we deployed a sample smart contract that:
   though **canisters do not hold Schnorr keys themselves**.
 * Requested child certificate signed with the private Ed25519 key of the root CA
   certificate.
+  
+## Security considerations and best practices
+
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
