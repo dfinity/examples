@@ -1,0 +1,45 @@
+# Known failure: https://dfinity.atlassian.net/browse/EM-7
+name: rust-x509
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - rust/x509/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/provision-pocket-ic-server.sh
+      - .github/workflows/rust-x509-example.yml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rust-x509-darwin:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Provision PocketIC
+        run: bash .github/workflows/provision-pocket-ic-server.sh
+      - name: Rust X.509 Darwin
+        run: |
+          brew install openssl
+          pushd rust/x509
+          dfx build --check
+          cargo test
+  rust-x509-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Provision PocketIC
+        run: bash .github/workflows/provision-pocket-ic-server.sh
+      - name: Rust X.509 Linux
+        run: |
+          sudo apt-get install --yes openssl
+          pushd rust/x509
+          dfx build --check
+          cargo test
