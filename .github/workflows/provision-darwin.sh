@@ -43,9 +43,6 @@ curl --location --output ic-repl "https://github.com/dfinity/ic-repl/releases/do
 mv ./ic-repl /usr/local/bin/ic-repl
 chmod a+x /usr/local/bin/ic-repl
 
-# Install cmake
-brew install cmake
-
 # Install rust
 curl --location --output install-rustup.sh "https://sh.rustup.rs"
 bash install-rustup.sh -y
