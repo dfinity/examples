@@ -1,25 +1,14 @@
 .PHONY: all
-all: build
+all: deploy
 
-.PHONY: build
-.SILENT: build
-build:
-	dfx canister create canister_logs
-	dfx build
-
-.PHONY: install
-.SILENT: install
-install: build
-	dfx canister install canister_logs
-
-.PHONY: upgrade
-.SILENT: upgrade
-upgrade: build
-	dfx canister install canister_logs --mode=upgrade
+.PHONY: deploy
+.SILENT: deploy
+deploy:
+	dfx deploy canister_logs
 
 .PHONY: test
 .SILENT: test
-test: install
+test: deploy
 	# Test print via update call.
 	dfx canister call canister_logs print 'print via update'
 	dfx canister logs canister_logs \

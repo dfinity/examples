@@ -6,5 +6,10 @@
       "main": "src/schnorr_example_motoko/main.mo",
       "type": "motoko"
     }
+  },
+  "defaults": {
+    "build": {
+      "packtool": "mops sources"
+    }
   }
 }

@@ -36,6 +36,7 @@ persistent actor {
   };
 
   transient var ic : IC = actor ("aaaaa-aa");
+  transient var key_id : Text = "test_key_1"; // Use "key_1" for production and "dfx_test_key" locally
 
   public shared ({ caller }) func public_key(algorithm : SchnorrAlgorithm) : async {
     #Ok : { public_key_hex : Text };

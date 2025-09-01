@@ -6,7 +6,13 @@ Developers can write long-running code as usual and don't require anything speci
 
 You try the live version of the dapp running on the mainnet here: [https://khpe2-4qaaa-aaaao-a2fnq-cai.icp0.io/](https://khpe2-4qaaa-aaaao-a2fnq-cai.icp0.io/).
 
-## Prerequisites
+## Deploying from ICP Ninja
+
+When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Run" in the upper right corner. Open this project in ICP Ninja:
+
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/rust/qrcode)
+
+## Build and deploy from the command-line
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
@@ -66,3 +72,6 @@ For educational purposes, the backend offers two public endpoints for QR code ge
 Currently, DTS is supported for updates, but not for queries.
 As a result, the update endpoint has a larger instruction limit compared to the query endpoint and thus can handle larger images.
 
+## Security considerations and best practices
+
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.

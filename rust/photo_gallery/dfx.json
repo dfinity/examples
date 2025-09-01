@@ -6,20 +6,10 @@
       "type": "rust"
     },
     "frontend": {
-      "dependencies": [
-        "backend"
-      ],
-      "source": [
-        "frontend/dist"
-      ],
+      "dependencies": ["backend"],
+      "source": ["frontend/dist"],
       "type": "assets",
       "workspace": "frontend"
-    }
-  },
-  "defaults": {
-    "build": {
-      "args": "",
-      "packtool": ""
     }
   },
   "output_env_file": ".env",
