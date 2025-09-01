@@ -55,8 +55,6 @@ struct ManagementCanisterSignatureReply {
     pub signature: Vec<u8>,
 }
 
-const KEY_ID: SchnorrKeyIds = SchnorrKeyIds::TestKey1; // Use "ProductionKey1" for production and "TestKeyLocalDevelopment" for local development
-
 thread_local! {
     static STATE: RefCell<String> = RefCell::new("aaaaa-aa".to_string());
 }
@@ -79,7 +77,7 @@ async fn public_key(algorithm: SchnorrAlgorithm) -> Result<PublicKeyReply, Strin
     let request = ManagementCanisterSchnorrPublicKeyRequest {
         canister_id: None,
         derivation_path: vec![ic_cdk::api::caller().as_slice().to_vec()],
-        key_id: KEY_ID.to_key_id(algorithm), // Update this to the right key ID
+        key_id: SchnorrKeyIds::TestKeyLocalDevelopment.to_key_id(algorithm),
     };
 
     let (res,): (ManagementCanisterSchnorrPublicKeyReply,) =
@@ -120,7 +118,7 @@ async fn sign(
     let internal_request = ManagementCanisterSignatureRequest {
         message: message.as_bytes().to_vec(),
         derivation_path: vec![ic_cdk::api::caller().as_slice().to_vec()],
-        key_id: KEY_ID.to_key_id(algorithm), // Update this to the right key ID
+        key_id: SchnorrKeyIds::TestKeyLocalDevelopment.to_key_id(algorithm),
         aux,
     };
 
