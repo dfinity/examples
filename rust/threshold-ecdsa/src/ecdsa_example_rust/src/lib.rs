@@ -22,13 +22,14 @@ struct SignatureVerificationReply {
     pub is_signature_valid: bool,
 }
 
+const KEY_ID: EcdsaKeyIds = EcdsaKeyIds::TestKey1; // Use "ProductionKey1" for production and "TestKeyLocalDevelopment" for local development
 
 #[update]
 async fn public_key() -> Result<PublicKeyReply, String> {
     let request = EcdsaPublicKeyArgument {
         canister_id: None,
         derivation_path: vec![],
-        key_id: EcdsaKeyIds::TestKeyLocalDevelopment.to_key_id(),
+        key_id: KEY_ID.to_key_id(),
     };
 
     let (response,) = ecdsa_public_key(request)
@@ -45,7 +46,7 @@ async fn sign(message: String) -> Result<SignatureReply, String> {
     let request = SignWithEcdsaArgument {
         message_hash: sha256(&message).to_vec(),
         derivation_path: vec![],
-        key_id: EcdsaKeyIds::TestKeyLocalDevelopment.to_key_id(),
+        key_id: KEY_ID.to_key_id(),
     };
 
     let (response,) = sign_with_ecdsa(request)
