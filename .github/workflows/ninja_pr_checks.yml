@@ -114,7 +114,7 @@ jobs:
     needs: check-ninja-example-changes
     if: needs.check-ninja-example-changes.outputs.has_examples == 'true'
     runs-on: ubuntu-24.04
-    container: ghcr.io/dfinity/icp-dev-env-slim:21
+    container: ghcr.io/dfinity/icp-dev-env-slim:22
     strategy:
       fail-fast: false
       matrix: ${{ fromJson(needs.check-ninja-example-changes.outputs.matrix) }}
