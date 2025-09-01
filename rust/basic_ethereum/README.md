@@ -20,7 +20,7 @@ When viewing this project in ICP Ninja, you can deploy it directly to the mainne
 
 [![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/rust/basic_ethereum)
 
-## Deploying locally
+## Deploying with `dfx`
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
 
