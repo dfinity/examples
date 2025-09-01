@@ -1,9 +1,7 @@
 {
   "canisters": {
     "frontend": {
-      "source": [
-        "src/frontend/dist"
-      ],
+      "source": ["src/frontend/dist"],
       "type": "assets"
     }
   },

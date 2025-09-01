@@ -11,16 +11,11 @@
       ]
     },
     "qrcode_frontend": {
-      "dependencies": [
-        "qrcode_backend"
-      ],
+      "dependencies": ["qrcode_backend"],
       "frontend": {
         "entrypoint": "src/qrcode_frontend/src/index.html"
       },
-      "source": [
-        "src/qrcode_frontend/assets",
-        "dist/qrcode_frontend/"
-      ],
+      "source": ["src/qrcode_frontend/assets", "dist/qrcode_frontend/"],
       "type": "assets"
     }
   },
