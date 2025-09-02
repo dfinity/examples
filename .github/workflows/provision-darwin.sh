@@ -44,7 +44,7 @@ mv ./ic-repl /usr/local/bin/ic-repl
 chmod a+x /usr/local/bin/ic-repl
 
 # Install cmake
-brew install cmake
+brew update && (brew list cmake || brew install cmake)
 
 # Install rust
 curl --location --output install-rustup.sh "https://sh.rustup.rs"
