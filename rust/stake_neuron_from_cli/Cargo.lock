@@ -1941,6 +1941,7 @@ dependencies = [
  "crc32fast",
  "hex",
  "ic-agent",
+ "serde",
  "sha2 0.10.9",
  "tokio",
 ]
