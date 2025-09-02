@@ -69,8 +69,8 @@ module.exports = {
     new CopyPlugin({
       patterns: [
         {
-          from: `src/${frontendDirectory}/src/.ic-assets.json*`,
-          to: ".ic-assets.json5",
+          from: `src/${frontendDirectory}/assets`,
+          to: "./",
           noErrorOnMissing: true,
         },
       ],
