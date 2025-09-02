@@ -68,6 +68,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         amount: Tokens { e8s: args.amount },
         fee: Tokens { e8s: 10_000 }, // Standard ICP transfer fee
         from_subaccount: None,
+        // NOTE: See `to_vec` implementation, as it gives a 32-bit address with necessary checksum
+        // instead of the 28-bit address. The ledger requires the 32-bit address.
         to: to_account.to_vec(),
         created_at_time: None,
     };
@@ -153,6 +155,10 @@ async fn load_identity(path: &PathBuf) -> Result<Box<dyn Identity>, Box<dyn std:
 }
 
 /// Compute the subaccount for neuron staking
+/// NOTE: This is a key part of staking the neuron subaccount.  If this algorithm chooses the
+/// wrong subaccount, you will not make the transfer to the correct place.  Test your implementation
+/// using something like the example in this repository to ensure that it can be successfully
+/// executed.
 fn compute_neuron_staking_subaccount_bytes(controller: &Principal, nonce: u64) -> [u8; 32] {
     let domain_length: [u8; 1] = [b"neuron-stake".len() as u8];
     let mut hasher = Sha256::new();
@@ -165,6 +171,10 @@ fn compute_neuron_staking_subaccount_bytes(controller: &Principal, nonce: u64) -
 
 // ============================================================================
 // Type Definitions
+//
+// NOTE: In production code, using didc or some other code generation to translate
+// the declared types of the canister into Rust is a better practice.  However, for the
+// sake of this example, we simply copy the types from the dfinity/ic repository.
 // ============================================================================
 
 #[derive(CandidType, Deserialize, Debug)]
