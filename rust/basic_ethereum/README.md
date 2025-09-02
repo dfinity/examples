@@ -14,7 +14,13 @@ features of the Internet Computer.
 For a deeper understanding of the ICP < > ETH integration, see
 the [Ethereum integration overview](https://internetcomputer.org/docs/current/developer-docs/multi-chain/ethereum/overview).
 
-## Prerequisites
+## Deploying from ICP Ninja
+
+When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Run" in the upper right corner. Open this project in ICP Ninja:
+
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/rust/basic_ethereum)
+
+## Deploying with `dfx`
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
 

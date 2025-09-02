@@ -11,11 +11,16 @@ This example demonstrates different ways of scheduling periodic tasks on the Int
 
 The example consists of two canisters named `heartbeat` and `timer`, both implementing the same functionality: schedule a periodic task to increase a counter.
 
-## Prerequisites
-This example requires an installation of:
+## Deploying from ICP Ninja
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
-- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Run" in the upper right corner. Open this project in ICP Ninja:
+
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/rust/periodic_tasks)
+
+## Build and deploy from the command-line
+
+- [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
+- Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
 
 ## Example 1: heartbeats and timers
 
