@@ -64,7 +64,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     
     let to_account = AccountIdentifier::new(&governance_principal, Some(subaccount));
     let transfer_args = TransferArgs {
-        memo: args.nonce,
+        memo: args.nonce,// Not needed, but can be a helpful record later for retrying.
         amount: Tokens { e8s: args.amount },
         fee: Tokens { e8s: 10_000 }, // Standard ICP transfer fee
         from_subaccount: None,
@@ -189,6 +189,8 @@ struct AccountIdentifier {
 
 impl AccountIdentifier {
     fn new(principal: &Principal, subaccount: Option<[u8; 32]>) -> Self {
+        // NOTE: Sha-224, not Sha-256, for creating the account identifier.  This is different
+        // than the hasher used for computing the staking subaccount.
         let mut hasher = Sha224::new();
         hasher.update(b"\x0Aaccount-id");
         hasher.update(principal.as_slice());
