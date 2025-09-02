@@ -175,5 +175,5 @@ After running locally, you can verify the neuron was created:
 
 ```bash
 # Query the governance canister
-dfx canister call nns_governance list_neurons "(record {neuron_ids=vec{}})"
+dfx canister call nns_governance list_neurons "(record {neuron_ids=vec{}; include_neurons_readable_by_caller=true})"
 ```
