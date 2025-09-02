@@ -1936,8 +1936,12 @@ dependencies = [
 name = "stake_neuron_from_cli"
 version = "0.1.0"
 dependencies = [
+ "candid",
  "clap",
+ "crc32fast",
+ "hex",
  "ic-agent",
+ "sha2 0.10.9",
  "tokio",
 ]
 
