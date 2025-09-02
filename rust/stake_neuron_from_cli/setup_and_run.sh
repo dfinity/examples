@@ -13,8 +13,8 @@ sleep 3
 
 echo "===========CREATING TEST IDENTITY========="
 # Create a test identity for our CLI
-dfx identity new test_user --storage-mode plaintext --force || true
-dfx identity use test_user
+dfx identity new test_user_stake_neuron_from_cli --storage-mode plaintext || true
+dfx identity use test_user_stake_neuron_from_cli
 
 echo "===========SETTING UP ACCOUNTS========="
 # Get account identifiers for initialization
@@ -97,8 +97,8 @@ echo "- NNS Governance: $(dfx canister id nns_governance)"
 
 echo ""
 echo "===========RUNNING CLI TOOL========="
-# Find the identity file for the test_user
-IDENTITY_FILE="$HOME/.config/dfx/identity/test_user/identity.pem"
+# Find the identity file for the test_user_stake_neuron_from_cli
+IDENTITY_FILE="$HOME/.config/dfx/identity/test_user_stake_neuron_from_cli/identity.pem"
 
 if [ ! -f "$IDENTITY_FILE" ]; then
     echo "ERROR: Identity file not found at $IDENTITY_FILE"
