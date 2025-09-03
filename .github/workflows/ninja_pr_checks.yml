@@ -77,7 +77,6 @@ jobs:
             ["Photo Gallery (Rust)"]="rust/photo_gallery"
             ["Inter-canister calls (Rust)"]="rust/inter-canister-calls"
             ["X.509 (Rust)"]="rust/x509"
-            ["Svelte Starter (Svelte)"]="svelte/svelte-starter"
           )
 
           # Check if we should run all examples (workflow file changed) or just changed ones

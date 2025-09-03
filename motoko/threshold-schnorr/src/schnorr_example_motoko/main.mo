@@ -46,7 +46,7 @@ persistent actor {
       let { public_key } = await ic.schnorr_public_key({
         canister_id = null;
         derivation_path = [Principal.toBlob(caller)];
-        key_id = { algorithm; name = "dfx_test_key" };
+        key_id = { algorithm; name = key_id };
       });
       #Ok({ public_key_hex = Hex.encode(Blob.toArray(public_key)) });
     } catch (err) {
@@ -69,7 +69,7 @@ persistent actor {
       let signArgs = {
         message = Text.encodeUtf8(message_arg);
         derivation_path = [Principal.toBlob(caller)];
-        key_id = { algorithm; name = "dfx_test_key" };
+        key_id = { algorithm; name = key_id };
         aux;
       };
       let { signature } = await ic.sign_with_schnorr(signArgs);

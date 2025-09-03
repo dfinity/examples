@@ -15,7 +15,7 @@
       "frontend": {
         "entrypoint": "src/qrcode_frontend/src/index.html"
       },
-      "source": ["src/qrcode_frontend/assets", "dist/qrcode_frontend/"],
+      "source": ["dist/qrcode_frontend/"],
       "type": "assets"
     }
   },
