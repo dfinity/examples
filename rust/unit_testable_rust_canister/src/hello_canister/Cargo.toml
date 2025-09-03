@@ -1,0 +1,18 @@
+[package]
+name = "hello_canister"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+crate-type = ["lib", "cdylib"]
+
+[dependencies]
+ic-cdk = "0.18"
+ic-cdk-macros = "0.18"
+candid = "0.10"
+serde = { version = "1.0", features = ["derive"] }
+
+[dev-dependencies]
+pocket-ic = "7.0.0"
+candid = "0.10"
