@@ -1,8 +1,9 @@
 use candid::{CandidType, Deserialize, Principal};
 use ic_cdk::api::msg_caller;
+use icrc_ledger_client_cdk::{CdkRuntime, ICRC1Client};
 use icrc_ledger_types::icrc1::account::Account;
 use icrc_ledger_types::icrc1::transfer::{BlockIndex, NumTokens};
-use icrc_ledger_types::icrc2::transfer_from::{TransferFromArgs, TransferFromError};
+use icrc_ledger_types::icrc2::transfer_from::TransferFromArgs;
 use serde::Serialize;
 
 #[derive(CandidType, Deserialize, Serialize)]
@@ -38,25 +39,21 @@ async fn transfer(args: TransferArgs) -> Result<BlockIndex, String> {
 
     // Convert a textual representation of a Principal into an actual `Principal` object. The principal is the one we specified in `dfx.json`.
     // `expect` will panic if the conversion fails, ensuring the code does not proceed with an invalid principal.
-    let canister_id = Principal::from_text("mxzaz-hqaaa-aaaar-qaada-cai")
+    let ledger_canister_id = Principal::from_text("mxzaz-hqaaa-aaaar-qaada-cai")
         .expect("Could not decode the principal.");
 
-    // Asynchronously call the ledger canister's `icrc1_transfer` method
-    ic_cdk::call::Call::unbounded_wait(canister_id, "icrc2_transfer_from")
-        // Provide the arguments for the call, here `transfer_args`
-        .with_arg(transfer_from_args)
-        // Await the completion of the asynchronous call, pausing the execution until the future is resolved.
+    let client = ICRC1Client {
+        runtime: CdkRuntime,
+        ledger_canister_id,
+    };
+
+    client
+        .transfer_from(transfer_from_args)
         .await
         // Apply `map_err` to transform any network or system errors encountered during the call into a more readable string format.
         // The `?` operator is then used to propagate errors: if the result is an `Err`, it returns from the function with that error,
         // otherwise, it unwraps the `Ok` value, allowing the chain to continue.
         .map_err(|e| format!("failed to call ledger: {:?}", e))?
-        // Decode the response from the ledger canister, which is expected to be `Result<BlockIndex, TransferError>`.
-        .candid::<Result<BlockIndex, TransferFromError>>()
-        // Apply `map_err` again to handle any decoding errors, converting them into a string format for easier debugging.
-        // The `?` operator is used again to propagate errors, ensuring that if the decoding fails, the function will return with that error.
-        // Otherwise, it unwraps the `Ok` value, allowing the chain to continue.
-        .map_err(|e| format!("failed to decode ledger response: {:?}", e))?
         // Use `map_err` again to handle any specific ledger transfer errors, converting them into a string format for easier debugging.
         .map_err(|e| format!("ledger transfer error {:?}", e))
 }
