@@ -1,5 +1,5 @@
 use candid::{CandidType, Deserialize};
-use serde::{Serialize};
+use serde::Serialize;
 
 // =============================================================================
 // REQUEST TYPES (for API evolution)
@@ -93,7 +93,7 @@ pub struct GetProposalTitlesResponse {
 
 pub mod nns_governance {
     use candid::{CandidType, Deserialize};
-    use serde::{ Serialize};
+    use serde::Serialize;
 
     #[derive(CandidType, Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
     pub enum Topic {

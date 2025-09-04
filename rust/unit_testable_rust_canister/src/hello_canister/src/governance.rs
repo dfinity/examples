@@ -3,8 +3,8 @@ use candid::Principal;
 use ic_cdk::call::Call;
 
 use crate::types::nns_governance::{
-    ListProposals, ListProposalsResponse, GetProposal, GetProposalResponse, 
-    ProposalInfo, ProposalStatus, Topic
+    GetProposal, GetProposalResponse, ListProposals, ListProposalsResponse, ProposalInfo,
+    ProposalStatus, Topic,
 };
 
 /// Trait representing the subset of NNS Governance functionality we need
@@ -12,16 +12,17 @@ use crate::types::nns_governance::{
 #[async_trait]
 pub trait GovernanceApi: Send + Sync + Clone {
     /// Lists proposals using the real NNS Governance API
-    async fn list_proposals(&self, request: ListProposals) -> Result<ListProposalsResponse, String>;
+    async fn list_proposals(&self, request: ListProposals)
+        -> Result<ListProposalsResponse, String>;
     /// Gets detailed information about a specific proposal
     async fn get_proposal(&self, request: GetProposal) -> Result<GetProposalResponse, String>;
 
     // Convenience methods for backward compatibility
     /// Lists all proposal IDs (simplified version for backward compatibility)
     async fn list_proposal_ids(&self) -> Result<Vec<u64>, String> {
-        let request = ListProposals { 
-            limit: Some(100), 
-            ..Default::default() 
+        let request = ListProposals {
+            limit: Some(100),
+            ..Default::default()
         };
         let response = self.list_proposals(request).await?;
         Ok(response.proposals.into_iter().map(|p| p.id).collect())
@@ -47,28 +48,33 @@ impl GovernanceApiWrapper {
     pub fn production() -> Self {
         GovernanceApiWrapper::Production(NnsGovernanceApi::new())
     }
-    
+
     #[cfg(test)]
     pub fn mock() -> Self {
         GovernanceApiWrapper::Mock(test_utils::MockGovernanceApi::new())
     }
-    
+
     #[cfg(test)]
     pub fn mock_with_failures(list_fail: bool, get_fail: bool) -> Self {
-        GovernanceApiWrapper::Mock(test_utils::MockGovernanceApi::with_failure_modes(list_fail, get_fail))
+        GovernanceApiWrapper::Mock(test_utils::MockGovernanceApi::with_failure_modes(
+            list_fail, get_fail,
+        ))
     }
 }
 
 #[async_trait]
 impl GovernanceApi for GovernanceApiWrapper {
-    async fn list_proposals(&self, request: ListProposals) -> Result<ListProposalsResponse, String> {
+    async fn list_proposals(
+        &self,
+        request: ListProposals,
+    ) -> Result<ListProposalsResponse, String> {
         match self {
             GovernanceApiWrapper::Production(api) => api.list_proposals(request).await,
             #[cfg(test)]
             GovernanceApiWrapper::Mock(api) => api.list_proposals(request).await,
         }
     }
-    
+
     async fn get_proposal(&self, request: GetProposal) -> Result<GetProposalResponse, String> {
         match self {
             GovernanceApiWrapper::Production(api) => api.get_proposal(request).await,
@@ -76,7 +82,7 @@ impl GovernanceApi for GovernanceApiWrapper {
             GovernanceApiWrapper::Mock(api) => api.get_proposal(request).await,
         }
     }
-    
+
     async fn list_proposal_ids(&self) -> Result<Vec<u64>, String> {
         match self {
             GovernanceApiWrapper::Production(api) => api.list_proposal_ids().await,
@@ -84,7 +90,7 @@ impl GovernanceApi for GovernanceApiWrapper {
             GovernanceApiWrapper::Mock(api) => api.list_proposal_ids().await,
         }
     }
-    
+
     async fn get_proposal_info(&self, proposal_id: u64) -> Result<Option<ProposalInfo>, String> {
         match self {
             GovernanceApiWrapper::Production(api) => api.get_proposal_info(proposal_id).await,
@@ -107,7 +113,7 @@ impl NnsGovernanceApi {
         // This is the actual NNS Governance canister ID on mainnet
         let governance_canister_id = Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai")
             .expect("Invalid NNS Governance canister ID");
-        
+
         Self {
             governance_canister_id,
         }
@@ -130,14 +136,14 @@ impl Default for NnsGovernanceApi {
 
 #[async_trait]
 impl GovernanceApi for NnsGovernanceApi {
-    async fn list_proposals(&self, request: ListProposals) -> Result<ListProposalsResponse, String> {
+    async fn list_proposals(
+        &self,
+        request: ListProposals,
+    ) -> Result<ListProposalsResponse, String> {
         // Make actual inter-canister call to NNS Governance
-        let result = Call::unbounded_wait(
-            self.governance_canister_id,
-            "list_proposals"
-        )
-        .with_arg(&request)
-        .await;
+        let result = Call::unbounded_wait(self.governance_canister_id, "list_proposals")
+            .with_arg(&request)
+            .await;
 
         match result {
             Ok(response) => {
@@ -147,7 +153,7 @@ impl GovernanceApi for NnsGovernanceApi {
                     proposals: vec![],
                     total_proposal_count: Some(0),
                 })
-            },
+            }
             Err(err) => {
                 let error_msg = format!("NNS Governance call failed: {:?}", err);
                 ic_cdk::println!("Error calling list_proposals: {}", error_msg);
@@ -158,12 +164,9 @@ impl GovernanceApi for NnsGovernanceApi {
 
     async fn get_proposal(&self, request: GetProposal) -> Result<GetProposalResponse, String> {
         // Make actual inter-canister call to NNS Governance
-        let result = Call::unbounded_wait(
-            self.governance_canister_id,
-            "get_proposal_info"
-        )
-        .with_arg(&request.proposal_id)
-        .await;
+        let result = Call::unbounded_wait(self.governance_canister_id, "get_proposal_info")
+            .with_arg(&request.proposal_id)
+            .await;
 
         match result {
             Ok(response) => {
@@ -172,7 +175,7 @@ impl GovernanceApi for NnsGovernanceApi {
                 Ok(GetProposalResponse {
                     proposal_info: None,
                 })
-            },
+            }
             Err(err) => {
                 let error_msg = format!("NNS Governance call failed: {:?}", err);
                 ic_cdk::println!("Error calling get_proposal_info: {}", error_msg);
@@ -230,11 +233,11 @@ pub mod test_utils {
                 },
             ];
 
-                    Self {
-            proposals: Arc::new(RwLock::new(proposals)),
-            should_fail_list: false,
-            should_fail_get: false,
-        }
+            Self {
+                proposals: Arc::new(RwLock::new(proposals)),
+                should_fail_list: false,
+                should_fail_get: false,
+            }
         }
 
         pub fn with_failure_modes(should_fail_list: bool, should_fail_get: bool) -> Self {
@@ -251,16 +254,20 @@ pub mod test_utils {
 
     #[async_trait]
     impl GovernanceApi for MockGovernanceApi {
-        async fn list_proposals(&self, request: ListProposals) -> Result<ListProposalsResponse, String> {
+        async fn list_proposals(
+            &self,
+            request: ListProposals,
+        ) -> Result<ListProposalsResponse, String> {
             if self.should_fail_list {
                 return Err("Mock failure: list_proposals".to_string());
             }
 
             let proposals = self.proposals.read().unwrap();
             let limit = request.limit.unwrap_or(10) as usize;
-            
+
             // Apply before_proposal filter if specified
-            let mut filtered_proposals: Vec<_> = proposals.iter()
+            let mut filtered_proposals: Vec<_> = proposals
+                .iter()
                 .filter(|p| {
                     if let Some(before_id) = request.before_proposal {
                         p.id < before_id
@@ -273,7 +280,7 @@ pub mod test_utils {
 
             // Sort by ID descending (most recent first)
             filtered_proposals.sort_by(|a, b| b.id.cmp(&a.id));
-            
+
             // Apply limit
             filtered_proposals.truncate(limit);
 
@@ -287,9 +294,10 @@ pub mod test_utils {
             if self.should_fail_get {
                 return Err("Mock failure: get_proposal".to_string());
             }
-            
+
             let proposals = self.proposals.read().unwrap();
-            let proposal_info = proposals.iter()
+            let proposal_info = proposals
+                .iter()
                 .find(|p| p.id == request.proposal_id)
                 .cloned();
 
