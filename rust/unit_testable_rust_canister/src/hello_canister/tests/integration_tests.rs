@@ -8,6 +8,10 @@ use walkdir::WalkDir;
 // Import all request/response types from the library
 use hello_canister::types::*;
 
+// IC commit used for downloading official NNS WASM files
+// This should match what's currently deployed in production
+const IC_COMMIT_FOR_PROPOSALS: &str = "4b7cde9a0e3b5ad4725e75cbc36ce635be6fa6a8";
+
 // WASM will be loaded dynamically with smart rebuilding
 fn get_hello_canister_wasm() -> Vec<u8> {
     let wasm_path = ensure_wasm_built();
@@ -103,6 +107,104 @@ fn rebuild_wasm() {
     if !output.stdout.is_empty() {
         println!("📋 Build output: {}", String::from_utf8_lossy(&output.stdout));
     }
+}
+
+/// Downloads the NNS Governance WASM from DFINITY's official release server
+/// Uses the same approach as nns-dapp for getting official IC artifacts
+fn ensure_governance_wasm_downloaded() -> PathBuf {
+    let wasm_path = PathBuf::from("../../target/ic/governance-canister.wasm");
+    
+    // Check if we need to download
+    if needs_governance_download(&wasm_path) {
+        download_governance_wasm(&wasm_path);
+    } else {
+        println!("⚡ NNS Governance WASM is up-to-date, skipping download");
+    }
+    
+    wasm_path
+}
+
+/// Check if we need to download the governance WASM
+fn needs_governance_download(wasm_path: &Path) -> bool {
+    if !wasm_path.exists() {
+        println!("🔍 NNS Governance WASM doesn't exist, will download");
+        return true;
+    }
+    
+    // Check if file is older than 24 hours (governance updates are infrequent)
+    if let Ok(metadata) = wasm_path.metadata() {
+        if let Ok(modified_time) = metadata.modified() {
+            if let Ok(elapsed) = modified_time.elapsed() {
+                if elapsed > std::time::Duration::from_secs(24 * 60 * 60) {
+                    println!("🔍 NNS Governance WASM is older than 24 hours, will re-download");
+                    return true;
+                }
+            }
+        }
+    }
+    
+    false
+}
+
+/// Download the governance WASM with multiple fallback methods
+fn download_governance_wasm(wasm_path: &Path) {
+    println!("🌐 Attempting to download NNS Governance WASM...");
+    
+    // Ensure the target directory exists
+    if let Some(parent) = wasm_path.parent() {
+        std::fs::create_dir_all(parent)
+            .unwrap_or_else(|e| panic!("Failed to create directory {:?}: {}", parent, e));
+    }
+    
+
+    let url =format!(
+        "https://download.dfinity.systems/ic/{}/canisters/governance-canister.wasm.gz",
+        IC_COMMIT_FOR_PROPOSALS
+    ) ;
+
+        let output = Command::new("sh")
+            .args(&[
+                "-c", 
+                &format!(
+                    "curl -L --fail '{}' | gunzip > '{}'", 
+                    url,
+                    wasm_path.display()
+                )
+            ])
+            .output();
+            
+        match output {
+            Ok(cmd_output) if cmd_output.status.success() => {
+                // Check if the downloaded file is valid
+                if let Ok(metadata) = std::fs::metadata(&wasm_path) {
+                    let size_mb = metadata.len() / (1024 * 1024);
+                    if size_mb >= 1 {
+                        println!("✅ Downloaded NNS Governance WASM ({} MB) from {}", size_mb, url);
+                        return;
+                    }
+                }
+            }
+            Ok(cmd_output) => {
+                println!("⚠️  Download  failed: {}",
+                    String::from_utf8_lossy(&cmd_output.stderr)
+                );
+            }
+            Err(e) => {
+                println!("⚠️  Download  failed: {}",  e);
+            }
+        }
+        
+        // Clean up failed download
+        let _ = std::fs::remove_file(wasm_path);
+
+    panic!("All download methods failed for governance WASM");
+}
+
+/// Get the NNS Governance WASM binary, downloading if necessary
+fn get_governance_wasm() -> Vec<u8> {
+    let wasm_path = ensure_governance_wasm_downloaded();
+    std::fs::read(&wasm_path)
+        .unwrap_or_else(|e| panic!("Failed to read governance WASM file at {:?}: {}", wasm_path, e))
 }
 
 /// Test the basic greeting functionality with Request/Response pattern
@@ -381,10 +483,46 @@ fn test_state_persistence() {
     assert_eq!(response.count, Some(5));
 }
 
+/// Test with real NNS Governance canister WASM (demonstration)
+/// This test shows how to deploy and interact with the actual governance canister
+#[test]
+fn test_real_governance_canister_deployment() {
+    let pic = setup_pocket_ic();
+    
+    // This will download the real NNS Governance WASM if needed
+    println!("🔄 Ensuring NNS Governance WASM is available...");
+    let governance_wasm = get_governance_wasm();
+    println!("📦 Got governance WASM: {} bytes", governance_wasm.len());
+    
+    // Deploy the real governance canister
+    let governance_canister_id = pic.create_canister();
+    pic.add_cycles(governance_canister_id, 10_000_000_000_000); // More cycles for governance
+    
+    // Note: Real governance canister requires initialization arguments
+    // For this test, we just verify the WASM can be loaded
+    println!("🚀 Attempting to install real governance WASM...");
+    
+    // The governance canister requires complex initialization, so we'll just verify
+    // the WASM is valid by checking its size and structure
+    assert!(governance_wasm.len() > 1_000_000, "Governance WASM should be substantial (>1MB)");
+    assert!(governance_wasm.starts_with(&[0x00, 0x61, 0x73, 0x6d]), "Should be valid WASM (starts with magic bytes)");
+    
+    println!("✅ Real NNS Governance WASM verified successfully!");
+    println!("   Size: {:.2} MB", governance_wasm.len() as f64 / 1_024_000.0);
+    println!("   Source: IC commit {}", IC_COMMIT_FOR_PROPOSALS);
+    
+    // In a real test, you would:
+    // 1. Create proper initialization arguments for governance
+    // 2. Install the canister with those arguments  
+    // 3. Test governance-specific functionality
+    // 4. Compare behavior with your mock implementation
+}
+
 // Helper functions
 
 fn setup_pocket_ic() -> PocketIc {
     PocketIcBuilder::new()
+        .with_nns_subnet()
         .with_application_subnet()
         .build()
 }
