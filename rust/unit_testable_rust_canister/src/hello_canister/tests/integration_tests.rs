@@ -1,14 +1,109 @@
 use candid::{decode_one, encode_one, CandidType, Principal};
 use pocket_ic::{PocketIc, PocketIcBuilder};
 use serde::Deserialize;
+use std::path::{Path, PathBuf};
+use std::process::Command;
+use walkdir::WalkDir;
 
 // Import all request/response types from the library
 use hello_canister::types::*;
 
-// Include the WASM binary directly at compile time
-// NOTE: Build the WASM first with: cargo build --target wasm32-unknown-unknown --release
-const HELLO_CANISTER_WASM: &[u8] = 
-    include_bytes!("../../../target/wasm32-unknown-unknown/release/hello_canister.wasm");
+// WASM will be loaded dynamically with smart rebuilding
+fn get_hello_canister_wasm() -> Vec<u8> {
+    let wasm_path = ensure_wasm_built();
+    std::fs::read(&wasm_path)
+        .unwrap_or_else(|e| panic!("Failed to read WASM file at {:?}: {}", wasm_path, e))
+}
+
+/// Ensures the WASM is built and up-to-date, returns path to the WASM file
+fn ensure_wasm_built() -> PathBuf {
+    let wasm_path = PathBuf::from("../../target/wasm32-unknown-unknown/release/hello_canister.wasm");
+    let src_dir = Path::new("src");
+    let cargo_toml = Path::new("Cargo.toml");
+    
+    if needs_rebuild(&wasm_path, src_dir, cargo_toml) {
+        println!("🔨 WASM needs rebuilding, running cargo build...");
+        rebuild_wasm();
+        println!("✅ WASM build complete");
+    } else {
+        println!("⚡ WASM is up-to-date, skipping rebuild");
+    }
+    
+    wasm_path
+}
+
+/// Check if WASM needs to be rebuilt by comparing file timestamps
+fn needs_rebuild(wasm_path: &Path, src_dir: &Path, cargo_toml: &Path) -> bool {
+    // If WASM doesn't exist, definitely need to build
+    if !wasm_path.exists() {
+        println!("🔍 WASM file doesn't exist, will build");
+        return true;
+    }
+    
+    let wasm_time = match wasm_path.metadata() {
+        Ok(metadata) => match metadata.modified() {
+            Ok(time) => time,
+            Err(_) => {
+                println!("🔍 Can't get WASM modification time, will rebuild");
+                return true;
+            }
+        },
+        Err(_) => {
+            println!("🔍 Can't get WASM metadata, will rebuild");
+            return true;
+        }
+    };
+    
+    // Check if Cargo.toml is newer (dependency changes)
+    if let Ok(cargo_metadata) = cargo_toml.metadata() {
+        if let Ok(cargo_time) = cargo_metadata.modified() {
+            if cargo_time > wasm_time {
+                println!("🔍 Cargo.toml is newer than WASM, will rebuild");
+                return true;
+            }
+        }
+    }
+    
+    // Check if any source file is newer than WASM
+    let newer_file_found = WalkDir::new(src_dir)
+        .into_iter()
+        .filter_map(|e| e.ok())
+        .filter(|entry| {
+            entry.path().extension().map_or(false, |ext| ext == "rs" || ext == "toml")
+        })
+        .any(|entry| {
+            if let Ok(metadata) = entry.metadata() {
+                if let Ok(file_time) = metadata.modified() {
+                    if file_time > wasm_time {
+                        println!("🔍 Source file {:?} is newer than WASM, will rebuild", entry.path());
+                        return true;
+                    }
+                }
+            }
+            false
+        });
+        
+    newer_file_found
+}
+
+/// Rebuild the WASM using cargo
+fn rebuild_wasm() {
+    let output = Command::new("cargo")
+        .args(&["build", "--target", "wasm32-unknown-unknown", "--release"])
+        .current_dir(".")
+        .output()
+        .expect("Failed to execute cargo build command");
+    
+    if !output.status.success() {
+        eprintln!("❌ WASM build stdout: {}", String::from_utf8_lossy(&output.stdout));
+        eprintln!("❌ WASM build stderr: {}", String::from_utf8_lossy(&output.stderr));
+        panic!("WASM build failed with exit code: {:?}", output.status.code());
+    }
+    
+    if !output.stdout.is_empty() {
+        println!("📋 Build output: {}", String::from_utf8_lossy(&output.stdout));
+    }
+}
 
 /// Test the basic greeting functionality with Request/Response pattern
 #[test]
@@ -298,7 +393,9 @@ fn deploy_hello_canister(pic: &PocketIc) -> Principal {
     let canister_id = pic.create_canister();
     pic.add_cycles(canister_id, 2_000_000_000_000);
     
-    pic.install_canister(canister_id, HELLO_CANISTER_WASM.to_vec(), vec![], None);
+    // Use smart WASM rebuilding - will only rebuild if source files changed
+    let wasm_binary = get_hello_canister_wasm();
+    pic.install_canister(canister_id, wasm_binary, vec![], None);
     
     // Allow canister to initialize
     for _ in 0..5 {
