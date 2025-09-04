@@ -1,12 +1,24 @@
 use ic_cdk_macros::{init, post_upgrade, pre_upgrade, query, update};
+use std::cell::RefCell;
+use std::sync::Arc;
 
 mod canister_api;
 mod governance;
 mod stable_memory;
 pub mod types;
 
-use canister_api::{CanisterApi, CANISTER_API};
+use canister_api::CanisterApi;
+use governance::NnsGovernanceApi;
 use types::*;
+
+thread_local! {
+    /// Canister API instance with production dependencies
+    /// Following SNS-WASM pattern where CanisterApi is stored in thread_local
+    pub static CANISTER_API: RefCell<CanisterApi> = RefCell::new({
+        let governance = Arc::new(NnsGovernanceApi::new());
+        CanisterApi::new(governance)
+    });
+}
 
 // =============================================================================
 // IC CANISTER ENDPOINTS (Request/Response pattern for API evolution)

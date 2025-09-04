@@ -1,7 +1,8 @@
 use std::cell::RefCell;
+use std::sync::Arc;
 use std::thread::LocalKey;
 
-use crate::governance::{GovernanceApi, GovernanceApiWrapper};
+use crate::governance::GovernanceApi;
 use crate::stable_memory;
 use crate::types::*;
 
@@ -10,12 +11,12 @@ use crate::types::*;
 // =============================================================================
 
 pub struct CanisterApi {
-    governance: GovernanceApiWrapper,
+    governance: Arc<dyn GovernanceApi>,
 }
 
 impl CanisterApi {
     /// Constructor that takes the governance dependency
-    pub fn new(governance: GovernanceApiWrapper) -> Self {
+    pub fn new(governance: Arc<dyn GovernanceApi>) -> Self {
         Self { governance }
     }
 
@@ -54,7 +55,7 @@ impl CanisterApi {
     ) -> ListProposalsResponse {
         let governance = canister_api.with(|api| {
             let api_ref = api.borrow();
-            api_ref.governance.clone()
+            Arc::clone(&api_ref.governance)
         });
 
         match governance.list_proposal_ids().await {
@@ -83,7 +84,7 @@ impl CanisterApi {
 
         let governance = canister_api.with(|api| {
             let api_ref = api.borrow();
-            api_ref.governance.clone()
+            Arc::clone(&api_ref.governance)
         });
 
         match governance.get_proposal_info(id).await {
@@ -104,7 +105,7 @@ impl CanisterApi {
     ) -> GetProposalCountResponse {
         let governance = canister_api.with(|api| {
             let api_ref = api.borrow();
-            api_ref.governance.clone()
+            Arc::clone(&api_ref.governance)
         });
 
         match governance.list_proposal_ids().await {
@@ -132,7 +133,10 @@ impl CanisterApi {
             ..Default::default()
         };
 
-        let governance = canister_api.with_borrow(|api| api.governance.clone());
+        let governance = canister_api.with(|api| {
+            let api_ref = api.borrow();
+            Arc::clone(&api_ref.governance)
+        });
 
         match governance.list_proposals(request).await {
             Ok(response) => {
@@ -159,7 +163,7 @@ thread_local! {
     /// Canister API instance with production dependencies
     /// Following SNS-WASM pattern where CanisterApi is stored in thread_local
     pub static CANISTER_API: RefCell<CanisterApi> = RefCell::new({
-        let governance = GovernanceApiWrapper::production();
+        let governance = Arc::new(crate::governance::NnsGovernanceApi::new());
         CanisterApi::new(governance)
     });
 }
@@ -181,42 +185,26 @@ mod tests {
 
     thread_local! {
         static TEST_API: RefCell<CanisterApi> = RefCell::new({
-            let governance = GovernanceApiWrapper::mock();
+            let governance = Arc::new(MockGovernanceApi::new());
             CanisterApi::new(governance)
-        });
-    }
-
-    /// Helper to reset test API with fresh mock data
-    fn reset_test_api() {
-        TEST_API.with(|api| {
-            let governance = GovernanceApiWrapper::mock();
-            *api.borrow_mut() = CanisterApi::new(governance);
-        });
-    }
-
-    /// Helper to create test API with failure modes
-    fn reset_test_api_with_failures(list_fail: bool, get_fail: bool) {
-        TEST_API.with(|api| {
-            let governance = GovernanceApiWrapper::mock_with_failures(list_fail, get_fail);
-            *api.borrow_mut() = CanisterApi::new(governance);
         });
     }
 
     /// Helper to create a direct CanisterApi instance for testing (sync methods)
     fn create_test_api() -> CanisterApi {
-        let governance = GovernanceApiWrapper::mock();
+        let governance = Arc::new(MockGovernanceApi::new());
         CanisterApi::new(governance)
     }
 
     /// Helper to create CanisterApi with failure modes for testing
     fn create_test_api_with_failures(list_fail: bool, get_fail: bool) -> CanisterApi {
-        let governance = GovernanceApiWrapper::mock_with_failures(list_fail, get_fail);
+        let governance = Arc::new(MockGovernanceApi::with_failure_modes(list_fail, get_fail));
         CanisterApi::new(governance)
     }
 
     #[test]
     fn test_greet_request_response() {
-        let governance = GovernanceApiWrapper::mock();
+        let governance = Arc::new(MockGovernanceApi::new());
         let api = CanisterApi::new(governance);
 
         let response = api.greet(Some("Alice".to_string()));
@@ -237,7 +225,7 @@ mod tests {
         // Each test runs in its own thread, so stable memory is isolated
         stable_memory::reset_for_test();
 
-        let governance = GovernanceApiWrapper::mock();
+        let governance = Arc::new(MockGovernanceApi::new());
         let api = CanisterApi::new(governance);
 
         let response = api.get_counter();
