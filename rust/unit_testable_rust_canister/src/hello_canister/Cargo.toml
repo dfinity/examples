@@ -12,7 +12,10 @@ ic-cdk = "0.18"
 ic-cdk-macros = "0.18"
 candid = "0.10"
 serde = { version = "1.0", features = ["derive"] }
+ic-stable-structures = "0.6.1"
+async-trait = "0.1"
 
 [dev-dependencies]
 pocket-ic = "7.0.0"
 candid = "0.10"
+tokio = { version = "1.0", features = ["macros", "rt"] }

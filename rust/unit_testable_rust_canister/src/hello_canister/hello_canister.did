@@ -1,0 +1,81 @@
+// Request/Response types for API evolution
+type GreetRequest = record {
+  name: opt text;
+};
+
+type GreetResponse = record {
+  greeting: opt text;
+};
+
+type GetCounterRequest = record {};
+
+type GetCounterResponse = record {
+  count: opt nat64;
+};
+
+type IncrementCounterRequest = record {};
+
+type IncrementCounterResponse = record {
+  new_count: opt nat64;
+};
+
+type ListProposalsRequest = record {};
+
+type ListProposalsResponse = record {
+  proposal_ids: opt vec nat64;
+  error: opt text;
+};
+
+type GetProposalInfoRequest = record {
+  proposal_id: opt nat64;
+};
+
+type ProposalInfo = record {
+  id: nat64;
+  title: text;
+  summary: text; 
+  proposer: text;
+};
+
+type GetProposalInfoResponse = record {
+  proposal: opt ProposalInfo;
+  error: opt text;
+};
+
+type GetProposalCountRequest = record {};
+
+type GetProposalCountResponse = record {
+  count: opt nat;
+  error: opt text;
+};
+
+type GreetWithProposalRequest = record {
+  name: opt text;
+  proposal_id: opt nat64;
+};
+
+type GreetWithProposalResponse = record {
+  message: opt text;
+  error: opt text;
+};
+
+type GetProposalTitlesRequest = record {
+  limit: opt nat32;
+};
+
+type GetProposalTitlesResponse = record {
+  titles: opt vec text;
+  error: opt text;
+};
+
+service : {
+  // Request/Response API for evolution support
+  greet: (GreetRequest) -> (GreetResponse) query;
+  get_counter: (GetCounterRequest) -> (GetCounterResponse) query;
+  increment_counter: (IncrementCounterRequest) -> (IncrementCounterResponse);
+  list_proposals: (ListProposalsRequest) -> (ListProposalsResponse) query;
+  get_proposal_info: (GetProposalInfoRequest) -> (GetProposalInfoResponse) query;
+  get_proposal_count: (GetProposalCountRequest) -> (GetProposalCountResponse) query;
+  greet_with_proposal: (GreetWithProposalRequest) -> (GreetWithProposalResponse) query;
+  get_proposal_titles: (GetProposalTitlesRequest) -> (GetProposalTitlesResponse) query;
+}
