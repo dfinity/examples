@@ -1,12 +1,4 @@
 // Request/Response types for API evolution
-type GreetRequest = record {
-  name: opt text;
-};
-
-type GreetResponse = record {
-  greeting: opt text;
-};
-
 type GetCounterRequest = record {};
 
 type GetCounterResponse = record {
@@ -49,16 +41,6 @@ type GetProposalCountResponse = record {
   error: opt text;
 };
 
-type GreetWithProposalRequest = record {
-  name: opt text;
-  proposal_id: opt nat64;
-};
-
-type GreetWithProposalResponse = record {
-  message: opt text;
-  error: opt text;
-};
-
 type GetProposalTitlesRequest = record {
   limit: opt nat32;
 };
@@ -70,12 +52,10 @@ type GetProposalTitlesResponse = record {
 
 service : {
   // Request/Response API for evolution support
-  greet: (GreetRequest) -> (GreetResponse) query;
   get_counter: (GetCounterRequest) -> (GetCounterResponse) query;
   increment_counter: (IncrementCounterRequest) -> (IncrementCounterResponse);
-  list_proposals: (ListProposalsRequest) -> (ListProposalsResponse) query;
-  get_proposal_info: (GetProposalInfoRequest) -> (GetProposalInfoResponse) query;
-  get_proposal_count: (GetProposalCountRequest) -> (GetProposalCountResponse) query;
-  greet_with_proposal: (GreetWithProposalRequest) -> (GreetWithProposalResponse) query;
-  get_proposal_titles: (GetProposalTitlesRequest) -> (GetProposalTitlesResponse) query;
+  list_proposals: (ListProposalsRequest) -> (ListProposalsResponse);
+  get_proposal_info: (GetProposalInfoRequest) -> (GetProposalInfoResponse);
+  get_proposal_count: (GetProposalCountRequest) -> (GetProposalCountResponse);
+  get_proposal_titles: (GetProposalTitlesRequest) -> (GetProposalTitlesResponse);
 }

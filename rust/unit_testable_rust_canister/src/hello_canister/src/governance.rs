@@ -10,7 +10,7 @@ use crate::types::nns_governance::{
 /// Trait representing the subset of NNS Governance functionality we need
 /// This allows us to inject either the real governance canister or a mock for testing
 #[async_trait]
-pub trait GovernanceApi: Send + Sync + Clone {
+pub trait GovernanceApi: Send + Sync {
     /// Lists proposals using the real NNS Governance API
     async fn list_proposals(&self, request: ListProposals)
         -> Result<ListProposalsResponse, String>;
@@ -33,70 +33,6 @@ pub trait GovernanceApi: Send + Sync + Clone {
         let request = GetProposal { proposal_id };
         let response = self.get_proposal(request).await?;
         Ok(response.proposal_info)
-    }
-}
-
-/// Enum wrapper to allow cloning with different GovernanceApi implementations
-#[derive(Clone)]
-pub enum GovernanceApiWrapper {
-    Production(NnsGovernanceApi),
-    #[cfg(test)]
-    Mock(test_utils::MockGovernanceApi),
-}
-
-impl GovernanceApiWrapper {
-    pub fn production() -> Self {
-        GovernanceApiWrapper::Production(NnsGovernanceApi::new())
-    }
-
-    #[cfg(test)]
-    pub fn mock() -> Self {
-        GovernanceApiWrapper::Mock(test_utils::MockGovernanceApi::new())
-    }
-
-    #[cfg(test)]
-    pub fn mock_with_failures(list_fail: bool, get_fail: bool) -> Self {
-        GovernanceApiWrapper::Mock(test_utils::MockGovernanceApi::with_failure_modes(
-            list_fail, get_fail,
-        ))
-    }
-}
-
-#[async_trait]
-impl GovernanceApi for GovernanceApiWrapper {
-    async fn list_proposals(
-        &self,
-        request: ListProposals,
-    ) -> Result<ListProposalsResponse, String> {
-        match self {
-            GovernanceApiWrapper::Production(api) => api.list_proposals(request).await,
-            #[cfg(test)]
-            GovernanceApiWrapper::Mock(api) => api.list_proposals(request).await,
-        }
-    }
-
-    async fn get_proposal(&self, request: GetProposal) -> Result<GetProposalResponse, String> {
-        match self {
-            GovernanceApiWrapper::Production(api) => api.get_proposal(request).await,
-            #[cfg(test)]
-            GovernanceApiWrapper::Mock(api) => api.get_proposal(request).await,
-        }
-    }
-
-    async fn list_proposal_ids(&self) -> Result<Vec<u64>, String> {
-        match self {
-            GovernanceApiWrapper::Production(api) => api.list_proposal_ids().await,
-            #[cfg(test)]
-            GovernanceApiWrapper::Mock(api) => api.list_proposal_ids().await,
-        }
-    }
-
-    async fn get_proposal_info(&self, proposal_id: u64) -> Result<Option<ProposalInfo>, String> {
-        match self {
-            GovernanceApiWrapper::Production(api) => api.get_proposal_info(proposal_id).await,
-            #[cfg(test)]
-            GovernanceApiWrapper::Mock(api) => api.get_proposal_info(proposal_id).await,
-        }
     }
 }
 

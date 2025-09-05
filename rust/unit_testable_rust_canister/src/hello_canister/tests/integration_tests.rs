@@ -14,6 +14,10 @@ use hello_canister::types::*;
 // This should match what's currently deployed in production
 const IC_COMMIT_FOR_PROPOSALS: &str = "4b7cde9a0e3b5ad4725e75cbc36ce635be6fa6a8";
 
+// NNS Canister IDs (mainnet)
+const NNS_GOVERNANCE_CANISTER_ID: &str = "rrkah-fqaaa-aaaaa-aaaaq-cai";
+const NNS_ROOT_CANISTER_ID: &str = "r7inp-6aaaa-aaaaa-aaabq-cai";
+
 // WASM will be loaded dynamically with smart rebuilding
 fn get_hello_canister_wasm() -> Vec<u8> {
     let wasm_path = ensure_wasm_built();
@@ -199,6 +203,64 @@ fn get_governance_wasm() -> Vec<u8> {
             wasm_path, e
         )
     })
+}
+
+/// Sets up NNS Governance canister with correct mainnet ID and production-like initialization
+/// Uses default_governance_for_tests() to get realistic initialization parameters
+fn setup_nns_governance(pic: &PocketIc) -> Principal {
+    let governance_wasm = get_governance_wasm();
+
+    // Parse the mainnet canister IDs
+    let nns_root_canister_id =
+        Principal::from_text(NNS_ROOT_CANISTER_ID).expect("Invalid NNS root canister ID");
+    let governance_canister_id = Principal::from_text(NNS_GOVERNANCE_CANISTER_ID)
+        .expect("Invalid NNS governance canister ID");
+
+    println!(
+        "Creating NNS Governance canister with ID: {} and controller: {}",
+        governance_canister_id, nns_root_canister_id
+    );
+
+    // Create the canister with the specific mainnet ID and NNS root as controller
+    pic.create_canister_with_id(Some(nns_root_canister_id), None, governance_canister_id)
+        .expect("Failed to create governance canister with specific ID");
+
+    // Get production-like initialization arguments using our helper function
+    let governance_config = default_governance_for_tests();
+
+    // Convert our Governance struct to GovernanceCanisterInit format for initialization
+    let init_args = GovernanceCanisterInit {
+        economics: governance_config.economics,
+        default_followees: governance_config.default_followees,
+        wait_for_quiet_threshold_seconds: governance_config.wait_for_quiet_threshold_seconds,
+        short_voting_period_seconds: governance_config.short_voting_period_seconds,
+        initial_voting_period: governance_config.initial_voting_period,
+        proposal_wait_for_quiet_threshold_seconds: governance_config
+            .proposal_wait_for_quiet_threshold_seconds,
+        proposal_initial_voting_period: governance_config.proposal_initial_voting_period,
+        neuron_management_voting_period_seconds: governance_config
+            .neuron_management_voting_period_seconds,
+        neurons_fund_economics: governance_config.neurons_fund_economics,
+        voting_rewards_parameters: governance_config.voting_rewards_parameters,
+        genesis_timestamp_seconds: governance_config.genesis_timestamp_seconds,
+    };
+
+    println!("Installing NNS Governance canister with production-like configuration");
+
+    // Install the canister with the initialization arguments
+    pic.install_canister(
+        governance_canister_id,
+        governance_wasm,
+        encode_one(init_args).expect("Failed to encode governance init args"),
+        None,
+    );
+
+    println!(
+        "NNS Governance canister setup complete at {}",
+        governance_canister_id
+    );
+
+    governance_canister_id
 }
 
 /// Test the counter functionality with Request/Response pattern
@@ -473,5 +535,99 @@ fn query<T: CandidType + for<'de> Deserialize<'de>>(
     match result {
         Ok(reply) => decode_one(&reply).expect("Failed to decode query response"),
         Err(user_error) => panic!("Query call failed: {}", user_error),
+    }
+}
+
+// =============================================================================
+// GOVERNANCE CANISTER TYPES (Copied from nns/governance/api)
+// =============================================================================
+
+use hello_canister::types::nns_governance::{
+    Followees, GovernanceCanisterInit, NetworkEconomics, Topic,
+};
+use serde::Serialize;
+use std::collections::BTreeMap;
+
+/// Main Governance canister state and configuration
+/// Based on the nns/governance/api crate Governance struct
+#[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
+pub struct Governance {
+    /// Economic parameters for the governance system
+    pub economics: Option<NetworkEconomics>,
+    /// Default neurons that other neurons follow for each topic
+    pub default_followees: BTreeMap<Topic, Followees>,
+    /// Time in seconds before a proposal can be decided
+    pub wait_for_quiet_threshold_seconds: u64,
+    /// Duration of short voting period in seconds
+    pub short_voting_period_seconds: u64,
+    /// Initial voting period duration in seconds
+    pub initial_voting_period: u64,
+    /// Wait for quiet threshold for proposals in seconds
+    pub proposal_wait_for_quiet_threshold_seconds: u64,
+    /// Initial voting period for proposals in seconds
+    pub proposal_initial_voting_period: u64,
+    /// Voting period for neuron management proposals in seconds
+    pub neuron_management_voting_period_seconds: Option<u64>,
+    /// Economics parameters for the neurons fund (simplified for testing)
+    pub neurons_fund_economics: Option<()>,
+    /// Voting rewards parameters (simplified for testing)
+    pub voting_rewards_parameters: Option<()>,
+    /// Timestamp when the governance canister was created
+    pub genesis_timestamp_seconds: Option<u64>,
+}
+
+/// Helper function that provides a pre-configured Governance instance
+/// This uses the same defaults that GovernanceCanisterInitPayloadBuilder::new().build() would provide
+pub fn default_governance_for_tests() -> Governance {
+    // Create default followees with empty lists for key topics
+    // In production, these would point to foundation neurons
+    let mut default_followees = BTreeMap::new();
+
+    let foundation_topics = vec![
+        Topic::Governance,
+        Topic::NetworkEconomics,
+        Topic::NodeAdmin,
+        Topic::SubnetManagement,
+        Topic::NetworkCanisterManagement,
+        Topic::ExchangeRate,
+        Topic::ParticipantManagement,
+        Topic::NodeProviderRewards,
+        Topic::ReplicaVersionManagement,
+        Topic::IcOsVersionElection,
+        Topic::IcOsVersionDeployment,
+    ];
+
+    for topic in foundation_topics {
+        default_followees.insert(
+            topic,
+            Followees {
+                followees: vec![], // Empty for testing - production would have foundation neuron IDs
+            },
+        );
+    }
+
+    let economics = NetworkEconomics {
+        neuron_minimum_stake_e8s: 100_000_000, // 1 ICP
+        max_proposals_to_keep_per_topic: 100,
+        neuron_management_fee_per_proposal_e8s: 1_000_000, // 0.01 ICP
+        reject_cost_e8s: 1_000_000,                        // 0.01 ICP
+        transaction_fee_e8s: 10_000,                       // 0.0001 ICP
+        neuron_spawn_dissolve_delay_seconds: 7 * 24 * 60 * 60, // 7 days
+        minimum_icp_xdr_rate: 100,
+        maximum_node_provider_rewards_e8s: 1_000_000_000_000, // 10,000 ICP
+    };
+
+    Governance {
+        economics: Some(economics),
+        default_followees,
+        wait_for_quiet_threshold_seconds: 86400, // 24 hours (production-like)
+        short_voting_period_seconds: 345600,     // 4 days (production-like)
+        initial_voting_period: 345600,           // 4 days (production-like)
+        proposal_wait_for_quiet_threshold_seconds: 86400, // 24 hours
+        proposal_initial_voting_period: 345600,  // 4 days
+        neuron_management_voting_period_seconds: Some(172800), // 2 days for neuron management
+        neurons_fund_economics: None,            // Not needed for basic testing
+        voting_rewards_parameters: None,         // Not needed for basic testing
+        genesis_timestamp_seconds: Some(1620000000), // Realistic timestamp (May 2021)
     }
 }
