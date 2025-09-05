@@ -11,6 +11,10 @@ use crate::types::*;
 // =============================================================================
 
 pub struct CanisterApi {
+    // Note: This can also be done as generic on CanisterApi, but when that pattern can get unwieldy
+    // when you have many dependencies.  And you would still need to put it in an Arc in order
+    // to be able to clone the API out of the thread_local.  The advantage of doing this, however,
+    // is that it makes it possible to have stateful dependencies that can be easily mocked,
     governance: Arc<dyn GovernanceApi>,
 }
 
@@ -34,15 +38,23 @@ impl CanisterApi {
         }
     }
 
+    /// Helper method to extract governance API from thread_local CanisterApi
+    /// This centralizes the pattern of borrowing from RefCell and cloning the Arc
+    pub fn get_governance(
+        canister_api: &'static LocalKey<RefCell<CanisterApi>>,
+    ) -> Arc<dyn GovernanceApi> {
+        canister_api.with(|api| {
+            let api_ref = api.borrow();
+            Arc::clone(&api_ref.governance)
+        })
+    }
+
     /// SNS-WASM Pattern: Static method for canister endpoints that takes LocalKey
     /// Lists all proposals from NNS Governance
     pub async fn list_proposals(
         canister_api: &'static LocalKey<RefCell<CanisterApi>>,
     ) -> ListProposalsResponse {
-        let governance = canister_api.with(|api| {
-            let api_ref = api.borrow();
-            Arc::clone(&api_ref.governance)
-        });
+        let governance = CanisterApi::get_governance(canister_api);
 
         match governance.list_proposal_ids().await {
             Ok(proposal_ids) => ListProposalsResponse {
@@ -68,10 +80,7 @@ impl CanisterApi {
             };
         };
 
-        let governance = canister_api.with(|api| {
-            let api_ref = api.borrow();
-            Arc::clone(&api_ref.governance)
-        });
+        let governance = CanisterApi::get_governance(canister_api);
 
         match governance.get_proposal_info(id).await {
             Ok(proposal) => GetProposalInfoResponse {
@@ -89,10 +98,7 @@ impl CanisterApi {
     pub async fn get_proposal_count(
         canister_api: &'static LocalKey<RefCell<CanisterApi>>,
     ) -> GetProposalCountResponse {
-        let governance = canister_api.with(|api| {
-            let api_ref = api.borrow();
-            Arc::clone(&api_ref.governance)
-        });
+        let governance = CanisterApi::get_governance(canister_api);
 
         match governance.list_proposal_ids().await {
             Ok(proposals) => GetProposalCountResponse {
@@ -119,10 +125,7 @@ impl CanisterApi {
             ..Default::default()
         };
 
-        let governance = canister_api.with(|api| {
-            let api_ref = api.borrow();
-            Arc::clone(&api_ref.governance)
-        });
+        let governance = CanisterApi::get_governance(canister_api);
 
         match governance.list_proposals(request).await {
             Ok(response) => {

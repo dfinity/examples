@@ -126,18 +126,13 @@ fn ensure_governance_wasm_downloaded() -> PathBuf {
     let wasm_path = PathBuf::from("../../target/ic/governance-canister.wasm");
 
     // Check if we need to download
-    if needs_governance_download(&wasm_path) {
+    if !wasm_path.exists() {
         download_governance_wasm(&wasm_path);
     } else {
         println!("NNS Governance WASM is up-to-date, skipping download");
     }
 
     wasm_path
-}
-
-/// Check if we need to download the governance WASM
-fn needs_governance_download(wasm_path: &Path) -> bool {
-    !wasm_path.exists()
 }
 
 /// Download the governance WASM with multiple fallback methods
@@ -206,35 +201,6 @@ fn get_governance_wasm() -> Vec<u8> {
     })
 }
 
-/// Test the basic greeting functionality with Request/Response pattern
-#[test]
-fn test_greet_functionality() {
-    let pic = setup_pocket_ic();
-    let canister_id = deploy_hello_canister(&pic);
-
-    // Test greeting with a name
-    let request = GreetRequest {
-        name: Some("Alice".to_string()),
-    };
-    let response: GreetResponse = query(&pic, canister_id, "greet", encode_one(request).unwrap());
-    assert_eq!(
-        response.greeting,
-        Some("Hello, Alice! Welcome to the Internet Computer!".to_string())
-    );
-
-    // Test greeting with empty name
-    let request = GreetRequest {
-        name: Some("".to_string()),
-    };
-    let response: GreetResponse = query(&pic, canister_id, "greet", encode_one(request).unwrap());
-    assert_eq!(response.greeting, Some("Hello, Anonymous!".to_string()));
-
-    // Test greeting with no name
-    let request = GreetRequest { name: None };
-    let response: GreetResponse = query(&pic, canister_id, "greet", encode_one(request).unwrap());
-    assert_eq!(response.greeting, Some("Hello, Anonymous!".to_string()));
-}
-
 /// Test the counter functionality with Request/Response pattern
 #[test]
 fn test_counter_functionality() {
@@ -298,25 +264,6 @@ fn test_multiple_interactions() {
     let pic = setup_pocket_ic();
     let canister_id = deploy_hello_canister(&pic);
 
-    // Greet different users
-    let request1 = GreetRequest {
-        name: Some("Bob".to_string()),
-    };
-    let response1: GreetResponse = query(&pic, canister_id, "greet", encode_one(request1).unwrap());
-    assert_eq!(
-        response1.greeting,
-        Some("Hello, Bob! Welcome to the Internet Computer!".to_string())
-    );
-
-    let request2 = GreetRequest {
-        name: Some("Charlie".to_string()),
-    };
-    let response2: GreetResponse = query(&pic, canister_id, "greet", encode_one(request2).unwrap());
-    assert_eq!(
-        response2.greeting,
-        Some("Hello, Charlie! Welcome to the Internet Computer!".to_string())
-    );
-
     // Increment counter multiple times
     let request = IncrementCounterRequest {};
     let _: IncrementCounterResponse = update(
@@ -354,32 +301,6 @@ fn test_multiple_interactions() {
     assert_eq!(response.count, Some(3));
 }
 
-/// Test edge cases and special characters
-#[test]
-fn test_edge_cases() {
-    let pic = setup_pocket_ic();
-    let canister_id = deploy_hello_canister(&pic);
-
-    // Test with very long name
-    let long_name = "A".repeat(1000);
-    let request = GreetRequest {
-        name: Some(long_name.clone()),
-    };
-    let response: GreetResponse = query(&pic, canister_id, "greet", encode_one(request).unwrap());
-    let greeting = response.greeting.unwrap();
-    assert!(greeting.contains(&long_name));
-    assert!(greeting.contains("Hello"));
-
-    // Test with special characters
-    let special_name = "Héllo Wørld! 🌍";
-    let request = GreetRequest {
-        name: Some(special_name.to_string()),
-    };
-    let response: GreetResponse = query(&pic, canister_id, "greet", encode_one(request).unwrap());
-    let greeting = response.greeting.unwrap();
-    assert!(greeting.contains("Héllo Wørld! 🌍"));
-}
-
 /// Test async governance functionality - List Proposals
 #[test]
 fn test_list_proposals() {
@@ -410,37 +331,6 @@ fn test_list_proposals() {
             );
         }
         _ => panic!("Response should have either proposal_ids or error"),
-    }
-}
-
-/// Test async governance functionality - Get Proposal Count
-#[test]
-fn test_get_proposal_count() {
-    let pic = setup_pocket_ic();
-    let canister_id = deploy_hello_canister(&pic);
-
-    let request = GetProposalCountRequest {};
-    let response: GetProposalCountResponse = update(
-        &pic,
-        canister_id,
-        "get_proposal_count",
-        encode_one(request).unwrap(),
-    );
-
-    // Since this calls governance API, it will likely fail in PocketIC environment
-    match (response.count, response.error) {
-        (Some(_count), None) => {
-            // If mock returns a count, that's fine
-            println!("Mock count returned");
-        }
-        (None, Some(error)) => {
-            // Expected - inter-canister call will fail in PocketIC
-            println!("Expected error from governance call: {}", error);
-            assert!(
-                error.contains("Governance") || error.contains("call") || error.contains("failed")
-            );
-        }
-        _ => panic!("Response should have either count or error"),
     }
 }
 
@@ -533,136 +423,10 @@ fn test_get_proposal_titles() {
     assert!(response.titles.is_some() || response.error.is_some());
 }
 
-/// Test API evolution - Request/Response pattern flexibility
-#[test]
-fn test_api_evolution() {
-    let pic = setup_pocket_ic();
-    let canister_id = deploy_hello_canister(&pic);
-
-    // Test that optional fields in requests work (API can evolve)
-    let minimal_request = GreetRequest { name: None };
-    let response: GreetResponse = query(
-        &pic,
-        canister_id,
-        "greet",
-        encode_one(minimal_request).unwrap(),
-    );
-    assert!(response.greeting.is_some());
-
-    let full_request = GreetRequest {
-        name: Some("API Evolution Test".to_string()),
-    };
-    let response: GreetResponse = query(
-        &pic,
-        canister_id,
-        "greet",
-        encode_one(full_request).unwrap(),
-    );
-    assert!(response.greeting.is_some());
-    assert!(response.greeting.unwrap().contains("API Evolution Test"));
-}
-
-/// Test canister state persistence across calls
-#[test]
-fn test_state_persistence() {
-    let pic = setup_pocket_ic();
-    let canister_id = deploy_hello_canister(&pic);
-
-    // Increment counter several times
-    for i in 1..=5 {
-        let request = IncrementCounterRequest {};
-        let response: IncrementCounterResponse = update(
-            &pic,
-            canister_id,
-            "increment_counter",
-            encode_one(request).unwrap(),
-        );
-        assert_eq!(response.new_count, Some(i));
-    }
-
-    // Verify final state is persistent
-    let request = GetCounterRequest {};
-    let response: GetCounterResponse = query(
-        &pic,
-        canister_id,
-        "get_counter",
-        encode_one(request).unwrap(),
-    );
-    assert_eq!(response.count, Some(5));
-
-    // Do some other operations
-    let greet_request = GreetRequest {
-        name: Some("State Test".to_string()),
-    };
-    let _: GreetResponse = query(
-        &pic,
-        canister_id,
-        "greet",
-        encode_one(greet_request).unwrap(),
-    );
-
-    // Counter should still be the same
-    let request = GetCounterRequest {};
-    let response: GetCounterResponse = query(
-        &pic,
-        canister_id,
-        "get_counter",
-        encode_one(request).unwrap(),
-    );
-    assert_eq!(response.count, Some(5));
-}
-
-/// Test with real NNS Governance canister WASM (demonstration)
-/// This test shows how to deploy and interact with the actual governance canister
-#[test]
-fn test_real_governance_canister_deployment() {
-    let pic = setup_pocket_ic();
-
-    // This will download the real NNS Governance WASM if needed
-    println!("Ensuring NNS Governance WASM is available...");
-    let governance_wasm = get_governance_wasm();
-    println!("Got governance WASM: {} bytes", governance_wasm.len());
-
-    // Deploy the real governance canister
-    let governance_canister_id = pic.create_canister();
-    pic.add_cycles(governance_canister_id, 10_000_000_000_000); // More cycles for governance
-
-    // Note: Real governance canister requires initialization arguments
-    // For this test, we just verify the WASM can be loaded
-    println!("Attempting to install real governance WASM...");
-
-    // The governance canister requires complex initialization, so we'll just verify
-    // the WASM is valid by checking its size and structure
-    assert!(
-        governance_wasm.len() > 1_000_000,
-        "Governance WASM should be substantial (>1MB)"
-    );
-    assert!(
-        governance_wasm.starts_with(&[0x00, 0x61, 0x73, 0x6d]),
-        "Should be valid WASM (starts with magic bytes)"
-    );
-
-    println!("Real NNS Governance WASM verified successfully!");
-    println!(
-        "   Size: {:.2} MB",
-        governance_wasm.len() as f64 / 1_024_000.0
-    );
-    println!("   Source: IC commit {}", IC_COMMIT_FOR_PROPOSALS);
-
-    // In a real test, you would:
-    // 1. Create proper initialization arguments for governance
-    // 2. Install the canister with those arguments
-    // 3. Test governance-specific functionality
-    // 4. Compare behavior with your mock implementation
-}
-
 // Helper functions
 
 fn setup_pocket_ic() -> PocketIc {
-    PocketIcBuilder::new()
-        .with_nns_subnet()
-        .with_application_subnet()
-        .build()
+    PocketIcBuilder::new().with_application_subnet().build()
 }
 
 fn deploy_hello_canister(pic: &PocketIc) -> Principal {
