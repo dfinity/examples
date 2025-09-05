@@ -278,3 +278,152 @@ pub mod nns_governance {
         }
     }
 }
+
+/// ICP Ledger canister types and initialization arguments  
+/// Based on ICRC-1 standard for modern token ledgers
+pub mod icp_ledger {
+    use candid::{CandidType, Deserialize, Nat, Principal};
+    use serde::Serialize;
+
+    /// Account identifier for ICRC-1 compatible ledgers
+    #[derive(CandidType, Serialize, Deserialize, Clone, Debug, PartialEq, Eq, Hash)]
+    pub struct Account {
+        /// The principal that owns the account
+        pub owner: Principal,
+        /// Optional subaccount (32 bytes)
+        pub subaccount: Option<Vec<u8>>,
+    }
+
+    impl Account {
+        /// Create a new account with just an owner (no subaccount)
+        pub fn new(owner: Principal) -> Self {
+            Self {
+                owner,
+                subaccount: None,
+            }
+        }
+
+        /// Create an account with owner and subaccount
+        pub fn new_with_subaccount(owner: Principal, subaccount: Vec<u8>) -> Self {
+            Self {
+                owner,
+                subaccount: Some(subaccount),
+            }
+        }
+    }
+
+    /// Metadata for the token (name, symbol, etc.)
+    #[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
+    pub struct MetadataEntry {
+        pub key: String,
+        pub value: MetadataValue,
+    }
+
+    /// Different types of metadata values
+    #[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
+    pub enum MetadataValue {
+        Text(String),
+        Blob(Vec<u8>),
+        Nat(Nat),
+        Int(i64),
+    }
+
+    /// Feature flags for the ledger
+    #[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
+    pub struct FeatureFlags {
+        pub icrc2: bool,
+    }
+
+    /// Archive options for transaction storage
+    #[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
+    pub struct ArchiveOptions {
+        /// Number of blocks to archive at once
+        pub trigger_threshold: u64,
+        /// Maximum number of blocks to store in archive
+        pub num_blocks_to_archive: u64,
+        /// Controller of archive canisters
+        pub controller_id: Principal,
+        /// More archive cycles threshold
+        pub more_controller_ids: Option<Vec<Principal>>,
+        /// Cycles for archive creation
+        pub cycles_for_archive_creation: Option<u64>,
+        /// Maximum transactions per response
+        pub max_transactions_per_response: Option<u64>,
+    }
+
+    /// ICP Ledger initialization arguments
+    /// Based on ICRC-1 standard with ICP-specific extensions
+    #[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
+    pub struct LedgerInitArgs {
+        /// Account that can mint tokens
+        pub minting_account: Account,
+        /// Fee for transfer operations in e8s (10^-8 tokens)
+        pub transfer_fee: u64,
+        /// Token symbol (e.g., "ICP")
+        pub token_symbol: String,
+        /// Token name (e.g., "Internet Computer Protocol")
+        pub token_name: String,
+        /// Token metadata
+        pub metadata: Vec<MetadataEntry>,
+        /// Initial account balances
+        pub initial_balances: Vec<(Account, u64)>,
+        /// Archive options for storing old transactions
+        pub archive_options: ArchiveOptions,
+        /// Number of decimal places for the token
+        pub decimals: Option<u8>,
+        /// Feature flags
+        pub feature_flags: Option<FeatureFlags>,
+        /// Maximum number of accounts
+        pub max_memo_length: Option<u16>,
+    }
+
+    impl Default for LedgerInitArgs {
+        fn default() -> Self {
+            // Use a test principal for minting account
+            let minting_account = Account::new(
+                Principal::from_text("rdmx6-jaaaa-aaaaa-aaadq-cai")
+                    .expect("Invalid minting account principal"),
+            );
+
+            // Default archive options
+            let archive_options = ArchiveOptions {
+                trigger_threshold: 2000,
+                num_blocks_to_archive: 1000,
+                controller_id: Principal::from_text("rdmx6-jaaaa-aaaaa-aaadq-cai")
+                    .expect("Invalid controller principal"),
+                more_controller_ids: None,
+                cycles_for_archive_creation: Some(1_000_000_000_000), // 1T cycles
+                max_transactions_per_response: Some(2000),
+            };
+
+            // Default metadata for ICP
+            let metadata = vec![
+                MetadataEntry {
+                    key: "icrc1:logo".to_string(),
+                    value: MetadataValue::Text(
+                        "https://cryptologos.cc/logos/internet-computer-icp-logo.png".to_string(),
+                    ),
+                },
+                MetadataEntry {
+                    key: "icrc1:description".to_string(),
+                    value: MetadataValue::Text(
+                        "The Internet Computer Protocol (ICP) token".to_string(),
+                    ),
+                },
+            ];
+
+            Self {
+                minting_account,
+                transfer_fee: 10_000, // 0.0001 ICP in e8s
+                token_symbol: "ICP".to_string(),
+                token_name: "Internet Computer Protocol".to_string(),
+                metadata,
+                initial_balances: vec![], // Empty for production-like setup
+                archive_options,
+                decimals: Some(8), // ICP uses 8 decimal places
+                feature_flags: Some(FeatureFlags { icrc2: true }),
+                max_memo_length: Some(32),
+            }
+        }
+    }
+}

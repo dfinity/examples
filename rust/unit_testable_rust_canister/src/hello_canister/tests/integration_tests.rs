@@ -18,6 +18,9 @@ const IC_COMMIT_FOR_PROPOSALS: &str = "4b7cde9a0e3b5ad4725e75cbc36ce635be6fa6a8"
 const NNS_GOVERNANCE_CANISTER_ID: &str = "rrkah-fqaaa-aaaaa-aaaaq-cai";
 const NNS_ROOT_CANISTER_ID: &str = "r7inp-6aaaa-aaaaa-aaabq-cai";
 
+// ICP Ledger Canister ID (mainnet)
+const ICP_LEDGER_CANISTER_ID: &str = "ryjl3-tyaaa-aaaaa-aaaba-cai";
+
 // WASM will be loaded dynamically with smart rebuilding
 fn get_hello_canister_wasm() -> Vec<u8> {
     let wasm_path = ensure_wasm_built();
@@ -127,19 +130,19 @@ fn rebuild_wasm() {
 /// Downloads the NNS Governance WASM from DFINITY's official release server
 /// Uses the same approach as nns-dapp for getting official IC artifacts
 fn ensure_governance_wasm_downloaded() -> PathBuf {
-    let wasm_path = PathBuf::from("../../target/ic/governance-canister.wasm");
+    let wasm_path = PathBuf::from("../../target/ic/governance-canister.wasm.gz");
 
     // Check if we need to download
     if !wasm_path.exists() {
         download_governance_wasm(&wasm_path);
     } else {
-        println!("NNS Governance WASM is up-to-date, skipping download");
+        println!("NNS Governance WASM already exists, skipping download");
     }
 
     wasm_path
 }
 
-/// Download the governance WASM with multiple fallback methods
+/// Download the governance WASM (compressed)
 fn download_governance_wasm(wasm_path: &Path) {
     // Ensure the target directory exists
     if let Some(parent) = wasm_path.parent() {
@@ -152,46 +155,17 @@ fn download_governance_wasm(wasm_path: &Path) {
         IC_COMMIT_FOR_PROPOSALS
     );
 
-    let output = Command::new("sh")
-        .args(&[
-            "-c",
-            &format!(
-                "curl -L --fail '{}' | gunzip > '{}'",
-                url,
-                wasm_path.display()
-            ),
-        ])
-        .output();
+    println!("Downloading NNS Governance WASM from: {}", url);
 
-    match output {
-        Ok(cmd_output) if cmd_output.status.success() => {
-            // Check if the downloaded file is valid
-            if let Ok(metadata) = std::fs::metadata(&wasm_path) {
-                let size_mb = metadata.len() / (1024 * 1024);
-                if size_mb >= 1 {
-                    println!(
-                        "Downloaded NNS Governance WASM ({} MB) from {}",
-                        size_mb, url
-                    );
-                    return;
-                }
-            }
-        }
-        Ok(cmd_output) => {
-            println!(
-                "Download failed: {}",
-                String::from_utf8_lossy(&cmd_output.stderr)
-            );
-        }
-        Err(e) => {
-            println!("Download failed: {}", e);
-        }
-    }
+    let wasm = std::process::Command::new("curl")
+        .args(["-L", "-f", &url])
+        .output()
+        .expect("Failed to download NNS Governance WASM")
+        .stdout;
 
-    // Clean up failed download
-    let _ = std::fs::remove_file(wasm_path);
+    std::fs::write(wasm_path, wasm).expect("Failed to write compressed WASM");
 
-    panic!("All download methods failed for governance WASM");
+    println!("NNS Governance WASM saved to {:?}", wasm_path);
 }
 
 /// Get the NNS Governance WASM binary, downloading if necessary
@@ -200,6 +174,56 @@ fn get_governance_wasm() -> Vec<u8> {
     std::fs::read(&wasm_path).unwrap_or_else(|e| {
         panic!(
             "Failed to read governance WASM file at {:?}: {}",
+            wasm_path, e
+        )
+    })
+}
+
+/// Ensure the ICP Ledger WASM is downloaded and return its path
+fn ensure_ledger_wasm_downloaded() -> PathBuf {
+    let wasm_path = PathBuf::from("../../target/ic/ledger-canister.wasm.gz");
+
+    if !wasm_path.exists() {
+        download_ledger_wasm(&wasm_path);
+    } else {
+        println!("ICP Ledger WASM already exists, skipping download");
+    }
+
+    wasm_path
+}
+
+/// Download the ICP Ledger WASM from the DFINITY CDN (compressed)
+fn download_ledger_wasm(wasm_path: &Path) {
+    // Create parent directory if it doesn't exist
+    if let Some(parent) = wasm_path.parent() {
+        std::fs::create_dir_all(parent).expect("Failed to create target directory");
+    }
+
+    // Download the compressed WASM file
+    let url = format!(
+        "https://download.dfinity.systems/ic/{}/canisters/ledger-canister.wasm.gz",
+        IC_COMMIT_FOR_PROPOSALS
+    );
+
+    println!("Downloading ICP Ledger WASM from: {}", url);
+
+    let wasm = std::process::Command::new("curl")
+        .args(["-L", "-f", &url])
+        .output()
+        .expect("Failed to download ICP Ledger WASM")
+        .stdout;
+
+    std::fs::write(wasm_path, wasm).expect("Failed to write compressed WASM");
+
+    println!("ICP Ledger WASM saved to {:?}", wasm_path);
+}
+
+/// Get the ICP Ledger WASM binary, downloading if necessary
+fn get_ledger_wasm() -> Vec<u8> {
+    let wasm_path = ensure_ledger_wasm_downloaded();
+    std::fs::read(&wasm_path).unwrap_or_else(|e| {
+        panic!(
+            "Failed to read ICP Ledger WASM file at {:?}: {}",
             wasm_path, e
         )
     })
@@ -261,6 +285,59 @@ fn setup_nns_governance(pic: &PocketIc) -> Principal {
     );
 
     governance_canister_id
+}
+
+/// Sets up ICP Ledger canister with correct mainnet ID and production-like initialization
+/// Uses LedgerInitArgs::default() to get realistic initialization parameters
+fn setup_icp_ledger(pic: &PocketIc) -> Principal {
+    let ledger_wasm = get_ledger_wasm();
+
+    // Parse the mainnet canister ID
+    let ledger_canister_id =
+        Principal::from_text(ICP_LEDGER_CANISTER_ID).expect("Invalid ICP Ledger canister ID");
+
+    println!(
+        "Creating ICP Ledger canister with ID: {}",
+        ledger_canister_id
+    );
+
+    // Create the canister with the specific mainnet ID (no controller set for ledger)
+    pic.create_canister_with_id(None, None, ledger_canister_id)
+        .expect("Failed to create ICP Ledger canister with specific ID");
+
+    // Get production-like initialization arguments
+    use hello_canister::types::icp_ledger::LedgerInitArgs;
+    let init_args = LedgerInitArgs::default();
+
+    println!("Installing ICP Ledger canister with production-like configuration");
+    println!(
+        "- Transfer fee: {} e8s (0.0001 ICP)",
+        init_args.transfer_fee
+    );
+    println!("- Token symbol: {}", init_args.token_symbol);
+    println!("- Token name: {}", init_args.token_name);
+    println!("- Decimals: {:?}", init_args.decimals);
+
+    // Install the canister with the initialization arguments
+    pic.install_canister(
+        ledger_canister_id,
+        ledger_wasm,
+        encode_one(init_args).expect("Failed to encode ledger init args"),
+        None,
+    );
+
+    println!(
+        "ICP Ledger canister setup complete at {}",
+        ledger_canister_id
+    );
+
+    ledger_canister_id
+}
+
+/// Helper function that provides default ICP Ledger initialization arguments
+/// This mirrors what you'd get from production ledger setup
+fn default_ledger_for_tests() -> hello_canister::types::icp_ledger::LedgerInitArgs {
+    hello_canister::types::icp_ledger::LedgerInitArgs::default()
 }
 
 /// Test the counter functionality with Request/Response pattern
