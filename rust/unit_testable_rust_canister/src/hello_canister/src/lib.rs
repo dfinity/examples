@@ -21,7 +21,7 @@ thread_local! {
 }
 
 // =============================================================================
-// IC CANISTER ENDPOINTS (Request/Response pattern for API evolution)
+// IC CANISTER ENDPOINTS (Request/Response pattern even with no arguments allows for API evolution)
 // =============================================================================
 
 #[init]
@@ -34,11 +34,6 @@ fn pre_upgrade() {}
 
 #[post_upgrade]
 fn post_upgrade() {}
-
-#[query]
-fn greet(request: GreetRequest) -> GreetResponse {
-    CANISTER_API.with(|api| api.borrow().greet(request.name))
-}
 
 #[query]
 fn get_counter(_request: GetCounterRequest) -> GetCounterResponse {

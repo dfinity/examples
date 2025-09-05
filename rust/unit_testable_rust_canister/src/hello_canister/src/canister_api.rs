@@ -20,20 +20,6 @@ impl CanisterApi {
         Self { governance }
     }
 
-    /// Handles greeting functionality (normal &self method for sync operations)
-    pub fn greet(&self, name: Option<String>) -> GreetResponse {
-        let greeting = match name {
-            Some(n) if !n.is_empty() => {
-                format!("Hello, {}! Welcome to the Internet Computer!", n)
-            }
-            _ => "Hello, Anonymous!".to_string(),
-        };
-
-        GreetResponse {
-            greeting: Some(greeting),
-        }
-    }
-
     /// Gets the current counter value from stable memory
     pub fn get_counter(&self) -> GetCounterResponse {
         let count = stable_memory::get_counter();
@@ -156,22 +142,6 @@ impl CanisterApi {
 }
 
 // =============================================================================
-// THREAD_LOCAL CANISTER API (SNS-WASM pattern)
-// =============================================================================
-
-thread_local! {
-    /// Canister API instance with production dependencies
-    /// Following SNS-WASM pattern where CanisterApi is stored in thread_local
-    pub static CANISTER_API: RefCell<CanisterApi> = RefCell::new({
-        let governance = Arc::new(crate::governance::NnsGovernanceApi::new());
-        CanisterApi::new(governance)
-    });
-}
-
-// SNS-WASM Pattern: LocalKey is passed directly to static methods
-// No helper functions needed - methods access thread-local state via LocalKey parameter
-
-// =============================================================================
 // UNIT TESTS (using mocked governance, thread-safe stable memory)
 // =============================================================================
 
@@ -200,24 +170,6 @@ mod tests {
     fn create_test_api_with_failures(list_fail: bool, get_fail: bool) -> CanisterApi {
         let governance = Arc::new(MockGovernanceApi::with_failure_modes(list_fail, get_fail));
         CanisterApi::new(governance)
-    }
-
-    #[test]
-    fn test_greet_request_response() {
-        let governance = Arc::new(MockGovernanceApi::new());
-        let api = CanisterApi::new(governance);
-
-        let response = api.greet(Some("Alice".to_string()));
-        assert_eq!(
-            response.greeting,
-            Some("Hello, Alice! Welcome to the Internet Computer!".to_string())
-        );
-
-        let response = api.greet(Some("".to_string()));
-        assert_eq!(response.greeting, Some("Hello, Anonymous!".to_string()));
-
-        let response = api.greet(None);
-        assert_eq!(response.greeting, Some("Hello, Anonymous!".to_string()));
     }
 
     #[test]
@@ -261,21 +213,81 @@ mod tests {
         // and thread_local storage is isolated per thread
     }
 
-    #[test]
-    fn test_request_response_evolution() {
-        // This test demonstrates how the Request/Response pattern supports API evolution
-        let api = create_test_api();
+    #[tokio::test]
+    async fn test_list_proposals_success() {
+        // Test successful proposal listing using the mock
+        let response = CanisterApi::list_proposals(&TEST_API).await;
 
-        // Future fields can be added to requests as Optional without breaking existing clients
-        let greet_request = GreetRequest {
-            name: Some("Evolution Test".to_string()),
-            // future_field: None, // Can be added later without breaking changes
-        };
+        assert!(response.error.is_none());
+        assert!(response.proposal_ids.is_some());
 
-        let response = api.greet(greet_request.name);
+        let proposal_ids = response.proposal_ids.unwrap();
+        assert_eq!(proposal_ids, vec![3, 2, 1]); // Mock sorts by ID descending (most recent first)
+    }
 
-        // Response can also evolve by adding optional fields
-        assert!(response.greeting.is_some());
-        // assert!(response.future_response_field.is_none()); // Can be added later
+    #[tokio::test]
+    async fn test_list_proposals_error() {
+        // Create a thread_local API that will fail on list operations
+        thread_local! {
+            static FAILING_LIST_API: RefCell<CanisterApi> = RefCell::new({
+                let governance = Arc::new(MockGovernanceApi::with_failure_modes(true, false));
+                CanisterApi::new(governance)
+            });
+        }
+
+        let response = CanisterApi::list_proposals(&FAILING_LIST_API).await;
+
+        assert!(response.proposal_ids.is_none());
+        assert!(response.error.is_some());
+        assert_eq!(response.error.unwrap(), "Mock failure: list_proposals");
+    }
+
+    #[tokio::test]
+    async fn test_get_proposal_info_success() {
+        // Test successful proposal info retrieval
+        let response = CanisterApi::get_proposal_info(&TEST_API, Some(1)).await;
+
+        assert!(response.error.is_none());
+        assert!(response.proposal.is_some());
+
+        let proposal = response.proposal.unwrap();
+        assert_eq!(proposal.id, 1);
+        assert_eq!(proposal.title, "Test Proposal 1");
+    }
+
+    #[tokio::test]
+    async fn test_get_proposal_info_missing_id() {
+        // Test error handling when proposal_id is None
+        let response = CanisterApi::get_proposal_info(&TEST_API, None).await;
+
+        assert!(response.proposal.is_none());
+        assert!(response.error.is_some());
+        assert_eq!(response.error.unwrap(), "Missing proposal_id");
+    }
+
+    #[tokio::test]
+    async fn test_get_proposal_info_not_found() {
+        // Test when a proposal ID doesn't exist in mock data (should return None without error)
+        let response = CanisterApi::get_proposal_info(&TEST_API, Some(999)).await;
+
+        assert!(response.error.is_none());
+        assert!(response.proposal.is_none()); // Valid behavior - proposal not found
+    }
+
+    #[tokio::test]
+    async fn test_get_proposal_info_error() {
+        // Create a thread_local API that will fail on get operations
+        thread_local! {
+            static FAILING_GET_API: RefCell<CanisterApi> = RefCell::new({
+                let governance = Arc::new(MockGovernanceApi::with_failure_modes(false, true));
+                CanisterApi::new(governance)
+            });
+        }
+
+        let response = CanisterApi::get_proposal_info(&FAILING_GET_API, Some(1)).await;
+
+        assert!(response.proposal.is_none());
+        assert!(response.error.is_some());
+        assert_eq!(response.error.unwrap(), "Mock failure: get_proposal");
     }
 }
