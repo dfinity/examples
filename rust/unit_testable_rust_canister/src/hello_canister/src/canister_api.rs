@@ -132,8 +132,6 @@ mod tests {
     use crate::governance::test_utils::MockGovernanceApi;
 
     use crate::counter::test_util::TestCounter;
-    use crate::types::nns_governance::Canister;
-    /// Helper to create CanisterApi for testing (not using thread_local)
     use std::cell::RefCell;
 
     thread_local! {
@@ -175,8 +173,8 @@ mod tests {
         assert_eq!(response.count, Some(1));
 
         // test that it can't underflow.
-        let response = api.decrement_count();
-        let response = api.decrement_count();
+        api.decrement_count();
+        api.decrement_count();
         let response = api.decrement_count();
         assert_eq!(response.new_count, Some(0));
     }

@@ -152,10 +152,6 @@ pub mod test_utils {
             mock.should_fail_get = should_fail_get;
             mock
         }
-
-        pub fn add_proposal(&self, proposal: ProposalInfo) {
-            self.proposals.write().unwrap().push(proposal);
-        }
     }
 
     #[async_trait]
