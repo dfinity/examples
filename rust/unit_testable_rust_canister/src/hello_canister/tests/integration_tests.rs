@@ -255,8 +255,8 @@ fn test_counter_functionality() {
 }
 
 /// Test async governance functionality - List Proposals
-/// Note: It is difficult to set up NNS Governance and NNS Ledger in integration tests from
-/// outside of the IC monorepo.  One of the principal purposes of this repository is to show
+/// Note: It is difficult to set up NNS Governance in integration tests from
+/// outside the IC monorepo.  One of the principal purposes of this repository is to show
 /// how much can be tested in unit tests via mocking, so that business logic can be fully vetted
 /// without needing to set up mainnet canisters with correct configurations in your tests.
 #[test]
