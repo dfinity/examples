@@ -91,10 +91,10 @@ impl CanisterApi {
         canister_api: &'static LocalKey<RefCell<CanisterApi>>,
         limit: Option<u32>,
     ) -> GetProposalTitlesResponse {
-        use crate::types::nns_governance::ListProposals;
+        use crate::types::nns_governance::ListProposalInfo;
 
-        let request = ListProposals {
-            limit: Some(limit.unwrap_or(10)),
+        let request = ListProposalInfo {
+            limit: 10,
             omit_large_fields: Some(true), // For performance
             ..Default::default()
         };
@@ -103,7 +103,11 @@ impl CanisterApi {
 
         match governance.list_proposals(request).await {
             Ok(response) => {
-                let titles: Vec<String> = response.proposals.into_iter().map(|p| p.title).collect();
+                let titles: Vec<String> = response
+                    .proposal_info
+                    .into_iter()
+                    .map(|p| p.proposal.unwrap().title.unwrap())
+                    .collect();
 
                 GetProposalTitlesResponse {
                     titles: Some(titles),
@@ -184,8 +188,11 @@ mod tests {
         assert!(response.proposal.is_some());
 
         let proposal = response.proposal.unwrap();
-        assert_eq!(proposal.id, 1);
-        assert_eq!(proposal.title, "Test Proposal 1");
+        assert_eq!(proposal.id.unwrap().id, 1);
+        assert_eq!(
+            proposal.proposal.unwrap().title,
+            Some("Test title 1".to_string())
+        );
     }
 
     #[tokio::test]

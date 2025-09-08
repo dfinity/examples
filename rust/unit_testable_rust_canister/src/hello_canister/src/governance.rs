@@ -1,11 +1,7 @@
+use crate::types::nns_governance::{ListProposalInfo, ListProposalInfoResponse, ProposalInfo};
 use async_trait::async_trait;
 use candid::Principal;
 use ic_cdk::call::Call;
-
-use crate::types::nns_governance::{
-    GetProposal, GetProposalResponse, ListProposals, ListProposalsResponse, ProposalInfo,
-    ProposalStatus, Topic,
-};
 
 /// Trait representing the subset of NNS Governance functionality we need
 /// This allows us to inject either the real governance canister or a mock for testing
@@ -15,17 +11,12 @@ use crate::types::nns_governance::{
 #[async_trait]
 pub trait GovernanceApi: Send + Sync {
     /// Lists proposals using the real NNS Governance API
-    async fn list_proposals(&self, request: ListProposals)
-        -> Result<ListProposalsResponse, String>;
+    async fn list_proposals(
+        &self,
+        request: ListProposalInfo,
+    ) -> Result<ListProposalInfoResponse, String>;
     /// Gets detailed information about a specific proposal
-    async fn get_proposal(&self, request: GetProposal) -> Result<GetProposalResponse, String>;
-
-    /// Gets proposal info by ID (simplified version for backward compatibility)  
-    async fn get_proposal_info(&self, proposal_id: u64) -> Result<Option<ProposalInfo>, String> {
-        let request = GetProposal { proposal_id };
-        let response = self.get_proposal(request).await?;
-        Ok(response.proposal_info)
-    }
+    async fn get_proposal_info(&self, proposal_id: u64) -> Result<Option<ProposalInfo>, String>;
 }
 
 /// Production implementation that makes actual inter-canister calls to NNS Governance
@@ -66,22 +57,17 @@ impl Default for NnsGovernanceApi {
 impl GovernanceApi for NnsGovernanceApi {
     async fn list_proposals(
         &self,
-        request: ListProposals,
-    ) -> Result<ListProposalsResponse, String> {
+        request: ListProposalInfo,
+    ) -> Result<ListProposalInfoResponse, String> {
         // Make actual inter-canister call to NNS Governance
         let result = Call::unbounded_wait(self.governance_canister_id, "list_proposals")
             .with_arg(&request)
             .await;
 
         match result {
-            Ok(response) => {
-                // For now, return mock data since we can't easily decode the response
-                // In a real implementation, you'd properly decode the candid response
-                Ok(ListProposalsResponse {
-                    proposals: vec![],
-                    total_proposal_count: Some(0),
-                })
-            }
+            Ok(response) => response
+                .candid()
+                .map_err(|e| format!("Could not decode candid: {:?}", e)),
             Err(err) => {
                 let error_msg = format!("NNS Governance call failed: {:?}", err);
                 ic_cdk::println!("Error calling list_proposals: {}", error_msg);
@@ -90,20 +76,16 @@ impl GovernanceApi for NnsGovernanceApi {
         }
     }
 
-    async fn get_proposal(&self, request: GetProposal) -> Result<GetProposalResponse, String> {
+    async fn get_proposal_info(&self, proposal_id: u64) -> Result<Option<ProposalInfo>, String> {
         // Make actual inter-canister call to NNS Governance
         let result = Call::unbounded_wait(self.governance_canister_id, "get_proposal_info")
-            .with_arg(&request.proposal_id)
+            .with_arg(proposal_id)
             .await;
 
         match result {
-            Ok(response) => {
-                // For now, return mock data since we can't easily decode the response
-                // In a real implementation, you'd properly decode the candid response
-                Ok(GetProposalResponse {
-                    proposal_info: None,
-                })
-            }
+            Ok(response) => response
+                .candid()
+                .map_err(|e| format!("Could not decode candid: {:?}", e)),
             Err(err) => {
                 let error_msg = format!("NNS Governance call failed: {:?}", err);
                 ic_cdk::println!("Error calling get_proposal_info: {}", error_msg);
@@ -116,6 +98,7 @@ impl GovernanceApi for NnsGovernanceApi {
 #[cfg(test)]
 pub mod test_utils {
     use super::*;
+    use crate::types::nns_governance::{NeuronId, Proposal, ProposalId};
     use std::sync::{Arc, RwLock};
 
     /// Mock implementation for testing
@@ -130,34 +113,79 @@ pub mod test_utils {
         pub fn new() -> Self {
             let proposals = vec![
                 ProposalInfo {
-                    id: 1,
-                    proposer: 12345,
+                    id: Some(ProposalId { id: 1 }),
+                    proposer: Some(NeuronId { id: 123 }),
                     proposal_timestamp_seconds: 1640000000,
-                    status: ProposalStatus::Open,
-                    topic: Topic::Governance,
-                    title: "Test Proposal 1".to_string(),
-                    summary: "Test summary 1".to_string(),
-                    url: "https://example.com/proposal/1".to_string(),
+                    reward_event_round: 0,
+                    deadline_timestamp_seconds: None,
+                    failed_timestamp_seconds: 0,
+                    reject_cost_e8s: 0,
+                    derived_proposal_information: None,
+                    latest_tally: None,
+                    total_potential_voting_power: None,
+                    reward_status: 0,
+                    decided_timestamp_seconds: 0,
+                    status: 1,
+                    topic: 13,
+                    failure_reason: None,
+                    ballots: vec![],
+                    proposal: Some(Box::from(Proposal {
+                        url: "".to_string(),
+                        title: Some("Test title 1".to_string()),
+                        action: None,
+                        summary: "".to_string(),
+                    })),
+                    executed_timestamp_seconds: 0,
                 },
                 ProposalInfo {
-                    id: 2,
-                    proposer: 67890,
+                    id: Some(ProposalId { id: 2 }),
+                    proposer: Some(NeuronId { id: 123 }),
                     proposal_timestamp_seconds: 1640000100,
-                    status: ProposalStatus::Adopted,
-                    topic: Topic::NetworkEconomics,
-                    title: "Test Proposal 2".to_string(),
-                    summary: "Test summary 2".to_string(),
-                    url: "https://example.com/proposal/2".to_string(),
+                    reward_event_round: 0,
+                    deadline_timestamp_seconds: None,
+                    failed_timestamp_seconds: 0,
+                    reject_cost_e8s: 0,
+                    derived_proposal_information: None,
+                    latest_tally: None,
+                    total_potential_voting_power: None,
+                    reward_status: 0,
+                    decided_timestamp_seconds: 0,
+                    status: 1,
+                    topic: 10,
+                    failure_reason: None,
+                    ballots: vec![],
+                    proposal: Some(Box::from(Proposal {
+                        url: "".to_string(),
+                        title: Some("Test title 2".to_string()),
+                        action: None,
+                        summary: "".to_string(),
+                    })),
+                    executed_timestamp_seconds: 0,
                 },
                 ProposalInfo {
-                    id: 3,
-                    proposer: 11111,
+                    id: Some(ProposalId { id: 3 }),
+                    proposer: Some(NeuronId { id: 123 }),
                     proposal_timestamp_seconds: 1640000200,
-                    status: ProposalStatus::Open,
-                    topic: Topic::SubnetManagement,
-                    title: "Subnet Upgrade Proposal".to_string(),
-                    summary: "Proposal to upgrade subnet configuration".to_string(),
-                    url: "https://example.com/proposal/3".to_string(),
+                    reward_event_round: 0,
+                    deadline_timestamp_seconds: None,
+                    failed_timestamp_seconds: 0,
+                    reject_cost_e8s: 0,
+                    derived_proposal_information: None,
+                    latest_tally: None,
+                    total_potential_voting_power: None,
+                    reward_status: 0,
+                    decided_timestamp_seconds: 0,
+                    status: 2,
+                    topic: 7,
+                    failure_reason: None,
+                    ballots: vec![],
+                    proposal: Some(Box::from(Proposal {
+                        url: "".to_string(),
+                        title: Some("Test title 3".to_string()),
+                        action: None,
+                        summary: "".to_string(),
+                    })),
+                    executed_timestamp_seconds: 0,
                 },
             ];
 
@@ -184,41 +212,38 @@ pub mod test_utils {
     impl GovernanceApi for MockGovernanceApi {
         async fn list_proposals(
             &self,
-            request: ListProposals,
-        ) -> Result<ListProposalsResponse, String> {
+            request: ListProposalInfo,
+        ) -> Result<ListProposalInfoResponse, String> {
             if self.should_fail_list {
                 return Err("Mock failure: list_proposals".to_string());
             }
 
             let proposals = self.proposals.read().unwrap();
-            let limit = request.limit.unwrap_or(10) as usize;
+            let limit = request.limit as usize;
 
+            let before_id = request
+                .before_proposal
+                .unwrap_or(ProposalId { id: u64::MAX })
+                .id;
             // Apply before_proposal filter if specified
             let mut filtered_proposals: Vec<_> = proposals
                 .iter()
-                .filter(|p| {
-                    if let Some(before_id) = request.before_proposal {
-                        p.id < before_id
-                    } else {
-                        true
-                    }
-                })
+                .filter(|p| p.id.as_ref().unwrap().id < before_id)
                 .cloned()
                 .collect();
-
-            // Sort by ID descending (most recent first)
-            filtered_proposals.sort_by(|a, b| b.id.cmp(&a.id));
 
             // Apply limit
             filtered_proposals.truncate(limit);
 
-            Ok(ListProposalsResponse {
-                proposals: filtered_proposals,
-                total_proposal_count: Some(proposals.len() as u64),
+            Ok(ListProposalInfoResponse {
+                proposal_info: filtered_proposals,
             })
         }
 
-        async fn get_proposal(&self, request: GetProposal) -> Result<GetProposalResponse, String> {
+        async fn get_proposal_info(
+            &self,
+            proposal_id: u64,
+        ) -> Result<Option<ProposalInfo>, String> {
             if self.should_fail_get {
                 return Err("Mock failure: get_proposal".to_string());
             }
@@ -226,10 +251,10 @@ pub mod test_utils {
             let proposals = self.proposals.read().unwrap();
             let proposal_info = proposals
                 .iter()
-                .find(|p| p.id == request.proposal_id)
+                .find(|p| p.id.as_ref().unwrap().id == proposal_id)
                 .cloned();
 
-            Ok(GetProposalResponse { proposal_info })
+            Ok(proposal_info)
         }
     }
 }

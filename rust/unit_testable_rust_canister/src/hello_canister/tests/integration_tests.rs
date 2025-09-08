@@ -1,6 +1,7 @@
 use candid::{decode_one, encode_one, CandidType, Principal};
 use pocket_ic::{PocketIc, PocketIcBuilder};
 use serde::Deserialize;
+use std::collections::BTreeMap;
 use std::io;
 use std::path::{Path, PathBuf};
 use std::process::Command;
@@ -8,6 +9,7 @@ use std::time::SystemTime;
 use walkdir::WalkDir;
 
 // Import all request/response types from the library
+use hello_canister::types::nns_governance::{Followees, Governance, NetworkEconomics};
 use hello_canister::types::*;
 
 // IC commit used for downloading official NNS WASM files
@@ -200,8 +202,7 @@ fn setup_nns_governance(pic: &PocketIc) -> Principal {
         .expect("Failed to create governance canister with specific ID");
 
     // Use the governance types directly from our types.rs
-    use hello_canister::types::nns_governance::GovernanceCanisterInit;
-    let init_args = GovernanceCanisterInit::default_for_tests();
+    let init_args = default_governance_for_tests();
 
     println!("Installing NNS Governance canister with production-like configuration");
 
@@ -938,72 +939,25 @@ fn query<T: CandidType + for<'de> Deserialize<'de>>(
 // GOVERNANCE CANISTER TYPES (Copied from nns/governance/api)
 // =============================================================================
 
-use hello_canister::types::nns_governance::{
-    Followees, GovernanceCanisterInit, NetworkEconomics, Topic,
-};
-use serde::Serialize;
-use std::collections::BTreeMap;
-
-/// Main Governance canister state and configuration
-/// Based on the nns/governance/api crate Governance struct
-#[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
-pub struct Governance {
-    /// Economic parameters for the governance system
-    pub economics: Option<NetworkEconomics>,
-    /// Default neurons that other neurons follow for each topic
-    pub default_followees: BTreeMap<Topic, Followees>,
-    /// Time in seconds before a proposal can be decided
-    pub wait_for_quiet_threshold_seconds: u64,
-    /// Duration of short voting period in seconds
-    pub short_voting_period_seconds: u64,
-    /// Initial voting period duration in seconds
-    pub initial_voting_period: u64,
-    /// Wait for quiet threshold for proposals in seconds
-    pub proposal_wait_for_quiet_threshold_seconds: u64,
-    /// Initial voting period for proposals in seconds
-    pub proposal_initial_voting_period: u64,
-    /// Voting period for neuron management proposals in seconds
-    pub neuron_management_voting_period_seconds: Option<u64>,
-    /// Economics parameters for the neurons fund (simplified for testing)
-    pub neurons_fund_economics: Option<()>,
-    /// Voting rewards parameters (simplified for testing)
-    pub voting_rewards_parameters: Option<()>,
-    /// Timestamp when the governance canister was created
-    pub genesis_timestamp_seconds: Option<u64>,
-}
-
 /// Helper function that provides a pre-configured Governance instance
 /// This uses the same defaults that GovernanceCanisterInitPayloadBuilder::new().build() would provide
 pub fn default_governance_for_tests() -> Governance {
     // Create default followees with empty lists for key topics
     // In production, these would point to foundation neurons
-    let mut default_followees = BTreeMap::new();
+    let mut default_followees = vec![];
 
-    let foundation_topics = vec![
-        Topic::Governance,
-        Topic::NetworkEconomics,
-        Topic::NodeAdmin,
-        Topic::SubnetManagement,
-        Topic::NetworkCanisterManagement,
-        Topic::ExchangeRate,
-        Topic::ParticipantManagement,
-        Topic::NodeProviderRewards,
-        Topic::ReplicaVersionManagement,
-        Topic::IcOsVersionElection,
-        Topic::IcOsVersionDeployment,
-    ];
-
-    for topic in foundation_topics {
-        default_followees.insert(
+    for topic in 1..18 {
+        default_followees.push((
             topic,
             Followees {
                 followees: vec![], // Empty for testing - production would have foundation neuron IDs
             },
-        );
+        ));
     }
 
     let economics = NetworkEconomics {
         neuron_minimum_stake_e8s: 100_000_000, // 1 ICP
+        voting_power_economics: None,
         max_proposals_to_keep_per_topic: 100,
         neuron_management_fee_per_proposal_e8s: 1_000_000, // 0.01 ICP
         reject_cost_e8s: 1_000_000,                        // 0.01 ICP
@@ -1011,19 +965,29 @@ pub fn default_governance_for_tests() -> Governance {
         neuron_spawn_dissolve_delay_seconds: 7 * 24 * 60 * 60, // 7 days
         minimum_icp_xdr_rate: 100,
         maximum_node_provider_rewards_e8s: 1_000_000_000_000, // 10,000 ICP
+        neurons_fund_economics: None,
     };
 
     Governance {
         economics: Some(economics),
+        restore_aging_summary: None,
+        spawning_neurons: None,
+        latest_reward_event: None,
         default_followees,
+        making_sns_proposal: None,
+        most_recent_monthly_node_provider_rewards: None,
+        maturity_modulation_last_updated_at_timestamp_seconds: None,
         wait_for_quiet_threshold_seconds: 86400, // 24 hours (production-like)
         short_voting_period_seconds: 345600,     // 4 days (production-like)
-        initial_voting_period: 345600,           // 4 days (production-like)
-        proposal_wait_for_quiet_threshold_seconds: 86400, // 24 hours
-        proposal_initial_voting_period: 345600,  // 4 days
+        proposals: vec![],
+        xdr_conversion_rate: None,
+        in_flight_commands: vec![],
         neuron_management_voting_period_seconds: Some(172800), // 2 days for neuron management
-        neurons_fund_economics: None,            // Not needed for basic testing
-        voting_rewards_parameters: None,         // Not needed for basic testing
-        genesis_timestamp_seconds: Some(1620000000), // Realistic timestamp (May 2021)
+        node_providers: vec![],
+        genesis_timestamp_seconds: 1620000000, // Realistic timestamp (May 2021)
+        metrics: None,
+        cached_daily_maturity_modulation_basis_points: None,
+        to_claim_transfers: vec![],
+        neurons: vec![],
     }
 }
