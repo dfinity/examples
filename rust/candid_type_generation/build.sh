@@ -21,26 +21,3 @@ echo ""
 echo "3️⃣ Building the canister..."
 echo "🔧 Running cargo build..."
 cargo build --target wasm32-unknown-unknown --release
-
-echo ""
-
-# Step 4: Build with dfx
-echo "4️⃣ Building with dfx..."
-dfx build
-
-echo ""
-echo "✅ Build complete!"
-echo "========================================="
-echo "🎯 You can now deploy and test the canister:"
-echo ""
-echo "Deploy:"
-echo "  dfx deploy"
-echo ""
-echo "Test methods:"
-echo "  dfx canister call candid_type_generation health"
-echo "  dfx canister call candid_type_generation get_info"  
-echo "  dfx canister call candid_type_generation list_neurons_pretty"
-echo ""
-echo "🌐 Or deploy to mainnet to test with real NNS data:"
-echo "  dfx deploy --network ic"
-echo "========================================="

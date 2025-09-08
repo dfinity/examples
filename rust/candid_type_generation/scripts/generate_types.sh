@@ -25,12 +25,7 @@ echo "📝 Output file: $OUTPUT_FILE"
 # Check if didc is installed, if not, try to install it
 if ! command -v didc &> /dev/null; then
     echo "🔧 didc not found, attempting to install..."
-    if command -v cargo &> /dev/null; then
-        cargo install didc
-    else
-        echo "❌ Error: cargo not found. Please install Rust and cargo first."
-        exit 1
-    fi
+    echo "Please install a release for your platform from https://github.com/dfinity/candid/releases"
 fi
 
 echo "⚙️  Generating Rust types using didc..."
