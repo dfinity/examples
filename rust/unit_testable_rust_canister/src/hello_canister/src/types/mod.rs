@@ -84,10 +84,12 @@ pub mod nns_governance;
 pub mod icp_ledger {
     use candid::{CandidType, Deserialize, Principal};
     use serde::Serialize;
+    use std::collections::HashMap;
 
     /// Tokens amount in e8s (1 ICP = 100,000,000 e8s)
     #[derive(CandidType, Serialize, Deserialize, Clone, Debug, PartialEq, Eq)]
     pub struct Tokens {
+        #[n(0)]
         pub e8s: u64,
     }
 
@@ -106,8 +108,8 @@ pub mod icp_ledger {
     /// Archive options for the ledger
     #[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
     pub struct ArchiveOptions {
-        pub trigger_threshold: u64,
-        pub num_blocks_to_archive: u64,
+        pub trigger_threshold: usize,
+        pub num_blocks_to_archive: usize,
         pub controller_id: Principal,
         pub cycles_for_archive_creation: Option<u64>,
     }
@@ -118,32 +120,38 @@ pub mod icp_ledger {
         Init(LedgerInit),
     }
 
-    /// ICP Ledger initialization record
+    #[derive(Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug)]
+    pub struct AccountIdentifier {
+        pub hash: [u8; 28],
+    }
+    pub type Subaccount = [u8; 32];
+
+    #[derive(Serialize, CandidType, Deserialize, Clone, Debug, Copy)]
+    pub struct Account {
+        #[cbor(n(0), with = "icrc_cbor::principal")]
+        pub owner: Principal,
+        #[cbor(n(1), with = "minicbor::bytes")]
+        pub subaccount: Option<Subaccount>,
+    }
+
+    /// ICP Ledger initialization record (not all fields)
     #[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
     pub struct LedgerInit {
-        pub minting_account: String, // Account identifier as hex string
-        pub initial_values: Vec<(String, Tokens)>, // (account_id, balance) pairs
-        pub send_whitelist: Vec<Principal>,
+        pub minting_account: AccountIdentifier,
+        pub icrc1_minting_account: Option<Account>,
+        pub max_message_size_bytes: Option<usize>,
+        pub initial_values: HashMap<AccountIdentifier, Tokens>,
+        pub archive_options: Option<ArchiveOptions>,
         pub transfer_fee: Option<Tokens>,
         pub token_symbol: Option<String>,
         pub token_name: Option<String>,
-        pub archive_options: Option<ArchiveOptions>,
     }
 
     impl LedgerInit {
         pub fn default_for_tests() -> Self {
-            // Use proper account identifier hex strings for testing
-            let minting_account =
-                "5b315d2f6702cb3a27d826161797d7b2c2e131cd312aece51d4d5574d1247087".to_string();
-            let test_account =
-                "2b8fbde99de881f695f279d2a892b1137bfe81a42d7694e064b1be58701e1138".to_string();
-
             Self {
                 minting_account,
-                initial_values: vec![
-                    (test_account, Tokens::from_icp(10_000)), // 10,000 ICP for testing
-                ],
-                send_whitelist: vec![],
+                icrc1_minting_account: None,
                 transfer_fee: Some(Tokens::from_e8s(10_000)), // 0.0001 ICP
                 token_symbol: Some("LICP".to_string()),
                 token_name: Some("Local ICP".to_string()),
@@ -154,17 +162,40 @@ pub mod icp_ledger {
                         .expect("Invalid archive controller"),
                     cycles_for_archive_creation: Some(1_000_000_000_000), // 1T cycles
                 }),
+                max_message_size_bytes: None,
+                initial_values: Default::default(),
             }
         }
     }
 
-    /// Account identifier for old ICP ledger (not ICRC-1)
-    pub type AccountIdentifier = String;
+    #[derive(
+        Copy,
+        Clone,
+        Eq,
+        PartialEq,
+        Ord,
+        PartialOrd,
+        Hash,
+        Debug,
+        Default,
+        CandidType,
+        Deserialize,
+        Serialize,
+    )]
+    pub struct Memo(pub u64);
+
+    #[derive(
+        Copy, Clone, Eq, PartialEq, Ord, PartialOrd, Hash, Debug, CandidType, Deserialize, Serialize,
+    )]
+    pub struct TimeStamp {
+        #[n(0)]
+        timestamp_nanos: u64,
+    }
 
     /// Transfer arguments for the old ICP ledger transfer method
     #[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
     pub struct TransferArgs {
-        pub memo: u64,
+        pub memo: Memo,
         pub amount: Tokens,
         pub fee: Tokens,
         pub from_subaccount: Option<Vec<u8>>,
