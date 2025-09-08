@@ -5,9 +5,15 @@ type GetCounterResponse = record {
   count: opt nat64;
 };
 
-type IncrementCounterRequest = record {};
+type IncrementCountRequest = record {};
 
-type IncrementCounterResponse = record {
+type IncrementCountResponse = record {
+  new_count: opt nat64;
+};
+
+type DecrementCountRequest = record {};
+
+type DecrementCountResponse = record {
   new_count: opt nat64;
 };
 
@@ -52,9 +58,9 @@ type GetProposalTitlesResponse = record {
 
 service : {
   // Request/Response API for evolution support
-  get_counter: (GetCounterRequest) -> (GetCounterResponse) query;
-  increment_counter: (IncrementCounterRequest) -> (IncrementCounterResponse);
-  list_proposals: (ListProposalsRequest) -> (ListProposalsResponse);
+  get_count: (GetCountRequest) -> (GetCountResponse) query;
+  increment_count: (IncrementCountRequest) -> (IncrementCountResponse);
+  decrement_count: (DecrementCountRequest) -> (DecrementCountResponse);
   get_proposal_info: (GetProposalInfoRequest) -> (GetProposalInfoResponse);
   get_proposal_count: (GetProposalCountRequest) -> (GetProposalCountResponse);
   get_proposal_titles: (GetProposalTitlesRequest) -> (GetProposalTitlesResponse);

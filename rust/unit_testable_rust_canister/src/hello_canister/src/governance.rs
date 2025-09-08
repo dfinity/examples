@@ -9,6 +9,9 @@ use crate::types::nns_governance::{
 
 /// Trait representing the subset of NNS Governance functionality we need
 /// This allows us to inject either the real governance canister or a mock for testing
+/// We copy the API request / response types from the governance canister.  See other examples
+/// in the respository for how to do this in your build scripts.
+/// TODO DO NOT MERGE - add the reference to the correct example when available.
 #[async_trait]
 pub trait GovernanceApi: Send + Sync {
     /// Lists proposals using the real NNS Governance API
@@ -16,17 +19,6 @@ pub trait GovernanceApi: Send + Sync {
         -> Result<ListProposalsResponse, String>;
     /// Gets detailed information about a specific proposal
     async fn get_proposal(&self, request: GetProposal) -> Result<GetProposalResponse, String>;
-
-    // Convenience methods for backward compatibility
-    /// Lists all proposal IDs (simplified version for backward compatibility)
-    async fn list_proposal_ids(&self) -> Result<Vec<u64>, String> {
-        let request = ListProposals {
-            limit: Some(100),
-            ..Default::default()
-        };
-        let response = self.list_proposals(request).await?;
-        Ok(response.proposals.into_iter().map(|p| p.id).collect())
-    }
 
     /// Gets proposal info by ID (simplified version for backward compatibility)  
     async fn get_proposal_info(&self, proposal_id: u64) -> Result<Option<ProposalInfo>, String> {

@@ -3,20 +3,23 @@ use std::cell::RefCell;
 use std::sync::Arc;
 
 mod canister_api;
+mod counter;
 mod governance;
 mod stable_memory;
 pub mod types;
 
+use crate::counter::StableMemoryCounter;
 use canister_api::CanisterApi;
 use governance::NnsGovernanceApi;
 use types::*;
 
 thread_local! {
-    /// Canister API instance with production dependencies
-    /// Following SNS-WASM pattern where CanisterApi is stored in thread_local
+    // Canister API instance with production dependencies
+    // This uses dependency injection to make unit-testing easier.
     pub static CANISTER_API: RefCell<CanisterApi> = RefCell::new({
         let governance = Arc::new(NnsGovernanceApi::new());
-        CanisterApi::new(governance)
+        let counter = Arc::new(StableMemoryCounter);
+        CanisterApi::new(governance, counter)
     });
 }
 
@@ -36,28 +39,23 @@ fn pre_upgrade() {}
 fn post_upgrade() {}
 
 #[query]
-fn get_counter(_request: GetCounterRequest) -> GetCounterResponse {
-    CANISTER_API.with(|api| api.borrow().get_counter())
+fn get_count(_request: GetCountRequest) -> GetCountResponse {
+    CANISTER_API.with(|api| api.borrow().get_count())
 }
 
 #[update]
-fn increment_counter(_request: IncrementCounterRequest) -> IncrementCounterResponse {
-    CANISTER_API.with(|api| api.borrow().increment_counter())
+fn increment_count(_request: IncrementCountRequest) -> IncrementCountResponse {
+    CANISTER_API.with(|api| api.borrow().increment_count())
 }
 
 #[update]
-async fn list_proposals(_request: ListProposalsRequest) -> ListProposalsResponse {
-    CanisterApi::list_proposals(&CANISTER_API).await
+fn decrement_count(_request: DecrementCountRequest) -> DecrementCountResponse {
+    CANISTER_API.with(|api| api.borrow().decrement_count())
 }
 
 #[update]
 async fn get_proposal_info(request: GetProposalInfoRequest) -> GetProposalInfoResponse {
     CanisterApi::get_proposal_info(&CANISTER_API, request.proposal_id).await
-}
-
-#[update]
-async fn get_proposal_count(_request: GetProposalCountRequest) -> GetProposalCountResponse {
-    CanisterApi::get_proposal_count(&CANISTER_API).await
 }
 
 #[update]
