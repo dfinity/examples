@@ -111,9 +111,9 @@ pub mod test_utils {
 
     impl MockGovernanceApi {
         pub fn new() -> Self {
-            let proposals = vec![
-                ProposalInfo {
-                    id: Some(ProposalId { id: 1 }),
+            let proposals = (0..20)
+                .map(|id| ProposalInfo {
+                    id: Some(ProposalId { id }),
                     proposer: Some(NeuronId { id: 123 }),
                     proposal_timestamp_seconds: 1640000000,
                     reward_event_round: 0,
@@ -131,63 +131,13 @@ pub mod test_utils {
                     ballots: vec![],
                     proposal: Some(Box::from(Proposal {
                         url: "".to_string(),
-                        title: Some("Test title 1".to_string()),
+                        title: Some(format!("Test title {id}")),
                         action: None,
                         summary: "".to_string(),
                     })),
                     executed_timestamp_seconds: 0,
-                },
-                ProposalInfo {
-                    id: Some(ProposalId { id: 2 }),
-                    proposer: Some(NeuronId { id: 123 }),
-                    proposal_timestamp_seconds: 1640000100,
-                    reward_event_round: 0,
-                    deadline_timestamp_seconds: None,
-                    failed_timestamp_seconds: 0,
-                    reject_cost_e8s: 0,
-                    derived_proposal_information: None,
-                    latest_tally: None,
-                    total_potential_voting_power: None,
-                    reward_status: 0,
-                    decided_timestamp_seconds: 0,
-                    status: 1,
-                    topic: 10,
-                    failure_reason: None,
-                    ballots: vec![],
-                    proposal: Some(Box::from(Proposal {
-                        url: "".to_string(),
-                        title: Some("Test title 2".to_string()),
-                        action: None,
-                        summary: "".to_string(),
-                    })),
-                    executed_timestamp_seconds: 0,
-                },
-                ProposalInfo {
-                    id: Some(ProposalId { id: 3 }),
-                    proposer: Some(NeuronId { id: 123 }),
-                    proposal_timestamp_seconds: 1640000200,
-                    reward_event_round: 0,
-                    deadline_timestamp_seconds: None,
-                    failed_timestamp_seconds: 0,
-                    reject_cost_e8s: 0,
-                    derived_proposal_information: None,
-                    latest_tally: None,
-                    total_potential_voting_power: None,
-                    reward_status: 0,
-                    decided_timestamp_seconds: 0,
-                    status: 2,
-                    topic: 7,
-                    failure_reason: None,
-                    ballots: vec![],
-                    proposal: Some(Box::from(Proposal {
-                        url: "".to_string(),
-                        title: Some("Test title 3".to_string()),
-                        action: None,
-                        summary: "".to_string(),
-                    })),
-                    executed_timestamp_seconds: 0,
-                },
-            ];
+                })
+                .collect();
 
             Self {
                 proposals: Arc::new(RwLock::new(proposals)),

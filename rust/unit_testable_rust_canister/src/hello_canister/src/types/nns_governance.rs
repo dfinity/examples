@@ -5,7 +5,7 @@ use ic_cdk::api::call::CallResult;
 
 #[derive(CandidType, Deserialize, Debug, Clone, serde::Serialize)]
 pub struct NeuronId {
-    pub(crate) id: u64,
+    pub id: u64,
 }
 
 #[derive(CandidType, Deserialize, Debug, Clone, serde::Serialize)]
@@ -140,7 +140,7 @@ pub struct Configure {
 
 #[derive(CandidType, Deserialize, Debug, Clone, serde::Serialize)]
 pub struct ProposalId {
-    pub(crate) id: u64,
+    pub id: u64,
 }
 
 #[derive(CandidType, Deserialize, Debug, Clone, serde::Serialize)]

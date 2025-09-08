@@ -55,12 +55,12 @@ fn decrement_count(_request: DecrementCountRequest) -> DecrementCountResponse {
 
 #[update]
 async fn get_proposal_info(request: GetProposalInfoRequest) -> GetProposalInfoResponse {
-    CanisterApi::get_proposal_info(&CANISTER_API, request.proposal_id).await
+    CanisterApi::get_proposal_info(&CANISTER_API, request).await
 }
 
 #[update]
 async fn get_proposal_titles(request: GetProposalTitlesRequest) -> GetProposalTitlesResponse {
-    CanisterApi::get_proposal_titles(&CANISTER_API, request.limit).await
+    CanisterApi::get_proposal_titles(&CANISTER_API, request).await
 }
 
 // Export candid interface

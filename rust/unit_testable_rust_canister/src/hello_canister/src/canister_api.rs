@@ -63,9 +63,9 @@ impl CanisterApi {
     /// Static method for canister endpoints - Gets proposal information by ID
     pub async fn get_proposal_info(
         canister_api: &'static LocalKey<RefCell<CanisterApi>>,
-        proposal_id: Option<u64>,
+        request: GetProposalInfoRequest,
     ) -> GetProposalInfoResponse {
-        let Some(id) = proposal_id else {
+        let Some(id) = request.proposal_id else {
             return GetProposalInfoResponse {
                 proposal: None,
                 error: Some("Missing proposal_id".to_string()),
@@ -89,12 +89,12 @@ impl CanisterApi {
     /// Static method for canister endpoints - Gets the latest proposal titles
     pub async fn get_proposal_titles(
         canister_api: &'static LocalKey<RefCell<CanisterApi>>,
-        limit: Option<u32>,
+        request: GetProposalTitlesRequest,
     ) -> GetProposalTitlesResponse {
         use crate::types::nns_governance::ListProposalInfo;
 
         let request = ListProposalInfo {
-            limit: 10,
+            limit: request.limit.unwrap_or(10),
             omit_large_fields: Some(true), // For performance
             ..Default::default()
         };
@@ -132,6 +132,7 @@ mod tests {
     use crate::governance::test_utils::MockGovernanceApi;
 
     use crate::counter::test_util::TestCounter;
+    use crate::types::nns_governance::Canister;
     /// Helper to create CanisterApi for testing (not using thread_local)
     use std::cell::RefCell;
 
@@ -182,7 +183,13 @@ mod tests {
     #[tokio::test]
     async fn test_get_proposal_info_success() {
         // Test successful proposal info retrieval
-        let response = CanisterApi::get_proposal_info(&TEST_API, Some(1)).await;
+        let response = CanisterApi::get_proposal_info(
+            &TEST_API,
+            GetProposalInfoRequest {
+                proposal_id: Some(1),
+            },
+        )
+        .await;
 
         assert!(response.error.is_none());
         assert!(response.proposal.is_some());
@@ -198,7 +205,9 @@ mod tests {
     #[tokio::test]
     async fn test_get_proposal_info_missing_id() {
         // Test error handling when proposal_id is None
-        let response = CanisterApi::get_proposal_info(&TEST_API, None).await;
+        let response =
+            CanisterApi::get_proposal_info(&TEST_API, GetProposalInfoRequest { proposal_id: None })
+                .await;
 
         assert!(response.proposal.is_none());
         assert!(response.error.is_some());
@@ -208,7 +217,13 @@ mod tests {
     #[tokio::test]
     async fn test_get_proposal_info_not_found() {
         // Test when a proposal ID doesn't exist in mock data (should return None without error)
-        let response = CanisterApi::get_proposal_info(&TEST_API, Some(999)).await;
+        let response = CanisterApi::get_proposal_info(
+            &TEST_API,
+            GetProposalInfoRequest {
+                proposal_id: Some(999),
+            },
+        )
+        .await;
 
         assert!(response.error.is_none());
         assert!(response.proposal.is_none()); // Valid behavior - proposal not found
@@ -225,10 +240,39 @@ mod tests {
             });
         }
 
-        let response = CanisterApi::get_proposal_info(&FAILING_GET_API, Some(1)).await;
+        let response = CanisterApi::get_proposal_info(
+            &FAILING_GET_API,
+            GetProposalInfoRequest {
+                proposal_id: Some(1),
+            },
+        )
+        .await;
 
         assert!(response.proposal.is_none());
         assert!(response.error.is_some());
         assert_eq!(response.error.unwrap(), "Mock failure: get_proposal");
+    }
+
+    // Note, see the integration test.  Notice the difference in runtime between the two tests, despite
+    // the fact that the setup and tests do largely the same thing.  For complex test scenarios,
+    // testing logic is always going to be much faster, which makes this style of testing preferred
+    // to allow for faster development (quicker feedback loops) and more thorough testing able to
+    // be performed quickly on each change.
+    #[tokio::test]
+    async fn test_get_proposal_titles() {
+        async fn test_limits(limit: Option<u32>) {
+            let response = CanisterApi::get_proposal_titles(
+                &TEST_API,
+                GetProposalTitlesRequest {
+                    limit: limit.clone(),
+                },
+            )
+            .await;
+            assert_eq!(response.titles.unwrap().len() as u32, limit.unwrap_or(10));
+        }
+
+        test_limits(None).await;
+        test_limits(Some(20)).await;
+        test_limits(Some(1)).await;
     }
 }

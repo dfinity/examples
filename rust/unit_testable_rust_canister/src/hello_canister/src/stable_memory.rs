@@ -58,15 +58,3 @@ where
         result
     })
 }
-
-// =============================================================================
-// HIGH-LEVEL OPERATIONS (business logic for stable memory)
-// =============================================================================
-
-/// Resets all stable memory (useful for testing)
-/// Note: This uses the same stable memory across tests in the same thread
-/// but different threads (different tests) have isolated stable memory
-#[cfg(test)]
-pub fn reset_for_test() {
-    with_counter_mut(|counter| *counter = 0);
-}

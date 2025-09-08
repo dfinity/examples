@@ -62,6 +62,5 @@ service : {
   increment_count: (IncrementCountRequest) -> (IncrementCountResponse);
   decrement_count: (DecrementCountRequest) -> (DecrementCountResponse);
   get_proposal_info: (GetProposalInfoRequest) -> (GetProposalInfoResponse);
-  get_proposal_count: (GetProposalCountRequest) -> (GetProposalCountResponse);
   get_proposal_titles: (GetProposalTitlesRequest) -> (GetProposalTitlesResponse);
 }
