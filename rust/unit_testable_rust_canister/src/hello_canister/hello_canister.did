@@ -1,7 +1,7 @@
 // Request/Response types for API evolution
-type GetCounterRequest = record {};
+type GetCountRequest = record {};
 
-type GetCounterResponse = record {
+type GetCountResponse = record {
   count: opt nat64;
 };
 
