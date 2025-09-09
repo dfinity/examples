@@ -100,6 +100,19 @@ fn test_end_to_end_workflow() {
 The architecture enables testing 95%+ of your logic in fast unit tests, with only a few integration tests needed to
 verify system integration.
 
+## Keeping Up With Mainnet Canister Changes
+
+Additionally, in the PocketIC tests, we rely on setting up Governance proposals via init arguments. That capability
+could be removed in the future, as it's not part of the stable interface of the canister. In that case, mocking out
+canisters would become harder, as you would need to also create a ledger and neurons and proposals. This setup can
+be error-prone, and would need to be kept in sync with mainnet.
+
+In the future, PocketIC may contain working versions of system canisters as a setup option which would alleviate this
+difficulty.
+
+Speed will always, however, remain a large advantage of leaning more heavily on unit tests, using integration tests for
+minimal testing.
+
 ## Project Structure
 
 ```
