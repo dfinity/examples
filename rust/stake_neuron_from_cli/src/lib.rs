@@ -22,7 +22,7 @@ pub async fn stake_neuron(args: StakeNeuronArgs) -> Result<NeuronStakingResult, 
     println!("Using nonce: {}", args.nonce);
 
     let identity = load_identity(&args.identity_path).await?;
-    
+
     let controller = identity.sender()?;
     println!("Identity principal: {}", controller);
 
@@ -33,7 +33,7 @@ pub async fn stake_neuron(args: StakeNeuronArgs) -> Result<NeuronStakingResult, 
         .expect("Failed to create IC agent");
 
     agent.fetch_root_key().await?;
-    
+
     println!("Successfully created IC agent!");
 
     // Step 1: Compute neuron staking subaccount
@@ -43,7 +43,7 @@ pub async fn stake_neuron(args: StakeNeuronArgs) -> Result<NeuronStakingResult, 
     // Step 2: Transfer ICP to governance canister subaccount
     println!("\n===========TRANSFERRING ICP TO GOVERNANCE=========");
     let governance_principal = Principal::from_text(NNS_GOVERNANCE_CANISTER_ID)?;
-    
+
     let to_account = AccountIdentifier::new(&governance_principal, Some(subaccount));
     let transfer_args = TransferArgs {
         memo: args.nonce,
@@ -58,7 +58,7 @@ pub async fn stake_neuron(args: StakeNeuronArgs) -> Result<NeuronStakingResult, 
         .with_arg(Encode!(&transfer_args)?)
         .call_and_wait()
         .await?;
-    
+
     let transfer_result = Decode!(&transfer_result_bytes, TransferResult)?;
 
     let block_index = match transfer_result {
@@ -74,7 +74,7 @@ pub async fn stake_neuron(args: StakeNeuronArgs) -> Result<NeuronStakingResult, 
 
     // Step 3: Claim or refresh neuron from account
     println!("\n===========CLAIMING NEURON FROM ACCOUNT=========");
-    
+
     let claim_request = ClaimOrRefreshNeuronFromAccount {
         controller: Some(controller),
         memo: args.nonce,
@@ -84,10 +84,10 @@ pub async fn stake_neuron(args: StakeNeuronArgs) -> Result<NeuronStakingResult, 
         .with_arg(Encode!(&claim_request)?)
         .call_and_wait()
         .await?;
-    
+
     println!("Raw response bytes length: {}", claim_result_bytes.len());
     println!("Raw response bytes (hex): {}", hex::encode(&claim_result_bytes));
-    
+
     let claim_result = Decode!(&claim_result_bytes, ClaimOrRefreshNeuronFromAccountResponse)?;
 
     println!("Full governance response: {:?}", claim_result);
@@ -112,7 +112,7 @@ pub async fn stake_neuron(args: StakeNeuronArgs) -> Result<NeuronStakingResult, 
     };
 
     println!("\nNeuron staking completed successfully!");
-    
+
     Ok(NeuronStakingResult {
         neuron_id,
         controller,
@@ -132,31 +132,26 @@ pub struct NeuronStakingResult {
 
 async fn load_identity(identity_path: &PathBuf) -> Result<Box<dyn Identity>, Box<dyn std::error::Error>> {
     println!("Attempting to load identity from: {}", identity_path.display());
-    
+
     // Read the PEM file
     let pem_content = std::fs::read_to_string(identity_path)?;
-    
+
     // Try to parse as different identity types
     if let Ok(identity) = BasicIdentity::from_pem(pem_content.as_bytes()) {
         println!("Loaded basic identity");
         return Ok(Box::new(identity));
     }
-    
+
     if let Ok(identity) = Secp256k1Identity::from_pem(pem_content.as_bytes()) {
         println!("Loaded secp256k1 identity");
         return Ok(Box::new(identity));
     }
-    
+
     Err("Could not parse identity file as either BasicIdentity or Secp256k1Identity".into())
 }
 
 /// Compute the subaccount for neuron staking
 fn compute_neuron_staking_subaccount(controller: Principal, nonce: u64) -> [u8; 32] {
-    compute_neuron_staking_subaccount_bytes(&controller, nonce)
-}
-
-/// Compute the subaccount bytes for neuron staking
-fn compute_neuron_staking_subaccount_bytes(controller: &Principal, nonce: u64) -> [u8; 32] {
     let domain_length: [u8; 1] = [b"neuron-stake".len() as u8];
     let mut hasher = Sha256::new();
     hasher.update(&domain_length);
@@ -182,15 +177,15 @@ impl AccountIdentifier {
         let mut hasher = Sha224::new();
         hasher.update(b"\x0Aaccount-id");
         hasher.update(principal.as_slice());
-        
+
         let sub_account = subaccount.unwrap_or([0u8; 32]);
         hasher.update(&sub_account);
-        
+
         AccountIdentifier {
             hash: hasher.finalize().into(),
         }
     }
-    
+
     fn to_vec(&self) -> Vec<u8> {
         let checksum = crc32fast::hash(&self.hash);
         let checksum_bytes = checksum.to_be_bytes();
