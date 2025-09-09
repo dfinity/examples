@@ -4,13 +4,13 @@
     "icp_ledger": {
       "type": "custom",
       "candid": "https://raw.githubusercontent.com/dfinity/ic/master/rs/ledger_suite/icp/ledger.did",
-      "wasm": "/Users/maximiliansumme/.cache/dfinity/versions/0.25.0/wasms/ledger-canister_notify-method.wasm",
+      "wasm": "./wasms/ledger-canister_notify-method.wasm.gz",
       "specified_id": "ryjl3-tyaaa-aaaaa-aaaba-cai"
     },
     "nns_governance": {
       "type": "custom",
       "candid": "https://raw.githubusercontent.com/dfinity/ic/master/rs/nns/governance/canister/governance.did",
-      "wasm": "/Users/maximiliansumme/.cache/dfinity/versions/0.25.0/wasms/governance-canister.wasm",
+      "wasm": "./wasms/governance-canister.wasm.gz",
       "specified_id": "rrkah-fqaaa-aaaaa-aaaaq-cai"
     }
   }
