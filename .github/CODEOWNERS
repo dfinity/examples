@@ -76,6 +76,7 @@
 /rust/send_http_get/ @dfinity/growth
 /rust/send_http_post/ @dfinity/growth
 /rust/simd/ @dfinity/execution
+/rust/stake_neuron_from_cli @dfinity/governance
 /rust/threshold-ecdsa/ @dfinity/crypto-team
 /rust/threshold-schnorr/ @dfinity/crypto-team
 /rust/tokenmania/ @dfinity/ninja-devs
