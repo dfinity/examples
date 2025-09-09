@@ -1,5 +1,7 @@
 #!/bin/bash
 
+FILE_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+
 set -e
 
 echo "========================================="
@@ -10,7 +12,8 @@ echo "========================================="
 NNS_GOVERNANCE_CANISTER_ID="rrkah-fqaaa-aaaaa-aaaaq-cai"
 
 # Output file for the Candid interface
-OUTPUT_FILE="nns_governance.did"
+OUTPUT_FILE="${FILE_DIR}/../candid/nns_governance.did"
+mkdir -p "${FILE_DIR}/../candid"
 
 echo "Fetching Candid interface from canister: $NNS_GOVERNANCE_CANISTER_ID"
 echo "Output file: $OUTPUT_FILE"
