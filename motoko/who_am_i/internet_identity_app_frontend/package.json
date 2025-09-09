@@ -1,9 +1,9 @@
 {
-  "name": "frontend",
+  "name": "internet_identity_app_frontend",
   "private": true,
   "type": "module",
   "scripts": {
-    "prebuild": "npm i --include=dev && dfx generate backend",
+    "prebuild": "npm i --include=dev && dfx generate internet_identity_app_backend",
     "build": "vite build",
     "dev": "vite"
   },

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { AuthClient } from '@dfinity/auth-client';
-import { createActor } from 'declarations/backend';
-import { canisterId } from 'declarations/backend/index.js';
+import { createActor } from 'declarations/internet_identity_app_backend';
+import { canisterId } from 'declarations/internet_identity_app_backend/index.js';
 
 const network = process.env.DFX_NETWORK;
 const identityProvider =
