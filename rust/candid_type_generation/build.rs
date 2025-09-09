@@ -5,6 +5,14 @@ fn main() {
     let cargo_dir =
         PathBuf::from(env::var("CARGO_MANIFEST_DIR").expect("Cannot find manifest dir"));
     let nns_candid_file = cargo_dir.join("candid").join("nns_governance.did");
+
+    if !nns_candid_file.exists() {
+        panic!(
+            "nns_candid_file does not exist.  \
+                Please run scripts/fetch_candid.sh to get the latest"
+        );
+    }
+
     // Safe to call in single-threaded programs, like this build script...
     unsafe {
         env::set_var(
