@@ -5,9 +5,8 @@ use ic_cdk::call::Call;
 
 /// Trait representing the subset of NNS Governance functionality we need
 /// This allows us to inject either the real governance canister or a mock for testing
-/// We copy the API request / response types from the governance canister.  See other examples
-/// in the respository for how to do this in your build scripts.
-/// TODO DO NOT MERGE - add the reference to the correct example when available.
+/// We copy the API request / response types from the governance canister in types/nns_governance.rs.
+/// See rust/candid_type_generation for one example of how to generate these types.
 #[async_trait]
 pub trait GovernanceApi: Send + Sync {
     /// Lists proposals using the real NNS Governance API

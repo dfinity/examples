@@ -145,3 +145,14 @@ cargo test
 
 The unit tests demonstrate testing the same functionality as integration tests but with significantly better performance
 and easier setup.
+
+## Deployment
+
+To deploy locally, but without NNS governance canister.
+
+```bash
+dfx start --background
+dfx create canister hello_canister
+dfx deploy
+
+```
