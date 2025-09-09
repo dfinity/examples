@@ -1,4 +1,3 @@
 service : {
-  get_info : () -> (text) query;
   list_neurons_pretty : () -> (text);
 }
