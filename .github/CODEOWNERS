@@ -11,6 +11,7 @@
 
 /motoko/basic_bitcoin/ @dfinity/cross-chain-team
 /motoko/backend_only/ @dfinity/ninja-devs
+/motoko/canister_factory/ @dfinity/growth
 /motoko/canister_logs/ @dfinity/execution
 /motoko/cert-var/ @dfinity/trust
 /motoko/classes/ @dfinity/languages

@@ -1,0 +1,1 @@
+persistent actor class AnotherChild() {};
