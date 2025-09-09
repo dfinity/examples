@@ -1,21 +1,21 @@
 # Known failure: https://dfinity.atlassian.net/browse/EM-5
-name: motoko-icp_transfer
+name: motoko-canister-factory
 on:
   push:
     branches:
       - master
   pull_request:
     paths:
-      - motoko/icp_transfer/**
+      - motoko/canister_factory/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
-      - .github/workflows/motoko-icp-transfer-example.yml
+      - .github/workflows/motoko-canister-factory-example.yml
       - .ic-commit
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  motoko-icp_transfer-darwin:
+  motoko-canister-factory-darwin:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v1
@@ -26,7 +26,7 @@ jobs:
           pushd motoko/canister_factory
           bash ./demo.sh
           popd
-  motoko-icp_transfer-linux:
+  motoko-canister-factory-linux:
     runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v1
