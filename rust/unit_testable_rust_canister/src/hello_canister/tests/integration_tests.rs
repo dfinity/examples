@@ -311,6 +311,7 @@ fn test_get_proposal_titles() {
 fn test_get_proposal_info() {
     let pic = setup_pocket_ic();
     let canister_id = deploy_hello_canister(&pic);
+    setup_nns_governance(&pic);
 
     // Test with a proposal ID
     let request = GetProposalInfoRequest {
@@ -323,20 +324,10 @@ fn test_get_proposal_info() {
         encode_one(request).unwrap(),
     );
 
-    match (response.proposal, response.error) {
-        (Some(_proposal), None) => {
-            // If mock returns proposal info, that's fine
-            println!("Mock proposal info returned");
-        }
-        (None, Some(error)) => {
-            // Expected - inter-canister call will fail in PocketIC
-            println!("Expected error from governance call: {}", error);
-            assert!(
-                error.contains("Governance") || error.contains("call") || error.contains("failed")
-            );
-        }
-        _ => panic!("Response should have either proposal or error"),
-    }
+    assert_eq!(response.error, None);
+
+    let info = response.proposal.unwrap();
+    assert_eq!(info.proposal.unwrap().title.unwrap(), "Test Title 1");
 
     // Test with no proposal ID (should return error)
     let request = GetProposalInfoRequest { proposal_id: None };
