@@ -69,7 +69,7 @@ ic_cdk::export_candid!();
 #[cfg(test)]
 mod tests {
     use super::*;
-    use candid_parser::utils::{service_compatible, CandidSource};
+    use candid_parser::utils::{service_equal, CandidSource};
     use std::env;
     use std::path::PathBuf;
 
@@ -96,7 +96,7 @@ mod tests {
         let declared_interface = CandidSource::Text(&declared_interface_str);
         let actual_interface = CandidSource::Text(&actual_interface_str);
 
-        let result = service_compatible(declared_interface, actual_interface);
-        assert!(result.is_ok(), "{:?}\n\n", result.unwrap_err());
+        let result = service_equal(declared_interface, actual_interface);
+        assert!(result.is_ok(), "{:?}\n\n", result);
     }
 }

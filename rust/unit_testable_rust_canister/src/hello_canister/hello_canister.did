@@ -35,7 +35,7 @@ type BasicProposalInfo = record {
 };
 
 type GetProposalInfoResponse = record {
-  proposal: opt BasicProposalInfo;
+  basic_info: opt BasicProposalInfo;
   error: opt text;
 };
 
@@ -55,7 +55,7 @@ type GetProposalTitlesResponse = record {
   error: opt text;
 };
 
-service : {
+service : () -> {
   // Request/Response API for evolution support
   get_count: (GetCountRequest) -> (GetCountResponse) query;
   increment_count: (IncrementCountRequest) -> (IncrementCountResponse);
