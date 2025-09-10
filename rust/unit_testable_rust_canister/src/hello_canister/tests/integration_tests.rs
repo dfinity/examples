@@ -326,8 +326,8 @@ fn test_get_proposal_info() {
 
     assert_eq!(response.error, None);
 
-    let info = response.proposal.unwrap();
-    assert_eq!(info.proposal.unwrap().title.unwrap(), "Test Title 1");
+    let info = response.basic_info.unwrap();
+    assert_eq!(info.title.unwrap(), "Test Title 1");
 
     // Test with no proposal ID (should return error)
     let request = GetProposalInfoRequest { proposal_id: None };
@@ -338,7 +338,7 @@ fn test_get_proposal_info() {
         encode_one(request).unwrap(),
     );
 
-    assert!(response.proposal.is_none());
+    assert!(response.basic_info.is_none());
     assert!(response.error.is_some());
     assert_eq!(response.error.unwrap(), "Missing proposal_id");
 }
