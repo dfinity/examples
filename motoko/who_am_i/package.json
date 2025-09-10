@@ -7,6 +7,6 @@
   },
   "type": "module",
   "workspaces": [
-    "internet_identity_app_frontend"
+    "src/internet_identity_app_frontend"
   ]
 }
