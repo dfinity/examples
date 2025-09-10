@@ -51,7 +51,7 @@
 /rust/basic_ethereum/ @dfinity/cross-chain-team
 /rust/backend_only/ @dfinity/ninja-devs
 /rust/backend_wasm64/ @dfinity/sdk
-/rust/candid_type_generation @dfinity/governance
+/rust/candid_type_generation @dfinity/governance-team
 /rust/canister-info/ @dfinity/execution
 /rust/canister-snapshots/ @dfinity/execution
 /rust/canister-snapshot-download/ @dfinity/execution
