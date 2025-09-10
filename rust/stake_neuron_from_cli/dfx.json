@@ -3,14 +3,14 @@
   "canisters": {
     "icp_ledger": {
       "type": "custom",
-      "candid": "https://raw.githubusercontent.com/dfinity/ic/master/rs/ledger_suite/icp/ledger.did",
-      "wasm": "./wasms/ledger-canister_notify-method.wasm.gz",
+      "candid": "https://raw.githubusercontent.com/dfinity/ic/4b7cde9a0e3b5ad4725e75cbc36ce635be6fa6a8/rs/ledger_suite/icp/ledger.did",
+      "wasm": "https://download.dfinity.systems/ic/4b7cde9a0e3b5ad4725e75cbc36ce635be6fa6a8/canisters/ledger-canister_notify-method.wasm.gz",
       "specified_id": "ryjl3-tyaaa-aaaaa-aaaba-cai"
     },
     "nns_governance": {
       "type": "custom",
-      "candid": "https://raw.githubusercontent.com/dfinity/ic/master/rs/nns/governance/canister/governance.did",
-      "wasm": "./wasms/governance-canister.wasm.gz",
+      "candid": "https://raw.githubusercontent.com/dfinity/ic/4b7cde9a0e3b5ad4725e75cbc36ce635be6fa6a8/rs/nns/governance/canister/governance.did",
+      "wasm": "https://download.dfinity.systems/ic/4b7cde9a0e3b5ad4725e75cbc36ce635be6fa6a8/canisters/governance-canister.wasm.gz",
       "specified_id": "rrkah-fqaaa-aaaaa-aaaaq-cai"
     }
   }

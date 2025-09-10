@@ -1,16 +1,6 @@
 #!/usr/bin/env bash
 set -e
 
-# Just a random commit to run the example against.
-IC_COMMIT=4b7cde9a0e3b5ad4725e75cbc36ce635be6fa6a8
-
-mkdir -p wasms
-curl -L -f -o wasms/governance-canister.wasm.gz \
-    "https://download.dfinity.systems/ic/$IC_COMMIT/canisters/governance-canister.wasm.gz"
-curl -L -f -o wasms/ledger-canister_notify-method.wasm.gz \
-    "https://download.dfinity.systems/ic/$IC_COMMIT/canisters/ledger-canister_notify-method.wasm.gz"
-
-
 echo "===========STARTING LOCAL IC========="
 # Stop any existing dfx instance
 dfx stop 2>/dev/null || true
