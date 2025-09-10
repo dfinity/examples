@@ -100,8 +100,15 @@ persistent actor Main {
   ///
   /// This function demonstrates canister upgrades by taking an existing
   /// canister running the Child actor class and upgrading it to use the
-  /// AnotherChild actor class instead. The canister's state is preserved
-  /// during the upgrade process.
+  /// AnotherChild actor class instead. **The canister's state is preserved**
+  /// during the upgrade process, and the canister gains new functionality
+  /// (substractFromValue endpoint) while keeping existing data.
+  ///
+  /// ## Key Behavior: State Preservation
+  /// - State variables retain their values
+  /// - New endpoints become available (substractFromValue)
+  /// - Existing endpoints continue to work
+  /// - Canister Principal ID remains the same
   ///
   /// ## Parameters
   /// - `canisterId`: The Principal ID of the existing canister to upgrade
@@ -126,8 +133,14 @@ persistent actor Main {
   ///
   /// This function demonstrates canister reinstallation by taking an existing
   /// canister running the Child actor class and reinstalling it with the
-  /// AnotherChild actor class. Unlike upgrade, reinstallation does NOT 
-  /// preserve the canister's state - all data is lost.
+  /// AnotherChild actor class. **Unlike upgrade, reinstallation does NOT 
+  /// preserve the canister's state - all data is reset to initial values.**
+  ///
+  /// ## Key Behavior: State Reset
+  /// - New endpoints become available (substractFromValue)
+  /// - Existing endpoints continue to work but with fresh state
+  /// - Canister Principal ID remains the same
+  /// - Any previously modified state is completely lost
   ///
   /// ## Parameters
   /// - `canisterId`: The Principal ID of the existing canister to reinstall

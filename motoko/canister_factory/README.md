@@ -80,6 +80,22 @@ dfx canister call backend installActorClass '(2_000_000_000_000)'
 
 ### 2. Canister Lifecycle Management
 
+#### Understanding Upgrade vs Reinstall
+
+This example demonstrates the critical difference between **upgrading** and **reinstalling** canisters:
+
+**🔄 Upgrade (`#upgrade`)**
+- **State is PRESERVED**: All mutable variables keep their current values
+- **New functionality is added**: The `substractFromValue` endpoint becomes available
+- **Existing functionality remains**: All original endpoints continue working
+- **Use case**: Adding features, bug fixes, optimizations while keeping data
+
+**🔥 Reinstall (`#reinstall`)**
+- **State is RESET**: All mutable variables return to their initial values
+- **New functionality is added**: The `substractFromValue` endpoint becomes available  
+- **Existing functionality resets**: Original endpoints work but with fresh state
+- **Use case**: Breaking changes, schema migrations, fresh start scenarios
+
 #### `upgradeActorClass(canisterId: Principal)`
 Upgrades an existing canister to use a different actor class (preserves state).
 
@@ -108,7 +124,9 @@ dfx canister call backend createAndInstallCanisterManually '(2_000_000_000_000)'
 
 ## Example Workflow
 
-Here's a complete example demonstrating the different approaches:
+Here's a complete example demonstrating all canister creation approaches and the differences between upgrade vs reinstall:
+
+### Part 1: Different Canister Creation Approaches
 
 ```bash
 # 1. Start local replica
@@ -128,21 +146,73 @@ echo "Created canister manually: $CANISTER2"
 # 5. Create canister with two-step process
 CANISTER3=$(dfx canister call backend installActorClass '(2_000_000_000_000)' | grep -o 'principal "[^"]*"' | cut -d'"' -f2)
 echo "Created canister with install process: $CANISTER3"
+```
 
-# 6. Upgrade the first canister
-dfx canister call backend upgradeActorClass "(principal \"$CANISTER1\")"
-echo "Upgraded canister: $CANISTER1"
+### Part 2: Upgrade vs Reinstall Demonstration
 
-# 7. Reinstall the third canister
-dfx canister call backend reinstallActorClass "(principal \"$CANISTER3\")"
-echo "Reinstalled canister: $CANISTER3"
+```bash
+# 6. Create additional canisters for testing upgrade vs reinstall
+CANISTER_UPGRADE=$(dfx canister call backend newActorClass '(2_000_000_000_000)' | grep -o 'principal "[^"]*"' | cut -d'"' -f2)
+CANISTER_REINSTALL=$(dfx canister call backend newActorClass '(2_000_000_000_000)' | grep -o 'principal "[^"]*"' | cut -d'"' -f2)
+echo "Created upgrade test canister: $CANISTER_UPGRADE"
+echo "Created reinstall test canister: $CANISTER_REINSTALL"
+
+# 7. Test initial state of both canisters
+echo "=== Initial State ==="
+echo "Upgrade canister initial value:"
+dfx canister call $CANISTER_UPGRADE getValue
+echo "Reinstall canister initial value:"
+dfx canister call $CANISTER_REINSTALL getValue
+
+# 8. Modify state by incrementing internal counters
+echo "=== Modifying State ==="
+echo "Adding 10 to upgrade canister..."
+dfx canister call $CANISTER_UPGRADE addToValue '(10)'
+echo "Adding 20 to reinstall canister..."
+dfx canister call $CANISTER_REINSTALL addToValue '(20)'
+
+# 9. Upgrade the first canister (preserves state)
+echo "=== Performing Upgrade (State Preserved) ==="
+dfx canister call backend upgradeActorClass "(principal \"$CANISTER_UPGRADE\")"
+echo "Upgraded canister: $CANISTER_UPGRADE"
+
+# 10. Test upgraded canister - should have preserved state AND new functionality
+echo "Upgraded canister value (should be preserved):"
+dfx canister call $CANISTER_UPGRADE getValue
+echo "Testing new substractFromValue endpoint:"
+dfx canister call $CANISTER_UPGRADE substractFromValue '(5)'
+
+# 11. Reinstall the second canister (resets state)
+echo "=== Performing Reinstall (State Reset) ==="
+dfx canister call backend reinstallActorClass "(principal \"$CANISTER_REINSTALL\")"
+echo "Reinstalled canister: $CANISTER_REINSTALL"
+
+# 12. Test reinstalled canister - should have reset state BUT new functionality
+echo "Reinstalled canister value (should be reset to initial):"
+dfx canister call $CANISTER_REINSTALL getValue
+echo "Adding 20 to reinstall canister..."
+dfx canister call $CANISTER_REINSTALL addToValue '(20)'
+echo "Testing new substractFromValue endpoint:"
+dfx canister call $CANISTER_REINSTALL substractFromValue '(5)'
+
+echo "=== Summary ==="
+echo "✅ Different creation approaches: actor class, manual, two-step"
+echo "🔄 Upgrade: State preserved, new functionality added"
+echo "🔥 Reinstall: State reset, new functionality added"
 ```
 
 ## Understanding the Code
 
 ### Actor Classes
-- `Child.mo`: A simple persistent actor class used for initial installations
-- `AnotherChild.mo`: An alternative actor class used for upgrade/reinstall demonstrations
+- `Child.mo`: A simple persistent actor class with mutable state for demonstrating initial installations and state behavior
+- `AnotherChild.mo`: An extended actor class with additional `substractFromValue` functionality used for upgrade/reinstall demonstrations
+
+### State Behavior Demonstration
+The example shows how:
+- **Child**: Has basic functionality (`getValue`, `addToValue`) and mutable state
+- **AnotherChild**: Extends Child with new functionality (`substractFromValue`) 
+- **Upgrade**: Migrates from Child to AnotherChild while preserving any modified state
+- **Reinstall**: Migrates from Child to AnotherChild but resets state to initial values
 
 ### Main Functions
 - **High-level functions** use Motoko's `system` keyword with actor classes
