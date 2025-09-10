@@ -1,0 +1,39 @@
+# Known failure: https://dfinity.atlassian.net/browse/EM-5
+name: motoko-canister-factory
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - motoko/canister_factory/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-canister-factory-example.yml
+      - .ic-commit
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  motoko-canister-factory-darwin:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Motoko Canister Factory Darwin
+        run: |
+          pushd motoko/canister_factory
+          bash ./demo.sh
+          popd
+  motoko-canister-factory-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Motoko Canister Factory Linux
+        run: |
+          pushd motoko/canister_factory
+          bash ./demo.sh
+          popd
