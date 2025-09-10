@@ -28,15 +28,14 @@ type GetProposalInfoRequest = record {
   proposal_id: opt nat64;
 };
 
-type ProposalInfo = record {
-  id: nat64;
-  title: text;
-  summary: text; 
-  proposer: text;
+type BasicProposalInfo = record {
+  id: opt nat64;
+  title: opt text;
+  summary: opt text;
 };
 
 type GetProposalInfoResponse = record {
-  proposal: opt ProposalInfo;
+  proposal: opt BasicProposalInfo;
   error: opt text;
 };
 

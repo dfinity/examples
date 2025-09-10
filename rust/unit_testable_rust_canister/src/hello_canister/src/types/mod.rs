@@ -52,7 +52,7 @@ pub struct ListProposalsResponse {
 
 #[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
 pub struct GetProposalInfoResponse {
-    pub proposal: Option<nns_governance::ProposalInfo>,
+    pub basic_info: Option<BasicProposalInfo>,
     pub error: Option<String>,
 }
 
@@ -71,6 +71,13 @@ pub struct GetProposalTitlesRequest {
 pub struct GetProposalTitlesResponse {
     pub titles: Option<Vec<String>>,
     pub error: Option<String>,
+}
+
+#[derive(CandidType, Serialize, Deserialize, Clone, Debug)]
+pub struct BasicProposalInfo {
+    pub id: Option<u64>,
+    pub title: Option<String>,
+    pub summary: Option<String>,
 }
 
 // =============================================================================

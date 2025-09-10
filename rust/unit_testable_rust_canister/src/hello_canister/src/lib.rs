@@ -65,3 +65,38 @@ async fn get_proposal_titles(request: GetProposalTitlesRequest) -> GetProposalTi
 
 // Export candid interface
 ic_cdk::export_candid!();
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use candid_parser::utils::{service_compatible, CandidSource};
+    use std::env;
+    use std::path::PathBuf;
+
+    #[test]
+    fn candid_interface_compatibility() {
+        // Get the directory where this crate's Cargo.toml is located
+        let manifest_dir = env::var("CARGO_MANIFEST_DIR")
+            .expect("CARGO_MANIFEST_DIR environment variable not set");
+        let candid_file_path = PathBuf::from(&manifest_dir).join("hello_canister.did");
+
+        // Read the declared interface from the .did file
+        let declared_interface_str =
+            std::fs::read_to_string(&candid_file_path).unwrap_or_else(|e| {
+                panic!(
+                    "Failed to read candid file at {:?}: {}",
+                    candid_file_path, e
+                )
+            });
+
+        // Get the actual interface from the implementation using export_candid
+        let actual_interface_str = __export_service();
+
+        // Normalize both interfaces for comparison (remove extra whitespace, etc.)
+        let declared_interface = CandidSource::Text(&declared_interface_str);
+        let actual_interface = CandidSource::Text(&actual_interface_str);
+
+        let result = service_compatible(declared_interface, actual_interface);
+        assert!(result.is_ok(), "{:?}\n\n", result.unwrap_err());
+    }
+}

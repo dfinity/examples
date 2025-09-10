@@ -1,11 +1,12 @@
 use crate::counter::Counter;
 use crate::governance::GovernanceApi;
 use crate::stable_memory;
+use crate::types::nns_governance::{Proposal, ProposalInfo};
 use crate::types::*;
 use std::cell::RefCell;
+use std::ops::Deref;
 use std::sync::Arc;
 use std::thread::LocalKey;
-
 // =============================================================================
 // CANISTER API (main business logic)
 // =============================================================================
@@ -67,7 +68,7 @@ impl CanisterApi {
     ) -> GetProposalInfoResponse {
         let Some(id) = request.proposal_id else {
             return GetProposalInfoResponse {
-                proposal: None,
+                basic_info: None,
                 error: Some("Missing proposal_id".to_string()),
             };
         };
@@ -75,12 +76,31 @@ impl CanisterApi {
         let governance = Self::get_governance(canister_api);
 
         match governance.get_proposal_info(id).await {
-            Ok(proposal) => GetProposalInfoResponse {
-                proposal,
-                error: None,
-            },
+            Ok(proposal_info) => {
+                let Some(ProposalInfo { id, proposal, .. }) = proposal_info else {
+                    return GetProposalInfoResponse {
+                        basic_info: None,
+                        error: Some("Proposal Not Found".to_string()),
+                    };
+                };
+
+                // proposal_info should always have a proposal, so this is generally safe.  However,
+                // in non-example code, we would handle this and return an error.
+                let unwrapped = proposal.unwrap();
+                let Proposal { title, summary, .. } = *unwrapped;
+
+                let basic_info = Some(BasicProposalInfo {
+                    id: id.map(|id| id.id),
+                    title,
+                    summary: Some(summary),
+                });
+                GetProposalInfoResponse {
+                    basic_info,
+                    error: None,
+                }
+            }
             Err(err) => GetProposalInfoResponse {
-                proposal: None,
+                basic_info: None,
                 error: Some(err),
             },
         }
@@ -190,14 +210,11 @@ mod tests {
         .await;
 
         assert!(response.error.is_none());
-        assert!(response.proposal.is_some());
+        assert!(response.basic_info.is_some());
 
-        let proposal = response.proposal.unwrap();
-        assert_eq!(proposal.id.unwrap().id, 1);
-        assert_eq!(
-            proposal.proposal.unwrap().title,
-            Some("Test title 1".to_string())
-        );
+        let basic_info = response.basic_info.unwrap();
+        assert_eq!(basic_info.id.unwrap(), 1);
+        assert_eq!(basic_info.title, Some("Test title 1".to_string()));
     }
 
     #[tokio::test]
@@ -207,7 +224,7 @@ mod tests {
             CanisterApi::get_proposal_info(&TEST_API, GetProposalInfoRequest { proposal_id: None })
                 .await;
 
-        assert!(response.proposal.is_none());
+        assert!(response.basic_info.is_none());
         assert!(response.error.is_some());
         assert_eq!(response.error.unwrap(), "Missing proposal_id");
     }
@@ -223,8 +240,8 @@ mod tests {
         )
         .await;
 
-        assert!(response.error.is_none());
-        assert!(response.proposal.is_none()); // Valid behavior - proposal not found
+        assert_eq!(response.error, Some("Proposal Not Found".to_string()));
+        assert!(response.basic_info.is_none());
     }
 
     #[tokio::test]
@@ -246,7 +263,7 @@ mod tests {
         )
         .await;
 
-        assert!(response.proposal.is_none());
+        assert!(response.basic_info.is_none());
         assert!(response.error.is_some());
         assert_eq!(response.error.unwrap(), "Mock failure: get_proposal");
     }
