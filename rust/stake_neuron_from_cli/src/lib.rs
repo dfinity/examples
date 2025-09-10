@@ -1,7 +1,10 @@
-use candid::{CandidType, Deserialize, Principal, Encode, Decode};
-use ic_agent::{Agent, Identity};
+use candid::{CandidType, Decode, Deserialize, Encode, Principal};
 use ic_agent::identity::{BasicIdentity, Secp256k1Identity};
-use sha2::{Sha224, Sha256, Digest};
+use ic_agent::{Agent, Identity};
+use ic_ledger_types::{
+    AccountIdentifier, Memo, Subaccount, Tokens, TransferArgs, TransferResult, DEFAULT_FEE,
+};
+use sha2::{Digest, Sha256};
 use std::path::PathBuf;
 
 // Canonical canister IDs
@@ -15,10 +18,16 @@ pub struct StakeNeuronArgs {
     pub nonce: u64,
 }
 
-pub async fn stake_neuron(args: StakeNeuronArgs) -> Result<NeuronStakingResult, Box<dyn std::error::Error>> {
+pub async fn stake_neuron(
+    args: StakeNeuronArgs,
+) -> Result<NeuronStakingResult, Box<dyn std::error::Error>> {
     println!("Loading identity from: {}", args.identity_path.display());
     println!("Connecting to IC at: {}", args.ic_url);
-    println!("Staking amount: {} e8s ({} ICP)", args.amount, args.amount as f64 / 100_000_000.0);
+    println!(
+        "Staking amount: {} e8s ({} ICP)",
+        args.amount,
+        args.amount as f64 / 100_000_000.0
+    );
     println!("Using nonce: {}", args.nonce);
 
     let identity = load_identity(&args.identity_path).await?;
@@ -37,24 +46,25 @@ pub async fn stake_neuron(args: StakeNeuronArgs) -> Result<NeuronStakingResult, 
     println!("Successfully created IC agent!");
 
     // Step 1: Compute neuron staking subaccount
-    let subaccount = compute_neuron_staking_subaccount(controller, args.nonce);
-    println!("Calculated subaccount: \"{}\"", hex::encode(subaccount));
+    let subaccount = Subaccount(compute_neuron_staking_subaccount(controller, args.nonce));
+    println!("Calculated subaccount: \"{}\"", hex::encode(subaccount.0));
 
     // Step 2: Transfer ICP to governance canister subaccount
     println!("\n===========TRANSFERRING ICP TO GOVERNANCE=========");
     let governance_principal = Principal::from_text(NNS_GOVERNANCE_CANISTER_ID)?;
 
-    let to_account = AccountIdentifier::new(&governance_principal, Some(subaccount));
+    let to_account = AccountIdentifier::new(&governance_principal, &subaccount);
     let transfer_args = TransferArgs {
-        memo: args.nonce,
-        amount: Tokens { e8s: args.amount },
-        fee: Tokens { e8s: 10_000 }, // Standard ICP transfer fee
+        memo: Memo(args.nonce),
+        amount: Tokens::from_e8s(args.amount),
+        fee: DEFAULT_FEE, // Standard ICP transfer fee
         from_subaccount: None,
-        to: to_account.to_vec(),
+        to: to_account,
         created_at_time: None,
     };
 
-    let transfer_result_bytes = agent.update(&Principal::from_text(ICP_LEDGER_CANISTER_ID)?, "transfer")
+    let transfer_result_bytes = agent
+        .update(&Principal::from_text(ICP_LEDGER_CANISTER_ID)?, "transfer")
         .with_arg(Encode!(&transfer_args)?)
         .call_and_wait()
         .await?;
@@ -80,13 +90,20 @@ pub async fn stake_neuron(args: StakeNeuronArgs) -> Result<NeuronStakingResult, 
         memo: args.nonce,
     };
 
-    let claim_result_bytes = agent.update(&governance_principal, "claim_or_refresh_neuron_from_account")
+    let claim_result_bytes = agent
+        .update(
+            &governance_principal,
+            "claim_or_refresh_neuron_from_account",
+        )
         .with_arg(Encode!(&claim_request)?)
         .call_and_wait()
         .await?;
 
     println!("Raw response bytes length: {}", claim_result_bytes.len());
-    println!("Raw response bytes (hex): {}", hex::encode(&claim_result_bytes));
+    println!(
+        "Raw response bytes (hex): {}",
+        hex::encode(&claim_result_bytes)
+    );
 
     let claim_result = Decode!(&claim_result_bytes, ClaimOrRefreshNeuronFromAccountResponse)?;
 
@@ -95,14 +112,21 @@ pub async fn stake_neuron(args: StakeNeuronArgs) -> Result<NeuronStakingResult, 
     let neuron_id = if let Some(result) = claim_result.result {
         match result {
             ClaimOrRefreshResult::Error(error) => {
-                println!("Governance error: {} (type: {})", error.error_message, error.error_type);
+                println!(
+                    "Governance error: {} (type: {})",
+                    error.error_message, error.error_type
+                );
                 return Err(format!("Governance error: {}", error.error_message).into());
             }
             ClaimOrRefreshResult::NeuronId(neuron_id) => {
                 println!("Neuron successfully claimed/refreshed!");
                 println!("Neuron ID: {}", neuron_id.id);
                 println!("Controller: {}", controller);
-                println!("Staked amount: {} e8s ({} ICP)", args.amount, args.amount as f64 / 100_000_000.0);
+                println!(
+                    "Staked amount: {} e8s ({} ICP)",
+                    args.amount,
+                    args.amount as f64 / 100_000_000.0
+                );
                 neuron_id.id
             }
         }
@@ -118,7 +142,7 @@ pub async fn stake_neuron(args: StakeNeuronArgs) -> Result<NeuronStakingResult, 
         controller,
         staked_amount_e8s: args.amount,
         block_index,
-        subaccount: hex::encode(subaccount),
+        subaccount,
     })
 }
 
@@ -127,11 +151,16 @@ pub struct NeuronStakingResult {
     pub controller: Principal,
     pub staked_amount_e8s: u64,
     pub block_index: u64,
-    pub subaccount: String,
+    pub subaccount: Subaccount,
 }
 
-async fn load_identity(identity_path: &PathBuf) -> Result<Box<dyn Identity>, Box<dyn std::error::Error>> {
-    println!("Attempting to load identity from: {}", identity_path.display());
+async fn load_identity(
+    identity_path: &PathBuf,
+) -> Result<Box<dyn Identity>, Box<dyn std::error::Error>> {
+    println!(
+        "Attempting to load identity from: {}",
+        identity_path.display()
+    );
 
     // Read the PEM file
     let pem_content = std::fs::read_to_string(identity_path)?;
@@ -159,68 +188,6 @@ fn compute_neuron_staking_subaccount(controller: Principal, nonce: u64) -> [u8; 
     hasher.update(controller.as_slice());
     hasher.update(&nonce.to_be_bytes());
     hasher.finalize().into()
-}
-
-// Candid types - all the types we defined manually
-#[derive(CandidType, Deserialize, Debug)]
-struct Tokens {
-    e8s: u64,
-}
-
-#[derive(CandidType, Deserialize, Debug)]
-struct AccountIdentifier {
-    hash: [u8; 28],
-}
-
-impl AccountIdentifier {
-    fn new(principal: &Principal, subaccount: Option<[u8; 32]>) -> Self {
-        let mut hasher = Sha224::new();
-        hasher.update(b"\x0Aaccount-id");
-        hasher.update(principal.as_slice());
-
-        let sub_account = subaccount.unwrap_or([0u8; 32]);
-        hasher.update(&sub_account);
-
-        AccountIdentifier {
-            hash: hasher.finalize().into(),
-        }
-    }
-
-    fn to_vec(&self) -> Vec<u8> {
-        let checksum = crc32fast::hash(&self.hash);
-        let checksum_bytes = checksum.to_be_bytes();
-        [&checksum_bytes[..], &self.hash[..]].concat()
-    }
-}
-
-#[derive(CandidType, Deserialize, Debug)]
-struct TransferArgs {
-    memo: u64,
-    amount: Tokens,
-    fee: Tokens,
-    from_subaccount: Option<Vec<u8>>,
-    to: Vec<u8>,
-    created_at_time: Option<TimeStamp>,
-}
-
-#[derive(CandidType, Deserialize, Debug)]
-struct TimeStamp {
-    timestamp_nanos: u64,
-}
-
-#[derive(CandidType, Deserialize, Debug)]
-enum TransferError {
-    BadFee { expected_fee: Tokens },
-    InsufficientFunds { balance: Tokens },
-    TxTooOld { allowed_window_nanos: u64 },
-    TxCreatedInFuture,
-    TxDuplicate { duplicate_of: u64 },
-}
-
-#[derive(CandidType, Deserialize, Debug)]
-enum TransferResult {
-    Ok(u64),
-    Err(TransferError),
 }
 
 #[derive(CandidType, Deserialize, Debug)]

@@ -9,6 +9,7 @@ path = "src/main.rs"
 
 [dependencies]
 ic-agent = "0.35"
+ic-ledger-types = "0.15.0"
 tokio = { version = "1", features = ["full"] }
 clap = { version = "4", features = ["derive"] }
 candid = "0.10"
