@@ -1,0 +1,66 @@
+// Request/Response types for API evolution
+type GetCountRequest = record {};
+
+type GetCountResponse = record {
+  count: opt nat64;
+};
+
+type IncrementCountRequest = record {};
+
+type IncrementCountResponse = record {
+  new_count: opt nat64;
+};
+
+type DecrementCountRequest = record {};
+
+type DecrementCountResponse = record {
+  new_count: opt nat64;
+};
+
+type ListProposalsRequest = record {};
+
+type ListProposalsResponse = record {
+  proposal_ids: opt vec nat64;
+  error: opt text;
+};
+
+type GetProposalInfoRequest = record {
+  proposal_id: opt nat64;
+};
+
+type ProposalInfo = record {
+  id: nat64;
+  title: text;
+  summary: text; 
+  proposer: text;
+};
+
+type GetProposalInfoResponse = record {
+  proposal: opt ProposalInfo;
+  error: opt text;
+};
+
+type GetProposalCountRequest = record {};
+
+type GetProposalCountResponse = record {
+  count: opt nat;
+  error: opt text;
+};
+
+type GetProposalTitlesRequest = record {
+  limit: opt nat32;
+};
+
+type GetProposalTitlesResponse = record {
+  titles: opt vec text;
+  error: opt text;
+};
+
+service : {
+  // Request/Response API for evolution support
+  get_count: (GetCountRequest) -> (GetCountResponse) query;
+  increment_count: (IncrementCountRequest) -> (IncrementCountResponse);
+  decrement_count: (DecrementCountRequest) -> (DecrementCountResponse);
+  get_proposal_info: (GetProposalInfoRequest) -> (GetProposalInfoResponse);
+  get_proposal_titles: (GetProposalTitlesRequest) -> (GetProposalTitlesResponse);
+}

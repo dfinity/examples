@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "canisters": {
+    "hello_canister": {
+      "type": "rust",
+      "package": "hello_canister",
+      "candid": "src/hello_canister/hello_canister.did"
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:4943",
+      "type": "ephemeral"
+    }
+  }
+}

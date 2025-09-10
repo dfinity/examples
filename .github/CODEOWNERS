@@ -83,6 +83,7 @@
 /rust/tokenmania/ @dfinity/ninja-devs
 /rust/token_transfer/ @dfinity/growth
 /rust/token_transfer_from/ @dfinity/growth
+/rust/unit_testable_rust_canister @dfinity/governance-team
 /rust/vetkd/ @dfinity/crypto-team
 /rust/who_am_i/ @dfinity/ninja-devs
 /rust/x509/ @dfinity/crypto-team
