@@ -95,5 +95,9 @@ This tool automatically generates idiomatic Rust types with appropriate derives 
 
 ## Possible enhancements
 
-Always update the candid files from mainnet in your build process to catch errors as soon as they hit mainnet, instead
-of finding out at runtime.
+Run a bot to update the candid files from mainnet on a regular cadence, and merge these changes in if they compile.
+
+Note that you want to have the candid file checked in to ensure build reproducibility between versions, as an updated
+candid file on an old version would result in different rust and then also different bytes, which would make it
+impossible to reproduce historical builds. That could create problems for any sort of 3rd party verification.
+
