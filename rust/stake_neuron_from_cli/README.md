@@ -89,12 +89,6 @@ async fn load_identity(identity_path: &PathBuf) -> Result<Box<dyn Identity>, Box
 }
 ```
 
-## Local Testing with setup_and_run.sh
-
-The `setup_and_run.sh` script provides a demo of the functionality along with an environment you can run
-other dfx commands against. It provides an example of how to create a local testing environment for exploratory
-testing. For more thorough testing, see the example `rust/unit_testable_rust_canister`
-
 ## Running the Example
 
 ### Prerequisites
