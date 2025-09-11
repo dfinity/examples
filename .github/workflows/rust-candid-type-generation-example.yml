@@ -21,7 +21,7 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Candid Type Generation Darwin
         run: |
-          pushd rust/unit_testable_rust_canister
+          pushd rust/candid_type_generation
           rm -rf candid/nns_governance.did src/declarations/nns_governance.rs
           ./scripts/fetch_candid.sh
           cargo build
@@ -36,7 +36,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Candid Type Generation Linux
         run: |
-          pushd rust/unit_testable_rust_canister
+          pushd rust/candid_type_generation
           rm -rf candid/nns_governance.did src/declarations/nns_governance.rs
           ./scripts/fetch_candid.sh
           cargo build
