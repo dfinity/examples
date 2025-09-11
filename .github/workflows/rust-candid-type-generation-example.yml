@@ -1,0 +1,37 @@
+name: rust-candid-type-generation
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - rust/candid_type_generation/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-candid-type-generation-example.yml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rust-candid-type-generation-example-darwin:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Candid Type Generation Darwin
+        run: |
+          pushd rust/unit_testable_rust_canister
+          cargo test
+          popd
+  rust-candid-type-generation-example-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Candid Type Generation Linux
+        run: |
+          pushd rust/unit_testable_rust_canister
+          cargo test
+          popd
