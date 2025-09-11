@@ -1,0 +1,37 @@
+name: rust-stake-neuron-from-cli
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - rust/stake_neuron_from_cli/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-stake-neuron-from-cli-example.yaml
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rust-stake-neuron-from-cli-example-darwin:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Rust Stake Neuron from CLI Darwin
+        run: |
+          pushd rust/stake_neuron_from_cli
+          ./setup_and_run.sh
+          popd
+  rust-stake-neuron-from-cli-example-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Rust Stake Neuron from CLI Linux
+        run: |
+          pushd rust/stake_neuron_from_cli
+          ./setup_and_run.sh
+          popd
