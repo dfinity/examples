@@ -22,7 +22,11 @@ jobs:
       - name: Candid Type Generation Darwin
         run: |
           pushd rust/unit_testable_rust_canister
-          cargo test
+          rm -rf candid/nns_governance.did src/declarations/nns_governance.rs
+          ./scripts/fetch_candid.sh
+          cargo build
+          [ -s "candid/nns_governance.did" ] || exit 1
+          [ -s "src/declarations/nns_governance.rs" ] || exit 1
           popd
   rust-candid-type-generation-example-linux:
     runs-on: ubuntu-22.04
@@ -33,5 +37,9 @@ jobs:
       - name: Candid Type Generation Linux
         run: |
           pushd rust/unit_testable_rust_canister
-          cargo test
+          rm -rf candid/nns_governance.did src/declarations/nns_governance.rs
+          ./scripts/fetch_candid.sh
+          cargo build
+          [ -s "candid/nns_governance.did" ] || exit 1
+          [ -s "src/declarations/nns_governance.rs" ] || exit 1
           popd
