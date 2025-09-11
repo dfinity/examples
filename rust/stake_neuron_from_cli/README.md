@@ -1,18 +1,21 @@
 # Neuron Staking from CLI
 
-A Rust CLI application demonstrating how to stake ICP to create a neuron on the Internet Computer's Network Nervous
-System (NNS).
+This example demonstrates how to stake ICP to create an NNS Governance neuron.
 
-## What You Can Learn
-
-This example teaches the key implementation details required for ICRC-1 neuron staking:
+## What you can learn
 
 ### 1. **Neuron Staking Subaccount Calculation**
 
-Learn how to compute the deterministic subaccount used for neuron staking:
+The neuron staking subaccount is the most critical thing to get right when staking a neuron.  
+If you send your ICP to the wrong subaccount, the ICP will be permanently lost, as there will not be a way
+to ask the Governance canister to retrieve it.
+
+Therefore, test your implementation (like in this example project) against a test version of Governance to ensure
+that it is able to send the ICP to the right destination.
 
 ```rust
-fn compute_neuron_staking_subaccount_bytes(controller: &Principal, nonce: u64) -> [u8; 32] {
+/// Compute the subaccount for neuron staking
+fn compute_neuron_staking_subaccount(controller: Principal, nonce: u64) -> [u8; 32] {
     let domain_length: [u8; 1] = [b"neuron-stake".len() as u8];
     let mut hasher = Sha256::new();
     hasher.update(&domain_length);
@@ -23,73 +26,49 @@ fn compute_neuron_staking_subaccount_bytes(controller: &Principal, nonce: u64) -
 }
 ```
 
-**Implementation details:**
+### 2. **Two-Step Neuron Creation Process**
 
-- Uses SHA256 hashing with domain separation (`"neuron-stake"`)
-- Combines controller principal + nonce for uniqueness
-- Creates deterministic subaccount from principal and nonce in the way NNS Governance does
+The neuron creation flow requires first making a ledger transfer, and then sending a message to tell
+NNS Governance about the transfer you made so that it can create a neuron.
 
-### 2. **ICP Ledger Account Identifier Format**
-
-Understand how to create the ICP Ledger's account identifier structure:
-
-```rust
-impl AccountIdentifier {
-    fn new(principal: &Principal, subaccount: Option<[u8; 32]>) -> Self {
-        let mut hasher = Sha224::new();  // Uses SHA-224, not SHA-256!
-        hasher.update(b"\x0Aaccount-id");
-        hasher.update(principal.as_slice());
-
-        let sub_account = subaccount.unwrap_or([0u8; 32]);
-        hasher.update(&sub_account);
-
-        AccountIdentifier {
-            hash: hasher.finalize().into(), // 28-byte SHA-224 hash
-        }
-    }
-
-    // Serializes as 32-byte blob: 4-byte CRC32 checksum + 28-byte hash
-    fn to_vec(&self) -> Vec<u8> {
-        let checksum = crc32fast::hash(&self.hash);
-        let checksum_bytes = checksum.to_be_bytes();
-        [&checksum_bytes[..], &self.hash[..]].concat()
-    }
-}
-```
-
-**Implementation details:**
-
-- Core identifier is 28-byte SHA-224 hash
-- Wire format to ledger is a 32-byte blob (CRC32 checksum + SHA-224)
-- Domain length plus domain id: `b"\x0Aaccount-id"`
-
-### 3. **Two-Step Neuron Creation Process**
-
-See the complete neuron staking flow:
-
-1. **Transfer ICP** → Transfer tokens to governance canister's computed subaccount
+1. **Transfer ICP** → Transfer tokens to NNS Governance at the computed subaccount
 2. **Claim Neuron** → Call `claim_or_refresh_neuron_from_account` to create the neuron
 
 ```rust
 // Step 1: Transfer ICP to the computed subaccount
-let to_account = AccountIdentifier::new( & governance_principal, Some(subaccount));
-let transfer_result = ledger.transfer(TransferArgs {
-memo: nonce,
-amount: Tokens { e8s: amount },
-to: to_account.to_vec(),
-// ...
-}).await?;
+let to_account = AccountIdentifier::new( & governance_principal, & subaccount);
+let transfer_args = TransferArgs {
+memo: Memo(args.nonce),
+amount: Tokens::from_e8s(args.amount),
+fee: DEFAULT_FEE, // Standard ICP transfer fee
+from_subaccount: None,
+to: to_account,
+created_at_time: None,
+};
+
+let transfer_result_bytes = agent
+.update( & Principal::from_text(ICP_LEDGER_CANISTER_ID) ?, "transfer")
+.with_arg(Encode!(&transfer_args)?)
+.call_and_wait()
+.await?;
 
 // Step 2: Claim the neuron using the same nonce
-let claim_result = governance.claim_or_refresh_neuron_from_account(
-ClaimOrRefreshNeuronFromAccount {
+let claim_request = ClaimOrRefreshNeuronFromAccount {
 controller: Some(controller),
-memo: nonce,
-}
-).await?;
+memo: args.nonce,
+};
+
+let claim_result_bytes = agent
+.update(
+& governance_principal,
+"claim_or_refresh_neuron_from_account",
+)
+.with_arg(Encode!(&claim_request)?)
+.call_and_wait()
+.await?;
 ```
 
-### 4. **Identity Management with ic-agent**
+### 3. **Identity Management with ic-agent**
 
 Additionally, you can see how you can use ic-agent to use different key formats to send messages.
 
@@ -112,30 +91,9 @@ async fn load_identity(identity_path: &PathBuf) -> Result<Box<dyn Identity>, Box
 
 ## Local Testing with setup_and_run.sh
 
-The `setup_and_run.sh` script provides a local testing environment:
-
-```bash
-#!/bin/bash
-# 1. Start local IC replica
-dfx start --clean --background
-
-# 2. Deploy NNS canisters with canonical IDs
-dfx deploy icp_ledger --specified-id ryjl3-tyaaa-aaaaa-aaaba-cai
-dfx deploy nns_governance --specified-id rrkah-fqaaa-aaaaa-aaaaq-cai
-
-# 3. Run the CLI tool
-cargo run -- --identity "$HOME/.config/dfx/identity/default/identity.pem" \
-              --url "http://127.0.0.1:4943" \
-              --amount 100010000 \
-              --nonce 42
-```
-
-**What this teaches:**
-
-- How to set up local NNS environment
-- Importance of canonical canister IDs for proper inter-canister calls
-- Complete governance and ledger initialization arguments
-- Integration between `dfx` and Rust tooling
+The `setup_and_run.sh` script provides a demo of the functionality along with an environment you can run
+other dfx commands against. It provides an example of how to create a local testing environment for exploratory
+testing. For more thorough testing, see the example `rust/unit_testable_rust_canister`
 
 ## Running the Example
 
@@ -154,7 +112,7 @@ chmod +x setup_and_run.sh
 This will:
 
 1. Start a local IC replica
-2. Deploy ICP Ledger and NNS Governance canisters
+2. Deploy ICP Ledger and NNS Governance canisters with basic configuration
 3. Run the staking example
 4. Leave the environment running for inspection
 
