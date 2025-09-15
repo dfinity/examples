@@ -97,6 +97,7 @@ async fn load_identity(identity_path: &PathBuf) -> Result<Box<dyn Identity>, Box
    Follow [DFINITY SDK installation](https://internetcomputer.org/docs/current/developer-docs/setup/install/)
 2. **Rust toolchain**: `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs/ | sh`
 
+### Run the script 
 ```bash
 # Set up local NNS and run example
 chmod +x setup_and_run.sh
