@@ -1,5 +1,5 @@
 [package]
-name = "backend"
+name = "internet_identity_app_backend"
 version = "0.1.0"
 edition = "2021"
 
@@ -7,8 +7,7 @@ edition = "2021"
 
 [lib]
 crate-type = ["cdylib"]
-path = "lib.rs"
 
 [dependencies]
 candid = "0.10.10"
-ic-cdk = "0.16.0"
+ic-cdk = "0.18.6"
