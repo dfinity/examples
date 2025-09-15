@@ -14,7 +14,7 @@
 [submodule "archive/rust/defi/src/DIP20"]
 	path = archive/rust/defi/src/DIP20
 	url = https://github.com/Psychedelic/DIP20.git
-[submodule "rust/sns-kongswap-adaptor"]
-	path = rust/sns-kongswap-adaptor
+[submodule "rust/sns-adaptor/sns-kongswap-adaptor"]
+	path = rust/sns-adaptor/sns-kongswap-adaptor
 	url = git@github.com:ShahriarJavidi/sns-kongswap-adaptor.git
 	branch = ICP-Ninja

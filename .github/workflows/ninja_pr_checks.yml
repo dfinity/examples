@@ -77,7 +77,7 @@ jobs:
             ["Photo Gallery (Rust)"]="rust/photo_gallery"
             ["Inter-canister calls (Rust)"]="rust/inter-canister-calls"
             ["X.509 (Rust)"]="rust/x509"
-            ["SNS Kongswap Adaptor (Rust)"]="rust/sns-kongswap-adaptor"
+            ["SNS Kongswap Adaptor (Rust)"]="rust/sns-adaptor"
           )
 
           # Check if we should run all examples (workflow file changed) or just changed ones
