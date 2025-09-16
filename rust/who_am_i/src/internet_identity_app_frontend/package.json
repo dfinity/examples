@@ -15,7 +15,8 @@
     "react-dom": "^18.2.0",
     "@dfinity/agent": "^3.0.0",
     "@dfinity/candid": "^3.0.0",
-    "@dfinity/principal": "^3.0.0"
+    "@dfinity/principal": "^3.0.0",
+    "@dfinity/auth-client": "^3.0.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.14",
