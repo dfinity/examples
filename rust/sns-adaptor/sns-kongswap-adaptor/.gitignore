@@ -1,0 +1,31 @@
+# Rust
+/target/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+
+# IDE/Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+
+# Test dependencies
+ic-artifacts
+
+# Internet Computer (dfx) build artifacts
+.dfx
