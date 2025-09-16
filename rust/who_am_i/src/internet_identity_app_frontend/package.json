@@ -8,6 +8,7 @@
     "start": "vite --port 3000",
     "prebuild": "dfx generate",
     "build": "vite build",
+    "dev": "vite",
     "format": "prettier --write \"src/**/*.{json,js,jsx,ts,tsx,css,scss}\""
   },
   "dependencies": {
