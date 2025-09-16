@@ -10,7 +10,7 @@
       "internet_identity_app_frontend": {
         "entrypoint": "src/internet_identity_app_frontend/index.html"
       },
-      "source": ["src/internet_identity_app_frontend"],
+      "source": ["src/internet_identity_app_frontend/dist"],
       "type": "assets"
     },
     "internet_identity": {
