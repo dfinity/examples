@@ -5,10 +5,9 @@
   "type": "module",
   "scripts": {
     "setup": "npm i && dfx canister create internet_identity_app_backend && dfx generate internet_identity_app_backend && dfx deploy",
-    "start": "npx vite --port 3000",
-    "prebuild": "dfx generate",
-    "build": "tsc && npx vite build",
-    "dev": "vite",
+    "start": "vite --port 3000",
+    "prebuild": "npm i --include=dev && dfx generate",
+    "build": "tsc && vite build",
     "format": "prettier --write \"src/**/*.{json,js,jsx,ts,tsx,css,scss}\""
   },
   "dependencies": {
