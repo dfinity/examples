@@ -1,8 +1,9 @@
 use candid::Principal;
+use ic_cdk::api::msg_caller;
 
 #[ic_cdk::query]
 fn whoami() -> Principal {
-    ic_cdk::caller()
+    msg_caller()
 }
 
 // Export the interface for the smart contract.

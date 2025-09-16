@@ -1,27 +1,16 @@
 {
   "canisters": {
-    "backend": {
-      "candid": "backend/backend.did",
-      "type": "custom",
-      "shrink": true,
-      "gzip": true,
-      "wasm": "target/wasm32-unknown-unknown/release/backend.wasm",
-      "build": [
-        "cargo build --target wasm32-unknown-unknown --release -p backend",
-        "candid-extractor target/wasm32-unknown-unknown/release/backend.wasm > backend/backend.did"
-      ],
-      "metadata": [
-        {
-          "name": "candid:service"
-        }
-      ]
+    "internet_identity_app_backend": {
+      "candid": "src/internet_identity_app_backend/internet_identity_app_backend.did",
+      "package": "internet_identity_app_backend",
+      "type": "rust"
     },
-    "frontend": {
-      "dependencies": ["backend"],
-      "frontend": {
-        "entrypoint": "frontend/index.html"
+    "internet_identity_app_frontend": {
+      "dependencies": ["internet_identity_app_backend"],
+      "internet_identity_app_frontend": {
+        "entrypoint": "src/internet_identity_app_frontend/index.html"
       },
-      "source": ["frontend/dist"],
+      "source": ["src/internet_identity_app_frontend/dist"],
       "type": "assets"
     },
     "internet_identity": {
