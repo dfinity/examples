@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Moon, Sun, ExternalLink, Copy, X, Loader2, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
-import { OisyIcon } from '@/components/ui/OisyIcon';
+import { OisyIcon } from '@/components/ui/oisyIcon';
 import ICPLogo from './assets/icp.svg';
 import USDCLogo from './assets/usdc.svg';
 import OISYLogo from './assets/oisy.svg';
