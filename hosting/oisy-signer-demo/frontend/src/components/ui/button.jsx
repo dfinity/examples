@@ -9,6 +9,9 @@ const buttonVariants = cva(
       variant: {
         default: 'bg-blue-600 text-white hover:bg-blue-700',
         destructive: 'bg-red-600 text-white hover:bg-red-700',
+        connect: 'bg-blue-600 text-white hover:bg-blue-700',
+        disconnect: 'bg-black text-white hover:bg-gray-800',
+        'disconnect-dark': 'bg-red-600 text-white hover:bg-red-700',
       },
       size: {
         default: 'h-10 px-4 py-2',
@@ -23,7 +26,9 @@ const buttonVariants = cva(
 
 export const Button = React.forwardRef(({ className, variant, size, ...props }, ref) => {
   return (
-    <button className={cn(buttonVariants({ variant, size }), className)} ref={ref} {...props} />
+    <button className={cn(buttonVariants({ variant, size }), className)} ref={ref} {...props}>
+      {props.children}
+    </button>
   );
 });
 Button.displayName = 'Button';

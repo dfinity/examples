@@ -1,13 +1,38 @@
 import { useEffect, useState } from 'react';
-import { Moon, Sun, ExternalLink, Copy, X, Loader2 } from 'lucide-react';
+import { Moon, Sun, ExternalLink, Copy, X, Loader2, LogOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
+import { OisyIcon } from '@/components/ui/OisyIcon';
 import ICPLogo from './assets/icp.svg';
 import USDCLogo from './assets/usdc.svg';
 import OISYLogo from './assets/oisy.svg';
 import { useOisyWallet } from './hooks/useOisyWallet';
 import { CKUSDC_LEDGER_ID } from './libs/constants';
 import { toMainUnit } from './libs/utils';
+
+// Helper functions for button styling and content
+const getButtonVariant = (isConnected, darkMode) => {
+  if (!isConnected) return 'connect';
+  return darkMode ? 'disconnect-dark' : 'disconnect';
+};
+
+const getButtonContent = (isConnected) => {
+  if (isConnected) {
+    return (
+      <>
+        <LogOut className="mr-2 h-4 w-4" />
+        Disconnect
+      </>
+    );
+  }
+  
+  return (
+    <>
+      <OisyIcon />
+      Connect OISY Wallet
+    </>
+  );
+};
 
 export default function App() {
   const {
@@ -84,10 +109,15 @@ export default function App() {
             <h1 className="text-xl font-semibold">OISY Signer Demo</h1>
           </div>
           <div className="flex items-center gap-4">
-            <Switch checked={darkMode} onCheckedChange={setDarkMode} />
-            {darkMode ? <Moon size={18} /> : <Sun size={18} />}
-            <Button onClick={isConnected ? disconnect : connect}>
-              {isConnected ? 'Disconnect' : 'Connect'}
+            <div className="flex items-center gap-2">
+              <Switch checked={darkMode} onCheckedChange={setDarkMode} />
+              {darkMode ? <Moon size={18} /> : <Sun size={18} />}
+            </div>
+            <Button
+              onClick={isConnected ? disconnect : connect}
+              variant={getButtonVariant(isConnected, darkMode)}
+            >
+              {getButtonContent(isConnected)}
             </Button>
           </div>
         </header>
