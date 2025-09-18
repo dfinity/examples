@@ -7,7 +7,7 @@ The `canister_logs` canister is designed to periodically log messages and simula
 ## Prerequisites
 
 - [x] Install the [IC
-  SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.
+      SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
 
 ## Step 1: Setup project environment
@@ -19,6 +19,7 @@ dfx start --clean
 ```
 
 You will need to have 3 terminal windows:
+
 - Terminal A: Running a `dfx` instance and separating its output from anything else.
 - Terminal B: Deploying a canister and seeing its output.
 - Terminal C: Reading logs interactively.
