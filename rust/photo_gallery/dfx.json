@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "backend": {
+      "candid": "backend/pictures-site-backend.did",
+      "package": "pictures-site-backend",
+      "type": "rust"
+    },
+    "frontend": {
+      "dependencies": ["backend"],
+      "source": ["frontend/dist"],
+      "type": "assets",
+      "workspace": "frontend"
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

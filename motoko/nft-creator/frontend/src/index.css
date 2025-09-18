@@ -1,0 +1,103 @@
+@import "tailwindcss";
+
+@layer base {
+    * {
+        box-sizing: border-box;
+    }
+
+    html {
+        font-family: system-ui, sans-serif;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        background-color: #111827;
+        color: #ffffff;
+        /* Prevent horizontal scroll on mobile */
+        overflow-x: hidden;
+    }
+}
+
+@layer components {
+    .container {
+        max-width: 1200px;
+    }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #374151;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #6b7280;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* Loading animation */
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* Focus styles */
+input:focus,
+textarea:focus,
+button:focus {
+    outline: none;
+}
+
+/* Smooth transitions */
+* {
+    transition-property: color, background-color, border-color,
+        text-decoration-color, fill, stroke;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 150ms;
+}
+
+/* Toast animations */
+@keyframes slide-in {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.animate-slide-in {
+    animation: slide-in 0.3s ease-out;
+}
+
+/* Mobile-specific utilities */
+@layer utilities {
+    .line-clamp-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Ensure buttons are touch-friendly on mobile */
+    @media (max-width: 640px) {
+        button {
+            min-height: 44px; /* Apple's recommended minimum touch target */
+        }
+    }
+}

@@ -6,25 +6,14 @@ all: build
 node_modules:
 	npm install
 
-.PHONY: build
-.SILENT: build
-build: node_modules
-	dfx canister create --all
-	dfx build
-
-.PHONY: install
-.SILENT: install
-install: build
-	dfx canister install --all
-
-.PHONY: upgrade
-.SILENT: upgrade
-upgrade: build
-	dfx canister install --all --mode=upgrade
+.PHONY: deploy
+.SILENT: deploy
+deploy: node_modules
+	dfx deploy
 
 .PHONY: test
 .SILENT: test
-test: install
+test: deploy
 	$(eval ID := $(shell dfx canister call superheroes create '(record {name = "Superman"; superpowers = opt record { 0 = "invulnerability"; 1 = opt record { 0 = "superhuman strength"; 1 = null; }; }; })' | tr -d '()'))
 	dfx canister call superheroes read '($(ID))' \
 		| grep 'Superman' && echo 'PASS'

@@ -2,68 +2,40 @@
 
 This example demonstrates how to implement inter-canister calls that run in parallel in Motoko, and highlights some differences between parallel and sequential calls. Running independent calls in parallel can lower the latency, especially when messages are sent across subnets. For example, a canister that swaps two tokens might want to launch both token transfer operations in parallel.
 
-## Architecture
-
 The sample code revolves around two simple canisters, `caller` and `callee`. `Caller` has three endpoints:
 1. `setup_callee`, to set the ID of the callee canister.
 2. `sequential_calls` and `parallel_calls`, which both take a number `n` and issue `n` calls to the callee, returning the number of successful calls. The former performs calls sequentially, the latter in parallel.
 
 The callee exposes a simple `ping` endpoint that takes no parameters and returns nothing.
 
-## Prerequisites
-This example requires an installation of:
+## Deploying from ICP Ninja
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
-- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/motoko/parallel_calls)
 
-Begin by opening a terminal window.
+## Build and deploy from the command-line
 
-## Step 1: Setup the project environment
+### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
 
-Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
+### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
 
-```bash
-cd examples/motoko/parallel_calls
-dfx start --background
-```
+### 3. Navigate into the project's directory.
 
-## Step 2: Deploy the canisters
-
-```bash
-dfx deploy
-```
-
-## Step 3: Set up the caller canister
-
-We now provide the ID of the callee to the caller, such that the caller can initiate calls.
+### 4. Deploy the project to your local environment:
 
 ```
-dfx canister call caller setup_callee "(principal \"`dfx canister id callee`\")"
+dfx start --background --clean && dfx deploy
 ```
 
-## Step 4: Invoke sequential and parallel calls
-
-Let's first call the different endpoints of the `caller` canister using `dfx`
+Invoke sequential and parallel calls. First call the different endpoints of the `caller` canister using `dfx`:
 
 ```bash
 dfx canister call caller sequential_calls 100
-```
-
-This should output:
-```bash
-(100 : nat64)
 ```
 
 And the other endpoint:
 
 ```bash
 dfx canister call caller parallel_calls 100
-```
-
-This should output:
-
-```bash
-(100 : nat64)
 ```
 
 The results are identical: all calls succeed. There also isn't a large difference in performance between these calls:
@@ -79,7 +51,7 @@ dfx canister call caller parallel_calls 100  0.11s user 0.03s system 8% cpu 1.72
 
 The reason why the performance is similar is because the local replica has only a single subnet. Inter-canister calls normally have almost no latency on a single subnet, so it doesn't matter much if we run them sequentially or in parallel.
 
-However, once we increase the number of calls, we observe a difference in both the results and performance.
+However, once you increase the number of calls, you can observe a difference in both the results and performance.
 
 ```bash
 time dfx canister call caller sequential_calls 2000
@@ -92,11 +64,7 @@ dfx canister call caller parallel_calls 2000  0.11s user 0.03s system 4% cpu 3.5
 
 All the sequential calls succeed, but most parallel calls fail. The reason is that the replica imposes a limit on the number of in-flight calls a canister can make (in particular, to a different canister). Doing the calls sequentially yields only one in-flight call at a time. However, too many parallel calls exceed the limit, after which the calls start failing. Note that it's also possible to hit this limit with sequential calls under high load (if `sequential_call` was itself called many times in parallel). If such limits are hit, immediate retries will also fail; retries should be done in a timer or a heartbeat instead.
 
-Lastly, the parallel calls here complete sooner -- because most of them fail!
-
-## Step 5: Multi-subnet setting
-
-Parallel calls are a lot more useful in multi-subnet settings. We can create such a setting locally using Pocket IC.
+Parallel calls are a lot more useful in multi-subnet settings. Create such a setting locally using Pocket IC:
 
 First, follow the [installation instructions](https://github.com/dfinity/pocketic) to install `pocket-ic` in the `parallel_calls` directory.
 
@@ -110,4 +78,9 @@ Sequential calls: 90/90 successful calls in 599.863583ms
 Parallel calls: 90/90 successful calls in 296.402ms
 ```
 
-As you can see, parallel calls run a lot faster than sequential calls here. The difference on the IC mainnet would be significantly larger still, as Pocket IC executes rounds much faster than the IC mainnet.
+As you can see, parallel calls run a lot faster than sequential calls here. The difference on the ICP mainnet would be significantly larger still, as Pocket IC executes rounds much faster than the ICP mainnet.
+
+## Security considerations and best practices
+
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
+

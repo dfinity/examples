@@ -3,7 +3,12 @@
     "query_stats": {
       "candid": "query-stats.did",
       "package": "query_stats",
-      "type": "rust"
+      "type": "rust",
+      "metadata": [
+        {
+          "name": "candid:service"
+        }
+      ]
     }
   }
 }

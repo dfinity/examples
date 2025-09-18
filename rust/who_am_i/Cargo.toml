@@ -1,0 +1,3 @@
+[workspace]
+members = ["src/internet_identity_app_backend"]
+resolver = "2"

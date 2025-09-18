@@ -1,0 +1,50 @@
+name: motoko-low_wasm_memory
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - motoko/low_wasm_memory/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/motoko-low_wasm_memory-example.yml
+      - .github/workflows/motoko-low_wasm_memory-skip.yml
+      - .ic-commit
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  motoko-low_wasm_memory:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: macos-15
+            provision: .github/workflows/provision-darwin.sh
+          - os: ubuntu-22.04
+            provision: .github/workflows/provision-linux.sh
+    steps:
+      - uses: actions/checkout@v1
+      - name: Provision
+        run: bash ${{ matrix.provision }}
+      - name: Motoko low_wasm_memory
+        run: |
+          set -euo pipefail
+          pushd motoko/low_wasm_memory
+          dfx start --background
+          dfx deploy low_wasm_memory_hook
+          dfx canister update-settings low_wasm_memory_hook --wasm-memory-limit 5000000 --wasm-memory-threshold 2000000
+          dfx canister status low_wasm_memory_hook
+          max_wait=50
+          waited=0
+          until [[ $(dfx canister call low_wasm_memory_hook --query getExecutedFunctionsOrder) == *onLowWasmMemory* ]]; do
+            sleep 1
+            dfx canister status low_wasm_memory_hook | grep 'Memory Size'
+            waited=$((waited+1))
+            if [ $waited -ge $max_wait ]; then
+              echo "Timed out waiting for onLowWasmMemory event"
+              exit 1
+            fi
+          done
+          popd

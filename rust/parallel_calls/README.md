@@ -2,67 +2,43 @@
 
 This example demonstrates how to implement inter-canister calls that run in parallel in Rust, and highlights some differences between parallel and sequential calls. Running independent calls in parallel can lower the latency, especially when messages are sent across subnets. For example, a canister that swaps two tokens might want to launch both token transfer operations in parallel.
 
-## Architecture
-
 The sample code revolves around two simple canisters, `caller` and `callee`. `Caller` has three endpoints:
 1. `setup_callee`, to set the ID of the callee canister.
 2. `sequential_calls` and `parallel_calls`, which both take a number `n` and issue `n` calls to the callee, returning the number of successful calls. The former performs calls sequentially, the latter in parallel.
 
 The callee exposes a simple `ping` endpoint that takes no parameters and returns nothing.
 
-## Prerequisites
+## Deploying from ICP Ninja
 
-- [x] Install the [IC
-  SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.
-- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/parallel_calls)
 
-Begin by opening a terminal window.
+## Build and deploy from the command-line
 
-## Step 1: Setup project environment
+### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
 
-Navigate into the folder containing the project's files and start a local instance of the replica with the commands:
+### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
 
-```bash
-cd examples/rust/parallel_calls
-dfx start --background
+### 3. Navigate into the project's directory.
+
+### 4. Deploy the project to your local environment:
+
+```
+dfx start --background --clean && dfx deploy
 ```
 
-## Step 2: Deploy the canisters
+### 5. Setup the caller canister.
 
-```bash
-dfx deploy
-```
+Provide the ID of the callee to the caller, such that the caller can initiate calls:
 
-## Step 3: Set up the caller canister
-
-We now provide the ID of the callee to the caller, such that the caller can initiate calls.
 ```
 dfx canister call caller setup_callee "(principal \"`dfx canister id callee`\")"
 ```
 
-## Step 4: Invoke sequential and parallel calls
-
-Let's first call the different endpoints of the `caller` canister using `dfx`
+#### 6. Invoke sequential and parallel calls
 
 ```bash
 dfx canister call caller sequential_calls 100
-```
-
-This should output:
-```bash
-(100 : nat64)
-```
-
-And the other endpoint: 
-
-```bash
 dfx canister call caller parallel_calls 100
-```
-
-which outputs:
-
-```bash
-(100 : nat64)
 ```
 
 The results are identical: all calls succeed. There also isn't a large difference in performance between these calls:
@@ -78,7 +54,7 @@ dfx canister call caller parallel_calls 100  0.11s user 0.03s system 8% cpu 1.72
 
 The reason why the performance is similar is because the local replica has only a single subnet. Inter-canister calls normally have almost no latency on a single subnet, so it doesn't matter much if we run them sequentially or in parallel.
 
-However, once we increase the number of calls, we observe a difference in both the results and performance.
+However, once you increase the number of calls, you will observe a difference in both the results and performance.
 
 ```bash
 time dfx canister call caller sequential_calls 2000
@@ -93,7 +69,7 @@ All the sequential calls succeed, but most parallel calls fail. The reason is th
 
 Lastly, the parallel calls here complete sooner -- because most of them fail!
 
-## Step 5: Multi-subnet setting
+## Multi-subnet setting
 
 Parallel calls are a lot more useful in multi-subnet settings. We can create such a setting locally using Pocket IC. 
 
@@ -110,3 +86,7 @@ Parallel calls: 90/90 successful calls in 353.738958ms
 ```
 
 As you can see, parallel calls run a lot faster than sequential calls here. The difference on the IC mainnet would be significantly larger still, as Pocket IC executes rounds much faster than the IC mainnet.
+
+## Security considerations and best practices
+
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.

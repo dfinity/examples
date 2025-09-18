@@ -24,12 +24,12 @@ import HttpTypes "http/http.types";
 *
 *  `_startBlock` is the block number to start monitoring transactions from.
 */
-shared (actorContext) actor class Main(_startBlock : Nat) {
+shared (actorContext) persistent actor class Main(_startBlock : Nat) {
 
-  private stable var merchantStore : Trie.Trie<Text, MainTypes.Merchant> = Trie.empty();
-  private stable var latestTransactionIndex : Nat = 0;
-  private stable var courierApiKey : Text = "";
-  private var logData = Buffer.Buffer<Text>(0);
+  private var merchantStore : Trie.Trie<Text, MainTypes.Merchant> = Trie.empty();
+  private var latestTransactionIndex : Nat = 0;
+  private var courierApiKey : Text = "";
+  private transient var logData = Buffer.Buffer<Text>(0);
 
   /**
     *  Get the merchant's information

@@ -1,11 +1,10 @@
 import Blob "mo:base/Blob";
-import Cycles "mo:base/ExperimentalCycles";
 import Nat64 "mo:base/Nat64";
 import Text "mo:base/Text";
 import IC "ic:aaaaa-aa";
 
 //Actor
-actor {
+persistent actor {
 
   //This method sends a GET request to a URL with a free API we can test.
   //This method returns Coinbase data on the exchange rate between USD and ICP
@@ -28,7 +27,7 @@ actor {
     response : IC.http_request_result;
   }) : async IC.http_request_result {
     {
-      response with headers = []; // not intersted in the headers
+      response with headers = []; // not interested in the headers
     };
   };
 
@@ -56,24 +55,14 @@ actor {
         function = transform;
         context = Blob.fromArray([]);
       };
+      // Toggle this flag to switch between replicated and non-replicated http outcalls.
+      is_replicated = ?false;
     };
 
-    //2. ADD CYCLES TO PAY FOR HTTP REQUEST
+    //2. MAKE HTTPS REQUEST AND WAIT FOR RESPONSE, BUT MAKE SURE TO ADD CYCLES.
+    let http_response : IC.http_request_result = await (with cycles = 230_949_972_000) IC.http_request(http_request);
 
-    //IC management canister will make the HTTP request so it needs cycles
-    //See: https://internetcomputer.org/docs/current/motoko/main/cycles
-
-    //The way Cycles.add() works is that it adds those cycles to the next asynchronous call
-    //See:
-    // - https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-http_request
-    // - https://internetcomputer.org/docs/current/references/https-outcalls-how-it-works#pricing
-    // - https://internetcomputer.org/docs/current/developer-docs/gas-cost
-    Cycles.add<system>(230_949_972_000);
-
-    //3. MAKE HTTPS REQUEST AND WAIT FOR RESPONSE
-    let http_response : IC.http_request_result = await IC.http_request(http_request);
-
-    //4. DECODE THE RESPONSE
+    //3. DECODE THE RESPONSE
 
     //As per the type declarations, the BODY in the HTTP response
     //comes back as Blob. Type signature:
@@ -93,7 +82,7 @@ actor {
       case (?y) { y };
     };
 
-    //5. RETURN RESPONSE OF THE BODY
+    //4. RETURN RESPONSE OF THE BODY
     //The API response will looks like this:
     //
     // ("[[1682978460,5.714,5.718,5.714,5.714,243.5678]]")

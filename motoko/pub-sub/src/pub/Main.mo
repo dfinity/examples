@@ -1,7 +1,7 @@
 // Publisher
 import List "mo:base/List";
 
-actor Publisher {
+persistent actor Publisher {
 
   type Counter = {
     topic : Text;
@@ -13,7 +13,7 @@ actor Publisher {
     callback : shared Counter -> ();
   };
 
-  stable var subscribers = List.nil<Subscriber>();
+  var subscribers = List.nil<Subscriber>();
 
   public func subscribe(subscriber : Subscriber) {
     subscribers := List.push(subscriber, subscribers);

@@ -1,0 +1,21 @@
+{
+  "name": "minimal_dapp",
+  "description": "Internet Computer starter application",
+  "keywords": [
+    "Internet Computer",
+    "Motoko",
+    "JavaScript",
+    "Canister"
+  ],
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "prebuild": "npm i --include=dev && npm run generate",
+    "pretest": "npm run prebuild --workspaces --if-present",
+    "start": "npm start --workspaces --if-present",
+    "test": "npm test --workspaces --if-present"
+  },
+  "type": "module",
+  "workspaces": [
+    "src/minimal_dapp_frontend"
+  ]
+}

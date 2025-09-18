@@ -1,0 +1,44 @@
+name: rust-inter-canister-calls
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - rust/inter-canister-calls/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-inter-canister-calls-example.yml
+      - .ic-commit
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rust-inter-canister-calls-darwin:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Rust Parallel-Calls Darwin
+        run: |
+          pushd rust/inter-canister-calls
+          dfx start --background
+          make test
+          popd
+  rust-inter-canister-calls-linux:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: recursive
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Rust Parallel-Calls Linux
+        run: |
+          pushd rust/inter-canister-calls
+          dfx start --background
+          make test
+          popd

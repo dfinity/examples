@@ -6,7 +6,7 @@ import Blob "mo:base/Blob";
 import Option "mo:base/Option";
 import Hex "./utils/Hex";
 
-actor {
+persistent actor {
   public type SchnorrAlgorithm = { #bip340secp256k1; #ed25519 };
 
   public type KeyId = {
@@ -35,11 +35,8 @@ actor {
     }) -> async ({ signature : Blob });
   };
 
-  var ic : IC = actor ("aaaaa-aa");
-
-  public func for_test_only_change_management_canister_id(mock_id : Text) {
-    ic := actor (mock_id);
-  };
+  transient var ic : IC = actor ("aaaaa-aa");
+  transient var key_id : Text = "test_key_1"; // Use "key_1" for production and "dfx_test_key" locally
 
   public shared ({ caller }) func public_key(algorithm : SchnorrAlgorithm) : async {
     #Ok : { public_key_hex : Text };
@@ -49,7 +46,7 @@ actor {
       let { public_key } = await ic.schnorr_public_key({
         canister_id = null;
         derivation_path = [Principal.toBlob(caller)];
-        key_id = { algorithm; name = "insecure_test_key_1" };
+        key_id = { algorithm; name = key_id };
       });
       #Ok({ public_key_hex = Hex.encode(Blob.toArray(public_key)) });
     } catch (err) {
@@ -68,11 +65,11 @@ actor {
     };
 
     try {
-      Cycles.add<system>(25_000_000_000);
+      Cycles.add<system>(30_000_000_000);
       let signArgs = {
         message = Text.encodeUtf8(message_arg);
         derivation_path = [Principal.toBlob(caller)];
-        key_id = { algorithm; name = "insecure_test_key_1" };
+        key_id = { algorithm; name = key_id };
         aux;
       };
       let { signature } = await ic.sign_with_schnorr(signArgs);

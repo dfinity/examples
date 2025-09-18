@@ -1,7 +1,7 @@
 import Debug "mo:base/Debug";
 import Map "canister:map";
 
-actor Test {
+persistent actor Test {
 
   public func run() : async () {
     var i = 0;

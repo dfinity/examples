@@ -1,0 +1,3 @@
+[workspace]
+members = ["src/low_wasm_memory_hook"]
+resolver = "2"

@@ -1,0 +1,121 @@
+type Value__1 = 
+ variant {
+   Array: vec Value__1;
+   Blob: blob;
+   Int: int;
+   Map: vec record {
+              text;
+              Value__1;
+            };
+   Nat: nat;
+   Text: text;
+ };
+type TransferResult = 
+ variant {
+   Err: TransferError;
+   Ok: nat;
+ };
+type TransferError = 
+ variant {
+   CreatedInFuture: record {ledger_time: nat64;};
+   Duplicate: record {duplicate_of: nat;};
+   GenericBatchError: record {
+                        error_code: nat;
+                        message: text;
+                      };
+   GenericError: record {
+                   error_code: nat;
+                   message: text;
+                 };
+   InvalidRecipient;
+   NonExistingTokenId;
+   TooOld;
+   Unauthorized;
+ };
+type TransferArg = 
+ record {
+   created_at_time: opt nat64;
+   from_subaccount: opt blob;
+   memo: opt blob;
+   to: Account__1;
+   token_id: nat;
+ };
+type SupportedStandards = 
+ vec record {
+       name: text;
+       url: text;
+     };
+type Subaccount = blob;
+type SetNFTResult = 
+ variant {
+   Err: SetNFTError;
+   GenericError: record {
+                   error_code: nat;
+                   message: text;
+                 };
+   Ok: opt nat;
+ };
+type SetNFTError = 
+ variant {
+   CreatedInFuture: record {ledger_time: nat64;};
+   GenericError: record {
+                   error_code: nat;
+                   message: text;
+                 };
+   NonExistingTokenId;
+   TokenExists;
+   TooOld;
+ };
+type OwnerOfResponse = vec opt Account__1;
+type OwnerOfRequest = vec nat;
+type NftCanister = 
+ service {
+   claimCollection: () -> ();
+   collectionHasBeenClaimed: () -> (bool) query;
+   getCollectionOwner: () -> (principal) query;
+   icrc10_supported_standards: () -> (SupportedStandards) query;
+   icrc7_atomic_batch_transfers: () -> (opt bool) query;
+   icrc7_balance_of: (accounts: BalanceOfRequest) ->
+    (BalanceOfResponse) query;
+   icrc7_collection_metadata: () -> (vec record {
+                                           text;
+                                           Value__1;
+                                         }) query;
+   icrc7_default_take_value: () -> (opt nat) query;
+   icrc7_description: () -> (opt text) query;
+   icrc7_logo: () -> (opt text) query;
+   icrc7_max_memo_size: () -> (opt nat) query;
+   icrc7_max_query_batch_size: () -> (opt nat) query;
+   icrc7_max_take_value: () -> (opt nat) query;
+   icrc7_max_update_batch_size: () -> (opt nat) query;
+   icrc7_name: () -> (text) query;
+   icrc7_owner_of: (token_ids: OwnerOfRequest) -> (OwnerOfResponse) query;
+   icrc7_permitted_drift: () -> (opt nat) query;
+   icrc7_supply_cap: () -> (opt nat) query;
+   icrc7_symbol: () -> (text) query;
+   icrc7_token_metadata: (token_ids: vec nat) ->
+    (vec opt vec record {
+                   text;
+                   Value__1;
+                 }) query;
+   icrc7_tokens: (prev: opt nat, take: opt nat) -> (vec nat) query;
+   icrc7_tokens_of: (account: Account, prev: opt nat, take: opt nat) ->
+    (vec nat) query;
+   icrc7_total_supply: () -> (nat) query;
+   icrc7_transfer: (args: vec TransferArg) -> (vec opt TransferResult);
+   icrc7_tx_window: () -> (opt nat) query;
+   mint: (to: Account) -> (vec SetNFTResult);
+ };
+type BalanceOfResponse = vec nat;
+type BalanceOfRequest = vec Account__1;
+type Account__1 = 
+ record {
+   owner: principal;
+   subaccount: opt blob;
+ };
+type Account = 
+ record {
+   owner: principal;
+   subaccount: opt Subaccount;
+ };
+service : () -> NftCanister

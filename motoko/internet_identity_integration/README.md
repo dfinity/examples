@@ -352,7 +352,7 @@ Replace the content of `src/greet_backend/main.mo` with the following:
 ```motoko
 import Principal "mo:base/Principal";
 
-actor {
+persistent actor {
   public query (message) func greet() : async Text {
     return "Hello, " # Principal.toText(message.caller) # "!";
   };

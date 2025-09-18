@@ -1,0 +1,30 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "prebuild": "npm i --include=dev && dfx generate",
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@dfinity/agent": "^3.0.0",
+    "@dfinity/candid": "^3.0.0",
+    "@dfinity/principal": "^3.0.0",
+    "@tailwindcss/vite": "^4.1.11",
+    "@tanstack/react-query": "^5.83.0",
+    "ic-use-internet-identity": "^0.3.2",
+    "lucide-react": "^0.535.0",
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1",
+    "tailwindcss": "^4.1.11"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.7.0",
+    "dotenv": "^17.2.1",
+    "sass": "^1.89.2",
+    "vite": "^7.0.6",
+    "vite-plugin-environment": "^1.1.3"
+  }
+}

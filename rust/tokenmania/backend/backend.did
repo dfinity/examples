@@ -1,0 +1,92 @@
+type Account = record { owner : principal; subaccount : opt blob };
+type Allowance = record { allowance : nat; expires_at : opt nat64 };
+type AllowanceArgs = record { account : Account; spender : Account };
+type ApproveArgs = record {
+  fee : opt nat;
+  memo : opt blob;
+  from_subaccount : opt blob;
+  created_at_time : opt nat64;
+  amount : nat;
+  expected_allowance : opt nat;
+  expires_at : opt nat64;
+  spender : Account;
+};
+type ApproveError = variant {
+  GenericError : record { message : text; error_code : nat };
+  TemporarilyUnavailable;
+  Duplicate : record { duplicate_of : nat };
+  BadFee : record { expected_fee : nat };
+  AllowanceChanged : record { current_allowance : nat };
+  CreatedInFuture : record { ledger_time : nat64 };
+  TooOld;
+  Expired : record { ledger_time : nat64 };
+  InsufficientFunds : record { balance : nat };
+};
+type CreateTokenArgs = record {
+  initial_supply : nat;
+  token_symbol : text;
+  token_logo : text;
+  token_name : text;
+};
+type MetadataValue = variant { Int : int; Nat : nat; Blob : blob; Text : text };
+type Result = variant { Ok : text; Err : text };
+type Result_1 = variant { Ok : nat; Err : TransferError };
+type Result_2 = variant { Ok : nat; Err : ApproveError };
+type Result_3 = variant { Ok : nat; Err : TransferFromError };
+type SupportedStandard = record { url : text; name : text };
+type TransferArg = record {
+  to : Account;
+  fee : opt nat;
+  memo : opt blob;
+  from_subaccount : opt blob;
+  created_at_time : opt nat64;
+  amount : nat;
+};
+type TransferError = variant {
+  GenericError : record { message : text; error_code : nat };
+  TemporarilyUnavailable;
+  BadBurn : record { min_burn_amount : nat };
+  Duplicate : record { duplicate_of : nat };
+  BadFee : record { expected_fee : nat };
+  CreatedInFuture : record { ledger_time : nat64 };
+  TooOld;
+  InsufficientFunds : record { balance : nat };
+};
+type TransferFromArgs = record {
+  to : Account;
+  fee : opt nat;
+  spender_subaccount : opt blob;
+  from : Account;
+  memo : opt blob;
+  created_at_time : opt nat64;
+  amount : nat;
+};
+type TransferFromError = variant {
+  GenericError : record { message : text; error_code : nat };
+  TemporarilyUnavailable;
+  InsufficientAllowance : record { allowance : nat };
+  BadBurn : record { min_burn_amount : nat };
+  Duplicate : record { duplicate_of : nat };
+  BadFee : record { expected_fee : nat };
+  CreatedInFuture : record { ledger_time : nat64 };
+  TooOld;
+  InsufficientFunds : record { balance : nat };
+};
+service : {
+  create_token : (CreateTokenArgs) -> (Result);
+  delete_token : () -> (Result);
+  icrc1_balance_of : (Account) -> (nat) query;
+  icrc1_decimals : () -> (nat8) query;
+  icrc1_fee : () -> (nat) query;
+  icrc1_metadata : () -> (vec record { text; MetadataValue }) query;
+  icrc1_minting_account : () -> (opt Account) query;
+  icrc1_name : () -> (text) query;
+  icrc1_supported_standards : () -> (vec SupportedStandard) query;
+  icrc1_token_symbol : () -> (text) query;
+  icrc1_total_supply : () -> (nat) query;
+  icrc1_transfer : (TransferArg) -> (Result_1);
+  icrc2_allowance : (AllowanceArgs) -> (Allowance) query;
+  icrc2_approve : (ApproveArgs) -> (Result_2);
+  icrc2_transfer_from : (TransferFromArgs) -> (Result_3);
+  token_created : () -> (bool) query;
+}

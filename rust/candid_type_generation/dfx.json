@@ -1,0 +1,10 @@
+{
+  "version": 1,
+  "canisters": {
+    "candid_type_generation": {
+      "type": "rust",
+      "package": "candid_type_generation",
+      "candid": "candid_type_generation.did"
+    }
+  }
+}

@@ -1,0 +1,143 @@
+name: Test ICP Ninja Examples
+
+on:
+  pull_request:
+    branches:
+      - master
+
+concurrency:
+  group: ninja-pr-checks-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check-ninja-example-changes:
+    name: Filter projects
+    runs-on: ubuntu-24.04
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+      has_examples: ${{ steps.set-matrix.outputs.has_examples }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch all branches
+        run: git fetch origin
+
+      - name: Set matrix based on changes
+        id: set-matrix
+        run: |
+          changed_files=$(git diff --name-only origin/master ${{ github.sha }})
+          echo "Changed files: $changed_files"
+
+          examples=()
+          declare -A example_paths=(
+            ["My Crypto Blog (Frontend)"]="hosting/my_crypto_blog"
+            ["React (Frontend)"]="hosting/react"
+            ["OISY Signer Demo (Frontend)"]="hosting/oisy-signer-demo"
+            ["Motoko backend (Motoko)"]="motoko/backend_only"
+            ["Canister Logs (Motoko)"]="motoko/canister_logs"
+            ["Classes (Motoko)"]="motoko/classes"
+            ["Basic Bitcoin (Motoko)"]="motoko/basic_bitcoin"
+            ["Daily Planner (Motoko)"]="motoko/daily_planner"
+            ["EVM Block Explorer (Motoko)"]="motoko/evm_block_explorer"
+            ["FileVault (Motoko)"]="motoko/filevault"
+            ["Flying Ninja (Motoko)"]="motoko/flying_ninja"
+            ["Hello World (Motoko)"]="motoko/hello_world"
+            ["LLM Chatbot (Motoko)"]="motoko/llm_chatbot"
+            ["Query Stats (Motoko)"]="motoko/query_stats"
+            ["Send HTTP Get (Motoko)"]="motoko/send_http_get"
+            ["Send HTTP Post (Motoko)"]="motoko/send_http_post"
+            ["Superheroes (Motoko)"]="motoko/superheroes"
+            ["Threshold ECDSA (Motoko)"]="motoko/threshold-ecdsa"
+            ["Threshold Schnorr (Motoko)"]="motoko/threshold-schnorr"
+            ["Tokenmania (Motoko)"]="motoko/tokenmania"
+            ["NFT Creator (Motoko)"]="motoko/nft-creator"
+            ["Who Am I (Motoko)"]="motoko/who_am_i"
+            ["Rust backend (Rust)"]="rust/backend_only"
+            ["Rust backend Wasm64 (Rust)"]="rust/backend_wasm64"
+            ["Canister Info (Rust)"]="rust/canister-info"
+            ["Canister Logs (Rust)"]="rust/canister_logs"
+            ["Basic Ethereum (Rust)"]="rust/basic_ethereum"
+            ["Daily Planner (Rust)"]="rust/daily_planner"
+            ["EVM Block Explorer (Rust)"]="rust/evm_block_explorer"
+            ["Flying Ninja (Rust)"]="rust/flying_ninja"
+            ["Guards (Rust)"]="rust/guards"
+            ["Hello World (Rust)"]="rust/hello_world"
+            ["LLM Chatbot (Rust)"]="rust/llm_chatbot"
+            ["Performance Counters (Rust)"]="rust/performance_counters"
+            ["Periodic Tasks (Rust)"]="rust/periodic_tasks"
+            ["QR Code (Rust)"]="rust/qrcode"
+            ["Query Stats (Rust)"]="rust/query_stats"
+            ["Send HTTP Get (Rust)"]="rust/send_http_get"
+            ["Send HTTP Post (Rust)"]="rust/send_http_post"
+            ["SIMD (Rust)"]="rust/simd"
+            ["Threshold ECDSA (Rust)"]="rust/threshold-ecdsa"
+            ["Tokenmania (Rust)"]="rust/tokenmania"
+            ["Who Am I (Rust)"]="rust/who_am_i"
+            ["Photo Gallery (Rust)"]="rust/photo_gallery"
+            ["Inter-canister calls (Rust)"]="rust/inter-canister-calls"
+            ["X.509 (Rust)"]="rust/x509"
+          )
+
+          # Check if we should run all examples (workflow file changed) or just changed ones
+          run_all_examples=false
+          if echo "$changed_files" | grep -q "^\.github/workflows/ninja_pr_checks\.yml$"; then
+            echo "Workflow file changed. Running all examples."
+            run_all_examples=true
+          fi
+
+          for name in "${!example_paths[@]}"; do
+            path=${example_paths[$name]}
+            
+            if [ "$run_all_examples" = true ] || echo "$changed_files" | grep -q "^$path/"; then
+              examples+=("{\"name\": \"$name\", \"path\": \"$path\"}")
+              echo "Added example: $name with path $path"
+            else
+              echo "Skipping example: $name (no changes in $path)"
+            fi
+          done
+
+          if [ ${#examples[@]} -eq 0 ]; then
+            echo "No examples detected. Setting has_examples to false."
+            echo "has_examples=false" >> $GITHUB_OUTPUT
+            echo "matrix={\"example\": []}" >> $GITHUB_OUTPUT
+          else
+            matrix="{\"example\": [$(IFS=, ; echo "${examples[*]}")]}"
+            echo "Matrix generated: $matrix"
+            echo "has_examples=true" >> $GITHUB_OUTPUT
+            echo "matrix=$matrix" >> $GITHUB_OUTPUT
+          fi
+
+  build-examples:
+    name: Build
+    needs: check-ninja-example-changes
+    if: needs.check-ninja-example-changes.outputs.has_examples == 'true'
+    runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-slim:22
+    strategy:
+      fail-fast: false
+      matrix: ${{ fromJson(needs.check-ninja-example-changes.outputs.matrix) }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dfx # This is a temporary workaround. Dfx is already installed in the container, but it does not start in the next step if we don't install it here again.
+        uses: dfinity/setup-dfx@main
+        with:
+          dfx-version: "0.29.0"
+
+      - name: Install make
+        run: apt-get update && apt-get install -y make
+
+      - name: Start dfx and build project
+        working-directory: ${{ matrix.example.path }}
+        run: |
+          dfx start --background
+          dfx deploy
+          if [ -f "Makefile" ]; then
+            echo "Makefile found, running make test"
+            make test
+          else
+            echo "No Makefile found, skipping make test"
+          fi

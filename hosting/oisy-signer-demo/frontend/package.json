@@ -1,0 +1,48 @@
+{
+  "name": "frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "prebuild": "npm i --include=dev",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@dfinity/agent": "2.4.1",
+    "@dfinity/ledger-icp": "4.0.0",
+    "@dfinity/ledger-icrc": "2.9.1",
+    "@dfinity/principal": "2.4.1",
+    "@dfinity/utils": "2.13.2",
+    "@slide-computer/signer": "3.16.0",
+    "@slide-computer/signer-agent": "3.16.0",
+    "@slide-computer/signer-web": "3.16.0",
+    "bignumber.js": "9.3.1",
+    "class-variance-authority": "0.7.1",
+    "lucide-react": "0.536.0",
+    "react": "19.1.1",
+    "react-dom": "19.1.1",
+    "tailwind-variants": "2.1.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.32.0",
+    "@vitejs/plugin-react": "5.0.0",
+    "autoprefixer": "10.4.21",
+    "eslint": "9.32.0",
+    "eslint-config-prettier": "10.1.8",
+    "eslint-plugin-react": "7.37.5",
+    "eslint-plugin-react-hooks": "5.2.0",
+    "eslint-plugin-react-refresh": "0.4.20",
+    "globals": "16.3.0",
+    "postcss": "8.5.6",
+    "prettier": "3.6.2",
+    "prettier-plugin-tailwindcss": "0.6.14",
+    "tailwindcss": "3.4.17",
+    "vite": "7.1.0",
+    "vite-plugin-node-polyfills": "0.24.0"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "canisters": {
+    "low_wasm_memory_hook": {
+      "main": "src/low_wasm_memory_hook/main.mo",
+      "type": "motoko"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

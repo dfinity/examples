@@ -18,7 +18,7 @@ rm node.pkg
 
 # Install DFINITY SDK.
 curl --location --output install-dfx.sh "https://raw.githubusercontent.com/dfinity/sdk/master/public/install-dfxvm.sh"
-DFX_VERSION=${DFX_VERSION:=0.25.0} DFXVM_INIT_YES=true bash install-dfx.sh
+DFX_VERSION=${DFX_VERSION:=0.29.1} DFXVM_INIT_YES=true bash install-dfx.sh
 rm install-dfx.sh
 echo "$HOME/Library/Application Support/org.dfinity.dfx/bin" >> $GITHUB_PATH
 source "$HOME/Library/Application Support/org.dfinity.dfx/env"
@@ -38,13 +38,10 @@ if [ -f "${GITHUB_WORKSPACE}/.ic-commit" ]; then
 fi
 
 # Install ic-repl
-version=0.7.0
-curl --location --output ic-repl "https://github.com/chenyan2002/ic-repl/releases/download/$version/ic-repl-macos"
+version=0.7.7
+curl --location --output ic-repl "https://github.com/dfinity/ic-repl/releases/download/$version/ic-repl-macos"
 mv ./ic-repl /usr/local/bin/ic-repl
 chmod a+x /usr/local/bin/ic-repl
-
-# Install cmake
-brew install cmake
 
 # Install rust
 curl --location --output install-rustup.sh "https://sh.rustup.rs"
@@ -68,7 +65,7 @@ rm "wasmtime-v${wasmtime_version}-x86_64-macos.tar.xz"
 
 # Install wasi2ic
 git clone https://github.com/wasm-forge/wasi2ic
-cargo install --path wasi2ic --root "${HOME}"
+cargo install --path wasi2ic --root "${HOME}" --locked
 
 # Install wasm-opt
 version=117

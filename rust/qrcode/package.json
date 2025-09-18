@@ -10,7 +10,7 @@
   ],
   "scripts": {
     "build": "webpack",
-    "prebuild": "dfx generate",
+    "prebuild": "npm install --include=dev && dfx generate",
     "start": "webpack serve --mode development --env development",
     "deploy:local": "dfx deploy --network=local",
     "deploy:ic": "dfx deploy --network=ic",

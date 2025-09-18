@@ -19,13 +19,11 @@ This walkthrough focuses on the version of the sample canister code written in
 [Rust](https://github.com/dfinity/examples/tree/master/rust/threshold-schnorr).
 There is also a Motoko version available in the same repo and follows the same commands for deploying.
 
-## Prerequisites
+## Local deployment 
 This example requires an installation of:
 
 - [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install).
 - [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
-
-## Local deployment 
 
 Begin by opening a terminal window.
 
@@ -78,22 +76,6 @@ To deploy this canister the mainnet, one needs to do two things:
 ### Acquire cycles to deploy
 
 Deploying to the Internet Computer requires [cycles](https://internetcomputer.org/docs/current/developer-docs/getting-started/tokens-and-cycles) (the equivalent of "gas" on other blockchains).
-
-### Update management canister ID reference for testing
-
-The latest version of `dfx`, `v0.24.3`, does not yet support
-`opt_merkle_tree_root_hex` that is not `None`. Therefore, for local tests, [the
-chain-key testing canister](https://github.com/dfinity/chainkey-testing-canister)
-can be installed and used instead of the management canister. Note also that the
-chain-key testing canister is deployed on the mainnet and can be used for mainnet
-testing to reduce the costs, see the linked repo for more details.
-
-This sample canister allows the caller to change the management canister address
-for Schnorr by calling the `for_test_only_change_management_canister_id`
-endpoint with the target canister principal. With `dfx`, this can be done
-automatically with `make mock`, which will install the chain-key testing canister
-and use it instead of the management canister. Note that `dfx` should be running
-to successfully run `make mock`.
 
 ### Update source code with the right key ID
 
@@ -400,3 +382,7 @@ In this walkthrough, we deployed a sample smart contract that:
 * Signed with private Schnorr keys even though **canisters do not hold Schnorr keys themselves**.
 * Requested a public key.
 * Performed signature verification.
+
+## Security considerations and best practices
+
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.

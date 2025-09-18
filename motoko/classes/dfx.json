@@ -12,7 +12,7 @@
   },
   "defaults": {
     "build": {
-      "packtool": ""
+      "packtool": "mops sources"
     }
   }
 }

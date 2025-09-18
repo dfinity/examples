@@ -14,7 +14,7 @@ import ICRC "./ICRC";
 // The swap canister is the main backend canister for this example. To simplify
 // this example we configure the swap canister with the two tokens it will be
 // swapping.
-shared (init_msg) actor class Swap(
+shared (init_msg) persistent actor class Swap(
   init_args : {
     token_a : Principal;
     token_b : Principal;
@@ -22,13 +22,13 @@ shared (init_msg) actor class Swap(
 ) = this {
 
   // Track the deposited per-user balances for token A and token B
-  private var balancesA = TrieMap.TrieMap<Principal, Nat>(Principal.equal, Principal.hash);
-  private var balancesB = TrieMap.TrieMap<Principal, Nat>(Principal.equal, Principal.hash);
+  private transient var balancesA = TrieMap.TrieMap<Principal, Nat>(Principal.equal, Principal.hash);
+  private transient var balancesB = TrieMap.TrieMap<Principal, Nat>(Principal.equal, Principal.hash);
 
   // Because TrieMaps are not directly storable in stable memory we need a
   // location to store the data during canister upgrades.
-  private stable var stableBalancesA : ?[(Principal, Nat)] = null;
-  private stable var stableBalancesB : ?[(Principal, Nat)] = null;
+  private var stableBalancesA : ?[(Principal, Nat)] = null;
+  private var stableBalancesB : ?[(Principal, Nat)] = null;
 
   // balances is a simple getter to check the balances of all users, to make debugging easier.
   public query func balances() : async ([(Principal, Nat)], [(Principal, Nat)]) {

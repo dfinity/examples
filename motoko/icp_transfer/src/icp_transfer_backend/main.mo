@@ -4,7 +4,7 @@ import Result "mo:base/Result";
 import Error "mo:base/Error";
 import Principal "mo:base/Principal";
 
-actor {
+persistent actor {
   type Tokens = {
     e8s : Nat64;
   };

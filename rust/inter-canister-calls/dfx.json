@@ -1,0 +1,22 @@
+{
+  "canisters": {
+    "counter": {
+      "candid": "src/counter/counter.did",
+      "package": "counter",
+      "type": "rust"
+    },
+    "caller": {
+      "candid": "src/caller/caller.did",
+      "package": "caller",
+      "type": "rust"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

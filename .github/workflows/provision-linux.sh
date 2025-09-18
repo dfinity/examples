@@ -13,7 +13,7 @@ rm nodesource_setup.sh
 
 # Install DFINITY SDK.
 wget --output-document install-dfx.sh "https://raw.githubusercontent.com/dfinity/sdk/master/public/install-dfxvm.sh"
-DFX_VERSION=${DFX_VERSION:=0.25.0} DFXVM_INIT_YES=true bash install-dfx.sh
+DFX_VERSION=${DFX_VERSION:=0.29.1} DFXVM_INIT_YES=true bash install-dfx.sh
 rm install-dfx.sh
 echo "$HOME/.local/share/dfx/bin" >>$GITHUB_PATH
 source "$HOME/.local/share/dfx/env"
@@ -32,8 +32,8 @@ if [ -f "${GITHUB_WORKSPACE}/.ic-commit" ]; then
 fi
 
 # Install ic-repl
-version=0.7.0
-curl --location --output ic-repl "https://github.com/chenyan2002/ic-repl/releases/download/$version/ic-repl-linux64"
+version=0.7.7
+curl --location --output ic-repl "https://github.com/dfinity/ic-repl/releases/download/$version/ic-repl-linux64"
 mv ./ic-repl /usr/local/bin/ic-repl
 chmod a+x /usr/local/bin/ic-repl
 
@@ -62,7 +62,7 @@ rm "wasmtime-v${wasmtime_version}-x86_64-linux.tar.xz"
 
 # Install wasi2ic
 git clone https://github.com/wasm-forge/wasi2ic
-cargo install --path wasi2ic --root "${HOME}"
+cargo install --path wasi2ic --root "${HOME}" --locked
 
 # Install wasm-opt
 version=117

@@ -27,14 +27,13 @@ jobs:
           make test
           popd
   motoko-hello_cycles-linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
       - name: Motoko Hello Cycles Linux
         run: |
-          dfxvm update
           dfx start --background --clean
           pushd motoko/hello_cycles
           make test

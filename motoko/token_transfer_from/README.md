@@ -177,7 +177,7 @@ import Debug "mo:base/Debug";
 import Result "mo:base/Result";
 import Error "mo:base/Error";
 
-actor {
+persistent actor {
 
   type TransferArgs = {
     amount : Nat;

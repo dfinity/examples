@@ -1,0 +1,32 @@
+{
+  "name": "pictures-site-frontend",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "setup": "npm i && dfx canister create backend && dfx generate backend && dfx deploy",
+    "start": "vite --port 3000",
+    "prebuild": "npm i --include=dev && dfx generate",
+    "build": "tsc && vite build",
+    "format": "prettier --write \"src/**/*.{json,js,jsx,ts,tsx,css,scss}\""
+  },
+  "dependencies": {
+    "@dfinity/agent": "^2.1.3",
+    "@dfinity/candid": "^2.1.3",
+    "@dfinity/principal": "^2.1.3",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.4.2",
+    "@types/react": "^18.2.14",
+    "@types/react-dom": "^18.2.6",
+    "@vitejs/plugin-react": "^4.0.1",
+    "dotenv": "^16.3.1",
+    "prettier": "^3.0.0",
+    "sass": "^1.63.6",
+    "typescript": "^5.1.3",
+    "vite": "^6.3.5",
+    "vite-plugin-environment": "^1.1.3"
+  }
+}

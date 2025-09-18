@@ -1,7 +1,9 @@
 use candid::{CandidType, Deserialize, Principal};
+use ic_cdk::api::msg_caller;
+use icrc_ledger_client_cdk::{CdkRuntime, ICRC1Client};
 use icrc_ledger_types::icrc1::account::Account;
 use icrc_ledger_types::icrc1::transfer::{BlockIndex, NumTokens};
-use icrc_ledger_types::icrc2::transfer_from::{TransferFromArgs, TransferFromError};
+use icrc_ledger_types::icrc2::transfer_from::TransferFromArgs;
 use serde::Serialize;
 
 #[derive(CandidType, Deserialize, Serialize)]
@@ -20,7 +22,7 @@ async fn transfer(args: TransferArgs) -> Result<BlockIndex, String> {
 
     let transfer_from_args = TransferFromArgs {
         // the account we want to transfer tokens from (in this case we assume the caller approved the canister to spend funds on their behalf)
-        from: Account::from(ic_cdk::caller()),
+        from: Account::from(msg_caller()),
         // can be used to distinguish between transactions
         memo: None,
         // the amount we want to transfer
@@ -35,26 +37,25 @@ async fn transfer(args: TransferArgs) -> Result<BlockIndex, String> {
         created_at_time: None,
     };
 
-    // 1. Asynchronously call another canister function using `ic_cdk::call`.
-    ic_cdk::call::<(TransferFromArgs,), (Result<BlockIndex, TransferFromError>,)>(
-        // 2. Convert a textual representation of a Principal into an actual `Principal` object. The principal is the one we specified in `dfx.json`.
-        //    `expect` will panic if the conversion fails, ensuring the code does not proceed with an invalid principal.
-        Principal::from_text("mxzaz-hqaaa-aaaar-qaada-cai")
-            .expect("Could not decode the principal."),
-        // 3. Specify the method name on the target canister to be called, in this case, "icrc1_transfer".
-        "icrc2_transfer_from",
-        // 4. Provide the arguments for the call in a tuple, here `transfer_args` is encapsulated as a single-element tuple.
-        (transfer_from_args,),
-    )
-    .await // 5. Await the completion of the asynchronous call, pausing the execution until the future is resolved.
-    // 6. Apply `map_err` to transform any network or system errors encountered during the call into a more readable string format.
-    //    The `?` operator is then used to propagate errors: if the result is an `Err`, it returns from the function with that error,
-    //    otherwise, it unwraps the `Ok` value, allowing the chain to continue.
-    .map_err(|e| format!("failed to call ledger: {:?}", e))?
-    // 7. Access the first element of the tuple, which is the `Result<BlockIndex, TransferError>`, for further processing.
-    .0
-    // 8. Use `map_err` again to transform any specific ledger transfer errors into a readable string format, facilitating error handling and debugging.
-    .map_err(|e| format!("ledger transfer error {:?}", e))
+    // Convert a textual representation of a Principal into an actual `Principal` object. The principal is the one we specified in `dfx.json`.
+    // `expect` will panic if the conversion fails, ensuring the code does not proceed with an invalid principal.
+    let ledger_canister_id = Principal::from_text("mxzaz-hqaaa-aaaar-qaada-cai")
+        .expect("Could not decode the principal.");
+
+    let client = ICRC1Client {
+        runtime: CdkRuntime,
+        ledger_canister_id,
+    };
+
+    client
+        .transfer_from(transfer_from_args)
+        .await
+        // Apply `map_err` to transform any network or system errors encountered during the call into a more readable string format.
+        // The `?` operator is then used to propagate errors: if the result is an `Err`, it returns from the function with that error,
+        // otherwise, it unwraps the `Ok` value, allowing the chain to continue.
+        .map_err(|e| format!("failed to call ledger: {:?}", e))?
+        // Use `map_err` again to handle any specific ledger transfer errors, converting them into a string format for easier debugging.
+        .map_err(|e| format!("ledger transfer error {:?}", e))
 }
 
 // Enable Candid export (see https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid)
