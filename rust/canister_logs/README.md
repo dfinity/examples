@@ -1,5 +1,14 @@
 # Canister logs
 
+This sample project demonstrates a basic logging and error handling system for a canister deployed on the Internet Computer. The `canister_logs` project showcases how to utilize logging for debugging and monitoring canister operations. It also demonstrates the use of timers and error handling through traps.
+
+The `canister_logs` canister is designed to periodically log messages and simulate errors using traps. It provides methods to print messages, trigger traps, and handle memory out-of-bounds errors. The project includes a script to continuously poll and display logs, making it easier to monitor canister activity in real-time.
+
+## Prerequisites
+
+- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.
+- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+
 ## Deploying from ICP Ninja
 
 When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Run" in the upper right corner. Open this project in ICP Ninja:
@@ -24,6 +33,7 @@ dfx start --clean
 ```
 
 You will need to have 3 terminal windows:
+
 - Terminal A: Running a `dfx` instance and separating its output from anything else.
 - Terminal B: Deploying a canister and seeing its output.
 - Terminal C: Reading logs interactively.
