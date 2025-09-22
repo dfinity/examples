@@ -1,0 +1,19 @@
+[package]
+name = "stake_neuron_from_cli"
+version = "0.1.0"
+edition = "2021"
+
+[[bin]]
+name = "stake_neuron_from_cli"
+path = "src/main.rs"
+
+[dependencies]
+ic-agent = "0.35"
+ic-ledger-types = "0.15.0"
+tokio = { version = "1", features = ["full"] }
+clap = { version = "4", features = ["derive"] }
+candid = "0.10"
+sha2 = "0.10"
+hex = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+crc32fast = "1.3"
