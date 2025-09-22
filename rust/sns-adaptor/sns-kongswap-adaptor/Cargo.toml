@@ -1,0 +1,25 @@
+[workspace]
+resolver = "2"
+members = [
+    "kongswap_adaptor",
+]
+
+[workspace.package]
+authors = ["DFINITY Stiftung"]
+edition = "2021"
+repository = "https://github.com/dfinity/sns-kongswap-adaptor"
+homepage = "https://github.com/dfinity/sns-kongswap-adaptor#readme"
+license = "Apache-2.0"
+version = "0.1.0"
+
+[workspace.dependencies]
+candid = "0.10.3"
+ic-cdk = "0.18.6"
+ic-cdk-timers = "0.12.2"
+ic-cdk-macros = "0.8"
+ic-ledger-types = "0.14.0"
+ic-management-canister-types = "0.3.0"
+ic-stable-structures = "0.6.8"
+icrc-ledger-types = "0.1.9"
+serde = "1.0.188"
+pocket-ic = "9.0.2"

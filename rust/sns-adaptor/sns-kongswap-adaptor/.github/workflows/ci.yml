@@ -1,0 +1,59 @@
+name: CI
+on:
+  pull_request:
+  push:
+    branches: [ main ]
+
+jobs:
+  test-release-candidate:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dtolnay/rust-toolchain@1.85.0
+        with:
+          targets: wasm32-unknown-unknown
+
+      # Test dependencies
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      # Build dependencies
+      - run: git clone --depth 1 https://github.com/dfinity/ic.git ../ic
+      - run: wget -q https://github.com/dfinity/ic-wasm/releases/download/0.8.0/ic-wasm-linux64 -O /usr/local/bin/ic-wasm && chmod +x /usr/local/bin/ic-wasm
+
+      # Run all tests
+      - run: ./scripts/test.py --verbose
+        timeout-minutes: 10
+
+      # Build release artifacts for main branch
+      - name: Build release artifacts
+        if: github.ref == 'refs/heads/main'
+        run: ./scripts/build.py
+      
+      - name: Generate version
+        id: version
+        run: |
+          COMMIT_SHORT=$(git rev-parse --short HEAD)
+          TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+          RC_VERSION="rc-${TIMESTAMP}-${COMMIT_SHORT}"
+          echo "version=${RC_VERSION}" >> $GITHUB_OUTPUT
+          echo "tag=v${RC_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Create Release with gh CLI
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release create ${{ steps.version.outputs.tag }} \
+            --title "Release Candidate ${{ steps.version.outputs.version }}" \
+            --notes "🚀 **Release Candidate ${{ steps.version.outputs.version }}**
+            
+            **Commit**: ${{ github.sha }}
+            **Branch**: ${{ github.ref_name }}
+            **Triggered by**: ${{ github.actor }}
+            
+            This is an automated release candidate created after all tests passed on the main branch." \
+            --prerelease \
+            target/wasm32-unknown-unknown/release/kongswap-adaptor-canister.wasm.gz \
+            kongswap_adaptor/kongswap-adaptor.did
