@@ -55,6 +55,7 @@ jobs:
             ["Who Am I (Motoko)"]="motoko/who_am_i"
             ["Rust backend (Rust)"]="rust/backend_only"
             ["Rust backend Wasm64 (Rust)"]="rust/backend_wasm64"
+            ["Basic Bitcoin (Rust)"]="rust/basic_bitcoin"
             ["Canister Info (Rust)"]="rust/canister-info"
             ["Canister Logs (Rust)"]="rust/canister_logs"
             ["Basic Ethereum (Rust)"]="rust/basic_ethereum"
