@@ -26,6 +26,11 @@ regtest_topup:
 	eval "$${TOPUP_CMD_P2TR_KEY_ONLY_ADDR}" && \
 	bitcoin-cli -regtest -rpcport=8333 -generate 6
 
+.PHONY: test
+.SILENT: test
+# No tests yet. This target exists so CI doesn't fail when it runs `make test`.
+test:
+
 .PHONY: clean
 .SILENT: clean
 clean:
