@@ -58,6 +58,7 @@ jobs:
             ["Canister Info (Rust)"]="rust/canister-info"
             ["Canister Logs (Rust)"]="rust/canister_logs"
             ["Basic Ethereum (Rust)"]="rust/basic_ethereum"
+            ["Candid Type Generation (Rust)"]="rust/candid_type_generation"
             ["Daily Planner (Rust)"]="rust/daily_planner"
             ["EVM Block Explorer (Rust)"]="rust/evm_block_explorer"
             ["Flying Ninja (Rust)"]="rust/flying_ninja"
@@ -73,6 +74,7 @@ jobs:
             ["SIMD (Rust)"]="rust/simd"
             ["Threshold ECDSA (Rust)"]="rust/threshold-ecdsa"
             ["Tokenmania (Rust)"]="rust/tokenmania"
+            ["Unit Testable Canister (Rust)"]="rust/unit_testable_rust_canister"
             ["Who Am I (Rust)"]="rust/who_am_i"
             ["Photo Gallery (Rust)"]="rust/photo_gallery"
             ["Inter-canister calls (Rust)"]="rust/inter-canister-calls"
@@ -88,7 +90,7 @@ jobs:
 
           for name in "${!example_paths[@]}"; do
             path=${example_paths[$name]}
-            
+          
             if [ "$run_all_examples" = true ] || echo "$changed_files" | grep -q "^$path/"; then
               examples+=("{\"name\": \"$name\", \"path\": \"$path\"}")
               echo "Added example: $name with path $path"
