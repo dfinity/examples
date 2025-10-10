@@ -10,9 +10,9 @@ crate-type = ["cdylib"]
 
 [dependencies]
 hex = "0.4.3"
-bitcoin = "0.32.5"
-candid = "0.10.13"
-ic-cdk = "0.18.0"
+bitcoin = "0.32.7"
+candid = "0.10.19"
+ic-cdk = "0.18.7"
 serde = "1.0.132"
 serde_bytes = "0.11.15"
 leb128 = "0.2.5"
