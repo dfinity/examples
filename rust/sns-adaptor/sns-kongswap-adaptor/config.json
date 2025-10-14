@@ -1,0 +1,8 @@
+{
+    "dependencies": {
+        "kong_backend": {
+            "version": "4bf8f99df53dbd34bef0e55ab6364d85bb31c71a",
+            "url_template": "https://github.com/KongSwap/kong/raw/{version}/wasm/kong_backend.wasm.gz"
+        }
+    }
+}

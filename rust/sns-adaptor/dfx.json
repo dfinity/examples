@@ -1,0 +1,63 @@
+{
+  "canisters": {
+    "sns_kongswap_adaptor": {
+      "candid": "sns-kongswap-adaptor/kongswap_adaptor/kongswap-adaptor.did",
+      "type": "custom",
+      "shrink": true,
+      "gzip": true,
+      "wasm": "sns-kongswap-adaptor/target/wasm32-unknown-unknown/release/kongswap-adaptor-canister.wasm",
+      "build": [
+        "cd sns-kongswap-adaptor && cargo build --target wasm32-unknown-unknown --release -p kongswap_adaptor && cd -"
+      ],
+      "metadata": [
+        {
+          "name": "candid:service"
+        }
+      ],
+      "init_arg": "(variant { Init = record { assets = vec { variant { Token = record { ledger_fee_decimals = 10000 : nat; ledger_canister_id = principal \"lvfsa-2aaaa-aaaaq-aaeyq-cai\"; symbol = \"LSNS\"; } }; variant { Token = record { ledger_fee_decimals = 10000 : nat; ledger_canister_id = principal \"ryjl3-tyaaa-aaaaa-aaaba-cai\"; symbol = \"ICP\"; } } } }})"
+    },
+    "kong_backend": {
+      "type": "custom",
+      "candid": "https://raw.githubusercontent.com/KongSwap/kong/4bf8f99df53dbd34bef0e55ab6364d85bb31c71a/src/kong_backend/kong_backend.did",
+      "wasm": "https://github.com/KongSwap/kong/raw/4bf8f99df53dbd34bef0e55ab6364d85bb31c71a/wasm/kong_backend.wasm.gz",
+      "remote": {
+        "id": {
+          "ic": "2ipq2-uqaaa-aaaar-qailq-cai"
+        }
+      },
+      "specified_id": "2ipq2-uqaaa-aaaar-qailq-cai"
+    },
+    "icp_ledger_canister": {
+      "type": "custom",
+      "candid": "https://raw.githubusercontent.com/dfinity/ic/69b755062f5ef0a7d6efc9a127172b46121420c8/rs/ledger_suite/icp/ledger.did",
+      "wasm": "https://download.dfinity.systems/ic/69b755062f5ef0a7d6efc9a127172b46121420c8/canisters/ledger-canister.wasm.gz",
+      "remote": {
+        "id": {
+          "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+        }
+      },
+      "specified_id": "ryjl3-tyaaa-aaaaa-aaaba-cai",
+      "init_arg": "(variant { Init = record { minting_account = \"1c7a48ba6a562aa9eaa2481a9049cdf0433b9738c992d698c31d8abf89cadc79\"; initial_values = vec {}; send_whitelist = vec {}; transfer_fee = opt record { e8s = 10_000 : nat64; }; token_symbol = opt \"LICP\"; token_name = opt \"Local ICP\"; } })"
+    },
+    "sns_ledger_canister": {
+      "type": "custom",
+      "candid": "https://raw.githubusercontent.com/dfinity/ic/83923a194d39835e8a7d9549f9f0831b962a60c2/rs/ledger_suite/icp/ledger.did",
+      "wasm": "https://download.dfinity.systems/ic/83923a194d39835e8a7d9549f9f0831b962a60c2/canisters/ledger-canister.wasm.gz",
+      "remote": {
+        "id": {
+          "ic": "lvfsa-2aaaa-aaaaq-aaeyq-cai"
+        }
+      },
+      "specified_id": "lvfsa-2aaaa-aaaaq-aaeyq-cai",
+      "init_arg": "(variant { Init = record { minting_account = \"1c7a48ba6a562aa9eaa2481a9049cdf0433b9738c992d698c31d8abf89cadc79\"; initial_values = vec {}; send_whitelist = vec {}; transfer_fee = opt record { e8s = 10_000 : nat64; }; token_symbol = opt \"LSNS\"; token_name = opt \"Local SNS\"; } })"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}
