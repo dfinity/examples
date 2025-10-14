@@ -36,7 +36,8 @@
           "ic": "ryjl3-tyaaa-aaaaa-aaaba-cai"
         }
       },
-      "specified_id": "ryjl3-tyaaa-aaaaa-aaaba-cai"
+      "specified_id": "ryjl3-tyaaa-aaaaa-aaaba-cai",
+      "init_arg": "(variant { Init = record { minting_account = \"1c7a48ba6a562aa9eaa2481a9049cdf0433b9738c992d698c31d8abf89cadc79\"; initial_values = vec {}; send_whitelist = vec {}; transfer_fee = opt record { e8s = 10_000 : nat64; }; token_symbol = opt \"LICP\"; token_name = opt \"Local ICP\"; } })"
     },
     "sns_ledger_canister": {
       "type": "custom",
@@ -47,7 +48,8 @@
           "ic": "lvfsa-2aaaa-aaaaq-aaeyq-cai"
         }
       },
-      "specified_id": "lvfsa-2aaaa-aaaaq-aaeyq-cai"
+      "specified_id": "lvfsa-2aaaa-aaaaq-aaeyq-cai",
+      "init_arg": "(variant { Init = record { minting_account = \"1c7a48ba6a562aa9eaa2481a9049cdf0433b9738c992d698c31d8abf89cadc79\"; initial_values = vec {}; send_whitelist = vec {}; transfer_fee = opt record { e8s = 10_000 : nat64; }; token_symbol = opt \"LSNS\"; token_name = opt \"Local SNS\"; } })"
     }
   },
   "defaults": {
