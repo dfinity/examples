@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "receiving-icp": {
+      "candid": "src/receiving-icp.did",
+      "package": "receiving-icp",
+      "type": "rust"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

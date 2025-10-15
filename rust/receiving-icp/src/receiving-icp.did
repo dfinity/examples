@@ -1,0 +1,5 @@
+service : {
+  account_identifier: () -> (text) query;
+  "principal": () -> (principal) query;
+  get_balance: () -> (nat64);
+}
