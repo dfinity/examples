@@ -1,5 +1,5 @@
 service : {
-  account_identifier: () -> (text) query;
-  "principal": () -> (principal) query;
+  account: () -> (text) query;
+  subaccount: (nat, nat) -> (text) query;
   get_balance: () -> (nat64);
 }
