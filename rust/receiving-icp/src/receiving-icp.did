@@ -1,0 +1,6 @@
+service : {
+  account: () -> (text) query;
+  subaccount: (nat, nat) -> (text) query;
+  get_balance: () -> (nat64);
+  get_balance_of_subaccount: (nat, nat) -> (nat64);
+}
