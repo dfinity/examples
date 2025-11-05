@@ -23,7 +23,7 @@ test: build
 	# Storing the original balance in a file is the easiest with make.
 	echo $$(dfx canister status counter | awk '/Balance/ { gsub(/_/, "", $$2); print $$2 }') > .counter_before
 	# Send 10% of the caller's available cycles
-	CYCLES_TO_SEND=$$(dfx canister status caller | awk '/Balance/ { gsub(/_/, "", $$2); print int($$2/10) }'); \
+	CYCLES_TO_SEND=$$(dfx canister status caller | awk '/Balance/ { gsub(/_/, "", $$2); printf("%d", int($$2/10)) }'); \
 	echo "Sending $$CYCLES_TO_SEND cycles to counter canister"; \
 	dfx canister call caller send_cycles "( principal \"`dfx canister id counter`\", $$CYCLES_TO_SEND: nat64 )" | grep '(variant { Ok })' && echo PASS
 	# Check that the counter's balance increased
