@@ -9,7 +9,7 @@
 /hosting/static-website/ @dfinity/sdk
 /hosting/unity-webgl-template/ @dfinity/sdk
 
-/motoko/basic_bitcoin/ @dfinity/cross-chain-team
+/motoko/basic_bitcoin/ @dfinity/defi-team
 /motoko/backend_only/ @dfinity/ninja-devs
 /motoko/canister_factory/ @dfinity/growth
 /motoko/canister_logs/ @dfinity/team-dsm
@@ -48,8 +48,8 @@
 /native-apps/unity_ii_applink/ @dfinity/sdk
 /native-apps/unity_ii_deeplink/ @dfinity/sdk
 
-/rust/basic_bitcoin/ @dfinity/cross-chain-team
-/rust/basic_ethereum/ @dfinity/cross-chain-team
+/rust/basic_bitcoin/ @dfinity/defi-team
+/rust/basic_ethereum/ @dfinity/defi-team
 /rust/backend_only/ @dfinity/ninja-devs
 /rust/backend_wasm64/ @dfinity/sdk
 /rust/candid_type_generation @dfinity/governance-team
@@ -63,7 +63,7 @@
 /rust/evm_block_explorer/ @dfinity/ninja-devs
 /rust/face-recognition/ @dfinity/team-dsm
 /rust/flying_ninja/ @dfinity/ninja-devs
-/rust/guards/ @dfinity/cross-chain-team
+/rust/guards/ @dfinity/defi-team
 /rust/hello_world/ @dfinity/ninja-devs
 /rust/icp_transfer/ @dfinity/growth
 /rust/image-classification/ @dfinity/team-dsm
