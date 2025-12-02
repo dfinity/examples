@@ -24,7 +24,7 @@
 /motoko/hello_cycles/ @dfinity/languages
 /motoko/hello_world/ @dfinity/ninja-devs
 /motoko/ic-pos/ @dfinity/growth
-/motoko/icp_transfer/ @dfinity/growth
+/motoko/icp_transfer/ @dfinity/defi-team
 /motoko/icrc2-swap/ @dfinity/growth
 /motoko/internet_identity_integration/ @dfinity/identity
 /motoko/llm_chatbot/ @dfinity/ninja-devs
@@ -40,8 +40,8 @@
 /motoko/threshold-ecdsa/ @dfinity/crypto-team
 /motoko/threshold-schnorr/ @dfinity/crypto-team
 /motoko/tokenmania/ @dfinity/ninja-devs
-/motoko/token_transfer/ @dfinity/growth
-/motoko/token_transfer_from/ @dfinity/growth
+/motoko/token_transfer/ @dfinity/defi-team
+/motoko/token_transfer_from/ @dfinity/defi-team
 /motoko/vetkd/ @dfinity/crypto-team
 /motoko/who_am_i/ @dfinity/ninja-devs
 
@@ -65,7 +65,7 @@
 /rust/flying_ninja/ @dfinity/ninja-devs
 /rust/guards/ @dfinity/defi-team
 /rust/hello_world/ @dfinity/ninja-devs
-/rust/icp_transfer/ @dfinity/growth
+/rust/icp_transfer/ @dfinity/defi-team
 /rust/image-classification/ @dfinity/team-dsm
 /rust/inter-canister-calls/ @dfinity/team-dsm
 /rust/llm_chatbot/ @dfinity/ninja-devs
@@ -82,8 +82,8 @@
 /rust/threshold-ecdsa/ @dfinity/crypto-team
 /rust/threshold-schnorr/ @dfinity/crypto-team
 /rust/tokenmania/ @dfinity/ninja-devs
-/rust/token_transfer/ @dfinity/growth
-/rust/token_transfer_from/ @dfinity/growth
+/rust/token_transfer/ @dfinity/defi-team
+/rust/token_transfer_from/ @dfinity/defi-team
 /rust/unit_testable_rust_canister @dfinity/governance-team
 /rust/vetkd/ @dfinity/crypto-team
 /rust/who_am_i/ @dfinity/ninja-devs
