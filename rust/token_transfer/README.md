@@ -188,7 +188,7 @@ crate-type = ["cdylib"]
 candid = "0.10"
 ic-cdk = "0.12"
 ic-cdk-timers = "0.6" # Feel free to remove this dependency if you don't need timers
-icrc-ledger-types = "0.1.5"
+icrc-ledger-types = "0.1.12"
 serde = "1.0.197"
 serde_derive = "1.0.197"
 ```
