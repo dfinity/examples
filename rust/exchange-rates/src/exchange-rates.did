@@ -6,5 +6,5 @@ type Asset = record {
 };
 
 service exchange_rate_demo: {
-  get_exchange_rate: (base: Asset, quote: Asset) -> (nat64);
+  get_exchange_rate: (base: Asset, quote: Asset) -> (nat);
 }
