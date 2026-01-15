@@ -1,0 +1,17 @@
+{
+  "canisters": {
+    "exchange-rates": {
+      "candid": "src/exchange-rates.did",
+      "package": "exchange-rates-demo",
+      "type": "rust"
+    }
+  },
+  "defaults": {
+    "build": {
+      "args": "",
+      "packtool": ""
+    }
+  },
+  "output_env_file": ".env",
+  "version": 1
+}

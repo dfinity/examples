@@ -81,6 +81,7 @@ jobs:
             ["X.509 (Rust)"]="rust/x509"
             ["SNS Kongswap Adaptor (Rust)"]="rust/sns-adaptor"
             ["Receiving ICP"]="rust/receiving-icp"
+            ["Fetching Exchange Rates (Rust)"]="rust/exchange-rates"
           )
 
           # Check if we should run all examples (workflow file changed) or just changed ones
