@@ -75,6 +75,7 @@
 /rust/periodic_tasks/ @dfinity/team-dsm
 /rust/qrcode/ @dfinity/team-dsm
 /rust/query_stats/ @dfinity/consensus
+/rust/receiving-icp/ @dfinity/defi-team
 /rust/send_http_get/ @dfinity/growth
 /rust/send_http_post/ @dfinity/growth
 /rust/simd/ @dfinity/team-dsm
