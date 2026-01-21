@@ -17,7 +17,7 @@
 /motoko/classes/ @dfinity/languages
 /motoko/composite_query/ @dfinity/languages
 /motoko/daily_planner/ @dfinity/ninja-devs
-/motoko/encrypted-notes-dapp-vetkd/ @dfinity/crypto-team
+/motoko/encrypted-notes-dapp-vetkd/ @dfinity/consensus
 /motoko/evm_block_explorer/ @dfinity/ninja-devs
 /motoko/filevault/ @dfinity/ninja-devs
 /motoko/flying_ninja/ @dfinity/ninja-devs
@@ -37,12 +37,12 @@
 /motoko/send_http_get/ @dfinity/growth
 /motoko/send_http_post/ @dfinity/growth
 /motoko/superheroes/ @dfinity/growth
-/motoko/threshold-ecdsa/ @dfinity/crypto-team
-/motoko/threshold-schnorr/ @dfinity/crypto-team
+/motoko/threshold-ecdsa/ @dfinity/consensus
+/motoko/threshold-schnorr/ @dfinity/consensus
 /motoko/tokenmania/ @dfinity/ninja-devs
 /motoko/token_transfer/ @dfinity/defi-team
 /motoko/token_transfer_from/ @dfinity/defi-team
-/motoko/vetkd/ @dfinity/crypto-team
+/motoko/vetkd/ @dfinity/consensus
 /motoko/who_am_i/ @dfinity/ninja-devs
 
 /native-apps/unity_ii_applink/ @dfinity/sdk
@@ -59,7 +59,7 @@
 /rust/canister_logs/ @dfinity/team-dsm
 /rust/composite_query/ @dfinity/team-dsm
 /rust/daily_planner/ @dfinity/ninja-devs
-/rust/encrypted-notes-dapp-vetkd/ @dfinity/crypto-team
+/rust/encrypted-notes-dapp-vetkd/ @dfinity/consensus
 /rust/evm_block_explorer/ @dfinity/ninja-devs
 /rust/exchange-rates/ @dfinity/defi-team
 /rust/face-recognition/ @dfinity/team-dsm
@@ -81,15 +81,15 @@
 /rust/send_http_post/ @dfinity/growth
 /rust/simd/ @dfinity/team-dsm
 /rust/stake_neuron_from_cli @dfinity/governance-team
-/rust/threshold-ecdsa/ @dfinity/crypto-team
-/rust/threshold-schnorr/ @dfinity/crypto-team
+/rust/threshold-ecdsa/ @dfinity/consensus
+/rust/threshold-schnorr/ @dfinity/consensus
 /rust/tokenmania/ @dfinity/ninja-devs
 /rust/token_transfer/ @dfinity/defi-team
 /rust/token_transfer_from/ @dfinity/defi-team
 /rust/unit_testable_rust_canister @dfinity/governance-team
-/rust/vetkd/ @dfinity/crypto-team
+/rust/vetkd/ @dfinity/consensus
 /rust/who_am_i/ @dfinity/ninja-devs
-/rust/x509/ @dfinity/crypto-team
+/rust/x509/ @dfinity/consensus
 
 /svelte/svelte-motoko-starter/ @dfinity/sdk
 /svelte/svelte-starter/ @dfinity/sdk
