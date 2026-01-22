@@ -1,15 +1,16 @@
 // Some of the imports will only be used in later examples; we list them here for simplicity
 use candid::{Nat, Principal};
 use ic_cdk::api::time;
-use ic_cdk::call::{Call, CallErrorExt, RejectCode};
-use ic_cdk::management_canister::{EcdsaCurve, EcdsaKeyId, SignWithEcdsaArgs, SignWithEcdsaResult, cost_sign_with_ecdsa};
+use ic_cdk::call::{Call, CallErrorExt};
+use ic_cdk::management_canister::{DepositCyclesArgs, CanisterId};
 use ic_cdk_macros::update;
-use sha2::{Digest, Sha256};
 
 // When calling other canisters:
-// 1. The simplest is to mark your function as `update`. Then you can always call any public
-//    endpoint on any other canister.
-// 2. Mark the function as `async`. Then you can use the `Call` API to call other canisters.
+//
+//   1. The simplest is to mark your function as `update`. Then you can always call any public
+//      endpoint on any other canister.
+//   2. Mark the function as `async`. Then you can use the `Call` API to call other canisters.
+//
 // This particular example requires the caller to provide the principal (i.e., ID) of the counter canister.
 #[update]
 pub async fn call_get_and_set(counter: Principal, new_value: Nat) -> Nat {
@@ -136,52 +137,17 @@ pub async fn stubborn_set(counter: Principal, new_value: Nat) -> Result<(), Stri
 }
 
 #[update]
-pub async fn sign_message(message: String) -> Result<String, String> {
-    let message_hash = Sha256::digest(&message).to_vec();
-
-    let request = SignWithEcdsaArgs {
-        message_hash,
-        // This example does not use the fancier signing features
-        derivation_path: vec![],
-        key_id: EcdsaKeyId {
-            curve: EcdsaCurve::Secp256k1,
-            // This is the key name used for local testing; different
-            // key names are needed for the mainnet
-            name: "dfx_test_key".to_string(),
-        },
+pub async fn send_cycles(target: CanisterId, amount: u64) -> Result<(), String> {
+    let request = DepositCyclesArgs {
+        canister_id: target,
     };
 
-    let cycles_cost = cost_sign_with_ecdsa(&request).map_err(|e| {
-        format!(
-            "Failed to compute cycles cost for signing with ECDSA: {:?}",
-            e
-        )
-    })?;
-
-    // Use bounded-wait calls in this example, since the amount attached is
-    // fairly low, and losing the attached cycles isn't catastrophic.
-    match Call::bounded_wait(Principal::management_canister(), "sign_with_ecdsa")
+    match Call::bounded_wait(Principal::management_canister(), "deposit_cycles")
         .with_arg(&request)
-        // Signing with a test key requires 30 billion cycles
-        .with_cycles(cycles_cost)
+        .with_cycles(amount as u128)
         .await
     {
-        Ok(resp) => match resp.candid::<SignWithEcdsaResult>() {
-            Ok(signature) => Ok(hex::encode(signature.signature)),
-            Err(e) => Err(format!("Error decoding response: {:?}", e)),
-        },
-        // A SysUnknown reject code only occurs due to a bounded-wait call timing out.
-        // It means that no cycles will be refunded, even
-        // if the call didn't make it to the callee. Here, this is fine since
-        // only a small amount is used.
-        Err(ic_cdk::call::CallFailed::CallRejected(e))
-        if e.reject_code() == Ok(RejectCode::SysUnknown) =>
-            {
-                Err(format!(
-                    "Got a SysUnknown error while signing message: {:?}; cycles are not refunded",
-                    e
-                ))
-            }
-        Err(e) => Err(format!("Error signing message: {:?}", e)),
+        Ok(_) => Ok(()),
+        Err(e) => Err(format!("Error attaching {} cycles: {:?}", amount, e)),
     }
 }
