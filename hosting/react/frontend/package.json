@@ -3,6 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "prebuild": "npm i --include=dev",
     "build": "vite build",
     "dev": "vite"
   },
