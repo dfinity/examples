@@ -1,5 +1,5 @@
 {
-  "name": "my_crypto_blog",
+  "name": "react",
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "prebuild": "npm run prebuild --workspaces --if-present",
