@@ -1,6 +1,8 @@
 .dfx/
+**/.icp/cache/
 build/
 node_modules/
+package-lock.json
 dist/
 .DS_Store
 _MACOSX
