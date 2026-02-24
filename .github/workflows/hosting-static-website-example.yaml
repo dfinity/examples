@@ -14,7 +14,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  hosting-unity-static-website-darwin:
+  hosting-static-website-darwin:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@v1
@@ -22,9 +22,9 @@ jobs:
         run: bash .github/workflows/provision-darwin.sh
       - name: Hosting Static Website Darwin
         run: |
-          dfx start --background
           pushd hosting/static-website
-          dfx deploy
+          icp network start -d
+          icp deploy
           popd
   hosting-static-website-linux:
     runs-on: ubuntu-22.04
@@ -34,7 +34,7 @@ jobs:
         run: bash .github/workflows/provision-linux.sh
       - name: Hosting Static Website Linux
         run: |
-          dfx start --background
           pushd hosting/static-website
-          dfx deploy
+          icp network start -d
+          icp deploy
           popd
