@@ -8,7 +8,7 @@ keywords: [photo storage, store photos, photo app, photos, beginner]
 
 ## Overview
 
-The example shows how to store photos on ICP in an asset canister with the `@dfinity/assets` package. The photo storage app is deployed as a frontend in an asset canister which is also used for photo upload.
+The example shows how to store photos on ICP in an asset canister using the `AssetManager` from `@icp-sdk/canisters/assets`. The photo storage app is deployed as a frontend in an asset canister which is also used for photo upload.
 
 ## Project structure
 
