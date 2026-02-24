@@ -92,7 +92,6 @@
 /rust/x509/ @dfinity/consensus
 
 /svelte/svelte-motoko-starter/ @dfinity/sdk
-/svelte/svelte-starter/ @dfinity/sdk
 /svelte/sveltekit-starter/ @dfinity/sdk
 
 /wasm/counter @dfinity/languages
