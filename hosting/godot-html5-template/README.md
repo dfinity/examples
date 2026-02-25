@@ -1,7 +1,3 @@
----
-keywords: [html5, html, godot, hosting, host a website, beginner]
----
-
 # Godot HTML5 sample
 
 [View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/hosting/godot-html5-template)

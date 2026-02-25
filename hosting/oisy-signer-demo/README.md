@@ -1,7 +1,3 @@
----
-keywords: [hosting, react, oisy, wallet, signer, icrc, beginner]
----
-
 # OISY Signer Demo
 
 [View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/hosting/oisy-signer-demo)
@@ -28,8 +24,8 @@ This example can be deployed directly from [ICP Ninja](https://icp.ninja), a bro
 
 ### Prerequisites
 
-- [x] Install [icp-cli](https://cli.icp.build): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 - [x] Install [Node.js](https://nodejs.org/en/download/)
+- [x] Install [icp-cli](https://cli.icp.build): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
 ### Install
 

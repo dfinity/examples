@@ -1,7 +1,3 @@
----
-keywords: [unity, unity webgl, beginner]
----
-
 # Unity WebGL sample
 
 [View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/hosting/unity-webgl-template)

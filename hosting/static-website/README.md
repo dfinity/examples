@@ -1,7 +1,3 @@
----
-keywords: [static website, basic website, html, host a website, beginner]
----
-
 # Static website
 
 [View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/hosting/static-website)

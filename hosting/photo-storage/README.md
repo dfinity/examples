@@ -1,7 +1,3 @@
----
-keywords: [photo storage, store photos, photo app, photos, beginner]
----
-
 # Photo storage example
 
 [View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/hosting/photo-storage)
@@ -16,8 +12,8 @@ The `/src` folder contains the React frontend application. The frontend is deplo
 
 ## Prerequisites
 
-- [x] Install [icp-cli](https://cli.icp.build): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 - [x] Install [Node.js](https://nodejs.org/en/download/)
+- [x] Install [icp-cli](https://cli.icp.build): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
 ## Install
 
