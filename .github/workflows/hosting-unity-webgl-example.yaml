@@ -16,6 +16,8 @@ concurrency:
 jobs:
   hosting-unity-webgl-darwin:
     runs-on: macos-15
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
@@ -28,6 +30,8 @@ jobs:
           popd
   hosting-unity-webgl-linux:
     runs-on: ubuntu-22.04
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux

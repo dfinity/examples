@@ -16,6 +16,8 @@ concurrency:
 jobs:
   hosting-photo-storage-darwin:
     runs-on: macos-15
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
@@ -30,6 +32,8 @@ jobs:
           popd
   hosting-photo-storage-linux:
     runs-on: ubuntu-22.04
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
