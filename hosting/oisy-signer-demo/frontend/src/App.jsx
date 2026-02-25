@@ -4,10 +4,10 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { OisyIcon } from '@/components/ui/oisyIcon';
 import ICPLogo from './assets/icp.svg';
-import USDCLogo from './assets/usdc.svg';
+import TICRC1Logo from './assets/ticrc1.svg';
 import OISYLogo from './assets/oisy.svg';
 import { useOisyWallet } from './hooks/useOisyWallet';
-import { CKUSDC_LEDGER_ID } from './libs/constants';
+import { TESTICP_LEDGER_ID, TICRC1_LEDGER_ID } from './libs/constants';
 import { toMainUnit } from './libs/utils';
 
 // Helper functions for button styling and content
@@ -25,7 +25,7 @@ const getButtonContent = (isConnected) => {
       </>
     );
   }
-  
+
   return (
     <>
       <OisyIcon />
@@ -42,15 +42,17 @@ export default function App() {
     principal,
     accountIdentifier,
     isLoading,
-    icpBalance,
-    ckUsdcBalance,
-    icpMetadata,
-    ckUsdcMetadata,
-    transferIcp,
-    transferCkUsdc,
+    testIcpBalance,
+    tIcrc1Balance,
+    testIcpMetadata,
+    tIcrc1Metadata,
+    transferTestIcp,
+    transferTIcrc1,
   } = useOisyWallet();
 
-  const [darkMode, setDarkMode] = useState(false);
+  const [darkMode, setDarkMode] = useState(
+    () => window.matchMedia('(prefers-color-scheme: dark)').matches
+  );
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
 
@@ -76,20 +78,19 @@ export default function App() {
   };
 
   const handleTransfer = async (token) => {
-    const result = token === 'ICP' ? await transferIcp() : await transferCkUsdc();
+    const result = token === 'TESTICP' ? await transferTestIcp() : await transferTIcrc1();
 
     if (result.success && result.blockIndex !== undefined) {
-      const url =
-        token === 'ICP'
-          ? `https://dashboard.internetcomputer.org/transaction/${result.blockIndex}`
-          : `https://dashboard.internetcomputer.org/ethereum/${CKUSDC_LEDGER_ID}/transaction/${result.blockIndex}`;
+      const ledgerId = token === 'TESTICP' ? TESTICP_LEDGER_ID : TICRC1_LEDGER_ID;
+      const url = `https://dashboard.internetcomputer.org/tokens/${ledgerId}/transaction/${result.blockIndex}`;
 
       setSuccess(
         <span>
           {token} transfer successful.{' '}
           <a href={url} target="_blank" rel="noopener noreferrer" className="underline">
             View on Dashboard
-          </a>
+          </a>{' '}
+          <span className="opacity-75">(transactions can take up to 10 minutes to appear)</span>
         </span>
       );
     } else {
@@ -99,7 +100,7 @@ export default function App() {
 
   return (
     <div
-      className={`min-h-screen ${darkMode ? 'bg-zinc-900 text-white' : 'bg-white text-zinc-900'} px-4 py-6 sm:px-6 lg:px-8`}
+      className={`min-h-screen ${darkMode ? 'dark bg-zinc-900 text-white' : 'bg-white text-zinc-900'} px-4 py-6 sm:px-6 lg:px-8`}
     >
       <div className="mx-auto max-w-4xl space-y-8">
         {/* Header */}
@@ -130,9 +131,21 @@ export default function App() {
               the <strong>Signer Standard</strong> and <strong>ICRC-1</strong> tokens.
             </p>
             <p>
-              After connecting your wallet, you’ll be able to view your balances for{' '}
-              <strong>ICP</strong> and <strong>ckUSDC</strong> and trigger a test transfer of 1
+              After connecting your wallet, you&apos;ll be able to view your balances for{' '}
+              <strong>TESTICP</strong> and <strong>TICRC1</strong> and trigger a test transfer of 1
               token to your own principal.
+            </p>
+            <p>
+              You can obtain testnet tokens for free using the{' '}
+              <a
+                href="https://faucet.internetcomputer.org"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 underline"
+              >
+                ICP Faucet
+              </a>
+              . In OISY, select the <strong>IC (testnet tokens)</strong> network to view them.
             </p>
             <p>This app is purely for demonstration purposes and does not store any user data.</p>
             <p>
@@ -171,7 +184,7 @@ export default function App() {
             </div>
 
             {isLoading ? (
-              <div className="text-muted-foreground flex items-center justify-center py-10">
+              <div className="flex items-center justify-center py-10 text-zinc-500 dark:text-zinc-400">
                 <div className="flex items-center gap-3 text-base">
                   <Loader2 className="animate-spin" size={20} />
                   Loading token balances...
@@ -179,13 +192,13 @@ export default function App() {
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                {/* ICP Card */}
-                <div className="space-y-2 rounded-xl border p-4">
+                {/* TESTICP Card */}
+                <div className="space-y-2 rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
                   <div className="flex items-center gap-2">
-                    <img src={ICPLogo} alt="ICP" className="h-5 w-5" />
-                    <span>ICP</span>
+                    <img src={ICPLogo} alt="TESTICP" className="h-5 w-5" />
+                    <span>TESTICP</span>
                     <a
-                      href={`https://dashboard.internetcomputer.org/account/${accountIdentifier?.toHex()}`}
+                      href={`https://dashboard.internetcomputer.org/tokens/${TESTICP_LEDGER_ID}/account/${principal?.toString()}`}
                       target="_blank"
                       rel="noreferrer"
                       className="text-blue-600 underline"
@@ -195,25 +208,25 @@ export default function App() {
                   </div>
                   <div className="text-sm">
                     Balance:{' '}
-                    {icpBalance && icpMetadata
-                      ? toMainUnit(icpBalance, icpMetadata.decimals)
+                    {testIcpBalance && testIcpMetadata
+                      ? toMainUnit(testIcpBalance, testIcpMetadata.decimals)
                       : '...'}
                   </div>
-                  <Button onClick={() => handleTransfer('ICP')} disabled={isLoading}>
-                    Transfer ICP
+                  <Button onClick={() => handleTransfer('TESTICP')} disabled={isLoading}>
+                    Transfer TESTICP
                   </Button>
-                  <p className="text-muted-foreground text-xs">
-                    Transfers 1 ICP to your own OISY principal for testing.
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    Transfers 1 TESTICP to your own OISY principal for testing.
                   </p>
                 </div>
 
-                {/* ckUSDC Card */}
-                <div className="space-y-2 rounded-xl border p-4">
+                {/* TICRC1 Card */}
+                <div className="space-y-2 rounded-xl border border-zinc-200 p-4 dark:border-zinc-700">
                   <div className="flex items-center gap-2">
-                    <img src={USDCLogo} alt="ckUSDC" className="h-5 w-5" />
-                    <span>ckUSDC</span>
+                    <img src={TICRC1Logo} alt="TICRC1" className="h-5 w-5" />
+                    <span>TICRC1</span>
                     <a
-                      href={`https://dashboard.internetcomputer.org/ethereum/${CKUSDC_LEDGER_ID}/account/${principal?.toString()}`}
+                      href={`https://dashboard.internetcomputer.org/tokens/${TICRC1_LEDGER_ID}/account/${principal?.toString()}`}
                       target="_blank"
                       rel="noreferrer"
                       className="text-blue-600 underline"
@@ -223,15 +236,15 @@ export default function App() {
                   </div>
                   <div className="text-sm">
                     Balance:{' '}
-                    {ckUsdcBalance && ckUsdcMetadata
-                      ? toMainUnit(ckUsdcBalance, ckUsdcMetadata.decimals)
+                    {tIcrc1Balance && tIcrc1Metadata
+                      ? toMainUnit(tIcrc1Balance, tIcrc1Metadata.decimals)
                       : '...'}
                   </div>
-                  <Button onClick={() => handleTransfer('ckUSDC')} disabled={isLoading}>
-                    Transfer ckUSDC
+                  <Button onClick={() => handleTransfer('TICRC1')} disabled={isLoading}>
+                    Transfer TICRC1
                   </Button>
-                  <p className="text-muted-foreground text-xs">
-                    Transfers 1 ckUSDC to your own OISY principal for testing.
+                  <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                    Transfers 1 TICRC1 to your own OISY principal for testing.
                   </p>
                 </div>
               </div>
@@ -263,7 +276,7 @@ export default function App() {
         )}
 
         {/* Footer */}
-        <footer className="text-muted-foreground mt-10 space-y-2 border-t pt-10 text-sm">
+        <footer className="mt-10 space-y-2 border-t border-zinc-200 pt-10 text-sm text-zinc-500 dark:border-zinc-700 dark:text-zinc-400">
           <p>References:</p>
           <ul className="list-inside list-disc space-y-1">
             <li>
@@ -279,7 +292,17 @@ export default function App() {
             <li>
               <a
                 className="inline-flex items-center gap-1 text-blue-600 underline"
-                href="https://internetcomputer.org/docs/defi/token-standards"
+                href="https://faucet.internetcomputer.org"
+                target="_blank"
+                rel="noreferrer"
+              >
+                ICP Faucet (get testnet tokens) <ExternalLink size={14} />
+              </a>
+            </li>
+            <li>
+              <a
+                className="inline-flex items-center gap-1 text-blue-600 underline"
+                href="https://docs.internetcomputer.org/defi/token-standards"
                 target="_blank"
                 rel="noreferrer"
               >
@@ -299,7 +322,7 @@ export default function App() {
             <li>
               <a
                 className="inline-flex items-center gap-1 text-blue-600 underline"
-                href="https://internetcomputer.org/docs/defi/token-ledgers/usage/icrc1_ledger_usage#from-a-web-application"
+                href="https://docs.internetcomputer.org/defi/token-ledgers/usage/icrc1_ledger_usage#from-a-web-application"
                 target="_blank"
                 rel="noreferrer"
               >

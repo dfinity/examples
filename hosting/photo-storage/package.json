@@ -2,39 +2,21 @@
   "name": "photo-storage",
   "version": "0.1.0",
   "private": true,
+  "type": "module",
   "dependencies": {
-    "@dfinity/agent": "^2.1.3",
-    "@dfinity/assets": "^2.1.3",
-    "@dfinity/candid": "^2.1.3",
-    "@dfinity/identity": "^2.1.3",
-    "@dfinity/principal": "^2.1.3",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "react-masonry-css": "^1.0.16",
-    "react-scripts": "5.0.1"
+    "@icp-sdk/canisters": "~3.5.0",
+    "@icp-sdk/core": "~5.0.0",
+    "react": "~19.2.4",
+    "react-dom": "~19.2.4",
+    "react-masonry-css": "~1.0.16"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "~5.1.4",
+    "vite": "~7.3.1"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject"
-  },
-  "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
-    ]
-  },
-  "browserslist": {
-    "production": [
-      ">0.2%",
-      "not dead",
-      "not op_mini all"
-    ],
-    "development": [
-      "last 1 chrome version",
-      "last 1 firefox version",
-      "last 1 safari version"
-    ]
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
   }
 }

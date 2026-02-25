@@ -5,7 +5,7 @@ on:
       - master
   pull_request:
     paths:
-      - motoko/unity-webgl-template/**
+      - hosting/unity-webgl-template/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
       - .github/workflows/hosting-unity-webgl-example.yaml
@@ -20,11 +20,15 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
+      - name: Pre-download network launcher
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/workflows/pre-download-launcher.sh
       - name: Hosting Unity Webgl Darwin
         run: |
-          dfx start --background
           pushd hosting/unity-webgl-template
-          dfx deploy
+          icp network start -d
+          icp deploy
           popd
   hosting-unity-webgl-linux:
     runs-on: ubuntu-22.04
@@ -32,9 +36,13 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
+      - name: Pre-download network launcher
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/workflows/pre-download-launcher.sh
       - name: Hosting Unity Webgl Linux
         run: |
-          dfx start --background
           pushd hosting/unity-webgl-template
-          dfx deploy
+          icp network start -d
+          icp deploy
           popd

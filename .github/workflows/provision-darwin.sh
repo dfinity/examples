@@ -16,6 +16,12 @@ curl --location --output node.pkg "https://nodejs.org/dist/v$version/node-v$vers
 sudo installer -pkg node.pkg -store -target /
 rm node.pkg
 
+# Install icp-cli
+npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm
+
+# Install ic-mops (for Motoko projects)
+npm install -g ic-mops
+
 # Install DFINITY SDK.
 curl --location --output install-dfx.sh "https://raw.githubusercontent.com/dfinity/sdk/master/public/install-dfxvm.sh"
 DFX_VERSION=${DFX_VERSION:=0.30.2} DFXVM_INIT_YES=true bash install-dfx.sh

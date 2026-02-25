@@ -11,6 +11,12 @@ sudo bash nodesource_setup.sh
 sudo apt-get install --yes nodejs
 rm nodesource_setup.sh
 
+# Install icp-cli
+npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm
+
+# Install ic-mops (for Motoko projects)
+npm install -g ic-mops
+
 # Install DFINITY SDK.
 wget --output-document install-dfx.sh "https://raw.githubusercontent.com/dfinity/sdk/master/public/install-dfxvm.sh"
 DFX_VERSION=${DFX_VERSION:=0.30.2} DFXVM_INIT_YES=true bash install-dfx.sh

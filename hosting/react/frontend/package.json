@@ -8,20 +8,16 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@dfinity/agent": "2.4.1",
-    "@dfinity/auth-client": "2.4.1",
-    "@dfinity/candid": "2.4.1",
-    "@dfinity/principal": "2.4.1",
-    "react": "18.3.1",
-    "react-dom": "18.3.1"
+    "react": "~19.2.4",
+    "react-dom": "~19.2.4"
   },
   "devDependencies": {
-    "@types/react": "18.3.12",
-    "@types/react-dom": "18.3.1",
-    "@vitejs/plugin-react": "4.3.3",
-    "autoprefixer": "^10.4.20",
-    "postcss": "8.4.48",
-    "tailwindcss": "3.4.14",
-    "vite": "5.4.11"
+    "@types/react": "~19.2.14",
+    "@types/react-dom": "~19.2.3",
+    "@vitejs/plugin-react": "~5.1.4",
+    "autoprefixer": "~10.4.24",
+    "postcss": "~8.5.6",
+    "tailwindcss": "~3.4.19",
+    "vite": "~7.3.1"
   }
 }

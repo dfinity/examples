@@ -20,15 +20,17 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
+      - name: Pre-download network launcher
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/workflows/pre-download-launcher.sh
       - name: Hosting Photo Storage Darwin
         run: |
           pushd hosting/photo-storage
-          # verify frontend deps install and build
           npm install
           npm run build
-          # verify that frontend asset canister deploys
-          dfx start --background
-          dfx deploy
+          icp network start -d
+          icp deploy
           popd
   hosting-photo-storage-linux:
     runs-on: ubuntu-22.04
@@ -36,13 +38,15 @@ jobs:
       - uses: actions/checkout@v1
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
+      - name: Pre-download network launcher
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/workflows/pre-download-launcher.sh
       - name: Hosting Photo Storage Linux
         run: |
           pushd hosting/photo-storage
-          # verify frontend deps install and build
           npm install
           npm run build
-          # verify that frontend asset canister deploys
-          dfx start --background
-          dfx deploy
+          icp network start -d
+          icp deploy
           popd

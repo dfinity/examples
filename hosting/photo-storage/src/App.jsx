@@ -1,6 +1,6 @@
-import {Ed25519KeyIdentity} from '@dfinity/identity';
-import {HttpAgent} from '@dfinity/agent';
-import {AssetManager} from '@dfinity/assets';
+import {Ed25519KeyIdentity} from '@icp-sdk/core/identity';
+import {HttpAgent} from '@icp-sdk/core/agent';
+import {AssetManager} from '@icp-sdk/canisters/assets';
 import {useEffect, useState} from "react";
 import Masonry from "react-masonry-css";
 import './App.css';
@@ -13,7 +13,7 @@ const agent = HttpAgent.createSync({
     host: isLocal ? `http://127.0.0.1:${window.location.port}` : 'https://ic0.app', identity,
 });
 if (isLocal) {
-    agent.fetchRootKey();
+    await agent.fetchRootKey();
 }
 
 // Canister id can be fetched from URL since frontend in this example is hosted in the same canister as file upload

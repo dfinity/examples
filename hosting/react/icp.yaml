@@ -1,0 +1,8 @@
+canisters:
+  - name: frontend
+    recipe:
+      type: "@dfinity/asset-canister@v2.1.0"
+      configuration:
+        dir: frontend/dist
+        build:
+          - npm run build --prefix frontend

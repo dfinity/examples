@@ -1,0 +1,10 @@
+canisters:
+  - name: godot_html5_assets
+    recipe:
+      type: "@dfinity/asset-canister@v2.1.0"
+      configuration:
+        dir: dist
+        build:
+          - mkdir -p dist
+          - cp -r src/godot_html5_assets/assets/* dist/
+          - cp -r src/godot_html5_assets/src/* dist/

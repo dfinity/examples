@@ -1,5 +1,8 @@
 {
   "name": "oisy-signer-demo",
+  "overrides": {
+    "minimatch": ">=10.2.1"
+  },
   "scripts": {
     "build": "npm run build --workspaces --if-present",
     "prebuild": "npm run prebuild --workspaces --if-present",
