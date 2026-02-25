@@ -1,0 +1,6 @@
+canisters:
+  - name: backend
+    recipe:
+      type: "@dfinity/motoko@v4.1.0"
+      configuration:
+        main: backend/app.mo
