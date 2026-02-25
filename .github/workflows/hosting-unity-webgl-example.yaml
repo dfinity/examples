@@ -16,12 +16,14 @@ concurrency:
 jobs:
   hosting-unity-webgl-darwin:
     runs-on: macos-15
-    env:
-      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v1
       - name: Provision Darwin
         run: bash .github/workflows/provision-darwin.sh
+      - name: Pre-download network launcher
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/workflows/pre-download-launcher.sh
       - name: Hosting Unity Webgl Darwin
         run: |
           pushd hosting/unity-webgl-template
@@ -30,12 +32,14 @@ jobs:
           popd
   hosting-unity-webgl-linux:
     runs-on: ubuntu-22.04
-    env:
-      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@v1
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
+      - name: Pre-download network launcher
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/workflows/pre-download-launcher.sh
       - name: Hosting Unity Webgl Linux
         run: |
           pushd hosting/unity-webgl-template
