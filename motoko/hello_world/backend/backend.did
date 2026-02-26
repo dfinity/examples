@@ -1,0 +1,4 @@
+service : {
+  greet: (name: text) -> (text) query;
+  setGreeting: (prefix: text) -> ();
+}
