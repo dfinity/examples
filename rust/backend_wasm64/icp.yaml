@@ -1,0 +1,9 @@
+canisters:
+  - name: backend
+    build:
+      steps:
+        - type: script
+          commands:
+            - ./build.sh
+            - cp target/backend.wasm "$ICP_WASM_OUTPUT_PATH"
+            - ic-wasm "$ICP_WASM_OUTPUT_PATH" -o "${ICP_WASM_OUTPUT_PATH}" metadata "candid:service" -f 'backend/backend.did' -v public --keep-name-section
