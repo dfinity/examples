@@ -1,25 +1,55 @@
 # HTTP: POST
 
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/send_http_post)
+
+## Overview
+
 The purpose of this dapp is to give developers a minimal dapp that uses the IC's HTTPS outcalls feature to make a `POST` request.
 
-This demo goes in hand with the [developer documentation on HTTPS outcalls](https://internetcomputer.org/docs/building-apps/network-features/using-http/https-outcalls/post).
+This demo goes in hand with the [developer documentation on HTTPS outcalls](https://docs.internetcomputer.org/building-apps/network-features/using-http/https-outcalls/post).
 
 ## Deploying from ICP Ninja
 
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/send_http_post)
+This example can be deployed directly from [ICP Ninja](https://icp.ninja), a browser-based IDE for ICP. To continue developing locally after deploying from ICP Ninja, see [BUILD.md](BUILD.md).
 
-## Build and deploy from the command-line
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/rust/send_http_post)
 
-### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
+> **Note:** ICP Ninja currently uses `dfx` under the hood, which is why this example includes a `dfx.json` configuration file. The `Makefile` also uses `dfx` for ICP Ninja CI compatibility. `dfx` is the legacy CLI, being superseded by [icp-cli](https://cli.icp.build), which is what developers should use for local development.
 
-### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
+## Build and deploy from the command line
 
-### 3. Navigate into the project's directory.
+### Prerequisites
 
-### 4. Deploy the project to your local environment:
+- [x] Install [Node.js](https://nodejs.org/en/download/)
+- [x] Install [icp-cli](https://cli.icp.build): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
+### Install
+
+Clone the example project:
+
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/rust/send_http_post
 ```
-dfx start --background --clean && dfx deploy
+
+### Deployment
+
+Start the local network:
+
+```bash
+icp network start -d
+```
+
+Deploy the canister:
+
+```bash
+icp deploy
+```
+
+Stop the local network when done:
+
+```bash
+icp network stop
 ```
 
 ## Security considerations and best practices
