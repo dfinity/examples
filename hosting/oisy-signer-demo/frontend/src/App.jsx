@@ -208,7 +208,7 @@ export default function App() {
                   </div>
                   <div className="text-sm">
                     Balance:{' '}
-                    {testIcpBalance && testIcpMetadata
+                    {testIcpBalance != null && testIcpMetadata
                       ? toMainUnit(testIcpBalance, testIcpMetadata.decimals)
                       : '...'}
                   </div>
@@ -236,7 +236,7 @@ export default function App() {
                   </div>
                   <div className="text-sm">
                     Balance:{' '}
-                    {tIcrc1Balance && tIcrc1Metadata
+                    {tIcrc1Balance != null && tIcrc1Metadata
                       ? toMainUnit(tIcrc1Balance, tIcrc1Metadata.decimals)
                       : '...'}
                   </div>
