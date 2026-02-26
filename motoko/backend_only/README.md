@@ -1,25 +1,53 @@
 # Motoko backend
 
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/backend_only)
+
+## Overview
+
 This backend only project demonstrates how to write a simple smart contract for ICP.
 
 ## Deploying from ICP Ninja
 
-When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Run" in the upper right corner. Open this project in ICP Ninja:
+This example can be deployed directly from [ICP Ninja](https://icp.ninja), a browser-based IDE for ICP. To continue developing locally after deploying from ICP Ninja, see [BUILD.md](BUILD.md).
 
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/motoko/backend_only)
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/motoko/backend_only)
 
-## Build and deploy from the command-line
+> **Note:** ICP Ninja currently uses `dfx` under the hood, which is why this example includes a `dfx.json` configuration file. `dfx` is the legacy CLI, being superseded by [icp-cli](https://cli.icp.build), which is what developers should use for local development.
 
-### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
+## Build and deploy from the command line
 
-### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
+### Prerequisites
 
-### 3. Navigate into the project's directory.
+- [x] Install [Node.js](https://nodejs.org/en/download/)
+- [x] Install [icp-cli](https://cli.icp.build): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
-### 4. Deploy the project to your local environment:
+### Install
 
+Clone the example project:
+
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/motoko/backend_only
 ```
-dfx start --background --clean && dfx deploy
+
+### Deployment
+
+Start the local network:
+
+```bash
+icp network start -d
+```
+
+Deploy the canister:
+
+```bash
+icp deploy
+```
+
+Stop the local network when done:
+
+```bash
+icp network stop
 ```
 
 ## Security considerations and best practices

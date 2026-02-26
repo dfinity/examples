@@ -1,0 +1,6 @@
+canisters:
+  - name: backend
+    recipe:
+      type: "@dfinity/rust@v3.1.0"
+      configuration:
+        package: backend
