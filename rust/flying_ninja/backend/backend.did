@@ -1,0 +1,7 @@
+type LeaderboardEntry = record { name : text; score : nat };
+service : {
+  add_leaderboard_entry : (text, nat) -> (vec LeaderboardEntry);
+  get_leaderboard : () -> (vec LeaderboardEntry) query;
+  get_randomness : () -> (blob);
+  is_high_score : (nat) -> (bool) query;
+}
