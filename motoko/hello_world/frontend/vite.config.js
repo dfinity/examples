@@ -30,8 +30,20 @@ function getDevServerConfig() {
 
   // Try dfx
   try {
-    execSync("dfx ping", { encoding: "utf-8", stdio: "pipe" });
+    const pingResult = JSON.parse(
+      execSync("dfx ping", { encoding: "utf-8", stdio: "pipe" })
+    );
+    const rootKeyHex = Buffer.from(pingResult.root_key).toString("hex");
+    const canisterId = execSync("dfx canister id backend", {
+      encoding: "utf-8",
+      stdio: "pipe",
+    }).trim();
     return {
+      headers: {
+        "Set-Cookie": `ic_env=${encodeURIComponent(
+          `ic_root_key=${rootKeyHex}&PUBLIC_CANISTER_ID:backend=${canisterId}`
+        )}; SameSite=Lax;`,
+      },
       proxy: {
         "/api": {
           target: "http://127.0.0.1:4943",
