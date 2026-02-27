@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { backend } from 'declarations/backend';
+import { backend } from './actor';
 
 function Block() {
   const [loading, setLoading] = useState(false);

@@ -1,0 +1,30 @@
+type Block = record {
+  miner : text;
+  totalDifficulty : opt nat;
+  receiptsRoot : text;
+  stateRoot : text;
+  hash : text;
+  difficulty : opt nat;
+  size : nat;
+  uncles : vec text;
+  baseFeePerGas : opt nat;
+  extraData : text;
+  transactionsRoot : opt text;
+  sha3Uncles : text;
+  nonce : nat;
+  number : nat;
+  timestamp : nat;
+  transactions : vec text;
+  gasLimit : nat;
+  logsBloom : text;
+  parentHash : text;
+  gasUsed : nat;
+  mixHash : text;
+};
+service : {
+  get_ecdsa_public_key : () -> (text);
+  get_evm_block : (nat) -> (Block);
+  get_schnorr_public_key : () -> (text);
+  sign_message_with_ecdsa : (text) -> (text);
+  sign_message_with_schnorr : (text) -> (text);
+}
