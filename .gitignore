@@ -3,6 +3,7 @@
 build/
 node_modules/
 package-lock.json
+Cargo.lock
 dist/
 .DS_Store
 _MACOSX
@@ -12,3 +13,4 @@ target/
 .idea
 .mops
 .env
+**/frontend/src/bindings/
