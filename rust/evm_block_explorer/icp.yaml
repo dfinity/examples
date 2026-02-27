@@ -1,0 +1,23 @@
+canisters:
+  - name: backend
+    recipe:
+      type: "@dfinity/rust@v3.2.0"
+      configuration:
+        package: backend
+        candid: backend/backend.did
+
+  - name: frontend
+    recipe:
+      type: "@dfinity/asset-canister@v2.1.0"
+      configuration:
+        dir: frontend/dist
+        build:
+          - npm install --prefix frontend
+          - npm run build --prefix frontend
+
+  - name: evm_rpc
+    build:
+      steps:
+        - type: pre-built
+          url: https://github.com/dfinity/evm-rpc-canister/releases/download/v2.2.0/evm_rpc.wasm.gz
+    init_args: "(record {})"
