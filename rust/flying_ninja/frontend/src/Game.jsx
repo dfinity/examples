@@ -3,7 +3,7 @@ import Ninja from './Ninja';
 import Pipes from './Pipes';
 import Score from './Score';
 import Leaderboard from './Leaderboard';
-import { backend } from 'declarations/backend';
+import { backend } from './actor';
 import '../index.css';
 
 class SeededRNG {
