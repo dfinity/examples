@@ -1,0 +1,15 @@
+/// Simple counter (see `Counter.mo`), but uses `mo:base/CertifiedData` to
+/// implement the counter value as a certified variable.
+service : {
+  /// Returns the current counter value,
+  /// and, if available, an unforgeable certificate (from the system) about its authenticity.
+  /// When called via update call or inter-canister call, no certificate is present (and not needed,
+  /// as in these cases the system already certifies the response)
+  get: () -> (record {
+                certificate: opt blob;
+                value: nat32;
+              }) query;
+  /// Update counter and certificate (via system).
+  inc: () -> (nat32);
+  set: (nat32) -> ();
+}
