@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { backend } from 'declarations/backend';
+import { backend } from './actor';
 import { JsonView, allExpanded, defaultStyles } from 'react-json-view-lite';
 import 'react-json-view-lite/dist/index.css';
 

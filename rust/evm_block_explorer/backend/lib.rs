@@ -1,7 +1,7 @@
-use candid::Nat;
+use candid::{Nat, Principal};
 use evm_rpc_canister_types::{
-    Block, EthMainnetService, GetBlockByNumberResult, MultiGetBlockByNumberResult, RpcServices,
-    EVM_RPC,
+    Block, EthMainnetService, EvmRpcCanister, GetBlockByNumberResult,
+    MultiGetBlockByNumberResult, RpcServices, CANISTER_ID,
 };
 use ic_cdk::api::management_canister::{
     ecdsa::{
@@ -14,7 +14,22 @@ use ic_cdk::api::management_canister::{
     },
 };
 
-const KEY_NAME: &str = "test_key_1"; // Use "key_1" for production and "dfx_test_key" locally
+const KEY_NAME: &str = "test_key_1"; // Use "key_1" for production
+
+/// Resolve the EVM RPC canister ID at runtime. icp-cli sets the
+/// `PUBLIC_CANISTER_ID:evm_rpc` env var; fall back to the well-known mainnet ID.
+fn evm_rpc() -> EvmRpcCanister {
+    let name = "PUBLIC_CANISTER_ID:evm_rpc";
+    let id = if ic0::env_var_name_exists(name) != 0 {
+        let mut buf = vec![0u8; ic0::env_var_value_size(name)];
+        ic0::env_var_value_copy(name, &mut buf, 0);
+        let val = String::from_utf8(buf).expect("env var is not valid UTF-8");
+        Principal::from_text(&val).expect("Invalid evm_rpc canister ID")
+    } else {
+        CANISTER_ID
+    };
+    EvmRpcCanister(id)
+}
 
 #[ic_cdk::update]
 async fn get_evm_block(height: u128) -> Block {
@@ -43,7 +58,7 @@ async fn get_evm_block(height: u128) -> Block {
 
     // Call `eth_get_block_by_number` RPC method (unused cycles will be refunded)
     let cycles = 10_000_000_000;
-    let (result,) = EVM_RPC
+    let (result,) = evm_rpc()
         .eth_get_block_by_number(
             rpc_providers,
             None,
