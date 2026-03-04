@@ -17,11 +17,9 @@
     "generate": "dfx generate app_backend"
   },
   "dependencies": {
-    "@dfinity/agent": "^2.1.3",
     "@dfinity/auth-client": "^2.1.3",
-    "@dfinity/candid": "^2.1.3",
-    "@dfinity/principal": "^2.1.3",
-    "@dfinity/vetkeys": "^0.1.0"
+    "@dfinity/vetkeys": "^0.1.0",
+    "@icp-sdk/core": "~5.0.0"
   },
   "devDependencies": {
     "assert": "2.0.0",

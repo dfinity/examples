@@ -25,7 +25,7 @@ function initCanisterIds() {
   canisters = network === "local" ? localCanisters : prodCanisters;
 
   for (const canister in canisters) {
-    process.env[canister.toUpperCase() + "_CANISTER_ID"] =
+    process.env["CANISTER_ID_" + canister.toUpperCase()] =
       canisters[canister][network];
   }
 }
@@ -85,7 +85,7 @@ module.exports = {
     }),
     new webpack.EnvironmentPlugin({
       NODE_ENV: 'development',
-      RANDOM_MAZE_CANISTER_ID: canisters["random_maze"]
+      CANISTER_ID_RANDOM_MAZE: process.env.CANISTER_ID_RANDOM_MAZE || '',
     }),
     new webpack.ProvidePlugin({
       Buffer: [require.resolve("buffer/"), "Buffer"],

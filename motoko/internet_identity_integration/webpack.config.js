@@ -28,7 +28,7 @@ function initCanisterEnv() {
 
   return Object.entries(canisterConfig).reduce((prev, current) => {
     const [canisterName, canisterDetails] = current;
-    prev[canisterName.toUpperCase() + "_CANISTER_ID"] =
+    prev["CANISTER_ID_" + canisterName.toUpperCase()] =
       canisterDetails[network];
     return prev;
   }, {});
@@ -37,7 +37,7 @@ const canisterEnvVariables = initCanisterEnv();
 
 const isDevelopment = process.env.NODE_ENV !== "production";
 
-const internetIdentityUrl = network === "local" ? `http://${canisterEnvVariables["INTERNET_IDENTITY_CANISTER_ID"]}.localhost:4943/` : `https://identity.ic0.app`
+const internetIdentityUrl = network === "local" ? `http://${canisterEnvVariables["CANISTER_ID_INTERNET_IDENTITY"]}.localhost:4943/` : `https://identity.ic0.app`
 
 const frontendDirectory = "greet_frontend";
 

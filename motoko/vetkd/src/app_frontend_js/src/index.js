@@ -1,8 +1,8 @@
 import { createActor, app_backend } from "../../declarations/app_backend";
 import { TransportSecretKey, EncryptedVetKey, DerivedPublicKey, IbeCiphertext, IbeIdentity, IbeSeed } from "@dfinity/vetkeys";
 import { AuthClient } from "@dfinity/auth-client"
-import { HttpAgent, Actor } from "@dfinity/agent";
-import { Principal } from "@dfinity/principal";
+import { HttpAgent, Actor } from "@icp-sdk/core/agent";
+import { Principal } from "@icp-sdk/core/principal";
 
 let fetched_derived_key_material = null;
 let app_backend_actor = app_backend;

@@ -16,11 +16,8 @@
     "generate": "dfx generate greet_backend"
   },
   "devDependencies": {
-    "@dfinity/agent": "^2.2.0",
     "@dfinity/auth-client": "^2.2.0",
-    "@dfinity/candid": "^2.2.0",
     "@dfinity/identity": "^2.2.0",
-    "@dfinity/principal": "^2.2.0",
     "assert": "2.0.0",
     "buffer": "6.0.3",
     "copy-webpack-plugin": "^11.0.0",
@@ -32,7 +29,8 @@
     "util": "0.12.4",
     "webpack": "^5.76.0",
     "webpack-cli": "^4.10.0",
-    "webpack-dev-server": "^4.8.1"
+    "webpack-dev-server": "^4.8.1",
+    "@icp-sdk/core": "~5.0.0"
   },
   "engines": {
     "node": "^12 || ^14 || ^16 || ^18"
