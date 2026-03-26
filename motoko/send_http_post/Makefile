@@ -15,7 +15,7 @@ build: node_modules
 .SILENT: test
 test: deploy
 	dfx canister call send_http_post_backend send_http_post_request \
-		| grep 'Hello' && echo 'PASS'
+		| grep 'POST request from an ICP canister' && echo 'PASS'
 
 .PHONY: clean
 .SILENT: clean
