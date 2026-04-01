@@ -79,7 +79,6 @@ jobs:
             ["Photo Gallery (Rust)"]="rust/photo_gallery"
             ["Inter-canister calls (Rust)"]="rust/inter-canister-calls"
             ["X.509 (Rust)"]="rust/x509"
-            ["SNS Kongswap Adaptor (Rust)"]="rust/sns-adaptor"
             ["Receiving ICP"]="rust/receiving-icp"
             ["Fetching Exchange Rates (Rust)"]="rust/exchange-rates"
           )
