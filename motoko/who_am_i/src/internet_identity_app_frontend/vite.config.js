@@ -23,7 +23,8 @@ export default defineConfig({
         find: 'declarations',
         replacement: fileURLToPath(new URL('../declarations', import.meta.url))
       }
-    ]
+    ],
+    dedupe: ['@icp-sdk/core']
   },
   server: {
     proxy: {

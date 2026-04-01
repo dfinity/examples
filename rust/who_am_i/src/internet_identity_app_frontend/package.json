@@ -11,12 +11,10 @@
     "format": "prettier --write \"src/**/*.{json,js,jsx,ts,tsx,css,scss}\""
   },
   "dependencies": {
+    "@icp-sdk/auth": "~5.0.0",
+    "@icp-sdk/core": "~5.2.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0",
-    "@dfinity/agent": "^3.0.0",
-    "@dfinity/candid": "^3.0.0",
-    "@dfinity/principal": "^3.0.0",
-    "@dfinity/auth-client": "^3.0.0"
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.14",
