@@ -1,0 +1,21 @@
+networks:
+  - name: local
+    mode: managed
+    ii: true
+
+canisters:
+  - name: internet_identity_app_backend
+    recipe:
+      type: "@dfinity/rust@v3.2.0"
+      configuration:
+        package: internet_identity_app_backend
+        candid: src/internet_identity_app_backend/internet_identity_app_backend.did
+
+  - name: internet_identity_app_frontend
+    recipe:
+      type: "@dfinity/asset-canister@v2.1.0"
+      configuration:
+        dir: src/internet_identity_app_frontend/dist
+        build:
+          - npm install --prefix src/internet_identity_app_frontend
+          - npm run build --prefix src/internet_identity_app_frontend

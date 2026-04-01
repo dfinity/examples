@@ -1,5 +1,5 @@
-# Motoko dependencies (https://mops.one/)
+[toolchain]
+moc = "1.4.1"
 
 [dependencies]
-base = "0.14.9"
-core = "1.0.0"
+core = "2.3.1"

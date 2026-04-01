@@ -1,25 +1,66 @@
 # Who am I?
 
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/who_am_i)
+
+## Overview
+
 Who am I? demonstrates how entities on the Internet Computer are identified. Every entity, such as a user or canister smart contract, has a principal identifier. Principals can be used for identification and authentication. Who am I? uses Internet Identity (II) for user authentication, then displays the principal identifier associated with that Internet Identity on the user interface.
 
 ## Deploying from ICP Ninja
 
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/rust/who_am_i)
+This example can be deployed directly from [ICP Ninja](https://icp.ninja), a browser-based IDE for ICP. To continue developing locally after deploying from ICP Ninja, see [BUILD.md](BUILD.md).
 
-## Build and deploy from the command-line
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/rust/who_am_i)
 
-### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
+> **Note:** ICP Ninja currently uses `dfx` under the hood, which is why this example includes a `dfx.json` configuration file. `dfx` is the legacy CLI, being superseded by [icp-cli](https://cli.internetcomputer.org), which is what developers should use for local development.
 
-### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
+## Build and deploy from the command line
 
-### 3. Navigate into the project's directory.
+### Prerequisites
 
-### 4. Deploy the project to your local environment:
+- [x] Install [Node.js](https://nodejs.org/en/download/)
+- [x] Install [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
+### Install
+
+Clone the example project:
+
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/rust/who_am_i
 ```
-dfx start --background --clean && dfx deploy
+
+### Deployment
+
+Start the local network:
+
+```bash
+icp network start -d
+```
+
+Deploy the canisters:
+
+```bash
+icp deploy
+```
+
+Stop the local network when done:
+
+```bash
+icp network stop
+```
+
+## Updating the Candid interface
+
+The `src/internet_identity_app_backend/internet_identity_app_backend.did` file defines the backend canister's public interface. The frontend TypeScript bindings are auto-generated from this file during the frontend build.
+
+If you modify the backend's public API, rebuild the canister and regenerate the `.did` file:
+
+```bash
+icp build internet_identity_app_backend
+candid-extractor target/wasm32-unknown-unknown/release/internet_identity_app_backend.wasm > src/internet_identity_app_backend/internet_identity_app_backend.did
 ```
 
 ## Security considerations and best practices
 
-If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://docs.internetcomputer.org/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
