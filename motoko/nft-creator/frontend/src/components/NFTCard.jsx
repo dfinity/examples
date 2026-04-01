@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useTransferNFT } from "../hooks/useQueries";
-import { Principal } from "@dfinity/principal";
+import { Principal } from "@icp-sdk/core/principal";
 import { Send, Image as ImageIcon } from "lucide-react";
 import { useToast } from "../contexts/ToastContext";
 

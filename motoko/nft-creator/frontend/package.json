@@ -9,12 +9,11 @@
     "build": "vite build"
   },
   "dependencies": {
-    "@dfinity/agent": "^3.0.0",
-    "@dfinity/candid": "^3.0.0",
-    "@dfinity/principal": "^3.0.0",
+    "@icp-sdk/core": "~5.2.0",
     "@tailwindcss/vite": "^4.1.11",
     "@tanstack/react-query": "^5.83.0",
-    "ic-use-internet-identity": "^0.3.2",
+    "@icp-sdk/auth": "~5.0.0",
+    "ic-use-internet-identity": "^0.7.0",
     "lucide-react": "^0.535.0",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
