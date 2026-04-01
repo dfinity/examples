@@ -1,13 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AuthClient } from '@icp-sdk/auth/client';
-import { createActor } from 'declarations/internet_identity_app_backend';
-import { canisterId } from 'declarations/internet_identity_app_backend/index.js';
-
-const network = process.env.DFX_NETWORK;
-const identityProvider =
-  network === 'ic'
-    ? 'https://id.ai/' // Mainnet
-    : 'http://uqzsh-gqaaa-aaaaq-qaada-cai.localhost:4943'; // Local
+import { createBackendActor, identityProviderUrl } from './actor';
 
 // Reusable button component
 const Button = ({ onClick, children }) => <button onClick={onClick}>{children}</button>;
@@ -28,11 +21,7 @@ const App = () => {
   const updateActor = async () => {
     const authClient = await AuthClient.create();
     const identity = authClient.getIdentity();
-    const actor = createActor(canisterId, {
-      agentOptions: {
-        identity
-      }
-    });
+    const actor = createBackendActor(identity);
     const isAuthenticated = await authClient.isAuthenticated();
 
     setState((prev) => ({
@@ -45,7 +34,7 @@ const App = () => {
 
   const login = async () => {
     await state.authClient.login({
-      identityProvider,
+      identityProvider: identityProviderUrl,
       onSuccess: updateActor
     });
   };

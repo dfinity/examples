@@ -1,0 +1,3 @@
+service : {
+  whoami: () -> (principal) query;
+}
