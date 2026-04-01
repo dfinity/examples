@@ -20,14 +20,24 @@
       "type": "custom",
       "candid": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity.did",
       "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz",
-      "init_arg": "(opt record { new_flow_origins = opt vec { \"http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:4943\" } })",
       "specified_id": "rdmx6-jaaaa-aaaaa-aaadq-cai",
       "remote": {
         "id": {
           "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
         }
+      }
+    },
+    "internet_identity_frontend": {
+      "candid": "https://raw.githubusercontent.com/dfinity/internet-identity/refs/heads/main/src/internet_identity_frontend/internet_identity_frontend.did",
+      "type": "custom",
+      "specified_id": "uqzsh-gqaaa-aaaaq-qaada-cai",
+      "remote": {
+        "id": {
+          "ic": "uqzsh-gqaaa-aaaaq-qaada-cai"
+        }
       },
-      "frontend": {}
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_frontend.wasm.gz",
+      "init_arg": "(record { fetch_root_key = opt true; dev_csp = opt true; backend_canister_id = principal \"rdmx6-jaaaa-aaaaa-aaadq-cai\"; analytics_config = null; related_origins = opt vec { \"http://uqzsh-gqaaa-aaaaq-qaada-cai.localhost:4943\" }; backend_origin = \"http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:4943\"; captcha_config = opt record { max_unsolved_captchas = 50 : nat64; captcha_trigger = variant { Static = variant { CaptchaDisabled } } }})"
     },
     "frontend": {
       "dependencies": ["backend"],

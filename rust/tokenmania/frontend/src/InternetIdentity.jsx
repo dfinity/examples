@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { AuthClient } from '@dfinity/auth-client';
+import { AuthClient } from '@icp-sdk/auth/client';
 import { createActor, canisterId } from 'declarations/backend';
 
 const network = process.env.DFX_NETWORK;
 const identityProvider =
   network === 'ic'
     ? 'https://id.ai/' // Mainnet
-    : 'http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:4943'; // Local
+    : 'http://uqzsh-gqaaa-aaaaq-qaada-cai.localhost:4943'; // Local
 
 const InternetIdentity = ({ setActor, isAuthenticated, setIsAuthenticated }) => {
   const [authClient, setAuthClient] = useState();
