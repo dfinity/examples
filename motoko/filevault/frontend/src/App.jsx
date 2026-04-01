@@ -1,4 +1,4 @@
-import { AuthClient } from '@dfinity/auth-client';
+import { AuthClient } from '@icp-sdk/auth/client';
 import { createActor } from 'declarations/backend';
 import { canisterId } from 'declarations/backend/index.js';
 import React, { useState, useEffect } from 'react';
@@ -8,7 +8,7 @@ const network = process.env.DFX_NETWORK;
 const identityProvider =
   network === 'ic'
     ? 'https://id.ai/' // Mainnet
-    : 'http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:4943'; // Local
+    : 'http://uqzsh-gqaaa-aaaaq-qaada-cai.localhost:4943'; // Local
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
