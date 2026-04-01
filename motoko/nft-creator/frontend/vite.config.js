@@ -11,7 +11,7 @@ dotenv.config({ path: path.resolve(__dirname, "../.env") });
 
 process.env.II_URL =
     process.env.DFX_NETWORK === "local"
-        ? `http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:4943/`
+        ? `http://uqzsh-gqaaa-aaaaq-qaada-cai.localhost:4943/`
         : `https://id.ai/`;
 
 export default defineConfig({

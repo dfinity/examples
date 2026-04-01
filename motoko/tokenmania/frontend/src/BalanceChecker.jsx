@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Principal } from '@dfinity/principal';
+import { Principal } from '@icp-sdk/core/principal';
 import { backend } from 'declarations/backend';
 
 const BalanceChecker = ({ decimals }) => {

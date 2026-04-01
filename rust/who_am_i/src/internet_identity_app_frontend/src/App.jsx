@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { AuthClient } from '@dfinity/auth-client';
+import { AuthClient } from '@icp-sdk/auth/client';
 import { createActor } from 'declarations/internet_identity_app_backend';
 import { canisterId } from 'declarations/internet_identity_app_backend/index.js';
 
@@ -7,7 +7,7 @@ const network = process.env.DFX_NETWORK;
 const identityProvider =
   network === 'ic'
     ? 'https://id.ai/' // Mainnet
-    : 'http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:4943'; // Local
+    : 'http://uqzsh-gqaaa-aaaaq-qaada-cai.localhost:4943'; // Local
 
 // Reusable button component
 const Button = ({ onClick, children }) => <button onClick={onClick}>{children}</button>;

@@ -1,4 +1,8 @@
-import { qrcode_backend } from "../../declarations/qrcode_backend";
+import { createActor, canisterId } from "../../declarations/qrcode_backend";
+
+const qrcode_backend = createActor(canisterId, {
+  agentOptions: { host: window.location.origin },
+});
 
 document.getElementById("generate").onclick = onGenerateButtonClick;
 

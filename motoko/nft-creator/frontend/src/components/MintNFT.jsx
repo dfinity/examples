@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useCollectionOwner, useMintNFT } from "../hooks/useQueries";
 import { useInternetIdentity } from "ic-use-internet-identity";
-import { Principal } from "@dfinity/principal";
+import { Principal } from "@icp-sdk/core/principal";
 import { Sparkles } from "lucide-react";
 import { useToast } from "../contexts/ToastContext";
 

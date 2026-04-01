@@ -26,7 +26,11 @@ const queryClient = new QueryClient({
 
 ReactDOM.createRoot(document.getElementById("root")).render(
     <QueryClientProvider client={queryClient}>
-        <InternetIdentityProvider>
+        <InternetIdentityProvider
+            loginOptions={{
+                identityProvider: process.env.II_URL,
+            }}
+        >
             <ToastProvider>
                 <App />
             </ToastProvider>

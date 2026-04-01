@@ -79,7 +79,6 @@ jobs:
             ["Photo Gallery (Rust)"]="rust/photo_gallery"
             ["Inter-canister calls (Rust)"]="rust/inter-canister-calls"
             ["X.509 (Rust)"]="rust/x509"
-            ["SNS Kongswap Adaptor (Rust)"]="rust/sns-adaptor"
             ["Receiving ICP"]="rust/receiving-icp"
             ["Fetching Exchange Rates (Rust)"]="rust/exchange-rates"
           )
@@ -130,7 +129,7 @@ jobs:
       - name: Install dfx # This is a temporary workaround. Dfx is already installed in the container, but it does not start in the next step if we don't install it here again.
         uses: dfinity/setup-dfx@main
         with:
-          dfx-version: "0.29.0"
+          dfx-version: "0.31.0"
 
       - name: Install make
         run: apt-get update && apt-get install -y make
