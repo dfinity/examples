@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Principal } from '@dfinity/principal';
+import { Principal } from '@icp-sdk/core/principal';
 import StatusMessage from './StatusMessage';
 
 const TokenSender = ({ actor, updateSupply, decimals }) => {
