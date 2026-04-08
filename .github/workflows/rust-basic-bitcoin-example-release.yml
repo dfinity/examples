@@ -16,7 +16,7 @@ jobs:
   rust-basic-bitcoin-linux:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
       - name: Rust Basic Bitcoin Linux
@@ -25,7 +25,7 @@ jobs:
           bash build.sh
           cp target/wasm32-unknown-unknown/release/basic_bitcoin.wasm basic_bitcoin.wasm
           gzip -9 basic_bitcoin.wasm
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: "basic_bitcoin.wasm.gz"
           path: "rust/basic_bitcoin/basic_bitcoin.wasm.gz"
