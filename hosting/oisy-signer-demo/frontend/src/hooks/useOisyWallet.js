@@ -2,9 +2,9 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { IcrcLedgerCanister, decodeIcrcAccount, mapTokenMetadata } from '@icp-sdk/canisters/ledger/icrc';
 import { HttpAgent } from '@icp-sdk/core/agent';
 import { Principal } from '@icp-sdk/core/principal';
-import { Signer } from '@slide-computer/signer';
-import { SignerAgent } from '@slide-computer/signer-agent';
-import { PostMessageTransport } from '@slide-computer/signer-web';
+import { Signer } from '@icp-sdk/signer';
+import { SignerAgent } from '@icp-sdk/signer/agent';
+import { PostMessageTransport } from '@icp-sdk/signer/web';
 import { AccountIdentifier } from '@icp-sdk/canisters/ledger/icp';
 import { toBaseUnits } from '@/libs/utils';
 import { TESTICP_LEDGER_ID, TICRC1_LEDGER_ID } from '@/libs/constants';
@@ -92,7 +92,7 @@ export function useOisyWallet() {
   }, [defaultAgent, principal]);
 
   const connect = async () => {
-    const accounts = await oisySigner.accounts();
+    const accounts = await oisySigner.getAccounts();
 
     // notes:
     //    - IcrcAccount is the recommended way of dealing with accounts as it is standardized and more transparent
@@ -154,7 +154,7 @@ export function useOisyWallet() {
     if (!defaultAgent || !principal) throw new Error('Not connected');
 
     // This opens the OISY popup briefly to re-establish the signer session.
-    await oisySigner.accounts();
+    await oisySigner.getAccounts();
 
     const signerAgent = await SignerAgent.create({
       agent: defaultAgent,

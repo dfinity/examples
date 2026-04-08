@@ -198,7 +198,7 @@ export default function App() {
                     <img src={ICPLogo} alt="TESTICP" className="h-5 w-5" />
                     <span>TESTICP</span>
                     <a
-                      href={`https://dashboard.internetcomputer.org/tokens/${TESTICP_LEDGER_ID}/account/${principal?.toString()}`}
+                      href={`https://dashboard.internetcomputer.org/tokens/${TESTICP_LEDGER_ID}/account/${accountIdentifier?.toHex()}`}
                       target="_blank"
                       rel="noreferrer"
                       className="text-blue-600 underline"
@@ -342,11 +342,11 @@ export default function App() {
             <li>
               <a
                 className="inline-flex items-center gap-1 text-blue-600 underline"
-                href="https://github.com/slide-computer/signer-js/tree/main"
+                href="https://github.com/dfinity/icp-js-signer"
                 target="_blank"
                 rel="noreferrer"
               >
-                Signer-JS Libraries <ExternalLink size={14} />
+                @icp-sdk/signer Library <ExternalLink size={14} />
               </a>
             </li>
           </ul>

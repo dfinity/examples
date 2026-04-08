@@ -15,9 +15,7 @@
   "dependencies": {
     "@icp-sdk/canisters": "~3.5.0",
     "@icp-sdk/core": "~5.0.0",
-    "@slide-computer/signer": "4.2.2",
-    "@slide-computer/signer-agent": "4.2.2",
-    "@slide-computer/signer-web": "4.2.2",
+    "@icp-sdk/signer": "5.3.0",
     "class-variance-authority": "~0.7.1",
     "lucide-react": "~0.575.0",
     "react": "~19.2.4",
