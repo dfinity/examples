@@ -22,7 +22,7 @@
           "ic": "rdmx6-jaaaa-aaaaa-aaadq-cai"
         }
       },
-      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_dev.wasm.gz"
+      "wasm": "https://github.com/dfinity/internet-identity/releases/latest/download/internet_identity_production.wasm.gz"
     },
     "internet_identity_frontend": {
       "candid": "https://raw.githubusercontent.com/dfinity/internet-identity/refs/heads/main/src/internet_identity_frontend/internet_identity_frontend.did",
