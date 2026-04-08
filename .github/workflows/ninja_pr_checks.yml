@@ -18,7 +18,7 @@ jobs:
       has_examples: ${{ steps.set-matrix.outputs.has_examples }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
       - name: Fetch all branches
         run: git fetch origin
@@ -124,10 +124,10 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
 
       - name: Install dfx # This is a temporary workaround. Dfx is already installed in the container, but it does not start in the next step if we don't install it here again.
-        uses: dfinity/setup-dfx@main
+        uses: dfinity/setup-dfx@e50c04f104ee4285ec010f10609483cf41e4d365 # main
         with:
           dfx-version: "0.31.0"
 

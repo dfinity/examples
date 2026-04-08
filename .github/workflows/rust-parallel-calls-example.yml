@@ -17,7 +17,7 @@ jobs:
   rust-parallel-calls-darwin:
     runs-on: macos-15
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
         with:
           submodules: recursive
       - name: Provision Darwin
@@ -31,7 +31,7 @@ jobs:
   rust-parallel-calls-linux:
     runs-on: ubuntu-22.04
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
         with:
           submodules: recursive
       - name: Provision Linux
@@ -46,13 +46,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2.7.0
         with:
           submodules: recursive
       - name: Provision Linux
         run: bash .github/workflows/provision-linux.sh
       - name: Install PocketIC server
-        uses: dfinity/pocketic@main
+        uses: dfinity/pocketic@20c33db1aa87cc6ece50857ac632c37acf5e0322 # main
         with:
           pocket-ic-server-version: "7.0.0"
       - name: Test parallel calls with PocketIC
