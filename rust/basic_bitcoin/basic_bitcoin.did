@@ -40,6 +40,14 @@ type get_block_headers_response = record {
   block_headers : vec block_header;
 };
 
+type blockchain_info = record {
+  height : block_height;
+  block_hash : block_hash;
+  timestamp : nat32;
+  difficulty : nat;
+  utxos_length : nat64;
+};
+
 service : (network) -> {
   "etch_rune" : (ticker: text) -> (transaction_id);
 
@@ -54,6 +62,8 @@ service : (network) -> {
   "get_balance" : (address : bitcoin_address) -> (satoshi);
 
   "get_utxos" : (bitcoin_address) -> (get_utxos_response);
+
+  "get_blockchain_info" : () -> (blockchain_info);
 
   "get_block_headers" : (start_height : block_height, end_height : opt block_height) -> (get_block_headers_response);
 
