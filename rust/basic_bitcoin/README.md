@@ -19,6 +19,7 @@ This example also includes how to work with Bitcoin assets such as Ordinals, Run
 * [Prerequisites](#prerequisites)
 * [Checking balance](#checking-balance)
 * [Sending bitcoin](#sending-bitcoin)
+* [Retrieving blockchain info](#retrieving-blockchain-info)
 * [Retrieving block headers](#retrieving-block-headers)
 * [Bitcoin assets](#bitcoin-assets)
 
@@ -160,6 +161,16 @@ dfx canister call basic_bitcoin send_from_p2pkh_address '(record {
 > ```
 
 The function returns the transaction ID. When interacting with the contract deployed on IC mainnet, you can track testnet transactions on [mempool.space](https://mempool.space/testnet4/).
+
+## Retrieving blockchain info
+
+You can query the current state of the Bitcoin blockchain:
+
+```bash
+dfx canister call basic_bitcoin get_blockchain_info
+```
+
+This calls `get_blockchain_info` on the Bitcoin canister and returns the tip height, block hash, timestamp, difficulty, and total UTXO count. It is useful for monitoring the state of the Bitcoin network from your smart contract.
 
 ## Retrieving block headers
 
