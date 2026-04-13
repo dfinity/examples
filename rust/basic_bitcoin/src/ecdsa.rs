@@ -1,7 +1,7 @@
 use crate::BitcoinContext;
 use bitcoin::secp256k1::ecdsa::Signature;
-use ic_cdk::management_canister::{
-    self, EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgs, SignWithEcdsaArgs,
+use ic_cdk_management_canister::{
+    self as management_canister, EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgs, SignWithEcdsaArgs,
 };
 use std::{cell::RefCell, collections::HashMap};
 

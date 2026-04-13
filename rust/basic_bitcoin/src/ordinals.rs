@@ -10,7 +10,7 @@ use bitcoin::{
     Address, Amount, OutPoint, ScriptBuf, Sequence, TapLeafHash, TapSighashType, Transaction, TxIn,
     TxOut, Txid, Witness, XOnlyPublicKey,
 };
-use ic_cdk::bitcoin_canister::MillisatoshiPerByte;
+use ic_cdk_bitcoin_canister::MillisatoshiPerByte;
 
 // Placeholder for the 64-byte Schnorr signature during fee estimation.
 // We need this because Bitcoin transaction fees depend on transaction size,

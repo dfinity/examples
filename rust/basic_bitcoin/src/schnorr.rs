@@ -1,8 +1,9 @@
 use std::{cell::RefCell, collections::HashMap};
 
 use crate::BitcoinContext;
-use ic_cdk::management_canister::{
-    self, SchnorrAlgorithm, SchnorrAux, SchnorrKeyId, SchnorrPublicKeyArgs, SignWithSchnorrArgs,
+use ic_cdk_management_canister::{
+    self as management_canister, SchnorrAlgorithm, SchnorrAux, SchnorrKeyId,
+    SchnorrPublicKeyArgs, SignWithSchnorrArgs,
 };
 
 type DerivationPath = Vec<Vec<u8>>;

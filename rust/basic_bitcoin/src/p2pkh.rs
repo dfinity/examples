@@ -10,10 +10,8 @@ use bitcoin::{
     sighash::{EcdsaSighashType, SighashCache},
     Address, AddressType, PublicKey, Transaction, Witness,
 };
-use ic_cdk::{
-    bitcoin_canister::{MillisatoshiPerByte, Utxo},
-    trap,
-};
+use ic_cdk::trap;
+use ic_cdk_bitcoin_canister::{MillisatoshiPerByte, Utxo};
 use std::convert::TryFrom;
 
 // Builds a transaction to send the given `amount` of satoshis to the
