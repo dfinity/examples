@@ -4,11 +4,9 @@ use crate::{
     p2wpkh, SendRequest, BTC_CONTEXT,
 };
 use bitcoin::{consensus::serialize, Address, CompressedPublicKey, PublicKey};
-use ic_cdk::{
-    bitcoin_canister::{
-        bitcoin_get_utxos, bitcoin_send_transaction, GetUtxosRequest, SendTransactionRequest,
-    },
-    trap, update,
+use ic_cdk::{trap, update};
+use ic_cdk_bitcoin_canister::{
+    bitcoin_get_utxos, bitcoin_send_transaction, GetUtxosRequest, SendTransactionRequest,
 };
 use std::str::FromStr;
 
@@ -51,7 +49,7 @@ pub async fn send_from_p2wpkh_address(request: SendRequest) -> String {
     // contains all UTXOs.
     let own_utxos = bitcoin_get_utxos(&GetUtxosRequest {
         address: own_address.to_string(),
-        network: ctx.network,
+        network: ctx.network.into(),
         filter: None,
     })
     .await
@@ -85,7 +83,7 @@ pub async fn send_from_p2wpkh_address(request: SendRequest) -> String {
 
     // Send the transaction to the Bitcoin API.
     bitcoin_send_transaction(&SendTransactionRequest {
-        network: ctx.network,
+        network: ctx.network.into(),
         transaction: serialize(&signed_transaction),
     })
     .await

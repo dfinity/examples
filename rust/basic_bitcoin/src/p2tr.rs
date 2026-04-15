@@ -12,7 +12,7 @@ use bitcoin::{
     taproot::{ControlBlock, LeafVersion, TapLeafHash, TaprootBuilder, TaprootSpendInfo},
     Address, AddressType, ScriptBuf, Sequence, Transaction, TxOut,
 };
-use ic_cdk::bitcoin_canister::{MillisatoshiPerByte, Utxo};
+use ic_cdk_bitcoin_canister::{MillisatoshiPerByte, Utxo};
 
 /// Constructs the full Taproot spend info for a script-path-enabled Taproot output.
 ///

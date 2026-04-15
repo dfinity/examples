@@ -1,9 +1,7 @@
 use crate::BTC_CONTEXT;
-use ic_cdk::{
-    bitcoin_canister::{
-        bitcoin_get_block_headers, GetBlockHeadersRequest, GetBlockHeadersResponse,
-    },
-    update,
+use ic_cdk::update;
+use ic_cdk_bitcoin_canister::{
+    bitcoin_get_block_headers, GetBlockHeadersRequest, GetBlockHeadersResponse,
 };
 
 /// Returns the block headers in the given height range.
@@ -17,7 +15,7 @@ pub async fn get_block_headers(
     bitcoin_get_block_headers(&GetBlockHeadersRequest {
         start_height,
         end_height,
-        network: ctx.network,
+        network: ctx.network.into(),
     })
     .await
     .unwrap()

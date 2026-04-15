@@ -16,11 +16,9 @@ use bitcoin::{
     taproot::{LeafVersion, TaprootBuilder},
     Address, XOnlyPublicKey,
 };
-use ic_cdk::{
-    bitcoin_canister::{
-        bitcoin_get_utxos, bitcoin_send_transaction, GetUtxosRequest, SendTransactionRequest,
-    },
-    trap, update,
+use ic_cdk::{trap, update};
+use ic_cdk_bitcoin_canister::{
+    bitcoin_get_utxos, bitcoin_send_transaction, GetUtxosRequest, SendTransactionRequest,
 };
 
 /// Creates a BRC-20 token deployment inscription on the Bitcoin blockchain.
@@ -110,7 +108,7 @@ pub async fn inscribe_brc20(tick: String) -> String {
     // each represents some amount of bitcoin that hasn't been spent yet.
     let own_utxos = bitcoin_get_utxos(&GetUtxosRequest {
         address: funding_address.to_string(),
-        network: ctx.network,
+        network: ctx.network.into(),
         filter: None,
     })
     .await
@@ -149,7 +147,7 @@ pub async fn inscribe_brc20(tick: String) -> String {
     // Broadcast the commit transaction to the Bitcoin network.
     // Once confirmed, our funds will be locked at the commit address.
     bitcoin_send_transaction(&SendTransactionRequest {
-        network: ctx.network,
+        network: ctx.network.into(),
         transaction: serialize(&signed_transaction),
     })
     .await
@@ -199,7 +197,7 @@ pub async fn inscribe_brc20(tick: String) -> String {
     // According to BRC-20 rules, this becomes the authoritative token definition
     // if it's the first deployment inscription for this ticker symbol.
     bitcoin_send_transaction(&SendTransactionRequest {
-        network: ctx.network,
+        network: ctx.network.into(),
         transaction: serialize(&reveal_transaction),
     })
     .await

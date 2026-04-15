@@ -9,7 +9,7 @@ use bitcoin::{
     sighash::{EcdsaSighashType, SighashCache},
     Address, AddressType, PublicKey, ScriptBuf, Transaction, TxOut, Witness,
 };
-use ic_cdk::bitcoin_canister::{MillisatoshiPerByte, Satoshi, Utxo};
+use ic_cdk_bitcoin_canister::{MillisatoshiPerByte, Satoshi, Utxo};
 
 // Builds a transaction to send the given `amount` of satoshis to the
 // destination address.

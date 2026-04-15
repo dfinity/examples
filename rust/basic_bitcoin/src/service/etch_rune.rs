@@ -14,11 +14,9 @@ use bitcoin::{
     secp256k1::{PublicKey, Secp256k1},
     Address, XOnlyPublicKey,
 };
-use ic_cdk::{
-    bitcoin_canister::{
-        bitcoin_get_utxos, bitcoin_send_transaction, GetUtxosRequest, SendTransactionRequest,
-    },
-    trap, update,
+use ic_cdk::{trap, update};
+use ic_cdk_bitcoin_canister::{
+    bitcoin_get_utxos, bitcoin_send_transaction, GetUtxosRequest, SendTransactionRequest,
 };
 
 /// Creates a new Rune token on the Bitcoin blockchain.
@@ -69,7 +67,7 @@ pub async fn etch_rune(name: String) -> String {
     // We need existing bitcoin to cover transaction fees and any change.
     let own_utxos = bitcoin_get_utxos(&GetUtxosRequest {
         address: own_address.to_string(),
-        network: ctx.network,
+        network: ctx.network.into(),
         filter: None,
     })
     .await
@@ -122,7 +120,7 @@ pub async fn etch_rune(name: String) -> String {
     // Broadcast the transaction to the Bitcoin network.
     // Once confirmed, the rune is permanently etched and the tokens are minted.
     bitcoin_send_transaction(&SendTransactionRequest {
-        network: ctx.network,
+        network: ctx.network.into(),
         transaction: serialize(&signed_transaction),
     })
     .await

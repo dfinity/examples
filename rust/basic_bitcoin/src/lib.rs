@@ -9,7 +9,8 @@ mod runes;
 mod schnorr;
 mod service;
 
-use ic_cdk::{bitcoin_canister::Network, init, post_upgrade};
+use ic_cdk::{init, post_upgrade};
+use ic_cdk_bitcoin_canister::Network;
 use std::cell::Cell;
 
 /// Runtime configuration shared across all Bitcoin-related operations.

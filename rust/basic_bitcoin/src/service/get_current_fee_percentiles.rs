@@ -1,9 +1,7 @@
 use crate::BTC_CONTEXT;
-use ic_cdk::{
-    bitcoin_canister::{
-        bitcoin_get_current_fee_percentiles, GetCurrentFeePercentilesRequest, MillisatoshiPerByte,
-    },
-    update,
+use ic_cdk::update;
+use ic_cdk_bitcoin_canister::{
+    bitcoin_get_current_fee_percentiles, GetCurrentFeePercentilesRequest, MillisatoshiPerByte,
 };
 
 /// Returns the 100 fee percentiles measured in millisatoshi/byte.
@@ -13,7 +11,7 @@ pub async fn get_current_fee_percentiles() -> Vec<MillisatoshiPerByte> {
     let ctx = BTC_CONTEXT.with(|ctx| ctx.get());
 
     bitcoin_get_current_fee_percentiles(&GetCurrentFeePercentilesRequest {
-        network: ctx.network,
+        network: ctx.network.into(),
     })
     .await
     .unwrap()
