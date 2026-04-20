@@ -15,11 +15,11 @@ persistent actor Publisher {
 
   var subscribers : [Subscriber] = [];
 
-  public func subscribe(subscriber : Subscriber) {
+  public func subscribe(subscriber : Subscriber) : async () {
     subscribers := subscribers.concat([subscriber]);
   };
 
-  public func publish(counter : Counter) {
+  public func publish(counter : Counter) : async () {
     for (subscriber in subscribers.vals()) {
       if (subscriber.topic == counter.topic) {
         subscriber.callback(counter);

@@ -45,7 +45,7 @@ shared (init_msg) persistent actor class Swap(
   // - user approves transfer: `token_a.icrc2_approve({ spender=swap_canister; amount=amount; ... })`
   // - user deposits their token: `swap_canister.deposit({ token=token_a; amount=amount; ... })`
   // - These deposit handlers show how to safely accept and register deposits of an ICRC-2 token.
-  public shared (msg) func deposit(args : DepositArgs) : async Result.Result<Nat, DepositError> {
+  public shared func deposit(args : DepositArgs) : async Result.Result<Nat, DepositError> {
     let token : ICRC.Actor = actor (args.token.toText());
     let balances = which_balances(args.token);
 
@@ -115,7 +115,7 @@ shared (init_msg) persistent actor class Swap(
   //   the reader.
   // - UserA's full balance of TokenA is given to UserB, and UserB's full
   //   balance of TokenB is given to UserA.
-  public shared (msg) func swap(args : SwapArgs) : async Result.Result<(), SwapError> {
+  public shared func swap(args : SwapArgs) : async Result.Result<(), SwapError> {
     // Because both tokens were deposited before calling swap, we can execute
     // this function atomically. To do that there must be no `await` calls in
     // this function. If we *did* have `await` calls in this function, we would
@@ -185,8 +185,9 @@ shared (init_msg) persistent actor class Swap(
     };
 
     // Check the user's balance is sufficient
+    let deduction = args.amount + fee;
     let old_balance = balances.get(msg.caller).get(0 : Nat);
-    if (old_balance < args.amount + fee) {
+    if (old_balance < deduction) {
       return #err(#InsufficientFunds { balance = old_balance });
     };
 
@@ -209,7 +210,7 @@ shared (init_msg) persistent actor class Swap(
     // controls user's balances anyway, it could simplify this attack, and just
     // change the canister's balance. Generally, this is why you should only
     // use token canisters which you trust and can review.
-    let new_balance = old_balance - args.amount - fee;
+    let new_balance = old_balance - deduction;
     if (new_balance == 0) {
       // Delete zero-balances to keep the balance table tidy.
       balances.remove(msg.caller);
