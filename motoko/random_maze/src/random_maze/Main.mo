@@ -17,8 +17,8 @@ persistent actor {
 
   type Maze = [[var Nat8]];
 
-  transient let hall : Nat8 = 0;
-  transient let wall : Nat8 = 1;
+  let hall : Nat8 = 0;
+  let wall : Nat8 = 1;
 
   func visit(n : Nat8) : Nat8 {
     n | 2
