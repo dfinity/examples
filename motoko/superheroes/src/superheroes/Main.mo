@@ -17,23 +17,23 @@ persistent actor Superheroes {
   public func create(superhero : Superhero) : async SuperheroId {
     let superheroId = next;
     next += 1;
-    Map.add(map, Nat32.compare, superheroId, superhero);
+    map.add(superheroId, superhero);
     return superheroId
   };
 
   public query func read(superheroId : SuperheroId) : async ?Superhero {
-    Map.get(map, Nat32.compare, superheroId)
+    map.get(superheroId)
   };
 
   public func update(superheroId : SuperheroId, superhero : Superhero) : async Bool {
-    let exists = Map.get(map, Nat32.compare, superheroId) != null;
+    let exists = map.get(superheroId) != null;
     if (exists) {
-      Map.add(map, Nat32.compare, superheroId, superhero);
+      map.add(superheroId, superhero);
     };
     return exists
   };
 
   public func delete(superheroId : SuperheroId) : async Bool {
-    Map.delete(map, Nat32.compare, superheroId)
+    map.delete(superheroId)
   }
 }
