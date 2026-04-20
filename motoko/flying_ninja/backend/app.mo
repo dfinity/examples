@@ -1,8 +1,9 @@
-import Array "mo:base/Array";
-import Int "mo:base/Int";
-import Random "mo:base/Random";
+import Array "mo:core/Array";
+import Nat "mo:core/Nat";
+import Random "mo:core/Random";
 
 persistent actor FlyingNinja {
+  type Order = { #less; #equal; #greater };
   type LeaderboardEntry = {
     name : Text;
     score : Nat;
@@ -25,16 +26,13 @@ persistent actor FlyingNinja {
     let newEntry : LeaderboardEntry = { name = name; score = score };
 
     // Add the new entry and sort the leaderboard
-    leaderboard := Array.sort<LeaderboardEntry>(
-      Array.append<LeaderboardEntry>(leaderboard, [newEntry]),
-      func(a : LeaderboardEntry, b : LeaderboardEntry) {
-        Int.compare(b.score, a.score);
-      }
+    leaderboard := leaderboard.concat([newEntry]).sort(
+      func(a : LeaderboardEntry, b : LeaderboardEntry) : Order { Nat.compare(b.score, a.score) }
     );
 
     // Keep only the top 10 scores
     if (leaderboard.size() > 10) {
-      leaderboard := Array.subArray(leaderboard, 0, 10);
+      leaderboard := leaderboard.sliceToArray(0, 10);
     };
 
     return leaderboard;

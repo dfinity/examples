@@ -1,7 +1,15 @@
 # Motoko dependencies (https://mops.one/)
 
+[toolchain]
+moc = "1.5.1"
+
 [dependencies]
-base = "0.14.9"
-core = "1.0.0"
+core = "2.4.0"
 sha2 = "0.1.0"
 base16 = "1.0.0"
+
+[moc]
+# M0236: use context dot notation (e.g. map.get(k) instead of Map.get(map, compare, k))
+# M0237: redundant explicit implicit arguments (e.g. Nat.compare is inferred automatically)
+# M0223: redundant type instantiation (e.g. Array.tabulate instead of Array.tabulate<T>)
+args = ["-W", "M0236", "-W", "M0237", "-W", "M0223"]

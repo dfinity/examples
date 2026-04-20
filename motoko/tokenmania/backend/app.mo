@@ -2,15 +2,15 @@
 // Please visit https://github.com/dfinity/ICRC-1 to find
 // the latest version of the ICP token standards.
 
-import Array "mo:base/Array";
-import Blob "mo:base/Blob";
-import Buffer "mo:base/Buffer";
-import Principal "mo:base/Principal";
-import Option "mo:base/Option";
-import Time "mo:base/Time";
-import Int "mo:base/Int";
-import Nat8 "mo:base/Nat8";
-import Nat64 "mo:base/Nat64";
+import Blob "mo:core/Blob";
+import List "mo:core/List";
+import VarArray "mo:core/VarArray";
+import Principal "mo:core/Principal";
+import Option "mo:core/Option";
+import Time "mo:core/Time";
+import Int "mo:core/Int";
+import Nat8 "mo:core/Nat8";
+import Nat64 "mo:core/Nat64";
 
 persistent actor class Tokenmania() = this {
 
@@ -50,7 +50,7 @@ persistent actor class Tokenmania() = this {
       return #Err("Token not created");
     };
 
-    if (not Principal.equal(caller, init.minting_account.owner)) {
+    if (caller != init.minting_account.owner) {
       return #Err("Caller is not the token creator");
     };
 
@@ -85,7 +85,7 @@ persistent actor class Tokenmania() = this {
       return #Err("Token already created");
     };
 
-    if (Principal.isAnonymous(caller)) {
+    if (caller.isAnonymous()) {
       return #Err("Cannot create token with anonymous principal");
     };
 
@@ -130,14 +130,14 @@ persistent actor class Tokenmania() = this {
   public type Timestamp = Nat64;
   public type Duration = Nat64;
   public type TxIndex = Nat;
-  public type TxLog = Buffer.Buffer<Transaction>;
+  public type TxLog = List.List<Transaction>;
 
   public type Value = { #Nat : Nat; #Int : Int; #Blob : Blob; #Text : Text };
 
   transient let maxMemoSize = 32;
   transient let permittedDriftNanos : Duration = 60_000_000_000;
   transient let transactionWindowNanos : Duration = 24 * 60 * 60 * 1_000_000_000;
-  transient let defaultSubaccount : Subaccount = Blob.fromArrayMut(Array.init(32, 0 : Nat8));
+  transient let defaultSubaccount : Subaccount = Blob.fromVarArray(VarArray.repeat(0 : Nat8, 32));
 
   public type Operation = {
     #Approve : Approve;
@@ -212,19 +212,16 @@ persistent actor class Tokenmania() = this {
 
   // Checks whether two accounts are semantically equal.
   func accountsEqual(lhs : Account, rhs : Account) : Bool {
-    let lhsSubaccount = Option.get(lhs.subaccount, defaultSubaccount);
-    let rhsSubaccount = Option.get(rhs.subaccount, defaultSubaccount);
+    let lhsSubaccount = lhs.subaccount.get(defaultSubaccount);
+    let rhsSubaccount = rhs.subaccount.get(defaultSubaccount);
 
-    Principal.equal(lhs.owner, rhs.owner) and Blob.equal(
-      lhsSubaccount,
-      rhsSubaccount,
-    );
+    lhs.owner == rhs.owner and lhsSubaccount == rhsSubaccount;
   };
 
   // Computes the balance of the specified account.
   func balance(account : Account, log : TxLog) : Nat {
     var sum = 0;
-    for (tx in log.vals()) {
+    for (tx in log.values()) {
       switch (tx.operation) {
         case (#Burn(args)) {
           if (accountsEqual(args.from, account)) { sum -= args.amount };
@@ -249,7 +246,7 @@ persistent actor class Tokenmania() = this {
   // Computes the total token supply.
   func totalSupply(log : TxLog) : Tokens {
     var total = 0;
-    for (tx in log.vals()) {
+    for (tx in log.values()) {
       switch (tx.operation) {
         case (#Burn(args)) { total -= args.amount };
         case (#Mint(args)) { total += args.amount };
@@ -263,7 +260,7 @@ persistent actor class Tokenmania() = this {
   // Finds a transaction in the transaction log.
   func findTransfer(transfer : Transfer, log : TxLog) : ?TxIndex {
     var i = 0;
-    for (tx in log.vals()) {
+    for (tx in log.values()) {
       switch (tx.operation) {
         case (#Burn(args)) { if (args == transfer) { return ?i } };
         case (#Mint(args)) { if (args == transfer) { return ?i } };
@@ -278,7 +275,7 @@ persistent actor class Tokenmania() = this {
   // Finds an approval in the transaction log.
   func findApproval(approval : Approve, log : TxLog) : ?TxIndex {
     var i = 0;
-    for (tx in log.vals()) {
+    for (tx in log.values()) {
       switch (tx.operation) {
         case (#Approve(args)) { if (args == approval) { return ?i } };
         case (_) {};
@@ -293,7 +290,7 @@ persistent actor class Tokenmania() = this {
     var allowance : Nat = 0;
     var lastApprovalTs : ?Nat64 = null;
 
-    for (tx in log.vals()) {
+    for (tx in log.values()) {
       // Reset expired approvals, if any.
       switch (lastApprovalTs) {
         case (?expires_at) {
@@ -340,8 +337,8 @@ persistent actor class Tokenmania() = this {
     validateSubaccount(init.minting_account.subaccount);
 
     let now = Nat64.fromNat(Int.abs(Time.now()));
-    let log = Buffer.Buffer<Transaction>(100);
-    for ({ account; amount } in Array.vals(init.initial_mints)) {
+    let log = List.empty<Transaction>();
+    for ({ account; amount } in init.initial_mints.vals()) {
       validateSubaccount(account.subaccount);
       let tx : Transaction = {
         operation = #Mint({
@@ -364,7 +361,7 @@ persistent actor class Tokenmania() = this {
 
   // Traps if the specified blob is not a valid subaccount.
   func validateSubaccount(s : ?Subaccount) {
-    let subaccount = Option.get(s, defaultSubaccount);
+    let subaccount = s.get(defaultSubaccount);
     assert (subaccount.size() == 32);
   };
 
@@ -376,7 +373,7 @@ persistent actor class Tokenmania() = this {
   };
 
   func checkTxTime(created_at_time : ?Timestamp, now : Timestamp) : Result<(), DeduplicationError> {
-    let txTime : Timestamp = Option.get(created_at_time, now);
+    let txTime : Timestamp = created_at_time.get(now);
 
     if ((txTime > now) and (txTime - now > permittedDriftNanos)) {
       return #Err(#CreatedInFuture { ledger_time = now });
@@ -401,10 +398,7 @@ persistent actor class Tokenmania() = this {
   };
 
   system func postupgrade() {
-    log := Buffer.Buffer(persistedLog.size());
-    for (tx in Array.vals(persistedLog)) {
-      log.add(tx);
-    };
+    log := List.fromArray(persistedLog);
   };
 
   func recordTransaction(tx : Transaction) : TxIndex {
@@ -416,7 +410,7 @@ persistent actor class Tokenmania() = this {
   func classifyTransfer(log : TxLog, transfer : Transfer) : Result<(Operation, Tokens), TransferError> {
     let minter = init.minting_account;
 
-    if (Option.isSome(transfer.created_at_time)) {
+    if (transfer.created_at_time.isSome()) {
       switch (findTransfer(transfer, log)) {
         case (?txid) { return #Err(#Duplicate { duplicate_of = txid }) };
         case null {};
@@ -424,12 +418,12 @@ persistent actor class Tokenmania() = this {
     };
 
     let result = if (accountsEqual(transfer.from, minter)) {
-      if (Option.get(transfer.fee, 0) != 0) {
+      if (transfer.fee.get(0) != 0) {
         return #Err(#BadFee { expected_fee = 0 });
       };
       (#Mint(transfer), 0);
     } else if (accountsEqual(transfer.to, minter)) {
-      if (Option.get(transfer.fee, 0) != 0) {
+      if (transfer.fee.get(0) != 0) {
         return #Err(#BadFee { expected_fee = 0 });
       };
 
@@ -445,7 +439,7 @@ persistent actor class Tokenmania() = this {
       (#Burn(transfer), 0);
     } else {
       let effectiveFee = init.transfer_fee;
-      if (Option.get(transfer.fee, effectiveFee) != effectiveFee) {
+      if (transfer.fee.get(effectiveFee) != effectiveFee) {
         return #Err(#BadFee { expected_fee = init.transfer_fee });
       };
 
@@ -539,7 +533,7 @@ persistent actor class Tokenmania() = this {
     [
       ("icrc1:name", #Text(init.token_name)),
       ("icrc1:symbol", #Text(init.token_symbol)),
-      ("icrc1:decimals", #Nat(Nat8.toNat(init.decimals))),
+      ("icrc1:decimals", #Nat(init.decimals.toNat())),
       ("icrc1:fee", #Nat(init.transfer_fee)),
       ("icrc1:logo", #Text(logo)), /* Here we add the token logo to the metadata. */
     ];
@@ -592,7 +586,7 @@ persistent actor class Tokenmania() = this {
       memo = memo;
     };
 
-    if (Option.isSome(created_at_time)) {
+    if (created_at_time.isSome()) {
       switch (findApproval(approval, log)) {
         case (?txid) { return #Err(#Duplicate { duplicate_of = txid }) };
         case (null) {};
@@ -608,7 +602,7 @@ persistent actor class Tokenmania() = this {
 
     let effectiveFee = init.transfer_fee;
 
-    if (Option.get(fee, effectiveFee) != effectiveFee) {
+    if (fee.get(effectiveFee) != effectiveFee) {
       return #Err(#BadFee({ expected_fee = effectiveFee }));
     };
 
