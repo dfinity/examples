@@ -1,6 +1,7 @@
 import Array "mo:core/Array";
 import Blob "mo:core/Blob";
 import Iter "mo:core/Iter";
+import Option "mo:core/Option";
 import Text "mo:core/Text";
 import Nat "mo:core/Nat";
 import Result "mo:core/Result";
