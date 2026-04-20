@@ -1,5 +1,20 @@
+# Motoko dependencies (https://mops.one/)
+
+# NOTE: Pinned to moc 1.2.0 (latest version compatible with icrc7-mo@0.5.0).
+# icrc7-mo@0.5.0 transitively depends on motoko-base@0.7.3, whose
+# ExperimentalCycles.mo is incompatible with moc >= 1.3.0 (Cycles.accept
+# return type changed). Once icrc7-mo migrates to mo:core, bump to moc = "1.5.1".
+[toolchain]
+moc = "1.2.0"
+
 [dependencies]
 core = "2.4.0"
 icrc7-mo = "0.5.0"
 class-plus = "0.0.1"
 vector = "0.2.0"
+
+[moc]
+# M0236: use context dot notation (e.g. map.get(k) instead of Map.get(map, compare, k))
+# M0237: redundant explicit implicit arguments (e.g. Nat.compare is inferred automatically)
+# M0223: redundant type instantiation (e.g. Array.tabulate instead of Array.tabulate<T>)
+args = ["-W", "M0236", "-W", "M0237", "-W", "M0223"]
