@@ -1,12 +1,10 @@
 import Array "mo:core/Array";
 import Blob "mo:core/Blob";
-import Int "mo:core/Int";
 import Iter "mo:core/Iter";
 import Text "mo:core/Text";
 import Nat "mo:core/Nat";
 import Result "mo:core/Result";
 import JSON "mo:json";
-import Option "mo:core/Option";
 import HashMap "mo:map/Map";
 import { thash } "mo:map/Map";
 import IC "ic:aaaaa-aa";
@@ -33,7 +31,7 @@ persistent actor DailyPlanner {
   public type AddNoteResult = Result.Result<Text, Text>;
 
   // HashMap to store the data for each day.
-  var dayData = HashMap.new<Text, DayData>();
+  let dayData = HashMap.new<Text, DayData>();
 
   // Query function to get data for a specific date.
   // Returns null if the date does not contain any data.
@@ -44,15 +42,13 @@ persistent actor DailyPlanner {
   // Query function to get data for an entire month.
   // Returns a
   public query func getMonthData(year : Nat, month : Nat) : async [(Text, DayData)] {
-    let monthPrefix = Int.toText(year) # "-" # Int.toText(month) # "-";
-    Iter.toArray(
-      Iter.filter(
-        HashMap.entries(dayData),
-        func((k, _) : (Text, DayData)) : Bool {
-          Text.startsWith(k, #text monthPrefix);
-        },
-      )
-    );
+    let monthPrefix = year.toText() # "-" # month.toText() # "-";
+    Iter.filter(
+      HashMap.entries(dayData),
+      func((k, _) : (Text, DayData)) : Bool {
+        k.startsWith(#text monthPrefix);
+      },
+    ).toArray();
   };
 
   // Update function to add a new note
@@ -116,9 +112,9 @@ persistent actor DailyPlanner {
 
     // Perform HTTPS outcall only if needed.
     if (currentData.onThisDay == null) {
-      let parts = Iter.toArray(Text.split(date, #char '-'));
-      let month = Option.get(Nat.fromText(parts[1]), 1);
-      let day = Option.get(Nat.fromText(parts[2]), 1);
+      let parts = date.split(#char '-').toArray();
+      let month = Nat.fromText(parts[1]).get(1);
+      let day = Nat.fromText(parts[2]).get(1);
 
       // Prepare the https request.
       // "transform" is used to specify how the HTTP response is processed before consensus tries to agree on a response.
