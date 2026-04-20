@@ -48,6 +48,9 @@ loginButton.onclick = async (e) => {
     const identity = authClient.getIdentity();
     // Using the identity obtained from the auth client, we can create an agent to interact with the IC.
     const agent = new HttpAgent({identity});
+    if (process.env.NODE_ENV !== "production") {
+        await agent.fetchRootKey();
+    }
     // Using the interface description of our webapp, we create an actor that we use to call the service methods.
     actor = createActor(process.env.CANISTER_ID_GREET_BACKEND, {
         agent,
