@@ -16,7 +16,7 @@ In detail, the example provides actor `Map`.
 
 [Map.mo](./src/map/Map.mo) imports a Motoko _actor class_ `Bucket(i, n)`
 from library [Buckets.mo](./src/map/Buckets.mo).
-It also imports `mo:core/Cycles`, naming it `Cycles` for short, to share its cycles amongst the buckets it creates.
+It also imports `mo:core/Cycles` to share its cycles amongst the buckets it creates.
 
 Each call to `Buckets.Bucket(n, i)` within `Map` instantiates a new `Bucket` instance (the `i`-th of `n`) dedicated to those entries of the `Map` whose key _hashes_ to `i` (by taking the remainder of the key modulo division by `n`).
 
