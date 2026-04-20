@@ -4,7 +4,7 @@ Projects deployed through ICP Ninja are temporary; they will only be live for 30
 
 ### 1. Install developer tools
 
-Install [Node.js](https://nodejs.org/en/download/) and [icp-cli](https://cli.icp.build):
+Install [Node.js](https://nodejs.org/en/download/) and [icp-cli](https://cli.internetcomputer.org):
 
 ```bash
 npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm

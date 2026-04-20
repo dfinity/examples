@@ -1,6 +1,11 @@
 # Motoko dependencies (https://mops.one/)
 
+[toolchain]
+moc = "1.5.1"
+
 [dependencies]
-base = "0.14.9"
-core = "1.0.0"
+core = "2.4.0"
 llm = "2.1.0"
+
+[compiler]
+warnings = "error"

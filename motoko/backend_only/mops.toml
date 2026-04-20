@@ -1,5 +1,8 @@
 [toolchain]
-moc = "1.2.0"
+moc = "1.5.1"
 
 [dependencies]
-# Add your dependencies from https://mops.one
+core = "2.4.0"
+
+[compiler]
+warnings = "error"
