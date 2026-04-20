@@ -2,9 +2,8 @@
 // NFT Canister implementing ICRC-7 standard with minting functionality
 
 // --- Standard Library Imports ---
-import Principal "mo:base/Principal";
-import Nat "mo:base/Nat";
-import D "mo:base/Debug";
+import Principal "mo:core/Principal";
+import Runtime "mo:core/Runtime";
 
 // --- Third-Party/External Imports ---
 import Vec "mo:vector";
@@ -125,7 +124,7 @@ shared (init_msg) persistent actor class NftCanister() : async (ICRC7.Service.Se
   public query func icrc7_owner_of(token_ids : ICRC7.Service.OwnerOfRequest) : async ICRC7.Service.OwnerOfResponse {
     switch (icrc7().get_token_owners(token_ids)) {
       case (#ok(val)) val;
-      case (#err(err)) D.trap(err);
+      case (#err(err)) Runtime.trap(err);
     };
   };
 
@@ -194,7 +193,7 @@ shared (init_msg) persistent actor class NftCanister() : async (ICRC7.Service.Se
         nextTokenId += 1;
         val;
       };
-      case (#err(err)) D.trap(err);
+      case (#err(err)) Runtime.trap(err);
     };
   };
 

@@ -3,7 +3,6 @@ import React from 'react';
 import { superheroes } from "../../declarations/superheroes";
 
 const $ = document.getElementById.bind(document);
-const idl = require('../utilities/idl');
 
 class Update extends React.Component {
 
@@ -23,7 +22,6 @@ class Update extends React.Component {
       superpowers.push(superpower);
     };
     const superhero = { name, superpowers };
-    superhero.superpowers = idl.toList(superhero.superpowers);
     superheroes.update(superheroId, superhero).then((success) => {
       this.setState({ success });
     });
