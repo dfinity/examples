@@ -3,6 +3,7 @@ import Nat "mo:core/Nat";
 import Random "mo:core/Random";
 
 persistent actor FlyingNinja {
+  type Order = { #less; #equal; #greater };
   type LeaderboardEntry = {
     name : Text;
     score : Nat;
@@ -26,7 +27,7 @@ persistent actor FlyingNinja {
 
     // Add the new entry and sort the leaderboard
     leaderboard := leaderboard.concat([newEntry]).sort(
-      func(a : LeaderboardEntry, b : LeaderboardEntry) : { #less; #equal; #greater } { Nat.compare(b.score, a.score) }
+      func(a : LeaderboardEntry, b : LeaderboardEntry) : Order { Nat.compare(b.score, a.score) }
     );
 
     // Keep only the top 10 scores
