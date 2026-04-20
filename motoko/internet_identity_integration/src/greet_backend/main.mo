@@ -1,7 +1,7 @@
-import Principal "mo:base/Principal";
+import Principal "mo:core/Principal";
 
 persistent actor {
   public query (message) func greet() : async Text {
-    return "Hello, " # Principal.toText(message.caller) # "!";
+    return "Hello, " # message.caller.toText() # "!";
   };
 };
