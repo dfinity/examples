@@ -1,12 +1,12 @@
-# vetKeys Examples
+# VetKeys Examples (Motoko)
 
-## Basic Examples
-- **[Password Manager](https://github.com/dfinity/vetkeys/tree/main/examples/password_manager)** - A secure, decentralized password manager using Encrypted Maps for vault-based password storage and sharing.
-- **[Password Manager with Metadata](https://github.com/dfinity/vetkeys/tree/main/examples/password_manager_with_metadata)** - Extends the basic password manager to support unencrypted metadata alongside encrypted passwords.
-- **[Encrypted Notes](https://github.com/dfinity/vetkeys/tree/main/examples/encrypted_notes_dapp_vetkd)** - A secure note-taking application that uses vetKeys for encryption and enables sharing notes between users without device management.
+The VetKeys examples (including Motoko backends) are located in [`rust/vetkeys/`](../../rust/vetkeys/).
 
-## Advanced Examples
+Each example that supports a Motoko backend has a `motoko/` subdirectory alongside its `rust/` backend:
 
-- **[Threshold BLS Signature](https://github.com/dfinity/vetkeys/tree/main/examples/basic_bls_signing)** - Demonstrates how to use vetKeys to create a threshold BLS signing service.
-
-- **[Identity-Basic Encryption (IBE)](https://github.com/dfinity/vetkeys/tree/main/examples/basic_ibe)** - Shows how to implement secure messaging using Identity Based Encryption with Internet Identity Principals as encryption keys.
+- [Basic BLS Signing](../../rust/vetkeys/basic_bls_signing/) — Motoko + Rust
+- [Basic IBE](../../rust/vetkeys/basic_ibe/) — Motoko + Rust
+- [Encrypted Notes](../../rust/vetkeys/encrypted_notes_dapp_vetkd/) — Motoko + Rust
+- [Password Manager](../../rust/vetkeys/password_manager/) — Motoko + Rust
+- [Password Manager with Metadata](../../rust/vetkeys/password_manager_with_metadata/) — Motoko + Rust
+- [Basic Timelock IBE](../../rust/vetkeys/basic_timelock_ibe/) — Rust only
