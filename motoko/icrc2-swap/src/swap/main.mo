@@ -1,14 +1,10 @@
-import Blob "mo:base/Blob";
-import Debug "mo:base/Debug";
-import Iter "mo:base/Iter";
-import Nat "mo:base/Nat";
-import Option "mo:base/Option";
-import P "mo:base/Prelude";
-import Principal "mo:base/Principal";
-import Result "mo:base/Result";
-import TrieMap "mo:base/TrieMap";
+import Iter "mo:core/Iter";
+import Map "mo:core/Map";
+import Option "mo:core/Option";
+import Principal "mo:core/Principal";
+import Result "mo:core/Result";
+import Runtime "mo:core/Runtime";
 
-// Import our ICRC type definitions
 import ICRC "./ICRC";
 
 // The swap canister is the main backend canister for this example. To simplify
@@ -22,17 +18,12 @@ shared (init_msg) persistent actor class Swap(
 ) = this {
 
   // Track the deposited per-user balances for token A and token B
-  private transient var balancesA = TrieMap.TrieMap<Principal, Nat>(Principal.equal, Principal.hash);
-  private transient var balancesB = TrieMap.TrieMap<Principal, Nat>(Principal.equal, Principal.hash);
-
-  // Because TrieMaps are not directly storable in stable memory we need a
-  // location to store the data during canister upgrades.
-  private var stableBalancesA : ?[(Principal, Nat)] = null;
-  private var stableBalancesB : ?[(Principal, Nat)] = null;
+  private let balancesA = Map.empty<Principal, Nat>();
+  private let balancesB = Map.empty<Principal, Nat>();
 
   // balances is a simple getter to check the balances of all users, to make debugging easier.
   public query func balances() : async ([(Principal, Nat)], [(Principal, Nat)]) {
-    (Iter.toArray(balancesA.entries()), Iter.toArray(balancesB.entries()));
+    (Map.entries(balancesA).toArray(), Map.entries(balancesB).toArray())
   };
 
   public type DepositArgs = {
@@ -99,8 +90,8 @@ shared (init_msg) persistent actor class Swap(
 
     // Credit the sender's account
     let sender = args.from.owner;
-    let old_balance = Option.get(balances.get(sender), 0 : Nat);
-    balances.put(sender, old_balance + args.amount);
+    let old_balance = Option.get(Map.get(balances, Principal.compare, sender), 0 : Nat);
+    let _ = Map.swap(balances, Principal.compare, sender, old_balance + args.amount);
 
     // Return the "block height" of the transfer
     #ok(block_height);
@@ -139,21 +130,25 @@ shared (init_msg) persistent actor class Swap(
 
     // Give user_a's token_a to user_b
     // Add the the two user's token_a balances, and give all of it to user_b.
-    balancesA.put(
+    let _ = Map.swap(
+      balancesA,
+      Principal.compare,
       args.user_b,
-      Option.get(balancesA.get(args.user_a), 0 : Nat) +
-      Option.get(balancesA.get(args.user_b), 0 : Nat),
+      Option.get(Map.get(balancesA, Principal.compare, args.user_a), 0 : Nat) +
+      Option.get(Map.get(balancesA, Principal.compare, args.user_b), 0 : Nat),
     );
-    balancesA.delete(args.user_a);
+    Map.remove(balancesA, Principal.compare, args.user_a);
 
     // Give user_b's token_b to user_a
     // Add the the two user's token_b balances, and give all of it to user_a.
-    balancesB.put(
+    let _ = Map.swap(
+      balancesB,
+      Principal.compare,
       args.user_a,
-      Option.get(balancesB.get(args.user_a), 0 : Nat) +
-      Option.get(balancesB.get(args.user_b), 0 : Nat),
+      Option.get(Map.get(balancesB, Principal.compare, args.user_a), 0 : Nat) +
+      Option.get(Map.get(balancesB, Principal.compare, args.user_b), 0 : Nat),
     );
-    balancesB.delete(args.user_b);
+    Map.remove(balancesB, Principal.compare, args.user_b);
 
     #ok(());
   };
@@ -194,7 +189,7 @@ shared (init_msg) persistent actor class Swap(
     };
 
     // Check the user's balance is sufficient
-    let old_balance = Option.get(balances.get(msg.caller), 0 : Nat);
+    let old_balance = Option.get(Map.get(balances, Principal.compare, msg.caller), 0 : Nat);
     if (old_balance < args.amount + fee) {
       return #err(#InsufficientFunds { balance = old_balance });
     };
@@ -221,9 +216,9 @@ shared (init_msg) persistent actor class Swap(
     let new_balance = old_balance - args.amount - fee;
     if (new_balance == 0) {
       // Delete zero-balances to keep the balance table tidy.
-      balances.delete(msg.caller);
+      Map.remove(balances, Principal.compare, msg.caller);
     } else {
-      balances.put(msg.caller, new_balance);
+      let _ = Map.swap(balances, Principal.compare, msg.caller, new_balance);
     };
 
     // Perform the transfer, to send the tokens.
@@ -247,8 +242,8 @@ shared (init_msg) persistent actor class Swap(
         // Refund the user's account. Note, we can't just put the old_balance
         // back, because their balance may have changed simultaneously while we
         // were waiting for the transaction.
-        let b = Option.get(balances.get(msg.caller), 0 : Nat);
-        balances.put(msg.caller, b + args.amount + fee);
+        let b = Option.get(Map.get(balances, Principal.compare, msg.caller), 0 : Nat);
+        let _ = Map.swap(balances, Principal.compare, msg.caller, b + args.amount + fee);
 
         return #err(#TransferError(err));
       };
@@ -261,39 +256,13 @@ shared (init_msg) persistent actor class Swap(
   // which_balances checks which token we are withdrawing, and configure the
   // rest of the transfer. This function will assert that the token specified
   // must be either token_a, or token_b.
-  private func which_balances(t : Principal) : TrieMap.TrieMap<Principal, Nat> {
-    let balances = if (t == init_args.token_a) {
-      balancesA;
+  private func which_balances(t : Principal) : Map.Map<Principal, Nat> {
+    if (t == init_args.token_a) {
+      balancesA
     } else if (t == init_args.token_b) {
-      balancesB;
+      balancesB
     } else {
-      Debug.trap("invalid token canister");
-    };
+      Runtime.trap("invalid token canister")
+    }
   };
-
-  // TrieMaps cannot be directly stored in stable memory, so we need a
-  // preupgrade and postupgrade to store the balances into stable memory.
-  system func preupgrade() {
-    stableBalancesA := ?Iter.toArray(balancesA.entries());
-    stableBalancesB := ?Iter.toArray(balancesB.entries());
-  };
-
-  system func postupgrade() {
-    switch (stableBalancesA) {
-      case (null) {};
-      case (?entries) {
-        balancesA := TrieMap.fromEntries<Principal, Nat>(entries.vals(), Principal.equal, Principal.hash);
-        stableBalancesA := null;
-      };
-    };
-
-    switch (stableBalancesB) {
-      case (null) {};
-      case (?entries) {
-        balancesB := TrieMap.fromEntries<Principal, Nat>(entries.vals(), Principal.equal, Principal.hash);
-        stableBalancesB := null;
-      };
-    };
-  };
-
 };
