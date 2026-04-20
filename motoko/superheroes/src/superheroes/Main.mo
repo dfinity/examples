@@ -34,10 +34,6 @@ persistent actor Superheroes {
   };
 
   public func delete(superheroId : SuperheroId) : async Bool {
-    let exists = Map.get(map, Nat32.compare, superheroId) != null;
-    if (exists) {
-      Map.delete(map, Nat32.compare, superheroId);
-    };
-    return exists
+    Map.delete(map, Nat32.compare, superheroId)
   }
 }
