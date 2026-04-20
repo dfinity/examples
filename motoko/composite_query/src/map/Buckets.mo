@@ -1,5 +1,5 @@
-import Nat "mo:core/Nat";
 import Map "mo:core/Map";
+import Nat "mo:core/Nat";
 
 persistent actor class Bucket(n : Nat, i : Nat) {
 
@@ -10,12 +10,12 @@ persistent actor class Bucket(n : Nat, i : Nat) {
 
   public query func get(k : Key) : async ?Value {
     assert ((k % n) == i);
-    Map.get(map, Nat.compare, k);
+    map.get(k);
   };
 
   public func put(k : Key, v : Value) : async () {
     assert ((k % n) == i);
-    Map.add(map, Nat.compare, k, v);
+    map.add(k, v);
   };
 
 };

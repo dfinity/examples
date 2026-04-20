@@ -33,13 +33,13 @@ persistent actor {
     var cs = PureList.empty<(Nat, Nat)>();
     if (i > 1 and not visited(m[i - 2][j]))
       // The <(Nat,Nat)> type annotation is not required, but it can silence the underflow warning for i - 2
-      cs := PureList.pushFront<(Nat, Nat)>(cs, (i - 2, j));
+      cs := cs.pushFront<(Nat, Nat)>((i - 2, j));
     if (i + 1 < max and not visited(m[i + 2][j]))
-      cs := PureList.pushFront(cs, (i + 2, j));
+      cs := cs.pushFront((i + 2, j));
     if (j > 1 and not visited(m[i][j - 2]))
-      cs := PureList.pushFront<(Nat, Nat)>(cs, (i, j - 2));
+      cs := cs.pushFront<(Nat, Nat)>((i, j - 2));
     if (j + 1 < max and not visited(m[i][j + 2]))
-      cs := PureList.pushFront(cs, (i, j + 2));
+      cs := cs.pushFront((i, j + 2));
     cs;
   };
 
@@ -64,7 +64,7 @@ persistent actor {
     let n = Nat.max(1, size / 2);
 
     // Construct a maze of mutable, unvisited walls
-    let m = Array.tabulate<[var Nat8]>(2 * n + 1,
+    let m = Array.tabulate(2 * n + 1,
       func _ { VarArray.repeat(wall, 2 * n + 1) });
 
     // Use iterative depth-first search on odd numbered entries
@@ -77,21 +77,21 @@ persistent actor {
     m[2 * n][2 * n - 1] := hall; // Exit
 
     m[1][1] := visit(hall);
-    Stack.push(s, (1, 1));
+    s.push((1, 1));
     loop {
-      switch (Stack.pop(s)) {
+      switch (s.pop()) {
         case null return toText(m);
         case (?(i, j)) {
           let us = unvisited(i, j, m);
-          if (not PureList.isEmpty(us)) {
-            let k = await* random.natRange(0, PureList.size(us));
-            Stack.push(s, (i, j));
-            let ?(i1, j1) = PureList.get(us, k);
+          if (not us.isEmpty()) {
+            let k = await* random.natRange(0, us.size());
+            s.push((i, j));
+            let ?(i1, j1) = us.get(k) else return toText(m);
             // connect cell (i, j) and (i1, j1)
             m[if (i == i1) i else (Nat.min(i, i1) + 1)]
               [if (j == j1) j else (Nat.min(j, j1) + 1)] := hall;
             m[i1][j1] := visit(hall);
-            Stack.push(s, (i1, j1));
+            s.push((i1, j1));
           }
         }
       }

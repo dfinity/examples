@@ -1,4 +1,10 @@
 # Motoko dependencies (https://mops.one/)
 
+[toolchain]
+moc = "1.5.1"
+
 [dependencies]
 core = "2.4.0"
+
+[moc]
+args = ["-W", "M0236", "-W", "M0237", "-W", "M0223"]

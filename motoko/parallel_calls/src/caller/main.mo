@@ -8,8 +8,8 @@ persistent actor {
     type callee_interface = (actor { ping : () -> async () });
     var callee = null : ?callee_interface;
 
-    public func setup_callee(c : Principal) {
-        callee := ?(actor (Principal.toText(c)) : callee_interface);
+    public func setup_callee(c : Principal) : () {
+        callee := ?(actor (c.toText()) : callee_interface);
     };
 
     public func sequential_calls(n : Nat) : async Nat {
@@ -26,7 +26,7 @@ persistent actor {
             try {
                 await c.ping();
                 successful_calls += 1;
-            } catch (e) {};
+            } catch _ {};
         };
         successful_calls;
     };
@@ -43,18 +43,18 @@ persistent actor {
 
         for (_ in Nat.range(0, n)) {
             try {
-                List.add(l, c.ping());
-            } catch (e) {};
+                l.add(c.ping());
+            } catch _ {};
         };
 
         // The responses on the IC will in this example come in the order of the requests in practice.
         // We use List.add (append) so the order already matches the request order.
         var successful_calls = 0;
-        for (a in List.values(l)) {
+        for (a in l.values()) {
             try {
                 await a;
                 successful_calls += 1;
-            } catch (e) {};
+            } catch _ {};
         };
 
         successful_calls;
