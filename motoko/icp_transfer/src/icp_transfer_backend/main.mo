@@ -1,8 +1,8 @@
 import IcpLedger "canister:icp_ledger_canister";
-import Debug "mo:base/Debug";
-import Result "mo:base/Result";
-import Error "mo:base/Error";
-import Principal "mo:base/Principal";
+import Debug "mo:core/Debug";
+import Result "mo:core/Result";
+import Error "mo:core/Error";
+import Principal "mo:core/Principal";
 
 persistent actor {
   type Tokens = {
@@ -35,7 +35,7 @@ persistent actor {
       // we are transferring from the canisters default subaccount, therefore we don't need to specify it
       from_subaccount = null;
       // we take the principal and subaccount from the arguments and convert them into an account identifier
-      to = Principal.toLedgerAccount(args.toPrincipal, args.toSubaccount);
+      to = args.toPrincipal.toLedgerAccount(args.toSubaccount);
       // a timestamp indicating when the transaction was created by the caller; if it is not specified by the caller then this is set to the current ICP time
       created_at_time = null;
     };
@@ -53,7 +53,7 @@ persistent actor {
       };
     } catch (error : Error) {
       // catch any errors that might occur during the transfer
-      return #err("Reject message: " # Error.message(error));
+      return #err("Reject message: " # error.message());
     };
   };
 };

@@ -1,5 +1,3 @@
-import ExperimentalCycles "mo:base/ExperimentalCycles";
-
 import Types "Types";
 
 module {
@@ -30,8 +28,7 @@ module {
   };
 
   public func sign_with_ecdsa(ecdsa_canister_actor: EcdsaCanisterActor, key_name : Text, derivation_path : [Blob], message_hash : Blob) : async Blob {
-    ExperimentalCycles.add<system>(SIGN_WITH_ECDSA_COST_CYCLES);
-    let res = await ecdsa_canister_actor.sign_with_ecdsa({
+    let res = await (with cycles = SIGN_WITH_ECDSA_COST_CYCLES) ecdsa_canister_actor.sign_with_ecdsa({
       message_hash;
       derivation_path;
       key_id = {

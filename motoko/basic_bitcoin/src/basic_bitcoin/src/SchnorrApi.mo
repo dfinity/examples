@@ -1,6 +1,3 @@
-import ExperimentalCycles "mo:base/ExperimentalCycles";
-import Blob "mo:base/Blob";
-
 import Types "Types";
 
 module {
@@ -31,8 +28,7 @@ module {
   };
 
   public func sign_with_schnorr(schnorr_canister_actor : SchnorrCanisterActor, key_name : Text, derivation_path : [Blob], message : Blob, aux : ?Types.SchnorrAux) : async Blob {
-    ExperimentalCycles.add<system>(SIGN_WITH_SCHNORR_COST_CYCLES);
-    let res = await schnorr_canister_actor.sign_with_schnorr({
+    let res = await (with cycles = SIGN_WITH_SCHNORR_COST_CYCLES) schnorr_canister_actor.sign_with_schnorr({
       message;
       derivation_path;
       key_id = {

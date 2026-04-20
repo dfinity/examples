@@ -1,11 +1,11 @@
-import Result "mo:base/Result";
-import Debug "mo:base/Debug";
-import Iter "mo:base/Iter";
-import Nat8 "mo:base/Nat8";
-import Prelude "mo:base/Prelude";
-import Text "mo:base/Text";
-import Blob "mo:base/Blob";
-import Array "mo:base/Array";
+import Result "mo:core/Result";
+import Debug "mo:core/Debug";
+import Iter "mo:core/Iter";
+import Nat8 "mo:core/Nat8";
+import Runtime "mo:core/Runtime";
+import Text "mo:core/Text";
+import Blob "mo:core/Blob";
+import Array "mo:core/Array";
 import Types "Types";
 
 module {
@@ -18,7 +18,7 @@ module {
     public func get_ok<T>(result : Result<T, Text>) : T {
         switch result {
             case (#ok value) value;
-            case (#err error) Debug.trap("pattern failed: " # error);
+            case (#err error) Runtime.trap("pattern failed: " # error);
         };
     };
 
@@ -27,7 +27,7 @@ module {
         switch result {
             case (#ok value) value;
             case (#err error) {
-                Debug.trap(expect # " pattern failed: " # error);
+                Runtime.trap(expect # " pattern failed: " # error);
             };
         };
     };
@@ -36,7 +36,7 @@ module {
     public func unwrap<T>(option : ?T) : T {
         switch option {
             case (?value) value;
-            case null Prelude.unreachable();
+            case null Runtime.unreachable();
         };
     };
 
@@ -60,7 +60,7 @@ module {
                 case 13 'd';
                 case 14 'e';
                 case 15 'f';
-                case _ Prelude.unreachable();
+                case _ Runtime.unreachable();
             }
         );
     };
@@ -74,16 +74,16 @@ module {
 
     /// Returns the hexadecimal representation of a byte array.
     public func bytesToText(bytes : [Nat8]) : Text {
-        Text.join("", Iter.map<Nat8, Text>(Iter.fromArray(bytes), func(n) { nat8ToText(n) }));
+        bytes.vals().map(func(n : Nat8) : Text { nat8ToText(n) }).join("");
     };
 
     /// A mock for rubber-stamping 64B ECDSA signatures.
     public func ecdsa_mock_signer(_ecdsa_canister_actor : EcdsaCanisterActor, _key_name : Text, _derivation_path : [Blob], _message_hash : Blob) : async Blob {
-        Blob.fromArray(Array.freeze(Array.init<Nat8>(64, 255)));
+        Blob.fromArray(Array.repeat(255 : Nat8, 64));
     };
 
     /// A mock for rubber-stamping 64B Schnorr signatures.
     public func schnorr_mock_signer(_schnorr_canister_actor : SchnorrCanisterActor, _key_name : Text, _derivation_path : [Blob], _message_hash : Blob, _aux : ?SchnorrAux) : async Blob {
-        Blob.fromArray(Array.freeze(Array.init<Nat8>(64, 255)));
+        Blob.fromArray(Array.repeat(255 : Nat8, 64));
     };
 };
