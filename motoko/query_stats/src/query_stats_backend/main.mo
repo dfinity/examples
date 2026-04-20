@@ -16,13 +16,13 @@ persistent actor QueryStats {
   };
 
   public query func load() : async Int {
-    return Time.now();
+    Time.now();
   };
 
   public func get_current_query_stats_as_string() : async Text {
     let stats = await IC.canister_status({
       canister_id = Principal.fromActor(QueryStats);
     });
-    return "Number of calls: " # Nat.toText(stats.query_stats.num_calls_total) # " - Number of instructions: " # Nat.toText(stats.query_stats.num_instructions_total) # " - Request payload bytes: " # Nat.toText(stats.query_stats.request_payload_bytes_total) # " - Response payload bytes: " # Nat.toText(stats.query_stats.response_payload_bytes_total);
+    "Number of calls: " # stats.query_stats.num_calls_total.toText() # " - Number of instructions: " # stats.query_stats.num_instructions_total.toText() # " - Request payload bytes: " # stats.query_stats.request_payload_bytes_total.toText() # " - Response payload bytes: " # stats.query_stats.response_payload_bytes_total.toText();
   };
 };

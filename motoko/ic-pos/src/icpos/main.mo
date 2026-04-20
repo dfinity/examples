@@ -33,7 +33,7 @@ shared (actorContext) persistent actor class Main(_startBlock : Nat) {
   public query (context) func getMerchant() : async MainTypes.Response<MainTypes.Merchant> {
     let caller : Principal = context.caller;
 
-    switch (Map.get(merchantStore, Text.compare, Principal.toText(caller))) {
+    switch (merchantStore.get(caller.toText())) {
       case (?merchant) {
         {
           status = 200;
@@ -47,7 +47,7 @@ shared (actorContext) persistent actor class Main(_startBlock : Nat) {
           status = 404;
           status_text = "Not Found";
           data = null;
-          error_text = ?("Merchant with principal ID: " # Principal.toText(caller) # " not found.");
+          error_text = ?("Merchant with principal ID: " # caller.toText() # " not found.");
         };
       };
     };
@@ -57,9 +57,8 @@ shared (actorContext) persistent actor class Main(_startBlock : Nat) {
     * Update the merchant's information
     */
   public shared (context) func updateMerchant(merchant : MainTypes.Merchant) : async MainTypes.Response<MainTypes.Merchant> {
-
     let caller : Principal = context.caller;
-    let _ = Map.swap(merchantStore, Text.compare, Principal.toText(caller), merchant);
+    let _ = merchantStore.swap(caller.toText(), merchant);
     {
       status = 200;
       status_text = "OK";
@@ -72,7 +71,7 @@ shared (actorContext) persistent actor class Main(_startBlock : Nat) {
     * Set the courier API key. Only the owner can set the courier API key.
     */
   public shared (context) func setCourierApiKey(apiKey : Text) : async MainTypes.Response<Text> {
-    if (not Principal.equal(context.caller, actorContext.caller)) {
+    if (context.caller != actorContext.caller) {
       return {
         status = 403;
         status_text = "Forbidden";
@@ -101,7 +100,7 @@ shared (actorContext) persistent actor class Main(_startBlock : Nat) {
     */
   private func log(text : Text) {
     Debug.print(text);
-    logData := Array.tabulate<Text>(Nat.min(logData.size() + 1, 100), func(i : Nat) : Text {
+    logData := Array.tabulate<Text>((logData.size() + 1).min(100), func(i : Nat) : Text {
       if (i == 0) text else logData[i - 1]
     });
   };
@@ -138,7 +137,7 @@ shared (actorContext) persistent actor class Main(_startBlock : Nat) {
         switch (t.transfer) {
           case (?transfer) {
             let to = transfer.to.owner;
-            switch (Map.get(merchantStore, Text.compare, Principal.toText(to))) {
+            switch (merchantStore.get(to.toText())) {
               case (?merchant) {
                 if (merchant.email_notifications or merchant.phone_notifications) {
                   log("Sending notification to: " # debug_show (merchant.email_address));
@@ -168,15 +167,15 @@ shared (actorContext) persistent actor class Main(_startBlock : Nat) {
     var from = "";
     switch (transaction.transfer) {
       case (?transfer) {
-        amount := Nat.toText(transfer.amount);
-        from := Principal.toText(transfer.from.owner);
+        amount := transfer.amount.toText();
+        from := transfer.from.owner.toText();
       };
       case null {};
     };
-    let idempotencyKey : Text = Text.concat(merchant.name, Nat64.toText(transaction.timestamp));
+    let idempotencyKey : Text = merchant.name # transaction.timestamp.toText();
     let requestBodyJson : Text = "{ \"idempotencyKey\": \"" # idempotencyKey # "\", \"email\": \"" # merchant.email_address # "\", \"phone\": \"" # merchant.phone_number # "\", \"amount\": \"" # amount # "\", \"payer\": \"" # from # "\"}";
-    let requestBodyAsBlob : Blob = Text.encodeUtf8(requestBodyJson);
-    let requestBodyAsNat8 : [Nat8] = Blob.toArray(requestBodyAsBlob);
+    let requestBodyAsBlob : Blob = requestBodyJson.encodeUtf8();
+    let requestBodyAsNat8 : [Nat8] = requestBodyAsBlob.toArray();
 
     let httpRequest : HttpTypes.HttpRequestArgs = {
       url = "https://icpos-notifications.xyz/.netlify/functions/notify";
@@ -195,8 +194,8 @@ shared (actorContext) persistent actor class Main(_startBlock : Nat) {
     let httpResponse : HttpTypes.HttpResponsePayload = await (with cycles = 70_000_000) ic.http_request(httpRequest);
 
     if (httpResponse.status > 299) {
-      let response_body : Blob = Blob.fromArray(httpResponse.body);
-      let decoded_text : Text = switch (Text.decodeUtf8(response_body)) {
+      let response_body : Blob = httpResponse.body.fromArray();
+      let decoded_text : Text = switch (response_body.decodeUtf8()) {
         case (null) { "No value returned" };
         case (?y) { y };
       };

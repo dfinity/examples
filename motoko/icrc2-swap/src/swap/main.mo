@@ -23,7 +23,7 @@ shared (init_msg) persistent actor class Swap(
 
   // balances is a simple getter to check the balances of all users, to make debugging easier.
   public query func balances() : async ([(Principal, Nat)], [(Principal, Nat)]) {
-    (Map.entries(balancesA).toArray(), Map.entries(balancesB).toArray())
+    (balancesA.entries().toArray(), balancesB.entries().toArray())
   };
 
   public type DepositArgs = {
@@ -46,7 +46,7 @@ shared (init_msg) persistent actor class Swap(
   // - user deposits their token: `swap_canister.deposit({ token=token_a; amount=amount; ... })`
   // - These deposit handlers show how to safely accept and register deposits of an ICRC-2 token.
   public shared (msg) func deposit(args : DepositArgs) : async Result.Result<Nat, DepositError> {
-    let token : ICRC.Actor = actor (Principal.toText(args.token));
+    let token : ICRC.Actor = actor (args.token.toText());
     let balances = which_balances(args.token);
 
     // Load the fee from the token here. The user can pass a null fee, which
@@ -90,8 +90,8 @@ shared (init_msg) persistent actor class Swap(
 
     // Credit the sender's account
     let sender = args.from.owner;
-    let old_balance = Option.get(Map.get(balances, Principal.compare, sender), 0 : Nat);
-    let _ = Map.swap(balances, Principal.compare, sender, old_balance + args.amount);
+    let old_balance = balances.get(sender).get(0 : Nat);
+    let _ = balances.swap(sender, old_balance + args.amount);
 
     // Return the "block height" of the transfer
     #ok(block_height);
@@ -130,25 +130,21 @@ shared (init_msg) persistent actor class Swap(
 
     // Give user_a's token_a to user_b
     // Add the the two user's token_a balances, and give all of it to user_b.
-    let _ = Map.swap(
-      balancesA,
-      Principal.compare,
+    let _ = balancesA.swap(
       args.user_b,
-      Option.get(Map.get(balancesA, Principal.compare, args.user_a), 0 : Nat) +
-      Option.get(Map.get(balancesA, Principal.compare, args.user_b), 0 : Nat),
+      balancesA.get(args.user_a).get(0 : Nat) +
+      balancesA.get(args.user_b).get(0 : Nat),
     );
-    Map.remove(balancesA, Principal.compare, args.user_a);
+    balancesA.remove(args.user_a);
 
     // Give user_b's token_b to user_a
     // Add the the two user's token_b balances, and give all of it to user_a.
-    let _ = Map.swap(
-      balancesB,
-      Principal.compare,
+    let _ = balancesB.swap(
       args.user_a,
-      Option.get(Map.get(balancesB, Principal.compare, args.user_a), 0 : Nat) +
-      Option.get(Map.get(balancesB, Principal.compare, args.user_b), 0 : Nat),
+      balancesB.get(args.user_a).get(0 : Nat) +
+      balancesB.get(args.user_b).get(0 : Nat),
     );
-    Map.remove(balancesB, Principal.compare, args.user_b);
+    balancesB.remove(args.user_b);
 
     #ok(());
   };
@@ -177,7 +173,7 @@ shared (init_msg) persistent actor class Swap(
   // - Allow users to withdraw any tokens they hold.
   // - These withdrawal handlers show how to safely send outbound transfers of an ICRC-1 token.
   public shared (msg) func withdraw(args : WithdrawArgs) : async Result.Result<Nat, WithdrawError> {
-    let token : ICRC.Actor = actor (Principal.toText(args.token));
+    let token : ICRC.Actor = actor (args.token.toText());
     let balances = which_balances(args.token);
 
     // Load the fee from the token here. The user can pass a null fee, which
@@ -189,7 +185,7 @@ shared (init_msg) persistent actor class Swap(
     };
 
     // Check the user's balance is sufficient
-    let old_balance = Option.get(Map.get(balances, Principal.compare, msg.caller), 0 : Nat);
+    let old_balance = balances.get(msg.caller).get(0 : Nat);
     if (old_balance < args.amount + fee) {
       return #err(#InsufficientFunds { balance = old_balance });
     };
@@ -216,9 +212,9 @@ shared (init_msg) persistent actor class Swap(
     let new_balance = old_balance - args.amount - fee;
     if (new_balance == 0) {
       // Delete zero-balances to keep the balance table tidy.
-      Map.remove(balances, Principal.compare, msg.caller);
+      balances.remove(msg.caller);
     } else {
-      let _ = Map.swap(balances, Principal.compare, msg.caller, new_balance);
+      let _ = balances.swap(msg.caller, new_balance);
     };
 
     // Perform the transfer, to send the tokens.
@@ -242,8 +238,8 @@ shared (init_msg) persistent actor class Swap(
         // Refund the user's account. Note, we can't just put the old_balance
         // back, because their balance may have changed simultaneously while we
         // were waiting for the transaction.
-        let b = Option.get(Map.get(balances, Principal.compare, msg.caller), 0 : Nat);
-        let _ = Map.swap(balances, Principal.compare, msg.caller, b + args.amount + fee);
+        let b = balances.get(msg.caller).get(0 : Nat);
+        let _ = balances.swap(msg.caller, b + args.amount + fee);
 
         return #err(#TransferError(err));
       };
