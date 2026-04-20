@@ -1,5 +1,5 @@
-import Array "mo:base/Array";
-import Cycles "mo:base/ExperimentalCycles";
+import VarArray "mo:core/VarArray";
+import Cycles "mo:core/Cycles";
 import Buckets "Buckets";
 
 persistent actor Map {
@@ -14,7 +14,7 @@ persistent actor Map {
 
   type Bucket = Buckets.Bucket;
 
-  let buckets : [var ?Bucket] = Array.init(n, null);
+  let buckets : [var ?Bucket] = VarArray.repeat(null, n);
 
   public func get(k : Key) : async ?Value {
     switch (buckets[k % n]) {
@@ -27,9 +27,7 @@ persistent actor Map {
     let i = k % n;
     let bucket = switch (buckets[i]) {
       case null {
-        // provision next send, i.e. Bucket(n, i), with cycles
-        Cycles.add(cycleShare);
-        let b = await Buckets.Bucket(n, i); // dynamically install a new Bucket
+        let b = await (with cycles = cycleShare) Buckets.Bucket(n, i);
         buckets[i] := ?b;
         b;
       };
