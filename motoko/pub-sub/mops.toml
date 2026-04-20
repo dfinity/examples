@@ -9,4 +9,4 @@ core = "2.4.0"
 # M0236: use context dot notation (e.g. x.toText() instead of Nat.toText(x))
 # M0237: redundant explicit implicit arguments (e.g. Nat.compare is inferred automatically)
 # M0223: redundant type instantiation (e.g. Array.tabulate instead of Array.tabulate<T>)
-args = ["-W", "M0236", "-W", "M0237", "-W", "M0223"]
+args = ["-W=M0236,M0237,M0223"]
