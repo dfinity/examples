@@ -1,0 +1,4 @@
+# Motoko dependencies (https://mops.one/)
+
+[dependencies]
+core = "2.4.0"

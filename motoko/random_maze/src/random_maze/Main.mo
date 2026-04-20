@@ -1,19 +1,17 @@
-import Random "mo:base/Random";
-import Array "mo:base/Array";
-import List "mo:base/List";
-import Stack "mo:base/Stack";
-import Iter "mo:base/Iter";
-import Blob "mo:base/Blob";
-import Nat "mo:base/Nat";
-import Debug "mo:base/Debug";
+import Array "mo:core/Array";
+import VarArray "mo:core/VarArray";
+import PureList "mo:core/pure/List";
+import Stack "mo:core/Stack";
+import Nat "mo:core/Nat";
+import Random "mo:core/Random";
 
 /// Generate a random maze using cryptographic randomness.
 ///
-/// Illustrates library `Random.mo` for cryptographic randomness. In particlar:
+/// Illustrates library `Random.mo` for cryptographic randomness. In particular:
 ///
-/// * asynchronous requests for initial and additional entropy using
-///   shared function `Random.blob()`; and
-/// * generating bounded, discrete random numbers using class `Random.Finite()`.
+/// * asynchronous entropy via `Random.crypto()`, an `AsyncRandom` that
+///   automatically fetches more entropy from the management canister when needed; and
+/// * generating bounded discrete random numbers using `await* random.natRange()`.
 
 persistent actor {
 
@@ -30,40 +28,18 @@ persistent actor {
     n & 2 == 2
   };
 
-  func bit(b : Bool) : Nat {
-    if (b) 1 else 0;
-  };
-
-  /// Given finite source of randomness `f`,
-  /// return an optional random number between [0..`max`)
-  /// (using rejection sampling).
-  /// Return of `null` indicates `f` is exhausted and should be replaced.
-  func chooseMax(f : Random.Finite, max : Nat) : ? Nat {
-    assert max > 0;
-    do ? {
-      var n = max - 1 : Nat;
-      var k = 0;
-      while (n != 0) {
-        k *= 2;
-        k += bit(f.coin()!);
-        n /= 2;
-      };
-      if (k < max) k else chooseMax(f, max)!;
-    };
-  };
-
-  func unvisited(i : Nat, j : Nat, m : Maze) : List.List<(Nat,Nat)> {
-    let max: Nat = m.size() - 1;
-    var cs = List.nil<(Nat,Nat)>();
+  func unvisited(i : Nat, j : Nat, m : Maze) : PureList.List<(Nat, Nat)> {
+    let max : Nat = m.size() - 1;
+    var cs = PureList.empty<(Nat, Nat)>();
     if (i > 1 and not visited(m[i - 2][j]))
-      // The <(Nat,Nat)> type annotation is not required, but it can slience the underflow warning for i - 2
-      cs := List.push<(Nat,Nat)>((i - 2, j), cs);
+      // The <(Nat,Nat)> type annotation is not required, but it can silence the underflow warning for i - 2
+      cs := PureList.pushFront<(Nat, Nat)>(cs, (i - 2, j));
     if (i + 1 < max and not visited(m[i + 2][j]))
-      cs := List.push((i + 2, j), cs);
+      cs := PureList.pushFront(cs, (i + 2, j));
     if (j > 1 and not visited(m[i][j - 2]))
-      cs := List.push<(Nat,Nat)>((i, j - 2), cs);
+      cs := PureList.pushFront<(Nat, Nat)>(cs, (i, j - 2));
     if (j + 1 < max and not visited(m[i][j + 2]))
-      cs := List.push((i, j + 2), cs);
+      cs := PureList.pushFront(cs, (i, j + 2));
     cs;
   };
 
@@ -73,7 +49,7 @@ persistent actor {
       for (col in row.vals()) {
         t #= if (col == wall) "🟥" else "⬜";
       };
-    t #= "\n";
+      t #= "\n";
     };
     t
   };
@@ -89,42 +65,33 @@ persistent actor {
 
     // Construct a maze of mutable, unvisited walls
     let m = Array.tabulate<[var Nat8]>(2 * n + 1,
-      func i { Array.init(2 * n + 1, wall) });
+      func _ { VarArray.repeat(wall, 2 * n + 1) });
 
     // Use iterative depth-first search on odd numbered entries
-    // to turn walls into cells connected by random halls
-    let s = Stack.Stack<(Nat,Nat)>();
-    let entropy = await Random.blob(); // get initial entropy
-    var f = Random.Finite(entropy);
+    // to turn walls into cells connected by random halls.
+    // AsyncRandom fetches entropy on demand — no need to manage blobs manually.
+    let s = Stack.empty<(Nat, Nat)>();
+    let random = Random.crypto();
 
     m[0][1] := hall; // Entrance
-    m[2*n][2*n-1] := hall; // Exit
+    m[2 * n][2 * n - 1] := hall; // Exit
 
     m[1][1] := visit(hall);
-    s.push((1, 1));
+    Stack.push(s, (1, 1));
     loop {
-      switch (s.pop()) {
+      switch (Stack.pop(s)) {
         case null return toText(m);
         case (?(i, j)) {
           let us = unvisited(i, j, m);
-          if (not List.isNil(us)) {
-            switch (chooseMax(f, List.size(us))) {
-              case (? k) {
-                s.push((i, j));
-                let ? (i1, j1) = List.get(us, k);
-                // connect cell (i, j) and (i1, j1)
-                m[if (i == i1) i else (Nat.min(i, i1) + 1)]
-                  [if (j == j1) j else (Nat.min(j, j1) + 1)] := hall;
-                m[i1][j1] := visit(hall);
-                s.push((i1, j1));
-              };
-              case null { // not enough entropy
-                Debug.print("need more entropy...");
-                let entropy = await Random.blob(); // get more entropy
-                f := Random.Finite(entropy);
-                s.push((i,j)); // continue from (i,j)
-              }
-            }
+          if (not PureList.isEmpty(us)) {
+            let k = await* random.natRange(0, PureList.size(us));
+            Stack.push(s, (i, j));
+            let ?(i1, j1) = PureList.get(us, k);
+            // connect cell (i, j) and (i1, j1)
+            m[if (i == i1) i else (Nat.min(i, i1) + 1)]
+              [if (j == j1) j else (Nat.min(j, j1) + 1)] := hall;
+            m[i1][j1] := visit(hall);
+            Stack.push(s, (i1, j1));
           }
         }
       }
