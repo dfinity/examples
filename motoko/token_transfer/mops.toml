@@ -3,7 +3,6 @@ moc = "1.5.1"
 
 [dependencies]
 core = "2.4.0"
-bitcoin = "0.1.0"
 
 [moc]
 # M0236: use context dot notation (e.g. x.toText() instead of Nat.toText(x))

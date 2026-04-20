@@ -8,14 +8,13 @@
 //! * Caching spent UTXOs so that they are not reused in future transactions.
 //! * Option to set the fee.
 
-import Debug "mo:base/Debug";
-import Array "mo:base/Array";
-import Nat8 "mo:base/Nat8";
-import Nat32 "mo:base/Nat32";
-import Nat64 "mo:base/Nat64";
-import Iter "mo:base/Iter";
-import Blob "mo:base/Blob";
-import Nat "mo:base/Nat";
+import Debug "mo:core/Debug";
+import Runtime "mo:core/Runtime";
+import Array "mo:core/Array";
+import Nat8 "mo:core/Nat8";
+import Nat32 "mo:core/Nat32";
+import Nat64 "mo:core/Nat64";
+import Blob "mo:core/Blob";
 
 import EcdsaTypes "mo:bitcoin/ecdsa/Types";
 import P2pkh "mo:bitcoin/bitcoin/P2pkh";
@@ -50,10 +49,10 @@ module {
     /// Returns the P2PKH address of this canister at the given derivation path.
     public func get_address(ecdsa_canister_actor : EcdsaCanisterActor, network : Network, key_name : Text, derivation_path : [[Nat8]]) : async BitcoinAddress {
         // Fetch the public key of the given derivation path.
-        let public_key = await EcdsaApi.ecdsa_public_key(ecdsa_canister_actor, key_name, Array.map(derivation_path, Blob.fromArray));
+        let public_key = await EcdsaApi.ecdsa_public_key(ecdsa_canister_actor, key_name, derivation_path.map(Blob.fromArray));
 
         // Compute the address.
-        public_key_to_p2pkh_address(network, Blob.toArray(public_key));
+        public_key_to_p2pkh_address(network, public_key.toArray());
     };
 
     /// Sends a transaction to the network that transfers the given amount to the
@@ -74,7 +73,7 @@ module {
         };
 
         // Fetch our public key, P2PKH address, and UTXOs.
-        let own_public_key = Blob.toArray(await EcdsaApi.ecdsa_public_key(ecdsa_canister_actor, key_name, Array.map(derivation_path, Blob.fromArray)));
+        let own_public_key = (await EcdsaApi.ecdsa_public_key(ecdsa_canister_actor, key_name, derivation_path.map(Blob.fromArray))).toArray();
         let own_address = public_key_to_p2pkh_address(network, own_public_key);
 
         // Note that pagination may have to be used to get all UTXOs for the given address.
@@ -84,11 +83,11 @@ module {
 
         // Build the transaction that sends `amount` to the destination address.
         let tx_bytes = await build_transaction(ecdsa_canister_actor, own_public_key, own_address, own_utxos, dst_address, amount, fee_per_vbyte);
-        let transaction = Utils.get_ok(Transaction.fromBytes(Iter.fromArray(tx_bytes)));
+        let transaction = Utils.get_ok(Transaction.fromBytes(tx_bytes.vals()));
 
         // Sign the transaction.
-        let signed_transaction_bytes = await sign_transaction(ecdsa_canister_actor, own_public_key, own_address, transaction, key_name, Array.map(derivation_path, Blob.fromArray), EcdsaApi.sign_with_ecdsa);
-        let signed_transaction = Utils.get_ok(Transaction.fromBytes(Iter.fromArray(signed_transaction_bytes)));
+        let signed_transaction_bytes = await sign_transaction(ecdsa_canister_actor, own_public_key, own_address, transaction, key_name, derivation_path.map(Blob.fromArray), EcdsaApi.sign_with_ecdsa);
+        let signed_transaction = Utils.get_ok(Transaction.fromBytes(signed_transaction_bytes.vals()));
 
         Debug.print("Sending transaction");
         await BitcoinApi.send_transaction(network, signed_transaction_bytes);
@@ -117,7 +116,7 @@ module {
         // We solve this problem iteratively. We start with a fee of zero, build
         // and sign a transaction, see what its size is, and then update the fee,
         // rebuild the transaction, until the fee is set to the correct amount.
-        let fee_per_vbyte_nat = Nat64.toNat(fee_per_vbyte);
+        let fee_per_vbyte_nat = fee_per_vbyte.toNat();
         Debug.print("Building transaction...");
         var total_fee : Nat = 0;
         loop {
@@ -166,10 +165,10 @@ module {
         // scriptPubKey of the Tx output being spent.
         switch (Address.scriptPubKey(#p2pkh own_address)) {
             case (#ok scriptPubKey) {
-                let scriptSigs = Array.init<Script>(transaction.txInputs.size(), []);
+                let scriptSigs = Array.repeat([] : Script, transaction.txInputs.size()).toVarArray<Script>();
 
                 // Obtain scriptSigs for each Tx input.
-                for (i in Iter.range(0, transaction.txInputs.size() - 1)) {
+                for (i in transaction.txInputs.keys()) {
                     let sighash = transaction.createP2pkhSignatureHash(
                         scriptPubKey,
                         Nat32.fromIntWrap(i),
@@ -177,16 +176,16 @@ module {
                     );
 
                     let signature_sec = await signer(ecdsa_canister_actor, key_name, derivation_path, Blob.fromArray(sighash));
-                    let signature_der = Blob.toArray(Der.encodeSignature(signature_sec));
+                    let signature_der = Der.encodeSignature(signature_sec).toArray();
 
                     // Append the sighash type.
-                    let encodedSignatureWithSighashType = Array.tabulate<Nat8>(
+                    let encodedSignatureWithSighashType = Array.tabulate(
                         signature_der.size() + 1,
-                        func(n) {
+                        func(n : Nat) : Nat8 {
                             if (n < signature_der.size()) {
                                 signature_der[n];
                             } else {
-                                Nat8.fromNat(Nat32.toNat(SIGHASH_ALL));
+                                Nat8.fromNat(SIGHASH_ALL.toNat());
                             };
                         },
                     );
@@ -200,12 +199,12 @@ module {
                     scriptSigs[i] := script;
                 };
                 // Assign ScriptSigs to their associated TxInputs.
-                for (i in Iter.range(0, scriptSigs.size() - 1)) {
+                for (i in scriptSigs.keys()) {
                     transaction.txInputs[i].script := scriptSigs[i];
                 };
             };
             // Verify that our own address is P2PKH.
-            case (#err msg) Debug.trap("This example supports signing p2pkh addresses only: " # msg);
+            case (#err msg) Runtime.trap("This example supports signing p2pkh addresses only: " # msg);
         };
 
         transaction.toBytes();

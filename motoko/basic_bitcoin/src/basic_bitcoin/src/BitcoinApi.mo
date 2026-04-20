@@ -1,5 +1,3 @@
-import ExperimentalCycles "mo:base/ExperimentalCycles";
-
 import Types "Types";
 
 module {
@@ -36,8 +34,7 @@ module {
   /// Relies on the `bitcoin_get_balance` endpoint.
   /// See https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_balance
   public func get_balance(network : Network, address : BitcoinAddress) : async Satoshi {
-    ExperimentalCycles.add<system>(GET_BALANCE_COST_CYCLES);
-    await management_canister_actor.bitcoin_get_balance({
+    await (with cycles = GET_BALANCE_COST_CYCLES) management_canister_actor.bitcoin_get_balance({
         address;
         network;
         min_confirmations = null;
@@ -49,8 +46,7 @@ module {
   /// NOTE: Relies on the `bitcoin_get_utxos` endpoint.
   /// See https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_utxos
   public func get_utxos(network : Network, address : BitcoinAddress) : async GetUtxosResponse {
-    ExperimentalCycles.add<system>(GET_UTXOS_COST_CYCLES);
-    await management_canister_actor.bitcoin_get_utxos({
+    await (with cycles = GET_UTXOS_COST_CYCLES) management_canister_actor.bitcoin_get_utxos({
         address;
         network;
         filter = null;
@@ -63,8 +59,7 @@ module {
   /// Relies on the `bitcoin_get_current_fee_percentiles` endpoint.
   /// See https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_get_current_fee_percentiles
   public func get_current_fee_percentiles(network : Network) : async [MillisatoshiPerVByte] {
-    ExperimentalCycles.add<system>(GET_CURRENT_FEE_PERCENTILES_COST_CYCLES);
-    await management_canister_actor.bitcoin_get_current_fee_percentiles({
+    await (with cycles = GET_CURRENT_FEE_PERCENTILES_COST_CYCLES) management_canister_actor.bitcoin_get_current_fee_percentiles({
         network;
     })
   };
@@ -74,11 +69,7 @@ module {
   /// Relies on the `bitcoin_send_transaction` endpoint.
   /// See https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-bitcoin_send_transaction
   public func send_transaction(network : Network, transaction : [Nat8]) : async () {
-    let transaction_fee =
-        SEND_TRANSACTION_BASE_COST_CYCLES + transaction.size() * SEND_TRANSACTION_COST_CYCLES_PER_BYTE;
-
-    ExperimentalCycles.add<system>(transaction_fee);
-    await management_canister_actor.bitcoin_send_transaction({
+    await (with cycles = SEND_TRANSACTION_BASE_COST_CYCLES + transaction.size() * SEND_TRANSACTION_COST_CYCLES_PER_BYTE) management_canister_actor.bitcoin_send_transaction({
         network;
         transaction;
     })

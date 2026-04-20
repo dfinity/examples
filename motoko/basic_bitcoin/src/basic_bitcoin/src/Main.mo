@@ -1,7 +1,5 @@
-import Principal "mo:base/Principal";
-import Text "mo:base/Text";
-import Array "mo:base/Array";
-import Blob "mo:base/Blob";
+import Array "mo:core/Array";
+import Blob "mo:core/Blob";
 
 import BitcoinApi "BitcoinApi";
 import P2pkh "P2pkh";
@@ -43,8 +41,8 @@ persistent actor class BasicBitcoin(network : Types.Network) {
 
   // Threshold signing APIs instantiated with the management canister ID. Can be
   // replaced for cheaper testing.
-  transient var ecdsa_canister_actor : EcdsaCanisterActor = actor ("aaaaa-aa");
-  transient var schnorr_canister_actor : SchnorrCanisterActor = actor ("aaaaa-aa");
+  transient let ecdsa_canister_actor : EcdsaCanisterActor = actor ("aaaaa-aa");
+  transient let schnorr_canister_actor : SchnorrCanisterActor = actor ("aaaaa-aa");
 
   /// Returns the balance of the given Bitcoin address.
   public func get_balance(address : BitcoinAddress) : async Satoshi {
@@ -109,6 +107,6 @@ persistent actor class BasicBitcoin(network : Types.Network) {
   };
 
   func derivationPathWithSuffix(suffix : Blob) : [[Nat8]] {
-    Array.flatten([DERIVATION_PATH, [Blob.toArray(suffix)]]);
+    [DERIVATION_PATH, [suffix.toArray()]].flatten();
   };
 };
