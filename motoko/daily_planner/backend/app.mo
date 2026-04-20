@@ -1,14 +1,12 @@
-import Array "mo:base/Array";
-import Blob "mo:base/Blob";
-import Bool "mo:base/Bool";
-import Cycles "mo:base/ExperimentalCycles";
-import Int "mo:base/Int";
-import Iter "mo:base/Iter";
-import Text "mo:base/Text";
-import Nat "mo:base/Nat";
-import Result "mo:base/Result";
+import Array "mo:core/Array";
+import Blob "mo:core/Blob";
+import Int "mo:core/Int";
+import Iter "mo:core/Iter";
+import Text "mo:core/Text";
+import Nat "mo:core/Nat";
+import Result "mo:core/Result";
 import JSON "mo:json";
-import Option "mo:base/Option";
+import Option "mo:core/Option";
 import HashMap "mo:map/Map";
 import { thash } "mo:map/Map";
 import IC "ic:aaaaa-aa";
@@ -46,7 +44,7 @@ persistent actor DailyPlanner {
   // Query function to get data for an entire month.
   // Returns a
   public query func getMonthData(year : Nat, month : Nat) : async [(Text, DayData)] {
-    let monthPrefix = Text.concat(Int.toText(year), "-" # Int.toText(month) # "-");
+    let monthPrefix = Int.toText(year) # "-" # Int.toText(month) # "-";
     Iter.toArray(
       Iter.filter(
         HashMap.entries(dayData),
@@ -65,12 +63,12 @@ persistent actor DailyPlanner {
     };
 
     let newNote : Note = {
-      id = Array.size(currentData.notes);
+      id = currentData.notes.size();
       content = content;
       isCompleted = false;
     };
 
-    let updatedNotes = Array.append(currentData.notes, [newNote]);
+    let updatedNotes = currentData.notes.concat([newNote]);
     let updatedData : DayData = {
       notes = updatedNotes;
       onThisDay = currentData.onThisDay;
@@ -87,9 +85,8 @@ persistent actor DailyPlanner {
     switch (HashMap.get(dayData, thash, date)) {
       case null { /* Do nothing if no data for this date */ };
       case (?data) {
-        let updatedNotes = Array.map<Note, Note>(
-          data.notes,
-          func(note) {
+        let updatedNotes = data.notes.map(
+          func(note : Note) : Note {
             if (note.id == noteId) {
               return {
                 id = note.id;
@@ -144,10 +141,7 @@ persistent actor DailyPlanner {
       // Perform HTTPS outcall using roughly 100B cycles.
       // See https outcall cost calculator: https://7joko-hiaaa-aaaal-ajz7a-cai.icp0.io.
       // Unused cycles are returned.
-      Cycles.add<system>(100_000_000_000);
-
-      // Execute the https outcall
-      let http_response : IC.http_request_result = await IC.http_request(http_request);
+      let http_response : IC.http_request_result = await (with cycles = 100_000_000_000) IC.http_request(http_request);
 
       // Parse response into JSON
       let decoded_text : Text = switch (Text.decodeUtf8(http_response.body)) {

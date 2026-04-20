@@ -1,13 +1,11 @@
-import Bool "mo:base/Bool";
-import Array "mo:base/Array";
-import Blob "mo:base/Blob";
+import Array "mo:core/Array";
+import Blob "mo:core/Blob";
 import HashMap "mo:map/Map";
 import { phash; thash } "mo:map/Map";
-import Iter "mo:base/Iter";
-import Nat "mo:base/Nat";
-import Principal "mo:base/Principal";
-import Text "mo:base/Text";
-import Option "mo:base/Option";
+import Iter "mo:core/Iter";
+import Option "mo:core/Option";
+import Principal "mo:core/Principal";
+import Text "mo:core/Text";
 
 persistent actor Filevault {
 
@@ -29,7 +27,7 @@ persistent actor Filevault {
   type UserFiles = HashMap.Map<Text, File>;
 
   // HashMap to store the user data
-  private var files = HashMap.new<Principal, UserFiles>();
+  private let files = HashMap.new<Principal, UserFiles>();
 
   // Return files associated with a user's principal.
   private func getUserFiles(user : Principal) : UserFiles {
@@ -45,7 +43,7 @@ persistent actor Filevault {
 
   // Check if a file name already exists for the user.
   public shared (msg) func checkFileExists(name : Text) : async Bool {
-    Option.isSome(HashMap.get(getUserFiles(msg.caller), thash, name));
+    HashMap.get(getUserFiles(msg.caller), thash, name).isSome();
   };
 
   // Upload a file in chunks.
@@ -58,7 +56,7 @@ persistent actor Filevault {
         let _ = HashMap.put(userFiles, thash, name, { name = name; chunks = [fileChunk]; totalSize = chunk.size(); fileType = fileType });
       };
       case (?existingFile) {
-        let updatedChunks = Array.append(existingFile.chunks, [fileChunk]);
+        let updatedChunks = existingFile.chunks.concat([fileChunk]);
         let _ = HashMap.put(
           userFiles,
           thash,
@@ -76,18 +74,15 @@ persistent actor Filevault {
 
   // Return list of files for a user.
   public shared (msg) func getFiles() : async [{ name : Text; size : Nat; fileType : Text }] {
-    Iter.toArray(
-      Iter.map(
-        HashMap.vals(getUserFiles(msg.caller)),
-        func(file : File) : { name : Text; size : Nat; fileType : Text } {
-          {
-            name = file.name;
-            size = file.totalSize;
-            fileType = file.fileType;
-          };
-        }
-      )
-    );
+    HashMap.vals(getUserFiles(msg.caller)).map(
+      func(file : File) : { name : Text; size : Nat; fileType : Text } {
+        {
+          name = file.name;
+          size = file.totalSize;
+          fileType = file.fileType;
+        };
+      }
+    ).toArray();
   };
 
   // Return total chunks for a file
@@ -103,7 +98,7 @@ persistent actor Filevault {
     switch (HashMap.get(getUserFiles(msg.caller), thash, name)) {
       case null null;
       case (?file) {
-        switch (Array.find(file.chunks, func(chunk : FileChunk) : Bool { chunk.index == index })) {
+        switch (file.chunks.find(func(chunk : FileChunk) : Bool { chunk.index == index })) {
           case null null;
           case (?foundChunk) ?foundChunk.chunk;
         };
@@ -121,6 +116,6 @@ persistent actor Filevault {
 
   // Delete a file.
   public shared (msg) func deleteFile(name : Text) : async Bool {
-    Option.isSome(HashMap.remove(getUserFiles(msg.caller), thash, name));
+    HashMap.remove(getUserFiles(msg.caller), thash, name).isSome();
   };
 };
