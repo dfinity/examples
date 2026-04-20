@@ -1,5 +1,5 @@
-import Blob "mo:base/Blob";
-import Text "mo:base/Text";
+import Blob "mo:core/Blob";
+import Text "mo:core/Text";
 import IC "ic:aaaaa-aa";
 
 persistent actor {
