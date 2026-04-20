@@ -1,18 +1,8 @@
-/**
- * Module      : SHA256.mo
- * Description : Cryptographic hash function.
- * Copyright   : 2020 DFINITY Stiftung
- * License     : Apache 2.0 with LLVM Exception
- * Maintainer  : Enzo Haussecker <enzo@dfinity.org>
- * Stability   : Stable
- */
-
-import Array "mo:base/Array";
-import Iter "mo:base/Iter";
-import Nat "mo:base/Nat";
-import Nat8 "mo:base/Nat8";
-import Nat32 "mo:base/Nat32";
-import Nat64 "mo:base/Nat64";
+import Array "mo:core/Array";
+import Nat "mo:core/Nat";
+import Nat8 "mo:core/Nat8";
+import Nat32 "mo:core/Nat32";
+import Nat64 "mo:core/Nat64";
 
 module {
 
@@ -40,7 +30,6 @@ module {
     0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19,
   ];
 
-  // Calculate a SHA256 hash.
   public func sha256(data : [Nat8]) : [Nat8] {
     let digest = Digest();
     digest.write(data);
@@ -49,16 +38,16 @@ module {
 
   public class Digest() {
 
-    private let s = Array.thaw<Nat32>(S);
+    private let s : [var Nat32] = S.toVarArray();
 
-    private let x = Array.init<Nat8>(64, 0);
+    private let x = Array.repeat(0 : Nat8, 64).toVarArray();
 
     private var nx = 0;
 
     private var len : Nat64 = 0;
 
     public func reset() {
-      for (i in Iter.range(0, 7)) {
+      for (i in s.keys()) {
         s[i] := S[i];
       };
       nx := 0;
@@ -70,31 +59,27 @@ module {
       len +%= Nat64.fromIntWrap(p.size());
       if (nx > 0) {
         let n = Nat.min(p.size(), 64 - nx);
-        for (i in Iter.range(0, n - 1)) {
+        var i = 0;
+        while (i < n) {
           x[nx + i] := p[i];
+          i += 1;
         };
         nx += n;
         if (nx == 64) {
-          let buf = Array.freeze<Nat8>(x);
+          let buf = Array.fromVarArray(x);
           block(buf);
           nx := 0;
         };
-        p := Array.tabulate<Nat8>(p.size() - n, func (i) {
-          return p[n + i];
-        });
+        p := Array.tabulate(p.size() - n, func(i : Nat) : Nat8 { p[n + i] });
       };
       if (p.size() >= 64) {
-        let n = Nat64.toNat(Nat64.fromIntWrap(p.size()) & (^ 63));
-        let buf = Array.tabulate<Nat8>(n, func (i) {
-          return p[i];
-        });
+        let n = (Nat64.fromIntWrap(p.size()) & (^ 63)).toNat();
+        let buf = Array.tabulate(n, func(i : Nat) : Nat8 { p[i] });
         block(buf);
-        p := Array.tabulate<Nat8>(p.size() - n, func (i) {
-          return p[n + i];
-        });
+        p := Array.tabulate(p.size() - n, func(i : Nat) : Nat8 { p[n + i] });
       };
       if (p.size() > 0) {
-        for (i in Iter.range(0, p.size() - 1)) {
+        for (i in p.keys()) {
           x[i] := p[i];
         };
         nx := p.size();
@@ -104,7 +89,7 @@ module {
     public func sum() : [Nat8] {
       var m = 0;
       var n = len;
-      var t = Nat64.toNat(n) % 64;
+      let t = n.toNat() % 64;
       var buf : [var Nat8] = [var];
       if (56 > t) {
         m := 56 - t;
@@ -112,45 +97,50 @@ module {
         m := 120 - t;
       };
       n := n << 3;
-      buf := Array.init<Nat8>(m, 0);
+      buf := Array.repeat(0 : Nat8, m).toVarArray();
       if (m > 0) {
         buf[0] := 0x80;
       };
-      write(Array.freeze<Nat8>(buf));
-      buf := Array.init<Nat8>(8, 0);
-      for (i in Iter.range(0, 7)) {
+      write(Array.fromVarArray(buf));
+      buf := Array.repeat(0 : Nat8, 8).toVarArray();
+      for (i in buf.keys()) {
         let j : Nat64 = 56 -% 8 *% Nat64.fromIntWrap(i);
-        buf[i] := Nat8.fromIntWrap(Nat64.toNat(n >> j));
+        buf[i] := Nat8.fromIntWrap((n >> j).toNat());
       };
-      write(Array.freeze<Nat8>(buf));
-      let hash = Array.init<Nat8>(32, 0);
-      for (i in Iter.range(0, 7)) {
-        for (j in Iter.range(0, 3)) {
+      write(Array.fromVarArray(buf));
+      let hash = Array.repeat(0 : Nat8, 32).toVarArray();
+      for (i in s.keys()) {
+        var j = 0;
+        while (j < 4) {
           let k : Nat32 = 24 -% 8 *% Nat32.fromIntWrap(j);
-          hash[4 * i + j] := Nat8.fromIntWrap(Nat32.toNat(s[i] >> k));
+          hash[4 * i + j] := Nat8.fromIntWrap((s[i] >> k).toNat());
+          j += 1;
         };
       };
-      return Array.freeze<Nat8>(hash);
+      return Array.fromVarArray(hash);
     };
 
     private func block(data : [Nat8]) {
       var p = data;
-      var w = Array.init<Nat32>(64, 0);
+      let w = Array.repeat(0 : Nat32, 64).toVarArray();
       while (p.size() >= 64) {
+        var i = 0;
         var j = 0;
-        for (i in Iter.range(0, 15)) {
+        while (i < 16) {
           j := i * 4;
           w[i] :=
-            Nat32.fromIntWrap(Nat8.toNat(p[j + 0])) << 24 |
-            Nat32.fromIntWrap(Nat8.toNat(p[j + 1])) << 16 |
-            Nat32.fromIntWrap(Nat8.toNat(p[j + 2])) << 08 |
-            Nat32.fromIntWrap(Nat8.toNat(p[j + 3])) << 00;
+            Nat32.fromIntWrap(p[j + 0].toNat()) << 24 |
+            Nat32.fromIntWrap(p[j + 1].toNat()) << 16 |
+            Nat32.fromIntWrap(p[j + 2].toNat()) << 08 |
+            Nat32.fromIntWrap(p[j + 3].toNat()) << 00;
+          i += 1;
         };
         var v1 : Nat32 = 0;
         var v2 : Nat32 = 0;
         var t1 : Nat32 = 0;
         var t2 : Nat32 = 0;
-        for (i in Iter.range(16, 63)) {
+        i := 16;
+        while (i < 64) {
           v1 := w[i - 02];
           v2 := w[i - 15];
           t1 := rot(v1, 17) ^ rot(v1, 19) ^ (v1 >> 10);
@@ -158,6 +148,7 @@ module {
           w[i] :=
               t1 +% w[i - 07] +%
               t2 +% w[i - 16];
+          i += 1;
         };
         var a = s[0];
         var b = s[1];
@@ -167,7 +158,7 @@ module {
         var f = s[5];
         var g = s[6];
         var h = s[7];
-        for (i in Iter.range(0, 63)) {
+        for (i in w.keys()) {
           t1 := rot(e, 06) ^ rot(e, 11) ^ rot(e, 25);
           t1 +%= (e & f) ^ (^ e & g) +% h +% K[i] +% w[i];
           t2 := rot(a, 02) ^ rot(a, 13) ^ rot(a, 22);
@@ -189,9 +180,7 @@ module {
         s[5] +%= f;
         s[6] +%= g;
         s[7] +%= h;
-        p := Array.tabulate<Nat8>(p.size() - 64, func (i) {
-          return p[i + 64];
-        });
+        p := Array.tabulate(p.size() - 64, func(i : Nat) : Nat8 { p[i + 64] });
       };
     };
   };
