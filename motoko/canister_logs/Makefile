@@ -46,7 +46,7 @@ test: deploy
 	# Ignore failed dfx command output (so the test continues) and check the logs to contain the message.
 	- dfx canister call CanisterLogs memory_oob
 	dfx canister logs CanisterLogs \
-		| grep 'StableMemory range out of bounds' && echo 'PASS'
+		| grep 'Region error: range out of bounds' && echo 'PASS'
 
 	# Test timer trap.
 	# The timer is setup to trap every 5 seconds, so this test has to be called 
