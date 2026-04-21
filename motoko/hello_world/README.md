@@ -27,14 +27,14 @@ This example can be deployed directly from [ICP Ninja](https://icp.ninja), a bro
 
 [![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/motoko/hello_world)
 
-> **Note:** ICP Ninja currently uses `dfx` under the hood, which is why this example includes a `dfx.json` configuration file. `dfx` is the legacy CLI, being superseded by [icp-cli](https://cli.icp.build), which is what developers should use for local development.
+> **Note:** ICP Ninja currently uses `dfx` under the hood, which is why this example includes a `dfx.json` configuration file. `dfx` is the legacy CLI, being superseded by [icp-cli](https://cli.internetcomputer.org), which is what developers should use for local development.
 
 ## Build and deploy from the command line
 
 ### Prerequisites
 
 - [x] Install [Node.js](https://nodejs.org/en/download/)
-- [x] Install [icp-cli](https://cli.icp.build): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [x] Install [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
 ### Install
 

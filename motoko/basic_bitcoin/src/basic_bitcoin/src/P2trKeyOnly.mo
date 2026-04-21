@@ -10,8 +10,8 @@
 //! * Caching spent UTXOs so that they are not reused in future transactions.
 //! * Option to set the fee.
 
-import Nat8 "mo:base/Nat8";
-import Blob "mo:base/Blob";
+import Nat8 "mo:core/Nat8";
+import Blob "mo:core/Blob";
 
 import Script "mo:bitcoin/bitcoin/Script";
 import Transaction "mo:bitcoin/bitcoin/Transaction";

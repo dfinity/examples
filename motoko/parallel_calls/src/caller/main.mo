@@ -1,15 +1,15 @@
-import List "mo:base/List";
-import Error "mo:base/Error";
-import Principal "mo:base/Principal";
-import Iter "mo:base/Iter";
+import List "mo:core/List";
+import Error "mo:core/Error";
+import Principal "mo:core/Principal";
+import Nat "mo:core/Nat";
 
 persistent actor {
 
     type callee_interface = (actor { ping : () -> async () });
     var callee = null : ?callee_interface;
 
-    public func setup_callee(c : Principal) {
-        callee := ?(actor (Principal.toText(c)) : callee_interface);
+    public func setup_callee(c : Principal) : () {
+        callee := ?(actor (c.toText()) : callee_interface);
     };
 
     public func sequential_calls(n : Nat) : async Nat {
@@ -22,11 +22,11 @@ persistent actor {
 
         var successful_calls = 0;
 
-        for (i in Iter.range(1, n)) {
+        for (_ in Nat.range(0, n)) {
             try {
                 await c.ping();
                 successful_calls += 1;
-            } catch (e) {};
+            } catch _ {};
         };
         successful_calls;
     };
@@ -39,25 +39,22 @@ persistent actor {
             case (?c) { c };
         };
 
-        var l = List.nil<async ()>();
+        let l = List.empty<async ()>();
 
-        for (i in Iter.range(1, n)) {
+        for (_ in Nat.range(0, n)) {
             try {
-                l := List.push(c.ping(), l);
-            } catch (e) {};
+                l.add(c.ping());
+            } catch _ {};
         };
 
         // The responses on the IC will in this example come in the order of the requests in practice.
-        // We reverse the list to match the order of the requests here, as the Motoko scheduler has
-        // some overhead if the responses are awaited out of order.
-        l := List.reverse(l);
-
+        // We use List.add (append) so the order already matches the request order.
         var successful_calls = 0;
-        for (a in List.toIter(l)) {
+        for (a in l.values()) {
             try {
                 await a;
                 successful_calls += 1;
-            } catch (e) {};
+            } catch _ {};
         };
 
         successful_calls;

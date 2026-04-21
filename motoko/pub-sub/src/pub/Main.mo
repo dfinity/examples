@@ -1,5 +1,5 @@
 // Publisher
-import List "mo:base/List";
+import Array "mo:core/Array";
 
 persistent actor Publisher {
 
@@ -13,14 +13,14 @@ persistent actor Publisher {
     callback : shared Counter -> ();
   };
 
-  var subscribers = List.nil<Subscriber>();
+  var subscribers : [Subscriber] = [];
 
-  public func subscribe(subscriber : Subscriber) {
-    subscribers := List.push(subscriber, subscribers);
+  public func subscribe(subscriber : Subscriber) : () {
+    subscribers := subscribers.concat([subscriber]);
   };
 
-  public func publish(counter : Counter) {
-    for (subscriber in List.toArray(subscribers).vals()) {
+  public func publish(counter : Counter) : () {
+    for (subscriber in subscribers.vals()) {
       if (subscriber.topic == counter.topic) {
         subscriber.callback(counter);
       };

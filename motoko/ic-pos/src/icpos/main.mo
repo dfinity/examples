@@ -1,17 +1,13 @@
-// Importing base modules
-import Array "mo:base/Array";
-import Blob "mo:base/Blob";
-import Cycles "mo:base/ExperimentalCycles";
-import Debug "mo:base/Debug";
-import Nat "mo:base/Nat";
-import Nat64 "mo:base/Nat64";
-import Principal "mo:base/Principal";
-import Text "mo:base/Text";
-import Time "mo:base/Time";
-import Trie "mo:base/Trie";
-import Buffer "mo:base/Buffer";
+import Array "mo:core/Array";
+import Blob "mo:core/Blob";
+import Debug "mo:core/Debug";
+import Map "mo:core/Map";
+import Nat "mo:core/Nat";
+import Nat64 "mo:core/Nat64";
+import Principal "mo:core/Principal";
+import Text "mo:core/Text";
+import Time "mo:core/Time";
 
-// Importing local modules
 import MainTypes "main.types";
 import CkBtcLedger "canister:icrc1_ledger";
 import HttpTypes "http/http.types";
@@ -26,10 +22,10 @@ import HttpTypes "http/http.types";
 */
 shared (actorContext) persistent actor class Main(_startBlock : Nat) {
 
-  private var merchantStore : Trie.Trie<Text, MainTypes.Merchant> = Trie.empty();
+  private let merchantStore = Map.empty<Text, MainTypes.Merchant>();
   private var latestTransactionIndex : Nat = 0;
   private var courierApiKey : Text = "";
-  private transient var logData = Buffer.Buffer<Text>(0);
+  private transient var logData : [Text] = [];
 
   /**
     *  Get the merchant's information
@@ -37,7 +33,7 @@ shared (actorContext) persistent actor class Main(_startBlock : Nat) {
   public query (context) func getMerchant() : async MainTypes.Response<MainTypes.Merchant> {
     let caller : Principal = context.caller;
 
-    switch (Trie.get(merchantStore, merchantKey(Principal.toText(caller)), Text.equal)) {
+    switch (merchantStore.get(caller.toText())) {
       case (?merchant) {
         {
           status = 200;
@@ -51,7 +47,7 @@ shared (actorContext) persistent actor class Main(_startBlock : Nat) {
           status = 404;
           status_text = "Not Found";
           data = null;
-          error_text = ?("Merchant with principal ID: " # Principal.toText(caller) # " not found.");
+          error_text = ?("Merchant with principal ID: " # caller.toText() # " not found.");
         };
       };
     };
@@ -61,14 +57,8 @@ shared (actorContext) persistent actor class Main(_startBlock : Nat) {
     * Update the merchant's information
     */
   public shared (context) func updateMerchant(merchant : MainTypes.Merchant) : async MainTypes.Response<MainTypes.Merchant> {
-
     let caller : Principal = context.caller;
-    merchantStore := Trie.replace(
-      merchantStore,
-      merchantKey(Principal.toText(caller)),
-      Text.equal,
-      ?merchant,
-    ).0;
+    let _ = merchantStore.swap(caller.toText(), merchant);
     {
       status = 200;
       status_text = "OK";
@@ -81,7 +71,7 @@ shared (actorContext) persistent actor class Main(_startBlock : Nat) {
     * Set the courier API key. Only the owner can set the courier API key.
     */
   public shared (context) func setCourierApiKey(apiKey : Text) : async MainTypes.Response<Text> {
-    if (not Principal.equal(context.caller, actorContext.caller)) {
+    if (context.caller != actorContext.caller) {
       return {
         status = 403;
         status_text = "Forbidden";
@@ -102,7 +92,7 @@ shared (actorContext) persistent actor class Main(_startBlock : Nat) {
   * Get latest log items. Log output is capped at 100 items.
   */
   public query func getLogs() : async [Text] {
-    Buffer.toArray(logData);
+    logData;
   };
 
   /**
@@ -110,20 +100,9 @@ shared (actorContext) persistent actor class Main(_startBlock : Nat) {
     */
   private func log(text : Text) {
     Debug.print(text);
-    logData.reserve(logData.size() + 1);
-    logData.insert(0, text);
-    // Cap the log at 100 items
-    if (logData.size() == 100) {
-      let _ = logData.removeLast();
-    };
-    return;
-  };
-
-  /**
-    * Generate a Trie key based on a merchant's principal ID
-    */
-  private func merchantKey(x : Text) : Trie.Key<Text> {
-    return { hash = Text.hash(x); key = x };
+    logData := Array.tabulate<Text>((logData.size() + 1).min(100), func(i : Nat) : Text {
+      if (i == 0) text else logData[i - 1]
+    });
   };
 
   /**
@@ -150,7 +129,7 @@ shared (actorContext) persistent actor class Main(_startBlock : Nat) {
       length = 1;
     });
 
-    if (Array.size(response.transactions) > 0) {
+    if (response.transactions.size() > 0) {
       latestTransactionIndex := start;
 
       if (response.transactions[0].kind == "transfer") {
@@ -158,7 +137,7 @@ shared (actorContext) persistent actor class Main(_startBlock : Nat) {
         switch (t.transfer) {
           case (?transfer) {
             let to = transfer.to.owner;
-            switch (Trie.get(merchantStore, merchantKey(Principal.toText(to)), Text.equal)) {
+            switch (merchantStore.get(to.toText())) {
               case (?merchant) {
                 if (merchant.email_notifications or merchant.phone_notifications) {
                   log("Sending notification to: " # debug_show (merchant.email_address));
@@ -182,28 +161,23 @@ shared (actorContext) persistent actor class Main(_startBlock : Nat) {
     * Send a notification to a merchant about a received payment
     */
   private func sendNotification(merchant : MainTypes.Merchant, transaction : CkBtcLedger.Transaction) : async () {
-    // Managment canister
     let ic : HttpTypes.IC = actor ("aaaaa-aa");
 
-    // Create request body
     var amount = "0";
     var from = "";
     switch (transaction.transfer) {
       case (?transfer) {
-        amount := Nat.toText(transfer.amount);
-        from := Principal.toText(transfer.from.owner);
+        amount := transfer.amount.toText();
+        from := transfer.from.owner.toText();
       };
       case null {};
     };
-    let idempotencyKey : Text = Text.concat(merchant.name, Nat64.toText(transaction.timestamp));
+    let idempotencyKey : Text = merchant.name # transaction.timestamp.toText();
     let requestBodyJson : Text = "{ \"idempotencyKey\": \"" # idempotencyKey # "\", \"email\": \"" # merchant.email_address # "\", \"phone\": \"" # merchant.phone_number # "\", \"amount\": \"" # amount # "\", \"payer\": \"" # from # "\"}";
-    let requestBodyAsBlob : Blob = Text.encodeUtf8(requestBodyJson);
-    let requestBodyAsNat8 : [Nat8] = Blob.toArray(requestBodyAsBlob);
+    let requestBodyAsBlob : Blob = requestBodyJson.encodeUtf8();
+    let requestBodyAsNat8 : [Nat8] = requestBodyAsBlob.toArray();
 
-    // Setup request
     let httpRequest : HttpTypes.HttpRequestArgs = {
-      // The notification service is hosted on Netlify and the URL is hardcoded
-      // in this example. In a real application, the URL would be configurable.
       url = "https://icpos-notifications.xyz/.netlify/functions/notify";
       max_response_bytes = ?Nat64.fromNat(1000);
       headers = [
@@ -217,15 +191,11 @@ shared (actorContext) persistent actor class Main(_startBlock : Nat) {
     // Cycle cost of sending a notification
     // 49.14M + 5200 * request_size + 10400 * max_response_bytes
     // 49.14M + (5200 * 1000) + (10400 * 1000) = 64.74M
-    Cycles.add<system>(70_000_000);
+    let httpResponse : HttpTypes.HttpResponsePayload = await (with cycles = 70_000_000) ic.http_request(httpRequest);
 
-    // Send the request
-    let httpResponse : HttpTypes.HttpResponsePayload = await ic.http_request(httpRequest);
-
-    // Check the response
     if (httpResponse.status > 299) {
-      let response_body : Blob = Blob.fromArray(httpResponse.body);
-      let decoded_text : Text = switch (Text.decodeUtf8(response_body)) {
+      let response_body : Blob = httpResponse.body.fromArray();
+      let decoded_text : Text = switch (response_body.decodeUtf8()) {
         case (null) { "No value returned" };
         case (?y) { y };
       };
