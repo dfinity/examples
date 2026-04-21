@@ -1,5 +1,0 @@
-service : {
-    "get" : () -> (nat) query;
-    "set" : (nat) -> ();
-    "inc" : () -> ();
-};

@@ -1,4 +1,0 @@
-[toolchain]
-channel = "1.68.1"
-components = ["rustfmt", "clippy"]
-targets = ["wasm32-unknown-unknown"]

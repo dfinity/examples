@@ -1,7 +1,0 @@
-{
-  "canisters": {
-    "hello_world": {
-      "main": "src/Main.mo"
-    }
-  }
-}
