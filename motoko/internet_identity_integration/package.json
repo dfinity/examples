@@ -16,8 +16,7 @@
     "generate": "dfx generate greet_backend"
   },
   "devDependencies": {
-    "@dfinity/auth-client": "^2.2.0",
-    "@dfinity/identity": "^2.2.0",
+    "@icp-sdk/auth": "~5.0.0",
     "assert": "2.0.0",
     "buffer": "6.0.3",
     "copy-webpack-plugin": "^11.0.0",

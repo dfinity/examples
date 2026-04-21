@@ -1,6 +1,5 @@
 import {createActor, greet_backend} from "../../declarations/greet_backend";
-import {AuthClient} from "@dfinity/auth-client"
-import {HttpAgent} from "@icp-sdk/core/agent";
+import {AuthClient} from "@icp-sdk/auth/client";
 
 let actor = greet_backend;
 
@@ -46,14 +45,9 @@ loginButton.onclick = async (e) => {
 
     // At this point we're authenticated, and we can get the identity from the auth client:
     const identity = authClient.getIdentity();
-    // Using the identity obtained from the auth client, we can create an agent to interact with the IC.
-    const agent = new HttpAgent({identity});
-    if (process.env.NODE_ENV !== "production") {
-        await agent.fetchRootKey();
-    }
     // Using the interface description of our webapp, we create an actor that we use to call the service methods.
     actor = createActor(process.env.CANISTER_ID_GREET_BACKEND, {
-        agent,
+        agentOptions: { identity },
     });
 
     return false;
