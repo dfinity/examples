@@ -1,14 +1,11 @@
-import Array "mo:base/Array";
-import Blob "mo:base/Blob";
-import Bool "mo:base/Bool";
-import Cycles "mo:base/ExperimentalCycles";
-import Int "mo:base/Int";
-import Iter "mo:base/Iter";
-import Text "mo:base/Text";
-import Nat "mo:base/Nat";
-import Result "mo:base/Result";
+import Array "mo:core/Array";
+import Blob "mo:core/Blob";
+import Iter "mo:core/Iter";
+import Option "mo:core/Option";
+import Text "mo:core/Text";
+import Nat "mo:core/Nat";
+import Result "mo:core/Result";
 import JSON "mo:json";
-import Option "mo:base/Option";
 import HashMap "mo:map/Map";
 import { thash } "mo:map/Map";
 import IC "ic:aaaaa-aa";
@@ -35,7 +32,7 @@ persistent actor DailyPlanner {
   public type AddNoteResult = Result.Result<Text, Text>;
 
   // HashMap to store the data for each day.
-  var dayData = HashMap.new<Text, DayData>();
+  let dayData = HashMap.new<Text, DayData>();
 
   // Query function to get data for a specific date.
   // Returns null if the date does not contain any data.
@@ -46,15 +43,13 @@ persistent actor DailyPlanner {
   // Query function to get data for an entire month.
   // Returns a
   public query func getMonthData(year : Nat, month : Nat) : async [(Text, DayData)] {
-    let monthPrefix = Text.concat(Int.toText(year), "-" # Int.toText(month) # "-");
-    Iter.toArray(
-      Iter.filter(
-        HashMap.entries(dayData),
-        func((k, _) : (Text, DayData)) : Bool {
-          Text.startsWith(k, #text monthPrefix);
-        },
-      )
-    );
+    let monthPrefix = year.toText() # "-" # month.toText() # "-";
+    Iter.filter(
+      HashMap.entries(dayData),
+      func((k, _) : (Text, DayData)) : Bool {
+        k.startsWith(#text monthPrefix);
+      },
+    ).toArray();
   };
 
   // Update function to add a new note
@@ -65,12 +60,12 @@ persistent actor DailyPlanner {
     };
 
     let newNote : Note = {
-      id = Array.size(currentData.notes);
+      id = currentData.notes.size();
       content = content;
       isCompleted = false;
     };
 
-    let updatedNotes = Array.append(currentData.notes, [newNote]);
+    let updatedNotes = currentData.notes.concat([newNote]);
     let updatedData : DayData = {
       notes = updatedNotes;
       onThisDay = currentData.onThisDay;
@@ -87,9 +82,8 @@ persistent actor DailyPlanner {
     switch (HashMap.get(dayData, thash, date)) {
       case null { /* Do nothing if no data for this date */ };
       case (?data) {
-        let updatedNotes = Array.map<Note, Note>(
-          data.notes,
-          func(note) {
+        let updatedNotes = data.notes.map(
+          func(note : Note) : Note {
             if (note.id == noteId) {
               return {
                 id = note.id;
@@ -119,9 +113,9 @@ persistent actor DailyPlanner {
 
     // Perform HTTPS outcall only if needed.
     if (currentData.onThisDay == null) {
-      let parts = Iter.toArray(Text.split(date, #char '-'));
-      let month = Option.get(Nat.fromText(parts[1]), 1);
-      let day = Option.get(Nat.fromText(parts[2]), 1);
+      let parts = date.split(#char '-').toArray();
+      let month = Nat.fromText(parts[1]).get(1);
+      let day = Nat.fromText(parts[2]).get(1);
 
       // Prepare the https request.
       // "transform" is used to specify how the HTTP response is processed before consensus tries to agree on a response.
@@ -144,10 +138,7 @@ persistent actor DailyPlanner {
       // Perform HTTPS outcall using roughly 100B cycles.
       // See https outcall cost calculator: https://7joko-hiaaa-aaaal-ajz7a-cai.icp0.io.
       // Unused cycles are returned.
-      Cycles.add<system>(100_000_000_000);
-
-      // Execute the https outcall
-      let http_response : IC.http_request_result = await IC.http_request(http_request);
+      let http_response : IC.http_request_result = await (with cycles = 100_000_000_000) IC.http_request(http_request);
 
       // Parse response into JSON
       let decoded_text : Text = switch (Text.decodeUtf8(http_response.body)) {

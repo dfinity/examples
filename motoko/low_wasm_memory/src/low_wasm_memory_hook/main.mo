@@ -1,6 +1,6 @@
-import Array "mo:base/Array";
-import Deque "mo:base/Deque";
-import Buffer "mo:base/Buffer";
+import Array "mo:core/Array";
+import Queue "mo:core/Queue";
+import List "mo:core/List";
 
 persistent actor {
   // Types
@@ -10,13 +10,13 @@ persistent actor {
   };
 
   // State
-  transient var fnOrderBuffer = Buffer.Buffer<FnType>(30);
-  transient var bytes : Deque.Deque<[Nat]> = Deque.empty();
+  transient let fnOrderBuffer = List.empty<FnType>();
+  transient let bytes = Queue.empty<[Nat]>();
   transient var hookExecuted : Bool = false;
 
   // Query function to get execution order
   public query func getExecutedFunctionsOrder() : async [FnType] {
-    Buffer.toArray(fnOrderBuffer);
+    fnOrderBuffer.toArray()
   };
 
   // Heartbeat function that increases memory usage
@@ -24,8 +24,8 @@ persistent actor {
     if (not hookExecuted) {
       fnOrderBuffer.add(#heartbeat);
       // Allocate more memory by creating a large array
-      let chunk = Array.tabulate<Nat>(10_000, func _ = 0);
-      bytes := Deque.pushBack(bytes, chunk);
+      let chunk = Array.tabulate(10_000, func _ = 0);
+      bytes.pushBack(chunk);
     };
   };
 

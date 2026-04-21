@@ -14,10 +14,10 @@ deploy: node_modules
 .PHONY: test
 .SILENT: test
 test: deploy
-	$(eval ID := $(shell dfx canister call superheroes create '(record {name = "Superman"; superpowers = opt record { 0 = "invulnerability"; 1 = opt record { 0 = "superhuman strength"; 1 = null; }; }; })' | tr -d '()'))
+	$(eval ID := $(shell dfx canister call superheroes create '(record {name = "Superman"; superpowers = vec { "invulnerability"; "superhuman strength" }})' | tr -d '()'))
 	dfx canister call superheroes read '($(ID))' \
 		| grep 'Superman' && echo 'PASS'
-	dfx canister call superheroes update '($(ID), record {name = "Superman"; superpowers = opt record { 0 = "invulnerability"; 1 = opt record { 0 = "superhuman strength"; 1 = opt record { 0 = "flight"; 1 = opt record { 0 = "x-ray vision"; 1 = null; }; }; }; }; })' \
+	dfx canister call superheroes update '($(ID), record {name = "Superman"; superpowers = vec { "invulnerability"; "superhuman strength"; "flight"; "x-ray vision" }})' \
 		| grep 'true' && echo 'PASS'
 	dfx canister call superheroes read '($(ID))' \
 		| grep 'x-ray vision' && echo 'PASS'

@@ -1,12 +1,12 @@
-import Nat "mo:base/Nat";
-import Map "mo:base/RBTree";
+import Map "mo:core/Map";
+import Nat "mo:core/Nat";
 
 persistent actor class Bucket(n : Nat, i : Nat) {
 
   type Key = Nat;
   type Value = Text;
 
-  transient let map = Map.RBTree<Key, Value>(Nat.compare);
+  let map = Map.empty<Key, Value>();
 
   public query func get(k : Key) : async ?Value {
     assert ((k % n) == i);
@@ -15,7 +15,7 @@ persistent actor class Bucket(n : Nat, i : Nat) {
 
   public func put(k : Key, v : Value) : async () {
     assert ((k % n) == i);
-    map.put(k, v);
+    map.add(k, v);
   };
 
 };

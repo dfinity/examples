@@ -4,9 +4,9 @@ The example generates a random maze using cryptographic randomness.
 
 It illustrates:
 
-- Importing library `Random` to use cryptographic randomness.
-- Make asynchronous requests for entropy using shared function `Random.blob()`.
-- Generating bounded, discrete random numbers using helper class `Random.Finite(entropy: blob)`. Each instance, f, of this class consumes its initially supplied entropy as it is called to sample from various distributions. Calls to, for example, `f.coin()` can fail by returning `null`, requiring `f` to be discarded in favor of a fresh instance of the Finite class, constructed from a fresh blob of entropy obtained from a new call to `Random.blob()` (for example `f := Finite(await Random.blob())`).
+- Importing library `Random` from `mo:core` to use cryptographic randomness.
+- Obtaining an `AsyncRandom` instance via `Random.crypto()`, which automatically fetches entropy from the management canister on demand — no manual blob management needed.
+- Generating bounded, discrete random numbers using `await* random.natRange(low, high)`.
 
 The application is built from the following Motoko source code file:
 
@@ -14,7 +14,7 @@ The application is built from the following Motoko source code file:
 
 This actor uses Motoko's random library to generate a cryptographically random maze of user-specified size.
 
-The function `generate` calls library function `Random.blob()` asynchronously to obtain 256 bits of raw entropy (256 random bits as 32 bytes) from the Internet Computer. It makes these calls on demand as it is constructing a maze. The bits of these blobs are consumed to generate samples from a variety of discrete distributions using some of the other classes and functions of library Random.mo.
+The function `generate` uses `Random.crypto()` to obtain an `AsyncRandom` instance that transparently fetches entropy from the Internet Computer whenever needed. Bounded random numbers are sampled with `await* random.natRange(0, n)`, which handles entropy replenishment automatically.
 
 This is a Motoko example that does not currently have a Rust variant.
 

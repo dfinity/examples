@@ -17,9 +17,6 @@ class Read extends React.Component {
     const superheroId = parseInt($('read-superhero-id').value, 10);
     superheroes.read(superheroId).then((result) => {
       const superhero = idl.fromOptional(result);
-      if (superhero) {
-        superhero.superpowers = idl.fromList(superhero.superpowers);
-      };
       this.setState({ superhero });
     });
   }
