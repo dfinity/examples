@@ -114,7 +114,7 @@ Caused by: Failed update call.
 $ dfx canister call CanisterLogs memory_oob
 Error: Failed update call.
 Caused by: Failed update call.
-  The replica returned a rejection error: reject code CanisterError, reject message Canister bkyz2-fmaaa-aaaaa-qaaaq-cai trapped explicitly: StableMemory range out of bounds, error code None
+  The replica returned a rejection error: reject code CanisterError, reject message Canister bkyz2-fmaaa-aaaaa-qaaaq-cai trapped explicitly: Region error: range out of bounds, error code None
 
 ```
 
@@ -139,7 +139,7 @@ Observe recorded logs that might look similar to this:
 [32. 2024-05-23T08:33:31.634215234Z]: right before timer trap
 [33. 2024-05-23T08:33:31.634215234Z]: [TRAP]: timer trap
 [34. 2024-05-23T08:33:35.96761902Z]: right before memory out of bounds
-[35. 2024-05-23T08:33:35.96761902Z]: [TRAP]: StableMemory range out of bounds
+[35. 2024-05-23T08:33:35.96761902Z]: [TRAP]: Region error: range out of bounds
 [36. 2024-05-23T08:33:36.712223153Z]: right before timer trap
 [37. 2024-05-23T08:33:36.712223153Z]: [TRAP]: timer trap
 ...
