@@ -20,7 +20,7 @@
   },
   "defaults": {
     "build": {
-      "packtool": ""
+      "packtool": "mops sources"
     }
   },
   "version": 1

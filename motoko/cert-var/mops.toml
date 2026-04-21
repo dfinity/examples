@@ -1,0 +1,11 @@
+[toolchain]
+moc = "1.5.1"
+
+[dependencies]
+core = "2.4.0"
+
+[moc]
+# M0236: use context dot notation
+# M0237: redundant explicit implicit arguments
+# M0223: redundant type instantiation
+args = ["-W=M0236,M0237,M0223"]
