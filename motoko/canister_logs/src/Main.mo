@@ -1,5 +1,5 @@
 import Debug "mo:core/Debug";
-import Int "mo:core/Int";
+import { abs } = "mo:core/Int";
 import Region "mo:core/Region";
 import Runtime "mo:core/Runtime";
 import { now } = "mo:core/Time";
@@ -12,12 +12,12 @@ persistent actor CanisterLogs {
   transient let ic00_raw_rand = (actor "aaaaa-aa" : actor { raw_rand : () -> async Blob }).raw_rand;
 
   private func execute_timer() : async () {
-    "right before timer trap".print();
-    "timer trap".trap();
+    Debug.print("right before timer trap");
+    Runtime.trap("timer trap");
   };
 
   ignore setTimer<system>(
-    #seconds(timerDelaySeconds - (now() / second).abs() % timerDelaySeconds),
+    #seconds(timerDelaySeconds - abs(now() / second) % timerDelaySeconds),
     func() : async () {
       ignore recurringTimer<system>(#seconds timerDelaySeconds, execute_timer);
       await execute_timer();
@@ -25,25 +25,25 @@ persistent actor CanisterLogs {
   );
 
   public func print(text : Text) : async () {
-    text.print();
+    Debug.print(text);
   };
 
   public query func print_query(text : Text) : async () {
-    text.print();
+    Debug.print(text);
   };
 
   public func trap(text : Text) : async () {
-    "right before trap".print();
-    text.trap();
+    Debug.print("right before trap");
+    Runtime.trap(text);
   };
 
   public query func trap_query(text : Text) : async () {
-    "right before trap_query".print();
-    text.trap();
+    Debug.print("right before trap_query");
+    Runtime.trap(text);
   };
 
   public func memory_oob() : async () {
-    "right before memory out of bounds".print();
+    Debug.print("right before memory out of bounds");
     let region = Region.new();
     let offset : Nat64 = 10;
     let size : Nat = 20;
@@ -51,9 +51,9 @@ persistent actor CanisterLogs {
   };
 
   public func raw_rand() : async Blob {
-    "pre ic.raw_rand() call".print();
+    Debug.print("pre ic.raw_rand() call");
     let bytes = await ic00_raw_rand();
-    "ic.raw_rand() call succeeded".print();
+    Debug.print("ic.raw_rand() call succeeded");
     bytes;
   };
 
