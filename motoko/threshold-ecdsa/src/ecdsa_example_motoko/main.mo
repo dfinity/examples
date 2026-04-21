@@ -1,13 +1,11 @@
-import Cycles "mo:base/ExperimentalCycles";
-import Error "mo:base/Error";
-import Principal "mo:base/Principal";
-import Text "mo:base/Text";
-import Blob "mo:base/Blob";
+import Error "mo:core/Error";
+import Principal "mo:core/Principal";
+import Text "mo:core/Text";
+import Blob "mo:core/Blob";
 import Hex "./utils/Hex";
 import SHA256 "./utils/SHA256";
 
 persistent actor {
-  // Only the ecdsa methods in the IC management canister is required here.
   type IC = actor {
     ecdsa_public_key : ({
       canister_id : ?Principal;
@@ -21,23 +19,23 @@ persistent actor {
     }) -> async ({ signature : Blob });
   };
 
-  transient var key_id : Text = "test_key_1"; // Use "key_1" for production and "dfx_test_key" locally
+  transient let key_id : Text = "test_key_1"; // Use "key_1" for production and "dfx_test_key" locally
   transient let ic : IC = actor ("aaaaa-aa");
 
   public shared (msg) func public_key() : async {
     #Ok : { public_key_hex : Text };
     #Err : Text;
   } {
-    let caller = Principal.toBlob(msg.caller);
+    let caller = msg.caller.toBlob();
     try {
       let { public_key } = await ic.ecdsa_public_key({
         canister_id = null;
         derivation_path = [caller];
         key_id = { curve = #secp256k1; name = key_id };
       });
-      #Ok({ public_key_hex = Hex.encode(Blob.toArray(public_key)) });
+      #Ok({ public_key_hex = Hex.encode(public_key.toArray()) });
     } catch (err) {
-      #Err(Error.message(err));
+      #Err(err.message());
     };
   };
 
@@ -45,18 +43,17 @@ persistent actor {
     #Ok : { signature_hex : Text };
     #Err : Text;
   } {
-    let caller = Principal.toBlob(msg.caller);
+    let caller = msg.caller.toBlob();
     try {
-      let message_hash : Blob = Blob.fromArray(SHA256.sha256(Blob.toArray(Text.encodeUtf8(message))));
-      Cycles.add(30_000_000_000);
-      let { signature } = await ic.sign_with_ecdsa({
+      let message_hash : Blob = Blob.fromArray(SHA256.sha256(message.encodeUtf8().toArray()));
+      let { signature } = await (with cycles = 30_000_000_000) ic.sign_with_ecdsa({
         message_hash;
         derivation_path = [caller];
         key_id = { curve = #secp256k1; name = key_id };
       });
-      #Ok({ signature_hex = Hex.encode(Blob.toArray(signature)) });
+      #Ok({ signature_hex = Hex.encode(signature.toArray()) });
     } catch (err) {
-      #Err(Error.message(err));
+      #Err(err.message());
     };
   };
 };

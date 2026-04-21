@@ -1,9 +1,8 @@
-import Cycles "mo:base/ExperimentalCycles";
-import Error "mo:base/Error";
-import Principal "mo:base/Principal";
-import Text "mo:base/Text";
-import Blob "mo:base/Blob";
-import Option "mo:base/Option";
+import Error "mo:core/Error";
+import Option "mo:core/Option";
+import Principal "mo:core/Principal";
+import Text "mo:core/Text";
+import Blob "mo:core/Blob";
 import Hex "./utils/Hex";
 
 persistent actor {
@@ -35,8 +34,8 @@ persistent actor {
     }) -> async ({ signature : Blob });
   };
 
-  transient var ic : IC = actor ("aaaaa-aa");
-  transient var key_id : Text = "test_key_1"; // Use "key_1" for production and "dfx_test_key" locally
+  transient let ic : IC = actor ("aaaaa-aa");
+  transient let key_id : Text = "test_key_1"; // Use "key_1" for production and "dfx_test_key" locally
 
   public shared ({ caller }) func public_key(algorithm : SchnorrAlgorithm) : async {
     #Ok : { public_key_hex : Text };
@@ -45,12 +44,12 @@ persistent actor {
     try {
       let { public_key } = await ic.schnorr_public_key({
         canister_id = null;
-        derivation_path = [Principal.toBlob(caller)];
+        derivation_path = [caller.toBlob()];
         key_id = { algorithm; name = key_id };
       });
-      #Ok({ public_key_hex = Hex.encode(Blob.toArray(public_key)) });
+      #Ok({ public_key_hex = Hex.encode(public_key.toArray()) });
     } catch (err) {
-      #Err(Error.message(err));
+      #Err(err.message());
     };
   };
 
@@ -58,24 +57,23 @@ persistent actor {
     #ok : { signature_hex : Text };
     #err : Text;
   } {
-    let aux = switch (Option.map(bip341TweakHex, tryHexToTweak)) {
+    let aux = switch (bip341TweakHex.map(tryHexToTweak)) {
       case (null) null;
       case (?#ok aux) ?aux;
       case (?#err err) return #err err;
     };
 
     try {
-      Cycles.add<system>(30_000_000_000);
       let signArgs = {
-        message = Text.encodeUtf8(message_arg);
-        derivation_path = [Principal.toBlob(caller)];
+        message = message_arg.encodeUtf8();
+        derivation_path = [caller.toBlob()];
         key_id = { algorithm; name = key_id };
         aux;
       };
-      let { signature } = await ic.sign_with_schnorr(signArgs);
-      #ok({ signature_hex = Hex.encode(Blob.toArray(signature)) });
+      let { signature } = await (with cycles = 30_000_000_000) ic.sign_with_schnorr(signArgs);
+      #ok({ signature_hex = Hex.encode(signature.toArray()) });
     } catch (err) {
-      #err(Error.message(err));
+      #err(err.message());
     };
   };
 
@@ -84,9 +82,7 @@ persistent actor {
       case (#ok bytes) {
         #ok(
           #bip341({
-            merkle_root_hash = Blob.fromArray(
-              bytes
-            );
+            merkle_root_hash = Blob.fromArray(bytes);
           })
         );
       };

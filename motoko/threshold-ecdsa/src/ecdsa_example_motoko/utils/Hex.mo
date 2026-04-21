@@ -1,17 +1,9 @@
-/**
- * Module      : Hex.mo
- * Description : Hexadecimal encoding and decoding routines.
- * Copyright   : 2022 Dfinity
- * License     : Apache 2.0>
- */
-
-import Array "mo:base/Array";
-import Iter "mo:base/Iter";
-import Option "mo:base/Option";
-import Nat8 "mo:base/Nat8";
-import Char "mo:base/Char";
-import Result "mo:base/Result";
-import Text "mo:base/Text";
+import Array "mo:core/Array";
+import Option "mo:core/Option";
+import Nat8 "mo:core/Nat8";
+import Char "mo:core/Char";
+import Result "mo:core/Result";
+import Text "mo:core/Text";
 import Prim "mo:⛔";
 
 module {
@@ -25,57 +17,41 @@ module {
     '8', '9', 'A', 'B', 'C', 'D', 'E', 'F',
   ];
 
-  /**
-   * Define a type to indicate that the decoder has failed.
-   */
   public type DecodeError = {
     #msg : Text;
   };
 
-  /**
-   * Encode an array of unsigned 8-bit integers in hexadecimal format.
-   */
   public func encode(array : [Nat8]) : Text {
-    let encoded = Array.foldLeft<Nat8, Text>(array, "", func (accum, w8) {
-      accum # encodeW8(w8);
-    });
-    // encode as lowercase
-    return Text.map(encoded, Prim.charToLower);
+    var encoded = "";
+    for (w8 in array.vals()) {
+      encoded #= encodeW8(w8);
+    };
+    encoded.map(Prim.charToLower);
   };
 
-  /**
-   * Encode an unsigned 8-bit integer in hexadecimal format.
-   */
   private func encodeW8(w8 : Nat8) : Text {
-    let c1 = symbols[Nat8.toNat(w8 / base)];
-    let c2 = symbols[Nat8.toNat(w8 % base)];
-    Char.toText(c1) # Char.toText(c2);
+    let c1 = symbols[(w8 / base).toNat()];
+    let c2 = symbols[(w8 % base).toNat()];
+    c1.toText() # c2.toText();
   };
 
-  /**
-   * Decode an array of unsigned 8-bit integers in hexadecimal format.
-   */
   public func decode(text : Text) : Result<[Nat8], DecodeError> {
-    // Transform to uppercase for uniform decoding
-    let upper = Text.map(text, Prim.charToUpper);
+    let upper = text.map(Prim.charToUpper);
     let next = upper.chars().next;
     func parse() : Result<Nat8, DecodeError> {
-      Option.get<Result<Nat8, DecodeError>>(
-        do ? {
-          let c1 = next()!;
-          let c2 = next()!;
-          Result.chain<Nat8, Nat8, DecodeError>(decodeW4(c1), func (x1) {
-            Result.chain<Nat8, Nat8, DecodeError>(decodeW4(c2), func (x2) {
-                #ok (x1 * base + x2);
-            })
+      (do ? {
+        let c1 = next()!;
+        let c2 = next()!;
+        decodeW4(c1).chain(func(x1 : Nat8) : Result<Nat8, DecodeError> {
+          decodeW4(c2).chain(func(x2 : Nat8) : Result<Nat8, DecodeError> {
+            #ok(x1 * base + x2);
           })
-        },
-        #err (#msg "Not enough input!"),
-      );
+        })
+      }).get(#err(#msg "Not enough input!"));
     };
     var i = 0;
     let n = upper.size() / 2 + upper.size() % 2;
-    let array = Array.init<Nat8>(n, 0);
+    let array = Array.repeat(0 : Nat8, n).toVarArray();
     while (i != n) {
       switch (parse()) {
         case (#ok w8) {
@@ -87,19 +63,16 @@ module {
         };
       };
     };
-    #ok (Array.freeze<Nat8>(array));
+    #ok(Array.fromVarArray(array));
   };
 
-  /**
-   * Decode an unsigned 4-bit integer in hexadecimal format.
-   */
   private func decodeW4(char : Char) : Result<Nat8, DecodeError> {
-    for (i in Iter.range(0, 15)) {
+    for (i in symbols.keys()) {
       if (symbols[i] == char) {
-        return #ok (Nat8.fromNat(i));
+        return #ok(Nat8.fromNat(i));
       };
     };
-    let str = "Unexpected character: " # Char.toText(char);
-    #err (#msg str);
+    let str = "Unexpected character: " # char.toText();
+    #err(#msg str);
   };
 };

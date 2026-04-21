@@ -1,9 +1,8 @@
-import Principal "mo:base/Principal";
-import Text "mo:base/Text";
-import Blob "mo:base/Blob";
+import Principal "mo:core/Principal";
+import Text "mo:core/Text";
+import Blob "mo:core/Blob";
+import Debug "mo:core/Debug";
 import Hex "./utils/Hex";
-import Debug "mo:base/Debug";
-import Cycles "mo:base/ExperimentalCycles";
 
 persistent actor {
     type VETKD_API = actor {
@@ -28,48 +27,48 @@ persistent actor {
             context;
             key_id = { curve = #bls12_381_g2; name = "test_key_1" };
         });
-        Hex.encode(Blob.toArray(public_key));
+        Hex.encode(public_key.toArray());
     };
 
     public shared ({ caller = _ }) func symmetric_key_verification_key() : async Text {
         let { public_key } = await management_canister.vetkd_public_key({
             canister_id = null;
-            context = Text.encodeUtf8("symmetric_key");
+            context = "symmetric_key".encodeUtf8();
             key_id = { curve = #bls12_381_g2; name = "test_key_1" };
         });
-        Hex.encode(Blob.toArray(public_key));
+        Hex.encode(public_key.toArray());
     };
 
     public shared ({ caller }) func encrypted_symmetric_key_for_caller(transport_public_key : Blob) : async Text {
         Debug.print("encrypted_symmetric_key_for_caller: caller: " # debug_show (caller));
 
         let { encrypted_key } = await (with cycles = 26_153_846_153) management_canister.vetkd_derive_key({
-            input = Principal.toBlob(caller);
-            context = Text.encodeUtf8("symmetric_key");
+            input = caller.toBlob();
+            context = "symmetric_key".encodeUtf8();
             key_id = { curve = #bls12_381_g2; name = "test_key_1" };
             transport_public_key;
         });
-        Hex.encode(Blob.toArray(encrypted_key));
+        Hex.encode(encrypted_key.toArray());
     };
 
     public shared ({ caller = _ }) func ibe_encryption_key() : async Text {
         let { public_key } = await management_canister.vetkd_public_key({
             canister_id = null;
-            context = Text.encodeUtf8("ibe_encryption");
+            context = "ibe_encryption".encodeUtf8();
             key_id = { curve = #bls12_381_g2; name = "test_key_1" };
         });
-        Hex.encode(Blob.toArray(public_key));
+        Hex.encode(public_key.toArray());
     };
 
     public shared ({ caller }) func encrypted_ibe_decryption_key_for_caller(transport_public_key : Blob) : async Text {
         Debug.print("encrypted_ibe_decryption_key_for_caller: caller: " # debug_show (caller));
 
         let { encrypted_key } = await (with cycles = 26_153_846_153) management_canister.vetkd_derive_key({
-            input = Principal.toBlob(caller);
-            context = Text.encodeUtf8("ibe_encryption");
+            input = caller.toBlob();
+            context = "ibe_encryption".encodeUtf8();
             key_id = { curve = #bls12_381_g2; name = "test_key_1" };
             transport_public_key;
         });
-        Hex.encode(Blob.toArray(encrypted_key));
+        Hex.encode(encrypted_key.toArray());
     };
 };
