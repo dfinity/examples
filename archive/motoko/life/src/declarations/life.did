@@ -1,4 +1,0 @@
-service : {
-  current: () -> (text) query;
-  next: () -> (text);
-}
