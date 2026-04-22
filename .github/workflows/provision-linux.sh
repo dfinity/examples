@@ -19,7 +19,7 @@ npm install -g ic-mops
 
 # Install DFINITY SDK.
 wget --output-document install-dfx.sh "https://raw.githubusercontent.com/dfinity/sdk/master/public/install-dfxvm.sh"
-DFX_VERSION=${DFX_VERSION:=0.31.0} DFXVM_INIT_YES=true bash install-dfx.sh
+DFX_VERSION=${DFX_VERSION:=0.32.0} DFXVM_INIT_YES=true bash install-dfx.sh
 rm install-dfx.sh
 echo "$HOME/.local/share/dfx/bin" >>$GITHUB_PATH
 source "$HOME/.local/share/dfx/env"
