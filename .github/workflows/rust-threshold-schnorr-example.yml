@@ -31,7 +31,7 @@ jobs:
           pushd rust/threshold-schnorr
           make test
   rust-threshold-schnorr-linux:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
       - name: Provision Linux
