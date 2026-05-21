@@ -23,32 +23,28 @@ The local ICP network starts automatically when this Codespace opens. Run each s
 icp deploy
 ```
 
-**Start frontend**
-```sh { name=frontend }
-npm run dev
-```
-
 **Show URLs** *(after deploying)*
 ```sh { name=urls }
 BACKEND_ID=$(icp canister status internet_identity_app_backend -i 2>/dev/null || echo "not deployed")
 FRONTEND_ID=$(icp canister status internet_identity_app_frontend -i 2>/dev/null || echo "not deployed")
+CANDID_UI_ID=$(icp network status --json | jq -r '.candid_ui_principal')
 if [ -n "$CODESPACE_NAME" ]; then
-  echo "Frontend app:  https://${CODESPACE_NAME}-5173.app.github.dev"
-  echo "Candid UI:     https://${CODESPACE_NAME}-8000.app.github.dev/?id=${BACKEND_ID}"
+  BASE="https://${CODESPACE_NAME}-8000.app.github.dev"
 else
-  echo "Frontend app:  http://localhost:5173"
-  echo "Candid UI:     http://localhost:8000/?id=${BACKEND_ID}"
+  BASE="http://localhost:8000"
 fi
+echo "Frontend:   ${BASE}/?canisterId=${FRONTEND_ID}"
+echo "Candid UI:  ${BASE}/?canisterId=${CANDID_UI_ID}&id=${BACKEND_ID}"
+```
+
+**Start dev server** *(optional — for frontend development)*
+```sh { name=frontend }
+npm run dev
 ```
 
 **Reset & redeploy** *(wipes all canister state)*
 ```sh { name=reset-deploy }
 icp deploy --mode reinstall -y
-```
-
-**Show canister info**
-```sh { name=info }
-icp environment
 ```
 
 ## Build and deploy from the command line

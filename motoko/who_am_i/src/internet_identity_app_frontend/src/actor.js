@@ -13,8 +13,20 @@ if (!canisterId) {
   );
 }
 
+// In GitHub Codespaces the Vite dev server runs on port 5173, but the ICP
+// gateway only accepts requests whose Host matches its own port (8000). Derive
+// the port-8000 forwarded URL from the current hostname so API calls bypass
+// the Vite proxy and reach the gateway directly.
+function getNetworkHost() {
+  const { hostname, origin } = window.location;
+  if (hostname.endsWith(".app.github.dev")) {
+    return "https://" + hostname.replace(/-\d+\.app\.github\.dev$/, "-8000.app.github.dev");
+  }
+  return origin;
+}
+
 const agentOptions = {
-  host: window.location.origin,
+  host: getNetworkHost(),
   rootKey: canisterEnv?.IC_ROOT_KEY,
 };
 
