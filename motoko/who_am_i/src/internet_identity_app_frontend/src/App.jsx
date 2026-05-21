@@ -21,7 +21,7 @@ const App = () => {
   const updateActor = async () => {
     const authClient = await AuthClient.create();
     const identity = authClient.getIdentity();
-    const actor = createBackendActor(identity);
+    const actor = await createBackendActor(identity);
     const isAuthenticated = await authClient.isAuthenticated();
 
     setState((prev) => ({

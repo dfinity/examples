@@ -1,4 +1,5 @@
 import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
+import { HttpAgent } from "@icp-sdk/core/agent";
 import { createActor } from "./bindings/internet_identity_app_backend";
 
 const canisterEnv = safeGetCanisterEnv();
@@ -34,18 +35,31 @@ const agentOptions = {
 // II is always deployed on the local network (not the dev server).
 // REPLICA_PORT is injected by vite.config.js during `vite dev` since
 // window.location.port would be the dev server port, not the network port.
-const isLocal =
-  window.location.hostname === "localhost" ||
-  window.location.hostname === "127.0.0.1" ||
-  window.location.hostname.endsWith(".localhost");
+// Local network: localhost variants and GitHub Codespaces port-forwarded URLs.
+// Both require fetching the root key since they don't use the mainnet trust anchor.
+function isLocalNetwork() {
+  const { hostname } = window.location;
+  return (
+    hostname === "localhost" ||
+    hostname === "127.0.0.1" ||
+    hostname.endsWith(".localhost") ||
+    hostname.endsWith(".app.github.dev")
+  );
+}
+
 const II_CANISTER_ID = "uqzsh-gqaaa-aaaaq-qaada-cai";
 const networkPort = process.env.REPLICA_PORT || window.location.port;
-export const identityProviderUrl = isLocal
+export const identityProviderUrl = isLocalNetwork()
   ? `http://${II_CANISTER_ID}.localhost:${networkPort}`
   : "https://id.ai";
 
-export function createBackendActor(identity) {
-  return createActor(canisterId, {
-    agentOptions: { ...agentOptions, identity },
-  });
+export async function createBackendActor(identity) {
+  const agent = HttpAgent.createSync({ ...agentOptions, identity });
+  // When the ic_env cookie is absent (frontend served from the ICP gateway
+  // directly rather than via Vite), rootKey is undefined and the agent would
+  // fall back to the mainnet trust anchor. Fetch the actual root key instead.
+  if (!canisterEnv?.IC_ROOT_KEY && isLocalNetwork()) {
+    await agent.fetchRootKey();
+  }
+  return createActor(canisterId, { agent });
 }
