@@ -33,7 +33,4 @@ echo ""
 echo "  Frontend:   $FRONTEND_URL"
 echo "  Candid UI:  $CANDID_URL"
 echo ""
-echo "Opening frontend in browser..."
-
-code --open-url "$FRONTEND_URL" || true
 code README.md
