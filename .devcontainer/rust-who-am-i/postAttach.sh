@@ -20,11 +20,7 @@ BACKEND_ID=$(icp canister status internet_identity_app_backend -i 2>/dev/null)
 FRONTEND_ID=$(icp canister status internet_identity_app_frontend -i 2>/dev/null)
 # Capture JSON first to avoid broken-pipe panic in the icp-cli binary
 NETWORK_JSON=$(icp network status --json 2>/dev/null)
-CANDID_UI_ID=$(printf '%s' "$NETWORK_JSON" | jq -r '.candid_ui_principal // empty' 2>/dev/null)
-# Fallback: some icp-cli versions expose the Candid UI as a named canister
-if [ -z "$CANDID_UI_ID" ]; then
-  CANDID_UI_ID=$(icp canister status __Candid_UI -i 2>/dev/null || true)
-fi
+CANDID_UI_ID=$(echo "$NETWORK_JSON" | jq -r '.candid_ui_principal // ""')
 
 if [ -n "$CODESPACE_NAME" ]; then
   BASE="https://${CODESPACE_NAME}-8000.app.github.dev"
