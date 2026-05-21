@@ -2,6 +2,10 @@ networks:
   - name: local
     mode: managed
     ii: true
+    gateway:
+      domains:
+        - localhost
+        - "*.app.github.dev"
 
 canisters:
   - name: internet_identity_app_backend
