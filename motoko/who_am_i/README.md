@@ -18,6 +18,11 @@ Opens a pre-configured environment with the ICP toolchain installed and the loca
 
 The local ICP network is started and canisters are deployed automatically when this Codespace opens. The frontend URL opens in your browser once deployment completes.
 
+**Redeploy** *(after code changes — preserves canister state)*
+```sh { name=deploy }
+icp deploy
+```
+
 **Start dev server** *(optional — for frontend development)*
 ```sh { name=frontend }
 npm run dev
