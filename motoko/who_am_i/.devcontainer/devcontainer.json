@@ -15,6 +15,7 @@
   },
   "postCreateCommand": "mops install",
   "postStartCommand": "icp network start -d",
+  "postAttachCommand": "code README.md",
   "customizations": {
     "vscode": {
       "extensions": [

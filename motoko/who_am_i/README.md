@@ -10,7 +10,7 @@ Who am I? demonstrates how entities on the Internet Computer are identified. Eve
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/dfinity/examples?devcontainer_path=motoko%2Fwho_am_i%2F.devcontainer%2Fdevcontainer.json&ref=feat%2Fcodespaces)
 
-Opens a pre-configured environment with the ICP toolchain installed and the local network started automatically.
+Opens a pre-configured environment with the ICP toolchain installed and the local network started automatically. To resume an existing Codespace, go to [github.com/codespaces](https://github.com/codespaces).
 
 > **Note:** Authentication uses production [Internet Identity](https://id.ai) rather than a local test instance. You will see your real principal identifier.
 
