@@ -22,9 +22,8 @@
       "onAutoForward": "ignore"
     }
   },
-  "postCreateCommand": "mops install",
-  "postStartCommand": "bash /workspaces/examples/.devcontainer/motoko-who-am-i/postStart.sh",
-  "postAttachCommand": "bash /workspaces/examples/.devcontainer/motoko-who-am-i/postAttach.sh",
+  "postStartCommand": "bash /workspaces/examples/.devcontainer/scripts/postStart.sh",
+  "postAttachCommand": "bash /workspaces/examples/.devcontainer/scripts/postAttach.sh",
   "customizations": {
     "vscode": {
       "extensions": [
@@ -34,7 +33,7 @@
       "settings": {
         "git.openRepositoryInParentFolders": "always",
         "workbench.editorAssociations": {
-          "*.md": "runme"
+          "CODESPACE.md": "runme"
         }
       }
     }

@@ -8,10 +8,13 @@ if [ -n "$CODESPACE_NAME" ]; then
     const fs = require('fs');
     const content = fs.readFileSync('icp.yaml', 'utf8');
     if (!content.includes('gateway:')) {
-      const updated = content.replace(
-        '    ii: true\n',
-        '    ii: true\n    gateway:\n      domains:\n        - localhost\n        - ${DOMAIN}\n'
-      );
+      const gateway = '    gateway:\n      domains:\n        - localhost\n        - ${DOMAIN}\n';
+      let updated;
+      if (content.includes('    ii: true\n')) {
+        updated = content.replace('    ii: true\n', '    ii: true\n' + gateway);
+      } else {
+        updated = content.replace('    mode: managed\n', '    mode: managed\n' + gateway);
+      }
       fs.writeFileSync('icp.yaml', updated);
     }
   "
