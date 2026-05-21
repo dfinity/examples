@@ -22,7 +22,7 @@
       "onAutoForward": "ignore"
     }
   },
-  "postStartCommand": "icp network start -d",
+  "postStartCommand": "bash /workspaces/examples/.devcontainer/rust-who-am-i/postStart.sh",
   "postAttachCommand": "bash /workspaces/examples/.devcontainer/rust-who-am-i/postAttach.sh",
   "customizations": {
     "vscode": {

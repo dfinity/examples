@@ -23,7 +23,7 @@
     }
   },
   "postCreateCommand": "mops install",
-  "postStartCommand": "icp network start -d",
+  "postStartCommand": "bash /workspaces/examples/.devcontainer/motoko-who-am-i/postStart.sh",
   "postAttachCommand": "bash /workspaces/examples/.devcontainer/motoko-who-am-i/postAttach.sh",
   "customizations": {
     "vscode": {
