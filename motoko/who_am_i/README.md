@@ -14,14 +14,9 @@ Opens a pre-configured environment with the ICP toolchain installed and the loca
 
 > **Note:** Authentication uses production [Internet Identity](https://id.ai) rather than a local test instance. You will see your real principal identifier.
 
-## Local development
+## Codespace actions
 
-The local ICP network starts automatically when this Codespace opens. After deploying, start the frontend dev server and open the preview URL.
-
-**Install dependencies**
-```sh { name=install }
-mops install
-```
+The local ICP network starts automatically when this Codespace opens. Run each step below in order.
 
 **Deploy**
 ```sh { name=deploy }
@@ -31,6 +26,19 @@ icp deploy
 **Start frontend**
 ```sh { name=frontend }
 npm run dev
+```
+
+**Show URLs** *(after deploying)*
+```sh { name=urls }
+BACKEND_ID=$(icp canister status internet_identity_app_backend -i 2>/dev/null || echo "not deployed")
+FRONTEND_ID=$(icp canister status internet_identity_app_frontend -i 2>/dev/null || echo "not deployed")
+if [ -n "$CODESPACE_NAME" ]; then
+  echo "Frontend app:  https://${CODESPACE_NAME}-5173.app.github.dev"
+  echo "Candid UI:     https://${CODESPACE_NAME}-8000.app.github.dev/?id=${BACKEND_ID}"
+else
+  echo "Frontend app:  http://localhost:5173"
+  echo "Candid UI:     http://localhost:8000/?id=${BACKEND_ID}"
+fi
 ```
 
 **Reset & redeploy** *(wipes all canister state)*

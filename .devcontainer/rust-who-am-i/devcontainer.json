@@ -25,7 +25,10 @@
         "stateful.runme"
       ],
       "settings": {
-        "git.openRepositoryInParentFolders": "always"
+        "git.openRepositoryInParentFolders": "always",
+        "workbench.editorAssociations": {
+          "*.md": "runme"
+        }
       }
     }
   }

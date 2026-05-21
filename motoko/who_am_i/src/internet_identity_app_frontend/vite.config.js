@@ -24,7 +24,13 @@ function getDevServerConfig() {
         )}; SameSite=Lax;`,
       },
       proxy: {
-        "/api": { target: "http://127.0.0.1:8000", changeOrigin: true },
+        "/api": {
+          target: "http://127.0.0.1:8000",
+          changeOrigin: true,
+          // The ICP gateway rejects non-localhost Origin headers. Override it so
+          // requests proxied from Codespaces (or any non-localhost dev URL) are accepted.
+          headers: { origin: "http://localhost:8000" },
+        },
       },
     };
   } catch {}

@@ -14,9 +14,9 @@ Opens a pre-configured environment with the ICP toolchain installed and the loca
 
 > **Note:** Authentication uses production [Internet Identity](https://id.ai) rather than a local test instance. You will see your real principal identifier.
 
-## Local development
+## Codespace actions
 
-The local ICP network starts automatically when this Codespace opens. After deploying, start the frontend dev server and open the preview URL.
+The local ICP network starts automatically when this Codespace opens. Run each step below in order.
 
 **Deploy**
 ```sh { name=deploy }
