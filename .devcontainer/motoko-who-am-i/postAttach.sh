@@ -1,12 +1,21 @@
 #!/bin/bash
 
+echo "ICP local network is running on port 8000."
+echo ""
+
 # Deploy if not already deployed (skipped on reconnects)
 if ! icp canister status internet_identity_app_backend -i > /dev/null 2>&1; then
-  echo "Deploying canisters..."
+  echo "Deploying canisters (this takes ~30 seconds on first run)..."
   icp deploy
+  echo ""
+  echo "Deployment complete."
+else
+  echo "Canisters already deployed."
 fi
 
-# Build access URLs
+echo ""
+echo "Building access URLs..."
+
 BACKEND_ID=$(icp canister status internet_identity_app_backend -i 2>/dev/null)
 FRONTEND_ID=$(icp canister status internet_identity_app_frontend -i 2>/dev/null)
 CANDID_UI_ID=$(icp network status --json | jq -r '.candid_ui_principal' 2>/dev/null)
@@ -24,6 +33,7 @@ echo ""
 echo "  Frontend:   $FRONTEND_URL"
 echo "  Candid UI:  $CANDID_URL"
 echo ""
+echo "Opening frontend in browser..."
 
 code --open-url "$FRONTEND_URL" || true
 code README.md
