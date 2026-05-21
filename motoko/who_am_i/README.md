@@ -8,7 +8,7 @@ Who am I? demonstrates how entities on the Internet Computer are identified. Eve
 
 ## Try in browser
 
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/dfinity/examples?devcontainer_path=motoko%2Fwho_am_i%2F.devcontainer%2Fdevcontainer.json&ref=feat%2Fcodespaces)
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/dfinity/examples?devcontainer_path=.devcontainer%2Fmotoko-who-am-i%2Fdevcontainer.json&ref=feat%2Fcodespaces)
 
 Opens a pre-configured environment with the ICP toolchain installed and the local network started automatically. If you already have a Codespace for this example, the creation page will show an **"Open existing codespace"** option at the top — use that to resume. You can also browse all your Codespaces at [github.com/codespaces](https://github.com/codespaces).
 
