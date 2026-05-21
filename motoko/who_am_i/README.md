@@ -16,26 +16,7 @@ Opens a pre-configured environment with the ICP toolchain installed and the loca
 
 ## Codespace actions
 
-The local ICP network starts automatically when this Codespace opens. Run each step below in order.
-
-**Deploy**
-```sh { name=deploy }
-icp deploy
-```
-
-**Show URLs** *(after deploying)*
-```sh { name=urls }
-BACKEND_ID=$(icp canister status internet_identity_app_backend -i 2>/dev/null || echo "not deployed")
-FRONTEND_ID=$(icp canister status internet_identity_app_frontend -i 2>/dev/null || echo "not deployed")
-CANDID_UI_ID=$(icp network status --json | jq -r '.candid_ui_principal')
-if [ -n "$CODESPACE_NAME" ]; then
-  BASE="https://${CODESPACE_NAME}-8000.app.github.dev"
-else
-  BASE="http://localhost:8000"
-fi
-echo "Frontend:   ${BASE}/?canisterId=${FRONTEND_ID}"
-echo "Candid UI:  ${BASE}/?canisterId=${CANDID_UI_ID}&id=${BACKEND_ID}"
-```
+The local ICP network is started and canisters are deployed automatically when this Codespace opens. The frontend URL opens in your browser once deployment completes.
 
 **Start dev server** *(optional — for frontend development)*
 ```sh { name=frontend }

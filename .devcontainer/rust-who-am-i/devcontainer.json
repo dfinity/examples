@@ -17,7 +17,7 @@
     }
   },
   "postStartCommand": "icp network start -d",
-  "postAttachCommand": "code README.md",
+  "postAttachCommand": "bash /workspaces/examples/.devcontainer/rust-who-am-i/postAttach.sh",
   "customizations": {
     "vscode": {
       "extensions": [
