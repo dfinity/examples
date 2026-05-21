@@ -11,17 +11,23 @@
     "5173": {
       "label": "Frontend",
       "onAutoForward": "openBrowser"
+    },
+    "7865": {
+      "onAutoForward": "ignore"
     }
   },
   "postCreateCommand": "mops install",
   "postStartCommand": "icp network start -d",
-  "postAttachCommand": "code -r /workspaces/examples/motoko/who_am_i",
+  "postAttachCommand": "code README.md",
   "customizations": {
     "vscode": {
       "extensions": [
         "dfinity-foundation.vscode-motoko",
         "stateful.runme"
-      ]
+      ],
+      "settings": {
+        "git.openRepositoryInParentFolders": "always"
+      }
     }
   }
 }

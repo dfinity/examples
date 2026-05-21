@@ -11,16 +11,22 @@
     "5173": {
       "label": "Frontend",
       "onAutoForward": "openBrowser"
+    },
+    "7865": {
+      "onAutoForward": "ignore"
     }
   },
   "postStartCommand": "icp network start -d",
-  "postAttachCommand": "code -r /workspaces/examples/rust/who_am_i",
+  "postAttachCommand": "code README.md",
   "customizations": {
     "vscode": {
       "extensions": [
         "rust-analyzer",
         "stateful.runme"
-      ]
+      ],
+      "settings": {
+        "git.openRepositoryInParentFolders": "always"
+      }
     }
   }
 }
