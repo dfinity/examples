@@ -1,20 +1,26 @@
 {
-  "name": "ICP Dev Environment",
-  "image": "ghcr.io/dfinity/icp-dev-env-slim:22",
-  "forwardPorts": [4943, 5173],
+  "name": "Who Am I? (Motoko)",
+  "image": "ghcr.io/marc0olo/icp-dev-env-motoko:dev",
+  "workspaceFolder": "/workspaces/examples/motoko/who_am_i",
+  "forwardPorts": [8000, 5173],
   "portsAttributes": {
-    "4943": {
-      "label": "dfx",
+    "8000": {
+      "label": "ICP local network",
       "onAutoForward": "ignore"
     },
     "5173": {
-      "label": "vite",
+      "label": "Frontend",
       "onAutoForward": "openBrowser"
     }
   },
+  "postCreateCommand": "mops install",
+  "postStartCommand": "icp network start -d",
   "customizations": {
     "vscode": {
-      "extensions": ["dfinity-foundation.vscode-motoko"]
+      "extensions": [
+        "dfinity-foundation.vscode-motoko",
+        "stateful.runme"
+      ]
     }
   }
 }

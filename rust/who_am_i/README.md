@@ -6,13 +6,37 @@
 
 Who am I? demonstrates how entities on the Internet Computer are identified. Every entity, such as a user or canister smart contract, has a principal identifier. Principals can be used for identification and authentication. Who am I? uses Internet Identity (II) for user authentication, then displays the principal identifier associated with that Internet Identity on the user interface.
 
-## Deploying from ICP Ninja
+## Try in browser
 
-This example can be deployed directly from [ICP Ninja](https://icp.ninja), a browser-based IDE for ICP. To continue developing locally after deploying from ICP Ninja, see [BUILD.md](BUILD.md).
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/dfinity/examples?devcontainer_path=rust%2Fwho_am_i%2F.devcontainer%2Fdevcontainer.json&ref=feat%2Fcodespaces)
 
-[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/rust/who_am_i)
+Opens a pre-configured environment with the ICP toolchain installed and the local network started automatically.
 
-> **Note:** ICP Ninja currently uses `dfx` under the hood, which is why this example includes a `dfx.json` configuration file. `dfx` is the legacy CLI, being superseded by [icp-cli](https://cli.internetcomputer.org), which is what developers should use for local development.
+> **Note:** Authentication uses production [Internet Identity](https://id.ai) rather than a local test instance. You will see your real principal identifier.
+
+## Local development
+
+The local ICP network starts automatically when this Codespace opens. After deploying, start the frontend dev server and open the preview URL.
+
+**Deploy**
+```sh { name=deploy }
+icp deploy
+```
+
+**Start frontend**
+```sh { name=frontend }
+npm run dev
+```
+
+**Reset & redeploy** *(wipes all canister state)*
+```sh { name=reset-deploy }
+icp deploy --mode reinstall -y
+```
+
+**Show canister info**
+```sh { name=info }
+icp environment
+```
 
 ## Build and deploy from the command line
 
@@ -30,25 +54,19 @@ git clone https://github.com/dfinity/examples
 cd examples/rust/who_am_i
 ```
 
-### Deployment
+### Deploy
 
-Start the local network:
+Start the local network and deploy:
 
 ```bash
 icp network start -d
-```
-
-Deploy the canisters:
-
-```bash
 icp deploy
+npm run dev
 ```
 
-Stop the local network when done:
+## Ready to deploy on mainnet?
 
-```bash
-icp network stop
-```
+Codespaces is ideal for learning and local experimentation. When you're ready for mainnet, [install icp-cli locally](https://cli.internetcomputer.org) and follow the [mainnet deployment guide](https://cli.internetcomputer.org/0.2/guides/deploying-to-mainnet.md). Mainnet requires ICP tokens and cycles — managing identities securely is much better from your own machine.
 
 ## Updating the Candid interface
 
