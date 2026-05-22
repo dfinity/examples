@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 # In GitHub Codespaces, inject the forwarded domain into icp.yaml so the
 # HTTP gateway accepts requests with that Host header.
@@ -24,7 +25,3 @@ if [ -n "$CODESPACE_NAME" ]; then
 fi
 
 icp network start -d
-
-until curl -sf http://localhost:8000/api/v2/status >/dev/null 2>&1; do
-  sleep 1
-done
