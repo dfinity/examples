@@ -27,14 +27,11 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "rust-analyzer",
-        "stateful.runme"
+        "rust-analyzer"
       ],
       "settings": {
         "git.openRepositoryInParentFolders": "always",
-        "workbench.editorAssociations": {
-          "CODESPACE.md": "runme"
-        }
+        "workbench.startupEditor": "none"
       }
     }
   }

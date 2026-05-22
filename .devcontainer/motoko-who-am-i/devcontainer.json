@@ -27,14 +27,11 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "dfinity-foundation.vscode-motoko",
-        "stateful.runme"
+        "dfinity-foundation.vscode-motoko"
       ],
       "settings": {
         "git.openRepositoryInParentFolders": "always",
-        "workbench.editorAssociations": {
-          "CODESPACE.md": "runme"
-        }
+        "workbench.startupEditor": "none"
       }
     }
   }
