@@ -1,0 +1,31 @@
+{
+  "name": "ICP Examples (Motoko + Rust)",
+  "image": "ghcr.io/marc0olo/icp-dev-env-all:dev",
+  "workspaceFolder": "/workspaces/examples",
+  "forwardPorts": [8000, 5173],
+  "portsAttributes": {
+    "8000": {
+      "label": "ICP",
+      "onAutoForward": "ignore"
+    },
+    "5173": {
+      "label": "Vite",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dfinity-foundation.vscode-motoko",
+        "rust-analyzer"
+      ],
+      "settings": {
+        "git.openRepositoryInParentFolders": "always",
+        "workbench.startupEditor": "none",
+        "workbench.editorAssociations": {
+          "*.md": "vscode.markdown.preview.editor"
+        }
+      }
+    }
+  }
+}
