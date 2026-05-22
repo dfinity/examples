@@ -36,8 +36,12 @@ Start the local network and deploy:
 
 ```bash
 icp network start -d
-mops install
 icp deploy
+```
+
+The frontend is served by the asset canister. To run the Vite dev server with hot reload during frontend development:
+
+```bash
 npm run dev
 ```
 

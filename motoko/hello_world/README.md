@@ -49,7 +49,6 @@ Start the local network and deploy:
 
 ```bash
 icp network start -d
-mops install
 icp deploy
 ```
 

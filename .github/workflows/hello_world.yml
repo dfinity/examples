@@ -24,7 +24,6 @@ jobs:
         working-directory: motoko/hello_world
         run: |
           icp network start -d
-          mops install
           icp deploy
           make test
 

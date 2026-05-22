@@ -24,13 +24,20 @@ Add a Codespaces badge to the example's README pointing to the new devcontainer 
 
 ## CI
 
-Each project should provide a `Makefile` used by GitHub Actions CI to run basic tests. For each example, there is a single CI file:
+Each project should provide a `Makefile` with a `test` target that runs basic canister tests using `icp canister call`. Each example also needs a GitHub Actions workflow file at `.github/workflows/<example_name>.yml`.
+
+Use the workflow template as a starting point:
 
 ```
-.github/workflows/hello_world.yml
+.github/workflow-template.yml
 ```
 
-Implementing the GitHub action ensures it runs in CI and helps keep examples in sync with [icp-cli](https://cli.internetcomputer.org) releases.
+Copy it, replace the placeholders, and add the appropriate container image:
+
+- Motoko: `ghcr.io/dfinity/icp-dev-env-motoko`
+- Rust: `ghcr.io/dfinity/icp-dev-env-rust`
+
+See `hello_world` and `who_am_i` for reference implementations. Workflows run on Linux only using container images — no provision scripts needed.
 
 ## Notes
 
