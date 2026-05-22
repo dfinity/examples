@@ -1,7 +1,5 @@
 # Contributing
 
-> For ICP Ninja: check [NINJA_CONTRIBUTING.md](./../NINJA_CONTRIBUTING.md) for how to contribute a project to ICP Ninja.
-
 Thank you for your interest in contributing to example apps for the Internet Computer.
 By participating in this project, you agree to abide by our [Code of Conduct](./CODE_OF_CONDUCT.md).
 
@@ -116,4 +114,4 @@ To open a new issue:
 
 ### Submitting your own example
 
-We're not accepting community examples at this time -- we have something better planned.
+See [ADDING_AN_EXAMPLE.md](./../ADDING_AN_EXAMPLE.md) for guidelines on how to structure and submit a new example.
