@@ -4,11 +4,12 @@
 # HTTP gateway accepts requests with that Host header.
 if [ -n "$CODESPACE_NAME" ]; then
   DOMAIN="${CODESPACE_NAME}-8000.app.github.dev"
+  DEV_DOMAIN="${CODESPACE_NAME}-5173.app.github.dev"
   node -e "
     const fs = require('fs');
     const content = fs.readFileSync('icp.yaml', 'utf8');
     if (!content.includes('gateway:')) {
-      const gateway = '    gateway:\n      domains:\n        - localhost\n        - ${DOMAIN}\n';
+      const gateway = '    gateway:\n      domains:\n        - localhost\n        - ${DOMAIN}\n        - ${DEV_DOMAIN}\n';
       let updated;
       if (content.includes('    ii: true\n')) {
         updated = content.replace('    ii: true\n', '    ii: true\n' + gateway);
