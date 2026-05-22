@@ -5,11 +5,11 @@
   "forwardPorts": [8000, 5173],
   "portsAttributes": {
     "8000": {
-      "label": "ICP local network",
+      "label": "ICP",
       "onAutoForward": "ignore"
     },
     "5173": {
-      "label": "Frontend",
+      "label": "Vite",
       "onAutoForward": "openBrowser"
     }
   },
