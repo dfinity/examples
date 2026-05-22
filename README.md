@@ -1,4 +1,4 @@
-# Internet Computer sample applications 
+# Internet Computer sample applications
 
 Get started building on ICP with the sample applications in this repository. From this repository, you can deploy, download, clone, fork, or share sample projects.
 
@@ -14,7 +14,7 @@ Code samples are organized by programming language:
 - [Rust](https://github.com/dfinity/examples/tree/master/rust)
 - [C](https://github.com/dfinity/examples/tree/master/c)
 
-Some examples include frontends written in a variety of frameworks, such as React, JavaScript, etc. 
+Some examples include frontends written in a variety of frameworks such as React, JavaScript, etc.
 
 Additional frontend samples can be found in the following folders:
 
@@ -22,45 +22,45 @@ Additional frontend samples can be found in the following folders:
 - [HTML](https://github.com/dfinity/examples/tree/master/hosting)
 - [Unity](https://github.com/dfinity/examples/tree/master/native-apps)
 
-## Deploying samples 
+## Try in browser
+
+Many examples include a GitHub Codespaces badge in their README. Clicking it opens a pre-configured environment with the ICP toolchain installed — the local network starts and canisters are deployed automatically. No local setup required.
+
+Browse all your Codespaces at [github.com/codespaces](https://github.com/codespaces).
+
+## Local development
+
+### Dev Containers
+
+Open the repo root in [VS Code](https://code.visualstudio.com/) with the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) to get a pre-configured environment with the full ICP toolchain for both Motoko and Rust. VS Code will prompt you to reopen in the container automatically.
+
+```bash
+git clone https://github.com/dfinity/examples.git
+```
+
+Then navigate into an example and follow its README to deploy.
+
+> **Note:** The per-example devcontainer configs are designed for GitHub Codespaces. For local Dev Container use, always open the repo root.
+
+### Command line
+
+Install [icp-cli](https://cli.internetcomputer.org), clone the repo, navigate into an example, and follow its README:
+
+```bash
+git clone https://github.com/dfinity/examples.git
+cd examples/<language>/<example>
+```
 
 ### ICP Ninja
 
-You can open and deploy examples with [ICP Ninja](https://icp.ninja/), a web-based tool that allows you to create and manage Internet Computer projects without downloading any tools or setting up a local environment.
+You can also open and deploy examples with [ICP Ninja](https://icp.ninja/), a web-based tool that requires no local setup. To contribute an example to ICP Ninja, see [NINJA_CONTRIBUTING.md](./NINJA_CONTRIBUTING.md).
 
-To contribute an example that will be featured on ICP Ninja, check out the [NINJA_CONTRIBUTING.md](./NINJA_CONTRIBUTING.md) file.
+## Resources
 
-### GitHub Codespaces or Gitpod
-
-This repo can be opened in a web-based developer environment such as [GitHub Codespaces](https://github.com/codespaces) or [Gitpod](https://www.gitpod.io/), allowing you to edit and deploy the sample projects without downloading any tools or setting up a local environment. 
-
-[Get started with GitHub codespaces](https://internetcomputer.org/docs/current/developer-docs/developer-tools/ide/codespaces).
-
-[Get started with Gitpod](https://internetcomputer.org/docs/current/developer-docs/developer-tools/ide/gitpod).
-
-### dfx 
-
-dfx is a command-line tool used to create, deploy. and manage projects on ICP. To download and use dfx with this examples repo, run the following commands locally (macOS/Linux systems):
-
-```
-git clone https://github.com/dfinity/examples.git
-cd examples
-sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
-```
-
-Then, navigate into the folder of the sample that you want to use and follow the project's README instructions to setup and deploy the sample code.
-
-
-## Resources 
-
-- [ICP Developer Docs](https://internetcomputer.org/docs/current/home)
-
-- [Overview of ICP](https://internetcomputer.org/docs/current/developer-docs/getting-started/overview-of-icp)
-
-- [Installing dfx](https://internetcomputer.org/docs/current/developer-docs/getting-started/install/)
-
-- [Developer tools](https://internetcomputer.org/docs/current/developer-docs/developer-tools/dev-tools-overview)
+- [Quickstart](https://docs.internetcomputer.org/getting-started/quickstart)
+- [Developer tools](https://docs.internetcomputer.org/developer-tools)
+- [icp-cli](https://cli.internetcomputer.org)
 
 ## Security considerations and best practices
 
-If you base your application on one of these examples, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. The examples provided here may not implement all the best practices.
+If you base your application on one of these examples, we recommend you familiarize yourself with and adhere to the [security best practices](https://docs.internetcomputer.org/building-apps/security/overview) for developing on the Internet Computer. The examples provided here may not implement all the best practices.
