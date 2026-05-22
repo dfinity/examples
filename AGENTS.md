@@ -2,6 +2,27 @@
 
 Guidelines for AI agents (Claude, Codex, Cursor, Copilot, etc.) working in this repository.
 
+## Skills — fetch before working
+
+ICP skills are live reference documents maintained by DFINITY. Always fetch the relevant skills **before** making changes — do not rely on cached or training-data versions.
+
+**Index:** `https://skills.internetcomputer.org/.well-known/skills/index.json`
+
+Fetch the skill content at its `url` field. Skills relevant to this repo:
+
+| Task | Skill to fetch |
+|------|---------------|
+| Any ICP project work, `icp.yaml`, canister lifecycle | `icp-cli` |
+| Migrating an example from dfx to icp-cli | `icp-cli` + its `references/dfx-migration.md` file |
+| Motoko canister code | `motoko` |
+| `mops.toml`, toolchain pinning, moc flags | `mops-cli` |
+| Internet Identity integration | `internet-identity` |
+| Frontend asset canister | `asset-canister` |
+
+Skills take precedence over general knowledge when both cover the same topic.
+
+---
+
 ## Repository overview
 
 This repo contains canonical ICP examples, each available in both Motoko and Rust. Every example lives under two sibling directories:
