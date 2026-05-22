@@ -12,8 +12,10 @@ if [ -n "$CODESPACE_NAME" ]; then
       let updated;
       if (content.includes('    ii: true\n')) {
         updated = content.replace('    ii: true\n', '    ii: true\n' + gateway);
-      } else {
+      } else if (content.includes('    mode: managed\n')) {
         updated = content.replace('    mode: managed\n', '    mode: managed\n' + gateway);
+      } else {
+        updated = content.trimEnd() + '\nnetwork:\n  mode: managed\n' + gateway;
       }
       fs.writeFileSync('icp.yaml', updated);
     }
