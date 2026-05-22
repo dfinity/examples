@@ -32,16 +32,6 @@ Each project should provide a `Makefile` used by GitHub Actions CI to run basic 
 
 Implementing the GitHub action ensures it runs in CI and helps keep examples in sync with [icp-cli](https://cli.internetcomputer.org) releases.
 
-## Documentation
-
-For your new example to be included in the ICP developer documentation, update the `samples` submodule in the portal repository to point to the latest commit:
-
-```bash
-git submodule update --remote submodules/samples
-```
-
-After running this command, commit the changes to a new PR in the portal repo.
-
 ## Notes
 
 While this structure leads to some duplication (especially shared frontend code) it ensures that Motoko users can focus solely on Motoko-specific content, and likewise for Rust users. It also enables easily finding language-specific examples when a given use case is not easily supported in the other language.
