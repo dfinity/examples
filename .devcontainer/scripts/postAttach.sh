@@ -2,6 +2,8 @@
 
 code CODESPACE.md
 
+icp network start -d 2>/dev/null || true
+
 echo "Deploying canisters..."
 icp deploy
 echo ""
