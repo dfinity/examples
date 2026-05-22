@@ -51,10 +51,6 @@ git clone https://github.com/dfinity/examples.git
 cd examples/<language>/<example>
 ```
 
-### ICP Ninja
-
-You can also open and deploy examples with [ICP Ninja](https://icp.ninja/), a web-based tool that requires no local setup. To contribute an example to ICP Ninja, see [NINJA_CONTRIBUTING.md](./NINJA_CONTRIBUTING.md).
-
 ## Resources
 
 - [Quickstart](https://docs.internetcomputer.org/getting-started/quickstart)
@@ -63,4 +59,4 @@ You can also open and deploy examples with [ICP Ninja](https://icp.ninja/), a we
 
 ## Security considerations and best practices
 
-If you base your application on one of these examples, we recommend you familiarize yourself with and adhere to the [security best practices](https://docs.internetcomputer.org/building-apps/security/overview) for developing on the Internet Computer. The examples provided here may not implement all the best practices.
+If you base your application on one of these examples, we recommend you familiarize yourself with and adhere to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for developing on the Internet Computer. The examples provided here may not implement all the best practices.
