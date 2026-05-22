@@ -6,7 +6,7 @@ networks:
 canisters:
   - name: backend
     recipe:
-      type: "@dfinity/motoko@v4.1.0"
+      type: https://raw.githubusercontent.com/dfinity/icp-cli-recipes/refs/heads/fix/motoko-mops-moc-args/recipes/motoko/recipe.hbs
       configuration:
         main: src/backend/main.mo
         candid: src/backend/backend.did
