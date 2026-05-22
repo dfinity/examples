@@ -11,15 +11,6 @@
     "5173": {
       "label": "Frontend",
       "onAutoForward": "openBrowser"
-    },
-    "7863": {
-      "onAutoForward": "ignore"
-    },
-    "7864": {
-      "onAutoForward": "ignore"
-    },
-    "7865": {
-      "onAutoForward": "ignore"
     }
   },
   "postStartCommand": "bash /workspaces/examples/.devcontainer/scripts/postStart.sh",
@@ -31,7 +22,10 @@
       ],
       "settings": {
         "git.openRepositoryInParentFolders": "always",
-        "workbench.startupEditor": "none"
+        "workbench.startupEditor": "none",
+        "workbench.editorAssociations": {
+          "*.md": "vscode.markdown.preview.editor"
+        }
       }
     }
   }
