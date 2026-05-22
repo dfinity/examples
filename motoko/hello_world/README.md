@@ -21,13 +21,11 @@ The `/backend` folder contains the Motoko canister, `app.mo`. The `/frontend` fo
 
 Edit the `mops.toml` file to add [Motoko dependencies](https://mops.one/) to the project.
 
-## Deploying from ICP Ninja
+## Try in browser
 
-This example can be deployed directly from [ICP Ninja](https://icp.ninja), a browser-based IDE for ICP. To continue developing locally after deploying from ICP Ninja, see [BUILD.md](BUILD.md).
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/dfinity/examples?devcontainer_path=.devcontainer%2Fmotoko-hello-world%2Fdevcontainer.json&ref=feat%2Fcodespaces)
 
-[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/motoko/hello_world)
-
-> **Note:** ICP Ninja currently uses `dfx` under the hood, which is why this example includes a `dfx.json` configuration file. `dfx` is the legacy CLI, being superseded by [icp-cli](https://cli.internetcomputer.org), which is what developers should use for local development.
+Opens a pre-configured environment with the ICP toolchain installed. The local network starts and canisters are deployed automatically. You can browse all your Codespaces at [github.com/codespaces](https://github.com/codespaces).
 
 ## Build and deploy from the command line
 
@@ -47,22 +45,12 @@ cd examples/motoko/hello_world
 
 ### Deployment
 
-Start the local network:
+Start the local network and deploy:
 
 ```bash
 icp network start -d
-```
-
-Deploy the canisters:
-
-```bash
+mops install
 icp deploy
-```
-
-Stop the local network when done:
-
-```bash
-icp network stop
 ```
 
 ## Updating the Candid interface
@@ -77,4 +65,4 @@ $(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo
 
 ## Security considerations and best practices
 
-If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://docs.internetcomputer.org/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for developing on ICP. This example may not implement all the best practices.

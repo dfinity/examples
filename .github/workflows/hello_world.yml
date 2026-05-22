@@ -1,0 +1,39 @@
+name: hello_world
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - motoko/hello_world/**
+      - rust/hello_world/**
+      - .github/workflows/hello_world.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  motoko-hello_world:
+    runs-on: ubuntu-24.04
+    container: ghcr.io/marc0olo/icp-dev-env-motoko:dev
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy
+        working-directory: motoko/hello_world
+        run: |
+          icp network start -d
+          mops install
+          icp deploy
+
+  rust-hello_world:
+    runs-on: ubuntu-24.04
+    container: ghcr.io/marc0olo/icp-dev-env-rust:dev
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy
+        working-directory: rust/hello_world
+        run: |
+          icp network start -d
+          icp deploy

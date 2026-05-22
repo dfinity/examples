@@ -1,0 +1,32 @@
+{
+  "name": "Hello World (Motoko)",
+  "image": "ghcr.io/marc0olo/icp-dev-env-motoko:dev",
+  "workspaceFolder": "/workspaces/examples/motoko/hello_world",
+  "forwardPorts": [8000, 5173],
+  "portsAttributes": {
+    "8000": {
+      "label": "ICP",
+      "onAutoForward": "ignore"
+    },
+    "5173": {
+      "label": "Vite",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "postStartCommand": "bash /workspaces/examples/.devcontainer/scripts/postStart.sh",
+  "postAttachCommand": "bash /workspaces/examples/.devcontainer/scripts/postAttach.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "dfinity-foundation.vscode-motoko"
+      ],
+      "settings": {
+        "git.openRepositoryInParentFolders": "always",
+        "workbench.startupEditor": "none",
+        "workbench.editorAssociations": {
+          "*.md": "vscode.markdown.preview.editor"
+        }
+      }
+    }
+  }
+}

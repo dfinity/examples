@@ -17,20 +17,18 @@ The frontend provides a simple form where users can enter their name and receive
 
 The `/backend` folder contains the Rust canister source code. The `/frontend` folder contains web assets for the application's user interface. The user interface is written with plain JavaScript, but any frontend framework can be used.
 
-## Deploying from ICP Ninja
+## Try in browser
 
-This example can be deployed directly from [ICP Ninja](https://icp.ninja), a browser-based IDE for ICP. To continue developing locally after deploying from ICP Ninja, see [BUILD.md](BUILD.md).
+[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/dfinity/examples?devcontainer_path=.devcontainer%2Frust-hello-world%2Fdevcontainer.json&ref=feat%2Fcodespaces)
 
-[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/rust/hello_world)
-
-> **Note:** ICP Ninja currently uses `dfx` under the hood, which is why this example includes a `dfx.json` configuration file. `dfx` is the legacy CLI, being superseded by [icp-cli](https://cli.icp.build), which is what developers should use for local development.
+Opens a pre-configured environment with the ICP toolchain installed. The local network starts and canisters are deployed automatically. You can browse all your Codespaces at [github.com/codespaces](https://github.com/codespaces).
 
 ## Build and deploy from the command line
 
 ### Prerequisites
 
 - [x] Install [Node.js](https://nodejs.org/en/download/)
-- [x] Install [icp-cli](https://cli.icp.build): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [x] Install [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
 ### Install
 
@@ -43,22 +41,11 @@ cd examples/rust/hello_world
 
 ### Deployment
 
-Start the local network:
+Start the local network and deploy:
 
 ```bash
 icp network start -d
-```
-
-Deploy the canisters:
-
-```bash
 icp deploy
-```
-
-Stop the local network when done:
-
-```bash
-icp network stop
 ```
 
 ## Updating the Candid interface
@@ -74,4 +61,4 @@ candid-extractor target/wasm32-unknown-unknown/release/backend.wasm > backend/ba
 
 ## Security considerations and best practices
 
-If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://docs.internetcomputer.org/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for developing on ICP. This example may not implement all the best practices.

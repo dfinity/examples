@@ -1,0 +1,32 @@
+{
+  "name": "Hello World (Rust)",
+  "image": "ghcr.io/marc0olo/icp-dev-env-rust:dev",
+  "workspaceFolder": "/workspaces/examples/rust/hello_world",
+  "forwardPorts": [8000, 5173],
+  "portsAttributes": {
+    "8000": {
+      "label": "ICP",
+      "onAutoForward": "ignore"
+    },
+    "5173": {
+      "label": "Vite",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "postStartCommand": "bash /workspaces/examples/.devcontainer/scripts/postStart.sh",
+  "postAttachCommand": "bash /workspaces/examples/.devcontainer/scripts/postAttach.sh",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rust-lang.rust-analyzer"
+      ],
+      "settings": {
+        "git.openRepositoryInParentFolders": "always",
+        "workbench.startupEditor": "none",
+        "workbench.editorAssociations": {
+          "*.md": "vscode.markdown.preview.editor"
+        }
+      }
+    }
+  }
+}
