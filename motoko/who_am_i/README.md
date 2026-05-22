@@ -10,28 +10,9 @@ Who am I? demonstrates how entities on the Internet Computer are identified. Eve
 
 [![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/dfinity/examples?devcontainer_path=.devcontainer%2Fmotoko-who-am-i%2Fdevcontainer.json&ref=feat%2Fcodespaces)
 
-Opens a pre-configured environment with the ICP toolchain installed and the local network started automatically. If you already have a Codespace for this example, the creation page will show an **"Open existing codespace"** option at the top — use that to resume. You can also browse all your Codespaces at [github.com/codespaces](https://github.com/codespaces).
+Opens a pre-configured environment with the ICP toolchain installed. The local network starts and canisters are deployed automatically. You can browse all your Codespaces at [github.com/codespaces](https://github.com/codespaces).
 
 > **Note:** Authentication uses production [Internet Identity](https://id.ai) rather than a local test instance. You will see your real principal identifier.
-
-## Codespace actions
-
-The local ICP network is started and canisters are deployed automatically when this Codespace opens. The frontend URL opens in your browser once deployment completes.
-
-**Redeploy** *(after code changes — preserves canister state)*
-```sh { name=deploy }
-icp deploy
-```
-
-**Start dev server** *(optional — for frontend development)*
-```sh { name=frontend }
-npm run dev
-```
-
-**Reset & redeploy** *(wipes all canister state)*
-```sh { name=reset-deploy }
-icp deploy --mode reinstall -y
-```
 
 ## Build and deploy from the command line
 
