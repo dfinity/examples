@@ -17,7 +17,7 @@
     "vscode": {
       "extensions": [
         "dfinity-foundation.vscode-motoko",
-        "rust-analyzer"
+        "rust-lang.rust-analyzer"
       ],
       "settings": {
         "git.openRepositoryInParentFolders": "always",

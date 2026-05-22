@@ -18,7 +18,7 @@
   "customizations": {
     "vscode": {
       "extensions": [
-        "rust-analyzer"
+        "rust-lang.rust-analyzer"
       ],
       "settings": {
         "git.openRepositoryInParentFolders": "always",
