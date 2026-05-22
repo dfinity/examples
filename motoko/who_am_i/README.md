@@ -51,12 +51,12 @@ Codespaces is ideal for learning and local experimentation. When you're ready fo
 
 ## Updating the Candid interface
 
-The `src/internet_identity_app_backend/internet_identity_app_backend.did` file defines the backend canister's public interface. The frontend TypeScript bindings are auto-generated from this file during the frontend build.
+The `src/backend/backend.did` file defines the backend canister's public interface. The frontend TypeScript bindings are auto-generated from this file during the frontend build.
 
 If you modify the backend's public API, regenerate the `.did` file:
 
 ```bash
-$(mops toolchain bin moc) --idl $(mops sources) -o src/internet_identity_app_backend/internet_identity_app_backend.did src/internet_identity_app_backend/main.mo
+$(mops toolchain bin moc) --idl $(mops sources) -o src/backend/backend.did src/backend/main.mo
 ```
 
 ## Security considerations and best practices

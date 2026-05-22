@@ -4,18 +4,18 @@ networks:
     ii: true
 
 canisters:
-  - name: internet_identity_app_backend
+  - name: backend
     recipe:
       type: "@dfinity/motoko@v4.1.0"
       configuration:
-        main: src/internet_identity_app_backend/main.mo
-        candid: src/internet_identity_app_backend/internet_identity_app_backend.did
+        main: src/backend/main.mo
+        candid: src/backend/backend.did
 
-  - name: internet_identity_app_frontend
+  - name: frontend
     recipe:
       type: "@dfinity/asset-canister@v2.1.0"
       configuration:
-        dir: src/internet_identity_app_frontend/dist
+        dir: src/frontend/dist
         build:
-          - npm install --prefix src/internet_identity_app_frontend
-          - npm run build --prefix src/internet_identity_app_frontend
+          - npm install --prefix src/frontend
+          - npm run build --prefix src/frontend

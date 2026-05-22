@@ -1,5 +1,5 @@
 [package]
-name = "internet_identity_app_backend"
+name = "backend"
 version = "0.1.0"
 edition = "2021"
 

@@ -51,13 +51,13 @@ Codespaces is ideal for learning and local experimentation. When you're ready fo
 
 ## Updating the Candid interface
 
-The `src/internet_identity_app_backend/internet_identity_app_backend.did` file defines the backend canister's public interface. The frontend TypeScript bindings are auto-generated from this file during the frontend build.
+The `src/backend/backend.did` file defines the backend canister's public interface. The frontend TypeScript bindings are auto-generated from this file during the frontend build.
 
 If you modify the backend's public API, rebuild the canister and regenerate the `.did` file:
 
 ```bash
-icp build internet_identity_app_backend
-candid-extractor target/wasm32-unknown-unknown/release/internet_identity_app_backend.wasm > src/internet_identity_app_backend/internet_identity_app_backend.did
+icp build backend
+candid-extractor target/wasm32-unknown-unknown/release/backend.wasm > src/backend/backend.did
 ```
 
 ## Security considerations and best practices
