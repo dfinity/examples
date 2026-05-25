@@ -50,7 +50,6 @@ jobs:
             ["Threshold ECDSA (Motoko)"]="motoko/threshold-ecdsa"
             ["Threshold Schnorr (Motoko)"]="motoko/threshold-schnorr"
             ["Tokenmania (Motoko)"]="motoko/tokenmania"
-            ["NFT Creator (Motoko)"]="motoko/nft-creator"
             ["Who Am I (Motoko)"]="motoko/who_am_i"
             ["Rust backend (Rust)"]="rust/backend_only"
             ["Rust backend Wasm64 (Rust)"]="rust/backend_wasm64"
