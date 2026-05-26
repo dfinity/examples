@@ -1,5 +1,0 @@
-[workspace]
-members = [
-    "src/token_transfer_from_backend"
-]
-resolver = "2"
