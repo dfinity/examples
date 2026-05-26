@@ -352,9 +352,15 @@ All devcontainer configs and CI workflows currently reference `ghcr.io/marc0olo/
 Also note: `icp-dev-env-all` is a new combined Motoko+Rust image (for the root devcontainer) that does not yet exist in the dfinity org.
 
 ### Motoko recipe version
-`motoko/who_am_i/icp.yaml` pins a raw GitHub URL to pick up `[moc] args` support before it ships in a stable release. Once https://github.com/dfinity/icp-cli-recipes/pull/26 merges and a new `@dfinity/motoko` version is released, update:
-- `motoko/who_am_i/icp.yaml`
-- `motoko/hello_world/icp.yaml`
+Both `motoko/who_am_i/icp.yaml` and `motoko/hello_world/icp.yaml` pin a specific commit SHA of the Motoko recipe to pick up `[moc] args` support from `mops.toml` before it ships in a stable release:
+
+```yaml
+type: https://raw.githubusercontent.com/dfinity/icp-cli-recipes/bc9581d9258d2d7feb15ab4ae8d04baf923b985f/recipes/motoko/recipe.hbs
+```
+
+Tracked in: https://github.com/dfinity/icp-cli-recipes/pull/26
+
+Once that PR merges and a new `@dfinity/motoko` version is released, replace the raw URL in both files with the versioned tag (e.g. `@dfinity/motoko@vX.Y.Z`).
 
 ---
 
