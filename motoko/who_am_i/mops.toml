@@ -9,3 +9,7 @@ core = "2.5.0"
 # M0237: redundant explicit implicit arguments (e.g. Nat.compare is inferred automatically)
 # M0223: redundant type instantiation (e.g. Array.tabulate instead of Array.tabulate<T>)
 args = ["--default-persistent-actors", "-W=M0236,M0237,M0223"]
+
+[canisters.backend]
+main = "src/backend/main.mo"
+candid = "src/backend/backend.did"

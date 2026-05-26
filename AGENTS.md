@@ -98,10 +98,9 @@ networks:                          # omit if no Internet Identity needed
 canisters:
   - name: backend
     recipe:
-      type: "@dfinity/motoko@v4.1.0"   # see pending items below
+      type: "@dfinity/motoko@vX.Y.Z"   # see pending items; currently pinned to a commit SHA
       configuration:
-        main: backend/app.mo
-        candid: backend/backend.did
+        name: backend                  # must match [canisters.backend] key in mops.toml
 
   - name: frontend
     recipe:
@@ -142,21 +141,23 @@ canisters:
 
 ```toml
 [toolchain]
-moc = "1.5.1"   # bump to latest stable; who_am_i uses 1.8.2
+moc = "1.8.2"
 
 [dependencies]
-core = "2.4.0"  # replaces the old base library
+core = "2.5.0"
 
 [moc]
 # M0236: use context dot notation
 # M0237: redundant explicit implicit arguments
 # M0223: redundant type instantiation
-args = ["-W=M0236,M0237,M0223"]
+args = ["--default-persistent-actors", "-W=M0236,M0237,M0223"]
+
+[canisters.backend]
+main = "backend/app.mo"
+candid = "backend/backend.did"
 ```
 
-If your example uses `persistent actor`, add `--default-persistent-actors` to `args` (see `who_am_i` for reference) or use the `persistent` keyword explicitly.
-
-The `[moc] args` section requires a Motoko recipe that passes moc args from `mops.toml`. Until `@dfinity/motoko` gets this support in a stable release, `who_am_i` pins a fix-branch URL. Track: https://github.com/dfinity/icp-cli-recipes/pull/26
+`[canisters.<name>]` replaces the `main`, `candid`, and `args` fields that were previously in `icp.yaml`. The `name` key must match the `name` in the recipe configuration. `--default-persistent-actors` makes all actors persistent by default, so the `persistent` keyword is not needed in source files.
 
 ---
 

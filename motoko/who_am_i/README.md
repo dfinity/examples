@@ -56,7 +56,7 @@ The `src/backend/backend.did` file defines the backend canister's public interfa
 If you modify the backend's public API, regenerate the `.did` file:
 
 ```bash
-$(mops toolchain bin moc) --idl $(mops sources) -o src/backend/backend.did src/backend/main.mo
+mops build backend --idl
 ```
 
 ## Security considerations and best practices

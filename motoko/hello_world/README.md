@@ -56,10 +56,10 @@ icp deploy
 
 The `backend/backend.did` file defines the backend canister's public interface. The frontend TypeScript bindings are auto-generated from this file during the frontend build.
 
-If you modify the backend's public API, regenerate the `.did` file using the Motoko compiler:
+If you modify the backend's public API, regenerate the `.did` file:
 
 ```bash
-$(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo
+mops build backend --idl
 ```
 
 ## Security considerations and best practices
