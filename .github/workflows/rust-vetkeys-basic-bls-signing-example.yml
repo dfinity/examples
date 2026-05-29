@@ -32,7 +32,6 @@ jobs:
           ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -eExuo pipefail
-          cargo install candid-extractor --locked
           pushd rust/vetkeys/basic_bls_signing/rust
           icp network start -d && icp deploy
           popd
@@ -54,7 +53,6 @@ jobs:
           ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -eExuo pipefail
-          cargo install candid-extractor --locked
           pushd rust/vetkeys/basic_bls_signing/rust
           icp network start -d && icp deploy
           popd
@@ -76,7 +74,6 @@ jobs:
           ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -eExuo pipefail
-          cargo install candid-extractor --locked
           pushd rust/vetkeys/basic_bls_signing/motoko
           icp network start -d && icp deploy
           popd
@@ -98,7 +95,6 @@ jobs:
           ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -eExuo pipefail
-          cargo install candid-extractor --locked
           pushd rust/vetkeys/basic_bls_signing/motoko
           icp network start -d && icp deploy
           popd
