@@ -1,0 +1,80 @@
+name: rust-vetkeys-basic-ibe
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - rust/vetkeys/basic_ibe/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-vetkeys-basic-ibe-example.yml
+      - .ic-commit
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  basic-ibe-rust-darwin:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Pre-download network launcher
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/workflows/pre-download-launcher.sh
+      - name: Basic IBE Rust Darwin
+        run: |
+          pushd rust/vetkeys/basic_ibe/rust
+          icp network start -d
+          icp deploy
+          popd
+  basic-ibe-rust-linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Pre-download network launcher
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/workflows/pre-download-launcher.sh
+      - name: Basic IBE Rust Linux
+        run: |
+          pushd rust/vetkeys/basic_ibe/rust
+          icp network start -d
+          icp deploy
+          popd
+  basic-ibe-motoko-darwin:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Pre-download network launcher
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/workflows/pre-download-launcher.sh
+      - name: Basic IBE Motoko Darwin
+        run: |
+          pushd rust/vetkeys/basic_ibe/motoko
+          icp network start -d
+          icp deploy
+          popd
+  basic-ibe-motoko-linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Pre-download network launcher
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/workflows/pre-download-launcher.sh
+      - name: Basic IBE Motoko Linux
+        run: |
+          pushd rust/vetkeys/basic_ibe/motoko
+          icp network start -d
+          icp deploy
+          popd

@@ -12,4 +12,4 @@ extract-candid: compile-wasm
 .SILENT: clean
 clean:
 	cargo clean
-	rm -rf ../dfx
+	rm -rf ../.icp
