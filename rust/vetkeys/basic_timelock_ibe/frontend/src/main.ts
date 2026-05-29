@@ -1,51 +1,80 @@
-// Required to run `npm run dev`.
-if (!window.global) {
-    window.global = window;
-}
-
 import "./style.css";
-import { createActor } from "./declarations/basic_timelock_ibe";
-import { Principal } from "@dfinity/principal";
+import { idlFactory } from "./declarations/basic_timelock_ibe";
+import { Principal } from "@icp-sdk/core/principal";
 import {
     DerivedPublicKey,
     IbeCiphertext,
     IbeIdentity,
     IbeSeed,
-} from "@dfinity/vetkeys";
+} from "@icp-sdk/vetkeys";
 import {
     _SERVICE,
     LotInformation,
 } from "./declarations/basic_timelock_ibe/basic_timelock_ibe.did";
-import { AuthClient } from "@dfinity/auth-client";
-import type { ActorSubclass } from "@dfinity/agent";
+import { AuthClient } from "@icp-sdk/auth";
+import { HttpAgent, Actor } from "@icp-sdk/core/agent";
+import type { ActorSubclass } from "@icp-sdk/core/agent";
+
+function safeGetCanisterEnv(name: string): string {
+    const cookies = document.cookie.split("; ");
+    for (const cookie of cookies) {
+        const eqIdx = cookie.indexOf("=");
+        if (eqIdx === -1) continue;
+        const key = cookie.substring(0, eqIdx);
+        if (key !== "ic_env") continue;
+        const val = decodeURIComponent(cookie.substring(eqIdx + 1));
+        for (const part of val.split("&")) {
+            if (part.startsWith(`PUBLIC_CANISTER_ID:${name}=`)) {
+                return part.substring(`PUBLIC_CANISTER_ID:${name}=`.length);
+            }
+        }
+    }
+    throw new Error(`Canister ID for ${name} not found in ic_env cookie`);
+}
+
+function getIcRootKey(): string | undefined {
+    const cookies = document.cookie.split("; ");
+    for (const cookie of cookies) {
+        const eqIdx = cookie.indexOf("=");
+        if (eqIdx === -1) continue;
+        const key = cookie.substring(0, eqIdx);
+        if (key !== "ic_env") continue;
+        const val = decodeURIComponent(cookie.substring(eqIdx + 1));
+        for (const part of val.split("&")) {
+            if (part.startsWith("ic_root_key=")) {
+                return part.substring("ic_root_key=".length);
+            }
+        }
+    }
+    return undefined;
+}
 
 let ibePublicKey: DerivedPublicKey | undefined = undefined;
 let myPrincipal: Principal | undefined = undefined;
 let authClient: AuthClient | undefined;
 let basicTimelockIbeCanister: ActorSubclass<_SERVICE> | undefined;
 
-function getBasicTimelockIbeCanister(): ActorSubclass<_SERVICE> {
+async function getBasicTimelockIbeCanister(): Promise<ActorSubclass<_SERVICE>> {
     if (basicTimelockIbeCanister) return basicTimelockIbeCanister;
-    if (!process.env.CANISTER_ID_BASIC_TIMELOCK_IBE) {
-        throw Error("CANISTER_ID_BASIC_TIMELOCK_IBE is not set");
-    }
+    const canisterId = safeGetCanisterEnv("basic_timelock_ibe");
     if (!authClient) {
         throw Error("Auth client is not initialized");
     }
-    const host =
-        process.env.DFX_NETWORK === "ic"
-            ? `https://${process.env.CANISTER_ID_BASIC_TIMELOCK_IBE}.ic0.app`
-            : "http://localhost:8000";
 
-    basicTimelockIbeCanister = createActor(
-        process.env.CANISTER_ID_BASIC_TIMELOCK_IBE,
-        {
-            agentOptions: {
-                identity: authClient.getIdentity(),
-                host,
-            },
-        },
-    );
+    const rootKey = getIcRootKey();
+    const isLocal = !!rootKey;
+    const host = isLocal ? "http://localhost:8000" : `https://${canisterId}.ic0.app`;
+
+    const agent = await HttpAgent.create({
+        identity: authClient.getIdentity(),
+        host,
+        ...(isLocal ? { fetchRootKey: true } : {}),
+    });
+
+    basicTimelockIbeCanister = Actor.createActor<_SERVICE>(idlFactory, {
+        agent,
+        canisterId,
+    });
 
     return basicTimelockIbeCanister!;
 }
@@ -54,9 +83,9 @@ export function login(client: AuthClient) {
     void client.login({
         maxTimeToLive: BigInt(1800) * BigInt(1_000_000_000),
         identityProvider:
-            process.env.DFX_NETWORK === "ic"
-                ? "https://identity.ic0.app/#authorize"
-                : `http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:8000/#authorize`,
+            getIcRootKey()
+                ? `http://id.ai.localhost:8000/#authorize`
+                : "https://identity.ic0.app/#authorize",
         onSuccess: () => {
             myPrincipal = client.getIdentity().getPrincipal();
             updateUI(true);
@@ -186,7 +215,7 @@ async function getIbePublicKey(): Promise<DerivedPublicKey> {
     if (ibePublicKey) return ibePublicKey;
     ibePublicKey = DerivedPublicKey.deserialize(
         new Uint8Array(
-            await getBasicTimelockIbeCanister().get_ibe_public_key(),
+            await (await getBasicTimelockIbeCanister()).get_ibe_public_key(),
         ),
     );
     return ibePublicKey;
@@ -211,7 +240,7 @@ async function createLot(
     description: string,
     durationSeconds: number,
 ) {
-    const result = await getBasicTimelockIbeCanister().create_lot(
+    const result = await (await getBasicTimelockIbeCanister()).create_lot(
         name,
         description,
         durationSeconds,
@@ -303,7 +332,7 @@ function formatCountdown(endTime: bigint): string {
 async function listLots() {
     try {
         const [openLots, closedLots] =
-            await getBasicTimelockIbeCanister().get_lots();
+            await (await getBasicTimelockIbeCanister()).get_lots();
         const openLotsDiv = document.getElementById("openLots")!;
         const closedLotsDiv = document.getElementById("closedLots")!;
 
@@ -450,7 +479,7 @@ async function placeBid(lotId: bigint, amount: number) {
         const encryptedAmount = await encrypt(amountBytes, lotIdBytes);
 
         // Place the bid
-        const result = await getBasicTimelockIbeCanister().place_bid(
+        const result = await (await getBasicTimelockIbeCanister()).place_bid(
             lotId,
             encryptedAmount,
         );

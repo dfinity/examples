@@ -1,8 +1,10 @@
 # Timelock Encryption
 
+<!-- TODO: re-enable once icp.ninja supports icp-cli (currently requires dfx)
 [![](https://icp.ninja/assets/open.svg)](http://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/vetkeys/basic_timelock_ibe)
+-->
 
-The **Basic Timelock IBE** example demonstrates how to use **[VetKeys](https://internetcomputer.org/docs/building-apps/network-features/vetkeys/introduction)** to implement a secret-bid auction using timelock encryption on the **Internet Computer (IC)**. This application allows users authenticated with their **Internet Identity Principal** to create auction lots with a description and deadline, and other users to place a secret bid for the lot. The bids in this example are just dummy integer values, contrary to real-world use cases where users would place bids holding some value.
+The **Basic Timelock IBE** example demonstrates how to use **[VetKeys](https://docs.internetcomputer.org/building-apps/network-features/vetkeys/introduction)** to implement a secret-bid auction using timelock encryption on the **Internet Computer (IC)**. This application allows users authenticated with their **Internet Identity Principal** to create auction lots with a description and deadline, and other users to place a secret bid for the lot. The bids in this example are just dummy integer values, contrary to real-world use cases where users would place bids holding some value.
 
 This canister (IC smart contract) ensures that:
 1. Only authorized users can create auction lots and place secret bids until the lot is closed.
@@ -31,17 +33,27 @@ A canister functionality for decrypting secrets can be detected by inspecting th
 
 ### Prerequisites
 
-- [Internet Computer software development kit](https://internetcomputer.org/docs/building-apps/getting-started/install)
+- [ICP CLI](https://cli.internetcomputer.org)
 - [npm](https://www.npmjs.com/package/npm)
 
 ### (Optionally) Choose a Different Master Key
 
-This example uses `test_key_1` by default. To use a different [available master key](https://internetcomputer.org/docs/building-apps/network-features/vetkeys/api#available-master-keys), change the `"init_arg": "(\"test_key_1\")"` line in `dfx.json` to the desired key before running `dfx deploy` in the next step.
+This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/building-apps/network-features/vetkeys/api#available-master-keys), change the `init_args` value in `icp.yaml` to the desired key before running `icp deploy` in the next step.
 
 ### Deploy the Canisters Locally
 
 ```bash
-dfx start --background && dfx deploy
+icp network start -d && icp deploy
+```
+
+To run the frontend in development mode with hot reloading (after running `icp deploy`):
+```bash
+npm run dev
+```
+
+When you are done testing, stop the local network to free up resources and unblock the default port for other projects:
+```bash
+icp network stop
 ```
 
 ## Example Components
@@ -61,13 +73,7 @@ The frontend is a vanilla typescript application providing a simple interface fo
 * Viewing open and closed lots including winners and bidders
 * Placing a secret bid for open lots created by other users
 
-To run the frontend in development mode with hot reloading (after running `dfx deploy`):
-
-```bash
-npm run dev
-```
-
 ## Additional Resources
 
 - **[Basic IBE Example](../basic_ibe/)** - If you are interested in using IBE with users decrypting secrets.
-- **[What are VetKeys](https://internetcomputer.org/docs/building-apps/network-features/vetkeys/introduction)** - For more information about VetKeys and VetKD. 
+- **[What are VetKeys](https://docs.internetcomputer.org/building-apps/network-features/vetkeys/introduction)** - For more information about VetKeys and VetKD.
