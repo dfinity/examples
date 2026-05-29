@@ -48,6 +48,10 @@ impl PasswordMetadata {
 }
 
 impl Storable for PasswordMetadata {
+    fn into_bytes(self) -> Vec<u8> {
+        self.to_bytes().into_owned()
+    }
+
     fn to_bytes(&self) -> Cow<[u8]> {
         Cow::Owned(serde_cbor::to_vec(self).expect("failed to serialize"))
     }
@@ -143,8 +147,11 @@ fn get_encrypted_values_for_map_with_metadata(
         METADATA.with_borrow(|metadata| {
             let iter_metadata = metadata
                 .range((map_owner, map_name, Blob::default())..)
-                .take_while(|((owner, name, _), _)| owner == &map_owner && name == &map_name)
-                .map(|((_, _, key), metadata)| (key, metadata));
+                .take_while(|entry| {
+                    let (owner, name, _) = entry.key();
+                    owner == &map_owner && name == &map_name
+                })
+                .map(|entry| (entry.key().2, entry.value()));
 
             iter_metadata
                 .zip(map_values)

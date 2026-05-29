@@ -3,8 +3,8 @@ import { type PasswordModel } from "../lib/password";
 import { type VaultModel } from "../lib/vault";
 import { auth } from "./auth";
 import { showError } from "./notifications";
-import { type AccessRights } from "@dfinity/vetkeys/encrypted_maps";
-import type { Principal } from "@dfinity/principal";
+import { type AccessRights } from "@icp-sdk/vetkeys/encrypted_maps";
+import type { Principal } from "@icp-sdk/core/principal";
 import type { PasswordManager } from "../lib/password_manager";
 
 export const vaultsStore = writable<

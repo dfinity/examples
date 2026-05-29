@@ -1,12 +1,18 @@
-import "./init.ts";
-import { type ActorSubclass, type HttpAgentOptions } from "@dfinity/agent";
-import { EncryptedMaps } from "@dfinity/vetkeys/encrypted_maps";
+import { Actor, HttpAgent, type ActorSubclass } from "@icp-sdk/core/agent";
+import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
+import type { Principal } from "@icp-sdk/core/principal";
+import { EncryptedMaps } from "@icp-sdk/vetkeys/encrypted_maps";
+import {
+    idlFactory,
+    type _SERVICE,
+} from "../declarations/password_manager_with_metadata/backend.did";
 import { createEncryptedMaps } from "./encrypted_maps";
-import type { Principal } from "@dfinity/principal";
-import { createActor } from "../declarations/password_manager_with_metadata";
-import type { _SERVICE } from "../declarations/password_manager_with_metadata/password_manager_with_metadata.did";
 import { passwordFromContent, type PasswordModel } from "../lib/password";
 import { vaultFromContent, type VaultModel } from "../lib/vault";
+
+const canisterEnv = safeGetCanisterEnv<{
+    "PUBLIC_CANISTER_ID:password_manager_with_metadata": string;
+}>();
 
 export class PasswordManager {
     /// The actor class representing the full interface of the canister.
@@ -145,35 +151,30 @@ export class PasswordManager {
     }
 }
 
-export async function createPasswordManager(
-    agentOptions?: HttpAgentOptions,
-): Promise<PasswordManager> {
-    if (!process.env.CANISTER_ID_PASSWORD_MANAGER_WITH_METADATA) {
-        console.error(
-            "CANISTER_ID_PASSWORD_MANAGER_WITH_METADATA is not defined",
-        );
+export async function createPasswordManager(agentOptions?: {
+    identity?: HttpAgent["config"]["identity"];
+}): Promise<PasswordManager> {
+    const canisterId =
+        canisterEnv?.["PUBLIC_CANISTER_ID:password_manager_with_metadata"];
+    if (!canisterId) {
         throw new Error(
-            "CANISTER_ID_PASSWORD_MANAGER_WITH_METADATA is not defined",
+            "Canister ID for password_manager_with_metadata is not defined",
         );
     }
 
-    const host =
-        process.env.DFX_NETWORK === "ic"
-            ? `https://${process.env.CANISTER_ID_PASSWORD_MANAGER_WITH_METADATA}.ic0.app`
-            : "http://localhost:8000";
-    const hostOptions = { host };
+    const agent = await HttpAgent.create({
+        ...agentOptions,
+        host: window.location.origin,
+        ...(canisterEnv?.IC_ROOT_KEY
+            ? { rootKey: canisterEnv.IC_ROOT_KEY }
+            : {}),
+    });
 
-    if (!agentOptions) {
-        agentOptions = hostOptions;
-    } else {
-        agentOptions.host = hostOptions.host;
-    }
-
-    const encryptedMaps = await createEncryptedMaps({ ...agentOptions });
-    const canisterClient = createActor(
-        process.env.CANISTER_ID_PASSWORD_MANAGER_WITH_METADATA,
-        { agentOptions },
-    );
+    const encryptedMaps = createEncryptedMaps(agent);
+    const canisterClient = Actor.createActor<_SERVICE>(idlFactory, {
+        agent,
+        canisterId,
+    });
 
     return new PasswordManager(canisterClient, encryptedMaps);
 }

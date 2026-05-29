@@ -1,7 +1,6 @@
-import "../lib/init.ts";
 import { get, writable } from "svelte/store";
-import { AuthClient } from "@dfinity/auth-client";
-import type { JsonnableDelegationChain } from "@dfinity/identity/lib/cjs/identity/delegation";
+import { AuthClient } from "@icp-sdk/auth/client";
+import { DelegationIdentity } from "@icp-sdk/core/identity";
 import { replace } from "svelte-spa-router";
 import {
     PasswordManager,
@@ -51,9 +50,10 @@ export async function login() {
         await currentAuth.client.login({
             maxTimeToLive: BigInt(1800) * BigInt(1_000_000_000),
             identityProvider:
-                process.env.DFX_NETWORK === "ic"
-                    ? "https://identity.ic0.app/#authorize"
-                    : `http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:8000/#authorize`,
+                window.location.hostname === "localhost" ||
+                window.location.hostname.endsWith(".localhost")
+                    ? `http://id.ai.localhost:8000/#authorize`
+                    : "https://identity.ic0.app/#authorize",
             onSuccess: async () => {
                 await authenticate(currentAuth.client);
             },
@@ -79,7 +79,7 @@ export async function logout() {
 }
 
 export async function authenticate(client: AuthClient) {
-    handleSessionTimeout();
+    handleSessionTimeout(client);
 
     try {
         const passwordManager = await createPasswordManager({
@@ -100,31 +100,20 @@ export async function authenticate(client: AuthClient) {
 }
 
 // set a timer when the II session will expire and log the user out
-function handleSessionTimeout() {
-    // upon login the localstorage items may not be set, wait for next tick
-    setTimeout(() => {
-        try {
-            const rawDelegation = window.localStorage.getItem("ic-delegation");
-            if (!rawDelegation) {
-                throw new Error("No delegation found");
-            }
-            const delegation = JSON.parse(
-                rawDelegation,
-            ) as JsonnableDelegationChain;
+function handleSessionTimeout(client: AuthClient) {
+    try {
+        const identity = client.getIdentity();
+        if (!(identity instanceof DelegationIdentity)) return;
 
-            const expirationTimeMs =
-                Number.parseInt(
-                    delegation.delegations[0].delegation.expiration,
-                    16,
-                ) / 1000000;
+        const chain = identity.getDelegation();
+        // expiration is a BigInt of nanoseconds since epoch
+        const expirationMs =
+            Number(chain.delegations[0].delegation.expiration) / 1_000_000;
 
-            setTimeout(() => {
-                void logout();
-            }, expirationTimeMs - Date.now());
-        } catch (e) {
-            console.error(
-                "Could not handle delegation expiry: " + (e as Error).message,
-            );
-        }
-    });
+        setTimeout(() => {
+            void logout();
+        }, expirationMs - Date.now());
+    } catch {
+        console.error("Could not handle delegation expiry.");
+    }
 }

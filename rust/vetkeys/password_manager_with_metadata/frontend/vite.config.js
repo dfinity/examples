@@ -4,23 +4,53 @@ import eslint from "vite-plugin-eslint";
 import tailwindcss from "tailwindcss";
 import autoprefixer from "autoprefixer";
 import css from "rollup-plugin-css-only";
-import typescript from "@rollup/plugin-typescript";
 import viteCompression from "vite-plugin-compression";
-import environment from "vite-plugin-environment";
-import path from "path";
+import { execSync } from "child_process";
+
+const environment = process.env.ICP_ENVIRONMENT || "local";
+const CANISTER_NAMES = ["password_manager_with_metadata"];
+
+function getDevServerConfig() {
+    const backend = process.env.BACKEND;
+    if (!backend) {
+        throw new Error(
+            "BACKEND env var is required. Use `npm run dev:motoko` or `npm run dev:rust`.",
+        );
+    }
+
+    const networkStatus = JSON.parse(
+        execSync(
+            `icp network status -e ${environment} --json --project-root-override ../${backend}`,
+            { encoding: "utf-8" },
+        ),
+    );
+    const canisterParams = CANISTER_NAMES.map((name) => {
+        const id = execSync(
+            `icp canister status ${name} -e ${environment} --id-only --project-root-override ../${backend}`,
+            { encoding: "utf-8", stdio: "pipe" },
+        ).trim();
+        return `PUBLIC_CANISTER_ID:${name}=${id}`;
+    }).join("&");
+    return {
+        headers: {
+            "Set-Cookie": `ic_env=${encodeURIComponent(
+                `${canisterParams}&ic_root_key=${networkStatus.root_key}`,
+            )}; SameSite=Lax;`,
+        },
+        proxy: {
+            "/api": { target: networkStatus.api_url, changeOrigin: true },
+        },
+        hmr: false,
+    };
+}
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
     plugins: [
         svelte(),
         css({ output: "bundle.css" }),
         eslint(),
-        typescript({
-            inlineSources: true,
-        }),
         viteCompression(),
-        environment("all", { prefix: "CANISTER_" }),
-        environment("all", { prefix: "DFX_" }),
     ],
     css: {
         postcss: {
@@ -32,31 +62,14 @@ export default defineConfig({
             output: {
                 inlineDynamicImports: true,
             },
-            sourcemap: true,
         },
-        build: {
-            rollupOptions: {
-                output: {
-                    inlineDynamicImports: true,
-                },
-                sourcemap: true,
-            },
-        },
-        root: "./",
-        server: {
-            hmr: false,
-        },
+        sourcemap: true,
     },
+    root: "./",
     resolve: {
         alias: {
-            ic_vetkeys: path.resolve(
-                __dirname,
-                "../../../frontend/ic_vetkeys/src",
-            ),
-            "ic_vetkeys/encrypted_maps": path.resolve(
-                __dirname,
-                "../../../frontend/ic_vetkeys/src/encrypted_maps",
-            ),
+            "@dfinity/vetkeys": "@icp-sdk/vetkeys",
         },
     },
-});
+    ...(command === "serve" ? { server: getDevServerConfig() } : {}),
+}));

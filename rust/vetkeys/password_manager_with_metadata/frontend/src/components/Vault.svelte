@@ -3,14 +3,14 @@
     import { link, location } from "svelte-spa-router";
     import { onDestroy } from "svelte";
     import { vaultsStore } from "../store/vaults";
-    import { Principal } from "@dfinity/principal";
+    import { Principal } from "@icp-sdk/core/principal";
     import Header from "./Header.svelte";
     import Spinner from "./Spinner.svelte";
     // @ts-expect-error: svelte-icons have some problems with ts declarations
     import GiOpenTreasureChest from "svelte-icons/gi/GiOpenTreasureChest.svelte";
     import { auth } from "../store/auth";
     import SharingEditor from "./SharingEditor.svelte";
-    import type { AccessRights } from "@dfinity/vetkeys/encrypted_maps";
+    import type { AccessRights } from "@icp-sdk/vetkeys/encrypted_maps";
 
     export let vault: VaultModel = {
         name: "",
@@ -27,42 +27,46 @@
     });
     onDestroy(unsubscribeCurrentRoute);
 
-    $: {
-        if (
-            $vaultsStore.state === "loaded" &&
-            $auth.state === "initialized" &&
-            vault.name.length === 0 &&
-            currentRoute.split("/").length > 2
-        ) {
-            const split = currentRoute.split("/");
-            const vaultName = split[split.length - 1];
-            const vaultOwner = Principal.fromText(split[split.length - 2]);
-            const searchedForVault = $vaultsStore.list.find(
-                (v) =>
-                    v.owner.compareTo(vaultOwner) === "eq" &&
-                    v.name === vaultName,
-            );
-            if (!searchedForVault) {
-                vaultSummary =
-                    "could not find vault " +
-                    vaultName +
-                    " owned by " +
-                    vaultOwner.toText();
-            } else {
-                vault = searchedForVault;
-                vaultSummary += summarize(vault);
-                const me = $auth.client.getIdentity().getPrincipal();
+    // Parse owner and vault name from the URL once; stored separately so the
+    // vault lookup below stays reactive to store updates (e.g. from the poller).
+    let parsedRoute: { owner: Principal; vaultName: string } | null = null;
+    $: if (currentRoute.split("/").length > 2 && parsedRoute === null) {
+        const split = currentRoute.split("/");
+        parsedRoute = {
+            owner: Principal.fromText(split[split.length - 2]),
+            vaultName: split[split.length - 1], // already decoded via decodeURI on subscribe
+        };
+    }
 
-                if (vault.owner.compareTo(me) === "eq") {
-                    accessRights = { ReadWriteManage: null };
-                } else {
-                    const foundRights = vault.users.find(
-                        (user) => user[0].compareTo(me) === "eq",
-                    );
-                    accessRights = foundRights
-                        ? foundRights[1]
-                        : { Read: null };
-                }
+    // Re-runs whenever the store updates so new passwords from the poller appear.
+    $: if (
+        $vaultsStore.state === "loaded" &&
+        $auth.state === "initialized" &&
+        parsedRoute !== null
+    ) {
+        const { owner: targetOwner, vaultName: targetVaultName } = parsedRoute;
+        const searchedForVault = $vaultsStore.list.find(
+            (v) =>
+                v.owner.compareTo(targetOwner) === "eq" &&
+                v.name === targetVaultName,
+        );
+        if (!searchedForVault) {
+            vaultSummary =
+                "could not find vault " +
+                targetVaultName +
+                " owned by " +
+                targetOwner.toText();
+        } else {
+            vault = searchedForVault;
+            vaultSummary = summarize(vault);
+            const me = $auth.client.getIdentity().getPrincipal();
+            if (vault.owner.compareTo(me) === "eq") {
+                accessRights = { ReadWriteManage: null };
+            } else {
+                const foundRights = vault.users.find(
+                    (user) => user[0].compareTo(me) === "eq",
+                );
+                accessRights = foundRights ? foundRights[1] : { Read: null };
             }
         }
     }

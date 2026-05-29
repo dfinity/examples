@@ -1,31 +1,22 @@
-import "./init.ts";
-import { HttpAgent, type HttpAgentOptions } from "@dfinity/agent";
+import { HttpAgent } from "@icp-sdk/core/agent";
 import {
     DefaultEncryptedMapsClient,
     EncryptedMaps,
-} from "@dfinity/vetkeys/encrypted_maps";
+} from "@icp-sdk/vetkeys/encrypted_maps";
+import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
 
-export async function createEncryptedMaps(
-    agentOptions: HttpAgentOptions,
-): Promise<EncryptedMaps> {
-    const agent = await HttpAgent.create({ ...agentOptions });
-    // Fetch root key for certificate validation during development
-    if (process.env.NODE_ENV !== "production") {
-        console.log(`Dev environment - fetching root key...`);
+const canisterEnv = safeGetCanisterEnv<{
+    "PUBLIC_CANISTER_ID:password_manager_with_metadata": string;
+}>();
 
-        agent.fetchRootKey().catch((err) => {
-            console.warn(
-                "Unable to fetch root key. Check to ensure that your local replica is running",
-            );
-            console.error(err);
-        });
+export function createEncryptedMaps(agent: HttpAgent): EncryptedMaps {
+    const canisterId =
+        canisterEnv?.["PUBLIC_CANISTER_ID:password_manager_with_metadata"];
+    if (!canisterId) {
+        throw new Error(
+            "Canister ID for password_manager_with_metadata is not set",
+        );
     }
 
-    // Creates an actor with using the candid interface and the HttpAgent
-    return new EncryptedMaps(
-        new DefaultEncryptedMapsClient(
-            agent,
-            process.env.CANISTER_ID_PASSWORD_MANAGER_WITH_METADATA as string,
-        ),
-    );
+    return new EncryptedMaps(new DefaultEncryptedMapsClient(agent, canisterId));
 }

@@ -7,7 +7,7 @@
     // @ts-expect-error: svelte-icons have some problems with ts declarations
     import FaDoorOpen from "svelte-icons/fa/FaDoorOpen.svelte";
     import Disclaimer from "./Disclaimer.svelte";
-    import { Principal } from "@dfinity/principal";
+    import { Principal } from "@icp-sdk/core/principal";
     import { link } from "svelte-spa-router";
 </script>
 

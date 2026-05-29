@@ -6,8 +6,15 @@
     import Trash from "svelte-icons/fa/FaTrash.svelte";
     import { auth } from "../store/auth";
     import Spinner from "./Spinner.svelte";
+    import { location } from "svelte-spa-router";
+    import { Principal } from "@icp-sdk/core/principal";
+    import { onDestroy } from "svelte";
 
-    export let currentRoute = "";
+    let currentRoute = "";
+    const unsubscribeCurrentRoute = location.subscribe((value) => {
+        currentRoute = decodeURI(value);
+    });
+    onDestroy(unsubscribeCurrentRoute);
 
     let editedVault: VaultModel;
     let updating = false;
@@ -20,10 +27,16 @@
         if (
             $auth.state === "initialized" &&
             $vaultsStore.state === "loaded" &&
-            !editedVault
+            !editedVault &&
+            currentRoute.split("/").length > 2
         ) {
+            const split = currentRoute.split("/");
+            const vaultOwner = Principal.fromText(split[split.length - 2]);
+            const vaultName = split[split.length - 1];
             const vault = $vaultsStore.list.find(
-                (vault) => vault.name === currentRoute,
+                (v) =>
+                    v.owner.compareTo(vaultOwner) === "eq" &&
+                    v.name === vaultName,
             );
 
             if (vault) {

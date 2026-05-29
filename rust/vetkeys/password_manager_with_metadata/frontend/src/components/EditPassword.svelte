@@ -11,8 +11,8 @@
     import { auth } from "../store/auth";
     import Spinner from "./Spinner.svelte";
     import { onDestroy } from "svelte";
-    import { Principal } from "@dfinity/principal";
-    import type { AccessRights } from "@dfinity/vetkeys/encrypted_maps";
+    import { Principal } from "@icp-sdk/core/principal";
+    import type { AccessRights } from "@icp-sdk/vetkeys/encrypted_maps";
 
     export let currentRoute = "";
     const unsubscribe = location.subscribe((value) => {
