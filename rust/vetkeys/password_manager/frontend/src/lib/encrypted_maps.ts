@@ -1,43 +1,33 @@
 import "./init.ts";
-import { HttpAgent, type HttpAgentOptions } from "@dfinity/agent";
+import { HttpAgent, type HttpAgentOptions } from "@icp-sdk/core/agent";
 import {
     DefaultEncryptedMapsClient,
     EncryptedMaps,
-} from "@dfinity/vetkeys/encrypted_maps";
+} from "@icp-sdk/vetkeys/encrypted_maps";
+import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
+
+const canisterEnv = safeGetCanisterEnv<{
+    "PUBLIC_CANISTER_ID:ic_vetkeys_encrypted_maps_canister": string;
+}>();
 
 export async function createEncryptedMaps(
     agentOptions?: HttpAgentOptions,
 ): Promise<EncryptedMaps> {
-    const host =
-        process.env.DFX_NETWORK === "ic"
-            ? `https://${process.env.CANISTER_ID_IC_VETKEYS_ENCRYPTED_MAPS_CANISTER}.ic0.app`
-            : "http://localhost:4943";
-    const hostOptions = { host };
-
-    if (!agentOptions) {
-        agentOptions = hostOptions;
-    } else {
-        agentOptions.host = hostOptions.host;
+    const canisterId =
+        canisterEnv?.["PUBLIC_CANISTER_ID:ic_vetkeys_encrypted_maps_canister"];
+    if (!canisterId) {
+        throw new Error(
+            "Canister ID for ic_vetkeys_encrypted_maps_canister is not set",
+        );
     }
 
-    const agent = await HttpAgent.create({ ...agentOptions });
-    // Fetch root key for certificate validation during development
-    if (process.env.NODE_ENV !== "production") {
-        console.log(`Dev environment - fetching root key...`);
+    const agent = await HttpAgent.create({
+        ...agentOptions,
+        host: window.location.origin,
+        ...(canisterEnv?.IC_ROOT_KEY
+            ? { rootKey: canisterEnv.IC_ROOT_KEY }
+            : {}),
+    });
 
-        agent.fetchRootKey().catch((err) => {
-            console.warn(
-                "Unable to fetch root key. Check to ensure that your local replica is running",
-            );
-            console.error(err);
-        });
-    }
-
-    // Creates an actor with using the candid interface and the HttpAgent
-    return new EncryptedMaps(
-        new DefaultEncryptedMapsClient(
-            agent,
-            process.env.CANISTER_ID_IC_VETKEYS_ENCRYPTED_MAPS_CANISTER,
-        ),
-    );
+    return new EncryptedMaps(new DefaultEncryptedMapsClient(agent, canisterId));
 }

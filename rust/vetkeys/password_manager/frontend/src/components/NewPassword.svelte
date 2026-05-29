@@ -8,7 +8,7 @@
     import { addNotification, showError } from "../store/notifications";
     import Header from "./Header.svelte";
     import PasswordEditor from "./PasswordEditor.svelte";
-    import { Principal } from "@dfinity/principal";
+    import { Principal } from "@icp-sdk/core/principal";
 
     let creating = false;
     let vaultOwner =
@@ -27,6 +27,14 @@
 
     async function add() {
         if ($auth.state !== "initialized") {
+            return;
+        }
+
+        if (vaultName.trim() === "" || passwordName.trim() === "") {
+            addNotification({
+                type: "error",
+                message: "Vault name and password name must not be empty.",
+            });
             return;
         }
 
@@ -102,7 +110,9 @@
     <PasswordEditor {editor} class="mb-3" disabled={creating} />
     <button
         class="btn mt-6 btn-primary {creating ? 'loading' : ''}"
-        disabled={creating}
+        disabled={creating ||
+            vaultName.trim() === "" ||
+            passwordName.trim() === ""}
         on:click={add}>{creating ? "Adding..." : "Add password"}</button
     >
 </main>

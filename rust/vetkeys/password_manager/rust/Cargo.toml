@@ -5,7 +5,7 @@ resolver = "2"
 [workspace.dependencies]
 ic-cdk = "0.19.0"
 ic-stable-structures = "0.7.0"
-ic-vetkeys = "0.6.0"
+ic-vetkeys = "0.7.0"
 
 [profile.release]
 lto = true
