@@ -1,0 +1,103 @@
+name: rust-vetkeys-encrypted-notes-app-vetkd
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - rust/vetkeys/encrypted_notes_app_vetkd/**
+      - .github/workflows/provision-darwin.sh
+      - .github/workflows/provision-linux.sh
+      - .github/workflows/rust-vetkeys-encrypted-notes-app-vetkd-example.yml
+      - .ic-commit
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  rust-vetkeys-encrypted-notes-app-vetkd-rust-darwin:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Pre-download network launcher
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/workflows/pre-download-launcher.sh
+      - name: Deploy (Rust backend)
+        env:
+          ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -eExuo pipefail
+          pushd rust/vetkeys/encrypted_notes_app_vetkd/rust
+          icp network start -d && icp deploy
+          popd
+
+  rust-vetkeys-encrypted-notes-app-vetkd-motoko-darwin:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+      - name: Provision Darwin
+        run: bash .github/workflows/provision-darwin.sh
+      - name: Pre-download network launcher
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/workflows/pre-download-launcher.sh
+      - name: Deploy (Motoko backend)
+        env:
+          ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -eExuo pipefail
+          pushd rust/vetkeys/encrypted_notes_app_vetkd/motoko
+          icp network start -d && icp deploy
+          popd
+
+  rust-vetkeys-encrypted-notes-app-vetkd-rust-linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Pre-download network launcher
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/workflows/pre-download-launcher.sh
+      - name: Deploy (Rust backend)
+        env:
+          ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -eExuo pipefail
+          pushd rust/vetkeys/encrypted_notes_app_vetkd/rust
+          icp network start -d && icp deploy
+          popd
+
+  rust-vetkeys-encrypted-notes-app-vetkd-motoko-linux:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22'
+      - name: Provision Linux
+        run: bash .github/workflows/provision-linux.sh
+      - name: Pre-download network launcher
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash .github/workflows/pre-download-launcher.sh
+      - name: Deploy (Motoko backend)
+        env:
+          ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -eExuo pipefail
+          pushd rust/vetkeys/encrypted_notes_app_vetkd/motoko
+          icp network start -d && icp deploy
+          popd

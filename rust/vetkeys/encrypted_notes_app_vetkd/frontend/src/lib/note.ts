@@ -1,6 +1,6 @@
-import type { EncryptedNote } from '../lib/backend';
+import type { EncryptedNote } from '../declarations/encrypted_notes/backend.did';
 import type { CryptoService } from './crypto';
-import type { Principal } from '@dfinity/principal';
+import type { Principal } from '@icp-sdk/core/principal';
 
 export interface NoteModel {
   id: bigint;

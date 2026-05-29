@@ -1,9 +1,6 @@
 import type { BackendActor } from './actor';
 import { get, set } from 'idb-keyval';
-
-// Usage of the imported bindings only works if the respective .wasm was loaded, which is done in main.ts.
-// See also https://github.com/rollup/plugins/tree/master/packages/wasm#using-with-wasm-bindgen-and-wasm-pack
-import * as vetkd from "@dfinity/vetkeys";
+import * as vetkd from "@icp-sdk/vetkeys";
 
 export class CryptoService {
   constructor(private actor: BackendActor) {
