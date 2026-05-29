@@ -7,8 +7,6 @@ import Map "mo:core/Map";
 import Array "mo:core/Array";
 import List "mo:core/List";
 import Nat8 "mo:core/Nat8";
-import Runtime "mo:core/Runtime";
-import Nat "mo:core/Nat";
 import VetKeys "mo:ic-vetkeys";
 import Order "mo:core/Order";
 
@@ -74,21 +72,11 @@ shared persistent actor class (keyName : Text) = {
 
     // Sign a message using BLS
     public shared ({ caller }) func sign_message(message : Text) : async Blob {
-        // TODO(CRP-2874): return only the signature bytes, not the entire vetKey bytes
-        let bytes = await VetKeys.ManagementCanister.signWithBls(
+        let signatureBytes = await VetKeys.ManagementCanister.signWithBls(
             Text.encodeUtf8(message),
             context(caller),
             keyId(),
         );
-
-        let BYTES_SIZE : Nat = 192;
-        let SIGNATURE_SIZE : Nat = 48;
-
-        if (bytes.size() != BYTES_SIZE) {
-            Runtime.trap("Expected " # Nat.toText(BYTES_SIZE) # " signature bytes, but got " # Nat.toText(bytes.size()));
-        };
-
-        let signatureBytes = Blob.fromArray(Array.sliceToArray<Nat8>(Blob.toArray(bytes), BYTES_SIZE - SIGNATURE_SIZE, BYTES_SIZE));
 
         let timestamp = getTimestamp();
         let signature : Signature = {
