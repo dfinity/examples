@@ -11,43 +11,14 @@ import {
     _SERVICE,
     LotInformation,
 } from "./declarations/basic_timelock_ibe/basic_timelock_ibe.did";
-import { AuthClient } from "@icp-sdk/auth";
+import { AuthClient } from "@icp-sdk/auth/client";
+import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
 import { HttpAgent, Actor } from "@icp-sdk/core/agent";
 import type { ActorSubclass } from "@icp-sdk/core/agent";
 
-function safeGetCanisterEnv(name: string): string {
-    const cookies = document.cookie.split("; ");
-    for (const cookie of cookies) {
-        const eqIdx = cookie.indexOf("=");
-        if (eqIdx === -1) continue;
-        const key = cookie.substring(0, eqIdx);
-        if (key !== "ic_env") continue;
-        const val = decodeURIComponent(cookie.substring(eqIdx + 1));
-        for (const part of val.split("&")) {
-            if (part.startsWith(`PUBLIC_CANISTER_ID:${name}=`)) {
-                return part.substring(`PUBLIC_CANISTER_ID:${name}=`.length);
-            }
-        }
-    }
-    throw new Error(`Canister ID for ${name} not found in ic_env cookie`);
-}
-
-function getIcRootKey(): string | undefined {
-    const cookies = document.cookie.split("; ");
-    for (const cookie of cookies) {
-        const eqIdx = cookie.indexOf("=");
-        if (eqIdx === -1) continue;
-        const key = cookie.substring(0, eqIdx);
-        if (key !== "ic_env") continue;
-        const val = decodeURIComponent(cookie.substring(eqIdx + 1));
-        for (const part of val.split("&")) {
-            if (part.startsWith("ic_root_key=")) {
-                return part.substring("ic_root_key=".length);
-            }
-        }
-    }
-    return undefined;
-}
+const canisterEnv = safeGetCanisterEnv<{
+    "PUBLIC_CANISTER_ID:basic_timelock_ibe": string;
+}>();
 
 let ibePublicKey: DerivedPublicKey | undefined = undefined;
 let myPrincipal: Principal | undefined = undefined;
@@ -56,19 +27,16 @@ let basicTimelockIbeCanister: ActorSubclass<_SERVICE> | undefined;
 
 async function getBasicTimelockIbeCanister(): Promise<ActorSubclass<_SERVICE>> {
     if (basicTimelockIbeCanister) return basicTimelockIbeCanister;
-    const canisterId = safeGetCanisterEnv("basic_timelock_ibe");
+    const canisterId = canisterEnv?.["PUBLIC_CANISTER_ID:basic_timelock_ibe"];
+    if (!canisterId) throw Error("Canister ID for basic_timelock_ibe is not set");
     if (!authClient) {
         throw Error("Auth client is not initialized");
     }
 
-    const rootKey = getIcRootKey();
-    const isLocal = !!rootKey;
-    const host = isLocal ? "http://localhost:8000" : `https://${canisterId}.ic0.app`;
-
     const agent = await HttpAgent.create({
-        identity: authClient.getIdentity(),
-        host,
-        ...(isLocal ? { fetchRootKey: true } : {}),
+        identity: await authClient.getIdentity(),
+        host: window.location.origin,
+        ...(canisterEnv?.IC_ROOT_KEY ? { rootKey: canisterEnv.IC_ROOT_KEY } : {}),
     });
 
     basicTimelockIbeCanister = Actor.createActor<_SERVICE>(idlFactory, {
@@ -79,25 +47,20 @@ async function getBasicTimelockIbeCanister(): Promise<ActorSubclass<_SERVICE>> {
     return basicTimelockIbeCanister!;
 }
 
-export function login(client: AuthClient) {
-    void client.login({
-        maxTimeToLive: BigInt(1800) * BigInt(1_000_000_000),
-        identityProvider:
-            getIcRootKey()
-                ? `http://id.ai.localhost:8000/#authorize`
-                : "https://identity.ic0.app/#authorize",
-        onSuccess: () => {
-            myPrincipal = client.getIdentity().getPrincipal();
-            updateUI(true);
-        },
-        onError: (error) => {
-            alert("Authentication failed: " + error);
-        },
-    });
+export async function login(client: AuthClient): Promise<void> {
+    try {
+        const identity = await client.signIn({
+            maxTimeToLive: BigInt(1800) * BigInt(1_000_000_000),
+        });
+        myPrincipal = identity.getPrincipal();
+        updateUI(true);
+    } catch (error: unknown) {
+        alert("Authentication failed: " + error);
+    }
 }
 
 export function logout() {
-    void authClient?.logout();
+    void authClient?.signOut();
     myPrincipal = undefined;
     basicTimelockIbeCanister = undefined;
     updateUI(false);
@@ -108,11 +71,11 @@ export function logout() {
 }
 
 async function initAuth() {
-    authClient = await AuthClient.create();
-    const isAuthenticated = await authClient.isAuthenticated();
+    authClient = new AuthClient({ identityProvider: window.location.hostname === "localhost" || window.location.hostname.endsWith(".localhost") ? "http://id.ai.localhost:8000/#authorize" : undefined });
+    const isAuthenticated = authClient.isAuthenticated();
 
     if (isAuthenticated) {
-        myPrincipal = authClient.getIdentity().getPrincipal();
+        myPrincipal = (await authClient.getIdentity()).getPrincipal();
         updateUI(true);
     } else {
         updateUI(false);
@@ -145,7 +108,7 @@ function handleLogin() {
         return;
     }
 
-    login(authClient);
+    void login(authClient);
 }
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `

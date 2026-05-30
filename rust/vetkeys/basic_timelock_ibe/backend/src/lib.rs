@@ -2,7 +2,7 @@ use crate::types::{
     BidCounter, DecryptedBid, EncryptedBid, LotId, LotInformation, VetKeyPublicKey,
 };
 use candid::Principal;
-use ic_cdk::management_canister::{VetKDCurve, VetKDDeriveKeyArgs, VetKDKeyId, VetKDPublicKeyArgs};
+use ic_cdk_management_canister::{VetKDCurve, VetKDDeriveKeyArgs, VetKDKeyId, VetKDPublicKeyArgs};
 use ic_cdk::{init, post_upgrade, query, update};
 use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
 use ic_stable_structures::{BTreeMap as StableBTreeMap, Cell as StableCell, DefaultMemoryImpl};
@@ -109,7 +109,7 @@ async fn get_ibe_public_key() -> VetKeyPublicKey {
         key_id: key_id(),
     };
 
-    let result = ic_cdk::management_canister::vetkd_public_key(&request)
+    let result = ic_cdk_management_canister::vetkd_public_key(&request)
         .await
         .expect("call to vetkd_public_key failed");
 
@@ -272,7 +272,7 @@ async fn decrypt_ciphertexts(
         transport_public_key: transport_secret_key.public_key().to_vec(),
     };
 
-    let result = ic_cdk::management_canister::vetkd_derive_key(&request)
+    let result = ic_cdk_management_canister::vetkd_derive_key(&request)
         .await
         .expect("call to vetkd_derive_key failed");
 
