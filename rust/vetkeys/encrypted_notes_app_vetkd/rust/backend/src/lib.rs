@@ -371,7 +371,7 @@ fn remove_user(note_id: NoteId, user: PrincipalName) {
     });
 }
 
-use ic_cdk::management_canister::{
+use ic_cdk_management_canister::{
     VetKDCurve, VetKDDeriveKeyArgs, VetKDDeriveKeyResult, VetKDKeyId, VetKDPublicKeyArgs,
     VetKDPublicKeyResult,
 };
@@ -384,7 +384,7 @@ async fn symmetric_key_verification_key_for_note() -> String {
         key_id: key_id(),
     };
 
-    let response: VetKDPublicKeyResult = ic_cdk::management_canister::vetkd_public_key(&request)
+    let response: VetKDPublicKeyResult = ic_cdk_management_canister::vetkd_public_key(&request)
         .await
         .expect("call to vetkd_public_key failed");
 
@@ -418,7 +418,7 @@ async fn encrypted_symmetric_key_for_note(
         }
     });
 
-    let response: VetKDDeriveKeyResult = ic_cdk::management_canister::vetkd_derive_key(&request)
+    let response: VetKDDeriveKeyResult = ic_cdk_management_canister::vetkd_derive_key(&request)
         .await
         .expect("call to vetkd_derive_key failed");
 

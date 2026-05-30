@@ -6,7 +6,6 @@ export type BackendActor = ActorSubclass<_SERVICE>;
 
 const canisterEnv = safeGetCanisterEnv<{
   "PUBLIC_CANISTER_ID:encrypted_notes": string;
-  ic_root_key?: string;
 }>();
 
 export async function createActor(options?: { identity?: any }): Promise<BackendActor> {
@@ -14,7 +13,7 @@ export async function createActor(options?: { identity?: any }): Promise<Backend
   const agent = await HttpAgent.create({
     identity: options?.identity,
     host: window.location.origin,
-    ...(canisterEnv?.ic_root_key ? { rootKey: canisterEnv.ic_root_key } : {}),
+    ...(canisterEnv?.IC_ROOT_KEY ? { rootKey: canisterEnv.IC_ROOT_KEY } : {}),
   });
   return Actor.createActor(idlFactory, { agent, canisterId });
 }
