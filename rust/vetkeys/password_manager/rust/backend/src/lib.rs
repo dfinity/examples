@@ -1,7 +1,7 @@
 use std::cell::RefCell;
 
 use candid::Principal;
-use ic_cdk::management_canister::{VetKDCurve, VetKDKeyId};
+use ic_cdk_management_canister::{VetKDCurve, VetKDKeyId};
 use ic_cdk::{init, query, update};
 use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
 use ic_stable_structures::storable::Blob;

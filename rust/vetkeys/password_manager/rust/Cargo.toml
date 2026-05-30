@@ -3,7 +3,8 @@ members = ["backend"]
 resolver = "2"
 
 [workspace.dependencies]
-ic-cdk = "0.19.0"
+ic-cdk = "0.20.1"
+ic-cdk-management-canister = "0.1.1"
 ic-stable-structures = "0.7.0"
 ic-vetkeys = "0.7.0"
 

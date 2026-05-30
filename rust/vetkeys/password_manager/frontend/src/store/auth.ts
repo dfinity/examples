@@ -29,8 +29,11 @@ export const auth = writable<AuthState>({
 });
 
 async function initAuth() {
-    const client = await AuthClient.create();
-    if (await client.isAuthenticated()) {
+    const isLocalEnv = window.location.hostname === "localhost" || window.location.hostname.endsWith(".localhost");
+    const client = new AuthClient({
+        identityProvider: isLocalEnv ? "http://id.ai.localhost:8000/#authorize" : undefined,
+    });
+    if (client.isAuthenticated()) {
         void authenticate(client);
     } else {
         auth.update(() => ({
@@ -46,15 +49,16 @@ export function login() {
     const currentAuth = get(auth);
 
     if (currentAuth.state === "anonymous") {
-        void currentAuth.client.login({
-            maxTimeToLive: BigInt(1800) * BigInt(1_000_000_000),
-            identityProvider:
-                window.location.hostname === "localhost" ||
-                window.location.hostname.endsWith(".localhost")
-                    ? `http://id.ai.localhost:8000/#authorize`
-                    : "https://identity.ic0.app/#authorize",
-            onSuccess: () => authenticate(currentAuth.client),
-        });
+        void (async () => {
+            try {
+                await currentAuth.client.signIn({
+                    maxTimeToLive: BigInt(1800) * BigInt(1_000_000_000),
+                });
+                void authenticate(currentAuth.client);
+            } catch (error: unknown) {
+                console.error("Login failed:", error);
+            }
+        })();
     }
 }
 
@@ -62,7 +66,7 @@ export async function logout() {
     const currentAuth = get(auth);
 
     if (currentAuth.state === "initialized") {
-        await currentAuth.client.logout();
+        await currentAuth.client.signOut();
         auth.update(() => ({
             state: "anonymous",
             client: currentAuth.client,
@@ -72,11 +76,11 @@ export async function logout() {
 }
 
 export async function authenticate(client: AuthClient) {
-    handleSessionTimeout(client);
+    void handleSessionTimeout(client);
 
     try {
         const encryptedMaps = await createEncryptedMaps({
-            identity: client.getIdentity(),
+            identity: await client.getIdentity(),
         });
 
         auth.update(() => ({
@@ -93,9 +97,9 @@ export async function authenticate(client: AuthClient) {
 }
 
 // set a timer when the II session will expire and log the user out
-function handleSessionTimeout(client: AuthClient) {
+async function handleSessionTimeout(client: AuthClient) {
     try {
-        const identity = client.getIdentity();
+        const identity = await client.getIdentity();
         if (!(identity instanceof DelegationIdentity)) return;
 
         const chain = identity.getDelegation();
