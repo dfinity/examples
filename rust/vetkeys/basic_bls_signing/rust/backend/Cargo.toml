@@ -16,6 +16,7 @@ crate-type = ["cdylib"]
 candid = "0.10.2"
 getrandom = { version = "0.2", features = ["custom"] }
 ic-cdk = "0.20.1"
+ic-cdk-management-canister = "0.1.1"
 ic-stable-structures = "0.6.8"
 ic-vetkeys = "0.7.0"
 serde = "1.0.217"

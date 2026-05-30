@@ -1,6 +1,6 @@
 pub mod types;
 use candid::Principal;
-use ic_cdk::management_canister::{VetKDCurve, VetKDKeyId, VetKDPublicKeyArgs};
+use ic_cdk_management_canister::{VetKDCurve, VetKDKeyId, VetKDPublicKeyArgs};
 use ic_cdk::{init, query, update};
 use ic_stable_structures::{
     memory_manager::{MemoryId, MemoryManager, VirtualMemory},
@@ -96,7 +96,7 @@ async fn get_my_verification_key() -> VetKeyPublicKey {
         context: context(&ic_cdk::api::msg_caller()),
         key_id: key_id(),
     };
-    let result = ic_cdk::management_canister::vetkd_public_key(&request)
+    let result = ic_cdk_management_canister::vetkd_public_key(&request)
         .await
         .expect("call to vetkd_public_key failed");
 
