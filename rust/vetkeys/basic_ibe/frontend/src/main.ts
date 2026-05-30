@@ -36,7 +36,7 @@ async function getBasicIbeActor(): Promise<ActorSubclass<_SERVICE>> {
     }
 
     const agent = await HttpAgent.create({
-        identity: authClient.getIdentity(),
+        identity: await authClient.getIdentity(),
         host: window.location.origin,
         ...(canisterEnv?.IC_ROOT_KEY
             ? { rootKey: canisterEnv.IC_ROOT_KEY }
@@ -247,26 +247,20 @@ async function displayMessages(inbox: Inbox) {
     });
 }
 
-export function login(client: AuthClient) {
-    void client.login({
-        maxTimeToLive: BigInt(1800) * BigInt(1_000_000_000),
-        identityProvider:
-            window.location.hostname === "localhost" ||
-            window.location.hostname.endsWith(".localhost")
-                ? `http://id.ai.localhost:8000/#authorize`
-                : "https://identity.ic0.app/#authorize",
-        onSuccess: () => {
-            myPrincipal = client.getIdentity().getPrincipal();
-            updateUI(true);
-        },
-        onError: (error) => {
-            alert("Authentication failed: " + error);
-        },
-    });
+export async function login(client: AuthClient): Promise<void> {
+    try {
+        const identity = await client.signIn({
+            maxTimeToLive: BigInt(1800) * BigInt(1_000_000_000),
+        });
+        myPrincipal = identity.getPrincipal();
+        updateUI(true);
+    } catch (error: unknown) {
+        alert("Authentication failed: " + error);
+    }
 }
 
 export function logout() {
-    void authClient?.logout();
+    void authClient?.signOut();
     const messagesDiv = document.getElementById("messages")!;
     messagesDiv.innerHTML = "";
     ibePrivateKey = undefined;
@@ -276,11 +270,18 @@ export function logout() {
 }
 
 async function initAuth() {
-    authClient = await AuthClient.create();
-    const isAuthenticated = await authClient.isAuthenticated();
+    const isLocal =
+        window.location.hostname === "localhost" ||
+        window.location.hostname.endsWith(".localhost");
+    authClient = new AuthClient({
+        identityProvider: isLocal
+            ? "http://id.ai.localhost:8000/#authorize"
+            : undefined,
+    });
+    const isAuthenticated = authClient.isAuthenticated();
 
     if (isAuthenticated) {
-        myPrincipal = authClient.getIdentity().getPrincipal();
+        myPrincipal = (await authClient.getIdentity()).getPrincipal();
         updateUI(true);
     } else {
         updateUI(false);
@@ -309,7 +310,7 @@ function handleLogin() {
         return;
     }
 
-    login(authClient);
+    void login(authClient);
 }
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `

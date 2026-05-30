@@ -1,5 +1,5 @@
 use candid::Principal;
-use ic_cdk::management_canister::{VetKDCurve, VetKDDeriveKeyArgs, VetKDKeyId, VetKDPublicKeyArgs};
+use ic_cdk_management_canister::{VetKDCurve, VetKDDeriveKeyArgs, VetKDKeyId, VetKDPublicKeyArgs};
 use ic_cdk::{init, query, update};
 use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
 use ic_stable_structures::{BTreeMap as StableBTreeMap, Cell as StableCell, DefaultMemoryImpl};
@@ -75,7 +75,7 @@ async fn get_ibe_public_key() -> VetKeyPublicKey {
         key_id: key_id(),
     };
 
-    let result = ic_cdk::management_canister::vetkd_public_key(&request)
+    let result = ic_cdk_management_canister::vetkd_public_key(&request)
         .await
         .expect("call to vetkd_public_key failed");
 
@@ -93,7 +93,7 @@ async fn get_my_encrypted_ibe_key(transport_key: TransportPublicKey) -> Encrypte
         transport_public_key: transport_key.into_vec(),
     };
 
-    let result = ic_cdk::management_canister::vetkd_derive_key(&request)
+    let result = ic_cdk_management_canister::vetkd_derive_key(&request)
         .await
         .expect("call to vetkd_derive_key failed");
 
