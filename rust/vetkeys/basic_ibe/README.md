@@ -6,7 +6,7 @@
 | Rust backend | [![](https://icp.ninja/assets/open.svg)](http://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/vetkeys/basic_ibe/rust) |
 -->
 
-The **Basic IBE** example demonstrates how to use **[VetKeys](https://docs.internetcomputer.org/building-apps/network-features/vetkeys/introduction)** to implement secure messaging between users by means of Identity-Based Encryption (IBE) on the **Internet Computer (IC)**. This application allows users to send encrypted messages to other users using their **Internet Identity Principal** as the encryption key identifier. This canister (IC smart contract) ensures that only the authorized user can access their private decryption key, meaning that even if someone else knows your principal, they cannot decrypt messages intended for you because neither other users nor this canister can access your private key.
+The **Basic IBE** example demonstrates how to use **[VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** to implement secure messaging between users by means of Identity-Based Encryption (IBE) on the **Internet Computer (IC)**. This application allows users to send encrypted messages to other users using their **Internet Identity Principal** as the encryption key identifier. This canister (IC smart contract) ensures that only the authorized user can access their private decryption key, meaning that even if someone else knows your principal, they cannot decrypt messages intended for you because neither other users nor this canister can access your private key.
 
 Note that generally it is possible for a canister to request a decryption key to decrypt secrets as part of its code.
 However, doing so requires the canister to provide its own transport key instead of requesting a user's transport key and this inherently makes secrets public.
@@ -29,7 +29,7 @@ A canister functionality for decrypting secrets can be detected by inspecting th
 
 ### (Optionally) Choose a Different Master Key
 
-This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/building-apps/network-features/vetkeys/api#available-master-keys), change the `init_args` value in `icp.yaml` to the desired key before running `icp deploy` in the next step.
+This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/concepts/vetkeys/#api-overview), change the `init_args` value in `icp.yaml` to the desired key before running `icp deploy` in the next step.
 
 ### Deploy the Canisters Locally
 
@@ -70,4 +70,4 @@ This example dapp does not implement key rotation, which is strongly recommended
 
 ## Additional Resources
 
-- **[What are VetKeys](https://docs.internetcomputer.org/building-apps/network-features/vetkeys/introduction)** - For more information about VetKeys and VetKD.
+- **[What are VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** - For more information about VetKeys and VetKD.
