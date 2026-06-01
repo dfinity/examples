@@ -120,17 +120,22 @@ auth.subscribe((auth) => {
         void (async () => {
             try {
                 await refreshVaults(
-                    auth.client.getIdentity().getPrincipal(),
+                    (await auth.client.getIdentity()).getPrincipal(),
                     auth.passwordManager,
                 ).catch((e) => showError(e as Error, "Could not poll vaults."));
 
                 vaultPollerHandle = setInterval(() => {
-                    void refreshVaults(
-                        auth.client.getIdentity().getPrincipal(),
-                        auth.passwordManager,
-                    ).catch((e) =>
-                        showError(e as Error, "Could not poll vaults."),
-                    );
+                    void auth.client
+                        .getIdentity()
+                        .then((identity) =>
+                            refreshVaults(
+                                identity.getPrincipal(),
+                                auth.passwordManager,
+                            ),
+                        )
+                        .catch((e) =>
+                            showError(e as Error, "Could not poll vaults."),
+                        );
                 }, 3000);
             } catch {
                 vaultsStore.set({
