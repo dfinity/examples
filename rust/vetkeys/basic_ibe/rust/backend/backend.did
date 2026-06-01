@@ -11,6 +11,7 @@ type SendMessageRequest = record {
 };
 service : (text) -> {
   get_ibe_public_key : () -> (blob);
+  // Retrieves the caller's encrypted private IBE key for message decryption.
   get_my_encrypted_ibe_key : (blob) -> (blob);
   get_my_messages : () -> (Inbox) query;
   remove_my_message_by_index : (nat64) -> (Result);

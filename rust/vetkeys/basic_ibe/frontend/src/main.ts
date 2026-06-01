@@ -123,11 +123,13 @@ async function sendMessage() {
         });
 
         if ("Err" in result) {
+            console.error("Error sending message:", result.Err);
             alert("Error sending message: " + result.Err);
         } else {
             alert("Message sent successfully!");
         }
     } catch (error) {
+        console.error("Error sending message:", error);
         alert("Error sending message: " + (error as Error).message);
     }
 }
@@ -232,12 +234,14 @@ async function displayMessages(inbox: Inbox) {
                         BigInt(index),
                     );
                     if ("Err" in result) {
+                        console.error("Error deleting message:", result.Err);
                         alert("Error deleting message: " + result.Err);
                     } else {
                         // Re-load all messages to refresh message indices
                         await showMessages();
                     }
                 } catch (error) {
+                    console.error("Error deleting message:", error);
                     alert(
                         "Error deleting message: " + (error as Error).message,
                     );
@@ -255,6 +259,7 @@ export async function login(client: AuthClient): Promise<void> {
         myPrincipal = identity.getPrincipal();
         updateUI(true);
     } catch (error: unknown) {
+        console.error("Authentication failed:", error);
         alert("Authentication failed: " + error);
     }
 }
@@ -306,6 +311,7 @@ function updateUI(isAuthenticated: boolean) {
 
 function handleLogin() {
     if (!authClient) {
+        console.error("Auth client not initialized");
         alert("Auth client not initialized");
         return;
     }
@@ -336,12 +342,23 @@ document.getElementById("loginButton")!.addEventListener("click", handleLogin);
 document.getElementById("logoutButton")!.addEventListener("click", logout);
 document.getElementById("sendMessage")!.addEventListener("click", () => {
     void (async () => {
-        await sendMessage();
+        try {
+            await sendMessage();
+        } catch (error: unknown) {
+            const msg = (error as Error).message ?? String(error);
+            console.error("Error in sendMessage:", error);
+            alert(msg);
+        }
     })();
 });
 document.getElementById("showMessages")!.addEventListener("click", () => {
     void (async () => {
-        await showMessages();
+        try {
+            await showMessages();
+        } catch (error: unknown) {
+            console.error("Error in showMessages:", error);
+            alert("Error loading messages: " + (error as Error).message);
+        }
     })();
 });
 

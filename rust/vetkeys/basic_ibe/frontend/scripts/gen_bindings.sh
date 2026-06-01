@@ -15,7 +15,7 @@ fi
 
 rm -rf "$FRONTEND_DIR/src/declarations/basic_ibe"
 mkdir -p "$FRONTEND_DIR/src/declarations/basic_ibe"
-npx @icp-sdk/bindgen \
+npx --yes @icp-sdk/bindgen \
     --did-file "$EXAMPLE_ROOT/rust/backend/backend.did" \
     --out-dir "$FRONTEND_DIR/src/declarations/basic_ibe" \
     --declarations-flat --force
