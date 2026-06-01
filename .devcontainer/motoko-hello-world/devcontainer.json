@@ -1,6 +1,6 @@
 {
   "name": "Hello World (Motoko)",
-  "image": "ghcr.io/marc0olo/icp-dev-env-motoko:dev",
+  "image": "ghcr.io/dfinity/icp-dev-env-motoko:0.1.0",
   "workspaceFolder": "/workspaces/examples/motoko/hello_world",
   "forwardPorts": [8000, 5173],
   "portsAttributes": {

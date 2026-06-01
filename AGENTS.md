@@ -346,11 +346,11 @@ Each example's README should follow this structure:
 ## Pending items (do not resolve prematurely)
 
 ### Container images
-All devcontainer configs and CI workflows currently reference `ghcr.io/marc0olo/icp-dev-env-*:dev` (a personal fork used while images are being prepared for the official dfinity org). When images are published at `ghcr.io/dfinity/icp-dev-env-*`, update every occurrence in:
+Images are published at `ghcr.io/dfinity/icp-dev-env-{motoko,rust,all}`. All devcontainer configs and CI workflows reference the pinned tag (e.g. `0.1.0`). When a new release is cut, update the tag in:
 - `.devcontainer/*/devcontainer.json`
 - `.github/workflows/*.yml`
 
-Also note: `icp-dev-env-all` is a new combined Motoko+Rust image (for the root devcontainer) that does not yet exist in the dfinity org.
+Source: https://github.com/dfinity/icp-dev-env
 
 ### Motoko recipe version
 Both `motoko/who_am_i/icp.yaml` and `motoko/hello_world/icp.yaml` pin a specific commit SHA of the Motoko recipe to pick up `[moc] args` support from `mops.toml` before it ships in a stable release:

@@ -1,6 +1,6 @@
 {
   "name": "Who Am I? (Motoko)",
-  "image": "ghcr.io/marc0olo/icp-dev-env-motoko:dev",
+  "image": "ghcr.io/dfinity/icp-dev-env-motoko:0.1.0",
   "workspaceFolder": "/workspaces/examples/motoko/who_am_i",
   "forwardPorts": [8000, 5173],
   "portsAttributes": {

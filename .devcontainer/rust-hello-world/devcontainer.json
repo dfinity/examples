@@ -1,6 +1,6 @@
 {
   "name": "Hello World (Rust)",
-  "image": "ghcr.io/marc0olo/icp-dev-env-rust:dev",
+  "image": "ghcr.io/dfinity/icp-dev-env-rust:0.1.0",
   "workspaceFolder": "/workspaces/examples/rust/hello_world",
   "forwardPorts": [8000, 5173],
   "portsAttributes": {

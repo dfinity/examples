@@ -1,6 +1,6 @@
 {
   "name": "ICP Examples (Motoko + Rust)",
-  "image": "ghcr.io/marc0olo/icp-dev-env-all:dev",
+  "image": "ghcr.io/dfinity/icp-dev-env-all:0.1.0",
   "workspaceFolder": "/workspaces/examples",
   "forwardPorts": [8000, 5173],
   "portsAttributes": {
