@@ -119,10 +119,9 @@ auth.subscribe((auth) => {
 
         void (async () => {
             try {
-                await refreshVaults(
-                    auth.principal,
-                    auth.passwordManager,
-                ).catch((e) => showError(e as Error, "Could not poll vaults."));
+                await refreshVaults(auth.principal, auth.passwordManager).catch(
+                    (e) => showError(e as Error, "Could not poll vaults."),
+                );
 
                 vaultPollerHandle = setInterval(() => {
                     void refreshVaults(
