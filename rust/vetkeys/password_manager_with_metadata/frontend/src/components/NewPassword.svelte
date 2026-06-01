@@ -10,10 +10,14 @@
     import { Principal } from "@icp-sdk/core/principal";
 
     let creating = false;
-    let vaultOwner =
-        $auth.state === "initialized"
-            ? $auth.client.getIdentity().getPrincipal().toText()
-            : Principal.anonymous().toText();
+    let vaultOwner = Principal.anonymous().toText();
+    $: if ($auth.state === "initialized") {
+        void $auth.client
+            .getIdentity()
+            .then((identity) => {
+                vaultOwner = identity.getPrincipal().toText();
+            });
+    }
     let vaultName = "";
     let passwordName = "";
     let url: string = "";
@@ -81,7 +85,7 @@
 
         // refresh passwords in the background
         refreshVaults(
-            $auth.client.getIdentity().getPrincipal(),
+            (await $auth.client.getIdentity()).getPrincipal(),
             $auth.passwordManager,
         ).catch((e: Error) => showError(e, "Could not refresh passwords."));
     }
