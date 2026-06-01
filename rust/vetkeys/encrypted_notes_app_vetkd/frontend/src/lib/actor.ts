@@ -1,8 +1,8 @@
-import { Actor, HttpAgent, type ActorSubclass } from "@icp-sdk/core/agent";
+import { HttpAgent } from "@icp-sdk/core/agent";
 import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
-import { idlFactory, type _SERVICE } from "../declarations/encrypted_notes/encrypted_notes_rust.did";
+import { createActor as createEncryptedNotesActor, type Backend } from "../declarations/encrypted_notes/encrypted_notes_rust.did";
 
-export type BackendActor = ActorSubclass<_SERVICE>;
+export type BackendActor = Backend;
 
 const canisterEnv = safeGetCanisterEnv<{
   "PUBLIC_CANISTER_ID:encrypted_notes": string;
@@ -15,5 +15,5 @@ export async function createActor(options?: { identity?: any }): Promise<Backend
     host: window.location.origin,
     ...(canisterEnv?.IC_ROOT_KEY ? { rootKey: canisterEnv.IC_ROOT_KEY } : {}),
   });
-  return Actor.createActor(idlFactory, { agent, canisterId });
+  return createEncryptedNotesActor(canisterId, { agent });
 }
