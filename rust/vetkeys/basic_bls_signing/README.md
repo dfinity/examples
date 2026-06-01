@@ -29,15 +29,30 @@ For confirming that the canister can only produce signatures in the intended way
 
 This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/concepts/vetkeys/#api-overview), change the `value: "(\"test_key_1\")"` line in `icp.yaml` to the desired key before running `icp deploy` in the next step.
 
+### Folder Structure
+
+This example provides both a **Rust** and a **Motoko** backend, sharing a common `frontend/`:
+
+```
+basic_bls_signing/
+├── frontend/   ← shared frontend (symlinked into rust/ and motoko/)
+├── motoko/     ← Motoko backend + icp.yaml
+└── rust/       ← Rust backend + icp.yaml
+```
+
 ### Deploy the Canisters Locally
 
-If you want to deploy this project locally with a Motoko backend, then run:
+Deploy with the **Motoko** backend:
 ```bash
+cd motoko
 icp network start -d && icp deploy
 ```
-from the `motoko` folder.
 
-To use the Rust backend instead of Motoko, run the same command in the `rust` folder.
+Or deploy with the **Rust** backend:
+```bash
+cd rust
+icp network start -d && icp deploy
+```
 
 When finished, stop the local network:
 ```bash
@@ -58,15 +73,11 @@ The backend consists of a canister that:
 The frontend is a vanilla typescript application providing a simple interface for signing, showing the signatures stored in the canister, and publishing a signature.
 
 To run the frontend in development mode with hot reloading (after running `icp deploy`):
-
 ```bash
-npm run dev:rust
-```
-
-or for the Motoko backend:
-
-```bash
-npm run dev:motoko
+cd frontend
+npm run dev:rust     # if you deployed the Rust backend
+# or
+npm run dev:motoko   # if you deployed the Motoko backend
 ```
 
 ## Additional Resources
