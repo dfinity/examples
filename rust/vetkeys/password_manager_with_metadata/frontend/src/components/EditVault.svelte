@@ -41,11 +41,15 @@
 
             if (vault) {
                 editedVault = { ...vault };
-                const me = $auth.client.getIdentity().getPrincipal();
-                canManage =
-                    vault.owner.compareTo(me) === "eq" ||
-                    "ReadWriteManage" in
-                        vault.users.find((u) => u[0].compareTo(me) === "eq");
+                void $auth.client.getIdentity().then((identity) => {
+                    const me = identity.getPrincipal();
+                    canManage =
+                        vault.owner.compareTo(me) === "eq" ||
+                        "ReadWriteManage" in
+                            vault.users.find(
+                                (u) => u[0].compareTo(me) === "eq",
+                            );
+                });
             }
         }
     }

@@ -59,15 +59,19 @@
         } else {
             vault = searchedForVault;
             vaultSummary = summarize(vault);
-            const me = $auth.client.getIdentity().getPrincipal();
-            if (vault.owner.compareTo(me) === "eq") {
-                accessRights = { ReadWriteManage: null };
-            } else {
-                const foundRights = vault.users.find(
-                    (user) => user[0].compareTo(me) === "eq",
-                );
-                accessRights = foundRights ? foundRights[1] : { Read: null };
-            }
+            void $auth.client.getIdentity().then((identity) => {
+                const me = identity.getPrincipal();
+                if (vault.owner.compareTo(me) === "eq") {
+                    accessRights = { ReadWriteManage: null };
+                } else {
+                    const foundRights = vault.users.find(
+                        (user) => user[0].compareTo(me) === "eq",
+                    );
+                    accessRights = foundRights
+                        ? foundRights[1]
+                        : { Read: null };
+                }
+            });
         }
     }
 </script>
