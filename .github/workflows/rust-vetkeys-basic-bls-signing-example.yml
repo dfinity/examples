@@ -14,7 +14,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  rust-vetkeys-basic-bls-signing-rust-darwin:
+  rust-basic-bls-signing-darwin:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
@@ -35,7 +35,7 @@ jobs:
           pushd rust/vetkeys/basic_bls_signing/rust
           icp network start -d && icp deploy
           popd
-  rust-vetkeys-basic-bls-signing-rust-linux:
+  rust-basic-bls-signing-linux:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
@@ -56,7 +56,7 @@ jobs:
           pushd rust/vetkeys/basic_bls_signing/rust
           icp network start -d && icp deploy
           popd
-  rust-vetkeys-basic-bls-signing-motoko-darwin:
+  motoko-basic-bls-signing-darwin:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
@@ -77,7 +77,7 @@ jobs:
           pushd rust/vetkeys/basic_bls_signing/motoko
           icp network start -d && icp deploy
           popd
-  rust-vetkeys-basic-bls-signing-motoko-linux:
+  motoko-basic-bls-signing-linux:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
