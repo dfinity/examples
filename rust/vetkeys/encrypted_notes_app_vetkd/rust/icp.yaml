@@ -15,7 +15,7 @@ canisters:
       configuration:
         dir: dist
         build:
-          - npm ci --prefix ../frontend
+          - npm install --include=dev --prefix ../frontend
           - npm run build --prefix ../frontend
           - rm -rf dist && mv ../frontend/dist dist
 
