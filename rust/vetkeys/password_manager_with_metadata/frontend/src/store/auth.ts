@@ -1,6 +1,7 @@
 import { get, writable } from "svelte/store";
 import { AuthClient } from "@icp-sdk/auth/client";
 import { DelegationIdentity } from "@icp-sdk/core/identity";
+import type { Principal } from "@icp-sdk/core/principal";
 import { replace } from "svelte-spa-router";
 import {
     PasswordManager,
@@ -19,6 +20,7 @@ export type AuthState =
           state: "initialized";
           passwordManager: PasswordManager;
           client: AuthClient;
+          principal: Principal;
       }
     | {
           state: "error";
@@ -84,14 +86,14 @@ export async function authenticate(client: AuthClient) {
     void handleSessionTimeout(client);
 
     try {
-        const passwordManager = await createPasswordManager({
-            identity: await client.getIdentity(),
-        });
+        const identity = await client.getIdentity();
+        const passwordManager = await createPasswordManager({ identity });
 
         auth.update(() => ({
             state: "initialized",
             passwordManager,
             client,
+            principal: identity.getPrincipal(),
         }));
     } catch (e) {
         auth.update(() => ({

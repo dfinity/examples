@@ -9,15 +9,6 @@
     import Disclaimer from "./Disclaimer.svelte";
     import { Principal } from "@icp-sdk/core/principal";
     import { link } from "svelte-spa-router";
-
-    let principalText = Principal.anonymous().toText();
-    $: if ($auth.state === "initialized") {
-        void $auth.client
-            .getIdentity()
-            .then((identity) => {
-                principalText = identity.getPrincipal().toText();
-            });
-    }
 </script>
 
 <div class="drawer-mobile drawer bg-base-200 lg:drawer-open">
@@ -42,7 +33,9 @@
             <div class="border-b">
                 <div class="pl-4">My Principal:</div>
                 <div class="pl-4">
-                    {principalText}
+                    {$auth.state === "initialized"
+                        ? $auth.principal.toText()
+                        : Principal.anonymous().toText()}
                 </div>
             </div>
             <ul

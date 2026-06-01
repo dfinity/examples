@@ -71,7 +71,7 @@
                     v.owner.compareTo(parentVaultOwnerPrincipal) === "eq" &&
                     v.name === parentVaultName,
             );
-            const me = (await $auth.client.getIdentity()).getPrincipal();
+            const me = $auth.principal;
             if (
                 parentVaultOwnerPrincipal.compareTo(me) !== "eq" &&
                 (!vault ||
@@ -152,7 +152,7 @@
         });
 
         await refreshVaults(
-            (await $auth.client.getIdentity()).getPrincipal(),
+            $auth.principal,
             $auth.passwordManager,
         ).catch((e) => showError(e as Error, "Could not refresh passwords."));
 
@@ -185,7 +185,7 @@
             });
 
         await refreshVaults(
-            (await $auth.client.getIdentity()).getPrincipal(),
+            $auth.principal,
             $auth.passwordManager,
         )
             .catch((e) => showError(e as Error, "Could not refresh passwords."))
@@ -228,22 +228,19 @@
                     tagsInput = tags.join(", ");
                 }
 
-                void $auth.client.getIdentity().then((identity) => {
-                    const myPrincipal = identity.getPrincipal();
-                    if (
-                        parentVaultOwnerPrincipal.compareTo(myPrincipal) ===
-                        "eq"
-                    ) {
-                        accessRights = { ReadWriteManage: null };
-                    } else {
-                        const foundAccessRights = targetVault.users.find(
-                            (u) => u[0].compareTo(myPrincipal) === "eq",
-                        );
-                        if (foundAccessRights) {
-                            accessRights = foundAccessRights[1];
-                        }
+                const myPrincipal = $auth.principal;
+                if (
+                    parentVaultOwnerPrincipal.compareTo(myPrincipal) === "eq"
+                ) {
+                    accessRights = { ReadWriteManage: null };
+                } else {
+                    const foundAccessRights = targetVault.users.find(
+                        (u) => u[0].compareTo(myPrincipal) === "eq",
+                    );
+                    if (foundAccessRights) {
+                        accessRights = foundAccessRights[1];
                     }
-                });
+                }
                 editor = new Editor({
                     modules: {
                         placeholder: placeholder("Start typing..."),

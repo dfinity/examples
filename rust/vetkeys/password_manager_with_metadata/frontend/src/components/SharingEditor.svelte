@@ -63,7 +63,7 @@
             adding = false;
         }
         await refreshVaults(
-            (await $auth.client.getIdentity()).getPrincipal(),
+            $auth.principal,
             $auth.passwordManager,
         ).catch((e: Error) => showError(e, "Could not refresh vaults."));
     }
@@ -93,7 +93,7 @@
             removing = false;
         }
         await refreshVaults(
-            (await $auth.client.getIdentity()).getPrincipal(),
+            $auth.principal,
             $auth.passwordManager,
         ).catch((e: Error) => showError(e, "Could not refresh vaults."));
     }
