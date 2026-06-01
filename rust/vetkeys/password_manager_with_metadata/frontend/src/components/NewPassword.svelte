@@ -80,10 +80,9 @@
         });
 
         // refresh passwords in the background
-        refreshVaults(
-            $auth.principal,
-            $auth.passwordManager,
-        ).catch((e: Error) => showError(e, "Could not refresh passwords."));
+        refreshVaults($auth.principal, $auth.passwordManager).catch(
+            (e: Error) => showError(e, "Could not refresh passwords."),
+        );
     }
 
     function saveDraft() {

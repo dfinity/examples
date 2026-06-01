@@ -151,10 +151,9 @@
             message: "Password saved successfully",
         });
 
-        await refreshVaults(
-            $auth.principal,
-            $auth.passwordManager,
-        ).catch((e) => showError(e as Error, "Could not refresh passwords."));
+        await refreshVaults($auth.principal, $auth.passwordManager).catch(
+            (e) => showError(e as Error, "Could not refresh passwords."),
+        );
 
         if (move) {
             void replace(
@@ -184,10 +183,7 @@
                 showError(e as Error, "Could not delete password.");
             });
 
-        await refreshVaults(
-            $auth.principal,
-            $auth.passwordManager,
-        )
+        await refreshVaults($auth.principal, $auth.passwordManager)
             .catch((e) => showError(e as Error, "Could not refresh passwords."))
             .finally(() => {
                 addNotification({
@@ -229,9 +225,7 @@
                 }
 
                 const myPrincipal = $auth.principal;
-                if (
-                    parentVaultOwnerPrincipal.compareTo(myPrincipal) === "eq"
-                ) {
+                if (parentVaultOwnerPrincipal.compareTo(myPrincipal) === "eq") {
                     accessRights = { ReadWriteManage: null };
                 } else {
                     const foundAccessRights = targetVault.users.find(

@@ -62,10 +62,9 @@
         } finally {
             adding = false;
         }
-        await refreshVaults(
-            $auth.principal,
-            $auth.passwordManager,
-        ).catch((e: Error) => showError(e, "Could not refresh vaults."));
+        await refreshVaults($auth.principal, $auth.passwordManager).catch(
+            (e: Error) => showError(e, "Could not refresh vaults."),
+        );
     }
 
     async function remove(sharing: Principal) {
@@ -92,10 +91,9 @@
         } finally {
             removing = false;
         }
-        await refreshVaults(
-            $auth.principal,
-            $auth.passwordManager,
-        ).catch((e: Error) => showError(e, "Could not refresh vaults."));
+        await refreshVaults($auth.principal, $auth.passwordManager).catch(
+            (e: Error) => showError(e, "Could not refresh vaults."),
+        );
     }
 
     function onKeyPress(e: KeyboardEvent) {
