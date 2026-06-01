@@ -1,5 +1,5 @@
 import "./style.css";
-import { idlFactory } from "./declarations/basic_timelock_ibe";
+import { idlFactory, type _SERVICE, type LotInformation } from "./declarations/basic_timelock_ibe/backend.did";
 import { Principal } from "@icp-sdk/core/principal";
 import {
     DerivedPublicKey,
@@ -7,10 +7,6 @@ import {
     IbeIdentity,
     IbeSeed,
 } from "@icp-sdk/vetkeys";
-import {
-    _SERVICE,
-    LotInformation,
-} from "./declarations/basic_timelock_ibe/basic_timelock_ibe.did";
 import { AuthClient } from "@icp-sdk/auth/client";
 import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
 import { HttpAgent, Actor } from "@icp-sdk/core/agent";
