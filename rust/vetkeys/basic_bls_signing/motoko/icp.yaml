@@ -6,7 +6,7 @@ canisters:
         main: backend/src/Main.mo
     init_args:
       type: text
-      value: "(\"test_key_1\")"
+      value: "(\"key_1\")"
 
   - name: www
     recipe:

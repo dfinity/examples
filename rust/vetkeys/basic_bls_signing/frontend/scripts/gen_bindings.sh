@@ -15,7 +15,7 @@ fi
 
 rm -rf "$FRONTEND_DIR/src/declarations/basic_bls_signing"
 mkdir -p "$FRONTEND_DIR/src/declarations/basic_bls_signing"
-npx @icp-sdk/bindgen \
+npx --yes @icp-sdk/bindgen \
     --did-file "$EXAMPLE_ROOT/rust/backend/backend.did" \
     --out-dir "$FRONTEND_DIR/src/declarations/basic_bls_signing" \
     --declarations-flat --force
