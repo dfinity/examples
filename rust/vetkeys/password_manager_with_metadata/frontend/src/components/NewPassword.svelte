@@ -10,7 +10,7 @@
     import { Principal } from "@icp-sdk/core/principal";
 
     let creating = false;
-    $: vaultOwner =
+    let vaultOwner =
         $auth.state === "initialized"
             ? $auth.principal.toText()
             : Principal.anonymous().toText();
