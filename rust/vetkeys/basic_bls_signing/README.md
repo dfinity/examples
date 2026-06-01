@@ -7,7 +7,7 @@
 | Rust backend | [![](https://icp.ninja/assets/open.svg)](http://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/vetkeys/basic_bls_signing/rust) |
 -->
 
-The **Basic BLS signing** example demonstrates how to use **[vetKeys](https://docs.internetcomputer.org/docs/building-apps/network-features/vetkeys/introduction)** to implement a threshold BLS signing service on the **Internet Computer (IC)**, where every authenticated user can ask the canister (IC smart contract) to produce signatures, where the **Internet Identity Principal** identifies the signer. This canister ensures that users can only produce signature for their own principal and not for someone else's principal. Furthermore, the vetKeys in this dapp can only be produced upon a user request, as specified in the canister code, meaning that the canister cannot produce signatures for arbitrary users or messages.
+The **Basic BLS signing** example demonstrates how to use **[vetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** to implement a threshold BLS signing service on the **Internet Computer (IC)**, where every authenticated user can ask the canister (IC smart contract) to produce signatures, where the **Internet Identity Principal** identifies the signer. This canister ensures that users can only produce signature for their own principal and not for someone else's principal. Furthermore, the vetKeys in this dapp can only be produced upon a user request, as specified in the canister code, meaning that the canister cannot produce signatures for arbitrary users or messages.
 
 For confirming that the canister can only produce signatures in the intended way, users need to inspect the code installed in the canister. For this, it is crucial that canisters using VetKeys have their code public.
 
@@ -27,7 +27,7 @@ For confirming that the canister can only produce signatures in the intended way
 
 ### (Optionally) Choose a Different Master Key
 
-This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/docs/building-apps/network-features/vetkeys/api#available-master-keys), change the `value: "(\"test_key_1\")"` line in `icp.yaml` to the desired key before running `icp deploy` in the next step.
+This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/concepts/vetkeys/#api-overview), change the `value: "(\"test_key_1\")"` line in `icp.yaml` to the desired key before running `icp deploy` in the next step.
 
 ### Deploy the Canisters Locally
 
@@ -71,4 +71,4 @@ npm run dev:motoko
 
 ## Additional Resources
 
-- **[What are VetKeys](https://docs.internetcomputer.org/docs/building-apps/network-features/encryption/vetkeys)** - For more information about VetKeys and VetKD.
+- **[What are VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** - For more information about VetKeys and VetKD.
