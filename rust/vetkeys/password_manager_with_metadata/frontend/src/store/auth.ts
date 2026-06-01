@@ -30,9 +30,13 @@ export const auth = writable<AuthState>({
 });
 
 async function initAuth() {
-    const isLocalEnv = window.location.hostname === "localhost" || window.location.hostname.endsWith(".localhost");
+    const isLocalEnv =
+        window.location.hostname === "localhost" ||
+        window.location.hostname.endsWith(".localhost");
     const client = new AuthClient({
-        identityProvider: isLocalEnv ? "http://id.ai.localhost:8000/#authorize" : undefined,
+        identityProvider: isLocalEnv
+            ? "http://id.ai.localhost:8000/#authorize"
+            : undefined,
     });
     if (client.isAuthenticated()) {
         await authenticate(client);
@@ -46,7 +50,7 @@ async function initAuth() {
 
 void initAuth();
 
-export async function login() {
+export function login() {
     const currentAuth = get(auth);
 
     if (currentAuth.state === "anonymous") {
