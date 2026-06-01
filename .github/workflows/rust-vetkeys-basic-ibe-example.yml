@@ -14,7 +14,7 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  basic-ibe-rust-darwin:
+  rust-basic-ibe-darwin:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
@@ -30,7 +30,7 @@ jobs:
           icp network start -d
           icp deploy
           popd
-  basic-ibe-rust-linux:
+  rust-basic-ibe-linux:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
@@ -46,7 +46,7 @@ jobs:
           icp network start -d
           icp deploy
           popd
-  basic-ibe-motoko-darwin:
+  motoko-basic-ibe-darwin:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
@@ -62,7 +62,7 @@ jobs:
           icp network start -d
           icp deploy
           popd
-  basic-ibe-motoko-linux:
+  motoko-basic-ibe-linux:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
