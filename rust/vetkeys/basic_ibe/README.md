@@ -31,19 +31,37 @@ A canister functionality for decrypting secrets can be detected by inspecting th
 
 This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/concepts/vetkeys/#api-overview), change the `init_args` value in `icp.yaml` to the desired key before running `icp deploy` in the next step.
 
+### Folder Structure
+
+This example provides both a **Rust** and a **Motoko** backend, sharing a common `frontend/`:
+
+```
+basic_ibe/
+├── frontend/   ← shared frontend (symlinked into rust/ and motoko/)
+├── motoko/     ← Motoko backend + icp.yaml
+└── rust/       ← Rust backend + icp.yaml
+```
+
 ### Deploy the Canisters Locally
 
-If you want to deploy this project locally with a Motoko backend, then run:
+Deploy with the **Motoko** backend:
 ```bash
+cd motoko
 icp network start -d && icp deploy
 ```
-from the `motoko` folder.
 
-To use the Rust backend instead of Motoko, run the same command in the `rust` folder.
+Or deploy with the **Rust** backend:
+```bash
+cd rust
+icp network start -d && icp deploy
+```
 
 To run the frontend in development mode with hot reloading (after running `icp deploy`):
 ```bash
-npm run dev
+cd frontend
+npm run dev:motoko   # if you deployed the Motoko backend
+# or
+npm run dev:rust     # if you deployed the Rust backend
 ```
 
 When you are done testing, stop the local network to free up resources and unblock the default port for other projects:
