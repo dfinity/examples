@@ -151,8 +151,8 @@
             message: "Password saved successfully",
         });
 
-        await refreshVaults($auth.principal, $auth.passwordManager).catch(
-            (e) => showError(e as Error, "Could not refresh passwords."),
+        await refreshVaults($auth.principal, $auth.passwordManager).catch((e) =>
+            showError(e as Error, "Could not refresh passwords."),
         );
 
         if (move) {
