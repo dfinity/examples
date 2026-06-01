@@ -1,6 +1,6 @@
 import { HttpAgent } from "@icp-sdk/core/agent";
 import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
-import { createActor as createEncryptedNotesActor, type Backend } from "../declarations/encrypted_notes/encrypted_notes_rust.did";
+import { createActor as createEncryptedNotesActor, type Backend } from "../declarations/encrypted_notes/encrypted_notes_rust";
 
 export type BackendActor = Backend;
 
