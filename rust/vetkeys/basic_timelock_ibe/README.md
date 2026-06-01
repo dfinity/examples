@@ -4,7 +4,7 @@
 [![](https://icp.ninja/assets/open.svg)](http://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/vetkeys/basic_timelock_ibe)
 -->
 
-The **Basic Timelock IBE** example demonstrates how to use **[VetKeys](https://docs.internetcomputer.org/building-apps/network-features/vetkeys/introduction)** to implement a secret-bid auction using timelock encryption on the **Internet Computer (IC)**. This application allows users authenticated with their **Internet Identity Principal** to create auction lots with a description and deadline, and other users to place a secret bid for the lot. The bids in this example are just dummy integer values, contrary to real-world use cases where users would place bids holding some value.
+The **Basic Timelock IBE** example demonstrates how to use **[VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** to implement a secret-bid auction using timelock encryption on the **Internet Computer (IC)**. This application allows users authenticated with their **Internet Identity Principal** to create auction lots with a description and deadline, and other users to place a secret bid for the lot. The bids in this example are just dummy integer values, contrary to real-world use cases where users would place bids holding some value.
 
 This canister (IC smart contract) ensures that:
 1. Only authorized users can create auction lots and place secret bids until the lot is closed.
@@ -38,7 +38,7 @@ A canister functionality for decrypting secrets can be detected by inspecting th
 
 ### (Optionally) Choose a Different Master Key
 
-This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/building-apps/network-features/vetkeys/api#available-master-keys), change the `init_args` value in `icp.yaml` to the desired key before running `icp deploy` in the next step.
+This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/concepts/vetkeys/#api-overview), change the `init_args` value in `icp.yaml` to the desired key before running `icp deploy` in the next step.
 
 ### Deploy the Canisters Locally
 
@@ -76,4 +76,4 @@ The frontend is a vanilla typescript application providing a simple interface fo
 ## Additional Resources
 
 - **[Basic IBE Example](../basic_ibe/)** - If you are interested in using IBE with users decrypting secrets.
-- **[What are VetKeys](https://docs.internetcomputer.org/building-apps/network-features/vetkeys/introduction)** - For more information about VetKeys and VetKD.
+- **[What are VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** - For more information about VetKeys and VetKD.
