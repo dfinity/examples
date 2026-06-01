@@ -26,7 +26,7 @@ This version of the application extends the basic password manager by supporting
 
 ### (Optionally) Choose a Different Master Key
 
-This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/building-apps/network-features/vetkeys/api#available-master-keys), change the `init_args` value in `icp.yaml` to the desired key before running `icp deploy` in the next step.
+This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/concepts/vetkeys/#api-overview), change the `init_args` value in `icp.yaml` to the desired key before running `icp deploy` in the next step.
 
 ### Deploy the Canisters Locally
 
