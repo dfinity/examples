@@ -1,5 +1,4 @@
 import "./style.css";
-import { idlFactory } from "./declarations/basic_ibe/backend.did";
 import { Principal } from "@icp-sdk/core/principal";
 import {
     TransportSecretKey,
@@ -10,9 +9,9 @@ import {
     IbeIdentity,
     IbeSeed,
 } from "@icp-sdk/vetkeys";
-import { Inbox, _SERVICE } from "./declarations/basic_ibe/backend.did";
+import { createActor, type Backend, type Inbox } from "./declarations/basic_ibe/backend";
 import { AuthClient } from "@icp-sdk/auth/client";
-import { Actor, HttpAgent, type ActorSubclass } from "@icp-sdk/core/agent";
+import { HttpAgent } from "@icp-sdk/core/agent";
 import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
 
 const canisterEnv = safeGetCanisterEnv<{
@@ -23,9 +22,9 @@ let ibePrivateKey: VetKey | undefined = undefined;
 let ibePublicKey: DerivedPublicKey | undefined = undefined;
 let myPrincipal: Principal | undefined = undefined;
 let authClient: AuthClient | undefined;
-let basicIbeActor: ActorSubclass<_SERVICE> | undefined;
+let basicIbeActor: Backend | undefined;
 
-async function getBasicIbeActor(): Promise<ActorSubclass<_SERVICE>> {
+async function getBasicIbeActor(): Promise<Backend> {
     if (basicIbeActor) return basicIbeActor;
     const canisterId = canisterEnv?.["PUBLIC_CANISTER_ID:basic_ibe"];
     if (!canisterId) {
@@ -42,7 +41,7 @@ async function getBasicIbeActor(): Promise<ActorSubclass<_SERVICE>> {
             ? { rootKey: canisterEnv.IC_ROOT_KEY }
             : {}),
     });
-    basicIbeActor = Actor.createActor(idlFactory, { agent, canisterId });
+    basicIbeActor = createActor(canisterId, { agent });
 
     return basicIbeActor;
 }
