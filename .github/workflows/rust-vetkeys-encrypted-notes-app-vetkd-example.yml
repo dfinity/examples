@@ -8,13 +8,13 @@ on:
       - rust/vetkeys/encrypted_notes_app_vetkd/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
-      - .github/workflows/rust-vetkeys-encrypted-notes-app-vetkd-example.yml
+      - .github/workflows/encrypted-notes-app-vetkd-example.yml
       - .ic-commit
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  rust-vetkeys-encrypted-notes-app-vetkd-rust-darwin:
+  encrypted-notes-app-vetkd-rust-darwin:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
@@ -36,7 +36,7 @@ jobs:
           icp network start -d && icp deploy
           popd
 
-  rust-vetkeys-encrypted-notes-app-vetkd-motoko-darwin:
+  encrypted-notes-app-vetkd-motoko-darwin:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
@@ -58,7 +58,7 @@ jobs:
           icp network start -d && icp deploy
           popd
 
-  rust-vetkeys-encrypted-notes-app-vetkd-rust-linux:
+  encrypted-notes-app-vetkd-rust-linux:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
@@ -80,7 +80,7 @@ jobs:
           icp network start -d && icp deploy
           popd
 
-  rust-vetkeys-encrypted-notes-app-vetkd-motoko-linux:
+  encrypted-notes-app-vetkd-motoko-linux:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
