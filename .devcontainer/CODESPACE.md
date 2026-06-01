@@ -6,7 +6,7 @@ The network starts and canisters are deployed automatically when this Codespace 
 
 ## Access URLs
 
-`icp deploy` prints canister URLs in the form `http://<canister-id>.localhost:8000`. These subdomain-based URLs don't work in a Codespace — GitHub's TLS certificate only covers one subdomain level, so `<canister-id>.<codespace>-8000.app.github.dev` is not a valid HTTPS URL ([open GitHub issue](https://github.com/orgs/community/discussions/8665)). Run the following command to get the correct forwarded URLs:
+`icp deploy` prints canister URLs in the form `http://<canister-id>.localhost:8000`. These subdomain-based URLs don't work in a Codespace — GitHub's TLS certificate only covers one subdomain level, so `<canister-id>.<codespace>-8000.app.github.dev` is not a valid HTTPS URL ([open GitHub issue](https://github.com/orgs/community/discussions/8665)). Run the following command to get the correct forwarded URLs that you can actually use:
 
 ```bash
 bash /workspaces/examples/.devcontainer/scripts/show-urls.sh
