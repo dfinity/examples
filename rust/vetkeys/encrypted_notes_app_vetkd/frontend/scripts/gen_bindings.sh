@@ -12,7 +12,7 @@ EXAMPLE_ROOT="$(dirname "$FRONTEND_DIR")"
 
 rm -rf "$FRONTEND_DIR/src/declarations/encrypted_notes"
 mkdir -p "$FRONTEND_DIR/src/declarations/encrypted_notes"
-npx @icp-sdk/bindgen \
+npx --yes @icp-sdk/bindgen \
     --did-file "$EXAMPLE_ROOT/rust/backend/src/encrypted_notes_rust.did" \
     --out-dir "$FRONTEND_DIR/src/declarations/encrypted_notes" \
     --declarations-flat --force
