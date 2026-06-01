@@ -18,24 +18,39 @@ The vetKey used to encrypt and decrypt a note is note-ID-specific (and not, for 
 - [x] Install the [ICP CLI](https://cli.internetcomputer.org).
 - [x] Install [npm](https://www.npmjs.com/package/npm).
 
+## Folder Structure
+
+This example provides both a **Rust** and a **Motoko** backend, sharing a common `frontend/`:
+
+```
+encrypted_notes_app_vetkd/
+├── frontend/   ← shared frontend (symlinked into rust/ and motoko/)
+├── motoko/     ← Motoko backend + icp.yaml
+└── rust/       ← Rust backend + icp.yaml
+```
+
 ## Deploy the Canisters Locally
 
-To deploy with the Motoko backend, run from the `motoko` folder:
+Deploy with the **Motoko** backend:
 ```bash
+cd motoko
 icp network start -d && icp deploy
 ```
 
-To deploy with the Rust backend instead, run the same command from the `rust` folder.
+Or deploy with the **Rust** backend:
+```bash
+cd rust
+icp network start -d && icp deploy
+```
 
 ## Running the Frontend in Development Mode
 
 After deploying, run from the `frontend` folder:
 ```bash
-# For Motoko backend:
-npm run dev:motoko
-
-# For Rust backend:
-npm run dev:rust
+cd frontend
+npm run dev:motoko   # if you deployed the Motoko backend
+# or
+npm run dev:rust     # if you deployed the Rust backend
 ```
 
 ## Example Components
