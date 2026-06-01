@@ -12,6 +12,6 @@ fi
 cd "$SCRIPT_DIR/../.."
 rm -rf frontend/src/declarations/password_manager_with_metadata
 mkdir -p frontend/src/declarations/password_manager_with_metadata
-npx @icp-sdk/bindgen --did-file rust/backend/backend.did \
+npx --yes @icp-sdk/bindgen --did-file rust/backend/backend.did \
     --out-dir frontend/src/declarations/password_manager_with_metadata \
     --declarations-flat --force
