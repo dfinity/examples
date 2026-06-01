@@ -8,13 +8,13 @@ on:
       - rust/vetkeys/basic_timelock_ibe/**
       - .github/workflows/provision-darwin.sh
       - .github/workflows/provision-linux.sh
-      - .github/workflows/basic-timelock-ibe-example.yml
+      - .github/workflows/rust-vetkeys-basic-timelock-ibe-example.yml
       - .ic-commit
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 jobs:
-  basic-timelock-ibe-rust-darwin:
+  rust-basic-timelock-ibe-darwin:
     runs-on: macos-15
     steps:
       - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
@@ -36,7 +36,7 @@ jobs:
           pushd rust/vetkeys/basic_timelock_ibe
           icp network start -d && icp deploy
           popd
-  basic-timelock-ibe-rust-linux:
+  rust-basic-timelock-ibe-linux:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
