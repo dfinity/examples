@@ -14,7 +14,7 @@ canisters:
       configuration:
         dir: dist
         build:
-          - cd frontend && npm i --include=dev && npm run build && cd - && rm -rf dist; mv frontend/dist ./
+          - cd ../../frontend && npm i --include=dev && npm run build && cd - && rm -rf dist; mv ../../frontend/dist ./
 
 networks:
   - name: local
