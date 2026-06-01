@@ -40,6 +40,17 @@ A canister functionality for decrypting secrets can be detected by inspecting th
 
 This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/concepts/vetkeys/#api-overview), change the `init_args` value in `icp.yaml` to the desired key before running `icp deploy` in the next step.
 
+### Folder Structure
+
+This example has a single **Rust** backend with `icp.yaml` at the example root:
+
+```
+basic_timelock_ibe/
+├── frontend/   ← frontend
+├── backend/    ← Rust canister source
+└── icp.yaml    ← deployment config
+```
+
 ### Deploy the Canisters Locally
 
 ```bash
@@ -48,7 +59,8 @@ icp network start -d && icp deploy
 
 To run the frontend in development mode with hot reloading (after running `icp deploy`):
 ```bash
-npm run dev
+cd frontend
+npm run dev:rust
 ```
 
 When you are done testing, stop the local network to free up resources and unblock the default port for other projects:
