@@ -1,5 +1,5 @@
 import "./style.css";
-import { idlFactory, type _SERVICE, type LotInformation } from "./declarations/basic_timelock_ibe/backend.did";
+import { createActor, type Backend, type LotInformation } from "./declarations/basic_timelock_ibe/backend";
 import { Principal } from "@icp-sdk/core/principal";
 import {
     DerivedPublicKey,
@@ -9,8 +9,7 @@ import {
 } from "@icp-sdk/vetkeys";
 import { AuthClient } from "@icp-sdk/auth/client";
 import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
-import { HttpAgent, Actor } from "@icp-sdk/core/agent";
-import type { ActorSubclass } from "@icp-sdk/core/agent";
+import { HttpAgent } from "@icp-sdk/core/agent";
 
 const canisterEnv = safeGetCanisterEnv<{
     "PUBLIC_CANISTER_ID:basic_timelock_ibe": string;
@@ -19,9 +18,9 @@ const canisterEnv = safeGetCanisterEnv<{
 let ibePublicKey: DerivedPublicKey | undefined = undefined;
 let myPrincipal: Principal | undefined = undefined;
 let authClient: AuthClient | undefined;
-let basicTimelockIbeCanister: ActorSubclass<_SERVICE> | undefined;
+let basicTimelockIbeCanister: Backend | undefined;
 
-async function getBasicTimelockIbeCanister(): Promise<ActorSubclass<_SERVICE>> {
+async function getBasicTimelockIbeCanister(): Promise<Backend> {
     if (basicTimelockIbeCanister) return basicTimelockIbeCanister;
     const canisterId = canisterEnv?.["PUBLIC_CANISTER_ID:basic_timelock_ibe"];
     if (!canisterId) throw Error("Canister ID for basic_timelock_ibe is not set");
@@ -35,12 +34,9 @@ async function getBasicTimelockIbeCanister(): Promise<ActorSubclass<_SERVICE>> {
         ...(canisterEnv?.IC_ROOT_KEY ? { rootKey: canisterEnv.IC_ROOT_KEY } : {}),
     });
 
-    basicTimelockIbeCanister = Actor.createActor<_SERVICE>(idlFactory, {
-        agent,
-        canisterId,
-    });
+    basicTimelockIbeCanister = createActor(canisterId, { agent });
 
-    return basicTimelockIbeCanister!;
+    return basicTimelockIbeCanister;
 }
 
 export async function login(client: AuthClient): Promise<void> {
