@@ -1,11 +1,9 @@
 import "./style.css";
-import { idlFactory } from "./declarations/basic_bls_signing/backend.did";
 import { Principal } from "@icp-sdk/core/principal";
 import { AuthClient } from "@icp-sdk/auth/client";
-import { Actor, HttpAgent, type ActorSubclass } from "@icp-sdk/core/agent";
-import { _SERVICE } from "./declarations/basic_bls_signing/backend.did";
+import { HttpAgent } from "@icp-sdk/core/agent";
+import { createActor, type Backend, type Signature } from "./declarations/basic_bls_signing/backend";
 import { DerivedPublicKey, verifyBlsSignature } from "@icp-sdk/vetkeys";
-import type { Signature } from "./declarations/basic_bls_signing/backend.did";
 import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
 
 const canisterEnv = safeGetCanisterEnv<{
@@ -14,11 +12,11 @@ const canisterEnv = safeGetCanisterEnv<{
 
 let myPrincipal: Principal | undefined = undefined;
 let authClient: AuthClient | undefined;
-let basicBlsSigningActor: ActorSubclass<_SERVICE> | undefined;
+let basicBlsSigningActor: Backend | undefined;
 // let canisterPublicKey: DerivedPublicKey | undefined;
 let myVerificationKey: DerivedPublicKey | undefined;
 
-async function getBasicBlsSigningActor(): Promise<ActorSubclass<_SERVICE>> {
+async function getBasicBlsSigningActor(): Promise<Backend> {
   if (basicBlsSigningActor) return basicBlsSigningActor;
   const canisterId = canisterEnv?.["PUBLIC_CANISTER_ID:basic_bls_signing"];
   if (!canisterId) {
@@ -32,7 +30,7 @@ async function getBasicBlsSigningActor(): Promise<ActorSubclass<_SERVICE>> {
     host: window.location.origin,
     ...(canisterEnv?.IC_ROOT_KEY ? { rootKey: canisterEnv.IC_ROOT_KEY } : {}),
   });
-  basicBlsSigningActor = Actor.createActor(idlFactory, { agent, canisterId });
+  basicBlsSigningActor = createActor(canisterId, { agent });
   return basicBlsSigningActor;
 }
 
