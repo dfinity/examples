@@ -1,6 +1,6 @@
 import { Actor, HttpAgent, type ActorSubclass } from "@icp-sdk/core/agent";
 import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
-import { idlFactory, type _SERVICE } from "../declarations/encrypted_notes/backend.did";
+import { idlFactory, type _SERVICE } from "../declarations/encrypted_notes/encrypted_notes_rust.did";
 
 export type BackendActor = ActorSubclass<_SERVICE>;
 
