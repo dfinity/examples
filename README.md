@@ -1,6 +1,8 @@
-# Internet Computer sample applications 
+# Internet Computer sample applications
 
 Get started building on ICP with the sample applications in this repository. From this repository, you can deploy, download, clone, fork, or share sample projects.
+
+> Looking to start a new project from scratch? Use [icp-cli-templates](https://github.com/dfinity/icp-cli-templates) to scaffold a project with `icp new`.
 
 The projects in this repository are not intended to be used as commercial applications and do not provide any explicit or implied support or warranty of any kind.
 
@@ -8,59 +10,55 @@ You can also contribute your own project or suggest updates to published project
 
 ## Sample applications
 
-Code samples are organized by programming language:
+**New here?** Start with [hello_world](motoko/hello_world/) (Motoko) or [hello_world](rust/hello_world/) (Rust) — a simple full-stack canister with a frontend. For user authentication with Internet Identity, see [who_am_i](motoko/who_am_i/) or [who_am_i](rust/who_am_i/).
 
-- [Motoko](https://github.com/dfinity/examples/tree/master/motoko)
-- [Rust](https://github.com/dfinity/examples/tree/master/rust)
-- [C](https://github.com/dfinity/examples/tree/master/c)
+Canister examples are organized by language:
 
-Some examples include frontends written in a variety of frameworks, such as React, JavaScript, etc. 
+- [motoko/](motoko/)
+- [rust/](rust/)
 
-Additional frontend samples can be found in the following folders:
+Frontend-only and native app examples:
 
-- [Svelte](https://github.com/dfinity/examples/tree/master/svelte)
-- [HTML](https://github.com/dfinity/examples/tree/master/hosting)
-- [Unity](https://github.com/dfinity/examples/tree/master/native-apps)
+- [hosting/](hosting/) — frontend examples (React, static sites, etc.)
+- [native-apps/](native-apps/) — Unity and other native app integrations
 
-## Deploying samples 
+## Local development
 
-### ICP Ninja
+### Command line
 
-You can open and deploy examples with [ICP Ninja](https://icp.ninja/), a web-based tool that allows you to create and manage Internet Computer projects without downloading any tools or setting up a local environment.
+Install the prerequisites and then follow the example's README to deploy.
 
-To contribute an example that will be featured on ICP Ninja, check out the [NINJA_CONTRIBUTING.md](./NINJA_CONTRIBUTING.md) file.
+**Prerequisites:**
+- [Node.js](https://nodejs.org/en/download/) (LTS)
+- [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- **Motoko examples:** [mops](https://mops.one/docs/install): `npm install -g ic-mops`
+- **Rust examples:** [Rust](https://rustup.rs/) + `rustup target add wasm32-unknown-unknown`
 
-### GitHub Codespaces or Gitpod
+See the [full installation guide](https://cli.internetcomputer.org/0.2/guides/installation.md) for platform-specific instructions.
 
-This repo can be opened in a web-based developer environment such as [GitHub Codespaces](https://github.com/codespaces) or [Gitpod](https://www.gitpod.io/), allowing you to edit and deploy the sample projects without downloading any tools or setting up a local environment. 
-
-[Get started with GitHub codespaces](https://internetcomputer.org/docs/current/developer-docs/developer-tools/ide/codespaces).
-
-[Get started with Gitpod](https://internetcomputer.org/docs/current/developer-docs/developer-tools/ide/gitpod).
-
-### dfx 
-
-dfx is a command-line tool used to create, deploy. and manage projects on ICP. To download and use dfx with this examples repo, run the following commands locally (macOS/Linux systems):
-
-```
+```bash
 git clone https://github.com/dfinity/examples.git
-cd examples
-sh -ci "$(curl -fsSL https://internetcomputer.org/install.sh)"
+cd examples/<language>/<example>
 ```
 
-Then, navigate into the folder of the sample that you want to use and follow the project's README instructions to setup and deploy the sample code.
+### Dev Containers
 
+Open the repo root in [VS Code](https://code.visualstudio.com/) with the [Dev Containers extension](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers) to get a pre-configured environment with the full ICP toolchain for both Motoko and Rust. VS Code will prompt you to reopen in the container automatically.
 
-## Resources 
+```bash
+git clone https://github.com/dfinity/examples.git
+```
 
-- [ICP Developer Docs](https://internetcomputer.org/docs/current/home)
+Then navigate into an example and follow its README to deploy.
 
-- [Overview of ICP](https://internetcomputer.org/docs/current/developer-docs/getting-started/overview-of-icp)
+> **Note:** Open the repo root in the container — not an individual example subfolder.
 
-- [Installing dfx](https://internetcomputer.org/docs/current/developer-docs/getting-started/install/)
+## Resources
 
-- [Developer tools](https://internetcomputer.org/docs/current/developer-docs/developer-tools/dev-tools-overview)
+- [Quickstart](https://docs.internetcomputer.org/getting-started/quickstart)
+- [Developer tools](https://docs.internetcomputer.org/developer-tools)
+- [icp-cli](https://cli.internetcomputer.org)
 
 ## Security considerations and best practices
 
-If you base your application on one of these examples, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/) for developing on the Internet Computer. The examples provided here may not implement all the best practices.
+If you base your application on one of these examples, we recommend you familiarize yourself with and adhere to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for developing on the Internet Computer. The examples provided here may not implement all the best practices.

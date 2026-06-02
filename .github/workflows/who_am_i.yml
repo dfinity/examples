@@ -1,0 +1,40 @@
+name: who_am_i
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - motoko/who_am_i/**
+      - rust/who_am_i/**
+      - .github/workflows/who_am_i.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  motoko-who_am_i:
+    runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-motoko:0.1.0
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy and test
+        working-directory: motoko/who_am_i
+        run: |
+          icp network start -d
+          icp deploy
+          make test
+
+  rust-who_am_i:
+    runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-rust:0.1.0
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy and test
+        working-directory: rust/who_am_i
+        run: |
+          icp network start -d
+          icp deploy
+          make test

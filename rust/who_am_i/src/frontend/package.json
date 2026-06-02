@@ -1,5 +1,5 @@
 {
-  "name": "internet_identity_app_frontend",
+  "name": "frontend",
   "private": true,
   "type": "module",
   "scripts": {

@@ -1,10 +1,9 @@
 canisters:
   - name: backend
     recipe:
-      type: "@dfinity/motoko@v4.1.0"
+      type: https://raw.githubusercontent.com/dfinity/icp-cli-recipes/bc9581d9258d2d7feb15ab4ae8d04baf923b985f/recipes/motoko/recipe.hbs
       configuration:
-        main: backend/app.mo
-        candid: backend/backend.did
+        name: backend
 
   - name: frontend
     recipe:

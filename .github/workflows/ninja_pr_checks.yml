@@ -4,6 +4,50 @@ on:
   pull_request:
     branches:
       - master
+    paths:
+      - 'hosting/**'
+      - 'motoko/backend_only/**'
+      - 'motoko/canister_logs/**'
+      - 'motoko/classes/**'
+      - 'motoko/basic_bitcoin/**'
+      - 'motoko/daily_planner/**'
+      - 'motoko/evm_block_explorer/**'
+      - 'motoko/filevault/**'
+      - 'motoko/flying_ninja/**'
+      - 'motoko/llm_chatbot/**'
+      - 'motoko/query_stats/**'
+      - 'motoko/send_http_get/**'
+      - 'motoko/send_http_post/**'
+      - 'motoko/superheroes/**'
+      - 'motoko/threshold-ecdsa/**'
+      - 'motoko/threshold-schnorr/**'
+      - 'rust/backend_only/**'
+      - 'rust/backend_wasm64/**'
+      - 'rust/basic_bitcoin/**'
+      - 'rust/canister-info/**'
+      - 'rust/canister_logs/**'
+      - 'rust/basic_ethereum/**'
+      - 'rust/candid_type_generation/**'
+      - 'rust/daily_planner/**'
+      - 'rust/evm_block_explorer/**'
+      - 'rust/flying_ninja/**'
+      - 'rust/guards/**'
+      - 'rust/llm_chatbot/**'
+      - 'rust/performance_counters/**'
+      - 'rust/periodic_tasks/**'
+      - 'rust/qrcode/**'
+      - 'rust/query_stats/**'
+      - 'rust/send_http_get/**'
+      - 'rust/send_http_post/**'
+      - 'rust/simd/**'
+      - 'rust/threshold-ecdsa/**'
+      - 'rust/unit_testable_rust_canister/**'
+      - 'rust/photo_gallery/**'
+      - 'rust/inter-canister-calls/**'
+      - 'rust/x509/**'
+      - 'rust/receiving-icp/**'
+      - 'rust/exchange-rates/**'
+      - '.github/workflows/ninja_pr_checks.yml'
 
 concurrency:
   group: ninja-pr-checks-${{ github.workflow }}-${{ github.ref }}
@@ -41,7 +85,6 @@ jobs:
             ["EVM Block Explorer (Motoko)"]="motoko/evm_block_explorer"
             ["FileVault (Motoko)"]="motoko/filevault"
             ["Flying Ninja (Motoko)"]="motoko/flying_ninja"
-            ["Hello World (Motoko)"]="motoko/hello_world"
             ["LLM Chatbot (Motoko)"]="motoko/llm_chatbot"
             ["Query Stats (Motoko)"]="motoko/query_stats"
             ["Send HTTP Get (Motoko)"]="motoko/send_http_get"
@@ -49,7 +92,6 @@ jobs:
             ["Superheroes (Motoko)"]="motoko/superheroes"
             ["Threshold ECDSA (Motoko)"]="motoko/threshold-ecdsa"
             ["Threshold Schnorr (Motoko)"]="motoko/threshold-schnorr"
-            ["Who Am I (Motoko)"]="motoko/who_am_i"
             ["Rust backend (Rust)"]="rust/backend_only"
             ["Rust backend Wasm64 (Rust)"]="rust/backend_wasm64"
             ["Basic Bitcoin (Rust)"]="rust/basic_bitcoin"
@@ -61,7 +103,6 @@ jobs:
             ["EVM Block Explorer (Rust)"]="rust/evm_block_explorer"
             ["Flying Ninja (Rust)"]="rust/flying_ninja"
             ["Guards (Rust)"]="rust/guards"
-            ["Hello World (Rust)"]="rust/hello_world"
             ["LLM Chatbot (Rust)"]="rust/llm_chatbot"
             ["Performance Counters (Rust)"]="rust/performance_counters"
             ["Periodic Tasks (Rust)"]="rust/periodic_tasks"
@@ -72,7 +113,6 @@ jobs:
             ["SIMD (Rust)"]="rust/simd"
             ["Threshold ECDSA (Rust)"]="rust/threshold-ecdsa"
             ["Unit Testable Canister (Rust)"]="rust/unit_testable_rust_canister"
-            ["Who Am I (Rust)"]="rust/who_am_i"
             ["Photo Gallery (Rust)"]="rust/photo_gallery"
             ["Inter-canister calls (Rust)"]="rust/inter-canister-calls"
             ["X.509 (Rust)"]="rust/x509"

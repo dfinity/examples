@@ -1,4 +1,4 @@
-persistent actor HelloWorld {
+actor HelloWorld {
   // We store the greeting in a stable variable such that it gets persisted over canister upgrades.
   var greeting : Text = "Hello, ";
 

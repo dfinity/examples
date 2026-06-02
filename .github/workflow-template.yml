@@ -1,0 +1,35 @@
+# Workflow template for ICP examples.
+# Copy this file to .github/workflows/<example_name>.yml and replace the placeholders.
+#
+# PLACEHOLDERS:
+#   <example_name>   e.g. hello_world
+#   <language>       motoko | rust
+#   <image>          ghcr.io/dfinity/icp-dev-env-motoko | ghcr.io/dfinity/icp-dev-env-rust
+
+name: <example_name>
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - <language>/<example_name>/**
+      - .github/workflows/<example_name>.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  <language>-<example_name>:
+    runs-on: ubuntu-24.04
+    container: <image>
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy and test
+        working-directory: <language>/<example_name>
+        run: |
+          icp network start -d
+          icp deploy
+          make test

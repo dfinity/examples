@@ -1,40 +1,49 @@
 # How to add a new example
 
-> For ICP Ninja: check [NINJA_CONTRIBUTING.md](./NINJA_CONTRIBUTING.md) for how to contribute a project to ICP Ninja.
+## Purpose and acceptance criteria
+
+Examples in this repository have an **educational focus**. Each example is intended to demonstrate a specific ICP capability or pattern, and should be suitable for reference from the [ICP developer documentation](https://docs.internetcomputer.org).
+
+**We do not accept general-purpose or arbitrary examples.** Before opening a PR, confirm that:
+
+- The example demonstrates a distinct ICP concept not already covered by an existing example.
+- There is a clear home for it in the developer documentation (an existing or planned guide, tutorial, or reference page).
+- The DFINITY DX team has agreed to maintain it long-term.
+
+If you are unsure whether your example fits, open an issue first to discuss it with the maintainers before investing time in an implementation.
+
+---
 
 Each example should be available in both Rust and Motoko variations, implementing the same Candid interface (and, ideally, semantics).
 
-To illustrate the pattern, this repo now contains one such example, project `hello_world`:
+To illustrate the pattern, this repo contains one such example, project `hello_world`:
 
-`motoko/hello_world`
-`rust/hello_world`
+```
+motoko/hello_world
+rust/hello_world
+```
 
-When adding a new `dfx` generated project, make sure to delete its GitHub metadata files (`.gitignore`, `.git` etc).
+When adding a new project, make sure to delete any generated GitHub metadata files (`.gitignore`, `.git` etc).
 
 Each project should include a language-specific README.md that also links to the corresponding README.md of its counterpart in another language, making it easy for language-curious readers to explore both implementations.
 
 ## CI
 
-Apart from the standard `dfx` material, each project should provide a `Makefile` used by GitHub Actions CI to run (very) basic tests.
+Each project should provide a `Makefile` with a `test` target that runs basic canister tests using `icp canister call`. Each example also needs a GitHub Actions workflow file at `.github/workflows/<example_name>.yml`.
 
-For each example, there is a single CI file with four build actions to produce Darwin and Linux builds and tests of the Motoko/Rust, projects, such as:
+Use the workflow template as a starting point:
 
 ```
-.github/workflows/hello_world.yml
+.github/workflow-template.yml
 ```
 
-Implementing the GitHub action will ensure it runs in CI and helps keep examples in sync with releases of `dfx`.
+Copy it, replace the placeholders, and add the appropriate container image:
 
-## Documentation
+- Motoko: `ghcr.io/dfinity/icp-dev-env-motoko`
+- Rust: `ghcr.io/dfinity/icp-dev-env-rust`
 
-For your new example to be included in the ICP developer documentation, make sure you update the `samples` submodule in the portal repository to point to the latest commit in this examples repository using the following command:
+See `hello_world` and `who_am_i` for reference implementations. Workflows run on Linux only using container images — no provision scripts needed.
 
-```bash
-git submodule update --remote submodules/samples
-```
+## Notes
 
-After you run this command, commit the changes to a new PR to have them merged into the portal repo. 
-
-## Issues
-
-While this structure leads to some duplication (especially shared components like frontend code) it ensures that Motoko users can focus solely on Motoko-specific content, and likewise for Rust users. It also enables easily finding language-specific examples when a given use case is not easily supported in the other language.
+While this structure leads to some duplication (especially shared frontend code) it ensures that Motoko users can focus solely on Motoko-specific content, and likewise for Rust users. It also enables easily finding language-specific examples when a given use case is not easily supported in the other language.

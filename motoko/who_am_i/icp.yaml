@@ -4,18 +4,17 @@ networks:
     ii: true
 
 canisters:
-  - name: internet_identity_app_backend
+  - name: backend
     recipe:
-      type: "@dfinity/motoko@v4.1.0"
+      type: https://raw.githubusercontent.com/dfinity/icp-cli-recipes/bc9581d9258d2d7feb15ab4ae8d04baf923b985f/recipes/motoko/recipe.hbs
       configuration:
-        main: src/internet_identity_app_backend/main.mo
-        candid: src/internet_identity_app_backend/internet_identity_app_backend.did
+        name: backend
 
-  - name: internet_identity_app_frontend
+  - name: frontend
     recipe:
       type: "@dfinity/asset-canister@v2.1.0"
       configuration:
-        dir: src/internet_identity_app_frontend/dist
+        dir: src/frontend/dist
         build:
-          - npm install --prefix src/internet_identity_app_frontend
-          - npm run build --prefix src/internet_identity_app_frontend
+          - npm install --prefix src/frontend
+          - npm run build --prefix src/frontend

@@ -1,15 +1,15 @@
 import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
-import { createActor } from "./bindings/internet_identity_app_backend";
+import { createActor } from "./bindings/backend";
 
 const canisterEnv = safeGetCanisterEnv();
 
 const canisterId =
-  canisterEnv?.["PUBLIC_CANISTER_ID:internet_identity_app_backend"] ??
-  process.env.CANISTER_ID_INTERNET_IDENTITY_APP_BACKEND;
+  canisterEnv?.["PUBLIC_CANISTER_ID:backend"] ??
+  process.env.CANISTER_ID_BACKEND;
 
 if (!canisterId) {
   throw new Error(
-    "Canister ID for 'internet_identity_app_backend' not found. Run 'icp deploy' or 'dfx deploy' first."
+    "Canister ID for 'backend' not found. Run 'icp deploy' first."
   );
 }
 
