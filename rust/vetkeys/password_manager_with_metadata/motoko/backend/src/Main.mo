@@ -9,6 +9,7 @@ import Time "mo:core/Time";
 import Nat64 "mo:core/Nat64";
 import Int "mo:core/Int";
 import Debug "mo:core/Debug";
+import Runtime "mo:core/Runtime";
 import VetKeys "mo:ic-vetkeys";
 
 persistent actor class (keyName : Text) {
@@ -121,7 +122,7 @@ persistent actor class (keyName : Text) {
           let metadataKey = (map_owner, map_name.inner, key);
           switch (OrderedMap.get(metadata, compareMetadataKeys,metadataKey)) {
             case (null) {
-              Debug.trap("bug: inconsistent state: no metadata for key");
+              Runtime.trap("bug: inconsistent state: no metadata for key");
             };
             case (?metadataValue) {
               List.add(results, ({ inner = key }, { inner = encryptedValue }, metadataValue));
@@ -166,15 +167,15 @@ persistent actor class (keyName : Text) {
           };
         };
 
-        metadata := OrderedMap.put(metadata, compareMetadataKeys,metadataKey, metadataValue);
+        metadata := OrderedMap.add(metadata, compareMetadataKeys,metadataKey, metadataValue);
 
         switch (optPrevValue, prevMetadata) {
           case (null, null) { #Ok(null) };
           case (null, ?_) {
-            Debug.trap("bug: inconsistent state: no previous value but some metadata");
+            Runtime.trap("bug: inconsistent state: no previous value but some metadata");
           };
           case (?_, null) {
-            Debug.trap("bug: inconsistent state: some previous value but no metadata");
+            Runtime.trap("bug: inconsistent state: some previous value but no metadata");
           };
           case (?prevValue, ?m) { #Ok(?({ inner = prevValue }, m)) };
         };
@@ -195,15 +196,15 @@ persistent actor class (keyName : Text) {
         let metadataKey = (map_owner, map_name.inner, map_key.inner);
         let prevMetadata = OrderedMap.get(metadata, compareMetadataKeys,metadataKey);
 
-        metadata := OrderedMap.delete(metadata, compareMetadataKeys,metadataKey);
+        metadata := OrderedMap.remove(metadata, compareMetadataKeys,metadataKey);
 
         switch (optPrevValue, prevMetadata) {
           case (null, null) { #Ok(null) };
           case (null, ?_) {
-            Debug.trap("bug: inconsistent state: no previous value but some metadata");
+            Runtime.trap("bug: inconsistent state: no previous value but some metadata");
           };
           case (?_, null) {
-            Debug.trap("bug: inconsistent state: some previous value but no metadata");
+            Runtime.trap("bug: inconsistent state: some previous value but no metadata");
           };
           case (?prevValue, ?m) { #Ok(?({ inner = prevValue }, m)) };
         };
