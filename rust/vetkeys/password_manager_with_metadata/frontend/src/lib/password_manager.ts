@@ -165,9 +165,7 @@ export async function createPasswordManager(agentOptions?: {
     const agent = await HttpAgent.create({
         ...agentOptions,
         host: window.location.origin,
-        ...(canisterEnv?.IC_ROOT_KEY
-            ? { rootKey: canisterEnv.IC_ROOT_KEY }
-            : {}),
+        rootKey: canisterEnv?.IC_ROOT_KEY,
     });
 
     const encryptedMaps = createEncryptedMaps(agent);
