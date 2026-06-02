@@ -7,6 +7,8 @@
 
 import Array "mo:core/Array";
 import Iter "mo:core/Iter";
+import Nat "mo:core/Nat";
+import VarArray "mo:core/VarArray";
 import Option "mo:core/Option";
 import Nat8 "mo:core/Nat8";
 import Char "mo:core/Char";
@@ -75,7 +77,7 @@ module {
     };
     var i = 0;
     let n = upper.size() / 2 + upper.size() % 2;
-    let array = Array.repeat<Nat8>(0, n);
+    let array = VarArray.repeat<Nat8>(0, n);
     while (i != n) {
       switch (parse()) {
         case (#ok w8) {
@@ -94,7 +96,7 @@ module {
    * Decode an unsigned 4-bit integer in hexadecimal format.
    */
   private func decodeW4(char : Char) : Result<Nat8, DecodeError> {
-    for (i in Iter.range(0, 16)) {
+    for (i in Nat.range(0, 16)) {
       if (symbols[i] == char) {
         return #ok (Nat8.fromNat(i));
       };
