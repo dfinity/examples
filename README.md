@@ -2,33 +2,44 @@
 
 Get started building on ICP with the sample applications in this repository. From this repository, you can deploy, download, clone, fork, or share sample projects.
 
+> Looking to start a new project from scratch? Use [icp-cli-templates](https://github.com/dfinity/icp-cli-templates) to scaffold a project with `icp new`.
+
 The projects in this repository are not intended to be used as commercial applications and do not provide any explicit or implied support or warranty of any kind.
 
 You can also contribute your own project or suggest updates to published projects using the standard GitHub workflow.
 
 ## Sample applications
 
-Code samples are organized by programming language:
+**New here?** Start with [hello_world](motoko/hello_world/) (Motoko) or [hello_world](rust/hello_world/) (Rust) — a simple full-stack canister with a frontend. For user authentication with Internet Identity, see [who_am_i](motoko/who_am_i/) or [who_am_i](rust/who_am_i/).
 
-- [Motoko](https://github.com/dfinity/examples/tree/master/motoko)
-- [Rust](https://github.com/dfinity/examples/tree/master/rust)
-- [C](https://github.com/dfinity/examples/tree/master/c)
+Canister examples are organized by language:
 
-Some examples include frontends written in a variety of frameworks such as React, JavaScript, etc.
+- [motoko/](motoko/)
+- [rust/](rust/)
 
-Additional frontend samples can be found in the following folders:
+Frontend-only and native app examples:
 
-- [Svelte](https://github.com/dfinity/examples/tree/master/svelte)
-- [HTML](https://github.com/dfinity/examples/tree/master/hosting)
-- [Unity](https://github.com/dfinity/examples/tree/master/native-apps)
-
-## Try in browser
-
-Many examples include a GitHub Codespaces badge in their README. Clicking it opens a pre-configured environment with the ICP toolchain installed — the local network starts and canisters are deployed automatically. No local setup required.
-
-Browse all your Codespaces at [github.com/codespaces](https://github.com/codespaces).
+- [hosting/](hosting/) — frontend examples (React, static sites, etc.)
+- [native-apps/](native-apps/) — Unity and other native app integrations
 
 ## Local development
+
+### Command line
+
+Install the prerequisites and then follow the example's README to deploy.
+
+**Prerequisites:**
+- [Node.js](https://nodejs.org/en/download/) (LTS)
+- [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- **Motoko examples:** [mops](https://mops.one/docs/install): `npm install -g ic-mops`
+- **Rust examples:** [Rust](https://rustup.rs/) + `rustup target add wasm32-unknown-unknown`
+
+See the [full installation guide](https://cli.internetcomputer.org/0.2/guides/installation.md) for platform-specific instructions.
+
+```bash
+git clone https://github.com/dfinity/examples.git
+cd examples/<language>/<example>
+```
 
 ### Dev Containers
 
@@ -40,16 +51,7 @@ git clone https://github.com/dfinity/examples.git
 
 Then navigate into an example and follow its README to deploy.
 
-> **Note:** The per-example devcontainer configs are designed for GitHub Codespaces. For local Dev Container use, always open the repo root.
-
-### Command line
-
-Install [icp-cli](https://cli.internetcomputer.org), clone the repo, navigate into an example, and follow its README:
-
-```bash
-git clone https://github.com/dfinity/examples.git
-cd examples/<language>/<example>
-```
+> **Note:** Open the repo root in the container — not an individual example subfolder.
 
 ## Resources
 

@@ -13,15 +13,6 @@ When adding a new project, make sure to delete any generated GitHub metadata fil
 
 Each project should include a language-specific README.md that also links to the corresponding README.md of its counterpart in another language, making it easy for language-curious readers to explore both implementations.
 
-## Codespaces
-
-To make the example available in GitHub Codespaces, add a devcontainer config under `.devcontainer/<language>-<example>/devcontainer.json` pointing to the appropriate image:
-
-- Motoko: `ghcr.io/dfinity/icp-dev-env-motoko`
-- Rust: `ghcr.io/dfinity/icp-dev-env-rust`
-
-Add a Codespaces badge to the example's README pointing to the new devcontainer config. See the existing `who_am_i` examples for reference.
-
 ## CI
 
 Each project should provide a `Makefile` with a `test` target that runs basic canister tests using `icp canister call`. Each example also needs a GitHub Actions workflow file at `.github/workflows/<example_name>.yml`.

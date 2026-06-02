@@ -21,12 +21,6 @@ The `/backend` folder contains the Motoko canister, `app.mo`. The `/frontend` fo
 
 Edit the `mops.toml` file to add [Motoko dependencies](https://mops.one/) to the project.
 
-## Try in browser
-
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/dfinity/examples?devcontainer_path=.devcontainer%2Fmotoko-hello-world%2Fdevcontainer.json&ref=feat%2Fcodespaces)
-
-Opens a pre-configured environment with the ICP toolchain installed. The local network starts and canisters are deployed automatically. You can browse all your Codespaces at [github.com/codespaces](https://github.com/codespaces).
-
 ## Build and deploy from the command line
 
 ### Prerequisites
@@ -52,14 +46,26 @@ icp network start -d
 icp deploy
 ```
 
+The frontend is served by the asset canister. To run the Vite dev server with hot reload during frontend development:
+
+```bash
+npm run dev
+```
+
+When done, stop the local network to free the port and clear state:
+
+```bash
+icp network stop
+```
+
 ## Updating the Candid interface
 
 The `backend/backend.did` file defines the backend canister's public interface. The frontend TypeScript bindings are auto-generated from this file during the frontend build.
 
-If you modify the backend's public API, regenerate the `.did` file:
+If you modify the backend's public API, regenerate the `.did` file using the Motoko compiler:
 
 ```bash
-mops build backend --idl
+$(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo
 ```
 
 ## Security considerations and best practices

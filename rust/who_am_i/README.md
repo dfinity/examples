@@ -6,14 +6,6 @@
 
 Who am I? demonstrates how entities on the Internet Computer are identified. Every entity, such as a user or canister smart contract, has a principal identifier. Principals can be used for identification and authentication. Who am I? uses Internet Identity (II) for user authentication, then displays the principal identifier associated with that Internet Identity on the user interface.
 
-## Try in browser
-
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/dfinity/examples?devcontainer_path=.devcontainer%2Frust-who-am-i%2Fdevcontainer.json&ref=feat%2Fcodespaces)
-
-Opens a pre-configured environment with the ICP toolchain installed. The local network starts and canisters are deployed automatically. You can browse all your Codespaces at [github.com/codespaces](https://github.com/codespaces).
-
-> **Note:** Authentication uses production [Internet Identity](https://id.ai) rather than a local test instance. You will see your real principal identifier.
-
 ## Build and deploy from the command line
 
 ### Prerequisites
@@ -45,9 +37,15 @@ The frontend is served by the asset canister. To run the Vite dev server with ho
 npm run dev
 ```
 
+When done, stop the local network to free the port and clear state:
+
+```bash
+icp network stop
+```
+
 ## Ready to deploy on mainnet?
 
-Codespaces is ideal for learning and local experimentation. When you're ready for mainnet, [install icp-cli locally](https://cli.internetcomputer.org) and follow the [mainnet deployment guide](https://cli.internetcomputer.org/0.2/guides/deploying-to-mainnet.md). Mainnet requires ICP tokens and cycles — managing identities securely is much better from your own machine.
+When you're ready for mainnet, [install icp-cli locally](https://cli.internetcomputer.org) and follow the [mainnet deployment guide](https://cli.internetcomputer.org/0.2/guides/deploying-to-mainnet.md). Mainnet requires ICP tokens and cycles — managing identities securely is much better from your own machine.
 
 ## Updating the Candid interface
 

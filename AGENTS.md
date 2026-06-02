@@ -34,6 +34,10 @@ rust/<example_name>/
 
 Both implement the same Candid interface so readers can compare language implementations side by side.
 
+Reference examples to study first:
+- `hello_world` — canonical full-stack example (Motoko backend + Vite frontend); use as the structural template for new examples
+- `who_am_i` — Internet Identity integration; reference for II-authenticated examples
+
 ---
 
 ## Toolchain
@@ -53,7 +57,6 @@ Follow the `hello_world` layout. New examples and migrations should use this pat
 ├── icp.yaml                  # canister definitions (icp-cli project file)
 ├── Makefile                  # must contain a `test` target
 ├── README.md
-├── CODESPACE.md              # symlink or copy from .devcontainer/CODESPACE.md
 ├── package.json              # npm workspaces root pointing to frontend/
 ├── mops.toml                 # Motoko only
 ├── Cargo.toml                # Rust only (workspace)
@@ -210,43 +213,7 @@ test:
 
 ## Devcontainer config
 
-Add a file at `.devcontainer/<language>-<example_name>/devcontainer.json`:
-
-```json
-{
-  "name": "<Human Name> (<Language>)",
-  "image": "ghcr.io/dfinity/icp-dev-env-<motoko|rust>:<version>",
-  "workspaceFolder": "/workspaces/examples/<language>/<example_name>",
-  "forwardPorts": [8000, 5173],
-  "portsAttributes": {
-    "8000": { "label": "ICP", "onAutoForward": "ignore" },
-    "5173": { "label": "Vite", "onAutoForward": "openBrowser" }
-  },
-  "postStartCommand": "bash /workspaces/examples/.devcontainer/scripts/postStart.sh",
-  "postAttachCommand": "bash /workspaces/examples/.devcontainer/scripts/postAttach.sh",
-  "customizations": {
-    "vscode": {
-      "extensions": ["dfinity-foundation.vscode-motoko"],
-      "settings": {
-        "git.openRepositoryInParentFolders": "always",
-        "workbench.startupEditor": "none",
-        "workbench.editorAssociations": { "*.md": "vscode.markdown.preview.editor" }
-      }
-    }
-  }
-}
-```
-
-- Motoko extension: `dfinity-foundation.vscode-motoko`
-- Rust extension: `rust-lang.rust-analyzer`
-- The `postStart` and `postAttach` scripts are shared across all examples — do not create per-example scripts.
-- `forwardPorts` and `portsAttributes` are only needed for examples with a frontend.
-
-Also add a Codespaces badge to the example's README pointing to the new devcontainer config:
-
-```markdown
-[![Open in GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/dfinity/examples?devcontainer_path=.devcontainer%2F<language>-<example_name>%2Fdevcontainer.json&ref=master)
-```
+A single root devcontainer at `.devcontainer/devcontainer.json` covers local VS Code usage across all examples. It uses `ghcr.io/dfinity/icp-dev-env-all:<version>` (Motoko + Rust) with `workspaceFolder` set to `/workspaces/examples`. No per-example devcontainer configs exist — do not add them.
 
 ---
 
@@ -315,9 +282,6 @@ Each example's README should follow this structure:
 ## Overview
 <2-3 sentences describing what the example demonstrates>
 
-## Try in browser
-<Codespaces badge and one-line description>
-
 ## Build and deploy from the command line
 
 ### Prerequisites
@@ -329,15 +293,18 @@ Each example's README should follow this structure:
 
 ### Deploy
 <icp network start -d && icp deploy>
+If the example has a frontend with a Vite dev server: `npm run dev` (hot reload during frontend development)
+When done: `icp network stop`
 
 ## Updating the Candid interface
 <instructions to regenerate backend.did>
+Motoko: `$(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo`
+Rust: `icp build backend && candid-extractor target/wasm32-unknown-unknown/release/backend.wasm > backend/backend.did`
 
 ## Security considerations and best practices
 <standard disclaimer linking to https://docs.internetcomputer.org/guides/security/overview>
 ```
 
-- Codespaces badge URL must include `ref=master` (or the appropriate branch).
 - Security best practices URL: `https://docs.internetcomputer.org/guides/security/overview`
 - Each README links to its counterpart in the other language.
 
@@ -347,7 +314,7 @@ Each example's README should follow this structure:
 
 ### Container images
 Images are published at `ghcr.io/dfinity/icp-dev-env-{motoko,rust,all}`. All devcontainer configs and CI workflows reference the pinned tag (e.g. `0.1.0`). When a new release is cut, update the tag in:
-- `.devcontainer/*/devcontainer.json`
+- `.devcontainer/devcontainer.json`
 - `.github/workflows/*.yml`
 
 Source: https://github.com/dfinity/icp-dev-env
@@ -384,8 +351,6 @@ When migrating an existing example:
 - [ ] Update `mops.toml` to current toolchain versions (Motoko)
 - [ ] Delete `dfx.json`, `BUILD.md`, `.dfx/`, `.env` (dfx-generated)
 - [ ] Add `Makefile` with `test` target
-- [ ] Add devcontainer config under `.devcontainer/<language>-<example_name>/`
 - [ ] Add CI workflow under `.github/workflows/<example_name>.yml`
-- [ ] Add Codespaces badge to README
 - [ ] Update README deploy instructions to use `icp-cli`
 - [ ] Update README Candid regeneration command to use `icp-cli` / `mops` toolchain
