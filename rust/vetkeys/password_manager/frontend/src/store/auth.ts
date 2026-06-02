@@ -31,7 +31,7 @@ export const auth = writable<AuthState>({
 async function initAuth() {
     const isLocalEnv = window.location.hostname === "localhost" || window.location.hostname.endsWith(".localhost");
     const client = new AuthClient({
-        identityProvider: isLocalEnv ? "http://id.ai.localhost:8000/authorize" : "https://id.ai",
+        identityProvider: isLocalEnv ? "http://id.ai.localhost:8000/authorize" : "https://id.ai/authorize",
     });
     if (client.isAuthenticated()) {
         void authenticate(client);
