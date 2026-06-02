@@ -13,7 +13,7 @@ export async function createActor(options?: { identity?: any }): Promise<Backend
   const agent = await HttpAgent.create({
     identity: options?.identity,
     host: window.location.origin,
-    ...(canisterEnv?.IC_ROOT_KEY ? { rootKey: canisterEnv.IC_ROOT_KEY } : {}),
+    rootKey: canisterEnv?.IC_ROOT_KEY,
   });
   return createEncryptedNotesActor(canisterId, { agent });
 }
