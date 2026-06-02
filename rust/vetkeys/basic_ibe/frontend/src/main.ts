@@ -37,9 +37,7 @@ async function getBasicIbeActor(): Promise<Backend> {
     const agent = await HttpAgent.create({
         identity: await authClient.getIdentity(),
         host: window.location.origin,
-        ...(canisterEnv?.IC_ROOT_KEY
-            ? { rootKey: canisterEnv.IC_ROOT_KEY }
-            : {}),
+        rootKey: canisterEnv?.IC_ROOT_KEY,
     });
     basicIbeActor = createActor(canisterId, { agent });
 
@@ -279,8 +277,8 @@ async function initAuth() {
         window.location.hostname.endsWith(".localhost");
     authClient = new AuthClient({
         identityProvider: isLocal
-            ? "http://id.ai.localhost:8000"
-            : "https://id.ai",
+            ? "http://id.ai.localhost:8000/authorize"
+            : "https://id.ai/authorize",
     });
     const isAuthenticated = authClient.isAuthenticated();
 
