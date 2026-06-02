@@ -24,9 +24,7 @@ export async function createEncryptedMaps(
     const agent = await HttpAgent.create({
         ...agentOptions,
         host: window.location.origin,
-        ...(canisterEnv?.IC_ROOT_KEY
-            ? { rootKey: canisterEnv.IC_ROOT_KEY }
-            : {}),
+        rootKey: canisterEnv?.IC_ROOT_KEY,
     });
 
     return new EncryptedMaps(new DefaultEncryptedMapsClient(agent, canisterId));
