@@ -38,7 +38,7 @@ async function initAuth() {
     const client = new AuthClient({
         identityProvider: isLocalEnv
             ? "http://id.ai.localhost:8000/authorize"
-            : "https://id.ai",
+            : "https://id.ai/authorize",
     });
     if (client.isAuthenticated()) {
         await authenticate(client);
