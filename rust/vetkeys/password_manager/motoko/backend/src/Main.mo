@@ -1,10 +1,10 @@
 import IcVetkeys "mo:ic-vetkeys";
 import Types "mo:ic-vetkeys/Types";
-import Principal "mo:base/Principal";
-import Text "mo:base/Text";
-import Blob "mo:base/Blob";
-import Result "mo:base/Result";
-import Array "mo:base/Array";
+import Principal "mo:core/Principal";
+import Text "mo:core/Text";
+import Blob "mo:core/Blob";
+import Result "mo:core/Result";
+import Array "mo:core/Array";
 
 persistent actor class (keyName : Text) {
     let encryptedMapsState = IcVetkeys.EncryptedMaps.newEncryptedMapsState<Types.AccessRights>({ curve = #bls12_381_g2; name = keyName }, "password_manager_example_dapp");
