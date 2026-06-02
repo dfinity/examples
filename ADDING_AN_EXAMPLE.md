@@ -1,5 +1,19 @@
 # How to add a new example
 
+## Purpose and acceptance criteria
+
+Examples in this repository have an **educational focus**. Each example is intended to demonstrate a specific ICP capability or pattern, and should be suitable for reference from the [ICP developer documentation](https://docs.internetcomputer.org).
+
+**We do not accept general-purpose or arbitrary examples.** Before opening a PR, confirm that:
+
+- The example demonstrates a distinct ICP concept not already covered by an existing example.
+- There is a clear home for it in the developer documentation (an existing or planned guide, tutorial, or reference page).
+- The DFINITY DX team has agreed to maintain it long-term.
+
+If you are unsure whether your example fits, open an issue first to discuss it with the maintainers before investing time in an implementation.
+
+---
+
 Each example should be available in both Rust and Motoko variations, implementing the same Candid interface (and, ideally, semantics).
 
 To illustrate the pattern, this repo contains one such example, project `hello_world`:
