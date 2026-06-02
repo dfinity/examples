@@ -1,14 +1,14 @@
-import Principal "mo:base/Principal";
-import Blob "mo:base/Blob";
-import Buffer "mo:base/Buffer";
-import Array "mo:base/Array";
-import OrderedMap "mo:base/OrderedMap";
-import MotokoResult "mo:base/Result";
-import Text "mo:base/Text";
-import Time "mo:base/Time";
-import Nat64 "mo:base/Nat64";
-import Int "mo:base/Int";
-import Debug "mo:base/Debug";
+import Principal "mo:core/Principal";
+import Blob "mo:core/Blob";
+import List "mo:core/List";
+import Array "mo:core/Array";
+import OrderedMap "mo:core/pure/Map";
+import MotokoResult "mo:core/Result";
+import Text "mo:core/Text";
+import Time "mo:core/Time";
+import Nat64 "mo:core/Nat64";
+import Int "mo:core/Int";
+import Debug "mo:core/Debug";
 import VetKeys "mo:ic-vetkeys";
 
 persistent actor class (keyName : Text) {
@@ -116,7 +116,7 @@ persistent actor class (keyName : Text) {
     switch (encryptedMaps.getEncryptedValuesForMap(caller, mapId)) {
       case (#err(msg)) { #Err(msg) };
       case (#ok(mapValues)) {
-        let results = Buffer.Buffer<(ByteBuf, ByteBuf, PasswordMetadata)>(0);
+        let results = List.empty<(ByteBuf, ByteBuf, PasswordMetadata)>();
 
         for ((key, encryptedValue) in mapValues.vals()) {
           let metadataKey = (map_owner, map_name.inner, key);
@@ -125,12 +125,12 @@ persistent actor class (keyName : Text) {
               Debug.trap("bug: inconsistent state: no metadata for key");
             };
             case (?metadataValue) {
-              results.add(({ inner = key }, { inner = encryptedValue }, metadataValue));
+              List.add(results, ({ inner = key }, { inner = encryptedValue }, metadataValue));
             };
           };
         };
 
-        #Ok(Buffer.toArray(results));
+        #Ok(List.toArray(results));
       };
     };
   };
