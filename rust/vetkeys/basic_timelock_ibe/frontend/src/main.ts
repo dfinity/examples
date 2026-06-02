@@ -31,7 +31,7 @@ async function getBasicTimelockIbeCanister(): Promise<Backend> {
     const agent = await HttpAgent.create({
         identity: await authClient.getIdentity(),
         host: window.location.origin,
-        ...(canisterEnv?.IC_ROOT_KEY ? { rootKey: canisterEnv.IC_ROOT_KEY } : {}),
+        rootKey: canisterEnv?.IC_ROOT_KEY,
     });
 
     basicTimelockIbeCanister = createActor(canisterId, { agent });
@@ -63,7 +63,7 @@ export function logout() {
 }
 
 async function initAuth() {
-    authClient = new AuthClient({ identityProvider: window.location.hostname === "localhost" || window.location.hostname.endsWith(".localhost") ? "http://id.ai.localhost:8000/#authorize" : undefined });
+    authClient = new AuthClient({ identityProvider: window.location.hostname === "localhost" || window.location.hostname.endsWith(".localhost") ? "http://id.ai.localhost:8000/authorize" : undefined });
     const isAuthenticated = authClient.isAuthenticated();
 
     if (isAuthenticated) {
