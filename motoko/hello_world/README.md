@@ -25,8 +25,8 @@ Edit the `mops.toml` file to add [Motoko dependencies](https://mops.one/) to the
 
 ### Prerequisites
 
-- [x] Install [Node.js](https://nodejs.org/en/download/)
-- [x] Install [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- Install [Node.js](https://nodejs.org/en/download/)
+- Install [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
 ### Install
 

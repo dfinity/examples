@@ -286,8 +286,8 @@ Each example's README should follow this structure:
 ## Build and deploy from the command line
 
 ### Prerequisites
-- [x] Install Node.js
-- [x] Install icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [ ] Install Node.js
+- [ ] Install icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
 ### Install
 <git clone + cd>

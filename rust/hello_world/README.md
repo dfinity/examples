@@ -21,8 +21,8 @@ The `/backend` folder contains the Rust canister source code. The `/frontend` fo
 
 ### Prerequisites
 
-- [x] Install [Node.js](https://nodejs.org/en/download/)
-- [x] Install [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- Install [Node.js](https://nodejs.org/en/download/)
+- Install [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
 ### Install
 

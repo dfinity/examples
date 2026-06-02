@@ -10,8 +10,8 @@ Who am I? demonstrates how entities on the Internet Computer are identified. Eve
 
 ### Prerequisites
 
-- [x] Install [Node.js](https://nodejs.org/en/download/)
-- [x] Install [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- Install [Node.js](https://nodejs.org/en/download/)
+- Install [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
 ### Install
 
