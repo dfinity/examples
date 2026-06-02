@@ -63,7 +63,7 @@ export function logout() {
 }
 
 async function initAuth() {
-    authClient = new AuthClient({ identityProvider: window.location.hostname === "localhost" || window.location.hostname.endsWith(".localhost") ? "http://id.ai.localhost:8000/authorize" : undefined });
+    authClient = new AuthClient({ identityProvider: window.location.hostname === "localhost" || window.location.hostname.endsWith(".localhost") ? "http://id.ai.localhost:8000/authorize" : "https://id.ai/authorize" });
     const isAuthenticated = authClient.isAuthenticated();
 
     if (isAuthenticated) {
