@@ -101,7 +101,8 @@ networks:                          # omit if no Internet Identity needed
 canisters:
   - name: backend
     recipe:
-      type: "@dfinity/motoko@vX.Y.Z"   # see pending items; currently pinned to a commit SHA
+      type: https://raw.githubusercontent.com/dfinity/icp-cli-recipes/bc9581d9258d2d7feb15ab4ae8d04baf923b985f/recipes/motoko/recipe.hbs
+      # TODO: replace with @dfinity/motoko@vX.Y.Z once https://github.com/dfinity/icp-cli-recipes/pull/26 merges
       configuration:
         name: backend                  # must match [canisters.backend] key in mops.toml
 
@@ -285,8 +286,8 @@ Each example's README should follow this structure:
 ## Build and deploy from the command line
 
 ### Prerequisites
-- [ ] Install Node.js
-- [ ] Install icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [x] Install Node.js
+- [x] Install icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
 ### Install
 <git clone + cd>
