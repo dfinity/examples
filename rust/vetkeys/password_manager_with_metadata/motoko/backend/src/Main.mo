@@ -34,8 +34,7 @@ persistent actor class (keyName : Text) {
       ownerCompare;
     };
   };
-  transient let metadataMapOps = OrderedMap.Make<MetadataKey>(compareMetadataKeys);
-  var metadata : OrderedMap.Map<MetadataKey, PasswordMetadata> = metadataMapOps.empty<PasswordMetadata>();
+  var metadata : OrderedMap.Map<MetadataKey, PasswordMetadata> = OrderedMap.empty<MetadataKey, PasswordMetadata>();
 
   // Types
   public type PasswordMetadata = {
@@ -118,9 +117,9 @@ persistent actor class (keyName : Text) {
       case (#ok(mapValues)) {
         let results = List.empty<(ByteBuf, ByteBuf, PasswordMetadata)>();
 
-        for ((key, encryptedValue) in mapValues.vals()) {
+        for ((key, encryptedValue) in mapValues.values()) {
           let metadataKey = (map_owner, map_name.inner, key);
-          switch (metadataMapOps.get(metadata, metadataKey)) {
+          switch (OrderedMap.get(metadata, compareMetadataKeys,metadataKey)) {
             case (null) {
               Debug.trap("bug: inconsistent state: no metadata for key");
             };
@@ -156,7 +155,7 @@ persistent actor class (keyName : Text) {
       case (#err(msg)) { #Err(msg) };
       case (#ok(optPrevValue)) {
         let metadataKey = (map_owner, map_name.inner, map_key.inner);
-        let prevMetadata = metadataMapOps.get(metadata, metadataKey);
+        let prevMetadata = OrderedMap.get(metadata, compareMetadataKeys,metadataKey);
 
         let metadataValue = switch (prevMetadata) {
           case (null) {
@@ -167,7 +166,7 @@ persistent actor class (keyName : Text) {
           };
         };
 
-        metadata := metadataMapOps.put(metadata, metadataKey, metadataValue);
+        metadata := OrderedMap.put(metadata, compareMetadataKeys,metadataKey, metadataValue);
 
         switch (optPrevValue, prevMetadata) {
           case (null, null) { #Ok(null) };
@@ -194,9 +193,9 @@ persistent actor class (keyName : Text) {
       case (#err(msg)) { #Err(msg) };
       case (#ok(optPrevValue)) {
         let metadataKey = (map_owner, map_name.inner, map_key.inner);
-        let prevMetadata = metadataMapOps.get(metadata, metadataKey);
+        let prevMetadata = OrderedMap.get(metadata, compareMetadataKeys,metadataKey);
 
-        metadata := metadataMapOps.delete(metadata, metadataKey);
+        metadata := OrderedMap.delete(metadata, compareMetadataKeys,metadataKey);
 
         switch (optPrevValue, prevMetadata) {
           case (null, null) { #Ok(null) };
