@@ -5,13 +5,13 @@
  * License     : Apache 2.0>
  */
 
-import Array "mo:base/Array";
-import Iter "mo:base/Iter";
-import Option "mo:base/Option";
-import Nat8 "mo:base/Nat8";
-import Char "mo:base/Char";
-import Result "mo:base/Result";
-import Text "mo:base/Text";
+import Array "mo:core/Array";
+import Iter "mo:core/Iter";
+import Option "mo:core/Option";
+import Nat8 "mo:core/Nat8";
+import Char "mo:core/Char";
+import Result "mo:core/Result";
+import Text "mo:core/Text";
 import Prim "mo:⛔";
 
 module {
@@ -75,7 +75,7 @@ module {
     };
     var i = 0;
     let n = upper.size() / 2 + upper.size() % 2;
-    let array = Array.init<Nat8>(n, 0);
+    let array = Array.repeat<Nat8>(0, n);
     while (i != n) {
       switch (parse()) {
         case (#ok w8) {
@@ -87,14 +87,14 @@ module {
         };
       };
     };
-    #ok (Array.freeze<Nat8>(array));
+    #ok (Array.fromVarArray<Nat8>(array));
   };
 
   /**
    * Decode an unsigned 4-bit integer in hexadecimal format.
    */
   private func decodeW4(char : Char) : Result<Nat8, DecodeError> {
-    for (i in Iter.range(0, 15)) {
+    for (i in Iter.range(0, 16)) {
       if (symbols[i] == char) {
         return #ok (Nat8.fromNat(i));
       };
