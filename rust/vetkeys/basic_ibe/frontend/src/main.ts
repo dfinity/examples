@@ -279,8 +279,8 @@ async function initAuth() {
         window.location.hostname.endsWith(".localhost");
     authClient = new AuthClient({
         identityProvider: isLocal
-            ? "http://id.ai.localhost:8000/#authorize"
-            : undefined,
+            ? "http://id.ai.localhost:8000"
+            : "https://id.ai",
     });
     const isAuthenticated = authClient.isAuthenticated();
 
