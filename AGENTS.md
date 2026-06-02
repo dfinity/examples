@@ -350,6 +350,7 @@ When migrating an existing example:
 - [ ] Update `.gitignore` bindings path to `frontend/src/bindings/`
 - [ ] Update `mops.toml` to current toolchain versions (Motoko)
 - [ ] Delete `dfx.json`, `BUILD.md`, `.dfx/`, `.env` (dfx-generated)
+- [ ] Delete `.devcontainer/` inside the example folder if one exists (only the repo-root devcontainer is kept)
 - [ ] Add `Makefile` with `test` target
 - [ ] Add CI workflow under `.github/workflows/<example_name>.yml`
 - [ ] Update README deploy instructions to use `icp-cli`
