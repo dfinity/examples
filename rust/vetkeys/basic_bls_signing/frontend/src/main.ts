@@ -28,7 +28,7 @@ async function getBasicBlsSigningActor(): Promise<Backend> {
   const agent = await HttpAgent.create({
     identity: await authClient.getIdentity(),
     host: window.location.origin,
-    ...(canisterEnv?.IC_ROOT_KEY ? { rootKey: canisterEnv.IC_ROOT_KEY } : {}),
+    rootKey: canisterEnv?.IC_ROOT_KEY,
   });
   basicBlsSigningActor = createActor(canisterId, { agent });
   return basicBlsSigningActor;
@@ -61,8 +61,8 @@ async function initAuth() {
     window.location.hostname.endsWith(".localhost");
   authClient = new AuthClient({
     identityProvider: isLocalEnv
-      ? "http://id.ai.localhost:8000/#authorize"
-      : undefined,
+      ? "http://id.ai.localhost:8000/authorize"
+      : "https://id.ai",
   });
   const isAuthenticated = authClient.isAuthenticated();
 
