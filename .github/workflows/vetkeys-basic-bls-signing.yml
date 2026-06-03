@@ -7,7 +7,7 @@ on:
   pull_request:
     paths:
       - rust/vetkeys/basic_bls_signing/**
-      - .github/workflows/rust-vetkeys-basic-bls-signing-example.yml
+      - .github/workflows/vetkeys-basic-bls-signing.yml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
