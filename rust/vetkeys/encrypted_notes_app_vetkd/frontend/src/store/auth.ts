@@ -4,7 +4,7 @@ import { AuthClient, LocalStorage } from "@icp-sdk/auth/client";
 import type { Principal } from "@icp-sdk/core/principal";
 import { CryptoService } from "../lib/crypto";
 import { showError } from "./notifications";
-import { navigateTo } from "svelte-router-spa";
+import { push } from "svelte-spa-router";
 
 export type AuthState =
   | { state: "initializing-auth" }
@@ -72,7 +72,7 @@ export async function logout() {
       actor,
       client: currentAuth.client,
     }));
-    navigateTo("/");
+    push("/");
   }
 }
 

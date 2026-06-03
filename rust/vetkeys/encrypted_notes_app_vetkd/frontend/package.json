@@ -23,7 +23,7 @@
         "tailwindcss": "^3.0.17",
         "tslib": "^2.8.1",
         "typescript": "~5.7.2",
-        "vite": "^6.4.1"
+        "vite": "^5.4.21"
     },
     "dependencies": {
         "@icp-sdk/auth": "^7.1.0",
@@ -33,7 +33,7 @@
         "idb-keyval": "6.2.1",
         "isomorphic-dompurify": "^2.25.0",
         "svelte-icons": "^2.1.0",
-        "svelte-router-spa": "^6.0.3",
+        "svelte-spa-router": "^4.0.1",
         "typewriter-editor": "^0.6.45"
     }
 }

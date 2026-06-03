@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { NoteModel } from '../lib/note';
+  import type { NoteModel } from '../lib/note';
   import { auth } from '../store/auth';
   import { addUser, refreshNotes, removeUser } from '../store/notes';
   import { addNotification, showError } from '../store/notifications';

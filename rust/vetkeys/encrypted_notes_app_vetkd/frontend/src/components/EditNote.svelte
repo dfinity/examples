@@ -1,8 +1,8 @@
 <script lang="ts">
-  import { navigateTo } from 'svelte-router-spa';
-  import type { CurrentRoute } from 'svelte-router-spa/types/components/route';
+  import { push } from 'svelte-spa-router';
   import { Editor, placeholder } from 'typewriter-editor';
-  import { extractTitle, NoteModel } from '../lib/note';
+  import { extractTitle } from '../lib/note';
+  import type { NoteModel } from '../lib/note';
   import { notesStore, refreshNotes, updateNote, addUser, removeUser } from '../store/notes';
   import Header from './Header.svelte';
   import NoteEditor from './NoteEditor.svelte';
@@ -14,7 +14,7 @@
   import Spinner from './Spinner.svelte';
   import DOMPurify from 'isomorphic-dompurify';
 
-  export let currentRoute: CurrentRoute;
+  export let params: { id?: string } = {};
 
   let editedNote: NoteModel;
   let editor: Editor;
@@ -69,7 +69,7 @@
           type: 'success',
           message: 'Note deleted successfully',
         });
-        navigateTo('/notes');
+        push('/notes');
       });
   }
 
@@ -91,7 +91,7 @@
   $: {
     if ($notesStore.state === 'loaded' && !editedNote) {
       const note = $notesStore.list.find(
-        (note) => note.id.toString() === currentRoute.namedParams.id
+        (note) => note.id.toString() === params.id
       );
 
       if (note) {

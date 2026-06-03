@@ -1,5 +1,6 @@
 <script lang="ts">
-  import { AuthState, login } from '../store/auth';
+  import { login } from '../store/auth';
+  import type { AuthState } from '../store/auth';
   import DisclaimerCopy from './DisclaimerCopy.svelte';
   import Spinner from './Spinner.svelte';
 
