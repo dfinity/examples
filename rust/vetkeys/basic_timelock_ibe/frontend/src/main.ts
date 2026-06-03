@@ -63,10 +63,14 @@ export function logout() {
 }
 
 async function initAuth() {
+    const isLocalEnv = window.location.hostname === "localhost" || window.location.hostname.endsWith(".localhost");
+    // Workaround for https://github.com/dfinity/icp-js-auth/issues/120
+    // IdbStorage has a race condition on localhost dev servers. LocalStorage
+    // avoids IDB on local but uses plain string storage (less secure), so
+    // production deployments keep the default secure IdbStorage + ECDSA key.
     authClient = new AuthClient({
-        identityProvider: window.location.hostname === "localhost" || window.location.hostname.endsWith(".localhost") ? "http://id.ai.localhost:8000/authorize" : "https://id.ai/authorize",
-        storage: new LocalStorage(),
-        keyType: "Ed25519",
+        identityProvider: isLocalEnv ? "http://id.ai.localhost:8000/authorize" : "https://id.ai/authorize",
+        ...(isLocalEnv ? { storage: new LocalStorage(), keyType: "Ed25519" as const } : {}),
     });
     const isAuthenticated = authClient.isAuthenticated();
 
