@@ -43,7 +43,9 @@ async function initAuth() {
         identityProvider: isLocalEnv
             ? "http://id.ai.localhost:8000/authorize"
             : "https://id.ai/authorize",
-        ...(isLocalEnv ? { storage: new LocalStorage(), keyType: "Ed25519" as const } : {}),
+        ...(isLocalEnv
+            ? { storage: new LocalStorage(), keyType: "Ed25519" as const }
+            : {}),
     });
     if (client.isAuthenticated()) {
         await authenticate(client);
