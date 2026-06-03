@@ -10,7 +10,7 @@ import {
     IbeSeed,
 } from "@icp-sdk/vetkeys";
 import { createActor, type Backend, type Inbox } from "./declarations/basic_ibe/backend";
-import { AuthClient } from "@icp-sdk/auth/client";
+import { AuthClient, LocalStorage } from "@icp-sdk/auth/client";
 import { HttpAgent } from "@icp-sdk/core/agent";
 import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
 
@@ -279,6 +279,8 @@ async function initAuth() {
         identityProvider: isLocal
             ? "http://id.ai.localhost:8000/authorize"
             : "https://id.ai/authorize",
+        storage: new LocalStorage(),
+        keyType: "Ed25519",
     });
     const isAuthenticated = authClient.isAuthenticated();
 
