@@ -7,7 +7,7 @@ on:
   pull_request:
     paths:
       - rust/vetkeys/encrypted_notes_app_vetkd/**
-      - .github/workflows/rust-vetkeys-encrypted-notes-app-vetkd-example.yml
+      - .github/workflows/vetkeys-encrypted-notes-app-vetkd.yml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
