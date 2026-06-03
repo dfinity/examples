@@ -1,4 +1,4 @@
-name: rust-vetkeys-basic-timelock-ibe
+name: vetkeys-basic-timelock-ibe
 
 on:
   push:
@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  rust-basic-timelock-ibe:
+  rust:
     runs-on: ubuntu-24.04
     container: ghcr.io/dfinity/icp-dev-env-rust:0.1.0
     steps:
