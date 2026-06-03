@@ -27,7 +27,7 @@
       </div>
       <div class="border-b">
         <div class="pl-4">My Principal:</div>
-        <div class="pl-4">{$auth.client.getIdentity().getPrincipal()}</div>
+        <div class="pl-4">{$auth.principal}</div>
       </div>
       <ul
         class="p-4 overflow-y-auto menu w-full bg-base-100 flex-1 flex flex-col"

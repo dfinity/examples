@@ -85,7 +85,7 @@
     if ($auth.state !== 'initialized') {
       throw new Error('expected the auth.state to be initialized');
     }
-    return $auth.client.getIdentity().getPrincipal().toString();
+    return $auth.principal.toString();
   }
 
   $: {

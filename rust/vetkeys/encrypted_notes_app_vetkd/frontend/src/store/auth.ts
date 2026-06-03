@@ -1,6 +1,7 @@
 import { get, writable } from "svelte/store";
 import { type BackendActor, createActor } from "../lib/actor";
 import { AuthClient, LocalStorage } from "@icp-sdk/auth/client";
+import type { Principal } from "@icp-sdk/core/principal";
 import { CryptoService } from "../lib/crypto";
 import { showError } from "./notifications";
 import { navigateTo } from "svelte-router-spa";
@@ -8,12 +9,13 @@ import { navigateTo } from "svelte-router-spa";
 export type AuthState =
   | { state: "initializing-auth" }
   | { state: "anonymous"; actor: BackendActor; client: AuthClient }
-  | { state: "initializing-crypto"; actor: BackendActor; client: AuthClient }
-  | { state: "synchronizing"; actor: BackendActor; client: AuthClient }
+  | { state: "initializing-crypto"; actor: BackendActor; client: AuthClient; principal: Principal }
+  | { state: "synchronizing"; actor: BackendActor; client: AuthClient; principal: Principal }
   | {
       state: "initialized";
       actor: BackendActor;
       client: AuthClient;
+      principal: Principal;
       crypto: CryptoService;
     }
   | { state: "error"; error: string };
@@ -78,12 +80,15 @@ export async function authenticate(client: AuthClient) {
   handleSessionTimeout();
 
   try {
-    const actor = await createActor({ identity: await client.getIdentity() });
+    const identity = await client.getIdentity();
+    const principal = identity.getPrincipal();
+    const actor = await createActor({ identity });
 
     auth.update(() => ({
       state: "initializing-crypto",
       actor,
       client,
+      principal,
     }));
 
     const cryptoService = new CryptoService(actor);
@@ -92,6 +97,7 @@ export async function authenticate(client: AuthClient) {
       state: "initialized",
       actor,
       client,
+      principal,
       crypto: cryptoService,
     }));
   } catch (e: any) {
