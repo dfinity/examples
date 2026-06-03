@@ -1,4 +1,5 @@
 name: rust-vetkeys-basic-timelock-ibe
+
 on:
   push:
     branches:
@@ -6,55 +7,18 @@ on:
   pull_request:
     paths:
       - rust/vetkeys/basic_timelock_ibe/**
-      - .github/workflows/provision-darwin.sh
-      - .github/workflows/provision-linux.sh
       - .github/workflows/rust-vetkeys-basic-timelock-ibe-example.yml
-      - .ic-commit
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
 jobs:
-  rust-basic-timelock-ibe-darwin:
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: '22'
-      - name: Provision Darwin
-        run: bash .github/workflows/provision-darwin.sh
-      - name: Pre-download network launcher
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash .github/workflows/pre-download-launcher.sh
-      - name: Deploy Basic Timelock IBE Rust Darwin
-        env:
-          ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -eExuo pipefail
-          cargo install candid-extractor --locked
-          pushd rust/vetkeys/basic_timelock_ibe
-          icp network start -d && icp deploy
-          popd
-  rust-basic-timelock-ibe-linux:
+  rust-basic-timelock-ibe:
     runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-rust:0.1.0
     steps:
-      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: '22'
-      - name: Provision Linux
-        run: bash .github/workflows/provision-linux.sh
-      - name: Pre-download network launcher
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash .github/workflows/pre-download-launcher.sh
-      - name: Deploy Basic Timelock IBE Rust Linux
-        env:
-          ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -eExuo pipefail
-          cargo install candid-extractor --locked
-          pushd rust/vetkeys/basic_timelock_ibe
-          icp network start -d && icp deploy
-          popd
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy Basic Timelock Ibe Rust
+        working-directory: rust/vetkeys/basic_timelock_ibe
+        run: icp network start -d && icp deploy
