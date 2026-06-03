@@ -40,7 +40,7 @@ fn init_encrypted_maps(key_name: String) {
     };
     ENCRYPTED_MAPS.with_borrow_mut(|encrypted_maps| {
         encrypted_maps.replace(EncryptedMaps::init(
-            "encrypted_maps_dapp",
+            "encrypted_maps_app",
             key_id,
             id_to_memory(0),
             id_to_memory(1),
