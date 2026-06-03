@@ -10,6 +10,7 @@ import Bool "mo:core/Bool";
 import Principal "mo:core/Principal";
 import Option "mo:core/Option";
 import Debug "mo:core/Debug";
+import Runtime "mo:core/Runtime";
 import Blob "mo:core/Blob";
 import Hex "./utils/Hex";
 
@@ -79,7 +80,7 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
     private func expect<T>(opt : ?T, violation_msg : Text) : T {
         switch (opt) {
             case (null) {
-                Debug.trap(violation_msg);
+                Runtime.trap(violation_msg);
             };
             case (?x) {
                 x;
@@ -122,11 +123,11 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
         switch (Map.get(noteIdsByOwner, Text.compare, owner)) {
             case (?owner_nids) {
                 assert PureList.size(owner_nids) < MAX_NOTES_PER_USER;
-                ignore Map.insert(noteIdsByOwner, Text.compare, owner, PureList.push(newNote.id, owner_nids));
+                ignore Map.insert(noteIdsByOwner, Text.compare, owner, PureList.pushFront(owner_nids, newNote.id));
             };
             case null {
                 assert Map.size(noteIdsByOwner) < MAX_USERS;
-                ignore Map.insert(noteIdsByOwner, Text.compare, owner, PureList.make(newNote.id));
+                ignore Map.insert(noteIdsByOwner, Text.compare, owner, PureList.singleton(newNote.id));
             };
         };
 
@@ -156,13 +157,13 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
         let user = Principal.toText(caller);
 
         let owned_notes = PureList.map(
-            Option.get(Map.get(noteIdsByOwner, Text.compare, user), PureList.nil()),
+            Option.get(Map.get(noteIdsByOwner, Text.compare, user), PureList.empty()),
             func(nid : NoteId) : EncryptedNote {
                 expect(Map.get(notesById, Nat.compare, nid), "missing note with ID " # Nat.toText(nid));
             },
         );
         let shared_notes = PureList.map(
-            Option.get(Map.get(noteIdsByUser, Text.compare, user), PureList.nil()),
+            Option.get(Map.get(noteIdsByUser, Text.compare, user), PureList.empty()),
             func(nid : NoteId) : EncryptedNote {
                 expect(Map.get(notesById, Nat.compare, nid), "missing note with ID " # Nat.toText(nid));
             },
@@ -186,9 +187,9 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
     public shared ({ caller }) func update_note(id : NoteId, encrypted_text : Text) : async () {
         assert not Principal.isAnonymous(caller);
         let caller_text = Principal.toText(caller);
-        let (?note_to_update) = Map.get(notesById, Nat.compare, id) else Debug.trap("note with id " # Nat.toText(id) # "not found");
+        let (?note_to_update) = Map.get(notesById, Nat.compare, id) else Runtime.trap("note with id " # Nat.toText(id) # "not found");
         if (not is_authorized(caller_text, note_to_update)) {
-            Debug.trap("unauthorized");
+            Runtime.trap("unauthorized");
         };
         assert note_to_update.encrypted_text.size() <= MAX_NOTE_CHARS;
         ignore Map.insert(notesById, Nat.compare, id, { note_to_update with encrypted_text });
@@ -206,9 +207,9 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
     public shared ({ caller }) func add_user(note_id : NoteId, user : PrincipalName) : async () {
         assert not Principal.isAnonymous(caller);
         let caller_text = Principal.toText(caller);
-        let (?note) = Map.get(notesById, Nat.compare, note_id) else Debug.trap("note with id " # Nat.toText(note_id) # "not found");
+        let (?note) = Map.get(notesById, Nat.compare, note_id) else Runtime.trap("note with id " # Nat.toText(note_id) # "not found");
         if (caller_text != note.owner) {
-            Debug.trap("unauthorized");
+            Runtime.trap("unauthorized");
         };
         assert note.users.size() < MAX_SHARES_PER_NOTE;
         if (not Option.isSome(Array.find(note.users, func(u : PrincipalName) : Bool { u == user }))) {
@@ -219,12 +220,12 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
         };
         switch (Map.get(noteIdsByUser, Text.compare, user)) {
             case (?user_nids) {
-                if (not PureList.some(user_nids, func(nid : NoteId) : Bool { nid == note_id })) {
-                    ignore Map.insert(noteIdsByUser, Text.compare, user, PureList.push(note_id, user_nids));
+                if (not PureList.any(user_nids, func(nid : NoteId) : Bool { nid == note_id })) {
+                    ignore Map.insert(noteIdsByUser, Text.compare, user, PureList.pushFront(user_nids, note_id));
                 };
             };
             case null {
-                ignore Map.insert(noteIdsByUser, Text.compare, user, PureList.make(note_id));
+                ignore Map.insert(noteIdsByUser, Text.compare, user, PureList.singleton(note_id));
             };
         };
     };
@@ -241,9 +242,9 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
     public shared ({ caller }) func remove_user(note_id : NoteId, user : PrincipalName) : async () {
         assert not Principal.isAnonymous(caller);
         let caller_text = Principal.toText(caller);
-        let (?note) = Map.get(notesById, Nat.compare, note_id) else Debug.trap("note with id " # Nat.toText(note_id) # "not found");
+        let (?note) = Map.get(notesById, Nat.compare, note_id) else Runtime.trap("note with id " # Nat.toText(note_id) # "not found");
         if (caller_text != note.owner) {
-            Debug.trap("unauthorized");
+            Runtime.trap("unauthorized");
         };
         let updated_note = { note with users = Array.filter(note.users, func(u : PrincipalName) : Bool { u != user }) };
         ignore Map.insert(notesById, Nat.compare, note_id, updated_note);
@@ -251,7 +252,7 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
         switch (Map.get(noteIdsByUser, Text.compare, user)) {
             case (?user_nids) {
                 let updated_nids = PureList.filter(user_nids, func(nid : NoteId) : Bool { nid != note_id });
-                if (not PureList.isNil(updated_nids)) {
+                if (not PureList.isEmpty(updated_nids)) {
                     ignore Map.insert(noteIdsByUser, Text.compare, user, updated_nids);
                 } else {
                     ignore Map.remove(noteIdsByUser, Text.compare, user);
@@ -272,15 +273,15 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
     public shared ({ caller }) func delete_note(note_id : NoteId) : async () {
         assert not Principal.isAnonymous(caller);
         let caller_text = Principal.toText(caller);
-        let (?note_to_delete) = Map.get(notesById, Nat.compare, note_id) else Debug.trap("note with id " # Nat.toText(note_id) # "not found");
+        let (?note_to_delete) = Map.get(notesById, Nat.compare, note_id) else Runtime.trap("note with id " # Nat.toText(note_id) # "not found");
         let owner = note_to_delete.owner;
         if (owner != caller_text) {
-            Debug.trap("unauthorized");
+            Runtime.trap("unauthorized");
         };
         switch (Map.get(noteIdsByOwner, Text.compare, owner)) {
             case (?owner_nids) {
                 let updated_nids = PureList.filter(owner_nids, func(nid : NoteId) : Bool { nid != note_id });
-                if (not PureList.isNil(updated_nids)) {
+                if (not PureList.isEmpty(updated_nids)) {
                     ignore Map.insert(noteIdsByOwner, Text.compare, owner, updated_nids);
                 } else {
                     ignore Map.remove(noteIdsByOwner, Text.compare, owner);
@@ -292,7 +293,7 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
             switch (Map.get(noteIdsByUser, Text.compare, user)) {
                 case (?user_nids) {
                     let updated_nids = PureList.filter(user_nids, func(nid : NoteId) : Bool { nid != note_id });
-                    if (not PureList.isNil(updated_nids)) {
+                    if (not PureList.isEmpty(updated_nids)) {
                         ignore Map.insert(noteIdsByUser, Text.compare, user, updated_nids);
                     } else {
                         ignore Map.remove(noteIdsByUser, Text.compare, user);
@@ -332,9 +333,9 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
 
     public shared ({ caller }) func encrypted_symmetric_key_for_note(note_id : NoteId, transport_public_key : Blob) : async Text {
         let caller_text = Principal.toText(caller);
-        let (?note) = Map.get(notesById, Nat.compare, note_id) else Debug.trap("note with id " # Nat.toText(note_id) # "not found");
+        let (?note) = Map.get(notesById, Nat.compare, note_id) else Runtime.trap("note with id " # Nat.toText(note_id) # "not found");
         if (not is_authorized(caller_text, note)) {
-            Debug.trap("unauthorized");
+            Runtime.trap("unauthorized");
         };
 
         let buf = List.empty<Nat8>();
