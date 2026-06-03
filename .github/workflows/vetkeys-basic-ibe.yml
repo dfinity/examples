@@ -7,7 +7,7 @@ on:
   pull_request:
     paths:
       - rust/vetkeys/basic_ibe/**
-      - .github/workflows/rust-vetkeys-basic-ibe-example.yml
+      - .github/workflows/vetkeys-basic-ibe.yml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
