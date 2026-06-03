@@ -170,8 +170,8 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
         );
 
         let buf = List.empty<EncryptedNote>();
-        List.append(buf, List.fromArray(PureList.toArray(owned_notes)));
-        List.append(buf, List.fromArray(PureList.toArray(shared_notes)));
+        List.append(buf, List.fromArray<EncryptedNote>(PureList.toArray(owned_notes)));
+        List.append(buf, List.fromArray<EncryptedNote>(PureList.toArray(shared_notes)));
         List.toArray(buf);
     };
 
@@ -339,8 +339,8 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
         };
 
         let buf = List.empty<Nat8>();
-        List.append(buf, List.fromArray(natToBigEndianByteArray(16, note_id))); // fixed-size encoding
-        List.append(buf, List.fromArray(Blob.toArray(Text.encodeUtf8(note.owner))));
+        List.append(buf, List.fromArray<Nat8>(natToBigEndianByteArray(16, note_id))); // fixed-size encoding
+        List.append(buf, List.fromArray<Nat8>(Blob.toArray(Text.encodeUtf8(note.owner))));
         let input = Blob.fromArray(List.toArray(buf)); // prefix-free
 
         let { encrypted_key } = await (with cycles = 26_153_846_153) management_canister.vetkd_derive_key({
