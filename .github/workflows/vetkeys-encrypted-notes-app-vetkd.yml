@@ -1,4 +1,4 @@
-name: rust-vetkeys-encrypted-notes-app-vetkd
+name: vetkeys-encrypted-notes-app-vetkd
 
 on:
   push:
@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  rust-encrypted-notes-app-vetkd:
+  rust:
     runs-on: ubuntu-24.04
     container: ghcr.io/dfinity/icp-dev-env-rust:0.1.0
     steps:
@@ -22,7 +22,7 @@ jobs:
       - name: Deploy Encrypted Notes App Vetkd Rust
         working-directory: rust/vetkeys/encrypted_notes_app_vetkd/rust
         run: icp network start -d && icp deploy
-  motoko-encrypted-notes-app-vetkd:
+  motoko:
     runs-on: ubuntu-24.04
     container: ghcr.io/dfinity/icp-dev-env-motoko:0.1.0
     steps:
