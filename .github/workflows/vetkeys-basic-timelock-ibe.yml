@@ -7,7 +7,7 @@ on:
   pull_request:
     paths:
       - rust/vetkeys/basic_timelock_ibe/**
-      - .github/workflows/rust-vetkeys-basic-timelock-ibe-example.yml
+      - .github/workflows/vetkeys-basic-timelock-ibe.yml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
