@@ -1,4 +1,4 @@
-name: rust-vetkeys-basic-bls-signing
+name: vetkeys-basic-bls-signing
 
 on:
   push:
@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  rust-basic-bls-signing:
+  rust:
     runs-on: ubuntu-24.04
     container: ghcr.io/dfinity/icp-dev-env-rust:0.1.0
     steps:
@@ -22,7 +22,7 @@ jobs:
       - name: Deploy Basic Bls Signing Rust
         working-directory: rust/vetkeys/basic_bls_signing/rust
         run: icp network start -d && icp deploy
-  motoko-basic-bls-signing:
+  motoko:
     runs-on: ubuntu-24.04
     container: ghcr.io/dfinity/icp-dev-env-motoko:0.1.0
     steps:
