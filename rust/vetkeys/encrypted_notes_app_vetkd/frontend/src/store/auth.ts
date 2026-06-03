@@ -10,7 +10,12 @@ export type AuthState =
   | { state: "anonymous"; actor: BackendActor; client: AuthClient }
   | { state: "initializing-crypto"; actor: BackendActor; client: AuthClient }
   | { state: "synchronizing"; actor: BackendActor; client: AuthClient }
-  | { state: "initialized"; actor: BackendActor; client: AuthClient; crypto: CryptoService }
+  | {
+      state: "initialized";
+      actor: BackendActor;
+      client: AuthClient;
+      crypto: CryptoService;
+    }
   | { state: "error"; error: string };
 
 export const auth = writable<AuthState>({ state: "initializing-auth" });
@@ -24,8 +29,12 @@ async function initAuth() {
   // avoids IDB on local but uses plain string storage (less secure), so
   // production deployments keep the default secure IdbStorage + ECDSA key.
   const client = new AuthClient({
-    identityProvider: isLocal ? "http://id.ai.localhost:8000/authorize" : "https://id.ai/authorize",
-    ...(isLocal ? { storage: new LocalStorage(), keyType: "Ed25519" as const } : {}),
+    identityProvider: isLocal
+      ? "http://id.ai.localhost:8000/authorize"
+      : "https://id.ai/authorize",
+    ...(isLocal
+      ? { storage: new LocalStorage(), keyType: "Ed25519" as const }
+      : {}),
   });
   if (client.isAuthenticated()) {
     authenticate(client);
@@ -96,13 +105,16 @@ export async function authenticate(client: AuthClient) {
 function handleSessionTimeout() {
   setTimeout(() => {
     try {
-      const delegation = JSON.parse(window.localStorage.getItem("ic-delegation") ?? "null") as {
+      const delegation = JSON.parse(
+        window.localStorage.getItem("ic-delegation") ?? "null",
+      ) as {
         delegations: Array<{ delegation: { expiration: string } }>;
       } | null;
       if (!delegation) return;
 
       const expirationTimeMs =
-        Number.parseInt(delegation.delegations[0].delegation.expiration, 16) / 1000000;
+        Number.parseInt(delegation.delegations[0].delegation.expiration, 16) /
+        1000000;
 
       setTimeout(() => {
         logout();
