@@ -31,7 +31,7 @@
                 <div class="pl-4">My Principal:</div>
                 <div class="pl-4">
                     {$auth.state === "initialized"
-                        ? $auth.client.getIdentity().getPrincipal().toText()
+                        ? $auth.principal.toText()
                         : Principal.anonymous().toText()}
                 </div>
             </div>

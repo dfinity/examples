@@ -42,7 +42,7 @@
 
             if (vault) {
                 editedVault = { ...vault };
-                const me = $auth.client.getIdentity().getPrincipal();
+                const me = $auth.principal;
                 if (vault.owner.compareTo(me) === "eq") {
                     canManage = true;
                 } else {

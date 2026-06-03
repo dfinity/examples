@@ -13,7 +13,7 @@
     let creating = false;
     let vaultOwner =
         $auth.state === "initialized"
-            ? $auth.client.getIdentity().getPrincipal().toText()
+            ? $auth.principal.toText()
             : Principal.anonymous().toText();
     let vaultName = "";
     let passwordName = "";

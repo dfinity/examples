@@ -2,6 +2,7 @@ import "../lib/init.ts";
 import { get, writable } from "svelte/store";
 import { AuthClient, LocalStorage } from "@icp-sdk/auth/client";
 import { DelegationIdentity } from "@icp-sdk/core/identity";
+import type { Principal } from "@icp-sdk/core/principal";
 import { replace } from "svelte-spa-router";
 import { createEncryptedMaps } from "../lib/encrypted_maps.js";
 import { EncryptedMaps } from "@icp-sdk/vetkeys/encrypted_maps";
@@ -18,6 +19,7 @@ export type AuthState =
           state: "initialized";
           encryptedMaps: EncryptedMaps;
           client: AuthClient;
+          principal: Principal;
       }
     | {
           state: "error";
@@ -90,14 +92,14 @@ export async function authenticate(client: AuthClient) {
     void handleSessionTimeout(client);
 
     try {
-        const encryptedMaps = await createEncryptedMaps({
-            identity: await client.getIdentity(),
-        });
+        const identity = await client.getIdentity();
+        const encryptedMaps = await createEncryptedMaps({ identity });
 
         auth.update(() => ({
             state: "initialized",
             encryptedMaps,
             client,
+            principal: identity.getPrincipal(),
         }));
     } catch (e) {
         auth.update(() => ({

@@ -52,7 +52,7 @@
         if (searchedForVault) {
             vault = searchedForVault;
             vaultSummary = summarize(vault);
-            const me = $auth.client.getIdentity().getPrincipal();
+            const me = $auth.principal;
             if (vault.owner.compareTo(me) === "eq") {
                 accessRights = { ReadWriteManage: null };
             } else {

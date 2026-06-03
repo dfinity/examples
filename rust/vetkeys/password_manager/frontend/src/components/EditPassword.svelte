@@ -64,7 +64,7 @@
                     v.owner.compareTo(editedPassword.owner) === "eq" &&
                     v.name === editedPassword.parentVaultName,
             );
-            const me = $auth.client.getIdentity().getPrincipal();
+            const me = $auth.principal;
             const accessRights =
                 vault && vault.users.find((u) => u[0].compareTo(me) === "eq");
             const authorized = accessRights && "Read" in accessRights[1];
@@ -199,7 +199,7 @@
                 editedPassword = { ...searchedForPassword[1] };
             }
 
-            const myPrincipal = $auth.client.getIdentity().getPrincipal();
+            const myPrincipal = $auth.principal;
 
             if (editedPassword.owner.compareTo(myPrincipal) === "eq") {
                 accessRights = { ReadWriteManage: null };
