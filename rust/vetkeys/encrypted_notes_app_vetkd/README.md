@@ -70,3 +70,13 @@ This example dapp does not implement key rotation, which is strongly recommended
 ## Troubleshooting
 
 If you run into issues, clearing all the application-specific IndexedDBs in the browser might help. For example in Chrome, go to Inspect → Application → Local Storage → Clear All, and then reload.
+
+## API Level
+
+This example intentionally uses the **raw VetKD management canister API** (`encrypted_symmetric_key_for_note`, `symmetric_key_verification_key_for_note`) to demonstrate how VetKD works at the protocol level.
+
+For most applications, the higher-level [`EncryptedMaps`](https://github.com/dfinity/vetkeys/tree/main/frontend/ic_vetkeys/src/encrypted_maps) abstraction from `@icp-sdk/vetkeys` is the recommended approach — it handles key derivation, caching, and access control internally without requiring a custom crypto layer. See the [**VetKD Password Manager**](../password_manager/) and [**VetKD Password Manager with Metadata**](../password_manager_with_metadata/) examples for how `EncryptedMaps` is used in practice.
+
+## Additional Resources
+
+- **[What are VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** - For more information about VetKeys and VetKD.
