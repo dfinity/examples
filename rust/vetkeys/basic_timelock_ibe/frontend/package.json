@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "printf '\\nUse: npm run dev:rust\\n' && exit 1",
+    "dev": "npm run dev:rust",
     "dev:rust": "npm run build:bindings && BACKEND=. vite",
     "build": "npm run build:bindings && tsc && vite build",
     "build:bindings": "cd scripts && ./gen_bindings.sh",
