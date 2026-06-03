@@ -7,7 +7,7 @@ canisters:
         candid: backend/src/encrypted_notes_rust.did
     init_args:
       type: text
-      value: "(\"key_1\")"
+      value: "(\"test_key_1\")"
 
   - name: www
     recipe:
