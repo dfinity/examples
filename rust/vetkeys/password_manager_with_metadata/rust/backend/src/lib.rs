@@ -105,7 +105,7 @@ fn init_encrypted_maps(key_name: String) {
     };
     ENCRYPTED_MAPS.with_borrow_mut(|encrypted_maps| {
         encrypted_maps.replace(EncryptedMaps::init(
-            "password_manager_dapp",
+            "password_manager_app",
             key_id,
             MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(0))),
             MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(1))),
