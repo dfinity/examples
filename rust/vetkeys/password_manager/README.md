@@ -32,7 +32,7 @@ This example provides both a **Rust** and a **Motoko** backend, sharing a common
 ```
 password_manager/
 ├── frontend/       ← shared frontend (symlinked into rust/ and motoko/)
-├── motoko/backend/   ← Motoko backend + icp.yaml
+├── motoko/     ← Motoko backend + icp.yaml
 └── rust/           ← Rust backend + icp.yaml
 ```
 
@@ -40,7 +40,7 @@ password_manager/
 
 Deploy with the **Motoko** backend:
 ```bash
-cd motoko/backend
+cd motoko
 icp network start -d && icp deploy
 ```
 

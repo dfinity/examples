@@ -3,7 +3,7 @@ canisters:
     recipe:
       type: "@dfinity/motoko@v4.1.0"
       configuration:
-        main: src/Main.mo
+        main: backend/src/Main.mo
     init_args:
       type: text
       value: "(\"test_key_1\")"
@@ -14,7 +14,7 @@ canisters:
       configuration:
         dir: dist
         build:
-          - cd ../../frontend && npm i --include=dev && npm run build && cd - && rm -rf dist; mv ../../frontend/dist ./
+          - cd frontend && npm i --include=dev && npm run build && cd - && rm -rf dist; mv frontend/dist ./
 
 networks:
   - name: local
