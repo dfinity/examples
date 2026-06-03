@@ -1,10 +1,10 @@
 use candid::{CandidType, Principal};
 use ic_cdk_management_canister::{VetKDCurve, VetKDKeyId};
-use ic_cdk::{init, query, update};
+use ic_cdk::{init, post_upgrade, query, update};
 use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
 use ic_stable_structures::storable::Blob;
 use ic_stable_structures::{storable::Bound, Storable};
-use ic_stable_structures::{BTreeMap as StableBTreeMap, DefaultMemoryImpl};
+use ic_stable_structures::{BTreeMap as StableBTreeMap, Cell as StableCell, DefaultMemoryImpl};
 use ic_vetkeys::encrypted_maps::{EncryptedMaps, VetKey, VetKeyVerificationKey};
 use ic_vetkeys::types::{AccessRights, ByteBuf, EncryptedMapValue, TransportKey};
 use serde::{Deserialize, Serialize};
@@ -79,10 +79,26 @@ thread_local! {
     static METADATA: RefCell<StableMetadataMap> = RefCell::new(StableBTreeMap::new(
         MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(4))),
     ));
+    static KEY_NAME: RefCell<StableCell<String, Memory>> =
+        RefCell::new(StableCell::init(
+            MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(5))),
+            String::new(),
+        ).expect("failed to initialize key name"));
 }
 
 #[init]
 fn init(key_name: String) {
+    KEY_NAME.with_borrow_mut(|k| k.set(key_name.clone()).expect("failed to set key name"));
+    init_encrypted_maps(key_name);
+}
+
+#[post_upgrade]
+fn post_upgrade() {
+    let key_name = KEY_NAME.with_borrow(|k| k.get().clone());
+    init_encrypted_maps(key_name);
+}
+
+fn init_encrypted_maps(key_name: String) {
     let key_id = VetKDKeyId {
         curve: VetKDCurve::Bls12_381_G2,
         name: key_name,
