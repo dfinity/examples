@@ -7,7 +7,7 @@ import {
     IbeIdentity,
     IbeSeed,
 } from "@icp-sdk/vetkeys";
-import { AuthClient } from "@icp-sdk/auth/client";
+import { AuthClient, LocalStorage } from "@icp-sdk/auth/client";
 import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
 import { HttpAgent } from "@icp-sdk/core/agent";
 
@@ -63,7 +63,11 @@ export function logout() {
 }
 
 async function initAuth() {
-    authClient = new AuthClient({ identityProvider: window.location.hostname === "localhost" || window.location.hostname.endsWith(".localhost") ? "http://id.ai.localhost:8000/authorize" : "https://id.ai/authorize" });
+    authClient = new AuthClient({
+        identityProvider: window.location.hostname === "localhost" || window.location.hostname.endsWith(".localhost") ? "http://id.ai.localhost:8000/authorize" : "https://id.ai/authorize",
+        storage: new LocalStorage(),
+        keyType: "Ed25519",
+    });
     const isAuthenticated = authClient.isAuthenticated();
 
     if (isAuthenticated) {

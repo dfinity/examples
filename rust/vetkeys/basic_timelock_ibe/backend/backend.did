@@ -11,7 +11,14 @@ type LotInformation = record {
   end_time : nat64;
   start_time : nat64;
 };
-type LotStatus = variant { Open; ClosedWithWinner : principal; ClosedNoBids };
+type LotStatus = variant {
+  // The auction is still open
+  Open;
+  // The auction is closed and the winner is the principal in the tuple
+  ClosedWithWinner : principal;
+  // The auction is closed and no bids were made
+  ClosedNoBids;
+};
 type OpenLotsResponse = record {
   lots : vec LotInformation;
   bidders : vec vec principal;
