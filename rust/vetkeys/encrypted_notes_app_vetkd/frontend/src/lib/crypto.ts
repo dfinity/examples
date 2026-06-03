@@ -1,4 +1,5 @@
 import type { BackendActor } from './actor';
+import { get, set } from 'idb-keyval';
 import * as vetkd from "@icp-sdk/vetkeys";
 
 export class CryptoService {
@@ -23,9 +24,20 @@ export class CryptoService {
 
   private async fetchNoteKeyMaterial(note_id: bigint, owner: string): Promise<vetkd.DerivedKeyMaterial> {
     const cacheKey = `${note_id}_${owner}`;
-    const cached = this.keyMaterialCache.get(cacheKey);
-    if (cached) return cached;
 
+    // 1. In-memory cache (fastest, session-scoped)
+    const memCached = this.keyMaterialCache.get(cacheKey);
+    if (memCached) return memCached;
+
+    // 2. IndexedDB cache (persisted across sessions via getCryptoKey/fromCryptoKey)
+    const storedCryptoKey: CryptoKey | undefined = await get([note_id.toString(), owner]);
+    if (storedCryptoKey) {
+      const keyMaterial = await vetkd.DerivedKeyMaterial.fromCryptoKey(storedCryptoKey);
+      this.keyMaterialCache.set(cacheKey, keyMaterial);
+      return keyMaterial;
+    }
+
+    // 3. Fetch from canister (first access)
     const tsk = vetkd.TransportSecretKey.random();
     const ek_bytes_hex = await this.actor.encrypted_symmetric_key_for_note(note_id, tsk.publicKeyBytes());
     const encryptedVetKey = vetkd.EncryptedVetKey.deserialize(hex_decode(ek_bytes_hex));
@@ -34,6 +46,9 @@ export class CryptoService {
     const input = buildInput(note_id, owner);
     const vetKey = encryptedVetKey.decryptAndVerify(tsk, dpk, input);
     const keyMaterial = await vetKey.asDerivedKeyMaterial();
+
+    // Store the underlying non-extractable CryptoKey in IndexedDB (same pattern as EncryptedMaps)
+    await set([note_id.toString(), owner], keyMaterial.getCryptoKey());
     this.keyMaterialCache.set(cacheKey, keyMaterial);
     return keyMaterial;
   }
