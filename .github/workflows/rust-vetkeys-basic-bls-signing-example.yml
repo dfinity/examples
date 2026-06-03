@@ -1,4 +1,5 @@
 name: rust-vetkeys-basic-bls-signing
+
 on:
   push:
     branches:
@@ -6,95 +7,26 @@ on:
   pull_request:
     paths:
       - rust/vetkeys/basic_bls_signing/**
-      - .github/workflows/provision-darwin.sh
-      - .github/workflows/provision-linux.sh
       - .github/workflows/rust-vetkeys-basic-bls-signing-example.yml
-      - .ic-commit
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
 jobs:
-  rust-basic-bls-signing-darwin:
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: '22'
-      - name: Provision Darwin
-        run: bash .github/workflows/provision-darwin.sh
-      - name: Pre-download network launcher
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash .github/workflows/pre-download-launcher.sh
-      - name: Deploy Basic BLS Signing Rust Darwin
-        env:
-          ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -eExuo pipefail
-          pushd rust/vetkeys/basic_bls_signing/rust
-          icp network start -d && icp deploy
-          popd
-  rust-basic-bls-signing-linux:
+  rust-basic-bls-signing:
     runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-rust:0.1.0
     steps:
-      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: '22'
-      - name: Provision Linux
-        run: bash .github/workflows/provision-linux.sh
-      - name: Pre-download network launcher
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash .github/workflows/pre-download-launcher.sh
-      - name: Deploy Basic BLS Signing Rust Linux
-        env:
-          ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -eExuo pipefail
-          pushd rust/vetkeys/basic_bls_signing/rust
-          icp network start -d && icp deploy
-          popd
-  motoko-basic-bls-signing-darwin:
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: '22'
-      - name: Provision Darwin
-        run: bash .github/workflows/provision-darwin.sh
-      - name: Pre-download network launcher
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash .github/workflows/pre-download-launcher.sh
-      - name: Deploy Basic BLS Signing Motoko Darwin
-        env:
-          ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -eExuo pipefail
-          pushd rust/vetkeys/basic_bls_signing/motoko
-          icp network start -d && icp deploy
-          popd
-  motoko-basic-bls-signing-linux:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy Basic Bls Signing Rust
+        working-directory: rust/vetkeys/basic_bls_signing/rust
+        run: icp network start -d && icp deploy
+  motoko-basic-bls-signing:
     runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-motoko:0.1.0
     steps:
-      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
-        with:
-          node-version: '22'
-      - name: Provision Linux
-        run: bash .github/workflows/provision-linux.sh
-      - name: Pre-download network launcher
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash .github/workflows/pre-download-launcher.sh
-      - name: Deploy Basic BLS Signing Motoko Linux
-        env:
-          ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          set -eExuo pipefail
-          pushd rust/vetkeys/basic_bls_signing/motoko
-          icp network start -d && icp deploy
-          popd
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy Basic Bls Signing Motoko
+        working-directory: rust/vetkeys/basic_bls_signing/motoko
+        run: icp network start -d && icp deploy
