@@ -18,13 +18,12 @@ thread_local! {
     static ENCRYPTED_MAPS: RefCell<Option<EncryptedMaps<AccessRights>>> =
         const { RefCell::new(None) };
     static KEY_NAME: RefCell<StableCell<String, Memory>> =
-        RefCell::new(StableCell::init(id_to_memory(4), String::new())
-            .expect("failed to initialize key name"));
+        RefCell::new(StableCell::init(id_to_memory(4), String::new()));
 }
 
 #[init]
 fn init(key_name: String) {
-    KEY_NAME.with_borrow_mut(|k| k.set(key_name.clone()).expect("failed to set key name"));
+    KEY_NAME.with_borrow_mut(|k| { k.set(key_name.clone()); });
     init_encrypted_maps(key_name);
 }
 
