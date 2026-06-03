@@ -1,6 +1,6 @@
 import "./style.css";
 import { Principal } from "@icp-sdk/core/principal";
-import { AuthClient } from "@icp-sdk/auth/client";
+import { AuthClient, LocalStorage } from "@icp-sdk/auth/client";
 import { HttpAgent } from "@icp-sdk/core/agent";
 import { createActor, type Backend, type Signature } from "./declarations/basic_bls_signing/backend";
 import { DerivedPublicKey, verifyBlsSignature } from "@icp-sdk/vetkeys";
@@ -63,6 +63,8 @@ async function initAuth() {
     identityProvider: isLocalEnv
       ? "http://id.ai.localhost:8000/authorize"
       : "https://id.ai/authorize",
+    storage: new LocalStorage(),
+    keyType: "Ed25519",
   });
   const isAuthenticated = authClient.isAuthenticated();
 
