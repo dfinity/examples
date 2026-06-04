@@ -1,0 +1,24 @@
+canisters:
+  - name: encrypted_notes
+    recipe:
+      type: "@dfinity/motoko@v4.1.0"
+      configuration:
+        main: backend/main.mo
+    init_args:
+      type: text
+      value: "(\"test_key_1\")"
+
+  - name: www
+    recipe:
+      type: "@dfinity/asset-canister@v2.1.0"
+      configuration:
+        dir: dist
+        build:
+          - npm install --include=dev --legacy-peer-deps --prefix ../frontend
+          - npm run build --prefix ../frontend
+          - rm -rf dist && mv ../frontend/dist dist && cp dist/index.html dist/404.html
+
+networks:
+  - name: local
+    mode: managed
+    ii: true

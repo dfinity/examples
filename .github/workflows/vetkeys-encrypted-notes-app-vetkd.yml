@@ -1,0 +1,36 @@
+name: vetkeys-encrypted-notes-app-vetkd
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - rust/vetkeys/encrypted_notes_app_vetkd/**
+      - .github/workflows/vetkeys-encrypted-notes-app-vetkd.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust:
+    runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-rust:0.1.0
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy Encrypted Notes App Vetkd Rust
+        working-directory: rust/vetkeys/encrypted_notes_app_vetkd/rust
+        run: icp network start -d && icp deploy
+  motoko:
+    runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-motoko:0.1.0
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy Encrypted Notes App Vetkd Motoko
+        working-directory: rust/vetkeys/encrypted_notes_app_vetkd/motoko
+        run: icp network start -d && icp deploy
