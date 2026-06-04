@@ -7,12 +7,12 @@
     import { addNotification, showError } from "../store/notifications";
     import Header from "./Header.svelte";
     import PasswordEditor from "./PasswordEditor.svelte";
-    import { Principal } from "@dfinity/principal";
+    import { Principal } from "@icp-sdk/core/principal";
 
     let creating = false;
     let vaultOwner =
         $auth.state === "initialized"
-            ? $auth.client.getIdentity().getPrincipal().toText()
+            ? $auth.principal.toText()
             : Principal.anonymous().toText();
     let vaultName = "";
     let passwordName = "";
@@ -45,6 +45,14 @@
             return;
         }
 
+        if (vaultName.trim() === "" || passwordName.trim() === "") {
+            addNotification({
+                type: "error",
+                message: "Vault name and password name must not be empty.",
+            });
+            return;
+        }
+
         creating = true;
 
         await setPassword(
@@ -72,10 +80,9 @@
         });
 
         // refresh passwords in the background
-        refreshVaults(
-            $auth.client.getIdentity().getPrincipal(),
-            $auth.passwordManager,
-        ).catch((e: Error) => showError(e, "Could not refresh passwords."));
+        refreshVaults($auth.principal, $auth.passwordManager).catch(
+            (e: Error) => showError(e, "Could not refresh passwords."),
+        );
     }
 
     function saveDraft() {
@@ -131,7 +138,9 @@
     <PasswordEditor {editor} class="mb-3" disabled={creating} />
     <button
         class="btn btn-primary mt-6 {creating ? 'loading' : ''}"
-        disabled={creating}
+        disabled={creating ||
+            vaultName.trim() === "" ||
+            passwordName.trim() === ""}
         on:click={add}>{creating ? "Adding..." : "Add password"}</button
     >
 </main>

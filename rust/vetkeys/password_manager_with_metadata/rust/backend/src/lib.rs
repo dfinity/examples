@@ -1,10 +1,10 @@
 use candid::{CandidType, Principal};
-use ic_cdk::management_canister::{VetKDCurve, VetKDKeyId};
-use ic_cdk::{init, query, update};
+use ic_cdk_management_canister::{VetKDCurve, VetKDKeyId};
+use ic_cdk::{init, post_upgrade, query, update};
 use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
 use ic_stable_structures::storable::Blob;
 use ic_stable_structures::{storable::Bound, Storable};
-use ic_stable_structures::{BTreeMap as StableBTreeMap, DefaultMemoryImpl};
+use ic_stable_structures::{BTreeMap as StableBTreeMap, Cell as StableCell, DefaultMemoryImpl};
 use ic_vetkeys::encrypted_maps::{EncryptedMaps, VetKey, VetKeyVerificationKey};
 use ic_vetkeys::types::{AccessRights, ByteBuf, EncryptedMapValue, TransportKey};
 use serde::{Deserialize, Serialize};
@@ -48,6 +48,10 @@ impl PasswordMetadata {
 }
 
 impl Storable for PasswordMetadata {
+    fn into_bytes(self) -> Vec<u8> {
+        self.to_bytes().into_owned()
+    }
+
     fn to_bytes(&self) -> Cow<[u8]> {
         Cow::Owned(serde_cbor::to_vec(self).expect("failed to serialize"))
     }
@@ -75,17 +79,33 @@ thread_local! {
     static METADATA: RefCell<StableMetadataMap> = RefCell::new(StableBTreeMap::new(
         MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(4))),
     ));
+    static KEY_NAME: RefCell<StableCell<String, Memory>> =
+        RefCell::new(StableCell::init(
+            MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(5))),
+            String::new(),
+        ));
 }
 
 #[init]
 fn init(key_name: String) {
+    KEY_NAME.with_borrow_mut(|k| { k.set(key_name.clone()); });
+    init_encrypted_maps(key_name);
+}
+
+#[post_upgrade]
+fn post_upgrade() {
+    let key_name = KEY_NAME.with_borrow(|k| k.get().clone());
+    init_encrypted_maps(key_name);
+}
+
+fn init_encrypted_maps(key_name: String) {
     let key_id = VetKDKeyId {
         curve: VetKDCurve::Bls12_381_G2,
         name: key_name,
     };
     ENCRYPTED_MAPS.with_borrow_mut(|encrypted_maps| {
         encrypted_maps.replace(EncryptedMaps::init(
-            "password_manager_dapp",
+            "password_manager_app",
             key_id,
             MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(0))),
             MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(1))),
@@ -143,8 +163,11 @@ fn get_encrypted_values_for_map_with_metadata(
         METADATA.with_borrow(|metadata| {
             let iter_metadata = metadata
                 .range((map_owner, map_name, Blob::default())..)
-                .take_while(|((owner, name, _), _)| owner == &map_owner && name == &map_name)
-                .map(|((_, _, key), metadata)| (key, metadata));
+                .take_while(|entry| {
+                    let (owner, name, _) = entry.key();
+                    owner == &map_owner && name == &map_name
+                })
+                .map(|entry| (entry.key().2, entry.value()));
 
             iter_metadata
                 .zip(map_values)

@@ -1,14 +1,15 @@
-import Principal "mo:base/Principal";
-import Blob "mo:base/Blob";
-import Buffer "mo:base/Buffer";
-import Array "mo:base/Array";
-import OrderedMap "mo:base/OrderedMap";
-import MotokoResult "mo:base/Result";
-import Text "mo:base/Text";
-import Time "mo:base/Time";
-import Nat64 "mo:base/Nat64";
-import Int "mo:base/Int";
-import Debug "mo:base/Debug";
+import Principal "mo:core/Principal";
+import Blob "mo:core/Blob";
+import List "mo:core/List";
+import Array "mo:core/Array";
+import OrderedMap "mo:core/pure/Map";
+import MotokoResult "mo:core/Result";
+import Text "mo:core/Text";
+import Time "mo:core/Time";
+import Nat64 "mo:core/Nat64";
+import Int "mo:core/Int";
+import Debug "mo:core/Debug";
+import Runtime "mo:core/Runtime";
 import VetKeys "mo:ic-vetkeys";
 
 persistent actor class (keyName : Text) {
@@ -34,8 +35,7 @@ persistent actor class (keyName : Text) {
       ownerCompare;
     };
   };
-  transient let metadataMapOps = OrderedMap.Make<MetadataKey>(compareMetadataKeys);
-  var metadata : OrderedMap.Map<MetadataKey, PasswordMetadata> = metadataMapOps.empty<PasswordMetadata>();
+  var metadata : OrderedMap.Map<MetadataKey, PasswordMetadata> = OrderedMap.empty<MetadataKey, PasswordMetadata>();
 
   // Types
   public type PasswordMetadata = {
@@ -116,21 +116,21 @@ persistent actor class (keyName : Text) {
     switch (encryptedMaps.getEncryptedValuesForMap(caller, mapId)) {
       case (#err(msg)) { #Err(msg) };
       case (#ok(mapValues)) {
-        let results = Buffer.Buffer<(ByteBuf, ByteBuf, PasswordMetadata)>(0);
+        let results = List.empty<(ByteBuf, ByteBuf, PasswordMetadata)>();
 
-        for ((key, encryptedValue) in mapValues.vals()) {
+        for ((key, encryptedValue) in mapValues.values()) {
           let metadataKey = (map_owner, map_name.inner, key);
-          switch (metadataMapOps.get(metadata, metadataKey)) {
+          switch (OrderedMap.get(metadata, compareMetadataKeys,metadataKey)) {
             case (null) {
-              Debug.trap("bug: inconsistent state: no metadata for key");
+              Runtime.trap("bug: inconsistent state: no metadata for key");
             };
             case (?metadataValue) {
-              results.add(({ inner = key }, { inner = encryptedValue }, metadataValue));
+              List.add(results, ({ inner = key }, { inner = encryptedValue }, metadataValue));
             };
           };
         };
 
-        #Ok(Buffer.toArray(results));
+        #Ok(List.toArray(results));
       };
     };
   };
@@ -156,7 +156,7 @@ persistent actor class (keyName : Text) {
       case (#err(msg)) { #Err(msg) };
       case (#ok(optPrevValue)) {
         let metadataKey = (map_owner, map_name.inner, map_key.inner);
-        let prevMetadata = metadataMapOps.get(metadata, metadataKey);
+        let prevMetadata = OrderedMap.get(metadata, compareMetadataKeys,metadataKey);
 
         let metadataValue = switch (prevMetadata) {
           case (null) {
@@ -167,15 +167,15 @@ persistent actor class (keyName : Text) {
           };
         };
 
-        metadata := metadataMapOps.put(metadata, metadataKey, metadataValue);
+        metadata := OrderedMap.add(metadata, compareMetadataKeys,metadataKey, metadataValue);
 
         switch (optPrevValue, prevMetadata) {
           case (null, null) { #Ok(null) };
           case (null, ?_) {
-            Debug.trap("bug: inconsistent state: no previous value but some metadata");
+            Runtime.trap("bug: inconsistent state: no previous value but some metadata");
           };
           case (?_, null) {
-            Debug.trap("bug: inconsistent state: some previous value but no metadata");
+            Runtime.trap("bug: inconsistent state: some previous value but no metadata");
           };
           case (?prevValue, ?m) { #Ok(?({ inner = prevValue }, m)) };
         };
@@ -194,17 +194,17 @@ persistent actor class (keyName : Text) {
       case (#err(msg)) { #Err(msg) };
       case (#ok(optPrevValue)) {
         let metadataKey = (map_owner, map_name.inner, map_key.inner);
-        let prevMetadata = metadataMapOps.get(metadata, metadataKey);
+        let prevMetadata = OrderedMap.get(metadata, compareMetadataKeys,metadataKey);
 
-        metadata := metadataMapOps.delete(metadata, metadataKey);
+        metadata := OrderedMap.remove(metadata, compareMetadataKeys,metadataKey);
 
         switch (optPrevValue, prevMetadata) {
           case (null, null) { #Ok(null) };
           case (null, ?_) {
-            Debug.trap("bug: inconsistent state: no previous value but some metadata");
+            Runtime.trap("bug: inconsistent state: no previous value but some metadata");
           };
           case (?_, null) {
-            Debug.trap("bug: inconsistent state: some previous value but no metadata");
+            Runtime.trap("bug: inconsistent state: some previous value but no metadata");
           };
           case (?prevValue, ?m) { #Ok(?({ inner = prevValue }, m)) };
         };

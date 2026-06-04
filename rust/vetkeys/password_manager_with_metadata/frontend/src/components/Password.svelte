@@ -2,7 +2,7 @@
     import { type PasswordModel, summarize } from "../lib/password";
     import { link, location } from "svelte-spa-router";
     import { vaultsStore } from "../store/vaults";
-    import { Principal } from "@dfinity/principal";
+    import { Principal } from "@icp-sdk/core/principal";
     import { onDestroy } from "svelte";
     import Spinner from "./Spinner.svelte";
     import Header from "./Header.svelte";

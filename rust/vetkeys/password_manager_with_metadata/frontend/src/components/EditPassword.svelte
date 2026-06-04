@@ -11,8 +11,8 @@
     import { auth } from "../store/auth";
     import Spinner from "./Spinner.svelte";
     import { onDestroy } from "svelte";
-    import { Principal } from "@dfinity/principal";
-    import type { AccessRights } from "@dfinity/vetkeys/encrypted_maps";
+    import { Principal } from "@icp-sdk/core/principal";
+    import type { AccessRights } from "@icp-sdk/vetkeys/encrypted_maps";
 
     export let currentRoute = "";
     const unsubscribe = location.subscribe((value) => {
@@ -71,7 +71,7 @@
                     v.owner.compareTo(parentVaultOwnerPrincipal) === "eq" &&
                     v.name === parentVaultName,
             );
-            const me = $auth.client.getIdentity().getPrincipal();
+            const me = $auth.principal;
             if (
                 parentVaultOwnerPrincipal.compareTo(me) !== "eq" &&
                 (!vault ||
@@ -151,10 +151,9 @@
             message: "Password saved successfully",
         });
 
-        await refreshVaults(
-            $auth.client.getIdentity().getPrincipal(),
-            $auth.passwordManager,
-        ).catch((e) => showError(e as Error, "Could not refresh passwords."));
+        await refreshVaults($auth.principal, $auth.passwordManager).catch((e) =>
+            showError(e as Error, "Could not refresh passwords."),
+        );
 
         if (move) {
             void replace(
@@ -184,10 +183,7 @@
                 showError(e as Error, "Could not delete password.");
             });
 
-        await refreshVaults(
-            $auth.client.getIdentity().getPrincipal(),
-            $auth.passwordManager,
-        )
+        await refreshVaults($auth.principal, $auth.passwordManager)
             .catch((e) => showError(e as Error, "Could not refresh passwords."))
             .finally(() => {
                 addNotification({
@@ -228,12 +224,11 @@
                     tagsInput = tags.join(", ");
                 }
 
-                const myPrincipal = $auth.client.getIdentity().getPrincipal();
-
+                const myPrincipal = $auth.principal;
                 if (parentVaultOwnerPrincipal.compareTo(myPrincipal) === "eq") {
                     accessRights = { ReadWriteManage: null };
                 } else {
-                    let foundAccessRights = targetVault.users.find(
+                    const foundAccessRights = targetVault.users.find(
                         (u) => u[0].compareTo(myPrincipal) === "eq",
                     );
                     if (foundAccessRights) {

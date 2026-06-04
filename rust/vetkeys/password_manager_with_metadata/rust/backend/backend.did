@@ -1,4 +1,15 @@
-type AccessRights = variant { Read; ReadWrite; ReadWriteManage };
+// Access rights of a user to a vetKey in [`crate::key_manager::KeyManager`] and/or an encrypted map in [`crate::encrypted_maps::EncryptedMaps`].
+type AccessRights = variant {
+  // User can retrieve the vetKey or encrypted map.
+  Read;
+  // User can update values in the encrypted map.
+  ReadWrite;
+  // User can view/share/revoke access to the vetKey or encrypted map.
+  ReadWriteManage;
+};
+// Efficiently serializable and deserializable byte vector that is `Storable` with `ic_stable_structures`.
+// See, e.g., [https://mmapped.blog/posts/01-effective-rust-canisters#serde-bytes](https://mmapped.blog/posts/01-effective-rust-canisters#serde-bytes) for more details regarding why `Vec<u8>` does not work out of the box.
+// Also, we cannot use `serde_bytes::ByteBuf` directly because it is not `Storable`.
 type ByteBuf = record { inner : blob };
 type PasswordMetadata = record {
   url : text;

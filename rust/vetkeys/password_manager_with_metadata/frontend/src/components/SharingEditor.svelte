@@ -8,8 +8,8 @@
         vaultsStore,
     } from "../store/vaults";
     import { addNotification, showError } from "../store/notifications";
-    import { Principal } from "@dfinity/principal";
-    import type { AccessRights } from "@dfinity/vetkeys/encrypted_maps";
+    import { Principal } from "@icp-sdk/core/principal";
+    import type { AccessRights } from "@icp-sdk/vetkeys/encrypted_maps";
 
     export let editedVault: VaultModel;
     export let canManage = false;
@@ -62,10 +62,9 @@
         } finally {
             adding = false;
         }
-        await refreshVaults(
-            $auth.client.getIdentity().getPrincipal(),
-            $auth.passwordManager,
-        ).catch((e: Error) => showError(e, "Could not refresh vaults."));
+        await refreshVaults($auth.principal, $auth.passwordManager).catch(
+            (e: Error) => showError(e, "Could not refresh vaults."),
+        );
     }
 
     async function remove(sharing: Principal) {
@@ -92,10 +91,9 @@
         } finally {
             removing = false;
         }
-        await refreshVaults(
-            $auth.client.getIdentity().getPrincipal(),
-            $auth.passwordManager,
-        ).catch((e: Error) => showError(e, "Could not refresh vaults."));
+        await refreshVaults($auth.principal, $auth.passwordManager).catch(
+            (e: Error) => showError(e, "Could not refresh vaults."),
+        );
     }
 
     function onKeyPress(e: KeyboardEvent) {
