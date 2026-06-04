@@ -1,10 +1,12 @@
 # Identity-Based Encryption
 
+<!-- TODO: re-enable once icp.ninja supports icp-cli (currently requires dfx)
 | Motoko backend | [![](https://icp.ninja/assets/open.svg)](http://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/vetkeys/basic_ibe/motoko)|
 | --- | --- |
 | Rust backend | [![](https://icp.ninja/assets/open.svg)](http://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/vetkeys/basic_ibe/rust) |
+-->
 
-The **Basic IBE** example demonstrates how to use **[VetKeys](https://internetcomputer.org/docs/building-apps/network-features/vetkeys/introduction)** to implement secure messaging between users by means of Identity-Based Encryption (IBE) on the **Internet Computer (IC)**. This application allows users to send encrypted messages to other users using their **Internet Identity Principal** as the encryption key identifier. This canister (IC smart contract) ensures that only the authorized user can access their private decryption key, meaning that even if someone else knows your principal, they cannot decrypt messages intended for you because neither other users nor this canister can access your private key.
+The **Basic IBE** example demonstrates how to use **[VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** to implement secure messaging between users by means of Identity-Based Encryption (IBE) on the **Internet Computer (IC)**. This application allows users to send encrypted messages to other users using their **Internet Identity Principal** as the encryption key identifier. This canister (IC smart contract) ensures that only the authorized user can access their private decryption key, meaning that even if someone else knows your principal, they cannot decrypt messages intended for you because neither other users nor this canister can access your private key.
 
 Note that generally it is possible for a canister to request a decryption key to decrypt secrets as part of its code.
 However, doing so requires the canister to provide its own transport key instead of requesting a user's transport key and this inherently makes secrets public.
@@ -22,22 +24,50 @@ A canister functionality for decrypting secrets can be detected by inspecting th
 
 ### Prerequisites
 
-- [Internet Computer software development kit](https://internetcomputer.org/docs/building-apps/getting-started/install)
+- [ICP CLI](https://cli.internetcomputer.org)
 - [npm](https://www.npmjs.com/package/npm)
 
 ### (Optionally) Choose a Different Master Key
 
-This example uses `test_key_1` by default. To use a different [available master key](https://internetcomputer.org/docs/building-apps/network-features/vetkeys/api#available-master-keys), change the `"init_arg": "(\"test_key_1\")"` line in `dfx.json` to the desired key before running `dfx deploy` in the next step.
+This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/concepts/vetkeys/#api-overview), change the `init_args` value in `icp.yaml` to the desired key before running `icp deploy` in the next step.
+
+### Folder Structure
+
+This example provides both a **Rust** and a **Motoko** backend, sharing a common `frontend/`:
+
+```
+basic_ibe/
+├── frontend/   ← shared frontend (symlinked into rust/ and motoko/)
+├── motoko/     ← Motoko backend + icp.yaml
+└── rust/       ← Rust backend + icp.yaml
+```
 
 ### Deploy the Canisters Locally
 
-If you want to deploy this project locally with a Motoko backend, then run:
+Deploy with the **Motoko** backend:
 ```bash
-dfx start --background && dfx deploy
+cd motoko
+icp network start -d && icp deploy
 ```
-from the `motoko` folder.
 
-To use the Rust backend instead of Motoko, run the same command in the `rust` folder.
+Or deploy with the **Rust** backend:
+```bash
+cd rust
+icp network start -d && icp deploy
+```
+
+To run the frontend in development mode with hot reloading (after running `icp deploy`):
+```bash
+cd frontend
+npm run dev:motoko   # if you deployed the Motoko backend
+# or
+npm run dev:rust     # if you deployed the Rust backend
+```
+
+When you are done testing, stop the local network to free up resources and unblock the default port for other projects:
+```bash
+icp network stop
+```
 
 ## Example Components
 
@@ -52,16 +82,10 @@ The backend consists of a canister that:
 
 The frontend is a vanilla typescript application providing a simple interface for sending, receiving, and deleting encrypted messages.
 
-To run the frontend in development mode with hot reloading (after running `dfx deploy`):
-
-```bash
-npm run dev
-```
-
 ## Limitations
 
 This example dapp does not implement key rotation, which is strongly recommended in a production dapp to limit the impact of potential key compromise if a malicious party gains access to the user's decryption key.
 
 ## Additional Resources
 
-- **[What are VetKeys](https://internetcomputer.org/docs/building-apps/network-features/vetkeys/introduction)** - For more information about VetKeys and VetKD.
+- **[What are VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** - For more information about VetKeys and VetKD.

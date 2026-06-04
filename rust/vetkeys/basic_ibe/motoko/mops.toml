@@ -1,3 +1,7 @@
+[toolchain]
+moc = "1.9.0"
+
 [dependencies]
-core = "1.0.0"
-ic-vetkeys = "0.3.0"
+core = "2.5.0"
+ic-vetkeys = "0.5.0"
+sha2 = "0.1.14"
