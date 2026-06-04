@@ -1,11 +1,11 @@
 use std::cell::RefCell;
 
 use candid::Principal;
-use ic_cdk::management_canister::{VetKDCurve, VetKDKeyId};
-use ic_cdk::{init, query, update};
+use ic_cdk_management_canister::{VetKDCurve, VetKDKeyId};
+use ic_cdk::{init, post_upgrade, query, update};
 use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
 use ic_stable_structures::storable::Blob;
-use ic_stable_structures::DefaultMemoryImpl;
+use ic_stable_structures::{Cell as StableCell, DefaultMemoryImpl};
 use ic_vetkeys::encrypted_maps::{EncryptedMapData, EncryptedMaps, VetKey, VetKeyVerificationKey};
 use ic_vetkeys::types::{AccessRights, ByteBuf, EncryptedMapValue, TransportKey};
 
@@ -17,17 +17,30 @@ thread_local! {
         RefCell::new(MemoryManager::init(DefaultMemoryImpl::default()));
     static ENCRYPTED_MAPS: RefCell<Option<EncryptedMaps<AccessRights>>> =
         const { RefCell::new(None) };
+    static KEY_NAME: RefCell<StableCell<String, Memory>> =
+        RefCell::new(StableCell::init(id_to_memory(4), String::new()));
 }
 
 #[init]
 fn init(key_name: String) {
+    KEY_NAME.with_borrow_mut(|k| { k.set(key_name.clone()); });
+    init_encrypted_maps(key_name);
+}
+
+#[post_upgrade]
+fn post_upgrade() {
+    let key_name = KEY_NAME.with_borrow(|k| k.get().clone());
+    init_encrypted_maps(key_name);
+}
+
+fn init_encrypted_maps(key_name: String) {
     let key_id = VetKDKeyId {
         curve: VetKDCurve::Bls12_381_G2,
         name: key_name,
     };
     ENCRYPTED_MAPS.with_borrow_mut(|encrypted_maps| {
         encrypted_maps.replace(EncryptedMaps::init(
-            "encrypted_maps_dapp",
+            "encrypted_maps_app",
             key_id,
             id_to_memory(0),
             id_to_memory(1),

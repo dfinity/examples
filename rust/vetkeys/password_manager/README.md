@@ -1,8 +1,10 @@
 # VetKey Password Manager
 
+<!-- TODO: re-enable once icp.ninja supports icp-cli (currently requires dfx)
 | Motoko backend | [![](https://icp.ninja/assets/open.svg)](http://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/vetkeys/password_manager/motoko)|
 | --- | --- |
 | Rust backend | [![](https://icp.ninja/assets/open.svg)](http://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/vetkeys/password_manager/rust) |
+-->
 
 The **VetKey Password Manager** is an example application demonstrating how to use **VetKeys** and **Encrypted Maps** to build a secure, decentralized password manager on the **Internet Computer (IC)**. This application allows users to create password vaults, store encrypted passwords, and share vaults with other users via their **Internet Identity Principal**.
 
@@ -16,37 +18,60 @@ The **VetKey Password Manager** is an example application demonstrating how to u
 
 ### Prerequisites
 
-- [Local Internet Computer dev environment](https://internetcomputer.org/docs/building-apps/getting-started/install)
+- [ICP CLI](https://cli.internetcomputer.org)
 - [npm](https://www.npmjs.com/package/npm)
 
 ### (Optionally) Choose a Different Master Key
 
-This example uses `test_key_1` by default. To use a different [available master key](https://internetcomputer.org/docs/building-apps/network-features/vetkeys/api#available-master-keys), change the `"init_arg": "(\"test_key_1\")"` line in `dfx.json` to the desired key before running `dfx deploy` in the next step.
+This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/concepts/vetkeys/#api-overview), change the `init_args` value in `icp.yaml` to the desired key before running `icp deploy` in the next step.
+
+### Folder Structure
+
+This example provides both a **Rust** and a **Motoko** backend, sharing a common `frontend/`:
+
+```
+password_manager/
+├── frontend/       ← shared frontend (symlinked into rust/ and motoko/)
+├── motoko/     ← Motoko backend + icp.yaml
+└── rust/           ← Rust backend + icp.yaml
+```
 
 ### Deploy the Canisters Locally
-If you want to deploy this project locally with a Motoko backend, then run:
+
+Deploy with the **Motoko** backend:
 ```bash
-dfx start --background && dfx deploy
+cd motoko
+icp network start -d && icp deploy
 ```
-from the `motoko` folder.
 
-To use the Rust backend instead of Motoko, run the same command in the `rust` folder.
+Or deploy with the **Rust** backend:
+```bash
+cd rust
+icp network start -d && icp deploy
+```
 
-## Running the Project
+To run the frontend in development mode with hot reloading (after running `icp deploy`):
+```bash
+cd frontend
+npm run dev:motoko   # if you deployed the Motoko backend
+# or
+npm run dev:rust     # if you deployed the Rust backend
+```
+
+When you are done testing, stop the local network to free up resources and unblock the default port for other projects:
+```bash
+icp network stop
+```
+
+## Example Components
 
 ### Backend
 
-The backend consists of an **Encrypted Maps**-enabled canister that securely stores passwords. It is automatically deployed with `dfx deploy`.
+The backend consists of an **Encrypted Maps**-enabled canister that securely stores passwords.
 
 ### Frontend
 
 The frontend is a **Svelte** application providing a user-friendly interface for managing vaults and passwords.
-
-To run the frontend in development mode with hot reloading:
-
-```bash
-npm run dev
-```
 
 ## Limitations
 

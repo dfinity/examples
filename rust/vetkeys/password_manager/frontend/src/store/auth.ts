@@ -1,10 +1,11 @@
 import "../lib/init.ts";
 import { get, writable } from "svelte/store";
-import { AuthClient } from "@dfinity/auth-client";
-import type { JsonnableDelegationChain } from "@dfinity/identity/lib/cjs/identity/delegation";
+import { AuthClient, LocalStorage } from "@icp-sdk/auth/client";
+import { DelegationIdentity } from "@icp-sdk/core/identity";
+import type { Principal } from "@icp-sdk/core/principal";
 import { replace } from "svelte-spa-router";
 import { createEncryptedMaps } from "../lib/encrypted_maps.js";
-import { EncryptedMaps } from "@dfinity/vetkeys/encrypted_maps";
+import { EncryptedMaps } from "@icp-sdk/vetkeys/encrypted_maps";
 
 export type AuthState =
     | {
@@ -18,6 +19,7 @@ export type AuthState =
           state: "initialized";
           encryptedMaps: EncryptedMaps;
           client: AuthClient;
+          principal: Principal;
       }
     | {
           state: "error";
@@ -29,8 +31,22 @@ export const auth = writable<AuthState>({
 });
 
 async function initAuth() {
-    const client = await AuthClient.create();
-    if (await client.isAuthenticated()) {
+    const isLocalEnv =
+        window.location.hostname === "localhost" ||
+        window.location.hostname.endsWith(".localhost");
+    // Workaround for https://github.com/dfinity/icp-js-auth/issues/120
+    // IdbStorage has a race condition on localhost dev servers. LocalStorage
+    // avoids IDB on local but uses plain string storage (less secure), so
+    // production deployments keep the default secure IdbStorage + ECDSA key.
+    const client = new AuthClient({
+        identityProvider: isLocalEnv
+            ? "http://id.ai.localhost:8000/authorize"
+            : "https://id.ai/authorize",
+        ...(isLocalEnv
+            ? { storage: new LocalStorage(), keyType: "Ed25519" as const }
+            : {}),
+    });
+    if (client.isAuthenticated()) {
         void authenticate(client);
     } else {
         auth.update(() => ({
@@ -46,14 +62,16 @@ export function login() {
     const currentAuth = get(auth);
 
     if (currentAuth.state === "anonymous") {
-        void currentAuth.client.login({
-            maxTimeToLive: BigInt(1800) * BigInt(1_000_000_000),
-            identityProvider:
-                process.env.DFX_NETWORK === "ic"
-                    ? "https://identity.ic0.app/#authorize"
-                    : `http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:4943/#authorize`,
-            onSuccess: () => authenticate(currentAuth.client),
-        });
+        void (async () => {
+            try {
+                await currentAuth.client.signIn({
+                    maxTimeToLive: BigInt(1800) * BigInt(1_000_000_000),
+                });
+                void authenticate(currentAuth.client);
+            } catch (error: unknown) {
+                console.error("Login failed:", error);
+            }
+        })();
     }
 }
 
@@ -61,7 +79,7 @@ export async function logout() {
     const currentAuth = get(auth);
 
     if (currentAuth.state === "initialized") {
-        await currentAuth.client.logout();
+        await currentAuth.client.signOut();
         auth.update(() => ({
             state: "anonymous",
             client: currentAuth.client,
@@ -71,17 +89,17 @@ export async function logout() {
 }
 
 export async function authenticate(client: AuthClient) {
-    handleSessionTimeout();
+    void handleSessionTimeout(client);
 
     try {
-        const encryptedMaps = await createEncryptedMaps({
-            identity: client.getIdentity(),
-        });
+        const identity = await client.getIdentity();
+        const encryptedMaps = await createEncryptedMaps({ identity });
 
         auth.update(() => ({
             state: "initialized",
             encryptedMaps,
             client,
+            principal: identity.getPrincipal(),
         }));
     } catch (e) {
         auth.update(() => ({
@@ -92,25 +110,20 @@ export async function authenticate(client: AuthClient) {
 }
 
 // set a timer when the II session will expire and log the user out
-function handleSessionTimeout() {
-    // upon login the localstorage items may not be set, wait for next tick
-    setTimeout(() => {
-        try {
-            const delegation = JSON.parse(
-                window.localStorage.getItem("ic-delegation") || "{}",
-            ) as JsonnableDelegationChain;
+async function handleSessionTimeout(client: AuthClient) {
+    try {
+        const identity = await client.getIdentity();
+        if (!(identity instanceof DelegationIdentity)) return;
 
-            const expirationTimeMs =
-                Number.parseInt(
-                    delegation.delegations[0].delegation.expiration,
-                    16,
-                ) / 1000000;
+        const chain = identity.getDelegation();
+        // expiration is a BigInt of nanoseconds since epoch
+        const expirationMs =
+            Number(chain.delegations[0].delegation.expiration) / 1_000_000;
 
-            setTimeout(() => {
-                void logout();
-            }, expirationTimeMs - Date.now());
-        } catch {
-            console.error("Could not handle delegation expiry.");
-        }
-    });
+        setTimeout(() => {
+            void logout();
+        }, expirationMs - Date.now());
+    } catch {
+        console.error("Could not handle delegation expiry.");
+    }
 }

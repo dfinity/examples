@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
+    "dev": "printf '\\nNo backend specified. Use one of:\\n\\n  npm run dev:motoko\\n  npm run dev:rust\\n\\n' && exit 1",
+    "dev:motoko": "BACKEND=motoko vite",
+    "dev:rust": "BACKEND=rust vite",
     "build": "vite build",
     "lint": "eslint",
     "prettier": "prettier --write .",
@@ -23,16 +25,12 @@
     "svelte": "^4.2.19",
     "tslib": "^2.8.1",
     "typescript-eslint": "^8.35.1",
-    "vite": "^5.4.21",
-    "vite-plugin-environment": "^1.1.3"
+    "vite": "^5.4.21"
   },
   "dependencies": {
-    "@dfinity/agent": "^2.3.0",
-    "@dfinity/auth-client": "^2.3.0",
-    "@dfinity/candid": "^2.3.0",
-    "@dfinity/identity": "^2.3.0",
-    "@dfinity/principal": "^2.3.0",
-    "@dfinity/vetkeys": "^0.3.0",
+    "@icp-sdk/auth": "^7.1.0",
+    "@icp-sdk/core": "^5.4.0",
+    "@icp-sdk/vetkeys": "^0.5.0-beta.0",
     "@popperjs/core": "^2.11.8",
     "@sveltejs/vite-plugin-svelte": "^3.0.2",
     "@tailwindcss/postcss": "^4.0.6",

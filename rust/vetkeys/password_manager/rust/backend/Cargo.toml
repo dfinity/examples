@@ -15,6 +15,7 @@ crate-type = ["cdylib"]
 [dependencies]
 candid = "0.10.2"
 ic-cdk = { workspace = true }
+ic-cdk-management-canister = { workspace = true }
 ic-dummy-getrandom-for-wasm = "0.1.0"
 ic-stable-structures = { workspace = true }
 ic-vetkeys = { workspace = true }

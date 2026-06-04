@@ -4,7 +4,7 @@
     import GoDatabase from "svelte-icons/go/GoDatabase.svelte";
     import FaDoorOpen from "svelte-icons/fa/FaDoorOpen.svelte";
     import Disclaimer from "./Disclaimer.svelte";
-    import { Principal } from "@dfinity/principal";
+    import { Principal } from "@icp-sdk/core/principal";
     import { link } from "svelte-spa-router";
 </script>
 
@@ -31,7 +31,7 @@
                 <div class="pl-4">My Principal:</div>
                 <div class="pl-4">
                     {$auth.state === "initialized"
-                        ? $auth.client.getIdentity().getPrincipal().toText()
+                        ? $auth.principal.toText()
                         : Principal.anonymous().toText()}
                 </div>
             </div>

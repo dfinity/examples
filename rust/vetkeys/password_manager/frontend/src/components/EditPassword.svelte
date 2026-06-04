@@ -15,8 +15,8 @@
     import { auth } from "../store/auth";
     import Spinner from "./Spinner.svelte";
     import { onDestroy } from "svelte";
-    import { Principal } from "@dfinity/principal";
-    import type { AccessRights } from "@dfinity/vetkeys/encrypted_maps";
+    import { Principal } from "@icp-sdk/core/principal";
+    import type { AccessRights } from "@icp-sdk/vetkeys/encrypted_maps";
 
     export let currentRoute = "";
     const unsubscribe = location.subscribe((value) => {
@@ -64,7 +64,7 @@
                     v.owner.compareTo(editedPassword.owner) === "eq" &&
                     v.name === editedPassword.parentVaultName,
             );
-            const me = $auth.client.getIdentity().getPrincipal();
+            const me = $auth.principal;
             const accessRights =
                 vault && vault.users.find((u) => u[0].compareTo(me) === "eq");
             const authorized = accessRights && "Read" in accessRights[1];
@@ -185,8 +185,8 @@
         ) {
             const split = currentRoute.split("/");
             vaultOwner = split[split.length - 3];
-            const parentVaultName = split[split.length - 2];
-            const passwordName = split[split.length - 1];
+            const parentVaultName = decodeURIComponent(split[split.length - 2]);
+            const passwordName = decodeURIComponent(split[split.length - 1]);
             const searchedForPassword = $vaultsStore.list
                 .find(
                     (v) =>
@@ -199,7 +199,7 @@
                 editedPassword = { ...searchedForPassword[1] };
             }
 
-            const myPrincipal = $auth.client.getIdentity().getPrincipal();
+            const myPrincipal = $auth.principal;
 
             if (editedPassword.owner.compareTo(myPrincipal) === "eq") {
                 accessRights = { ReadWriteManage: null };

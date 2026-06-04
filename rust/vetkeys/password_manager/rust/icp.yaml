@@ -1,0 +1,23 @@
+canisters:
+  - name: ic_vetkeys_encrypted_maps_canister
+    recipe:
+      type: "@dfinity/rust@v3.2.0"
+      configuration:
+        package: ic-vetkeys-encrypted-maps-canister
+        candid: backend/ic_vetkeys_encrypted_maps_canister.did
+    init_args:
+      type: text
+      value: "(\"test_key_1\")"
+
+  - name: www
+    recipe:
+      type: "@dfinity/asset-canister@v2.1.0"
+      configuration:
+        dir: dist
+        build:
+          - cd frontend && npm i --include=dev && npm run build && cd - && rm -rf dist; mv frontend/dist ./
+
+networks:
+  - name: local
+    mode: managed
+    ii: true
