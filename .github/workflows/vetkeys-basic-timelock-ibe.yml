@@ -1,0 +1,26 @@
+name: vetkeys-basic-timelock-ibe
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - rust/vetkeys/basic_timelock_ibe/**
+      - .github/workflows/vetkeys-basic-timelock-ibe.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust:
+    runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-rust:0.1.0
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy Basic Timelock Ibe Rust
+        working-directory: rust/vetkeys/basic_timelock_ibe
+        run: icp network start -d && icp deploy

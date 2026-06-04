@@ -1,74 +1,58 @@
-// Required to run `npm run dev`.
-if (!window.global) {
-    window.global = window;
-}
-
 import "./style.css";
-import { createActor } from "./declarations/basic_timelock_ibe";
-import { Principal } from "@dfinity/principal";
+import { createActor, type Backend, type LotInformation } from "./declarations/basic_timelock_ibe/backend";
+import { Principal } from "@icp-sdk/core/principal";
 import {
     DerivedPublicKey,
     IbeCiphertext,
     IbeIdentity,
     IbeSeed,
-} from "@dfinity/vetkeys";
-import {
-    _SERVICE,
-    LotInformation,
-} from "./declarations/basic_timelock_ibe/basic_timelock_ibe.did";
-import { AuthClient } from "@dfinity/auth-client";
-import type { ActorSubclass } from "@dfinity/agent";
+} from "@icp-sdk/vetkeys";
+import { AuthClient, LocalStorage } from "@icp-sdk/auth/client";
+import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
+import { HttpAgent } from "@icp-sdk/core/agent";
+
+const canisterEnv = safeGetCanisterEnv<{
+    "PUBLIC_CANISTER_ID:basic_timelock_ibe": string;
+}>();
 
 let ibePublicKey: DerivedPublicKey | undefined = undefined;
 let myPrincipal: Principal | undefined = undefined;
 let authClient: AuthClient | undefined;
-let basicTimelockIbeCanister: ActorSubclass<_SERVICE> | undefined;
+let basicTimelockIbeCanister: Backend | undefined;
 
-function getBasicTimelockIbeCanister(): ActorSubclass<_SERVICE> {
+async function getBasicTimelockIbeCanister(): Promise<Backend> {
     if (basicTimelockIbeCanister) return basicTimelockIbeCanister;
-    if (!process.env.CANISTER_ID_BASIC_TIMELOCK_IBE) {
-        throw Error("CANISTER_ID_BASIC_TIMELOCK_IBE is not set");
-    }
+    const canisterId = canisterEnv?.["PUBLIC_CANISTER_ID:basic_timelock_ibe"];
+    if (!canisterId) throw Error("Canister ID for basic_timelock_ibe is not set");
     if (!authClient) {
         throw Error("Auth client is not initialized");
     }
-    const host =
-        process.env.DFX_NETWORK === "ic"
-            ? `https://${process.env.CANISTER_ID_BASIC_TIMELOCK_IBE}.ic0.app`
-            : "http://localhost:8000";
 
-    basicTimelockIbeCanister = createActor(
-        process.env.CANISTER_ID_BASIC_TIMELOCK_IBE,
-        {
-            agentOptions: {
-                identity: authClient.getIdentity(),
-                host,
-            },
-        },
-    );
+    const agent = await HttpAgent.create({
+        identity: await authClient.getIdentity(),
+        host: window.location.origin,
+        rootKey: canisterEnv?.IC_ROOT_KEY,
+    });
 
-    return basicTimelockIbeCanister!;
+    basicTimelockIbeCanister = createActor(canisterId, { agent });
+
+    return basicTimelockIbeCanister;
 }
 
-export function login(client: AuthClient) {
-    void client.login({
-        maxTimeToLive: BigInt(1800) * BigInt(1_000_000_000),
-        identityProvider:
-            process.env.DFX_NETWORK === "ic"
-                ? "https://identity.ic0.app/#authorize"
-                : `http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:8000/#authorize`,
-        onSuccess: () => {
-            myPrincipal = client.getIdentity().getPrincipal();
-            updateUI(true);
-        },
-        onError: (error) => {
-            alert("Authentication failed: " + error);
-        },
-    });
+export async function login(client: AuthClient): Promise<void> {
+    try {
+        const identity = await client.signIn({
+            maxTimeToLive: BigInt(1800) * BigInt(1_000_000_000),
+        });
+        myPrincipal = identity.getPrincipal();
+        updateUI(true);
+    } catch (error: unknown) {
+        alert("Authentication failed: " + error);
+    }
 }
 
 export function logout() {
-    void authClient?.logout();
+    void authClient?.signOut();
     myPrincipal = undefined;
     basicTimelockIbeCanister = undefined;
     updateUI(false);
@@ -79,11 +63,19 @@ export function logout() {
 }
 
 async function initAuth() {
-    authClient = await AuthClient.create();
-    const isAuthenticated = await authClient.isAuthenticated();
+    const isLocalEnv = window.location.hostname === "localhost" || window.location.hostname.endsWith(".localhost");
+    // Workaround for https://github.com/dfinity/icp-js-auth/issues/120
+    // IdbStorage has a race condition on localhost dev servers. LocalStorage
+    // avoids IDB on local but uses plain string storage (less secure), so
+    // production deployments keep the default secure IdbStorage + ECDSA key.
+    authClient = new AuthClient({
+        identityProvider: isLocalEnv ? "http://id.ai.localhost:8000/authorize" : "https://id.ai/authorize",
+        ...(isLocalEnv ? { storage: new LocalStorage(), keyType: "Ed25519" as const } : {}),
+    });
+    const isAuthenticated = authClient.isAuthenticated();
 
     if (isAuthenticated) {
-        myPrincipal = authClient.getIdentity().getPrincipal();
+        myPrincipal = (await authClient.getIdentity()).getPrincipal();
         updateUI(true);
     } else {
         updateUI(false);
@@ -116,7 +108,7 @@ function handleLogin() {
         return;
     }
 
-    login(authClient);
+    void login(authClient);
 }
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
@@ -186,7 +178,7 @@ async function getIbePublicKey(): Promise<DerivedPublicKey> {
     if (ibePublicKey) return ibePublicKey;
     ibePublicKey = DerivedPublicKey.deserialize(
         new Uint8Array(
-            await getBasicTimelockIbeCanister().get_ibe_public_key(),
+            await (await getBasicTimelockIbeCanister()).get_ibe_public_key(),
         ),
     );
     return ibePublicKey;
@@ -211,7 +203,7 @@ async function createLot(
     description: string,
     durationSeconds: number,
 ) {
-    const result = await getBasicTimelockIbeCanister().create_lot(
+    const result = await (await getBasicTimelockIbeCanister()).create_lot(
         name,
         description,
         durationSeconds,
@@ -303,7 +295,7 @@ function formatCountdown(endTime: bigint): string {
 async function listLots() {
     try {
         const [openLots, closedLots] =
-            await getBasicTimelockIbeCanister().get_lots();
+            await (await getBasicTimelockIbeCanister()).get_lots();
         const openLotsDiv = document.getElementById("openLots")!;
         const closedLotsDiv = document.getElementById("closedLots")!;
 
@@ -450,7 +442,7 @@ async function placeBid(lotId: bigint, amount: number) {
         const encryptedAmount = await encrypt(amountBytes, lotIdBytes);
 
         // Place the bid
-        const result = await getBasicTimelockIbeCanister().place_bid(
+        const result = await (await getBasicTimelockIbeCanister()).place_bid(
             lotId,
             encryptedAmount,
         );

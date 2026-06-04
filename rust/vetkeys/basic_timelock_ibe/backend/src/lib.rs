@@ -2,7 +2,7 @@ use crate::types::{
     BidCounter, DecryptedBid, EncryptedBid, LotId, LotInformation, VetKeyPublicKey,
 };
 use candid::Principal;
-use ic_cdk::management_canister::{VetKDCurve, VetKDDeriveKeyArgs, VetKDKeyId, VetKDPublicKeyArgs};
+use ic_cdk_management_canister::{VetKDCurve, VetKDDeriveKeyArgs, VetKDKeyId, VetKDPublicKeyArgs};
 use ic_cdk::{init, post_upgrade, query, update};
 use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
 use ic_stable_structures::{BTreeMap as StableBTreeMap, Cell as StableCell, DefaultMemoryImpl};
@@ -109,7 +109,7 @@ async fn get_ibe_public_key() -> VetKeyPublicKey {
         key_id: key_id(),
     };
 
-    let result = ic_cdk::management_canister::vetkd_public_key(&request)
+    let result = ic_cdk_management_canister::vetkd_public_key(&request)
         .await
         .expect("call to vetkd_public_key failed");
 
@@ -213,9 +213,7 @@ fn place_bid(lot_id: u128, encrypted_amount: Vec<u8>) -> Result<(), String> {
 #[update(guard = "is_self_call")]
 fn start_lot_closing_timer_job_with_interval_secs(secs: u64) {
     let secs = std::time::Duration::from_secs(secs);
-    ic_cdk_timers::set_timer_interval(secs, || {
-        ic_cdk::futures::spawn(close_one_lot_if_any_is_open_and_expired())
-    });
+    ic_cdk_timers::set_timer_interval(secs, || close_one_lot_if_any_is_open_and_expired());
 }
 
 async fn close_one_lot_if_any_is_open_and_expired() {
@@ -272,7 +270,7 @@ async fn decrypt_ciphertexts(
         transport_public_key: transport_secret_key.public_key().to_vec(),
     };
 
-    let result = ic_cdk::management_canister::vetkd_derive_key(&request)
+    let result = ic_cdk_management_canister::vetkd_derive_key(&request)
         .await
         .expect("call to vetkd_derive_key failed");
 
