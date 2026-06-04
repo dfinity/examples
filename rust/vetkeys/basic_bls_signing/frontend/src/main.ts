@@ -1,81 +1,78 @@
-// Required to run `npm run dev`.
-if (!window.global) {
-  window.global = window;
-}
-
 import "./style.css";
-import { createActor } from "./declarations/basic_bls_signing";
-import { Principal } from "@dfinity/principal";
-import { AuthClient } from "@dfinity/auth-client";
-import type { ActorSubclass } from "@dfinity/agent";
-import { _SERVICE } from "./declarations/basic_bls_signing/basic_bls_signing.did";
-import { DerivedPublicKey, verifyBlsSignature } from "@dfinity/vetkeys";
-import type { Signature } from "./declarations/basic_bls_signing/basic_bls_signing.did";
+import { Principal } from "@icp-sdk/core/principal";
+import { AuthClient, LocalStorage } from "@icp-sdk/auth/client";
+import { HttpAgent } from "@icp-sdk/core/agent";
+import { createActor, type Backend, type Signature } from "./declarations/basic_bls_signing/backend";
+import { DerivedPublicKey, verifyBlsSignature } from "@icp-sdk/vetkeys";
+import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
+
+const canisterEnv = safeGetCanisterEnv<{
+  "PUBLIC_CANISTER_ID:basic_bls_signing": string;
+}>();
 
 let myPrincipal: Principal | undefined = undefined;
 let authClient: AuthClient | undefined;
-let basicBlsSigningCanister: ActorSubclass<_SERVICE> | undefined;
+let basicBlsSigningActor: Backend | undefined;
 // let canisterPublicKey: DerivedPublicKey | undefined;
 let myVerificationKey: DerivedPublicKey | undefined;
 
-function getBasicBlsSigningCanister(): ActorSubclass<_SERVICE> {
-  if (basicBlsSigningCanister) return basicBlsSigningCanister;
-  if (!process.env.CANISTER_ID_BASIC_BLS_SIGNING) {
-    throw Error("CANISTER_ID_BASIC_BLS_SIGNING is not set");
+async function getBasicBlsSigningActor(): Promise<Backend> {
+  if (basicBlsSigningActor) return basicBlsSigningActor;
+  const canisterId = canisterEnv?.["PUBLIC_CANISTER_ID:basic_bls_signing"];
+  if (!canisterId) {
+    throw Error("Canister ID for basic_bls_signing is not set");
   }
   if (!authClient) {
     throw Error("Auth client is not initialized");
   }
-  const host =
-    process.env.DFX_NETWORK === "ic"
-      ? `https://${process.env.CANISTER_ID_BASIC_BLS_SIGNING}.ic0.app`
-      : "http://localhost:8000";
-
-  basicBlsSigningCanister = createActor(
-    process.env.CANISTER_ID_BASIC_BLS_SIGNING,
-    {
-      agentOptions: {
-        identity: authClient.getIdentity(),
-        host,
-      },
-    },
-  );
-
-  return basicBlsSigningCanister!;
+  const agent = await HttpAgent.create({
+    identity: await authClient.getIdentity(),
+    host: window.location.origin,
+    rootKey: canisterEnv?.IC_ROOT_KEY,
+  });
+  basicBlsSigningActor = createActor(canisterId, { agent });
+  return basicBlsSigningActor;
 }
 
-export function login(client: AuthClient) {
-  void client.login({
-    maxTimeToLive: BigInt(1800) * BigInt(1_000_000_000),
-    identityProvider:
-      process.env.DFX_NETWORK === "ic"
-        ? "https://identity.ic0.app/#authorize"
-        : `http://rdmx6-jaaaa-aaaaa-aaadq-cai.localhost:8000/#authorize`,
-    onSuccess: () => {
-      myPrincipal = client.getIdentity().getPrincipal();
-      updateUI(true);
-    },
-    onError: (error) => {
-      alert("Authentication failed: " + error);
-    },
-  });
+export async function login(client: AuthClient): Promise<void> {
+  try {
+    const identity = await client.signIn({
+      maxTimeToLive: BigInt(1800) * BigInt(1_000_000_000),
+    });
+    myPrincipal = identity.getPrincipal();
+    updateUI(true);
+  } catch (error: unknown) {
+    alert("Authentication failed: " + error);
+  }
 }
 
 export function logout() {
-  void authClient?.logout();
+  void authClient?.signOut();
   myPrincipal = undefined;
   myVerificationKey = undefined;
-  basicBlsSigningCanister = undefined;
+  basicBlsSigningActor = undefined;
   updateUI(false);
   document.getElementById("signaturesList")!.classList.toggle("hidden", true);
 }
 
 async function initAuth() {
-  authClient = await AuthClient.create();
-  const isAuthenticated = await authClient.isAuthenticated();
+  const isLocalEnv =
+    window.location.hostname === "localhost" ||
+    window.location.hostname.endsWith(".localhost");
+  // Workaround for https://github.com/dfinity/icp-js-auth/issues/120
+  // IdbStorage has a race condition on localhost dev servers. LocalStorage
+  // avoids IDB on local but uses plain string storage (less secure), so
+  // production deployments keep the default secure IdbStorage + ECDSA key.
+  authClient = new AuthClient({
+    identityProvider: isLocalEnv
+      ? "http://id.ai.localhost:8000/authorize"
+      : "https://id.ai/authorize",
+    ...(isLocalEnv ? { storage: new LocalStorage(), keyType: "Ed25519" as const } : {}),
+  });
+  const isAuthenticated = authClient.isAuthenticated();
 
   if (isAuthenticated) {
-    myPrincipal = authClient.getIdentity().getPrincipal();
+    myPrincipal = (await authClient.getIdentity()).getPrincipal();
     updateUI(true);
   } else {
     updateUI(false);
@@ -107,7 +104,7 @@ function handleLogin() {
     alert("Auth client not initialized");
     return;
   }
-  login(authClient);
+  void login(authClient);
 }
 
 document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
@@ -158,7 +155,7 @@ document.getElementById("signMessageButton")!.addEventListener("click", () => {
     const message = prompt("Enter message to sign:");
     if (message) {
       try {
-        await getBasicBlsSigningCanister().sign_message(message);
+        await (await getBasicBlsSigningActor()).sign_message(message);
         alert("Created and stored signature successfully.");
       } catch (error) {
         alert(`Error: ${error as Error}`);
@@ -217,8 +214,8 @@ document
   });
 
 async function listSignatures() {
-  const signatures: Array<Signature> =
-    await getBasicBlsSigningCanister().get_my_signatures();
+  const actor = await getBasicBlsSigningActor();
+  const signatures: Array<Signature> = await actor.get_my_signatures();
   const signaturesDiv = document.getElementById("signatures")!;
   signaturesDiv.innerHTML = "";
 
@@ -230,8 +227,7 @@ async function listSignatures() {
       `;
   } else {
     if (!myVerificationKey) {
-      const myVerificationKeyRaw =
-        await getBasicBlsSigningCanister().get_my_verification_key();
+      const myVerificationKeyRaw = await actor.get_my_verification_key();
       myVerificationKey = DerivedPublicKey.deserialize(
         Uint8Array.from(myVerificationKeyRaw),
       );

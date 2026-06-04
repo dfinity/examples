@@ -1,15 +1,21 @@
 #!/bin/bash
+set -eu
 
-cd ../../backend && make extract-candid
+# Resolve the script's physical location so we work correctly even when the
+# icp CLI has symlinked `frontend/` into a backend subdirectory for the build.
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -P)"
+FRONTEND_DIR="$(dirname "$SCRIPT_DIR")"
+EXAMPLE_ROOT="$(dirname "$FRONTEND_DIR")"
 
-cd .. && dfx generate basic_bls_signing || exit 1
+# Bindings are always generated from the Rust backend since both backends
+# expose the same Candid interface.
+if command -v candid-extractor >/dev/null 2>&1; then
+    (cd "$EXAMPLE_ROOT/rust/backend" && make extract-candid)
+fi
 
-rm -r frontend/src/declarations/basic_bls_signing > /dev/null 2>&1 || true
-
-mkdir -p frontend/src/declarations/basic_bls_signing
-mv src/declarations/basic_bls_signing frontend/src/declarations
-rmdir -p src/declarations > /dev/null 2>&1 || true
-
-# dfx 0.31+ generates @icp-sdk/core imports; rewrite to @dfinity/* to match deps
-find frontend/src/declarations -type f \( -name '*.ts' -o -name '*.js' \) -exec \
-  perl -i -pe 's|\@icp-sdk/core/agent|\@dfinity/agent|g; s|\@icp-sdk/core/principal|\@dfinity/principal|g; s|\@icp-sdk/core/candid|\@dfinity/candid|g' {} +
+rm -rf "$FRONTEND_DIR/src/declarations/basic_bls_signing"
+mkdir -p "$FRONTEND_DIR/src/declarations/basic_bls_signing"
+npx --yes @icp-sdk/bindgen \
+    --did-file "$EXAMPLE_ROOT/rust/backend/backend.did" \
+    --out-dir "$FRONTEND_DIR/src/declarations/basic_bls_signing" \
+    --declarations-flat --force
