@@ -1,0 +1,6 @@
+service : {
+  "symmetric_key_verification_key" : () -> (blob);
+  "encrypted_symmetric_key_for_caller" : (blob) -> (blob);
+  "ibe_encryption_key" : () -> (blob);
+  "encrypted_ibe_decryption_key_for_caller" : (blob) -> (blob);
+};

@@ -1,0 +1,129 @@
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: system-ui, -apple-system, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f5f5f5;
+  color: #1a1a1a;
+}
+
+.container {
+  max-width: 720px;
+  margin: 2rem auto;
+  padding: 0 1rem;
+}
+
+h1 {
+  font-size: 1.75rem;
+  margin-bottom: 0.25rem;
+}
+
+.subtitle {
+  color: #555;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+}
+
+.auth-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+#principal-display {
+  font-size: 0.85rem;
+  color: #555;
+  word-break: break-all;
+}
+
+hr {
+  border: none;
+  border-top: 1px solid #ddd;
+  margin: 1.5rem 0;
+}
+
+section {
+  margin-bottom: 1rem;
+}
+
+h2 {
+  font-size: 1.2rem;
+  margin-bottom: 0.25rem;
+}
+
+.hint {
+  font-size: 0.875rem;
+  color: #666;
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.form-group {
+  margin-bottom: 0.5rem;
+}
+
+label {
+  font-size: 0.9rem;
+  min-width: 9rem;
+  flex-shrink: 0;
+}
+
+input[type="text"] {
+  flex: 1;
+  min-width: 0;
+  padding: 0.4rem 0.6rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-family: inherit;
+}
+
+button {
+  padding: 0.4rem 0.9rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  background: #fff;
+  cursor: pointer;
+  font-size: 0.9rem;
+  white-space: nowrap;
+}
+
+button:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.status {
+  font-size: 0.875rem;
+  color: #444;
+  margin: 0.25rem 0 0.75rem;
+  min-height: 1.2em;
+}
+
+.result {
+  font-size: 0.8rem;
+  color: #333;
+  word-break: break-all;
+  margin: 0.25rem 0 0.75rem;
+  min-height: 1.2em;
+}
+
+.hidden {
+  display: none !important;
+}

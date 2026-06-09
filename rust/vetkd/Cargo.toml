@@ -1,2 +1,0 @@
-[workspace]
-members = ["src/app_backend"]
