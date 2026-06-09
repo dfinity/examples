@@ -108,7 +108,7 @@ canisters:
 
   - name: frontend
     recipe:
-      type: "@dfinity/asset-canister@v2.1.0"
+      type: "@dfinity/asset-canister@v2.2.1"
       configuration:
         dir: frontend/dist
         build:
@@ -129,7 +129,7 @@ canisters:
 
   - name: frontend
     recipe:
-      type: "@dfinity/asset-canister@v2.1.0"
+      type: "@dfinity/asset-canister@v2.2.1"
       configuration:
         dir: frontend/dist
         build:
@@ -314,7 +314,7 @@ Rust: `icp build backend && candid-extractor target/wasm32-unknown-unknown/relea
 ## Pending items (do not resolve prematurely)
 
 ### Container images
-Images are published at `ghcr.io/dfinity/icp-dev-env-{motoko,rust,all}`. All devcontainer configs and CI workflows reference the pinned tag (e.g. `0.1.0`). When a new release is cut, update the tag in:
+Images are published at `ghcr.io/dfinity/icp-dev-env-{motoko,rust,all}`. All devcontainer configs and CI workflows reference the pinned tag (e.g. `0.3.1`). When a new release is cut, update the tag in:
 - `.devcontainer/devcontainer.json`
 - `.github/workflows/*.yml`
 
