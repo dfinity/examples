@@ -67,6 +67,42 @@ If you modify the backend's public API, regenerate the `.did` file using the Mot
 ```bash
 $(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo
 ```
+## Troubleshooting
+
+### `icp network start` exits with status 101
+
+The error message is:
+Error: network launcher ... exited prematurely with status exit status: 101
+
+The real cause is hidden in the log file at:
+.icp/cache/networks/local/network-launcher/stderr.log
+
+Always check that file first:
+```bash
+cat .icp/cache/networks/local/network-launcher/stderr.log
+```
+#### Cause: port 8000 already in use
+
+The most common cause is another process (e.g. a Docker container) already bound to port 8000:
+Failed to bind to address 127.0.0.1:8000: Address already in use (os error 98)
+
+**Fix:**
+```bash
+# Find what's using port 8000
+sudo lsof -i :8000
+# or
+sudo ss -tlnp | grep 8000
+
+Then kill it:
+bash# Replace <PID> with the number from the output above
+sudo kill -9 <PID>
+
+Or do it in one shot:
+bashsudo fuser -k 8000/tcp
+
+# Then retry
+icp network start -d
+```
 
 ## Security considerations and best practices
 
