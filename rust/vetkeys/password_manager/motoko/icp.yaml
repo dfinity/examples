@@ -1,9 +1,7 @@
 canisters:
   - name: ic_vetkeys_encrypted_maps_canister
     recipe:
-      type: "@dfinity/motoko@v4.1.0"
-      configuration:
-        main: backend/src/Main.mo
+      type: "@dfinity/motoko@v5.0.0"
     init_args:
       type: text
       value: "(\"test_key_1\")"

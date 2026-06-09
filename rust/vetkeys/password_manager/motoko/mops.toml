@@ -4,3 +4,6 @@ moc = "1.9.0"
 [dependencies]
 core = "2.5.0"
 ic-vetkeys = "0.5.0"
+
+[canisters.ic_vetkeys_encrypted_maps_canister]
+main = "backend/src/Main.mo"
