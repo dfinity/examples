@@ -2,8 +2,6 @@ canisters:
   - name: backend
     recipe:
       type: "@dfinity/motoko@v5.0.0"
-      configuration:
-        name: backend
 
   - name: frontend
     recipe:
