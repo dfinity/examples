@@ -1,0 +1,12 @@
+@using Microsoft.AspNetCore.Components.Routing
+@using BlazorFrontend.Layout
+
+<Router AppAssembly="typeof(App).Assembly">
+    <Found Context="routeData">
+        <RouteView RouteData="routeData" DefaultLayout="typeof(MainLayout)" />
+        <FocusOnNavigate RouteData="routeData" Selector="h1" />
+    </Found>
+    <NotFound>
+        <p>Page not found.</p>
+    </NotFound>
+</Router>

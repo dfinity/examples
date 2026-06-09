@@ -1,0 +1,9 @@
+# yaml-language-server: $schema=https://github.com/dfinity/icp-cli/raw/refs/tags/v0.1.0/docs/schemas/canister-yaml-schema.json
+name: frontend
+recipe:
+  type: "@dfinity/asset-canister@v2.2.1"
+  configuration:
+    build:
+      - cd BlazorFrontend && npm install && npm run build
+      - dotnet publish BlazorFrontend/BlazorFrontend.csproj -c Release
+    dir: BlazorFrontend/bin/Release/net10.0/publish/wwwroot
