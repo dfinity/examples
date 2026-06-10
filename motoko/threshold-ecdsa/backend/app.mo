@@ -7,7 +7,7 @@ import SHA256 "./SHA256";
 import { ic } "mo:ic";
 
 persistent actor ThresholdEcdsa {
-  transient let key_id : Text = "test_key_1"; // Use "key_1" for production and "dfx_test_key" locally
+  transient let key_id : Text = "test_key_1"; // Use "key_1" for mainnet production
 
   public shared (msg) func public_key() : async {
     #Ok : { public_key_hex : Text };

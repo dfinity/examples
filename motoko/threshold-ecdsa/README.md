@@ -26,7 +26,6 @@ icp network stop
 
 The canister is configured with `key_id = "test_key_1"` by default (the master test key on mainnet). To use a different environment, update `key_id` in `backend/app.mo`:
 
-- `"dfx_test_key"` — local replica / dfx testing
 - `"test_key_1"` — mainnet test key
 - `"key_1"` — mainnet production key
 
