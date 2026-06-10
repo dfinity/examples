@@ -1,22 +1,18 @@
 .PHONY: test
 
 test:
-	@echo "=== Test 1: load() returns a non-zero timestamp ==="
+	@echo "=== Test 1/2: load() returns a non-zero timestamp ==="
 	@result=$$(icp canister call backend load '()') && \
 	  echo "$$result" && \
 	  echo "$$result" | grep -qE '\([0-9][0-9_]* : int\)' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	@echo "=== Test 2: get_current_query_stats_as_string() returns stats data ==="
+	@echo "=== Test 2/2: get_current_query_stats_as_string() reports all fields with non-zero call count ==="
 	@result=$$(icp canister call backend get_current_query_stats_as_string '()') && \
 	  echo "$$result" && \
 	  echo "$$result" | grep -q 'Number of calls' && \
-	  echo "PASS" || (echo "FAIL" && exit 1)
-
-	@echo "=== Test 3: query stats include all expected fields ==="
-	@result=$$(icp canister call backend get_current_query_stats_as_string '()') && \
-	  echo "$$result" && \
 	  echo "$$result" | grep -q 'Number of instructions' && \
 	  echo "$$result" | grep -q 'Request payload bytes' && \
 	  echo "$$result" | grep -q 'Response payload bytes' && \
+	  echo "$$result" | grep -qE 'Number of calls: [1-9]' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
