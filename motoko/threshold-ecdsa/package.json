@@ -1,0 +1,8 @@
+{
+  "name": "threshold-ecdsa-test",
+  "version": "1.0.0",
+  "private": true,
+  "dependencies": {
+    "secp256k1": "^4.0.4"
+  }
+}
