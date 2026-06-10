@@ -1,9 +1,5 @@
 # HTTP: POST
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/send_http_post)
-
-## Overview
-
 This example demonstrates how to use the ICP HTTPS outcalls feature to make a `POST` request from a Motoko canister. It sends a plain-text body to `postman-echo.com/post`, which echoes back the request as JSON, allowing you to verify the POST body and headers were sent correctly.
 
 ## Build and deploy from the command line
