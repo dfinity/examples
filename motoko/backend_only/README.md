@@ -1,55 +1,30 @@
 # Motoko backend
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/backend_only)
-
-## Overview
-
-This backend only project demonstrates how to write a simple smart contract for ICP.
-
-## Deploying from ICP Ninja
-
-This example can be deployed directly from [ICP Ninja](https://icp.ninja), a browser-based IDE for ICP. To continue developing locally after deploying from ICP Ninja, see [BUILD.md](BUILD.md).
-
-[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/motoko/backend_only)
-
-> **Note:** ICP Ninja currently uses `dfx` under the hood, which is why this example includes a `dfx.json` configuration file. `dfx` is the legacy CLI, being superseded by [icp-cli](https://cli.internetcomputer.org), which is what developers should use for local development.
+This backend-only example demonstrates how to write a simple smart contract for ICP. It implements a single `greet(name)` query function that returns a greeting string.
 
 ## Build and deploy from the command line
 
 ### Prerequisites
 
-- [x] Install [Node.js](https://nodejs.org/en/download/)
-- [x] Install [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- Node.js
+- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
 ### Install
-
-Clone the example project:
 
 ```bash
 git clone https://github.com/dfinity/examples
 cd examples/motoko/backend_only
 ```
 
-### Deployment
-
-Start the local network:
+### Deploy and test
 
 ```bash
 icp network start -d
-```
-
-Deploy the canister:
-
-```bash
 icp deploy
-```
-
-Stop the local network when done:
-
-```bash
+make test
 icp network stop
 ```
 
 ## Security considerations and best practices
 
-If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
+Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app.
