@@ -1,9 +1,5 @@
 # Threshold ECDSA
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/threshold-ecdsa)
-
-## Overview
-
 This example demonstrates the [threshold ECDSA](https://internetcomputer.org/docs/building-apps/network-features/signatures/t-ecdsa) API on the Internet Computer. The canister acts as a signing oracle: callers can request a threshold ECDSA public key derived from their principal, and sign arbitrary messages using the corresponding private key — without the canister ever holding the key material itself.
 
 ## Build and deploy from the command line
