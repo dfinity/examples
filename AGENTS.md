@@ -239,6 +239,8 @@ jobs:
   motoko-<example_name>:
     runs-on: ubuntu-24.04
     container: ghcr.io/dfinity/icp-dev-env-motoko:<version>
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - name: Deploy and test
@@ -251,6 +253,8 @@ jobs:
   rust-<example_name>:
     runs-on: ubuntu-24.04
     container: ghcr.io/dfinity/icp-dev-env-rust:<version>
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - name: Deploy and test
