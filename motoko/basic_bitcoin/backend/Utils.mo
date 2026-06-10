@@ -10,8 +10,6 @@ import Types "Types";
 
 module {
     type Result<Ok, Err> = Result.Result<Ok, Err>;
-    type EcdsaCanisterActor = Types.EcdsaCanisterActor;
-    type SchnorrCanisterActor = Types.SchnorrCanisterActor;
     type SchnorrAux = Types.SchnorrAux;
 
     /// Returns the value of the result and traps if there isn't any value to return.
@@ -78,12 +76,12 @@ module {
     };
 
     /// A mock for rubber-stamping 64B ECDSA signatures.
-    public func ecdsa_mock_signer(_ecdsa_canister_actor : EcdsaCanisterActor, _key_name : Text, _derivation_path : [Blob], _message_hash : Blob) : async Blob {
+    public func ecdsa_mock_signer(_key_name : Text, _derivation_path : [Blob], _message_hash : Blob) : async Blob {
         Blob.fromArray(Array.repeat(255 : Nat8, 64));
     };
 
     /// A mock for rubber-stamping 64B Schnorr signatures.
-    public func schnorr_mock_signer(_schnorr_canister_actor : SchnorrCanisterActor, _key_name : Text, _derivation_path : [Blob], _message_hash : Blob, _aux : ?SchnorrAux) : async Blob {
+    public func schnorr_mock_signer(_key_name : Text, _derivation_path : [Blob], _message_hash : Blob, _aux : ?SchnorrAux) : async Blob {
         Blob.fromArray(Array.repeat(255 : Nat8, 64));
     };
 };

@@ -1,12 +1,16 @@
 [toolchain]
-moc = "1.5.1"
+moc = "1.9.0"
 
 [dependencies]
-core = "2.4.0"
+core = "2.5.0"
 bitcoin = "0.1.0"
+ic = "4.0.0"
 
 [moc]
-# M0236: use context dot notation (e.g. x.toText() instead of Nat.toText(x))
-# M0237: redundant explicit implicit arguments (e.g. Nat.compare is inferred automatically)
-# M0223: redundant type instantiation (e.g. Array.tabulate instead of Array.tabulate<T>)
-args = ["-W=M0236,M0237,M0223"]
+# M0236: use context dot notation
+# M0237: redundant explicit implicit arguments
+# M0223: redundant type instantiation
+args = ["--default-persistent-actors", "-W=M0236,M0237,M0223"]
+
+[canisters.backend]
+main = "backend/app.mo"
