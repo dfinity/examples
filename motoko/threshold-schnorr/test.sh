@@ -23,11 +23,14 @@ ed25519_pubkey_hex=$(get_text_in_double_quotes "$(icp canister call backend publ
 echo "ed25519_public_key_hex=$ed25519_pubkey_hex"
 
 node <<END
-const { verify } = require('@noble/ed25519');
+const ed = require('@noble/ed25519');
+const crypto = require('crypto');
+// Wire up Node.js built-in SHA512 so the sync verify() works without @noble/hashes
+ed.etc.sha512Sync = (...m) => new Uint8Array(crypto.createHash('sha512').update(ed.etc.concatBytes(...m)).digest());
 const sig    = Buffer.from("${ed25519_sig_hex}", "hex");
 const pubkey = Buffer.from("${ed25519_pubkey_hex}", "hex");
 const msg    = Buffer.from("${message}", "utf8");
-const ok = verify(sig, msg, pubkey);
+const ok = ed.verify(sig, msg, pubkey);
 console.log("ed25519 verified:", ok);
 if (!ok) { console.error("ed25519 verification FAILED"); process.exit(1); }
 END
