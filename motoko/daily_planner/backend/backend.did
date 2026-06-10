@@ -1,0 +1,27 @@
+type Note = record {
+  id : nat;
+  content : text;
+  isCompleted : bool;
+};
+
+type OnThisDay = record {
+  title : text;
+  year : text;
+  wikiLink : text;
+};
+
+type DayData = record {
+  notes : vec Note;
+  onThisDay : opt OnThisDay;
+};
+
+type AddNoteResult = variant { ok : text; err : text };
+
+service : {
+  getDayData : (date : text) -> (opt DayData) query;
+  getMonthData : (year : nat, month : nat) -> (vec record { text; DayData }) query;
+  addNote : (date : text, content : text) -> (AddNoteResult);
+  completeNote : (date : text, noteId : nat) -> ();
+  fetchAndStoreOnThisDay : (date : text) -> (variant { ok : text; err : text });
+  transform : (record { context : blob; response : record { status : nat; headers : vec record { name : text; value : text }; body : blob } }) -> (record { status : nat; headers : vec record { name : text; value : text }; body : blob }) query;
+};

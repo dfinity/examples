@@ -8,7 +8,8 @@ import Result "mo:core/Result";
 import JSON "mo:json";
 import HashMap "mo:map/Map";
 import { thash } "mo:map/Map";
-import IC "ic:aaaaa-aa";
+import { ic } "mo:ic";
+import IC "mo:ic/Types";
 
 persistent actor DailyPlanner {
   // General types used by the planner
@@ -121,7 +122,7 @@ persistent actor DailyPlanner {
       // "transform" is used to specify how the HTTP response is processed before consensus tries to agree on a response.
       // This is useful to e.g. filter out timestamps out of headers that will be different across the responses the different replicas receive.
       // You can read more about it here: https://internetcomputer.org/docs/current/developer-docs/smart-contracts/advanced-features/https-outcalls/https-outcalls-how-to-use
-      let http_request : IC.http_request_args = {
+      let http_request : IC.HttpRequestArgs = {
         // API must support IPv6
         url = "https://byabbe.se/on-this-day/" # Nat.toText(month) # "/" # Nat.toText(day) # "/events.json";
         max_response_bytes = null; //optional for request
@@ -138,7 +139,7 @@ persistent actor DailyPlanner {
       // Perform HTTPS outcall using roughly 100B cycles.
       // See https outcall cost calculator: https://7joko-hiaaa-aaaal-ajz7a-cai.icp0.io.
       // Unused cycles are returned.
-      let http_response : IC.http_request_result = await (with cycles = 100_000_000_000) IC.http_request(http_request);
+      let http_response : IC.HttpRequestResult = await (with cycles = 100_000_000_000) ic.http_request(http_request);
 
       // Parse response into JSON
       let decoded_text : Text = switch (Text.decodeUtf8(http_response.body)) {
@@ -186,8 +187,8 @@ persistent actor DailyPlanner {
   // Transforms the raw HTTPS call response to an HttpResponsePayload on which the nodes can run consensus on.
   public query func transform({
     context : Blob;
-    response : IC.http_request_result;
-  }) : async IC.http_request_result {
+    response : IC.HttpRequestResult;
+  }) : async IC.HttpRequestResult {
     {
       response with headers = []; // not interested in the headers
     };
