@@ -12,3 +12,4 @@ path = "lib.rs"
 [dependencies]
 candid = "0.10"
 ic-cdk = "0.20"
+ic-cdk-management-canister = "0.1.1"
