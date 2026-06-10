@@ -1,23 +1,31 @@
-# Query stats
+# Query Stats
 
-## Deploying from ICP Ninja
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/query_stats)
 
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/motoko/query_stats)
+## Overview
 
-## Build and deploy from the command-line
+This example demonstrates how a canister can read its own query statistics from the management canister. It uses `ic.canister_status` to retrieve metrics such as the total number of calls, instructions executed, and payload bytes for the canister's query methods.
 
-### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
+## Build and deploy from the command line
 
-### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
+### Prerequisites
+- Node.js
+- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
-### 3. Navigate into the project's directory.
-
-### 4. Deploy the project to your local environment:
-
+### Install
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/motoko/query_stats
 ```
-dfx start --background --clean && dfx deploy
+
+### Deploy and test
+```bash
+icp network start -d
+icp deploy
+make test
+icp network stop
 ```
 
 ## Security considerations and best practices
 
-If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
+Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP dapp.
