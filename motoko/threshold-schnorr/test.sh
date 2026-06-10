@@ -8,16 +8,11 @@ function get_text_in_double_quotes() {
 
 test -z "${1:-}" && echo "USAGE: $0 <message>" && exit 1
 
-# BIP340 requires the message to be exactly 32 bytes.
-# ed25519 accepts arbitrary-length messages.
-# Use a 32-byte ASCII message so the same value works for all three algorithms.
+# BIP340 requires the message to be exactly 32 bytes; ed25519 accepts any length.
+# Pass a 32-byte ASCII string so the same value works for all three algorithms.
 message="${1}"
-if [ ${#message} -ne 32 ]; then
-    echo "ERROR: message must be exactly 32 bytes for BIP340 (got ${#message})"
-    exit 1
-fi
 
-echo "message=$message"
+echo "message=$message (${#message} bytes)"
 
 # --- ed25519 ---
 echo "--- ed25519 ---"
