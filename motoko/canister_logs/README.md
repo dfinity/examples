@@ -52,6 +52,12 @@ To inspect the raw log entries at any point:
 icp canister logs backend
 ```
 
+To watch logs stream in real-time while calling methods in a separate terminal:
+
+```bash
+./poll_logs.sh
+```
+
 ## Security considerations and best practices
 
 Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP dapp.
