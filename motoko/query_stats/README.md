@@ -1,9 +1,5 @@
 # Query Stats
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/query_stats)
-
-## Overview
-
 This example demonstrates how a canister can read its own query statistics from the management canister. It uses `ic.canister_status` to retrieve metrics such as the total number of calls, instructions executed, and payload bytes for the canister's query methods.
 
 ## Build and deploy from the command line
