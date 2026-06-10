@@ -1,9 +1,0 @@
-[
-    {
-        "match": "**/*",
-        "security_policy": "standard",
-        headers: {
-            'Content-Security-Policy': "script-src 'self' 'wasm-unsafe-eval';"
-        }
-    }
-]

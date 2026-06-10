@@ -1,0 +1,44 @@
+name: vetkeys-basic-vetkd
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - motoko/vetkeys/basic_vetkd/**
+      - rust/vetkeys/basic_vetkd/**
+      - .github/workflows/vetkeys-basic-vetkd.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  motoko:
+    runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-motoko:0.3.1
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy and test
+        working-directory: motoko/vetkeys/basic_vetkd
+        run: |
+          icp network start -d
+          icp deploy
+          make test
+
+  rust:
+    runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-rust:0.3.1
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy and test
+        working-directory: rust/vetkeys/basic_vetkd
+        run: |
+          icp network start -d
+          icp deploy
+          make test
