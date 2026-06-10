@@ -4,7 +4,7 @@ test:
 	@echo "=== Test 1: load() returns a non-zero timestamp ==="
 	@result=$$(icp canister call backend load '()') && \
 	  echo "$$result" && \
-	  echo "$$result" | grep -qE '\([0-9]+ : int\)' && \
+	  echo "$$result" | grep -qE '\([0-9][0-9_]* : int\)' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
 	@echo "=== Test 2: get_current_query_stats_as_string() returns stats data ==="
