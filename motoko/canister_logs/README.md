@@ -1,9 +1,5 @@
 # Canister logs
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/canister_logs)
-
-## Overview
-
 This example demonstrates canister logging on the Internet Computer. Every message written with `Debug.print` and every trap is recorded in the canister's log, which can be retrieved at any time with `icp canister logs`. The example covers:
 
 - **Update calls** — `Debug.print` output from update methods
