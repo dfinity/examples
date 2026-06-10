@@ -1,16 +1,14 @@
 canisters:
   - name: encrypted_notes
     recipe:
-      type: "@dfinity/motoko@v4.1.0"
-      configuration:
-        main: backend/main.mo
+      type: "@dfinity/motoko@v5.0.0"
     init_args:
       type: text
       value: "(\"test_key_1\")"
 
   - name: www
     recipe:
-      type: "@dfinity/asset-canister@v2.1.0"
+      type: "@dfinity/asset-canister@v2.2.1"
       configuration:
         dir: dist
         build:

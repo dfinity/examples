@@ -101,14 +101,11 @@ networks:                          # omit if no Internet Identity needed
 canisters:
   - name: backend
     recipe:
-      type: https://raw.githubusercontent.com/dfinity/icp-cli-recipes/bc9581d9258d2d7feb15ab4ae8d04baf923b985f/recipes/motoko/recipe.hbs
-      # TODO: replace with @dfinity/motoko@vX.Y.Z once https://github.com/dfinity/icp-cli-recipes/pull/26 merges
-      configuration:
-        name: backend                  # must match [canisters.backend] key in mops.toml
+      type: "@dfinity/motoko@v5.0.0"
 
   - name: frontend
     recipe:
-      type: "@dfinity/asset-canister@v2.1.0"
+      type: "@dfinity/asset-canister@v2.2.1"
       configuration:
         dir: frontend/dist
         build:
@@ -129,7 +126,7 @@ canisters:
 
   - name: frontend
     recipe:
-      type: "@dfinity/asset-canister@v2.1.0"
+      type: "@dfinity/asset-canister@v2.2.1"
       configuration:
         dir: frontend/dist
         build:
@@ -145,7 +142,7 @@ canisters:
 
 ```toml
 [toolchain]
-moc = "1.8.2"
+moc = "1.9.0"
 
 [dependencies]
 core = "2.5.0"
@@ -161,7 +158,7 @@ main = "backend/app.mo"
 candid = "backend/backend.did"
 ```
 
-`[canisters.<name>]` replaces the `main`, `candid`, and `args` fields that were previously in `icp.yaml`. The `name` key must match the `name` in the recipe configuration. `--default-persistent-actors` makes all actors persistent by default, so the `persistent` keyword is not needed in source files.
+`[canisters.<name>]` replaces the `main`, `candid`, and `args` fields that were previously in `icp.yaml`. The `@dfinity/motoko@v5.0.0` recipe reads this section directly, so the Motoko canister needs no `configuration:` block in `icp.yaml` — the `<name>` must match the canister `name` in `icp.yaml`. `--default-persistent-actors` makes all actors persistent by default, so the `persistent` keyword is not needed in source files.
 
 ---
 
@@ -314,22 +311,11 @@ Rust: `icp build backend && candid-extractor target/wasm32-unknown-unknown/relea
 ## Pending items (do not resolve prematurely)
 
 ### Container images
-Images are published at `ghcr.io/dfinity/icp-dev-env-{motoko,rust,all}`. All devcontainer configs and CI workflows reference the pinned tag (e.g. `0.1.0`). When a new release is cut, update the tag in:
+Images are published at `ghcr.io/dfinity/icp-dev-env-{motoko,rust,all}`. All devcontainer configs and CI workflows reference the pinned tag (e.g. `0.3.1`). When a new release is cut, update the tag in:
 - `.devcontainer/devcontainer.json`
 - `.github/workflows/*.yml`
 
 Source: https://github.com/dfinity/icp-dev-env
-
-### Motoko recipe version
-Both `motoko/who_am_i/icp.yaml` and `motoko/hello_world/icp.yaml` pin a specific commit SHA of the Motoko recipe to pick up `[moc] args` support from `mops.toml` before it ships in a stable release:
-
-```yaml
-type: https://raw.githubusercontent.com/dfinity/icp-cli-recipes/bc9581d9258d2d7feb15ab4ae8d04baf923b985f/recipes/motoko/recipe.hbs
-```
-
-Tracked in: https://github.com/dfinity/icp-cli-recipes/pull/26
-
-Once that PR merges and a new `@dfinity/motoko` version is released, replace the raw URL in both files with the versioned tag (e.g. `@dfinity/motoko@vX.Y.Z`).
 
 ---
 
