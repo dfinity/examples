@@ -2,7 +2,7 @@ import Array "mo:core/Array";
 import Nat "mo:core/Nat";
 import Random "mo:core/Random";
 
-persistent actor FlyingNinja {
+actor FlyingNinja {
   type Order = { #less; #equal; #greater };
   type LeaderboardEntry = {
     name : Text;
