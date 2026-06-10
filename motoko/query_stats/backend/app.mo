@@ -1,5 +1,6 @@
-import Time "mo:core/Time";
+import Nat "mo:core/Nat";
 import Principal "mo:core/Principal";
+import Time "mo:core/Time";
 import { ic } "mo:ic";
 
 persistent actor QueryStats {
