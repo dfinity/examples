@@ -1,27 +1,33 @@
 # HTTP: GET
 
-The purpose of this dapp is to give developers a minimal dapp that uses the IC's HTTPS outcalls feature to make a `GET` request.
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/send_http_get)
 
-This demo goes in hand with the [developer documentation on HTTPS outcalls](https://internetcomputer.org/docs/building-apps/network-features/using-http/https-outcalls/get).
+## Overview
 
-## Deploying from ICP Ninja
+This example demonstrates how to use the Internet Computer's HTTPS outcalls feature to make a `GET` request from a Motoko canister. It sends a request to `postman-echo.com` and returns the echoed JSON response, showing how to pass query parameters and headers through HTTP outcalls.
 
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/motoko/send_http_get)
+## Build and deploy from the command line
 
-## Build and deploy from the command-line
+### Prerequisites
+- Node.js
+- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
-### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
+### Install
 
-### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
-
-### 3. Navigate into the project's directory.
-
-### 4. Deploy the project to your local environment:
-
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/motoko/send_http_get
 ```
-dfx start --background --clean && dfx deploy
+
+### Deploy and test
+
+```bash
+icp network start -d
+icp deploy
+make test
+icp network stop
 ```
 
 ## Security considerations and best practices
 
-If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
+Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP dapp.
