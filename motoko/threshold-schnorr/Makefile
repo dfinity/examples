@@ -27,4 +27,4 @@ test:
 
 	@echo "=== Test 5/5: all three signature types verify cryptographically ==="
 	@npm install --silent
-	@chmod +x test.sh && ./test.sh "hello world" && echo "PASS" || (echo "FAIL" && exit 1)
+	@chmod +x test.sh && ./test.sh "hello world of BIP340 secp256k1" && echo "PASS" || (echo "FAIL" && exit 1)
