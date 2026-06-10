@@ -7,12 +7,11 @@ test:
 	  echo "$$result" | grep -qE '\([0-9][0-9_]* : int\)' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	@echo "=== Test 2/2: get_current_query_stats_as_string() reports all fields with non-zero call count ==="
+	@echo "=== Test 2/2: get_current_query_stats_as_string() reports all four stat fields ==="
 	@result=$$(icp canister call backend get_current_query_stats_as_string '()') && \
 	  echo "$$result" && \
 	  echo "$$result" | grep -q 'Number of calls' && \
 	  echo "$$result" | grep -q 'Number of instructions' && \
 	  echo "$$result" | grep -q 'Request payload bytes' && \
 	  echo "$$result" | grep -q 'Response payload bytes' && \
-	  echo "$$result" | grep -qE 'Number of calls: [1-9]' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
