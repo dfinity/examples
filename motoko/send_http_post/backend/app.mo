@@ -1,6 +1,7 @@
 import Blob "mo:core/Blob";
 import Text "mo:core/Text";
 import { ic } "mo:ic";
+import IC "mo:ic/Types";
 
 persistent actor SendHttpPost {
 
@@ -11,17 +12,17 @@ persistent actor SendHttpPost {
   // essential for consensus to succeed.
   public query func transform({
     context : Blob;
-    response : ic.http_request_result;
-  }) : async ic.http_request_result {
+    response : IC.HttpRequestResult;
+  }) : async IC.HttpRequestResult {
     { response with headers = [] };
   };
   // #endregion transform
 
   // #region post_request
   public func send_http_post_request() : async Text {
-    let body = Text.encodeUtf8("This is a POST request from an ICP canister.");
+    let body = "This is a POST request from an ICP canister.".encodeUtf8();
 
-    let request : ic.http_request_args = {
+    let request : IC.HttpRequestArgs = {
       url = "https://postman-echo.com/post";
       // Always set max_response_bytes to a tight bound. The cycle cost scales
       // with this value, not the actual response size. If omitted, the system
@@ -46,7 +47,7 @@ persistent actor SendHttpPost {
 
     // postman-echo.com echoes back the request data as JSON, letting you
     // verify the POST body and headers were sent correctly.
-    switch (Text.decodeUtf8(response.body)) {
+    switch (response.body.decodeUtf8()) {
       case (?text) text;
       case null "Response is not valid UTF-8";
     };
