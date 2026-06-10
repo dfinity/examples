@@ -1,5 +1,4 @@
-use candid::{CandidType, Nat};
-use ic_cdk::api::management_canister;
+use candid::{CandidType, Nat, Principal};
 
 use std::cell::RefCell;
 
@@ -65,7 +64,12 @@ fn add_leaderboard_entry(name: String, score: Nat) -> Leaderboard {
 // Update function to provide secure randomness as the game seed.
 #[ic_cdk::update]
 async fn get_randomness() -> Vec<u8> {
-    management_canister::main::raw_rand().await.unwrap().0
+    let (rand_bytes,): (Vec<u8>,) = ic_cdk::call(
+        Principal::management_canister(),
+        "raw_rand",
+        (),
+    ).await.unwrap();
+    rand_bytes
 }
 
 // Export the interface for the smart contract.
