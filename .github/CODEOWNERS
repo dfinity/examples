@@ -1,4 +1,4 @@
-* @dfinity/editorial
+* @dfinity/dx
 .github/workflows/ninja_pr_checks.yml @dfinity/ninja-devs
 
 /hosting/godot-html5-template/ @dfinity/sdk
