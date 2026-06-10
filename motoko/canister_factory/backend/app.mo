@@ -1,11 +1,11 @@
-import Child "Child";
-import AnotherChild "AnotherChild";
+import Counter "Counter";
+import CounterV2 "CounterV2";
 import Principal "mo:core/Principal";
-import Management "ic:aaaaa-aa";
+import { ic } "mo:ic";
 
 /// # Motoko Canister Creation Demo
 ///
-/// This actor demonstrates various approaches to creating and managing 
+/// This actor demonstrates various approaches to creating and managing
 /// canisters on the Internet Computer, including:
 /// - Creating canisters using actor classes with the `system` keyword
 /// - Installing actor classes on existing canisters
@@ -19,7 +19,7 @@ import Management "ic:aaaaa-aa";
 /// - Limited canister settings available:
 ///   - `controllers`, `compute_allocation`, `memory_allocation`, `freezing_threshold`
 /// - Good for most common use cases
-/// - See: [Actor Class Management Documentation](https://internetcomputer.org/docs/motoko/language-manual#actor-class-management)
+/// - See: [Actor Class Management Documentation](https://docs.internetcomputer.org/languages/motoko/reference/language-manual/#actor-class-management)
 ///
 /// **Management Canister** (low-level approach):
 /// - Full control over canister creation and settings
@@ -27,17 +27,17 @@ import Management "ic:aaaaa-aa";
 ///   - `reserved_cycles_limit`, `wasm_memory_limit`, `log_visibility`, `wasm_memory_threshold`
 /// - Requires separate steps for creation and code installation
 /// - Necessary when advanced canister configuration is needed
-/// - See: [IC create_canister Method](https://internetcomputer.org/docs/references/ic-interface-spec#ic-create_canister)
+/// - See: [IC create_canister Method](https://docs.internetcomputer.org/references/ic-interface-spec/#ic-create_canister)
 ///
-/// The actor showcases both high-level actor class operations and 
+/// The actor showcases both high-level actor class operations and
 /// low-level management canister interactions.
-persistent actor Main {
+actor CanisterFactory {
 
   /// Creates a new canister using an actor class with automatic installation.
   ///
   /// This function demonstrates the high-level approach to canister creation
-  /// using the `system` keyword with actor classes. The new canister is 
-  /// automatically created and the Child actor class is installed in one operation.
+  /// using the `system` keyword with actor classes. The new canister is
+  /// automatically created and the Counter actor class is installed in one operation.
   ///
   /// ## Parameters
   /// - `cycles`: The number of cycles to attach to the canister creation
@@ -51,30 +51,30 @@ persistent actor Main {
   /// ```
   ///
   /// ## Note
-  /// Actor class management only exposes limited canister settings 
+  /// Actor class management only exposes limited canister settings
   /// (`controllers`, `compute_allocation`, `memory_allocation`, `freezing_threshold`).
-  /// For advanced settings like `wasm_memory_limit` or `log_visibility`, 
+  /// For advanced settings like `wasm_memory_limit` or `log_visibility`,
   /// use `createAndInstallCanisterManually()` instead.
   ///
   /// ## Reference
-  /// [Actor Class Management Documentation](https://internetcomputer.org/docs/motoko/language-manual#actor-class-management)
+  /// [Actor Class Management Documentation](https://docs.internetcomputer.org/motoko/language-manual#actor-class-management)
   public shared ({ caller }) func newActorClass(cycles : Nat) : async Principal {
     let settings = {
       settings = ?{
-        controllers = ?[caller, Principal.fromActor(Main)];
+        controllers = ?[caller, Principal.fromActor(CanisterFactory)];
         compute_allocation = null;
         freezing_threshold = null;
         memory_allocation = null;
       };
     };
-    let canister = await (with cycles) (system Child.Child)(#new settings)();
+    let canister = await (with cycles) (system Counter.Counter)(#new settings)();
     return Principal.fromActor(canister);
   };
 
   /// Creates a new canister and installs an actor class using two-step process.
   ///
   /// This function demonstrates the two-step approach: first creating an empty
-  /// canister using the management canister, then installing the Child actor 
+  /// canister using the management canister, then installing the Counter actor
   /// class on the existing canister ID.
   ///
   /// ## Parameters
@@ -89,18 +89,18 @@ persistent actor Main {
   /// ```
   ///
   /// ## Reference
-  /// [Actor Class Management Documentation](https://internetcomputer.org/docs/motoko/language-manual#actor-class-management)
+  /// [Actor Class Management Documentation](https://docs.internetcomputer.org/motoko/language-manual#actor-class-management)
   public shared ({ caller }) func installActorClass(cycles : Nat) : async Principal {
     let canisterId = await createCanisterWithCycles(caller, cycles);
-    let canister = await (system Child.Child)(#install canisterId)();
+    let canister = await (system Counter.Counter)(#install canisterId)();
     return Principal.fromActor(canister);
   };
 
   /// Upgrades an existing canister to use a different actor class.
   ///
   /// This function demonstrates canister upgrades by taking an existing
-  /// canister running the Child actor class and upgrading it to use the
-  /// AnotherChild actor class instead. **The canister's state is preserved**
+  /// canister running the Counter actor class and upgrading it to use the
+  /// CounterV2 actor class instead. **The canister's state is preserved**
   /// during the upgrade process, and the canister gains new functionality
   /// (substractFromValue endpoint) while keeping existing data.
   ///
@@ -122,18 +122,18 @@ persistent actor Main {
   /// ```
   ///
   /// ## Reference
-  /// [Actor Class Management Documentation](https://internetcomputer.org/docs/motoko/language-manual#actor-class-management)
+  /// [Actor Class Management Documentation](https://docs.internetcomputer.org/languages/motoko/reference/language-manual/#actor-class-management)
   public func upgradeActorClass(canisterId : Principal) : async Principal {
-    let instance = actor (Principal.toText(canisterId)) : Child.Child;
-    let newInstance = await (system AnotherChild.AnotherChild)(#upgrade instance)();
+    let instance = actor (canisterId.toText()) : Counter.Counter;
+    let newInstance = await (system CounterV2.CounterV2)(#upgrade instance)();
     Principal.fromActor(newInstance);
   };
 
   /// Reinstalls an existing canister with a different actor class.
   ///
   /// This function demonstrates canister reinstallation by taking an existing
-  /// canister running the Child actor class and reinstalling it with the
-  /// AnotherChild actor class. **Unlike upgrade, reinstallation does NOT 
+  /// canister running the Counter actor class and reinstalling it with the
+  /// CounterV2 actor class. **Unlike upgrade, reinstallation does NOT
   /// preserve the canister's state - all data is reset to initial values.**
   ///
   /// ## Key Behavior: State Reset
@@ -157,24 +157,24 @@ persistent actor Main {
   /// This operation will destroy all existing state in the canister!
   ///
   /// ## Reference
-  /// [Actor Class Management Documentation](https://internetcomputer.org/docs/motoko/language-manual#actor-class-management)
+  /// [Actor Class Management Documentation](https://docs.internetcomputer.org/languages/motoko/reference/language-manual/#actor-class-management)
   public func reinstallActorClass(canisterId : Principal) : async Principal {
-    let instance = actor (Principal.toText(canisterId)) : Child.Child;
-    let newInstance = await (system AnotherChild.AnotherChild)(#reinstall instance)();
+    let instance = actor (canisterId.toText()) : Counter.Counter;
+    let newInstance = await (system CounterV2.CounterV2)(#reinstall instance)();
     Principal.fromActor(newInstance);
   };
 
   /// Creates a canister manually using the management canister and installs empty WASM code.
   ///
   /// This function demonstrates the low-level approach to canister creation
-  /// by directly using the management canister APIs. It first creates an 
+  /// by directly using the management canister APIs. It first creates an
   /// empty canister, then installs a minimal empty WASM module on it.
-  /// 
+  ///
   /// This approach gives you full control over the canister creation process
-  /// and access to ALL management canister settings that are NOT available 
+  /// and access to ALL management canister settings that are NOT available
   /// through actor class management, such as:
   /// - `reserved_cycles_limit` - Upper limit on reserved cycles
-  /// - `wasm_memory_limit` - WASM heap memory consumption limit  
+  /// - `wasm_memory_limit` - WASM heap memory consumption limit
   /// - `log_visibility` - Controls who can access canister logs
   /// - `wasm_memory_threshold` - Threshold for low memory hooks
   ///
@@ -194,7 +194,7 @@ persistent actor Main {
   /// Use this when you need advanced canister settings not available in actor class management.
   ///
   /// ## Reference
-  /// [IC create_canister Method](https://internetcomputer.org/docs/references/ic-interface-spec#ic-create_canister)
+  /// [IC create_canister Method](https://docs.internetcomputer.org/references/ic-interface-spec/#ic-create_canister)
   public shared ({ caller }) func createAndInstallCanisterManually(cycles : Nat) : async Principal {
     let canisterId = await createCanisterWithCycles(caller, cycles);
     await installCode(canisterId);
@@ -210,7 +210,7 @@ persistent actor Main {
   /// - `log_visibility`, `reserved_cycles_limit`, `wasm_memory_limit`, `wasm_memory_threshold`
   /// - Standard settings: `controllers`, `compute_allocation`, `memory_allocation`, `freezing_threshold`
   ///
-  /// The created canister will have the caller and this Main actor as controllers.
+  /// The created canister will have the caller and this CanisterFactory actor as controllers.
   ///
   /// ## Parameters
   /// - `caller`: The Principal who initiated the request (becomes a controller)
@@ -220,19 +220,21 @@ persistent actor Main {
   /// The Principal ID of the newly created empty canister
   ///
   /// ## Reference
-  /// [IC create_canister Method](https://internetcomputer.org/docs/references/ic-interface-spec#ic-create_canister)
+  /// [IC create_canister Method](https://docs.internetcomputer.org/references/ic-interface-spec/#ic-create_canister)
   func createCanisterWithCycles(caller : Principal, cycles : Nat) : async Principal {
-    let result = await (with cycles) Management.create_canister({
+    let result = await (with cycles) ic.create_canister({
       sender_canister_version = null;
       settings = ?{
         log_visibility = null;
         reserved_cycles_limit = null;
         compute_allocation = null;
         memory_allocation = null;
-        controllers = ?[caller, Principal.fromActor(Main)];
+        controllers = ?[caller, Principal.fromActor(CanisterFactory)];
         freezing_threshold = null;
         wasm_memory_limit = null;
         wasm_memory_threshold = null;
+        environment_variables = null;
+        snapshot_visibility = null;
       };
     });
     return result.canister_id;
@@ -250,7 +252,7 @@ persistent actor Main {
   /// ## Note
   /// This installs empty WASM code, not a full Motoko actor class.
   func installCode(canisterId : Principal) : async () {
-    await Management.install_code({
+    await ic.install_code({
       canister_id = canisterId;
       mode = #install;
       wasm_module : Blob = "\00\61\73\6d\01\00\00\00"; // this is an empty actor
