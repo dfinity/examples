@@ -136,6 +136,12 @@ canisters:
 
 **Canister names are always `backend` and `frontend`.** Never use names like `<example>_backend`, `internet_identity_app_backend`, etc.
 
+### Motoko naming conventions
+
+- **Top-level actor:** name it after its logical role, not generically — e.g. `actor TodoList`, `actor CanisterFactory`, not `actor Backend`.
+- **Supporting module files:** use PascalCase matching the type they export — e.g. `Counter.mo` exporting `actor class Counter`, `Types.mo` exporting `type X`.
+- **Entry point file:** always `backend/app.mo` regardless of actor name.
+
 ---
 
 ## mops.toml (Motoko)
@@ -155,10 +161,27 @@ args = ["--default-persistent-actors", "-W=M0236,M0237,M0223"]
 
 [canisters.backend]
 main = "backend/app.mo"
-candid = "backend/backend.did"
+candid = "backend/backend.did"   # omit for backend-only examples (no frontend)
 ```
 
-`[canisters.<name>]` replaces the `main`, `candid`, and `args` fields that were previously in `icp.yaml`. The `@dfinity/motoko@v5.0.0` recipe reads this section directly, so the Motoko canister needs no `configuration:` block in `icp.yaml` — the `<name>` must match the canister `name` in `icp.yaml`. `--default-persistent-actors` makes all actors persistent by default, so the `persistent` keyword is not needed in source files.
+`[canisters.<name>]` replaces the `main`, `candid`, and `args` fields that were previously in `icp.yaml`. The `@dfinity/motoko@v5.0.0` recipe reads this section directly, so the Motoko canister needs no `configuration:` block in `icp.yaml` — the `<name>` must match the canister `name` in `icp.yaml`.
+
+`--default-persistent-actors` makes the **main actor** persistent by default, so the `persistent` keyword can be omitted on the top-level `actor` declaration. However, `persistent actor class` declarations that hold mutable state must still carry the `persistent` keyword explicitly — the flag does not propagate into actor class sub-WASMs.
+
+### Management canister (Motoko)
+
+Use the [`mo:ic`](https://mops.one/ic) mops package instead of `ic:aaaaa-aa` or inline `actor("aaaaa-aa")` definitions:
+
+```toml
+[dependencies]
+ic = "4.0.0"
+```
+
+```motoko
+import { ic } "mo:ic";
+```
+
+**Breaking change in `mo:ic` v4.0.0:** `CanisterSettings` gained two new required fields. Always include `environment_variables = null` and `snapshot_visibility = null` in settings records passed to `ic.create_canister`.
 
 ---
 
@@ -190,22 +213,43 @@ ic-cdk = "0.20"
 
 ## Makefile
 
-Every example must have a `Makefile` with a `test` target that exercises the deployed canister via `icp canister call`:
+Every example must have a `Makefile` with a `test` target that exercises the deployed canister via `icp canister call`. Write a numbered test for every public function. Include state-assertion tests for mutating operations: call the mutating function, then call a read function and assert the stored value changed.
 
 ```makefile
 .PHONY: test
 
 test:
-	@echo "--- Testing <description> ---"
+	@echo "=== Test 1: <description of what is tested> ==="
 	@result=$$(icp canister call backend <method> '<args>') && \
 	  echo "$$result" && \
 	  echo "$$result" | grep -q '<expected>' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 2: <mutating operation returns expected value> ==="
+	@result=$$(icp canister call backend <mutating_method> '<args>') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q '<expected_return>' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 3: <state persisted after mutation> ==="
+	@result=$$(icp canister call backend <read_method> '()') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q '<expected_persisted_value>' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
 ```
 
 - Tests must call the `backend` canister by that name.
+- Always pass explicit Candid args, including `'()'` for zero-argument calls — omitting args triggers an interactive prompt that blocks CI.
 - Use `grep -q` to assert on output content.
-- Each assertion is a separate echo block for clarity.
+- Number each test (`=== Test N: ... ===`) so CI logs are easy to scan.
+- For examples that create child canisters, capture the returned principal and call the child directly by ID.
+- If `icp deploy --cycles 30t` is required (see below), add a `topup` target too:
+
+```makefile
+.PHONY: topup
+topup:
+	icp canister top-up --amount 30t backend
+```
 
 ---
 
@@ -287,16 +331,17 @@ Each example's README should follow this structure:
 ## Build and deploy from the command line
 
 ### Prerequisites
-- [ ] Install Node.js
-- [ ] Install icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- Node.js
+- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
 ### Install
 <git clone + cd>
 
-### Deploy
-<icp network start -d && icp deploy>
+### Deploy and test
+<icp network start -d && icp deploy && make test && icp network stop>
 If the example has a frontend with a Vite dev server: `npm run dev` (hot reload during frontend development)
-When done: `icp network stop`
+
+> If tests fail with an out-of-cycles error, run `make topup` to add 30 trillion cycles to the backend canister and retry. Only relevant for examples that create child canisters.
 
 ## Updating the Candid interface
 <instructions to regenerate backend.did>
@@ -340,6 +385,8 @@ When migrating an existing example:
 - [ ] Update root `package.json` workspace path to `frontend/`
 - [ ] Update `.gitignore` bindings path to `frontend/src/bindings/`
 - [ ] Update `mops.toml` to current toolchain versions (Motoko)
+- [ ] If the example uses the management canister: add `ic = "4.0.0"` dependency and replace `ic:aaaaa-aa` / `actor("aaaaa-aa")` with `import { ic } "mo:ic"` (Motoko)
+- [ ] If the example creates child canisters: use `icp deploy --cycles 30t` in the CI workflow and README, and add a `make topup` target
 - [ ] Delete `dfx.json`, `BUILD.md`, `.dfx/`, `.env` (dfx-generated)
 - [ ] Delete `.devcontainer/` inside the example folder if one exists (only the repo-root devcontainer is kept)
 - [ ] Add `Makefile` with `test` target
