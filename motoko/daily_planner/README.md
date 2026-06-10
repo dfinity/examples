@@ -1,6 +1,6 @@
 # Daily Planner
 
-Daily Planner is a full-stack ICP example featuring a monthly calendar that tracks daily notes and tasks stored on-chain. For each day, a historic fact can be fetched from an external API using HTTPS outcalls, demonstrating how ICP canisters can access off-chain data.
+Daily Planner is a full-stack ICP example featuring a monthly calendar that tracks daily notes and tasks stored on the network. For each day, a historic fact can be fetched from an external API using HTTPS outcalls, demonstrating how ICP canisters can access data from external services.
 
 ## Build and deploy from the command line
 
