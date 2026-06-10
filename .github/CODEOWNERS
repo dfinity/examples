@@ -17,7 +17,6 @@
 /motoko/classes/ @dfinity/languages
 /motoko/composite_query/ @dfinity/languages
 /motoko/daily_planner/ @dfinity/ninja-devs
-/motoko/encrypted-notes-dapp-vetkd/ @dfinity/core-protocol
 /motoko/evm_block_explorer/ @dfinity/ninja-devs
 /motoko/filevault/ @dfinity/ninja-devs
 /motoko/flying_ninja/ @dfinity/ninja-devs
@@ -58,7 +57,6 @@
 /rust/canister_logs/ @dfinity/core-protocol
 /rust/composite_query/ @dfinity/core-protocol
 /rust/daily_planner/ @dfinity/ninja-devs
-/rust/encrypted-notes-dapp-vetkd/ @dfinity/core-protocol
 /rust/evm_block_explorer/ @dfinity/ninja-devs
 /rust/exchange-rates/ @dfinity/defi
 /rust/face-recognition/ @dfinity/core-protocol
