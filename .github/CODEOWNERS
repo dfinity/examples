@@ -41,7 +41,7 @@
 /motoko/tokenmania/ @dfinity/ninja-devs
 /motoko/token_transfer/ @dfinity/defi
 /motoko/token_transfer_from/ @dfinity/defi
-/motoko/vetkd/ @dfinity/core-protocol
+/motoko/vetkeys/ @dfinity/core-protocol
 /motoko/who_am_i/ @dfinity/ninja-devs
 
 /native-apps/unity_ii_applink/ @dfinity/sdk
@@ -86,7 +86,7 @@
 /rust/token_transfer/ @dfinity/defi
 /rust/token_transfer_from/ @dfinity/defi
 /rust/unit_testable_rust_canister @dfinity/governance-team
-/rust/vetkd/ @dfinity/core-protocol
+/rust/vetkeys/ @dfinity/core-protocol
 /rust/who_am_i/ @dfinity/ninja-devs
 /rust/x509/ @dfinity/core-protocol
 
