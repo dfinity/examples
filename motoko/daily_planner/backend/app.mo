@@ -44,9 +44,9 @@ persistent actor DailyPlanner {
   // Query function to get data for an entire month.
   // Returns a
   public query func getMonthData(year : Nat, month : Nat) : async [(Text, DayData)] {
-    let monthPrefix = year.toText() # "-" # month.toText() # "-";
-    Iter.filter(
-      HashMap.entries(dayData),
+    let monthStr = if (month < 10) { "0" # month.toText() } else { month.toText() };
+    let monthPrefix = year.toText() # "-" # monthStr # "-";
+    HashMap.entries(dayData).filter(
       func((k, _) : (Text, DayData)) : Bool {
         k.startsWith(#text monthPrefix);
       },
@@ -124,7 +124,7 @@ persistent actor DailyPlanner {
       // You can read more about it here: https://internetcomputer.org/docs/current/developer-docs/smart-contracts/advanced-features/https-outcalls/https-outcalls-how-to-use
       let http_request : IC.HttpRequestArgs = {
         // API must support IPv6
-        url = "https://byabbe.se/on-this-day/" # Nat.toText(month) # "/" # Nat.toText(day) # "/events.json";
+        url = "https://byabbe.se/on-this-day/" # month.toText() # "/" # day.toText() # "/events.json";
         max_response_bytes = null; //optional for request
         headers = [];
         body = null; //optional for request
@@ -142,7 +142,7 @@ persistent actor DailyPlanner {
       let http_response : IC.HttpRequestResult = await (with cycles = 100_000_000_000) ic.http_request(http_request);
 
       // Parse response into JSON
-      let decoded_text : Text = switch (Text.decodeUtf8(http_response.body)) {
+      let decoded_text : Text = switch (http_response.body.decodeUtf8()) {
         case (null) { "No value returned" };
         case (?y) { y };
       };
