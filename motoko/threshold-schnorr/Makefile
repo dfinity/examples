@@ -14,7 +14,7 @@ test:
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
 	@echo "=== Test 3/5: sign returns signature_hex for bip340secp256k1 ==="
-	@result=$$(icp canister call backend sign '("hello world", variant { bip340secp256k1 }, null)') && \
+	@result=$$(icp canister call backend sign '("hello world of BIP340-secp256k1!", variant { bip340secp256k1 }, null)') && \
 	  echo "$$result" && \
 	  echo "$$result" | grep -q 'signature_hex' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)

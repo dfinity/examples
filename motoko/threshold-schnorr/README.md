@@ -1,9 +1,5 @@
 # Threshold Schnorr
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/threshold-schnorr)
-
-## Overview
-
 This example demonstrates how to use the ICP [threshold Schnorr](https://internetcomputer.org/docs/building-apps/network-features/signatures/t-schnorr) API from a Motoko canister. The canister acts as a signing oracle that creates Schnorr signatures using keys derived from the canister ID and the chosen algorithm (BIP340/BIP341 or Ed25519). Canisters do not hold private keys themselves — signing requests are routed to threshold Schnorr subnets that compute signatures using distributed key shares.
 
 ## Build and deploy from the command line
@@ -47,16 +43,16 @@ The derivation path uses the caller's principal, so different callers receive di
 
 ## Signing
 
-Call the `sign` method with a message, algorithm, and optional BIP341 tweak:
+Call the `sign` method with a message, algorithm, and optional BIP341 tweak. For `bip340secp256k1`, the message must be exactly 32 bytes:
 
 ```bash
 icp canister call backend sign '("hello world", variant { ed25519 }, null)'
-icp canister call backend sign '("hello world", variant { bip340secp256k1 }, null)'
+icp canister call backend sign '("hello world of BIP340-secp256k1!", variant { bip340secp256k1 }, null)'
 ```
 
 For BIP341 (Taproot) signing with a tweak:
 ```bash
-icp canister call backend sign '("hello world", variant { bip340secp256k1 }, opt "012345678901234567890123456789012345678901234567890123456789abcd")'
+icp canister call backend sign '("hello world of BIP340-secp256k1!", variant { bip340secp256k1 }, opt "012345678901234567890123456789012345678901234567890123456789abcd")'
 ```
 
 ## Updating the Candid interface
