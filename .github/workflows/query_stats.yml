@@ -15,7 +15,7 @@ concurrency:
 jobs:
   motoko-query_stats:
     runs-on: ubuntu-24.04
-    container: ghcr.io/dfinity/icp-dev-env-motoko:0.3.2
+    container: ghcr.io/dfinity/icp-dev-env-motoko:0.3.1
     env:
       ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
