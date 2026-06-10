@@ -1,5 +1,8 @@
-import Error "mo:core/Error";
 import Blob "mo:core/Blob";
+import Error "mo:core/Error";
+import Option "mo:core/Option";
+import Principal "mo:core/Principal";
+import Text "mo:core/Text";
 import Hex "./Hex";
 import { ic } "mo:ic";
 
