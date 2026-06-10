@@ -4,4 +4,3 @@ canisters:
       type: "@dfinity/rust@v3.2.0"
       configuration:
         package: backend
-        candid: backend/backend.did
