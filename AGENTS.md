@@ -142,7 +142,7 @@ canisters:
 
 ```toml
 [toolchain]
-moc = "1.8.2"
+moc = "1.9.0"
 
 [dependencies]
 core = "2.5.0"
