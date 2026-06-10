@@ -1,9 +1,5 @@
 # HTTP: GET
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/send_http_get)
-
-## Overview
-
 This example demonstrates how to use the Internet Computer's HTTPS outcalls feature to make a `GET` request from a Motoko canister. It sends a request to `postman-echo.com` and returns the echoed JSON response, showing how to pass query parameters and headers through HTTP outcalls.
 
 ## Build and deploy from the command line
