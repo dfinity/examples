@@ -25,6 +25,8 @@ jobs:
   <language>-<example_name>:
     runs-on: ubuntu-24.04
     container: <image>
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - name: Deploy and test
