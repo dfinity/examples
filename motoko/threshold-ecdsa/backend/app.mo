@@ -2,25 +2,12 @@ import Error "mo:core/Error";
 import Principal "mo:core/Principal";
 import Text "mo:core/Text";
 import Blob "mo:core/Blob";
-import Hex "./utils/Hex";
-import SHA256 "./utils/SHA256";
+import Hex "./Hex";
+import SHA256 "./SHA256";
+import { ic } "mo:ic";
 
-persistent actor {
-  type IC = actor {
-    ecdsa_public_key : ({
-      canister_id : ?Principal;
-      derivation_path : [Blob];
-      key_id : { curve : { #secp256k1 }; name : Text };
-    }) -> async ({ public_key : Blob; chain_code : Blob });
-    sign_with_ecdsa : ({
-      message_hash : Blob;
-      derivation_path : [Blob];
-      key_id : { curve : { #secp256k1 }; name : Text };
-    }) -> async ({ signature : Blob });
-  };
-
+persistent actor ThresholdEcdsa {
   transient let key_id : Text = "test_key_1"; // Use "key_1" for production and "dfx_test_key" locally
-  transient let ic : IC = actor ("aaaaa-aa");
 
   public shared (msg) func public_key() : async {
     #Ok : { public_key_hex : Text };
