@@ -10,12 +10,12 @@
 # dfx temporary files
 .dfx/
 
+# icp-cli cache
+.icp/
+
 # generated files
 src/declarations/
 
 # frontend code
 node_modules/
 dist/
-
-# environment variables
-.env
