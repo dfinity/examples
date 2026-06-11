@@ -122,7 +122,7 @@ canisters:
       type: "@dfinity/rust@v3.2.0"
       configuration:
         package: backend
-        candid: backend/backend.did
+        candid: backend/backend.did   # omit for backend-only examples (no frontend)
 
   - name: frontend
     recipe:
@@ -133,6 +133,9 @@ canisters:
           - npm install --prefix frontend
           - npm run build --prefix frontend
 ```
+
+- With `candid:` specified: the recipe reads the committed `.did` file and embeds it as WASM metadata (no `candid-extractor` needed).
+- Without `candid:`: `candid-extractor` (available in `icp-dev-env-rust:0.3.2+`) extracts the interface directly from the compiled WASM. For backend-only examples, omit `candid:` and do not commit `backend.did`.
 
 **Canister names are always `backend` and `frontend`.** Never use names like `<example>_backend`, `internet_identity_app_backend`, etc.
 
@@ -207,6 +210,24 @@ crate-type = ["cdylib"]
 [dependencies]
 candid = "0.10"
 ic-cdk = "0.20"
+```
+
+### Management canister (Rust)
+
+Use the [`ic-cdk-management-canister`](https://crates.io/crates/ic-cdk-management-canister) crate instead of `ic_cdk::api::management_canister` (removed in ic-cdk 0.17+):
+
+```toml
+[dependencies]
+ic-cdk-management-canister = "0.1.1"
+```
+
+```rust
+use ic_cdk_management_canister::raw_rand;
+
+#[ic_cdk::update]
+async fn get_randomness() -> Vec<u8> {
+    raw_rand().await.expect("raw_rand failed")
+}
 ```
 
 ---
@@ -360,7 +381,7 @@ Rust: `icp build backend && candid-extractor target/wasm32-unknown-unknown/relea
 ## Pending items (do not resolve prematurely)
 
 ### Container images
-Images are published at `ghcr.io/dfinity/icp-dev-env-{motoko,rust,all}`. All devcontainer configs and CI workflows reference the pinned tag (e.g. `0.3.1`). When a new release is cut, update the tag in:
+Images are published at `ghcr.io/dfinity/icp-dev-env-{motoko,rust,all}`. All devcontainer configs and CI workflows reference the pinned tag (e.g. `0.3.2`). When a new release is cut, update the tag in:
 - `.devcontainer/devcontainer.json`
 - `.github/workflows/*.yml`
 
@@ -386,6 +407,7 @@ When migrating an existing example:
 - [ ] Update `.gitignore` bindings path to `frontend/src/bindings/`
 - [ ] Update `mops.toml` to current toolchain versions (Motoko)
 - [ ] If the example uses the management canister: add `ic = "4.0.0"` dependency and replace `ic:aaaaa-aa` / `actor("aaaaa-aa")` with `import { ic } "mo:ic"` (Motoko)
+- [ ] If the Rust example uses the management canister: add `ic-cdk-management-canister = "0.1.1"` dependency and replace `ic_cdk::api::management_canister` with the appropriate function from that crate
 - [ ] If the example creates child canisters: use `icp deploy --cycles 30t` in the CI workflow and README, and add a `make topup` target
 - [ ] Delete `dfx.json`, `BUILD.md`, `.dfx/`, `.env` (dfx-generated)
 - [ ] Delete `.devcontainer/` inside the example folder if one exists (only the repo-root devcontainer is kept)
