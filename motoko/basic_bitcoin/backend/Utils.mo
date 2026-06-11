@@ -5,11 +5,11 @@ import Text "mo:core/Text";
 import Iter "mo:core/Iter";
 import Blob "mo:core/Blob";
 import Array "mo:core/Array";
-import Types "Types";
+import IC "mo:ic/Types";
 
 module {
     type Result<Ok, Err> = Result.Result<Ok, Err>;
-    type SchnorrAux = Types.SchnorrAux;
+    type SchnorrAux = IC.SchnorrAux;
 
     /// Returns the value of the result and traps if there isn't any value to return.
     public func get_ok<T>(result : Result<T, Text>) : T {

@@ -1,4 +1,6 @@
 import Curves "mo:bitcoin/ec/Curves";
+import BitcoinTypes "mo:bitcoin/bitcoin/Types";
+import IC "mo:ic/Types";
 
 module Types {
     public type SendRequest = {
@@ -6,13 +8,7 @@ module Types {
         amount_in_satoshi : Satoshi;
     };
 
-    public type SchnorrAux = {
-        #bip341 : {
-            merkle_root_hash : Blob;
-        };
-    };
-
-    public type Satoshi = Nat64;
+    public type Satoshi = BitcoinTypes.Satoshi;
     public type MillisatoshiPerVByte = Nat64;
     public type Cycles = Nat;
     public type BitcoinAddress = Text;
@@ -30,11 +26,7 @@ module Types {
 
     /// The type of Bitcoin network as defined by the Bitcoin Motoko library
     /// (Note the difference in casing compared to `Network`)
-    public type NetworkCamelCase = {
-        #Mainnet;
-        #Testnet;
-        #Regtest;
-    };
+    public type NetworkCamelCase = BitcoinTypes.Network;
 
     public func network_to_network_camel_case(network : Network) : NetworkCamelCase {
         switch (network) {
@@ -51,29 +43,15 @@ module Types {
     };
 
     /// A reference to a transaction output.
-    public type OutPoint = {
-        txid : Blob;
-        vout : Nat32;
-    };
+    public type OutPoint = BitcoinTypes.OutPoint;
 
     /// An unspent transaction output.
-    public type Utxo = {
-        outpoint : OutPoint;
-        value : Satoshi;
-        height : Nat32;
-    };
+    public type Utxo = BitcoinTypes.Utxo;
 
     /// A filter used when requesting UTXOs.
     public type UtxosFilter = {
         #MinConfirmations : Nat32;
         #Page : Page;
-    };
-
-    /// A request for getting the UTXOs for a given address.
-    public type GetUtxosRequest = {
-        address : BitcoinAddress;
-        network : Network;
-        filter : ?UtxosFilter;
     };
 
     /// The response returned for a request to get the UTXOs of a given address.
@@ -86,7 +64,7 @@ module Types {
 
     public type EcdsaSignFunction = (Text, [Blob], Blob) -> async Blob;
 
-    public type SchnorrSignFunction = (Text, [Blob], Blob, ?SchnorrAux) -> async Blob;
+    public type SchnorrSignFunction = (Text, [Blob], Blob, ?IC.SchnorrAux) -> async Blob;
 
     public type P2trDerivationPaths = {
         key_path_derivation_path : [[Nat8]];

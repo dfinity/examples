@@ -1,9 +1,10 @@
 import Types "Types";
 import { ic } "mo:ic";
+import IC "mo:ic/Types";
 
 module {
   type Cycles = Types.Cycles;
-  type SchnorrAux = Types.SchnorrAux;
+  type SchnorrAux = IC.SchnorrAux;
 
   // The fee for the `sign_with_schnorr` endpoint using the test key.
   let SIGN_WITH_SCHNORR_COST_CYCLES : Cycles = 10_000_000_000;

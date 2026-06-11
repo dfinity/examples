@@ -36,6 +36,8 @@ import Script "mo:bitcoin/bitcoin/Script";
 import Segwit "mo:bitcoin/Segwit";
 import Hash "mo:bitcoin/Hash";
 
+import IC "mo:ic/Types";
+
 import BitcoinApi "BitcoinApi";
 import SchnorrApi "SchnorrApi";
 import Types "Types";
@@ -150,7 +152,7 @@ module {
         amounts : [Nat64],
         key_name : Text,
         derivation_path : [Blob],
-        aux : ?Types.SchnorrAux,
+        aux : ?IC.SchnorrAux,
         signer : Types.SchnorrSignFunction,
     ) : async [Nat8] {
         // Obtain the scriptPubKey of the source address which is also the
@@ -255,7 +257,7 @@ module {
     /// Sends a key spend transaction to the network that transfers the given amount to the
     /// given destination, where the source of the funds is the canister itself
     /// at the given derivation path.
-    public func send_key_path_generic(own_address : BitcoinAddress, network : Network, signer_derivation_path : [[Nat8]], key_name : Text, aux : ?Types.SchnorrAux, dst_address : BitcoinAddress, amount : Satoshi) : async [Nat8] {
+    public func send_key_path_generic(own_address : BitcoinAddress, network : Network, signer_derivation_path : [[Nat8]], key_name : Text, aux : ?IC.SchnorrAux, dst_address : BitcoinAddress, amount : Satoshi) : async [Nat8] {
         // Get fee percentiles from previous transactions to estimate our own fee.
         let fee_percentiles = await BitcoinApi.get_current_fee_percentiles(network);
 
