@@ -20,23 +20,20 @@ test:
 	  echo "$$result" | grep -q 'Response payload bytes' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
-# Full demonstration — generates query load, waits for the 2-epoch aggregation
-# window (~15s), then verifies non-zero stats.
+# Full demonstration — continuously makes query calls until stats become non-zero.
 #
-# Query stats require 120+ blocks to aggregate (2 epochs × 60 blocks × 100ms = 12s minimum).
-# Only --query calls count; update calls are not tracked in query_stats.
+# Key requirements:
+# 1. Only --query calls count (update calls not tracked in query_stats)
+# 2. PocketIC uses integer division (num_calls /= 13 nodes) — need 13+ calls per round
+# 3. set_epoch_from_height is only called DURING query execution, so queries must
+#    keep running to flush stats when epoch boundaries are crossed
 test-stats:
-	@echo "=== Generating query load (13 calls) ==="
-	@# PocketIC simulates a 13-node subnet and uses integer division when spreading
-	@# stats across nodes (num_calls /= 13). Fewer than 13 calls rounds to 0.
-	@for i in $$(seq 1 13); do \
-	  icp canister call --query backend load '()' > /dev/null; \
-	done
-	@echo "=== Waiting for 2-epoch aggregation (up to 30s) ==="
-	@# Each epoch = 60 blocks; auto-progress advances ~100ms/block.
-	@# 120 blocks minimum; 30s gives margin for slower machines.
+	@echo "=== Polling query stats (making 13 --query calls every 3s, up to 30s) ==="
 	@secs=0; \
 	while [ $$secs -lt 30 ]; do \
+	  for i in $$(seq 1 13); do \
+	    icp canister call --query backend load '()' > /dev/null; \
+	  done; \
 	  result=$$(icp canister call backend get_current_query_stats_as_string '()'); \
 	  echo "$$result" | grep -qE 'Number of calls: [1-9]' && \
 	    echo "$$result" && echo "PASS: query stats are non-zero (after ~$${secs}s)" && exit 0; \
