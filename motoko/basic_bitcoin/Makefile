@@ -1,4 +1,4 @@
-IMAGE_NAME = basic-bitcoin-launcher
+IMAGE_NAME = icp-cli-network-launcher-bitcoin
 # Find the running container built from our custom image
 BITCOIN_CONTAINER = $(shell docker ps --filter "ancestor=$(IMAGE_NAME)" --format "{{.ID}}" | head -1)
 
@@ -51,9 +51,9 @@ test:
 	  echo "$$result" | grep -qE '[1-9]' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	@echo "=== Test 6: get_utxos returns utxos after mining ==="
+	@echo "=== Test 6: get_utxos returns synced chain state after mining ==="
 	@addr=$$(icp canister call backend get_p2pkh_address '()' | grep -o '"[^"]*"' | tr -d '"') && \
 	  result=$$(icp canister call backend get_utxos "(\"$$addr\")") && \
 	  echo "$$result" && \
-	  echo "$$result" | grep -q 'utxos' && \
+	  echo "$$result" | grep -q 'tip_height = 101' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)

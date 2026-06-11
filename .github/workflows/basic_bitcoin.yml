@@ -32,7 +32,7 @@ jobs:
           context: motoko/basic_bitcoin
           push: false
           load: true
-          tags: basic-bitcoin-launcher:latest
+          tags: icp-cli-network-launcher-bitcoin:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
       - name: Deploy and test
