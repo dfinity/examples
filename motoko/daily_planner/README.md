@@ -8,6 +8,7 @@ Daily Planner is a full-stack ICP example featuring a monthly calendar that trac
 
 - Node.js
 - icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- ic-mops: `npm install -g ic-mops`
 
 ### Install
 
