@@ -9,7 +9,7 @@ Query stats are **aggregated with a 2-epoch delay**, not updated per call:
 - Each epoch is **60 blocks** on local PocketIC (vs 600 on mainnet)
 - Blocks advance every ~100ms with auto-progress enabled
 - Stats for epoch N are only committed once 2/3+ of nodes have submitted records for epoch N+1
-- Minimum wait: **2 epochs × 60 blocks × 100ms ≈ 15–20 seconds** after the query calls
+- Minimum wait: **2 epochs × 60 blocks × 100ms ≈ 12 seconds**; on slower machines up to **60 seconds** (each block can take 150–200ms under load)
 
 Only **query calls** are tracked — calls made without `--query` go through consensus as update calls and are not counted in `query_stats.num_calls_total`.
 
