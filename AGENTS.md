@@ -92,6 +92,8 @@ Follow the `hello_world` layout. New examples and migrations should use this pat
 
 The root `.gitignore` already has `**/.icp/cache/` which correctly ignores only the ephemeral build cache. Do **not** add `.icp/` to per-example `.gitignore` files — it would incorrectly hide `data/` as well.
 
+When migrating an example, also remove any existing `.dfx/` entries from per-example `.gitignore` files — dfx is no longer used and these entries are dead weight.
+
 ---
 
 ## icp.yaml
