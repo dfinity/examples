@@ -8,7 +8,7 @@ import P2tr "P2tr";
 import Types "Types";
 import Utils "Utils";
 
-persistent actor BasicBitcoin {
+persistent actor class BasicBitcoin(network : Types.Network) {
   type GetUtxosResponse = Types.GetUtxosResponse;
   type MillisatoshiPerVByte = Types.MillisatoshiPerVByte;
   type SendRequest = Types.SendRequest;
@@ -23,19 +23,15 @@ persistent actor BasicBitcoin {
   /// When developing locally this should be `regtest`.
   /// When deploying to the IC this should be `testnet`.
   /// `mainnet` is currently unsupported.
-  let NETWORK : Network = #regtest;
+  let NETWORK : Network = network;
 
   /// The derivation path to use for ECDSA secp256k1 or Schnorr BIP340/BIP341 key
   /// derivation.
   transient let DERIVATION_PATH : [[Nat8]] = [];
 
   // The ECDSA key name.
-  transient let KEY_NAME : Text = switch NETWORK {
-    // For local development, we use a special test key with icp-cli.
-    case (#regtest) "dfx_test_key";
-    // On the IC we're using a test ECDSA key.
-    case _ "test_key_1";
-  };
+  // `test_key_1` is available on both the local PocketIC network and the IC testnet.
+  transient let KEY_NAME : Text = "test_key_1";
 
   /// Returns the balance of the given Bitcoin address.
   public func get_balance(address : BitcoinAddress) : async Satoshi {

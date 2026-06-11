@@ -1,9 +1,8 @@
 import Result "mo:core/Result";
-import Debug "mo:core/Debug";
-import Iter "mo:core/Iter";
 import Nat8 "mo:core/Nat8";
 import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
+import Iter "mo:core/Iter";
 import Blob "mo:core/Blob";
 import Array "mo:core/Array";
 import Types "Types";

@@ -1,4 +1,5 @@
 import Types "Types";
+import Array "mo:core/Array";
 import Blob "mo:core/Blob";
 import { ic } "mo:ic";
 
