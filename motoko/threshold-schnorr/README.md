@@ -55,12 +55,6 @@ For BIP341 (Taproot) signing with a tweak:
 icp canister call backend sign '("hello world of BIP340-secp256k1!", variant { bip340secp256k1 }, opt "012345678901234567890123456789012345678901234567890123456789abcd")'
 ```
 
-## Updating the Candid interface
-
-```bash
-$(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo
-```
-
 ## Security considerations and best practices
 
 If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for developing on ICP. This example may not implement all the best practices.
