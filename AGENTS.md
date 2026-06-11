@@ -169,6 +169,15 @@ candid = "backend/backend.did"   # omit for backend-only examples (no frontend)
 
 `[canisters.<name>]` replaces the `main`, `candid`, and `args` fields that were previously in `icp.yaml`. The `@dfinity/motoko@v5.0.0` recipe reads this section directly, so the Motoko canister needs no `configuration:` block in `icp.yaml` — the `<name>` must match the canister `name` in `icp.yaml`.
 
+After writing or editing Motoko source files, always run:
+
+```bash
+mops check          # type-check all canister entry points
+mops check --fix    # auto-fix style warnings (M0236 dot notation, M0237, M0223)
+```
+
+Both commands must pass with no errors before committing.
+
 `--default-persistent-actors` makes the **main actor** persistent by default, so the `persistent` keyword can be omitted on the top-level `actor` declaration. However, `persistent actor class` declarations that hold mutable state must still carry the `persistent` keyword explicitly — the flag does not propagate into actor class sub-WASMs.
 
 ### Management canister (Motoko)
@@ -407,6 +416,7 @@ When migrating an existing example:
 - [ ] Update root `package.json` workspace path to `frontend/`
 - [ ] Update `.gitignore` bindings path to `frontend/src/bindings/`
 - [ ] Update `mops.toml` to current toolchain versions (Motoko)
+- [ ] Run `mops check --fix` in the example directory and commit any auto-fixes (Motoko)
 - [ ] If the example uses the management canister: add `ic = "4.0.0"` dependency and replace `ic:aaaaa-aa` / `actor("aaaaa-aa")` with `import { ic } "mo:ic"` (Motoko)
 - [ ] If the Rust example uses the management canister: add `ic-cdk-management-canister = "0.1.1"` dependency and replace `ic_cdk::api::management_canister` with the appropriate function from that crate
 - [ ] If the example creates child canisters: use `icp deploy --cycles 30t` in the CI workflow and README, and add a `make topup` target
