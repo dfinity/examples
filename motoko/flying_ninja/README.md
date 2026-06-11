@@ -8,6 +8,7 @@ Flying Ninja is a 2D side-scroller game where players control a ninja character 
 
 - Node.js
 - icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- ic-mops: `npm install -g ic-mops`
 
 ### Install
 
