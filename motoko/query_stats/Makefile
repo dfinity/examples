@@ -1,16 +1,17 @@
-.PHONY: test
+.PHONY: test test-stats
 
+# Fast structural test — verifies the API shape and that load() works.
+# Query stats will show 0 due to the 2-epoch aggregation delay; use
+# `make test-stats` to wait for aggregation and verify non-zero values.
 test:
 	@echo "=== Test 1/2: load() returns a non-zero timestamp ==="
-	@# Uses --query so this call is counted in query_stats (update calls are not tracked)
+	@# --query ensures this call is recorded in query_stats (update calls are not tracked)
 	@result=$$(icp canister call --query backend load '()') && \
 	  echo "$$result" && \
 	  echo "$$result" | grep -qE '\([0-9][0-9_]* : int\)' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
 	@echo "=== Test 2/2: get_current_query_stats_as_string() returns the four expected fields ==="
-	@# NOTE: query stats are aggregated with a 2-epoch delay (120+ blocks on local replica).
-	@# This run's calls won't appear yet — run make test a second time to see non-zero values.
 	@result=$$(icp canister call backend get_current_query_stats_as_string '()') && \
 	  echo "$$result" && \
 	  echo "$$result" | grep -q 'Number of calls' && \
@@ -18,3 +19,23 @@ test:
 	  echo "$$result" | grep -q 'Request payload bytes' && \
 	  echo "$$result" | grep -q 'Response payload bytes' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
+
+# Full demonstration — generates query load, waits for the 2-epoch aggregation
+# window (~15s), then verifies non-zero stats.
+#
+# Query stats require 120+ blocks to aggregate (2 epochs × 60 blocks × 100ms = 12s minimum).
+# Only --query calls count; update calls are not tracked in query_stats.
+test-stats:
+	@echo "=== Generating query load (20 calls) ==="
+	@for i in $$(seq 1 20); do \
+	  icp canister call --query backend load '()' > /dev/null; \
+	done
+	@echo "=== Waiting ~20s for 2-epoch aggregation window ==="
+	@sleep 20
+
+	@echo "=== Verifying non-zero query stats ==="
+	@result=$$(icp canister call backend get_current_query_stats_as_string '()') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -qE 'Number of calls: [1-9]' && \
+	  echo "PASS: query stats are non-zero after aggregation" || \
+	  (echo "FAIL: stats still 0 — try again in a few seconds" && exit 1)

@@ -4,13 +4,14 @@ This example demonstrates how a canister can read its own query statistics using
 
 ## How query stats work
 
-Query stats are **aggregated with a 2-epoch delay**, not updated per-call:
+Query stats are **aggregated with a 2-epoch delay**, not updated per call:
 
 - Each epoch is **60 blocks** on local PocketIC (vs 600 on mainnet)
+- Blocks advance every ~100ms with auto-progress enabled
 - Stats for epoch N are only committed once 2/3+ of nodes have submitted records for epoch N+1
-- At least **2 epochs** (120+ blocks) must pass after a query call before it appears in `canister_status().query_stats`
+- Minimum wait: **2 epochs × 60 blocks × 100ms ≈ 15–20 seconds** after the query calls
 
-**On a local replica**, the first `make test` run will show `0` for all fields because the stats from that run haven't aggregated yet. Run `make test` a second time (with the same network still running) and you'll see non-zero values from the first run.
+Only **query calls** are tracked — calls made without `--query` go through consensus as update calls and are not counted in `query_stats.num_calls_total`.
 
 ## Build and deploy from the command line
 
@@ -25,13 +26,24 @@ cd examples/motoko/query_stats
 ```
 
 ### Deploy and test
+
+**Fast test** (verifies API shape; stats show 0 due to aggregation delay):
 ```bash
 icp network start -d
 icp deploy
-make test   # first run: stats show 0 (aggregation lag)
-make test   # second run: stats show non-zero values from the first run
+make test
 icp network stop
 ```
+
+**Full demonstration** (generates load, waits ~20s, verifies non-zero stats):
+```bash
+icp network start -d
+icp deploy
+make test-stats
+icp network stop
+```
+
+`make test-stats` calls `load()` 20 times with `--query`, waits 20 seconds for the aggregation window, then verifies that `Number of calls` is non-zero.
 
 ## Security considerations and best practices
 
