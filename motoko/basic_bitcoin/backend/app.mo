@@ -36,7 +36,7 @@ actor class BasicBitcoin(network : Types.Network) {
 
   /// Returns the 100 fee percentiles measured in millisatoshi/vbyte.
   /// Percentiles are computed from the last 10,000 transactions (if available).
-  public func get_current_fee_percentiles() : async [Types.MillisatoshiPerVByte] {
+  public func get_current_fee_percentiles() : async [Types.MillisatoshiPerByte] {
     await BitcoinApi.get_current_fee_percentiles(NETWORK);
   };
 

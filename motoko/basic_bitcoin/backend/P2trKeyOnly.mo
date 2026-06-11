@@ -26,7 +26,7 @@ module {
   type BitcoinAddress = Types.BitcoinAddress;
   type Satoshi = Types.Satoshi;
   type Utxo = Types.Utxo;
-  type MillisatoshiPerVByte = Types.MillisatoshiPerVByte;
+  type MillisatoshiPerByte = Types.MillisatoshiPerByte;
   type Transaction = Transaction.Transaction;
   type Script = Script.Script;
 

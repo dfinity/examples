@@ -2,10 +2,9 @@ import Types "Types";
 import { ic } "mo:ic";
 
 module {
-  type Cycles = Types.Cycles;
 
   // The fee for the `sign_with_ecdsa` endpoint using the test key.
-  let SIGN_WITH_ECDSA_COST_CYCLES : Cycles = 10_000_000_000;
+  let SIGN_WITH_ECDSA_COST_CYCLES : Nat = 10_000_000_000;
 
   /// Returns the ECDSA public key of this canister at the given derivation path.
   public func ecdsa_public_key(key_name : Text, derivation_path : [Blob]) : async Blob {

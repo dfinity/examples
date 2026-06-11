@@ -3,11 +3,10 @@ import { ic } "mo:ic";
 import IC "mo:ic/Types";
 
 module {
-  type Cycles = Types.Cycles;
   type SchnorrAux = IC.SchnorrAux;
 
   // The fee for the `sign_with_schnorr` endpoint using the test key.
-  let SIGN_WITH_SCHNORR_COST_CYCLES : Cycles = 10_000_000_000;
+  let SIGN_WITH_SCHNORR_COST_CYCLES : Nat = 10_000_000_000;
 
   /// Returns the Schnorr public key of this canister at the given derivation path.
   public func schnorr_public_key(key_name : Text, derivation_path : [Blob]) : async Blob {

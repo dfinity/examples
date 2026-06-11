@@ -36,7 +36,7 @@ module {
     type BitcoinAddress = Types.BitcoinAddress;
     type Satoshi = Types.Satoshi;
     type Utxo = Types.Utxo;
-    type MillisatoshiPerVByte = Types.MillisatoshiPerVByte;
+    type MillisatoshiPerByte = Types.MillisatoshiPerByte;
     let CURVE = Types.CURVE;
     type PublicKey = EcdsaTypes.PublicKey;
     type Transaction = Transaction.Transaction;
@@ -61,7 +61,7 @@ module {
         // Get fee percentiles from previous transactions to estimate our own fee.
         let fee_percentiles = await BitcoinApi.get_current_fee_percentiles(network);
 
-        let fee_per_vbyte : MillisatoshiPerVByte = if (fee_percentiles.size() == 0) {
+        let fee_per_vbyte : MillisatoshiPerByte = if (fee_percentiles.size() == 0) {
             // There are no fee percentiles. This case can only happen on a regtest
             // network where there are no non-coinbase transactions. In this case,
             // we use a default of 1000 millisatoshis/vbyte (i.e. 2 satoshi/byte)
@@ -102,7 +102,7 @@ module {
         own_utxos : [Utxo],
         dst_address : BitcoinAddress,
         amount : Satoshi,
-        fee_per_vbyte : MillisatoshiPerVByte,
+        fee_per_vbyte : MillisatoshiPerByte,
     ) : async [Nat8] {
         let dst_address_typed = Utils.get_ok_expect(Address.addressFromText(dst_address), "failed to decode destination address");
 
