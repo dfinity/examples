@@ -1,8 +1,9 @@
 import Blob "mo:core/Blob";
 import Text "mo:core/Text";
-import IC "ic:aaaaa-aa";
+import { ic } "mo:ic";
+import IC "mo:ic/Types";
 
-persistent actor {
+persistent actor SendHttpPost {
 
   // #region transform
   // Strip HTTP response headers (date, cookies, tracking IDs) that vary across requests.
@@ -11,17 +12,17 @@ persistent actor {
   // essential for consensus to succeed.
   public query func transform({
     context : Blob;
-    response : IC.http_request_result;
-  }) : async IC.http_request_result {
+    response : IC.HttpRequestResult;
+  }) : async IC.HttpRequestResult {
     { response with headers = [] };
   };
   // #endregion transform
 
   // #region post_request
   public func send_http_post_request() : async Text {
-    let body = Text.encodeUtf8("This is a POST request from an ICP canister.");
+    let body = "This is a POST request from an ICP canister.".encodeUtf8();
 
-    let request : IC.http_request_args = {
+    let request : IC.HttpRequestArgs = {
       url = "https://postman-echo.com/post";
       // Always set max_response_bytes to a tight bound. The cycle cost scales
       // with this value, not the actual response size. If omitted, the system
@@ -42,11 +43,11 @@ persistent actor {
 
     // Cycles must be explicitly attached to management canister calls.
     // The amount is based on request size and max_response_bytes.
-    let response = await (with cycles = 230_949_972_000) IC.http_request(request);
+    let response = await (with cycles = 230_949_972_000) ic.http_request(request);
 
     // postman-echo.com echoes back the request data as JSON, letting you
     // verify the POST body and headers were sent correctly.
-    switch (Text.decodeUtf8(response.body)) {
+    switch (response.body.decodeUtf8()) {
       case (?text) text;
       case null "Response is not valid UTF-8";
     };
