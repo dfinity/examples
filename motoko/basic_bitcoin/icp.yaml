@@ -9,7 +9,6 @@ networks:
     image: basic-bitcoin-launcher
     port-mapping:
       - 0:4943      # IC gateway (dynamic)
-      - 18443:18443 # bitcoind JSON-RPC (fixed, used by Makefile for mining)
 
 environments:
   - name: local

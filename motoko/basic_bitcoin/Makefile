@@ -1,5 +1,6 @@
 IMAGE_NAME = basic-bitcoin-launcher
-BTC_RPC = http://ic-btc-integration:ic-btc-integration@localhost:18443
+# Find the running container built from our custom image
+BITCOIN_CONTAINER = $(shell docker ps --filter "ancestor=$(IMAGE_NAME)" --format "{{.ID}}" | head -1)
 
 .PHONY: build-image test topup
 
@@ -35,9 +36,10 @@ test:
 
 	@echo "=== Mining 101 blocks to fund test address ==="
 	@addr=$$(icp canister call backend get_p2pkh_address '()' | grep -o '"[^"]*"' | tr -d '"') && \
-	  curl -s -X POST $(BTC_RPC) -H 'Content-Type: application/json' \
-	    -d "{\"jsonrpc\":\"1.0\",\"method\":\"generatetoaddress\",\"params\":[101,\"$$addr\"]}" \
-	    > /dev/null && echo "mined 101 blocks to $$addr"
+	  docker exec $(BITCOIN_CONTAINER) bitcoin-cli -regtest \
+	    -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
+	    generatetoaddress 101 "$$addr" > /dev/null && \
+	  echo "mined 101 blocks to $$addr"
 
 	@echo "=== Waiting for IC to sync Bitcoin blocks ==="
 	@sleep 5
