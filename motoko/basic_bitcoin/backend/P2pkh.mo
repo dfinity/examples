@@ -211,7 +211,13 @@ module {
         let public_key = public_key_bytes_to_public_key(public_key_bytes);
 
         // Compute the P2PKH address from our public key.
-        P2pkh.deriveAddress(Types.network_to_network_camel_case(network), Publickey.toSec1(public_key, true));
+        // mo:bitcoin uses PascalCase Network variants internally
+        let bitcoinNetwork = switch network {
+            case (#mainnet) #Mainnet;
+            case (#testnet) #Testnet;
+            case (#regtest) #Regtest;
+        };
+        P2pkh.deriveAddress(bitcoinNetwork, Publickey.toSec1(public_key, true));
     };
 
     func public_key_bytes_to_public_key(public_key_bytes : [Nat8]) : PublicKey {

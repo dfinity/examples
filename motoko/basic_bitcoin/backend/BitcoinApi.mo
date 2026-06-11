@@ -63,7 +63,6 @@ module {
   };
 
   /// Returns the balance of the given Bitcoin address.
-  /// See https://docs.internetcomputer.org/guides/chain-fusion/bitcoin
   public func get_balance(network : Network, address : BitcoinAddress) : async Satoshi {
     await (with cycles = 100_000_000) bitcoinCanister(network).bitcoin_get_balance({
       address;
@@ -73,7 +72,6 @@ module {
   };
 
   /// Returns the UTXOs of the given Bitcoin address.
-  /// See https://docs.internetcomputer.org/guides/chain-fusion/bitcoin
   public func get_utxos(network : Network, address : BitcoinAddress) : async Types.GetUtxosResponse {
     await (with cycles = 10_000_000_000) bitcoinCanister(network).bitcoin_get_utxos({
       address;
@@ -84,7 +82,6 @@ module {
 
   /// Returns the 100 fee percentiles measured in millisatoshi/byte.
   /// Percentiles are computed from the last 10,000 transactions (if available).
-  /// See https://docs.internetcomputer.org/guides/chain-fusion/bitcoin
   public func get_current_fee_percentiles(network : Network) : async [MillisatoshiPerByte] {
     await (with cycles = 100_000_000) bitcoinCanister(network).bitcoin_get_current_fee_percentiles({
       network;
@@ -92,7 +89,6 @@ module {
   };
 
   /// Returns Bitcoin block headers for the given height range.
-  /// See https://docs.internetcomputer.org/guides/chain-fusion/bitcoin
   public func get_block_headers(network : Network, start_height : Nat32, end_height : ?Nat32) : async {
     tip_height : Nat32;
     block_headers : [Blob];
@@ -105,7 +101,6 @@ module {
   };
 
   /// Returns a summary of the current Bitcoin blockchain state.
-  /// See https://docs.internetcomputer.org/guides/chain-fusion/bitcoin
   public func get_blockchain_info(network : Network) : async {
     height : Nat32;
     block_hash : Blob;
@@ -117,7 +112,6 @@ module {
   };
 
   /// Sends a signed Bitcoin transaction to the network.
-  /// See https://docs.internetcomputer.org/guides/chain-fusion/bitcoin
   public func send_transaction(network : Network, transaction : [Nat8]) : async () {
     let cost = 5_000_000_000 + transaction.size() * 20_000_000;
     await (with cycles = cost) bitcoinCanister(network).bitcoin_send_transaction({

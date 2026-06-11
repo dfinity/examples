@@ -15,30 +15,18 @@ module Types {
 
     public type BitcoinAddress = IC.BitcoinAddress;
 
-    public type P2WpkhAddress = Text;
 
     public let CURVE = Curves.secp256k1;
 
-    /// Lowercase variant Network type including #regtest for local development.
-    /// Note: mo:bitcoin uses PascalCase (#Mainnet etc.) — see
-    /// https://github.com/caffeinelabs/motoko-bitcoin/issues/22
+    /// Network type using lowercase variants, matching the Bitcoin canister Candid.
+    /// mo:bitcoin uses PascalCase internally — a conversion is applied when calling
+    /// mo:bitcoin address-generation functions.
     public type Network = {
         #mainnet;
         #testnet;
         #regtest;
     };
 
-    /// Bridge type for mo:bitcoin address-generation functions (which use PascalCase).
-    /// Can be removed once mo:bitcoin#22 is fixed.
-    public type NetworkCamelCase = BitcoinTypes.Network;
-
-    public func network_to_network_camel_case(network : Network) : NetworkCamelCase {
-        switch (network) {
-            case (#regtest) #Regtest;
-            case (#testnet) #Testnet;
-            case (#mainnet) #Mainnet;
-        };
-    };
 
     public type OutPoint = BitcoinTypes.OutPoint;
     public type Utxo = BitcoinTypes.Utxo;
