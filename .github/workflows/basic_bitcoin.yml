@@ -43,13 +43,10 @@ jobs:
           make test
 
   motoko-basic_bitcoin-arm64:
-    # Tracks arm64 compatibility. Currently expected to fail due to a
-    # canister_status Candid decode error on the arm64 icp-cli-network-launcher
-    # image (log_memory_store_size field not handled by icp-cli 0.3.2).
+    # Verifies the example works on Linux arm64. Note: the same example fails
+    # on macOS arm64 due to a Candid decode bug in the macOS icp-cli binary.
     # Tracked in: https://github.com/dfinity/icp-cli/issues/601
-    # Remove continue-on-error once that issue is resolved.
     runs-on: ubuntu-24.04-arm
-    continue-on-error: true
     env:
       ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
