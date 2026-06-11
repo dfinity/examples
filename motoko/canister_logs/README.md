@@ -27,6 +27,7 @@ Each log entry has a sequence number, a timestamp, and the message:
 ### Prerequisites
 - Node.js
 - icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- ic-mops: `npm install -g ic-mops`
 
 ### Install
 ```bash
