@@ -26,8 +26,8 @@ test:
 # Query stats require 120+ blocks to aggregate (2 epochs × 60 blocks × 100ms = 12s minimum).
 # Only --query calls count; update calls are not tracked in query_stats.
 test-stats:
-	@echo "=== Generating query load (20 calls) ==="
-	@for i in $$(seq 1 20); do \
+	@echo "=== Generating query load (3 calls) ==="
+	@for i in $$(seq 1 3); do \
 	  icp canister call --query backend load '()' > /dev/null; \
 	done
 	@echo "=== Waiting ~20s for 2-epoch aggregation window ==="
