@@ -13,6 +13,8 @@ Query stats are **aggregated with a 2-epoch delay**, not updated per call:
 
 Only **query calls** are tracked — calls made without `--query` go through consensus as update calls and are not counted in `query_stats.num_calls_total`.
 
+PocketIC simulates a 13-node subnet for consensus. When distributing stats across nodes it uses integer division (`num_calls / 13`), so **fewer than 13 query calls round to zero** — `make test-stats` makes exactly 13 calls to ensure non-zero values survive the division.
+
 ## Build and deploy from the command line
 
 ### Prerequisites

@@ -26,8 +26,10 @@ test:
 # Query stats require 120+ blocks to aggregate (2 epochs × 60 blocks × 100ms = 12s minimum).
 # Only --query calls count; update calls are not tracked in query_stats.
 test-stats:
-	@echo "=== Generating query load (3 calls) ==="
-	@for i in $$(seq 1 3); do \
+	@echo "=== Generating query load (13 calls) ==="
+	@# PocketIC simulates a 13-node subnet and uses integer division when spreading
+	@# stats across nodes (num_calls /= 13). Fewer than 13 calls rounds to 0.
+	@for i in $$(seq 1 13); do \
 	  icp canister call --query backend load '()' > /dev/null; \
 	done
 	@echo "=== Waiting for 2-epoch aggregation (up to 60s) ==="
@@ -41,4 +43,6 @@ test-stats:
 	  sleep 3; \
 	  secs=$$(($$secs + 3)); \
 	done; \
+	result=$$(icp canister call backend get_current_query_stats_as_string '()'); \
+	echo "$$result"; \
 	echo "FAIL: stats still 0 after 60s" && exit 1
