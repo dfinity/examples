@@ -15,6 +15,8 @@ module Types {
 
     public type BitcoinAddress = IC.BitcoinAddress;
 
+    public type P2WpkhAddress = Text;
+
     public let CURVE = Curves.secp256k1;
 
     /// Lowercase variant Network type including #regtest for local development.

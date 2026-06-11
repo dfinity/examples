@@ -74,13 +74,17 @@ module {
         bytes.vals().map(func(n : Nat8) : Text { nat8ToText(n) }).join("");
     };
 
-    /// A mock for rubber-stamping 64B ECDSA signatures.
-    public func ecdsa_mock_signer(_key_name : Text, _derivation_path : [Blob], _message_hash : Blob) : async Blob {
+    /// Mock ECDSA signer that returns a 64-byte placeholder signature.
+    /// Used only during fee estimation to get the correct transaction size
+    /// before invoking the real (expensive) threshold signing operation.
+    public func mock_sign_with_ecdsa(_key_name : Text, _derivation_path : [Blob], _message_hash : Blob) : async Blob {
         Blob.fromArray(Array.repeat(255 : Nat8, 64));
     };
 
-    /// A mock for rubber-stamping 64B Schnorr signatures.
-    public func schnorr_mock_signer(_key_name : Text, _derivation_path : [Blob], _message_hash : Blob, _aux : ?SchnorrAux) : async Blob {
+    /// Mock Schnorr signer that returns a 64-byte placeholder signature.
+    /// Used only during fee estimation to get the correct transaction size
+    /// before invoking the real (expensive) threshold signing operation.
+    public func mock_sign_with_schnorr(_key_name : Text, _derivation_path : [Blob], _message_hash : Blob, _aux : ?SchnorrAux) : async Blob {
         Blob.fromArray(Array.repeat(255 : Nat8, 64));
     };
 };

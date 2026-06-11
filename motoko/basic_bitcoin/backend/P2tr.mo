@@ -116,8 +116,8 @@ module {
                 },
             );
 
-            // Sign the transaction. In this case, we only care about the size
-            // of the signed transaction, so we use a mock signer here for efficiency.
+            // Sign the transaction. We only care about the size of the signed
+            // transaction for fee estimation, so we use a mock signer here for efficiency.
             let signed_transaction_bytes = await sign_key_spend_transaction(
                 own_address,
                 transaction,
@@ -125,7 +125,7 @@ module {
                 "", // mock key name
                 [], // mock derivation path
                 null, // mock aux
-                Utils.schnorr_mock_signer,
+                Utils.mock_sign_with_schnorr,
             );
 
             let signed_tx_bytes_len : Nat = signed_transaction_bytes.size();

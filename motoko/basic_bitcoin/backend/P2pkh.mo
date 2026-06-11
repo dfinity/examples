@@ -120,15 +120,15 @@ module {
         loop {
             let transaction = Utils.get_ok_expect(Bitcoin.buildTransaction(2, own_utxos, [(dst_address_typed, amount)], #p2pkh own_address, Nat64.fromNat(total_fee)), "Error building transaction.");
 
-            // Sign the transaction. In this case, we only care about the size
-            // of the signed transaction, so we use a mock signer here for efficiency.
+            // Sign the transaction. We only care about the size of the signed
+            // transaction for fee estimation, so we use a mock signer here for efficiency.
             let signed_transaction_bytes = await sign_transaction(
                 own_public_key,
                 own_address,
                 transaction,
                 "", // mock key name
                 [], // mock derivation path
-                Utils.ecdsa_mock_signer,
+                Utils.mock_sign_with_ecdsa,
             );
 
             let signed_tx_bytes_len : Nat = signed_transaction_bytes.size();
