@@ -6,7 +6,7 @@ canisters:
 networks:
   - name: local
     mode: managed
-    image: basic-bitcoin-launcher
+    image: icp-cli-network-launcher-bitcoin
     port-mapping:
       - 0:4943      # IC gateway (dynamic)
 
