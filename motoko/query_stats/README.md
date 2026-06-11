@@ -1,6 +1,16 @@
 # Query Stats
 
-This example demonstrates how a canister can read its own query statistics from the management canister. It uses `ic.canister_status` to retrieve metrics such as the total number of calls, instructions executed, and payload bytes for the canister's query methods.
+This example demonstrates how a canister can read its own query statistics using `ic.canister_status`. It retrieves metrics such as the total number of query calls, instructions executed, and payload bytes.
+
+## How query stats work
+
+Query stats are **not updated in real-time**. The IC aggregates them with a minimum 2-epoch delay:
+
+- Each epoch is **60 blocks** on local PocketIC (vs 600 on mainnet)
+- Stats for epoch N are only committed once 2/3+ of nodes have submitted records for epoch N+1
+- This means **at least 120 blocks** must pass after a query call before its contribution appears in `canister_status().query_stats`
+
+**On a local replica**, stats will show `0` for all fields even after making many query calls — this is expected behavior, not a bug. Non-zero values are observable on IC mainnet after enough queries accumulate across multiple epochs.
 
 ## Build and deploy from the command line
 
