@@ -38,7 +38,7 @@ const App = () => {
 
   const renderDayDetail = async () => {
     showLoading();
-    const dateString = `${selectedDate.getFullYear()}-${selectedDate.getMonth() + 1}-${selectedDate.getDate()}`;
+    const dateString = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
     try {
       const data = await backend.getDayData(dateString);
       setDayDetail(data?.length > 0 ? data[0] : { notes: [], onThisDay: null });
@@ -51,10 +51,10 @@ const App = () => {
   const handleFetchOnThisDay = async () => {
     showLoading();
     try {
-      const dateString = `${selectedDate.getFullYear()}-${selectedDate.getMonth() + 1}-${selectedDate.getDate()}`;
+      const dateString = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
       const result = await backend.fetchAndStoreOnThisDay(dateString);
       console.log(result);
-      renderDayDetail();
+      await renderDayDetail();
     } catch (error) {
       console.error('Error fetching On This Day data:', error);
     }
@@ -72,7 +72,7 @@ const App = () => {
 
   const handleCompleteNote = async (noteId) => {
     showLoading();
-    const dateString = `${selectedDate.getFullYear()}-${selectedDate.getMonth() + 1}-${selectedDate.getDate()}`;
+    const dateString = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
     try {
       await backend.completeNote(dateString, noteId);
       await renderDayDetail();
@@ -89,7 +89,7 @@ const App = () => {
     const content = newNoteContent.trim();
     if (content && selectedDate >= new Date(new Date().setHours(0, 0, 0, 0))) {
       showLoading();
-      const dateString = `${selectedDate.getFullYear()}-${selectedDate.getMonth() + 1}-${selectedDate.getDate()}`;
+      const dateString = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
       try {
         await backend.addNote(dateString, content);
         setNewNoteContent('');
