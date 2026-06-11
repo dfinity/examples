@@ -9,6 +9,7 @@ For a deeper understanding of HTTPS outcalls on the IC, see the [HTTPS outcalls 
 ### Prerequisites
 - Node.js
 - icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- ic-mops: `npm install -g ic-mops`
 
 ### Install
 ```bash
