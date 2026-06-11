@@ -8,6 +8,7 @@ This backend-only example demonstrates how to write a simple smart contract for 
 
 - Node.js
 - icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- ic-mops: `npm install -g ic-mops`
 
 ### Install
 
