@@ -26,6 +26,5 @@ exec /app/icp-cli-network-launcher \
   --config-port 4942 \
   --gateway-port 4943 \
   --bind 0.0.0.0 \
-  --pocketic-config-bind 0.0.0.0 \
   --bitcoind-addr=127.0.0.1:18444 \
   "$@"
