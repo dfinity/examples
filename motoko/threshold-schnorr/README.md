@@ -7,6 +7,7 @@ This example demonstrates how to use the ICP [threshold Schnorr](https://interne
 ### Prerequisites
 - Node.js
 - icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- ic-mops: `npm install -g ic-mops`
 
 ### Install
 ```bash
