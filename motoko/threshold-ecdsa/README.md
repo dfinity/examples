@@ -55,12 +55,6 @@ const verified = ecdsaVerify(signature, message_hash, public_key);
 console.log("verified =", verified); // true
 ```
 
-## Updating the Candid interface
-
-```bash
-$(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo
-```
-
 ## Security considerations and best practices
 
 Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app.
