@@ -7,6 +7,7 @@ This example demonstrates the [threshold ECDSA](https://internetcomputer.org/doc
 ### Prerequisites
 - Node.js
 - icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- ic-mops: `npm install -g ic-mops`
 
 ### Install
 ```bash
