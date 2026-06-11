@@ -3,25 +3,26 @@
 # Continuously polls and displays new canister log entries.
 # Useful for watching logs stream in real-time while calling canister methods
 # in a separate terminal.
+#
+# Requires: jq (https://jqlang.org)
 
-declare -a previous_logs=()
+if ! command -v jq &>/dev/null; then
+  echo "Error: jq is required. Install it with: brew install jq  (macOS) or apt install jq (Linux)"
+  exit 1
+fi
 
-fetch_and_filter_logs() {
-    local new_logs
-    new_logs=$(icp canister logs backend)
-
-    while IFS= read -r line; do
-        if [[ ! "${previous_logs[*]}" =~ "$line" ]]; then
-            echo "$line"
-        fi
-    done <<< "$new_logs"
-
-    previous_logs=("$new_logs")
-}
-
-fetch_and_filter_logs
+last_index=-1
 
 while true; do
-    fetch_and_filter_logs
-    sleep 1
+  logs=$(icp canister logs backend 2>/dev/null)
+  if [ -n "$logs" ]; then
+    # Print only entries with index > last seen
+    new_entries=$(echo "$logs" | jq -r --argjson last "$last_index" \
+      '.log_records[] | select(.index > $last) | "[\(.index)]: \(.content)"')
+    if [ -n "$new_entries" ]; then
+      echo "$new_entries"
+      last_index=$(echo "$logs" | jq '.log_records[-1].index // -1')
+    fi
+  fi
+  sleep 1
 done

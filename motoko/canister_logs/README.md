@@ -11,16 +11,30 @@ This example demonstrates canister logging on the Internet Computer. Every messa
 
 ## Log entry format
 
-Each log entry has a sequence number, a timestamp, and the message:
+`icp canister logs` returns JSON with a `log_records` array. Each entry has an `index`, a nanosecond `timestamp`, and a `content` string:
 
-```
-[0. 2024-05-23T08:32:26.203980235Z]: right before timer trap
-[1. 2024-05-23T08:32:26.203980235Z]: [TRAP]: timer trap
-[2. 2024-05-23T08:32:31.836721763Z]: right before timer trap
-[3. 2024-05-23T08:32:31.836721763Z]: [TRAP]: timer trap
+```json
+{
+  "log_records": [
+    { "index": 0, "timestamp": 1781210195740276000, "content": "right before timer trap" },
+    { "index": 1, "timestamp": 1781210195740276000, "content": "[TRAP]: timer trap" },
+    { "index": 2, "timestamp": 1781210200674527000, "content": "right before timer trap" },
+    { "index": 3, "timestamp": 1781210200674527000, "content": "[TRAP]: timer trap" }
+  ]
+}
 ```
 
 `Debug.print` messages appear as plain text. Trap messages are prefixed with `[TRAP]:`. When a function calls `Debug.print` before trapping, both entries appear in sequence — the print message first, then the trap.
+
+To extract just the messages in a readable format:
+
+```bash
+# Pretty-print with jq
+icp canister logs backend | jq -r '.log_records[] | "[\(.index)]: \(.content)"'
+
+# Or with python (no extra tools needed)
+icp canister logs backend | python3 -m json.tool
+```
 
 ## Build and deploy from the command line
 
@@ -49,7 +63,7 @@ To inspect the raw log entries at any point:
 icp canister logs backend
 ```
 
-To watch logs stream in real-time while calling methods in a separate terminal:
+To watch new log entries stream in real-time while calling methods in a separate terminal:
 
 ```bash
 ./poll_logs.sh
