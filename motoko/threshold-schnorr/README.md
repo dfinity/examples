@@ -1,6 +1,6 @@
 # Threshold Schnorr
 
-This example demonstrates how to use the ICP [threshold Schnorr](https://internetcomputer.org/docs/building-apps/network-features/signatures/t-schnorr) API from a Motoko canister. The canister acts as a signing oracle that creates Schnorr signatures using keys derived from the canister ID and the chosen algorithm (BIP340/BIP341 or Ed25519). Canisters do not hold private keys themselves — signing requests are routed to threshold Schnorr subnets that compute signatures using distributed key shares.
+This example demonstrates threshold Schnorr signing (BIP340/BIP341 and Ed25519), part of ICP's [chain-key cryptography](https://docs.internetcomputer.org/concepts/chain-key-cryptography). The canister acts as a signing oracle that creates Schnorr signatures using keys derived from the canister ID. Canisters do not hold private keys themselves — signing requests are routed to threshold Schnorr subnets that compute signatures using distributed key shares.
 
 ## Build and deploy from the command line
 
