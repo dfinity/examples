@@ -51,7 +51,7 @@ make test-stats
 icp network stop
 ```
 
-`make test-stats` calls `load()` 20 times with `--query`, waits 20 seconds for the aggregation window, then verifies that `Number of calls` is non-zero.
+`make test-stats` calls `load()` 13 times with `--query` every 3 seconds (up to 30 seconds total), verifying non-zero stats once they appear.
 
 ## Security considerations and best practices
 
