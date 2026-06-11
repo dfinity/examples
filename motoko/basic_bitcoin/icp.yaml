@@ -14,18 +14,15 @@ networks:
 environments:
   - name: local
     network: local
-    settings:
-      backend:
-        init_arg: "(variant { regtest })"
+    init_args:
+      backend: "(variant { regtest })"
 
   - name: staging
     network: ic
-    settings:
-      backend:
-        init_arg: "(variant { testnet })"
+    init_args:
+      backend: "(variant { testnet })"
 
   - name: production
     network: ic
-    settings:
-      backend:
-        init_arg: "(variant { mainnet })"
+    init_args:
+      backend: "(variant { mainnet })"
