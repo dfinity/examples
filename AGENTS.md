@@ -354,6 +354,7 @@ Each example's README should follow this structure:
 ### Prerequisites
 - Node.js
 - icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- ic-mops: `npm install -g ic-mops`
 
 ### Install
 <git clone + cd>
