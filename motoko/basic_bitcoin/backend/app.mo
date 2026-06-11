@@ -20,9 +20,13 @@ actor class BasicBitcoin(network : Types.Network) {
   /// derivation.
   transient let DERIVATION_PATH : [[Nat8]] = [];
 
-  // The ECDSA key name.
-  // `test_key_1` is available on both the local PocketIC network and the IC testnet.
-  transient let KEY_NAME : Text = "test_key_1";
+  // The ECDSA/Schnorr key name depends on which Bitcoin network this canister targets:
+  //   - "key_1"       — Bitcoin mainnet on ICP mainnet
+  //   - "test_key_1"  — Bitcoin testnet4 on ICP mainnet (staging) OR local regtest
+  transient let KEY_NAME : Text = switch NETWORK {
+    case (#mainnet) "key_1";
+    case (#testnet or #regtest) "test_key_1";
+  };
 
   /// Returns the balance of the given Bitcoin address.
   public func get_balance(address : Types.BitcoinAddress) : async Types.Satoshi {
@@ -97,9 +101,8 @@ actor class BasicBitcoin(network : Types.Network) {
     });
   };
 
-  /// Returns a summary of the current Bitcoin blockchain state tracked by the
-  /// Bitcoin canister: tip height, tip block hash, timestamp, difficulty, and
-  /// UTXO set size.
+  /// Returns a summary of the current Bitcoin blockchain state: tip height,
+  /// tip block hash, timestamp, difficulty, and UTXO set size.
   public func get_blockchain_info() : async {
     height : Nat32;
     block_hash : Blob;
@@ -107,18 +110,7 @@ actor class BasicBitcoin(network : Types.Network) {
     difficulty : Nat;
     utxos_length : Nat64;
   } {
-    // Inline actor type matches the Bitcoin canister Candid directly.
-    // The Bitcoin canister is accessed via the management canister principal.
-    let bitcoin_actor : actor {
-      get_blockchain_info : () -> async {
-        height : Nat32;
-        block_hash : Blob;
-        timestamp : Nat32;
-        difficulty : Nat;
-        utxos_length : Nat64;
-      };
-    } = actor ("aaaaa-aa");
-    await bitcoin_actor.get_blockchain_info();
+    await BitcoinApi.get_blockchain_info(NETWORK);
   };
 
   func p2pkhDerivationPath() : [[Nat8]] {
