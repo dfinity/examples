@@ -4,13 +4,13 @@ This example demonstrates how a canister can read its own query statistics using
 
 ## How query stats work
 
-Query stats are **not updated in real-time**. The IC aggregates them with a minimum 2-epoch delay:
+Query stats are **aggregated with a 2-epoch delay**, not updated per-call:
 
 - Each epoch is **60 blocks** on local PocketIC (vs 600 on mainnet)
 - Stats for epoch N are only committed once 2/3+ of nodes have submitted records for epoch N+1
-- This means **at least 120 blocks** must pass after a query call before its contribution appears in `canister_status().query_stats`
+- At least **2 epochs** (120+ blocks) must pass after a query call before it appears in `canister_status().query_stats`
 
-**On a local replica**, stats will show `0` for all fields even after making many query calls — this is expected behavior, not a bug. Non-zero values are observable on IC mainnet after enough queries accumulate across multiple epochs.
+**On a local replica**, the first `make test` run will show `0` for all fields because the stats from that run haven't aggregated yet. Run `make test` a second time (with the same network still running) and you'll see non-zero values from the first run.
 
 ## Build and deploy from the command line
 
@@ -28,7 +28,8 @@ cd examples/motoko/query_stats
 ```bash
 icp network start -d
 icp deploy
-make test
+make test   # first run: stats show 0 (aggregation lag)
+make test   # second run: stats show non-zero values from the first run
 icp network stop
 ```
 
