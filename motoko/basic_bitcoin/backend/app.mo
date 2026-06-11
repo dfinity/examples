@@ -8,22 +8,13 @@ import P2tr "P2tr";
 import Types "Types";
 import Utils "Utils";
 
-persistent actor class BasicBitcoin(network : Types.Network) {
-  type GetUtxosResponse = Types.GetUtxosResponse;
-  type MillisatoshiPerVByte = Types.MillisatoshiPerVByte;
-  type SendRequest = Types.SendRequest;
-  type Network = Types.Network;
-  type BitcoinAddress = Types.BitcoinAddress;
-  type Satoshi = Types.Satoshi;
-  type TransactionId = Text;
-  type P2trDerivationPaths = Types.P2trDerivationPaths;
+actor class BasicBitcoin(network : Types.Network) {
 
   /// The Bitcoin network to connect to.
   ///
   /// When developing locally this should be `regtest`.
   /// When deploying to the IC this should be `testnet`.
-  /// `mainnet` is currently unsupported.
-  let NETWORK : Network = network;
+  let NETWORK : Types.Network = network;
 
   /// The derivation path to use for ECDSA secp256k1 or Schnorr BIP340/BIP341 key
   /// derivation.
@@ -34,49 +25,49 @@ persistent actor class BasicBitcoin(network : Types.Network) {
   transient let KEY_NAME : Text = "test_key_1";
 
   /// Returns the balance of the given Bitcoin address.
-  public func get_balance(address : BitcoinAddress) : async Satoshi {
+  public func get_balance(address : Types.BitcoinAddress) : async Types.Satoshi {
     await BitcoinApi.get_balance(NETWORK, address);
   };
 
   /// Returns the UTXOs of the given Bitcoin address.
-  public func get_utxos(address : BitcoinAddress) : async GetUtxosResponse {
+  public func get_utxos(address : Types.BitcoinAddress) : async Types.GetUtxosResponse {
     await BitcoinApi.get_utxos(NETWORK, address);
   };
 
   /// Returns the 100 fee percentiles measured in millisatoshi/vbyte.
   /// Percentiles are computed from the last 10,000 transactions (if available).
-  public func get_current_fee_percentiles() : async [MillisatoshiPerVByte] {
+  public func get_current_fee_percentiles() : async [Types.MillisatoshiPerVByte] {
     await BitcoinApi.get_current_fee_percentiles(NETWORK);
   };
 
   /// Returns the P2PKH address of this canister at a specific derivation path.
-  public func get_p2pkh_address() : async BitcoinAddress {
+  public func get_p2pkh_address() : async Types.BitcoinAddress {
     await P2pkh.get_address(NETWORK, KEY_NAME, p2pkhDerivationPath());
   };
 
   /// Sends the given amount of bitcoin from this canister to the given address.
   /// Returns the transaction ID.
-  public func send_from_p2pkh_address(request : SendRequest) : async TransactionId {
+  public func send_from_p2pkh_address(request : Types.SendRequest) : async Text {
     Utils.bytesToText(await P2pkh.send(NETWORK, p2pkhDerivationPath(), KEY_NAME, request.destination_address, request.amount_in_satoshi));
   };
 
-  public func get_p2tr_key_only_address() : async BitcoinAddress {
+  public func get_p2tr_key_only_address() : async Types.BitcoinAddress {
     await P2trKeyOnly.get_address_key_only(NETWORK, KEY_NAME, p2trKeyOnlyDerivationPath());
   };
 
-  public func send_from_p2tr_key_only_address(request : SendRequest) : async TransactionId {
+  public func send_from_p2tr_key_only_address(request : Types.SendRequest) : async Text {
     Utils.bytesToText(await P2trKeyOnly.send(NETWORK, p2trKeyOnlyDerivationPath(), KEY_NAME, request.destination_address, request.amount_in_satoshi));
   };
 
-  public func get_p2tr_address() : async BitcoinAddress {
+  public func get_p2tr_address() : async Types.BitcoinAddress {
     await P2tr.get_address(NETWORK, KEY_NAME, p2trDerivationPaths());
   };
 
-  public func send_from_p2tr_address_key_path(request : SendRequest) : async TransactionId {
+  public func send_from_p2tr_address_key_path(request : Types.SendRequest) : async Text {
     Utils.bytesToText(await P2tr.send_key_path(NETWORK, p2trDerivationPaths(), KEY_NAME, request.destination_address, request.amount_in_satoshi));
   };
 
-  public func send_from_p2tr_address_script_path(request : SendRequest) : async TransactionId {
+  public func send_from_p2tr_address_script_path(request : Types.SendRequest) : async Text {
     Utils.bytesToText(await P2tr.send_script_path(NETWORK, p2trDerivationPaths(), KEY_NAME, request.destination_address, request.amount_in_satoshi));
   };
 
@@ -88,7 +79,7 @@ persistent actor class BasicBitcoin(network : Types.Network) {
     derivationPathWithSuffix("p2tr_key_only");
   };
 
-  func p2trDerivationPaths() : P2trDerivationPaths {
+  func p2trDerivationPaths() : Types.P2trDerivationPaths {
     {
       key_path_derivation_path = derivationPathWithSuffix("p2tr_internal_key");
       script_path_derivation_path = derivationPathWithSuffix("p2tr_script_key");
