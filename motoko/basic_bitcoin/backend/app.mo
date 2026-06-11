@@ -5,7 +5,6 @@ import BitcoinApi "BitcoinApi";
 import P2pkh "P2pkh";
 import P2trKeyOnly "P2trKeyOnly";
 import P2tr "P2tr";
-import P2wpkh "P2wpkh";
 import Types "Types";
 import Utils "Utils";
 
@@ -72,13 +71,6 @@ actor class BasicBitcoin(network : Types.Network) {
     Utils.bytesToText(await P2tr.send_script_path(NETWORK, p2trDerivationPaths(), KEY_NAME, request.destination_address, request.amount_in_satoshi));
   };
 
-  /// Returns the P2WPKH (SegWit v0) address of this canister.
-  /// Note: send_from_p2wpkh_address is not yet implemented — it requires BIP143
-  /// sighash support in mo:bitcoin (see https://github.com/caffeinelabs/motoko-bitcoin/pull/9).
-  public func get_p2wpkh_address() : async Types.BitcoinAddress {
-    await P2wpkh.get_address(NETWORK, KEY_NAME, p2wpkhDerivationPath());
-  };
-
   /// Returns Bitcoin block headers starting at `start_height`.
   /// Optionally limit to `end_height` (inclusive).
   public func get_block_headers(start_height : Nat32, end_height : ?Nat32) : async {
@@ -105,12 +97,32 @@ actor class BasicBitcoin(network : Types.Network) {
     });
   };
 
-  func p2pkhDerivationPath() : [[Nat8]] {
-    derivationPathWithSuffix("p2pkh");
+  /// Returns a summary of the current Bitcoin blockchain state tracked by the
+  /// Bitcoin canister: tip height, tip block hash, timestamp, difficulty, and
+  /// UTXO set size.
+  public func get_blockchain_info() : async {
+    height : Nat32;
+    block_hash : Blob;
+    timestamp : Nat32;
+    difficulty : Nat;
+    utxos_length : Nat64;
+  } {
+    // Inline actor type matches the Bitcoin canister Candid directly.
+    // The Bitcoin canister is accessed via the management canister principal.
+    let bitcoin_actor : actor {
+      get_blockchain_info : () -> async {
+        height : Nat32;
+        block_hash : Blob;
+        timestamp : Nat32;
+        difficulty : Nat;
+        utxos_length : Nat64;
+      };
+    } = actor ("aaaaa-aa");
+    await bitcoin_actor.get_blockchain_info();
   };
 
-  func p2wpkhDerivationPath() : [[Nat8]] {
-    derivationPathWithSuffix("p2wpkh");
+  func p2pkhDerivationPath() : [[Nat8]] {
+    derivationPathWithSuffix("p2pkh");
   };
 
   func p2trKeyOnlyDerivationPath() : [[Nat8]] {
