@@ -10,6 +10,7 @@ For a deeper understanding of the ICP ↔ Bitcoin integration, see the [Bitcoin 
 
 - Node.js
 - icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- ic-mops: `npm install -g ic-mops`
 - Docker (required for local testing — bundles the IC network launcher + `bitcoind`)
 
 ### Install
