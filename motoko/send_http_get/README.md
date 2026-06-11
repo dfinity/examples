@@ -2,6 +2,8 @@
 
 This example demonstrates how to use the Internet Computer's HTTPS outcalls feature to make a `GET` request from a Motoko canister. It sends a request to `postman-echo.com` and returns the echoed JSON response, showing how to pass query parameters and headers through HTTP outcalls.
 
+For a deeper understanding of HTTPS outcalls on the IC, see the [HTTPS outcalls documentation](https://docs.internetcomputer.org/concepts/https-outcalls).
+
 ## Build and deploy from the command line
 
 ### Prerequisites
