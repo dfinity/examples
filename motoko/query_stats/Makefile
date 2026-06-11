@@ -32,11 +32,11 @@ test-stats:
 	@for i in $$(seq 1 13); do \
 	  icp canister call --query backend load '()' > /dev/null; \
 	done
-	@echo "=== Waiting for 2-epoch aggregation (up to 60s) ==="
-	@# Each epoch = 60 blocks; auto-progress advances blocks every 100ms minimum.
-	@# On slower machines each block may take 150-200ms: 120 blocks × 200ms = 24s worst case.
+	@echo "=== Waiting for 2-epoch aggregation (up to 30s) ==="
+	@# Each epoch = 60 blocks; auto-progress advances ~100ms/block.
+	@# 120 blocks minimum; 30s gives margin for slower machines.
 	@secs=0; \
-	while [ $$secs -lt 60 ]; do \
+	while [ $$secs -lt 30 ]; do \
 	  result=$$(icp canister call backend get_current_query_stats_as_string '()'); \
 	  echo "$$result" | grep -qE 'Number of calls: [1-9]' && \
 	    echo "$$result" && echo "PASS: query stats are non-zero (after ~$${secs}s)" && exit 0; \
@@ -45,4 +45,4 @@ test-stats:
 	done; \
 	result=$$(icp canister call backend get_current_query_stats_as_string '()'); \
 	echo "$$result"; \
-	echo "FAIL: stats still 0 after 60s" && exit 1
+	echo "FAIL: stats still 0 after 30s" && exit 1
