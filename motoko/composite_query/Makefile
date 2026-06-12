@@ -1,30 +1,39 @@
-.PHONY: all
-all: build
+.PHONY: test topup
 
-.PHONY: build
-.SILENT: build
-build:
-	dfx canister create --all --no-wallet
-	dfx build
+topup:
+	icp canister top-up --amount 30t backend
 
-.PHONY: install
-.SILENT: install
-install: build
-	dfx canister install --all
+test:
+	@echo "=== Test 1: put inserts a key-value pair ==="
+	@result=$$(icp canister call backend put '(0, "hello")') && \
+	  echo "$$result" && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
 
-.PHONY: upgrade
-.SILENT: upgrade
-upgrade: build
-	dfx canister install --all --mode=upgrade
+	@echo "=== Test 2: get (composite query) returns the stored value ==="
+	@result=$$(icp canister call backend get '(0)') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'opt "hello"' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
 
-.PHONY: test
-.SILENT: test
-test: install
-	dfx canister call Map test '()'
-	dfx canister call --query Map get '(15)' \
-		| grep '(opt "15")' && echo 'PASS'
+	@echo "=== Test 3: getUpdate returns the stored value ==="
+	@result=$$(icp canister call backend getUpdate '(0)') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'opt "hello"' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
 
-.PHONY: clean
-.SILENT: clean
-clean:
-	rm -fr .dfx
+	@echo "=== Test 4: get returns null for a missing key ==="
+	@result=$$(icp canister call backend get '(1)') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'null' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 5: put multiple entries and verify distribution across buckets ==="
+	@icp canister call backend put '(4, "four")' && \
+	  icp canister call backend put '(8, "eight")' && \
+	  result=$$(icp canister call backend get '(4)') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'opt "four"' && \
+	  result2=$$(icp canister call backend get '(8)') && \
+	  echo "$$result2" && \
+	  echo "$$result2" | grep -q 'opt "eight"' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
