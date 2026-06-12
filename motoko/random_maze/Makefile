@@ -1,34 +1,20 @@
-.PHONY: all
-all: build
-
-.PHONY: node_modules
-.SILENT: node_modules
-node_modules:
-	npm install
-
-.PHONY: build
-.SILENT: build
-build: node_modules
-	dfx canister create --all
-	dfx build
-
-.PHONY: install
-.SILENT: install
-install: build
-	dfx canister install --all
-
-.PHONY: upgrade
-.SILENT: upgrade
-upgrade: build
-	dfx canister install --all --mode=upgrade
-
 .PHONY: test
-.SILENT: test
-test: install
-	dfx canister call random_maze generate '(8)' | grep '🟥' && echo 'PASS'
 
-.PHONY: clean
-.SILENT: clean
-clean:
-	rm -fr .dfx
-	rm -fr node_modules
+test:
+	@echo "=== Test 1: generate returns a maze string with wall characters ==="
+	@result=$$(icp canister call backend generate '(8)') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q '🟥' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 2: generate with size 1 returns a minimal maze ==="
+	@result=$$(icp canister call backend generate '(1)') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q '🟥' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 3: generate with size 16 returns a larger maze ==="
+	@result=$$(icp canister call backend generate '(16)') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q '🟥' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)

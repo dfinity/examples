@@ -13,7 +13,7 @@ import Random "mo:core/Random";
 ///   automatically fetches more entropy from the management canister when needed; and
 /// * generating bounded discrete random numbers using `await* random.natRange()`.
 
-persistent actor {
+actor {
 
   type Maze = [[var Nat8]];
 

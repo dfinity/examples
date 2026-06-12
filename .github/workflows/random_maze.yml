@@ -1,0 +1,28 @@
+name: random_maze
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    paths:
+      - motoko/random_maze/**
+      - .github/workflows/random_maze.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  motoko-random_maze:
+    runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-motoko:0.3.2
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy and test
+        working-directory: motoko/random_maze
+        run: |
+          icp network start -d
+          icp deploy
+          make test
