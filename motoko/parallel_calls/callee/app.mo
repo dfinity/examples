@@ -1,3 +1,3 @@
-persistent actor {
+actor {
     public func ping() : async () {};
 };
