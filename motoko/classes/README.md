@@ -1,42 +1,45 @@
-# Classes
+# Motoko Actor Classes
 
-This example demonstrates a simple use of actor classes, allowing a program to dynamically install new actors (that is, canisters). It also demonstrates a multi-canister project, and actors using inter-actor communication through shared functions.
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/classes)
 
-The example defines two Motoko actors, `Map` and `Test`.
+## Overview
 
-Map is a simple, distributed key-value store, mapping `Nat` to `Text` values, with entries stored in a small number of separate Bucket actors, installed on demand.
+This example demonstrates a simple use of actor classes, allowing a program to dynamically install new actors (canisters) at runtime. It implements a distributed key-value store that maps `Nat` to `Text` values, with entries spread across a small number of separately deployed `Bucket` actor-class canisters created on demand.
 
-`Map.mo` imports a Motoko actor class `Bucket(i, n)` from the library `Buckets.mo`. It also imports `mo:core/Cycles` to share its cycles amongst the buckets it creates.
+## Build and deploy from the command line
 
-Each call to `Buckets.Bucket(n, i)` within Map instantiates a new Bucket instance (the i-th of n) dedicated to those entries of the Map whose key hashes to i (by taking the remainder of the key modulo division by n).
+### Prerequisites
 
-Each asynchronous instantiation of the Bucket actor class corresponds to the dynamic, programmatic installation of a new Bucket canister.
+- [Node.js](https://nodejs.org)
+- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- ic-mops: `npm install -g ic-mops`
 
-Each new Bucket must be provisioned with enough cycles to pay for its installation and running costs. Map achieves this by attaching an equal share of Map's initial cycle balance to each asynchronous call to `Bucket(n, i)`, using the syntax `await (with cycles = cycleShare) Buckets.Bucket(n, i)`.
+### Install
 
-The `Test.mo` actor imports the (installed) `Map` canister, using `Maps` Candid interface to determine its Motoko type. `Test`'s run method simply puts 24 consecutive entries into Map. These entries are distributed evenly amongst the buckets making up the key-value store. Adding the first entry to a bucket take longer than adding a subsequent one, since the bucket needs to be installed on first use.
-
-This application's logic is written in [Motoko](https://internetcomputer.org/docs/motoko/home), a programming language designed specifically for developing canisters on ICP.
-
-## Deploying from ICP Ninja
-
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/motoko/classes)
-
-## Build and deploy from the command-line
-
-### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
-
-### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
-
-### 3. Navigate into the project's directory.
-
-### 4. Deploy the project to your local environment:
-
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/motoko/classes
 ```
-dfx start --background --clean && dfx deploy
+
+### Deploy and test
+
+```bash
+icp network start -d
+icp deploy --cycles 30t
+make test
+icp network stop
+```
+
+The `--cycles 30t` flag funds the backend canister with 30 trillion cycles so it can forward cycles when dynamically creating `Bucket` child canisters.
+
+> If tests fail with an out-of-cycles error, run `make topup` to add 30 trillion cycles to the backend canister and retry.
+
+## Updating the Candid interface
+
+```bash
+$(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo
 ```
 
 ## Security considerations and best practices
 
-If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
-
+Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app.
