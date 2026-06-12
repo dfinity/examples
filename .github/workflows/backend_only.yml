@@ -1,0 +1,43 @@
+name: backend_only
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    paths:
+      - motoko/backend_only/**
+      - rust/backend_only/**
+      - .github/workflows/backend_only.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  motoko-backend_only:
+    runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-motoko:0.3.2
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy and test
+        working-directory: motoko/backend_only
+        run: |
+          icp network start -d
+          icp deploy
+          make test
+
+  rust-backend_only:
+    runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-rust:0.3.2
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy and test
+        working-directory: rust/backend_only
+        run: |
+          icp network start -d
+          icp deploy
+          make test
