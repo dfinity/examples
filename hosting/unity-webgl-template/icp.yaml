@@ -6,5 +6,5 @@ canisters:
         dir: dist
         build:
           - mkdir -p dist
-          - cp -r src/unity_webgl_template_assets/assets/* dist/
-          - cp -r src/unity_webgl_template_assets/src/* dist/
+          - cp -r frontend/assets/* dist/
+          - cp frontend/index.html dist/
