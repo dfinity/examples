@@ -1,15 +1,15 @@
 // Subscriber
 
-import Publisher "canister:pub";
+import Publisher "canister:backend";
 
-persistent actor Subscriber {
+actor Subscriber {
 
   type Counter = {
     topic : Text;
     value : Nat;
   };
 
-  var count: Nat = 0;
+  var count : Nat = 0;
 
   public func init(topic0 : Text) {
     Publisher.subscribe({

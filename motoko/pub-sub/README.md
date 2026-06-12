@@ -1,27 +1,41 @@
 # PubSub
 
-This sample project demonstrates how functions may be passed as arguments of inter-canister calls to be used as callbacks.
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/pub-sub)
 
-A common problem in both distributed and decentralized systems is keeping separate services (or canisters) synchronized with one another. While there are many potential solutions to this problem, a popular one is the publisher/subscriber pattern or "PubSub". PubSub is an especially valuable pattern on the Internet Computer as its primary drawback, message delivery failures, does not apply.
+## Overview
 
-## Deploying from ICP Ninja
+This example demonstrates the publisher/subscriber pattern across two canisters on the Internet Computer. It shows how shared function references can be passed as callbacks in inter-canister calls, enabling a publisher canister to notify subscriber canisters whenever a message is published to a subscribed topic. Because ICP guarantees message delivery, the primary drawback of PubSub in distributed systems does not apply here.
 
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/motoko/pub-sub)
+## Build and deploy from the command line
 
-## Build and deploy from the command-line
+### Prerequisites
 
-### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
+- Node.js
+- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- ic-mops: `npm install -g ic-mops`
 
-### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
+### Install
 
-### 3. Navigate into the project's directory.
-
-### 4. Deploy the project to your local environment:
-
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/motoko/pub-sub
 ```
-dfx start --background --clean && dfx deploy
+
+### Deploy and test
+
+```bash
+icp network start -d
+icp deploy
+make test
+icp network stop
+```
+
+## Updating the Candid interface
+
+```bash
+$(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo
 ```
 
 ## Security considerations and best practices
 
-If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
+Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app.

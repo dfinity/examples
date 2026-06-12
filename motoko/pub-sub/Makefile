@@ -1,38 +1,28 @@
-.PHONY: all
-all: build
-
-.PHONY: build
-.SILENT: build
-build:
-	dfx canister create --all
-	dfx build
-
-.PHONY: install
-.SILENT: install
-install: build
-	dfx canister install --all
-
-.PHONY: upgrade
-.SILENT: upgrade
-upgrade: build
-	dfx canister install --all --mode=upgrade
-
 .PHONY: test
-.SILENT: test
-test: install
-	dfx canister call sub init '("Apples")'
-	dfx canister call sub getCount \
-		| grep '(0 : nat)' && echo 'PASS'
-	dfx canister call pub publish '(record { "topic" = "Apples"; "value" = 2 })'
-	sleep 2 # Wait for update.
-	dfx canister call sub getCount \
-		| grep '(2 : nat)' && echo 'PASS'
-	dfx canister call pub publish '(record { "topic" = "Bananas"; "value" = 3 })'
-	sleep 2 # Wait for update.
-	dfx canister call sub getCount \
-		| grep '(2 : nat)' && echo 'PASS'
 
-.PHONY: clean
-.SILENT: clean
-clean:
-	rm -fr .dfx
+test:
+	@echo "=== Test 1: subscriber initializes and registers with publisher ==="
+	@icp canister call subscriber init '("Apples")' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 2: initial count is zero ==="
+	@result=$$(icp canister call subscriber getCount '()') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q '(0 : nat)' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 3: publish to subscribed topic increases count ==="
+	@icp canister call backend publish '(record { topic = "Apples"; value = 2 })' && \
+	  sleep 2 && \
+	  result=$$(icp canister call subscriber getCount '()') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q '(2 : nat)' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 4: publish to different topic does not increase count ==="
+	@icp canister call backend publish '(record { topic = "Bananas"; value = 3 })' && \
+	  sleep 2 && \
+	  result=$$(icp canister call subscriber getCount '()') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q '(2 : nat)' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)

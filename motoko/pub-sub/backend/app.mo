@@ -1,7 +1,7 @@
 // Publisher
 import Array "mo:core/Array";
 
-persistent actor Publisher {
+actor Publisher {
 
   type Counter = {
     topic : Text;
