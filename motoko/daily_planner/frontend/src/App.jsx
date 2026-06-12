@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../index.css';
-import { backend } from 'declarations/backend';
+import { backend } from './actor';
 
 const App = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -38,10 +38,10 @@ const App = () => {
 
   const renderDayDetail = async () => {
     showLoading();
-    const dateString = `${selectedDate.getFullYear()}-${selectedDate.getMonth() + 1}-${selectedDate.getDate()}`;
+    const dateString = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
     try {
       const data = await backend.getDayData(dateString);
-      setDayDetail(data?.length > 0 ? data[0] : { notes: [], onThisDay: null });
+      setDayDetail(data ?? { notes: [], onThisDay: null });
     } catch (error) {
       console.error('Error rendering day detail:', error);
     }
@@ -51,10 +51,10 @@ const App = () => {
   const handleFetchOnThisDay = async () => {
     showLoading();
     try {
-      const dateString = `${selectedDate.getFullYear()}-${selectedDate.getMonth() + 1}-${selectedDate.getDate()}`;
+      const dateString = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
       const result = await backend.fetchAndStoreOnThisDay(dateString);
       console.log(result);
-      renderDayDetail();
+      await renderDayDetail();
     } catch (error) {
       console.error('Error fetching On This Day data:', error);
     }
@@ -72,7 +72,7 @@ const App = () => {
 
   const handleCompleteNote = async (noteId) => {
     showLoading();
-    const dateString = `${selectedDate.getFullYear()}-${selectedDate.getMonth() + 1}-${selectedDate.getDate()}`;
+    const dateString = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
     try {
       await backend.completeNote(dateString, noteId);
       await renderDayDetail();
@@ -89,7 +89,7 @@ const App = () => {
     const content = newNoteContent.trim();
     if (content && selectedDate >= new Date(new Date().setHours(0, 0, 0, 0))) {
       showLoading();
-      const dateString = `${selectedDate.getFullYear()}-${selectedDate.getMonth() + 1}-${selectedDate.getDate()}`;
+      const dateString = `${selectedDate.getFullYear()}-${String(selectedDate.getMonth() + 1).padStart(2, '0')}-${String(selectedDate.getDate()).padStart(2, '0')}`;
       try {
         await backend.addNote(dateString, content);
         setNewNoteContent('');
@@ -147,12 +147,12 @@ const App = () => {
         <h2>{selectedDate.toLocaleDateString()}</h2>
         <div className="on-this-day">
           <h3>On This Day</h3>
-          {onThisDay && onThisDay.length > 0 ? (
+          {onThisDay ? (
             <div>
               <p>
-                {onThisDay[0].title || 'No title'} ({onThisDay[0].year?.toString() || 'No year'})
+                {onThisDay.title || 'No title'} ({onThisDay.year?.toString() || 'No year'})
               </p>
-              <a href={onThisDay[0].wikiLink || '#'} target="_blank" rel="noopener noreferrer">
+              <a href={onThisDay.wikiLink || '#'} target="_blank" rel="noopener noreferrer">
                 Read more
               </a>
             </div>

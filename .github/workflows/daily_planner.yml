@@ -1,0 +1,29 @@
+name: daily_planner
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - motoko/daily_planner/**
+      - .github/workflows/daily_planner.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  motoko-daily_planner:
+    runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-motoko:0.3.2
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy and test
+        working-directory: motoko/daily_planner
+        run: |
+          icp network start -d
+          icp deploy
+          make test
