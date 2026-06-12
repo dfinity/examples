@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import Ninja from './Ninja';
 import Pipes from './Pipes';
 import Score from './Score';
@@ -25,7 +25,7 @@ class SeededRNG {
     s1 ^= s0;
     s1 ^= s0 >> 26;
     this.state1 = s1;
-    return (s0 + s1) / 4294967296; // This already returns a number between 0 and 1
+    return (s0 + s1) / 4294967296;
   }
 }
 
@@ -39,7 +39,6 @@ const Game = () => {
   const [rng, setRng] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
 
-  // Add this function to fetch the leaderboard
   const fetchLeaderboard = async () => {
     try {
       const entries = await backend.getLeaderboard();
@@ -49,17 +48,12 @@ const Game = () => {
     }
   };
 
-  // this is run once when the page is loaded
   useEffect(() => {
     const initialize = async () => {
       try {
-        // fetch the leaderboard
         await fetchLeaderboard();
-        // initialize the seed with randomness from the internet computer
         const randomness = await backend.getRandomness();
         const seed = new Uint8Array(randomness);
-
-        // create a new SeededRNG with the first 8 bytes of the seed
         setRng(new SeededRNG(seed.slice(0, 8)));
       } catch (error) {
         console.error('Failed to initialize seed:', error);
@@ -78,12 +72,27 @@ const Game = () => {
   const [showNameInput, setShowNameInput] = useState(false);
   const [playerName, setPlayerName] = useState('');
 
+  // Refs hold the current values used inside the game loop interval so that
+  // the effect does not need to re-run (and re-create the interval) on every
+  // frame. Without refs, the dep array would include frame-level state and
+  // React 18 StrictMode's double-invocation would register two intervals,
+  // causing the score to increment by 2 per gate in development.
+  const ninjaYRef = useRef(ninjaStartY);
+  const ninjaVelocityRef = useRef(0);
+  const pipeXRef = useRef(pipeStartX);
+  const gapPositionRef = useRef(100);
+  const scoreRef = useRef(0);
+
   const startGame = () => {
-    setGameState('playing');
     resetGame();
   };
 
   const resetGame = () => {
+    ninjaYRef.current = ninjaStartY;
+    ninjaVelocityRef.current = 0;
+    pipeXRef.current = pipeStartX;
+    gapPositionRef.current = 100;
+    scoreRef.current = 0;
     setNinjaY(ninjaStartY);
     setNinjaVelocity(0);
     setPipeX(pipeStartX);
@@ -92,20 +101,15 @@ const Game = () => {
     setGameState('playing');
   };
 
-  // Handle gravity and ninja movement
   useEffect(() => {
     const handleInteraction = () => {
       if (gameState === 'playing') {
+        ninjaVelocityRef.current = jumpHeight;
         setNinjaVelocity(jumpHeight);
       }
     };
 
-    window.addEventListener('keypress', (event) => {
-      if (event.key === ' ' && gameState === 'playing') {
-        setNinjaVelocity(jumpHeight);
-      }
-    });
-
+    window.addEventListener('keypress', handleInteraction);
     window.addEventListener('touchstart', handleInteraction);
     window.addEventListener('mousedown', handleInteraction);
 
@@ -121,24 +125,36 @@ const Game = () => {
 
     if (gameState === 'playing' && rng) {
       gameLoop = setInterval(() => {
-        setNinjaY((prevY) => Math.min(prevY + ninjaVelocity, window.innerHeight - 10));
-        setNinjaVelocity((prevVelocity) => prevVelocity + gravity);
+        // Update ninja position
+        const newY = Math.min(ninjaYRef.current + ninjaVelocityRef.current, window.innerHeight - 10);
+        ninjaYRef.current = newY;
+        setNinjaY(newY);
 
-        setPipeX((prevX) => {
-          if (prevX < -5) {
-            // rng.next() already returns a number between 0 and 1
-            setGapPosition(rng.next() * (window.innerHeight - gapHeight));
-            setScore((prevScore) => prevScore + 1);
-            return window.innerWidth + 5;
-          }
-          return prevX - 5;
-        });
+        const newVelocity = ninjaVelocityRef.current + gravity;
+        ninjaVelocityRef.current = newVelocity;
+        setNinjaVelocity(newVelocity);
+
+        // Update pipe position
+        let newPipeX = pipeXRef.current - 5;
+        if (newPipeX < -5) {
+          const newGap = rng.next() * (window.innerHeight - gapHeight);
+          gapPositionRef.current = newGap;
+          setGapPosition(newGap);
+          scoreRef.current += 1;
+          setScore(scoreRef.current);
+          newPipeX = window.innerWidth + 5;
+        }
+        pipeXRef.current = newPipeX;
+        setPipeX(newPipeX);
 
         // Collision detection
         if (
-          ninjaY < 0 ||
-          ninjaY + 30 >= window.innerHeight ||
-          (pipeX < 130 && pipeX > 80 && (ninjaY < gapPosition || ninjaY > gapPosition + gapHeight))
+          ninjaYRef.current < 0 ||
+          ninjaYRef.current + 30 >= window.innerHeight ||
+          (pipeXRef.current < 130 &&
+            pipeXRef.current > 80 &&
+            (ninjaYRef.current < gapPositionRef.current ||
+              ninjaYRef.current > gapPositionRef.current + gapHeight))
         ) {
           setGameState('gameOver');
           checkHighScore();
@@ -147,10 +163,10 @@ const Game = () => {
     }
 
     return () => clearInterval(gameLoop);
-  }, [ninjaY, ninjaVelocity, pipeX, gapPosition, gameState, rng]);
+  }, [gameState, rng]);
 
   const checkHighScore = async () => {
-    const isHighScore = await backend.isHighScore(BigInt(score));
+    const isHighScore = await backend.isHighScore(BigInt(scoreRef.current));
     console.log('isHighScore', isHighScore);
     if (isHighScore) {
       setShowNameInput(true);
@@ -159,10 +175,10 @@ const Game = () => {
 
   const submitScore = async () => {
     if (playerName.trim() !== '') {
-      await backend.addLeaderboardEntry(playerName, BigInt(score));
+      await backend.addLeaderboardEntry(playerName, BigInt(scoreRef.current));
       setShowNameInput(false);
       setGameState('gameOver');
-      await fetchLeaderboard(); // update the leaderboard
+      await fetchLeaderboard();
     }
   };
 
