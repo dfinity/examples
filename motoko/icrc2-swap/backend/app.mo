@@ -5,7 +5,7 @@ import Principal "mo:core/Principal";
 import Result "mo:core/Result";
 import Runtime "mo:core/Runtime";
 
-import ICRC "./ICRC";
+import ICRC "ICRC";
 
 // The swap canister is the main backend canister for this example. To simplify
 // this example we configure the swap canister with the two tokens it will be

@@ -1,325 +1,64 @@
-# ICRC-2 swap
+# ICRC-2 Swap
 
-ICRC-2 Swap is a simple canister demonstrating how to safely work with ICRC-2
-tokens. It handles depositing, swapping, and withdrawing ICRC-2 tokens.
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/icrc2-swap)
 
-The asynchronous nature of developing on the Internet Computer presents some
-unique challenges, which means the design patterns for inter-canister calls are
-different from other synchronous blockchains.
+## Overview
 
-## Features
+This example demonstrates how to safely work with ICRC-2 tokens on the Internet Computer. The swap canister handles depositing, swapping, and withdrawing ICRC-2 tokens using a simple 1:1 swap mechanism, illustrating correct design patterns for inter-canister calls in an asynchronous environment.
 
-- **Deposit Tokens**: Users can deposit tokens into the contract to be ready for
-  swapping.
-- **Swap Tokens**: Users can swap the tokens for each other. This is implemented
-  in a very simple naive 1:1 manner. The point is just to demonstrate some
-  minimal behavior.
-- **Withdraw Tokens**: Users can withdraw the resulting tokens after
-  swapping.
+The asynchronous nature of the Internet Computer presents unique challenges compared to synchronous blockchains. This example highlights:
 
-## Local deployment
+- **Deposit Tokens**: Users approve the swap canister to transfer tokens on their behalf (ICRC-2 `approve`), then call `deposit` to move tokens into the swap canister.
+- **Swap Tokens**: Users swap their token balances 1:1. The `swap` function executes atomically (no `await` calls) to ensure consistency.
+- **Withdraw Tokens**: Users withdraw their resulting token balances back to their wallet.
 
-## Prerequisites
-This example requires an installation of:
+## Build and deploy from the command line
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
-- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+### Prerequisites
 
-Begin by opening a terminal window.
+- Node.js
+- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
-### Step 1: Setup the project environment
-
-Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
+### Install
 
 ```bash
+git clone https://github.com/dfinity/examples
 cd examples/motoko/icrc2-swap
-dfx start --background
 ```
 
-### Step 2: Create your user accounts
+### Deploy and test
 
 ```bash
-export OWNER=$(dfx identity get-principal)
-
-dfx identity new alice
-export ALICE=$(dfx identity get-principal --identity alice)
-
-dfx identity new bob
-export BOB=$(dfx identity get-principal --identity bob)
-```
-
-### Step 3: Deploy two tokens
-
-Deploy Token A:
-
-```bash
-cd examples/motoko/icrc2-swap
-dfx deploy token_a --argument '
-  (variant {
-    Init = record {
-      token_name = "Token A";
-      token_symbol = "A";
-      minting_account = record {
-        owner = principal "'${OWNER}'";
-      };
-      initial_balances = vec {
-        record {
-          record {
-            owner = principal "'${ALICE}'";
-          };
-          100_000_000_000;
-        };
-      };
-      metadata = vec {};
-      transfer_fee = 10_000;
-      archive_options = record {
-        trigger_threshold = 2000;
-        num_blocks_to_archive = 1000;
-        controller_id = principal "'${OWNER}'";
-      };
-      feature_flags = opt record {
-        icrc2 = true;
-      };
-    }
-  })
-'
-```
-
-Deploy Token B:
-
-```bash
-dfx deploy token_b --argument '
-  (variant {
-    Init = record {
-      token_name = "Token B";
-      token_symbol = "B";
-      minting_account = record {
-        owner = principal "'${OWNER}'";
-      };
-      initial_balances = vec {
-        record {
-          record {
-            owner = principal "'${BOB}'";
-          };
-          100_000_000_000;
-        };
-      };
-      metadata = vec {};
-      transfer_fee = 10_000;
-      archive_options = record {
-        trigger_threshold = 2000;
-        num_blocks_to_archive = 1000;
-        controller_id = principal "'${OWNER}'";
-      };
-      feature_flags = opt record {
-        icrc2 = true;
-      };
-    }
-  })
-'
-```
-
-### Step 4: Deploy the swap canister
-
-The swap canister accepts deposits and performs the swap.
-
-```bash
-export TOKEN_A=$(dfx canister id token_a)
-export TOKEN_B=$(dfx canister id token_b)
-
-dfx deploy swap --argument '
-  record {
-    token_a = (principal "'${TOKEN_A}'");
-    token_b = (principal "'${TOKEN_B}'");
-  }
-'
-
-export SWAP=$(dfx canister id swap)
-```
-
-### Step 5: Approve & deposit tokens
-
-Before you can swap the tokens, they must be transferred to the swap canister.
-With ICRC-2, this is a two-step process. First, approve the transfer:
-
-```bash
-# Approve Bob to deposit 1.00000000 of Token B, and 0.0001 extra for the
-# transfer fee
-dfx canister call --identity alice token_a icrc2_approve '
-  record {
-    amount = 100_010_000;
-    spender = record {
-      owner = principal "'${SWAP}'";
-    };
-  }
-'
-
-# Approve Bob to deposit 1.00000000 of Token B, and 0.0001 extra for the
-# transfer fee
-dfx canister call --identity bob token_b icrc2_approve '
-  record {
-    amount = 100_010_000;
-    spender = record {
-      owner = principal "'${SWAP}'";
-    };
-  }
-'
-```
-
-Then call the `swap` canister's `deposit` method. This method will do the
-actual ICRC-1 token transfer, to move the tokens from your wallet into the `swap`
-canister, and then update your deposited token balance in the `swap` canister.
-
-:::info
-The amounts you use here are denoted in "e8s". Since your token has 8
-decimal places, you write out all 8 decimal places. So 1.00000000 becomes
-100,000,000.
-:::
-
-```bash
-# Deposit Alice's tokens
-dfx canister call --identity alice swap deposit 'record {
-  token = principal "'${TOKEN_A}'";
-  from = record {
-    owner = principal "'${ALICE}'";
-  };
-  amount = 100_000_000;
-}'
-
-# Deposit Bob's tokens
-dfx canister call --identity bob swap deposit 'record {
-  token = principal "'${TOKEN_B}'";
-  from = record {
-    owner = principal "'${BOB}'";
-  };
-  amount = 100_000_000;
-}'
-```
-
-### Step 6: Perform a swap
-
-```bash
-dfx canister call swap swap 'record {
-  user_a = principal "'${ALICE}'";
-  user_b = principal "'${BOB}'";
-}'
-```
-
-You can check the deposited balances with:
-
-```bash
-dfx canister call swap balances
-```
-
-That should show us that now Bob holds Token A, and Alice holds Token B in
-the swap contract.
-
-### Step 7: Withdraw tokens
-
-After the swap, your balances in the swap canister will have been updated, and you
-can withdraw your newly received tokens into your wallet.
-
-```bash
-# Withdraw Alice's Token B balance (1.00000000), minus the 0.0001 transfer fee
-dfx canister call --identity alice swap withdraw 'record {
-  token = principal "'${TOKEN_B}'";
-  to = record {
-    owner = principal "'${ALICE}'";
-  };
-  amount = 99_990_000;
-}'
-```
-
-```bash
-# Withdraw Bob's Token A balance (1.00000000), minus the 0.0001 transfer fee
-dfx canister call --identity bob swap withdraw 'record {
-  token = principal "'${TOKEN_A}'";
-  to = record {
-    owner = principal "'${BOB}'";
-  };
-  amount = 99_990_000;
-}'
-```
-
-### Step 8: Check token balances
-
-```bash
-# Check Alice's Token A balance. They should now have 998.99980000 A
-dfx canister call token_a icrc1_balance_of 'record {
-  owner = principal "'${ALICE}'";
-}'
-
-# Check Bob's Token A balance, They should now have 0.99990000 A.
-dfx canister call token_a icrc1_balance_of 'record {
-  owner = principal "'${BOB}'";
-}'
-```
-
-If everything is working, you should see your dfx wallet balances reflected in
-the token balances.
-
-🎉
-
-## Running the test suite
-
-The example comes with a test suite to demonstrate the basic functionality. It
-shows how to use this repo from a Javascript client.
-
-## Prerequisites
-This example requires an installation of:
-
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
-- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
-
-Begin by opening a terminal window.
-
-### Step 1: Setup the project environment
-
-Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
-
-
-```bash
-cd examples/motoko/icrc2-swap
-dfx start --background
-```
-
-### Step 2: Install npm dependencies
-
-```bash
-npm install
-```
-
-### Step 3: Run the test suite
-
-```bash
+icp network start -d
+make deploy
 make test
+icp network stop
 ```
 
-## Possible improvements
+The `make deploy` target:
+1. Deploys the two ICRC-1/ICRC-2 token ledger canisters (`token_a` and `token_b`) with the current identity as the minting account.
+2. Deploys the `backend` (swap) canister with the token canister IDs as init args.
 
-- Keep a history of deposits/withdrawals/swaps.
-- Add a frontend.
+## Architecture
 
-## Known issues
+This example uses three canisters:
 
-- Any DeFi on the Internet Computer is experimental. It is a constantly evolving
-  space, with unknown attacks, and should be treated as such.
-- Due to the nature of asynchronous inter-canister messaging on the IC, it is possible for
-  malicious token canisters to cause this swap contract to deadlock. It should
-  only be used with trusted token canisters.
-- Currently, there are no limits on the state size of this canister. This could
-  allow malicious users to spam the canister, bloating the size until it runs
-  out of space. However, the only way to increase the size is to call `deposit`,
-  which would cost tokens. For a real canister, you should calculate the maximum
-  size of your canister, limit it to a reasonable amount, and monitor the
-  current size to know when to re-architect.
-- **Async Bug Trap**. The ICRC-2 swap implementation in this repository contains potential bug traps related to async calls. For example, the `deposit` function calls `icrc2_transfer_from`, but there is no guarantee that the callback code will execute correctly once the call succeeds. This can happen if the canister runs out of cycles or due to other side effects in the Internet Computer environment. To properly address these types of issues, for example by implemeting journaling, please refer to the [inter-canister calls security best practices](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/inter-canister-calls).
+- **token_a** / **token_b**: Standard ICRC-1/ICRC-2 ledger canisters (pre-built from the DFINITY IC release).
+- **backend**: The swap canister (`backend/app.mo`). Accepts deposits from both token ledgers, performs 1:1 swaps between users, and allows withdrawals.
 
-## Contributing
+## Updating the Candid interface
 
-Contributions are welcome! Please open an issue or submit a pull request.
+```bash
+$(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo
+```
 
-## Author
+## Known issues and limitations
 
-- [0xAegir@protonmail.com](mailto:0xAegir@protonmail.com)
-- Twitter: [@0xAegir](https://twitter.com/0xAegir)
+- Any DeFi on the Internet Computer is experimental and should be treated as such.
+- Due to asynchronous inter-canister messaging, malicious token canisters could cause this swap contract to deadlock. Only use with trusted token canisters.
+- There are no limits on the state size of this canister. For a production canister, calculate and enforce a maximum state size.
+- **Async Bug Trap**: The `deposit` function calls `icrc2_transfer_from`, but there is no guarantee that the callback will execute correctly if the canister runs out of cycles or encounters other side effects. To address these issues, refer to the [inter-canister calls security best practices](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/inter-canister-calls).
+
+## Security considerations and best practices
+
+When building production applications, review the [ICP security best practices](https://docs.internetcomputer.org/guides/security/overview).
