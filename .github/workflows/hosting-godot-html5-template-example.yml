@@ -1,19 +1,19 @@
-name: hosting-photo-storage
+name: hosting-godot-html5-template
 
 on:
   push:
     branches: [master]
   pull_request:
     paths:
-      - hosting/photo-storage/**
-      - .github/workflows/hosting-photo-storage-example.yml
+      - hosting/godot-html5-template/**
+      - .github/workflows/hosting-godot-html5-template-example.yml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  hosting-photo-storage:
+  hosting-godot-html5-template:
     runs-on: ubuntu-24.04
     container: ghcr.io/dfinity/icp-dev-env-all:0.3.2
     env:
@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - name: Deploy
-        working-directory: hosting/photo-storage
+        working-directory: hosting/godot-html5-template
         run: |
           icp network start -d
           icp deploy

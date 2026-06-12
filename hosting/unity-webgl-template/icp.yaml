@@ -1,10 +1,10 @@
 canisters:
-  - name: unity_webgl_template_assets
+  - name: frontend
     recipe:
-      type: "@dfinity/asset-canister@v2.1.0"
+      type: "@dfinity/asset-canister@v2.2.1"
       configuration:
         dir: dist
         build:
           - mkdir -p dist
-          - cp -r src/unity_webgl_template_assets/assets/* dist/
-          - cp -r src/unity_webgl_template_assets/src/* dist/
+          - cp -r frontend/assets/* dist/
+          - cp frontend/index.html dist/

@@ -1,48 +1,27 @@
 name: hosting-unity-webgl
+
 on:
   push:
-    branches:
-      - master
+    branches: [master]
   pull_request:
     paths:
       - hosting/unity-webgl-template/**
-      - .github/workflows/provision-darwin.sh
-      - .github/workflows/provision-linux.sh
       - .github/workflows/hosting-unity-webgl-example.yaml
-      - .ic-commit
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
+
 jobs:
-  hosting-unity-webgl-darwin:
-    runs-on: macos-15
-    steps:
-      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
-      - name: Provision Darwin
-        run: bash .github/workflows/provision-darwin.sh
-      - name: Pre-download network launcher
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash .github/workflows/pre-download-launcher.sh
-      - name: Hosting Unity Webgl Darwin
-        run: |
-          pushd hosting/unity-webgl-template
-          icp network start -d
-          icp deploy
-          popd
-  hosting-unity-webgl-linux:
+  hosting-unity-webgl:
     runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-all:0.3.2
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
-      - uses: actions/checkout@50fbc622fc4ef5163becd7fab6573eac35f8462e # v1.2.0
-      - name: Provision Linux
-        run: bash .github/workflows/provision-linux.sh
-      - name: Pre-download network launcher
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: bash .github/workflows/pre-download-launcher.sh
-      - name: Hosting Unity Webgl Linux
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy
+        working-directory: hosting/unity-webgl-template
         run: |
-          pushd hosting/unity-webgl-template
           icp network start -d
           icp deploy
-          popd
