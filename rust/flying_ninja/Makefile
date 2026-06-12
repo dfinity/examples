@@ -1,8 +1,8 @@
 .PHONY: test
 
 test:
-	@echo "=== Test 1/4: is_high_score returns true when leaderboard is empty ==="
-	@result=$$(icp canister call backend is_high_score '(100 : nat)') && \
+	@echo "=== Test 1/4: is_high_score returns true when leaderboard has fewer than 10 entries ==="
+	@result=$$(icp canister call backend is_high_score '(0 : nat)') && \
 	  echo "$$result" && \
 	  echo "$$result" | grep -q 'true' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
