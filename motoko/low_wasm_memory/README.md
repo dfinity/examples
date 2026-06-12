@@ -1,50 +1,51 @@
 # Low Wasm memory hook
 
-The Internet Computer can automatically execute a special type of function called a low Wasm memory hook, which runs when the canister's available Wasm memory falls below the `wasm_memory_threshold`.
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/low_wasm_memory)
 
-This Motoko example demonstrates using the low Wasm memory hook on ICP. For more information take a look at [low Wasm memory hook specification](https://internetcomputer.org/docs/references/ic-interface-spec#on-low-wasm-memory).
+## Overview
 
-## Deploying from ICP Ninja
+This example demonstrates the low Wasm memory hook on the Internet Computer. The ICP runtime automatically executes a special `lowmemory` system function when a canister's available Wasm memory falls below the configured `wasm_memory_threshold`. The example shows the execution order of the `heartbeat` and `lowmemory` system functions as the canister progressively allocates memory until the threshold is reached.
 
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/motoko/low_wasm_memory)
+For more information, see the [low Wasm memory hook specification](https://internetcomputer.org/docs/references/ic-interface-spec#on-low-wasm-memory).
 
-## Build and deploy from the command-line
+## Build and deploy from the command line
 
-### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
+### Prerequisites
 
-### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
+- Node.js
+- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- ic-mops: `npm install -g ic-mops`
 
-### 3. Navigate into the project's directory.
+### Install
 
-### 4. Deploy the project to your local environment:
-
-```
-dfx start --background --clean && dfx deploy
-```
-
-After the deployment, the memory usage periodically increases as defined in the `heartbeat` function.
-
-The `dfx canister update-settings` command sets the 'wasm_memory_limit' to 5MiB and 'wasm_memory_threshold' to 2MiB.
-Hence, whenever the Wasm memory used by the canister is above 3MiB (in other words, the remaining Wasm memory is less than 'wasm_memory_threshold'), the low Wasm memory hook will be triggered.
-
-This Motoko canister starts with ~2.3MiB of memory usage after the deployment, so it will trigger the low Wasm memory hook after allocating ~0.7MiB of memory.
-
-You can verify that the canister settings got updated and check the current 'Memory Size' with the following command:
-
-```sh
-dfx canister status low_wasm_memory_hook
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/motoko/low_wasm_memory
 ```
 
-After a few seconds, observe the output of the `getExecutedFunctionsOrder` query:
+### Deploy and test
 
-Query the canister by calling `getExecutedFunctionsOrder` to get the order of executed functions.
-
-```sh
-dfx canister call low_wasm_memory_hook --query getExecutedFunctionsOrder
+```bash
+icp network start -d
+icp deploy
+make test
+icp network stop
 ```
 
-Repeat the call until the last executed method is `onLowWasmMemory`.
+After deployment, the canister's `heartbeat` function periodically allocates memory. Once the remaining Wasm memory falls below the configured threshold, the `lowmemory` hook fires. Query `getExecutedFunctionsOrder` to observe the execution order:
+
+```bash
+icp canister call backend getExecutedFunctionsOrder '()'
+```
+
+Repeat the call until the last entry is `onLowWasmMemory`.
+
+## Updating the Candid interface
+
+```bash
+$(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo
+```
 
 ## Security considerations and best practices
 
-If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
+Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app.
