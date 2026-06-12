@@ -1,14 +1,7 @@
-import { AuthClient } from '@icp-sdk/auth/client';
-import { createActor } from 'declarations/backend';
-import { canisterId } from 'declarations/backend/index.js';
 import React, { useState, useEffect } from 'react';
+import { AuthClient } from '@icp-sdk/auth/client';
+import { createBackendActor, identityProviderUrl } from './actor';
 import '../index.css';
-
-const network = process.env.DFX_NETWORK;
-const identityProvider =
-  network === 'ic'
-    ? 'https://id.ai/' // Mainnet
-    : 'http://uqzsh-gqaaa-aaaaq-qaada-cai.localhost:4943'; // Local
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -32,11 +25,7 @@ function App() {
   async function updateActor() {
     const authClient = await AuthClient.create();
     const identity = authClient.getIdentity();
-    const actor = createActor(canisterId, {
-      agentOptions: {
-        identity
-      }
-    });
+    const actor = createBackendActor(identity);
     const isAuthenticated = await authClient.isAuthenticated();
 
     setActor(actor);
@@ -46,7 +35,7 @@ function App() {
 
   async function login() {
     await authClient.login({
-      identityProvider,
+      identityProvider: identityProviderUrl,
       onSuccess: updateActor
     });
   }
