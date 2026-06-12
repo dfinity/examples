@@ -1,11 +1,12 @@
+import Blob "mo:core/Blob";
 import Error "mo:core/Error";
 import Option "mo:core/Option";
 import Principal "mo:core/Principal";
 import Text "mo:core/Text";
-import Blob "mo:core/Blob";
-import Hex "./utils/Hex";
+import Hex "./Hex";
+import { ic } "mo:ic";
 
-persistent actor {
+actor ThresholdSchnorr {
   public type SchnorrAlgorithm = { #bip340secp256k1; #ed25519 };
 
   public type KeyId = {
@@ -19,23 +20,7 @@ persistent actor {
     };
   };
 
-  // Only the Schnorr methods in the IC management canister is required here.
-  type IC = actor {
-    schnorr_public_key : ({
-      canister_id : ?Principal;
-      derivation_path : [Blob];
-      key_id : KeyId;
-    }) -> async ({ public_key : Blob });
-    sign_with_schnorr : ({
-      message : Blob;
-      derivation_path : [Blob];
-      key_id : KeyId;
-      aux : ?SchnorrAux;
-    }) -> async ({ signature : Blob });
-  };
-
-  transient let ic : IC = actor ("aaaaa-aa");
-  transient let key_id : Text = "test_key_1"; // Use "key_1" for production and "dfx_test_key" locally
+  transient let key_id : Text = "test_key_1"; // Use "key_1" for mainnet production
 
   public shared ({ caller }) func public_key(algorithm : SchnorrAlgorithm) : async {
     #Ok : { public_key_hex : Text };
