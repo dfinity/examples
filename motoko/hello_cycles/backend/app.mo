@@ -2,7 +2,7 @@ import Nat "mo:core/Nat";
 import Nat64 "mo:core/Nat64";
 import Cycles "mo:core/Cycles";
 
-persistent actor HelloCycles {
+actor HelloCycles {
 
   let limit = 10_000_000;
 
