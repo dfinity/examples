@@ -12,6 +12,7 @@ target/
 *.old.did
 .idea
 .mops
+mops.lock
 .env
 **/frontend/src/bindings/
 **/src/declarations/
