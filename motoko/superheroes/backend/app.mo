@@ -1,7 +1,7 @@
 import Map "mo:core/Map";
 import Nat32 "mo:core/Nat32";
 
-persistent actor Superheroes {
+actor Superheroes {
 
   public type SuperheroId = Nat32;
 

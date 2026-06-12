@@ -1,35 +1,44 @@
-.PHONY: all
-all: build
-
-.PHONY: node_modules
-.SILENT: node_modules
-node_modules:
-	npm install
-
-.PHONY: deploy
-.SILENT: deploy
-deploy: node_modules
-	dfx deploy
-
 .PHONY: test
-.SILENT: test
-test: deploy
-	$(eval ID := $(shell dfx canister call superheroes create '(record {name = "Superman"; superpowers = vec { "invulnerability"; "superhuman strength" }})' | tr -d '()'))
-	dfx canister call superheroes read '($(ID))' \
-		| grep 'Superman' && echo 'PASS'
-	dfx canister call superheroes update '($(ID), record {name = "Superman"; superpowers = vec { "invulnerability"; "superhuman strength"; "flight"; "x-ray vision" }})' \
-		| grep 'true' && echo 'PASS'
-	dfx canister call superheroes read '($(ID))' \
-		| grep 'x-ray vision' && echo 'PASS'
-	dfx canister call superheroes delete '($(ID))' \
-		| grep 'true' && echo 'PASS'
-	dfx canister call superheroes delete '($(ID))' \
-		| grep 'false' && echo 'PASS'
-	dfx canister call superheroes read '($(ID))' \
-		| grep 'null' && echo 'PASS'
 
-.PHONY: clean
-.SILENT: clean
-clean:
-	rm -fr .dfx
-	rm -fr node_modules
+test:
+	@echo "=== Test 1: create a superhero ==="
+	@id=$$(icp canister call backend create '(record { name = "Superman"; superpowers = vec { "invulnerability"; "superhuman strength" } })') && \
+	  echo "$$id" && \
+	  echo "$$id" | grep -q '0' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 2: read the created superhero ==="
+	@result=$$(icp canister call backend read '(0 : nat32)') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'Superman' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 3: update the superhero ==="
+	@result=$$(icp canister call backend update '(0 : nat32, record { name = "Superman"; superpowers = vec { "invulnerability"; "superhuman strength"; "flight"; "x-ray vision" } })') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'true' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 4: read updated superhero to verify state change ==="
+	@result=$$(icp canister call backend read '(0 : nat32)') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'x-ray vision' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 5: delete the superhero ==="
+	@result=$$(icp canister call backend delete '(0 : nat32)') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'true' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 6: delete non-existent superhero returns false ==="
+	@result=$$(icp canister call backend delete '(0 : nat32)') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'false' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 7: read deleted superhero returns null ==="
+	@result=$$(icp canister call backend read '(0 : nat32)') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'null' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
