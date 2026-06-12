@@ -1,14 +1,11 @@
 canisters:
   - name: backend
     recipe:
-      type: "@dfinity/motoko@v4.1.0"
-      configuration:
-        main: backend/app.mo
-        candid: backend/backend.did
+      type: "@dfinity/motoko@v5.0.0"
 
   - name: frontend
     recipe:
-      type: "@dfinity/asset-canister@v2.1.0"
+      type: "@dfinity/asset-canister@v2.2.1"
       configuration:
         dir: frontend/dist
         build:
