@@ -1,3 +1,6 @@
+# Always use the latest network launcher image
+# Before building we must pull to pick up new releases
+# For real world usage, consider pinning the version instead of using :latest
 FROM ghcr.io/dfinity/icp-cli-network-launcher:latest
 
 ARG TARGETARCH
