@@ -19,7 +19,7 @@ actor Subscriber {
   // The <system> type parameter explicitly declares that this function uses system
   // capability (required by actor(id)), suppressing warning M0195.
   func publisher<system>() : PublisherActor {
-    let ?id = Runtime.envVar("PUBLIC_CANISTER_ID:publisher") else
+    let ?id = Runtime.envVar<system>("PUBLIC_CANISTER_ID:publisher") else
       Runtime.trap("PUBLIC_CANISTER_ID:publisher not set — run icp deploy");
     actor(id) : PublisherActor;
   };
