@@ -1,4 +1,3 @@
-import Types "Types";
 import { ic } "mo:ic";
 import IC "mo:ic/Types";
 

@@ -18,7 +18,7 @@ The example covers three Bitcoin address types, each backed by a different signi
 
 - **P2PKH** — Pay-to-Public-Key-Hash. Derived from a threshold ECDSA key. The classic Bitcoin address format.
 - **P2TR key-only** — Pay-to-Taproot, key-path spend only. Derived from a threshold Schnorr key with an unspendable script tree. Simpler Taproot: only the internal key can spend.
-- **P2TR (key + script path)** — Pay-to-Taproot with a Merkelized Alternative Script Tree (MAST). Funds can be spent either via the internal key (key path) or via a script that authorizes a second Schnorr public key (script path). Demonstrates [BIP341](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki) script-path spending.
+- **P2TR (key + script path)** — Pay-to-Taproot with a Merkleized Alternative Script Tree (MAST). Funds can be spent either via the internal key (key path) or via a script that authorizes a second Schnorr public key (script path). Demonstrates [BIP341](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki) script-path spending.
 
 ## Build and deploy from the command line
 

@@ -37,6 +37,7 @@ test:
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
 	@echo "=== Mining 101 blocks to fund test address ==="
+	@[ -n "$(BITCOIN_CONTAINER)" ] || (echo "ERROR: network launcher container not running — run 'icp network start -d' first" && exit 1)
 	@addr=$$(icp canister call backend get_p2pkh_address '()' | grep -o '"[^"]*"' | tr -d '"') && \
 	  docker exec $(BITCOIN_CONTAINER) bitcoin-cli -regtest \
 	    -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
