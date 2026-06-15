@@ -32,12 +32,6 @@ icp network stop
 
 > If tests fail with an out-of-cycles error, run `make topup` to add 30 trillion cycles to the backend canister and retry.
 
-## Updating the Candid interface
-
-```bash
-$(mops toolchain bin moc) --idl backend/app.mo
-```
-
 ## Security considerations and best practices
 
 If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for developing on ICP. This example may not implement all the best practices.
