@@ -1,9 +1,5 @@
 # Composite queries
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/composite_query)
-
-## Overview
-
 This example demonstrates composite queries in Motoko. It implements a distributed key-value store (`Map`) that dynamically installs `Bucket` actor class instances to hold its entries. The `Map.get` function is a composite query that calls the query function `Bucket.get` on a child canister — something only possible with composite queries. This shows how composite queries enable fast, read-only cross-canister calls without the latency of update calls.
 
 ## Build and deploy from the command line
