@@ -13,7 +13,8 @@ test: configure
 	@echo "=== Polling for onLowWasmMemory hook (up to 60s) ==="
 	@secs=0; \
 	while [ $$secs -lt 60 ]; do \
-	  result=$$(icp canister call --query backend getExecutedFunctionsOrder '()'); \
+	  result=$$(icp canister call --query backend getExecutedFunctionsOrder '()') || \
+	    { echo "FAIL: canister call failed"; exit 1; }; \
 	  echo "$$result"; \
 	  echo "$$result" | grep -q 'onLowWasmMemory' && echo "PASS" && exit 0; \
 	  sleep 3; secs=$$((secs + 3)); \
