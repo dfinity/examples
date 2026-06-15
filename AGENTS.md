@@ -281,6 +281,34 @@ test:
 - Use `grep -q` to assert on output content.
 - Number each test (`=== Test N: ... ===`) so CI logs are easy to scan.
 - For examples that create child canisters, capture the returned principal and call the child directly by ID.
+- **Query functions**: always pass `--query` to `icp canister call` for `public query func` and `public composite query func` methods — this matches the original dfx `--query` flag and avoids unnecessary update calls.
+- **Async/time-dependent behavior**: if the example's observable result depends on timers, heartbeats, or polling (e.g. a hook that fires after memory fills up), use a polling loop in the Makefile rather than a one-shot call:
+
+```makefile
+test:
+	@echo "=== Polling for <condition> (up to 60s) ==="
+	@secs=0; \
+	while [ $$secs -lt 60 ]; do \
+	  result=$$(icp canister call --query backend <method> '()'); \
+	  echo "$$result"; \
+	  echo "$$result" | grep -q '<expected>' && echo "PASS" && exit 0; \
+	  sleep 3; secs=$$((secs + 3)); \
+	done; \
+	echo "FAIL: condition not met within 60s"; exit 1
+```
+
+- **Canister settings**: if the example requires non-default canister settings (e.g. `wasm_memory_limit`, `wasm_memory_threshold`), apply them via `icp canister settings update` in a `configure` target and make `test` depend on it:
+
+```makefile
+.PHONY: configure test
+
+configure:
+	icp canister settings update backend --<flag> <value> -f
+
+test: configure
+	...
+```
+
 - If `icp deploy --cycles 30t` is required (see below), add a `topup` target too:
 
 ```makefile
@@ -352,6 +380,16 @@ jobs:
 - Always include the `concurrency` block to cancel superseded runs.
 - Pin the `actions/checkout` SHA and annotate it with the version tag.
 
+**When migrating only one language variant**, only include the corresponding job. Do not add a stub for the other language — it will be added when that variant is migrated. Example: migrating `motoko/hello_cycles` → add only `motoko-hello_cycles` job; leave `rust-hello_cycles` for a separate PR.
+
+**Deleting old workflows during migration**: the repo may contain legacy dfx-based workflow files (e.g. `motoko-hello_cycles-example.yaml`). When migrating an example, delete the old workflow file for the language being migrated. Do **not** delete workflow files for the other language:
+
+```bash
+# Migrating Motoko — delete only the Motoko legacy workflow:
+git rm .github/workflows/motoko-<example_name>-example.yaml   # or .yml
+# Do NOT touch rust-<example_name>-example.yml
+```
+
 ---
 
 ## README structure
@@ -361,9 +399,6 @@ Each example's README should follow this structure:
 ```markdown
 # <Example Title>
 
-[View this sample's code on GitHub](<github_url>)
-
-## Overview
 <2-3 sentences describing what the example demonstrates>
 
 ## Build and deploy from the command line
@@ -393,6 +428,10 @@ Rust: `icp build backend && candid-extractor target/wasm32-unknown-unknown/relea
 
 - Security best practices URL: `https://docs.internetcomputer.org/guides/security/overview`
 - Each README links to its counterpart in the other language.
+- **Backend-only examples**: omit the `## Updating the Candid interface` section — there is no frontend consuming the `.did` file, so regeneration instructions add no value.
+- **If the original example has a frontend, the migration must include it.** Never drop a frontend that existed in the dfx version — check `dfx.json` for `"type": "assets"` canisters. Port the frontend to Vite + `@icp-sdk/bindgen` following the `hello_world` template. If the original frontend contains important educational logic (e.g. certificate verification, custom cryptography), keep that logic intact and only update the canister interaction layer.
+- **Preserve important domain knowledge**: the original README may contain non-obvious details about how the example works (memory limits, fee calculations, network-specific behavior, address type explanations, etc.). Read the original README carefully before migrating and carry forward any content that helps a reader understand *why* the example is structured the way it is — not just *how* to deploy it. Do not silently drop explanatory paragraphs, even if they reference dfx commands that need updating.
+- **Broken links**: do not copy anchor links from the original README unless you have verified they resolve on the current docs site. When in doubt, link to the top-level page (e.g. the spec index) rather than a specific anchor.
 
 ---
 
@@ -411,6 +450,9 @@ Source: https://github.com/dfinity/icp-dev-env
 
 When migrating an existing example:
 
+**Before you start**: read the original README, Makefile, and any deploy scripts in full. Note any non-obvious configuration (canister settings, special deploy steps, memory limits, key names, etc.) that must be carried forward.
+
+### Code and configuration
 - [ ] Replace `dfx.json` with `icp.yaml` using the canonical structure above
 - [ ] Rename canisters to `backend` and `frontend`
 - [ ] Rename `src/<old_name>/` to `backend/` (or `src/backend/` if keeping the `src/` layout)
@@ -428,9 +470,24 @@ When migrating an existing example:
 - [ ] If the example uses the management canister: add `ic = "4.0.0"` dependency and replace `ic:aaaaa-aa` / `actor("aaaaa-aa")` with `import { ic } "mo:ic"` (Motoko)
 - [ ] If the Rust example uses the management canister: add `ic-cdk-management-canister = "0.1.1"` dependency and replace `ic_cdk::api::management_canister` with the appropriate function from that crate
 - [ ] If the example creates child canisters: use `icp deploy --cycles 30t` in the CI workflow and README, and add a `make topup` target
+- [ ] If the example requires non-default canister settings (memory limits, freezing threshold, etc.): add a `configure` target in the Makefile and make `test` depend on it
 - [ ] Delete `dfx.json`, `BUILD.md`, `.dfx/`, `.env` (dfx-generated)
 - [ ] Delete `.devcontainer/` inside the example folder if one exists (only the repo-root devcontainer is kept)
+
+### Makefile
 - [ ] Add `Makefile` with `test` target
+- [ ] Use `--query` for all `public query func` and `public composite query func` calls
+- [ ] Use a polling loop for any behavior that depends on timers, heartbeats, or async system hooks
+- [ ] For backend-only examples, no `## Updating the Candid interface` section is needed
+
+### CI workflow
 - [ ] Add CI workflow under `.github/workflows/<example_name>.yml`
-- [ ] Update README deploy instructions to use `icp-cli`
-- [ ] Update README Candid regeneration command to use `icp-cli` / `mops` toolchain
+- [ ] Include only the job(s) for the language being migrated — do not add stubs for the other language
+- [ ] Delete the old dfx-based workflow for the language being migrated (e.g. `motoko-<name>-example.yaml`)
+- [ ] Do **not** delete workflow files for the other language variant — they will be handled in a separate PR
+
+### README
+- [ ] Update deploy instructions to use `icp-cli`
+- [ ] Preserve important domain-specific content from the original README (memory limits, fee behaviour, address type explanations, network-specific notes, etc.) — update the commands but keep the explanations
+- [ ] Omit `## Updating the Candid interface` for backend-only examples (no frontend bindings)
+- [ ] Verify that all links resolve — do not copy anchors from the old README without checking them
