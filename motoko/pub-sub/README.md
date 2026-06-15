@@ -1,9 +1,5 @@
 # PubSub
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/pub-sub)
-
-## Overview
-
 This example demonstrates the publisher/subscriber pattern across two canisters on the Internet Computer. It shows how shared function references can be passed as callbacks in inter-canister calls, enabling a publisher canister to notify subscriber canisters whenever a message is published to a subscribed topic. Because ICP guarantees message delivery, the primary drawback of PubSub in distributed systems does not apply here.
 
 ## Build and deploy from the command line
