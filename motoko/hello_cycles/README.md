@@ -43,8 +43,7 @@ icp network stop
 The tests cover both perspectives:
 
 - **Test 2 (receiver side)**: calls `acceptCycles` through the local [proxy canister](https://cli.internetcomputer.org/0.3/guides/proxy-canister/) with 1M attached cycles — verifies `accepted > 0`. External callers cannot attach cycles directly; icp-cli routes the cycles via the proxy, which is automatically deployed on the local network.
-- **Test 3 (sender side)**: calls `sendCycles` pointing to the canister's own `acceptCycles` with 5M cycles — verifies `refunded = 0` (all accepted within the 10M limit).
-- **Test 4 (refund case)**: same but with 15M cycles — verifies `refunded = 5_000_000` (5M over the limit).
+- **Tests 3 & 4 (sender side)**: calls `sendCycles` with the canister's **own** `acceptCycles` as the receiver (an inter-canister self-call — no second canister needed). The 5M/15M cycles leave the canister via `sendCycles` and arrive at `acceptCycles`, which accepts up to the 10M limit. Test 3 sends 5M → `refunded = 0` (within limit). Test 4 sends 15M → `refunded = 5_000_000` (5M over the limit). In practice, `sendCycles` would target a different canister.
 
 ## Security considerations and best practices
 
