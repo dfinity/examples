@@ -10,7 +10,7 @@ actor Subscriber {
   };
 
   type PublisherActor = actor {
-    subscribe : shared { topic : Text; callback : shared Counter -> () } -> ();
+    subscribe : shared { topic : Text; callback : shared Counter -> () } -> async ();
   };
 
   var count : Nat = 0;
@@ -28,7 +28,7 @@ actor Subscriber {
   /// The publisher principal is read from PUBLIC_CANISTER_ID:publisher,
   /// which icp-cli injects into every canister during `icp deploy`.
   public func subscribe(topic : Text) : async () {
-    publisher<system>().subscribe({
+    await publisher<system>().subscribe({
       topic;
       callback = updateCount;
     });

@@ -15,7 +15,7 @@ actor Publisher {
 
   var subscribers : [Subscriber] = [];
 
-  public func subscribe(subscriber : Subscriber) : () {
+  public func subscribe(subscriber : Subscriber) : async () {
     subscribers := subscribers.concat([subscriber]);
   };
 
