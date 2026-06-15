@@ -39,14 +39,6 @@ icp network stop
 
 When running with a small number of calls (e.g. 100), sequential and parallel calls both succeed. With a large number of calls (e.g. 2000), sequential calls all succeed but most parallel calls fail because the replica imposes a limit on the number of in-flight calls a canister can make. Parallel calls are most useful in multi-subnet settings, where they significantly reduce latency.
 
-## Updating the Candid interface
-
-To regenerate the Candid interface for the backend canister:
-
-```bash
-$(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo
-```
-
 ## Security considerations and best practices
 
 Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app.
