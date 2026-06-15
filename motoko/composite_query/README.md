@@ -46,12 +46,6 @@ icp network stop
 
 > `icp deploy --cycles 30t` is required because `Map` dynamically creates `Bucket` canisters — it needs extra cycles to fund their installation. If tests fail with an out-of-cycles error, run `make topup`.
 
-## Updating the Candid interface
-
-```bash
-$(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo
-```
-
 ## Security considerations and best practices
 
 Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app.
