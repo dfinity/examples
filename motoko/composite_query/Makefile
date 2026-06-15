@@ -10,7 +10,7 @@ test:
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
 	@echo "=== Test 2: get (composite query) returns the stored value ==="
-	@result=$$(icp canister call backend get '(0)') && \
+	@result=$$(icp canister call --query backend get '(0)') && \
 	  echo "$$result" && \
 	  echo "$$result" | grep -q 'opt "hello"' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
@@ -22,7 +22,7 @@ test:
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
 	@echo "=== Test 4: get returns null for a missing key ==="
-	@result=$$(icp canister call backend get '(1)') && \
+	@result=$$(icp canister call --query backend get '(1)') && \
 	  echo "$$result" && \
 	  echo "$$result" | grep -q 'null' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
@@ -30,10 +30,10 @@ test:
 	@echo "=== Test 5: put multiple entries and verify distribution across buckets ==="
 	@icp canister call backend put '(4, "four")' && \
 	  icp canister call backend put '(8, "eight")' && \
-	  result=$$(icp canister call backend get '(4)') && \
+	  result=$$(icp canister call --query backend get '(4)') && \
 	  echo "$$result" && \
 	  echo "$$result" | grep -q 'opt "four"' && \
-	  result2=$$(icp canister call backend get '(8)') && \
+	  result2=$$(icp canister call --query backend get '(8)') && \
 	  echo "$$result2" && \
 	  echo "$$result2" | grep -q 'opt "eight"' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
