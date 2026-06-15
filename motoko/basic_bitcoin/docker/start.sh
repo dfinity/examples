@@ -19,7 +19,7 @@ echo "bitcoind ready on regtest"
 
 # Hand off to the IC network launcher.
 # --bitcoind-addr wires the IC Bitcoin subnet to our local bitcoind.
-# Port 18443 is the RPC port (used in Makefile via curl JSON-RPC).
+# Port 18443 is the RPC port (used by bitcoin-cli inside the container).
 # Port 18444 is the P2P port (used by the launcher for block discovery).
 exec /app/icp-cli-network-launcher \
   --status-dir=/app/status \

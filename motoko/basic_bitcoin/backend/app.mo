@@ -11,9 +11,8 @@ import Utils "Utils";
 actor class BasicBitcoin(network : Types.Network) {
 
   /// The Bitcoin network to connect to.
-  ///
-  /// When developing locally this should be `regtest`.
-  /// When deploying to the IC this should be `testnet`.
+  /// Passed as an init arg and determined by the environment:
+  /// `regtest` (local), `testnet` (staging), or `mainnet` (production).
   let NETWORK : Types.Network = network;
 
   /// The derivation path to use for ECDSA secp256k1 or Schnorr BIP340/BIP341 key
@@ -38,7 +37,7 @@ actor class BasicBitcoin(network : Types.Network) {
     await BitcoinApi.get_utxos(NETWORK, address);
   };
 
-  /// Returns the 100 fee percentiles measured in millisatoshi/vbyte.
+  /// Returns the 100 fee percentiles measured in millisatoshi per byte.
   /// Percentiles are computed from the last 10,000 transactions (if available).
   public func get_current_fee_percentiles() : async [Types.MillisatoshiPerByte] {
     await BitcoinApi.get_current_fee_percentiles(NETWORK);
@@ -81,24 +80,7 @@ actor class BasicBitcoin(network : Types.Network) {
     tip_height : Nat32;
     block_headers : [Blob];
   } {
-    // Inline actor to pass full Network type including #regtest.
-    // mo:ic@4.0.0 defines BitcoinNetwork as { #mainnet; #testnet } only — passing
-    // #regtest through it would be a type error.
-    let management_actor : actor {
-      bitcoin_get_block_headers : {
-        network : Types.Network;
-        start_height : Nat32;
-        end_height : ?Nat32;
-      } -> async {
-        tip_height : Nat32;
-        block_headers : [Blob];
-      };
-    } = actor ("aaaaa-aa");
-    await management_actor.bitcoin_get_block_headers({
-      network = NETWORK;
-      start_height;
-      end_height;
-    });
+    await BitcoinApi.get_block_headers(NETWORK, start_height, end_height);
   };
 
   /// Returns a summary of the current Bitcoin blockchain state: tip height,
