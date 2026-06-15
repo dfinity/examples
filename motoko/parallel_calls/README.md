@@ -1,9 +1,5 @@
 # Parallel inter-canister calls
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/parallel_calls)
-
-## Overview
-
 This example demonstrates how to implement inter-canister calls that run in parallel in Motoko, and highlights some differences between parallel and sequential calls. Running independent calls in parallel can lower latency, especially when messages are sent across subnets. For example, a canister that swaps two tokens might want to launch both token transfer operations in parallel.
 
 The example consists of two canisters, `backend` (caller) and `callee`. The `backend` canister has three endpoints:
