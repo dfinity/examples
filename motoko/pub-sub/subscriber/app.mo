@@ -1,6 +1,6 @@
 // Subscriber
 
-import Publisher "canister:backend";
+import Publisher "canister:publisher";
 
 actor Subscriber {
 

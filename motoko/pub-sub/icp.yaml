@@ -1,5 +1,5 @@
 canisters:
-  - name: backend
+  - name: publisher
     recipe:
       type: "@dfinity/motoko@v5.0.0"
 
