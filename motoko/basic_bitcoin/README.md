@@ -8,9 +8,9 @@ For a deeper understanding of the ICP ↔ Bitcoin integration, see the [Bitcoin 
 
 The canister uses three ICP management canister APIs:
 
-- [Threshold ECDSA](https://docs.internetcomputer.org/references/ic-interface-spec#ic-ecdsa_public_key) — derives P2PKH addresses and signs transactions spending from them
-- [Threshold Schnorr](https://docs.internetcomputer.org/references/ic-interface-spec#ic-sign_with_schnorr) — derives P2TR addresses (BIP340/341) and signs Taproot transactions
-- [Bitcoin API](https://github.com/dfinity/bitcoin-canister/blob/master/INTERFACE_SPECIFICATION.md) — queries balances, UTXOs, fee percentiles, and block data; submits signed transactions to the Bitcoin network
+- Threshold ECDSA ([`ecdsa_public_key`](https://docs.internetcomputer.org/references/ic-interface-spec/management-canister/#ic-ecdsa_public_key), [`sign_with_ecdsa`](https://docs.internetcomputer.org/references/ic-interface-spec/management-canister/#ic-sign_with_ecdsa)) — derives P2PKH addresses and signs transactions spending from them
+- Threshold Schnorr ([`schnorr_public_key`](https://docs.internetcomputer.org/references/ic-interface-spec/management-canister/#ic-schnorr_public_key), [`sign_with_schnorr`](https://docs.internetcomputer.org/references/ic-interface-spec/management-canister/#ic-sign_with_schnorr)) — derives P2TR addresses (BIP340/341) and signs Taproot transactions
+- [Bitcoin canister](https://docs.internetcomputer.org/references/protocol-canisters/#bitcoin-canisters) — queries balances, UTXOs, fee percentiles, and block data; submits signed transactions to the Bitcoin network
 
 ## Address types
 
