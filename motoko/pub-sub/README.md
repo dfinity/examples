@@ -12,7 +12,7 @@ Two canisters are deployed:
 The call flow:
 
 ```
-1. subscriber.init("Apples")
+1. subscriber.init(publisher_principal, "Apples")
      └─► publisher.subscribe({ topic = "Apples"; callback = subscriber.updateCount })
 
 2. publisher.publish({ topic = "Apples"; value = 2 })
@@ -21,7 +21,7 @@ The call flow:
 3. subscriber.getCount()  →  2
 ```
 
-The callback (`subscriber.updateCount`) is a **shared function reference** — a first-class value in Motoko that can be stored and called across canisters. Because ICP guarantees message delivery, the typical reliability concern of pub/sub in distributed systems does not apply here.
+The callback (`subscriber.updateCount`) is a **shared function reference** — a first-class value in Motoko that can be stored and called across canisters. The publisher principal is passed to `init` at runtime rather than hard-coded at compile time, making the subscriber reusable with any publisher. Because ICP guarantees message delivery, the typical reliability concern of pub/sub in distributed systems does not apply here.
 
 Note: `publish` fires callbacks asynchronously. There is a brief delay before the subscriber state is updated, which is why the tests sleep briefly after publishing.
 
