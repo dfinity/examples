@@ -26,29 +26,28 @@ module {
   type BitcoinAddress = Types.BitcoinAddress;
   type Satoshi = Types.Satoshi;
   type Utxo = Types.Utxo;
-  type MillisatoshiPerVByte = Types.MillisatoshiPerVByte;
+  type MillisatoshiPerByte = Types.MillisatoshiPerByte;
   type Transaction = Transaction.Transaction;
   type Script = Script.Script;
-  type SchnorrCanisterActor = Types.SchnorrCanisterActor;
 
   /// Sends a transaction to the network that transfers the given amount to the
   /// given destination, where the source of the funds is the canister itself
   /// at the given derivation path.
-  public func send(schnorr_canister_actor : SchnorrCanisterActor, network : Network, derivation_path : [[Nat8]], key_name : Text, dst_address : BitcoinAddress, amount : Satoshi) : async [Nat8] {
-    let own_address = await get_address_key_only(schnorr_canister_actor, network, key_name, derivation_path);
-    let untweaked_bip340_public_key_bytes = await P2tr.fetch_bip340_public_key(schnorr_canister_actor, key_name, derivation_path);
+  public func send(network : Network, derivation_path : [[Nat8]], key_name : Text, dst_address : BitcoinAddress, amount : Satoshi) : async [Nat8] {
+    let own_address = await get_address_key_only(network, key_name, derivation_path);
+    let untweaked_bip340_public_key_bytes = await P2tr.fetch_bip340_public_key(key_name, derivation_path);
     let aux =
     #bip341({
       merkle_root_hash = Blob.fromArray(P2tr.unspendableMerkleRoot(untweaked_bip340_public_key_bytes));
     });
-    await P2tr.send_key_path_generic(schnorr_canister_actor, own_address, network, derivation_path, key_name, ?aux, dst_address, amount);
+    await P2tr.send_key_path_generic(own_address, network, derivation_path, key_name, ?aux, dst_address, amount);
   };
 
   /// Returns the P2TR key-only address of this canister at a specific
   /// derivation path. The Merkle tree root is computed as
   /// `taggedHash(bip340_public_key_bytes, "TapTweak")` and is unspendable.
-  public func get_address_key_only(schnorr_canister_actor : SchnorrCanisterActor, network : Network, key_name : Text, derivation_path : [[Nat8]]) : async BitcoinAddress {
-    let bip340_public_key_bytes = await P2tr.fetch_bip340_public_key(schnorr_canister_actor, key_name, derivation_path);
+  public func get_address_key_only(network : Network, key_name : Text, derivation_path : [[Nat8]]) : async BitcoinAddress {
+    let bip340_public_key_bytes = await P2tr.fetch_bip340_public_key(key_name, derivation_path);
 
     let merkleRoot = P2tr.unspendableMerkleRoot(bip340_public_key_bytes);
     let tweak = Utils.get_ok(tweakFromKeyAndHash(bip340_public_key_bytes, merkleRoot));

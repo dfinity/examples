@@ -1,18 +1,15 @@
 import Result "mo:core/Result";
-import Debug "mo:core/Debug";
-import Iter "mo:core/Iter";
 import Nat8 "mo:core/Nat8";
 import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
+import Iter "mo:core/Iter";
 import Blob "mo:core/Blob";
 import Array "mo:core/Array";
-import Types "Types";
+import IC "mo:ic/Types";
 
 module {
     type Result<Ok, Err> = Result.Result<Ok, Err>;
-    type EcdsaCanisterActor = Types.EcdsaCanisterActor;
-    type SchnorrCanisterActor = Types.SchnorrCanisterActor;
-    type SchnorrAux = Types.SchnorrAux;
+    type SchnorrAux = IC.SchnorrAux;
 
     /// Returns the value of the result and traps if there isn't any value to return.
     public func get_ok<T>(result : Result<T, Text>) : T {
@@ -77,13 +74,17 @@ module {
         bytes.vals().map(func(n : Nat8) : Text { nat8ToText(n) }).join("");
     };
 
-    /// A mock for rubber-stamping 64B ECDSA signatures.
-    public func ecdsa_mock_signer(_ecdsa_canister_actor : EcdsaCanisterActor, _key_name : Text, _derivation_path : [Blob], _message_hash : Blob) : async Blob {
+    /// Mock ECDSA signer that returns a 64-byte placeholder signature.
+    /// Used only during fee estimation to get the correct transaction size
+    /// before invoking the real (expensive) threshold signing operation.
+    public func mock_sign_with_ecdsa(_key_name : Text, _derivation_path : [Blob], _message_hash : Blob) : async Blob {
         Blob.fromArray(Array.repeat(255 : Nat8, 64));
     };
 
-    /// A mock for rubber-stamping 64B Schnorr signatures.
-    public func schnorr_mock_signer(_schnorr_canister_actor : SchnorrCanisterActor, _key_name : Text, _derivation_path : [Blob], _message_hash : Blob, _aux : ?SchnorrAux) : async Blob {
+    /// Mock Schnorr signer that returns a 64-byte placeholder signature.
+    /// Used only during fee estimation to get the correct transaction size
+    /// before invoking the real (expensive) threshold signing operation.
+    public func mock_sign_with_schnorr(_key_name : Text, _derivation_path : [Blob], _message_hash : Blob, _aux : ?SchnorrAux) : async Blob {
         Blob.fromArray(Array.repeat(255 : Nat8, 64));
     };
 };
