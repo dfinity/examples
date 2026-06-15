@@ -3,8 +3,6 @@ name = "multi_subnet"
 version = "0.1.0"
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-pocket-ic = "5.0.0"
+pocket-ic = "14.0.0"
 candid = "0.10"
