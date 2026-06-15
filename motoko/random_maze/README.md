@@ -1,9 +1,5 @@
 # Random Maze
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/random_maze)
-
-## Overview
-
 This example generates a random maze using cryptographic randomness. It demonstrates how to use `Random.crypto()` from `mo:core` to obtain an `AsyncRandom` instance that automatically fetches entropy from the Internet Computer management canister on demand, and how to generate bounded discrete random numbers using `await* random.natRange(low, high)`. A React frontend is deployed alongside the backend and lets you enter a maze size and render the generated maze in your browser.
 
 ## Build and deploy from the command line
