@@ -2,6 +2,8 @@
 
 On the Internet Computer, regular query functions are fast (no consensus) but have one strict limitation: **they cannot call other canisters**. Composite queries lift this restriction — a `composite query func` can call query methods on other canisters while keeping the speed benefit of a query call.
 
+For more background see [Composite queries](https://docs.internetcomputer.org/guides/canister-calls/parallel-inter-canister-calls/#composite-queries) in the ICP developer docs.
+
 This example implements a distributed key-value store (`Map`) that shards its entries across four dynamically-installed `Bucket` child canisters. Looking up a key requires calling the appropriate bucket:
 
 - `get(k)` — **composite query**: delegates to the correct `Bucket.get(k)` as a cross-canister query call. Fast, no consensus.
@@ -12,10 +14,11 @@ Both functions return the same result; the difference is latency and call semant
 ## Architecture
 
 ```
-Map (backend)          Bucket 0  (keys 0, 4, 8, …)
-  n = 4 buckets  ───► Bucket 1  (keys 1, 5, 9, …)
-  key % n routes      Bucket 2  (keys 2, 6, 10, …)
-                       Bucket 3  (keys 3, 7, 11, …)
+Map (backend)
+  n = 4 buckets     ┌── Bucket 0  (keys 0, 4, 8, …)
+  key % n routes ───┼── Bucket 1  (keys 1, 5, 9, …)
+                    ├── Bucket 2  (keys 2, 6, 10, …)
+                    └── Bucket 3  (keys 3, 7, 11, …)
 ```
 
 `Map.put(k, v)` dynamically installs a `Bucket` if one does not exist for `k % 4`, then stores the entry there. `Map.get(k)` and `Map.getUpdate(k)` both route to the same bucket via `k % 4`.
