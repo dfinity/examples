@@ -2,7 +2,7 @@ import Array "mo:core/Array";
 import Queue "mo:core/Queue";
 import List "mo:core/List";
 
-persistent actor {
+actor {
   // Types
   type FnType = {
     #heartbeat;
