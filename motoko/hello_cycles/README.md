@@ -2,15 +2,19 @@
 
 On the Internet Computer, canisters pay for computation and storage with cycles. This example demonstrates the three fundamental cycle management operations in Motoko:
 
-1. **Inspect the balance** — read the canister's current cycle balance with `Cycles.balance()`.
-2. **Accept incoming cycles** — when a caller attaches cycles to a call, the canister must explicitly claim them with `Cycles.accept()`. Unclaimed cycles are refunded.
-3. **Forward cycles to another canister** — attach cycles to an outgoing inter-canister call using the `(with cycles = N)` syntax, then read `Cycles.refunded()` to learn how many were not accepted.
+1. **Inspect the balance** — read how many cycles the canister currently holds.
+2. **Accept incoming cycles** — when a caller attaches cycles to a call, the canister must explicitly claim them. Unclaimed cycles are automatically refunded to the caller.
+3. **Send cycles to another canister** — attach cycles to an outgoing inter-canister call and learn how many were refunded (not accepted by the receiver).
 
-The three public functions:
+Operations 2 and 3 are two perspectives on the same transaction:
+- The **receiver** calls `Cycles.accept()` and returns how many it took (`accepted`).
+- The **sender** reads `Cycles.refunded()` after the call returns to learn how many cycles came back.
 
-- `wallet_balance`: returns the canister's current cycle balance as a `Nat`.
-- `wallet_receive`: accepts up to 10 million cycles from the caller and returns `{ accepted : Nat64 }`. The name follows a convention used by cycle-receiving canisters; the return type intentionally differs from a plain `() -> ()` so callers can confirm how many cycles were accepted.
-- `transfer`: sends `amount` cycles to any shared function whose Candid signature is `() -> ()`, then returns `{ refunded : Nat }` — the cycles the receiver did not accept.
+## Functions
+
+- `get_balance()` — returns the canister's current cycle balance as `Nat`.
+- `accept_cycles()` — accepts up to 10 million cycles from the caller; returns `{ accepted : Nat64 }`. The caller can inspect how many were claimed; any excess is refunded automatically.
+- `send_cycles(receiver, amount)` — forwards `amount` cycles from this canister's balance to `receiver`; returns `{ refunded : Nat }`. A non-zero `refunded` means the receiver did not accept all of the offered cycles.
 
 ## Build and deploy from the command line
 
@@ -35,6 +39,11 @@ icp deploy
 make test
 icp network stop
 ```
+
+The tests call `send_cycles` pointing to the canister's own `accept_cycles` endpoint, which lets us verify both sides of the transfer in one call:
+
+- Sending 5 million cycles → `refunded = 0` (all accepted, within the 10M limit)
+- Sending 15 million cycles → `refunded = 5_000_000` (5M over the limit, returned to sender)
 
 ## Security considerations and best practices
 

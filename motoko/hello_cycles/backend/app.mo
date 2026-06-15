@@ -4,23 +4,33 @@ import Cycles "mo:core/Cycles";
 
 actor HelloCycles {
 
+  /// Maximum cycles this canister accepts per call.
   let limit = 10_000_000;
 
-  public func wallet_balance() : async Nat {
-    return Cycles.balance();
+  /// Returns the canister's current cycle balance.
+  public query func get_balance() : async Nat {
+    Cycles.balance();
   };
 
-  public func wallet_receive() : async { accepted: Nat64 } {
-    let available = Cycles.available();
-    let accepted = Cycles.accept<system>(Nat.min(available, limit));
+  /// Accepts cycles that the caller attached to this call, up to `limit`.
+  /// The remainder is automatically refunded to the caller.
+  /// Returns how many cycles were actually accepted by this canister.
+  ///
+  /// This is the RECEIVER perspective: the canister decides how much to keep.
+  public func accept_cycles() : async { accepted : Nat64 } {
+    let available = Cycles.available(); // total cycles the caller attached
+    let accepted = Cycles.accept<system>(Nat.min(available, limit)); // claim up to limit
     { accepted = Nat64.fromNat(accepted) };
   };
 
-  public func transfer(
-    receiver : shared () -> async (),
-    amount : Nat) : async { refunded : Nat } {
-      await (with cycles = amount) receiver();
-      { refunded = Cycles.refunded() };
+  /// Sends `amount` cycles from this canister's balance to `receiver`.
+  /// Returns how many cycles were refunded (not accepted by the receiver).
+  ///
+  /// This is the SENDER perspective: the canister spends from its own
+  /// balance and learns how many cycles came back unused.
+  public func send_cycles(receiver : shared () -> async (), amount : Nat) : async { refunded : Nat } {
+    await (with cycles = amount) receiver(); // attach `amount` to the outgoing call
+    { refunded = Cycles.refunded() };        // how many the receiver did not accept
   };
 
 };
