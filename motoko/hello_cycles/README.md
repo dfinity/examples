@@ -13,7 +13,7 @@ Operations 2 and 3 are two perspectives on the same transaction:
 ## Functions
 
 - `getBalance()` — returns the canister's current cycle balance as `Nat`.
-- `acceptCycles()` — accepts up to 10 million cycles from the caller; returns `()`. Any excess is refunded automatically. Use `getBalance` before and after to observe how many cycles were received.
+- `acceptCycles()` — accepts up to 10 million cycles from the caller; returns `{ accepted : Nat64 }`. Any excess is refunded automatically.
 - `sendCycles(receiver, amount)` — forwards `amount` cycles from this canister's balance to `receiver`; returns `{ refunded : Nat }`. A non-zero `refunded` means the receiver did not accept all of the offered cycles.
 
 ## Build and deploy from the command line

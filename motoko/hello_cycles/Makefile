@@ -7,13 +7,12 @@ test:
 	  echo "$$result" | grep -qE '^\([0-9]+ : nat\)$$' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	@echo "=== Test 2: acceptCycles accepts cycles sent via the proxy canister ==="
-	@# Balance should increase after receiving cycles via the proxy.
+	@echo "=== Test 2: acceptCycles accepts 1M cycles sent via the proxy canister ==="
 	@PROXY=$$(icp network status --json | jq -r .proxy_canister_principal) && \
-	  before=$$(icp canister call --query backend getBalance '()' | grep -oE '[0-9]+' | head -1) && \
-	  icp canister call backend acceptCycles '()' --proxy "$$PROXY" --cycles 1_000_000 && \
-	  after=$$(icp canister call --query backend getBalance '()' | grep -oE '[0-9]+' | head -1) && \
-	  [ "$$after" -gt "$$before" ] && echo "PASS (balance: $$before → $$after)" || (echo "FAIL" && exit 1)
+	  result=$$(icp canister call backend acceptCycles '()' --proxy "$$PROXY" --cycles 1_000_000) && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -qE 'accepted = [1-9]' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
 
 	@echo "=== Test 3: sendCycles forwards 5M to itself — within limit, refunded = 0 ==="
 	@# The canister calls its own acceptCycles as receiver (inter-canister self-call).
