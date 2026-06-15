@@ -1,9 +1,5 @@
 # Certified variables
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/cert-var)
-
-## Overview
-
 This example demonstrates how to use **certified variables** on the Internet Computer. The backend canister holds a single 32-bit counter and keeps its value in sync with the system-level certified-data hash. Clients that call `get` as a query can cryptographically verify the returned value against the IC root key — without waiting for a full consensus round — by checking the embedded certificate.
 
 The example shows:
