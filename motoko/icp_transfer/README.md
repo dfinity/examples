@@ -36,12 +36,6 @@ icp network stop
 
 The `make test` target funds the backend canister with 2 ICP from the local network's default identity (which is seeded with tokens automatically), then calls `transfer` to send 1 ICP back to the default identity.
 
-## Updating the Candid interface
-
-```bash
-$(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo
-```
-
 ## Security considerations and best practices
 
 Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app.
