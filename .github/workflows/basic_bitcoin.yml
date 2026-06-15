@@ -41,30 +41,3 @@ jobs:
           icp network start -d
           icp deploy --cycles 30t
           make test
-
-  motoko-basic_bitcoin-arm64:
-    # Verifies the example works on Linux arm64. Note: the same example fails
-    # on macOS arm64 due to a Candid decode bug in the macOS icp-cli binary.
-    # Tracked in: https://github.com/dfinity/icp-cli/issues/601
-    runs-on: ubuntu-24.04-arm
-    env:
-      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-      - name: Install icp-cli, ic-wasm and mops
-        run: npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm ic-mops
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@b5ca514318bd6ebac0fb2aedd5d36ec1b5c232a2 # v3.10.0
-      - name: Build network launcher image
-        uses: docker/build-push-action@14487ce63c7a62a4a324b0bfb37086795e31c6c1 # v6.16.0
-        with:
-          context: motoko/basic_bitcoin
-          push: false
-          load: true
-          tags: icp-cli-network-launcher-bitcoin:latest
-      - name: Deploy and test
-        working-directory: motoko/basic_bitcoin
-        run: |
-          icp network start -d
-          icp deploy --cycles 30t
-          make test

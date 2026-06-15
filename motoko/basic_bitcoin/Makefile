@@ -5,9 +5,8 @@ BITCOIN_CONTAINER = $(shell docker ps --filter "ancestor=$(IMAGE_NAME)" --format
 .PHONY: build-image test topup
 
 build-image:
-	# Because we're building off of :latest, use --pull to fetch the latest image
-	# Remove `--pull` if the Dockerfile is updated to pin the version of the base
-	# image
+	# Because we're building off of :latest, use --pull to fetch the latest image.
+	# Remove `--pull` if the Dockerfile is updated to pin the base image version.
 	docker build --pull -t $(IMAGE_NAME) .
 
 topup:
