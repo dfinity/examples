@@ -3,7 +3,7 @@ import VarArray "mo:core/VarArray";
 import Cycles "mo:core/Cycles";
 import Buckets "Buckets";
 
-persistent actor Map {
+actor Map {
 
   let n = 4; // number of buckets
 

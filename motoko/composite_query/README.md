@@ -1,50 +1,54 @@
 # Composite queries
 
-This example modifies the simple actor class example to demonstrate the implementation of composite queries.
+On the Internet Computer, regular query functions are fast (no consensus) but have one strict limitation: **they cannot call other canisters**. Composite queries lift this restriction — a `composite query func` can call query methods on other canisters while keeping the speed benefit of a query call.
 
-The original example demonstrates a simple use of actor classes, allowing a program to dynamically install new actors (that is, canisters). It also demonstrates a multi-canister project, and actors using inter-actor communication through `shared` functions.
+For more background see [Composite queries](https://docs.internetcomputer.org/guides/canister-calls/parallel-inter-canister-calls/#composite-queries) in the ICP developer docs.
 
-In the original example, shared functions `Map.get` and `Bucket.get` were both implemented as
-update methods so that `Map.get` could call `Bucket.get`.
+This example implements a distributed key-value store (`Map`) that shards its entries across four dynamically-installed `Bucket` child canisters. Looking up a key requires calling the appropriate bucket:
 
-In this version `Bucket.get` is implemented as a query function and `Map.get` as a composite query function.
-Although queries and composite queries are fast, composite queries can only be invoked as ingress messages, either
-using `dfx` (see below) or an agent through, for example, a browser front-end (not illustrated here).
+- `get(k)` — **composite query**: delegates to the correct `Bucket.get(k)` as a cross-canister query call. Fast, no consensus.
+- `getUpdate(k)` — **update call**: same lookup, but via an update call to the bucket. Slower (goes through consensus) but provided here for comparison.
 
-In detail, the example provides actor `Map`.
-`Map` is a dead-simple, distributed key-value store, mapping `Nat` to `Text` values, with entries stored in a small number of separate `Bucket` actors, installed on demand.
+Both functions return the same result; the difference is latency and call semantics.
 
-[Map.mo](./src/map/Map.mo) imports a Motoko _actor class_ `Bucket(i, n)`
-from library [Buckets.mo](./src/map/Buckets.mo).
-It also imports `mo:core/Cycles` to share its cycles amongst the buckets it creates.
-
-Each call to `Buckets.Bucket(n, i)` within `Map` instantiates a new `Bucket` instance (the `i`-th of `n`) dedicated to those entries of the `Map` whose key _hashes_ to `i` (by taking the remainder of the key modulo division by `n`).
-
-Each asynchronous instantiation of the `Bucket` actor class corresponds to the dynamic, programmatic installation of a new `Bucket` canister.
-
-Each new `Bucket` must be provisioned with enough cycles to pay for its installation and running costs.
-`Map` achieves this by attaching an equal share of `Map`'s initial cycle balance to each asynchronous call to `Bucket(n, i)`, using the syntax `await (with cycles = cycleShare) Buckets.Bucket(n, i)`.
-
-`Map`'s `test` method simply `put`s 16 consecutive entries into `Map`. These entries are distributed evenly amongst the buckets making up the key-value store. Adding the first entry to a bucket takes longer than adding a subsequent one, since the bucket needs to be installed on first use.
-
-## Deploying from ICP Ninja
-
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/motoko/composite_query)
-
-## Build and deploy from the command-line
-
-### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
-
-### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
-
-### 3. Navigate into the project's directory.
-
-### 4. Deploy the project to your local environment:
+## Architecture
 
 ```
-dfx start --background --clean && dfx deploy
+Map (backend)
+  n = 4 buckets     ┌── Bucket 0  (keys 0, 4, 8, …)
+  key % n routes ───┼── Bucket 1  (keys 1, 5, 9, …)
+                    ├── Bucket 2  (keys 2, 6, 10, …)
+                    └── Bucket 3  (keys 3, 7, 11, …)
 ```
+
+`Map.put(k, v)` dynamically installs a `Bucket` if one does not exist for `k % 4`, then stores the entry there. `Map.get(k)` and `Map.getUpdate(k)` both route to the same bucket via `k % 4`.
+
+## Build and deploy from the command line
+
+### Prerequisites
+
+- Node.js
+- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- ic-mops: `npm install -g ic-mops`
+
+### Install
+
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/motoko/composite_query
+```
+
+### Deploy and test
+
+```bash
+icp network start -d
+icp deploy --cycles 30t
+make test
+icp network stop
+```
+
+> `icp deploy --cycles 30t` is required because `Map` dynamically creates `Bucket` canisters — it needs extra cycles to fund their installation. If tests fail with an out-of-cycles error, run `make topup`.
 
 ## Security considerations and best practices
 
-If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
+Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app.
