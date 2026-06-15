@@ -7,7 +7,7 @@ test:
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
 	@echo "=== Test 2: get returns the value that was set ==="
-	@result=$$(icp canister call backend get '()') && \
+	@result=$$(icp canister call --query backend get '()') && \
 	  echo "$$result" && \
 	  echo "$$result" | grep -q '42' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
@@ -19,7 +19,7 @@ test:
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
 	@echo "=== Test 4: get reflects the incremented value ==="
-	@result=$$(icp canister call backend get '()') && \
+	@result=$$(icp canister call --query backend get '()') && \
 	  echo "$$result" && \
 	  echo "$$result" | grep -q '43' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
