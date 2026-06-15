@@ -10,8 +10,8 @@ core = "2.5.0"
 # M0223: redundant type instantiation
 args = ["--default-persistent-actors", "-W=M0236,M0237,M0223"]
 
-[canisters.backend]
-main = "backend/app.mo"
+[canisters.caller]
+main = "caller/app.mo"
 
 [canisters.callee]
 main = "callee/app.mo"

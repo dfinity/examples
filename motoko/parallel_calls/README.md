@@ -2,7 +2,7 @@
 
 This example demonstrates how to implement inter-canister calls that run in parallel in Motoko, and highlights some differences between parallel and sequential calls. Running independent calls in parallel can lower latency, especially when messages are sent across subnets. For example, a canister that swaps two tokens might want to launch both token transfer operations in parallel.
 
-The example consists of two canisters, `backend` (caller) and `callee`. The `backend` canister has three endpoints:
+The example consists of two canisters, `caller` (caller) and `callee`. The `caller` canister has three endpoints:
 1. `setup_callee` — sets the ID of the callee canister.
 2. `sequential_calls` — takes a number `n` and issues `n` calls to the callee sequentially, returning the number of successful calls.
 3. `parallel_calls` — takes a number `n` and issues `n` calls to the callee in parallel, returning the number of successful calls.
