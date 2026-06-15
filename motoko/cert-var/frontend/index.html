@@ -127,9 +127,8 @@
 
         try {
           // Check 1: Certificate verifies.
-          const certBytes = resp.certificate.__kind__ === "Some"
-            ? resp.certificate.value
-            : null;
+          // icp-sdk returns opt blob as null | Uint8Array (not a tagged union).
+          const certBytes = resp.certificate;
 
           if (!certBytes) {
             log.innerText = "Failure: No certificate returned (was get() called as a query?).";
