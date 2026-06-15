@@ -8,7 +8,7 @@ test:
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
 	@echo "=== Test 2: accept_cycles accepts 1M cycles sent via the proxy canister ==="
-	@PROXY=$$(icp network status --json | python3 -c "import sys,json; print(json.load(sys.stdin)['proxy_canister_principal'])") && \
+	@PROXY=$$(icp network status --json | grep -o '"proxy_canister_principal": *"[^"]*"' | grep -o '"[^"]*"$$' | tr -d '"') && \
 	  result=$$(icp canister call backend accept_cycles '()' --proxy "$$PROXY" --cycles 1_000_000) && \
 	  echo "$$result" && \
 	  echo "$$result" | grep -qE 'accepted = [1-9]' && \
