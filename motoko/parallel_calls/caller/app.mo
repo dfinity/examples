@@ -1,27 +1,24 @@
 import List "mo:core/List";
-import Error "mo:core/Error";
-import Principal "mo:core/Principal";
 import Nat "mo:core/Nat";
+import Runtime "mo:core/Runtime";
 
 actor {
 
-    type callee_interface = (actor { ping : () -> async () });
-    var callee = null : ?callee_interface;
+    type CalleeActor = actor { ping : () -> async () };
 
-    public func setup_callee(c : Principal) : () {
-        callee := ?(actor (c.toText()) : callee_interface);
+    // Read the callee principal from PUBLIC_CANISTER_ID:callee, injected by
+    // icp-cli during `icp deploy`. The <system> type parameter explicitly
+    // declares that this function uses system capability (required by
+    // Runtime.envVar and actor()).
+    func callee<system>() : CalleeActor {
+        let ?id = Runtime.envVar<system>("PUBLIC_CANISTER_ID:callee") else
+            Runtime.trap("PUBLIC_CANISTER_ID:callee not set — run icp deploy");
+        actor(id) : CalleeActor;
     };
 
     public func sequential_calls(n : Nat) : async Nat {
-        let c = switch (callee) {
-            case null {
-                throw Error.reject("callee not set up");
-            };
-            case (?c) { c };
-        };
-
+        let c = callee<system>();
         var successful_calls = 0;
-
         for (_ in Nat.range(0, n)) {
             try {
                 await c.ping();
@@ -32,31 +29,22 @@ actor {
     };
 
     public func parallel_calls(n : Nat) : async Nat {
-        let c = switch (callee) {
-            case null {
-                throw Error.reject("callee not set up");
-            };
-            case (?c) { c };
-        };
-
-        let l = List.empty<async ()>();
+        let c = callee<system>();
+        let futures = List.empty<async ()>();
 
         for (_ in Nat.range(0, n)) {
             try {
-                l.add(c.ping());
+                futures.add(c.ping());
             } catch _ {};
         };
 
-        // The responses on the IC will in this example come in the order of the requests in practice.
-        // We use List.add (append) so the order already matches the request order.
         var successful_calls = 0;
-        for (a in l.values()) {
+        for (f in futures.values()) {
             try {
-                await a;
+                await f;
                 successful_calls += 1;
             } catch _ {};
         };
-
         successful_calls;
     };
 };

@@ -4,7 +4,7 @@ This example demonstrates parallel inter-canister calls in Motoko and highlights
 
 Two canisters are deployed:
 
-- **`caller`** — three endpoints: `setup_callee` (wires the callee), `sequential_calls(n)` (issues `n` calls one at a time), and `parallel_calls(n)` (issues all `n` calls at once).
+- **`caller`** — two endpoints: `sequential_calls(n)` (issues `n` calls one at a time) and `parallel_calls(n)` (issues all `n` calls at once). The callee principal is read from `PUBLIC_CANISTER_ID:callee`, injected automatically by icp-cli during `icp deploy`.
 - **`callee`** — a minimal `ping` endpoint that takes no parameters and returns nothing.
 
 ## Single-subnet behaviour
