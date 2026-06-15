@@ -32,13 +32,19 @@ make test
 icp network stop
 ```
 
-After deployment, the canister's `heartbeat` function periodically allocates memory. Once the remaining Wasm memory falls below the configured threshold, the `lowmemory` hook fires. Query `getExecutedFunctionsOrder` to observe the execution order:
+`make test` does two things:
+
+1. **Configures the canister settings**: sets `wasm_memory_limit` to 5 MiB and `wasm_memory_threshold` to 2 MiB. This means the `lowmemory` hook fires when remaining Wasm memory falls below 2 MiB (i.e. when usage exceeds 3 MiB). The canister starts with ~2.3 MiB of usage after deployment, so the hook triggers after allocating roughly 0.7 MiB more.
+
+2. **Polls `getExecutedFunctionsOrder`** until `onLowWasmMemory` appears as the last entry (or times out after 60 s).
+
+To observe the execution order manually:
 
 ```bash
-icp canister call backend getExecutedFunctionsOrder '()'
+icp canister call --query backend getExecutedFunctionsOrder '()'
 ```
 
-Repeat the call until the last entry is `onLowWasmMemory`.
+Repeat until the last entry is `onLowWasmMemory`.
 
 ## Security considerations and best practices
 
