@@ -1,9 +1,5 @@
 # Superheroes CRUD
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/superheroes)
-
-## Overview
-
 This example demonstrates how to build a CRUD (Create, Read, Update, Delete) application on ICP using Motoko and React. The backend canister stores superhero records (a name and a list of superpowers), and exposes four methods: `create`, `read`, `update`, and `delete`. The React frontend provides a simple UI for interacting with each operation.
 
 ## Build and deploy from the command line
