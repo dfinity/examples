@@ -399,9 +399,6 @@ Each example's README should follow this structure:
 ```markdown
 # <Example Title>
 
-[View this sample's code on GitHub](<github_url>)
-
-## Overview
 <2-3 sentences describing what the example demonstrates>
 
 ## Build and deploy from the command line
