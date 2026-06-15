@@ -8,10 +8,9 @@ core = "2.5.0"
 # M0236: use context dot notation
 # M0237: redundant explicit implicit arguments
 # M0223: redundant type instantiation
-# M0195: actor(id) in subscribe() implicitly uses system capability; safe because
-#         subscribe() is a public actor function (system capability is implicit) and
-#         the principal comes from a trusted icp-cli-injected environment variable
-args = ["--default-persistent-actors", "-W=M0236,M0237,M0223,M0195"]
+# M0195 (actor(id) requires system capability) is handled by declaring publisher()
+# with <system> type parameter — the warning still prints but does not block the build.
+args = ["--default-persistent-actors", "-W=M0236,M0237,M0223"]
 
 [canisters.publisher]
 main = "publisher/app.mo"
