@@ -34,12 +34,6 @@ The `--cycles 30t` flag funds the backend canister with 30 trillion cycles so it
 
 > If tests fail with an out-of-cycles error, run `make topup` to add 30 trillion cycles to the backend canister and retry.
 
-## Updating the Candid interface
-
-```bash
-$(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo
-```
-
 ## Security considerations and best practices
 
 Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app.
