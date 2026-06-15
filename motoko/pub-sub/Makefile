@@ -2,8 +2,7 @@
 
 test:
 	@echo "=== Test 1: subscriber registers with publisher for the 'Apples' topic ==="
-	@PUBLISHER_ID=$$(icp canister status publisher -i) && \
-	  icp canister call subscriber init "(principal \"$$PUBLISHER_ID\", \"Apples\")" && \
+	@icp canister call subscriber subscribe '("Apples")' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
 	@echo "=== Test 2: initial count is zero ==="

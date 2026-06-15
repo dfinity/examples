@@ -12,8 +12,9 @@ Two canisters are deployed:
 The call flow:
 
 ```
-1. subscriber.init(publisher_principal, "Apples")
+1. subscriber.subscribe("Apples")
      └─► publisher.subscribe({ topic = "Apples"; callback = subscriber.updateCount })
+     (publisher ID read from PUBLIC_CANISTER_ID:publisher, injected by icp-cli)
 
 2. publisher.publish({ topic = "Apples"; value = 2 })
      └─► subscriber.updateCount({ topic = "Apples"; value = 2 })   ← async callback
@@ -21,7 +22,7 @@ The call flow:
 3. subscriber.getCount()  →  2
 ```
 
-The callback (`subscriber.updateCount`) is a **shared function reference** — a first-class value in Motoko that can be stored and called across canisters. The publisher principal is passed to `init` at runtime rather than hard-coded at compile time, making the subscriber reusable with any publisher. Because ICP guarantees message delivery, the typical reliability concern of pub/sub in distributed systems does not apply here.
+The callback (`subscriber.updateCount`) is a **shared function reference** — a first-class value in Motoko that can be stored and called across canisters. The subscriber discovers the publisher automatically: icp-cli injects `PUBLIC_CANISTER_ID:publisher` into every canister in the project during `icp deploy`, and the subscriber reads it at runtime via `Runtime.envVar`. No principal is hardcoded or passed as an argument. Because ICP guarantees message delivery, the typical reliability concern of pub/sub in distributed systems does not apply here.
 
 Note: `publish` fires callbacks asynchronously. There is a brief delay before the subscriber state is updated, which is why the tests sleep briefly after publishing.
 

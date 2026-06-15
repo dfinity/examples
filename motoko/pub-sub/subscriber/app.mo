@@ -1,5 +1,7 @@
 // Subscriber
 
+import Runtime "mo:core/Runtime";
+
 actor Subscriber {
 
   type Counter = {
@@ -13,11 +15,18 @@ actor Subscriber {
 
   var count : Nat = 0;
 
-  // Register with `publisher` for `topic`. The publisher principal is passed
-  // at runtime so the subscriber is not hard-wired to a specific canister.
-  public func init(publisher : Principal, topic : Text) : async () {
-    let p = actor(debug_show publisher) : PublisherActor;
-    p.subscribe({
+  // icp-cli automatically injects PUBLIC_CANISTER_ID:publisher into every
+  // canister in the project during `icp deploy`.  Read it at runtime via
+  // Runtime.envVar so no canister ID is hardcoded or passed as an argument.
+  func publisher() : PublisherActor {
+    let ?id = Runtime.envVar("PUBLIC_CANISTER_ID:publisher") else
+      Runtime.trap("PUBLIC_CANISTER_ID:publisher not set — run icp deploy");
+    actor(id) : PublisherActor;
+  };
+
+  /// Subscribe to `topic` on the publisher canister.
+  public func subscribe(topic : Text) : async () {
+    publisher().subscribe({
       topic;
       callback = updateCount;
     });
