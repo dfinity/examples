@@ -12,9 +12,9 @@ Operations 2 and 3 are two perspectives on the same transaction:
 
 ## Functions
 
-- `get_balance()` — returns the canister's current cycle balance as `Nat`.
-- `accept_cycles()` — accepts up to 10 million cycles from the caller; returns `{ accepted : Nat64 }`. The caller can inspect how many were claimed; any excess is refunded automatically.
-- `send_cycles(receiver, amount)` — forwards `amount` cycles from this canister's balance to `receiver`; returns `{ refunded : Nat }`. A non-zero `refunded` means the receiver did not accept all of the offered cycles.
+- `getBalance()` — returns the canister's current cycle balance as `Nat`.
+- `acceptCycles()` — accepts up to 10 million cycles from the caller; returns `{ accepted : Nat64 }`. The caller can inspect how many were claimed; any excess is refunded automatically.
+- `sendCycles(receiver, amount)` — forwards `amount` cycles from this canister's balance to `receiver`; returns `{ refunded : Nat }`. A non-zero `refunded` means the receiver did not accept all of the offered cycles.
 
 ## Build and deploy from the command line
 
@@ -42,8 +42,8 @@ icp network stop
 
 The tests cover both perspectives:
 
-- **Test 2 (receiver side)**: calls `accept_cycles` through the local [proxy canister](https://cli.internetcomputer.org/0.3/guides/proxy-canister/) with 1M attached cycles — verifies `accepted > 0`. External callers cannot attach cycles directly; icp-cli routes the cycles via the proxy, which is automatically deployed on the local network.
-- **Test 3 (sender side)**: calls `send_cycles` pointing to the canister's own `accept_cycles` with 5M cycles — verifies `refunded = 0` (all accepted within the 10M limit).
+- **Test 2 (receiver side)**: calls `acceptCycles` through the local [proxy canister](https://cli.internetcomputer.org/0.3/guides/proxy-canister/) with 1M attached cycles — verifies `accepted > 0`. External callers cannot attach cycles directly; icp-cli routes the cycles via the proxy, which is automatically deployed on the local network.
+- **Test 3 (sender side)**: calls `sendCycles` pointing to the canister's own `acceptCycles` with 5M cycles — verifies `refunded = 0` (all accepted within the 10M limit).
 - **Test 4 (refund case)**: same but with 15M cycles — verifies `refunded = 5_000_000` (5M over the limit).
 
 ## Security considerations and best practices
