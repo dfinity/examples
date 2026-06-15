@@ -1,9 +1,5 @@
 # Hello, cycles!
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/hello_cycles)
-
-## Overview
-
 This example demonstrates how to send, receive, and check cycle balances from a Motoko canister. It shows the three key cycle management patterns: checking the current balance, accepting incoming cycles, and forwarding cycles to another canister.
 
 The example exposes three public functions:
