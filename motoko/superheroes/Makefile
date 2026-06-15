@@ -8,7 +8,7 @@ test:
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
 	@echo "=== Test 2: read the created superhero ==="
-	@result=$$(icp canister call backend read '(0 : nat32)') && \
+	@result=$$(icp canister call --query backend read '(0 : nat32)') && \
 	  echo "$$result" && \
 	  echo "$$result" | grep -q 'Superman' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
@@ -20,7 +20,7 @@ test:
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
 	@echo "=== Test 4: read updated superhero to verify state change ==="
-	@result=$$(icp canister call backend read '(0 : nat32)') && \
+	@result=$$(icp canister call --query backend read '(0 : nat32)') && \
 	  echo "$$result" && \
 	  echo "$$result" | grep -q 'x-ray vision' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
@@ -38,7 +38,7 @@ test:
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
 	@echo "=== Test 7: read deleted superhero returns null ==="
-	@result=$$(icp canister call backend read '(0 : nat32)') && \
+	@result=$$(icp canister call --query backend read '(0 : nat32)') && \
 	  echo "$$result" && \
 	  echo "$$result" | grep -q 'null' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
