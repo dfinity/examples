@@ -1,12 +1,16 @@
 # Hello, cycles!
 
-This example demonstrates how to send, receive, and check cycle balances from a Motoko canister. It shows the three key cycle management patterns: checking the current balance, accepting incoming cycles, and forwarding cycles to another canister.
+On the Internet Computer, canisters pay for computation and storage with cycles. This example demonstrates the three fundamental cycle management operations in Motoko:
 
-The example exposes three public functions:
+1. **Inspect the balance** — read the canister's current cycle balance with `Cycles.balance()`.
+2. **Accept incoming cycles** — when a caller attaches cycles to a call, the canister must explicitly claim them with `Cycles.accept()`. Unclaimed cycles are refunded.
+3. **Forward cycles to another canister** — attach cycles to an outgoing inter-canister call using the `(with cycles = N)` syntax, then read `Cycles.refunded()` to learn how many were not accepted.
 
-- `wallet_balance`: returns the current cycle balance of the canister as a `Nat`.
-- `wallet_receive`: accepts up to 10 million cycles sent by the caller and returns `{ accepted : Nat64 }`. Note: the name and type are dictated by the wallet protocol — the return type intentionally differs from a wallet's own `wallet_receive : () -> ()` which returns nothing.
-- `transfer`: forwards a specified number of cycles to any shared function with the Candid signature `() -> ()`. Returns `{ refunded : Nat }` indicating how many cycles were not accepted.
+The three public functions:
+
+- `wallet_balance`: returns the canister's current cycle balance as a `Nat`.
+- `wallet_receive`: accepts up to 10 million cycles from the caller and returns `{ accepted : Nat64 }`. The name follows a convention used by cycle-receiving canisters; the return type intentionally differs from a plain `() -> ()` so callers can confirm how many cycles were accepted.
+- `transfer`: sends `amount` cycles to any shared function whose Candid signature is `() -> ()`, then returns `{ refunded : Nat }` — the cycles the receiver did not accept.
 
 ## Build and deploy from the command line
 
