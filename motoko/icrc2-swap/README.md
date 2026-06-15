@@ -1,9 +1,5 @@
 # ICRC-2 Swap
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/icrc2-swap)
-
-## Overview
-
 This example demonstrates how to safely work with ICRC-2 tokens on the Internet Computer. The swap canister handles depositing, swapping, and withdrawing ICRC-2 tokens using a simple 1:1 swap mechanism, illustrating correct design patterns for inter-canister calls in an asynchronous environment.
 
 The asynchronous nature of the Internet Computer presents unique challenges compared to synchronous blockchains. This example highlights:
