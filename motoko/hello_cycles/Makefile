@@ -1,46 +1,32 @@
-.PHONY: all
-all: build
-
-.PHONY: build
-.SILENT: build
-build:
-	dfx canister create hello_cycles
-	dfx build
-
-.PHONY: install
-.SILENT: install
-install: build
-	dfx canister install hello_cycles
-
-.PHONY: upgrade
-.SILENT: upgrade
-upgrade: build
-	dfx canister install hello_cycles --mode=upgrade
-
 .PHONY: test
-.SILENT: test
-test: install
-	$(eval WALLET := $(shell dfx identity get-wallet))
-	$(eval HELLO_CYCLES := $(shell dfx canister id hello_cycles))
-	echo "dfx version: $(shell dfx --version)"
-	echo "wallet: $(WALLET)"
-	echo "hello_cycles: $(HELLO_CYCLES)"
-	echo "$(dfx canister call hello_cycles wallet_balance)"
-	# canister has just above 2.9T cycles, so output start with '(2_9'
-	dfx canister call hello_cycles wallet_balance \
-		| grep '(2_9' && echo 'PASS'
-	dfx canister status hello_cycles
-	dfx canister call $(WALLET) wallet_send '(record { canister = principal "$(HELLO_CYCLES)"; amount = (2000000000000:nat64); } )'
-	# 2T cycles added, now contains just above 4.9T
-	dfx canister call hello_cycles wallet_balance \
-		| grep '(4_9' && echo 'PASS'
-	echo  '(func "$(WALLET)"."wallet_receive", 5000000)'
-	dfx canister call hello_cycles transfer '(func "$(WALLET)"."wallet_receive", 5000000)' \
-		| grep '0' && echo 'PASS'
-	dfx canister call hello_cycles wallet_balance \
-	 	| grep '(4_9' && echo 'PASS'
 
-.PHONY: clean
-.SILENT: clean
-clean:
-	rm -fr .dfx
+test:
+	@echo "=== Test 1: getBalance returns the canister's cycle balance ==="
+	@result=$$(icp canister call --query backend getBalance '()') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -qE '^\([0-9][0-9_]* : nat\)$$' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 2: acceptCycles accepts 1M cycles sent via the proxy canister ==="
+	@PROXY=$$(icp network status --json | jq -r .proxy_canister_principal) && \
+	  result=$$(icp canister call backend acceptCycles '()' --proxy "$$PROXY" --cycles 1_000_000) && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -qE 'accepted = [1-9]' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 3: sendCycles forwards 5M to itself — within limit, refunded = 0 ==="
+	@# The canister calls its own acceptCycles as receiver (inter-canister self-call).
+	@# 5M offered < 10M limit, so all cycles are accepted and none are refunded.
+	@BACKEND_ID=$$(icp canister status backend -i) && \
+	  result=$$(icp canister call backend sendCycles "(func \"$$BACKEND_ID\".\"acceptCycles\", 5_000_000)") && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'refunded = 0' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 4: sendCycles forwards 15M to itself — over limit, refunded = 5_000_000 ==="
+	@# 15M offered > 10M limit, so 10M are accepted and exactly 5M are refunded.
+	@BACKEND_ID=$$(icp canister status backend -i) && \
+	  result=$$(icp canister call backend sendCycles "(func \"$$BACKEND_ID\".\"acceptCycles\", 15_000_000)") && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'refunded = 5_000_000' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)

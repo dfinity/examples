@@ -1,40 +1,51 @@
 # Hello, cycles!
 
-The `hello_cycles` sample project provides a simple example to illustrate how you might add functions to receive cycles, transfer cycles, and check your cycle balance with a simple Motoko actor (canister).
+On the Internet Computer, canisters pay for computation and storage with cycles. This example demonstrates the three fundamental cycle management operations in Motoko:
 
-This sample project assumes that you are using the default cycles wallet canister that is created for you.
+1. **Inspect the balance** — read how many cycles the canister currently holds.
+2. **Accept incoming cycles** — when a caller attaches cycles to a call, the canister must explicitly claim them. Unclaimed cycles are automatically refunded to the caller.
+3. **Send cycles to another canister** — attach cycles to an outgoing inter-canister call and learn how many were refunded (not accepted by the receiver).
 
-This example consists of the following functions (see `src/hello_cycles/main.mo`):
+Operations 2 and 3 are two perspectives on the same transaction:
+- The **receiver** calls `Cycles.accept()` and returns how many it took (`accepted`).
+- The **sender** reads `Cycles.refunded()` after the call returns to learn how many cycles came back.
 
-- The `wallet_balance : () -> async Nat`: enables you to check the current cycle balance for the canister.
+## Functions
 
-- The `wallet_receive : () -> { amount : Nat64 }`: enables the program to accept cycles that are sent to the canister from a wallet. Both the name and type of this function are dictated by the wallet's implementation (so don't mess with them).
+- `getBalance()` — returns the canister's current cycle balance as `Nat`.
+- `acceptCycles()` — accepts up to 10 million cycles from the caller; returns `{ accepted : Nat64 }`. Any excess is refunded automatically.
+- `sendCycles(receiver, amount)` — forwards `amount` cycles from this canister's balance to `receiver`; returns `{ refunded : Nat }`. A non-zero `refunded` means the receiver did not accept all of the offered cycles.
 
-- The `transfer : (shared () -> (), Nat) -> async { refunded : Nat }`: enables the program to transfer cycles to any shared function with candid signature `"() -> ()"` (assuming it accepts cycles). One example is the wallet's own `wallet_receive : () -> ()` function.
+## Build and deploy from the command line
 
-:::caution
-The wallet's `wallet_receive` return type differs from hello_cycle's `wallet_receive`.
-:::
+### Prerequisites
 
-## Deploying from ICP Ninja
+- Node.js
+- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- ic-mops: `npm install -g ic-mops`
+- jq (used in `make test` to read the proxy canister principal)
 
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/motoko/hello_cycles)
+### Install
 
-## Build and deploy from the command-line
-
-### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
-
-### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
-
-### 3. Navigate into the project's directory.
-
-### 4. Deploy the project to your local environment:
-
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/motoko/hello_cycles
 ```
-dfx start --background --clean && dfx deploy
+
+### Deploy and test
+
+```bash
+icp network start -d
+icp deploy
+make test
+icp network stop
 ```
+
+The tests cover both perspectives:
+
+- **Test 2 (receiver side)**: calls `acceptCycles` through the local [proxy canister](https://cli.internetcomputer.org/0.3/guides/proxy-canister/) with 1M attached cycles — verifies `accepted > 0`. External callers cannot attach cycles directly; icp-cli routes the cycles via the proxy, which is automatically deployed on the local network.
+- **Tests 3 & 4 (sender side)**: calls `sendCycles` with the canister's **own** `acceptCycles` as the receiver (an inter-canister self-call — no second canister needed). The 5M/15M cycles leave the canister via `sendCycles` and arrive at `acceptCycles`, which accepts up to the 10M limit. Test 3 sends 5M → `refunded = 0` (within limit). Test 4 sends 15M → `refunded = 5_000_000` (5M over the limit). In practice, `sendCycles` would target a different canister.
 
 ## Security considerations and best practices
 
-If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
-
+Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app.
