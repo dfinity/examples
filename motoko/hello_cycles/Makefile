@@ -4,7 +4,7 @@ test:
 	@echo "=== Test 1: getBalance returns the canister's cycle balance ==="
 	@result=$$(icp canister call --query backend getBalance '()') && \
 	  echo "$$result" && \
-	  echo "$$result" | grep -qE '^\([0-9]+ : nat\)$$' && \
+	  echo "$$result" | grep -qE '^\([0-9][0-9_]* : nat\)$$' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
 	@echo "=== Test 2: acceptCycles accepts 1M cycles sent via the proxy canister ==="
