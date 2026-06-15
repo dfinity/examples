@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { backend } from './actor';
 
 const App = () => {
-  const [size, setSize] = useState(10);
+  const [size, setSize] = useState('');
   const [maze, setMaze] = useState('');
   const [loading, setLoading] = useState(false);
 
@@ -18,36 +18,23 @@ const App = () => {
   };
 
   return (
-    <div style={{ padding: '2rem', fontFamily: 'sans-serif' }}>
-      <h1>Random Maze</h1>
+    <div style={{ backgroundColor: 'powderblue', textAlign: 'center', minHeight: '100vh', fontFamily: 'sans-serif', fontSize: '1.5rem' }}>
+      <img src="/logo.png" alt="DFINITY logo" style={{ maxWidth: '50vw', maxHeight: '25vw', display: 'block', margin: 'auto' }} />
       <div>
-        <label htmlFor="size">Maze size: </label>
+        <label htmlFor="size">Approximate size of maze?*</label>
         <input
           id="size"
           type="number"
-          min="1"
-          max="50"
+          min="0"
           value={size}
-          onChange={(e) => setSize(Number(e.target.value))}
-          style={{ marginRight: '1rem' }}
+          onChange={(e) => setSize(e.target.value)}
         />
         <button onClick={handleGenerate} disabled={loading}>
           {loading ? 'Generating…' : 'Generate!'}
         </button>
       </div>
-      {maze && (
-        <pre
-          id="maze"
-          style={{
-            marginTop: '1rem',
-            lineHeight: '1',
-            fontSize: '1rem',
-            whiteSpace: 'pre',
-          }}
-        >
-          {maze}
-        </pre>
-      )}
+      <pre>*rounded down to odd number.</pre>
+      <pre id="maze" style={{ lineHeight: '1' }}>{maze}</pre>
     </div>
   );
 };
