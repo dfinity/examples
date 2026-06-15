@@ -49,8 +49,3 @@ $(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo
 ## Security considerations and best practices
 
 Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app.
-
-For this example, the following aspects are particularly relevant since it employs cryptographic algorithms:
-
-- [Don't implement crypto yourself.](https://docs.internetcomputer.org/guides/security/general-security-best-practices#dont-implement-crypto-yourself)
-- [Use secure cryptographic schemes.](https://docs.internetcomputer.org/guides/security/general-security-best-practices#use-secure-cryptographic-schemes)
