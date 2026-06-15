@@ -1,9 +1,5 @@
 # ICP Transfer
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/icp_transfer)
-
-## Overview
-
 ICP Transfer is a canister that can transfer ICP tokens from its account to other accounts. It demonstrates how to interact with the ICP ledger canister from a Motoko smart contract. The same example is also available in [Rust](https://github.com/dfinity/examples/tree/master/rust/icp_transfer).
 
 The example implements a single `transfer` function that accepts a recipient principal, optional subaccount, and an amount in e8s (1 ICP = 100_000_000 e8s). The canister calls the ICP ledger at its well-known principal (`ryjl3-tyaaa-aaaaa-aaaba-cai`) — the same address used on both mainnet and the local development network.
