@@ -1,5 +1,5 @@
 use candid::{decode_one, encode_one, Nat, Principal};
-use pocket_ic::{PocketIcBuilder, WasmResult};
+use pocket_ic::{CanisterSettings, EnvironmentVariable, PocketIcBuilder};
 use std::time::Instant;
 
 const INIT_CYCLES: u128 = 2_000_000_000_000;
@@ -16,20 +16,28 @@ fn main() {
     let caller_id = pic.create_canister_on_subnet(None, None, app_sub_1);
     pic.add_cycles(caller_id, INIT_CYCLES);
     pic.install_canister(caller_id, caller_wasm(), vec![], None);
+
     let callee_id = pic.create_canister_on_subnet(None, None, app_sub_2);
     pic.add_cycles(callee_id, INIT_CYCLES);
-
     pic.install_canister(callee_id, callee_wasm(), vec![], None);
-    pic.update_call(
+
+    // Inject PUBLIC_CANISTER_ID:callee so the caller discovers the callee
+    // via Runtime.envVar without a separate setup call.
+    pic.update_canister_settings(
         caller_id,
-        Principal::anonymous(),
-        "setup_callee",
-        encode_one(callee_id).unwrap(),
+        None,
+        CanisterSettings {
+            environment_variables: Some(vec![EnvironmentVariable {
+                name: "PUBLIC_CANISTER_ID:callee".to_string(),
+                value: callee_id.to_text(),
+            }]),
+            ..Default::default()
+        },
     )
-    .expect("Failed to set the callee canister up");
+    .expect("Failed to inject callee canister ID");
 
     let sequential_start = Instant::now();
-    let sequential_result = pic
+    let sequential_reply = pic
         .update_call(
             caller_id,
             Principal::anonymous(),
@@ -37,14 +45,11 @@ fn main() {
             encode_one(num_calls.clone()).unwrap(),
         )
         .expect("Failed to execute sequential calls");
-    let sequential_num_calls: Nat = match sequential_result {
-        WasmResult::Reply(reply) => decode_one(&reply).unwrap(),
-        WasmResult::Reject(code) => panic!("Unexpected reject code for sequential calls: {}", code),
-    };
+    let sequential_num_calls: Nat = decode_one(&sequential_reply).unwrap();
     let sequential_duration = sequential_start.elapsed();
 
     let parallel_start = Instant::now();
-    let parallel_result = pic
+    let parallel_reply = pic
         .update_call(
             caller_id,
             Principal::anonymous(),
@@ -52,10 +57,7 @@ fn main() {
             encode_one(num_calls.clone()).unwrap(),
         )
         .expect("Failed to execute parallel calls");
-    let parallel_num_calls: Nat = match parallel_result {
-        WasmResult::Reply(reply) => decode_one(&reply).unwrap(),
-        WasmResult::Reject(code) => panic!("Unexpected reject code for parallel calls: {}", code),
-    };
+    let parallel_num_calls: Nat = decode_one(&parallel_reply).unwrap();
     let parallel_duration = parallel_start.elapsed();
 
     println!(
