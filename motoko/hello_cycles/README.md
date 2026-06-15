@@ -40,10 +40,11 @@ make test
 icp network stop
 ```
 
-The tests call `send_cycles` pointing to the canister's own `accept_cycles` endpoint, which lets us verify both sides of the transfer in one call:
+The tests cover both perspectives:
 
-- Sending 5 million cycles → `refunded = 0` (all accepted, within the 10M limit)
-- Sending 15 million cycles → `refunded = 5_000_000` (5M over the limit, returned to sender)
+- **Test 2 (receiver side)**: calls `accept_cycles` through the local [proxy canister](https://cli.internetcomputer.org/0.3/guides/proxy-canister/) with 1M attached cycles — verifies `accepted > 0`. External callers cannot attach cycles directly; icp-cli routes the cycles via the proxy, which is automatically deployed on the local network.
+- **Test 3 (sender side)**: calls `send_cycles` pointing to the canister's own `accept_cycles` with 5M cycles — verifies `refunded = 0` (all accepted within the 10M limit).
+- **Test 4 (refund case)**: same but with 15M cycles — verifies `refunded = 5_000_000` (5M over the limit).
 
 ## Security considerations and best practices
 

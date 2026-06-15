@@ -7,14 +7,21 @@ test:
 	  echo "$$result" | grep -qE '[0-9]' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	@echo "=== Test 2: send_cycles forwards 5M cycles — all accepted, refunded = 0 ==="
+	@echo "=== Test 2: accept_cycles accepts 1M cycles sent via the proxy canister ==="
+	@PROXY=$$(icp network status --json | python3 -c "import sys,json; print(json.load(sys.stdin)['proxy_canister_principal'])") && \
+	  result=$$(icp canister call backend accept_cycles '()' --proxy "$$PROXY" --cycles 1_000_000) && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -qE 'accepted = [1-9]' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 3: send_cycles forwards 5M cycles — all accepted (refunded = 0) ==="
 	@BACKEND_ID=$$(icp canister status backend -i) && \
 	  result=$$(icp canister call backend send_cycles "(func \"$$BACKEND_ID\".\"accept_cycles\", 5_000_000)") && \
 	  echo "$$result" && \
 	  echo "$$result" | grep -q 'refunded = 0' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	@echo "=== Test 3: send_cycles forwards 15M cycles — 5M refunded (over the 10M limit) ==="
+	@echo "=== Test 4: send_cycles forwards 15M cycles — 5M refunded (over the 10M limit) ==="
 	@BACKEND_ID=$$(icp canister status backend -i) && \
 	  result=$$(icp canister call backend send_cycles "(func \"$$BACKEND_ID\".\"accept_cycles\", 15_000_000)") && \
 	  echo "$$result" && \
