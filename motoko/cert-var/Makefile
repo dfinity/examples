@@ -1,35 +1,20 @@
-.PHONY: all
-all: build
-
-.PHONY: node_modules
-.SILENT: node_modules
-node_modules:
-	npm install
-
-.PHONY: build
-.SILENT: build
-build: node_modules
-	find src
-	dfx canister create --all
-	dfx build
-
-.PHONY: install
-.SILENT: install
-install: build
-	dfx canister install --all
-
-.PHONY: upgrade
-.SILENT: upgrade
-upgrade: build
-	dfx canister install --all --mode=upgrade
-
 .PHONY: test
-.SILENT: test
-test: install
-	dfx canister call cert_var set 42
 
-.PHONY: clean
-.SILENT: clean
-clean:
-	rm -fr .dfx
-	rm -fr node_modules
+test:
+	@echo "=== Test 1: set stores a value ==="
+	@icp canister call backend set '(42 : nat32)' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 2: get returns the correct stored value ==="
+	@icp canister call --query backend get '()' | tee /dev/stderr | grep -q 'value = 42' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 3: inc increments and returns the new value ==="
+	@result=$$(icp canister call backend inc '()') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q '43' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 4: get returns the updated value after inc ==="
+	@icp canister call --query backend get '()' | tee /dev/stderr | grep -q 'value = 43' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
