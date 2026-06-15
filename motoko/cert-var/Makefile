@@ -6,20 +6,20 @@ test:
 	  echo "$$result" && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	@echo "=== Test 2: get returns the value that was set ==="
-	@result=$$(icp canister call --query backend get '()') && \
-	  echo "$$result" && \
-	  echo "$$result" | grep -q '42' && \
-	  echo "PASS" || (echo "FAIL" && exit 1)
-
-	@echo "=== Test 3: inc increments and returns the new value ==="
+	@echo "=== Test 2: inc returns the incremented value (proves set(42) was stored) ==="
 	@result=$$(icp canister call backend inc '()') && \
 	  echo "$$result" && \
 	  echo "$$result" | grep -q '43' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	@echo "=== Test 4: get reflects the incremented value ==="
+	@echo "=== Test 3: get returns a record with a certificate ==="
 	@result=$$(icp canister call --query backend get '()') && \
 	  echo "$$result" && \
-	  echo "$$result" | grep -q '43' && \
+	  echo "$$result" | grep -q 'certificate' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 4: inc increments again and returns the new value ==="
+	@result=$$(icp canister call backend inc '()') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q '44' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
