@@ -41,8 +41,6 @@ icp network stop
 
 `make test` verifies **functional correctness** only — that values are stored and returned correctly. Cryptographic certificate verification (confirming the query response is authentically signed by the IC) is performed in the browser frontend, not the CLI tests. The icp-cli does not verify certificates on your behalf.
 
-> **Note:** Certificate verification in the frontend requires the IC subnet to BLS-sign query responses, which is only available on IC mainnet and staging. On the local PocketIC network, `CertifiedData.getCertificate()` returns `null` for plain query calls and the browser will show "No certificate returned". To fully test the verification flow, deploy to staging with `icp deploy -e staging`.
-
 For local frontend development with hot reload:
 
 ```bash

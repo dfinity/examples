@@ -158,7 +158,7 @@
         const now = Date.now() / 1000;
         const diff = Math.abs(time - now);
         if (diff > 5) {
-          log.innerText = "Failure: Timing is wrong.";
+          log.innerText = "Failure: Certificate timestamp is too old (diff: " + diff.toFixed(1) + "s, max: 5s).";
           return;
         }
         console.log("Check 2: Timestamp difference seems legit (< 5 sec).", diff);
