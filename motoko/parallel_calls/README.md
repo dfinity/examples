@@ -1,13 +1,30 @@
 # Parallel inter-canister calls
 
-This example demonstrates how to implement inter-canister calls that run in parallel in Motoko, and highlights some differences between parallel and sequential calls. Running independent calls in parallel can lower latency, especially when messages are sent across subnets. For example, a canister that swaps two tokens might want to launch both token transfer operations in parallel.
+This example demonstrates parallel inter-canister calls in Motoko and highlights the key differences between sequential and parallel call patterns. Running independent calls in parallel can significantly reduce latency, especially when messages are sent across subnets. For example, a canister that swaps two tokens might want to launch both token transfers in parallel.
 
-The example consists of two canisters, `caller` (caller) and `callee`. The `caller` canister has three endpoints:
-1. `setup_callee` — sets the ID of the callee canister.
-2. `sequential_calls` — takes a number `n` and issues `n` calls to the callee sequentially, returning the number of successful calls.
-3. `parallel_calls` — takes a number `n` and issues `n` calls to the callee in parallel, returning the number of successful calls.
+Two canisters are deployed:
 
-The `callee` canister exposes a simple `ping` endpoint that takes no parameters and returns nothing.
+- **`caller`** — three endpoints: `setup_callee` (wires the callee), `sequential_calls(n)` (issues `n` calls one at a time), and `parallel_calls(n)` (issues all `n` calls at once).
+- **`callee`** — a minimal `ping` endpoint that takes no parameters and returns nothing.
+
+## Single-subnet behaviour
+
+With a small number of calls (e.g. 100), sequential and parallel both succeed and show similar wall-clock time. This is expected: on a single subnet, inter-canister calls have almost no latency, so there is little benefit to running them in parallel.
+
+With a large number of calls (e.g. 2000), sequential calls all succeed, but most parallel calls fail. The replica imposes a limit on the number of in-flight calls a canister can have to a given target. Sequential calls respect this naturally (one in-flight call at a time), while 2000 parallel calls immediately exceed it.
+
+> **Note on retries:** If the in-flight limit is hit, immediate retries will also fail. Retries should be scheduled via a timer or a heartbeat instead.
+
+## Multi-subnet benefit
+
+Parallel calls are most valuable across subnets, where cross-subnet latency (~2 seconds per message) makes sequential calls prohibitively slow. The `multi_subnet/` directory contains a PocketIC-based Rust test that installs `caller` and `callee` on different subnets and demonstrates the speedup:
+
+```
+Sequential calls: 90/90 successful in ~600ms
+Parallel calls:   90/90 successful in ~300ms
+```
+
+The difference on ICP mainnet would be larger still.
 
 ## Build and deploy from the command line
 
@@ -32,8 +49,6 @@ icp deploy
 make test
 icp network stop
 ```
-
-When running with a small number of calls (e.g. 100), sequential and parallel calls both succeed. With a large number of calls (e.g. 2000), sequential calls all succeed but most parallel calls fail because the replica imposes a limit on the number of in-flight calls a canister can make. Parallel calls are most useful in multi-subnet settings, where they significantly reduce latency.
 
 ## Security considerations and best practices
 
