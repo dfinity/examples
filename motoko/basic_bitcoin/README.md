@@ -4,6 +4,22 @@ This example demonstrates how a canister can send and receive Bitcoin on the Int
 
 For a deeper understanding of the ICP ↔ Bitcoin integration, see the [Bitcoin integration concepts](https://docs.internetcomputer.org/concepts/chain-fusion/bitcoin).
 
+## Architecture
+
+The canister uses three ICP management canister APIs:
+
+- [Threshold ECDSA](https://docs.internetcomputer.org/references/ic-interface-spec#ic-ecdsa_public_key) — derives P2PKH addresses and signs transactions spending from them
+- [Threshold Schnorr](https://docs.internetcomputer.org/references/ic-interface-spec#ic-sign_with_schnorr) — derives P2TR addresses (BIP340/341) and signs Taproot transactions
+- [Bitcoin API](https://github.com/dfinity/bitcoin-canister/blob/master/INTERFACE_SPECIFICATION.md) — queries balances, UTXOs, fee percentiles, and block data; submits signed transactions to the Bitcoin network
+
+## Address types
+
+The example covers three Bitcoin address types, each backed by a different signing key:
+
+- **P2PKH** — Pay-to-Public-Key-Hash. Derived from a threshold ECDSA key. The classic Bitcoin address format.
+- **P2TR key-only** — Pay-to-Taproot, key-path spend only. Derived from a threshold Schnorr key with an unspendable script tree. Simpler Taproot: only the internal key can spend.
+- **P2TR (key + script path)** — Pay-to-Taproot with a Merkelized Alternative Script Tree (MAST). Funds can be spent either via the internal key (key path) or via a script that authorizes a second Schnorr public key (script path). Demonstrates [BIP341](https://github.com/bitcoin/bips/blob/master/bip-0341.mediawiki) script-path spending.
+
 ## Build and deploy from the command line
 
 ### Prerequisites
