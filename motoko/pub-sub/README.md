@@ -1,27 +1,57 @@
 # PubSub
 
-This sample project demonstrates how functions may be passed as arguments of inter-canister calls to be used as callbacks.
+This example demonstrates the publisher/subscriber (pub/sub) messaging pattern implemented across two canisters on the Internet Computer. The key ICP concept it shows: **shared function references can be passed as callbacks between canisters**, enabling a publisher to call back into a subscriber without knowing its type in advance.
 
-A common problem in both distributed and decentralized systems is keeping separate services (or canisters) synchronized with one another. While there are many potential solutions to this problem, a popular one is the publisher/subscriber pattern or "PubSub". PubSub is an especially valuable pattern on the Internet Computer as its primary drawback, message delivery failures, does not apply.
+## How it works
 
-## Deploying from ICP Ninja
+Two canisters are deployed:
 
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/motoko/pub-sub)
+- **`publisher`** — holds a list of `(topic, callback)` registrations. When `publish(counter)` is called, it invokes every callback whose topic matches.
+- **`subscriber`** — registers itself with the publisher for a specific topic. When notified, it accumulates the published value into a local counter.
 
-## Build and deploy from the command-line
-
-### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
-
-### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
-
-### 3. Navigate into the project's directory.
-
-### 4. Deploy the project to your local environment:
+The call flow:
 
 ```
-dfx start --background --clean && dfx deploy
+1. subscriber.subscribe("Apples")
+     └─► publisher.subscribe({ topic = "Apples"; callback = subscriber.updateCount })
+     (publisher ID read from PUBLIC_CANISTER_ID:publisher, injected by icp-cli)
+
+2. publisher.publish({ topic = "Apples"; value = 2 })
+     └─► subscriber.updateCount({ topic = "Apples"; value = 2 })   ← async callback
+
+3. subscriber.getCount()  →  2
+```
+
+The callback (`subscriber.updateCount`) is a **shared function reference** — a first-class value in Motoko that can be stored and called across canisters. The subscriber discovers the publisher automatically: icp-cli injects `PUBLIC_CANISTER_ID:publisher` into every canister in the project during `icp deploy`, and the subscriber reads it at runtime via `Runtime.envVar`. No principal is hardcoded or passed as an argument. ICP guarantees that messages are delivered to the target canister, but callbacks can still fail if the target traps or runs out of cycles — error handling should be considered in production use.
+
+Note: `publish` fires callbacks asynchronously. There is a brief delay before the subscriber state is updated, which is why the tests sleep briefly after publishing.
+
+> `make test` assumes a freshly deployed state. To re-run locally without restarting the network, reinstall the canisters first: `icp deploy --mode reinstall -y && make test`.
+
+## Build and deploy from the command line
+
+### Prerequisites
+
+- Node.js
+- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- ic-mops: `npm install -g ic-mops`
+
+### Install
+
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/motoko/pub-sub
+```
+
+### Deploy and test
+
+```bash
+icp network start -d
+icp deploy
+make test
+icp network stop
 ```
 
 ## Security considerations and best practices
 
-If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
+Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app.

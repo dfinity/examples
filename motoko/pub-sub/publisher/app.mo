@@ -1,7 +1,7 @@
 // Publisher
 import Array "mo:core/Array";
 
-persistent actor Publisher {
+actor Publisher {
 
   type Counter = {
     topic : Text;
@@ -15,7 +15,7 @@ persistent actor Publisher {
 
   var subscribers : [Subscriber] = [];
 
-  public func subscribe(subscriber : Subscriber) : () {
+  public func subscribe(subscriber : Subscriber) : async () {
     subscribers := subscribers.concat([subscriber]);
   };
 

@@ -1,0 +1,8 @@
+canisters:
+  - name: publisher
+    recipe:
+      type: "@dfinity/motoko@v5.0.0"
+
+  - name: subscriber
+    recipe:
+      type: "@dfinity/motoko@v5.0.0"
