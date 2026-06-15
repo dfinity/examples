@@ -5,7 +5,7 @@ test:
 	@icp canister call backend set '(42 : nat32)' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	@echo "=== Test 2: get returns the stored value with a certificate ==="
+	@echo "=== Test 2: get returns the correct stored value ==="
 	@icp canister call --query backend get '()' | tee /dev/stderr | grep -q 'value = 42' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
@@ -15,6 +15,6 @@ test:
 	  echo "$$result" | grep -q '43' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	@echo "=== Test 4: get reflects the incremented value ==="
+	@echo "=== Test 4: get returns the updated value after inc ==="
 	@icp canister call --query backend get '()' | tee /dev/stderr | grep -q 'value = 43' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
