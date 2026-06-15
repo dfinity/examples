@@ -4,15 +4,16 @@ test:
 	@echo "=== Test 1: getBalance returns the canister's cycle balance ==="
 	@result=$$(icp canister call --query backend getBalance '()') && \
 	  echo "$$result" && \
-	  echo "$$result" | grep -qE '[0-9]' && \
+	  echo "$$result" | grep -qE '^\([0-9]+ : nat\)$$' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	@echo "=== Test 2: acceptCycles accepts 1M cycles sent via the proxy canister ==="
+	@echo "=== Test 2: acceptCycles accepts cycles sent via the proxy canister ==="
+	@# Balance should increase after receiving cycles via the proxy.
 	@PROXY=$$(icp network status --json | jq -r .proxy_canister_principal) && \
-	  result=$$(icp canister call backend acceptCycles '()' --proxy "$$PROXY" --cycles 1_000_000) && \
-	  echo "$$result" && \
-	  echo "$$result" | grep -qE 'accepted = [1-9]' && \
-	  echo "PASS" || (echo "FAIL" && exit 1)
+	  before=$$(icp canister call --query backend getBalance '()' | grep -oE '[0-9]+' | head -1) && \
+	  icp canister call backend acceptCycles '()' --proxy "$$PROXY" --cycles 1_000_000 && \
+	  after=$$(icp canister call --query backend getBalance '()' | grep -oE '[0-9]+' | head -1) && \
+	  [ "$$after" -gt "$$before" ] && echo "PASS (balance: $$before → $$after)" || (echo "FAIL" && exit 1)
 
 	@echo "=== Test 3: sendCycles forwards 5M to itself — within limit, refunded = 0 ==="
 	@# The canister calls its own acceptCycles as receiver (inter-canister self-call).
@@ -23,10 +24,10 @@ test:
 	  echo "$$result" | grep -q 'refunded = 0' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	@echo "=== Test 4: sendCycles forwards 15M to itself — over limit, refunded = 5M ==="
-	@# 15M offered > 10M limit, so 10M are accepted and 5M are refunded to the sender.
+	@echo "=== Test 4: sendCycles forwards 15M to itself — over limit, refunded = 5_000_000 ==="
+	@# 15M offered > 10M limit, so 10M are accepted and exactly 5M are refunded.
 	@BACKEND_ID=$$(icp canister status backend -i) && \
 	  result=$$(icp canister call backend sendCycles "(func \"$$BACKEND_ID\".\"acceptCycles\", 15_000_000)") && \
 	  echo "$$result" && \
-	  echo "$$result" | grep -qE 'refunded = [1-9]' && \
+	  echo "$$result" | grep -q 'refunded = 5_000_000' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)

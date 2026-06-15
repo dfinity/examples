@@ -1,5 +1,4 @@
 import Nat "mo:core/Nat";
-import Nat64 "mo:core/Nat64";
 import Cycles "mo:core/Cycles";
 
 actor HelloCycles {
@@ -14,13 +13,15 @@ actor HelloCycles {
 
   /// Accepts cycles that the caller attached to this call, up to `limit`.
   /// The remainder is automatically refunded to the caller.
-  /// Returns how many cycles were actually accepted by this canister.
+  ///
+  /// Returns `()` so that it can be passed as a `shared () -> async ()` receiver
+  /// to `sendCycles`.  Use `getBalance` before and after to observe how many
+  /// cycles were accepted.
   ///
   /// This is the RECEIVER perspective: the canister decides how much to keep.
-  public func acceptCycles() : async { accepted : Nat64 } {
+  public func acceptCycles() : async () {
     let available = Cycles.available(); // total cycles the caller attached
-    let accepted = Cycles.accept<system>(Nat.min(available, limit)); // claim up to limit
-    { accepted = Nat64.fromNat(accepted) };
+    ignore Cycles.accept<system>(Nat.min(available, limit)); // claim up to limit
   };
 
   /// Sends `amount` cycles from this canister's balance to `receiver`.
