@@ -46,12 +46,6 @@ This example uses three canisters:
 - **token_a** / **token_b**: Standard ICRC-1/ICRC-2 ledger canisters (pre-built from the DFINITY IC release).
 - **backend**: The swap canister (`backend/app.mo`). Accepts deposits from both token ledgers, performs 1:1 swaps between users, and allows withdrawals.
 
-## Updating the Candid interface
-
-```bash
-$(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo
-```
-
 ## Known issues and limitations
 
 - Any DeFi on the Internet Computer is experimental and should be treated as such.
