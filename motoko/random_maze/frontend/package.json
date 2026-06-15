@@ -1,0 +1,22 @@
+{
+  "name": "frontend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prebuild": "npm i --include=dev",
+    "build": "vite build",
+    "dev": "vite"
+  },
+  "dependencies": {
+    "@icp-sdk/core": "~5.0.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@icp-sdk/bindgen": "~0.2.2",
+    "@types/react": "18.3.12",
+    "@types/react-dom": "18.3.1",
+    "@vitejs/plugin-react": "4.3.3",
+    "vite": "5.4.11"
+  }
+}

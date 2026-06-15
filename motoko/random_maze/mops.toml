@@ -12,3 +12,4 @@ args = ["--default-persistent-actors", "-W=M0236,M0237,M0223"]
 
 [canisters.backend]
 main = "backend/app.mo"
+candid = "backend/backend.did"

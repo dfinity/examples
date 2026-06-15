@@ -4,7 +4,7 @@
 
 ## Overview
 
-This example generates a random maze using cryptographic randomness. It demonstrates how to use `Random.crypto()` from `mo:core` to obtain an `AsyncRandom` instance that automatically fetches entropy from the Internet Computer management canister on demand, and how to generate bounded discrete random numbers using `await* random.natRange(low, high)`.
+This example generates a random maze using cryptographic randomness. It demonstrates how to use `Random.crypto()` from `mo:core` to obtain an `AsyncRandom` instance that automatically fetches entropy from the Internet Computer management canister on demand, and how to generate bounded discrete random numbers using `await* random.natRange(low, high)`. A React frontend is deployed alongside the backend and lets you enter a maze size and render the generated maze in your browser.
 
 ## Build and deploy from the command line
 
@@ -28,6 +28,16 @@ icp network start -d
 icp deploy
 make test
 icp network stop
+```
+
+`icp deploy` builds and deploys both the backend canister and the frontend asset canister. After deploying, open the printed frontend URL in your browser to interact with the maze generator.
+
+### Local frontend development
+
+For hot-reload frontend development after the canisters are deployed:
+
+```bash
+npm run dev --prefix frontend
 ```
 
 ## Updating the Candid interface
