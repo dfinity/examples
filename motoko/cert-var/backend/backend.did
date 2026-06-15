@@ -1,0 +1,5 @@
+service : {
+  inc: () -> (nat32);
+  set: (nat32) -> ();
+  get: () -> (record { value: nat32; certificate: opt blob }) query;
+}

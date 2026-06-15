@@ -1,12 +1,23 @@
 # Certified variables
 
-This example demonstrates how to use **certified variables** on the Internet Computer. The backend canister holds a single 32-bit counter and keeps its value in sync with the system-level certified-data hash. Clients that call `get` as a query can cryptographically verify the returned value against the IC root key — without waiting for a full consensus round — by checking the embedded certificate.
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/cert-var)
 
-The example shows:
+## Overview
 
-- Using `mo:core/CertifiedData` to set and expose a certified hash alongside query responses.
-- Encoding a `Nat32` as a little-endian blob so that frontend code can decode it directly with the Candid codec.
-- Structuring mutating operations (`inc`, `set`) to always update the certificate immediately after changing state.
+This example demonstrates how to use **certified variables** on the Internet Computer. The backend canister holds a single 32-bit counter and keeps its value in sync with the system-level certified-data hash. Clients can call `get` as a query and cryptographically verify the returned value against the IC root key — without waiting for a full consensus round — by checking the embedded certificate.
+
+The frontend demonstrates the entire client-side verification flow in the browser, making it clear what it takes to trust a fast query response the same way you would trust a slower update call.
+
+## How it works
+
+When you click "Set and get!", the frontend performs four checks on the query response:
+
+1. **Verify system certificate** — The IC signs a certificate over the canister's certified data tree. `Certificate.create()` verifies this BLS signature against the network's root key.
+2. **Check timestamp** — The certificate contains the IC's current time (LEB128-encoded). The frontend decodes it and confirms the certificate is fresh (within 5 seconds of the client's clock).
+3. **Check canister ID** — The certificate's state tree contains a path `canister/<id>/certified_data`. The frontend looks up the canister ID to confirm the certificate covers our specific canister.
+4. **Check certified data** — The 4-byte little-endian blob stored in certified data is decoded as a Candid `Nat32` and compared against the `value` field in the query response. If they match, the response is authentic.
+
+These four checks are sufficient for a single-variable canister. More complex examples would additionally re-compute a Merkle witness and verify query parameters against the witness.
 
 ## Build and deploy from the command line
 
@@ -30,6 +41,20 @@ icp network start -d
 icp deploy
 make test
 icp network stop
+```
+
+For local frontend development with hot reload:
+
+```bash
+npm run dev --prefix frontend
+```
+
+## Updating the Candid interface
+
+If you change the Motoko source, regenerate `backend/backend.did`:
+
+```bash
+$(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo
 ```
 
 ## Security considerations and best practices
