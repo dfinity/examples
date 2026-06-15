@@ -1,17 +1,16 @@
 .PHONY: test test-multi-subnet
 
 test:
-	@echo "=== Test 1: sequential_calls(100) — all succeed on single subnet ==="
-	@result=$$(icp canister call caller sequential_calls '(100)') && \
+	@echo "=== Test 1: sequential_calls(10) — all 10 succeed ==="
+	@result=$$(icp canister call caller sequential_calls '(10)') && \
 	  echo "$$result" && \
-	  echo "$$result" | grep -q '(100' && \
+	  echo "$$result" | grep -q '(10' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	@echo "=== Test 2: parallel_calls(100) — some succeed (in-flight limit varies by environment) ==="
-	@# The in-flight limit depends on the replica configuration; assert at least one call succeeds.
-	@result=$$(icp canister call caller parallel_calls '(100)') && \
+	@echo "=== Test 2: parallel_calls(10) — all 10 succeed (same result as sequential at low n) ==="
+	@result=$$(icp canister call caller parallel_calls '(10)') && \
 	  echo "$$result" && \
-	  echo "$$result" | grep -qE '^\([1-9]' && \
+	  echo "$$result" | grep -q '(10' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
 	@echo "=== Test 3: sequential_calls(2000) — all succeed (one in-flight at a time) ==="

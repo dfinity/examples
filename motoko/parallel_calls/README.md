@@ -9,7 +9,7 @@ Two canisters are deployed:
 
 ## Single-subnet behaviour
 
-With a small number of calls (e.g. 100), sequential and parallel both succeed and show similar wall-clock time. This is expected: on a single subnet, inter-canister calls have almost no latency, so there is little benefit to running them in parallel.
+With a small number of calls (e.g. 10), sequential and parallel both succeed and return the same result. This is expected: on a single subnet, inter-canister calls have almost no latency, so there is little benefit to running them in parallel.
 
 With a large number of calls (e.g. 2000), sequential calls all succeed, but most parallel calls fail. The replica imposes a limit on the number of in-flight calls a canister can have to a given target. Sequential calls respect this naturally (one in-flight call at a time), while 2000 parallel calls immediately exceed it.
 
