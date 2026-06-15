@@ -1,9 +1,5 @@
 # FileVault
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/filevault)
-
-## Overview
-
 FileVault is a file storage application that allows you to upload files from your local computer and store them onchain. FileVault uses Internet Identity (II) for user login and authentication. Once files are uploaded, they can be downloaded at a later time, or they can be deleted. Each user's files are stored under their Internet Identity principal, so files are private to each authenticated user.
 
 ## Build and deploy from the command line
