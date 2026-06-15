@@ -1,5 +1,7 @@
 .PHONY: test
 
+# Note: these tests assume a freshly deployed canister state.
+# To re-run from scratch: icp deploy --mode reinstall -y && make test
 test:
 	@echo "=== Test 1: subscriber registers with publisher for the 'Apples' topic ==="
 	@icp canister call subscriber subscribe '("Apples")' && \
