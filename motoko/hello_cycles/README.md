@@ -5,8 +5,8 @@ This example demonstrates how to send, receive, and check cycle balances from a 
 The example exposes three public functions:
 
 - `wallet_balance`: returns the current cycle balance of the canister as a `Nat`.
-- `wallet_receive`: accepts up to 10 million cycles sent by the caller and returns how many were accepted.
-- `transfer`: forwards a specified number of cycles to any shared function with the signature `() -> ()`.
+- `wallet_receive`: accepts up to 10 million cycles sent by the caller and returns `{ accepted : Nat64 }`. Note: the name and type are dictated by the wallet protocol — the return type intentionally differs from a wallet's own `wallet_receive : () -> ()` which returns nothing.
+- `transfer`: forwards a specified number of cycles to any shared function with the Candid signature `() -> ()`. Returns `{ refunded : Nat }` indicating how many cycles were not accepted.
 
 ## Build and deploy from the command line
 
