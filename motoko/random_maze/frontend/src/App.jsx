@@ -7,14 +7,17 @@ const App = () => {
   const [loading, setLoading] = useState(false);
 
   const handleGenerate = async () => {
+    const n = parseInt(size, 10);
+    if (!Number.isInteger(n) || n < 0) return;
     setLoading(true);
     try {
-      const result = await backend.generate(BigInt(size));
+      const result = await backend.generate(BigInt(n));
       setMaze(result);
     } catch (error) {
       console.error('Error generating maze:', error);
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (
@@ -29,7 +32,7 @@ const App = () => {
           value={size}
           onChange={(e) => setSize(e.target.value)}
         />
-        <button onClick={handleGenerate} disabled={loading}>
+        <button onClick={handleGenerate} disabled={loading || size === '' || parseInt(size, 10) < 0}>
           {loading ? 'Generating…' : 'Generate!'}
         </button>
       </div>
