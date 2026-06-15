@@ -5,4 +5,4 @@ edition = "2021"
 
 [dependencies]
 pocket-ic = "14.0.0"
-candid = "0.10"
+candid = "0.10.29"

@@ -1,4 +1,4 @@
-.PHONY: test
+.PHONY: test test-multi-subnet
 
 test:
 	@echo "=== Test 1: sequential_calls(100) — all succeed on single subnet ==="
@@ -26,3 +26,11 @@ test:
 	  echo "$$result" && \
 	  echo "$$result" | grep -qv '(2_000' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
+
+test-multi-subnet:
+	@echo "=== Building Motoko WASMs ==="
+	icp build
+	@echo "=== Running multi-subnet PocketIC test ==="
+	CALLER_WASM=.mops/.build/caller.wasm \
+	CALLEE_WASM=.mops/.build/callee.wasm \
+	  cargo run --manifest-path multi_subnet/Cargo.toml

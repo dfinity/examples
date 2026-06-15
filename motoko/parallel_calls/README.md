@@ -26,6 +26,14 @@ Parallel calls:   90/90 successful in ~300ms
 
 The difference on ICP mainnet would be larger still.
 
+To run the multi-subnet test locally (requires the Rust toolchain):
+
+```bash
+make test-multi-subnet
+```
+
+This builds the Motoko WASMs with `icp build` and then runs `cargo run` in `multi_subnet/` using those WASMs via the `CALLER_WASM` and `CALLEE_WASM` environment variables.
+
 ## Build and deploy from the command line
 
 ### Prerequisites
@@ -33,6 +41,7 @@ The difference on ICP mainnet would be larger still.
 - Node.js
 - icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 - ic-mops: `npm install -g ic-mops`
+- Rust toolchain (only for `make test-multi-subnet`): [rustup.rs](https://rustup.rs)
 
 ### Install
 
