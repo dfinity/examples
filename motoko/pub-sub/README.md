@@ -22,7 +22,7 @@ The call flow:
 3. subscriber.getCount()  →  2
 ```
 
-The callback (`subscriber.updateCount`) is a **shared function reference** — a first-class value in Motoko that can be stored and called across canisters. The subscriber discovers the publisher automatically: icp-cli injects `PUBLIC_CANISTER_ID:publisher` into every canister in the project during `icp deploy`, and the subscriber reads it at runtime via `Runtime.envVar`. No principal is hardcoded or passed as an argument. Because ICP guarantees message delivery, the typical reliability concern of pub/sub in distributed systems does not apply here.
+The callback (`subscriber.updateCount`) is a **shared function reference** — a first-class value in Motoko that can be stored and called across canisters. The subscriber discovers the publisher automatically: icp-cli injects `PUBLIC_CANISTER_ID:publisher` into every canister in the project during `icp deploy`, and the subscriber reads it at runtime via `Runtime.envVar`. No principal is hardcoded or passed as an argument. ICP guarantees that messages are delivered to the target canister, but callbacks can still fail if the target traps or runs out of cycles — error handling should be considered in production use.
 
 Note: `publish` fires callbacks asynchronously. There is a brief delay before the subscriber state is updated, which is why the tests sleep briefly after publishing.
 
