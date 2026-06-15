@@ -1,9 +1,5 @@
 # Motoko Actor Classes
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/classes)
-
-## Overview
-
 This example demonstrates a simple use of actor classes, allowing a program to dynamically install new actors (canisters) at runtime. It implements a distributed key-value store that maps `Nat` to `Text` values, with entries spread across a small number of separately deployed `Bucket` actor-class canisters created on demand.
 
 ## Build and deploy from the command line
