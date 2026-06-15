@@ -15,24 +15,22 @@ actor Subscriber {
 
   var count : Nat = 0;
 
-  // icp-cli automatically injects PUBLIC_CANISTER_ID:publisher into every
-  // canister in the project during `icp deploy`.  Read it at runtime via
-  // Runtime.envVar so no canister ID is hardcoded or passed as an argument.
-  func publisher() : PublisherActor {
+  /// Subscribe to `topic` on the publisher canister.
+  /// The publisher principal is read from PUBLIC_CANISTER_ID:publisher,
+  /// which icp-cli injects into every canister during `icp deploy`.
+  public func subscribe(topic : Text) : async () {
     let ?id = Runtime.envVar("PUBLIC_CANISTER_ID:publisher") else
       Runtime.trap("PUBLIC_CANISTER_ID:publisher not set — run icp deploy");
-    actor(id) : PublisherActor;
-  };
-
-  /// Subscribe to `topic` on the publisher canister.
-  public func subscribe(topic : Text) : async () {
-    publisher().subscribe({
+    let pub = actor(id) : PublisherActor;
+    pub.subscribe({
       topic;
       callback = updateCount;
     });
   };
 
-  public func updateCount(counter : Counter) {
+  // Oneway callback invoked by the publisher when a message is published.
+  // Returns () (not async ()) — this is a fire-and-forget call with no reply.
+  public func updateCount(counter : Counter) : () {
     count += counter.value;
   };
 
