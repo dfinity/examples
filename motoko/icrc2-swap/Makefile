@@ -48,7 +48,7 @@ test:
 	$(eval SWAP := $(shell icp canister id backend))
 
 	@echo "=== Test 1: balances returns empty lists initially ==="
-	@result=$$(icp canister call backend balances '()') && \
+	@result=$$(icp canister call --query backend balances '()') && \
 	  echo "$$result" && \
 	  echo "$$result" | grep -q 'vec {}' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
@@ -78,7 +78,7 @@ test:
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
 	@echo "=== Test 3: balances shows deposited token_a ==="
-	@result=$$(icp canister call backend balances '()') && \
+	@result=$$(icp canister call --query backend balances '()') && \
 	  echo "$$result" && \
 	  echo "$$result" | grep -qE '100[_,]?000[_,]?000' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
