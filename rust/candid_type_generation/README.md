@@ -24,7 +24,7 @@ nns_governance.binding.set_type_attributes(
 );
 ```
 
-Generated types are automatically written to `src/declarations/` and can be imported like any other Rust module.
+Generated types are automatically written to `backend/src/declarations/` and can be imported like any other Rust module.
 
 ## Candid Fetching Process
 
@@ -32,27 +32,49 @@ Generated types are automatically written to `src/declarations/` and can be impo
 
 The fetch script retrieves live Candid interface definitions directly from deployed canisters:
 
-1. **Connects to Mainnet**: Uses `dfx canister --network ic` to access deployed canisters
+1. **Connects to Mainnet**: Uses `icp canister metadata --network ic` to access deployed canisters
 2. **Fetches Metadata**: Retrieves the `candid:service` metadata from the target canister
 3. **Saves Interface**: Writes the Candid definition to `candid/nns_governance.did`
 
 ```bash
 # Fetch the live Candid interface from NNS Governance
-dfx canister --network ic metadata "rrkah-fqaaa-aaaaa-aaaaq-cai" candid:service > candid/nns_governance.did
+icp canister metadata --network ic "rrkah-fqaaa-aaaaa-aaaaq-cai" candid:service > candid/nns_governance.did
 ```
 
 This ensures your types stay synchronized with the actual deployed canister interface.
 
+## Build and deploy from the command line
+
+### Prerequisites
+
+- [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+
+### Install
+
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/rust/candid_type_generation
+```
+
+### Deploy and test
+
+```bash
+icp network start -d
+icp deploy
+make test
+icp network stop
+```
+
 ## Usage Workflow
 
-1. **Fetch Candid Definitions**:
+1. **Fetch Candid Definitions** (the `candid/nns_governance.did` file is already checked in, but you can refresh it):
    ```bash
    ./scripts/fetch_candid.sh
    ```
 
 2. **Build Project**: The build script automatically generates types during compilation:
    ```bash
-   cargo build
+   icp build backend
    ```
 
 3. **Use Generated Types**: Import and use the generated types in your code:
@@ -98,6 +120,10 @@ This tool automatically generates idiomatic Rust types with appropriate derives 
 Run a bot to update the candid files from mainnet on a regular cadence, and merge these changes in if they compile.
 
 Note that you want to have the candid file checked in to ensure build reproducibility between versions, as an updated
-candid file on an old version would result in different rust and then also different bytes, which would make it
-impossible to reproduce historical builds. That could create problems for any sort of 3rd party verification.
+candid file on an old version would result in different Rust types and then also different WASM bytes, which would make
+it impossible to reproduce historical builds. That could create problems for any sort of third-party verification.
 
+## Security considerations and best practices
+
+For information about security best practices when developing ICP canisters, see
+https://docs.internetcomputer.org/guides/security/overview

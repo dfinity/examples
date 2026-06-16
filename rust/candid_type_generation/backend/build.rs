@@ -4,7 +4,7 @@ use std::path::PathBuf;
 fn main() {
     let cargo_dir =
         PathBuf::from(env::var("CARGO_MANIFEST_DIR").expect("Cannot find manifest dir"));
-    let nns_candid_file = cargo_dir.join("candid").join("nns_governance.did");
+    let nns_candid_file = cargo_dir.join("..").join("candid").join("nns_governance.did");
 
     if !nns_candid_file.exists() {
         panic!(

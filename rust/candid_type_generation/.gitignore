@@ -1,0 +1,3 @@
+# The backend/src/declarations/ directory contains ic-cdk-bindgen generated types
+# that are committed to the repository. Override the root .gitignore rule.
+!backend/src/declarations/
