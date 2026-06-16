@@ -423,7 +423,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "receiving-icp"
+name = "backend"
 version = "0.1.0"
 dependencies = [
  "candid",
