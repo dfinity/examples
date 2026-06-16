@@ -33,7 +33,7 @@ make test
 icp network stop
 ```
 
-> Use `make deploy` (not `icp deploy`) — the ICRC-1 ledger canisters require init args that are only provided by this target.
+> **Important:** Use `make deploy`, not `icp deploy`. The ICRC-1 ledger canisters require a complex init record (minting account, initial balances, archive options) and the backend needs the token canister IDs as constructor arguments — both depend on runtime values that cannot be expressed statically in `icp.yaml`. `make deploy` handles this by deploying the three canisters in order with the correct arguments.
 
 The `make deploy` target:
 1. Deploys the two ICRC-1/ICRC-2 token ledger canisters (`token_a` and `token_b`) with the current identity as the minting account.
