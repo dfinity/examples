@@ -1,4 +1,3 @@
 [workspace]
-members = [ "src/callee", "src/caller", "src/multi_subnet",
-]
+members = ["caller", "callee", "multi_subnet"]
 resolver = "2"
