@@ -71,8 +71,8 @@ ICRC-1 tokens charge a `transfer_fee` (10,000 e8s in this example) on every on-c
 
 ## Known limitations
 
-- Malicious token canisters could deadlock this contract via asynchronous messaging. Only use with trusted token canisters.
-- There is no cap on state size. A production deployment should enforce a maximum.
+- **Trusted token canisters only.** A malicious token ledger could trap during `icrc1_transfer` or `icrc2_transfer_from`. For `withdraw`, the balance is debited before the transfer call; a trap is caught and a refund is attempted, but the `try/catch` itself could theoretically trap in extreme circumstances. For `deposit`, if `icrc2_transfer_from` succeeds on-chain but the ledger traps before sending the response, the canister receives no callback and the user's tokens are moved on-chain but not credited internally. These are fundamental async messaging edge cases on the IC — always use trusted, audited token canisters.
+- **No state size cap.** Each user's balance entry stays in the map. A production deployment should enforce per-user deposit limits.
 
 ## Security considerations and best practices
 

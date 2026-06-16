@@ -1,3 +1,4 @@
+import Error "mo:core/Error";
 import Iter "mo:core/Iter";
 import Map "mo:core/Map";
 import Option "mo:core/Option";
@@ -150,12 +151,22 @@ actor Swap {
   public type WithdrawError = {
     #InsufficientFunds : { balance : ICRC.Tokens };
     #TransferError : ICRC.TransferError;
+    // The token ledger call trapped — outcome is ambiguous. The balance was
+    // already debited and a refund was issued, but the on-chain transfer
+    // may or may not have executed.
+    #CallFailed : Text;
   };
 
   // Allow withdrawals
   // - Allow users to withdraw any tokens they hold.
   // - These withdrawal handlers show how to safely send outbound transfers of an ICRC-1 token.
   public shared (msg) func withdraw(args : WithdrawArgs) : async Result.Result<Nat, WithdrawError> {
+    // Reject the anonymous principal — it has no private key so nobody can
+    // exclusively own its balance, but it is still callable by unauthenticated callers.
+    if (msg.caller.isAnonymous()) {
+      Runtime.trap("anonymous caller not allowed");
+    };
+
     let token : ICRC.Actor = actor (args.token.toText());
     let balances = which_balances<system>(args.token);
 
@@ -183,14 +194,25 @@ actor Swap {
     };
 
     // Perform the transfer, to send the tokens.
-    let transfer_result = await token.icrc1_transfer({
-      from_subaccount = null;
-      to = args.to;
-      amount = args.amount;
-      fee = ?fee;
-      memo = args.memo;
-      created_at_time = args.created_at_time;
-    });
+    // Wrapped in try/catch: if the token ledger traps (rather than returning
+    // a result), Motoko would otherwise propagate the trap and skip the refund
+    // below, leaving the user's balance permanently debited. The try/catch
+    // ensures we always attempt a refund even if the callee traps.
+    let transfer_result = try {
+      await token.icrc1_transfer({
+        from_subaccount = null;
+        to = args.to;
+        amount = args.amount;
+        fee = ?fee;
+        memo = args.memo;
+        created_at_time = args.created_at_time;
+      })
+    } catch (e) {
+      // Token ledger trapped — refund and surface the error.
+      let b = balances.get(msg.caller).get(0 : Nat);
+      let _ = balances.swap(msg.caller, b + args.amount + fee);
+      return #err(#CallFailed(e.message()));
+    };
 
     let block_height = switch (transfer_result) {
       case (#Ok(block_height)) { block_height };
