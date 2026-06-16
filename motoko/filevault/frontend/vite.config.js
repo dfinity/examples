@@ -59,7 +59,6 @@ export default defineConfig(({ command, mode }) => {
       ? {
           headers: devConfig.headers,
           proxy: devConfig.proxy,
-          host: devConfig.host,
         }
       : undefined,
   };
