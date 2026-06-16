@@ -8,6 +8,8 @@ The asynchronous nature of the Internet Computer presents unique challenges comp
 - **Swap Tokens**: Users swap their token balances 1:1. The `swap` function executes atomically (no `await` calls) to ensure consistency.
 - **Withdraw Tokens**: Users withdraw their resulting token balances back to their wallet.
 
+> Originally contributed by [0xAegir](https://github.com/AegirFinance).
+
 ## Build and deploy from the command line
 
 ### Prerequisites
@@ -31,9 +33,13 @@ make test
 icp network stop
 ```
 
+> Use `make deploy` (not `icp deploy`) — the ICRC-1 ledger canisters require init args that are only provided by this target.
+
 The `make deploy` target:
 1. Deploys the two ICRC-1/ICRC-2 token ledger canisters (`token_a` and `token_b`) with the current identity as the minting account.
 2. Deploys the `backend` (swap) canister with the token canister IDs as init args.
+
+`make test` runs a full integration test: Alice deposits token A, Bob deposits token B, they swap 1:1, and each withdraws the other's token.
 
 ## Architecture
 
@@ -44,11 +50,10 @@ This example uses three canisters:
 
 ## Known issues and limitations
 
-- Any DeFi on the Internet Computer is experimental and should be treated as such.
 - Due to asynchronous inter-canister messaging, malicious token canisters could cause this swap contract to deadlock. Only use with trusted token canisters.
 - There are no limits on the state size of this canister. For a production canister, calculate and enforce a maximum state size.
-- **Async Bug Trap**: The `deposit` function calls `icrc2_transfer_from`, but there is no guarantee that the callback will execute correctly if the canister runs out of cycles or encounters other side effects. To address these issues, refer to the [inter-canister calls security best practices](https://internetcomputer.org/docs/current/developer-docs/security/security-best-practices/inter-canister-calls).
+- The `deposit` function calls `icrc2_transfer_from` without guaranteed callback execution if the canister runs out of cycles or encounters other side effects. Refer to the [inter-canister calls security best practices](https://docs.internetcomputer.org/guides/security/inter-canister-calls).
 
 ## Security considerations and best practices
 
-When building production applications, review the [ICP security best practices](https://docs.internetcomputer.org/guides/security/overview).
+Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) and [inter-canister calls security best practices](https://docs.internetcomputer.org/guides/security/inter-canister-calls) for information on security and best practices for your ICP app.
