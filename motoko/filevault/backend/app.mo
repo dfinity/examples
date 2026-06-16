@@ -7,7 +7,7 @@ import Option "mo:core/Option";
 import Principal "mo:core/Principal";
 import Text "mo:core/Text";
 
-persistent actor Filevault {
+actor Filevault {
 
   // Define a data type for a file's chunks.
   type FileChunk = {
