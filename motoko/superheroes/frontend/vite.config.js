@@ -1,4 +1,4 @@
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig } from "vite";
 import { execSync } from "child_process";
 import { icpBindgen } from "@icp-sdk/bindgen/plugins/vite";
 import react from "@vitejs/plugin-react";
@@ -33,9 +33,7 @@ function getDevServerConfig() {
   );
 }
 
-export default defineConfig(({ command, mode }) => {
-  const env = loadEnv(mode, "..", ["CANISTER_"]);
-
+export default defineConfig(({ command }) => {
   return {
     base: "./",
     plugins: [
@@ -45,11 +43,6 @@ export default defineConfig(({ command, mode }) => {
         outDir: "./src/bindings",
       }),
     ],
-    define: {
-      "process.env.CANISTER_ID_BACKEND": JSON.stringify(
-        env.CANISTER_ID_BACKEND
-      ),
-    },
     optimizeDeps: {
       esbuildOptions: { define: { global: "globalThis" } },
     },
