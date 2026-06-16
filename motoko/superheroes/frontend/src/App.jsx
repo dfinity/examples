@@ -1,11 +1,6 @@
 import React, { useState } from "react";
 import { backend } from "./actor.js";
 
-// Convert a Motoko optional to a JavaScript value.
-function fromOptional(optional) {
-  return optional.length > 0 ? optional[0] : null;
-}
-
 function Create() {
   const [superheroId, setSuperheroId] = useState(null);
   const [name, setName] = useState("");
@@ -75,7 +70,7 @@ function Read() {
   async function handleRead(event) {
     event.preventDefault();
     const result = await backend.read(parseInt(superheroId, 10));
-    setSuperhero(fromOptional(result));
+    setSuperhero(result);
   }
 
   return (
