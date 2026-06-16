@@ -46,7 +46,16 @@ test:
 	  echo "$$result" | grep -q 'vec {}' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	@echo "=== Test 2: icrc2-alice approves and deposits token_a ==="
+	@echo "=== Test 2: swap with no deposits returns InsufficientBalance ==="
+	@result=$$(icp canister call backend swap "(record { \
+	  user_a = principal \"$(ALICE)\"; \
+	  user_b = principal \"$(BOB)\" \
+	})") && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'InsufficientBalance' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 3: icrc2-alice approves and deposits token_a ==="
 	@# Approve amount = deposit (100_000_000) + transfer_fee (10_000) = 100_010_000.
 	@# The ledger charges a fee on icrc2_transfer_from, so the approval must cover it.
 	@icp canister call --identity icrc2-alice token_a icrc2_approve "(record { \
@@ -65,7 +74,7 @@ test:
 	  echo "$$result" | grep -q 'ok' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	@echo "=== Test 3: icrc2-bob approves and deposits token_b ==="
+	@echo "=== Test 4: icrc2-bob approves and deposits token_b ==="
 	@icp canister call --identity icrc2-bob token_b icrc2_approve "(record { \
 	  amount = 100_010_000 : nat; \
 	  spender = record { owner = principal \"$(SWAP)\"; subaccount = null }; \
@@ -82,7 +91,7 @@ test:
 	  echo "$$result" | grep -q 'ok' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	@echo "=== Test 4: swap alice's token_a for bob's token_b ==="
+	@echo "=== Test 5: swap alice's token_a for bob's token_b ==="
 	@result=$$(icp canister call backend swap "(record { \
 	  user_a = principal \"$(ALICE)\"; \
 	  user_b = principal \"$(BOB)\" \
@@ -91,7 +100,7 @@ test:
 	  echo "$$result" | grep -q 'ok' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	@echo "=== Test 5: alice withdraws token_b (received via swap) ==="
+	@echo "=== Test 6: alice withdraws token_b (received via swap) ==="
 	@# The backend deducts (amount + transfer_fee) from alice's internal balance.
 	@# Internal balance = 100_000_000; withdraw 99_990_000 so deduction = 99_990_000 + 10_000 = 100_000_000.
 	@set -e; \
@@ -112,7 +121,7 @@ test:
 	  [ "$$delta" -eq 99990000 ] || (echo "FAIL: expected delta 99990000" && exit 1); \
 	  echo "PASS"
 
-	@echo "=== Test 6: bob withdraws token_a (received via swap) ==="
+	@echo "=== Test 7: bob withdraws token_a (received via swap) ==="
 	@set -e; \
 	  before=$$(icp canister call --query token_a icrc1_balance_of \
 	    "(record { owner = principal \"$(BOB)\"; subaccount = null })" | grep -oE '[0-9_]+' | tr -d '_'); \

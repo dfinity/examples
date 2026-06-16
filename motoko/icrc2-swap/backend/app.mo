@@ -111,7 +111,8 @@ actor Swap {
   };
 
   public type SwapError = {
-    // Left as a placeholder for future implementors.
+    // user_a has no token_a balance deposited, or user_b has no token_b balance deposited.
+    #InsufficientBalance : { user : Principal; token : Text };
   };
 
   // Swap TokenA for TokenB
@@ -120,6 +121,15 @@ actor Swap {
   //   balance of TokenB is given to UserA.
   // - This function executes atomically (no `await` calls) to ensure consistency.
   public shared func swap(args : SwapArgs) : async Result.Result<(), SwapError> {
+    // Require both users to have a non-zero balance before swapping.
+    // Without this check the swap would silently succeed moving zero tokens.
+    if (balancesA.get(args.user_a).get(0 : Nat) == 0) {
+      return #err(#InsufficientBalance { user = args.user_a; token = "token_a" });
+    };
+    if (balancesB.get(args.user_b).get(0 : Nat) == 0) {
+      return #err(#InsufficientBalance { user = args.user_b; token = "token_b" });
+    };
+
     // Give user_a's token_a to user_b
     let _ = balancesA.swap(
       args.user_b,
