@@ -15,21 +15,21 @@ deploy:
 	icp identity new icrc2-bob   2>/dev/null || true; \
 	ALICE=$$(icp identity principal --identity icrc2-alice); \
 	BOB=$$(icp identity principal --identity icrc2-bob); \
-	icp deploy token_a --args "(variant { Init = record { \
+	icp deploy token_a --mode reinstall -y --args "(variant { Init = record { \
 	  token_name = \"Token A\"; token_symbol = \"A\"; \
 	  minting_account = record { owner = principal \"$$MINTER\" }; \
 	  initial_balances = vec { record { record { owner = principal \"$$ALICE\" }; 100_000_000_000_000 : nat } }; \
 	  metadata = vec {}; transfer_fee = 10_000 : nat; \
 	  archive_options = record { trigger_threshold = 2000 : nat64; num_blocks_to_archive = 1000 : nat64; controller_id = principal \"$$MINTER\" }; \
 	  feature_flags = opt record { icrc2 = true } } })"; \
-	icp deploy token_b --args "(variant { Init = record { \
+	icp deploy token_b --mode reinstall -y --args "(variant { Init = record { \
 	  token_name = \"Token B\"; token_symbol = \"B\"; \
 	  minting_account = record { owner = principal \"$$MINTER\" }; \
 	  initial_balances = vec { record { record { owner = principal \"$$BOB\" }; 100_000_000_000_000 : nat } }; \
 	  metadata = vec {}; transfer_fee = 10_000 : nat; \
 	  archive_options = record { trigger_threshold = 2000 : nat64; num_blocks_to_archive = 1000 : nat64; controller_id = principal \"$$MINTER\" }; \
 	  feature_flags = opt record { icrc2 = true } } })"; \
-	icp deploy backend
+	icp deploy backend --mode reinstall -y
 
 # Full integration test: icrc2-alice deposits token_a, icrc2-bob deposits token_b,
 # they swap 1:1, and each withdraws the other's token.
@@ -47,6 +47,8 @@ test:
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
 	@echo "=== Test 2: icrc2-alice approves and deposits token_a ==="
+	@# Approve amount = deposit (100_000_000) + transfer_fee (10_000) = 100_010_000.
+	@# The ledger charges a fee on icrc2_transfer_from, so the approval must cover it.
 	@icp canister call --identity icrc2-alice token_a icrc2_approve "(record { \
 	  amount = 100_010_000 : nat; \
 	  spender = record { owner = principal \"$(SWAP)\"; subaccount = null }; \
@@ -90,23 +92,41 @@ test:
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
 	@echo "=== Test 5: alice withdraws token_b (received via swap) ==="
-	@result=$$(icp canister call --identity icrc2-alice backend withdraw "(record { \
-	  token = principal \"$(TOKEN_B)\"; \
-	  to = record { owner = principal \"$(ALICE)\"; subaccount = null }; \
-	  amount = 100_000_000 : nat; \
-	  fee = null; memo = null; created_at_time = null \
-	})") && \
-	  echo "$$result" && \
-	  echo "$$result" | grep -q 'ok' && \
-	  echo "PASS" || (echo "FAIL" && exit 1)
+	@# The backend deducts (amount + transfer_fee) from alice's internal balance.
+	@# Internal balance = 100_000_000; withdraw 99_990_000 so deduction = 99_990_000 + 10_000 = 100_000_000.
+	@set -e; \
+	  before=$$(icp canister call --query token_b icrc1_balance_of \
+	    "(record { owner = principal \"$(ALICE)\"; subaccount = null })" | grep -oE '[0-9_]+' | tr -d '_'); \
+	  result=$$(icp canister call --identity icrc2-alice backend withdraw "(record { \
+	    token = principal \"$(TOKEN_B)\"; \
+	    to = record { owner = principal \"$(ALICE)\"; subaccount = null }; \
+	    amount = 99_990_000 : nat; \
+	    fee = null; memo = null; created_at_time = null \
+	  })"); \
+	  echo "$$result"; \
+	  echo "$$result" | grep -q 'ok' || (echo "FAIL" && exit 1); \
+	  after=$$(icp canister call --query token_b icrc1_balance_of \
+	    "(record { owner = principal \"$(ALICE)\"; subaccount = null })" | grep -oE '[0-9_]+' | tr -d '_'); \
+	  delta=$$((after - before)); \
+	  echo "token_b balance: before=$$before after=$$after delta=$$delta"; \
+	  [ "$$delta" -eq 99990000 ] || (echo "FAIL: expected delta 99990000" && exit 1); \
+	  echo "PASS"
 
 	@echo "=== Test 6: bob withdraws token_a (received via swap) ==="
-	@result=$$(icp canister call --identity icrc2-bob backend withdraw "(record { \
-	  token = principal \"$(TOKEN_A)\"; \
-	  to = record { owner = principal \"$(BOB)\"; subaccount = null }; \
-	  amount = 100_000_000 : nat; \
-	  fee = null; memo = null; created_at_time = null \
-	})") && \
-	  echo "$$result" && \
-	  echo "$$result" | grep -q 'ok' && \
-	  echo "PASS" || (echo "FAIL" && exit 1)
+	@set -e; \
+	  before=$$(icp canister call --query token_a icrc1_balance_of \
+	    "(record { owner = principal \"$(BOB)\"; subaccount = null })" | grep -oE '[0-9_]+' | tr -d '_'); \
+	  result=$$(icp canister call --identity icrc2-bob backend withdraw "(record { \
+	    token = principal \"$(TOKEN_A)\"; \
+	    to = record { owner = principal \"$(BOB)\"; subaccount = null }; \
+	    amount = 99_990_000 : nat; \
+	    fee = null; memo = null; created_at_time = null \
+	  })"); \
+	  echo "$$result"; \
+	  echo "$$result" | grep -q 'ok' || (echo "FAIL" && exit 1); \
+	  after=$$(icp canister call --query token_a icrc1_balance_of \
+	    "(record { owner = principal \"$(BOB)\"; subaccount = null })" | grep -oE '[0-9_]+' | tr -d '_'); \
+	  delta=$$((after - before)); \
+	  echo "token_a balance: before=$$before after=$$after delta=$$delta"; \
+	  [ "$$delta" -eq 99990000 ] || (echo "FAIL: expected delta 99990000" && exit 1); \
+	  echo "PASS"
