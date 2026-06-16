@@ -7,7 +7,7 @@ thread_local! {
 }
 
 /// Appends a new message to the chat database.
-#[ic_cdk_macros::update]
+#[ic_cdk::update]
 fn append(message: String) {
     // Ensure that the length of the chat is consistent with the actual chat
     // contents.
@@ -20,7 +20,7 @@ fn append(message: String) {
 }
 
 /// Dumps all the chat messages.
-#[ic_cdk_macros::query]
+#[ic_cdk::query]
 fn dump() -> Vec<String> {
     CHAT.with_borrow(|chat| chat.clone())
 }
@@ -34,7 +34,7 @@ fn dump() -> Vec<String> {
 ///
 /// DISCLAIMER: While the Canister Snapshots feature is a valuable tool,
 /// it should not be a substitute for comprehensive testing.
-#[ic_cdk_macros::update]
+#[ic_cdk::update]
 fn remove_spam() -> u64 {
     let spam_keywords = HashSet::from(["coupon", "giveaway", "casino"]);
 
@@ -60,14 +60,14 @@ fn remove_spam() -> u64 {
     spam
 }
 
-#[ic_cdk_macros::pre_upgrade]
+#[ic_cdk::pre_upgrade]
 fn pre_upgrade() {
     let chat = CHAT.with_borrow(|chat| chat.clone());
     let length = LENGTH.with_borrow(|len| *len);
     ic_cdk::storage::stable_save((chat, length)).expect("failed to save stable state");
 }
 
-#[ic_cdk_macros::post_upgrade]
+#[ic_cdk::post_upgrade]
 fn post_upgrade() {
     let (chat, length): (Vec<String>, u64) =
         ic_cdk::storage::stable_restore().expect("failed to restore stable state");
