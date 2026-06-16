@@ -4,6 +4,7 @@ use bitcoin::{
     XOnlyPublicKey,
 };
 use candid::{CandidType, Principal};
+use ic_cdk::call::Call;
 use ic_cdk::{query, update};
 use serde::{Deserialize, Serialize};
 use serde_bytes::ByteBuf;
@@ -81,9 +82,11 @@ async fn public_key(algorithm: SchnorrAlgorithm) -> Result<PublicKeyReply, Strin
     };
 
     let (res,): (ManagementCanisterSchnorrPublicKeyReply,) =
-        ic_cdk::call(mgmt_canister_id(), "schnorr_public_key", (request,))
+        Call::new(mgmt_canister_id(), "schnorr_public_key")
+            .with_arg(request)
+            .call()
             .await
-            .map_err(|e| format!("schnorr_public_key failed {}", e.1))?;
+            .map_err(|e| format!("schnorr_public_key failed {e:?}"))?;
 
     Ok(PublicKeyReply {
         public_key_hex: hex::encode(&res.public_key),
@@ -123,14 +126,12 @@ async fn sign(
     };
 
     let (internal_reply,): (ManagementCanisterSignatureReply,) =
-        ic_cdk::api::call::call_with_payment(
-            mgmt_canister_id(),
-            "sign_with_schnorr",
-            (internal_request,),
-            26_153_846_153,
-        )
-        .await
-        .map_err(|e| format!("sign_with_schnorr failed {e:?}"))?;
+        Call::new(mgmt_canister_id(), "sign_with_schnorr")
+            .with_arg(internal_request)
+            .with_cycles(26_153_846_153u64)
+            .call()
+            .await
+            .map_err(|e| format!("sign_with_schnorr failed {e:?}"))?;
 
     Ok(SignatureReply {
         signature_hex: hex::encode(&internal_reply.signature),
