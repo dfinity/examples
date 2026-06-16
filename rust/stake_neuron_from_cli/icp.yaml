@@ -1,0 +1,8 @@
+networks:
+  - name: local
+    mode: managed
+
+canisters:
+  - name: backend
+    recipe:
+      type: "@dfinity/rust@v3.3.0"
