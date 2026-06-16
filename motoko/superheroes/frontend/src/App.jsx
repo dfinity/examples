@@ -181,7 +181,7 @@ function Delete() {
     event.preventDefault();
     const id = parseInt(superheroId, 10);
     if (Number.isNaN(id)) return;
-    const result = await backend.delete(id);
+    const result = await backend.delete_(id);
     setSuccess(result);
   }
 
