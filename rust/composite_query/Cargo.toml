@@ -1,5 +1,3 @@
 [workspace]
-members = [
-    "src/data_partition",
-    "src/kv_frontend"
-]
+members = ["caller", "callee"]
+resolver = "2"

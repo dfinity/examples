@@ -1,0 +1,15 @@
+networks:
+  - name: local
+    mode: managed
+
+canisters:
+  - name: caller
+    recipe:
+      type: "@dfinity/rust@v3.3.0"
+      configuration:
+        package: caller
+  - name: callee
+    recipe:
+      type: "@dfinity/rust@v3.3.0"
+      configuration:
+        package: callee
