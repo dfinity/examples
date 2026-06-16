@@ -9,44 +9,26 @@
 # init args with alice/bob principals that are only available after the
 # identities are created.
 deploy:
-	$(eval MINTER := $(shell icp identity principal))
-	@icp identity new icrc2-alice 2>/dev/null || true
-	@icp identity new icrc2-bob   2>/dev/null || true
-	$(eval ALICE := $(shell icp identity principal --identity icrc2-alice))
-	$(eval BOB   := $(shell icp identity principal --identity icrc2-bob))
+	@set -e; \
+	MINTER=$$(icp identity principal); \
+	icp identity new icrc2-alice 2>/dev/null || true; \
+	icp identity new icrc2-bob   2>/dev/null || true; \
+	ALICE=$$(icp identity principal --identity icrc2-alice); \
+	BOB=$$(icp identity principal --identity icrc2-bob); \
 	icp deploy token_a --args "(variant { Init = record { \
-	  token_name = \"Token A\"; \
-	  token_symbol = \"A\"; \
-	  minting_account = record { owner = principal \"$(MINTER)\" }; \
-	  initial_balances = vec { \
-	    record { record { owner = principal \"$(ALICE)\" }; 100_000_000_000_000 : nat }; \
-	  }; \
-	  metadata = vec {}; \
-	  transfer_fee = 10_000 : nat; \
-	  archive_options = record { \
-	    trigger_threshold = 2000 : nat64; \
-	    num_blocks_to_archive = 1000 : nat64; \
-	    controller_id = principal \"$(MINTER)\"; \
-	  }; \
-	  feature_flags = opt record { icrc2 = true }; \
-	}})"
+	  token_name = \"Token A\"; token_symbol = \"A\"; \
+	  minting_account = record { owner = principal \"$$MINTER\" }; \
+	  initial_balances = vec { record { record { owner = principal \"$$ALICE\" }; 100_000_000_000_000 : nat } }; \
+	  metadata = vec {}; transfer_fee = 10_000 : nat; \
+	  archive_options = record { trigger_threshold = 2000 : nat64; num_blocks_to_archive = 1000 : nat64; controller_id = principal \"$$MINTER\" }; \
+	  feature_flags = opt record { icrc2 = true } } })"; \
 	icp deploy token_b --args "(variant { Init = record { \
-	  token_name = \"Token B\"; \
-	  token_symbol = \"B\"; \
-	  minting_account = record { owner = principal \"$(MINTER)\" }; \
-	  initial_balances = vec { \
-	    record { record { owner = principal \"$(BOB)\" }; 100_000_000_000_000 : nat }; \
-	  }; \
-	  metadata = vec {}; \
-	  transfer_fee = 10_000 : nat; \
-	  archive_options = record { \
-	    trigger_threshold = 2000 : nat64; \
-	    num_blocks_to_archive = 1000 : nat64; \
-	    controller_id = principal \"$(MINTER)\"; \
-	  }; \
-	  feature_flags = opt record { icrc2 = true }; \
-	}})"
-	# Backend discovers token_a and token_b via PUBLIC_CANISTER_ID:* env vars
+	  token_name = \"Token B\"; token_symbol = \"B\"; \
+	  minting_account = record { owner = principal \"$$MINTER\" }; \
+	  initial_balances = vec { record { record { owner = principal \"$$BOB\" }; 100_000_000_000_000 : nat } }; \
+	  metadata = vec {}; transfer_fee = 10_000 : nat; \
+	  archive_options = record { trigger_threshold = 2000 : nat64; num_blocks_to_archive = 1000 : nat64; controller_id = principal \"$$MINTER\" }; \
+	  feature_flags = opt record { icrc2 = true } } })"; \
 	icp deploy backend
 
 # Full integration test: icrc2-alice deposits token_a, icrc2-bob deposits token_b,
