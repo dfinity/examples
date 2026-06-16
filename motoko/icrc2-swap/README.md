@@ -8,7 +8,7 @@ This example demonstrates how to safely work with ICRC-2 tokens on the Internet 
 
 ### 1. Debit before transfer (withdraw)
 
-When sending tokens out of the canister, **deduct the user's internal balance first**, then perform the on-chain transfer. If the order is reversed and the transfer executes before the debit, a concurrent or reentering call could withdraw the same tokens twice.
+When sending tokens out of the canister, **deduct the user's internal balance first**, then perform the transfer on the token ledger. If the order is reversed and the transfer executes before the debit, a concurrent or reentering call could withdraw the same tokens twice.
 
 See `backend/app.mo` `withdraw` for the implementation and detailed inline comments.
 
