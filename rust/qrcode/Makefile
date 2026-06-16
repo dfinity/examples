@@ -1,32 +1,44 @@
-.PHONY: all
-all: deploy
-
-.PHONY: node_modules
-.SILENT: node_modules
-node_modules:
-	npm install
-
-.PHONY: deploy
-.SILENT: deploy
-deploy: node_modules
-	dfx deploy
-
 .PHONY: test
-.SILENT: test
-test: deploy
-	# Wait at least 2 seconds.
-	sleep 2
-	# Validate the image is generated as a query.
-	dfx canister call qrcode_backend qrcode_query '("test", record {add_gradient=false; add_logo=false})' | fgrep -q 'Image = blob' && echo PASS
-	dfx canister call qrcode_backend qrcode_query '("test", record {add_gradient=false; add_logo=true})' | fgrep -q 'Image = blob' && echo PASS
-	dfx canister call qrcode_backend qrcode_query '("test", record {add_gradient=true; add_logo=false})' | fgrep -q 'Image = blob' && echo PASS
-	dfx canister call qrcode_backend qrcode_query '("test", record {add_gradient=true; add_logo=true})' | fgrep -q 'Image = blob' && echo PASS
-	dfx canister call qrcode_backend qrcode_query '("test", record {add_gradient=true; add_logo=true; add_trasparency=opt true})' | fgrep -q 'Image = blob' && echo PASS
-	dfx canister call qrcode_backend qrcode_query '("test", record {add_gradient=true; add_logo=true; add_trasparency=opt false})' | fgrep -q 'Image = blob' && echo PASS
-	# Validate the image is generated as an update call.
-	dfx canister call qrcode_backend qrcode '("test", record {add_gradient=true; add_logo=true})' | fgrep -q 'Image = blob' && echo PASS
 
-.PHONY: clean
-.SILENT: clean
-clean:
-	rm -fr .dfx
+test:
+	@echo "=== Test 1: qrcode_query without logo or gradient ==="
+	@result=$$(icp canister call --query backend qrcode_query '("test", record {add_logo=false; add_gradient=false; add_transparency=null})') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'Image = blob' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 2: qrcode_query with logo, no gradient ==="
+	@result=$$(icp canister call --query backend qrcode_query '("test", record {add_logo=true; add_gradient=false; add_transparency=null})') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'Image = blob' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 3: qrcode_query with gradient, no logo ==="
+	@result=$$(icp canister call --query backend qrcode_query '("test", record {add_logo=false; add_gradient=true; add_transparency=null})') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'Image = blob' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 4: qrcode_query with logo and gradient ==="
+	@result=$$(icp canister call --query backend qrcode_query '("test", record {add_logo=true; add_gradient=true; add_transparency=null})') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'Image = blob' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 5: qrcode_query with transparency enabled ==="
+	@result=$$(icp canister call --query backend qrcode_query '("test", record {add_logo=true; add_gradient=true; add_transparency=opt true})') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'Image = blob' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 6: qrcode_query with transparency disabled ==="
+	@result=$$(icp canister call --query backend qrcode_query '("test", record {add_logo=true; add_gradient=true; add_transparency=opt false})') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'Image = blob' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
+
+	@echo "=== Test 7: qrcode update call (waits for consensus) ==="
+	@result=$$(icp canister call backend qrcode '("test", record {add_logo=true; add_gradient=true; add_transparency=null})') && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'Image = blob' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)

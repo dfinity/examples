@@ -1,8 +1,4 @@
-import { createActor, canisterId } from "../../declarations/qrcode_backend";
-
-const qrcode_backend = createActor(canisterId, {
-  agentOptions: { host: window.location.origin },
-});
+import { backend } from "./actor.js";
 
 document.getElementById("generate").onclick = onGenerateButtonClick;
 
@@ -22,27 +18,27 @@ async function onGenerateButtonClick(event) {
   linkElement.href = "";
 
   try {
-    // Get the use input.
+    // Get the user input.
     const text = document.getElementById("text").value.toString();
     const options = {
       add_logo: document.getElementById("logo").checked,
       add_gradient: document.getElementById("gradient").checked,
       add_transparency: [document.getElementById("transparent").checked],
-    }
+    };
 
     // Call the backend and wait for the result.
     let result;
     if (document.getElementById("consensus").checked) {
-      result = await qrcode_backend.qrcode(text, options);
+      result = await backend.qrcode(text, options);
     } else {
-      result = await qrcode_backend.qrcode_query(text, options);
+      result = await backend.qrcode_query(text, options);
     }
 
     if ("Err" in result) {
       throw result.Err;
     }
 
-    // Convert the image blob in to a data URL.
+    // Convert the image blob into a data URL.
     const image = result.Image;
     const blob = new Blob([image], { type: "image/png" });
     const url = await convertToDataUrl(blob);
@@ -58,17 +54,16 @@ async function onGenerateButtonClick(event) {
 
   buttonElement.disabled = false;
   return false;
-
 }
 
 // Converts the given blob into a data url such that it can be assigned as a
-// target of a link of as an image source.
+// target of a link or as an image source.
 function convertToDataUrl(blob) {
   return new Promise((resolve, _) => {
     const fileReader = new FileReader();
     fileReader.readAsDataURL(blob);
     fileReader.onloadend = function () {
       resolve(fileReader.result);
-    }
+    };
   });
 }
