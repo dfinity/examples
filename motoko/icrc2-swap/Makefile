@@ -11,8 +11,8 @@
 deploy:
 	@set -e; \
 	MINTER=$$(icp identity principal); \
-	icp identity new icrc2-alice 2>/dev/null || true; \
-	icp identity new icrc2-bob   2>/dev/null || true; \
+	icp identity new icrc2-alice --storage plaintext 2>/dev/null || true; \
+	icp identity new icrc2-bob   --storage plaintext 2>/dev/null || true; \
 	ALICE=$$(icp identity principal --identity icrc2-alice); \
 	BOB=$$(icp identity principal --identity icrc2-bob); \
 	icp deploy token_a --mode reinstall -y --args "(variant { Init = record { \
