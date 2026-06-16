@@ -23,8 +23,9 @@ const isLocal =
   window.location.hostname === "127.0.0.1" ||
   window.location.hostname.endsWith(".localhost");
 const II_CANISTER_ID = "uqzsh-gqaaa-aaaaq-qaada-cai";
+const networkPort = process.env.REPLICA_PORT || window.location.port || "8000";
 export const identityProviderUrl = isLocal
-  ? `http://${II_CANISTER_ID}.localhost:${window.location.port || "8000"}`
+  ? `http://${II_CANISTER_ID}.localhost:${networkPort}`
   : "https://id.ai";
 
 export function createBackendActor(identity) {
