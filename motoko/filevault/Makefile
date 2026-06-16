@@ -1,6 +1,9 @@
 .PHONY: test
 
+# Cleanup any leftover state from a previous run so tests are idempotent.
 test:
+	@icp canister call backend deleteFile '("test.txt")' >/dev/null 2>&1 || true
+
 	@echo "=== Test 1: getFiles returns empty list for new user ==="
 	@result=$$(icp canister call backend getFiles '()') && \
 	  echo "$$result" && \
@@ -33,7 +36,7 @@ test:
 	@echo "=== Test 6: getTotalChunks returns 1 after single chunk upload ==="
 	@result=$$(icp canister call backend getTotalChunks '("test.txt")') && \
 	  echo "$$result" && \
-	  echo "$$result" | grep -q '1' && \
+	  echo "$$result" | grep -qF '(1 : nat)' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)
 
 	@echo "=== Test 7: getFileChunk returns chunk data ==="
