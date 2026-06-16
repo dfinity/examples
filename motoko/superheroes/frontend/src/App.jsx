@@ -69,7 +69,9 @@ function Read() {
 
   async function handleRead(event) {
     event.preventDefault();
-    const result = await backend.read(parseInt(superheroId, 10));
+    const id = parseInt(superheroId, 10);
+    if (Number.isNaN(id)) return;
+    const result = await backend.read(id);
     setSuperhero(result);
   }
 
@@ -105,10 +107,9 @@ function Update() {
 
   async function handleUpdate(event) {
     event.preventDefault();
-    const result = await backend.update(parseInt(superheroId, 10), {
-      name,
-      superpowers,
-    });
+    const id = parseInt(superheroId, 10);
+    if (Number.isNaN(id)) return;
+    const result = await backend.update(id, { name, superpowers });
     setSuccess(result);
   }
 
@@ -178,7 +179,9 @@ function Delete() {
 
   async function handleDelete(event) {
     event.preventDefault();
-    const result = await backend.delete(parseInt(superheroId, 10));
+    const id = parseInt(superheroId, 10);
+    if (Number.isNaN(id)) return;
+    const result = await backend.delete(id);
     setSuccess(result);
   }
 
