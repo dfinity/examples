@@ -3,7 +3,7 @@ use candid::{Nat, Principal};
 use ic_cdk::api::time;
 use ic_cdk::call::{Call, CallErrorExt};
 use ic_cdk::management_canister::{DepositCyclesArgs, CanisterId};
-use ic_cdk_macros::update;
+use ic_cdk::update;
 
 // When calling other canisters:
 //
