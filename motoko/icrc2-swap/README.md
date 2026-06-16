@@ -60,18 +60,18 @@ icp network stop
 2. Deploys `token_a` pre-funded for `icrc2-alice` and `token_b` pre-funded for `icrc2-bob`.
 3. Deploys `backend` — no init args needed; it discovers the token principals via injected environment variables.
 
-`make test` runs the full swap flow with `icrc2-alice` and `icrc2-bob` as the two parties. Test 2 verifies that swapping with no deposits returns `InsufficientBalance`. Tests 6 and 7 verify the on-chain balance delta after withdrawal, confirming the full round-trip. Tests are idempotent — they can be run multiple times without redeploying.
+`make test` runs the full swap flow with `icrc2-alice` and `icrc2-bob` as the two parties. Test 2 verifies that swapping with no deposits returns `InsufficientBalance`. Tests 6 and 7 verify the actual token balance delta in the ledger after withdrawal, confirming the full round-trip. Tests are idempotent — they can be run multiple times without redeploying.
 
 ## Fee handling
 
-ICRC-1 tokens charge a `transfer_fee` (10,000 e8s in this example) on every on-chain transfer.
+ICRC-1 tokens charge a `transfer_fee` (10,000 e8s in this example) on every transfer through the ledger.
 
 - **Deposit approve**: `approve` amount = deposit amount + fee (e.g. `100_010_000` to deposit `100_000_000`).
 - **Withdrawal**: The backend deducts `amount + fee` from the user's internal balance before sending. To withdraw the full deposited amount you must leave enough to cover the fee (e.g. withdraw `99_990_000` when internal balance is `100_000_000`).
 
 ## Known limitations
 
-- **Trusted token canisters only.** A malicious token ledger could trap during `icrc1_transfer` or `icrc2_transfer_from`. For `withdraw`, the balance is debited before the transfer call; a trap is caught and a refund is attempted, but the `try/catch` itself could theoretically trap in extreme circumstances. For `deposit`, if `icrc2_transfer_from` succeeds on-chain but the ledger traps before sending the response, the canister receives no callback and the user's tokens are moved on-chain but not credited internally. These are fundamental async messaging edge cases on the IC — always use trusted, audited token canisters.
+- **Trusted token canisters only.** A malicious token ledger could trap during `icrc1_transfer` or `icrc2_transfer_from`. For `withdraw`, the balance is debited before the transfer call; a trap is caught and a refund is attempted, but the `try/catch` itself could theoretically trap in extreme circumstances. For `deposit`, if `icrc2_transfer_from` succeeds in the ledger but the ledger traps before sending the response, the canister receives no callback and the user's tokens are moved in the ledger but not credited internally. These are fundamental async messaging edge cases on the IC — always use trusted, audited token canisters.
 - **No state size cap.** Each user's balance entry stays in the map. A production deployment should enforce per-user deposit limits.
 
 ## Security considerations and best practices
