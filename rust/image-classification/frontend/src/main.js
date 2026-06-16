@@ -1,4 +1,4 @@
-import { backend } from "../../declarations/backend";
+import { backend } from "./actor.js";
 
 document.getElementById("classify").onclick = classify;
 document.getElementById("file").onchange = onImageChange;
