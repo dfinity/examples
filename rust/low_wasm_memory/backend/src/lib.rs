@@ -1,5 +1,5 @@
-use candid::{CandidType, Deserialize};
-use serde::Serialize;
+use candid::CandidType;
+use serde::{Deserialize, Serialize};
 use std::cell::RefCell;
 
 #[derive(Clone, CandidType, Serialize, Deserialize, PartialEq, Eq, Copy, Debug)]
@@ -37,8 +37,8 @@ fn set_state(state: State) {
     STATE.with(|cell| *cell.borrow_mut() = Some(state));
 }
 
-/// Initializes the state of the Bitcoin canister.
-#[ic_cdk_macros::init]
+/// Initializes the canister state.
+#[ic_cdk::init]
 pub fn init() {
     set_state(State {
         fn_order: vec![],
@@ -47,12 +47,12 @@ pub fn init() {
     });
 }
 
-#[ic_cdk_macros::query]
+#[ic_cdk::query]
 pub fn get_executed_functions_order() -> Vec<FnType> {
     with_state(|s| s.fn_order.clone())
 }
 
-#[ic_cdk_macros::heartbeat]
+#[ic_cdk::heartbeat]
 pub fn increase_wasm_memory_usage() {
     with_state_mut(|s| {
         if !s.hook_executed {
@@ -65,7 +65,7 @@ pub fn increase_wasm_memory_usage() {
     });
 }
 
-#[ic_cdk_macros::on_low_wasm_memory]
+#[ic_cdk::on_low_wasm_memory]
 pub fn hook() {
     with_state_mut(|s| {
         s.hook_executed = true;
