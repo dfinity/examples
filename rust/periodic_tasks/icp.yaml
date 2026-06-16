@@ -1,0 +1,16 @@
+networks:
+  - name: local
+    mode: managed
+
+canisters:
+  - name: timer
+    recipe:
+      type: "@dfinity/rust@v3.3.0"
+      configuration:
+        package: timer
+
+  - name: heartbeat
+    recipe:
+      type: "@dfinity/rust@v3.3.0"
+      configuration:
+        package: heartbeat

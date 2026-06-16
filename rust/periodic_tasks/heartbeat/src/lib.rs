@@ -59,7 +59,7 @@ fn track_cycles_used() {
 /// The logic to schedule periodic tasks at the specific intervals must be
 /// implemented manually inside the heartbeat method. Below is a simplistic
 /// example implementation.
-#[ic_cdk_macros::heartbeat]
+#[ic_cdk::heartbeat]
 fn heartbeat() {
     let time_nanos = ic_cdk::api::time();
     let now = SystemTime::UNIX_EPOCH + Duration::from_nanos(time_nanos);
@@ -88,17 +88,13 @@ fn heartbeat() {
 ////////////////////////////////////////////////////////////////////////
 
 /// Returns the `COUNTER` value.
-///
-/// Example usage: `dfx canister call heartbeat counter`
-#[ic_cdk_macros::query]
+#[ic_cdk::query]
 fn counter() -> u32 {
     COUNTER.with(|counter| *counter.borrow())
 }
 
 /// Sets a periodic tasks interval in seconds to increment the `COUNTER`.
-///
-/// Example usage: `dfx canister call heartbeat set_interval_secs 10`
-#[ic_cdk_macros::update]
+#[ic_cdk::update]
 fn set_interval_secs(secs: u64) {
     MIN_INTERVAL_SECS.store(secs, Ordering::Relaxed);
     ic_cdk::println!("Heartbeat canister: Setting interval to {secs}s...");
@@ -109,18 +105,14 @@ fn set_interval_secs(secs: u64) {
 }
 
 /// Stops incrementing the counter by setting a huge interval.
-///
-/// Example usage: `dfx canister call heartbeat stop`
-#[ic_cdk_macros::update]
+#[ic_cdk::update]
 fn stop() {
     // Due to the huge interval the periodic task won't be called.
     set_interval_secs(1_000_000_000_000);
 }
 
 /// Returns the amount of cycles used since the beginning of the execution.
-///
-/// Example usage: `dfx canister call heartbeat cycles_used`
-#[ic_cdk_macros::query]
+#[ic_cdk::query]
 fn cycles_used() -> u64 {
     CYCLES_USED.load(Ordering::Relaxed)
 }
@@ -136,14 +128,14 @@ fn cycles_used() -> u64 {
 
 /// This is special `canister_init` method which is invoked by
 /// the Internet Computer when the canister is installed for the first time.
-#[ic_cdk_macros::init]
+#[ic_cdk::init]
 fn init(min_interval_secs: u64) {
     set_interval_secs(min_interval_secs);
 }
 
 /// This is special `canister_post_upgrade` method which is invoked by
 /// the Internet Computer after the canister is upgraded to a new version.
-#[ic_cdk_macros::post_upgrade]
+#[ic_cdk::post_upgrade]
 fn post_upgrade(min_interval_secs: u64) {
     init(min_interval_secs);
 }

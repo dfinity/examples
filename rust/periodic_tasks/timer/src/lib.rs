@@ -49,9 +49,7 @@ fn track_cycles_used() {
 ////////////////////////////////////////////////////////////////////////
 
 /// Returns the `COUNTER` value.
-///
-/// Example usage: `dfx canister call timer counter`
-#[ic_cdk_macros::query]
+#[ic_cdk::query]
 fn counter() -> u32 {
     COUNTER.with(|counter| *counter.borrow())
 }
@@ -61,9 +59,7 @@ fn counter() -> u32 {
 ///
 /// It is implementation-defined when exactly the timer handler will be called.
 /// The only explicit guarantee is that it won't be called earlier.
-///
-/// Example usage: `dfx canister call timer start_with_interval_secs 10`
-#[ic_cdk_macros::update]
+#[ic_cdk::update]
 fn start_with_interval_secs(secs: u64) {
     let secs = Duration::from_secs(secs);
     ic_cdk::println!("Timer canister: Starting a new timer with {secs:?} interval...");
@@ -78,9 +74,7 @@ fn start_with_interval_secs(secs: u64) {
 }
 
 /// Stops incrementing the counter by clearing the last timer ID.
-///
-/// Example usage: `dfx canister call timer stop`
-#[ic_cdk_macros::update]
+#[ic_cdk::update]
 fn stop() {
     TIMER_IDS.with(|timer_ids| {
         if let Some(timer_id) = timer_ids.borrow_mut().pop() {
@@ -92,9 +86,7 @@ fn stop() {
 }
 
 /// Returns the amount of cycles used since the beginning of the execution.
-///
-/// Example usage: `dfx canister call timer cycles_used`
-#[ic_cdk_macros::query]
+#[ic_cdk::query]
 fn cycles_used() -> u64 {
     CYCLES_USED.load(Ordering::Relaxed)
 }
@@ -105,7 +97,7 @@ fn cycles_used() -> u64 {
 
 /// This is special `canister_init` method which is invoked by
 /// the Internet Computer when the canister is installed for the first time.
-#[ic_cdk_macros::init]
+#[ic_cdk::init]
 fn init(min_interval_secs: u64) {
     start_with_interval_secs(min_interval_secs);
 }
@@ -117,7 +109,7 @@ fn init(min_interval_secs: u64) {
 /// The developer is responsible to track and serialize the timers into
 /// the stable memory in `canister_pre_upgrade` method and/or re-activate
 /// the timers in the `canister_post_upgrade`.
-#[ic_cdk_macros::post_upgrade]
+#[ic_cdk::post_upgrade]
 fn post_upgrade(min_interval_secs: u64) {
     init(min_interval_secs);
 }
