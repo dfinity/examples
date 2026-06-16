@@ -1,7 +1,8 @@
 # Unit Testable Rust Canister
 
-This repository demonstrates how to structure a Rust canister for comprehensive unit testing by isolating
-non-deterministic dependencies behind interfaces.
+This example demonstrates how to structure a Rust canister for comprehensive unit testing by isolating
+non-deterministic dependencies behind interfaces. It uses dependency injection so that inter-canister
+calls and stable memory operations can all be mocked in fast pure-Rust unit tests.
 
 ## Architecture
 
@@ -11,9 +12,8 @@ The canister uses a dependency injection pattern that avoids complex generics th
 
 ```rust
 pub struct CanisterApi {
-    pub governance: Box<dyn GovernanceApiTrait>,
-    pub storage: Box<dyn StorageApiTrait>,
-    // other dependencies...
+    governance: Arc<dyn GovernanceApi>,
+    counter: Arc<dyn Counter>,
 }
 ```
 
@@ -42,18 +42,16 @@ fn complex_function(api: &CanisterApi) -> Result<T, E> {
 
 Non-deterministic operations are abstracted behind traits:
 
-- **Inter-canister calls** → `GovernanceApiTrait`
-- **Stable memory operations** → `StorageApiTrait`
-- **Time-based operations** → `TimeApiTrait`
+- **Inter-canister calls** → `GovernanceApi`
+- **Stable memory operations** → `Counter` (backed by `StableMemoryCounter`)
 
 **Benefit**: The entire dependency tree can be mocked, allowing you to test all canister logic in pure Rust unit tests
 without any IC integration.
 
-Technically Stable Memory can be fully test in Rust, but in cases where more complex logic is needed to update the
-contents
-of stable memory in a way that works for tests, you can simplify your testing by putting it behind an interface that
-abstracts away the actual storage implementation. This makes it easier to evolve your storage layer without
-needing to update tests.
+Technically stable memory can be fully tested in Rust, but in cases where more complex logic is needed to update the
+contents of stable memory in a way that works for tests, you can simplify your testing by putting it behind an
+interface that abstracts away the actual storage implementation. This makes it easier to evolve your storage layer
+without needing to update tests.
 
 ## Testing Strategy
 
@@ -63,32 +61,32 @@ Unit tests run in milliseconds and can test complex business logic by mocking al
 
 ```rust
 #[test]
-fn test_complex_governance_logic() {
-    let mut mock_governance = MockGovernanceApi::new();
-    mock_governance.expect_get_proposal_info()
-        .returning(|_| Ok(mock_proposal()));
+fn test_counter_endpoints() {
+    let governance = Arc::new(MockGovernanceApi::new());
+    let counter = Arc::new(TestCounter::new());
+    let api = CanisterApi::new(governance, counter);
 
-    let api = CanisterApi::new_with_mocks(mock_governance, /* other mocks */);
+    let response = api.get_count();
+    assert_eq!(response.count, Some(0));
 
-    // Test complex logic without any IC integration
-    let result = complex_function(&api);
-    assert_eq!(result, expected_result);
+    let response = api.increment_count();
+    assert_eq!(response.new_count, Some(1));
 }
 ```
 
 ### Integration Tests (Slower, End-to-End)
 
-Integration tests use PocketIC to verify the complete system works together:
+Integration tests use PocketIC to verify the complete system works together, including actual
+inter-canister calls to a locally deployed NNS Governance canister:
 
 ```rust
 #[test]
-fn test_end_to_end_workflow() {
-    let pic = PocketIc::new();
-    let canister_id = deploy_canister(&pic);
+fn test_counter_functionality() {
+    let pic = PocketIcBuilder::new().with_nns_subnet().build();
+    let canister_id = deploy_backend_canister(&pic);
 
-    // Test actual inter-canister calls
-    let response = pic.update_call(canister_id, "method", args);
-    // assertions...
+    let response: GetCountResponse = query(&pic, canister_id, "get_count", encode_one(GetCountRequest {}).unwrap());
+    assert_eq!(response.count, Some(0));
 }
 ```
 
@@ -102,7 +100,7 @@ verify system integration.
 
 ## Keeping Up With Mainnet Canister Changes
 
-Additionally, in the PocketIC tests, we rely on setting up Governance proposals via init arguments. That capability
+In the PocketIC integration tests, we rely on setting up Governance proposals via init arguments. That capability
 could be removed in the future, as it's not part of the stable interface of the canister. In that case, mocking out
 canisters would become harder, as you would need to also create a ledger and neurons and proposals. This setup can
 be error-prone, and would need to be kept in sync with mainnet.
@@ -116,17 +114,20 @@ minimal testing.
 ## Project Structure
 
 ```
-src/
-├── lib.rs              # Canister entry points and initialization
-├── canister_api.rs     # Main API struct and dependency injection
-├── counter.rs          # Counter trait and implementation (abstraction over storage)
-├── governance.rs       # NNS Governance trait and implementations
-├── stable_memory.rs    # Storage operations and trait definitions
-├── types/
-│   ├── mod.rs         # Request/response types and external canister types
-│   └── nns_governance.rs  # NNS Governance canister type definitions, generated from governance candid.
-└── tests/
-    └── integration_tests.rs # Slower end-to-end tests
+backend/
+├── Cargo.toml
+├── backend.did           # Candid interface
+└── src/
+    ├── lib.rs            # Canister entry points and initialization
+    ├── canister_api.rs   # Main API struct and dependency injection
+    ├── counter.rs        # Counter trait and implementation (abstraction over storage)
+    ├── governance.rs     # NNS Governance trait and implementations
+    ├── stable_memory.rs  # Storage operations and trait definitions
+    └── types/
+        ├── mod.rs            # Request/response types
+        └── nns_governance.rs # NNS Governance canister type definitions
+    tests/
+    └── integration_tests.rs  # Slower end-to-end tests using PocketIC
 ```
 
 ## Type Generation
@@ -146,26 +147,38 @@ For automatic type generation from Candid files, see the `candid-type-generation
 4. **Easy Debugging**: Unit tests can isolate specific scenarios without IC complexity
 5. **Maintainable Code**: Clear separation between business logic and IC integration
 
-## Running Tests
+## Build and deploy from the command line
+
+### Prerequisites
+- [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- Rust toolchain with `wasm32-unknown-unknown` target
+
+### Install
+
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/rust/unit_testable_rust_canister
+```
+
+### Run unit and integration tests
 
 ```bash
 # Fast unit tests (recommended for development)
 cargo test --lib
 
-# All tests (including integration tests)
+# All tests including PocketIC integration tests
 cargo test
 ```
 
-The unit tests demonstrate testing the same functionality as integration tests but with significantly better performance
-and easier setup.
-
-## Deployment
-
-To deploy locally, but without NNS governance canister.
+### Deploy and test
 
 ```bash
-dfx start --background
-dfx create canister hello_canister
-dfx deploy
-
+icp network start -d
+icp deploy
+make test
+icp network stop
 ```
+
+## Security considerations and best practices
+
+For information on security best practices when developing on ICP, see the [security overview](https://docs.internetcomputer.org/guides/security/overview).

@@ -78,7 +78,7 @@ mod tests {
         // Get the directory where this crate's Cargo.toml is located
         let manifest_dir = env::var("CARGO_MANIFEST_DIR")
             .expect("CARGO_MANIFEST_DIR environment variable not set");
-        let candid_file_path = PathBuf::from(&manifest_dir).join("hello_canister.did");
+        let candid_file_path = PathBuf::from(&manifest_dir).join("backend.did");
 
         // Read the declared interface from the .did file
         let declared_interface_str =
