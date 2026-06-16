@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import '../index.css';
-import { backend } from 'declarations/backend';
+import { backend } from './actor';
 
 const App = () => {
   const [currentDate, setCurrentDate] = useState(new Date());
