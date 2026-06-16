@@ -2,6 +2,8 @@
 
 This example demonstrates a simple use of actor classes, allowing a program to dynamically install new actors (canisters) at runtime. It implements a distributed key-value store that maps `Nat` to `Text` values, with entries spread across a small number of separately deployed `Bucket` actor-class canisters created on demand.
 
+The focus is on **dynamic canister creation**: how an actor class (`Bucket`) is instantiated at runtime and how the parent canister forwards cycles to fund each child. Lookups use regular update calls. The [`composite_query`](../composite_query/) example builds on this same architecture to demonstrate how composite queries can make cross-canister reads faster.
+
 ## Build and deploy from the command line
 
 ### Prerequisites
