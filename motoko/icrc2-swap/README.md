@@ -1,6 +1,6 @@
 # ICRC-2 Swap
 
-This example demonstrates how to safely work with ICRC-2 tokens on the Internet Computer, focusing on two critical inter-canister call safety patterns that differ from synchronous blockchains.
+This example demonstrates how to safely work with [ICRC-2](https://docs.internetcomputer.org/references/digital-asset-standards) tokens on the Internet Computer, focusing on two critical inter-canister call safety patterns that differ from synchronous blockchains.
 
 > Originally contributed by [0xAegir](https://github.com/AegirFinance).
 
