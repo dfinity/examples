@@ -1,6 +1,5 @@
-use ic_cdk::{
-    api::management_canister::main::raw_rand as ic00_raw_rand, init, post_upgrade, query, update,
-};
+use ic_cdk::{init, post_upgrade, query, update};
+use ic_cdk_management_canister::raw_rand as ic00_raw_rand;
 use std::time::Duration;
 
 const TIMER_INTERVAL_SEC: u64 = 5;
@@ -68,7 +67,7 @@ fn failed_unwrap() {
 async fn raw_rand() -> Vec<u8> {
     ic_cdk::println!("pre ic.raw_rand() call");
     match ic00_raw_rand().await {
-        Ok((bytes,)) => {
+        Ok(bytes) => {
             ic_cdk::println!("ic.raw_rand() call succeeded");
             bytes
         }

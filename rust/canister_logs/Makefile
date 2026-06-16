@@ -1,78 +1,82 @@
-.PHONY: all
-all: deploy
-
-.PHONY: deploy
-.SILENT: deploy
-deploy:
-	dfx deploy canister_logs
-
 .PHONY: test
-.SILENT: test
-test: deploy
-	# Test print via update call.
-	dfx canister call canister_logs print 'print via update'
-	dfx canister logs canister_logs \
-		| grep 'print via update' && echo 'PASS'
 
-	# Test print via replicated query call.
-	dfx canister call --update canister_logs print_query 'print via replicated query'
-	dfx canister logs canister_logs \
-		| grep 'print via replicated query' && echo 'PASS'
+test:
+	@echo "=== Test 1: print via update call is recorded in logs ==="
+	@icp canister call backend print '("print via update")' && \
+	  result=$$(icp canister logs backend) && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'print via update' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	# Test print via non-replicated query call should NOT record the message.
-	dfx canister call --query canister_logs print_query 'print via non-replicated query'
-	! dfx canister logs canister_logs \
-		| grep 'print via non-replicated query' && echo 'PASS'
+	@echo "=== Test 2: print via replicated query call is recorded in logs ==="
+	@icp canister call --update backend print_query '("print via replicated query")' && \
+	  result=$$(icp canister logs backend) && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'print via replicated query' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	# Test trapped call is recorded in logs. 
-	# Ignore failed dfx command output (so the test continues) and check the logs to contain the message.
-	- dfx canister call canister_logs trap 'trap via update'
-	dfx canister logs canister_logs \
-		| grep 'trap via update' && echo 'PASS'
+	@echo "=== Test 3: print via non-replicated query should NOT be recorded in logs ==="
+	@icp canister call --query backend print_query '("print via non-replicated query")'; \
+	  result=$$(icp canister logs backend) && \
+	  echo "$$result" && \
+	  ! echo "$$result" | grep -q 'print via non-replicated query' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	# Test trap via replicated query call.
-	# Ignore failed dfx command output (so the test continues) and check the logs to contain the message.
-	- dfx canister call --update canister_logs trap_query 'trap via replicated query'
-	dfx canister logs canister_logs \
-		| grep 'trap via replicated query' && echo 'PASS'
+	@echo "=== Test 4: trap via update call is recorded in logs ==="
+	@icp canister call backend trap '("trap via update")' 2>/dev/null; \
+	  result=$$(icp canister logs backend) && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'trap via update' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	# Test trap via non-replicated query call should NOT record the message.
-	# Ignore failed dfx command output (so the test continues) and check the logs to contain the message.
-	- dfx canister call --query canister_logs trap_query 'trap via non-replicated query'
-	! dfx canister logs canister_logs \
-		| grep 'trap via non-replicated query' && echo 'PASS'
+	@echo "=== Test 5: trap via replicated query call is recorded in logs ==="
+	@icp canister call --update backend trap_query '("trap via replicated query")' 2>/dev/null; \
+	  result=$$(icp canister logs backend) && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'trap via replicated query' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	# Test the call with panic is recorded in logs. 
-	# Ignore failed dfx command output (so the test continues) and check the logs to contain the message.
-	- dfx canister call canister_logs panic 'panic via update'
-	dfx canister logs canister_logs \
-		| grep 'panic via update' && echo 'PASS'
+	@echo "=== Test 6: trap via non-replicated query should NOT be recorded in logs ==="
+	@icp canister call --query backend trap_query '("trap via non-replicated query")' 2>/dev/null; \
+	  result=$$(icp canister logs backend) && \
+	  echo "$$result" && \
+	  ! echo "$$result" | grep -q 'trap via non-replicated query' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	# Test call to fail with memory out of bounds.
-	# Ignore failed dfx command output (so the test continues) and check the logs to contain the message.
-	- dfx canister call canister_logs memory_oob
-	dfx canister logs canister_logs \
-		| grep 'stable memory out of bounds' && echo 'PASS'
+	@echo "=== Test 7: panic via update call is recorded in logs ==="
+	@icp canister call backend panic '("panic via update")' 2>/dev/null; \
+	  result=$$(icp canister logs backend) && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'panic via update' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	# Test call to fail with failed unwrap.
-	# Ignore failed dfx command output (so the test continues) and check the logs to contain the message.
-	- dfx canister call canister_logs failed_unwrap
-	dfx canister logs canister_logs \
-		| grep 'Result::unwrap()' && echo 'PASS'
+	@echo "=== Test 8: memory out of bounds call is recorded in logs ==="
+	@icp canister call backend memory_oob '()' 2>/dev/null; \
+	  result=$$(icp canister logs backend) && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'stable memory out of bounds' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	# Test timer trap.
-	# The timer is setup to trap every 5 seconds, so this test has to be called 
-	# at least 5 seconds after the start to record the trap log message.
-	sleep 5
-	dfx canister logs canister_logs \
-		| grep 'timer trap' && echo 'PASS'
+	@echo "=== Test 9: failed unwrap call is recorded in logs ==="
+	@icp canister call backend failed_unwrap '()' 2>/dev/null; \
+	  result=$$(icp canister logs backend) && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q "Result::unwrap()" && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
 
-	# Test raw_rand.
-	dfx canister call canister_logs raw_rand
-	dfx canister logs canister_logs \
-		| grep 'ic.raw_rand() call succeeded' && echo 'PASS'
+	@echo "=== Test 10: Polling for timer trap (up to 60s) ==="
+	@secs=0; \
+	while [ $$secs -lt 60 ]; do \
+	  result=$$(icp canister logs backend); \
+	  echo "$$result"; \
+	  echo "$$result" | grep -q 'timer trap' && echo "PASS" && exit 0; \
+	  sleep 3; secs=$$((secs + 3)); \
+	done; \
+	echo "FAIL: timer trap not recorded within 60s"; exit 1
 
-.PHONY: clean
-.SILENT: clean
-clean:
-	rm -fr .dfx
+	@echo "=== Test 11: raw_rand call is recorded in logs ==="
+	@icp canister call backend raw_rand '()' && \
+	  result=$$(icp canister logs backend) && \
+	  echo "$$result" && \
+	  echo "$$result" | grep -q 'ic.raw_rand() call succeeded' && \
+	  echo "PASS" || (echo "FAIL" && exit 1)
