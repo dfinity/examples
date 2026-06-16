@@ -2,7 +2,9 @@ use std::{convert::TryFrom, ops::Deref};
 
 use candid::Principal;
 use elliptic_curve::sec1::ToEncodedPoint;
-use ic_cdk::api::management_canister::ecdsa as cdk_ecdsa;
+use ic_cdk_management_canister::{
+    self as management_canister, EcdsaKeyId, SignWithEcdsaArgs,
+};
 use sha2::Digest;
 use spki::{AlgorithmIdentifierOwned, DynSignatureAlgorithmIdentifier};
 
@@ -75,7 +77,7 @@ impl DynSignatureAlgorithmIdentifier for Ed25519Signer {
 }
 
 pub struct EcdsaSecp256k1Signer {
-    key_id: cdk_ecdsa::EcdsaKeyId,
+    key_id: EcdsaKeyId,
     public_key: k256::ecdsa::VerifyingKey,
 }
 
@@ -89,7 +91,7 @@ impl EcdsaSecp256k1Signer {
         .unwrap();
         Ok(Self {
             key_id: CA_KEY_INFORMATION
-                .with(|value| cdk_ecdsa::EcdsaKeyId::try_from(value.borrow().deref()))?,
+                .with(|value| EcdsaKeyId::try_from(value.borrow().deref()))?,
             public_key,
         })
     }
@@ -100,16 +102,15 @@ impl Sign for EcdsaSecp256k1Signer {
         let mut hasher = sha2::Sha256::new();
         hasher.update(msg);
 
-        let args = cdk_ecdsa::SignWithEcdsaArgument {
+        let args = SignWithEcdsaArgs {
             message_hash: hasher.finalize().to_vec(),
             derivation_path: derivation_path(),
             key_id: self.key_id.clone(),
         };
 
-        let (internal_reply,): (cdk_ecdsa::SignWithEcdsaResponse,) =
-            cdk_ecdsa::sign_with_ecdsa(args)
-                .await
-                .map_err(|e| format!("sign_with_schnorr failed {e:?}"))?;
+        let internal_reply = management_canister::sign_with_ecdsa(&args)
+            .await
+            .map_err(|e| format!("sign_with_ecdsa failed {e:?}"))?;
 
         Ok(
             k256::ecdsa::Signature::from_slice(internal_reply.signature.as_slice())
