@@ -1,12 +1,12 @@
-# Performance counter
+# Performance counters
 
-A canister can query one of the "performance counters", which is a deterministic monotonically increasing integer approximating the amount of work the canister has done. Developers might use this data to profile and optimize the canister performance.
+A canister can query one of the "performance counters", which is a deterministic monotonically increasing integer approximating the amount of work the canister has done. Developers can use this data to profile and optimize canister performance.
 
 ```Candid
 ic0.performance_counter : (counter_type : i32) -> i64
 ```
 
-The argument `type` decides which performance counter to return:
+The argument `counter_type` decides which performance counter to return:
 
 - 0 : current execution instruction counter.
       The number of WebAssembly instructions the canister has executed
@@ -29,40 +29,46 @@ The argument `type` decides which performance counter to return:
 
 In the future, ICP might expose more performance counters.
 
-## Deploying from ICP Ninja
+## Build and deploy from the command line
 
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/performance_counters)
+### Prerequisites
 
-## Build and deploy from the command-line
+- Node.js
+- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
-### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
+### Install
 
-### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/rust/performance_counters
+```
 
-### 3. Navigate into the project's directory.
+### Deploy and test
 
-### 4. Deploy the project to your local environment.
+```bash
+icp network start -d
+icp deploy
+make test
+icp network stop
+```
 
-Run `dfx start`, then open a new terminal and run `dfx deploy` to deploy the project to your local environment. 
+### Calling the canister
 
-Call `performance_counters` canister `for_update` method:
+Call `backend` canister `for_update` method:
 
 ```sh
-dfx canister call performance_counters for_update
+icp canister call backend for_update '()'
 ```
 
 Example output:
 
 ```sh
-% dfx canister call performance_counters for_update
 (6_618_678 : nat64, 19_886_107 : nat64)
 ```
 
 Note how the current message execution counter (~6M instructions) is much different from the call context counter (~19M instructions).
 
-### 5. Check the first terminal window for more details.
-
-Example log output:
+The canister also prints detailed logs. Example log output for `for_update`:
 
 ```text
 Performance counters for update call:    current (0)     call context (1)
@@ -76,18 +82,17 @@ Performance counters for update call:    current (0)     call context (1)
 Note how the current execution instruction counter (0) stays at ~6M instructions after each await point.
 By contrast, the call context performance counter (1) is monotonically increasing (~6M, ~13M, ~19M instructions).
 
-Also note, that both counters start over for each nested execution (~12K instructions).
+Also note that both counters start over for each nested execution (~12K instructions).
 
-### 6. Repeat the steps above calling `for_composite_query` method.
+Call `for_composite_query` method:
 
 ```sh
-dfx canister call performance_counters for_composite_query
+icp canister call --query backend for_composite_query '()'
 ```
 
 Example output:
 
 ```sh
-% dfx canister call performance_counters for_update
 (6_621_477 : nat64, 19_893_467 : nat64)
 ```
 
@@ -106,4 +111,4 @@ Note the same performance counters behavior for composite queries.
 
 ## Security considerations and best practices
 
-If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
+Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app.
