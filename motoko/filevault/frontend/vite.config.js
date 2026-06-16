@@ -16,7 +16,6 @@ function getDevServerConfig() {
       })
     );
     return {
-      replicaPort: "8000",
       headers: {
         "Set-Cookie": `ic_env=${encodeURIComponent(
           `ic_root_key=${networkStatus.root_key}&PUBLIC_CANISTER_ID:backend=${canisterId}`
@@ -50,7 +49,6 @@ export default defineConfig(({ command, mode }) => {
       "process.env.CANISTER_ID_BACKEND": JSON.stringify(
         env.CANISTER_ID_BACKEND
       ),
-      "process.env.REPLICA_PORT": JSON.stringify(devConfig?.replicaPort ?? ""),
     },
     optimizeDeps: {
       esbuildOptions: { define: { global: "globalThis" } },
