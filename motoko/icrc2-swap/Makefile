@@ -40,9 +40,10 @@ deploy:
 	  }; \
 	  feature_flags = opt record { icrc2 = true }; \
 	}})"
-	$(eval TOKEN_A := $(shell icp canister status token_a -i))
-	$(eval TOKEN_B := $(shell icp canister status token_b -i))
-	icp deploy backend --args "(record { token_a = principal \"$(TOKEN_A)\"; token_b = principal \"$(TOKEN_B)\" })"
+	# Deploy backend last — icp-cli automatically injects PUBLIC_CANISTER_ID:token_a
+	# and PUBLIC_CANISTER_ID:token_b as canister environment variables, so the backend
+	# discovers the token principals at runtime via Runtime.envVar without init args.
+	icp deploy backend
 
 # Full integration test: Alice deposits token_a, Bob deposits token_b,
 # they swap 1:1, and each withdraws the other's token.

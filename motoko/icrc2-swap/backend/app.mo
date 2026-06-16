@@ -7,23 +7,34 @@ import Runtime "mo:core/Runtime";
 
 import ICRC "ICRC";
 
-// The swap canister is the main backend canister for this example. To simplify
-// this example we configure the swap canister with the two tokens it will be
-// swapping.
-shared (init_msg) persistent actor class Swap(
-  init_args : {
-    token_a : Principal;
-    token_b : Principal;
-  }
-) = this {
+// The swap canister accepts deposits of two ICRC-2 tokens, swaps balances
+// 1:1 between users, and allows withdrawals.
+//
+// Token principals are read from canister environment variables injected
+// automatically by icp-cli during `icp deploy` / `make deploy`.
+actor Swap {
 
   // Track the deposited per-user balances for token A and token B
   private let balancesA = Map.empty<Principal, Nat>();
   private let balancesB = Map.empty<Principal, Nat>();
 
-  // balances is a simple getter to check the balances of all users, to make debugging easier.
+  // balances is a simple getter to check the balances of all users.
   public query func balances() : async ([(Principal, Nat)], [(Principal, Nat)]) {
     (balancesA.entries().toArray(), balancesB.entries().toArray())
+  };
+
+  // Read token principals from PUBLIC_CANISTER_ID:token_a / token_b,
+  // injected by icp-cli during `make deploy`.
+  func tokenA<system>() : Principal {
+    let ?id = Runtime.envVar<system>("PUBLIC_CANISTER_ID:token_a") else
+      Runtime.trap("PUBLIC_CANISTER_ID:token_a not set — run make deploy");
+    Principal.fromText(id)
+  };
+
+  func tokenB<system>() : Principal {
+    let ?id = Runtime.envVar<system>("PUBLIC_CANISTER_ID:token_b") else
+      Runtime.trap("PUBLIC_CANISTER_ID:token_b not set — run make deploy");
+    Principal.fromText(id)
   };
 
   public type DepositArgs = {
@@ -47,7 +58,7 @@ shared (init_msg) persistent actor class Swap(
   // - These deposit handlers show how to safely accept and register deposits of an ICRC-2 token.
   public shared func deposit(args : DepositArgs) : async Result.Result<Nat, DepositError> {
     let token : ICRC.Actor = actor (args.token.toText());
-    let balances = which_balances(args.token);
+    let balances = which_balances<system>(args.token);
 
     // Load the fee from the token here. The user can pass a null fee, which
     // means "use the default". So we need to look up the default in order to
@@ -61,7 +72,7 @@ shared (init_msg) persistent actor class Swap(
     let transfer_result = await token.icrc2_transfer_from({
       spender_subaccount = args.spender_subaccount;
       from = args.from;
-      to = { owner = Principal.fromActor(this); subaccount = null };
+      to = { owner = Principal.fromActor(Swap); subaccount = null };
       amount = args.amount;
       fee = ?fee;
       memo = args.memo;
@@ -83,10 +94,6 @@ shared (init_msg) persistent actor class Swap(
     // would have the user's tokens), but we would not have credited their
     // account yet, so this canister would not *know* that it had received the
     // user's tokens.
-    //
-    // If the function *can* fail here after this point, we should either:
-    // - Move that code to a separate action later
-    // - Have failure-handling code which refunds the user's tokens
 
     // Credit the sender's account
     let sender = args.from.owner;
@@ -103,33 +110,16 @@ shared (init_msg) persistent actor class Swap(
   };
 
   public type SwapError = {
-    // Left as a placeholder for future implementors, in case their swap
-    // function could fail.
+    // Left as a placeholder for future implementors.
   };
 
   // Swap TokenA for TokenB
   // - Exchange tokens between the two given users.
-  // - For this example, there will be no clever swap mechanism, it simply swaps all
-  //   deposits for the two users, even allowing anybody to perform the swap.
-  //   Designing a useful and safer swap mechanism is left as an exercise for
-  //   the reader.
   // - UserA's full balance of TokenA is given to UserB, and UserB's full
   //   balance of TokenB is given to UserA.
+  // - This function executes atomically (no `await` calls) to ensure consistency.
   public shared func swap(args : SwapArgs) : async Result.Result<(), SwapError> {
-    // Because both tokens were deposited before calling swap, we can execute
-    // this function atomically. To do that there must be no `await` calls in
-    // this function. If we *did* have `await` calls in this function, we would
-    // need to be careful with the order that we update any internal state
-    // variables. If this function were to update some state variables, call
-    // `await`, then fail, before updating others, it could leave this canister
-    // with inconsistent internal state.
-    //
-    // Making this function atomic (by not using `await`) makes it safer,
-    // because either all of the state changes applied in this function will be
-    // persisted, or all of the state changes will be reverted.
-
     // Give user_a's token_a to user_b
-    // Add the the two user's token_a balances, and give all of it to user_b.
     let _ = balancesA.swap(
       args.user_b,
       balancesA.get(args.user_a).get(0 : Nat) +
@@ -138,7 +128,6 @@ shared (init_msg) persistent actor class Swap(
     balancesA.remove(args.user_a);
 
     // Give user_b's token_b to user_a
-    // Add the the two user's token_b balances, and give all of it to user_a.
     let _ = balancesB.swap(
       args.user_a,
       balancesB.get(args.user_a).get(0 : Nat) +
@@ -159,13 +148,7 @@ shared (init_msg) persistent actor class Swap(
   };
 
   public type WithdrawError = {
-    // The caller doesn't not have sufficient funds deposited in this swap
-    // contract to fulfil this withdrawal. Note, this is different from the
-    // TransferError(InsufficientFunds), which would indicate that this
-    // canister doesn't have enough funds to fulfil the withdrawal (a much more
-    // serious error).
     #InsufficientFunds : { balance : ICRC.Tokens };
-    // For other transfer errors, we can just wrap and return them.
     #TransferError : ICRC.TransferError;
   };
 
@@ -174,11 +157,8 @@ shared (init_msg) persistent actor class Swap(
   // - These withdrawal handlers show how to safely send outbound transfers of an ICRC-1 token.
   public shared (msg) func withdraw(args : WithdrawArgs) : async Result.Result<Nat, WithdrawError> {
     let token : ICRC.Actor = actor (args.token.toText());
-    let balances = which_balances(args.token);
+    let balances = which_balances<system>(args.token);
 
-    // Load the fee from the token here. The user can pass a null fee, which
-    // means "use the default". So we need to look up the default in order to
-    // correctly deduct it from their balance.
     let fee = switch (args.fee) {
       case (?f) { f };
       case (null) { await token.icrc1_fee() };
@@ -191,28 +171,12 @@ shared (init_msg) persistent actor class Swap(
       return #err(#InsufficientFunds { balance = old_balance });
     };
 
-    // Debit the sender's account
-    //
-    // We do this first, due to the asynchronous nature of the IC. By debitting
-    // the account first, we ensure that the user cannot withdraw more than
-    // they have.
-    //
-    // If we were to perform the transfer, then debit the user's account, there
-    // are several ways which that attack could lead to loss of funds. For
-    // example:
-    // - The user could call `withdraw` repeatedly, in a DOS attack to trigger
-    // a race condition. This would queue multiple outbound transfers in
-    // parallel, resulting in the user withdrawing more funds than available.
-    // - The token could perform a "reentrancy" attack, where the token's
-    // implementation of `icrc1_transfer` calls back into this canister, and
-    // triggers another recursive withdrawal, resulting in draining of this
-    // canister's token balance. However, because the token canister directly
-    // controls user's balances anyway, it could simplify this attack, and just
-    // change the canister's balance. Generally, this is why you should only
-    // use token canisters which you trust and can review.
+    // Debit the sender's account first (before the transfer) to prevent
+    // double-withdrawal races. See inline comments in the original code.
+    // old_balance >= deduction is guaranteed by the InsufficientFunds check
+    // above, so this subtraction cannot underflow at runtime.
     let new_balance = old_balance - deduction;
     if (new_balance == 0) {
-      // Delete zero-balances to keep the balance table tidy.
       balances.remove(msg.caller);
     } else {
       let _ = balances.swap(msg.caller, new_balance);
@@ -228,35 +192,25 @@ shared (init_msg) persistent actor class Swap(
       created_at_time = args.created_at_time;
     });
 
-    // Check that the transfer was successful.
     let block_height = switch (transfer_result) {
       case (#Ok(block_height)) { block_height };
       case (#Err(err)) {
-        // The transfer failed, we need to refund the user's account (less
-        // fees), so that they do not completely lose their tokens, and can
-        // retry the withdrawal.
-        //
-        // Refund the user's account. Note, we can't just put the old_balance
-        // back, because their balance may have changed simultaneously while we
-        // were waiting for the transaction.
+        // Transfer failed — refund the user's account.
         let b = balances.get(msg.caller).get(0 : Nat);
         let _ = balances.swap(msg.caller, b + args.amount + fee);
-
         return #err(#TransferError(err));
       };
     };
 
-    // Return the "block height" of the transfer
     #ok(block_height);
   };
 
-  // which_balances checks which token we are withdrawing, and configure the
-  // rest of the transfer. This function will assert that the token specified
-  // must be either token_a, or token_b.
-  private func which_balances(t : Principal) : Map.Map<Principal, Nat> {
-    if (t == init_args.token_a) {
+  // which_balances returns the balance map for the given token, asserting it
+  // is either token_a or token_b.
+  private func which_balances<system>(t : Principal) : Map.Map<Principal, Nat> {
+    if (t == tokenA<system>()) {
       balancesA
-    } else if (t == init_args.token_b) {
+    } else if (t == tokenB<system>()) {
       balancesB
     } else {
       Runtime.trap("invalid token canister")
