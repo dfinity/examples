@@ -1,0 +1,29 @@
+name: photo_gallery
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - rust/photo_gallery/**
+      - .github/workflows/photo_gallery.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust-photo_gallery:
+    runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-rust:1.0.0
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy and test
+        working-directory: rust/photo_gallery
+        run: |
+          icp network start -d
+          icp deploy
+          make test

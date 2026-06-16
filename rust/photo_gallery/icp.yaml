@@ -1,0 +1,19 @@
+networks:
+  - name: local
+    mode: managed
+
+canisters:
+  - name: backend
+    recipe:
+      type: "@dfinity/rust@v3.3.0"
+      configuration:
+        candid: backend/backend.did
+
+  - name: frontend
+    recipe:
+      type: "@dfinity/asset-canister@v2.2.1"
+      configuration:
+        dir: frontend/dist
+        build:
+          - npm install --prefix frontend
+          - npm run build --prefix frontend

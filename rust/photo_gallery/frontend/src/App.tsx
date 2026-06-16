@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { backend } from '../../src/declarations/backend';
+import { safeGetCanisterEnv } from '@icp-sdk/core/agent/canister-env';
+import { backend } from './actor.js';
 import './App.css';
 
 interface ImageInfo {
@@ -71,7 +72,7 @@ function App() {
   return (
     <div className="app">
       <div className="container">
-        <h1>📸 Photo Gallery</h1>
+        <h1>Photo Gallery</h1>
 
         <div className="upload-section">
           <h2>Upload New Image</h2>
@@ -119,26 +120,31 @@ function ImageCard({ image }: ImageCardProps) {
   const [error, setError] = useState(false);
 
   const getImageUrl = (imageId: bigint) => {
-    // Use HTTP gateway URL to load images directly from backend canister
-    // The variables will be replaced by vite
-    const canisterId = import.meta.env.CANISTER_ID_BACKEND;
-    const network = import.meta.env.DFX_NETWORK;
+    // Use HTTP gateway URL to load images directly from the backend canister.
+    // The backend serves images via http_request at /image/<id>, with
+    // long-lived Cache-Control headers so browsers cache images after first load.
+    const canisterEnv = safeGetCanisterEnv();
+    const canisterId =
+      canisterEnv?.['PUBLIC_CANISTER_ID:backend'] ??
+      process.env.CANISTER_ID_BACKEND;
 
-    let urlSuffix: string;
+    // On mainnet the HTTP gateway host is <canisterId>.icp0.io.
+    // Locally (icp-cli or dfx) the replica listens on localhost:8000 / 4943
+    // and serves the same path under the canister subdomain.
+    const origin = window.location.origin;
+    const isLocal =
+      origin.includes('localhost') || origin.includes('127.0.0.1');
 
-    switch(network) {
-      case 'playground':
-      case 'mainnet':
-      case 'ic':
-        urlSuffix = "icp0.io";
-        break;
-      default:
-        urlSuffix = "localhost:4943";
-        break;
+    let imageUrl: string;
+    if (isLocal) {
+      // Local replica: use the current origin's host with the canister subdomain
+      const port = window.location.port || '8000';
+      imageUrl = `http://${canisterId}.localhost:${port}/image/${imageId}`;
+    } else {
+      imageUrl = `https://${canisterId}.icp0.io/image/${imageId}`;
     }
 
-    let imageUrl = `http://${canisterId}.${urlSuffix}/image/${imageId}`;
-    console.debug(`Getting url: ${imageUrl} for network: ${network}`);
+    console.debug(`Getting url: ${imageUrl}`);
     return imageUrl;
   };
 

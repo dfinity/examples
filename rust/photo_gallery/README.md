@@ -1,41 +1,57 @@
-# Photo gallery
+# Photo Gallery
 
-A decentralized photo gallery application built on the Internet Computer blockchain. Users can upload, view, and manage their photos in a decentralized environment.
+A decentralized photo gallery application built on the Internet Computer. Users can upload and view photos stored directly on-chain, served via the HTTP gateway with browser-cacheable responses.
 
-**WARNING:** This is meant primarily as a demo to show how the response verification library and HTTP gateways can be used to serve images with cache headers. It is not making use of authentication or certification. Use it at your own risk.
+**Note:** This example is primarily a demo showing how the [response verification library](https://docs.internetcomputer.org/references/http-gateway-protocol-spec) and HTTP gateways can serve images with long-lived `Cache-Control` headers. It does not implement authentication or per-user access control. Use it at your own risk.
 
-## Deploying from ICP Ninja
+## Overview
 
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/rust/photo_gallery)
+The backend canister stores images in memory and exposes three methods:
 
-## Build and deploy from the command-line
+- `upload_image(name, content_type, data)` — stores an image blob and returns its numeric ID.
+- `list_images()` — returns metadata (ID, name, content type) for all stored images.
+- `http_request(request)` — serves images at `/image/<id>` via the HTTP gateway, including skip-certification headers and `Cache-Control: public, max-age=31536000, immutable` so browsers cache images after the first fetch.
 
-### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
+The frontend is a React + Vite application that uploads images and renders the gallery by constructing HTTP gateway URLs for each image ID, allowing the browser to fetch and cache image data directly.
 
-### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
+## Build and deploy from the command line
 
-### 3. Navigate into the project's directory.
+### Prerequisites
 
-### 4. Deploy the project to your local environment:
+- [Node.js](https://nodejs.org/en/download/)
+- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
+### Install
+
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/rust/photo_gallery
 ```
-dfx start --background --clean && dfx deploy
+
+### Deploy and test
+
+```bash
+icp network start -d
+icp deploy
+make test
+icp network stop
 ```
 
+To run the Vite dev server with hot reload during frontend development:
 
-#### 5. Generate Candid interfaces after making changes to the backend:
-
+```bash
+npm run dev
 ```
-npm run generate
-```
 
-#### 6. Deploy frontend development server (if needed):
+## Updating the Candid interface
 
-```
-npm start
+If you modify the backend's public API, rebuild the canister and regenerate the `.did` file:
+
+```bash
+icp build backend
+candid-extractor target/wasm32-unknown-unknown/release/backend.wasm > backend/backend.did
 ```
 
 ## Security considerations and best practices
 
-If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
-
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for developing on ICP. This example may not implement all the best practices.
