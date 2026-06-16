@@ -1,0 +1,19 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+path = "lib.rs"
+
+[dependencies]
+candid = "0.10"
+ic-cdk = "0.20"
+ic-cdk-management-canister = "0.1.1"
+hex = "0.4"
+sha2 = "0.10"
+k256 = { version = "0.13", features = ["ecdsa"] }
+# Enable `custom` feature of k256's getrandom dependency. See lib.rs for more details.
+getrandom = { version = "0.2", features = ["custom"] }
+serde = "1"

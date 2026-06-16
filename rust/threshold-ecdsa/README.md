@@ -1,58 +1,44 @@
-# Threshold ECDSA sample
+# Threshold ECDSA
 
-We present a minimal example canister smart contract for showcasing the [threshold ECDSA](https://internetcomputer.org/docs/building-apps/network-features/signatures/t-ecdsa) API.
+This example demonstrates threshold ECDSA signing, part of ICP's [chain-key cryptography](https://internetcomputer.org/docs/building-apps/network-features/signatures/t-ecdsa). The canister acts as a signing oracle: callers can request a threshold ECDSA public key and sign arbitrary messages using the corresponding private key — without the canister ever holding the key material itself.
 
-The example canister is a signing oracle that creates ECDSA signatures with keys derived from an input string.
+See the [Motoko version](../../motoko/threshold-ecdsa) for a comparison.
 
-More specifically:
+## Build and deploy from the command line
 
-- The sample canister receives a request that provides a message.
-- The sample canister hashes the message and uses the key derivation string for the derivation path.
-- The sample canister uses the above to request a signature from the threshold ECDSA [subnet](https://wiki.internetcomputer.org/wiki/Subnet_blockchain) (the threshold ECDSA is a subnet specializing in generating threshold ECDSA signatures).
+### Prerequisites
+- Node.js
+- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
-## Deploying from ICP Ninja
-
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/threshold-ecdsa)
-
-### 1. Update source code with the right key ID.
-
-To deploy the sample code on ICP Ninja, the canister needs the right key ID for the right environment. Specifically, one needs to replace the value of the `key_id` in the `src/ecdsa_example_rust/src/lib.rs` file of the sample code. Before deploying to the mainnet from ICP Ninja, one should modify the code to use the right name of the `key_id`.
-
-There are three options:
-
-* `dfx_test_key`: a default key ID that is used in deploying to a local version of IC (via IC SDK).
-* `test_key_1`: a master **test** key ID that is used in mainnet.
-* `key_1`: a master **production** key ID that is used in mainnet.
-
-> [!WARNING]
-> To deploy to IC mainnet, one needs to replace the value in `key_id `fields with the values `EcdsaKeyIds::TestKeyLocalDevelopment.to_key_id()` (mapping to `dfx_test_key`) to instead have either `EcdsaKeyIds::TestKey1.to_key_id()` (mapping to `test_key_1`) or `EcdsaKeyIds::ProductionKey1.to_key_id()` (mapping to `key_1`) depending on the desired intent.
-
-## Build and deploy from the command-line
-
-### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
-
-### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
-
-### 3. Navigate into the project's directory.
-
-### 4. Deploy the project to your local environment:
-
+### Install
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/rust/threshold-ecdsa
 ```
-dfx start --background --clean && dfx deploy
+
+### Deploy and test
+```bash
+icp network start -d
+icp deploy
+make test
+icp network stop
 ```
+
+## Key IDs
+
+The canister is configured with `KEY_ID = EcdsaKeyIds::TestKey1` by default (the master test key on mainnet). To use a different environment, update `KEY_ID` in `backend/lib.rs`:
+
+- `EcdsaKeyIds::TestKey1` — mainnet test key (`test_key_1`)
+- `EcdsaKeyIds::ProductionKey1` — mainnet production key (`key_1`)
+- `EcdsaKeyIds::TestKeyLocalDevelopment` — local development (`dfx_test_key`)
 
 ## Obtaining public keys
 
-If you deployed your canister locally or to the mainnet, you should have a URL to the Candid web UI where you can access the public methods. You can call the `public-key` method.
-
-### Canister root public key
-
-For obtaining the canister's root public key, the derivation path in the API can be simply left empty.
+Call `public_key()` to retrieve the ECDSA public key. The derivation path is left empty, so this returns the canister root key.
 
 ### Key derivation
 
--   For obtaining a canister's public key below its root key in the BIP-32 key derivation hierarchy, a derivation path needs to be specified. As explained in the general documentation, each element in the array of the derivation path is either a 32-bit integer encoded as 4 bytes in big endian or a byte array of arbitrary length. The element is used to derive the key in the corresponding level at the derivation hierarchy.
--   In the example code above, we use the bytes extracted from the `msg.caller` principal in the `derivation_path`, so that different callers of `public_key()` method of our canister will be able to get their own public keys.
+To obtain a key below the root in the BIP-32 hierarchy, a derivation path must be specified. Each element in the derivation path array is either a 32-bit integer encoded as 4 bytes in big-endian, or a byte array of arbitrary length. Different derivation paths produce different keys — for example, passing the caller's principal bytes as a path element gives each caller a unique key.
 
 ## Signing
 
@@ -60,24 +46,23 @@ Computing threshold ECDSA signatures is the core functionality of this feature. 
 
 ## Signature verification
 
-For completeness of the example, we show that the created signatures can be verified with the public key corresponding to the same canister and derivation path.
-
-The following shows how this verification can be done in Javascript, with the [secp256k1](https://www.npmjs.com/package/secp256k1) npm package:
+The created signatures can be verified with the public key corresponding to the same canister and derivation path. Example verification in JavaScript using the [secp256k1](https://www.npmjs.com/package/secp256k1) npm package:
 
 ```javascript
-let { ecdsaVerify } = require("secp256k1")
+const { ecdsaVerify } = require("secp256k1");
+const crypto = require("crypto");
 
-let public_key = ... // Uint8Array type, the result of calling the above canister "public_key" function.
-let hash = ...       // 32-byte Uint8Array representing a binary hash (e.g. sha256).
-let signature = ...  // Uint8Array type, the result of calling the above canister "sign" function on `hash`.
+const public_key = /* Uint8Array from public_key() */;
+const message = "hello world";
+const message_hash = new Uint8Array(crypto.createHash("sha256").update(message, "utf-8").digest());
+const signature = /* Uint8Array from sign(message) */;
 
-let verified = ecdsaVerify(signature, hash, public_key)
+const verified = ecdsaVerify(signature, message_hash, public_key);
+console.log("verified =", verified); // true
 ```
-
-The call to `ecdsaVerify` function should always return `true`.
 
 Similar verifications can be done in many other languages with the help of cryptographic libraries that support the `secp256k1` curve.
 
 ## Security considerations and best practices
 
-If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
+Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app.
