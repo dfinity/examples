@@ -33,13 +33,14 @@ make test
 icp network stop
 ```
 
-> **Important:** Use `make deploy`, not `icp deploy`. The ICRC-1 ledger canisters require a complex init record (minting account, initial balances, archive options) and the backend needs the token canister IDs as constructor arguments — both depend on runtime values that cannot be expressed statically in `icp.yaml`. `make deploy` handles this by deploying the three canisters in order with the correct arguments.
+> **Important:** Use `make deploy`, not `icp deploy`. The ICRC-1 ledger canisters require init args with the `icrc2-alice` and `icrc2-bob` principals, which are only available after the identities are created by `make deploy`.
 
 The `make deploy` target:
-1. Deploys the two ICRC-1/ICRC-2 token ledger canisters (`token_a` and `token_b`) with the current identity as the minting account.
-2. Deploys the `backend` (swap) canister with the token canister IDs as init args.
+1. Creates two example-specific identities (`icrc2-alice`, `icrc2-bob`) if they don't already exist.
+2. Deploys `token_a` pre-funded for `icrc2-alice` and `token_b` pre-funded for `icrc2-bob` via `initial_balances`.
+3. Deploys the `backend` canister — it discovers the token principals automatically via `PUBLIC_CANISTER_ID:token_a` / `PUBLIC_CANISTER_ID:token_b` environment variables injected by icp-cli.
 
-`make test` runs a full integration test: Alice deposits token A, Bob deposits token B, they swap 1:1, and each withdraws the other's token.
+`make test` runs the full swap flow: `icrc2-alice` approves and deposits token A, `icrc2-bob` approves and deposits token B, they swap 1:1, and each withdraws the other's token.
 
 ## Architecture
 
