@@ -65,7 +65,7 @@ function Create() {
 
 function Read() {
   const [superheroId, setSuperheroId] = useState("");
-  const [superhero, setSuperhero] = useState(null);
+  const [superhero, setSuperhero] = useState(undefined);
 
   async function handleRead(event) {
     event.preventDefault();

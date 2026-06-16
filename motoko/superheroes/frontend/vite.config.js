@@ -33,8 +33,8 @@ function getDevServerConfig() {
   );
 }
 
-export default defineConfig(({ command }) => {
-  const env = loadEnv("production", "..", ["CANISTER_"]);
+export default defineConfig(({ command, mode }) => {
+  const env = loadEnv(mode, "..", ["CANISTER_"]);
 
   return {
     base: "./",

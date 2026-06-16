@@ -8,6 +8,7 @@ test:
 	  out=$$(icp canister call backend create '(record { name = "Superman"; superpowers = vec { "invulnerability"; "superhuman strength" } })'); \
 	  echo "$$out"; \
 	  id=$$(echo "$$out" | grep -oE '[0-9]+' | head -1); \
+	  [ -n "$$id" ] || (echo "FAIL: could not parse created ID" && exit 1); \
 	  echo "Created ID: $$id"; \
 	  echo "PASS"; \
 	\
