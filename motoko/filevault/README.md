@@ -6,8 +6,9 @@ FileVault is a file storage application that allows you to upload files from you
 
 ### Prerequisites
 
-- Install [Node.js](https://nodejs.org/en/download/)
-- Install [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- Node.js
+- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- ic-mops: `npm install -g ic-mops`
 
 ### Install
 
