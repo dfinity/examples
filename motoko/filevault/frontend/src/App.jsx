@@ -112,13 +112,13 @@ function App() {
     });
     try {
       const totalChunks = Number(await actor.getTotalChunks(name));
-      const fileType = await actor.getFileType(name)[0];
+      const fileType = await actor.getFileType(name) ?? '';
       let chunks = [];
 
       for (let i = 0; i < totalChunks; i++) {
         const chunkBlob = await actor.getFileChunk(name, BigInt(i));
         if (chunkBlob) {
-          chunks.push(chunkBlob[0]);
+          chunks.push(chunkBlob);
         } else {
           throw new Error(`Failed to retrieve chunk ${i}`);
         }
