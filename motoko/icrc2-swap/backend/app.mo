@@ -151,9 +151,11 @@ actor Swap {
   public type WithdrawError = {
     #InsufficientFunds : { balance : ICRC.Tokens };
     #TransferError : ICRC.TransferError;
-    // The token ledger call trapped — outcome is ambiguous. The balance was
-    // already debited and a refund was issued, but the on-chain transfer
-    // may or may not have executed.
+    // The token ledger call was rejected (it trapped or was out of cycles).
+    // The internal balance has been refunded — the caller can retry the
+    // withdrawal. If the error persists, the token ledger itself is the source
+    // of the problem (e.g. out of cycles, bug, or malicious behaviour); the
+    // user should contact the token ledger operator.
     #CallFailed : Text;
   };
 
