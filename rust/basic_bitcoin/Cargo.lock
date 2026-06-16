@@ -37,7 +37,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "basic_bitcoin"
+name = "backend"
 version = "0.1.0"
 dependencies = [
  "bitcoin",
