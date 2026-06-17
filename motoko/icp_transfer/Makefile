@@ -46,7 +46,7 @@ test:
 	  echo "  PASS"; \
 	  \
 	  echo "=== Test 3: transferToAccountId — same recipient, same deduction ==="; \
-	  account_id_vec="vec { $$(echo "$$cli_hex" | fold -w2 | while read b; do printf '%d : nat8; ' "$$((16#$$b))"; done | sed 's/; $$//') }"; \
+	  account_id_vec="vec { $$(echo "$$cli_hex" | fold -w2 | while read b; do printf '%d : nat8; ' "0x$$b"; done | sed 's/; $$//') }"; \
 	  echo "  AccountIdentifier: $$account_id_vec"; \
 	  backend_before=$$(get_balance "$$backend"); \
 	  recipient_before=$$(get_balance "$$recipient"); \
