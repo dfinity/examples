@@ -1,73 +1,63 @@
-IC_REVISION = d87954601e4b22972899e9957e800406a0a6b929
-LEDGER_WASM_URL = https://download.dfinity.systems/ic/$(IC_REVISION)/canisters/ledger-canister.wasm.gz
-LEDGER_PRINCIPAL = ryjl3-tyaaa-aaaaa-aaaba-cai
+.PHONY: test
 
-.PHONY: deploy-ledger test
-
-# Download and deploy the ICP ledger canister at the well-known mainnet principal.
-# On the local network, provisional_create_canister_with_cycles allows specifying
-# an exact canister ID so that the backend (which hardcodes MAINNET_LEDGER_CANISTER_ID)
-# finds the ledger at the expected address.
-deploy-ledger:
-	@echo "=== Downloading ICP ledger WASM ==="
-	curl -sL $(LEDGER_WASM_URL) -o /tmp/ledger-canister.wasm.gz
-	gunzip -f /tmp/ledger-canister.wasm.gz
-	@echo "=== Creating ledger canister at $(LEDGER_PRINCIPAL) ==="
-	icp canister call aaaaa-aa provisional_create_canister_with_cycles \
-	  '(record { amount = 10_000_000_000_000 : nat; settings = null; specified_id = opt principal "$(LEDGER_PRINCIPAL)" })' \
-	  -n http://localhost:8000
-	@echo "=== Installing ICP ledger ==="
-	MINTER_ACCOUNT_ID=$$(icp identity account-id --identity anonymous) && \
-	DEFAULT_ACCOUNT_ID=$$(icp identity account-id) && \
-	icp canister install $(LEDGER_PRINCIPAL) \
-	  --wasm /tmp/ledger-canister.wasm \
-	  --args "(variant { Init = record { \
-	    minting_account = \"$$MINTER_ACCOUNT_ID\"; \
-	    initial_values = vec { record { \"$$DEFAULT_ACCOUNT_ID\"; record { e8s = 10_000_000_000 : nat64; }; }; }; \
-	    send_whitelist = vec {}; \
-	    transfer_fee = opt record { e8s = 10_000 : nat64; }; \
-	    token_symbol = opt \"LICP\"; \
-	    token_name = opt \"Local ICP\"; \
-	  } })" \
-	  -n http://localhost:8000 -y
-
-test: deploy-ledger
-	@echo "=== Test 1: verify default account has initial ICP balance ==="
-	@DEFAULT_ACCOUNT_ID=$$(icp identity account-id) && \
-	ACCOUNT_BYTES=$$(python3 -c "b=bytes.fromhex('$$DEFAULT_ACCOUNT_ID'); print('vec{' + ';'.join(str(x) for x in b) + '}')") && \
-	result=$$(icp canister call $(LEDGER_PRINCIPAL) account_balance \
-	  "(record { account = $$ACCOUNT_BYTES })" \
-	  -n http://localhost:8000) && \
-	echo "$$result" && \
-	echo "$$result" | grep -q '10_000_000_000' && \
-	echo "PASS" || (echo "FAIL" && exit 1)
-
-	@echo "=== Test 2: fund the backend canister with 1 ICP ==="
-	@BACKEND_PRINCIPAL=$$(icp canister status backend -i) && \
-	BACKEND_ACCOUNT_ID=$$(icp identity account-id --of-principal $$BACKEND_PRINCIPAL) && \
-	BACKEND_ACCOUNT_BYTES=$$(python3 -c "b=bytes.fromhex('$$BACKEND_ACCOUNT_ID'); print('vec{' + ';'.join(str(x) for x in b) + '}')") && \
-	result=$$(icp canister call $(LEDGER_PRINCIPAL) transfer \
-	  "(record { to = $$BACKEND_ACCOUNT_BYTES; memo = 0 : nat64; amount = record { e8s = 100_000_000 : nat64 }; fee = record { e8s = 10_000 : nat64 }; })" \
-	  -n http://localhost:8000) && \
-	echo "$$result" && \
-	echo "$$result" | grep -q 'Ok' && \
-	echo "PASS" || (echo "FAIL" && exit 1)
-
-	@echo "=== Test 3: transfer ICP from backend canister to default identity ==="
-	@CALLER_PRINCIPAL=$$(icp identity principal) && \
-	result=$$(icp canister call backend transfer \
-	  "(record { amount = record { e8s = 50_000_000 : nat64 }; to_principal = principal \"$$CALLER_PRINCIPAL\"; to_subaccount = null })") && \
-	echo "$$result" && \
-	echo "$$result" | grep -q 'Ok' && \
-	echo "PASS" || (echo "FAIL" && exit 1)
-
-	@echo "=== Test 4: verify backend ledger balance decreased after transfer ==="
-	@BACKEND_PRINCIPAL=$$(icp canister status backend -i) && \
-	BACKEND_ACCOUNT_ID=$$(icp identity account-id --of-principal $$BACKEND_PRINCIPAL) && \
-	BACKEND_ACCOUNT_BYTES=$$(python3 -c "b=bytes.fromhex('$$BACKEND_ACCOUNT_ID'); print('vec{' + ';'.join(str(x) for x in b) + '}')") && \
-	result=$$(icp canister call $(LEDGER_PRINCIPAL) account_balance \
-	  "(record { account = $$BACKEND_ACCOUNT_BYTES })" \
-	  -n http://localhost:8000) && \
-	echo "$$result" && \
-	echo "$$result" | grep -q 'e8s' && \
-	echo "PASS" || (echo "FAIL" && exit 1)
+# Tests use a single shell block so all variables and functions stay in scope.
+# Balance checks are delta-based so the tests are idempotent across re-runs.
+#
+# Transfer amount is 99_990_000 e8s so that amount + fee (10_000) = 100_000_000 e8s
+# = exactly 1 ICP deducted per transfer. Two tests drain the 2 ICP funding to zero.
+test:
+	@set -e; \
+	  \
+	  backend=$$(icp canister status backend -i); \
+	  recipient=$$(icp identity principal); \
+	  echo "Backend:   $$backend"; \
+	  echo "Recipient: $$recipient"; \
+	  \
+	  get_balance() { \
+	    icp token balance -q --of-principal "$$1" \
+	      | awk '{printf "%.0f", $$1 * 100000000}'; \
+	  }; \
+	  \
+	  echo "=== Test 1: to_account_id_hex matches icp identity account-id ==="; \
+	  cli_hex=$$(icp identity account-id --format ledger); \
+	  backend_hex=$$(icp canister call --query backend to_account_id_hex \
+	    "(principal \"$$recipient\", null)" | grep -oE '[0-9a-f]{64}'); \
+	  echo "  icp identity account-id:  $$cli_hex"; \
+	  echo "  backend to_account_id_hex: $$backend_hex"; \
+	  [ "$$cli_hex" = "$$backend_hex" ] || (echo "FAIL: hex values differ" && exit 1); \
+	  echo "  PASS"; \
+	  \
+	  echo "=== Setup: fund backend with 2 ICP ==="; \
+	  icp token transfer 2 "$$backend"; \
+	  \
+	  echo "=== Test 2: transfer_to_principal — deducts exactly 1 ICP (99_990_000 amount + 10_000 fee) ==="; \
+	  backend_before=$$(get_balance "$$backend"); \
+	  recipient_before=$$(get_balance "$$recipient"); \
+	  result=$$(icp canister call backend transfer_to_principal \
+	    "(record { e8s = 99_990_000 : nat64 }, principal \"$$recipient\", null)"); \
+	  echo "  result: $$result"; \
+	  echo "$$result" | grep -q 'Ok' || (echo "FAIL: transfer rejected" && exit 1); \
+	  backend_after=$$(get_balance "$$backend"); \
+	  recipient_after=$$(get_balance "$$recipient"); \
+	  echo "  backend:   $$backend_before → $$backend_after  (delta $$((backend_after - backend_before)))"; \
+	  echo "  recipient: $$recipient_before → $$recipient_after  (delta $$((recipient_after - recipient_before)))"; \
+	  [ "$$((backend_after - backend_before))" -eq -100000000 ] || (echo "FAIL: expected backend delta -100000000 e8s" && exit 1); \
+	  [ "$$((recipient_after - recipient_before))" -eq 99990000 ] || (echo "FAIL: expected recipient delta +99990000 e8s" && exit 1); \
+	  echo "  PASS"; \
+	  \
+	  echo "=== Test 3: transfer_to_account_id — same recipient, same deduction ==="; \
+	  account_id_vec="vec { $$(echo "$$cli_hex" | fold -w2 | while read b; do printf '%d : nat8; ' "0x$$b"; done | sed 's/; $$//') }"; \
+	  echo "  AccountIdentifier: $$account_id_vec"; \
+	  backend_before=$$(get_balance "$$backend"); \
+	  recipient_before=$$(get_balance "$$recipient"); \
+	  result=$$(icp canister call backend transfer_to_account_id \
+	    "(record { e8s = 99_990_000 : nat64 }, $$account_id_vec)"); \
+	  echo "  result: $$result"; \
+	  echo "$$result" | grep -q 'Ok' || (echo "FAIL: transfer rejected" && exit 1); \
+	  backend_after=$$(get_balance "$$backend"); \
+	  recipient_after=$$(get_balance "$$recipient"); \
+	  echo "  backend:   $$backend_before → $$backend_after  (delta $$((backend_after - backend_before)))"; \
+	  echo "  recipient: $$recipient_before → $$recipient_after  (delta $$((recipient_after - recipient_before)))"; \
+	  [ "$$((backend_after - backend_before))" -eq -100000000 ] || (echo "FAIL: expected backend delta -100000000 e8s" && exit 1); \
+	  [ "$$((recipient_after - recipient_before))" -eq 99990000 ] || (echo "FAIL: expected recipient delta +99990000 e8s" && exit 1); \
+	  echo "  PASS — same recipient reached via AccountIdentifier blob as via principal"

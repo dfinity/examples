@@ -1,16 +1,18 @@
-# ICP transfer
+# ICP Transfer
 
-ICP transfer is a canister that can transfer ICP from its account to other accounts. It is an example of a canister that uses the ICP ledger. Sample code is available in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/icp_transfer) and [Rust](https://github.com/dfinity/examples/tree/master/rust/icp_transfer).
+ICP Transfer demonstrates how a canister can hold ICP and send it to other accounts using the [ICP ledger](https://dashboard.internetcomputer.org/canister/ryjl3-tyaaa-aaaaa-aaaba-cai). The same example is also available in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/icp_transfer).
 
-> **Note:** The ICP ledger also supports the ICRC-1 standard, which is the recommended standard for new token integrations. You can [read more about the differences](https://internetcomputer.org/docs/current/developer-docs/defi/overview) and find examples of how to transfer ICRC-1 tokens from a canister in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/token_transfer) and [Rust](https://github.com/dfinity/examples/tree/master/rust/token_transfer).
+## Account identifiers
 
-## Architecture
+The ICP ledger identifies accounts with a 32-byte **AccountIdentifier** — a hash of a principal and an optional subaccount. Centralized exchanges (CEXs) use this format for deposit addresses; wallets and newer integrations typically prefer the ICRC-1 account format (principal + subaccount directly). `AccountIdentifier::new(&principal, &subaccount)` in Rust performs this conversion.
 
-The sample code revolves around one core `transfer` function which takes as input the amount of ICP to transfer, the destination account (and optionally a subaccount), and returns either a unique block index on success or an error string on failure. The block index is stored in the transaction memo in the ledger, making every transfer auditable.
+The example exposes three functions to make this concrete:
 
-The canister uses `MAINNET_LEDGER_CANISTER_ID` from `ic-ledger-types`, which is the well-known principal `ryjl3-tyaaa-aaaaa-aaaba-cai`. In production this resolves to the real ICP ledger; in local testing the ledger is deployed at the same principal ID using `provisional_create_canister_with_cycles`.
+- **`to_account_id_hex(principal, subaccount)`** — query returning the AccountIdentifier as a 64-char lowercase hex string, the format shown in block explorers and CEX deposit screens.
+- **`transfer_to_principal(amount, principal, subaccount)`** — calls `AccountIdentifier::new` internally. Use this when you have a principal.
+- **`transfer_to_account_id(amount, account_id)`** — accepts the raw 32-byte blob directly. Use this when an exchange or external service gives you the destination as an AccountIdentifier rather than as a principal.
 
-> **Important:** Transfers from the minting account create Mint transactions. Transfers to the minting account create Burn transactions.
+> The ICP ledger also supports the [ICRC-1](https://github.com/dfinity/ICRC-1) standard via `icrc1_transfer`. For new token integrations that don't require AccountIdentifier compatibility, ICRC-1 is the recommended interface. A comprehensive ICRC ledger example is planned.
 
 ## Build and deploy from the command line
 
@@ -18,14 +20,6 @@ The canister uses `MAINNET_LEDGER_CANISTER_ID` from `ic-ledger-types`, which is 
 
 - Node.js
 - icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
-- Python 3 (for computing ledger account identifiers in `make test`)
-
-### Install
-
-```bash
-git clone https://github.com/dfinity/examples
-cd examples/rust/icp_transfer
-```
 
 ### Deploy and test
 
@@ -36,20 +30,14 @@ make test
 icp network stop
 ```
 
-`make test` performs the full end-to-end workflow:
-
-1. Downloads the ICP ledger WASM and deploys it locally at `ryjl3-tyaaa-aaaaa-aaaba-cai`
-2. Seeds the default identity with 100 ICP (1 ICP = 10^8 e8s)
-3. Funds the backend canister with 1 ICP via the ledger
-4. Calls `backend.transfer` to send 0.5 ICP back to the default identity
-5. Verifies each step produces the expected result
+`make test` funds the backend with 2 ICP, then:
+1. Compares `icp identity account-id --format ledger` with `to_account_id_hex` to verify CLI and backend compute the same AccountIdentifier.
+2. Calls `transfer_to_principal` — transfers 99_990_000 e8s (amount) + 10_000 e8s (fee) = exactly 1 ICP deducted from the backend; confirms both sides via `icp token balance`.
+3. Calls `transfer_to_account_id` with the AccountIdentifier as `vec { N : nat8; ... }` — same 1 ICP deduction, confirming both transfer paths reach the same account and the backend balance reaches zero.
 
 ## Security considerations and best practices
 
-If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for developing on the Internet Computer. This example may not implement all the best practices.
+Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app. For this example the following aspects are particularly relevant:
 
-For example, the following aspects are particularly relevant for this app:
-
-- **Inter-canister calls and rollbacks**: issues around inter-canister calls (here the ledger) can lead to time-of-check time-of-use or double spending security bugs.
-- **Certify query responses if they are relevant for security**: this is essential when displaying important financial data in a frontend that may be used to inform future transactions.
-- **Use a decentralized governance system like SNS to make a canister have a decentralized controller**: decentralizing control is a fundamental aspect of decentralized finance applications.
+- [Inter-canister calls and rollbacks](https://docs.internetcomputer.org/guides/security/overview): issues around inter-canister calls (here the ledger) can lead to time-of-check time-of-use or double-spending bugs.
+- [Certify query responses if they are relevant for security](https://docs.internetcomputer.org/guides/security/overview): essential when displaying financial data that users act on.
