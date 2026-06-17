@@ -1,4 +1,33 @@
 #!/usr/bin/env bash
+set -e
+
+echo "=== Test 1/5: public_key returns hex for bip340secp256k1 ==="
+result=$(icp canister call backend public_key '(variant { bip340secp256k1 })') && \
+  echo "$result" && \
+  echo "$result" | grep -q 'public_key_hex' && \
+  echo "PASS" || (echo "FAIL" && exit 1)
+
+echo "=== Test 2/5: public_key returns hex for ed25519 ==="
+result=$(icp canister call backend public_key '(variant { ed25519 })') && \
+  echo "$result" && \
+  echo "$result" | grep -q 'public_key_hex' && \
+  echo "PASS" || (echo "FAIL" && exit 1)
+
+echo "=== Test 3/5: sign returns signature_hex for bip340secp256k1 ==="
+result=$(icp canister call backend sign '("hello world of BIP340-secp256k1!", variant { bip340secp256k1 }, null)') && \
+  echo "$result" && \
+  echo "$result" | grep -q 'signature_hex' && \
+  echo "PASS" || (echo "FAIL" && exit 1)
+
+echo "=== Test 4/5: sign returns signature_hex for ed25519 ==="
+result=$(icp canister call backend sign '("hello world", variant { ed25519 }, null)') && \
+  echo "$result" && \
+  echo "$result" | grep -q 'signature_hex' && \
+  echo "PASS" || (echo "FAIL" && exit 1)
+
+echo "=== Test 5/5: all three signature types verify cryptographically ==="
+npm install --silent
+
 set -euo pipefail
 export LC_ALL=C
 
@@ -6,11 +35,9 @@ function get_text_in_double_quotes() {
     echo -n "$1" | sed -e 's/^[^"]*"//' -e 's/"//g' -e 's/;//g'
 }
 
-test -z "${1:-}" && echo "USAGE: $0 <message>" && exit 1
-
 # BIP340 requires the message to be exactly 32 bytes; ed25519 accepts any length.
 # Pass a 32-byte ASCII string so the same value works for all three algorithms.
-message="${1}"
+message="hello world of BIP340-secp256k1!"
 
 echo "message=$message (${#message} bytes)"
 
@@ -76,4 +103,5 @@ console.log("bip341 verified:", ok);
 if (!ok) { console.error("bip341 verification FAILED"); process.exit(1); }
 END
 
+echo "PASS"
 echo "successfully validated all 3 signature types"
