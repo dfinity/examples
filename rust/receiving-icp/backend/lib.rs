@@ -1,19 +1,14 @@
 use candid::Principal;
 use ic_ledger_types::{AccountBalanceArgs, AccountIdentifier, Subaccount};
 
-// The ledger principal is configured per environment in icp.yaml via
-// ICP_LEDGER_CANISTER_ID. If the recipe injects it at build time, that value
-// is used; otherwise the default (ICP ledger, same for local and production)
-// applies. Deploy with `icp deploy --environment staging` to target TESTICP.
+// The ledger principal is injected at build time by icp-cli from the
+// ICP_LEDGER_CANISTER_ID environment variable configured per environment
+// in icp.yaml:
+//   local / production: ryjl3-tyaaa-aaaaa-aaaba-cai  (ICP ledger)
+//   staging:            xafvr-biaaa-aaaai-aql5q-cai  (TESTICP ledger)
 //
-// Note: environment_variables in icp.yaml `environments.settings` are intended
-// to be injected at build time by the recipe. Until the recipe supports this
-// fully, option_env! with a fallback ensures the build always succeeds.
-const LEDGER_PRINCIPAL: &str = if let Some(id) = option_env!("ICP_LEDGER_CANISTER_ID") {
-    id
-} else {
-    "ryjl3-tyaaa-aaaaa-aaaba-cai" // ICP ledger (local and production)
-};
+// Deploy with `icp deploy --environment staging` to target TESTICP.
+const LEDGER_PRINCIPAL: &str = env!("ICP_LEDGER_CANISTER_ID");
 
 fn get_account(upper: u128, lower: u128) -> AccountIdentifier {
     // Create a 32-byte array by combining the little endian representation of upper and lower.
@@ -52,3 +47,5 @@ async fn get_balance_of_subaccount(upper: u128, lower: u128) -> u64 {
 
     balance.e8s()
 }
+
+ic_cdk::export_candid!();
