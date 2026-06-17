@@ -28,11 +28,11 @@ cd examples/rust/periodic_tasks
 ```sh
 icp network start -d
 icp deploy
-make test
+bash test.sh
 icp network stop
 ```
 
-Both canisters are deployed with an initial interval of 10 seconds. After deployment, the counters start incrementing automatically — the `make test` command polls until the counters and cycles-usage values are non-zero.
+Both canisters are deployed with an initial interval of 10 seconds. After deployment, the counters start incrementing automatically — the `bash test.sh` command polls until the counters and cycles-usage values are non-zero.
 
 ## Comparing timers and heartbeats
 
