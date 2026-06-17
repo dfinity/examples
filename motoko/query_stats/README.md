@@ -9,7 +9,7 @@ Query stats are **aggregated with a 2-epoch delay**, not updated per call:
 - Each epoch is **60 blocks** on local PocketIC (vs 600 on mainnet)
 - Blocks advance every ~100ms with auto-progress enabled
 - Stats for epoch N are only committed once 2/3+ of nodes have submitted records for epoch N+1
-- Minimum wait: **2 epochs × 60 blocks × 100ms ≈ 12 seconds**; `make test-stats` polls up to 30 seconds to accommodate slower machines
+- Minimum wait: **2 epochs × 60 blocks × 100ms ≈ 12 seconds**; `bash test-stats.sh` polls up to 30 seconds to accommodate slower machines
 
 Only **query calls** are tracked — calls made without `--query` go through consensus as update calls and are not counted in `query_stats.num_calls_total`.
 
@@ -40,7 +40,7 @@ cd examples/motoko/query_stats
 ```bash
 icp network start -d
 icp deploy
-make test
+bash test.sh
 icp network stop
 ```
 
@@ -48,11 +48,11 @@ icp network stop
 ```bash
 icp network start -d
 icp deploy
-make test-stats
+bash test-stats.sh
 icp network stop
 ```
 
-`make test-stats` calls `load()` 13 times with `--query` every 3 seconds (up to 30 seconds total), verifying non-zero stats once they appear.
+`bash test-stats.sh` calls `load()` 13 times with `--query` every 3 seconds (up to 30 seconds total), verifying non-zero stats once they appear.
 
 ## Security considerations and best practices
 

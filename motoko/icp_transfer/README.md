@@ -27,11 +27,11 @@ The example exposes three functions to make this concrete:
 ```bash
 icp network start -d
 icp deploy
-make test
+bash test.sh
 icp network stop
 ```
 
-`make test` funds the backend with 2 ICP, then:
+`bash test.sh` funds the backend with 2 ICP, then:
 1. Compares `icp identity account-id --format ledger` with `toAccountIdHex` to verify the CLI and the backend compute the same AccountIdentifier.
 2. Calls `transferToPrincipal` — transfers 99_990_000 e8s (amount) + 10_000 e8s (fee) = exactly 1 ICP deducted from the backend; confirms both sides via `icp token balance`.
 3. Calls `transferToAccountId` with the hex string from step 1 — same 1 ICP deduction, confirming both transfer paths reach the same account and the backend balance reaches zero.

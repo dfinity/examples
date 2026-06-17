@@ -22,7 +22,7 @@ cd examples/motoko/random_maze
 ```bash
 icp network start -d
 icp deploy
-make test
+bash test.sh
 icp network stop
 ```
 

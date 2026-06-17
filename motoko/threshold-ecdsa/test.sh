@@ -1,14 +1,28 @@
 #!/usr/bin/env bash
-set -euo pipefail
+set -e
+
+echo "=== Test 1/3: public_key() returns a hex-encoded public key ==="
+result=$(icp canister call backend public_key '()') && \
+  echo "$result" && \
+  echo "$result" | grep -q 'public_key_hex' && \
+  echo "PASS" || (echo "FAIL" && exit 1)
+
+echo "=== Test 2/3: sign() returns a hex-encoded signature ==="
+result=$(icp canister call backend sign '("hello world")') && \
+  echo "$result" && \
+  echo "$result" | grep -q 'signature_hex' && \
+  echo "PASS" || (echo "FAIL" && exit 1)
+
+echo "=== Test 3/3: signature verifies cryptographically (secp256k1) ==="
+npm install --silent
+
 export LC_ALL=C
 
 function get_text_in_double_quotes() {
     printf "$(echo "$1" | sed -e 's/^[^"]*"//' -e 's/".*//g')"
 }
 
-test -z "${1:-}" && echo "USAGE: $0 <message to sign and verify>" && exit 1
-
-message="$1"
+message="hello world"
 echo "message=$message"
 
 signature_hex=$(get_text_in_double_quotes "$(icp canister call backend sign "(\"$message\")" | grep signature_hex)")
@@ -29,3 +43,4 @@ const verified = secp256k1.ecdsaVerify(signature, message_hash, public_key);
 console.log("verified =", verified);
 if (!verified) process.exit(1);
 END
+echo "PASS"

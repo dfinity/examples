@@ -19,7 +19,7 @@ cd examples/motoko/threshold-schnorr
 ```bash
 icp network start -d
 icp deploy
-make test
+bash test.sh
 icp network stop
 ```
 

@@ -49,7 +49,7 @@ cd examples/motoko/icrc2-swap
 ```bash
 icp network start -d
 make deploy
-make test
+bash test.sh
 icp network stop
 ```
 
@@ -60,7 +60,7 @@ icp network stop
 2. Deploys `token_a` pre-funded for `icrc2-alice` and `token_b` pre-funded for `icrc2-bob`.
 3. Deploys `backend` — no init args needed; it discovers the token principals via injected environment variables.
 
-`make test` runs the full swap flow with `icrc2-alice` and `icrc2-bob` as the two parties. Test 2 verifies that swapping with no deposits returns `InsufficientBalance`. Tests 6 and 7 verify the actual token balance delta in the ledger after withdrawal, confirming the full round-trip. Tests are idempotent — they can be run multiple times without redeploying.
+`bash test.sh` runs the full swap flow with `icrc2-alice` and `icrc2-bob` as the two parties. Test 2 verifies that swapping with no deposits returns `InsufficientBalance`. Tests 6 and 7 verify the actual token balance delta in the ledger after withdrawal, confirming the full round-trip. Tests are idempotent — they can be run multiple times without redeploying.
 
 ## Fee handling
 

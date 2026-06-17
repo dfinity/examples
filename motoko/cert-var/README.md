@@ -35,11 +35,11 @@ cd examples/motoko/cert-var
 ```bash
 icp network start -d
 icp deploy
-make test
+bash test.sh
 icp network stop
 ```
 
-`make test` verifies **functional correctness** only — that values are stored and returned correctly. Cryptographic certificate verification (confirming the query response is authentically signed by the IC) is performed in the browser frontend, not the CLI tests. The icp-cli does not verify certificates on your behalf.
+`bash test.sh` verifies **functional correctness** only — that values are stored and returned correctly. Cryptographic certificate verification (confirming the query response is authentically signed by the IC) is performed in the browser frontend, not the CLI tests. The icp-cli does not verify certificates on your behalf.
 
 For local frontend development with hot reload:
 
