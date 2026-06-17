@@ -21,7 +21,7 @@ cd examples/rust/daily_planner
 ```bash
 icp network start -d
 icp deploy
-make test
+bash test.sh
 icp network stop
 ```
 
