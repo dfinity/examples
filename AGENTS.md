@@ -55,7 +55,7 @@ Follow the `hello_world` layout. New examples and migrations should use this pat
 ```
 <language>/<example_name>/
 ├── icp.yaml                  # canister definitions (icp-cli project file)
-├── Makefile                  # must contain a `test` target
+├── test.sh                   # executable bash test script
 ├── README.md
 ├── package.json              # npm workspaces root pointing to frontend/
 ├── mops.toml                 # Motoko only
@@ -229,6 +229,25 @@ candid = "0.10"
 ic-cdk = "0.20"
 ```
 
+Always use `ic-cdk = "0.20"` unless a dependency forces a lower version. When using `ic-ledger-types`, use `"0.16"` (requires `ic-cdk = "^0.19"`) — version `0.15` pins `ic-cdk = "^0.18"` which conflicts with `0.20` via an `ic-cdk-executor` `links` constraint.
+
+**`ic_cdk::export_candid!()` is required** at the end of every Rust canister `lib.rs`. Without it, `candid-extractor` cannot find the `get_candid_pointer` export and the build fails.
+
+**CI image**: use `ghcr.io/dfinity/icp-dev-env-rust:1.0.1` or later. Earlier images bundle `candid-extractor 0.1.4` which fails with `Error: unknown import: ic0::cost_call` for any WASM compiled with ic-cdk ≥ 0.19.
+
+### Environment variables in Rust canisters
+
+Use `ic_cdk::api::env_var_value("VAR_NAME")` to read icp-cli-injected variables at **runtime** from WASM metadata. This is the Rust equivalent of `Runtime.envVar<system>` in Motoko:
+
+```rust
+fn ledger_principal() -> Principal {
+    Principal::from_text(ic_cdk::api::env_var_value("ICP_LEDGER_CANISTER_ID"))
+        .expect("invalid ICP_LEDGER_CANISTER_ID")
+}
+```
+
+Do **not** use `env!()` (compile-time macro, fails if the var is not set during `cargo build`) or `std::env::var()` (no OS environment in WASM).
+
 ### Management canister (Rust)
 
 Use the [`ic-cdk-management-canister`](https://crates.io/crates/ic-cdk-management-canister) crate instead of `ic_cdk::api::management_canister` (removed in ic-cdk 0.17+):
@@ -249,31 +268,30 @@ async fn get_randomness() -> Vec<u8> {
 
 ---
 
-## Makefile
+## test.sh
 
-Every example must have a `Makefile` with a `test` target that exercises the deployed canister via `icp canister call`. Write a numbered test for every public function. Include state-assertion tests for mutating operations: call the mutating function, then call a read function and assert the stored value changed.
+Every example must have a `test.sh` bash script that exercises the deployed canister via `icp canister call`. Write a numbered test for every public function. Include state-assertion tests for mutating operations: call the mutating function, then call a read function and assert the stored value changed.
 
-```makefile
-.PHONY: test
+Using `test.sh` instead of `Makefile` avoids Make-specific syntax pitfalls (`$$`, `\\` continuations, `@` prefix) and works natively in Git Bash on Windows.
 
-test:
-	@echo "=== Test 1: <description of what is tested> ==="
-	@result=$$(icp canister call backend <method> '<args>') && \
-	  echo "$$result" && \
-	  echo "$$result" | grep -q '<expected>' && \
-	  echo "PASS" || (echo "FAIL" && exit 1)
+```bash
+#!/usr/bin/env bash
+set -e
 
-	@echo "=== Test 2: <mutating operation returns expected value> ==="
-	@result=$$(icp canister call backend <mutating_method> '<args>') && \
-	  echo "$$result" && \
-	  echo "$$result" | grep -q '<expected_return>' && \
-	  echo "PASS" || (echo "FAIL" && exit 1)
+echo "=== Test 1: <description of what is tested> ==="
+result=$(icp canister call backend <method> '<args>')
+echo "$result"
+echo "$result" | grep -q '<expected>' && echo "PASS" || (echo "FAIL" && exit 1)
 
-	@echo "=== Test 3: <state persisted after mutation> ==="
-	@result=$$(icp canister call backend <read_method> '()') && \
-	  echo "$$result" && \
-	  echo "$$result" | grep -q '<expected_persisted_value>' && \
-	  echo "PASS" || (echo "FAIL" && exit 1)
+echo "=== Test 2: <mutating operation returns expected value> ==="
+result=$(icp canister call backend <mutating_method> '<args>')
+echo "$result"
+echo "$result" | grep -q '<expected_return>' && echo "PASS" || (echo "FAIL" && exit 1)
+
+echo "=== Test 3: <state persisted after mutation> ==="
+result=$(icp canister call backend <read_method> '()')
+echo "$result"
+echo "$result" | grep -q '<expected_persisted_value>' && echo "PASS" || (echo "FAIL" && exit 1)
 ```
 
 - Tests must call the `backend` canister by that name.
@@ -281,41 +299,39 @@ test:
 - Use `grep -q` to assert on output content.
 - Number each test (`=== Test N: ... ===`) so CI logs are easy to scan.
 - For examples that create child canisters, capture the returned principal and call the child directly by ID.
-- **Query functions**: always pass `--query` to `icp canister call` for `public query func` and `public composite query func` methods — this matches the original dfx `--query` flag and avoids unnecessary update calls.
-- **Async/time-dependent behavior**: if the example's observable result depends on timers, heartbeats, or polling (e.g. a hook that fires after memory fills up), use a polling loop in the Makefile rather than a one-shot call:
+- **Query functions**: always pass `--query` to `icp canister call` for `public query func` and `public composite query func` methods.
+- **Balance checks**: use delta-based assertions (record before, act, assert delta) rather than checking absolute values — this keeps tests idempotent across re-runs regardless of prior state:
 
-```makefile
-test:
-	@echo "=== Polling for <condition> (up to 60s) ==="
-	@secs=0; \
-	while [ $$secs -lt 60 ]; do \
-	  result=$$(icp canister call --query backend <method> '()'); \
-	  echo "$$result"; \
-	  echo "$$result" | grep -q '<expected>' && echo "PASS" && exit 0; \
-	  sleep 3; secs=$$((secs + 3)); \
-	done; \
-	echo "FAIL: condition not met within 60s"; exit 1
+```bash
+before=$(icp canister call backend get_balance '()' | grep -oE '[0-9_]+' | tr -d '_' | head -1)
+icp token transfer 1 "$account_hex"
+after=$(icp canister call backend get_balance '()' | grep -oE '[0-9_]+' | tr -d '_' | head -1)
+delta=$((after - before))
+[ "$delta" -eq 100000000 ] && echo "PASS" || (echo "FAIL: expected +100000000 e8s" && exit 1)
 ```
 
-- **Canister settings**: if the example requires non-default canister settings (e.g. `wasm_memory_limit`, `wasm_memory_threshold`), apply them via `icp canister settings update` in a `configure` target and make `test` depend on it:
+- **Async/time-dependent behavior**: if the observable result depends on timers, heartbeats, or polling, use a polling loop:
 
-```makefile
-.PHONY: configure test
-
-configure:
-	icp canister settings update backend --<flag> <value> -f
-
-test: configure
-	...
+```bash
+echo "=== Polling for <condition> (up to 60s) ==="
+secs=0
+while [ "$secs" -lt 60 ]; do
+  result=$(icp canister call --query backend <method> '()')
+  echo "$result"
+  echo "$result" | grep -q '<expected>' && echo "PASS" && exit 0
+  sleep 3
+  secs=$((secs + 3))
+done
+echo "FAIL: condition not met within 60s"; exit 1
 ```
 
-- If `icp deploy --cycles 30t` is required (see below), add a `topup` target too:
+- **Canister settings**: if the example requires non-default canister settings (e.g. `wasm_memory_limit`, `wasm_memory_threshold`), apply them at the top of `test.sh` before the tests:
 
-```makefile
-.PHONY: topup
-topup:
-	icp canister top-up --amount 30t backend
+```bash
+icp canister settings update backend --<flag> <value> -f
 ```
+
+- If `icp deploy --cycles 30t` is required (see below), add a separate `topup.sh` or document the command in the README.
 
 ---
 
@@ -358,7 +374,7 @@ jobs:
         run: |
           icp network start -d
           icp deploy
-          make test
+          bash test.sh
 
   rust-<example_name>:
     runs-on: ubuntu-24.04
@@ -372,7 +388,7 @@ jobs:
         run: |
           icp network start -d
           icp deploy
-          make test
+          bash test.sh
 ```
 
 - Linux only, no macOS runners.
@@ -412,10 +428,10 @@ Each example's README should follow this structure:
 <git clone + cd>
 
 ### Deploy and test
-<icp network start -d && icp deploy && make test && icp network stop>
+<icp network start -d && icp deploy && bash test.sh && icp network stop>
 If the example has a frontend with a Vite dev server: `npm run dev` (hot reload during frontend development)
 
-> If tests fail with an out-of-cycles error, run `make topup` to add 30 trillion cycles to the backend canister and retry. Only relevant for examples that create child canisters.
+> If tests fail with an out-of-cycles error, run `bash topup.sh` (or the documented icp command) to add 30 trillion cycles to the backend canister and retry. Only relevant for examples that create child canisters.
 
 ## Updating the Candid interface
 <instructions to regenerate backend.did>
@@ -469,15 +485,16 @@ When migrating an existing example:
 - [ ] Run `mops check --fix` in the example directory and commit any auto-fixes (Motoko)
 - [ ] If the example uses the management canister: add `ic = "4.0.0"` dependency and replace `ic:aaaaa-aa` / `actor("aaaaa-aa")` with `import { ic } "mo:ic"` (Motoko)
 - [ ] If the Rust example uses the management canister: add `ic-cdk-management-canister = "0.1.1"` dependency and replace `ic_cdk::api::management_canister` with the appropriate function from that crate
-- [ ] If the example creates child canisters: use `icp deploy --cycles 30t` in the CI workflow and README, and add a `make topup` target
-- [ ] If the example requires non-default canister settings (memory limits, freezing threshold, etc.): add a `configure` target in the Makefile and make `test` depend on it
+- [ ] If the example creates child canisters: use `icp deploy --cycles 30t` in the CI workflow and README
+- [ ] If the example requires non-default canister settings (memory limits, freezing threshold, etc.): apply them via `icp canister settings update` at the top of `test.sh`
 - [ ] Delete `dfx.json`, `BUILD.md`, `.dfx/`, `.env` (dfx-generated)
 - [ ] Delete `.devcontainer/` inside the example folder if one exists (only the repo-root devcontainer is kept)
 
-### Makefile
-- [ ] Add `Makefile` with `test` target
+### test.sh
+- [ ] Add `test.sh` (executable, `#!/usr/bin/env bash`, `set -e`) with numbered tests
 - [ ] Use `--query` for all `public query func` and `public composite query func` calls
 - [ ] Use a polling loop for any behavior that depends on timers, heartbeats, or async system hooks
+- [ ] Use delta-based balance assertions (before/after) rather than absolute values for idempotency
 - [ ] For backend-only examples, no `## Updating the Candid interface` section is needed
 
 ### CI workflow
