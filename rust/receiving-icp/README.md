@@ -23,6 +23,13 @@ The local environment uses the same principal as production because icp-cli's lo
 - Node.js
 - icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
+### Install
+
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/rust/receiving-icp
+```
+
 ### Deploy and test
 
 ```bash
