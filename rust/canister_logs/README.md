@@ -25,7 +25,7 @@ cd examples/rust/canister_logs
 ```bash
 icp network start -d
 icp deploy
-make test
+bash test.sh
 icp network stop
 ```
 
