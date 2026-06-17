@@ -6,6 +6,7 @@ on:
   pull_request:
     paths:
       - motoko/icp_transfer/**
+      - rust/icp_transfer/**
       - .github/workflows/icp_transfer.yml
 
 concurrency:
@@ -22,6 +23,20 @@ jobs:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - name: Deploy and test
         working-directory: motoko/icp_transfer
+        run: |
+          icp network start -d
+          icp deploy
+          make test
+
+  rust-icp_transfer:
+    runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-rust:1.0.1
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy and test
+        working-directory: rust/icp_transfer
         run: |
           icp network start -d
           icp deploy
