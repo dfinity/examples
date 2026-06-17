@@ -4,7 +4,7 @@ ICP Transfer demonstrates how a canister can hold ICP and send it to other accou
 
 ## Account identifiers
 
-The ICP ledger identifies accounts with a 32-byte **AccountIdentifier** — a hash of a principal and an optional subaccount. This is the native format used by most exchanges and wallets. The `Principal.toLedgerAccount(subaccount)` method in Motoko (or `AccountIdentifier::new` in Rust) performs this conversion.
+The ICP ledger identifies accounts with a 32-byte **AccountIdentifier** — a hash of a principal and an optional subaccount. This is the format used by most centralized exchanges (CEXs). Wallets and newer integrations typically prefer the ICRC-1 account format (principal + subaccount directly), but CEX compatibility often still requires AccountIdentifier. The `Principal.toLedgerAccount(subaccount)` method in Motoko (or `AccountIdentifier::new` in Rust) performs this conversion.
 
 The example exposes three functions to make this concrete:
 
