@@ -26,7 +26,7 @@ jobs:
         run: |
           icp network start -d
           icp deploy
-          make test
+          bash test.sh
 
   rust-low_wasm_memory:
     runs-on: ubuntu-24.04
@@ -40,4 +40,4 @@ jobs:
         run: |
           icp network start -d
           icp deploy
-          make test
+          bash test.sh
