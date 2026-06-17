@@ -36,7 +36,7 @@ cd examples/rust/receiving-icp
 # Local (default)
 icp network start -d
 icp deploy
-make test
+bash test.sh
 icp network stop
 
 # Staging (targets TESTICP ledger on mainnet)
