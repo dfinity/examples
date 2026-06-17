@@ -15,7 +15,7 @@ concurrency:
 jobs:
   rust-exchange-rates:
     runs-on: ubuntu-24.04
-    container: ghcr.io/dfinity/icp-dev-env-rust:1.0.0
+    container: ghcr.io/dfinity/icp-dev-env-rust:1.0.1
     env:
       ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -25,4 +25,4 @@ jobs:
         run: |
           icp network start -d
           icp deploy
-          make test
+          bash test.sh
