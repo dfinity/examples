@@ -5,8 +5,9 @@ edition = "2021"
 
 [lib]
 crate-type = ["cdylib"]
+path = "lib.rs"
 
 [dependencies]
 candid = "0.10"
-ic-cdk = "0.18"
-ic-ledger-types = "0.15.0"
+ic-cdk = "0.20"
+ic-ledger-types = "0.16"

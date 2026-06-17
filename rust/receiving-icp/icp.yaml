@@ -1,8 +1,30 @@
-networks:
-  - name: local
-    mode: managed
-
 canisters:
   - name: backend
     recipe:
       type: "@dfinity/rust@v3.3.0"
+
+# ICP_LEDGER_CANISTER_ID is injected at deploy time by the recipe and baked
+# into the WASM. Deploy with `--environment staging` to target the TESTICP
+# ledger, or omit the flag to use the production ICP ledger (default for
+# both local and production).
+environments:
+  - name: local
+    network: local
+    settings:
+      backend:
+        environment_variables:
+          ICP_LEDGER_CANISTER_ID: "ryjl3-tyaaa-aaaaa-aaaba-cai"
+
+  - name: staging
+    network: ic
+    settings:
+      backend:
+        environment_variables:
+          ICP_LEDGER_CANISTER_ID: "xafvr-biaaa-aaaai-aql5q-cai"
+
+  - name: production
+    network: ic
+    settings:
+      backend:
+        environment_variables:
+          ICP_LEDGER_CANISTER_ID: "ryjl3-tyaaa-aaaaa-aaaba-cai"
