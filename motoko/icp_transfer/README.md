@@ -40,5 +40,5 @@ icp network stop
 
 Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app. For this example the following aspects are particularly relevant:
 
-- [Inter-canister calls and rollbacks](https://docs.internetcomputer.org/guides/security/overview): issues around inter-canister calls (here the ledger) can lead to time-of-check time-of-use or double-spending bugs.
-- [Certify query responses if they are relevant for security](https://docs.internetcomputer.org/guides/security/overview): essential when displaying financial data that users act on.
+- [Securely handle traps in callbacks](https://docs.internetcomputer.org/guides/security/inter-canister-calls/#securely-handle-traps-in-callbacks): issues around inter-canister calls (here the ledger) can lead to time-of-check time-of-use or double-spending bugs.
+- [Certified variables](https://docs.internetcomputer.org/guides/security/data-integrity-and-authenticity/#certified-variables): essential when displaying financial data that users act on.
