@@ -59,4 +59,4 @@ test:
 	  echo "  recipient: $$recipient_before → $$recipient_after  (delta $$((recipient_after - recipient_before)))"; \
 	  [ "$$((backend_after - backend_before))" -eq -100000000 ] || (echo "FAIL: expected backend delta -100000000 e8s" && exit 1); \
 	  [ "$$((recipient_after - recipient_before))" -eq 99990000 ] || (echo "FAIL: expected recipient delta +99990000 e8s" && exit 1); \
-	  echo "  PASS — same recipient reached via AccountIdentifier blob as via principal"
+	  echo "  PASS — same recipient reached via AccountIdentifier hex as via principal"
