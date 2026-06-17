@@ -147,6 +147,43 @@ canisters:
 
 **Canister names are always `backend` and `frontend`.** Never use names like `<example>_backend`, `internet_identity_app_backend`, etc.
 
+### Per-environment canister configuration
+
+When an example interacts with a well-known external canister whose principal differs by environment (e.g. the ICP ledger mainnet vs. TESTICP on staging), use the `environments` block to inject the right value per deployment rather than hardcoding it:
+
+```yaml
+canisters:
+  - name: backend
+    recipe:
+      type: "@dfinity/rust@v3.3.0"
+
+environments:
+  - name: local
+    network: local
+    settings:
+      backend:
+        environment_variables:
+          ICP_LEDGER_CANISTER_ID: "ryjl3-tyaaa-aaaaa-aaaba-cai"
+
+  - name: staging
+    network: ic
+    settings:
+      backend:
+        environment_variables:
+          ICP_LEDGER_CANISTER_ID: "xafvr-biaaa-aaaai-aql5q-cai"   # TESTICP
+
+  - name: production
+    network: ic
+    settings:
+      backend:
+        environment_variables:
+          ICP_LEDGER_CANISTER_ID: "ryjl3-tyaaa-aaaaa-aaaba-cai"
+```
+
+icp-cli injects these as WASM metadata before `cargo build`. Read them at **runtime** via `ic_cdk::api::env_var_value("ICP_LEDGER_CANISTER_ID")` (Rust) or `Runtime.envVar<system>("ICP_LEDGER_CANISTER_ID")` (Motoko) — not via `env!()` or `std::env::var()`.
+
+**When to apply this pattern**: judge whether staging/production environments make sense for the specific example. Apply it when the example hardcodes an external canister principal that has a test counterpart (TESTICP, testnet URLs, staging governance canisters, etc.). Skip it for self-contained examples that don't call external canisters.
+
 ### Motoko naming conventions
 
 - **Top-level actor:** name it after its logical role, not generically — e.g. `actor TodoList`, `actor CanisterFactory`, not `actor Backend`.
@@ -485,6 +522,7 @@ When migrating an existing example:
 - [ ] Run `mops check --fix` in the example directory and commit any auto-fixes (Motoko)
 - [ ] If the example uses the management canister: add `ic = "4.0.0"` dependency and replace `ic:aaaaa-aa` / `actor("aaaaa-aa")` with `import { ic } "mo:ic"` (Motoko)
 - [ ] If the Rust example uses the management canister: add `ic-cdk-management-canister = "0.1.1"` dependency and replace `ic_cdk::api::management_canister` with the appropriate function from that crate
+- [ ] **Judge whether per-environment configuration makes sense**: if the example calls an external canister whose principal differs by environment (e.g. ICP ledger vs. TESTICP), add an `environments` block to `icp.yaml`. Skip for self-contained examples.
 - [ ] If the example creates child canisters: use `icp deploy --cycles 30t` in the CI workflow and README
 - [ ] If the example requires non-default canister settings (memory limits, freezing threshold, etc.): apply them via `icp canister settings update` at the top of `test.sh`
 - [ ] Delete `dfx.json`, `BUILD.md`, `.dfx/`, `.env` (dfx-generated)
