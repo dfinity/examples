@@ -2,7 +2,7 @@
 set -e
 
 echo "=== Test 1/4: is_high_score returns true when leaderboard has fewer than 10 entries ==="
-result=$(icp canister call backend is_high_score '(0 : nat)') && \
+result=$(icp canister call --query backend is_high_score '(0 : nat)') && \
   echo "$result" && \
   echo "$result" | grep -q 'true' && \
   echo "PASS" || (echo "FAIL" && exit 1)
@@ -14,7 +14,7 @@ result=$(icp canister call backend add_leaderboard_entry '("Alice", 100 : nat)')
   echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "=== Test 3/4: get_leaderboard returns stored entries ==="
-result=$(icp canister call backend get_leaderboard '()') && \
+result=$(icp canister call --query backend get_leaderboard '()') && \
   echo "$result" && \
   echo "$result" | grep -q 'Alice' && \
   echo "PASS" || (echo "FAIL" && exit 1)

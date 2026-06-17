@@ -19,7 +19,7 @@ npm install --silent
 export LC_ALL=C
 
 function get_text_in_double_quotes() {
-    printf "$(echo "$1" | sed -e 's/^[^"]*"//' -e 's/".*//g')"
+    printf '%s' "$(echo "$1" | sed -e 's/^[^"]*"//' -e 's/".*//g')"
 }
 
 message="hello world"

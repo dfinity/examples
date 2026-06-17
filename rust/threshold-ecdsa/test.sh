@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 export LC_ALL=C
 function get_text_in_double_quotes() {
-    printf "$(echo "$1" | sed -e 's/^[^"]*"//' -e 's/".*//g')"
+    printf '%s' "$(echo "$1" | sed -e 's/^[^"]*"//' -e 's/".*//g')"
 }
 
 test -z "$1" && echo "USAGE: $0 <message to sign and verify>" && exit 1
