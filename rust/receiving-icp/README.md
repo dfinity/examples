@@ -6,7 +6,7 @@ The canister exposes methods to compute account identifiers (including subaccoun
 
 ## Environment configuration
 
-The ICP ledger canister ID is configured via `icp.yaml` and baked into the WASM at compile time using `env!("ICP_LEDGER_CANISTER_ID")`:
+The ICP ledger canister ID is configured via `icp.yaml` and read at runtime via `ic_cdk::api::env_var_value("ICP_LEDGER_CANISTER_ID")`:
 
 | Environment | Ledger | Canister ID |
 |---|---|---|
