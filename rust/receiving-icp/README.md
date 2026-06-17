@@ -30,19 +30,24 @@ git clone https://github.com/dfinity/examples
 cd examples/rust/receiving-icp
 ```
 
-### Deploy and test
+### Deploy and test locally
 
 ```bash
-# Local (default)
 icp network start -d
 icp deploy
 bash test.sh
 icp network stop
+```
 
-# Staging (targets TESTICP ledger on mainnet)
+`bash test.sh` runs 7 tests: account identifier format, subaccount uniqueness, funding the main account and a specific subaccount via account ID hex, balance queries, and subaccount independence. Tests are delta-based and idempotent across re-runs.
+
+### Deploy to staging or production
+
+```bash
+# Staging — targets the TESTICP ledger
 icp deploy --environment staging
 
-# Production
+# Production — targets the mainnet ICP ledger
 icp deploy --environment production
 ```
 
