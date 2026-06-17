@@ -78,11 +78,11 @@ cd examples/rust/stake_neuron_from_cli
 ```bash
 icp network start -d
 icp deploy
-make test
+bash test.sh
 icp network stop
 ```
 
-The `make test` target verifies the `compute_subaccount` query locally.
+The `bash test.sh` script verifies the `compute_subaccount` query locally.
 
 ### Testing stake_neuron on mainnet
 
