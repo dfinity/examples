@@ -5,7 +5,7 @@ edition = "2021"
 
 [lib]
 crate-type = ["cdylib"]
-path = "src/lib.rs"
+path = "lib.rs"
 
 [dependencies]
 candid = "0.10"
