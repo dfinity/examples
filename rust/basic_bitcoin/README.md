@@ -45,7 +45,7 @@ make build-image
 ```bash
 icp network start -d
 icp deploy --cycles 30t
-make test
+bash test.sh
 icp network stop
 ```
 
