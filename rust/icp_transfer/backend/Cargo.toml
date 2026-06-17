@@ -8,5 +8,5 @@ crate-type = ["cdylib"]
 
 [dependencies]
 candid = "0.10"
-ic-cdk = "0.19"
+ic-cdk = "0.20"
 ic-ledger-types = "0.16"
