@@ -2,7 +2,7 @@
 
 test:
 	@echo "=== Setup: fund the backend canister with ICP ==="
-	@backend_principal=$$(icp canister status backend --id-only) && \
+	@backend_principal=$$(icp canister status backend -i) && \
 	  echo "Backend principal: $$backend_principal" && \
 	  icp token transfer 2 "$$backend_principal"
 
@@ -11,5 +11,5 @@ test:
 	  echo "Recipient principal: $$recipient" && \
 	  result=$$(icp canister call backend transfer "(record { amount = record { e8s = 100_000_000 : nat64 }; toPrincipal = principal \"$$recipient\"; toSubaccount = null })") && \
 	  echo "$$result" && \
-	  echo "$$result" | grep -q '#ok' && \
+	  echo "$$result" | grep -q 'ok' && \
 	  echo "PASS" || (echo "FAIL" && exit 1)

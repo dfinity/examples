@@ -63,7 +63,9 @@ actor IcpTransfer {
       from_subaccount = null;
       // convert principal and optional subaccount to an ICP ledger account identifier
       to = args.toPrincipal.toLedgerAccount(args.toSubaccount);
-      // a timestamp indicating when the transaction was created; null means use current IC time
+      // null: the ledger stores the current IC time as the transaction timestamp.
+      // Note: passing null also disables deduplication — if you need protection
+      // against duplicate submissions, pass the current time explicitly instead.
       created_at_time = null;
     };
 
