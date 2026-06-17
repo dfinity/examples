@@ -1,4 +1,6 @@
+import Array "mo:core/Array";
 import Debug "mo:core/Debug";
+import Hex "mo:hex";
 import Result "mo:core/Result";
 import Error "mo:core/Error";
 import Principal "mo:core/Principal";
@@ -11,8 +13,8 @@ actor IcpTransfer {
 
   // An AccountIdentifier is a 32-byte blob that encodes a principal and an
   // optional subaccount. It is the native account format used by the ICP ledger.
-  // Many exchanges and wallets identify accounts by this blob rather than by
-  // principal, so being able to work with both formats is important.
+  // Centralized exchanges (CEXs) identify accounts by this blob; wallets and
+  // newer integrations prefer the ICRC-1 format (principal + subaccount directly).
   //
   // Use Principal.toLedgerAccount(subaccount) to compute one from a principal.
   type AccountIdentifier = Blob;
@@ -65,11 +67,11 @@ actor IcpTransfer {
     };
   };
 
-  // Convert a principal and optional subaccount to its AccountIdentifier.
-  // Expose this as a query so callers can inspect the conversion and use the
-  // resulting blob with transferToAccountId.
-  public query func toAccountId(p : Principal, subaccount : ?SubAccount) : async AccountIdentifier {
-    p.toLedgerAccount(subaccount);
+  // Convert a principal and optional subaccount to its AccountIdentifier as a
+  // lowercase hex string — the format shown in block explorers and CEX deposit screens.
+  public query func toAccountIdHex(p : Principal, subaccount : ?SubAccount) : async Text {
+    let bytes = Array.fromIter(p.toLedgerAccount(subaccount).vals());
+    Hex.toText(bytes);
   };
 
   // Transfer ICP to a recipient identified by principal + optional subaccount.
@@ -81,9 +83,8 @@ actor IcpTransfer {
   };
 
   // Transfer ICP to a recipient identified by an AccountIdentifier blob.
-  // Use this when you already have an account identifier — for example, when
-  // an exchange or external service provides the destination as a blob rather
-  // than as a principal.
+  // Use this when an exchange or external service gives you the destination
+  // as a raw blob rather than as a principal.
   public shared func transferToAccountId(amount : Tokens, toAccountId : AccountIdentifier) : async Result.Result<BlockIndex, Text> {
     Debug.print("Transferring " # debug_show amount # " to account id " # debug_show toAccountId);
     await doTransfer(amount, toAccountId);

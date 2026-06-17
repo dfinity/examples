@@ -4,15 +4,13 @@ ICP Transfer demonstrates how a canister can hold ICP and send it to other accou
 
 ## Account identifiers
 
-The ICP ledger identifies accounts with a 32-byte **AccountIdentifier** — a hash of a principal and an optional subaccount. This is the format used by most centralized exchanges (CEXs). Wallets and newer integrations typically prefer the ICRC-1 account format (principal + subaccount directly), but CEX compatibility often still requires AccountIdentifier. The `Principal.toLedgerAccount(subaccount)` method in Motoko (or `AccountIdentifier::new` in Rust) performs this conversion.
+The ICP ledger identifies accounts with a 32-byte **AccountIdentifier** — a hash of a principal and an optional subaccount. Centralized exchanges (CEXs) use this format for deposit addresses; wallets and newer integrations typically prefer the ICRC-1 account format (principal + subaccount directly). The `Principal.toLedgerAccount(subaccount)` method in Motoko performs this conversion.
 
 The example exposes three functions to make this concrete:
 
-- **`toAccountId(principal, subaccount)`** — query that returns the AccountIdentifier blob for any principal + subaccount pair, so you can inspect what the conversion produces.
+- **`toAccountIdHex(principal, subaccount)`** — query returning the AccountIdentifier as a 64-char lowercase hex string, the format shown in block explorers and CEX deposit screens.
 - **`transferToPrincipal(amount, principal, subaccount)`** — calls `toLedgerAccount` internally. Use this when you have a principal.
-- **`transferToAccountId(amount, accountId)`** — accepts the blob directly. Use this when an exchange or external service gives you an account identifier rather than a principal.
-
-The `make test` target calls both transfer functions for the same recipient and verifies that the balance deltas are identical, demonstrating the equivalence of the two paths.
+- **`transferToAccountId(amount, accountId)`** — accepts the raw blob directly. Use this when an exchange or external service gives you the destination as an AccountIdentifier rather than as a principal.
 
 > The ICP ledger also supports the [ICRC-1](https://github.com/dfinity/ICRC-1) standard via `icrc1_transfer`. For new token integrations that don't require AccountIdentifier compatibility, ICRC-1 is the recommended interface. A comprehensive ICRC ledger example is planned.
 
@@ -24,13 +22,6 @@ The `make test` target calls both transfer functions for the same recipient and 
 - icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 - ic-mops: `npm install -g ic-mops`
 
-### Install
-
-```bash
-git clone https://github.com/dfinity/examples
-cd examples/motoko/icp_transfer
-```
-
 ### Deploy and test
 
 ```bash
@@ -40,10 +31,10 @@ make test
 icp network stop
 ```
 
-`make test` funds the backend with 4 ICP, then:
-1. Calls `toAccountId` to show the AccountIdentifier blob for the caller's principal.
-2. Calls `transferToPrincipal` (principal path) and checks the balance delta on both sides via `icrc1_balance_of`.
-3. Calls `transferToAccountId` with the blob from step 1 (account identifier path) and checks the same deltas — confirming both paths reach the same account.
+`make test` funds the backend with 2 ICP, then:
+1. Compares `icp identity account-id --format ledger` with `toAccountIdHex` to verify the CLI and the backend compute the same AccountIdentifier.
+2. Calls `transferToPrincipal` — transfers 99_990_000 e8s (amount) + 10_000 e8s (fee) = exactly 1 ICP deducted from the backend; confirms both sides via `icp token balance`.
+3. Calls `transferToAccountId` with the AccountIdentifier as `vec nat8` — same 1 ICP deduction, confirming both transfer paths reach the same account and the backend balance reaches zero.
 
 ## Security considerations and best practices
 
