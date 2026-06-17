@@ -331,7 +331,7 @@ echo "FAIL: condition not met within 60s"; exit 1
 icp canister settings update backend --<flag> <value> -f
 ```
 
-- If `icp deploy --cycles 30t` is required (see below), add a separate `topup.sh` or document the command in the README.
+- If `icp deploy --cycles 30t` is required (see below), document `icp canister top-up --amount 30t backend` in the README so users can replenish cycles when needed.
 
 ---
 
@@ -431,7 +431,7 @@ Each example's README should follow this structure:
 <icp network start -d && icp deploy && bash test.sh && icp network stop>
 If the example has a frontend with a Vite dev server: `npm run dev` (hot reload during frontend development)
 
-> If tests fail with an out-of-cycles error, run `bash topup.sh` (or the documented icp command) to add 30 trillion cycles to the backend canister and retry. Only relevant for examples that create child canisters.
+> If tests fail with an out-of-cycles error, run `icp canister top-up --amount 30t backend` to add 30 trillion cycles and retry. Only relevant for examples that create child canisters.
 
 ## Updating the Candid interface
 <instructions to regenerate backend.did>
