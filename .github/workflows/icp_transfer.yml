@@ -1,0 +1,28 @@
+name: icp_transfer
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    paths:
+      - motoko/icp_transfer/**
+      - .github/workflows/icp_transfer.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  motoko-icp_transfer:
+    runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-motoko:1.0.0
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy and test
+        working-directory: motoko/icp_transfer
+        run: |
+          icp network start -d
+          icp deploy
+          make test
