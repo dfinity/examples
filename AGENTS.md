@@ -143,7 +143,7 @@ canisters:
 ```
 
 - With `candid:` specified: the recipe reads the committed `.did` file and embeds it as WASM metadata (no `candid-extractor` needed).
-- Without `candid:`: `candid-extractor` (available in `icp-dev-env-rust:0.3.2+`) extracts the interface directly from the compiled WASM. For backend-only examples, omit `candid:` and do not commit `backend.did`.
+- Without `candid:`: `candid-extractor` extracts the interface directly from the compiled WASM. For backend-only examples, omit `candid:` and do not commit `backend.did`.
 
 **Canister names are always `backend` and `frontend`.** Never use names like `<example>_backend`, `internet_identity_app_backend`, etc.
 
@@ -364,7 +364,7 @@ concurrency:
 jobs:
   motoko-<example_name>:
     runs-on: ubuntu-24.04
-    container: ghcr.io/dfinity/icp-dev-env-motoko:<version>
+    container: ghcr.io/dfinity/icp-dev-env-motoko:1.0.1
     env:
       ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -378,7 +378,7 @@ jobs:
 
   rust-<example_name>:
     runs-on: ubuntu-24.04
-    container: ghcr.io/dfinity/icp-dev-env-rust:<version>
+    container: ghcr.io/dfinity/icp-dev-env-rust:1.0.1
     env:
       ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -454,7 +454,7 @@ Rust: `icp build backend && candid-extractor target/wasm32-unknown-unknown/relea
 ## Pending items (do not resolve prematurely)
 
 ### Container images
-Images are published at `ghcr.io/dfinity/icp-dev-env-{motoko,rust,all}`. All devcontainer configs and CI workflows reference the pinned tag (e.g. `0.3.2`). When a new release is cut, update the tag in:
+Images are published at `ghcr.io/dfinity/icp-dev-env-{motoko,rust,all}`. Current pinned version: **`1.0.1`**. All devcontainer configs and CI workflows reference the pinned tag. When a new release is cut, update the tag in:
 - `.devcontainer/devcontainer.json`
 - `.github/workflows/*.yml`
 
