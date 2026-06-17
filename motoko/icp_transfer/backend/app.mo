@@ -1,4 +1,5 @@
 import Array "mo:core/Array";
+import Blob "mo:core/Blob";
 import Debug "mo:core/Debug";
 import Hex "mo:hex";
 import Result "mo:core/Result";
@@ -82,11 +83,23 @@ actor IcpTransfer {
     await doTransfer(amount, toPrincipal.toLedgerAccount(toSubaccount));
   };
 
-  // Transfer ICP to a recipient identified by an AccountIdentifier blob.
-  // Use this when an exchange or external service gives you the destination
-  // as a raw blob rather than as a principal.
-  public shared func transferToAccountId(amount : Tokens, toAccountId : AccountIdentifier) : async Result.Result<BlockIndex, Text> {
-    Debug.print("Transferring " # debug_show amount # " to account id " # debug_show toAccountId);
-    await doTransfer(amount, toAccountId);
+  // Transfer ICP to a recipient identified by an AccountIdentifier hex string.
+  // Use this when an exchange or block explorer gives you the destination as a
+  // 64-char hex string rather than as a principal.
+  //
+  // Note: CRC32 checksum validation is not performed here — the ICP ledger
+  // validates it and returns a clear error on mismatch. A fromHex helper with
+  // CRC32 validation (equivalent to AccountIdentifier::from_hex in ic-ledger-types)
+  // would be a valuable addition to a Motoko ICP library.
+  public shared func transferToAccountId(amount : Tokens, toAccountIdHex : Text) : async Result.Result<BlockIndex, Text> {
+    switch (Hex.toArray(toAccountIdHex)) {
+      case (#err(e)) #err("invalid hex: " # e);
+      case (#ok(bytes)) {
+        if (bytes.size() != 32) {
+          return #err("AccountIdentifier must be 32 bytes (64 hex chars), got " # debug_show(bytes.size()));
+        };
+        await doTransfer(amount, Blob.fromArray(bytes));
+      };
+    };
   };
 };

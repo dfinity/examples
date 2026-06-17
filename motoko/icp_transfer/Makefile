@@ -46,12 +46,11 @@ test:
 	  echo "  PASS"; \
 	  \
 	  echo "=== Test 3: transferToAccountId — same recipient, same deduction ==="; \
-	  account_id_vec="vec { $$(echo "$$cli_hex" | fold -w2 | while read b; do printf '%d : nat8; ' "0x$$b"; done | sed 's/; $$//') }"; \
-	  echo "  AccountIdentifier: $$account_id_vec"; \
+	  echo "  AccountIdentifier hex: $$cli_hex"; \
 	  backend_before=$$(get_balance "$$backend"); \
 	  recipient_before=$$(get_balance "$$recipient"); \
 	  result=$$(icp canister call backend transferToAccountId \
-	    "(record { e8s = 99_990_000 : nat64 }, $$account_id_vec)"); \
+	    "(record { e8s = 99_990_000 : nat64 }, \"$$cli_hex\")"); \
 	  echo "  result: $$result"; \
 	  echo "$$result" | grep -q 'ok' || (echo "FAIL: transfer rejected" && exit 1); \
 	  backend_after=$$(get_balance "$$backend"); \
@@ -60,4 +59,4 @@ test:
 	  echo "  recipient: $$recipient_before → $$recipient_after  (delta $$((recipient_after - recipient_before)))"; \
 	  [ "$$((backend_after - backend_before))" -eq -100000000 ] || (echo "FAIL: expected backend delta -100000000 e8s" && exit 1); \
 	  [ "$$((recipient_after - recipient_before))" -eq 99990000 ] || (echo "FAIL: expected recipient delta +99990000 e8s" && exit 1); \
-	  echo "  PASS — same recipient reached via AccountIdentifier blob as via principal"
+	  echo "  PASS — same recipient reached via AccountIdentifier hex as via principal"
