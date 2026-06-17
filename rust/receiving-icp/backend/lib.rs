@@ -1,14 +1,16 @@
 use candid::Principal;
 use ic_ledger_types::{AccountBalanceArgs, AccountIdentifier, Subaccount};
 
-// The ledger principal is injected at build time by icp-cli from the
-// ICP_LEDGER_CANISTER_ID environment variable configured per environment
-// in icp.yaml:
+// Read the ledger principal at runtime from the environment variable injected
+// by icp-cli. The value is configured per environment in icp.yaml:
 //   local / production: ryjl3-tyaaa-aaaaa-aaaba-cai  (ICP ledger)
 //   staging:            xafvr-biaaa-aaaai-aql5q-cai  (TESTICP ledger)
 //
 // Deploy with `icp deploy --environment staging` to target TESTICP.
-const LEDGER_PRINCIPAL: &str = env!("ICP_LEDGER_CANISTER_ID");
+fn ledger_principal() -> Principal {
+    let id = ic_cdk::api::env_var_value("ICP_LEDGER_CANISTER_ID");
+    Principal::from_text(&id).expect("invalid ICP_LEDGER_CANISTER_ID")
+}
 
 fn get_account(upper: u128, lower: u128) -> AccountIdentifier {
     // Create a 32-byte array by combining the little endian representation of upper and lower.
@@ -39,9 +41,8 @@ async fn get_balance() -> u64 {
 /// Retrieves the ICP balance of a specific subaccount from the ledger.
 #[ic_cdk::update]
 async fn get_balance_of_subaccount(upper: u128, lower: u128) -> u64 {
-    let ledger = Principal::from_text(LEDGER_PRINCIPAL).expect("invalid ledger principal");
     let account = get_account(upper, lower);
-    let balance = ic_ledger_types::account_balance(ledger, &AccountBalanceArgs { account })
+    let balance = ic_ledger_types::account_balance(ledger_principal(), &AccountBalanceArgs { account })
         .await
         .expect("call to get balance failed");
 
