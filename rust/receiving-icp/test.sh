@@ -36,12 +36,12 @@ echo "=== Test 5: fund main account with 1 ICP — get_balance returns 100_000_0
 icp token transfer 1 "$main_hex"
 result=$(icp canister call backend get_balance '()')
 echo "$result"
-echo "$result" | grep -qF '(100000000 : nat64)' && echo "PASS" || (echo "FAIL" && exit 1)
+echo "$result" | grep -qF '(100_000_000 : nat64)' && echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "=== Test 6: get_balance_of_subaccount(0, 0) matches get_balance() ==="
 result=$(icp canister call backend get_balance_of_subaccount '(0, 0)')
 echo "$result"
-echo "$result" | grep -qF '(100000000 : nat64)' && echo "PASS" || (echo "FAIL" && exit 1)
+echo "$result" | grep -qF '(100_000_000 : nat64)' && echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "=== Test 7: get_balance_of_subaccount(1, 0) returns 0 before funding ==="
 result=$(icp canister call backend get_balance_of_subaccount '(1, 0)')
@@ -53,7 +53,7 @@ echo "  Subaccount(1,0) account ID: $sub1_hex"
 icp token transfer 1 "$sub1_hex"
 result=$(icp canister call backend get_balance_of_subaccount '(1, 0)')
 echo "$result"
-echo "$result" | grep -qF '(100000000 : nat64)' && echo "PASS" || (echo "FAIL" && exit 1)
+echo "$result" | grep -qF '(100_000_000 : nat64)' && echo "PASS" || (echo "FAIL" && exit 1)
 
 # Cross-check: icp token balance with account ID hex should agree
 echo "=== Cross-check: icp token balance with account ID hex ==="
