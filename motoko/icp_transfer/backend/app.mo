@@ -8,6 +8,13 @@ actor IcpTransfer {
   type Tokens = { e8s : Nat64 };
   type SubAccount = Blob;
   type BlockIndex = Nat64;
+
+  // An AccountIdentifier is a 32-byte blob that encodes a principal and an
+  // optional subaccount. It is the native account format used by the ICP ledger.
+  // Many exchanges and wallets identify accounts by this blob rather than by
+  // principal, so being able to work with both formats is important.
+  //
+  // Use Principal.toLedgerAccount(subaccount) to compute one from a principal.
   type AccountIdentifier = Blob;
 
   type TimeStamp = { timestamp_nanos : Nat64 };
@@ -35,51 +42,50 @@ actor IcpTransfer {
   // the local development network at this well-known principal.
   let icpLedger : actor { transfer : (LedgerTransferArgs) -> async TransferResult } = actor ("ryjl3-tyaaa-aaaaa-aaaba-cai");
 
-  // Public API
-  type TransferArgs = {
-    amount : Tokens;
-    toPrincipal : Principal;
-    toSubaccount : ?SubAccount;
-  };
-
-  public shared func transfer(args : TransferArgs) : async Result.Result<BlockIndex, Text> {
-    Debug.print(
-      "Transferring "
-      # debug_show (args.amount)
-      # " tokens to principal "
-      # debug_show (args.toPrincipal)
-      # " subaccount "
-      # debug_show (args.toSubaccount)
-    );
-
+  // Shared transfer logic.
+  func doTransfer(amount : Tokens, to : AccountIdentifier) : async Result.Result<BlockIndex, Text> {
     let transferArgs : LedgerTransferArgs = {
-      // can be used to distinguish between transactions
       memo = 0;
-      // the amount we want to transfer
-      amount = args.amount;
-      // the ICP ledger charges 10_000 e8s for a transfer
+      amount;
       fee = { e8s = 10_000 };
-      // we are transferring from the canister's default subaccount
       from_subaccount = null;
-      // convert principal and optional subaccount to an ICP ledger account identifier
-      to = args.toPrincipal.toLedgerAccount(args.toSubaccount);
+      to;
       // null: the ledger stores the current IC time as the transaction timestamp.
       // Note: passing null also disables deduplication — if you need protection
       // against duplicate submissions, pass the current time explicitly instead.
       created_at_time = null;
     };
-
     try {
-      let transferResult = await icpLedger.transfer(transferArgs);
-
-      switch (transferResult) {
-        case (#Err(transferError)) {
-          return #err("Couldn't transfer funds:\n" # debug_show (transferError));
-        };
-        case (#Ok(blockIndex)) { return #ok blockIndex };
+      switch (await icpLedger.transfer(transferArgs)) {
+        case (#Err(e)) #err("Transfer failed: " # debug_show e);
+        case (#Ok(blockIndex)) #ok blockIndex;
       };
-    } catch (error : Error) {
-      return #err("Reject message: " # error.message());
+    } catch (e) {
+      #err("Reject: " # e.message());
     };
+  };
+
+  // Convert a principal and optional subaccount to its AccountIdentifier.
+  // Expose this as a query so callers can inspect the conversion and use the
+  // resulting blob with transferToAccountId.
+  public query func toAccountId(p : Principal, subaccount : ?SubAccount) : async AccountIdentifier {
+    p.toLedgerAccount(subaccount);
+  };
+
+  // Transfer ICP to a recipient identified by principal + optional subaccount.
+  // Internally calls Principal.toLedgerAccount to derive the AccountIdentifier.
+  // This is the most convenient form when you have a principal.
+  public shared func transferToPrincipal(amount : Tokens, toPrincipal : Principal, toSubaccount : ?SubAccount) : async Result.Result<BlockIndex, Text> {
+    Debug.print("Transferring " # debug_show amount # " to principal " # debug_show toPrincipal);
+    await doTransfer(amount, toPrincipal.toLedgerAccount(toSubaccount));
+  };
+
+  // Transfer ICP to a recipient identified by an AccountIdentifier blob.
+  // Use this when you already have an account identifier — for example, when
+  // an exchange or external service provides the destination as a blob rather
+  // than as a principal.
+  public shared func transferToAccountId(amount : Tokens, toAccountId : AccountIdentifier) : async Result.Result<BlockIndex, Text> {
+    Debug.print("Transferring " # debug_show amount # " to account id " # debug_show toAccountId);
+    await doTransfer(amount, toAccountId);
   };
 };
