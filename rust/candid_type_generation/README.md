@@ -61,7 +61,7 @@ cd examples/rust/candid_type_generation
 ```bash
 icp network start -d
 icp deploy
-make test
+bash test.sh
 icp network stop
 ```
 
