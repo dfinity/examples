@@ -53,7 +53,7 @@ cd examples/rust/parallel_calls
 ```bash
 icp network start -d
 icp deploy
-make test
+bash test.sh
 icp network stop
 ```
 
