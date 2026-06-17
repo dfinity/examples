@@ -10,7 +10,7 @@ The example exposes three functions to make this concrete:
 
 - **`to_account_id_hex(principal, subaccount)`** — query returning the AccountIdentifier as a 64-char lowercase hex string, the format shown in block explorers and CEX deposit screens.
 - **`transfer_to_principal(amount, principal, subaccount)`** — calls `AccountIdentifier::new` internally. Use this when you have a principal.
-- **`transfer_to_account_id(amount, account_id)`** — accepts the raw 32-byte blob directly. Use this when an exchange or external service gives you the destination as an AccountIdentifier rather than as a principal.
+- **`transfer_to_account_id(amount, account_id_hex)`** — accepts the AccountIdentifier as a 64-char hex string (the format CEXs and block explorers provide). Validates the embedded CRC32 checksum before transferring.
 
 > The ICP ledger also supports the [ICRC-1](https://github.com/dfinity/ICRC-1) standard via `icrc1_transfer`. For new token integrations that don't require AccountIdentifier compatibility, ICRC-1 is the recommended interface. A comprehensive ICRC ledger example is planned.
 
@@ -33,7 +33,7 @@ icp network stop
 `make test` funds the backend with 2 ICP, then:
 1. Compares `icp identity account-id --format ledger` with `to_account_id_hex` to verify CLI and backend compute the same AccountIdentifier.
 2. Calls `transfer_to_principal` — transfers 99_990_000 e8s (amount) + 10_000 e8s (fee) = exactly 1 ICP deducted from the backend; confirms both sides via `icp token balance`.
-3. Calls `transfer_to_account_id` with the AccountIdentifier as `vec { N : nat8; ... }` — same 1 ICP deduction, confirming both transfer paths reach the same account and the backend balance reaches zero.
+3. Calls `transfer_to_account_id` with the hex string from step 1 — same 1 ICP deduction, confirming both transfer paths reach the same account and the backend balance reaches zero.
 
 ## Security considerations and best practices
 

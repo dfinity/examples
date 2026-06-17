@@ -46,12 +46,11 @@ test:
 	  echo "  PASS"; \
 	  \
 	  echo "=== Test 3: transfer_to_account_id — same recipient, same deduction ==="; \
-	  account_id_vec="vec { $$(echo "$$cli_hex" | fold -w2 | while read b; do printf '%d : nat8; ' "0x$$b"; done | sed 's/; $$//') }"; \
-	  echo "  AccountIdentifier: $$account_id_vec"; \
+	  echo "  AccountIdentifier hex: $$cli_hex"; \
 	  backend_before=$$(get_balance "$$backend"); \
 	  recipient_before=$$(get_balance "$$recipient"); \
 	  result=$$(icp canister call backend transfer_to_account_id \
-	    "(record { e8s = 99_990_000 : nat64 }, $$account_id_vec)"); \
+	    "(record { e8s = 99_990_000 : nat64 }, \"$$cli_hex\")"); \
 	  echo "  result: $$result"; \
 	  echo "$$result" | grep -q 'Ok' || (echo "FAIL: transfer rejected" && exit 1); \
 	  backend_after=$$(get_balance "$$backend"); \

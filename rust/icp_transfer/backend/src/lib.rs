@@ -26,18 +26,16 @@ async fn transfer_to_principal(
     do_transfer(amount, AccountIdentifier::new(&to_principal, &sub)).await
 }
 
-// Transfer ICP to a recipient identified by a raw AccountIdentifier (32 bytes).
-// Use this when an exchange or external service gives you the destination as an
-// AccountIdentifier blob rather than as a principal.
-//
-// The 32-byte AccountIdentifier format is: 4-byte CRC32 checksum + 28-byte SHA224 hash.
+// Transfer ICP to a recipient identified by an AccountIdentifier hex string.
+// Use this when an exchange or block explorer gives you the destination as a
+// 64-char hex string rather than as a principal. The CRC32 checksum embedded
+// in the hex is validated before the transfer is attempted.
 #[update]
 async fn transfer_to_account_id(
     amount: Tokens,
-    to_account_id: Vec<u8>,
+    to_account_id_hex: String,
 ) -> Result<BlockIndex, String> {
-    let hex: String = to_account_id.iter().map(|b| format!("{:02x}", b)).collect();
-    let account_id = AccountIdentifier::from_hex(&hex)
+    let account_id = AccountIdentifier::from_hex(&to_account_id_hex)
         .map_err(|e| format!("invalid AccountIdentifier: {}", e))?;
     do_transfer(amount, account_id).await
 }
