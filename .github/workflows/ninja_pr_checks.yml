@@ -175,10 +175,13 @@ jobs:
         working-directory: ${{ matrix.example.path }}
         run: |
           dfx start --background
-          dfx deploy
-          if [ -f "Makefile" ]; then
+          if [ -f "test.sh" ]; then
+            echo "test.sh found, running bash test.sh"
+            bash test.sh
+          elif [ -f "Makefile" ]; then
             echo "Makefile found, running make test"
             make test
           else
-            echo "No Makefile found, skipping make test"
+            echo "No test.sh or Makefile found, running dfx deploy"
+            dfx deploy
           fi
