@@ -36,15 +36,9 @@ async fn transfer_to_account_id(
     amount: Tokens,
     to_account_id: Vec<u8>,
 ) -> Result<BlockIndex, String> {
-    if to_account_id.len() != 32 {
-        return Err(format!(
-            "AccountIdentifier must be 32 bytes, got {}",
-            to_account_id.len()
-        ));
-    }
-    // Strip the 4-byte CRC32 prefix to get the 28-byte hash stored in AccountIdentifier.
-    let hash: [u8; 28] = to_account_id[4..].try_into().unwrap();
-    let account_id = AccountIdentifier { hash };
+    let hex: String = to_account_id.iter().map(|b| format!("{:02x}", b)).collect();
+    let account_id = AccountIdentifier::from_hex(&hex)
+        .map_err(|e| format!("invalid AccountIdentifier: {}", e))?;
     do_transfer(amount, account_id).await
 }
 
