@@ -5,6 +5,7 @@ edition = "2021"
 
 [lib]
 crate-type = ["cdylib"]
+path = "lib.rs"
 
 [dependencies]
 alloy-consensus = "0.1.3"

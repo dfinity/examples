@@ -1,7 +1,3 @@
-networks:
-  - name: local
-    mode: managed
-
 canisters:
   - name: backend
     recipe:
@@ -13,3 +9,18 @@ canisters:
         - type: pre-built
           url: https://github.com/dfinity/evm-rpc-canister/releases/download/v2.2.0/evm_rpc.wasm.gz
     init_args: "(record { nodesInSubnet = 28 })"
+
+# EVM_RPC_CANISTER_ID is injected as a canister environment variable at deploy time.
+# Locally, icp-cli injects PUBLIC_CANISTER_ID:evm_rpc automatically after deploying the
+# pre-built canister above. On mainnet, the production environment sets it to the
+# shared EVM RPC canister (7hfb6-caaaa-aaaar-qadga-cai).
+environments:
+  - name: local
+    network: local
+
+  - name: production
+    network: ic
+    settings:
+      backend:
+        environment_variables:
+          EVM_RPC_CANISTER_ID: "7hfb6-caaaa-aaaar-qadga-cai"

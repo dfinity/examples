@@ -17,9 +17,15 @@ use ic_ethereum_types::Address;
 use num::{BigUint, Num};
 use std::str::FromStr;
 
-pub const EVM_RPC_CANISTER_ID: Principal =
-    Principal::from_slice(b"\x00\x00\x00\x00\x02\x30\x00\xCC\x01\x01"); // 7hfb6-caaaa-aaaar-qadga-cai
-pub const EVM_RPC: EvmRpcCanister = EvmRpcCanister(EVM_RPC_CANISTER_ID);
+// The EVM RPC canister ID is configured as a canister environment variable:
+//   local:      PUBLIC_CANISTER_ID:evm_rpc injected by icp-cli after deploying the pre-built canister
+//   production: EVM_RPC_CANISTER_ID = 7hfb6-caaaa-aaaar-qadga-cai (shared mainnet EVM RPC)
+//
+// See icp.yaml for the environment configuration.
+fn evm_rpc_canister() -> EvmRpcCanister {
+    let id = ic_cdk::api::env_var_value("PUBLIC_CANISTER_ID:evm_rpc");
+    EvmRpcCanister(Principal::from_text(&id).expect("invalid EVM_RPC_CANISTER_ID"))
+}
 
 #[init]
 pub fn init(maybe_init: Option<InitArg>) {
@@ -55,7 +61,7 @@ pub async fn get_balance(address: Option<String>) -> Nat {
         EthereumNetwork::Sepolia => RpcService::EthSepolia(EthSepoliaService::PublicNode),
     };
 
-    let (response,) = EVM_RPC
+    let (response,) = evm_rpc_canister()
         .request(rpc_service, json, max_response_size_bytes, num_cycles)
         .await
         .expect("RPC call failed");
@@ -88,7 +94,7 @@ pub async fn transaction_count(owner: Option<Principal>, block: Option<BlockTag>
         address: wallet.ethereum_address().to_string(),
         block: block.unwrap_or(BlockTag::Finalized),
     };
-    let (result,) = EVM_RPC
+    let (result,) = evm_rpc_canister()
         .eth_get_transaction_count(rpc_services, None, args.clone(), 2_000_000_000_u128)
         .await
         .unwrap_or_else(|e| {
@@ -154,7 +160,7 @@ pub async fn send_eth(to: String, amount: Nat) -> String {
     // For demonstration purposes, the canister uses a single provider to send the signed transaction,
     // but in production multiple providers (e.g., using a round-robin strategy) should be used to avoid a single point of failure.
     let single_rpc_service = read_state(|s| s.single_evm_rpc_service());
-    let (result,) = EVM_RPC
+    let (result,) = evm_rpc_canister()
         .eth_send_raw_transaction(
             single_rpc_service,
             None,
