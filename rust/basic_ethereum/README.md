@@ -35,9 +35,9 @@ bash test.sh
 icp network stop
 ```
 
-`bash test.sh` verifies address derivation (threshold ECDSA), queries the canister's Sepolia balance via the raw EVM RPC canister interface, and queries the transaction count via the high-level `evm_rpc_client` — demonstrating both usage patterns.
+`bash test.sh` verifies address derivation (threshold ECDSA), queries a known funded Sepolia address's balance via the raw EVM RPC canister interface, and queries its transaction count (nonce) via the high-level `evm_rpc_client` — demonstrating both usage patterns side by side.
 
-`send_eth` requires a funded canister wallet and is not covered in the automated tests. See [Sending ETH](#sending-eth) below.
+`send_eth` requires a funded Ethereum address and is not covered in the automated tests. See [Sending ETH](#sending-eth) below.
 
 ### Deploy to ICP mainnet
 
@@ -49,7 +49,7 @@ This example defines two mainnet environments in `icp.yaml`:
 | `staging` | Sepolia testnet | `test_key_1` | Testing on ICP mainnet with free Sepolia ETH |
 | `production` | Ethereum mainnet | `key_1` | Production deployments with real ETH |
 
-Both environments deploy only the backend canister and point it to the [shared EVM RPC canister](https://github.com/dfinity/evm-rpc-canister) (`7hfb6-caaaa-aaaar-qadga-cai`) already running on ICP mainnet.
+Both mainnet environments deploy only the backend canister and point it to the [shared EVM RPC canister](https://github.com/dfinity/evm-rpc-canister) (`7hfb6-caaaa-aaaar-qadga-cai`) already running on ICP mainnet.
 
 **Deploy to staging (Sepolia):**
 
