@@ -2,9 +2,9 @@
 
 This example canister shows some advanced behavior between guards and asynchronous code. This example is meant for Rust
 canister developers that are already familiar
-with [asynchronous code](https://internetcomputer.org/docs/references/async-code)
+with [asynchronous code](https://docs.internetcomputer.org/references/async-code)
 and the security best-practices related
-to [inter-canister calls and rollbacks](https://internetcomputer.org/docs/building-apps/security/inter-canister-calls#inter-canister-calls-and-rollbacks).
+to [inter-canister calls and rollbacks](https://docs.internetcomputer.org/building-apps/security/inter-canister-calls#inter-canister-calls-and-rollbacks).
 
 ## Guard to maintain invariants
 
@@ -15,7 +15,7 @@ requests by contacting a ledger canister, where crucially double minting should 
 
 One tricky part in this scenario is that an item can therefore only be marked as processed after the asynchronous code
 has completed, meaning in the callback. As mentioned in the
-[security best-practices](https://internetcomputer.org/docs/building-apps/security/inter-canister-calls#securely-handle-traps-in-callbacks),
+[security best-practices](https://docs.internetcomputer.org/building-apps/security/inter-canister-calls#securely-handle-traps-in-callbacks),
 it's not always feasible to guarantee that the callback will not trap, which in that case would break the invariant due
 to the state being rolled back.
 
