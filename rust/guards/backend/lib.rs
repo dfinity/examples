@@ -162,3 +162,5 @@ mod parallel_guard {
         }
     }
 }
+
+ic_cdk::export_candid!();
