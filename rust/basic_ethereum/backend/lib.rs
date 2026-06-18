@@ -329,3 +329,5 @@ fn nat_to_u256(value: Nat) -> U256 {
     value_u256[32 - value_bytes.len()..].copy_from_slice(&value_bytes);
     U256::from_be_bytes(value_u256)
 }
+
+ic_cdk::export_candid!();
