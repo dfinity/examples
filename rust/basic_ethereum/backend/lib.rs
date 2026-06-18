@@ -11,7 +11,6 @@ use evm_rpc_types::{
     BlockTag, EthMainnetService, EthSepoliaService, GetTransactionCountArgs, Hex20,
     MultiRpcResult, Nat256, RpcService,
 };
-use ic_cdk_management_canister::{EcdsaCurve, EcdsaKeyId};
 use ic_cdk::{init, update};
 use ic_ethereum_types::Address;
 use num::{BigUint, Num};
@@ -257,7 +256,10 @@ fn estimate_transaction_fees() -> (u128, u128, u128) {
 #[derive(CandidType, Deserialize, Debug, Default, PartialEq, Eq)]
 pub struct InitArg {
     pub ethereum_network: Option<EthereumNetwork>,
-    pub ecdsa_key_name: Option<EcdsaKeyName>,
+    /// ECDSA key name as used by the IC management canister: "dfx_test_key" (local dfx),
+    /// "test_key_1" (ICP mainnet testing), or "key_1" (ICP mainnet production).
+    /// Defaults to "test_key_1".
+    pub ecdsa_key_name: Option<String>,
 }
 
 #[derive(CandidType, Deserialize, Debug, Default, PartialEq, Eq, Clone, Copy)]
@@ -272,26 +274,6 @@ impl EthereumNetwork {
         match self {
             EthereumNetwork::Mainnet => 1,
             EthereumNetwork::Sepolia => 11155111,
-        }
-    }
-}
-
-#[derive(CandidType, Deserialize, Debug, Default, PartialEq, Eq, Clone)]
-pub enum EcdsaKeyName {
-    #[default]
-    TestKey1,
-    ProductionKey1,
-}
-
-impl From<&EcdsaKeyName> for EcdsaKeyId {
-    fn from(value: &EcdsaKeyName) -> Self {
-        EcdsaKeyId {
-            curve: EcdsaCurve::Secp256k1,
-            name: match value {
-                EcdsaKeyName::TestKey1 => "test_key_1",
-                EcdsaKeyName::ProductionKey1 => "key_1",
-            }
-            .to_string(),
         }
     }
 }

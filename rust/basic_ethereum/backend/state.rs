@@ -1,7 +1,7 @@
 use crate::ecdsa::EcdsaPublicKey;
-use crate::{EcdsaKeyName, EthereumNetwork, InitArg};
+use crate::{EthereumNetwork, InitArg};
 use evm_rpc_types::{EthMainnetService, EthSepoliaService, RpcServices};
-use ic_cdk_management_canister::EcdsaKeyId;
+use ic_cdk_management_canister::{EcdsaCurve, EcdsaKeyId};
 use std::cell::RefCell;
 use std::ops::{Deref, DerefMut};
 
@@ -24,16 +24,29 @@ where
     STATE.with(|s| f(s.borrow_mut().deref_mut()))
 }
 
-#[derive(Debug, Default, PartialEq, Eq)]
+#[derive(Debug, PartialEq, Eq)]
 pub struct State {
     ethereum_network: EthereumNetwork,
-    ecdsa_key_name: EcdsaKeyName,
+    ecdsa_key_name: String,
     ecdsa_public_key: Option<EcdsaPublicKey>,
+}
+
+impl Default for State {
+    fn default() -> Self {
+        Self {
+            ethereum_network: EthereumNetwork::default(),
+            ecdsa_key_name: "test_key_1".to_string(),
+            ecdsa_public_key: None,
+        }
+    }
 }
 
 impl State {
     pub fn ecdsa_key_id(&self) -> EcdsaKeyId {
-        EcdsaKeyId::from(&self.ecdsa_key_name)
+        EcdsaKeyId {
+            curve: EcdsaCurve::Secp256k1,
+            name: self.ecdsa_key_name.clone(),
+        }
     }
 
     pub fn ethereum_network(&self) -> EthereumNetwork {
@@ -75,8 +88,8 @@ impl From<InitArg> for State {
     fn from(init_arg: InitArg) -> Self {
         State {
             ethereum_network: init_arg.ethereum_network.unwrap_or_default(),
-            ecdsa_key_name: init_arg.ecdsa_key_name.unwrap_or_default(),
-            ..Default::default()
+            ecdsa_key_name: init_arg.ecdsa_key_name.unwrap_or_else(|| "test_key_1".to_string()),
+            ecdsa_public_key: None,
         }
     }
 }

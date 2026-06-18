@@ -17,26 +17,22 @@ canisters:
 environments:
   # Local: deploys both backend and evm_rpc (pre-built).
   # icp-cli auto-injects PUBLIC_CANISTER_ID:evm_rpc into the backend after deploying evm_rpc.
-  # Defaults: Sepolia + test_key_1.
   - name: local
     network: local
 
-  # Staging: backend only on ICP mainnet, Sepolia + test_key_1 (same as local defaults).
-  # Points to the shared EVM RPC canister already running on ICP mainnet.
-  - name: staging
-    network: ic
-    canisters: [backend]
-    settings:
-      backend:
-        environment_variables:
-          "PUBLIC_CANISTER_ID:evm_rpc": "7hfb6-caaaa-aaaar-qadga-cai"
-
-  # Production: backend only on ICP mainnet, Ethereum mainnet + production ECDSA key.
-  - name: production
+  # IC mainnet: deploys only the backend; the shared EVM RPC canister is already running
+  # on ICP mainnet at 7hfb6-caaaa-aaaar-qadga-cai.
+  #
+  # Default configuration uses Sepolia testnet with test_key_1, suitable for development
+  # and testing on ICP mainnet with free Sepolia ETH from a faucet.
+  #
+  # For a production deployment on Ethereum mainnet, change init_args to:
+  #   "(opt record {ethereum_network = opt variant {Mainnet}; ecdsa_key_name = opt \"key_1\"})"
+  - name: ic
     network: ic
     canisters: [backend]
     init_args:
-      backend: "(opt record {ethereum_network = opt variant {Mainnet}; ecdsa_key_name = opt variant {ProductionKey1}})"
+      backend: "(opt record {ethereum_network = opt variant {Sepolia}; ecdsa_key_name = opt \"test_key_1\"})"
     settings:
       backend:
         environment_variables:

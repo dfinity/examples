@@ -41,27 +41,13 @@ icp network stop
 
 ### Deploy to ICP mainnet
 
-This example defines two mainnet environments in `icp.yaml`:
-
-| Environment | Ethereum network | ECDSA key | Use case |
-|-------------|-----------------|-----------|----------|
-| `local` | Sepolia testnet | `test_key_1` | Local development with real HTTPS outcalls |
-| `staging` | Sepolia testnet | `test_key_1` | Testing on ICP mainnet with free Sepolia ETH |
-| `production` | Ethereum mainnet | `key_1` | Production deployments with real ETH |
-
-Both mainnet environments deploy only the backend canister and point it to the [shared EVM RPC canister](https://github.com/dfinity/evm-rpc-canister) (`7hfb6-caaaa-aaaar-qadga-cai`) already running on ICP mainnet.
-
-**Deploy to staging (Sepolia):**
-
 ```bash
-icp deploy -e staging
+icp deploy -e ic
 ```
 
-**Deploy to production (Ethereum mainnet):**
+This deploys only the backend canister and points it to the [shared EVM RPC canister](https://github.com/dfinity/evm-rpc-canister) (`7hfb6-caaaa-aaaar-qadga-cai`) already running on ICP mainnet. The default configuration uses Ethereum Sepolia testnet with `test_key_1` — suitable for testing with free Sepolia ETH from a faucet.
 
-```bash
-icp deploy -e production
-```
+To deploy for production use on Ethereum mainnet, update the `init_args` in `icp.yaml` to use `variant {Mainnet}` and `"key_1"` — see the comment in `icp.yaml` for the exact value.
 
 ## Interacting with the deployed canister
 
