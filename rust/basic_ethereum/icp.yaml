@@ -8,6 +8,10 @@ canisters:
       steps:
         - type: pre-built
           url: https://github.com/dfinity/evm-rpc-canister/releases/download/evm_rpc-v2.8.0/evm_rpc.wasm.gz
+    # nodesInSubnet controls how many cycles the EVM RPC canister charges per request
+    # (each node in a subnet independently makes the HTTPS outcall, so cost scales with N).
+    # Using the production value (28) locally validates that the cycle amounts in the
+    # backend are sufficient for a real subnet, even though PocketIC only runs 1 node.
     init_args: "(record { nodesInSubnet = 28 })"
 
 environments:
