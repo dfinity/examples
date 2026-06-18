@@ -101,6 +101,7 @@ pub async fn lazy_call_ecdsa_public_key() -> EcdsaPublicKey {
         return ecdsa_pk;
     }
     let key_id = read_state(|s| s.ecdsa_key_id());
+    let key_name = key_id.name.clone();
     let response = ecdsa_public_key(&EcdsaPublicKeyArgument {
         canister_id: None,
         derivation_path: vec![],
@@ -109,8 +110,8 @@ pub async fn lazy_call_ecdsa_public_key() -> EcdsaPublicKey {
     .await
     .unwrap_or_else(|e| {
         ic_cdk::trap(&format!(
-            "failed to get canister's public key: {:?}",
-            e,
+            "failed to get ECDSA public key for key '{}': {:?}",
+            key_name, e,
         ))
     });
     let pk = EcdsaPublicKey::from(response);
