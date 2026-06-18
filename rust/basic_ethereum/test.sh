@@ -34,7 +34,7 @@ echo "=== Test 4: get_balance returns non-zero balance for a known funded Sepoli
 KNOWN_ADDRESS="0x378a452B20d1f06008C06c581b1656BdC5313c0C"
 result=$(icp canister call backend get_balance "(opt \"$KNOWN_ADDRESS\")")
 echo "$result"
-balance=$(echo "$result" | grep -oE '[0-9]+' | head -1)
+balance=$(echo "$result" | grep -oE '[0-9][0-9_]*' | head -1 | tr -d '_')
 [ "$balance" -gt 0 ] && echo "PASS" || (echo "FAIL: expected non-zero Sepolia ETH balance for $KNOWN_ADDRESS" && exit 1)
 
 echo "=== Test 5: transaction_count_with_client returns the nonce (outgoing tx count) via EvmRpcClient ==="
@@ -44,5 +44,5 @@ echo "=== Test 5: transaction_count_with_client returns the nonce (outgoing tx c
 # The known address has 2 outgoing transactions on Sepolia (nonce = 2).
 result=$(icp canister call backend transaction_count_with_client "(opt \"$KNOWN_ADDRESS\", null)")
 echo "$result"
-count=$(echo "$result" | grep -oE '[0-9]+' | head -1)
+count=$(echo "$result" | grep -oE '[0-9][0-9_]*' | head -1 | tr -d '_')
 [ "$count" -ge 2 ] && echo "PASS" || (echo "FAIL: expected nonce >= 2 for $KNOWN_ADDRESS, got $count" && exit 1)
