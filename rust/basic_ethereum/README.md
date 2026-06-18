@@ -91,7 +91,7 @@ Query the ETH balance (in Wei) for any Ethereum address:
 icp canister call backend get_balance '(opt "0x378a452B20d1f06008C06c581b1656BdC5313c0C")'
 ```
 
-Query the transaction count (nonce) for any Ethereum address using the high-level `EvmRpcClient`:
+Query the transaction count for any Ethereum address using the high-level `EvmRpcClient`. This calls `eth_getTransactionCount`, which returns the **nonce** — the number of transactions sent *from* the address (outgoing only, not received):
 
 ```bash
 icp canister call backend transaction_count_with_client '(opt "0x378a452B20d1f06008C06c581b1656BdC5313c0C", null)'

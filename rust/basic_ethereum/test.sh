@@ -32,11 +32,12 @@ echo "$result"
 balance=$(echo "$result" | grep -oE '[0-9]+' | head -1)
 [ "$balance" -gt 0 ] && echo "PASS" || (echo "FAIL: expected non-zero Sepolia ETH balance for $KNOWN_ADDRESS" && exit 1)
 
-echo "=== Test 5: transaction_count_with_client returns >= 3 for the known Sepolia address ==="
+echo "=== Test 5: transaction_count_with_client returns the nonce (outgoing tx count) via EvmRpcClient ==="
 # Demonstrates the high-level evm_rpc_client API — same Sepolia HTTPS outcall as Test 4
 # but with automatic cycle management and accepting an Ethereum address directly.
-# The known address has sent at least 3 transactions on Sepolia.
+# eth_getTransactionCount returns the nonce: only outgoing transactions are counted.
+# The known address has 2 outgoing transactions on Sepolia (nonce = 2).
 result=$(icp canister call backend transaction_count_with_client "(opt \"$KNOWN_ADDRESS\", null)")
 echo "$result"
 count=$(echo "$result" | grep -oE '[0-9]+' | head -1)
-[ "$count" -ge 3 ] && echo "PASS" || (echo "FAIL: expected transaction count >= 3 for $KNOWN_ADDRESS, got $count" && exit 1)
+[ "$count" -ge 2 ] && echo "PASS" || (echo "FAIL: expected nonce >= 2 for $KNOWN_ADDRESS, got $count" && exit 1)
