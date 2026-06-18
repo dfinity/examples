@@ -17,14 +17,14 @@ use ic_ethereum_types::Address;
 use num::{BigUint, Num};
 use std::str::FromStr;
 
-// The EVM RPC canister ID is configured as a canister environment variable:
-//   local:      PUBLIC_CANISTER_ID:evm_rpc injected by icp-cli after deploying the pre-built canister
-//   production: EVM_RPC_CANISTER_ID = 7hfb6-caaaa-aaaar-qadga-cai (shared mainnet EVM RPC)
+// The EVM RPC canister ID is injected as PUBLIC_CANISTER_ID:evm_rpc at deploy time:
+//   local:      auto-injected by icp-cli after deploying the pre-built evm_rpc canister
+//   staging/production: set explicitly in icp.yaml to 7hfb6-caaaa-aaaar-qadga-cai (shared mainnet EVM RPC)
 //
 // See icp.yaml for the environment configuration.
 fn evm_rpc_id() -> Principal {
     let id = ic_cdk::api::env_var_value("PUBLIC_CANISTER_ID:evm_rpc");
-    Principal::from_text(&id).expect("invalid EVM_RPC_CANISTER_ID")
+    Principal::from_text(&id).expect("invalid PUBLIC_CANISTER_ID:evm_rpc")
 }
 
 #[init]
