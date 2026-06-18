@@ -12,11 +12,14 @@ alloy-consensus = "0.1.3"
 alloy-eips = "0.1.3"
 alloy-primitives = "0.7.6"
 candid = "0.10"
-evm-rpc-canister-types = "0.1.2"
+evm_rpc_types = "3.1.1"
+evm_rpc_client = "0.4.0"
+ic-canister-runtime = "0.2"
 # transitive dependency: ic-crypto-ecdsa-secp256k1 -> k256 -> ecdsa -> elliptic-curve -> crypto-bigint -> rand_core -> getrandom
 # See https://forum.dfinity.org/t/module-imports-function-wbindgen-describe-from-wbindgen-placeholder-that-is-not-exported-by-the-runtime/11545/8
 getrandom = { version = "*", default-features = false, features = ["custom"] }
-ic-cdk = "0.15"
+ic-cdk = "0.20"
+ic-cdk-management-canister = "0.1.1"
 ic-secp256k1 = { git = "https://github.com/dfinity/ic", tag = "release-2025-07-03_03-27-base", package = "ic-secp256k1" }
 ic-sha3 = { git = "https://github.com/dfinity/ic", tag = "release-2025-07-03_03-27-base", package = "ic-sha3" }
 ic-ethereum-types = { git = "https://github.com/dfinity/ic", tag = "release-2025-07-03_03-27-base", package = "ic-ethereum-types" }

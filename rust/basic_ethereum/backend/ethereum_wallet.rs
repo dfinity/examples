@@ -37,12 +37,12 @@ impl EthereumWallet {
     }
 
     pub async fn sign_with_ecdsa(&self, message_hash: [u8; 32]) -> ([u8; 64], RecoveryId) {
-        use ic_cdk::api::management_canister::ecdsa::SignWithEcdsaArgument;
+        use ic_cdk_management_canister::{sign_with_ecdsa, SignWithEcdsaArgs};
 
         let derivation_path = derivation_path(&self.owner);
         let key_id = read_state(|s| s.ecdsa_key_id());
-        let (result,) =
-            ic_cdk::api::management_canister::ecdsa::sign_with_ecdsa(SignWithEcdsaArgument {
+        let result =
+            sign_with_ecdsa(&SignWithEcdsaArgs {
                 message_hash: message_hash.to_vec(),
                 derivation_path,
                 key_id,

@@ -7,11 +7,11 @@ use crate::state::{init_state, read_state};
 use alloy_consensus::{SignableTransaction, TxEip1559, TxEnvelope};
 use alloy_primitives::{hex, Signature, TxKind, U256};
 use candid::{CandidType, Deserialize, Nat, Principal};
-use evm_rpc_canister_types::{
-    BlockTag, EthMainnetService, EthSepoliaService, EvmRpcCanister, GetTransactionCountArgs,
-    GetTransactionCountResult, MultiGetTransactionCountResult, RequestResult, RpcService,
+use evm_rpc_types::{
+    BlockTag, EthMainnetService, EthSepoliaService, GetTransactionCountArgs, Hex20,
+    MultiRpcResult, Nat256, RpcService,
 };
-use ic_cdk::api::management_canister::ecdsa::{EcdsaCurve, EcdsaKeyId};
+use ic_cdk_management_canister::{EcdsaCurve, EcdsaKeyId};
 use ic_cdk::{init, update};
 use ic_ethereum_types::Address;
 use num::{BigUint, Num};
@@ -22,9 +22,9 @@ use std::str::FromStr;
 //   production: EVM_RPC_CANISTER_ID = 7hfb6-caaaa-aaaar-qadga-cai (shared mainnet EVM RPC)
 //
 // See icp.yaml for the environment configuration.
-fn evm_rpc_canister() -> EvmRpcCanister {
+fn evm_rpc_id() -> Principal {
     let id = ic_cdk::api::env_var_value("PUBLIC_CANISTER_ID:evm_rpc");
-    EvmRpcCanister(Principal::from_text(&id).expect("invalid EVM_RPC_CANISTER_ID"))
+    Principal::from_text(&id).expect("invalid EVM_RPC_CANISTER_ID")
 }
 
 #[init]
@@ -61,13 +61,17 @@ pub async fn get_balance(address: Option<String>) -> Nat {
         EthereumNetwork::Sepolia => RpcService::EthSepolia(EthSepoliaService::PublicNode),
     };
 
-    let (response,) = evm_rpc_canister()
-        .request(rpc_service, json, max_response_size_bytes, num_cycles)
+    use evm_rpc_types::RpcResult;
+    let (response,): (RpcResult<String>,) = ic_cdk::call::Call::bounded_wait(evm_rpc_id(), "request")
+        .with_args(&(rpc_service, json, max_response_size_bytes))
+        .with_cycles(num_cycles)
         .await
-        .expect("RPC call failed");
+        .expect("RPC call failed")
+        .candid_tuple()
+        .expect("failed to decode response");
 
     let hex_balance = match response {
-        RequestResult::Ok(balance_result) => {
+        Ok(balance_result) => {
             // The response to a successful `eth_getBalance` call has the following format:
             // { "id": "[ID]", "jsonrpc": "2.0", "result": "[BALANCE IN HEX]" }
             let response: serde_json::Value = serde_json::from_str(&balance_result).unwrap();
@@ -77,7 +81,7 @@ pub async fn get_balance(address: Option<String>) -> Nat {
                 .unwrap()
                 .to_string()
         }
-        RequestResult::Err(e) => panic!("Received an error response: {:?}", e),
+        Err(e) => panic!("Received an error response: {:?}", e),
     };
 
     // Remove the "0x" prefix before converting to a decimal number.
@@ -90,28 +94,82 @@ pub async fn transaction_count(owner: Option<Principal>, block: Option<BlockTag>
     let owner = owner.unwrap_or(caller);
     let wallet = EthereumWallet::new(owner).await;
     let rpc_services = read_state(|s| s.evm_rpc_services());
+    let address: Hex20 = wallet
+        .ethereum_address()
+        .to_string()
+        .parse()
+        .expect("failed to parse ethereum address");
     let args = GetTransactionCountArgs {
-        address: wallet.ethereum_address().to_string(),
+        address,
         block: block.unwrap_or(BlockTag::Finalized),
     };
-    let (result,) = evm_rpc_canister()
-        .eth_get_transaction_count(rpc_services, None, args.clone(), 2_000_000_000_u128)
-        .await
-        .unwrap_or_else(|e| {
-            panic!(
-                "failed to get transaction count for {:?}, error: {:?}",
-                args, e
-            )
-        });
+    let (result,): (MultiRpcResult<Nat256>,) =
+        ic_cdk::call::Call::bounded_wait(evm_rpc_id(), "eth_getTransactionCount")
+            .with_args(&(rpc_services, Option::<evm_rpc_types::RpcConfig>::None, args.clone()))
+            .with_cycles(2_000_000_000_u128)
+            .await
+            .unwrap_or_else(|e| {
+                panic!(
+                    "failed to get transaction count for {:?}, error: {:?}",
+                    args, e
+                )
+            })
+            .candid_tuple()
+            .expect("failed to decode response");
+
     match result {
-        MultiGetTransactionCountResult::Consistent(consistent_result) => match consistent_result {
-            GetTransactionCountResult::Ok(count) => count,
-            GetTransactionCountResult::Err(error) => {
-                ic_cdk::trap(&format!("failed to get transaction count for {:?}, error: {:?}",args, error))
+        MultiRpcResult::Consistent(consistent_result) => match consistent_result {
+            Ok(count) => Nat(count.as_ref().0.clone()),
+            Err(error) => {
+                ic_cdk::trap(&format!("failed to get transaction count for {:?}, error: {:?}", args, error))
             }
         },
-        MultiGetTransactionCountResult::Inconsistent(inconsistent_results) => {
+        MultiRpcResult::Inconsistent(inconsistent_results) => {
             ic_cdk::trap(&format!("inconsistent results when retrieving transaction count for {:?}. Received results: {:?}", args, inconsistent_results))
+        }
+    }
+}
+
+/// Demonstrates the high-level `EvmRpcClient` pattern: no manual cycle amounts, automatic
+/// consensus across providers, and a cleaner API surface compared to the raw inter-canister
+/// call used in `transaction_count`.
+#[update]
+pub async fn transaction_count_with_client(owner: Option<Principal>, block: Option<BlockTag>) -> Nat {
+    let caller = validate_caller_not_anonymous();
+    let owner = owner.unwrap_or(caller);
+    let wallet = EthereumWallet::new(owner).await;
+    let rpc_services = read_state(|s| s.evm_rpc_services());
+
+    let address: Hex20 = wallet
+        .ethereum_address()
+        .to_string()
+        .parse()
+        .expect("failed to parse ethereum address");
+    let block_tag = block.unwrap_or(BlockTag::Finalized);
+
+    let canister_id = evm_rpc_id();
+    let client = evm_rpc_client::EvmRpcClient::builder(
+        ic_canister_runtime::IcRuntime::new(),
+        canister_id,
+    )
+    .with_rpc_sources(rpc_services)
+    .build();
+
+    let result: MultiRpcResult<Nat256> = client
+        .get_transaction_count((address, block_tag))
+        .send()
+        .await;
+
+    match result {
+        MultiRpcResult::Consistent(Ok(count)) => Nat(count.as_ref().0.clone()),
+        MultiRpcResult::Consistent(Err(error)) => {
+            ic_cdk::trap(&format!("failed to get transaction count, error: {:?}", error))
+        }
+        MultiRpcResult::Inconsistent(inconsistent_results) => {
+            ic_cdk::trap(&format!(
+                "inconsistent results when retrieving transaction count. Received results: {:?}",
+                inconsistent_results
+            ))
         }
     }
 }
@@ -160,20 +218,22 @@ pub async fn send_eth(to: String, amount: Nat) -> String {
     // For demonstration purposes, the canister uses a single provider to send the signed transaction,
     // but in production multiple providers (e.g., using a round-robin strategy) should be used to avoid a single point of failure.
     let single_rpc_service = read_state(|s| s.single_evm_rpc_service());
-    let (result,) = evm_rpc_canister()
-        .eth_send_raw_transaction(
-            single_rpc_service,
-            None,
-            raw_transaction_hex.clone(),
-            2_000_000_000_u128,
-        )
-        .await
-        .unwrap_or_else(|e| {
-            panic!(
-                "failed to send raw transaction {}, error: {:?}",
-                raw_transaction_hex, e
-            )
-        });
+
+    use evm_rpc_types::{MultiRpcResult as SendResult, SendRawTransactionStatus};
+    let (result,): (SendResult<SendRawTransactionStatus>,) =
+        ic_cdk::call::Call::bounded_wait(evm_rpc_id(), "eth_sendRawTransaction")
+            .with_args(&(single_rpc_service, Option::<evm_rpc_types::RpcConfig>::None, raw_transaction_hex.clone()))
+            .with_cycles(2_000_000_000_u128)
+            .await
+            .unwrap_or_else(|e| {
+                panic!(
+                    "failed to send raw transaction {}, error: {:?}",
+                    raw_transaction_hex, e
+                )
+            })
+            .candid_tuple()
+            .expect("failed to decode response");
+
     ic_cdk::println!(
         "Result of sending raw transaction {}: {:?}. \
     Due to the replicated nature of HTTPs outcalls, an error such as transaction already known or nonce too low could be reported, \
@@ -244,7 +304,7 @@ impl From<&EcdsaKeyName> for EcdsaKeyId {
 }
 
 pub fn validate_caller_not_anonymous() -> Principal {
-    let principal = ic_cdk::caller();
+    let principal = ic_cdk::api::msg_caller();
     if principal == Principal::anonymous() {
         panic!("anonymous principal is not allowed");
     }

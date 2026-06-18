@@ -1,7 +1,7 @@
 use crate::ecdsa::EcdsaPublicKey;
 use crate::{EcdsaKeyName, EthereumNetwork, InitArg};
-use evm_rpc_canister_types::{EthMainnetService, EthSepoliaService, RpcServices};
-use ic_cdk::api::management_canister::ecdsa::EcdsaKeyId;
+use evm_rpc_types::{EthMainnetService, EthSepoliaService, RpcServices};
+use ic_cdk_management_canister::EcdsaKeyId;
 use std::cell::RefCell;
 use std::ops::{Deref, DerefMut};
 
@@ -70,22 +70,22 @@ impl From<InitArg> for State {
 }
 
 pub async fn lazy_call_ecdsa_public_key() -> EcdsaPublicKey {
-    use ic_cdk::api::management_canister::ecdsa::{ecdsa_public_key, EcdsaPublicKeyArgument};
+    use ic_cdk_management_canister::{ecdsa_public_key, EcdsaPublicKeyArgs as EcdsaPublicKeyArgument};
 
     if let Some(ecdsa_pk) = read_state(|s| s.ecdsa_public_key.clone()) {
         return ecdsa_pk;
     }
     let key_id = read_state(|s| s.ecdsa_key_id());
-    let (response,) = ecdsa_public_key(EcdsaPublicKeyArgument {
+    let response = ecdsa_public_key(&EcdsaPublicKeyArgument {
         canister_id: None,
         derivation_path: vec![],
         key_id,
     })
     .await
-    .unwrap_or_else(|(error_code, message)| {
+    .unwrap_or_else(|e| {
         ic_cdk::trap(&format!(
-            "failed to get canister's public key: {} (error code = {:?})",
-            message, error_code,
+            "failed to get canister's public key: {:?}",
+            e,
         ))
     });
     let pk = EcdsaPublicKey::from(response);
