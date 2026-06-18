@@ -26,7 +26,7 @@ cd examples/rust/basic_ethereum
 
 ### Deploy and test locally
 
-The local icp-cli network supports real HTTPS outcalls, so `get_balance` and `transaction_count_with_client` work against live Ethereum Sepolia data without deploying to ICP mainnet.
+The local icp-cli network supports real HTTPS outcalls, so `get_balance`, `transaction_count`, and `transaction_count_with_client` work against live Ethereum Sepolia data without deploying to ICP mainnet.
 
 ```bash
 icp network start -d
