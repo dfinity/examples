@@ -180,7 +180,7 @@ environments:
           ICP_LEDGER_CANISTER_ID: "ryjl3-tyaaa-aaaaa-aaaba-cai"
 ```
 
-icp-cli injects these as WASM metadata before `cargo build`. Read them at **runtime** via `ic_cdk::api::env_var_value("ICP_LEDGER_CANISTER_ID")` (Rust) or `Runtime.envVar<system>("ICP_LEDGER_CANISTER_ID")` (Motoko) — not via `env!()` or `std::env::var()`.
+icp-cli applies these as canister settings at deploy time. Read them at **runtime** via `ic_cdk::api::env_var_value("ICP_LEDGER_CANISTER_ID")` (Rust) or `Runtime.envVar<system>("ICP_LEDGER_CANISTER_ID")` (Motoko) — not via `env!()` or `std::env::var()`.
 
 **When to apply this pattern**: judge whether staging/production environments make sense for the specific example. Apply it when the example hardcodes an external canister principal that has a test counterpart (TESTICP, testnet URLs, staging governance canisters, etc.). Skip it for self-contained examples that don't call external canisters.
 
@@ -274,7 +274,7 @@ Always use `ic-cdk = "0.20"` unless a dependency forces a lower version. When us
 
 ### Environment variables in Rust canisters
 
-Use `ic_cdk::api::env_var_value("VAR_NAME")` to read icp-cli-injected variables at **runtime** from WASM metadata. This is the Rust equivalent of `Runtime.envVar<system>` in Motoko:
+Use `ic_cdk::api::env_var_value("VAR_NAME")` to read canister environment variables at **runtime**. These are canister settings applied by icp-cli at deploy time, not WASM metadata. This is the Rust equivalent of `Runtime.envVar<system>` in Motoko:
 
 ```rust
 fn ledger_principal() -> Principal {
