@@ -279,7 +279,6 @@ impl EthereumNetwork {
 #[derive(CandidType, Deserialize, Debug, Default, PartialEq, Eq, Clone)]
 pub enum EcdsaKeyName {
     #[default]
-    TestKeyLocalDevelopment,
     TestKey1,
     ProductionKey1,
 }
@@ -289,7 +288,6 @@ impl From<&EcdsaKeyName> for EcdsaKeyId {
         EcdsaKeyId {
             curve: EcdsaCurve::Secp256k1,
             name: match value {
-                EcdsaKeyName::TestKeyLocalDevelopment => "dfx_test_key",
                 EcdsaKeyName::TestKey1 => "test_key_1",
                 EcdsaKeyName::ProductionKey1 => "key_1",
             }

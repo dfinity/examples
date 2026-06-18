@@ -45,7 +45,8 @@ This example defines two mainnet environments in `icp.yaml`:
 
 | Environment | Ethereum network | ECDSA key | Use case |
 |-------------|-----------------|-----------|----------|
-| `staging`   | Sepolia testnet | `test_key_1` | Development and testing on ICP mainnet with free Sepolia ETH |
+| `local` | Sepolia testnet | `test_key_1` | Local development with real HTTPS outcalls |
+| `staging` | Sepolia testnet | `test_key_1` | Testing on ICP mainnet with free Sepolia ETH |
 | `production` | Ethereum mainnet | `key_1` | Production deployments with real ETH |
 
 Both environments deploy only the backend canister and point it to the [shared EVM RPC canister](https://github.com/dfinity/evm-rpc-canister) (`7hfb6-caaaa-aaaar-qadga-cai`) already running on ICP mainnet.
@@ -151,4 +152,4 @@ EthereumNetwork::Sepolia => RpcServices::EthSepolia(None),
 Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app. For this example the following aspects are particularly relevant:
 
 - [Certify query responses if they are relevant for security](https://docs.internetcomputer.org/guides/security/data-integrity-and-authenticity/#certified-variables): since the app offers a method to read balances.
-- [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://docs.internetcomputer.org/guides/security/canister-control/#use-a-governance-framework-such-as-the-sns-to-control-your-canisters): decentralized control may be essential for canisters holding ETH on behalf of users.
+- [Use a governance framework like SNS to make a canister have a decentralized controller](https://docs.internetcomputer.org/guides/security/canister-control/#use-a-governance-framework-such-as-the-sns-to-control-your-canisters): decentralized control may be essential for canisters holding ETH on behalf of users.
