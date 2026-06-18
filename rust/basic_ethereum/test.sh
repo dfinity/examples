@@ -5,6 +5,11 @@ set -e
 # (get_balance, transaction_count) can be tested locally against Ethereum Sepolia.
 # send_eth requires a funded canister wallet and is not covered here — see README.
 
+# Create a non-anonymous identity for canister calls that reject the anonymous principal.
+# --storage-mode plaintext is required in CI environments without a keyring daemon.
+icp identity new test --storage-mode plaintext 2>/dev/null || true
+icp identity default test
+
 echo "=== Test 1: ethereum_address returns a valid 0x-prefixed Ethereum address ==="
 result=$(icp canister call backend ethereum_address '(null)')
 echo "$result"
