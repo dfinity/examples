@@ -22,12 +22,15 @@ echo "  canister address: $my_address"
 echo "  principal address: $addr2"
 [ "$my_address" != "$addr2" ] && echo "PASS" || (echo "FAIL" && exit 1)
 
-echo "=== Test 4: get_balance makes a real HTTPS outcall to Ethereum Sepolia and returns a valid Nat ==="
-# Uses the canister's own Sepolia address. Balance may be 0 but the call must succeed,
-# proving the EVM RPC canister's HTTPS outcall to PublicNode/Ankr works locally.
-result=$(icp canister call backend get_balance "(opt \"$my_address\")")
+echo "=== Test 4: get_balance returns non-zero balance for a known funded Sepolia address ==="
+# 0x378a452B20d1f06008C06c581b1656BdC5313c0C is an address with known Sepolia ETH.
+# Asserting > 0 proves the HTTPS outcall to the Ethereum RPC provider works and
+# returns real on-chain data.
+KNOWN_ADDRESS="0x378a452B20d1f06008C06c581b1656BdC5313c0C"
+result=$(icp canister call backend get_balance "(opt \"$KNOWN_ADDRESS\")")
 echo "$result"
-echo "$result" | grep -qE '\([0-9]+ : nat\)' && echo "PASS" || (echo "FAIL" && exit 1)
+balance=$(echo "$result" | grep -oE '[0-9]+' | head -1)
+[ "$balance" -gt 0 ] && echo "PASS" || (echo "FAIL: expected non-zero Sepolia ETH balance for $KNOWN_ADDRESS" && exit 1)
 
 echo "=== Test 5: transaction_count_with_client returns a valid Nat via EvmRpcClient ==="
 # Demonstrates the high-level evm_rpc_client API — same HTTPS outcall, no manual cycle management.
