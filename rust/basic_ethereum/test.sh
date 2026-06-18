@@ -7,7 +7,7 @@ set -e
 
 # Create a non-anonymous identity for canister calls that reject the anonymous principal.
 # --storage-mode plaintext is required in CI environments without a keyring daemon.
-icp identity new test --storage-mode plaintext 2>/dev/null || true
+icp identity new test --storage plaintext 2>/dev/null || true
 icp identity default test
 
 echo "=== Test 1: ethereum_address returns a valid 0x-prefixed Ethereum address ==="
