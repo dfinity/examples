@@ -18,7 +18,7 @@ echo "$result" | grep -qE '"0x[0-9a-fA-F]{40}"' && echo "PASS" || (echo "FAIL" &
 
 echo "=== Test 3: different principals derive different Ethereum addresses ==="
 addr2=$(icp canister call backend ethereum_address '(opt principal "hkroy-sm7vs-yyjs7-ekppe-qqnwx-hm4zf-n7ybs-titsi-k6e3k-ucuiu-uqe")' | grep -oE '0x[0-9a-fA-F]{40}')
-echo "  canister address: $my_address"
+echo "  my address: $my_address"
 echo "  principal address: $addr2"
 [ "$my_address" != "$addr2" ] && echo "PASS" || (echo "FAIL" && exit 1)
 

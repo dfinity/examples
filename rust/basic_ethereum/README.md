@@ -66,14 +66,16 @@ icp deploy -e production
 
 ### Get your Ethereum address
 
-An Ethereum address is derived from the caller's IC principal via the canister's threshold ECDSA key. The same principal always maps to the same Ethereum address:
+Each IC principal gets a unique, stable Ethereum address controlled by this canister. The address is derived deterministically from the principal using the canister's threshold ECDSA key — the same principal always maps to the same address.
+
+Passing `null` returns the address for your own IC principal (the identity you are calling with):
 
 ```bash
 icp canister call backend ethereum_address '(null)'
-# Returns e.g. ("0x378a452B20d1f06008C06c581b1656BdC5313c0C")
+# Returns your Ethereum address, e.g. ("0x378a452B20d1f06008C06c581b1656BdC5313c0C")
 ```
 
-To get the Ethereum address for a specific principal:
+You can also look up the address for any other IC principal:
 
 ```bash
 icp canister call backend ethereum_address '(opt principal "hkroy-sm7vs-yyjs7-ekppe-qqnwx-hm4zf-n7ybs-titsi-k6e3k-ucuiu-uqe")'
@@ -94,7 +96,7 @@ Query the transaction count (nonce) for any Ethereum address using the high-leve
 icp canister call backend transaction_count_with_client '(opt "0x378a452B20d1f06008C06c581b1656BdC5313c0C", null)'
 ```
 
-To get the transaction count for the canister's own derived address, pass `null`:
+Passing `null` uses the derived Ethereum address of your calling IC principal:
 
 ```bash
 icp canister call backend transaction_count_with_client '(null, null)'
@@ -102,11 +104,11 @@ icp canister call backend transaction_count_with_client '(null, null)'
 
 ### Sending ETH
 
-To send ETH the canister's wallet must be funded:
+To send ETH, your derived Ethereum address must be funded first:
 
-1. Get your canister's Ethereum address (see above).
+1. Get your Ethereum address (see above) — this is the address managed by the canister for your IC principal.
 2. Get some Sepolia ETH from [Alchemy's Sepolia faucet](https://www.alchemy.com/faucets/ethereum-sepolia).
-3. Send Sepolia ETH to the canister's address using any Ethereum wallet (e.g. MetaMask).
+3. Send Sepolia ETH to your address using any Ethereum wallet (e.g. MetaMask).
 4. Once the transaction has at least one confirmation, verify the balance:
 
 ```bash
@@ -149,4 +151,4 @@ EthereumNetwork::Sepolia => RpcServices::EthSepolia(None),
 Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app. For this example the following aspects are particularly relevant:
 
 - [Certify query responses if they are relevant for security](https://docs.internetcomputer.org/guides/security/data-integrity-and-authenticity/#certified-variables): since the app offers a method to read balances.
-- [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://docs.internetcomputer.org/guides/security/overview): decentralized control may be essential for canisters holding ETH on behalf of users.
+- [Use a decentralized governance system like SNS to make a canister have a decentralized controller](https://docs.internetcomputer.org/guides/security/canister-control/#use-a-governance-framework-such-as-the-sns-to-control-your-canisters): decentralized control may be essential for canisters holding ETH on behalf of users.
