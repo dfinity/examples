@@ -6,7 +6,7 @@ set -e
 # send_eth requires a funded canister wallet and is not covered here — see README.
 
 # Create a non-anonymous identity for canister calls that reject the anonymous principal.
-# --storage-mode plaintext is required in CI environments without a keyring daemon.
+# --storage plaintext is required in CI environments without a keyring daemon.
 icp identity new test --storage plaintext 2>/dev/null || true
 icp identity default test
 
