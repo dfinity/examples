@@ -132,19 +132,14 @@ pub async fn transaction_count(owner: Option<Principal>, block: Option<BlockTag>
 
 /// Demonstrates the high-level `EvmRpcClient` pattern: no manual cycle amounts, automatic
 /// consensus across providers, and a cleaner API surface compared to the raw inter-canister
-/// call used in `transaction_count`.
+/// call used in `transaction_count`. Accepts any Ethereum address directly (like `get_balance`),
+/// rather than deriving an address from an IC principal.
 #[update]
-pub async fn transaction_count_with_client(owner: Option<Principal>, block: Option<BlockTag>) -> Nat {
-    let caller = validate_caller_not_anonymous();
-    let owner = owner.unwrap_or(caller);
-    let wallet = EthereumWallet::new(owner).await;
+pub async fn transaction_count_with_client(address: Option<String>, block: Option<BlockTag>) -> Nat {
+    let address = address.unwrap_or(ethereum_address(None).await);
     let rpc_services = read_state(|s| s.evm_rpc_services());
 
-    let address: Hex20 = wallet
-        .ethereum_address()
-        .to_string()
-        .parse()
-        .expect("failed to parse ethereum address");
+    let address: Hex20 = address.parse().expect("failed to parse ethereum address");
     let block_tag = block.unwrap_or(BlockTag::Finalized);
 
     let canister_id = evm_rpc_id();

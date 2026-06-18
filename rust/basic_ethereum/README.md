@@ -5,10 +5,10 @@ This example demonstrates how to deploy a canister smart contract on the Interne
 ## Architecture
 
 This example internally leverages:
-- [Threshold ECDSA](https://internetcomputer.org/docs/current/developer-docs/smart-contracts/encryption/t-ecdsa): Each user's Ethereum address is derived deterministically from the canister's master ECDSA key using a derivation path based on the user's IC principal. This means each user has a unique, stable Ethereum address controlled by the canister.
-- [HTTPS outcalls](https://internetcomputer.org/docs/current/developer-docs/smart-contracts/advanced-features/https-outcalls/https-outcalls-overview): The canister communicates with the Ethereum network via the [EVM RPC canister](https://github.com/dfinity/evm-rpc-canister) (canister ID `7hfb6-caaaa-aaaar-qadga-cai` on ICP mainnet), which forwards requests to public Ethereum RPC providers such as `https://ethereum-sepolia-rpc.publicnode.com`.
+- [Threshold ECDSA](https://docs.internetcomputer.org/concepts/chain-key-cryptography/#chain-key-signatures-threshold-ecdsa-and-schnorr): Each user's Ethereum address is derived deterministically from the canister's master ECDSA key using a derivation path based on the user's IC principal. This means each user has a unique, stable Ethereum address controlled by the canister.
+- [HTTPS outcalls](https://docs.internetcomputer.org/concepts/https-outcalls): The canister communicates with the Ethereum network via the [EVM RPC canister](https://github.com/dfinity/evm-rpc-canister) (canister ID `7hfb6-caaaa-aaaar-qadga-cai` on ICP mainnet), which forwards requests to public Ethereum RPC providers such as `https://ethereum-sepolia-rpc.publicnode.com`.
 
-For a deeper understanding of the ICP ↔ ETH integration, see the [Ethereum integration overview](https://internetcomputer.org/docs/current/developer-docs/multi-chain/ethereum/overview).
+For a deeper understanding of the ICP ↔ ETH integration, see the [Ethereum integration](https://docs.internetcomputer.org/concepts/chain-fusion/ethereum).
 
 ## Build and deploy from the command line
 
@@ -72,12 +72,24 @@ icp canister call backend ethereum_address '(opt principal "hkroy-sm7vs-yyjs7-ek
 # Returns e.g. ("0x8d68f7B3cdb40A2E77071077658b01A9EA4B040F")
 ```
 
-### Check a balance
+### Check a balance and transaction count
 
 Query the ETH balance (in Wei) for any Ethereum address:
 
 ```bash
 icp canister call backend get_balance '(opt "0x378a452B20d1f06008C06c581b1656BdC5313c0C")'
+```
+
+Query the transaction count (nonce) for any Ethereum address using the high-level `EvmRpcClient`:
+
+```bash
+icp canister call backend transaction_count_with_client '(opt "0x378a452B20d1f06008C06c581b1656BdC5313c0C", null)'
+```
+
+To get the transaction count for the canister's own derived address, pass `null`:
+
+```bash
+icp canister call backend transaction_count_with_client '(null, null)'
 ```
 
 ### Sending ETH
