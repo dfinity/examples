@@ -40,10 +40,22 @@ impl State {
         self.ethereum_network
     }
 
+    // Returns the RPC services to use for multi-provider calls.
+    // Uses PublicNode by default (no API key required) so the example works
+    // out of the box locally and without credentials.
+    //
+    // For production, pass `None` to use all configured providers (including
+    // API-key-based ones like Alchemy/Ankr), or add multiple providers for
+    // better consensus. API keys are configured via the EVM RPC canister's
+    // `authorize` and `updateProvider` endpoints — see README for details.
     pub fn evm_rpc_services(&self) -> RpcServices {
         match self.ethereum_network {
-            EthereumNetwork::Mainnet => RpcServices::EthMainnet(None),
-            EthereumNetwork::Sepolia => RpcServices::EthSepolia(None),
+            EthereumNetwork::Mainnet => {
+                RpcServices::EthMainnet(Some(vec![EthMainnetService::PublicNode]))
+            }
+            EthereumNetwork::Sepolia => {
+                RpcServices::EthSepolia(Some(vec![EthSepoliaService::PublicNode]))
+            }
         }
     }
 
