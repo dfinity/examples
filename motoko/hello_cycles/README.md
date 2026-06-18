@@ -23,7 +23,7 @@ Operations 2 and 3 are two perspectives on the same transaction:
 - Node.js
 - icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 - ic-mops: `npm install -g ic-mops`
-- jq (used in `make test` to read the proxy canister principal)
+- jq (used in `bash test.sh` to read the proxy canister principal)
 
 ### Install
 
@@ -37,7 +37,7 @@ cd examples/motoko/hello_cycles
 ```bash
 icp network start -d
 icp deploy
-make test
+bash test.sh
 icp network stop
 ```
 

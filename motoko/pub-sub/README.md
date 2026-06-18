@@ -26,7 +26,7 @@ The callback (`subscriber.updateCount`) is a **shared function reference** — a
 
 Note: `publish` fires callbacks asynchronously. There is a brief delay before the subscriber state is updated, which is why the tests sleep briefly after publishing.
 
-> `make test` assumes a freshly deployed state. To re-run locally without restarting the network, reinstall the canisters first: `icp deploy --mode reinstall -y && make test`.
+> `bash test.sh` assumes a freshly deployed state. To re-run locally without restarting the network, reinstall the canisters first: `icp deploy --mode reinstall -y && bash test.sh`.
 
 ## Build and deploy from the command line
 
@@ -48,7 +48,7 @@ cd examples/motoko/pub-sub
 ```bash
 icp network start -d
 icp deploy
-make test
+bash test.sh
 icp network stop
 ```
 

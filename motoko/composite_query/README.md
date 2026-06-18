@@ -43,11 +43,11 @@ cd examples/motoko/composite_query
 ```bash
 icp network start -d
 icp deploy --cycles 30t
-make test
+bash test.sh
 icp network stop
 ```
 
-> `icp deploy --cycles 30t` is required because `Map` dynamically creates `Bucket` canisters — it needs extra cycles to fund their installation. If tests fail with an out-of-cycles error, run `make topup`.
+> `icp deploy --cycles 30t` is required because `Map` dynamically creates `Bucket` canisters — it needs extra cycles to fund their installation. If tests fail with an out-of-cycles error, run `icp canister top-up --amount 30t backend`.
 
 ## Security considerations and best practices
 

@@ -24,11 +24,11 @@ cd examples/motoko/superheroes
 ```bash
 icp network start -d
 icp deploy
-make test
+bash test.sh
 icp network stop
 ```
 
-`make test` creates a superhero, exercises all CRUD operations, and deletes it — using the returned ID for all subsequent calls, so tests are idempotent and can be re-run multiple times without redeploying.
+`bash test.sh` creates a superhero, exercises all CRUD operations, and deletes it — using the returned ID for all subsequent calls, so tests are idempotent and can be re-run multiple times without redeploying.
 
 The frontend is served by the asset canister. To run the Vite dev server with hot reload during frontend development:
 

@@ -24,11 +24,11 @@ cd examples/motoko/low_wasm_memory
 ```bash
 icp network start -d
 icp deploy
-make test
+bash test.sh
 icp network stop
 ```
 
-`make test` does two things:
+`bash test.sh` does two things:
 
 1. **Configures the canister settings**: sets `wasm_memory_limit` to 5 MiB and `wasm_memory_threshold` to 2 MiB. This means the `lowmemory` hook fires when remaining Wasm memory falls below 2 MiB (i.e. when usage exceeds 3 MiB). The canister starts with ~2.3 MiB of usage after deployment, so the hook triggers after allocating roughly 0.7 MiB more.
 

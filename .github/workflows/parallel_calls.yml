@@ -15,7 +15,7 @@ concurrency:
 jobs:
   motoko-parallel_calls:
     runs-on: ubuntu-24.04
-    container: ghcr.io/dfinity/icp-dev-env-motoko:0.3.2
+    container: ghcr.io/dfinity/icp-dev-env-motoko:1.0.1
     env:
       ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
@@ -25,15 +25,15 @@ jobs:
         run: |
           icp network start -d
           icp deploy
-          make test
+          bash test.sh
 
   motoko-parallel_calls-multi-subnet:
     runs-on: ubuntu-24.04
-    container: ghcr.io/dfinity/icp-dev-env-all:0.3.2
+    container: ghcr.io/dfinity/icp-dev-env-all:1.0.1
     env:
       ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - name: Run multi-subnet PocketIC test
         working-directory: motoko/parallel_calls
-        run: make test-multi-subnet
+        run: bash test-multi-subnet.sh

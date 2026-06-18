@@ -25,15 +25,15 @@ cd examples/motoko/canister_factory
 ```bash
 icp network start -d
 icp deploy --cycles 30t
-make test
+bash test.sh
 icp network stop
 ```
 
 The `--cycles 30t` flag funds the backend canister with 30 trillion cycles so it can forward cycles when creating child canisters.
 
-`make test` exercises all five functions and verifies the core educational point: after `addToValue(10)` sets a child canister's value to 52, upgrading preserves it at 52 while reinstalling resets it to 42.
+`bash test.sh` exercises all five functions and verifies the core educational point: after `addToValue(10)` sets a child canister's value to 52, upgrading preserves it at 52 while reinstalling resets it to 42.
 
-> If the tests fail with an out-of-cycles error, run `make topup` to add 30 trillion cycles to the backend canister and retry.
+> If the tests fail with an out-of-cycles error, run `icp canister top-up --amount 30t backend` to add 30 trillion cycles to the backend canister and retry.
 
 ## Available functions
 
