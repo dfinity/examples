@@ -39,19 +39,27 @@ icp network stop
 
 `send_eth` requires a funded canister wallet and is not covered in the automated tests. See [Sending ETH](#sending-eth) below.
 
-### Deploy to ICP mainnet (Sepolia testnet)
+### Deploy to ICP mainnet
+
+This example defines two mainnet environments in `icp.yaml`:
+
+| Environment | Ethereum network | ECDSA key | Use case |
+|-------------|-----------------|-----------|----------|
+| `staging`   | Sepolia testnet | `test_key_1` | Development and testing on ICP mainnet with free Sepolia ETH |
+| `production` | Ethereum mainnet | `key_1` | Production deployments with real ETH |
+
+Both environments deploy only the backend canister and point it to the [shared EVM RPC canister](https://github.com/dfinity/evm-rpc-canister) (`7hfb6-caaaa-aaaar-qadga-cai`) already running on ICP mainnet.
+
+**Deploy to staging (Sepolia):**
 
 ```bash
-icp deploy --network ic --argument '(opt record {ethereum_network = opt variant {Sepolia}; ecdsa_key_name = opt variant {TestKey1}})'
+icp deploy -e staging
 ```
 
-- `ethereum_network = opt variant {Sepolia}`: uses [Ethereum Testnet Sepolia](https://github.com/ethereum-lists/chains/blob/master/_data/chains/eip155-11155111.json).
-- `ecdsa_key_name = opt variant {TestKey1}`: uses a test threshold ECDSA key available on ICP mainnet.
-
-For production use with real ETH on Ethereum mainnet:
+**Deploy to production (Ethereum mainnet):**
 
 ```bash
-icp deploy --network ic --argument '(opt record {ethereum_network = opt variant {Mainnet}; ecdsa_key_name = opt variant {ProductionKey1}})'
+icp deploy -e production
 ```
 
 ## Interacting with the deployed canister
