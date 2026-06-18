@@ -19,7 +19,7 @@ Three things are required for stats to appear locally:
 2. **Make 13+ calls per round** — PocketIC simulates a 13-node subnet and uses integer division (`num_calls / 13`); fewer than 13 calls round to zero
 3. **Keep making queries continuously** — `set_epoch_from_height` is only invoked during query execution; queries must keep running across epoch boundaries to flush accumulated stats into the payload pipeline
 
-`make test-stats` makes 13 calls every 3 seconds for up to 30 seconds.
+`bash test-stats.sh` makes 13 calls every 3 seconds for up to 30 seconds.
 
 ## Build and deploy from the command line
 
