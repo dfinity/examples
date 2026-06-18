@@ -48,14 +48,14 @@ cd examples/motoko/icrc2-swap
 
 ```bash
 icp network start -d
-make deploy
+bash deploy.sh
 bash test.sh
 icp network stop
 ```
 
-> **Use `make deploy`, not `icp deploy`.** The ICRC-1 ledger canisters require init args (initial balances, minting account) that include the `icrc2-alice` and `icrc2-bob` principals, which are only available after the identities are created by `make deploy`.
+> **Use `bash deploy.sh`, not `icp deploy`.** The ICRC-1 ledger canisters require init args (initial balances, minting account) that include the `icrc2-alice` and `icrc2-bob` principals, which are only available after the identities are created by `bash deploy.sh`.
 
-`make deploy`:
+`bash deploy.sh`:
 1. Creates two example identities (`icrc2-alice`, `icrc2-bob`) if they don't already exist.
 2. Deploys `token_a` pre-funded for `icrc2-alice` and `token_b` pre-funded for `icrc2-bob`.
 3. Deploys `backend` — no init args needed; it discovers the token principals via injected environment variables.
