@@ -6,7 +6,7 @@ on:
   pull_request:
     paths:
       - rust/receiving-icp/**
-      - .github/workflows/receiving_icp.yml
+      - .github/workflows/receiving-icp.yml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}

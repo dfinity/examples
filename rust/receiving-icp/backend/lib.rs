@@ -1,8 +1,8 @@
 use candid::Principal;
 use ic_ledger_types::{AccountBalanceArgs, AccountIdentifier, Subaccount};
 
-// Read the ledger principal at runtime from the environment variable injected
-// by icp-cli. The value is configured per environment in icp.yaml:
+// Read the ledger principal at runtime from the canister environment variable
+// set by icp-cli at deploy time. The value is configured per environment in icp.yaml:
 //   local / production: ryjl3-tyaaa-aaaaa-aaaba-cai  (ICP ledger)
 //   staging:            xafvr-biaaa-aaaai-aql5q-cai  (TESTICP ledger)
 //
