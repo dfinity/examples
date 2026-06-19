@@ -42,7 +42,7 @@ async fn put(key: u128, value: u128) -> Option<u128> {
         .with_args(&(key, value))
         .await
         .ok()
-        .and_then(|r| r.candid::<(Option<u128>,)>().ok())
+        .and_then(|r| r.candid_tuple::<(Option<u128>,)>().ok())
         .and_then(|(v,)| v)
 }
 
@@ -59,7 +59,7 @@ async fn get(key: u128) -> Option<u128> {
         .with_arg(key)
         .await
         .ok()
-        .and_then(|r| r.candid::<(Option<u128>,)>().ok())
+        .and_then(|r| r.candid_tuple::<(Option<u128>,)>().ok())
         .and_then(|(v,)| v)
 }
 
@@ -76,7 +76,7 @@ async fn get_update(key: u128) -> Option<u128> {
         .with_arg(key)
         .await
         .ok()
-        .and_then(|r| r.candid::<(Option<u128>,)>().ok())
+        .and_then(|r| r.candid_tuple::<(Option<u128>,)>().ok())
         .and_then(|(v,)| v)
 }
 
