@@ -11,10 +11,11 @@ The ICP ledger canister ID is configured via `icp.yaml` and read at runtime as a
 | Environment | Ledger | Canister ID |
 |---|---|---|
 | `local` | ICP ledger (pre-deployed by icp-cli) | `ryjl3-tyaaa-aaaaa-aaaba-cai` |
-| `staging` | TESTICP ledger | `xafvr-biaaa-aaaai-aql5q-cai` |
-| `production` | ICP ledger (mainnet) | `ryjl3-tyaaa-aaaaa-aaaba-cai` |
+| `ic` | TESTICP ledger | `xafvr-biaaa-aaaai-aql5q-cai` |
 
-The local environment uses the same principal as production because icp-cli's local network pre-deploys the ICP ledger at that well-known address. Staging uses the TESTICP ledger so you can test token flows without spending real ICP.
+The local environment uses the same canister ID as the mainnet ICP ledger because icp-cli's local network pre-deploys it at that well-known address. The `ic` environment uses the TESTICP ledger so you can test token flows on ICP mainnet without spending real ICP.
+
+For a production deployment using the real ICP ledger, update `ICP_LEDGER_CANISTER_ID` in `icp.yaml` to `ryjl3-tyaaa-aaaaa-aaaba-cai` — see the comment in `icp.yaml` for the exact change.
 
 ## Build and deploy from the command line
 
@@ -41,15 +42,13 @@ icp network stop
 
 `bash test.sh` runs 7 tests: account identifier format, subaccount uniqueness, funding the main account and a specific subaccount via account ID hex, balance queries, and subaccount independence. Tests are delta-based and idempotent across re-runs.
 
-### Deploy to staging or production
+### Deploy to ICP mainnet
 
 ```bash
-# Staging — targets the TESTICP ledger
-icp deploy --environment staging
-
-# Production — targets the mainnet ICP ledger
-icp deploy --environment production
+icp deploy -e ic
 ```
+
+This targets the TESTICP ledger by default. To use the real ICP ledger, update `ICP_LEDGER_CANISTER_ID` in `icp.yaml` first.
 
 ## Security considerations and best practices
 
