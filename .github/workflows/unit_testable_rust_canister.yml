@@ -20,9 +20,16 @@ jobs:
       ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-      - name: Unit and integration tests
+      - name: Unit tests
         working-directory: rust/unit_testable_rust_canister
         run: cargo test --lib
+      - name: Install PocketIC server
+        uses: dfinity/pocketic@07bfae058ce2aa56994759b563531a7e8d98ba96 # main
+        with:
+          pocket-ic-server-version: "14.0.0"
+      - name: PocketIC integration tests
+        working-directory: rust/unit_testable_rust_canister
+        run: cargo test --test integration_tests
       - name: Deploy and test
         working-directory: rust/unit_testable_rust_canister
         run: |

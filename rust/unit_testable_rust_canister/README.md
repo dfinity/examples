@@ -160,13 +160,36 @@ git clone https://github.com/dfinity/examples
 cd examples/rust/unit_testable_rust_canister
 ```
 
-### Run unit and integration tests
+### Run unit tests
 
 ```bash
 # Fast unit tests (recommended for development)
 cargo test --lib
+```
 
-# All tests including PocketIC integration tests
+### Run PocketIC integration tests
+
+Integration tests use PocketIC and require the [PocketIC server](https://github.com/dfinity/pocketic/releases). Install it first:
+
+```bash
+# macOS
+curl -sL https://github.com/dfinity/pocketic/releases/download/14.0.0/pocket-ic-x86_64-darwin.gz | gunzip > pocket-ic-server
+# Linux
+curl -sL https://github.com/dfinity/pocketic/releases/download/14.0.0/pocket-ic-x86_64-linux.gz | gunzip > pocket-ic-server
+chmod +x pocket-ic-server
+export POCKET_IC_BIN=$(pwd)/pocket-ic-server
+```
+
+Then:
+
+```bash
+# Build WASM first (required by integration tests)
+cargo build --target wasm32-unknown-unknown --release
+
+# Run integration tests
+cargo test --test integration_tests
+
+# Or run everything
 cargo test
 ```
 
