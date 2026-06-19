@@ -10,7 +10,7 @@ result=$(icp canister call --query backend get_day_data '("2000-01-15")') && \
 echo "=== Test 2/6: add_note returns ok result ==="
 result=$(icp canister call backend add_note '("2000-01-15", "Buy groceries")') && \
   echo "$result" && \
-  echo "$result" | grep -q 'ok' && \
+  echo "$result" | grep -q 'Ok' && \
   echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "=== Test 3/6: get_day_data returns stored note ==="

@@ -18,7 +18,7 @@ type OnThisDay = record {
 service : {
     get_day_data : (text) -> (opt DayDataEntry) query;
     get_month_data : (nat, nat) -> (vec record { text; DayDataEntry }) query;
-    add_note : (text, text) -> (variant { ok : text; err : text });
+    add_note : (text, text) -> (variant { Ok : text; Err : text });
     complete_note : (text, nat) -> ();
-    fetch_and_store_on_this_day : (text) -> (variant { ok : text; err : text });
+    fetch_and_store_on_this_day : (text) -> (variant { Ok : text; Err : text });
 };
