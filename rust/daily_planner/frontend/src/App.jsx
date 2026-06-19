@@ -54,7 +54,7 @@ const App = () => {
       const dateString = `${selectedDate.getFullYear()}-${selectedDate.getMonth() + 1}-${selectedDate.getDate()}`;
       const result = await backend.fetch_and_store_on_this_day(dateString);
       console.log(result);
-      renderDayDetail();
+      await renderDayDetail();
     } catch (error) {
       console.error('Error fetching On This Day data:', error);
     }
