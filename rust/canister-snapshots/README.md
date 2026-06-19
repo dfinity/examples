@@ -39,7 +39,7 @@ after a bad deployment or logic error:
 1. **Stop** the canister before snapshotting — snapshots must not be taken of running canisters.
 2. **Create** the snapshot: `icp canister snapshot create backend`
 3. **Start** the canister again for normal operation.
-4. After data loss, **stop** the canister, **load** the snapshot, then **start** it again.
+4. After data loss, **stop** the canister, **restore** the snapshot, then **start** it again.
 
 Canister Snapshots are a powerful tool for developers.
 In the event of accidental data loss, bugs, or configuration errors,
