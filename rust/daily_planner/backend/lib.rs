@@ -1,10 +1,8 @@
 use candid::{CandidType, Decode, Deserialize, Encode, Nat};
-use ic_cdk::{
-    api::canister_self,
-    management_canister::{
-        http_request, HttpMethod, HttpRequestArgs, HttpRequestResult, TransformArgs,
-        TransformContext, TransformFunc,
-    },
+use ic_cdk::api::canister_self;
+use ic_cdk_management_canister::{
+    http_request, HttpMethod, HttpRequestArgs, HttpRequestResult, TransformArgs, TransformContext,
+    TransformFunc,
 };
 use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
 use ic_stable_structures::storable::{Bound, Storable};
