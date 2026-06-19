@@ -3,8 +3,7 @@
 This example canister shows some advanced behavior between guards and asynchronous code. This example is meant for Rust
 canister developers that are already familiar
 with [inter-canister calls](https://docs.internetcomputer.org/guides/canister-calls/inter-canister-calls)
-and the security best-practices related
-to [inter-canister calls and rollbacks](https://docs.internetcomputer.org/building-apps/security/inter-canister-calls#inter-canister-calls-and-rollbacks).
+and the [security best practices](https://docs.internetcomputer.org/guides/security/inter-canister-calls/#inter-canister-calls-and-rollbacks) related to it.
 
 ## Guard to maintain invariants
 
