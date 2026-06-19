@@ -102,7 +102,10 @@ fn lookup(key: u128) -> (u128, String) {
 ic_cdk::export_candid!();
 
 async fn create_partition_canister() {
-    const T: u128 = 1_000_000_000_000;
+    // Divide the available balance equally among all buckets plus the backend itself,
+    // mirroring the Motoko approach: cycleShare = Cycles.balance() / (n + 1).
+    let cycle_share =
+        ic_cdk::api::canister_cycle_balance() / (NUM_PARTITIONS as u128 + 1);
 
     let create_args = CreateCanisterArgs {
         settings: Some(CanisterSettings {
@@ -119,12 +122,12 @@ async fn create_partition_canister() {
         }),
     };
 
-    let result = create_canister_with_extra_cycles(&create_args, 10 * T)
+    let result = create_canister_with_extra_cycles(&create_args, cycle_share)
         .await
         .unwrap();
     let canister_id = result.canister_id;
 
-    ic_cdk::println!("Created callee canister {}", canister_id);
+    ic_cdk::println!("Created bucket canister {}", canister_id);
 
     let install_args = InstallCodeArgs {
         mode: CanisterInstallMode::Install,
