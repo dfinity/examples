@@ -41,7 +41,7 @@ const App = () => {
     const dateString = `${selectedDate.getFullYear()}-${selectedDate.getMonth() + 1}-${selectedDate.getDate()}`;
     try {
       const data = await backend.get_day_data(dateString);
-      setDayDetail(data?.length > 0 ? data[0] : { notes: [], on_this_day: null });
+      setDayDetail(data ?? { notes: [], on_this_day: null });
     } catch (error) {
       console.error('Error rendering day detail:', error);
     }
@@ -147,12 +147,12 @@ const App = () => {
         <h2>{selectedDate.toLocaleDateString()}</h2>
         <div className="on-this-day">
           <h3>On This Day</h3>
-          {on_this_day && on_this_day.length > 0 ? (
+          {on_this_day ? (
             <div>
               <p>
-                {on_this_day[0].title || 'No title'} ({on_this_day[0].year?.toString() || 'No year'})
+                {on_this_day.title || 'No title'} ({on_this_day.year?.toString() || 'No year'})
               </p>
-              <a href={on_this_day[0].wiki_link || '#'} target="_blank" rel="noopener noreferrer">
+              <a href={on_this_day.wiki_link || '#'} target="_blank" rel="noopener noreferrer">
                 Read more
               </a>
             </div>
