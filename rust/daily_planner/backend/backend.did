@@ -1,24 +1,11 @@
-type DayDataEntry = record {
-    notes : vec Note;
-    on_this_day : opt OnThisDay;
-};
-
-type Note = record {
-    id : nat;
-    content : text;
-    is_completed : bool;
-};
-
-type OnThisDay = record {
-    title : text;
-    year : text;
-    wiki_link : text;
-};
-
+type DayDataEntry = record { on_this_day : opt OnThisDay; notes : vec Note };
+type Note = record { id : nat; content : text; is_completed : bool };
+type OnThisDay = record { title : text; year : text; wiki_link : text };
+type Result = variant { Ok : text; Err : text };
 service : {
-    get_day_data : (text) -> (opt DayDataEntry) query;
-    get_month_data : (nat, nat) -> (vec record { text; DayDataEntry }) query;
-    add_note : (text, text) -> (variant { Ok : text; Err : text });
-    complete_note : (text, nat) -> ();
-    fetch_and_store_on_this_day : (text) -> (variant { Ok : text; Err : text });
-};
+  add_note : (text, text) -> (Result);
+  complete_note : (text, nat) -> ();
+  fetch_and_store_on_this_day : (text) -> (Result);
+  get_day_data : (text) -> (opt DayDataEntry) query;
+  get_month_data : (nat, nat) -> (vec record { text; DayDataEntry }) query;
+}
