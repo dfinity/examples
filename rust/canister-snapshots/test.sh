@@ -30,10 +30,11 @@ result=$(icp canister call --query backend dump '()') && \
   echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "=== Test 6: restore snapshot and verify data ==="
-snapshot_id=$(icp canister snapshot list backend | grep -oE '^[0-9a-f]+')
-icp canister stop backend && \
-  icp canister snapshot restore backend "$snapshot_id" && \
-  icp canister start backend
+# Reuse the snapshot_id from test 3; --quiet prints only the snapshot ID.
+[ -z "$snapshot_id" ] && snapshot_id=$(icp canister snapshot list backend --quiet)
+icp canister stop backend
+icp canister snapshot restore backend "$snapshot_id"
+icp canister start backend
 result=$(icp canister call --query backend dump '()') && \
   echo "$result" && \
   echo "$result" | grep -q 'Hi there' && \
