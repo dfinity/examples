@@ -3,11 +3,10 @@ canisters:
     recipe:
       type: "@dfinity/rust@v3.3.0"
 
-# ICP_LEDGER_CANISTER_ID is injected at deploy time by the recipe and baked
-# into the WASM. Deploy with `--environment staging` to target the TESTICP
-# ledger, or omit the flag to use the production ICP ledger (default for
-# both local and production).
+# ICP_LEDGER_CANISTER_ID is injected at deploy time and read at runtime via
+# ic_cdk::api::env_var_value("ICP_LEDGER_CANISTER_ID").
 environments:
+  # Local: icp-cli pre-deploys the ICP ledger at the well-known mainnet address.
   - name: local
     network: local
     settings:
@@ -15,16 +14,14 @@ environments:
         environment_variables:
           ICP_LEDGER_CANISTER_ID: "ryjl3-tyaaa-aaaaa-aaaba-cai"
 
-  - name: staging
+  # IC mainnet: uses the TESTICP ledger by default so you can test token flows
+  # without spending real ICP.
+  #
+  # For a production deployment using the real ICP ledger, change
+  # ICP_LEDGER_CANISTER_ID to "ryjl3-tyaaa-aaaaa-aaaba-cai".
+  - name: ic
     network: ic
     settings:
       backend:
         environment_variables:
           ICP_LEDGER_CANISTER_ID: "xafvr-biaaa-aaaai-aql5q-cai"
-
-  - name: production
-    network: ic
-    settings:
-      backend:
-        environment_variables:
-          ICP_LEDGER_CANISTER_ID: "ryjl3-tyaaa-aaaaa-aaaba-cai"
