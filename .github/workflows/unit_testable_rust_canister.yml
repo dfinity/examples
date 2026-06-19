@@ -27,9 +27,11 @@ jobs:
         uses: dfinity/pocketic@07bfae058ce2aa56994759b563531a7e8d98ba96 # main
         with:
           pocket-ic-server-version: "14.0.0"
-      - name: PocketIC integration tests
+      - name: Build WASM and run PocketIC integration tests
         working-directory: rust/unit_testable_rust_canister
-        run: cargo test --test integration_tests
+        run: |
+          cargo build --package backend --target wasm32-unknown-unknown --release
+          cargo test --test integration_tests
       - name: Deploy and test
         working-directory: rust/unit_testable_rust_canister
         run: |
