@@ -33,7 +33,7 @@ async fn put(key: u128, value: u128) -> Option<u128> {
 
     let canister_id = get_partition_for_key(key);
     ic_cdk::println!(
-        "Put in caller for key={} .. using callee={}",
+        "Put in backend for key={} .. using bucket={}",
         key,
         canister_id.to_text()
     );
@@ -50,7 +50,7 @@ async fn put(key: u128, value: u128) -> Option<u128> {
 async fn get(key: u128) -> Option<u128> {
     let canister_id = get_partition_for_key(key);
     ic_cdk::println!(
-        "Get in caller for key={} .. using callee={}",
+        "Get in backend for key={} .. using bucket={}",
         key,
         canister_id.to_text()
     );
@@ -67,7 +67,7 @@ async fn get(key: u128) -> Option<u128> {
 async fn get_update(key: u128) -> Option<u128> {
     let canister_id = get_partition_for_key(key);
     ic_cdk::println!(
-        "Get as update in caller for key={} .. using callee={}",
+        "Get as update in backend for key={} .. using bucket={}",
         key,
         canister_id.to_text()
     );

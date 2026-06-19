@@ -10,7 +10,7 @@ thread_local! {
 
 #[update]
 fn put(key: u128, value: u128) -> Option<u128> {
-    ic_cdk::println!("Set in callee for key={} with value={}", key, value);
+    ic_cdk::println!("Set in bucket for key={} with value={}", key, value);
     STORE.with(|store| store.borrow_mut().insert(key, value))
 }
 
@@ -18,7 +18,7 @@ fn put(key: u128, value: u128) -> Option<u128> {
 fn get(key: u128) -> Option<u128> {
     STORE.with(|store| {
         let r = store.borrow().get(&key);
-        ic_cdk::println!("Get in callee for key={} - result={:?}", key, r);
+        ic_cdk::println!("Get in bucket for key={} - result={:?}", key, r);
         r
     })
 }
