@@ -13,3 +13,6 @@ ic-cdk = "0.20"
 ic-cdk-management-canister = "0.1.1"
 scopeguard = "1.2.0"
 serde = "1.0"
+
+[dev-dependencies]
+pocket-ic = "14.0.0"

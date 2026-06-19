@@ -20,9 +20,24 @@ jobs:
       ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-      - name: Deploy and test
+      - name: Deploy and test (icp-cli)
         working-directory: rust/guards
         run: |
           icp network start -d
           icp deploy
           bash test.sh
+      - name: Download PocketIC server
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download 14.0.0 \
+            --repo dfinity/pocketic \
+            --pattern 'pocket-ic-x86_64-linux.gz' \
+            --output - | gunzip > /usr/local/bin/pocket-ic-server
+          chmod +x /usr/local/bin/pocket-ic-server
+          echo "POCKET_IC_BIN=/usr/local/bin/pocket-ic-server" >> $GITHUB_ENV
+      - name: Build WASM and run PocketIC tests
+        working-directory: rust/guards
+        run: |
+          cargo build --package backend --target wasm32-unknown-unknown --release
+          cargo test --package backend

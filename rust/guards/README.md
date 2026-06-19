@@ -14,7 +14,7 @@ requests by contacting a ledger canister, where crucially double minting should 
 
 One tricky part in this scenario is that an item can therefore only be marked as processed after the asynchronous code
 has completed, meaning in the callback. As mentioned in the
-[security best-practices](https://docs.internetcomputer.org/building-apps/security/inter-canister-calls#securely-handle-traps-in-callbacks),
+[security best practices](https://docs.internetcomputer.org/guides/security/inter-canister-calls/#securely-handle-traps-in-callbacks),
 it's not always feasible to guarantee that the callback will not trap, which in that case would break the invariant due
 to the state being rolled back.
 
@@ -29,6 +29,7 @@ polled until completion directly, everything will be executed in a single messag
 ### Prerequisites
 - Node.js
 - icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- Rust toolchain with `wasm32-unknown-unknown` target (only for PocketIC tests): [rustup.rs](https://rustup.rs)
 
 ### Install
 
@@ -37,13 +38,37 @@ git clone https://github.com/dfinity/examples
 cd examples/rust/guards
 ```
 
-### Deploy and test
+### Deploy and test with icp-cli
 
 ```bash
 icp network start -d
 icp deploy
 bash test.sh
 icp network stop
+```
+
+`bash test.sh` exercises the guard behavior via `icp canister call` — verifying that `TrueAsyncCall` marks items as processed and `FalseAsyncCall` does not.
+
+### Run PocketIC integration tests
+
+The `backend/tests/` directory contains Rust integration tests using [PocketIC](https://docs.internetcomputer.org/guides/testing/pocket-ic). These cover the same guard/async scenarios as `test.sh` and additionally test **parallel processing prevention** — submitting two concurrent calls for the same item and asserting that one is rejected with "Item already in processing!". This concurrent scenario cannot be reliably expressed in a bash script.
+
+First, install the [PocketIC server](https://github.com/dfinity/pocketic/releases):
+
+```bash
+# macOS
+curl -sL https://github.com/dfinity/pocketic/releases/download/14.0.0/pocket-ic-x86_64-darwin.gz | gunzip > pocket-ic-server
+# Linux
+curl -sL https://github.com/dfinity/pocketic/releases/download/14.0.0/pocket-ic-x86_64-linux.gz | gunzip > pocket-ic-server
+chmod +x pocket-ic-server
+export POCKET_IC_BIN=$(pwd)/pocket-ic-server
+```
+
+Then build the canister WASM and run the tests:
+
+```bash
+cargo build --package backend --target wasm32-unknown-unknown --release
+cargo test --package backend
 ```
 
 ### Manual test walkthrough
