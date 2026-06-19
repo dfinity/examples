@@ -1,7 +1,7 @@
 canisters:
   - name: backend
     recipe:
-      type: "@dfinity/motoko@v5.0.0"
+      type: "@dfinity/rust@v3.3.0"
     settings:
       wasm_memory_limit: 8mib
       wasm_memory_threshold: 2mib
