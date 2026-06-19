@@ -7,8 +7,8 @@ set -e
 assert_context_exceeds_current() {
   local result="$1" label="$2"
   local current context
-  current=$(echo "$result" | grep -oE '[0-9][0-9_]*' | tr -d '_' | sed -n '1p')
-  context=$(echo "$result" | grep -oE '[0-9][0-9_]*' | tr -d '_' | sed -n '2p')
+  current=$(echo "$result" | grep -oE '[0-9][0-9_]* : nat64' | grep -oE '^[0-9][0-9_]*' | tr -d '_' | sed -n '1p')
+  context=$(echo "$result" | grep -oE '[0-9][0-9_]* : nat64' | grep -oE '^[0-9][0-9_]*' | tr -d '_' | sed -n '2p')
   if [ "$context" -gt "$current" ]; then
     echo "PASS (current=$current, call_context=$context)"
   else
