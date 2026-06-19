@@ -1,35 +1,54 @@
-# Query statistics
+# Query Stats
 
-This example shows to work with the query stats feature. It consists of a single canister called `query_stats`. It exports the following candid interface:
+This example demonstrates how a canister can read its own query statistics using the management canister's `canister_status` endpoint. It retrieves metrics such as the total number of query calls, instructions executed, and payload bytes.
 
-```candid
-service : {
-    "get_query_stats" : () -> (text);
-    "load" : () -> (nat64) query;
-};
+## How query stats work
 
+Query stats are **aggregated with a 2-epoch delay**, not updated per call:
+
+- Each epoch is **60 blocks** on local PocketIC (vs 600 on mainnet)
+- Blocks advance every ~100ms with auto-progress enabled
+- Stats for epoch N are only committed once 2/3+ of nodes have submitted records for epoch N+1
+
+Only **query calls** are tracked — calls made without `--query` go through consensus as update calls and are not counted in `query_stats.num_calls_total`.
+
+Two things are required for stats to appear locally:
+
+1. **Use `--query`** — `icp canister call` makes update calls by default; only query calls are tracked in `query_stats`
+2. **Make 13+ calls per round** — PocketIC simulates a 13-node subnet and uses integer division (`num_calls / 13`); fewer than 13 calls round to zero
+
+`bash test-stats.sh` makes 13 calls every 3 seconds for up to 30 seconds.
+
+## Build and deploy from the command line
+
+### Prerequisites
+- Node.js
+- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+
+### Install
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/rust/query_stats
 ```
 
-The `load` function just returns a timestamp. It just exists such that there is a query endpoint to call. The method `get_query_stats` queries the status endpoint and returns the collected query statistics.
+### Deploy and test
 
-## Deploying from ICP Ninja
-
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/query_stats)
-
-## Build and deploy from the command-line
-
-### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
-
-### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
-
-### 3. Navigate into the project's directory.
-
-### 4. Deploy the project to your local environment:
-
+**Fast test** (verifies API shape; stats may show 0 due to aggregation delay):
+```bash
+icp network start -d
+icp deploy
+bash test.sh
+icp network stop
 ```
-dfx start --background --clean && dfx deploy
+
+**Full demonstration** (generates load, polls until non-zero stats appear):
+```bash
+icp network start -d
+icp deploy
+bash test-stats.sh
+icp network stop
 ```
 
 ## Security considerations and best practices
 
-If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
+Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app.
