@@ -133,7 +133,7 @@ backend/
 ## Type Generation
 
 This example includes generated types for external canisters (NNS Governance).
-For automatic type generation from Candid files, see the `candid-type-generation` branch which demonstrates:
+For automatic type generation from Candid files, see the [candid_type_generation](../../rust/candid_type_generation) example which demonstrates:
 
 - Generating Rust types from `.did` files
 - Maintaining type compatibility across canister updates
