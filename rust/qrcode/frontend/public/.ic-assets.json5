@@ -5,13 +5,13 @@
             // Security: The Content Security Policy (CSP) given below aims at working with many apps rather than providing maximal security.
             // We recommend tightening the CSP for your specific application. Some recommendations are as follows:
             // - Use the CSP Evaluator (https://csp-evaluator.withgoogle.com/) to validate the CSP you define.
-            // - Follow the “Strict CSP” recommendations (https://csp.withgoogle.com/docs/strict-csp.html). However, note that in the context of the IC,
+            // - Follow the "Strict CSP" recommendations (https://csp.withgoogle.com/docs/strict-csp.html). However, note that in the context of the IC,
             //   nonces cannot be used because the response bodies must be static to work well with HTTP asset certification.
             //   Thus, we recommend to include script hashes (in combination with strict-dynamic) in the CSP as described
-            //   in https://csp.withgoogle.com/docs/faq.html in section “What if my site is static and I can't add nonces to scripts?”.
+            //   in https://csp.withgoogle.com/docs/faq.html in section "What if my site is static and I can't add nonces to scripts?".
             //   See for example the II CSP (https://github.com/dfinity/internet-identity/blob/main/src/internet_identity/src/http.rs).
             // - It is recommended to tighten the connect-src directive. With the current CSP configuration the browser can
-            //   make requests to https://*.icp0.io, hence being able to call any canister via https://icp0.io/api/v2/canister/{canister-ID}.
+            //   make requests to https://*.icp-api.io, hence being able to call any canister via https://icp-api.io/api/v2/canister/{canister-ID}.
             //   This could potentially be used in combination with another vulnerability (e.g. XSS) to exfiltrate private data.
             //   The developer can configure this policy to only allow requests to their specific canisters,
             //   e.g: connect-src 'self' https://icp-api.io/api/v2/canister/{my-canister-ID}, where {my-canister-ID} has the following format: aaaaa-aaaaa-aaaaa-aaaaa-aaa
@@ -24,7 +24,7 @@
             //   See: https://github.com/WebAssembly/content-security-policy/blob/main/proposals/CSP.md.
             // - We added img-src data: because data: images are used often.
             // - frame-ancestors: none mitigates clickjacking attacks. See https://owasp.org/www-community/attacks/Clickjacking.
-            "Content-Security-Policy": "default-src 'self';script-src 'self' 'unsafe-eval';connect-src 'self' https://icp0.io https://*.icp0.io;img-src 'self' data:;style-src * 'unsafe-inline';style-src-elem * 'unsafe-inline';font-src *;object-src 'none';base-uri 'self';frame-ancestors 'none';form-action 'self';upgrade-insecure-requests;",
+            "Content-Security-Policy": "default-src 'self';script-src 'self' 'unsafe-eval';connect-src 'self' https://icp-api.io https://*.icp-api.io;img-src 'self' data:;style-src * 'unsafe-inline';style-src-elem * 'unsafe-inline';font-src *;object-src 'none';base-uri 'self';frame-ancestors 'none';form-action 'self';upgrade-insecure-requests;",
 
             // Security: The permissions policy disables all features for security reasons. If your site needs such permissions, activate them.
             // To configure permissions go here https://www.permissionspolicy.com/
@@ -38,7 +38,7 @@
             // See: https://owasp.org/www-project-secure-headers/#referrer-policy.
             "Referrer-Policy": "same-origin",
 
-            // Security: Tells the user’s browser that it must always use HTTPS with your site.
+            // Security: Tells the user's browser that it must always use HTTPS with your site.
             // See: https://owasp.org/www-project-secure-headers/#http-strict-transport-security
             "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
 
