@@ -1,7 +1,8 @@
 use candid::{CandidType, Decode, Deserialize, Encode, Nat};
-use ic_cdk::api::management_canister::http_request::{
-    http_request, CanisterHttpRequestArgument, HttpMethod, HttpResponse, TransformArgs,
-    TransformContext,
+use ic_cdk::api::canister_self;
+use ic_cdk_management_canister::{
+    http_request, HttpMethod, HttpRequestArgs, HttpRequestResult, TransformArgs, TransformContext,
+    TransformFunc,
 };
 use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
 use ic_stable_structures::storable::{Bound, Storable};
@@ -75,8 +76,12 @@ fn get_day_data(date: String) -> Option<DayDataEntry> {
 // Query function to get data for a full month.
 #[ic_cdk::query]
 fn get_month_data(year: Nat, month: Nat) -> Vec<(String, DayDataEntry)> {
-    // `Nat`s display with '_' as thousand separators.
-    let month_prefix = format!("{}-{}-", year, month).replace('_', "");
+    // Strip Nat thousand-separator underscores and zero-pad month to 2 digits
+    // to match the ISO date format used as keys (e.g. "2024-01-15").
+    let year_str = format!("{}", year).replace('_', "");
+    let month_raw = format!("{}", month).replace('_', "");
+    let month_str = format!("{:0>2}", month_raw);
+    let month_prefix = format!("{}-{}-", year_str, month_str);
     STATE.with(|s| {
         s.borrow()
             .day_data_entries
@@ -99,7 +104,7 @@ fn add_note(date: String, content: String) -> Result<String, String> {
         };
         day_data.notes.push(new_note);
         state.day_data_entries.insert(date.clone(), day_data);
-        Ok(format!("Added not for date: {date}"))
+        Ok(format!("Added note for date: {date}"))
         // Currently returns no errors, but could be extended to e.g. reject creation of notes in the past.
     })
 }
@@ -153,22 +158,27 @@ async fn fetch_and_store_on_this_day(date: String) -> Result<String, String> {
     // TransformContext is used to specify how the HTTP response is processed before consensus tries to agree on a response.
     // This is useful to e.g. filter out timestamps/sessionIDs out of headers that will be different across the responses the different replicas receive.
     // If the data (including status, headers and body) they receive does not match across the nodes, the canister will reject the response!
-    // You can read more about it here: https://internetcomputer.org/docs/current/developer-docs/smart-contracts/advanced-features/https-outcalls/https-outcalls-how-to-use.
-    let transform_context = TransformContext::from_name("transform".to_string(), vec![]);
-    let request = CanisterHttpRequestArgument {
+    // You can read more about it here: https://docs.internetcomputer.org/guides/backends/https-outcalls.
+    let request = HttpRequestArgs {
         url,
         method: HttpMethod::GET,
         body: None,
         max_response_bytes: None, // Can be set to limit cost. Our response has no predictable size, so we set no limit.
         headers: vec![],
-        transform: Some(transform_context),
+        transform: Some(TransformContext {
+            function: TransformFunc::new(canister_self(), "transform".to_string()),
+            context: vec![],
+        }),
+        // Replicated mode: all subnet nodes make the request independently,
+        // providing strong integrity guarantees via consensus.
+        is_replicated: Some(true),
     };
 
-    // Perform HTTPS outcall using roughly 100B cycles. 
-    // See https outcall cost calculator: https://7joko-hiaaa-aaaal-ajz7a-cai.icp0.io.
+    // Perform HTTPS outcall. Cycles are automatically calculated and attached.
     // Unused cycles are returned.
-    let quote = match http_request(request, 100_000_000_000).await {
-        Ok((response,)) => {
+    // See https outcall cost calculator: https://7joko-hiaaa-aaaal-ajz7a-cai.icp.net.
+    let quote = match http_request(&request).await {
+        Ok(response) => {
             let body_string =
                 String::from_utf8(response.body).expect("Response is not UTF-8 encoded.");
             let Some(otd) = http_response_to_on_this_day(&body_string) else {
@@ -194,17 +204,16 @@ async fn fetch_and_store_on_this_day(date: String) -> Result<String, String> {
 }
 
 // Query function to turn the raw HTTP responses into responses that nodes can run consensus on.
-#[ic_cdk::query]
-fn transform(raw: TransformArgs) -> HttpResponse {
-    HttpResponse {
-        status: raw.response.status,
-        body: raw.response.body,
-        headers: vec![], // We filter out the headers, as they don't match accross nodes.
+#[ic_cdk::query(hidden = true)]
+fn transform(raw: TransformArgs) -> HttpRequestResult {
+    HttpRequestResult {
+        headers: vec![], // We filter out the headers, as they don't match across nodes.
+        ..raw.response
     }
 }
 
 fn http_response_to_on_this_day(http: &str) -> Option<OnThisDay> {
-    let json: serde_json::Value = serde_json::from_str(&http).ok()?;
+    let json: serde_json::Value = serde_json::from_str(http).ok()?;
     let title = json["events"][0]["description"].as_str()?;
     let year = json["events"][0]["year"].as_str()?;
     let wiki_link = json["events"][0]["wikipedia"][0]["wikipedia"].as_str()?;
