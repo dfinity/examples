@@ -76,8 +76,12 @@ fn get_day_data(date: String) -> Option<DayDataEntry> {
 // Query function to get data for a full month.
 #[ic_cdk::query]
 fn get_month_data(year: Nat, month: Nat) -> Vec<(String, DayDataEntry)> {
-    // `Nat`s display with '_' as thousand separators.
-    let month_prefix = format!("{}-{}-", year, month).replace('_', "");
+    // Strip Nat thousand-separator underscores and zero-pad month to 2 digits
+    // to match the ISO date format used as keys (e.g. "2024-01-15").
+    let year_str = format!("{}", year).replace('_', "");
+    let month_raw = format!("{}", month).replace('_', "");
+    let month_str = format!("{:0>2}", month_raw);
+    let month_prefix = format!("{}-{}-", year_str, month_str);
     STATE.with(|s| {
         s.borrow()
             .day_data_entries
