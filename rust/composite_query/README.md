@@ -51,7 +51,7 @@ icp network stop
 
 > `icp deploy --cycles 30t` is required because `backend` dynamically creates `Bucket` canisters — it needs extra cycles to fund their installation. If tests fail with an out-of-cycles error, run `icp canister top-up --amount 30t backend`.
 
-Note that the first call to `put` is slow, since all five `Bucket` partitions are created at that point.
+Note that the first call to `put` is slow, since all five `Bucket` partitions are created at that point. `bash test.sh` can be re-run on the same deployment — tests 2–7 overwrite the same keys with the same values and are idempotent.
 
 ## Security considerations and best practices
 
