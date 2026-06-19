@@ -70,7 +70,7 @@ async fn for_update() -> (u64, u64) {
     let inside_1st: (u64, u64) = Call::unbounded_wait(canister_self(), "nested_update_call")
         .await
         .expect("nested_update_call failed")
-        .candid()
+        .candid_tuple::<(u64, u64)>()
         .expect("Candid decoding failed");
 
     do_some_work();
@@ -79,7 +79,7 @@ async fn for_update() -> (u64, u64) {
     let inside_2nd: (u64, u64) = Call::unbounded_wait(canister_self(), "nested_update_call")
         .await
         .expect("nested_update_call failed")
-        .candid()
+        .candid_tuple::<(u64, u64)>()
         .expect("Candid decoding failed");
 
     do_some_work();
@@ -108,7 +108,7 @@ async fn for_composite_query() -> (u64, u64) {
         Call::unbounded_wait(canister_self(), "nested_composite_query_call")
             .await
             .expect("nested_composite_query_call failed")
-            .candid()
+            .candid_tuple::<(u64, u64)>()
             .expect("Candid decoding failed");
 
     do_some_work();
@@ -118,7 +118,7 @@ async fn for_composite_query() -> (u64, u64) {
         Call::unbounded_wait(canister_self(), "nested_composite_query_call")
             .await
             .expect("nested_composite_query_call failed")
-            .candid()
+            .candid_tuple::<(u64, u64)>()
             .expect("Candid decoding failed");
 
     do_some_work();
@@ -153,3 +153,4 @@ async fn example() -> (u64, u64) {
     do_some_work();
     (performance_counter(0), performance_counter(1))
 }
+ic_cdk::export_candid!();
