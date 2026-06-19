@@ -89,7 +89,7 @@ impl FutureType {
     pub async fn call(&self) {
         match self {
             FutureType::TrueAsyncCall => {
-                let _ = ic_cdk::api::management_canister::main::raw_rand().await;
+                let _ = ic_cdk_management_canister::raw_rand().await;
             }
             FutureType::FalseAsyncCall => {
                 //NOP
@@ -162,3 +162,5 @@ mod parallel_guard {
         }
     }
 }
+
+ic_cdk::export_candid!();
