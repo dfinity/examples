@@ -75,3 +75,5 @@ fn post_upgrade() {
     CHAT.set(chat);
     LENGTH.with_borrow_mut(|len| *len = length);
 }
+
+ic_cdk::export_candid!();
