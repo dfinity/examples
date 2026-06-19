@@ -1,8 +1,8 @@
 canisters:
-  # Only caller is deployed. callee is built as a dependency of caller:
-  # caller embeds the callee WASM at compile time via include_bytes!, so callee
-  # must be compiled first. The build steps below make this explicit.
-  - name: caller
+  # Only backend (Map) is deployed. bucket (Bucket) is a compile-time dependency:
+  # backend embeds the bucket WASM via include_bytes! and installs bucket canister
+  # instances programmatically at runtime on the first put() call.
+  - name: backend
     build:
       steps:
         - type: script
@@ -11,9 +11,9 @@ canisters:
             - command -v candid-extractor >/dev/null 2>&1 || { echo >&2 'candid-extractor not found. Run `cargo install candid-extractor` to install it.'; exit 1; }
         - type: script
           commands:
-            - cargo build --package callee --target wasm32-unknown-unknown --release
-            - cargo build --package caller --target wasm32-unknown-unknown --release
-            - TARGET_DIR=$(cargo metadata --format-version 1 --no-deps | sed -n 's/.*"target_directory":"\([^"]*\)".*/\1/p'); cp "${TARGET_DIR}/wasm32-unknown-unknown/release/caller.wasm" "$ICP_WASM_OUTPUT_PATH"
+            - cargo build --package bucket --target wasm32-unknown-unknown --release
+            - cargo build --package backend --target wasm32-unknown-unknown --release
+            - cp "target/wasm32-unknown-unknown/release/backend.wasm" "$ICP_WASM_OUTPUT_PATH"
         - type: script
           commands:
             - ic-wasm "$ICP_WASM_OUTPUT_PATH" -o "${ICP_WASM_OUTPUT_PATH}" metadata "cargo:version" -d "$(cargo --version)" --keep-name-section

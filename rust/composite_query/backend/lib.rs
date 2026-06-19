@@ -12,9 +12,10 @@ use std::sync::RwLock;
 
 const NUM_PARTITIONS: usize = 5;
 
-// Inline wasm binary of the callee canister
+// Bucket WASM compiled separately and embedded at compile time via include_bytes!;
+// the backend installs it into new canister instances at runtime on first put().
 pub const WASM: &[u8] =
-    include_bytes!("../../target/wasm32-unknown-unknown/release/callee.wasm");
+    include_bytes!("../target/wasm32-unknown-unknown/release/bucket.wasm");
 
 thread_local! {
     // A list of canister IDs for data partitions
@@ -105,7 +106,7 @@ async fn create_partition_canister() {
 
     let create_args = CreateCanisterArgs {
         settings: Some(CanisterSettings {
-            controllers: Some(vec![ic_cdk::canister_self()]),
+            controllers: Some(vec![ic_cdk::api::canister_self()]),
             compute_allocation: None,
             memory_allocation: None,
             freezing_threshold: None,
