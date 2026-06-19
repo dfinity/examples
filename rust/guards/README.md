@@ -47,7 +47,7 @@ bash test.sh
 icp network stop
 ```
 
-`bash test.sh` exercises the guard behavior via `icp canister call` — verifying that `TrueAsyncCall` marks items as processed and `FalseAsyncCall` does not.
+`bash test.sh` exercises the guard behavior via `icp canister call` — verifying that `TrueAsyncCall` marks items as processed and `FalseAsyncCall` does not, and asserting the exact trap message in each case.
 
 ### Run PocketIC integration tests
 
