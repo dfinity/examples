@@ -10,9 +10,9 @@ assert_context_exceeds_current() {
   current=$(echo "$result" | grep -oE '[0-9][0-9_]* : nat64' | grep -oE '^[0-9][0-9_]*' | tr -d '_' | sed -n '1p')
   context=$(echo "$result" | grep -oE '[0-9][0-9_]* : nat64' | grep -oE '^[0-9][0-9_]*' | tr -d '_' | sed -n '2p')
   if [ "$context" -gt "$current" ]; then
-    echo "PASS (current=$current, call_context=$context)"
+    echo "PASS [$label] current=$current, call_context=$context"
   else
-    echo "FAIL: expected call context counter ($context) > current counter ($current)"
+    echo "FAIL [$label]: expected call context counter ($context) > current counter ($current)"
     exit 1
   fi
 }
