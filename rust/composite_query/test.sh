@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-echo "=== Test 1: put inserts a key-value pair (also creates callee partitions) ==="
+echo "=== Test 1: put inserts a key-value pair (also creates Bucket partitions) ==="
 result=$(icp canister call backend put '(1 : nat, 1337 : nat)') && \
   echo "$result" && \
   echo "PASS" || (echo "FAIL" && exit 1)
