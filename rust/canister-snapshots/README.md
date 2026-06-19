@@ -28,6 +28,14 @@ icp network stop
 
 `bash test.sh` automates the full snapshot lifecycle documented below.
 
+## How it works
+
+The backend canister maintains a `CHAT` vector and a `LENGTH` counter in heap memory.
+Canister snapshots capture the full state of a stopped canister — WASM module, WASM memory,
+stable memory, and chunk store — and can restore it after a bad deployment or logic error.
+
+Key constraint: **the canister must be stopped** before taking or restoring a snapshot.
+
 ## Step-by-step walkthrough
 
 ### Step 1: Populate the database
@@ -95,14 +103,6 @@ Example output:
 ```
 
 The canister state has been successfully restored.
-
-## How it works
-
-The backend canister maintains a `CHAT` vector and a `LENGTH` counter in heap memory.
-Canister snapshots capture the full state of a stopped canister — WASM module, WASM memory,
-stable memory, and chunk store — and can restore it after a bad deployment or logic error.
-
-Key constraint: **the canister must be stopped** before taking or restoring a snapshot.
 
 ## Security considerations and best practices
 
