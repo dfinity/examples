@@ -25,3 +25,5 @@ async fn get_query_stats() -> String {
 fn load() -> u64 {
     ic_cdk::api::time()
 }
+
+ic_cdk::export_candid!();
