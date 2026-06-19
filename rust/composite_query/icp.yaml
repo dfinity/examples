@@ -8,7 +8,6 @@ canisters:
         - type: script
           commands:
             - command -v ic-wasm >/dev/null 2>&1 || { echo >&2 'ic-wasm not found. Run `npm install -g @icp-sdk/ic-wasm` to install it.'; exit 1; }
-            - command -v candid-extractor >/dev/null 2>&1 || { echo >&2 'candid-extractor not found. Run `cargo install candid-extractor` to install it.'; exit 1; }
         - type: script
           commands:
             - cargo build --package bucket --target wasm32-unknown-unknown --release
@@ -18,4 +17,3 @@ canisters:
           commands:
             - ic-wasm "$ICP_WASM_OUTPUT_PATH" -o "${ICP_WASM_OUTPUT_PATH}" metadata "cargo:version" -d "$(cargo --version)" --keep-name-section
             - ic-wasm "$ICP_WASM_OUTPUT_PATH" -o "${ICP_WASM_OUTPUT_PATH}" metadata "template:type" -d "rust" --keep-name-section
-            - did="$(mktemp)"; candid-extractor "$ICP_WASM_OUTPUT_PATH" >"$did" && ic-wasm "$ICP_WASM_OUTPUT_PATH" -o "${ICP_WASM_OUTPUT_PATH}" metadata "candid:service" -f "$did" -v public --keep-name-section
