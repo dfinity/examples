@@ -17,6 +17,8 @@ Two things are required for stats to appear locally:
 1. **Use `--query`** — `icp canister call` makes update calls by default; only query calls are tracked in `query_stats`
 2. **Make 13+ calls per round** — PocketIC simulates a 13-node subnet and uses integer division (`num_calls / 13`); fewer than 13 calls round to zero
 
+`bash test-stats.sh` makes 13 calls every 3 seconds for up to 30 seconds.
+
 ## Build and deploy from the command line
 
 ### Prerequisites
@@ -31,6 +33,7 @@ cd examples/rust/query_stats
 
 ### Deploy and test
 
+**Fast test** (verifies API shape; stats may show 0 due to aggregation delay):
 ```bash
 icp network start -d
 icp deploy
@@ -38,7 +41,13 @@ bash test.sh
 icp network stop
 ```
 
-`bash test.sh` verifies the API shape: `load()` returns a non-zero timestamp, and `get_query_stats()` returns a string containing all four stat fields.
+**Full demonstration** (generates load, polls until non-zero stats appear):
+```bash
+icp network start -d
+icp deploy
+bash test-stats.sh
+icp network stop
+```
 
 ## Security considerations and best practices
 
