@@ -11,7 +11,7 @@
             //   in https://csp.withgoogle.com/docs/faq.html in section "What if my site is static and I can't add nonces to scripts?".
             //   See for example the II CSP (https://github.com/dfinity/internet-identity/blob/main/src/internet_identity/src/http.rs).
             // - It is recommended to tighten the connect-src directive. With the current CSP configuration the browser can
-            //   make requests to https://*.icp.net, hence being able to call any canister via https://icp.net/api/v2/canister/{canister-ID}.
+            //   make requests to https://*.icp-api.io, hence being able to call any canister via https://icp-api.io/api/v2/canister/{canister-ID}.
             //   This could potentially be used in combination with another vulnerability (e.g. XSS) to exfiltrate private data.
             //   The developer can configure this policy to only allow requests to their specific canisters,
             //   e.g: connect-src 'self' https://icp-api.io/api/v2/canister/{my-canister-ID}, where {my-canister-ID} has the following format: aaaaa-aaaaa-aaaaa-aaaaa-aaa
@@ -24,7 +24,7 @@
             //   See: https://github.com/WebAssembly/content-security-policy/blob/main/proposals/CSP.md.
             // - We added img-src data: because data: images are used often.
             // - frame-ancestors: none mitigates clickjacking attacks. See https://owasp.org/www-community/attacks/Clickjacking.
-            "Content-Security-Policy": "default-src 'self';script-src 'self' 'unsafe-eval';connect-src 'self' https://icp.net https://*.icp.net;img-src 'self' data:;style-src * 'unsafe-inline';style-src-elem * 'unsafe-inline';font-src *;object-src 'none';base-uri 'self';frame-ancestors 'none';form-action 'self';upgrade-insecure-requests;",
+            "Content-Security-Policy": "default-src 'self';script-src 'self' 'unsafe-eval';connect-src 'self' https://icp-api.io https://*.icp-api.io;img-src 'self' data:;style-src * 'unsafe-inline';style-src-elem * 'unsafe-inline';font-src *;object-src 'none';base-uri 'self';frame-ancestors 'none';form-action 'self';upgrade-insecure-requests;",
 
             // Security: The permissions policy disables all features for security reasons. If your site needs such permissions, activate them.
             // To configure permissions go here https://www.permissionspolicy.com/
@@ -50,7 +50,7 @@
             // See: https://owasp.org/www-community/attacks/xss/
             "X-XSS-Protection": "1; mode=block"
         },
-        // redirect all requests from .raw.icp.net to .icp.net
+        // redirect all requests from .raw.icp0.io to .icp0.io (this redirection is the default)
         "allow_raw_access": false
     },
 ]
