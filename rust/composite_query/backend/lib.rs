@@ -31,7 +31,12 @@ async fn put(key: u128, value: u128) -> Option<u128> {
         }
     }
 
-    let canister_id = get_partition_for_key(key);
+    // If initialization is still in progress (another concurrent put interleaved),
+    // the bucket for this key may not exist yet — return None rather than trap.
+    let canister_id = match get_partition_for_key(key) {
+        Some(id) => id,
+        None => return None,
+    };
     ic_cdk::println!(
         "Put in backend for key={} .. using bucket={}",
         key,
@@ -48,7 +53,10 @@ async fn put(key: u128, value: u128) -> Option<u128> {
 
 #[query(composite = true)]
 async fn get(key: u128) -> Option<u128> {
-    let canister_id = get_partition_for_key(key);
+    let canister_id = match get_partition_for_key(key) {
+        Some(id) => id,
+        None => return None,
+    };
     ic_cdk::println!(
         "Get in backend for key={} .. using bucket={}",
         key,
@@ -65,7 +73,10 @@ async fn get(key: u128) -> Option<u128> {
 
 #[update]
 async fn get_update(key: u128) -> Option<u128> {
-    let canister_id = get_partition_for_key(key);
+    let canister_id = match get_partition_for_key(key) {
+        Some(id) => id,
+        None => return None,
+    };
     ic_cdk::println!(
         "Get as update in backend for key={} .. using bucket={}",
         key,
@@ -80,23 +91,25 @@ async fn get_update(key: u128) -> Option<u128> {
         .and_then(|(v,)| v)
 }
 
-fn get_partition_for_key(key: u128) -> Principal {
+fn get_partition_for_key(key: u128) -> Option<Principal> {
+    let idx = (key % NUM_PARTITIONS as u128) as usize;
     CANISTER_IDS.with(|canister_ids| {
-        let canister_ids = canister_ids.read().unwrap();
-        canister_ids[lookup(key).0 as usize]
+        canister_ids.read().unwrap().get(idx).copied()
     })
 }
 
 #[query(composite = true)]
 fn lookup(key: u128) -> (u128, String) {
     let r = key % NUM_PARTITIONS as u128;
-    (
-        r,
-        CANISTER_IDS.with(|canister_ids| {
-            let canister_ids = canister_ids.read().unwrap();
-            canister_ids[r as usize].to_text()
-        }),
-    )
+    let canister_text = CANISTER_IDS.with(|canister_ids| {
+        canister_ids
+            .read()
+            .unwrap()
+            .get(r as usize)
+            .map(|id| id.to_text())
+            .unwrap_or_default()
+    });
+    (r, canister_text)
 }
 
 ic_cdk::export_candid!();
