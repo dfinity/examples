@@ -27,7 +27,7 @@ jobs:
         run: |
           icp network start -d
           icp deploy
-          make test
+          bash test.sh
 
   rust-daily_planner:
     runs-on: ubuntu-24.04
