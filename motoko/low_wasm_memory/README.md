@@ -28,11 +28,11 @@ bash test.sh
 icp network stop
 ```
 
-`bash test.sh` does two things:
+`icp.yaml` sets `wasm_memory_limit` to 8 MiB and `wasm_memory_threshold` to 2 MiB. The `lowmemory` hook fires when usage exceeds 8 − 2 = 6 MiB. The canister starts at ~2.3 MiB after deployment, so the hook triggers after allocating roughly 3.7 MiB more via heartbeat.
 
-1. **Configures the canister settings** after deployment: sets `wasm_memory_limit` to 5 MiB and `wasm_memory_threshold` to 2 MiB. The settings are applied post-deployment because the Motoko runtime temporarily peaks above 5 MiB during canister installation; once deployed, memory settles to ~2.3 MiB. The `lowmemory` hook then fires when usage exceeds 3 MiB (limit − threshold).
+> **Note:** The Motoko example uses a higher limit (8 MiB) than the Rust example (5 MiB) because the Motoko runtime — including the garbage collector and heap — temporarily peaks at ~5.3 MiB during canister installation. The Rust runtime starts at ~1.5 MiB, so 5 MiB is sufficient there.
 
-2. **Polls `getExecutedFunctionsOrder`** until `onLowWasmMemory` appears as the last entry (or times out after 60 s).
+`bash test.sh` polls `getExecutedFunctionsOrder` until `onLowWasmMemory` appears as the last entry (or times out after 60 s).
 
 To observe the execution order manually:
 
