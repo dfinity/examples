@@ -1,12 +1,11 @@
 [package]
-edition = "2021"
-name = "chat"
+name = "backend"
 version = "0.1.0"
+edition = "2021"
 
 [lib]
 crate-type = ["cdylib"]
 
 [dependencies]
 candid = "0.10"
-ic-cdk = "0.16"
-ic-cdk-macros = "0.16.0"
+ic-cdk = "0.20"
