@@ -1,9 +1,0 @@
-service : {
-    "naive_f32" : () -> (nat64) query;
-    "optimized_f32" : () -> (nat64) query;
-    "auto_vectorized_f32" : () -> (nat64) query;
-    "simd_f32" : () -> (nat64) query;
-    "naive_u32" : () -> (nat64) query;
-    "optimized_u32" : () -> (nat64) query;
-    "auto_vectorized_u32" : () -> (nat64) query;
-};

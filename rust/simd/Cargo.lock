@@ -236,12 +236,11 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ae743338b92ff9146ce83992f766a31066a91a8c84a45e0e9f21e7cf6de6d346"
 
 [[package]]
-name = "mat_mat_mul"
-version = "1.0.0"
+name = "backend"
+version = "0.1.0"
 dependencies = [
  "candid",
  "ic-cdk",
- "ic-cdk-macros",
 ]
 
 [[package]]

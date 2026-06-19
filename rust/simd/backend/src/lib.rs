@@ -52,7 +52,7 @@ fn fmt(n: u64) -> String {
 /// Returns the number of instructions used for a loop performing
 /// 1K element-wise multiplications of matrices `A` and `B`
 /// using naive algorithm.
-#[ic_cdk_macros::query]
+#[ic_cdk::query]
 fn naive_f32() -> u64 {
     let a = mats::Matrix::<f32, 4, K>::new();
     let b = mats::Matrix::<f32, K, 4>::new();
@@ -74,7 +74,7 @@ fn naive_f32() -> u64 {
 /// Returns the number of instructions used for a loop performing
 /// 1K element-wise multiplications of `K x 4` packed slices
 /// from matrices `A` and `B` using optimized algorithm.
-#[ic_cdk_macros::query]
+#[ic_cdk::query]
 fn optimized_f32() -> u64 {
     let a = mats::Matrix::<f32, 4, K>::new();
     let b = mats::Matrix::<f32, K, 4>::new();
@@ -109,7 +109,7 @@ fn optimized_f32() -> u64 {
 ///
 /// The following line enables auto-vectorization using WebAssembly SIMD instructions.
 #[target_feature(enable = "simd128")]
-#[ic_cdk_macros::query]
+#[ic_cdk::query]
 fn auto_vectorized_f32() -> u64 {
     let a = mats::Matrix::<f32, 4, K>::new();
     let b = mats::Matrix::<f32, K, 4>::new();
@@ -144,7 +144,7 @@ fn auto_vectorized_f32() -> u64 {
 ///
 /// The following line enables WebAssembly SIMD instructions.
 #[target_feature(enable = "simd128")]
-#[ic_cdk_macros::query]
+#[ic_cdk::query]
 fn simd_f32() -> u64 {
     let a = mats::Matrix::<f32, 4, K>::new();
     let b = mats::Matrix::<f32, K, 4>::new();
@@ -179,7 +179,7 @@ fn simd_f32() -> u64 {
 /// Returns the number of instructions used for a loop performing
 /// 1K element-wise multiplications of matrices `A` and `B`
 /// using naive algorithm.
-#[ic_cdk_macros::query]
+#[ic_cdk::query]
 fn naive_u32() -> u64 {
     let a = mats::Matrix::<u32, 4, K>::new();
     let b = mats::Matrix::<u32, K, 4>::new();
@@ -201,7 +201,7 @@ fn naive_u32() -> u64 {
 /// Returns the number of instructions used for a loop performing
 /// 1K element-wise multiplications of `K x 4` packed slices
 /// from matrices `A` and `B` using optimized algorithm.
-#[ic_cdk_macros::query]
+#[ic_cdk::query]
 fn optimized_u32() -> u64 {
     let a = mats::Matrix::<u32, 4, K>::new();
     let b = mats::Matrix::<u32, K, 4>::new();
@@ -236,7 +236,7 @@ fn optimized_u32() -> u64 {
 ///
 /// The following line enables auto-vectorization using WebAssembly SIMD instructions.
 #[target_feature(enable = "simd128")]
-#[ic_cdk_macros::query]
+#[ic_cdk::query]
 fn auto_vectorized_u32() -> u64 {
     let a = mats::Matrix::<u32, 4, K>::new();
     let b = mats::Matrix::<u32, K, 4>::new();
@@ -264,3 +264,5 @@ fn auto_vectorized_u32() -> u64 {
     );
     instructions
 }
+
+ic_cdk::export_candid!();
