@@ -4,6 +4,7 @@ set -e
 echo "=== Test 1: put inserts a key-value pair (also creates Bucket partitions) ==="
 result=$(icp canister call backend put '(1 : nat, 1337 : nat)') && \
   echo "$result" && \
+  echo "$result" | grep -q 'null' && \
   echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "=== Test 2: put a second value for the same key returns the old value ==="
@@ -45,8 +46,9 @@ icp canister call backend put '(2 : nat, 100 : nat)' && \
   echo "$result4" | grep -q 'opt (300' && \
   echo "PASS" || (echo "FAIL" && exit 1)
 
-echo "=== Test 7: lookup (query) returns the partition index and canister ID ==="
+echo "=== Test 7: lookup (query) returns the partition index and a non-empty canister ID ==="
 result=$(icp canister call --query backend lookup '(1 : nat)') && \
   echo "$result" && \
   echo "$result" | grep -q '1 :' && \
+  echo "$result" | grep -qE '[a-z0-9]{5}-[a-z0-9]{5}' && \
   echo "PASS" || (echo "FAIL" && exit 1)

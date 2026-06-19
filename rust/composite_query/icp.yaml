@@ -7,7 +7,7 @@ canisters:
       steps:
         - type: script
           commands:
-            - command -v ic-wasm >/dev/null 2>&1 || { echo >&2 'ic-wasm not found. To install ic-wasm, see https://github.com/dfinity/ic-wasm'; exit 1; }
+            - command -v ic-wasm >/dev/null 2>&1 || { echo >&2 'ic-wasm not found. Run `npm install -g @icp-sdk/ic-wasm` to install it.'; exit 1; }
             - command -v candid-extractor >/dev/null 2>&1 || { echo >&2 'candid-extractor not found. Run `cargo install candid-extractor` to install it.'; exit 1; }
         - type: script
           commands:

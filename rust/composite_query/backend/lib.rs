@@ -26,8 +26,12 @@ thread_local! {
 async fn put(key: u128, value: u128) -> Option<u128> {
     // Create partitions if they don't exist yet
     if CANISTER_IDS.with(|canister_ids| canister_ids.read().unwrap().is_empty()) {
+        // Compute the share once so every bucket receives the same amount,
+        // mirroring the Motoko approach: cycleShare = Cycles.balance() / (n + 1).
+        let cycle_share =
+            ic_cdk::api::canister_cycle_balance() / (NUM_PARTITIONS as u128 + 1);
         for _ in 0..NUM_PARTITIONS {
-            create_partition_canister().await;
+            create_partition_canister(cycle_share).await;
         }
     }
 
@@ -114,11 +118,7 @@ fn lookup(key: u128) -> (u128, String) {
 
 ic_cdk::export_candid!();
 
-async fn create_partition_canister() {
-    // Divide the available balance equally among all buckets plus the backend itself,
-    // mirroring the Motoko approach: cycleShare = Cycles.balance() / (n + 1).
-    let cycle_share =
-        ic_cdk::api::canister_cycle_balance() / (NUM_PARTITIONS as u128 + 1);
+async fn create_partition_canister(cycle_share: u128) {
 
     let create_args = CreateCanisterArgs {
         settings: Some(CanisterSettings {
