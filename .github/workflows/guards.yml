@@ -26,14 +26,10 @@ jobs:
           icp network start -d
           icp deploy
           bash test.sh
-      - name: Download PocketIC server
-        run: |
-          curl -sL \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
-            https://github.com/dfinity/pocketic/releases/download/14.0.0/pocket-ic-x86_64-linux.gz \
-            | gunzip > /usr/local/bin/pocket-ic-server
-          chmod +x /usr/local/bin/pocket-ic-server
-          echo "POCKET_IC_BIN=/usr/local/bin/pocket-ic-server" >> $GITHUB_ENV
+      - name: Install PocketIC server
+        uses: dfinity/pocketic@07bfae058ce2aa56994759b563531a7e8d98ba96 # main
+        with:
+          pocket-ic-server-version: "14.0.0"
       - name: Build WASM and run PocketIC tests
         working-directory: rust/guards
         run: |
