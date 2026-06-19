@@ -24,7 +24,7 @@ backend (Map)
 
 `backend.put(k, v)` dynamically installs a `Bucket` canister if one does not exist for `k % 5`, then stores the entry there. `backend.get(k)` and `backend.get_update(k)` both route to the same bucket via `k % 5`.
 
-The `Bucket` WASM is embedded directly into the `backend` WASM binary at compile time via `include_bytes!`. Only the `backend` canister is deployed — it installs `Bucket` canisters programmatically on the first `put` call.
+The `Bucket` WASM is embedded directly into the `backend` WASM binary at compile time via `include_bytes!`. Only the `backend` canister is deployed — it installs `Bucket` canisters programmatically on the first `put` call. The backend divides its available cycle balance equally among the buckets and itself, mirroring the Motoko approach.
 
 ## Build and deploy from the command line
 
