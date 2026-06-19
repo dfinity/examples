@@ -10,6 +10,7 @@ For more information, see the [low Wasm memory hook specification](https://docs.
 
 ### Prerequisites
 
+- Node.js
 - icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
 ### Install
@@ -28,11 +29,9 @@ bash test.sh
 icp network stop
 ```
 
-`bash test.sh` does two things:
+`icp.yaml` sets `wasm_memory_limit` to 5 MiB and `wasm_memory_threshold` to 2 MiB, so the `on_low_wasm_memory` hook fires when remaining Wasm memory falls below 2 MiB (i.e. when usage exceeds 3 MiB). The canister starts with ~1.5 MiB of memory usage after deployment, so the hook triggers after allocating roughly 1.5 MiB more.
 
-1. **Configures the canister settings**: sets `wasm_memory_limit` to 5 MiB and `wasm_memory_threshold` to 2 MiB. This means the `on_low_wasm_memory` hook fires when remaining Wasm memory falls below 2 MiB (i.e. when usage exceeds 3 MiB). The canister starts with ~1.5 MiB of memory usage after deployment, so the hook triggers after allocating roughly 1.5 MiB more.
-
-2. **Polls `get_executed_functions_order`** until `OnLowWasmMemory` appears as the last entry (or times out after 60 s).
+`bash test.sh` polls `get_executed_functions_order` until `OnLowWasmMemory` appears as the last entry (or times out after 60 s).
 
 To observe the execution order manually:
 
