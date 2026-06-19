@@ -158,7 +158,7 @@ async fn fetch_and_store_on_this_day(date: String) -> Result<String, String> {
     // TransformContext is used to specify how the HTTP response is processed before consensus tries to agree on a response.
     // This is useful to e.g. filter out timestamps/sessionIDs out of headers that will be different across the responses the different replicas receive.
     // If the data (including status, headers and body) they receive does not match across the nodes, the canister will reject the response!
-    // You can read more about it here: https://internetcomputer.org/docs/current/developer-docs/smart-contracts/advanced-features/https-outcalls/https-outcalls-how-to-use.
+    // You can read more about it here: https://docs.internetcomputer.org/guides/backends/https-outcalls.
     let request = HttpRequestArgs {
         url,
         method: HttpMethod::GET,
@@ -176,7 +176,7 @@ async fn fetch_and_store_on_this_day(date: String) -> Result<String, String> {
 
     // Perform HTTPS outcall. Cycles are automatically calculated and attached.
     // Unused cycles are returned.
-    // See https outcall cost calculator: https://7joko-hiaaa-aaaal-ajz7a-cai.icp0.io.
+    // See https outcall cost calculator: https://7joko-hiaaa-aaaal-ajz7a-cai.icp.net.
     let quote = match http_request(&request).await {
         Ok(response) => {
             let body_string =
