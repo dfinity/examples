@@ -1,8 +1,6 @@
 //! An example of performance counters usage.
-//!
-//! dfx deploy && dfx canister call performance_counters get
 
-// The following performance counters supported:
+// The following performance counters are supported:
 //
 // - 0 : current execution instruction counter.
 //       The number of WebAssembly instructions the canister has executed
@@ -21,11 +19,9 @@
 //         (ignoring WebAssembly instructions executed within any further downstream calls
 //         of `composite_query_helper`).
 //
-// In the future, the IC might expose more performance counters.
-use ic_cdk::{
-    api::{call_context_instruction_counter, instruction_counter, performance_counter},
-    call, id,
-};
+// In the future, ICP might expose more performance counters.
+use ic_cdk::api::{call_context_instruction_counter, canister_self, instruction_counter, performance_counter};
+use ic_cdk::call::Call;
 
 /// Pretty print the `title` and a corresponding `tuple` with counters.
 fn pretty_print<N: std::fmt::Display, T: std::fmt::Display>(title: N, counters: (T, T)) {
@@ -46,41 +42,45 @@ fn counters() -> (u64, u64) {
 }
 
 /// Emulate a nested inter-canister update call.
-#[ic_cdk_macros::update]
+#[ic_cdk::update]
 fn nested_update_call() -> (u64, u64) {
     counters()
 }
 
 /// Emulate a nested inter-canister composite query call.
-#[ic_cdk_macros::query(composite = true)]
+#[ic_cdk::query(composite = true)]
 fn nested_composite_query_call() -> (u64, u64) {
     counters()
 }
 
-/// Emulate a nested inter-canister update call.
-#[ic_cdk_macros::query]
+/// Emulate a nested inter-canister query call.
+#[ic_cdk::query]
 fn nested_call() {}
 
 ////////////////////////////////////////////////////////////////////////
 // Canister interface
 ////////////////////////////////////////////////////////////////////////
 
-/// Example usage: `dfx deploy && dfx canister call performance_counters for_update`
-#[ic_cdk_macros::update]
+/// Example usage: `icp canister call backend for_update`
+#[ic_cdk::update]
 async fn for_update() -> (u64, u64) {
     do_some_work();
     let before = counters();
 
-    let inside_1st: (u64, u64) = ic_cdk::call(ic_cdk::id(), "nested_update_call", ())
+    let inside_1st: (u64, u64) = Call::unbounded_wait(canister_self(), "nested_update_call")
         .await
-        .unwrap();
+        .expect("nested_update_call failed")
+        .candid_tuple::<(u64, u64)>()
+        .expect("Candid decoding failed");
 
     do_some_work();
     let after_1st = counters();
 
-    let inside_2nd: (u64, u64) = ic_cdk::call(ic_cdk::id(), "nested_update_call", ())
+    let inside_2nd: (u64, u64) = Call::unbounded_wait(canister_self(), "nested_update_call")
         .await
-        .unwrap();
+        .expect("nested_update_call failed")
+        .candid_tuple::<(u64, u64)>()
+        .expect("Candid decoding failed");
 
     do_some_work();
     let after_2nd = counters();
@@ -98,22 +98,28 @@ async fn for_update() -> (u64, u64) {
     after_2nd
 }
 
-/// Example usage: `dfx deploy && dfx canister call performance_counters for_composite_query`
-#[ic_cdk_macros::query(composite = true)]
+/// Example usage: `icp canister call --query backend for_composite_query`
+#[ic_cdk::query(composite = true)]
 async fn for_composite_query() -> (u64, u64) {
     do_some_work();
     let before = counters();
 
-    let inside_1st: (u64, u64) = ic_cdk::call(ic_cdk::id(), "nested_composite_query_call", ())
-        .await
-        .unwrap();
+    let inside_1st: (u64, u64) =
+        Call::unbounded_wait(canister_self(), "nested_composite_query_call")
+            .await
+            .expect("nested_composite_query_call failed")
+            .candid_tuple::<(u64, u64)>()
+            .expect("Candid decoding failed");
 
     do_some_work();
     let after_1st = counters();
 
-    let inside_2nd: (u64, u64) = ic_cdk::call(ic_cdk::id(), "nested_composite_query_call", ())
-        .await
-        .unwrap();
+    let inside_2nd: (u64, u64) =
+        Call::unbounded_wait(canister_self(), "nested_composite_query_call")
+            .await
+            .expect("nested_composite_query_call failed")
+            .candid_tuple::<(u64, u64)>()
+            .expect("Candid decoding failed");
 
     do_some_work();
     let after_2nd = counters();
@@ -131,15 +137,20 @@ async fn for_composite_query() -> (u64, u64) {
     after_2nd
 }
 
-/// Example usage: `dfx deploy && dfx canister call performance_counters example`
-#[ic_cdk_macros::query(composite = true)]
+/// Example usage: `icp canister call --query backend example`
+#[ic_cdk::query(composite = true)]
 async fn example() -> (u64, u64) {
     do_some_work();
-    call::<(), ()>(id(), "nested_call", ()).await.unwrap();
+    Call::unbounded_wait(canister_self(), "nested_call")
+        .await
+        .expect("nested_call failed");
 
     do_some_work();
-    call::<(), ()>(id(), "nested_call", ()).await.unwrap();
+    Call::unbounded_wait(canister_self(), "nested_call")
+        .await
+        .expect("nested_call failed");
 
     do_some_work();
     (performance_counter(0), performance_counter(1))
 }
+ic_cdk::export_candid!();
