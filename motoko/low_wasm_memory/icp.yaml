@@ -3,10 +3,5 @@ canisters:
     recipe:
       type: "@dfinity/motoko@v5.0.0"
     settings:
-      # The Motoko runtime (GC, heap) requires more initial memory than Rust,
-      # so a higher wasm_memory_limit is needed here compared to the Rust example.
-      # Peak Wasm memory during canister installation is ~5.3 MiB; setting the
-      # limit to 8 MiB ensures the canister can be installed while still
-      # triggering the lowmemory hook as the canister allocates more data.
       wasm_memory_limit: 8mib
       wasm_memory_threshold: 2mib

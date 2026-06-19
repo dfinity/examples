@@ -3,5 +3,5 @@ canisters:
     recipe:
       type: "@dfinity/rust@v3.3.0"
     settings:
-      wasm_memory_limit: 5mib
+      wasm_memory_limit: 8mib
       wasm_memory_threshold: 2mib

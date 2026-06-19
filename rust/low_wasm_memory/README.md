@@ -29,7 +29,7 @@ bash test.sh
 icp network stop
 ```
 
-`icp.yaml` sets `wasm_memory_limit` to 5 MiB and `wasm_memory_threshold` to 2 MiB. The `on_low_wasm_memory` hook fires when usage exceeds 5 − 2 = 3 MiB. The canister starts at ~1.5 MiB after deployment, so the hook triggers after allocating roughly 1.5 MiB more.
+`icp.yaml` sets `wasm_memory_limit` to 8 MiB and `wasm_memory_threshold` to 2 MiB. The `on_low_wasm_memory` hook fires when usage exceeds 8 − 2 = 6 MiB.
 
 `bash test.sh` polls `get_executed_functions_order` until `OnLowWasmMemory` appears as the last entry (or times out after 60 s).
 
