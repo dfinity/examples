@@ -1,10 +1,17 @@
 #!/usr/bin/env bash
 set -e
 
-# Memory limits are configured in icp.yaml (wasm_memory_limit: 5mib, wasm_memory_threshold: 2mib).
-# The onLowWasmMemory hook fires when usage exceeds 5 - 2 = 3 MiB.
-# The canister starts with ~2.3 MiB after deployment and allocates 10 000
-# elements per heartbeat, so the hook triggers after roughly 0.7 MiB more.
+# Configure memory limits after deployment — set post-deployment because the
+# Motoko runtime temporarily peaks above 5 MiB during canister installation.
+# Once deployed, memory settles to ~2.3 MiB and the limit can be applied safely.
+# - wasm_memory_limit: 5 MiB total Wasm memory
+# - wasm_memory_threshold: 2 MiB remaining before hook fires
+# The lowmemory hook fires when usage exceeds 5 - 2 = 3 MiB.
+echo "=== Configuring canister memory limits ==="
+icp canister settings update backend \
+  --wasm-memory-limit 5mib \
+  --wasm-memory-threshold 2mib \
+  -f
 
 echo "=== Polling for onLowWasmMemory hook (up to 60s) ==="
 secs=0
