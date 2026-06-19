@@ -264,3 +264,5 @@ fn auto_vectorized_u32() -> u64 {
     );
     instructions
 }
+
+ic_cdk::export_candid!();
