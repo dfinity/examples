@@ -18,7 +18,7 @@ pub const WASM: &[u8] =
     include_bytes!("../target/wasm32-unknown-unknown/release/bucket.wasm");
 
 thread_local! {
-    // A list of canister IDs for data partitions
+    // A list of canister IDs for the Bucket canisters
     static CANISTER_IDS: Arc<RwLock<Vec<Principal>>> = Arc::new(RwLock::new(vec![]));
 }
 
@@ -102,7 +102,7 @@ fn get_partition_for_key(key: u128) -> Option<Principal> {
     })
 }
 
-#[query(composite = true)]
+#[query]
 fn lookup(key: u128) -> (u128, String) {
     let r = key % NUM_PARTITIONS as u128;
     let canister_text = CANISTER_IDS.with(|canister_ids| {
