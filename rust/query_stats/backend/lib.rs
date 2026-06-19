@@ -4,7 +4,7 @@ use ic_cdk_management_canister::{CanisterIdRecord, canister_status};
 // Returns the current query stats as a string as received from the canister itself via the canister status.
 async fn get_query_stats() -> String {
     let query_stats = canister_status(&CanisterIdRecord {
-        canister_id: ic_cdk::id(),
+        canister_id: ic_cdk::api::canister_self(),
     })
     .await
     .expect("canister_status failed")
