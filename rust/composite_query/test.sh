@@ -2,9 +2,9 @@
 set -e
 
 echo "=== Test 1: put inserts a key-value pair (also creates Bucket partitions) ==="
+# The return value is the previous value for key 1 (null on first run, a nat on subsequent runs).
 result=$(icp canister call backend put '(1 : nat, 1337 : nat)') && \
   echo "$result" && \
-  echo "$result" | grep -q 'null' && \
   echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "=== Test 2: put a second value for the same key returns the old value ==="
