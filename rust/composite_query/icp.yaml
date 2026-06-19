@@ -1,15 +1,21 @@
-networks:
-  - name: local
-    mode: managed
-
 canisters:
+  # Only caller is deployed. callee is built as a dependency of caller:
+  # caller embeds the callee WASM at compile time via include_bytes!, so callee
+  # must be compiled first. The build steps below make this explicit.
   - name: caller
-    recipe:
-      type: "@dfinity/rust@v3.3.0"
-      configuration:
-        package: caller
-  - name: callee
-    recipe:
-      type: "@dfinity/rust@v3.3.0"
-      configuration:
-        package: callee
+    build:
+      steps:
+        - type: script
+          commands:
+            - command -v ic-wasm >/dev/null 2>&1 || { echo >&2 'ic-wasm not found. To install ic-wasm, see https://github.com/dfinity/ic-wasm'; exit 1; }
+            - command -v candid-extractor >/dev/null 2>&1 || { echo >&2 'candid-extractor not found. Run `cargo install candid-extractor` to install it.'; exit 1; }
+        - type: script
+          commands:
+            - cargo build --package callee --target wasm32-unknown-unknown --release
+            - cargo build --package caller --target wasm32-unknown-unknown --release
+            - TARGET_DIR=$(cargo metadata --format-version 1 --no-deps | sed -n 's/.*"target_directory":"\([^"]*\)".*/\1/p'); cp "${TARGET_DIR}/wasm32-unknown-unknown/release/caller.wasm" "$ICP_WASM_OUTPUT_PATH"
+        - type: script
+          commands:
+            - ic-wasm "$ICP_WASM_OUTPUT_PATH" -o "${ICP_WASM_OUTPUT_PATH}" metadata "cargo:version" -d "$(cargo --version)" --keep-name-section
+            - ic-wasm "$ICP_WASM_OUTPUT_PATH" -o "${ICP_WASM_OUTPUT_PATH}" metadata "template:type" -d "rust" --keep-name-section
+            - did="$(mktemp)"; candid-extractor "$ICP_WASM_OUTPUT_PATH" >"$did" && ic-wasm "$ICP_WASM_OUTPUT_PATH" -o "${ICP_WASM_OUTPUT_PATH}" metadata "candid:service" -f "$did" -v public --keep-name-section

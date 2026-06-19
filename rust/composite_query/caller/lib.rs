@@ -98,6 +98,8 @@ fn lookup(key: u128) -> (u128, String) {
     )
 }
 
+ic_cdk::export_candid!();
+
 async fn create_partition_canister() {
     const T: u128 = 1_000_000_000_000;
 

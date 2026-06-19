@@ -22,3 +22,5 @@ fn get(key: u128) -> Option<u128> {
         r
     })
 }
+
+ic_cdk::export_candid!();

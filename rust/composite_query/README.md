@@ -30,6 +30,7 @@ The `callee` WASM is embedded directly into the `caller` WASM binary at compile 
 
 ### Prerequisites
 
+- Node.js
 - icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
 ### Install
@@ -48,7 +49,7 @@ bash test.sh
 icp network stop
 ```
 
-> `icp deploy --cycles 30t` is required because `caller` dynamically creates `callee` canisters — it needs extra cycles to fund their installation. If tests fail with an out-of-cycles error, run `make topup`.
+> `icp deploy --cycles 30t` is required because `caller` dynamically creates `callee` canisters — it needs extra cycles to fund their installation. If tests fail with an out-of-cycles error, run `icp canister top-up --amount 30t caller`.
 
 Note that the first call to `put` is slow, since all five callee partitions are created at that point.
 
