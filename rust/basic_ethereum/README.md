@@ -116,22 +116,7 @@ Returns the transaction hash. Track it on [Sepolia Etherscan](https://sepolia.et
 
 The example uses [PublicNode](https://ethereum-sepolia-rpc.publicnode.com) by default — a free, no-registration provider that works out of the box locally and on mainnet. This is sufficient for getting started and automated testing.
 
-For production deployments, the EVM RPC canister supports premium providers (Alchemy, Ankr, BlockPi) that offer higher rate limits and reliability when configured with API keys. To enable them locally:
-
-1. Register as a provider admin on the locally deployed EVM RPC canister:
-```bash
-icp canister call evm_rpc authorize '(record { auth = variant { RegisterProvider }; principal = principal "YOUR_PRINCIPAL" })'
-```
-
-2. Update the desired provider with your API key:
-```bash
-icp canister call evm_rpc updateProvider '(record { providerId = 6; apiKey = opt "YOUR_ALCHEMY_API_KEY" })'
-```
-
-3. In `backend/state.rs`, change `evm_rpc_services()` to use `None` to include all configured providers (better consensus across multiple providers):
-```rust
-EthereumNetwork::Sepolia => RpcServices::EthSepolia(None),
-```
+For production deployments requiring premium providers (Alchemy, Ankr, BlockPi), refer to the [EVM RPC canister documentation](https://github.com/dfinity/evm-rpc-canister) for how to configure API keys. Once configured, change `evm_rpc_services()` in `backend/state.rs` to pass `None` instead of an explicit provider list to use all configured providers for better consensus.
 
 ## Security considerations and best practices
 
