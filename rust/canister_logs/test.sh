@@ -23,42 +23,42 @@ icp canister call --query backend print_query '("print via non-replicated query"
   echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "=== Test 4: trap via update call is recorded in logs ==="
-icp canister call backend trap '("trap via update")' 2>/dev/null; \
+icp canister call backend trap '("trap via update")' 2>/dev/null || true; \
   result=$(icp canister logs backend) && \
   echo "$result" && \
   echo "$result" | grep -q 'trap via update' && \
   echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "=== Test 5: trap via replicated query call is recorded in logs ==="
-icp canister call backend trap_query '("trap via replicated query")' 2>/dev/null; \
+icp canister call backend trap_query '("trap via replicated query")' 2>/dev/null || true; \
   result=$(icp canister logs backend) && \
   echo "$result" && \
   echo "$result" | grep -q 'trap via replicated query' && \
   echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "=== Test 6: trap via non-replicated query should NOT be recorded in logs ==="
-icp canister call --query backend trap_query '("trap via non-replicated query")' 2>/dev/null; \
+icp canister call --query backend trap_query '("trap via non-replicated query")' 2>/dev/null || true; \
   result=$(icp canister logs backend) && \
   echo "$result" && \
   ! echo "$result" | grep -q 'trap via non-replicated query' && \
   echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "=== Test 7: panic via update call is recorded in logs ==="
-icp canister call backend panic '("panic via update")' 2>/dev/null; \
+icp canister call backend panic '("panic via update")' 2>/dev/null || true; \
   result=$(icp canister logs backend) && \
   echo "$result" && \
   echo "$result" | grep -q 'panic via update' && \
   echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "=== Test 8: memory out of bounds call is recorded in logs ==="
-icp canister call backend memory_oob '()' 2>/dev/null; \
+icp canister call backend memory_oob '()' 2>/dev/null || true; \
   result=$(icp canister logs backend) && \
   echo "$result" && \
   echo "$result" | grep -q 'stable memory out of bounds' && \
   echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "=== Test 9: failed unwrap call is recorded in logs ==="
-icp canister call backend failed_unwrap '()' 2>/dev/null; \
+icp canister call backend failed_unwrap '()' 2>/dev/null || true; \
   result=$(icp canister logs backend) && \
   echo "$result" && \
   echo "$result" | grep -q "Result::unwrap()" && \
