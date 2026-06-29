@@ -136,8 +136,7 @@ function ImageCard({ image }: ImageCardProps) {
     const origin = window.location.origin;
     const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1');
     if (isLocal) {
-      // icp-cli starts the local replica on port 8000 by default. The Vite dev server
-      // runs on a different port (5173), so window.location.port would be wrong here.
+      // icp-cli starts the local replica on port 8000 by default.
       return `http://${canisterId}.localhost:8000/image/${imageId}`;
     }
     return `https://${canisterId}.icp.net/image/${imageId}`;
