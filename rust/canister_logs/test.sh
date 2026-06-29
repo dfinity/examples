@@ -16,7 +16,7 @@ icp canister call backend print_query '("print via replicated query")' && \
   echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "=== Test 3: print via non-replicated query should NOT be recorded in logs ==="
-icp canister call --query backend print_query '("print via non-replicated query")'; \
+icp canister call --query backend print_query '("print via non-replicated query")' && \
   result=$(icp canister logs backend) && \
   echo "$result" && \
   ! echo "$result" | grep -q 'print via non-replicated query' && \
@@ -37,7 +37,7 @@ icp canister call backend trap_query '("trap via replicated query")' 2>/dev/null
   echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "=== Test 6: trap via non-replicated query should NOT be recorded in logs ==="
-icp canister call --query backend trap_query '("trap via non-replicated query")' 2>/dev/null || true; \
+icp canister call --query backend trap_query '("trap via non-replicated query")' 2>/dev/null || true && \
   result=$(icp canister logs backend) && \
   echo "$result" && \
   ! echo "$result" | grep -q 'trap via non-replicated query' && \
@@ -69,7 +69,7 @@ secs=0; \
 while [ $secs -lt 60 ]; do \
   result=$(icp canister logs backend); \
   echo "$result"; \
-  echo "$result" | grep -q 'timer trap' && echo "PASS" && exit 0; \
+  echo "$result" | grep -q 'timer trap' && { echo "PASS"; break; }; \
   sleep 3; secs=$((secs + 3)); \
 done; \
 echo "FAIL: timer trap not recorded within 60s"; exit 1
