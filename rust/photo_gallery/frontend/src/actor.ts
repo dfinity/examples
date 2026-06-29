@@ -4,7 +4,7 @@ import { createActor } from "./bindings/backend";
 // The ic_env cookie is set by the asset canister (SDK >=0.30.2) on all HTML
 // responses. It contains the replica root key and any PUBLIC_* canister
 // environment variables. In dev mode the vite dev server sets the same cookie
-// via Set-Cookie header (see vite.config.js).
+// via Set-Cookie header (see vite.config.ts).
 const canisterEnv = safeGetCanisterEnv();
 
 // Resolve canister ID from the ic_env cookie (set by icp-cli dev server and asset canister)
