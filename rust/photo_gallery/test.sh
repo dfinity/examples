@@ -35,11 +35,11 @@ result=$(icp canister call --query backend list_images '()') && \
 echo "=== Test 5: http_request serves uploaded image by ID ==="
 result=$(icp canister call --query backend http_request "(record { method = \"GET\"; url = \"/image/${image_id}\"; headers = vec {}; body = blob \"\" })") && \
   echo "$result" && \
-  echo "$result" | grep -q '200' && \
+  echo "$result" | grep -q 'status_code = 200' && \
   echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "=== Test 6: http_request returns 404 for missing image ==="
 result=$(icp canister call --query backend http_request '(record { method = "GET"; url = "/image/9999"; headers = vec {}; body = blob "" })') && \
   echo "$result" && \
-  echo "$result" | grep -q '404' && \
+  echo "$result" | grep -q 'status_code = 404' && \
   echo "PASS" || (echo "FAIL" && exit 1)
