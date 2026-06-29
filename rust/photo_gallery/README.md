@@ -1,6 +1,6 @@
 # Photo Gallery
 
-A decentralized photo gallery application built on the Internet Computer. Users can upload and view photos stored directly on-chain, served via the HTTP gateway with browser-cacheable responses.
+A photo gallery application built on the Internet Computer. Users can upload and view photos stored on the network, served via the HTTP gateway with browser-cacheable responses.
 
 **Note:** This example is primarily a demo showing how the [response verification library](https://docs.internetcomputer.org/references/http-gateway-protocol-spec) and HTTP gateways can serve images with long-lived `Cache-Control` headers. It does not implement authentication or per-user access control. Use it at your own risk.
 

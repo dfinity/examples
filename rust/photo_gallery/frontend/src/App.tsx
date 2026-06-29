@@ -125,8 +125,7 @@ function ImageCard({ image }: ImageCardProps) {
     // long-lived Cache-Control headers so browsers cache images after first load.
     const canisterEnv = safeGetCanisterEnv();
     const canisterId =
-      canisterEnv?.['PUBLIC_CANISTER_ID:backend'] ??
-      process.env.CANISTER_ID_BACKEND;
+      canisterEnv?.["PUBLIC_CANISTER_ID:backend"];
 
     // On mainnet the HTTP gateway host is <canisterId>.icp0.io.
     // Locally (icp-cli or dfx) the replica listens on localhost:8000 / 4943
