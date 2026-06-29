@@ -8,7 +8,6 @@
 **/.DS_Store
 
 # generated files
-frontend/src/bindings/
 
 # rust
 target/
@@ -19,3 +18,4 @@ dist/
 
 # environment variables
 .env
+frontend/src/bindings/
