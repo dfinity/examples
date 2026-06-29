@@ -15,7 +15,7 @@ result=$(icp canister call backend upload_image '("test.png", "image/png", blob 
   echo "$result" && \
   echo "$result" | grep -qE '^\(([0-9]+) : nat64\)$' && \
   echo "PASS" || (echo "FAIL" && exit 1)
-image_id=$(echo "$result" | grep -oE '[0-9]+')
+image_id=$(echo "$result" | grep -oE '[0-9]+' | head -1)
 
 echo "=== Test 3: list_images includes the uploaded image ==="
 result=$(icp canister call --query backend list_images '()') && \
