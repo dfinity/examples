@@ -1,6 +1,6 @@
 # Canister logs
 
-This example demonstrates canister logging and error handling on the Internet Computer. It shows how to use `ic_cdk::print` and `ic_cdk::println!` for diagnostic output, how traps, panics, and memory errors are automatically captured in the canister log, and how periodic timers generate log entries.
+This example demonstrates canister logging and error handling on the Internet Computer. It shows how to use `ic_cdk::println!` for diagnostic output, how traps, panics, and memory errors are automatically captured in the canister log, and how periodic timers generate log entries.
 
 The canister exposes methods to print messages, trigger explicit traps, cause panics, simulate stable-memory out-of-bounds errors, and call `raw_rand`. A key behavioral distinction is demonstrated: log messages from **update calls and replicated queries** are recorded in the canister log, while messages from **non-replicated query calls** are not.
 
@@ -59,7 +59,7 @@ icp canister logs --follow backend
 icp canister call backend print '("hello!")'
 
 # Print via replicated query (recorded in logs)
-icp canister call --update backend print_query '("hello from query!")'
+icp canister call backend print_query '("hello from query!")'
 
 # Print via non-replicated query (NOT recorded in logs)
 icp canister call --query backend print_query '("this will not appear in logs")'
