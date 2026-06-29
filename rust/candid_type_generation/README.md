@@ -1,127 +1,144 @@
 # Candid Type Generation
 
-This example demonstrates automatic generation of Rust types from Candid interface definitions, eliminating the need to
-manually copy and maintain type definitions from external canisters.
+This example shows how to automatically generate Rust types from a Candid interface definition (`.did` file), eliminating the need to manually copy and maintain type definitions from external canisters.
 
-## Build Process Overview
+The example deploys a canister that calls the [NNS Governance](https://dashboard.internetcomputer.org/canister/rrkah-fqaaa-aaaaa-aaaaq-cai) canister on the IC mainnet using types generated directly from its live Candid interface.
 
-The type generation happens automatically during the Rust build process through a `build.rs` script that runs before
-compilation.
+## How it works
+
+```
+candid/nns_governance.did          ← Candid interface fetched from the live canister
+        ↓  (build.rs)
+$OUT_DIR/nns_governance.rs         ← Rust types generated at build time
+        ↓  (include! in declarations/mod.rs)
+declarations::nns_governance::*    ← Types available in your canister code
+```
 
 ### build.rs
 
-The build script performs three key functions:
-
-1. **Validates Candid Files**: Checks that required `.did` files exist in the `candid/` directory
-2. **Sets Environment Variables**: Configures canister IDs and Candid file paths for the bindgen tool
-3. **Generates Types**: Uses `ic-cdk-bindgen` to create Rust type definitions
+The build script uses [`ic-cdk-bindgen`](https://crates.io/crates/ic-cdk-bindgen) to generate Rust types from the `.did` file before the main compilation starts:
 
 ```rust
-// Sets up the NNS Governance canister for type generation
-let mut nns_governance = Config::new("nns_governance");
-nns_governance.binding.set_type_attributes(
-"#[derive(CandidType, Deserialize, Debug, Clone, serde::Serialize)]".to_string(),
-);
+Config::new("nns_governance", "candid/nns_governance.did")
+    .static_callee(Principal::from_text("rrkah-fqaaa-aaaaa-aaaaq-cai").unwrap())
+    .set_type_selector_config("candid/nns_governance.toml")
+    .generate();
 ```
 
-Generated types are automatically written to `backend/src/declarations/` and can be imported like any other Rust module.
+- `Config::new(name, candid_path)` — `name` becomes the output filename (`nns_governance.rs`)
+- `.static_callee(principal)` — embeds the target canister ID as a constant in the generated code. Use `.dynamic_callee("ENV_VAR_NAME")` when the canister ID varies across environments.
+- `.set_type_selector_config(path)` — TOML file controlling which traits are derived on generated types
+- `.generate()` — writes to `$OUT_DIR/nns_governance.rs` (outside of `src/`, not committed to git)
 
-## Candid Fetching Process
+The `cargo:rerun-if-changed` directives ensure the build script only re-runs when the `.did` or `.toml` files change, keeping incremental rebuilds fast.
 
-### fetch_candid.sh
+### Type Selector Configuration
 
-The fetch script retrieves live Candid interface definitions directly from deployed canisters:
+`candid/nns_governance.toml` controls how Candid types are mapped to Rust:
 
-1. **Connects to Mainnet**: Uses `icp canister metadata --network ic` to access deployed canisters
-2. **Fetches Metadata**: Retrieves the `candid:service` metadata from the target canister
-3. **Saves Interface**: Writes the Candid definition to `candid/nns_governance.did`
+```toml
+[rust]
+visibility = "pub"
+attributes = "#[derive(CandidType, Deserialize, Debug, Clone, serde::Serialize)]"
+```
+
+By default, `ic-cdk-bindgen` derives `CandidType` and `Deserialize` on all types. The `attributes` field adds `Debug`, `Clone`, and `serde::Serialize` — necessary here because the example uses `serde_json::to_string_pretty` to display the response.
+
+See the [Type Selector specification](https://github.com/dfinity/candid/blob/master/spec/Type-selector.md#rust-binding-configuration) for the full configuration syntax.
+
+### Including the generated code
+
+The generated file lives in Cargo's build output directory and is brought into scope via `include!`:
+
+```rust
+// backend/src/declarations/mod.rs
+pub mod nns_governance {
+    include!(concat!(env!("OUT_DIR"), "/nns_governance.rs"));
+}
+```
+
+The `include!` macro pastes the file contents at compile time, exactly as if you had written the code directly. This is the standard pattern for `ic-cdk-bindgen` 0.2.0+. The types are then available in your canister:
+
+```rust
+use declarations::nns_governance::{ListNeurons, ListNeuronsResponse};
+```
+
+### Using the generated types
+
+Generated code for a `.static_callee` canister provides top-level async functions and a `CANISTER_ID` constant:
+
+```rust
+// Generated in $OUT_DIR/nns_governance.rs
+pub const CANISTER_ID: Principal = Principal::from_slice(&[/* ... */]);
+
+pub async fn list_neurons(arg: &ListNeurons) -> CallResult<ListNeuronsResponse> {
+    Ok(Call::bounded_wait(CANISTER_ID, "list_neurons").with_arg(arg).await?.candid()?)
+}
+// ... one function per canister method
+```
+
+Calling a method is a single typed function call — no raw `Principal` arguments or string method names:
+
+```rust
+declarations::nns_governance::list_neurons(&request).await
+```
+
+## Fetching and updating Candid definitions
+
+`candid/nns_governance.did` is already checked in and ready to use. To refresh it from the live canister:
 
 ```bash
-# Fetch the live Candid interface from NNS Governance
-icp canister metadata --network ic "rrkah-fqaaa-aaaaa-aaaaq-cai" candid:service > candid/nns_governance.did
+bash scripts/fetch_candid.sh
 ```
 
-This ensures your types stay synchronized with the actual deployed canister interface.
+This runs:
+```bash
+icp canister metadata --network ic rrkah-fqaaa-aaaaa-aaaaq-cai candid:service \
+  > candid/nns_governance.did
+```
 
-## Build and deploy from the command line
+After refreshing, rebuild to regenerate the Rust types:
+```bash
+icp build backend
+```
 
-### Prerequisites
+If the Candid interface changed in a breaking way (a method removed, a field type changed), you will get a **compile error** — not a runtime failure. This is the key safety property of the approach: interface mismatches are caught before the canister is ever deployed.
 
-- [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+**Reproducibility note**: Always commit the `.did` file. The generated Rust (`$OUT_DIR/nns_governance.rs`) is deterministically derived from it at build time, so committing the `.did` is sufficient to reproduce any historical build exactly. Regenerating from mainnet at an arbitrary time would produce different types if the canister interface had changed, making it impossible to reproduce historical WASM bytes — which matters for any third-party verification.
 
-### Install
+**Possible enhancement**: Run a bot to fetch the latest `.did` file from mainnet on a regular cadence and open a PR if the project still compiles. This keeps types current with zero manual effort.
+
+## Advantages over manual type copying
+
+|  | Manual copying | `ic-cdk-bindgen` |
+|---|---|---|
+| Keeping types current | Track upstream changes manually | Re-run `fetch_candid.sh` |
+| Missing dependent types | Easy to overlook | Full interface generated |
+| Interface mismatches | Runtime errors | Build-time compile errors |
+| Maintenance | Ongoing manual work | Minimal |
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/) v18+
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [ic-mops](https://mops.one/docs/install): `npm install -g ic-mops`
+
+## Deploy and test
 
 ```bash
 git clone https://github.com/dfinity/examples
 cd examples/rust/candid_type_generation
-```
-
-### Deploy and test
-
-```bash
 icp network start -d
 icp deploy
 bash test.sh
 icp network stop
 ```
 
-## Usage Workflow
-
-1. **Fetch Candid Definitions** (the `candid/nns_governance.did` file is already checked in, but you can refresh it):
-   ```bash
-   ./scripts/fetch_candid.sh
-   ```
-
-2. **Build Project**: The build script automatically generates types during compilation:
-   ```bash
-   icp build backend
-   ```
-
-3. **Use Generated Types**: Import and use the generated types in your code:
-   ```rust
-   use declarations::nns_governance::{ListNeurons, ListNeuronsResponse};
-   ```
-
-## Advantages Over Manual Type Copying
-
-### Type Generation Benefits
-
-- **Always Current**: Types reflect the actual deployed canister interface
-- **No Manual Maintenance**: Automatic updates when you re-fetch Candid files
-- **Build-Time Validation**: Compilation fails if interfaces are incompatible
-- **Reduced Errors**: Eliminates copy-paste mistakes and version mismatches
-
-### Compared to Monorepo Copying
-
-Manual copying from the IC monorepo has several disadvantages:
-
-- **Manual Synchronization**: Requires manually tracking updates and changes
-- **Incomplete Types**: Easy to miss dependent types or recent additions
-- **Maintenance Overhead**: Regular manual updates needed to stay current
-
-### Type Safety Guarantees
-
-Generated types provide compile-time guarantees that your code matches the actual canister interface, preventing runtime
-errors from interface mismatches.
-
-## Dependencies
-
-The project uses `ic-cdk-bindgen` as a build dependency to handle the type generation:
-
-```toml
-[build-dependencies]
-ic-cdk-bindgen = "0.1.3"
-```
-
-This tool automatically generates idiomatic Rust types with appropriate derives and serialization support.
-
-## Possible enhancements
-
-Run a bot to update the candid files from mainnet on a regular cadence, and merge these changes in if they compile.
-
-Note that you want to have the candid file checked in to ensure build reproducibility between versions, as an updated
-candid file on an old version would result in different Rust types and then also different WASM bytes, which would make
-it impossible to reproduce historical builds. That could create problems for any sort of third-party verification.
+> **Note**: On a local replica, the inter-canister call to NNS Governance on the IC mainnet will not succeed. The test verifies the canister compiled and deployed correctly by checking that it returns either a successful JSON response or an expected error. To test with live neuron data, deploy to the IC mainnet:
+> ```bash
+> icp deploy --network ic
+> icp canister call --network ic backend list_neurons_pretty '()'
+> ```
 
 ## Security considerations and best practices
 
