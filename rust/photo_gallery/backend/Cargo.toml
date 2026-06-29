@@ -11,5 +11,5 @@ path = "lib.rs"
 candid = "0.10"
 ic-cdk = "0.20"
 serde = { version = "1.0", features = ["derive"] }
-ic-http-certification = "3.0.3"
-regex = "1.11.1"
+ic-http-certification = "3.2.0"
+regex = "1"
