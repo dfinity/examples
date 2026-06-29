@@ -136,8 +136,8 @@ function ImageCard({ image }: ImageCardProps) {
     const origin = window.location.origin;
     const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1');
     if (isLocal) {
-      const port = window.location.port || '8000';
-      return `http://${canisterId}.localhost:${port}/image/${imageId}`;
+      // The replica always listens on port 8000 regardless of the dev server port.
+      return `http://${canisterId}.localhost:8000/image/${imageId}`;
     }
     return `https://${canisterId}.icp.net/image/${imageId}`;
   };
