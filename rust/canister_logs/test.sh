@@ -9,7 +9,7 @@ icp canister call backend print '("print via update")' && \
   echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "=== Test 2: print via replicated query call is recorded in logs ==="
-icp canister call --update backend print_query '("print via replicated query")' && \
+icp canister call backend print_query '("print via replicated query")' && \
   result=$(icp canister logs backend) && \
   echo "$result" && \
   echo "$result" | grep -q 'print via replicated query' && \
@@ -30,7 +30,7 @@ icp canister call backend trap '("trap via update")' 2>/dev/null; \
   echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "=== Test 5: trap via replicated query call is recorded in logs ==="
-icp canister call --update backend trap_query '("trap via replicated query")' 2>/dev/null; \
+icp canister call backend trap_query '("trap via replicated query")' 2>/dev/null; \
   result=$(icp canister logs backend) && \
   echo "$result" && \
   echo "$result" | grep -q 'trap via replicated query' && \
