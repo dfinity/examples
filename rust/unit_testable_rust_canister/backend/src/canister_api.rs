@@ -169,7 +169,7 @@ mod tests {
 
     #[test]
     fn test_counter_endpoints() {
-        // Each test runs in its own thread, so stable memory is isolated
+        // Each test creates a fresh TestCounter (in-memory Arc<Mutex<u64>>), so counter state is isolated per test
         let api = create_test_api();
 
         let response = api.get_count();
