@@ -7,13 +7,13 @@ import { createActor } from "./bindings/backend";
 // via Set-Cookie header (see vite.config.js).
 const canisterEnv = safeGetCanisterEnv();
 
-// Resolve canister ID: cookie (icp-cli + dev server) → env var (dfx build-time)
+// Resolve canister ID from the ic_env cookie (set by icp-cli dev server and asset canister)
 const canisterId =
   canisterEnv?.["PUBLIC_CANISTER_ID:backend"];
 
 if (!canisterId) {
   throw new Error(
-    "Canister ID for 'backend' not found. Run 'icp deploy' or 'dfx deploy' first."
+    "Canister ID for 'backend' not found. Run 'icp deploy' first."
   );
 }
 
