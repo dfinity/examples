@@ -54,7 +54,7 @@ fn memory_oob() {
     ic_cdk::println!("right before memory out of bounds");
     const BUFFER_SIZE: u32 = 10;
     let mut buffer = vec![0u8; BUFFER_SIZE as usize];
-    ic_cdk::stable::stable_read((BUFFER_SIZE + 1) as u64, &mut buffer); // Reading memory outside of buffer should trap.
+    ic_cdk::stable::stable_read((BUFFER_SIZE + 1) as u64, &mut buffer); // Reading from stable memory at an offset beyond what has been allocated should trap.
 }
 
 #[update]
