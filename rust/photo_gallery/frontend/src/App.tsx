@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, ChangeEvent } from 'react';
 import { safeGetCanisterEnv } from '@icp-sdk/core/agent/canister-env';
 import { backend } from './actor';
 import './App.css';
@@ -14,7 +14,8 @@ function App() {
   const [images, setImages] = useState<ImageInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [uploadStatus, setUploadStatus] = useState('');
+  const [uploadMessage, setUploadMessage] = useState('');
+  const [uploadState, setUploadState] = useState<'idle' | 'uploading' | 'success' | 'error'>('idle');
 
   useEffect(() => {
     loadImages();
@@ -33,17 +34,19 @@ function App() {
     }
   };
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     if (!file.type.startsWith('image/')) {
-      setUploadStatus('Please select an image file');
+      setUploadMessage('Please select an image file');
+      setUploadState('error');
       return;
     }
 
     setUploading(true);
-    setUploadStatus('Uploading...');
+    setUploadMessage('Uploading...');
+    setUploadState('uploading');
 
     try {
       const arrayBuffer = await file.arrayBuffer();
@@ -55,14 +58,17 @@ function App() {
         uint8Array
       );
 
-      setUploadStatus(`Image uploaded successfully! ID: ${imageId}`);
+      setUploadMessage(`Image uploaded successfully! ID: ${imageId}`);
+      setUploadState('success');
       await loadImages(); // Refresh the image list
 
       // Clear the file input
       event.target.value = '';
+      setTimeout(() => setUploadState('idle'), 3000);
     } catch (error) {
       console.error('Error uploading image:', error);
-      setUploadStatus('Error uploading image');
+      setUploadMessage('Error uploading image');
+      setUploadState('error');
     } finally {
       setUploading(false);
     }
@@ -84,9 +90,9 @@ function App() {
               disabled={uploading}
               className="file-input"
             />
-            {uploadStatus && (
-              <div className={`status ${uploadStatus.includes('Error') ? 'error' : 'success'}`}>
-                {uploadStatus}
+            {uploadState !== 'idle' && (
+              <div className={`status ${uploadState}`}>
+                {uploadMessage}
               </div>
             )}
           </div>
@@ -119,32 +125,20 @@ function ImageCard({ image }: ImageCardProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
 
-  const getImageUrl = (imageId: bigint) => {
+  // Compute canister ID once — it never changes during the component's lifetime.
+  const canisterId = safeGetCanisterEnv()?.["PUBLIC_CANISTER_ID:backend"];
+
+  const getImageUrl = (imageId: bigint): string => {
     // Use HTTP gateway URL to load images directly from the backend canister.
     // The backend serves images via http_request at /image/<id>, with
     // long-lived Cache-Control headers so browsers cache images after first load.
-    const canisterEnv = safeGetCanisterEnv();
-    const canisterId =
-      canisterEnv?.["PUBLIC_CANISTER_ID:backend"];
-
-    // On mainnet the HTTP gateway host is <canisterId>.icp.net.
-    // Locally (icp-cli) the replica listens on localhost:8000
-    // and serves the same path under the canister subdomain.
     const origin = window.location.origin;
-    const isLocal =
-      origin.includes('localhost') || origin.includes('127.0.0.1');
-
-    let imageUrl: string;
+    const isLocal = origin.includes('localhost') || origin.includes('127.0.0.1');
     if (isLocal) {
-      // Local replica: use the current origin's host with the canister subdomain
       const port = window.location.port || '8000';
-      imageUrl = `http://${canisterId}.localhost:${port}/image/${imageId}`;
-    } else {
-      imageUrl = `https://${canisterId}.icp.net/image/${imageId}`;
+      return `http://${canisterId}.localhost:${port}/image/${imageId}`;
     }
-
-    console.debug(`Getting url: ${imageUrl}`);
-    return imageUrl;
+    return `https://${canisterId}.icp.net/image/${imageId}`;
   };
 
   const handleImageLoad = () => {
