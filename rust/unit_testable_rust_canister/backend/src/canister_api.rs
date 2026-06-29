@@ -1,10 +1,8 @@
 use crate::counter::Counter;
 use crate::governance::GovernanceApi;
-use crate::stable_memory;
 use crate::types::nns_governance::{Proposal, ProposalInfo};
 use crate::types::*;
 use std::cell::RefCell;
-use std::ops::Deref;
 use std::sync::Arc;
 use std::thread::LocalKey;
 // =============================================================================

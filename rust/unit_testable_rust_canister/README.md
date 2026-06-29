@@ -173,9 +173,9 @@ Integration tests use PocketIC and require the [PocketIC server](https://github.
 
 ```bash
 # macOS
-curl -sL https://github.com/dfinity/pocketic/releases/download/14.0.0/pocket-ic-x86_64-darwin.gz | gunzip > pocket-ic-server
+curl -sL https://github.com/dfinity/pocketic/releases/download/15.0.0/pocket-ic-x86_64-darwin.gz | gunzip > pocket-ic-server
 # Linux
-curl -sL https://github.com/dfinity/pocketic/releases/download/14.0.0/pocket-ic-x86_64-linux.gz | gunzip > pocket-ic-server
+curl -sL https://github.com/dfinity/pocketic/releases/download/15.0.0/pocket-ic-x86_64-linux.gz | gunzip > pocket-ic-server
 chmod +x pocket-ic-server
 export POCKET_IC_BIN=$(pwd)/pocket-ic-server
 ```

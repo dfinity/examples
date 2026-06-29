@@ -30,7 +30,7 @@ fn get_backend_wasm() -> Vec<u8> {
 
 /// Ensures the WASM is built and up-to-date, returns path to the WASM file
 fn ensure_wasm_built() -> PathBuf {
-    let wasm_path = PathBuf::from("../../target/wasm32-unknown-unknown/release/backend.wasm");
+    let wasm_path = PathBuf::from("../target/wasm32-unknown-unknown/release/backend.wasm");
     let src_dir = Path::new("src");
     let cargo_toml = Path::new("Cargo.toml");
 

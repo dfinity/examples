@@ -24,9 +24,9 @@ jobs:
         working-directory: rust/unit_testable_rust_canister
         run: cargo test --lib
       - name: Install PocketIC server
-        uses: dfinity/pocketic@07bfae058ce2aa56994759b563531a7e8d98ba96 # main
+        uses: dfinity/pocketic@a980c334fab1b21b0b8a6bba38e1a10836e7258b # main
         with:
-          pocket-ic-server-version: "14.0.0"
+          pocket-ic-server-version: "15.0.0"
       - name: Build WASM and run PocketIC integration tests
         working-directory: rust/unit_testable_rust_canister
         run: |
