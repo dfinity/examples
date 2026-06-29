@@ -1,0 +1,3 @@
+[rust]
+visibility = "pub"
+attributes = "#[derive(CandidType, Deserialize, Debug, Clone, serde::Serialize)]"
