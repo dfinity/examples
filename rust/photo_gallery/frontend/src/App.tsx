@@ -127,8 +127,8 @@ function ImageCard({ image }: ImageCardProps) {
     const canisterId =
       canisterEnv?.["PUBLIC_CANISTER_ID:backend"];
 
-    // On mainnet the HTTP gateway host is <canisterId>.icp0.io.
-    // Locally (icp-cli or dfx) the replica listens on localhost:8000 / 4943
+    // On mainnet the HTTP gateway host is <canisterId>.icp.net.
+    // Locally (icp-cli) the replica listens on localhost:8000
     // and serves the same path under the canister subdomain.
     const origin = window.location.origin;
     const isLocal =
@@ -140,7 +140,7 @@ function ImageCard({ image }: ImageCardProps) {
       const port = window.location.port || '8000';
       imageUrl = `http://${canisterId}.localhost:${port}/image/${imageId}`;
     } else {
-      imageUrl = `https://${canisterId}.icp0.io/image/${imageId}`;
+      imageUrl = `https://${canisterId}.icp.net/image/${imageId}`;
     }
 
     console.debug(`Getting url: ${imageUrl}`);
