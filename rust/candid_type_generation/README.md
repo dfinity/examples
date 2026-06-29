@@ -2,7 +2,7 @@
 
 This example shows how to automatically generate Rust types from a Candid interface definition (`.did` file), eliminating the need to manually copy and maintain type definitions from external canisters.
 
-The example deploys a canister that calls the [NNS Governance](https://dashboard.internetcomputer.org/canister/rrkah-fqaaa-aaaaa-aaaaq-cai) canister on the IC mainnet using types generated directly from its live Candid interface.
+The example deploys a canister that calls the [NNS Governance](https://dashboard.internetcomputer.org/canister/rrkah-fqaaa-aaaaa-aaaaq-cai) canister using types generated directly from its live Candid interface. The local network is configured with `nns: true` so that NNS canisters are available at their mainnet IDs during local development and testing.
 
 ## How it works
 
@@ -134,11 +134,7 @@ bash test.sh
 icp network stop
 ```
 
-> **Note**: On a local replica, the inter-canister call to NNS Governance on the IC mainnet will not succeed. The test verifies the canister compiled and deployed correctly by checking that it returns either a successful JSON response or an expected error. To test with live neuron data, deploy to the IC mainnet:
-> ```bash
-> icp deploy --network ic
-> icp canister call --network ic backend list_neurons_pretty '()'
-> ```
+The local network starts with `nns: true` (configured in `icp.yaml`), which deploys all NNS canisters at their mainnet canister IDs. This means the inter-canister call to NNS Governance works identically in local development and on the IC mainnet.
 
 ## Security considerations and best practices
 
