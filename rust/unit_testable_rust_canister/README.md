@@ -172,9 +172,11 @@ cargo test --lib
 Integration tests use PocketIC and require the [PocketIC server](https://github.com/dfinity/pocketic/releases). Install it first:
 
 ```bash
-# macOS
+# macOS (Apple Silicon)
+curl -sL https://github.com/dfinity/pocketic/releases/download/15.0.0/pocket-ic-arm64-darwin.gz | gunzip > pocket-ic-server
+# macOS (Intel)
 curl -sL https://github.com/dfinity/pocketic/releases/download/15.0.0/pocket-ic-x86_64-darwin.gz | gunzip > pocket-ic-server
-# Linux
+# Linux (x86_64)
 curl -sL https://github.com/dfinity/pocketic/releases/download/15.0.0/pocket-ic-x86_64-linux.gz | gunzip > pocket-ic-server
 chmod +x pocket-ic-server
 export POCKET_IC_BIN=$(pwd)/pocket-ic-server

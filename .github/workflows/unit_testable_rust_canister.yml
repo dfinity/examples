@@ -22,7 +22,7 @@ jobs:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - name: Unit tests
         working-directory: rust/unit_testable_rust_canister
-        run: cargo test --lib
+        run: cargo test --package backend --lib
       - name: Install PocketIC server
         uses: dfinity/pocketic@a980c334fab1b21b0b8a6bba38e1a10836e7258b # main
         with:
@@ -31,7 +31,7 @@ jobs:
         working-directory: rust/unit_testable_rust_canister
         run: |
           cargo build --package backend --target wasm32-unknown-unknown --release
-          cargo test --test integration_tests
+          cargo test --package backend --test integration_tests
       - name: Deploy and test
         working-directory: rust/unit_testable_rust_canister
         run: |
