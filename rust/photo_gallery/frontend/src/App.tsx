@@ -28,7 +28,8 @@ function App() {
       setImages(imageList);
     } catch (error) {
       console.error('Error loading images:', error);
-      setUploadStatus('Error loading images');
+      setUploadMessage('Error loading images');
+      setUploadState('error');
     } finally {
       setLoading(false);
     }
