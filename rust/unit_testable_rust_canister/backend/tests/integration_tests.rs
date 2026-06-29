@@ -162,8 +162,18 @@ fn get_governance_wasm() -> Vec<u8> {
     })
 }
 
-/// Sets up NNS Governance canister with correct mainnet ID and production-like initialization
-/// Uses default_governance_for_tests() to get realistic initialization parameters
+/// Sets up a minimal NNS Governance canister for testing.
+///
+/// **Expected errors in test output (non-fatal):**
+/// - `VotingPowerEconomics not found` / `Falling back to default` — the minimal init args
+///   don't include full VotingPowerEconomics; Governance falls back to defaults and continues.
+/// - `Error calling method 'icrc1_total_supply' of the ledger canister` — the ICP Ledger
+///   (`ryjl3-tyaaa-aaaaa-aaaba-cai`) is not deployed in this setup. Governance polls it
+///   periodically but the failure is non-fatal; it logs the error and proceeds.
+///
+/// Tests pass because they only read proposal data pre-seeded via init args, which does not
+/// require the ledger or voting power. This minimal setup is intentional — see the README
+/// section "Keeping Up With Mainnet Canister Changes" for the reasoning.
 fn setup_nns_governance(pic: &PocketIc) -> Principal {
     let governance_wasm = get_governance_wasm();
 
