@@ -117,16 +117,16 @@ minimal testing.
 backend/
 ├── Cargo.toml
 ├── backend.did           # Candid interface
-└── src/
-    ├── lib.rs            # Canister entry points and initialization
-    ├── canister_api.rs   # Main API struct and dependency injection
-    ├── counter.rs        # Counter trait and implementation (abstraction over storage)
-    ├── governance.rs     # NNS Governance trait and implementations
-    ├── stable_memory.rs  # Storage operations and trait definitions
-    └── types/
-        ├── mod.rs            # Request/response types
-        └── nns_governance.rs # NNS Governance canister type definitions
-    tests/
+├── src/
+│   ├── lib.rs            # Canister entry points and initialization
+│   ├── canister_api.rs   # Main API struct and dependency injection
+│   ├── counter.rs        # Counter trait and implementation (abstraction over storage)
+│   ├── governance.rs     # NNS Governance trait and implementations
+│   ├── stable_memory.rs  # Storage operations and trait definitions
+│   └── types/
+│       ├── mod.rs            # Request/response types
+│       └── nns_governance.rs # NNS Governance canister type definitions
+└── tests/
     └── integration_tests.rs  # Slower end-to-end tests using PocketIC
 ```
 

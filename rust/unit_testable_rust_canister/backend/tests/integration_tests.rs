@@ -253,8 +253,8 @@ fn test_counter_functionality() {
     assert_eq!(response.count, Some(2));
 
     // Decrement counter
-    let request = IncrementCountRequest {};
-    let response: IncrementCountResponse = update(
+    let request = DecrementCountRequest {};
+    let response: DecrementCountResponse = update(
         &pic,
         canister_id,
         "decrement_count",
