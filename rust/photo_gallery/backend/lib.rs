@@ -139,3 +139,5 @@ fn http_request(request: HttpRequest) -> ic_http_certification::HttpResponse<'st
     add_skip_certification_header(data_certificate().unwrap(), &mut response);
     response
 }
+
+ic_cdk::export_candid!();

@@ -15,6 +15,7 @@ result=$(icp canister call backend upload_image '("test.png", "image/png", blob 
   echo "$result" && \
   echo "$result" | grep -qE '^\(([0-9]+) : nat64\)$' && \
   echo "PASS" || (echo "FAIL" && exit 1)
+image_id=$(echo "$result" | grep -oE '[0-9]+')
 
 echo "=== Test 3: list_images includes the uploaded image ==="
 result=$(icp canister call --query backend list_images '()') && \
@@ -32,7 +33,7 @@ result=$(icp canister call --query backend list_images '()') && \
   echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "=== Test 5: http_request serves uploaded image by ID ==="
-result=$(icp canister call --query backend http_request '(record { method = "GET"; url = "/image/1"; headers = vec {}; body = blob "" })') && \
+result=$(icp canister call --query backend http_request "(record { method = \"GET\"; url = \"/image/${image_id}\"; headers = vec {}; body = blob \"\" })") && \
   echo "$result" && \
   echo "$result" | grep -q '200' && \
   echo "PASS" || (echo "FAIL" && exit 1)
