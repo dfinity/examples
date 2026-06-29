@@ -65,14 +65,20 @@ icp canister call backend failed_unwrap '()' 2>/dev/null || true; \
   echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "=== Test 10: Polling for timer trap (up to 60s) ==="
-secs=0; \
-while [ $secs -lt 60 ]; do \
-  result=$(icp canister logs backend); \
-  echo "$result"; \
-  echo "$result" | grep -q 'timer trap' && { echo "PASS"; break; }; \
-  sleep 3; secs=$((secs + 3)); \
-done; \
-echo "FAIL: timer trap not recorded within 60s"; exit 1
+timer_found=0
+secs=0
+while [ $secs -lt 60 ]; do
+  result=$(icp canister logs backend)
+  echo "$result"
+  if echo "$result" | grep -q 'timer trap'; then
+    echo "PASS"
+    timer_found=1
+    break
+  fi
+  sleep 3
+  secs=$((secs + 3))
+done
+[ "$timer_found" -eq 1 ] || (echo "FAIL: timer trap not recorded within 60s" && exit 1)
 
 echo "=== Test 11: raw_rand call is recorded in logs ==="
 icp canister call backend raw_rand '()' && \
