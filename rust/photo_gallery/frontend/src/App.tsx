@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { safeGetCanisterEnv } from '@icp-sdk/core/agent/canister-env';
-import { backend } from './actor.js';
+import { backend } from './actor';
 import './App.css';
 
 interface ImageInfo {
