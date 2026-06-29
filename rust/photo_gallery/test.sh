@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -e
 
+# These tests assume a freshly deployed canister with no prior images.
+# Run: icp network start -d && icp deploy && bash test.sh
+
 echo "=== Test 1: list_images returns empty list initially ==="
 result=$(icp canister call --query backend list_images '()') && \
   echo "$result" && \
