@@ -37,6 +37,18 @@ bash test.sh
 icp network stop
 ```
 
+### PocketIC integration tests
+
+The canister includes integration tests that run against a local [PocketIC](https://github.com/dfinity/pocketic) instance with a fiduciary subnet, covering all algorithm and merkle root combinations including negative cases (corrupted signature, message, and key):
+
+```bash
+# Build the WASM first, then run the tests
+cargo build --package backend --target wasm32-unknown-unknown --release
+cargo test --package backend --test integration_tests
+```
+
+The PocketIC server binary is downloaded automatically on first run (or set `POCKET_IC_BIN` to an existing binary path).
+
 ## Key IDs
 
 The canister uses `dfx_test_key` by default, which works with a local ICP network.
