@@ -117,6 +117,7 @@ If the Candid interface changed in a way that breaks your code (a removed method
 
 - [Node.js](https://nodejs.org/) v18+
 - [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Rust](https://www.rust-lang.org/tools/install) with `wasm32-unknown-unknown` target: `rustup target add wasm32-unknown-unknown`
 
 ## Deploy and test
 
