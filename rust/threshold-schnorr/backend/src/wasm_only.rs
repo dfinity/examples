@@ -64,7 +64,7 @@ thread_local! {
 
 #[update]
 async fn for_test_only_change_management_canister_id(id: String) -> Result<(), String> {
-    let _ = CanisterId::from_text(&id).map_err(|e| panic!("invalid canister id: {}: {}", id, e));
+    CanisterId::from_text(&id).map_err(|e| format!("invalid canister id {id}: {e}"))?;
     MGMT_CANISTER_ID.with_borrow_mut(move |current| {
         println!("Changing management canister id from {current} to {id}");
         *current = id;
@@ -72,6 +72,10 @@ async fn for_test_only_change_management_canister_id(id: String) -> Result<(), S
     Ok(())
 }
 
+// WARNING: this method is unauthenticated — any caller can change the signing key.
+// It exists solely to let integration tests switch from "dfx_test_key" (icp local
+// network) to "key_1" (PocketIC fiduciary subnet). Do not deploy this canister to
+// mainnet or any environment where untrusted callers can reach it.
 #[update]
 async fn for_test_only_set_schnorr_key_name(name: String) -> Result<(), String> {
     SCHNORR_KEY_NAME.with_borrow_mut(move |current| {

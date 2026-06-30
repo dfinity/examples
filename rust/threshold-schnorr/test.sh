@@ -43,8 +43,7 @@ echo "message=$message (${#message} bytes)"
 
 # --- ed25519 ---
 echo "--- ed25519 ---"
-ed25519_sign_cmd="icp canister call backend sign '(\"${message}\" ,(variant { ed25519 }), null)'"
-ed25519_sig_hex=$(get_text_in_double_quotes "$(eval "${ed25519_sign_cmd}" | grep signature_hex)")
+ed25519_sig_hex=$(get_text_in_double_quotes "$(icp canister call backend sign "(\"${message}\" ,(variant { ed25519 }), null)" | grep signature_hex)")
 echo "ed25519_signature_hex=$ed25519_sig_hex"
 ed25519_pubkey_hex=$(get_text_in_double_quotes "$(icp canister call backend public_key '(variant { ed25519 })' | grep public_key_hex)")
 echo "ed25519_public_key_hex=$ed25519_pubkey_hex"
@@ -64,8 +63,7 @@ END
 
 # --- bip340secp256k1 ---
 echo "--- bip340secp256k1 ---"
-bip340_sign_cmd="icp canister call backend sign '(\"${message}\" ,(variant { bip340secp256k1 }), null)'"
-bip340_sig_hex=$(get_text_in_double_quotes "$(eval "${bip340_sign_cmd}" | grep signature_hex)")
+bip340_sig_hex=$(get_text_in_double_quotes "$(icp canister call backend sign "(\"${message}\" ,(variant { bip340secp256k1 }), null)" | grep signature_hex)")
 echo "bip340_signature_hex=$bip340_sig_hex"
 bip340_pubkey_hex=$(get_text_in_double_quotes "$(icp canister call backend public_key '(variant { bip340secp256k1 })' | grep public_key_hex)")
 echo "bip340_public_key_hex=$bip340_pubkey_hex"
@@ -83,8 +81,7 @@ END
 # --- bip341 (tweaked key) ---
 echo "--- bip341 ---"
 tweak_hex="012345678901234567890123456789012345678901234567890123456789abcd"
-bip341_sign_cmd="icp canister call backend sign '(\"${message}\" ,(variant { bip340secp256k1 }), opt \"${tweak_hex}\")'"
-bip341_sig_hex=$(get_text_in_double_quotes "$(eval "${bip341_sign_cmd}" | grep signature_hex)")
+bip341_sig_hex=$(get_text_in_double_quotes "$(icp canister call backend sign "(\"${message}\" ,(variant { bip340secp256k1 }), opt \"${tweak_hex}\")" | grep signature_hex)")
 echo "bip341_signature_hex=$bip341_sig_hex"
 
 node <<END
