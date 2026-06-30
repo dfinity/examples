@@ -77,16 +77,17 @@ async fn for_test_only_change_management_canister_id(id: String) -> Result<(), S
 async fn public_key(algorithm: SchnorrAlgorithm) -> Result<PublicKeyReply, String> {
     let request = ManagementCanisterSchnorrPublicKeyRequest {
         canister_id: None,
-        derivation_path: vec![ic_cdk::api::caller().as_slice().to_vec()],
+        derivation_path: vec![ic_cdk::api::msg_caller().as_slice().to_vec()],
         key_id: SchnorrKeyIds::TestKeyLocalDevelopment.to_key_id(algorithm),
     };
 
     let (res,): (ManagementCanisterSchnorrPublicKeyReply,) =
-        Call::new(mgmt_canister_id(), "schnorr_public_key")
+        Call::bounded_wait(mgmt_canister_id(), "schnorr_public_key")
             .with_arg(request)
-            .call()
             .await
-            .map_err(|e| format!("schnorr_public_key failed {e:?}"))?;
+            .map_err(|e| format!("schnorr_public_key failed {e:?}"))?
+            .candid_tuple()
+            .map_err(|e| format!("failed to decode schnorr_public_key reply {e:?}"))?;
 
     Ok(PublicKeyReply {
         public_key_hex: hex::encode(&res.public_key),
@@ -120,18 +121,19 @@ async fn sign(
 
     let internal_request = ManagementCanisterSignatureRequest {
         message: message.as_bytes().to_vec(),
-        derivation_path: vec![ic_cdk::api::caller().as_slice().to_vec()],
+        derivation_path: vec![ic_cdk::api::msg_caller().as_slice().to_vec()],
         key_id: SchnorrKeyIds::TestKeyLocalDevelopment.to_key_id(algorithm),
         aux,
     };
 
     let (internal_reply,): (ManagementCanisterSignatureReply,) =
-        Call::new(mgmt_canister_id(), "sign_with_schnorr")
+        Call::bounded_wait(mgmt_canister_id(), "sign_with_schnorr")
             .with_arg(internal_request)
-            .with_cycles(26_153_846_153u64)
-            .call()
+            .with_cycles(26_153_846_153u128)
             .await
-            .map_err(|e| format!("sign_with_schnorr failed {e:?}"))?;
+            .map_err(|e| format!("sign_with_schnorr failed {e:?}"))?
+            .candid_tuple()
+            .map_err(|e| format!("failed to decode sign_with_schnorr reply {e:?}"))?;
 
     Ok(SignatureReply {
         signature_hex: hex::encode(&internal_reply.signature),
@@ -211,7 +213,7 @@ fn verify_bip341_secp256k1(
 
         pk.tap_tweak(&secp256k1_engine, merkle_root)
             .0
-            .to_inner()
+            .to_x_only_public_key()
             .serialize()
     };
 
