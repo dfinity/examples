@@ -49,6 +49,17 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
     pic.add_cycles(example_canister_id, 2_000_000_000_000);
     pic.install_canister(example_canister_id, load_backend_wasm(), vec![], None);
 
+    // PocketIC's fiduciary subnet provides "key_1", not "dfx_test_key" (icp local network).
+    update::<Result<(), String>>(
+        pic,
+        my_principal,
+        example_canister_id,
+        "for_test_only_set_schnorr_key_name",
+        encode_one("key_1").unwrap(),
+    )
+    .expect("update call failed")
+    .expect("set key name failed");
+
     // Let the canister initialise before making calls.
     fast_forward(pic, 5);
 

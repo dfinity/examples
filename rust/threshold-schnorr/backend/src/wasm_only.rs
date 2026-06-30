@@ -57,28 +57,40 @@ struct ManagementCanisterSignatureReply {
 }
 
 thread_local! {
-    static STATE: RefCell<String> = RefCell::new("aaaaa-aa".to_string());
+    static MGMT_CANISTER_ID: RefCell<String> = RefCell::new("aaaaa-aa".to_string());
+    // PocketIC uses "key_1"; icp local network uses "dfx_test_key".
+    static SCHNORR_KEY_NAME: RefCell<String> = RefCell::new("dfx_test_key".to_string());
 }
 
 #[update]
 async fn for_test_only_change_management_canister_id(id: String) -> Result<(), String> {
     let _ = CanisterId::from_text(&id).map_err(|e| panic!("invalid canister id: {}: {}", id, e));
-    STATE.with_borrow_mut(move |current_id| {
-        println!(
-            "Changing management canister id from {} to {id}",
-            *current_id
-        );
-        *current_id = id;
+    MGMT_CANISTER_ID.with_borrow_mut(move |current| {
+        println!("Changing management canister id from {current} to {id}");
+        *current = id;
+    });
+    Ok(())
+}
+
+#[update]
+async fn for_test_only_set_schnorr_key_name(name: String) -> Result<(), String> {
+    SCHNORR_KEY_NAME.with_borrow_mut(move |current| {
+        println!("Changing schnorr key name from {current} to {name}");
+        *current = name;
     });
     Ok(())
 }
 
 #[update]
 async fn public_key(algorithm: SchnorrAlgorithm) -> Result<PublicKeyReply, String> {
+    let key_name = SCHNORR_KEY_NAME.with_borrow(|n| n.clone());
     let request = ManagementCanisterSchnorrPublicKeyRequest {
         canister_id: None,
         derivation_path: vec![ic_cdk::api::msg_caller().as_slice().to_vec()],
-        key_id: SchnorrKeyIds::TestKeyLocalDevelopment.to_key_id(algorithm),
+        key_id: SchnorrKeyId {
+            algorithm,
+            name: key_name,
+        },
     };
 
     let (res,): (ManagementCanisterSchnorrPublicKeyReply,) =
@@ -119,10 +131,14 @@ async fn sign(
         })
         .transpose()?;
 
+    let key_name = SCHNORR_KEY_NAME.with_borrow(|n| n.clone());
     let internal_request = ManagementCanisterSignatureRequest {
         message: message.as_bytes().to_vec(),
         derivation_path: vec![ic_cdk::api::msg_caller().as_slice().to_vec()],
-        key_id: SchnorrKeyIds::TestKeyLocalDevelopment.to_key_id(algorithm),
+        key_id: SchnorrKeyId {
+            algorithm,
+            name: key_name,
+        },
         aux,
     };
 
@@ -277,7 +293,7 @@ impl SchnorrKeyIds {
 }
 
 fn mgmt_canister_id() -> CanisterId {
-    STATE.with_borrow(|state| CanisterId::from_text(&state).unwrap())
+    MGMT_CANISTER_ID.with_borrow(|id| CanisterId::from_text(id).unwrap())
 }
 
 // In the following, we register a custom getrandom implementation because
