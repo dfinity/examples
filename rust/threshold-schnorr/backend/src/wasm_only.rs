@@ -266,32 +266,6 @@ fn verify_ed25519(
     Ok(SignatureVerificationReply { is_signature_valid })
 }
 
-enum SchnorrKeyIds {
-    #[allow(unused)]
-    ChainkeyTestingCanisterKey1,
-    #[allow(unused)]
-    TestKeyLocalDevelopment,
-    #[allow(unused)]
-    TestKey1,
-    #[allow(unused)]
-    ProductionKey1,
-}
-
-impl SchnorrKeyIds {
-    fn to_key_id(&self, algorithm: SchnorrAlgorithm) -> SchnorrKeyId {
-        SchnorrKeyId {
-            algorithm,
-            name: match self {
-                Self::ChainkeyTestingCanisterKey1 => "insecure_test_key_1",
-                Self::TestKeyLocalDevelopment => "dfx_test_key",
-                Self::TestKey1 => "test_key_1",
-                Self::ProductionKey1 => "key_1",
-            }
-            .to_string(),
-        }
-    }
-}
-
 fn mgmt_canister_id() -> CanisterId {
     MGMT_CANISTER_ID.with_borrow(|id| CanisterId::from_text(id).unwrap())
 }
