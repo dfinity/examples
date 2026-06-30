@@ -150,8 +150,9 @@ For automatic type generation from Candid files, see the [candid_type_generation
 ## Build and deploy from the command line
 
 ### Prerequisites
-- [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
-- Rust toolchain with `wasm32-unknown-unknown` target
+
+- [Node.js](https://nodejs.org/) v18+
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
 ### Install
 
