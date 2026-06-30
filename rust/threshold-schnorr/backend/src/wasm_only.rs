@@ -58,8 +58,19 @@ struct ManagementCanisterSignatureReply {
 
 thread_local! {
     static MGMT_CANISTER_ID: RefCell<String> = RefCell::new("aaaaa-aa".to_string());
-    // PocketIC uses "key_1"; icp local network uses "dfx_test_key".
-    static SCHNORR_KEY_NAME: RefCell<String> = RefCell::new("dfx_test_key".to_string());
+    static SCHNORR_KEY_NAME: RefCell<String> = RefCell::new("test_key_1".to_string());
+}
+
+/// Accepts an optional key name at deploy time.
+///
+/// Defaults to `"test_key_1"` (mainnet test key, also supported on the local network).
+/// Pass `opt "key_1"` as init arg for mainnet production, or `opt "key_1"` in
+/// PocketIC integration tests where only `key_1` is available on the fiduciary subnet.
+#[ic_cdk::init]
+fn init(key_name: Option<String>) {
+    if let Some(name) = key_name {
+        SCHNORR_KEY_NAME.with_borrow_mut(|n| *n = name);
+    }
 }
 
 #[update]
@@ -68,19 +79,6 @@ async fn for_test_only_change_management_canister_id(id: String) -> Result<(), S
     MGMT_CANISTER_ID.with_borrow_mut(move |current| {
         println!("Changing management canister id from {current} to {id}");
         *current = id;
-    });
-    Ok(())
-}
-
-// WARNING: this method is unauthenticated — any caller can change the signing key.
-// It exists solely to let integration tests switch from "dfx_test_key" (icp local
-// network) to "key_1" (PocketIC fiduciary subnet). Do not deploy this canister to
-// mainnet or any environment where untrusted callers can reach it.
-#[update]
-async fn for_test_only_set_schnorr_key_name(name: String) -> Result<(), String> {
-    SCHNORR_KEY_NAME.with_borrow_mut(move |current| {
-        println!("Changing schnorr key name from {current} to {name}");
-        *current = name;
     });
     Ok(())
 }

@@ -52,16 +52,20 @@ The PocketIC server binary is downloaded automatically on first run (or set `POC
 
 ## Key IDs
 
-The canister stores the key name in a `thread_local` variable (`SCHNORR_KEY_NAME`) that defaults to `dfx_test_key`, which works with a local ICP network.
+The key name defaults to `test_key_1` and can be overridden at deploy time via an init argument:
 
-To deploy to mainnet, change the default value of `SCHNORR_KEY_NAME` in `backend/src/wasm_only.rs`:
+```bash
+# Use the production key on mainnet
+icp deploy --network ic --init-arg '(opt "key_1")'
+```
+
+Available key names:
 
 - `insecure_test_key_1`: supported by the [chainkey testing canister](https://github.com/dfinity/chainkey-testing-canister/)
-- `dfx_test_key`: default — local ICP network only
-- `test_key_1`: master **test** key on mainnet
+- `test_key_1`: default — master **test** key, works on both the local network and mainnet
 - `key_1`: master **production** key on mainnet
 
-> **Note**: `for_test_only_set_schnorr_key_name` lets integration tests switch to `key_1` at runtime (PocketIC only provides `key_1`). Do not rely on this method in production.
+PocketIC integration tests pass `opt "key_1"` as the init argument when installing the canister, since the PocketIC fiduciary subnet only provides `key_1`.
 
 ## How it works
 
