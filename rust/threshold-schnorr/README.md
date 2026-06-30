@@ -42,8 +42,9 @@ icp network stop
 The canister includes integration tests that run against a local [PocketIC](https://github.com/dfinity/pocketic) instance with a fiduciary subnet, covering all algorithm and merkle root combinations including negative cases (corrupted signature, message, and key):
 
 ```bash
-# Build the WASM first, then run the tests
-cargo build --package backend --target wasm32-unknown-unknown --release
+# Build the WASM via icp build (handles platform-specific C toolchain requirements
+# for secp256k1), then run the integration tests
+icp build backend
 cargo test --package backend --test integration_tests
 ```
 
