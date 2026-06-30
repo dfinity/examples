@@ -16,8 +16,10 @@ There is also a [Motoko version](https://github.com/dfinity/examples/tree/master
 ## Build and deploy from the command line
 
 ### Prerequisites
-- Node.js
-- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+
+- [Node.js](https://nodejs.org/) v18+
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [ic-mops](https://mops.one/docs/install): `npm install -g ic-mops`
 
 ### Install
 
