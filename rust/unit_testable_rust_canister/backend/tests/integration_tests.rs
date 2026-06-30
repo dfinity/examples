@@ -8,10 +8,10 @@ use std::time::SystemTime;
 use walkdir::WalkDir;
 
 // Import all request/response types from the library
-use hello_canister::types::nns_governance::{
+use backend::types::nns_governance::{
     Followees, Governance, NetworkEconomics, NeuronId, Proposal, ProposalData, ProposalId,
 };
-use hello_canister::types::*;
+use backend::types::*;
 
 // IC commit used for downloading official NNS WASM files
 // This should match what's currently deployed in production
@@ -22,7 +22,7 @@ const NNS_GOVERNANCE_CANISTER_ID: &str = "rrkah-fqaaa-aaaaa-aaaaq-cai";
 const NNS_ROOT_CANISTER_ID: &str = "r7inp-6aaaa-aaaaa-aaabq-cai";
 
 // WASM will be loaded dynamically with smart rebuilding
-fn get_hello_canister_wasm() -> Vec<u8> {
+fn get_backend_wasm() -> Vec<u8> {
     let wasm_path = ensure_wasm_built();
     std::fs::read(&wasm_path)
         .unwrap_or_else(|e| panic!("Failed to read WASM file at {:?}: {}", wasm_path, e))
@@ -30,8 +30,7 @@ fn get_hello_canister_wasm() -> Vec<u8> {
 
 /// Ensures the WASM is built and up-to-date, returns path to the WASM file
 fn ensure_wasm_built() -> PathBuf {
-    let wasm_path =
-        PathBuf::from("../../target/wasm32-unknown-unknown/release/hello_canister.wasm");
+    let wasm_path = PathBuf::from("../target/wasm32-unknown-unknown/release/backend.wasm");
     let src_dir = Path::new("src");
     let cargo_toml = Path::new("Cargo.toml");
 
@@ -163,8 +162,18 @@ fn get_governance_wasm() -> Vec<u8> {
     })
 }
 
-/// Sets up NNS Governance canister with correct mainnet ID and production-like initialization
-/// Uses default_governance_for_tests() to get realistic initialization parameters
+/// Sets up a minimal NNS Governance canister for testing.
+///
+/// **Expected errors in test output (non-fatal):**
+/// - `VotingPowerEconomics not found` / `Falling back to default` — the minimal init args
+///   don't include full VotingPowerEconomics; Governance falls back to defaults and continues.
+/// - `Error calling method 'icrc1_total_supply' of the ledger canister` — the ICP Ledger
+///   (`ryjl3-tyaaa-aaaaa-aaaba-cai`) is not deployed in this setup. Governance polls it
+///   periodically but the failure is non-fatal; it logs the error and proceeds.
+///
+/// Tests pass because they only read proposal data pre-seeded via init args, which does not
+/// require the ledger or voting power. This minimal setup is intentional — see the README
+/// section "Keeping Up With Mainnet Canister Changes" for the reasoning.
 fn setup_nns_governance(pic: &PocketIc) -> Principal {
     let governance_wasm = get_governance_wasm();
 
@@ -203,7 +212,7 @@ fn setup_nns_governance(pic: &PocketIc) -> Principal {
 #[test]
 fn test_counter_functionality() {
     let pic = setup_pocket_ic();
-    let canister_id = deploy_hello_canister(&pic);
+    let canister_id = deploy_backend_canister(&pic);
 
     // Initial counter should be 0
     let request = GetCountRequest {};
@@ -243,9 +252,9 @@ fn test_counter_functionality() {
         query(&pic, canister_id, "get_count", encode_one(request).unwrap());
     assert_eq!(response.count, Some(2));
 
-    // Increment counter
-    let request = IncrementCountRequest {};
-    let response: IncrementCountResponse = update(
+    // Decrement counter
+    let request = DecrementCountRequest {};
+    let response: DecrementCountResponse = update(
         &pic,
         canister_id,
         "decrement_count",
@@ -264,7 +273,7 @@ fn test_get_proposal_titles() {
     let pic = setup_pocket_ic();
     setup_nns_governance(&pic);
 
-    let canister_id = deploy_hello_canister(&pic);
+    let canister_id = deploy_backend_canister(&pic);
 
     // Test listing proposals (should return mock data)
     let request = GetProposalTitlesRequest { limit: None };
@@ -310,7 +319,7 @@ fn test_get_proposal_titles() {
 #[test]
 fn test_get_proposal_info() {
     let pic = setup_pocket_ic();
-    let canister_id = deploy_hello_canister(&pic);
+    let canister_id = deploy_backend_canister(&pic);
     setup_nns_governance(&pic);
 
     // Test with a proposal ID
@@ -352,12 +361,12 @@ fn setup_pocket_ic() -> PocketIc {
         .build()
 }
 
-fn deploy_hello_canister(pic: &PocketIc) -> Principal {
+fn deploy_backend_canister(pic: &PocketIc) -> Principal {
     let canister_id = pic.create_canister();
     pic.add_cycles(canister_id, 2_000_000_000_000);
 
     // Use smart WASM rebuilding - will only rebuild if source files changed
-    let wasm_binary = get_hello_canister_wasm();
+    let wasm_binary = get_backend_wasm();
 
     pic.install_canister(canister_id, wasm_binary, vec![], None);
 
@@ -384,7 +393,7 @@ fn update<T: CandidType + for<'de> Deserialize<'de>>(
     }
 }
 
-/// Generic query call helper  
+/// Generic query call helper
 fn query<T: CandidType + for<'de> Deserialize<'de>>(
     pic: &PocketIc,
     canister_id: Principal,

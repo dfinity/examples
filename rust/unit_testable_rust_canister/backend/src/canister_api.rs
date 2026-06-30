@@ -1,10 +1,8 @@
 use crate::counter::Counter;
 use crate::governance::GovernanceApi;
-use crate::stable_memory;
 use crate::types::nns_governance::{Proposal, ProposalInfo};
 use crate::types::*;
 use std::cell::RefCell;
-use std::ops::Deref;
 use std::sync::Arc;
 use std::thread::LocalKey;
 // =============================================================================
@@ -171,7 +169,7 @@ mod tests {
 
     #[test]
     fn test_counter_endpoints() {
-        // Each test runs in its own thread, so stable memory is isolated
+        // Each test creates a fresh TestCounter (in-memory Arc<Mutex<u64>>), so counter state is isolated per test
         let api = create_test_api();
 
         let response = api.get_count();

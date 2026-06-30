@@ -1,7 +1,6 @@
-// This is an experimental feature to generate Rust binding from Candid.
-// You may want to manually adjust some of the types.
+// Generated types — naming conventions differ from Rust style by design.
+#![allow(non_camel_case_types)]
 use candid::{self, CandidType, Deserialize};
-use ic_cdk::api::call::CallResult;
 
 #[derive(CandidType, Deserialize, Debug, Clone, serde::Serialize)]
 pub struct NeuronId {
