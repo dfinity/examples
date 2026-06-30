@@ -85,24 +85,20 @@ declarations::nns_governance::list_neurons(&request).await
 
 ## Fetching and updating Candid definitions
 
-`candid/nns_governance.did` is already checked in and ready to use. To refresh it from the live canister:
+`candid/nns_governance.did` is already checked in and ready to use. To update it from the live canister:
 
 ```bash
 bash scripts/fetch_candid.sh
 ```
 
-This runs:
-```bash
-icp canister metadata --network ic rrkah-fqaaa-aaaaa-aaaaq-cai candid:service \
-  > candid/nns_governance.did
-```
+This fetches the `candid:service` metadata from the NNS Governance canister on the IC mainnet and writes it to `candid/nns_governance.did`.
 
 After refreshing, rebuild to regenerate the Rust types:
 ```bash
 icp build backend
 ```
 
-If the Candid interface changed in a breaking way (a method removed, a field type changed), you will get a **compile error** — not a runtime failure. This is the key safety property of the approach: interface mismatches are caught before the canister is ever deployed.
+If the Candid interface changed in a way that breaks your code (a removed method, a renamed required field), you will get a **compile error** — not a runtime failure. Note that Candid-compatible changes like adding an optional field also require updating code that constructs request structs, even though the `.did` file itself is still valid.
 
 **Reproducibility note**: Always commit the `.did` file. The generated Rust (`$OUT_DIR/nns_governance.rs`) is deterministically derived from it at build time, so committing the `.did` is sufficient to reproduce any historical build exactly. Regenerating from mainnet at an arbitrary time would produce different types if the canister interface had changed, making it impossible to reproduce historical WASM bytes — which matters for any third-party verification.
 
@@ -121,7 +117,6 @@ If the Candid interface changed in a breaking way (a method removed, a field typ
 
 - [Node.js](https://nodejs.org/) v18+
 - [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
-- [ic-mops](https://mops.one/docs/install): `npm install -g ic-mops`
 
 ## Deploy and test
 

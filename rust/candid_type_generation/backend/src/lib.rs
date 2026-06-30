@@ -2,7 +2,7 @@
 // candid/nns_governance.did via build.rs. See src/declarations/mod.rs.
 mod declarations;
 
-use declarations::nns_governance::{ListNeurons, ListNeuronsResponse};
+use declarations::nns_governance::ListNeurons;
 
 /// Fetches neurons from the NNS Governance canister and returns them as a JSON string.
 ///
@@ -10,25 +10,6 @@ use declarations::nns_governance::{ListNeurons, ListNeuronsResponse};
 /// Inter-canister calls are only allowed from update calls on the IC.
 #[ic_cdk::update]
 async fn list_neurons_pretty() -> String {
-    match fetch_neurons().await {
-        Ok(response) => match serde_json::to_string_pretty(&response) {
-            Ok(json) => format!("NNS Governance Neurons:\n{}", json),
-            Err(_) => format!("NNS Governance Neurons (Debug):\n{:#?}", response),
-        },
-        Err(err) => format!("Error fetching neurons: {}", err),
-    }
-}
-
-/// Makes a typed inter-canister call to the NNS Governance canister.
-///
-/// `declarations::nns_governance::list_neurons` is a generated function that:
-///   1. Encodes `arg` as Candid
-///   2. Calls the `list_neurons` method on the NNS Governance canister
-///   3. Decodes the response as `ListNeuronsResponse`
-///
-/// The canister ID (`rrkah-fqaaa-aaaaa-aaaaq-cai`) is embedded as a constant in the
-/// generated code — set in build.rs via `.static_callee(principal)`.
-async fn fetch_neurons() -> Result<ListNeuronsResponse, String> {
     let request = ListNeurons {
         neuron_ids: vec![],
         include_neurons_readable_by_caller: true,
@@ -39,9 +20,18 @@ async fn fetch_neurons() -> Result<ListNeuronsResponse, String> {
         neuron_subaccounts: None,
     };
 
-    declarations::nns_governance::list_neurons(&request)
-        .await
-        .map_err(|e| format!("Inter-canister call failed: {}", e))
+    // Generated from candid/nns_governance.did — calls the NNS Governance canister.
+    // The canister ID (rrkah-fqaaa-aaaaa-aaaaq-cai) is embedded as CANISTER_ID
+    // in the generated code, set in build.rs via .static_callee(principal).
+    let response = match declarations::nns_governance::list_neurons(&request).await {
+        Ok(response) => response,
+        Err(e) => return format!("Error fetching neurons: {}", e),
+    };
+
+    match serde_json::to_string_pretty(&response) {
+        Ok(json) => format!("NNS Governance Neurons:\n{}", json),
+        Err(_) => format!("NNS Governance Neurons (Debug):\n{:#?}", response),
+    }
 }
 
 ic_cdk::export_candid!();

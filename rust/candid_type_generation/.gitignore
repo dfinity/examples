@@ -1,2 +1,2 @@
-# ic-cdk-bindgen writes generated Rust types to Cargo's $OUT_DIR at build time.
-# Only candid/nns_governance.did is committed; the generated .rs file is not.
+# Rust build artifacts — generated code from ic-cdk-bindgen goes to Cargo's OUT_DIR
+# (inside target/), which is already covered by the root .gitignore.
