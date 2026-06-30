@@ -81,11 +81,12 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
     .unwrap()
     .public_key_hex;
 
-    let successful_validation = Ok::<SignatureVerificationReply, String>(
-        SignatureVerificationReply {
-            is_signature_valid: true,
-        },
-    );
+    // The outer Result is the network/call result; the inner is the canister's return value.
+    // For negative cases the canister may either return Err or trap (rejected call).
+    // Both are != Ok(Ok(SignatureVerificationReply { is_signature_valid: true })).
+    let verified = Ok(Ok::<SignatureVerificationReply, String>(
+        SignatureVerificationReply { is_signature_valid: true },
+    ));
 
     let sig_reply: Result<SignatureReply, String> = update(
         pic,
@@ -104,7 +105,7 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
         );
         // Even with a dummy signature, verify should reject it.
         let dummy_sig = "a".repeat(128);
-        let verify_reply: Result<SignatureVerificationReply, String> = update(
+        let verify_reply = update::<Result<SignatureVerificationReply, String>>(
             pic,
             my_principal,
             example_canister_id,
@@ -117,9 +118,8 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
                 algorithm,
             ))
             .unwrap(),
-        )
-        .expect("update call failed");
-        assert_ne!(verify_reply, successful_validation);
+        );
+        assert_ne!(verify_reply, verified);
         return;
     }
 
@@ -127,7 +127,7 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
 
     // Valid signature verifies.
     {
-        let reply: Result<SignatureVerificationReply, String> = update(
+        let reply = update::<Result<SignatureVerificationReply, String>>(
             pic,
             my_principal,
             example_canister_id,
@@ -141,97 +141,50 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
             ))
             .unwrap(),
         )
-        .expect("update call failed");
+        .expect("verify update call unexpectedly failed");
 
         if should_validate {
-            assert_eq!(reply, successful_validation, "valid signature should verify");
+            assert_eq!(reply, Ok(SignatureVerificationReply { is_signature_valid: true }), "valid signature should verify");
         } else {
-            assert_ne!(reply, successful_validation);
+            assert_ne!(reply, Ok(SignatureVerificationReply { is_signature_valid: true }));
         }
     }
 
-    // Corrupted signature does not verify.
-    {
-        let reply: Result<SignatureVerificationReply, String> = update(
-            pic,
-            my_principal,
-            example_canister_id,
-            "verify",
-            encode_args((
-                reverse_chars(&signature_hex),
-                message.clone(),
-                public_key_hex.clone(),
-                merkle_tree_root_hex.clone(),
-                algorithm,
-            ))
-            .unwrap(),
-        )
-        .expect("update call failed");
-        assert_ne!(reply, successful_validation);
-    }
+    // Corrupted signature does not verify (canister may return Err or trap).
+    assert_ne!(
+        update::<Result<SignatureVerificationReply, String>>(
+            pic, my_principal, example_canister_id, "verify",
+            encode_args((reverse_chars(&signature_hex), message.clone(), public_key_hex.clone(), merkle_tree_root_hex.clone(), algorithm)).unwrap(),
+        ),
+        verified,
+    );
 
     // Corrupted message does not verify.
-    {
-        let reply: Result<SignatureVerificationReply, String> = update(
-            pic,
-            my_principal,
-            example_canister_id,
-            "verify",
-            encode_args((
-                signature_hex.clone(),
-                reverse_chars(&message),
-                public_key_hex.clone(),
-                merkle_tree_root_hex.clone(),
-                algorithm,
-            ))
-            .unwrap(),
-        )
-        .expect("update call failed");
-        assert_ne!(reply, successful_validation);
-    }
+    assert_ne!(
+        update::<Result<SignatureVerificationReply, String>>(
+            pic, my_principal, example_canister_id, "verify",
+            encode_args((signature_hex.clone(), reverse_chars(&message), public_key_hex.clone(), merkle_tree_root_hex.clone(), algorithm)).unwrap(),
+        ),
+        verified,
+    );
 
-    // Corrupted public key does not verify.
-    {
-        let reply: Result<SignatureVerificationReply, String> = update(
-            pic,
-            my_principal,
-            example_canister_id,
-            "verify",
-            encode_args((
-                signature_hex.clone(),
-                message.clone(),
-                reverse_chars(&public_key_hex),
-                merkle_tree_root_hex.clone(),
-                algorithm,
-            ))
-            .unwrap(),
-        )
-        .expect("update call failed");
-        assert_ne!(reply, successful_validation);
-    }
+    // Corrupted public key does not verify (canister traps on invalid key bytes).
+    assert_ne!(
+        update::<Result<SignatureVerificationReply, String>>(
+            pic, my_principal, example_canister_id, "verify",
+            encode_args((signature_hex.clone(), message.clone(), reverse_chars(&public_key_hex), merkle_tree_root_hex.clone(), algorithm)).unwrap(),
+        ),
+        verified,
+    );
 
-    // Wrong algorithm returns an error (key sizes differ between BIP340 and Ed25519).
-    {
-        let reply: Result<SignatureVerificationReply, String> = update(
-            pic,
-            my_principal,
-            example_canister_id,
-            "verify",
-            encode_args((
-                signature_hex.clone(),
-                message.clone(),
-                public_key_hex.clone(),
-                merkle_tree_root_hex.clone(),
-                other_algorithm(algorithm),
-            ))
-            .unwrap(),
-        )
-        .expect("update call failed");
-        assert!(
-            reply.is_err(),
-            "ed25519 and BIP340 keys have different sizes so verification should fail"
-        );
-    }
+    // Wrong algorithm: key sizes differ between BIP340 and Ed25519 so the canister traps.
+    assert_ne!(
+        update::<Result<SignatureVerificationReply, String>>(
+            pic, my_principal, example_canister_id, "verify",
+            encode_args((signature_hex.clone(), message.clone(), public_key_hex.clone(), merkle_tree_root_hex.clone(), other_algorithm(algorithm))).unwrap(),
+        ),
+        verified,
+    );
 }
 
 // ── Helpers ─────────────────────────────────────────────────────────────────
