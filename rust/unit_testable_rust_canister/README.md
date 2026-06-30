@@ -169,20 +169,7 @@ cargo test --lib
 
 ### Run PocketIC integration tests
 
-Integration tests use PocketIC and require the [PocketIC server](https://github.com/dfinity/pocketic/releases). Install it first:
-
-```bash
-# macOS (Apple Silicon)
-curl -sL https://github.com/dfinity/pocketic/releases/download/15.0.0/pocket-ic-arm64-darwin.gz | gunzip > pocket-ic-server
-# macOS (Intel)
-curl -sL https://github.com/dfinity/pocketic/releases/download/15.0.0/pocket-ic-x86_64-darwin.gz | gunzip > pocket-ic-server
-# Linux (x86_64)
-curl -sL https://github.com/dfinity/pocketic/releases/download/15.0.0/pocket-ic-x86_64-linux.gz | gunzip > pocket-ic-server
-chmod +x pocket-ic-server
-export POCKET_IC_BIN=$(pwd)/pocket-ic-server
-```
-
-Then:
+Integration tests use [PocketIC](https://github.com/dfinity/pocketic). The PocketIC server binary is downloaded automatically on first run. To use a pre-existing binary instead, set `POCKET_IC_BIN` to its path before running the tests.
 
 ```bash
 # Build WASM first (required by integration tests)
