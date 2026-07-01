@@ -1,0 +1,19 @@
+canisters:
+  # Only backend (Map) is deployed. bucket (Bucket) is a compile-time dependency:
+  # backend embeds the bucket WASM via include_bytes! and installs bucket canister
+  # instances programmatically at runtime on the first put() call.
+  - name: backend
+    build:
+      steps:
+        - type: script
+          commands:
+            - command -v ic-wasm >/dev/null 2>&1 || { echo >&2 'ic-wasm not found. Run `npm install -g @icp-sdk/ic-wasm` to install it.'; exit 1; }
+        - type: script
+          commands:
+            - cargo build --package bucket --target wasm32-unknown-unknown --release
+            - cargo build --package backend --target wasm32-unknown-unknown --release
+            - cp "target/wasm32-unknown-unknown/release/backend.wasm" "$ICP_WASM_OUTPUT_PATH"
+        - type: script
+          commands:
+            - ic-wasm "$ICP_WASM_OUTPUT_PATH" -o "${ICP_WASM_OUTPUT_PATH}" metadata "cargo:version" -d "$(cargo --version)" --keep-name-section
+            - ic-wasm "$ICP_WASM_OUTPUT_PATH" -o "${ICP_WASM_OUTPUT_PATH}" metadata "template:type" -d "rust" --keep-name-section

@@ -1,4 +1,0 @@
-service : {
-    "put" : (nat, nat) -> (opt nat);
-    "get" : (nat) -> (opt nat) query;
-};
