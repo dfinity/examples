@@ -1,6 +1,6 @@
 # Threshold ECDSA
 
-This example demonstrates threshold ECDSA signing, part of ICP's [chain-key cryptography](https://docs.internetcomputer.org/concepts/chain-key-cryptography/#chain-key-signatures-threshold-ecdsa-and-schnorr). The canister acts as a signing oracle: callers can request a threshold ECDSA public key and sign arbitrary messages using the corresponding private key — without the canister ever holding the key material itself.
+This example demonstrates threshold ECDSA signing, part of ICP's [chain-key cryptography](https://docs.internetcomputer.org/concepts/chain-key-cryptography/#chain-key-signatures-threshold-ecdsa-and-schnorr). The canister acts as a signing oracle: callers can request a threshold ECDSA public key derived from their principal, and sign arbitrary messages using the corresponding private key — without the canister ever holding the key material itself.
 
 See the [Motoko version](../../motoko/threshold-ecdsa) for a comparison.
 
@@ -35,11 +35,11 @@ The canister is configured with `KEY_NAME = "test_key_1"` by default (the master
 
 ## Obtaining public keys
 
-Call `public_key()` to retrieve the ECDSA public key. The derivation path is left empty, so this returns the canister root key.
+Call `public_key()` to retrieve the ECDSA public key derived for the calling principal. The canister uses the caller's principal bytes as the derivation path, so different callers receive different keys.
 
 ### Key derivation
 
-To obtain a key below the root in the BIP-32 hierarchy, a derivation path must be specified. Each element in the derivation path array is either a 32-bit integer encoded as 4 bytes in big-endian, or a byte array of arbitrary length. Different derivation paths produce different keys — for example, passing the caller's principal bytes as a path element gives each caller a unique key.
+To obtain a key below the root in the BIP-32 hierarchy, a derivation path must be specified. Each element in the derivation path array is either a 32-bit integer encoded as 4 bytes in big-endian, or a byte array of arbitrary length.
 
 ## Signing
 

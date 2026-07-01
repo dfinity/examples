@@ -27,7 +27,7 @@ const KEY_NAME: &str = "test_key_1";
 async fn public_key() -> Result<PublicKeyReply, String> {
     let response = ic_cdk_management_canister::ecdsa_public_key(&EcdsaPublicKeyArgs {
         canister_id: None,
-        derivation_path: vec![],
+        derivation_path: vec![ic_cdk::api::msg_caller().as_slice().to_vec()],
         key_id: EcdsaKeyId { curve: EcdsaCurve::Secp256k1, name: KEY_NAME.to_string() },
     })
     .await
@@ -42,7 +42,7 @@ async fn public_key() -> Result<PublicKeyReply, String> {
 async fn sign(message: String) -> Result<SignatureReply, String> {
     let response = ic_cdk_management_canister::sign_with_ecdsa(&SignWithEcdsaArgs {
         message_hash: sha256(&message).to_vec(),
-        derivation_path: vec![],
+        derivation_path: vec![ic_cdk::api::msg_caller().as_slice().to_vec()],
         key_id: EcdsaKeyId { curve: EcdsaCurve::Secp256k1, name: KEY_NAME.to_string() },
     })
     .await
