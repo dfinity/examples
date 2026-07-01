@@ -1,2 +1,0 @@
-# Rust build artifacts — generated code from ic-cdk-bindgen goes to Cargo's OUT_DIR
-# (inside target/), which is already covered by the root .gitignore.
