@@ -1,8 +1,8 @@
 [package]
 name = "multi_subnet"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [dependencies]
-pocket-ic = "14.0.0"
-candid = "0.10.29"
+candid = "0.10"
+pocket-ic = "15.0.0"
