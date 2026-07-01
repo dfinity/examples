@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-test_id=$(icp canister id test)
+test_id=$(icp canister status test -i)
 echo "Test canister ID: $test_id"
 
 echo "=== Test 1: info returns canister history for the test canister ==="
