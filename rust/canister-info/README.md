@@ -1,32 +1,45 @@
-# Canister info
+# Canister Info
 
-The purpose of this dapp is to give developers a small (backend) dapp that uses the IC's `canister_info` management call to retrieve information about canisters including canister history.
+This example demonstrates how to use the IC's [`canister_info`](https://docs.internetcomputer.org/concepts/system-management-canister/#canister-info) management call to retrieve information about any canister, including its full change history.
 
-You can find a detailed description of its methods in the form of doc comments in the source code.
+Two canisters are deployed:
 
-Please also refer to the [Interface Specification](https://internetcomputer.org/docs/current/references/ic-interface-spec#ic-canister-info) for details about the `canister_info` management call.
+- **`backend`** — provides five query/update endpoints for inspecting any canister by principal: `info`, `reflexive_transitive_controllers`, `canister_controllers`, `canister_module_hash`, and `canister_deployment_chain`. See the source code for detailed doc comments on each method.
+- **`test`** — a minimal pre-built canister with no logic, deployed purely to provide a subject for the backend's canister info queries in `test.sh`.
 
-## Deploying from ICP Ninja
+The `backend` passes the target canister's principal ID as an argument to the management canister's `canister_info` call — it does not call the `test` canister directly. This means the backend works with the ID of any deployed canister, not just `test`.
 
-When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Run" in the upper right corner. Open this project in ICP Ninja:
+## Build and deploy from the command line
 
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/rust/canister-info)
+### Prerequisites
 
-## Build and deploy from the command-line
+- [Node.js](https://nodejs.org/) v18+
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Rust](https://www.rust-lang.org/tools/install) with `wasm32-unknown-unknown` target: `rustup target add wasm32-unknown-unknown`
 
-### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
+### Install
 
-### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
-
-### 3. Navigate into the project's directory.
-
-### 4. Deploy the project to your local environment:
-
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/rust/canister-info
 ```
-dfx start --background --clean && dfx deploy
+
+### Deploy and test
+
+```bash
+icp network start -d
+icp deploy
+bash test.sh
+icp network stop
+```
+
+After deploying, you can inspect any canister by passing its principal to the backend. For example, to inspect the `test` canister itself:
+
+```bash
+test_id=$(icp canister id test)
+icp canister call backend info "(principal \"$test_id\")"
 ```
 
 ## Security considerations and best practices
 
-If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/developer-docs/security/) for developing on the Internet Computer. This example may not implement all the best practices.
-
+If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for developing on the Internet Computer. This example may not implement all the best practices.
