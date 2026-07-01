@@ -37,8 +37,10 @@ fn periodic_task() {
 /// Tracks the amount of cycles used for the periodic task.
 fn track_cycles_used() {
     // Update the `INITIAL_CANISTER_BALANCE` if needed.
-    // Cast u128 → u64: safe in practice as canister cycle balances fit within u64.
-    let current_canister_balance = ic_cdk::api::canister_cycle_balance() as u64;
+    // canister_cycle_balance() returns u128; saturate at u64::MAX rather than
+    // wrapping silently. Balances never reach u64::MAX in practice (~18 quintillion).
+    let current_canister_balance =
+        u64::try_from(ic_cdk::api::canister_cycle_balance()).unwrap_or(u64::MAX);
     INITIAL_CANISTER_BALANCE.fetch_max(current_canister_balance, Ordering::Relaxed);
     // Store the difference between the initial and the current balance.
     let cycles_used = INITIAL_CANISTER_BALANCE.load(Ordering::Relaxed) - current_canister_balance;
