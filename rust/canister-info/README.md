@@ -40,6 +40,12 @@ test_id=$(icp canister id test)
 icp canister call backend info "(principal \"$test_id\")"
 ```
 
+## Canister history limit
+
+The IC retains only the **most recent 20 changes** per canister. The `info` function requests up to 20 changes via `num_requested_changes: Some(20)`. Once a canister exceeds 20 changes, older entries are dropped permanently.
+
+If you need a full audit trail for a frequently-changing canister, you must poll `info` regularly and persist the history yourself before entries fall off. See the [canister history documentation](https://docs.internetcomputer.org/guides/canister-management/lifecycle/#canister-history) for details.
+
 ## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize yourself with and adhere to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for developing on the Internet Computer. This example may not implement all the best practices.

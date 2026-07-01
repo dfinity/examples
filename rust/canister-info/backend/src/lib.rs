@@ -12,6 +12,8 @@ use serde::Deserialize;
 async fn info(canister_id: Principal) -> CanisterInfoResult {
     let args = CanisterInfoArgs {
         canister_id,
+        // The IC retains only the most recent 20 changes per canister.
+        // Poll regularly and persist entries if you need a full audit trail.
         num_requested_changes: Some(20),
     };
     canister_info(&args).await.expect("canister_info call failed")
