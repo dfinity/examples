@@ -19,8 +19,7 @@ struct SignatureVerificationReply {
     pub is_signature_valid: bool,
 }
 
-// Use "test_key_1" for mainnet test key, "key_1" for mainnet production key,
-// or "dfx_test_key" for local development.
+// Use "key_1" for mainnet production key.
 const KEY_ID: EcdsaKeyIds = EcdsaKeyIds::TestKey1;
 
 #[update]
@@ -85,8 +84,6 @@ fn sha256(input: &str) -> [u8; 32] {
 
 enum EcdsaKeyIds {
     #[allow(unused)]
-    TestKeyLocalDevelopment,
-    #[allow(unused)]
     TestKey1,
     #[allow(unused)]
     ProductionKey1,
@@ -97,7 +94,6 @@ impl EcdsaKeyIds {
         EcdsaKeyId {
             curve: EcdsaCurve::Secp256k1,
             name: match self {
-                Self::TestKeyLocalDevelopment => "dfx_test_key",
                 Self::TestKey1 => "test_key_1",
                 Self::ProductionKey1 => "key_1",
             }
@@ -117,3 +113,5 @@ getrandom::register_custom_getrandom!(always_fail);
 pub fn always_fail(_buf: &mut [u8]) -> Result<(), getrandom::Error> {
     Err(getrandom::Error::UNSUPPORTED)
 }
+
+ic_cdk::export_candid!();

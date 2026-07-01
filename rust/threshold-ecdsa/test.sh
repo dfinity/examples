@@ -16,6 +16,8 @@ result=$(icp canister call backend sign '("hello world")') && \
 echo "=== Test 3/3: signature verifies cryptographically (secp256k1) ==="
 npm install --silent
 
+export LC_ALL=C
+
 function get_text_in_double_quotes() {
     printf '%s' "$(echo "$1" | sed -e 's/^[^"]*"//' -e 's/".*//g')"
 }
