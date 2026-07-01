@@ -13,19 +13,20 @@ This example demonstrates both scheduling approaches. It consists of two caniste
 
 ### Prerequisites
 
-- Node.js
-- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Node.js](https://nodejs.org/) v18+
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Rust](https://www.rust-lang.org/tools/install) with `wasm32-unknown-unknown` target: `rustup target add wasm32-unknown-unknown`
 
 ### Install
 
-```sh
+```bash
 git clone https://github.com/dfinity/examples
 cd examples/rust/periodic_tasks
 ```
 
 ### Deploy and test
 
-```sh
+```bash
 icp network start -d
 icp deploy
 bash test.sh
@@ -40,7 +41,7 @@ Both canisters are deployed with an initial interval of 10 seconds. After deploy
 
 For periodic tasks with a 10-second interval, the `heartbeat` canister uses *more* cycles than the `timer` canister:
 
-```sh
+```bash
 icp canister call --query timer cycles_used '()'
 # (2_112_067 : nat64)
 
@@ -54,14 +55,14 @@ Timers also provide isolation between the scheduling logic and the periodic task
 
 ```rust
 // Pseudo-code of the internal self-call:
-ic_cdk::call(ic_cdk::id(), "periodic_task", ());
+ic_cdk::call::Call::bounded_wait(ic_cdk::id(), "periodic_task").await;
 ```
 
 ### Cycles usage at 1-second intervals
 
 At 1-second intervals the picture inverts: the `heartbeat` canister uses *fewer* cycles than `timer`:
 
-```sh
+```bash
 icp canister call --query timer cycles_used '()'
 # (4_545_326 : nat64)
 

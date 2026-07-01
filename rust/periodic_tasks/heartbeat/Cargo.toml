@@ -1,9 +1,10 @@
 [package]
-edition = "2021"
 name = "heartbeat"
 version = "0.1.0"
+edition = "2024"
 
 [lib]
+# cdylib produces a .wasm binary suitable for deployment as an ICP canister.
 crate-type = ["cdylib"]
 
 [dependencies]

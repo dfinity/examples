@@ -37,7 +37,8 @@ fn periodic_task() {
 /// Tracks the amount of cycles used for the periodic task.
 fn track_cycles_used() {
     // Update the `INITIAL_CANISTER_BALANCE` if needed.
-    let current_canister_balance = ic_cdk::api::canister_balance();
+    // Cast u128 → u64: safe in practice as canister cycle balances fit within u64.
+    let current_canister_balance = ic_cdk::api::canister_cycle_balance() as u64;
     INITIAL_CANISTER_BALANCE.fetch_max(current_canister_balance, Ordering::Relaxed);
     // Store the difference between the initial and the current balance.
     let cycles_used = INITIAL_CANISTER_BALANCE.load(Ordering::Relaxed) - current_canister_balance;
@@ -54,7 +55,7 @@ fn counter() -> u32 {
     COUNTER.with(|counter| *counter.borrow())
 }
 
-/// Starts a new periodic tasks to increment the `COUNTER` with specified
+/// Starts a new periodic task to increment the `COUNTER` with specified
 /// interval in seconds.
 ///
 /// It is implementation-defined when exactly the timer handler will be called.
@@ -64,13 +65,13 @@ fn start_with_interval_secs(secs: u64) {
     let secs = Duration::from_secs(secs);
     ic_cdk::println!("Timer canister: Starting a new timer with {secs:?} interval...");
     // Schedule a new periodic task to increment the counter.
-    let timer_id = ic_cdk_timers::set_timer_interval(secs, periodic_task);
+    // ic-cdk-timers 1.0 requires the closure to return a Future.
+    let timer_id = ic_cdk_timers::set_timer_interval(secs, || async { periodic_task() });
     // Add the timer ID to the global vector.
     TIMER_IDS.with(|timer_ids| timer_ids.borrow_mut().push(timer_id));
 
-    // To drive an async function to completion inside the timer handler,
-    // use `ic_cdk::spawn()`, for example:
-    // ic_cdk_timers::set_timer_interval(interval, || ic_cdk::spawn(async_function()));
+    // To call an async function from a timer handler, use it directly:
+    // ic_cdk_timers::set_timer_interval(interval, || async { async_function().await });
 }
 
 /// Stops incrementing the counter by clearing the last timer ID.
@@ -113,3 +114,5 @@ fn init(min_interval_secs: u64) {
 fn post_upgrade(min_interval_secs: u64) {
     init(min_interval_secs);
 }
+
+ic_cdk::export_candid!();

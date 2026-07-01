@@ -3,8 +3,7 @@
 use std::{
     cell::RefCell,
     sync::atomic::{AtomicU64, Ordering},
-    time::Duration,
-    time::SystemTime,
+    time::{Duration, SystemTime},
 };
 
 thread_local! {
@@ -41,7 +40,8 @@ fn periodic_task() {
 /// Tracks the amount of cycles used for the periodic task.
 fn track_cycles_used() {
     // Update the `INITIAL_CANISTER_BALANCE` if needed.
-    let current_canister_balance = ic_cdk::api::canister_balance();
+    // Cast u128 → u64: safe in practice as canister cycle balances fit within u64.
+    let current_canister_balance = ic_cdk::api::canister_cycle_balance() as u64;
     INITIAL_CANISTER_BALANCE.fetch_max(current_canister_balance, Ordering::Relaxed);
     // Store the difference between the initial and the current balance.
     let cycles_used = INITIAL_CANISTER_BALANCE.load(Ordering::Relaxed) - current_canister_balance;
@@ -65,17 +65,17 @@ fn heartbeat() {
     let now = SystemTime::UNIX_EPOCH + Duration::from_nanos(time_nanos);
     LAST_PERIODIC_TASK_TIME.with(|last_periodic_task_time| {
         let min_interval_secs = MIN_INTERVAL_SECS.load(Ordering::Relaxed);
-        // Check is it's time to call the periodic task.
+        // Check if it's time to call the periodic task.
         if *last_periodic_task_time.borrow() + Duration::from_secs(min_interval_secs) < now {
             // Note, the heartbeat code and the periodic task are executed
             // in the same context. If the periodic task fails, all the
             // changes will be reverted by the IC, i.e. the `LAST_PERIODIC_TASK_TIME`
-            // variable wont be updated.
+            // variable won't be updated.
             //
             // To isolate the execution contexts of the scheduling logic and
             // the periodic task, a self canister call might be used instead
-            // of the direct function call, i.e.:
-            //   ic_cdk::call(ic_cdk::id(), "periodic_task", ());
+            // of the direct function call, e.g.:
+            //   ic_cdk::call::Call::bounded_wait(ic_cdk::id(), "periodic_task").await;
             periodic_task();
             // Update the time when the periodic task was last called.
             *last_periodic_task_time.borrow_mut() = now;
@@ -139,3 +139,5 @@ fn init(min_interval_secs: u64) {
 fn post_upgrade(min_interval_secs: u64) {
     init(min_interval_secs);
 }
+
+ic_cdk::export_candid!();
