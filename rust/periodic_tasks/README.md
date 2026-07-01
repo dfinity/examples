@@ -94,7 +94,7 @@ Example — start a second timer with a 5-second interval to find the breakeven 
 
 ```bash
 icp canister call timer start_with_interval_secs '(5 : nat64)'
-icp canister call timer cycles_used '()'
+icp canister call --query timer cycles_used '()'
 ```
 
 ## Conclusion

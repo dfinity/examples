@@ -8,8 +8,9 @@ thread_local! {
     static COUNTER: RefCell<u32> = RefCell::new(0);
     /// The global vector to keep multiple timer IDs.
     static TIMER_IDS: RefCell<Vec<TimerId>> = RefCell::new(Vec::new());
-    /// Initial canister balance to track the cycles usage.
-    static INITIAL_CANISTER_BALANCE: RefCell<u128> = RefCell::new(0);
+    /// Peak canister balance observed so far — used as baseline for tracking cycles spent.
+    /// Resets upward if the canister receives additional cycles (top-up).
+    static PEAK_CANISTER_BALANCE: RefCell<u128> = RefCell::new(0);
     /// Canister cycles usage tracked in the periodic task.
     static CYCLES_USED: RefCell<u128> = RefCell::new(0);
 }
@@ -32,16 +33,16 @@ fn periodic_task() {
 /// Tracks the amount of cycles used for the periodic task.
 fn track_cycles_used() {
     let current = ic_cdk::api::canister_cycle_balance();
-    // Update `INITIAL_CANISTER_BALANCE` to the highest observed balance.
-    INITIAL_CANISTER_BALANCE.with(|initial| {
+    // Update `PEAK_CANISTER_BALANCE` to the highest observed balance.
+    PEAK_CANISTER_BALANCE.with(|initial| {
         if current > *initial.borrow() {
             *initial.borrow_mut() = current;
         }
     });
-    // Store the difference between the initial and the current balance.
+    // Store the difference between the peak and the current balance.
     CYCLES_USED.with(|used| {
         *used.borrow_mut() =
-            INITIAL_CANISTER_BALANCE.with(|initial| *initial.borrow()) - current;
+            PEAK_CANISTER_BALANCE.with(|peak| *peak.borrow()) - current;
     });
 }
 
@@ -86,7 +87,8 @@ fn stop() {
     });
 }
 
-/// Returns the amount of cycles used since the beginning of the execution.
+/// Returns the cycles spent since the peak canister balance was last observed.
+/// Resets if the canister is topped up (a top-up raises the peak, resetting the delta).
 #[ic_cdk::query]
 fn cycles_used() -> u128 {
     CYCLES_USED.with(|used| *used.borrow())
