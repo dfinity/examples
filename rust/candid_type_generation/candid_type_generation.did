@@ -1,3 +1,0 @@
-service : {
-  list_neurons_pretty : () -> (text);
-}
