@@ -63,9 +63,8 @@ thread_local! {
 
 /// Accepts an optional key name at deploy time.
 ///
-/// Defaults to `"test_key_1"` (mainnet test key, also supported on the local network).
-/// Pass `opt "key_1"` as init arg for mainnet production, or `opt "key_1"` in
-/// PocketIC integration tests where only `key_1` is available on the fiduciary subnet.
+/// Defaults to `"test_key_1"` (master test key, works on the local network and mainnet).
+/// Pass `opt "key_1"` as the init arg to use the production key on mainnet.
 #[ic_cdk::init]
 fn init(key_name: Option<String>) {
     if let Some(name) = key_name {

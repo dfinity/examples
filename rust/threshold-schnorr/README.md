@@ -65,7 +65,7 @@ Available key names:
 - `test_key_1`: default — master **test** key, works on both the local network and mainnet
 - `key_1`: master **production** key on mainnet
 
-PocketIC integration tests pass `opt "key_1"` as the init argument when installing the canister, since the PocketIC fiduciary subnet only provides `key_1`.
+The PocketIC integration tests use `with_test_threshold_keys_subnet()`, which provides `test_key_1` — no init arg override needed.
 
 ## How it works
 

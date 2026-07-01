@@ -8,7 +8,8 @@ use serde::Deserialize;
 /// (absent, empty, invalid length, valid 32 bytes) for sign+verify, plus negative cases.
 ///
 /// The PocketIC instance is reused across iterations for speed.
-/// The fiduciary subnet is required for threshold signing operations.
+/// The test threshold keys subnet provides `test_key_1` and `dfx_test_key`, matching
+/// the canister's default key (`test_key_1`).
 #[test]
 fn signing_and_verification_should_work_correctly() {
     const ALGORITHMS: [SchnorrAlgorithm; 2] =
@@ -18,8 +19,7 @@ fn signing_and_verification_should_work_correctly() {
 
     let pic = PocketIcBuilder::new()
         .with_application_subnet()
-        .with_ii_subnet()
-        .with_fiduciary_subnet()
+        .with_test_threshold_keys_subnet()
         .build();
 
     for algorithm in ALGORITHMS {
@@ -47,13 +47,7 @@ fn test_impl(pic: &PocketIc, algorithm: SchnorrAlgorithm, merkle_tree_root_bytes
 
     let example_canister_id = pic.create_canister();
     pic.add_cycles(example_canister_id, 2_000_000_000_000);
-    // PocketIC's fiduciary subnet provides "key_1" only; pass it as the init arg.
-    pic.install_canister(
-        example_canister_id,
-        load_backend_wasm(),
-        encode_one(Some("key_1".to_string())).unwrap(),
-        None,
-    );
+    pic.install_canister(example_canister_id, load_backend_wasm(), vec![], None);
 
     // Let the canister initialise before making calls.
     fast_forward(pic, 5);
