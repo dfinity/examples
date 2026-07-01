@@ -43,7 +43,7 @@ echo "$result" | grep -q 'code_deployment' && echo "PASS" || (echo "FAIL" && exi
 # This creates a new controllers_change entry in the canister history.
 
 echo "=== Test 6: adding a controller creates a new history entry ==="
-icp canister settings update test --add-controller "$backend_id"
+icp canister settings update test --add-controller "$backend_id" -f
 info_result2=$(icp canister call backend info "(principal \"$test_id\")")
 echo "$info_result2"
 echo "$info_result2" | grep -q 'controllers_change' && echo "PASS" || (echo "FAIL" && exit 1)
