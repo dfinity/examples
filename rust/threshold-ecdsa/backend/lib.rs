@@ -19,15 +19,16 @@ struct SignatureVerificationReply {
     pub is_signature_valid: bool,
 }
 
-// Use "key_1" for mainnet production key.
-const KEY_ID: EcdsaKeyIds = EcdsaKeyIds::TestKey1;
+// "test_key_1" works on the local network and mainnet (test key).
+// Use "key_1" for the production key on mainnet.
+const KEY_NAME: &str = "test_key_1";
 
 #[update]
 async fn public_key() -> Result<PublicKeyReply, String> {
     let response = ic_cdk_management_canister::ecdsa_public_key(&EcdsaPublicKeyArgs {
         canister_id: None,
         derivation_path: vec![],
-        key_id: KEY_ID.to_key_id(),
+        key_id: EcdsaKeyId { curve: EcdsaCurve::Secp256k1, name: KEY_NAME.to_string() },
     })
     .await
     .map_err(|e| format!("ecdsa_public_key failed: {:?}", e))?;
@@ -42,7 +43,7 @@ async fn sign(message: String) -> Result<SignatureReply, String> {
     let response = ic_cdk_management_canister::sign_with_ecdsa(&SignWithEcdsaArgs {
         message_hash: sha256(&message).to_vec(),
         derivation_path: vec![],
-        key_id: KEY_ID.to_key_id(),
+        key_id: EcdsaKeyId { curve: EcdsaCurve::Secp256k1, name: KEY_NAME.to_string() },
     })
     .await
     .map_err(|e| format!("sign_with_ecdsa failed: {:?}", e))?;
@@ -80,26 +81,6 @@ fn sha256(input: &str) -> [u8; 32] {
     let mut hasher = sha2::Sha256::new();
     hasher.update(input.as_bytes());
     hasher.finalize().into()
-}
-
-enum EcdsaKeyIds {
-    #[allow(unused)]
-    TestKey1,
-    #[allow(unused)]
-    ProductionKey1,
-}
-
-impl EcdsaKeyIds {
-    fn to_key_id(&self) -> EcdsaKeyId {
-        EcdsaKeyId {
-            curve: EcdsaCurve::Secp256k1,
-            name: match self {
-                Self::TestKey1 => "test_key_1",
-                Self::ProductionKey1 => "key_1",
-            }
-            .to_string(),
-        }
-    }
 }
 
 // In the following, we register a custom getrandom implementation because
