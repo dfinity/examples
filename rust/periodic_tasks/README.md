@@ -4,7 +4,7 @@ Unlike other blockchains, the Internet Computer can automatically execute canist
 
 There are two ways to schedule an automatic canister execution on the IC:
 
-1. **Timers**: one-shot or periodic canister calls with specified minimum timeout or interval.
+1. **Timers**: one-shot or periodic canister calls with specified minimum timeout or interval. See the [timers documentation](https://docs.internetcomputer.org/concepts/timers) for more details.
 2. **Heartbeats**: legacy periodic canister invocations with intervals close to the blockchain finalization rate (1s). Heartbeats are supported by the IC for backward compatibility and some very special use cases. Newly developed canisters should prefer using timers over the heartbeats.
 
 This example demonstrates both scheduling approaches. It consists of two canisters, `heartbeat` and `timer`, both implementing the same functionality: schedule a periodic task to increase a counter.
@@ -54,8 +54,8 @@ Not only do timers use fewer cycles, but they are also more composable. As there
 Timers also provide isolation between the scheduling logic and the periodic task. If the periodic task fails, all changes made by the task are reverted, but the timers library state is updated — the failed task is removed from the timer list. The internal timers library achieves this isolation via self-canister calls:
 
 ```rust
-// Pseudo-code of the internal self-call:
-ic_cdk::call::Call::bounded_wait(ic_cdk::id(), "periodic_task").await;
+// Pseudo-code of the internal self-call used by the timers library:
+ic_cdk::call::Call::bounded_wait(ic_cdk::id(), "periodic_task").await.ok();
 ```
 
 ### Cycles usage at 1-second intervals
@@ -89,6 +89,13 @@ The `timer` canister also exposes:
 The `heartbeat` canister also exposes:
 
 - `set_interval_secs` — adjusts the heartbeat-check interval in seconds (update)
+
+Example — start a second timer with a 5-second interval to find the breakeven point:
+
+```bash
+icp canister call timer start_with_interval_secs '(5)'
+icp canister call timer cycles_used '()'
+```
 
 ## Conclusion
 

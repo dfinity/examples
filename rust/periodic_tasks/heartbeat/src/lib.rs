@@ -73,9 +73,11 @@ fn heartbeat() {
             // variable won't be updated.
             //
             // To isolate the execution contexts of the scheduling logic and
-            // the periodic task, a self canister call might be used instead
-            // of the direct function call, e.g.:
-            //   ic_cdk::call::Call::bounded_wait(ic_cdk::id(), "periodic_task").await;
+            // the periodic task, spawn a self canister call instead of calling
+            // the function directly (heartbeat is sync, so use spawn):
+            //   ic_cdk::spawn(async {
+            //     ic_cdk::call::Call::bounded_wait(ic_cdk::id(), "periodic_task").await.ok();
+            //   });
             periodic_task();
             // Update the time when the periodic task was last called.
             *last_periodic_task_time.borrow_mut() = now;
