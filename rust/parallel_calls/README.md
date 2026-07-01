@@ -26,20 +26,21 @@ Parallel calls:   90/90 successful calls in ~350ms
 
 The difference on ICP mainnet would be larger still, as PocketIC executes rounds much faster than mainnet.
 
-To run the multi-subnet test locally (requires the Rust toolchain and the [PocketIC server](https://github.com/dfinity/pocketic)):
+To run the multi-subnet test locally:
 
 ```bash
-make test-multi-subnet
+bash test-multi-subnet.sh
 ```
 
-This builds the Rust WASMs with `cargo build` and then runs `cargo run` in `multi_subnet/` using those WASMs via the `CALLER_WASM` and `CALLEE_WASM` environment variables.
+This builds the Rust WASMs with `cargo build` and then runs `cargo run` in `multi_subnet/` using those WASMs via the `CALLER_WASM` and `CALLEE_WASM` environment variables. The [PocketIC server](https://github.com/dfinity/pocketic) is downloaded automatically on first run.
 
 ## Build and deploy from the command line
 
 ### Prerequisites
 
-- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
-- Rust toolchain (only for `make test-multi-subnet`): [rustup.rs](https://rustup.rs)
+- [Node.js](https://nodejs.org/) v18+
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Rust](https://www.rust-lang.org/tools/install) with `wasm32-unknown-unknown` target: `rustup target add wasm32-unknown-unknown`
 
 ### Install
 
