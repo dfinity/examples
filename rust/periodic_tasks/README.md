@@ -5,7 +5,7 @@ The Internet Computer allows canisters to execute code automatically — either 
 There are two ways to schedule an automatic canister execution on the IC:
 
 1. **Timers**: one-shot or periodic canister calls with specified minimum timeout or interval. See the [timers documentation](https://docs.internetcomputer.org/concepts/timers) for more details.
-2. **Heartbeats**: legacy periodic canister invocations with intervals close to the blockchain finalization rate (1s). Heartbeats are supported by the IC for backward compatibility and some very special use cases. Newly developed canisters should prefer using timers over the heartbeats.
+2. **Heartbeats**: legacy periodic canister invocations with intervals close to the IC's finalization rate (1s). Heartbeats are supported for backward compatibility and some very special use cases. Newly developed canisters should prefer using timers over the heartbeats.
 
 This example demonstrates both scheduling approaches. It consists of two canisters, `heartbeat` and `timer`, both implementing the same functionality: schedule a periodic task to increase a counter.
 
