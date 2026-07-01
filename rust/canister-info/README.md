@@ -4,7 +4,7 @@ This example demonstrates how to use the IC's [`canister_info`](https://docs.int
 
 Two canisters are deployed:
 
-- **`backend`** — provides five query/update endpoints for inspecting any canister by principal: `info`, `reflexive_transitive_controllers`, `canister_controllers`, `canister_module_hash`, and `canister_deployment_chain`. See the source code for detailed doc comments on each method.
+- **`backend`** — provides five update endpoints for inspecting any canister by principal: `info`, `reflexive_transitive_controllers`, `canister_controllers`, `canister_module_hash`, and `canister_deployment_chain`. See the source code for detailed doc comments on each method.
 - **`test`** — a minimal pre-built canister with no logic, deployed purely to provide a subject for the backend's canister info queries in `test.sh`.
 
 The `backend` passes the target canister's principal ID as an argument to the management canister's `canister_info` call — it does not call the `test` canister directly. This means the backend works with the ID of any deployed canister, not just `test`.
