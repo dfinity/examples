@@ -7,8 +7,10 @@ See the [Motoko version](../../motoko/threshold-ecdsa) for a comparison.
 ## Build and deploy from the command line
 
 ### Prerequisites
-- Node.js
-- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+
+- [Node.js](https://nodejs.org/) v18+
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Rust](https://www.rust-lang.org/tools/install) with `wasm32-unknown-unknown` target: `rustup target add wasm32-unknown-unknown`
 
 ### Install
 ```bash
@@ -26,11 +28,10 @@ icp network stop
 
 ## Key IDs
 
-The canister is configured with `KEY_ID = EcdsaKeyIds::TestKey1` by default (the master test key on mainnet). To use a different environment, update `KEY_ID` in `backend/lib.rs`:
+The canister is configured with `KEY_NAME = "test_key_1"` by default (the master test key, works on both the local network and mainnet). To use the production key, update `KEY_NAME` in `backend/lib.rs`:
 
-- `EcdsaKeyIds::TestKey1` — mainnet test key (`test_key_1`)
-- `EcdsaKeyIds::ProductionKey1` — mainnet production key (`key_1`)
-- `EcdsaKeyIds::TestKeyLocalDevelopment` — local development (`dfx_test_key`)
+- `"test_key_1"` — default, mainnet test key
+- `"key_1"` — mainnet production key
 
 ## Obtaining public keys
 
