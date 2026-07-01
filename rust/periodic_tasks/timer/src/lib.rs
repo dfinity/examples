@@ -1,23 +1,19 @@
 //! An example of periodic tasks scheduling using timers.
 
 use ic_cdk_timers::TimerId;
-use std::{
-    cell::RefCell,
-    sync::atomic::{AtomicU64, Ordering},
-    time::Duration,
-};
+use std::{cell::RefCell, time::Duration};
 
 thread_local! {
     /// The global counter to increment periodically.
     static COUNTER: RefCell<u32> = RefCell::new(0);
     /// The global vector to keep multiple timer IDs.
     static TIMER_IDS: RefCell<Vec<TimerId>> = RefCell::new(Vec::new());
+    /// Peak canister balance observed so far — used as baseline for tracking cycles spent.
+    /// Resets upward if the canister receives additional cycles (top-up).
+    static PEAK_CANISTER_BALANCE: RefCell<u128> = RefCell::new(0);
+    /// Canister cycles usage tracked in the periodic task.
+    static CYCLES_USED: RefCell<u128> = RefCell::new(0);
 }
-
-/// Initial canister balance to track the cycles usage.
-static INITIAL_CANISTER_BALANCE: AtomicU64 = AtomicU64::new(0);
-/// Canister cycles usage tracked in the periodic task.
-static CYCLES_USED: AtomicU64 = AtomicU64::new(0);
 
 ////////////////////////////////////////////////////////////////////////
 // Periodic task
@@ -36,12 +32,18 @@ fn periodic_task() {
 
 /// Tracks the amount of cycles used for the periodic task.
 fn track_cycles_used() {
-    // Update the `INITIAL_CANISTER_BALANCE` if needed.
-    let current_canister_balance = ic_cdk::api::canister_balance();
-    INITIAL_CANISTER_BALANCE.fetch_max(current_canister_balance, Ordering::Relaxed);
-    // Store the difference between the initial and the current balance.
-    let cycles_used = INITIAL_CANISTER_BALANCE.load(Ordering::Relaxed) - current_canister_balance;
-    CYCLES_USED.store(cycles_used, Ordering::Relaxed);
+    let current = ic_cdk::api::canister_cycle_balance();
+    // Update `PEAK_CANISTER_BALANCE` to the highest observed balance.
+    PEAK_CANISTER_BALANCE.with(|initial| {
+        if current > *initial.borrow() {
+            *initial.borrow_mut() = current;
+        }
+    });
+    // Store the difference between the peak and the current balance.
+    CYCLES_USED.with(|used| {
+        *used.borrow_mut() =
+            PEAK_CANISTER_BALANCE.with(|peak| *peak.borrow()) - current;
+    });
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -49,38 +51,32 @@ fn track_cycles_used() {
 ////////////////////////////////////////////////////////////////////////
 
 /// Returns the `COUNTER` value.
-///
-/// Example usage: `dfx canister call timer counter`
-#[ic_cdk_macros::query]
+#[ic_cdk::query]
 fn counter() -> u32 {
     COUNTER.with(|counter| *counter.borrow())
 }
 
-/// Starts a new periodic tasks to increment the `COUNTER` with specified
+/// Starts a new periodic task to increment the `COUNTER` with specified
 /// interval in seconds.
 ///
 /// It is implementation-defined when exactly the timer handler will be called.
 /// The only explicit guarantee is that it won't be called earlier.
-///
-/// Example usage: `dfx canister call timer start_with_interval_secs 10`
-#[ic_cdk_macros::update]
+#[ic_cdk::update]
 fn start_with_interval_secs(secs: u64) {
     let secs = Duration::from_secs(secs);
     ic_cdk::println!("Timer canister: Starting a new timer with {secs:?} interval...");
     // Schedule a new periodic task to increment the counter.
-    let timer_id = ic_cdk_timers::set_timer_interval(secs, periodic_task);
+    // ic-cdk-timers 1.0 requires the closure to return a Future.
+    let timer_id = ic_cdk_timers::set_timer_interval(secs, || async { periodic_task() });
     // Add the timer ID to the global vector.
     TIMER_IDS.with(|timer_ids| timer_ids.borrow_mut().push(timer_id));
 
-    // To drive an async function to completion inside the timer handler,
-    // use `ic_cdk::spawn()`, for example:
-    // ic_cdk_timers::set_timer_interval(interval, || ic_cdk::spawn(async_function()));
+    // To call an async function from a timer handler, use it directly:
+    // ic_cdk_timers::set_timer_interval(interval, || async { async_function().await });
 }
 
 /// Stops incrementing the counter by clearing the last timer ID.
-///
-/// Example usage: `dfx canister call timer stop`
-#[ic_cdk_macros::update]
+#[ic_cdk::update]
 fn stop() {
     TIMER_IDS.with(|timer_ids| {
         if let Some(timer_id) = timer_ids.borrow_mut().pop() {
@@ -91,12 +87,11 @@ fn stop() {
     });
 }
 
-/// Returns the amount of cycles used since the beginning of the execution.
-///
-/// Example usage: `dfx canister call timer cycles_used`
-#[ic_cdk_macros::query]
-fn cycles_used() -> u64 {
-    CYCLES_USED.load(Ordering::Relaxed)
+/// Returns the cycles spent since the peak canister balance was last observed.
+/// Resets if the canister is topped up (a top-up raises the peak, resetting the delta).
+#[ic_cdk::query]
+fn cycles_used() -> u128 {
+    CYCLES_USED.with(|used| *used.borrow())
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -105,7 +100,7 @@ fn cycles_used() -> u64 {
 
 /// This is special `canister_init` method which is invoked by
 /// the Internet Computer when the canister is installed for the first time.
-#[ic_cdk_macros::init]
+#[ic_cdk::init]
 fn init(min_interval_secs: u64) {
     start_with_interval_secs(min_interval_secs);
 }
@@ -117,7 +112,9 @@ fn init(min_interval_secs: u64) {
 /// The developer is responsible to track and serialize the timers into
 /// the stable memory in `canister_pre_upgrade` method and/or re-activate
 /// the timers in the `canister_post_upgrade`.
-#[ic_cdk_macros::post_upgrade]
+#[ic_cdk::post_upgrade]
 fn post_upgrade(min_interval_secs: u64) {
     init(min_interval_secs);
 }
+
+ic_cdk::export_candid!();

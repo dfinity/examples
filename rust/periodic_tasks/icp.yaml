@@ -1,0 +1,10 @@
+canisters:
+  - name: timer
+    recipe:
+      type: "@dfinity/rust@v3.3.0"
+    init_args: "(10 : nat64)"
+
+  - name: heartbeat
+    recipe:
+      type: "@dfinity/rust@v3.3.0"
+    init_args: "(10 : nat64)"
