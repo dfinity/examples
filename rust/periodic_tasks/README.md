@@ -93,7 +93,7 @@ The `heartbeat` canister also exposes:
 Example — start a second timer with a 5-second interval to find the breakeven point:
 
 ```bash
-icp canister call timer start_with_interval_secs '(5)'
+icp canister call timer start_with_interval_secs '(5 : nat64)'
 icp canister call timer cycles_used '()'
 ```
 

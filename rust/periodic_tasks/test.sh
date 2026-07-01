@@ -41,12 +41,22 @@ while [ $secs -lt 60 ]; do
 done
 echo "$result" | grep -qv '(0 : nat)' || (echo "FAIL: heartbeat cycles_used did not update within 60s" && exit 1)
 
-echo "=== Test 5: Timer stop returns successfully ==="
+echo "=== Test 5: Timer start_with_interval_secs accepts a new interval ==="
+result=$(icp canister call timer start_with_interval_secs '(5 : nat64)') && \
+  echo "$result" && \
+  echo "PASS" || (echo "FAIL" && exit 1)
+
+echo "=== Test 6: Heartbeat set_interval_secs accepts a new interval ==="
+result=$(icp canister call heartbeat set_interval_secs '(5 : nat64)') && \
+  echo "$result" && \
+  echo "PASS" || (echo "FAIL" && exit 1)
+
+echo "=== Test 7: Timer stop returns successfully ==="
 result=$(icp canister call timer stop '()') && \
   echo "$result" && \
-  echo "PASS"
+  echo "PASS" || (echo "FAIL" && exit 1)
 
-echo "=== Test 6: Heartbeat stop returns successfully ==="
+echo "=== Test 8: Heartbeat stop returns successfully ==="
 result=$(icp canister call heartbeat stop '()') && \
   echo "$result" && \
-  echo "PASS"
+  echo "PASS" || (echo "FAIL" && exit 1)
