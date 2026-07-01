@@ -2,7 +2,6 @@ use candid::CandidType;
 use ic_cdk::{query, update};
 use ic_cdk_management_canister::{EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgs, SignWithEcdsaArgs};
 use serde::Serialize;
-use std::convert::TryFrom;
 
 #[derive(CandidType, Serialize, Debug)]
 struct PublicKeyReply {
