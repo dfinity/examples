@@ -18,12 +18,16 @@ echo "$info_result"
 echo "$info_result" | grep -q 'total_num_changes' && echo "PASS" || (echo "FAIL" && exit 1)
 
 # Extract the canister version of the initial code deployment (mode = install).
-# We scan for the canister_version value that precedes `mode = variant { install }`
-# in the history, so this is robust across multiple test runs that add history entries.
-code_deploy_version=$(echo "$info_result" | awk '
+# We split on ';' so the pattern works regardless of whether icp-cli formats
+# the output as multi-line or compact single-line.
+code_deploy_version=$(echo "$info_result" | tr ';' '\n' | awk '
   /canister_version = [0-9]+ : nat64/ { match($0, /[0-9]+/); v = substr($0, RSTART, RLENGTH) }
   /mode = variant \{ install \}/ { print v; exit }
 ')
+if [ -z "$code_deploy_version" ]; then
+  echo "FAIL: could not find initial code deployment version in canister history"
+  exit 1
+fi
 echo "Code deployment version: $code_deploy_version"
 
 echo "=== Test 2: reflexive_transitive_controllers returns the canister and its controllers ==="
@@ -56,7 +60,13 @@ info_result2=$(icp canister call backend info "(principal \"$test_id\")")
 echo "$info_result2"
 echo "$info_result2" | grep -q 'controllers_change' && echo "PASS" || (echo "FAIL" && exit 1)
 
-new_version=$(echo "$info_result2" | grep 'canister_version' | tail -1 | grep -oE '[0-9]+' | head -1)
+# Extract the version of the most recent controllers_change entry.
+# Split on ';' for the same format-independence reason as above.
+new_version=$(echo "$info_result2" | tr ';' '\n' | awk '
+  /canister_version = [0-9]+ : nat64/ { match($0, /[0-9]+/); v = substr($0, RSTART, RLENGTH) }
+  /controllers_change/ { last_v = v }
+  END { print last_v }
+')
 echo "Controller-change version: $new_version"
 
 echo "=== Test 7: canister_controllers at the new version includes the added controller ==="
@@ -67,4 +77,8 @@ echo "$result" | grep -q "$backend_id" && echo "PASS" || (echo "FAIL" && exit 1)
 echo "=== Test 8: canister_controllers at the code-deployment version does NOT include the added controller ==="
 result=$(icp canister call backend canister_controllers "(principal \"$test_id\", variant { at_version = $code_deploy_version : nat64 })")
 echo "$result"
-echo "$result" | grep -q "$backend_id" && (echo "FAIL: backend incorrectly appears in old history" && exit 1) || echo "PASS"
+if echo "$result" | grep -q "$backend_id"; then
+  echo "FAIL: backend incorrectly appears in old history"
+  exit 1
+fi
+echo "PASS"
