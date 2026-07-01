@@ -1,6 +1,6 @@
 # Threshold Schnorr
 
-A minimal example canister demonstrating the [threshold Schnorr](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr) API on ICP.
+A minimal example canister demonstrating threshold Schnorr signing, part of ICP's [chain-key cryptography](https://docs.internetcomputer.org/concepts/chain-key-cryptography/#chain-key-signatures-threshold-ecdsa-and-schnorr).
 
 The example canister acts as a signing oracle that creates Schnorr signatures with keys derived based on the canister ID and the chosen algorithm, either BIP340/BIP341 (secp256k1) or Ed25519.
 
