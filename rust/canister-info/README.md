@@ -36,7 +36,7 @@ icp network stop
 After deploying, you can inspect any canister by passing its principal to the backend. For example, to inspect the `test` canister itself:
 
 ```bash
-test_id=$(icp canister id test)
+test_id=$(icp canister status test -i)
 icp canister call backend info "(principal \"$test_id\")"
 ```
 
