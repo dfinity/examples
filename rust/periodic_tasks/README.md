@@ -1,6 +1,6 @@
 # Periodic tasks and timers
 
-Unlike other blockchains, the Internet Computer can automatically execute canister smart contracts after a specified delay or periodically.
+The Internet Computer allows canisters to execute code automatically — either after a specified delay or on a recurring schedule — without requiring any external trigger.
 
 There are two ways to schedule an automatic canister execution on the IC:
 
