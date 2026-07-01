@@ -1,23 +1,18 @@
 //! An example of periodic tasks scheduling using timers.
 
 use ic_cdk_timers::TimerId;
-use std::{
-    cell::RefCell,
-    sync::atomic::{AtomicU64, Ordering},
-    time::Duration,
-};
+use std::{cell::RefCell, time::Duration};
 
 thread_local! {
     /// The global counter to increment periodically.
     static COUNTER: RefCell<u32> = RefCell::new(0);
     /// The global vector to keep multiple timer IDs.
     static TIMER_IDS: RefCell<Vec<TimerId>> = RefCell::new(Vec::new());
+    /// Initial canister balance to track the cycles usage.
+    static INITIAL_CANISTER_BALANCE: RefCell<u128> = RefCell::new(0);
+    /// Canister cycles usage tracked in the periodic task.
+    static CYCLES_USED: RefCell<u128> = RefCell::new(0);
 }
-
-/// Initial canister balance to track the cycles usage.
-static INITIAL_CANISTER_BALANCE: AtomicU64 = AtomicU64::new(0);
-/// Canister cycles usage tracked in the periodic task.
-static CYCLES_USED: AtomicU64 = AtomicU64::new(0);
 
 ////////////////////////////////////////////////////////////////////////
 // Periodic task
@@ -36,15 +31,18 @@ fn periodic_task() {
 
 /// Tracks the amount of cycles used for the periodic task.
 fn track_cycles_used() {
-    // Update the `INITIAL_CANISTER_BALANCE` if needed.
-    // canister_cycle_balance() returns u128; this example tracks cycles in u64
-    // for simplicity. Saturate at u64::MAX if the balance exceeds the u64 range.
-    let current_canister_balance =
-        u64::try_from(ic_cdk::api::canister_cycle_balance()).unwrap_or(u64::MAX);
-    INITIAL_CANISTER_BALANCE.fetch_max(current_canister_balance, Ordering::Relaxed);
+    let current = ic_cdk::api::canister_cycle_balance();
+    // Update `INITIAL_CANISTER_BALANCE` to the highest observed balance.
+    INITIAL_CANISTER_BALANCE.with(|initial| {
+        if current > *initial.borrow() {
+            *initial.borrow_mut() = current;
+        }
+    });
     // Store the difference between the initial and the current balance.
-    let cycles_used = INITIAL_CANISTER_BALANCE.load(Ordering::Relaxed) - current_canister_balance;
-    CYCLES_USED.store(cycles_used, Ordering::Relaxed);
+    CYCLES_USED.with(|used| {
+        *used.borrow_mut() =
+            INITIAL_CANISTER_BALANCE.with(|initial| *initial.borrow()) - current;
+    });
 }
 
 ////////////////////////////////////////////////////////////////////////
@@ -90,8 +88,8 @@ fn stop() {
 
 /// Returns the amount of cycles used since the beginning of the execution.
 #[ic_cdk::query]
-fn cycles_used() -> u64 {
-    CYCLES_USED.load(Ordering::Relaxed)
+fn cycles_used() -> u128 {
+    CYCLES_USED.with(|used| *used.borrow())
 }
 
 ////////////////////////////////////////////////////////////////////////

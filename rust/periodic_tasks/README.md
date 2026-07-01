@@ -43,10 +43,10 @@ For periodic tasks with a 10-second interval, the `heartbeat` canister uses *mor
 
 ```bash
 icp canister call --query timer cycles_used '()'
-# (2_112_067 : nat64)
+# (2_112_067 : nat)
 
 icp canister call --query heartbeat cycles_used '()'
-# (10_183_957 : nat64)
+# (10_183_957 : nat)
 ```
 
 Not only do timers use fewer cycles, but they are also more composable. As there is no global state or methods to export, different libraries with timers can be used in the same project.
@@ -64,10 +64,10 @@ At 1-second intervals the picture inverts: the `heartbeat` canister uses *fewer*
 
 ```bash
 icp canister call --query timer cycles_used '()'
-# (4_545_326 : nat64)
+# (4_545_326 : nat)
 
 icp canister call --query heartbeat cycles_used '()'
-# (2_456_567 : nat64)
+# (2_456_567 : nat)
 ```
 
 Despite the `heartbeat` using fewer cycles at very high frequencies, this solution is hard to compose. If two libraries both export `canister_heartbeat`, they cannot be used in the same project. There is also no isolation: if the periodic task fails, the `canister_heartbeat` changes are reverted and the task fires again on every subsequent heartbeat.
