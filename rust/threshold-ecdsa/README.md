@@ -1,6 +1,6 @@
 # Threshold ECDSA
 
-This example demonstrates threshold ECDSA signing, part of ICP's [chain-key cryptography](https://internetcomputer.org/docs/building-apps/network-features/signatures/t-ecdsa). The canister acts as a signing oracle: callers can request a threshold ECDSA public key and sign arbitrary messages using the corresponding private key — without the canister ever holding the key material itself.
+This example demonstrates threshold ECDSA signing, part of ICP's [chain-key cryptography](https://docs.internetcomputer.org/concepts/chain-key-cryptography/#chain-key-signatures-threshold-ecdsa-and-schnorr). The canister acts as a signing oracle: callers can request a threshold ECDSA public key and sign arbitrary messages using the corresponding private key — without the canister ever holding the key material itself.
 
 See the [Motoko version](../../motoko/threshold-ecdsa) for a comparison.
 
