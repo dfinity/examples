@@ -12,9 +12,11 @@ fn callee() -> Principal {
     CALLEE.with(|c| {
         c.borrow_mut()
             .get_or_insert_with(|| {
-                let id = std::env::var("PUBLIC_CANISTER_ID:callee")
-                    .expect("PUBLIC_CANISTER_ID:callee not set");
-                Principal::from_text(&id).expect("invalid principal")
+                // icp-cli injects PUBLIC_CANISTER_ID:callee after deploying the callee canister.
+                // In multi-subnet PocketIC tests the same env var is injected via
+                // CanisterSettings::environment_variables before any calls are made.
+                let id = ic_cdk::api::env_var_value("PUBLIC_CANISTER_ID:callee");
+                Principal::from_text(&id).expect("invalid PUBLIC_CANISTER_ID:callee")
             })
             .clone()
     })

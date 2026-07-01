@@ -1,6 +1,3 @@
-networks:
-  - name: local
-    mode: managed
 canisters:
   - name: caller
     recipe:
