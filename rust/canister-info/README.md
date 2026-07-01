@@ -1,6 +1,6 @@
 # Canister Info
 
-This example demonstrates how to use the IC's [`canister_info`](https://docs.internetcomputer.org/concepts/system-management-canister/#canister-info) management call to retrieve information about any canister, including its full change history.
+This example demonstrates how to use the IC's [`canister_info`](https://docs.internetcomputer.org/references/management-canister/#canister_info) management call to retrieve information about any canister, including its recent change history (the IC retains up to 20 changes per canister).
 
 Two canisters are deployed:
 
