@@ -18,7 +18,7 @@ async fn info(canister_id: Principal) -> CanisterInfoResult {
 }
 
 /// Returns all (reflexive and transitive) controllers of a canister characterized by a given principal
-/// by implementing BFS over the controllers.
+/// by implementing DFS over the controllers.
 #[ic_cdk::update]
 async fn reflexive_transitive_controllers(canister_id: Principal) -> Vec<Principal> {
     let mut ctrls = vec![canister_id];
