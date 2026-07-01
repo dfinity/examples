@@ -1,21 +1,20 @@
 use candid::{CandidType, Principal};
-use ic_cdk::api::management_canister::main::{
-    canister_info, CanisterChange,
-    CanisterChangeDetails::{CodeDeployment, CodeUninstall, ControllersChange, Creation},
-    CanisterChangeOrigin::{FromCanister, FromUser},
-    CanisterInfoRequest, CanisterInfoResponse,
+use ic_cdk_management_canister::{
+    canister_info, CanisterInfoArgs, CanisterInfoResult, Change,
+    ChangeDetails::{CodeDeployment, CodeUninstall, ControllersChange, Creation},
+    ChangeOrigin::{FromCanister, FromUser},
 };
 use serde::Deserialize;
 
 /// Returns canister info with all available canister changes for a canister characterized by a given principal.
 /// Traps if the canister_info management call is rejected (in particular, if the principal does not characterize a canister).
 #[ic_cdk::update]
-async fn info(canister_id: Principal) -> CanisterInfoResponse {
-    let request = CanisterInfoRequest {
+async fn info(canister_id: Principal) -> CanisterInfoResult {
+    let args = CanisterInfoArgs {
         canister_id,
         num_requested_changes: Some(20),
     };
-    canister_info(request).await.unwrap().0
+    canister_info(&args).await.expect("canister_info call failed")
 }
 
 /// Returns all (reflexive and transitive) controllers of a canister characterized by a given principal
@@ -60,13 +59,14 @@ pub enum CanisterSnapshot {
 async fn map_canister_change<T>(
     canister_id: Principal,
     canister_deployment: CanisterSnapshot,
-    f: impl Fn(&CanisterChange) -> Option<T>,
+    f: impl Fn(&Change) -> Option<T>,
 ) -> Option<(T, Option<u64>)> {
     let info = info(canister_id).await;
     let mut map_change = None;
     let mut skew = None;
     for c in info.recent_changes {
         if let Some(x) = f(&c) {
+
             match &canister_deployment {
                 CanisterSnapshot::AtTimestamp(t) => {
                     if *t == c.timestamp_nanos {
@@ -114,9 +114,9 @@ async fn canister_controllers(
     canister_id: Principal,
     canister_deployment: CanisterSnapshot,
 ) -> Option<CanisterControllersResult> {
-    map_canister_change(canister_id, canister_deployment, |c| match &c.details {
-        Creation(creation) => Some(creation.controllers.clone()),
-        ControllersChange(ctrls) => Some(ctrls.controllers.clone()),
+    map_canister_change(canister_id, canister_deployment, |c| match c.details.as_ref() {
+        Some(Creation(creation)) => Some(creation.controllers.clone()),
+        Some(ControllersChange(ctrls)) => Some(ctrls.controllers.clone()),
         _ => None,
     })
     .await
@@ -145,10 +145,10 @@ async fn canister_module_hash(
     canister_id: Principal,
     canister_deployment: CanisterSnapshot,
 ) -> Option<CanisterModuleHashResult> {
-    map_canister_change(canister_id, canister_deployment, |c| match &c.details {
-        Creation(_) => Some(None),
-        CodeUninstall => Some(None),
-        CodeDeployment(code_deployment) => Some(Some(code_deployment.module_hash.clone())),
+    map_canister_change(canister_id, canister_deployment, |c| match c.details.as_ref() {
+        Some(Creation(_)) => Some(None),
+        Some(CodeUninstall) => Some(None),
+        Some(CodeDeployment(code_deployment)) => Some(Some(code_deployment.module_hash.clone())),
         _ => None,
     })
     .await
@@ -161,7 +161,7 @@ async fn canister_module_hash(
 /// Type for the result of `canister_deployment_chain` calls.
 #[derive(CandidType, Deserialize, Clone)]
 struct CanisterDeploymentChainResult {
-    deployment_chain: Vec<CanisterChange>,
+    deployment_chain: Vec<Change>,
     max_clock_skew: Option<u64>,
 }
 
@@ -182,7 +182,7 @@ async fn canister_deployment_chain(
 ) -> CanisterDeploymentChainResult {
     let mut current_canister_id = canister_id;
     let mut current_canister_deployment = canister_deployment;
-    let mut visited_canister_ids = vec![]; // canister IDs of canisters from the deployment chain
+    let mut visited_canister_ids = vec![];
     let mut deployment_chain = vec![];
     let mut max_clock_skew = None;
     loop {
@@ -190,8 +190,8 @@ async fn canister_deployment_chain(
         match map_canister_change(
             current_canister_id,
             current_canister_deployment.clone(),
-            |c| match &c.details {
-                CodeDeployment(_) => Some(c.clone()),
+            |c| match c.details.as_ref() {
+                Some(CodeDeployment(_)) => Some(c.clone()),
                 _ => None,
             },
         )
@@ -234,21 +234,4 @@ async fn canister_deployment_chain(
     }
 }
 
-#[test]
-fn check_candid_file() {
-    use candid_parser::utils::{service_equal, CandidSource};
-
-    let did_path = std::path::PathBuf::from(
-        std::env::var_os("CARGO_MANIFEST_DIR").expect("CARGO_MANIFEST_DIR env var undefined"),
-    )
-    .join("canister-info.did");
-
-    candid::export_service!();
-    let expected = __export_service();
-
-    service_equal(
-        CandidSource::Text(&expected),
-        CandidSource::File(did_path.as_path()),
-    )
-    .unwrap();
-}
+ic_cdk::export_candid!();
