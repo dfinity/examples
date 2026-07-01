@@ -7,3 +7,5 @@ pub use all_architectures::*;
 // --release --target wasm32-unknown-unknown` should be used.
 #[cfg(target_arch = "wasm32")]
 mod wasm_only;
+
+ic_cdk::export_candid!();
