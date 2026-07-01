@@ -37,10 +37,8 @@ The local deployment includes the XRC mock canister. `icp-cli` automatically inj
 To query live exchange rates, deploy to the IC mainnet:
 
 ```bash
-icp deploy --environment ic
-icp canister call --environment ic backend get_exchange_rate \
-  '(record { symbol = "ICP"; class = variant { Cryptocurrency } }, \
-    record { symbol = "USD"; class = variant { FiatCurrency } })'
+icp deploy -e ic
+icp canister call -e ic backend get_exchange_rate '(record { symbol = "ICP"; class = variant { Cryptocurrency } }, record { symbol = "USD"; class = variant { FiatCurrency } })'
 ```
 
 On mainnet, the production XRC canister ID (`uf6dk-hyaaa-aaaaq-qaaaq-cai`) is injected automatically via `icp.yaml`.
