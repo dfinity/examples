@@ -63,6 +63,7 @@ impl TryFrom<&CaKeyInformation> for EcdsaKeyId {
 }
 
 thread_local! {
+    // Overwritten by #[init] before any call; this default value is never observable.
     static CA_KEY_INFORMATION: RefCell<CaKeyInformation> = RefCell::new(CaKeyInformation::Ed25519("test_key_1".to_string()));
 
     // cache the public key and certificate to avoid fetching them multiple times
