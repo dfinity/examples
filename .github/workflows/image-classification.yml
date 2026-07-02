@@ -1,0 +1,44 @@
+name: image-classification
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - rust/image-classification/**
+      - .github/workflows/image-classification.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust-image-classification:
+    runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-rust:1.0.1
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Install wasm32-wasi target
+        run: rustup target add wasm32-wasi
+      - name: Install wasi2ic
+        run: |
+          git clone https://github.com/wasm-forge/wasi2ic /tmp/wasi2ic
+          cargo install --path /tmp/wasi2ic --locked
+      - name: Install wasm-opt
+        run: |
+          version=117
+          curl -fsSLO "https://github.com/WebAssembly/binaryen/releases/download/version_${version}/binaryen-version_${version}-x86_64-linux.tar.gz"
+          tar -xzf "binaryen-version_${version}-x86_64-linux.tar.gz" --strip-components 1 -C /usr/local
+          rm "binaryen-version_${version}-x86_64-linux.tar.gz"
+      - name: Download model
+        working-directory: rust/image-classification
+        run: ./download_model.sh
+      - name: Deploy and test
+        working-directory: rust/image-classification
+        run: |
+          icp network start -d
+          icp deploy
+          bash test.sh

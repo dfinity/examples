@@ -1,33 +1,64 @@
 # ICP image classification
 
-This is an ICP smart contract that accepts an image from the user and runs image classification inference.
+This example demonstrates running an ONNX machine-learning model inside an ICP canister.
+The smart contract accepts an image from the user and runs image classification inference using the [Tract ONNX inference engine](https://github.com/sonos/tract) with the [MobileNet v2-7 model](https://github.com/onnx/models/tree/main/validated/vision/classification/mobilenet).
+
+The example uses the WASI polyfill to run Tract (which relies on POSIX file I/O) inside the deterministic ICP runtime, and Wasm SIMD instructions for faster inference.
+
 The smart contract consists of two canisters:
 
-- the backend canister embeds the [the Tract ONNX inference engine](https://github.com/sonos/tract) with [the MobileNet v2-7 model](https://github.com/onnx/models/tree/main/validated/vision/classification/mobilenet).
-  It provides `classify()` and `classify_query()` endpoints for the frontend code to call.
-  The former endpoint is used for replicated execution (running on all nodes) whereas the latter runs only on a single node.
-- the frontend canister contains the Web assets such as HTML, JS, CSS that are served to the browser.
+- **backend** — embeds the Tract ONNX inference engine with the MobileNet v2-7 model.
+  It provides `classify()` and `classify_query()` endpoints:
+  the former runs under replicated execution (all nodes), the latter runs on a single node as a query call.
+- **frontend** — serves the web UI (HTML/JS/CSS) from which users upload images and view results.
 
-This example uses Wasm SIMD instructions that are available in `dfx` version `0.20.2-beta.0` or newer.
+## Build and deploy from the command line
 
-## Prerequisites
+### Prerequisites
 
-- [x] Install the [IC
-  SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.
-- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
-- [x] Install WASI SDK 21:
-  - [x] Install `wasi-skd-21.0` from https://github.com/WebAssembly/wasi-sdk/releases/tag/wasi-sdk-21
-  - [x] Export `CC_wasm32_wasi` in your shell such that it points to WASI clang and sysroot. Example: `export CC_wasm32_wasi="/path/to/wasi-sdk-21.0/bin/clang --sysroot=/path/to/wasi-sdk-21.0/share/wasi-sysroot`
-- [x] Install `wasi2ic`: Follow the steps in https://github.com/wasm-forge/wasi2ic and make sure that `wasi2ic` binary is in your `$PATH`.
-- [x] Download MobileNet v2-7 to `src/backend/assets/mobilenetv2-7.onnx`: `./downdload_model.sh`
-- [x] Install `wasm-opt`: `cargo install wasm-opt`
+- Node.js
+- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- wasi2ic: follow https://github.com/wasm-forge/wasi2ic and ensure `wasi2ic` is in your `$PATH`
+- wasm-opt: `cargo install wasm-opt`
+- Rust target `wasm32-wasi`: `rustup target add wasm32-wasi`
 
-## Build the application
+### Install
 
-```
-dfx start --background
-dfx deploy
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/rust/image-classification
 ```
 
-If the deployment is successful, the it will show the `frontend` URL.
-Open that URL in browser to interact with the smart contract.
+Download the MobileNet v2-7 model:
+
+```bash
+./download_model.sh
+```
+
+### Deploy and test
+
+```bash
+icp network start -d
+icp deploy
+bash test.sh
+icp network stop
+```
+
+If the deployment is successful, the CLI will print the frontend URL.
+Open that URL in a browser to interact with the smart contract.
+
+For frontend development with hot reload:
+
+```bash
+npm run dev --prefix frontend
+```
+
+## Updating the Candid interface
+
+```bash
+icp build backend && candid-extractor target/wasm32-wasi/release/backend.wasm > backend/backend.did
+```
+
+## Security considerations and best practices
+
+Refer to the [ICP security best practices](https://docs.internetcomputer.org/guides/security/overview) for guidance on securing your canister.
