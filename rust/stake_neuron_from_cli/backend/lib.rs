@@ -145,7 +145,7 @@ async fn stake_neuron(amount: u64, nonce: u64) -> Result<StakeNeuronResult, Stri
 
     let claim_response: ClaimOrRefreshNeuronFromAccountResponse =
         Call::bounded_wait(governance_principal, "claim_or_refresh_neuron_from_account")
-            .with_arg(claim_request)
+            .with_arg(&claim_request)
             .await
             .map_err(|e| format!("governance call failed: {:?}", e))?
             .candid()
