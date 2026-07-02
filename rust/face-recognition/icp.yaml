@@ -1,0 +1,28 @@
+networks:
+  - name: local
+    mode: managed
+
+canisters:
+  - name: backend
+    build:
+      steps:
+        - type: script
+          commands:
+            - rustup target add wasm32-wasip1
+            - cargo binstall --no-confirm wasi2ic
+            - cargo binstall --no-confirm wasm-opt
+            - export RUSTFLAGS="${RUSTFLAGS} -C target-feature=+simd128"
+            - cargo build --package backend --target wasm32-wasip1 --release
+            - TARGET_DIR=$(cargo metadata --format-version 1 --no-deps | sed -n 's/.*"target_directory":"\([^"]*\)".*/\1/p')
+            - wasi2ic "${TARGET_DIR}/wasm32-wasip1/release/backend.wasm" "$ICP_WASM_OUTPUT_PATH"
+            - wasm-opt -Os --enable-simd --enable-bulk-memory -o "$ICP_WASM_OUTPUT_PATH" "$ICP_WASM_OUTPUT_PATH"
+            - ic-wasm "$ICP_WASM_OUTPUT_PATH" -o "$ICP_WASM_OUTPUT_PATH" metadata candid:service -f backend/backend.did -v public --keep-name-section
+
+  - name: frontend
+    recipe:
+      type: "@dfinity/asset-canister@v2.2.1"
+      configuration:
+        dir: frontend/dist
+        build:
+          - npm install --prefix frontend
+          - npm run build --prefix frontend
