@@ -40,6 +40,19 @@ icp network stop
 
 The canister is initialized with `Ed25519 / "test_key_1"` by default (works on both the local network and mainnet). To deploy with the ECDSA key or the production key:
 
+### PocketIC integration tests
+
+The canister includes integration tests that run against a local [PocketIC](https://github.com/dfinity/pocketic) instance, covering Ed25519 and ECDSA secp256k1 certificate generation and verification. Requires `libssl-dev` and `pkg-config` (for the `openssl` Rust crate used in tests):
+
+```bash
+# Build the WASM first (handles platform-specific toolchain requirements)
+icp build backend
+# Run the integration tests
+cargo test --package backend --test integration_tests
+```
+
+The PocketIC server binary is downloaded automatically on first run (or set `POCKET_IC_BIN` to an existing binary path).
+
 ```bash
 # ECDSA with the test key
 icp deploy --argument '(variant { EcdsaSecp256k1 = "test_key_1" })'

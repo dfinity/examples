@@ -21,7 +21,7 @@ jobs:
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - name: Install dependencies
-        run: apt-get update && apt-get install -y --no-install-recommends libssl-dev
+        run: apt-get update && apt-get install -y --no-install-recommends libssl-dev pkg-config
       - name: Install PocketIC server
         uses: dfinity/pocketic@a980c334fab1b21b0b8a6bba38e1a10836e7258b # main
         with:
