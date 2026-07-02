@@ -98,12 +98,9 @@ Save the root CA certificate and verify it is self-signed:
 
 ```bash
 icp canister call backend root_ca_certificate '()' \
-  | python3 -c "
-import sys, re, json
-m = re.search(r'x509_certificate_string = \"((?:[^\"\\\\]|\\\\.)*?)\"', sys.stdin.read())
-print(json.loads('\"' + m.group(1) + '\"'), end='')
-" > root_ca_cert.pem
-
+  | grep 'x509_certificate_string' \
+  | sed 's/.*x509_certificate_string = "//; s/"[;,]*$//; s/\\n/\n/g' \
+  > root_ca_cert.pem
 openssl verify -CAfile root_ca_cert.pem root_ca_cert.pem
 ```
 
@@ -113,18 +110,12 @@ To create a CSR and obtain a signed child certificate:
 openssl genpkey -algorithm Ed25519 -out key.pem
 openssl req -new -key key.pem -out request.csr -subj "/CN=Test Corporation/O=Test Inc/C=US"
 
-CANDID_ARG=$(python3 -c "
-import json
-with open('request.csr') as f: csr = f.read()
-print('(record { pem_certificate_request = ' + json.dumps(csr) + ' })')
-")
-icp canister call backend child_certificate "$CANDID_ARG" \
-  | python3 -c "
-import sys, re, json
-m = re.search(r'x509_certificate_string = \"((?:[^\"\\\\]|\\\\.)*?)\"', sys.stdin.read())
-print(json.loads('\"' + m.group(1) + '\"'), end='')
-" > child_cert.pem
-
+CSR=$(awk '{printf "%s\\n", $0}' request.csr)
+icp canister call backend child_certificate \
+  "(record { pem_certificate_request = \"${CSR}\" })" \
+  | grep 'x509_certificate_string' \
+  | sed 's/.*x509_certificate_string = "//; s/"[;,]*$//; s/\\n/\n/g' \
+  > child_cert.pem
 openssl verify -CAfile root_ca_cert.pem child_cert.pem
 ```
 
