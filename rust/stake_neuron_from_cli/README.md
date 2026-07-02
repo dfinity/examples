@@ -72,8 +72,11 @@ To test against mainnet, deploy and fund the canister with ICP, then call `stake
 ```bash
 icp deploy -e ic
 
-# Fund the canister with ICP from your wallet, then call stake_neuron.
-# amount: e8s to stake (minimum 100_000_000 = 1 ICP), nonce: unique u64 per neuron
+# Fund the canister with ICP (minimum 1 ICP to stake + 0.0001 ICP transfer fee)
+backend=$(icp canister status -e ic backend -i)
+icp token transfer -e ic 1.0001 "$backend"
+
+# Stake a neuron — amount: e8s to stake, nonce: unique u64 per neuron
 icp canister call -e ic backend stake_neuron '(100_000_000 : nat64, 0 : nat64)'
 ```
 
