@@ -1,0 +1,97 @@
+@page "/"
+@inject IcpAgentService IcpAgent
+
+<div class="container">
+    <h1>ICP + Blazor Hello World</h1>
+    <p class="subtitle">Blazor WebAssembly (.NET 10) · Motoko · Internet Computer</p>
+
+    <!-- Get Greeting -->
+    <section>
+        <h2>Current Greeting</h2>
+        <button @onclick="FetchGreeting" disabled="@_loading">
+            @(_loading ? "Loading..." : "Get Greeting")
+        </button>
+        @if (!string.IsNullOrEmpty(_greeting))
+        {
+            <p class="result">@_greeting</p>
+        }
+    </section>
+
+       <!-- Set Greeting -->
+    <section>
+        <h2>Set Custom Greeting</h2>
+        <input @bind="_customName" placeholder="Enter a name" />
+        <button @onclick="SetGreeting" disabled="@_loading">Set Greeting</button>
+        @if (!string.IsNullOrEmpty(_setResponse))
+        {
+            <p class="result">@_setResponse</p>
+        }
+    </section>
+
+    <!-- Say Hello -->
+    <section>
+        <h2>Say Hello</h2>
+        <input @bind="_name" placeholder="Enter your name" />
+        <button @onclick="SayHello" disabled="@_loading">Say Hello</button>
+        @if (!string.IsNullOrEmpty(_helloResponse))
+        {
+            <p class="result">@_helloResponse</p>
+        }
+    </section> 
+
+    @if (!string.IsNullOrEmpty(_error))
+    {
+        <p class="error">Error: @_error</p>
+    }
+</div>
+
+@code {
+    private string _greeting = "";
+    private string _helloResponse = "";
+    private string _setResponse = "";
+    private string _name = "";
+    private string _customName = "";
+    private string _error = "";
+    private bool _loading = false;
+
+    private async Task FetchGreeting()
+    {
+        await Call(async () => _greeting = await IcpAgent.GetGreetingAsync());
+    }
+
+    private async Task SayHello()
+    {
+        if (string.IsNullOrWhiteSpace(_name)) return;
+        await Call(async () => _helloResponse = await IcpAgent.HelloAsync(_name));
+    }
+
+    private async Task SetGreeting()
+    {
+        if (string.IsNullOrWhiteSpace(_customName)) return;
+        await Call(async () => _setResponse = await IcpAgent.SetGreetingAsync(_customName));
+    }
+
+    private async Task Call(Func<Task> action)
+    {
+        _loading = true;
+        _error = "";
+        StateHasChanged();
+        try
+        {
+            await action();
+        }
+        catch (JSException ex)
+        {
+            _error = $"JS Error: {ex.Message}";
+        }
+        catch (Exception ex)
+        {
+            _error = $"Error: {ex.Message}";
+        }
+        finally
+        {
+            _loading = false;
+            StateHasChanged();
+        }
+    }
+}

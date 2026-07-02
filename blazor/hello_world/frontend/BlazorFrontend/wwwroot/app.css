@@ -1,0 +1,94 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+    font-family: system-ui, -apple-system, sans-serif;
+    background: #0a0a1a;
+    color: #e0e0ff;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    padding: 2rem 1rem;
+}
+
+.container {
+    width: 100%;
+    max-width: 600px;
+}
+
+h1 {
+    font-size: 2rem;
+    color: #a78bfa;
+    margin-bottom: 0.25rem;
+}
+
+.subtitle {
+    color: #6b7280;
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+}
+
+h2 {
+    font-size: 1.1rem;
+    color: #c4b5fd;
+    margin-bottom: 0.75rem;
+}
+
+section {
+    background: #12122a;
+    border: 1px solid #2d2d5e;
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+input {
+    background: #1a1a35;
+    border: 1px solid #3d3d7a;
+    border-radius: 6px;
+    color: #e0e0ff;
+    font-size: 1rem;
+    padding: 0.5rem 0.75rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+input:focus { border-color: #7c3aed; }
+
+button {
+    background: #7c3aed;
+    border: none;
+    border-radius: 6px;
+    color: white;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 500;
+    padding: 0.5rem 1.25rem;
+    align-self: flex-start;
+    transition: background 0.2s;
+}
+
+button:hover:not(:disabled) { background: #6d28d9; }
+button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.result {
+    background: #0d1f0d;
+    border: 1px solid #166534;
+    border-radius: 6px;
+    color: #86efac;
+    font-family: monospace;
+    font-size: 0.95rem;
+    padding: 0.5rem 0.75rem;
+}
+
+.error {
+    background: #1f0d0d;
+    border: 1px solid #991b1b;
+    border-radius: 6px;
+    color: #fca5a5;
+    font-size: 0.9rem;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+}
