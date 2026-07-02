@@ -1,0 +1,14 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+# cdylib produces a .wasm binary suitable for deployment as an ICP canister.
+crate-type = ["cdylib"]
+
+[dependencies]
+candid = "0.10"
+ic-cdk = "0.20"
+ic-cdk-management-canister = "0.1.1"
+serde = { version = "1", features = ["derive"] }
