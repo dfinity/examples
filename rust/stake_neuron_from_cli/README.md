@@ -2,8 +2,6 @@
 
 This example demonstrates how to stake ICP to create an NNS Governance neuron from a canister. It shows the subaccount computation and two-step staking process required to correctly create a neuron.
 
-> **Mainnet required for full staking**: The `stake_neuron` endpoint makes inter-canister calls to the ICP Ledger (`ryjl3-tyaaa-aaaaa-aaaba-cai`) and NNS Governance (`rrkah-fqaaa-aaaaa-aaaaq-cai`) canisters, which only exist on mainnet. The `compute_subaccount` query can be tested locally.
-
 ## What you can learn
 
 ### 1. Neuron Staking Subaccount Calculation
@@ -18,15 +16,14 @@ before sending real ICP.
 The subaccount is a domain-separated SHA-256 hash over the controller principal and nonce:
 
 ```rust
-fn compute_neuron_staking_subaccount(controller: Principal, nonce: u64) -> [u8; 32] {
+fn compute_neuron_staking_subaccount(controller: Principal, nonce: u64) -> Subaccount {
     let domain = b"neuron-stake";
-    let domain_length: [u8; 1] = [domain.len() as u8];
     let mut hasher = Sha256::new();
-    hasher.update(domain_length);
+    hasher.update([domain.len() as u8]);
     hasher.update(domain);
     hasher.update(controller.as_slice());
     hasher.update(nonce.to_be_bytes());
-    hasher.finalize().into()
+    Subaccount(hasher.finalize().into())
 }
 ```
 
@@ -42,29 +39,13 @@ The nonce used in step 1 (as the transfer memo) must match the nonce used in ste
 The minimum staking amount enforced by NNS Governance is 1 ICP (100,000,000 e8s).
 The standard ICP transfer fee of 0.0001 ICP (10,000 e8s) is deducted on top of the staked amount.
 
-```rust
-// Step 1: Transfer ICP to the computed subaccount
-let transfer_args = TransferArgs {
-    memo: Memo(nonce),
-    amount: Tokens { e8s: amount },
-    fee: Tokens { e8s: 10_000 },
-    to: AccountIdentifier { hash: build_account_identifier(governance_principal, &subaccount) },
-    ..
-};
-
-// Step 2: Claim the neuron using the same nonce
-let claim_request = ClaimOrRefreshNeuronFromAccount {
-    controller: Some(canister_id),
-    memo: nonce,
-};
-```
-
 ## Build and deploy from the command line
 
 ### Prerequisites
 
-- Node.js
-- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Node.js](https://nodejs.org/) v18+
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Rust](https://www.rust-lang.org/tools/install) with `wasm32-unknown-unknown` target: `rustup target add wasm32-unknown-unknown`
 
 ### Install
 
@@ -82,19 +63,18 @@ bash test.sh
 icp network stop
 ```
 
-The `bash test.sh` script verifies the `compute_subaccount` query locally.
+`icp.yaml` configures the local network with `nns: true`, which deploys the NNS canisters (ICP Ledger and Governance) at their mainnet IDs. `test.sh` funds the canister with ICP and exercises the full staking flow — both `compute_subaccount` and `stake_neuron` are tested locally.
 
-### Testing stake_neuron on mainnet
+### Testing on mainnet
 
-To test the full staking flow you need a canister deployed to mainnet that holds ICP:
+To test against mainnet, deploy and fund the canister with ICP, then call `stake_neuron`:
 
 ```bash
-# Deploy to mainnet
-icp deploy --network ic
+icp deploy -e ic
 
-# Fund the canister with ICP (from your wallet), then call stake_neuron.
+# Fund the canister with ICP from your wallet, then call stake_neuron.
 # amount: e8s to stake (minimum 100_000_000 = 1 ICP), nonce: unique u64 per neuron
-icp canister call --network ic backend stake_neuron '(100010000 : nat64, 0 : nat64)'
+icp canister call -e ic backend stake_neuron '(100_000_000 : nat64, 0 : nat64)'
 ```
 
 ## Security considerations and best practices

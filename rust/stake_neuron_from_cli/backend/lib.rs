@@ -94,10 +94,11 @@ fn compute_subaccount(controller: Principal, nonce: u64) -> String {
 ///    to complete the neuron creation.
 ///
 /// **Prerequisites:**
-/// - This canister must hold at least `amount + 10_000` e8s of ICP
-///   (the extra 10_000 e8s cover the standard transfer fee).
-/// - The minimum staking amount enforced by NNS Governance is 100_000_000 e8s
-///   (1 ICP).
+/// - The canister must hold at least `amount + 10_000` e8s of ICP
+///   (10_000 e8s covers the standard transfer fee).
+/// - The minimum staking amount enforced by NNS Governance is 100_000_000 e8s (1 ICP).
+/// - The local network must be started with `nns: true` in `icp.yaml` so that the
+///   ICP Ledger and NNS Governance canisters are available at their mainnet IDs.
 #[update]
 async fn stake_neuron(amount: u64, nonce: u64) -> Result<StakeNeuronResult, String> {
     let canister_id = ic_cdk::api::canister_self();
