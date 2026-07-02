@@ -18,7 +18,7 @@ Currently this canister only produces and accepts certificates with Ed25519 keys
 
 ### Prerequisites
 
-- Node.js v18+
+- [Node.js](https://nodejs.org/) v18+
 - [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 - [Rust](https://www.rust-lang.org/tools/install) with `wasm32-unknown-unknown` target: `rustup target add wasm32-unknown-unknown`
 - [OpenSSL](https://www.openssl.org/) CLI (used by `test.sh`)
@@ -122,7 +122,7 @@ openssl verify -CAfile root_ca_cert.pem child_cert.pem
 
 ## How it works
 
-The canister calls the `schnorr_public_key` or `ecdsa_public_key` method of the [IC management canister](https://internetcomputer.org/docs/building-apps/network-features/signatures/t-ecdsa) to retrieve the public key, then calls `sign_with_schnorr` or `sign_with_ecdsa` inside the signer implementations (`Ed25519Signer` / `EcdsaSecp256k1Signer`) to produce a certificate signature. The management canister is a facade — it does not exist as a canister with isolated state; it is an ergonomic way for canisters to call IC system APIs.
+The canister calls the `schnorr_public_key` or `ecdsa_public_key` method of the [IC management canister](https://docs.internetcomputer.org/references/management-canister/#chain-key-signing) to retrieve the public key, then calls `sign_with_schnorr` or `sign_with_ecdsa` inside the signer implementations (`Ed25519Signer` / `EcdsaSecp256k1Signer`) to produce a certificate signature. The management canister is a facade — it does not exist as a canister with isolated state; it is an ergonomic way for canisters to call IC system APIs.
 
 Both the root CA public key and the generated certificate are cached in canister memory so that subsequent calls do not trigger additional threshold signing rounds.
 
