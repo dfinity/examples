@@ -97,7 +97,7 @@ async fn root_ca_certificate() -> Result<X509CertificateString, String> {
     let serial_number = SerialNumber::from(1u32);
 
     let subject = Name::from_str(
-        "CN=Web3 certification authority corporation,O=Web3 certification authority Inc,C=US",
+        "CN=ICP Example CA,O=ICP Example CA Inc,C=US",
     )
     .unwrap();
 
