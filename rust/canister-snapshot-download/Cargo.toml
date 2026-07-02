@@ -1,5 +1,3 @@
 [workspace]
-members = [
-    "src/quotes"
-]
+members = ["backend"]
 resolver = "2"
