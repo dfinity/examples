@@ -31,6 +31,9 @@ echo "=== Setup: fund backend with 2 ICP ==="
 icp token transfer 2 "$backend"
 
 echo "=== Test 4: stake_neuron stakes 1 ICP and subaccount_hex matches compute_subaccount ==="
+# Re-running this test tops up the existing neuron rather than creating a new one —
+# claim_or_refresh reuses the same neuron_id for the same (controller, nonce) pair.
+# Each re-run adds 1 ICP to the neuron's stake; the neuron_id stays the same.
 expected_subaccount=$(icp canister call --query backend compute_subaccount \
   "(principal \"$backend\", 0 : nat64)" | grep -oE '[0-9a-f]{64}')
 result=$(icp canister call backend stake_neuron '(100_000_000 : nat64, 0 : nat64)')
