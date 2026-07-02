@@ -1,20 +1,19 @@
-use ic_cdk::{
-    api::stable::{stable_grow, stable_read, stable_write},
-    query, update,
-};
+use ic_cdk::{query, update};
+use ic_stable_structures::{DefaultMemoryImpl, Memory};
 
 #[update]
 fn setup() {
-    stable_grow(1).unwrap();
-    let buf = "Colourless green ideas sleep furiously.".as_bytes();
-    stable_write(0, buf);
+    let mem = DefaultMemoryImpl::default();
+    assert_ne!(mem.grow(1), -1, "failed to grow stable memory");
+    mem.write(0, b"Colourless green ideas sleep furiously.");
 }
 
 #[query]
 fn print() -> String {
-    let mut buf = vec![0; 39];
-    stable_read(0, &mut buf);
-    let msg = String::from_utf8(buf).unwrap();
-    // ic_cdk::println!("{}", msg);
-    msg
+    let mem = DefaultMemoryImpl::default();
+    let mut buf = vec![0u8; 39];
+    mem.read(0, &mut buf);
+    String::from_utf8(buf).unwrap()
 }
+
+ic_cdk::export_candid!();
