@@ -44,6 +44,9 @@ struct ClaimOrRefreshNeuronFromAccountResponse {
 pub struct StakeNeuronResult {
     pub neuron_id: u64,
     pub controller: Principal,
+    /// Amount staked in this call — not the neuron's total accumulated stake.
+    /// Re-running stake_neuron with the same nonce tops up the existing neuron;
+    /// query NNS Governance to retrieve the actual total balance.
     pub staked_amount_e8s: u64,
     pub block_index: u64,
     pub subaccount_hex: String,
