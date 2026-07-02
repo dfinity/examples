@@ -1,15 +1,14 @@
 use crate::{CaKeyInformation, PemCertificateRequest, X509CertificateString};
 
-use super::SchnorrAlgorithm;
-use candid::{CandidType, Principal};
+use candid::Principal;
 use der::{asn1::BitString, pem::LineEnding, DecodePem, Encode, EncodePem};
 use ic_cdk::export_candid;
 use ic_cdk::{api::time, init, update};
 use ic_cdk_management_canister::{
     self as management_canister, EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgs,
+    SchnorrAlgorithm as MgmtSchnorrAlgorithm, SchnorrKeyId as MgmtSchnorrKeyId, SchnorrPublicKeyArgs,
 };
 use pkcs8::AssociatedOid;
-use serde::{Deserialize, Serialize};
 use signature::Keypair;
 use spki::{AlgorithmIdentifier, DynSignatureAlgorithmIdentifier, EncodePublicKey};
 use std::{
@@ -30,13 +29,13 @@ use signer::{EcdsaSecp256k1Signer, Ed25519Signer, Sign};
 
 type CanisterId = Principal;
 
-impl TryFrom<&CaKeyInformation> for SchnorrKeyId {
+impl TryFrom<&CaKeyInformation> for MgmtSchnorrKeyId {
     type Error = String;
 
     fn try_from(value: &CaKeyInformation) -> Result<Self, Self::Error> {
         match value {
-            CaKeyInformation::Ed25519(key_name) => Ok(SchnorrKeyId {
-                algorithm: SchnorrAlgorithm::Ed25519,
+            CaKeyInformation::Ed25519(key_name) => Ok(MgmtSchnorrKeyId {
+                algorithm: MgmtSchnorrAlgorithm::Ed25519,
                 name: key_name.clone(),
             }),
             something_else => Err(format!(
@@ -253,36 +252,7 @@ async fn child_certificate(
     })
 }
 
-#[derive(CandidType, Serialize, Debug)]
-struct ManagementCanisterSchnorrPublicKeyRequest {
-    pub canister_id: Option<CanisterId>,
-    pub derivation_path: Vec<Vec<u8>>,
-    pub key_id: SchnorrKeyId,
-}
 
-#[derive(CandidType, Deserialize, Debug)]
-struct ManagementCanisterSchnorrPublicKeyReply {
-    pub public_key: Vec<u8>,
-    pub chain_code: Vec<u8>,
-}
-
-#[derive(CandidType, Serialize, Debug, Clone)]
-struct SchnorrKeyId {
-    pub algorithm: SchnorrAlgorithm,
-    pub name: String,
-}
-
-#[derive(CandidType, Serialize, Debug)]
-struct ManagementCanisterSignatureRequest {
-    pub message: Vec<u8>,
-    pub derivation_path: Vec<Vec<u8>>,
-    pub key_id: SchnorrKeyId,
-}
-
-#[derive(CandidType, Deserialize, Debug)]
-struct ManagementCanisterSignatureReply {
-    pub signature: Vec<u8>,
-}
 
 async fn root_ca_public_key_bytes() -> Result<Vec<u8>, String> {
     // if the public key is already cached, return it
@@ -292,26 +262,16 @@ async fn root_ca_public_key_bytes() -> Result<Vec<u8>, String> {
 
     let result = match CA_KEY_INFORMATION.with(|value| value.borrow().clone()) {
         CaKeyInformation::Ed25519(_) => {
-            // if the public key is not cached, fetch it from the management canister
-            let request = ManagementCanisterSchnorrPublicKeyRequest {
+            let args = SchnorrPublicKeyArgs {
                 canister_id: None,
                 derivation_path: derivation_path(),
                 key_id: CA_KEY_INFORMATION
-                    .with(|value| SchnorrKeyId::try_from(value.borrow().deref()))?,
+                    .with(|value| MgmtSchnorrKeyId::try_from(value.borrow().deref()))?,
             };
-
-            let (res,): (ManagementCanisterSchnorrPublicKeyReply,) =
-                ic_cdk::call::Call::bounded_wait(
-                    Principal::management_canister(),
-                    "schnorr_public_key",
-                )
-                .with_arg(&request)
+            let response = management_canister::schnorr_public_key(&args)
                 .await
-                .map_err(|e| format!("schnorr_public_key failed {e:?}"))?
-                .candid_tuple()
-                .map_err(|e| format!("failed to decode schnorr_public_key reply {e:?}"))?;
-
-            res.public_key
+                .map_err(|e| format!("schnorr_public_key failed {e:?}"))?;
+            response.public_key
         }
         CaKeyInformation::EcdsaSecp256k1(_) => {
             let args = EcdsaPublicKeyArgs {
