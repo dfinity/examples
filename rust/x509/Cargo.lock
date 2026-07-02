@@ -73,8 +73,6 @@ dependencies = [
  "sha2",
  "signature",
  "spki",
- "strum",
- "strum_macros",
  "x509-cert",
 ]
 

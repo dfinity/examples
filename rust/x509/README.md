@@ -7,7 +7,7 @@ A minimal example canister demonstrating two use cases of [X.509](https://en.wik
 
 More specifically, the canister:
 
-- Takes a threshold Ed25519 or ECDSA with curve `secp256k1` key name upon initialization, e.g. `(variant { Ed25519 = variant { TestKey1 } })`.
+- Takes a threshold key name upon initialization, e.g. `(variant { Ed25519 = "test_key_1" })`.
 - Generates a CA certificate via an update call to the `root_ca_certificate` function. The CA certificate is generated only once and then stored in the canister.
 - Generates a child certificate with a CSR provided in PEM format via an update call to the `child_certificate` function.
 - Uses an empty derivation path for the key that signs the root certificate.
@@ -18,8 +18,9 @@ Currently this canister only produces and accepts certificates with Ed25519 keys
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/)
-- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Node.js](https://nodejs.org/) v18+
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Rust](https://www.rust-lang.org/tools/install) with `wasm32-unknown-unknown` target: `rustup target add wasm32-unknown-unknown`
 
 ### Install
 
@@ -37,21 +38,22 @@ bash test.sh
 icp network stop
 ```
 
-The canister is initialized with the `Ed25519 / TestKey1` threshold key by default. To deploy with a different key, pass an init argument:
+The canister is initialized with `Ed25519 / "test_key_1"` by default (works on both the local network and mainnet). To deploy with the ECDSA key or the production key:
 
 ```bash
-icp deploy --argument '(variant { EcdsaSecp256k1 = variant { TestKey1 } })'
+# ECDSA with the test key
+icp deploy --argument '(variant { EcdsaSecp256k1 = "test_key_1" })'
+
+# Ed25519 with the production key on mainnet
+icp deploy -e ic --argument '(variant { Ed25519 = "key_1" })'
 ```
 
 ## Key names
 
-There are three supported key names:
+Pass the key name as a plain string inside the `CaKeyInformation` variant:
 
-- `DfxTestKey` (string: `dfx_test_key`): a default test key used when deploying to a local replica.
-- `TestKey1` (string: `test_key_1`): a master **test** key ID used on the mainnet.
-- `Key1` (string: `key_1`): a master **production** key ID used on the mainnet.
-
-Note that these names are formatted in `PascalCase` in the Candid variant type due to Rust enum conventions, while the underlying key name strings use `snake_case`.
+- `"test_key_1"` — mainnet test key (also works on the local network)
+- `"key_1"` — mainnet production key
 
 ## Obtaining the root CA certificate
 
@@ -82,9 +84,12 @@ Example output:
 Save the root CA certificate and verify it is self-signed:
 
 ```bash
-icp canister call backend root_ca_certificate '()' --output json \
-  | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['Ok']['x509_certificate_string'])" \
-  | sed 's/\\n/\n/g' > root_ca_cert.pem
+icp canister call backend root_ca_certificate '()' \
+  | python3 -c "
+import sys, re, json
+m = re.search(r'x509_certificate_string = \"((?:[^\"\\\\]|\\\\.)*?)\"', sys.stdin.read())
+print(json.loads('\"' + m.group(1) + '\"'), end='')
+" > root_ca_cert.pem
 
 openssl verify -CAfile root_ca_cert.pem root_ca_cert.pem
 ```
@@ -95,12 +100,17 @@ To create a CSR and obtain a signed child certificate:
 openssl genpkey -algorithm Ed25519 -out key.pem
 openssl req -new -key key.pem -out request.csr -subj "/CN=Test Corporation/O=Test Inc/C=US"
 
-CSR=$(cat request.csr)
-icp canister call backend child_certificate \
-  "(record { pem_certificate_request = \"$CSR\" })" \
-  --output json \
-  | python3 -c "import sys,json; d=json.load(sys.stdin); print(d['Ok']['x509_certificate_string'])" \
-  | sed 's/\\n/\n/g' > child_cert.pem
+CANDID_ARG=$(python3 -c "
+import json
+with open('request.csr') as f: csr = f.read()
+print('(record { pem_certificate_request = ' + json.dumps(csr) + ' })')
+")
+icp canister call backend child_certificate "$CANDID_ARG" \
+  | python3 -c "
+import sys, re, json
+m = re.search(r'x509_certificate_string = \"((?:[^\"\\\\]|\\\\.)*?)\"', sys.stdin.read())
+print(json.loads('\"' + m.group(1) + '\"'), end='')
+" > child_cert.pem
 
 openssl verify -CAfile root_ca_cert.pem child_cert.pem
 ```

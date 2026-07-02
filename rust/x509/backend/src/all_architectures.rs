@@ -1,6 +1,5 @@
 use candid::CandidType;
 use serde::{Deserialize, Serialize};
-use strum_macros::IntoStaticStr;
 
 #[derive(CandidType, Serialize, Deserialize, Debug, Copy, Clone)]
 pub enum SchnorrAlgorithm {
@@ -25,23 +24,17 @@ pub struct SignatureVerificationReply {
     pub is_signature_valid: bool,
 }
 
-#[derive(CandidType, Serialize, Deserialize, Debug, Clone, Copy, IntoStaticStr)]
-pub enum KeyName {
-    #[allow(unused)]
-    #[strum(serialize = "dfx_test_key")]
-    DfxTestKey,
-    #[allow(unused)]
-    #[strum(serialize = "test_key_1")]
-    TestKey1,
-    #[allow(unused)]
-    #[strum(serialize = "key_1")]
-    Key1,
-}
-
-#[derive(CandidType, Serialize, Deserialize, Debug, Clone, Copy)]
+/// The threshold signing key to use for the CA.
+/// Pass the key name as a plain string, e.g.:
+///   `(variant { Ed25519 = "test_key_1" })`
+///
+/// Available key names:
+///   - `"test_key_1"` — mainnet test key (works on the local network too)
+///   - `"key_1"`      — mainnet production key
+#[derive(CandidType, Serialize, Deserialize, Debug, Clone)]
 pub enum CaKeyInformation {
-    Ed25519(KeyName),
-    EcdsaSecp256k1(KeyName),
+    Ed25519(String),
+    EcdsaSecp256k1(String),
 }
 
 #[derive(CandidType, Serialize, Deserialize, Debug)]

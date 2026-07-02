@@ -1,4 +1,4 @@
-use crate::{CaKeyInformation, KeyName, PemCertificateRequest, X509CertificateString};
+use crate::{CaKeyInformation, PemCertificateRequest, X509CertificateString};
 
 use super::SchnorrAlgorithm;
 use candid::{CandidType, Principal};
@@ -13,8 +13,8 @@ use serde::{Deserialize, Serialize};
 use signature::Keypair;
 use spki::{AlgorithmIdentifier, DynSignatureAlgorithmIdentifier, EncodePublicKey};
 use std::{
-    cell::OnceCell, cell::RefCell, convert::TryFrom, convert::TryInto, error::Error, ops::Deref,
-    str::FromStr, time::Duration,
+    cell::OnceCell, cell::RefCell, convert::TryFrom, convert::TryInto, error::Error,
+    ops::Deref, str::FromStr, time::Duration,
 };
 use x509_cert::{
     builder::{Builder, CertificateBuilder, Profile},
@@ -37,7 +37,7 @@ impl TryFrom<&CaKeyInformation> for SchnorrKeyId {
         match value {
             CaKeyInformation::Ed25519(key_name) => Ok(SchnorrKeyId {
                 algorithm: SchnorrAlgorithm::Ed25519,
-                name: String::from(<&'static str>::from(key_name)),
+                name: key_name.clone(),
             }),
             something_else => Err(format!(
                 "Expected Ed25519 CA key but got {something_else:?}"
@@ -53,7 +53,7 @@ impl TryFrom<&CaKeyInformation> for EcdsaKeyId {
         match value {
             CaKeyInformation::EcdsaSecp256k1(key_name) => Ok(EcdsaKeyId {
                 curve: EcdsaCurve::Secp256k1,
-                name: String::from(<&'static str>::from(key_name)),
+                name: key_name.clone(),
             }),
             something_else => Err(format!(
                 "Expected EcdsaSecp256k1 CA key but got {something_else:?}"
@@ -63,7 +63,7 @@ impl TryFrom<&CaKeyInformation> for EcdsaKeyId {
 }
 
 thread_local! {
-    static CA_KEY_INFORMATION: RefCell<CaKeyInformation> = RefCell::new(CaKeyInformation::Ed25519(KeyName::DfxTestKey));
+    static CA_KEY_INFORMATION: RefCell<CaKeyInformation> = RefCell::new(CaKeyInformation::Ed25519("test_key_1".to_string()));
 
     // cache the public key and certificate to avoid fetching them multiple times
     static ROOT_CA_PUBLIC_KEY: OnceCell<Vec<u8>> = OnceCell::new();
@@ -100,7 +100,7 @@ async fn root_ca_certificate() -> Result<X509CertificateString, String> {
     .unwrap();
 
     let newly_constructed_x509_certificate_string = match CA_KEY_INFORMATION
-        .with(|value| *value.borrow())
+        .with(|value| value.borrow().clone())
     {
         CaKeyInformation::Ed25519(_) => {
             let signer = Ed25519Signer::new()
@@ -213,7 +213,7 @@ async fn child_certificate(
     let validity = root_certificate.tbs_certificate.validity.clone();
 
     let x509_certificate_string = {
-        match CA_KEY_INFORMATION.with(|value| *value.borrow()) {
+        match CA_KEY_INFORMATION.with(|value| value.borrow().clone()) {
             CaKeyInformation::Ed25519(_) => {
                 let signer = Ed25519Signer::new()
                     .await
@@ -289,7 +289,7 @@ async fn root_ca_public_key_bytes() -> Result<Vec<u8>, String> {
         return Ok(public_key);
     };
 
-    let result = match CA_KEY_INFORMATION.with(|value| *value.borrow()) {
+    let result = match CA_KEY_INFORMATION.with(|value| value.borrow().clone()) {
         CaKeyInformation::Ed25519(_) => {
             // if the public key is not cached, fetch it from the management canister
             let request = ManagementCanisterSchnorrPublicKeyRequest {

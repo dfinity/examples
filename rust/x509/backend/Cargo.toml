@@ -27,8 +27,6 @@ serde_bytes = "0.11"
 sha2 = "0.10"
 signature = "2.2.0"
 spki = "0.7.3"
-strum = "0.26.3"
-strum_macros = "0.26.3"
 x509-cert = { version = "0.2.5", features = ["builder"] }
 
 [dev-dependencies]

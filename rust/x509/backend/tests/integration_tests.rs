@@ -7,8 +7,7 @@ use openssl::{
     x509::{X509Name, X509Req, X509},
 };
 use pocket_ic::PocketIcBuilder;
-use std::convert::TryFrom;
-use backend::{CaKeyInformation, KeyName, PemCertificateRequest, X509CertificateString};
+use backend::{CaKeyInformation, PemCertificateRequest, X509CertificateString};
 
 fn load_wasm() -> Vec<u8> {
     let wasm_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR"))
@@ -129,13 +128,13 @@ mod smoke {
     #[test]
     fn should_instantiate_pic_and_canister_id() {
         let (_pic, _canister_id) =
-            pic_and_canister_id(CaKeyInformation::Ed25519(KeyName::TestKey1));
+            pic_and_canister_id(CaKeyInformation::Ed25519("test_key_1".to_string()));
     }
 
     #[test]
     fn should_fetch_root_ca_certificate() {
         let (pic, canister_id) =
-            pic_and_canister_id(CaKeyInformation::Ed25519(KeyName::TestKey1));
+            pic_and_canister_id(CaKeyInformation::Ed25519("test_key_1".to_string()));
         let _root_certificate = fetch_root_ca_certificate(&pic, canister_id);
     }
 }
@@ -146,7 +145,7 @@ mod ed25519 {
     #[test]
     fn root_ca_certificate_should_be_valid() {
         let (pic, canister_id) =
-            pic_and_canister_id(CaKeyInformation::Ed25519(KeyName::TestKey1));
+            pic_and_canister_id(CaKeyInformation::Ed25519("test_key_1".to_string()));
         let root_certificate = fetch_root_ca_certificate(&pic, canister_id);
 
         assert!(
@@ -160,7 +159,7 @@ mod ed25519 {
     #[test]
     fn child_certificate_should_be_valid() {
         let (pic, canister_id) =
-            pic_and_canister_id(CaKeyInformation::Ed25519(KeyName::TestKey1));
+            pic_and_canister_id(CaKeyInformation::Ed25519("test_key_1".to_string()));
         let root_certificate = fetch_root_ca_certificate(&pic, canister_id);
 
         for (key, digest_type) in generate_child_keys() {
@@ -186,7 +185,7 @@ mod ecdsa_secp256k1 {
     #[test]
     fn root_ca_certificate_should_be_valid() {
         let (pic, canister_id) =
-            pic_and_canister_id(CaKeyInformation::EcdsaSecp256k1(KeyName::TestKey1));
+            pic_and_canister_id(CaKeyInformation::EcdsaSecp256k1("test_key_1".to_string()));
         let root_certificate = fetch_root_ca_certificate(&pic, canister_id);
 
         assert!(
@@ -200,7 +199,7 @@ mod ecdsa_secp256k1 {
     #[test]
     fn child_certificate_should_be_valid() {
         let (pic, canister_id) =
-            pic_and_canister_id(CaKeyInformation::EcdsaSecp256k1(KeyName::TestKey1));
+            pic_and_canister_id(CaKeyInformation::EcdsaSecp256k1("test_key_1".to_string()));
         let root_certificate = fetch_root_ca_certificate(&pic, canister_id);
 
         for (key, digest_type) in generate_child_keys() {
@@ -218,11 +217,4 @@ mod ecdsa_secp256k1 {
             );
         }
     }
-}
-
-#[test]
-fn test_strum_produces_expected_key_names() {
-    assert_eq!(<&'static str>::try_from(KeyName::DfxTestKey), Ok("dfx_test_key"));
-    assert_eq!(<&'static str>::try_from(KeyName::TestKey1), Ok("test_key_1"));
-    assert_eq!(<&'static str>::try_from(KeyName::Key1), Ok("key_1"));
 }
