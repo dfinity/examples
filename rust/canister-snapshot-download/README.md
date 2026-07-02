@@ -8,8 +8,10 @@ off-chain, uploading the fixed snapshot, and restoring the canister from it.
 ## Build and deploy from the command line
 
 ### Prerequisites
-- Node.js
-- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+
+- [Node.js](https://nodejs.org/) v18+
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Rust](https://www.rust-lang.org/tools/install) v1.85+ with `wasm32-unknown-unknown` target: `rustup target add wasm32-unknown-unknown`
 
 ### Install
 ```bash
@@ -31,12 +33,12 @@ The backend canister stores a quote in stable memory using the low-level stable 
 The initial quote contains a British spelling ("Colourless") that can be fixed off-chain:
 
 1. **Setup**: call `setup` to write the initial data into stable memory.
-2. **Snapshot**: stop the canister, create a snapshot, then start it again.
-3. **Download**: `icp canister snapshot download --dir ./snapshots backend <snapshot-id>` saves
+2. **Snapshot**: stop the canister and create a snapshot with `icp canister snapshot create`.
+3. **Download**: `icp canister snapshot download -o ./snapshots backend <snapshot-id>` saves
    `stable_memory.bin` and other files to the local directory.
-4. **Manipulate**: edit the binary file directly (e.g. `sed -i 's/Colour/Color/g' ./snapshots/stable_memory.bin`).
-5. **Upload**: `icp canister snapshot upload --dir ./snapshots backend` returns a new snapshot ID.
-6. **Load**: stop the canister, load the new snapshot, then start it again.
+4. **Manipulate**: edit the binary file directly (e.g. `sed -i '' 's/Colour/Color/g' ./snapshots/stable_memory.bin`).
+5. **Upload**: `icp canister snapshot upload -i ./snapshots backend` returns a new snapshot ID.
+6. **Restore**: `icp canister snapshot restore backend <new-snapshot-id>`, then start the canister.
 7. **Verify**: call `print` to confirm the spelling fix is live.
 
 This workflow enables several use cases:
