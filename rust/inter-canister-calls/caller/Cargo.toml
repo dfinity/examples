@@ -1,5 +1,5 @@
 [package]
-name = "counter"
+name = "caller"
 version = "0.1.0"
 edition = "2021"
 
@@ -8,5 +8,4 @@ crate-type = ["cdylib"]
 
 [dependencies]
 candid = "0.10"
-ic-cdk = "0.18.5"
-ic-cdk-macros = "0.18.5"
+ic-cdk = "0.20"
