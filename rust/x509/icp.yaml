@@ -2,3 +2,6 @@ canisters:
   - name: backend
     recipe:
       type: "@dfinity/rust@v3.3.0"
+    # Ed25519 with test_key_1 works on both the local network and mainnet (test key).
+    # Use EcdsaSecp256k1 or Key1 for production mainnet deployments.
+    init_args: "(variant { Ed25519 = variant { TestKey1 } })"
