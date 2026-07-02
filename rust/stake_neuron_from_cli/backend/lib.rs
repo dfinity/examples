@@ -99,8 +99,17 @@ fn compute_subaccount(controller: Principal, nonce: u64) -> String {
 /// - The minimum staking amount enforced by NNS Governance is 100_000_000 e8s (1 ICP).
 /// - The local network must be started with `nns: true` in `icp.yaml` so that the
 ///   ICP Ledger and NNS Governance canisters are available at their mainnet IDs.
+// NOTE: stake_neuron is unguarded — any caller can trigger a transfer from the
+// canister's ICP balance. Production deployments should restrict this to an
+// authorized principal (e.g. the canister controller).
 #[update]
 async fn stake_neuron(amount: u64, nonce: u64) -> Result<StakeNeuronResult, String> {
+    // Reject below-minimum amounts early so no ICP is transferred before Governance
+    // would reject the claim and strand funds in the staking subaccount.
+    if amount < 100_000_000 {
+        return Err("amount must be at least 100_000_000 e8s (1 ICP)".to_string());
+    }
+
     let canister_id = ic_cdk::api::canister_self();
 
     // The canister holds the ICP and becomes the neuron controller, so the
