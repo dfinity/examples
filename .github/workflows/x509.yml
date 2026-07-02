@@ -20,6 +20,17 @@ jobs:
       ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Install dependencies
+        run: apt-get update && apt-get install -y --no-install-recommends libssl-dev
+      - name: Install PocketIC server
+        uses: dfinity/pocketic@a980c334fab1b21b0b8a6bba38e1a10836e7258b # main
+        with:
+          pocket-ic-server-version: "15.0.0"
+      - name: Build WASM and run PocketIC integration tests
+        working-directory: rust/x509
+        run: |
+          icp build backend
+          cargo test --package backend --test integration_tests
       - name: Deploy and test
         working-directory: rust/x509
         run: |

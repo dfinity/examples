@@ -6,7 +6,7 @@ use der::{asn1::BitString, pem::LineEnding, DecodePem, Encode, EncodePem};
 use ic_cdk::export_candid;
 use ic_cdk::{api::time, init, update};
 use ic_cdk_management_canister::{
-    self as management_canister, EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgs, SignWithEcdsaArgs,
+    self as management_canister, EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgs,
 };
 use pkcs8::AssociatedOid;
 use serde::{Deserialize, Serialize};
@@ -189,7 +189,7 @@ async fn child_certificate(
         return Err("Attributes are currently not supported in this example".to_string());
     }
 
-    prove_ownership(&cert_req, ic_cdk::api::caller() /*, ... */)?;
+    prove_ownership(&cert_req, ic_cdk::api::msg_caller() /*, ... */)?;
 
     let root_certificate_pem = root_ca_certificate().await?;
     let root_certificate =
@@ -299,13 +299,16 @@ async fn root_ca_public_key_bytes() -> Result<Vec<u8>, String> {
                     .with(|value| SchnorrKeyId::try_from(value.borrow().deref()))?,
             };
 
-            let (res,): (ManagementCanisterSchnorrPublicKeyReply,) = ic_cdk::call(
-                Principal::management_canister(),
-                "schnorr_public_key",
-                (request,),
-            )
-            .await
-            .map_err(|e| format!("schnorr_public_key failed {}", e.1))?;
+            let (res,): (ManagementCanisterSchnorrPublicKeyReply,) =
+                ic_cdk::call::Call::bounded_wait(
+                    Principal::management_canister(),
+                    "schnorr_public_key",
+                )
+                .with_arg(&request)
+                .await
+                .map_err(|e| format!("schnorr_public_key failed {e:?}"))?
+                .candid_tuple()
+                .map_err(|e| format!("failed to decode schnorr_public_key reply {e:?}"))?;
 
             res.public_key
         }

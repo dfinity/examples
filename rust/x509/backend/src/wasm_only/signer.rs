@@ -44,14 +44,13 @@ impl Sign for Ed25519Signer {
         };
 
         let (internal_reply,): (ManagementCanisterSignatureReply,) =
-            ic_cdk::api::call::call_with_payment(
-                Principal::management_canister(),
-                "sign_with_schnorr",
-                (internal_request,),
-                26_153_846_153,
-            )
-            .await
-            .map_err(|e| format!("sign_with_schnorr failed {e:?}"))?;
+            ic_cdk::call::Call::bounded_wait(Principal::management_canister(), "sign_with_schnorr")
+                .with_arg(&internal_request)
+                .with_cycles(26_153_846_153u128)
+                .await
+                .map_err(|e| format!("sign_with_schnorr failed {e:?}"))?
+                .candid_tuple()
+                .map_err(|e| format!("failed to decode sign_with_schnorr reply {e:?}"))?;
 
         Ok(internal_reply.signature)
     }
