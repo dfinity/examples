@@ -18,9 +18,10 @@ Currently this canister only produces and accepts certificates with Ed25519 keys
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) v18+
+- Node.js v18+
 - [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 - [Rust](https://www.rust-lang.org/tools/install) with `wasm32-unknown-unknown` target: `rustup target add wasm32-unknown-unknown`
+- [OpenSSL](https://www.openssl.org/) CLI (used by `test.sh`)
 
 ### Install
 
@@ -40,9 +41,17 @@ icp network stop
 
 The canister is initialized with `Ed25519 / "test_key_1"` by default (works on both the local network and mainnet). To deploy with the ECDSA key or the production key:
 
+```bash
+# ECDSA with the test key
+icp deploy --argument '(variant { EcdsaSecp256k1 = "test_key_1" })'
+
+# Ed25519 with the production key on mainnet
+icp deploy -e ic --argument '(variant { Ed25519 = "key_1" })'
+```
+
 ### PocketIC integration tests
 
-The canister includes integration tests that run against a local [PocketIC](https://github.com/dfinity/pocketic) instance, covering Ed25519 and ECDSA secp256k1 certificate generation and verification. Requires `libssl-dev` and `pkg-config` (for the `openssl` Rust crate used in tests):
+The canister includes integration tests that run against a local [PocketIC](https://github.com/dfinity/pocketic) instance, covering Ed25519 and ECDSA secp256k1 certificate generation and verification. The `openssl` Rust crate used in tests requires OpenSSL development headers: on Debian/Ubuntu `apt-get install libssl-dev pkg-config`, on macOS it ships with Xcode Command Line Tools.
 
 ```bash
 # Build the WASM first (handles platform-specific toolchain requirements)
@@ -52,14 +61,6 @@ cargo test --package backend --test integration_tests
 ```
 
 The PocketIC server binary is downloaded automatically on first run (or set `POCKET_IC_BIN` to an existing binary path).
-
-```bash
-# ECDSA with the test key
-icp deploy --argument '(variant { EcdsaSecp256k1 = "test_key_1" })'
-
-# Ed25519 with the production key on mainnet
-icp deploy -e ic --argument '(variant { Ed25519 = "key_1" })'
-```
 
 ## Key names
 
@@ -121,7 +122,7 @@ openssl verify -CAfile root_ca_cert.pem child_cert.pem
 
 ## How it works
 
-The canister calls the [`schnorr_public_key`](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-management-canister) or [`ecdsa_public_key`](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-management-canister) method of the IC management canister to retrieve the public key, then calls `sign_with_schnorr` or `sign_with_ecdsa` inside the signer implementations (`Ed25519Signer` / `EcdsaSecp256k1Signer`) to produce a certificate signature. The management canister is a facade — it does not exist as a canister with isolated state; it is an ergonomic way for canisters to call IC system APIs.
+The canister calls the `schnorr_public_key` or `ecdsa_public_key` method of the [IC management canister](https://internetcomputer.org/docs/building-apps/network-features/signatures/t-ecdsa) to retrieve the public key, then calls `sign_with_schnorr` or `sign_with_ecdsa` inside the signer implementations (`Ed25519Signer` / `EcdsaSecp256k1Signer`) to produce a certificate signature. The management canister is a facade — it does not exist as a canister with isolated state; it is an ergonomic way for canisters to call IC system APIs.
 
 Both the root CA public key and the generated certificate are cached in canister memory so that subsequent calls do not trigger additional threshold signing rounds.
 
@@ -129,4 +130,4 @@ The `child_certificate` API lets an external user generate a key pair locally, c
 
 ## Security considerations and best practices
 
-If you base your application on this example, familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
+If you base your application on this example, familiarize yourself with and adhere to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for developing on ICP. This example may not implement all the best practices.

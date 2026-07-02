@@ -62,7 +62,9 @@ impl TryFrom<&CaKeyInformation> for EcdsaKeyId {
 }
 
 thread_local! {
-    // Overwritten by #[init] before any call; this default value is never observable.
+    // Overwritten by #[init] on first deploy. After a canister upgrade #[init] is not
+    // re-run, so this default becomes active again. Production canisters should persist
+    // the init arg to stable memory and restore it in a #[post_upgrade] hook.
     static CA_KEY_INFORMATION: RefCell<CaKeyInformation> = RefCell::new(CaKeyInformation::Ed25519("test_key_1".to_string()));
 
     // cache the public key and certificate to avoid fetching them multiple times
@@ -444,6 +446,8 @@ fn prove_ownership(_cert_req: &CertReq, _caller: Principal /*, ... */) -> Result
 }
 
 fn derivation_path() -> Vec<Vec<u8>> {
+    // Empty derivation path: all callers share the same root CA key.
+    // A real CA would use a per-canister or per-caller path to isolate keys.
     vec![]
 }
 
