@@ -1,0 +1,7 @@
+canisters:
+  - name: backend
+    recipe:
+      type: "@dfinity/rust@v3.3.0"
+    # test_key_1 works on both the local network and mainnet (test key).
+    # Use key_1 for the production key on mainnet.
+    init_args: '(variant { Ed25519 = "test_key_1" })'

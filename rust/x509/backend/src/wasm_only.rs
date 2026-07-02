@@ -1,18 +1,19 @@
-use crate::{CaKeyInformation, KeyName, PemCertificateRequest, X509CertificateString};
+use crate::{CaKeyInformation, PemCertificateRequest, X509CertificateString};
 
-use super::SchnorrAlgorithm;
-use candid::{CandidType, Principal};
+use candid::Principal;
 use der::{asn1::BitString, pem::LineEnding, DecodePem, Encode, EncodePem};
-use ic_cdk::api::management_canister::ecdsa as cdk_ecdsa;
 use ic_cdk::export_candid;
 use ic_cdk::{api::time, init, update};
+use ic_cdk_management_canister::{
+    self as management_canister, EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgs,
+    SchnorrAlgorithm, SchnorrKeyId, SchnorrPublicKeyArgs,
+};
 use pkcs8::AssociatedOid;
-use serde::{Deserialize, Serialize};
 use signature::Keypair;
 use spki::{AlgorithmIdentifier, DynSignatureAlgorithmIdentifier, EncodePublicKey};
 use std::{
-    cell::OnceCell, cell::RefCell, convert::TryFrom, convert::TryInto, error::Error, ops::Deref,
-    str::FromStr, time::Duration,
+    cell::OnceCell, cell::RefCell, convert::TryFrom, convert::TryInto, error::Error,
+    ops::Deref, str::FromStr, time::Duration,
 };
 use x509_cert::{
     builder::{Builder, CertificateBuilder, Profile},
@@ -35,7 +36,7 @@ impl TryFrom<&CaKeyInformation> for SchnorrKeyId {
         match value {
             CaKeyInformation::Ed25519(key_name) => Ok(SchnorrKeyId {
                 algorithm: SchnorrAlgorithm::Ed25519,
-                name: String::from(<&'static str>::from(key_name)),
+                name: key_name.clone(),
             }),
             something_else => Err(format!(
                 "Expected Ed25519 CA key but got {something_else:?}"
@@ -44,14 +45,14 @@ impl TryFrom<&CaKeyInformation> for SchnorrKeyId {
     }
 }
 
-impl TryFrom<&CaKeyInformation> for cdk_ecdsa::EcdsaKeyId {
+impl TryFrom<&CaKeyInformation> for EcdsaKeyId {
     type Error = String;
 
     fn try_from(value: &CaKeyInformation) -> Result<Self, Self::Error> {
         match value {
-            CaKeyInformation::EcdsaSecp256k1(key_name) => Ok(cdk_ecdsa::EcdsaKeyId {
-                curve: cdk_ecdsa::EcdsaCurve::Secp256k1,
-                name: String::from(<&'static str>::from(key_name)),
+            CaKeyInformation::EcdsaSecp256k1(key_name) => Ok(EcdsaKeyId {
+                curve: EcdsaCurve::Secp256k1,
+                name: key_name.clone(),
             }),
             something_else => Err(format!(
                 "Expected EcdsaSecp256k1 CA key but got {something_else:?}"
@@ -61,7 +62,8 @@ impl TryFrom<&CaKeyInformation> for cdk_ecdsa::EcdsaKeyId {
 }
 
 thread_local! {
-    static CA_KEY_INFORMATION: RefCell<CaKeyInformation> = RefCell::new(CaKeyInformation::Ed25519(KeyName::DfxTestKey));
+    // Overwritten by #[init] before any call; this default value is never observable.
+    static CA_KEY_INFORMATION: RefCell<CaKeyInformation> = RefCell::new(CaKeyInformation::Ed25519("test_key_1".to_string()));
 
     // cache the public key and certificate to avoid fetching them multiple times
     static ROOT_CA_PUBLIC_KEY: OnceCell<Vec<u8>> = OnceCell::new();
@@ -98,7 +100,7 @@ async fn root_ca_certificate() -> Result<X509CertificateString, String> {
     .unwrap();
 
     let newly_constructed_x509_certificate_string = match CA_KEY_INFORMATION
-        .with(|value| *value.borrow())
+        .with(|value| value.borrow().clone())
     {
         CaKeyInformation::Ed25519(_) => {
             let signer = Ed25519Signer::new()
@@ -187,7 +189,7 @@ async fn child_certificate(
         return Err("Attributes are currently not supported in this example".to_string());
     }
 
-    prove_ownership(&cert_req, ic_cdk::api::caller() /*, ... */)?;
+    prove_ownership(&cert_req, ic_cdk::api::msg_caller() /*, ... */)?;
 
     let root_certificate_pem = root_ca_certificate().await?;
     let root_certificate =
@@ -211,7 +213,7 @@ async fn child_certificate(
     let validity = root_certificate.tbs_certificate.validity.clone();
 
     let x509_certificate_string = {
-        match CA_KEY_INFORMATION.with(|value| *value.borrow()) {
+        match CA_KEY_INFORMATION.with(|value| value.borrow().clone()) {
             CaKeyInformation::Ed25519(_) => {
                 let signer = Ed25519Signer::new()
                     .await
@@ -250,36 +252,7 @@ async fn child_certificate(
     })
 }
 
-#[derive(CandidType, Serialize, Debug)]
-struct ManagementCanisterSchnorrPublicKeyRequest {
-    pub canister_id: Option<CanisterId>,
-    pub derivation_path: Vec<Vec<u8>>,
-    pub key_id: SchnorrKeyId,
-}
 
-#[derive(CandidType, Deserialize, Debug)]
-struct ManagementCanisterSchnorrPublicKeyReply {
-    pub public_key: Vec<u8>,
-    pub chain_code: Vec<u8>,
-}
-
-#[derive(CandidType, Serialize, Debug, Clone)]
-struct SchnorrKeyId {
-    pub algorithm: SchnorrAlgorithm,
-    pub name: String,
-}
-
-#[derive(CandidType, Serialize, Debug)]
-struct ManagementCanisterSignatureRequest {
-    pub message: Vec<u8>,
-    pub derivation_path: Vec<Vec<u8>>,
-    pub key_id: SchnorrKeyId,
-}
-
-#[derive(CandidType, Deserialize, Debug)]
-struct ManagementCanisterSignatureReply {
-    pub signature: Vec<u8>,
-}
 
 async fn root_ca_public_key_bytes() -> Result<Vec<u8>, String> {
     // if the public key is already cached, return it
@@ -287,41 +260,34 @@ async fn root_ca_public_key_bytes() -> Result<Vec<u8>, String> {
         return Ok(public_key);
     };
 
-    let result = match CA_KEY_INFORMATION.with(|value| *value.borrow()) {
+    let result = match CA_KEY_INFORMATION.with(|value| value.borrow().clone()) {
         CaKeyInformation::Ed25519(_) => {
-            // if the public key is not cached, fetch it from the management canister
-            let request = ManagementCanisterSchnorrPublicKeyRequest {
+            let args = SchnorrPublicKeyArgs {
                 canister_id: None,
                 derivation_path: derivation_path(),
                 key_id: CA_KEY_INFORMATION
                     .with(|value| SchnorrKeyId::try_from(value.borrow().deref()))?,
             };
-
-            let (res,): (ManagementCanisterSchnorrPublicKeyReply,) = ic_cdk::call(
-                Principal::management_canister(),
-                "schnorr_public_key",
-                (request,),
-            )
-            .await
-            .map_err(|e| format!("schnorr_public_key failed {}", e.1))?;
-
-            res.public_key
+            let response = management_canister::schnorr_public_key(&args)
+                .await
+                .map_err(|e| format!("schnorr_public_key failed {e:?}"))?;
+            response.public_key
         }
         CaKeyInformation::EcdsaSecp256k1(_) => {
-            let args = cdk_ecdsa::EcdsaPublicKeyArgument {
+            let args = EcdsaPublicKeyArgs {
                 canister_id: None,
                 derivation_path: derivation_path(),
                 key_id: CA_KEY_INFORMATION
-                    .with(|value| cdk_ecdsa::EcdsaKeyId::try_from(value.borrow().deref()))?,
+                    .with(|value| EcdsaKeyId::try_from(value.borrow().deref()))?,
             };
-            let response = cdk_ecdsa::ecdsa_public_key(args)
+            let response = management_canister::ecdsa_public_key(&args)
                 .await
-                .map_err(|e| format!("ecdsa_public_key failed {}", e.1))?;
-            response.0.public_key
+                .map_err(|e| format!("ecdsa_public_key failed {e:?}"))?;
+            response.public_key
         }
     };
 
-    // try to initialize the cache with the fetched public key or returne the
+    // try to initialize the cache with the fetched public key or return the
     // cached value, because we were making an async call between the cache
     // check and cache initialization
     Ok(ROOT_CA_PUBLIC_KEY.with(move |inner| inner.get_or_init(|| result).clone()))
