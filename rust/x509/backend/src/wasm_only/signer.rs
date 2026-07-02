@@ -2,20 +2,20 @@ use std::{convert::TryFrom, ops::Deref};
 
 use elliptic_curve::sec1::ToEncodedPoint;
 use ic_cdk_management_canister::{
-    self as management_canister, EcdsaKeyId, SignWithEcdsaArgs, SignWithSchnorrArgs,
+    self as management_canister, EcdsaKeyId, SchnorrKeyId, SignWithEcdsaArgs, SignWithSchnorrArgs,
 };
 use sha2::Digest;
 use spki::{AlgorithmIdentifierOwned, DynSignatureAlgorithmIdentifier};
 
 use super::{derivation_path, root_ca_public_key_bytes, CA_KEY_INFORMATION};
-use ic_cdk_management_canister::{SchnorrKeyId as MgmtSchnorrKeyId};
+
 
 pub trait Sign {
     async fn sign(&self, msg: &[u8]) -> Result<Vec<u8>, String>;
 }
 
 pub struct Ed25519Signer {
-    key_id: MgmtSchnorrKeyId,
+    key_id: SchnorrKeyId,
     public_key: ed25519::pkcs8::PublicKeyBytes,
 }
 
@@ -26,7 +26,7 @@ impl Ed25519Signer {
         let public_key = ed25519::pkcs8::PublicKeyBytes(public_key_raw);
         Ok(Self {
             key_id: CA_KEY_INFORMATION
-                .with(|value| MgmtSchnorrKeyId::try_from(value.borrow().deref()))?,
+                .with(|value| SchnorrKeyId::try_from(value.borrow().deref()))?,
             public_key,
         })
     }

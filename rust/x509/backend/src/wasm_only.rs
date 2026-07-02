@@ -6,7 +6,7 @@ use ic_cdk::export_candid;
 use ic_cdk::{api::time, init, update};
 use ic_cdk_management_canister::{
     self as management_canister, EcdsaCurve, EcdsaKeyId, EcdsaPublicKeyArgs,
-    SchnorrAlgorithm as MgmtSchnorrAlgorithm, SchnorrKeyId as MgmtSchnorrKeyId, SchnorrPublicKeyArgs,
+    SchnorrAlgorithm, SchnorrKeyId, SchnorrPublicKeyArgs,
 };
 use pkcs8::AssociatedOid;
 use signature::Keypair;
@@ -29,13 +29,13 @@ use signer::{EcdsaSecp256k1Signer, Ed25519Signer, Sign};
 
 type CanisterId = Principal;
 
-impl TryFrom<&CaKeyInformation> for MgmtSchnorrKeyId {
+impl TryFrom<&CaKeyInformation> for SchnorrKeyId {
     type Error = String;
 
     fn try_from(value: &CaKeyInformation) -> Result<Self, Self::Error> {
         match value {
-            CaKeyInformation::Ed25519(key_name) => Ok(MgmtSchnorrKeyId {
-                algorithm: MgmtSchnorrAlgorithm::Ed25519,
+            CaKeyInformation::Ed25519(key_name) => Ok(SchnorrKeyId {
+                algorithm: SchnorrAlgorithm::Ed25519,
                 name: key_name.clone(),
             }),
             something_else => Err(format!(
@@ -266,7 +266,7 @@ async fn root_ca_public_key_bytes() -> Result<Vec<u8>, String> {
                 canister_id: None,
                 derivation_path: derivation_path(),
                 key_id: CA_KEY_INFORMATION
-                    .with(|value| MgmtSchnorrKeyId::try_from(value.borrow().deref()))?,
+                    .with(|value| SchnorrKeyId::try_from(value.borrow().deref()))?,
             };
             let response = management_canister::schnorr_public_key(&args)
                 .await
