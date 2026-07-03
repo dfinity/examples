@@ -93,3 +93,5 @@ fn run() -> ClassificationResult {
     ic_cdk::println!("Executed instructions: {}", fmt(instructions));
     result
 }
+
+ic_cdk::export_candid!();
