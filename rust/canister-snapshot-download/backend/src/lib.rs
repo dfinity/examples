@@ -4,7 +4,7 @@ use ic_stable_structures::{DefaultMemoryImpl, Memory};
 // The canister stores a single text quote in the first stable memory page.
 // This lets the snapshot example demonstrate a meaningful state change:
 // the quote is written with a British spelling ("Colourless"), then fixed
-// off-chain to American spelling ("Colorless") via snapshot manipulation.
+// offline to American spelling ("Colorless") via snapshot manipulation.
 
 /// Write the initial quote into stable memory page 0.
 #[update]
