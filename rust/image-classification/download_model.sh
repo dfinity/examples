@@ -11,9 +11,9 @@ if [ -s "${TGT}" ]; then
 fi
 
 if which wget >/dev/null; then
-    wget $URL -O $TGT
+    wget --inet4-only $URL -O $TGT
 elif which curl >/dev/null; then
-    curl -vL $URL -o $TGT
+    curl -4 -L $URL -o $TGT
 else
     echo "Couldn't find wget or curl."
     echo "Please download manually from \"$URL\" and save the file in $TGT."
