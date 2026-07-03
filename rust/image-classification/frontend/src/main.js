@@ -91,6 +91,7 @@ async function onImageChange(event) {
     img.src = url;
     img.width = 600;
     img.className = "image";
+    document.getElementById("upload-hint").style.display = "none";
   } catch (err) {
     message.innerText = "Failed to select image: " + err.toString();
   }

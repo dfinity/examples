@@ -101,6 +101,18 @@ input.file {
     cursor: pointer;
 }
 
+.image.placeholder {
+    border: 2px dashed #aaa;
+    background-color: #f9f9f9;
+    opacity: 0.7;
+}
+
+.upload-hint {
+    margin: 6px 0 0 0;
+    font-size: 0.85em;
+    color: #666;
+}
+
 .clean-button {
     display: inline-block;
     padding: 5px 10px;
