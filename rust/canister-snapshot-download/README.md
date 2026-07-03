@@ -3,7 +3,7 @@
 This example demonstrates the process of downloading and uploading canister snapshots.
 It features a canister called `backend` which stores some data in stable memory.
 The example walks through downloading a snapshot, manipulating the binary stable memory
-offline, uploading the fixed snapshot, and restoring the canister from it.
+externally, uploading the fixed snapshot, and restoring the canister from it.
 
 ## Build and deploy from the command line
 
@@ -30,7 +30,7 @@ icp network stop
 ## How it works
 
 The backend canister stores a quote in stable memory using the low-level stable memory API.
-The initial quote contains a British spelling ("Colourless") that can be fixed offline:
+The initial quote contains a British spelling ("Colourless") that can be fixed externally:
 
 1. **Setup**: call `setup` to write the initial data into stable memory.
 2. **Snapshot**: stop the canister and create a snapshot with `icp canister snapshot create`.
