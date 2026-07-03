@@ -21,8 +21,8 @@ jobs:
       ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-      - name: Install wasm32-wasi target
-        run: rustup target add wasm32-wasi
+      - name: Install wasm32-wasip1 target
+        run: rustup target add wasm32-wasip1
       - name: Install wasi2ic
         run: |
           git clone https://github.com/wasm-forge/wasi2ic /tmp/wasi2ic

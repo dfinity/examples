@@ -18,7 +18,7 @@ The smart contract consists of two canisters:
 
 - [Node.js](https://nodejs.org/) v18+
 - [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
-- [Rust](https://www.rust-lang.org/tools/install) v1.85+ with `wasm32-wasi` target: `rustup target add wasm32-wasi`
+- [Rust](https://www.rust-lang.org/tools/install) v1.85+ with `wasm32-wasip1` target: `rustup target add wasm32-wasip1`
 - [wasi2ic](https://github.com/wasm-forge/wasi2ic): ensure `wasi2ic` is in your `$PATH`
 - [wasm-opt](https://github.com/WebAssembly/binaryen): `cargo install wasm-opt`
 
@@ -56,7 +56,7 @@ npm run dev --prefix frontend
 ## Updating the Candid interface
 
 ```bash
-icp build backend && candid-extractor target/wasm32-wasi/release/backend.wasm > backend/backend.did
+icp build backend && candid-extractor target/wasm32-wasip1/release/backend.wasm > backend/backend.did
 ```
 
 ## Security considerations and best practices

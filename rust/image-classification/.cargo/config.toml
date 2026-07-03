@@ -1,5 +1,5 @@
 [build]
-target = ["wasm32-wasi"]
+target = ["wasm32-wasip1"]
 
-[target.wasm32-wasi]
+[target.wasm32-wasip1]
 rustflags = ["-Ctarget-feature=+simd128"]
