@@ -1,6 +1,8 @@
 # Neuron Staking from CLI
 
-This example demonstrates how to stake ICP to create an NNS Governance neuron from a Rust CLI using `ic-agent`. It shows the two-step process that the ledger and governance canisters expect.
+This example demonstrates how to stake ICP to create an NNS Governance neuron from a **Rust CLI binary** using [`ic-agent`](https://crates.io/crates/ic-agent). The core logic lives in `src/lib.rs` and can be adapted for any Rust application that needs to stake ICP programmatically.
+
+[icp-cli](https://cli.internetcomputer.org/) is used **only for local development** — to start a local IC replica with NNS canisters pre-deployed. The Rust binary connects directly to the IC via `ic-agent` and does not depend on icp-cli at runtime.
 
 Before diving in, you may want to try [nns.internetcomputer.org](https://nns.internetcomputer.org/) first — it offers an interactive introduction to staking neurons and voting without writing any code.
 
@@ -30,6 +32,12 @@ pub fn compute_neuron_staking_subaccount(controller: Principal, nonce: u64) -> S
 }
 ```
 
+Use `--compute-only` to verify the subaccount for a given identity and nonce before sending any ICP:
+
+```bash
+./target/release/stake_neuron_from_cli --compute-only --identity identity.pem --nonce 0
+```
+
 ### 2. Two-Step Neuron Creation Process
 
 1. **Transfer ICP** to the Governance canister at the computed staking subaccount.
@@ -47,9 +55,12 @@ The minimum staking amount enforced by NNS Governance is 100,000,000 e8s (1 ICP)
 
 ### Prerequisites
 
-- [Node.js](https://nodejs.org/) v18+
-- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
-- [Rust](https://www.rust-lang.org/tools/install) v1.85+ with `wasm32-unknown-unknown` target: `rustup target add wasm32-unknown-unknown`
+- [Rust](https://www.rust-lang.org/tools/install) v1.85+
+- [icp-cli](https://cli.internetcomputer.org/) — only needed for local testing to start a local IC replica with NNS canisters. Install via npm (requires [Node.js](https://nodejs.org/) v18+):
+  ```bash
+  npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm
+  ```
+  Or use one of the [alternative installation methods](https://cli.internetcomputer.org/1.0/guides/installation/#alternative-installation-methods) if you prefer to avoid Node.js.
 
 ### Install
 
@@ -61,14 +72,14 @@ cd examples/rust/stake_neuron_from_cli
 ### Run locally
 
 ```bash
-icp network start -d
-bash test.sh
+icp network start -d   # starts a local IC replica with NNS canisters
+bash test.sh           # builds the binary, creates a funded test identity, runs the staking flow
 icp network stop
 ```
 
-`test.sh` creates a test identity, funds it with ICP from the local NNS, builds the CLI binary, and runs the full staking flow.
-
 ### Run on mainnet
+
+icp-cli is not required for mainnet. Build the binary and run it directly:
 
 ```bash
 cargo build --release
