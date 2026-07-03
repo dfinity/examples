@@ -36,7 +36,7 @@ The initial quote contains a British spelling ("Colourless") that can be fixed o
 2. **Snapshot**: stop the canister and create a snapshot with `icp canister snapshot create`.
 3. **Download**: `icp canister snapshot download -o ./snapshots backend <snapshot-id>` saves
    `stable_memory.bin` and other files to the local directory.
-4. **Manipulate**: edit the binary file directly (e.g. `sed -i '' 's/Colour/Color/g' ./snapshots/stable_memory.bin`).
+4. **Manipulate**: edit the binary file directly (e.g. `sed 's/Colour/Color/g' ./snapshots/stable_memory.bin > ./snapshots/stable_memory.bin.tmp && mv ./snapshots/stable_memory.bin.tmp ./snapshots/stable_memory.bin`).
 5. **Upload**: `icp canister snapshot upload -i ./snapshots backend` returns a new snapshot ID.
 6. **Restore**: `icp canister snapshot restore backend <new-snapshot-id>`, then start the canister.
 7. **Verify**: call `print` to confirm the spelling fix is live.
