@@ -28,12 +28,6 @@ jobs:
           apt-get update && apt-get install -y --no-install-recommends build-essential
           git clone https://github.com/wasm-forge/wasi2ic /tmp/wasi2ic
           cargo install --path /tmp/wasi2ic --locked
-      - name: Install wasm-opt
-        run: |
-          version=117
-          curl -fsSLO "https://github.com/WebAssembly/binaryen/releases/download/version_${version}/binaryen-version_${version}-x86_64-linux.tar.gz"
-          tar -xzf "binaryen-version_${version}-x86_64-linux.tar.gz" --strip-components 1 -C /usr/local
-          rm "binaryen-version_${version}-x86_64-linux.tar.gz"
       - name: Download model
         working-directory: rust/image-classification
         run: ./download_model.sh
