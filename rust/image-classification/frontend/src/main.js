@@ -36,6 +36,9 @@ async function classify(event) {
     message.innerText = "Failed to classify image: " + JSON.stringify(err);
   }
   loader.className = "loader invisible";
+  const hint = document.getElementById("upload-hint");
+  hint.innerText = "↑ Click image to classify another";
+  hint.style.display = "";
 
   return false;
 }
