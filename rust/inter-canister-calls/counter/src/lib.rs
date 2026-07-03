@@ -31,3 +31,5 @@ fn get_and_set(n: Nat) -> Nat {
 fn increment() {
     COUNTER.with(|counter| *counter.borrow_mut() += 1_u32);
 }
+
+ic_cdk::export_candid!();
