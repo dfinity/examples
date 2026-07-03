@@ -16,11 +16,11 @@ The smart contract consists of two canisters:
 
 ### Prerequisites
 
-- Node.js
-- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
-- wasi2ic: follow https://github.com/wasm-forge/wasi2ic and ensure `wasi2ic` is in your `$PATH`
-- wasm-opt: `cargo install wasm-opt`
-- Rust target `wasm32-wasi`: `rustup target add wasm32-wasi`
+- [Node.js](https://nodejs.org/) v18+
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Rust](https://www.rust-lang.org/tools/install) v1.85+ with `wasm32-wasi` target: `rustup target add wasm32-wasi`
+- [wasi2ic](https://github.com/wasm-forge/wasi2ic): ensure `wasi2ic` is in your `$PATH`
+- [wasm-opt](https://github.com/WebAssembly/binaryen): `cargo install wasm-opt`
 
 ### Install
 

@@ -2,7 +2,7 @@
 set -ex
 
 URL="https://github.com/onnx/models/raw/main/validated/vision/classification/mobilenet/model/mobilenetv2-7.onnx?download=:"
-TGT="src/backend/assets/mobilenetv2-7.onnx"
+TGT="backend/assets/mobilenetv2-7.onnx"
 
 echo "Downloading ${TGT}..."
 if [ -s "${TGT}" ]; then
