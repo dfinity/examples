@@ -8,8 +8,9 @@ The example uses the WASI polyfill to run Tract (which relies on POSIX file I/O)
 The smart contract consists of two canisters:
 
 - **backend** — embeds the Tract ONNX inference engine with the MobileNet v2-7 model.
-  It provides `classify()` and `classify_query()` endpoints:
-  the former runs under replicated execution (all nodes), the latter runs on a single node as a query call.
+  It provides two classification endpoints:
+  - `classify(image)` — update call, runs under replicated execution on all nodes (secure, slower).
+  - `classify_query(image)` — query call, runs on a single node (fast, not replicated).
 - **frontend** — serves the web UI (HTML/JS/CSS) from which users upload images and view results.
 
 ## Build and deploy from the command line
@@ -19,8 +20,9 @@ The smart contract consists of two canisters:
 - [Node.js](https://nodejs.org/) v18+
 - [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 - [Rust](https://www.rust-lang.org/tools/install) v1.85+ with `wasm32-wasip1` target: `rustup target add wasm32-wasip1`
-- [wasi2ic](https://github.com/wasm-forge/wasi2ic): ensure `wasi2ic` is in your `$PATH`
-- [wasm-opt](https://github.com/WebAssembly/binaryen): `cargo install wasm-opt`
+- [wasi2ic](https://github.com/wasm-forge/wasi2ic): `cargo install wasi2ic`
+
+`wasm-opt` is installed automatically on first deploy if not already present.
 
 ### Install
 
@@ -54,6 +56,8 @@ npm run dev --prefix frontend
 ```
 
 ## Updating the Candid interface
+
+Requires `candid-extractor` (`cargo install candid-extractor`):
 
 ```bash
 icp build backend && candid-extractor target/wasm32-wasip1/release/backend.wasm > backend/backend.did
