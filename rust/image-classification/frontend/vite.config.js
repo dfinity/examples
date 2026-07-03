@@ -1,56 +1,67 @@
-import { defineConfig, loadEnv } from "vite";
-import { execSync } from "child_process";
+import { defineConfig } from "vite";
 import { icpBindgen } from "@icp-sdk/bindgen/plugins/vite";
+import { execSync } from "child_process";
 
-function getDevServerConfig() {
-  // Try icp-cli first
-  try {
-    const canisterId = execSync("icp canister status backend -e local -i", {
+export default defineConfig(({ command }) => {
+  const plugins = [
+    icpBindgen({
+      didFile: "../backend/backend.did",
+      outDir: "./src/bindings",
+    }),
+  ];
+
+  // If we're only building this is enough
+  if (command !== "serve") {
+    return { plugins };
+  }
+
+  // If we're running the local npm dev server, we're going to look up the
+  // local network's root key and the relevant canister ids.
+  const environment = process.env.ICP_ENVIRONMENT || "local";
+  const CANISTER_NAME = "backend";
+
+  const networkStatus = JSON.parse(
+    execSync(`icp network status -e ${environment} --json`, {
       encoding: "utf-8",
-      stdio: "pipe",
-    }).trim();
-    const networkStatus = JSON.parse(
-      execSync("icp network status --json", {
-        encoding: "utf-8",
-        stdio: "pipe",
-      })
-    );
-    return {
-      headers: {
-        "Set-Cookie": `ic_env=${encodeURIComponent(
-          `ic_root_key=${networkStatus.root_key}&PUBLIC_CANISTER_ID:backend=${canisterId}`
-        )}; SameSite=Lax;`,
-      },
-      proxy: {
-        "/api": { target: "http://127.0.0.1:8000", changeOrigin: true },
-      },
-    };
-  } catch {}
-
-  throw new Error(
-    "No local network running. Start with:\n  icp network start -d && icp deploy"
+    })
   );
-}
+  const rootKey = networkStatus.root_key;
+  const proxyTarget = networkStatus.api_url;
 
-export default defineConfig(({ command, mode }) => {
-  const env = loadEnv(mode, "..", ["CANISTER_"]);
+  // Backend must be deployed before starting dev server
+  let canisterId;
+  try {
+    canisterId = execSync(
+      `icp canister status ${CANISTER_NAME} -e ${environment} -i`,
+      { encoding: "utf-8" }
+    ).trim();
+  } catch {
+    console.error(`
+     Backend canister "${CANISTER_NAME}" not found in environment "${environment}"
+
+     Before running the dev server, deploy the backend canister:
+
+       icp deploy ${CANISTER_NAME} -e ${environment}
+    `);
+    process.exit(1);
+  }
+
+  const server = {
+    headers: {
+      "Set-Cookie": `ic_env=${encodeURIComponent(
+        `PUBLIC_CANISTER_ID:${CANISTER_NAME}=${canisterId}&ic_root_key=${rootKey}`
+      )}; SameSite=Lax;`,
+    },
+    proxy: {
+      "/api": {
+        target: proxyTarget,
+        changeOrigin: true,
+      },
+    },
+  };
 
   return {
-    base: "./",
-    plugins: [
-      icpBindgen({
-        didFile: "../backend/backend.did",
-        outDir: "./src/bindings",
-      }),
-    ],
-    define: {
-      "process.env.CANISTER_ID_BACKEND": JSON.stringify(
-        env.CANISTER_ID_BACKEND
-      ),
-    },
-    optimizeDeps: {
-      esbuildOptions: { define: { global: "globalThis" } },
-    },
-    server: command === "serve" ? getDevServerConfig() : undefined,
+    plugins,
+    server,
   };
 });
