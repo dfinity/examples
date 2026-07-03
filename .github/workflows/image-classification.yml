@@ -25,7 +25,7 @@ jobs:
         run: rustup target add wasm32-wasip1
       - name: Install wasi2ic
         run: |
-          apt-get install -y --no-install-recommends build-essential
+          apt-get update && apt-get install -y --no-install-recommends build-essential
           git clone https://github.com/wasm-forge/wasi2ic /tmp/wasi2ic
           cargo install --path /tmp/wasi2ic --locked
       - name: Install wasm-opt
