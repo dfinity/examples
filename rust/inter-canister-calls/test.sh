@@ -61,9 +61,12 @@ result=$(icp canister call caller call_get "(principal \"$COUNTER_ID\")") && \
   echo "$result" | grep -q 'Ok = 42' && \
   echo "PASS" || (echo "FAIL" && exit 1)
 
-echo "=== Test 10: send_cycles increases counter canister balance ==="
+echo "=== Setup: top up caller canister before cycles test ==="
+icp canister top-up --amount 1t caller
+
+echo "=== Test 10: send_cycles transfers cycles to counter canister ==="
 COUNTER_ID=$(icp canister status counter -i) && \
-result=$(icp canister call caller send_cycles "(principal \"$COUNTER_ID\", 1_000_000_000_000 : nat64)") && \
+result=$(icp canister call caller send_cycles "(principal \"$COUNTER_ID\", 100_000_000_000 : nat64)") && \
   echo "$result" && \
   echo "$result" | grep -q 'Ok' && \
   echo "PASS" || (echo "FAIL" && exit 1)
