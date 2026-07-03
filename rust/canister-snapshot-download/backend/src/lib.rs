@@ -6,20 +6,25 @@ use ic_stable_structures::{DefaultMemoryImpl, Memory};
 // the quote is written with a British spelling ("Colourless"), then fixed
 // externally to American spelling ("Colorless") via snapshot manipulation.
 
+const QUOTE: &[u8] = b"Colourless green ideas sleep furiously.";
+
 /// Write the initial quote into stable memory page 0.
+/// Grows memory only on the first call; subsequent calls are idempotent.
 #[update]
 fn setup() {
     let mem = DefaultMemoryImpl::default();
-    // grow returns -1 on failure (out of memory).
-    assert_ne!(mem.grow(1), -1, "failed to grow stable memory");
-    mem.write(0, b"Colourless green ideas sleep furiously.");
+    if mem.size() == 0 {
+        // grow returns -1 on failure (out of memory).
+        assert_ne!(mem.grow(1), -1, "failed to grow stable memory");
+    }
+    mem.write(0, QUOTE);
 }
 
 /// Read the quote back from stable memory.
 #[query]
 fn print() -> String {
     let mem = DefaultMemoryImpl::default();
-    let mut buf = vec![0u8; 39];
+    let mut buf = vec![0u8; QUOTE.len()];
     mem.read(0, &mut buf);
     String::from_utf8(buf).unwrap()
 }
