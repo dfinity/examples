@@ -25,11 +25,11 @@ if [ ! -f "face-recognition.onnx" ]; then
         echo "Face recognition model not found — generating with $PYTHON (this may take a few minutes)..."
         "$PYTHON" -m pip install --quiet --prefer-binary facenet-pytorch torch onnx certifi
         "$PYTHON" << 'PYEOF'
-import os, ssl, certifi
+import os, certifi
 # Python from python.org on macOS doesn't ship with root certificates;
-# point urllib at the certifi bundle so pretrained weights can be downloaded.
+# point urllib and requests at the certifi bundle so pretrained weights download.
 os.environ['SSL_CERT_FILE'] = certifi.where()
-ssl.create_default_context = lambda *a, **kw: ssl.create_default_context(cafile=certifi.where())
+os.environ['REQUESTS_CA_BUNDLE'] = certifi.where()
 import torch
 import facenet_pytorch
 resnet = facenet_pytorch.InceptionResnetV1(pretrained='vggface2').eval()

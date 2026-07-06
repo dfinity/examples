@@ -130,6 +130,15 @@ fn models_ready() -> bool {
 /// this function loads them into in-memory models.
 #[ic_cdk::update]
 fn setup_models() -> Result<(), String> {
+    if std::fs::metadata(FACE_DETECTION_FILE).is_err()
+        || std::fs::metadata(FACE_RECOGNITION_FILE).is_err()
+    {
+        return Err(
+            "Model files not found — upload them first using append_face_detection_model_bytes \
+             and append_face_recognition_model_bytes"
+                .to_string(),
+        );
+    }
     setup(
         storage::bytes(FACE_DETECTION_FILE),
         storage::bytes(FACE_RECOGNITION_FILE),
