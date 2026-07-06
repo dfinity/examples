@@ -7,12 +7,23 @@ if [ ! -f "version-RFB-320.onnx" ]; then
     bash download-face-detection-model.sh
 fi
 
-# The face recognition model must be generated manually (requires Python + PyTorch).
-# See the README for instructions.
+# Auto-generate the face recognition model if not already present.
 if [ ! -f "face-recognition.onnx" ]; then
-    echo "Face recognition model not found — skipping upload."
-    echo "Generate face-recognition.onnx (see README.md) and run icp deploy again."
-    exit 0
+    if which python3 >/dev/null 2>&1; then
+        echo "Face recognition model not found — generating (this may take a few minutes)..."
+        python3 -m pip install --quiet facenet-pytorch torch onnx
+        python3 << 'PYEOF'
+import torch
+import facenet_pytorch
+resnet = facenet_pytorch.InceptionResnetV1(pretrained='vggface2').eval()
+torch.onnx.export(resnet, torch.randn(1, 3, 160, 160), 'face-recognition.onnx', verbose=False, opset_version=11)
+print("face-recognition.onnx generated.")
+PYEOF
+    else
+        echo "Face recognition model not found and python3 is not available — skipping upload."
+        echo "Install Python3 or generate face-recognition.onnx manually (see README.md)."
+        exit 0
+    fi
 fi
 
 # Skip if models are already loaded (e.g. on redeployment without reinstall).

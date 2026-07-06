@@ -9,45 +9,12 @@ The smart contract consists of two canisters:
 
 ## Models
 
-The smart contract uses two models: one for detecting the face and another for recognizing the face.
+The smart contract uses two models: one for detecting faces and another for recognizing them.
 
-Since the models are large, they cannot be embedded into the Wasm binary of the smart contract. Instead they must be uploaded separately after deployment.
+Since the models are large they cannot be embedded in the Wasm binary — they are uploaded to the canister after deployment. The `icp deploy` sync phase handles this automatically:
 
-### Face detection
-
-A face detection model finds the bounding box of a face in the image.
-You can download [Ultraface](https://github.com/onnx/models/tree/main/validated/vision/body_analysis/ultraface) — ultra-lightweight face detection model — by running:
-
-```bash
-./download-face-detection-model.sh
-```
-
-### Face recognition
-
-A face recognition model computes a vector embedding of an image with a face.
-You can obtain a pretrained model from [facenet-pytorch](https://github.com/timesler/facenet-pytorch) as follows.
-
-1. Install `python` and `pip`: https://packaging.python.org/en/latest/tutorials/installing-packages/
-
-2. Install `facenet-pytorch`, `torch`, and `onnx`:
-
-   ```bash
-   pip install facenet-pytorch
-   pip install torch
-   pip install onnx
-   ```
-
-3. Export the ONNX model. Start a Python shell and run:
-
-   ```python
-   import torch
-   import facenet_pytorch
-   resnet = facenet_pytorch.InceptionResnetV1(pretrained='vggface2').eval()
-   input = torch.randn(1, 3, 160, 160)
-   torch.onnx.export(resnet, input, "face-recognition.onnx", verbose=False, opset_version=11)
-   ```
-
-   This produces `face-recognition.onnx`. Copy the file to the root of this repository.
+- **Face detection** ([Ultraface](https://github.com/onnx/models/tree/main/validated/vision/body_analysis/ultraface)) — downloaded automatically.
+- **Face recognition** ([facenet-pytorch](https://github.com/timesler/facenet-pytorch) InceptionResnetV1) — generated automatically if `python3` is available (installs `facenet-pytorch`, `torch`, and `onnx` via pip). If `python3` is not available, place `face-recognition.onnx` in the project root manually and run `icp deploy` again.
 
 ## Build and deploy from the command line
 
