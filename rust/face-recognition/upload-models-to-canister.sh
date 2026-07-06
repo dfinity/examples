@@ -1,14 +1,17 @@
 #!/bin/bash
 set -e
 
-# Skip gracefully if model files haven't been downloaded/generated yet.
-# This keeps icp deploy working in CI without the large model files.
-if [ ! -f "version-RFB-320.onnx" ] || [ ! -f "face-recognition.onnx" ]; then
-    echo "Model files not found — skipping upload."
-    echo "To enable face recognition, first:"
-    echo "  1. Run ./download-face-detection-model.sh"
-    echo "  2. Generate face-recognition.onnx (see README.md)"
-    echo "  3. Run icp deploy again (or bash upload-models-to-canister.sh)"
+# Auto-download the face detection model if not already present.
+if [ ! -f "version-RFB-320.onnx" ]; then
+    echo "Face detection model not found — downloading..."
+    bash download-face-detection-model.sh
+fi
+
+# The face recognition model must be generated manually (requires Python + PyTorch).
+# See the README for instructions.
+if [ ! -f "face-recognition.onnx" ]; then
+    echo "Face recognition model not found — skipping upload."
+    echo "Generate face-recognition.onnx (see README.md) and run icp deploy again."
     exit 0
 fi
 
