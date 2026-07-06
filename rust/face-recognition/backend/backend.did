@@ -38,6 +38,9 @@ service : {
     "recognize": (image: blob) -> (Recognition);
     "add": (label: text, image: blob) -> (Addition);
 
+    // Returns true once both ONNX models have been loaded via setup_models().
+    "models_ready": () -> (bool) query;
+
     // These endpoints are used for incremental uploading of model files.
     "clear_face_detection_model_bytes": () -> ();
     "clear_face_recognition_model_bytes": () -> ();
