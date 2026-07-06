@@ -53,8 +53,12 @@ You can obtain a pretrained model from [facenet-pytorch](https://github.com/time
 
 ### Prerequisites
 
-- Node.js
-- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Node.js](https://nodejs.org/) v18+
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Rust](https://www.rust-lang.org/tools/install) v1.85+ with `wasm32-wasip1` target: `rustup target add wasm32-wasip1`
+- [wasi2ic](https://github.com/wasm-forge/wasi2ic): `cargo install wasi2ic`
+
+`wasm-opt` is installed automatically on first deploy if not already present.
 
 ### Install
 
@@ -80,7 +84,7 @@ After deploying, upload the ONNX models to the canister using [ic-file-uploader]
 
 ```bash
 cargo install ic-file-uploader
-make upload-models
+bash upload-models-to-canister.sh
 ```
 
 Once the models are uploaded, open the frontend URL in your browser to interact with the smart contract.
