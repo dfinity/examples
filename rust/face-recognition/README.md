@@ -4,7 +4,12 @@ This example demonstrates running face detection and face recognition inside an 
 
 The example consists of two canisters:
 
-- **backend** — embeds the Tract ONNX inference engine. Exposes endpoints for uploading ONNX model files in chunks, loading them into memory, detecting faces, computing face embeddings, and recognizing people. Also includes `run_detection` and `run_recognition` endpoints that run the models against a built-in test image and log the instruction count — useful during development for capacity planning.
+- **backend** — embeds the Tract ONNX inference engine. Exposes endpoints for uploading ONNX model files in chunks, loading them into memory, detecting faces, computing face embeddings, and recognizing people. Also includes `run_detection` (query) and `run_recognition` (update) endpoints that run the models against a built-in test image — useful during development for capacity planning. Since query calls don't persist logs on ICP, only the update call produces a visible instruction count:
+
+  ```bash
+  icp canister call backend run_recognition '()'
+  icp canister logs backend
+  ```
 - **frontend** — serves the web UI (HTML/JS/CSS).
 
 ## Models
