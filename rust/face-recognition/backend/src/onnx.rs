@@ -92,7 +92,7 @@ pub fn setup(facedetect: Bytes, facerec: Bytes) -> TractResult<()> {
 /// Returns a bounding box around the face detected in the given image.
 pub fn detect(image: Vec<u8>) -> Result<(BoundingBox, f32), anyhow::Error> {
     FACE_DETECTION.with_borrow(|model| {
-        let model = model.as_ref().unwrap();
+        let model = model.as_ref().ok_or_else(|| anyhow::anyhow!("Face detection model not loaded — call setup_models() first"))?;
         let image = image::load_from_memory(&image)?.to_rgb8();
 
         // The model accepts an image of size 320x240px.
@@ -129,7 +129,7 @@ pub fn detect(image: Vec<u8>) -> Result<(BoundingBox, f32), anyhow::Error> {
 /// Computes a face embedding corresponding to the given image of a face.
 pub fn embedding(image: Vec<u8>) -> Result<Embedding, anyhow::Error> {
     FACE_RECOGNITION.with_borrow(|model| {
-        let model = model.as_ref().unwrap();
+        let model = model.as_ref().ok_or_else(|| anyhow::anyhow!("Face recognition model not loaded — call setup_models() first"))?;
         let image = image::load_from_memory(&image)?.to_rgb8();
 
         // The model accepts an image of size 160x160px.
