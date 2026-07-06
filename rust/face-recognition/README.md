@@ -95,6 +95,14 @@ For frontend development with hot reload:
 npm run dev --prefix frontend
 ```
 
+## Updating the Candid interface
+
+Only needed if you change the backend endpoints. Requires `candid-extractor` (`cargo install candid-extractor`) and `ic_cdk::export_candid!()` at the end of `backend/src/lib.rs` (already present):
+
+```bash
+icp build backend && candid-extractor ./target/wasm32-wasip1/release/backend.wasm > backend/backend.did
+```
+
 ## Credits
 
 Thanks to [DecideAI](https://decideai.xyz/) for discussions and providing [ic-file-uploader](https://github.com/decide-ai/ic-file-uploader).

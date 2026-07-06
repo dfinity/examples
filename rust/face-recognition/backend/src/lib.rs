@@ -148,3 +148,5 @@ fn post_upgrade() {
     let wasi_memory = MEMORY_MANAGER.with(|m| m.borrow().get(WASI_MEMORY_ID));
     ic_wasi_polyfill::init_with_memory(&[0u8; 32], &[], wasi_memory);
 }
+
+ic_cdk::export_candid!();
