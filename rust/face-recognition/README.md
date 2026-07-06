@@ -76,18 +76,24 @@ bash test.sh
 icp network stop
 ```
 
-Run `npm run dev` from the `frontend/` directory for hot reload during frontend development.
+`bash test.sh` exercises the model management API (clear, append, run without models). The frontend requires models to be uploaded first — see the next step.
 
-### Upload the ONNX models
+### Upload the ONNX models and open the frontend
 
-After deploying, upload the ONNX models to the canister using [ic-file-uploader](https://github.com/modclub-app/ic-file-uploader/tree/main):
+The frontend will not work until both ONNX models are uploaded to the canister. After deploying, install [ic-file-uploader](https://github.com/modclub-app/ic-file-uploader/tree/main) and run the upload script:
 
 ```bash
 cargo install ic-file-uploader
 bash upload-models-to-canister.sh
 ```
 
-Once the models are uploaded, open the frontend URL in your browser to interact with the smart contract.
+This uploads the models chunk by chunk and calls `setup_models` to load them into memory. Once complete, open the frontend URL printed by `icp deploy` in your browser to interact with the smart contract.
+
+For frontend development with hot reload:
+
+```bash
+npm run dev --prefix frontend
+```
 
 ## Credits
 
