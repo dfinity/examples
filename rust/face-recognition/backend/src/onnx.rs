@@ -89,6 +89,10 @@ pub fn setup(facedetect: Bytes, facerec: Bytes) -> TractResult<()> {
     setup_facerec(facerec)
 }
 
+pub fn models_ready() -> bool {
+    FACE_DETECTION.with_borrow(|m| m.is_some()) && FACE_RECOGNITION.with_borrow(|m| m.is_some())
+}
+
 /// Returns a bounding box around the face detected in the given image.
 pub fn detect(image: Vec<u8>) -> Result<(BoundingBox, f32), anyhow::Error> {
     FACE_DETECTION.with_borrow(|model| {

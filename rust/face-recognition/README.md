@@ -80,7 +80,7 @@ icp network stop
 
 ### Upload the ONNX models and open the frontend
 
-The frontend will not work until both ONNX models are uploaded to the canister. After deploying, install [ic-file-uploader](https://github.com/modclub-app/ic-file-uploader/tree/main) and run the upload script:
+The frontend will not work until both ONNX models are uploaded to the canister. After deploying, install [ic-file-uploader](https://github.com/decide-ai/ic-file-uploader) and run the upload script:
 
 ```bash
 cargo install ic-file-uploader
@@ -97,7 +97,7 @@ npm run dev --prefix frontend
 
 ## Credits
 
-Thanks to [DecideAI](https://decideai.xyz/) for discussions and providing [ic-file-uploader](https://github.com/modclub-app/ic-file-uploader/tree/main).
+Thanks to [DecideAI](https://decideai.xyz/) for discussions and providing [ic-file-uploader](https://github.com/decide-ai/ic-file-uploader).
 
 ## Security considerations and best practices
 

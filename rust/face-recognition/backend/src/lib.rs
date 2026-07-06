@@ -119,6 +119,13 @@ fn append_face_recognition_model_bytes(bytes: Vec<u8>) {
     storage::append_bytes(FACE_RECOGNITION_FILE, bytes);
 }
 
+/// Returns true if both ONNX models have been loaded via setup_models().
+/// The frontend uses this on page load to show a setup warning if models are missing.
+#[ic_cdk::query]
+fn models_ready() -> bool {
+    onnx::models_ready()
+}
+
 /// Once the model files have been incrementally uploaded,
 /// this function loads them into in-memory models.
 #[ic_cdk::update]

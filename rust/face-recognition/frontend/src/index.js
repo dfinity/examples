@@ -1,6 +1,20 @@
 import { backend } from "./actor.js";
 
 window.onload = async () => {
+  // Check if models have been uploaded; show a warning banner if not.
+  try {
+    const ready = await backend.models_ready();
+    if (!ready) {
+      message(
+        "⚠ Models not loaded. Run 'bash upload-models-to-canister.sh' after deploying, then reload this page."
+      );
+      return;
+    }
+  } catch (err) {
+    message("⚠ Could not reach the backend: " + err.toString());
+    return;
+  }
+
   elem("recognize").onclick = recognize;
   elem("store").onclick = store;
   elem("file").onchange = load_local_image;
