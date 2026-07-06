@@ -4,17 +4,25 @@ canisters:
       steps:
         - type: script
           commands:
+            # wasi2ic and wasm-opt are installed on first run if not present.
             - which wasi2ic || cargo install wasi2ic
             - which wasm-opt || cargo install wasm-opt
+            # Enable Wasm SIMD instructions for faster Tract inference.
             - export RUSTFLAGS="${RUSTFLAGS} -C target-feature=+simd128"
+            # Compile to wasm32-wasip1 (WASI) so Tract can use POSIX file I/O.
             - cargo build --package backend --target wasm32-wasip1 --release
+            # wasi2ic rewrites WASI syscalls to IC system API calls.
             - wasi2ic ./target/wasm32-wasip1/release/backend.wasm "$ICP_WASM_OUTPUT_PATH"
+            # Optimise the WASM binary size and enable SIMD + bulk-memory proposals.
             - wasm-opt -Os --enable-simd --enable-bulk-memory -o "$ICP_WASM_OUTPUT_PATH" "$ICP_WASM_OUTPUT_PATH"
+            # Embed the Candid interface as public WASM metadata.
             - ic-wasm "$ICP_WASM_OUTPUT_PATH" -o "$ICP_WASM_OUTPUT_PATH" metadata candid:service -f backend/backend.did -v public --keep-name-section
     sync:
       steps:
         - type: script
           commands:
+            # Downloads/generates ONNX models and uploads them to the canister.
+            # Skipped automatically if models are already loaded (e.g. on redeployment).
             - bash upload-models-to-canister.sh
 
   - name: frontend
