@@ -11,7 +11,7 @@ fi
 if [ ! -f "face-recognition.onnx" ]; then
     if which python3 >/dev/null 2>&1; then
         echo "Face recognition model not found — generating (this may take a few minutes)..."
-        python3 -m pip install --quiet facenet-pytorch torch onnx
+        python3 -m pip install --quiet --prefer-binary facenet-pytorch torch onnx
         python3 << 'PYEOF'
 import torch
 import facenet_pytorch
