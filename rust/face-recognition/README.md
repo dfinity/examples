@@ -83,9 +83,10 @@ icp network stop
 The frontend will not work until both ONNX models are uploaded to the canister. After deploying, install [ic-file-uploader](https://github.com/decide-ai/ic-file-uploader) and run the upload script:
 
 ```bash
-cargo install ic-file-uploader
 bash upload-models-to-canister.sh
 ```
+
+`ic-file-uploader` is installed automatically if not already present.
 
 This uploads the models chunk by chunk and calls `setup_models` to load them into memory. Once complete, open the frontend URL printed by `icp deploy` in your browser to interact with the smart contract.
 
