@@ -45,23 +45,15 @@ PYEOF
 fi
 
 # Skip if models are already loaded.
+# On canister upgrades, post_upgrade auto-reloads models from stable memory so
+# models_ready() returns true here without any upload needed.
 result=$(icp canister call --query backend models_ready '()' 2>/dev/null || echo "(false)")
-echo "models_ready: $result"
 if echo "$result" | grep -q 'true'; then
     echo "Models already loaded — skipping upload."
     exit 0
 fi
 
-# If the canister was upgraded (not reinstalled), model files are still in stable
-# memory but heap state was cleared. Calling setup_models() reloads them without
-# re-uploading 100MB+.
-setup_result=$(icp canister call backend setup_models '()' 2>/dev/null || echo "(variant { Err })")
-if ! echo "$setup_result" | grep -q 'Err'; then
-    echo "Models reloaded from stable memory (no re-upload needed)."
-    exit 0
-fi
-
-echo "Models not in stable memory — uploading..."
+echo "Models not loaded — uploading..."
 
 which ic-file-uploader || cargo install ic-file-uploader
 
