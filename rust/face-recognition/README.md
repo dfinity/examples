@@ -4,7 +4,7 @@ This example demonstrates running face detection and face recognition inside an 
 
 The example consists of two canisters:
 
-- **backend** — embeds the Tract ONNX inference engine. Exposes endpoints for uploading ONNX model files in chunks, loading them into memory, detecting faces, computing face embeddings, and recognizing people.
+- **backend** — embeds the Tract ONNX inference engine. Exposes endpoints for uploading ONNX model files in chunks, loading them into memory, detecting faces, computing face embeddings, and recognizing people. Also exposes `run_detection` and `run_recognition` which run the models against a built-in test image and print the IC instruction count — useful for smoke-testing and capacity planning.
 - **frontend** — serves the web UI (HTML/JS/CSS).
 
 ## Models
