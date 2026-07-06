@@ -11,6 +11,11 @@ canisters:
             - wasi2ic ./target/wasm32-wasip1/release/backend.wasm "$ICP_WASM_OUTPUT_PATH"
             - wasm-opt -Os --enable-simd --enable-bulk-memory -o "$ICP_WASM_OUTPUT_PATH" "$ICP_WASM_OUTPUT_PATH"
             - ic-wasm "$ICP_WASM_OUTPUT_PATH" -o "$ICP_WASM_OUTPUT_PATH" metadata candid:service -f backend/backend.did -v public --keep-name-section
+    sync:
+      steps:
+        - type: script
+          commands:
+            - bash upload-models-to-canister.sh
 
   - name: frontend
     recipe:

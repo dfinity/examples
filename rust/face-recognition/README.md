@@ -69,6 +69,8 @@ cd examples/rust/face-recognition
 
 ### Deploy and test
 
+If the ONNX model files are present before running `icp deploy`, they are uploaded automatically to the canister as part of the sync phase. `icp deploy` skips the upload on redeployment if the models are already loaded.
+
 ```bash
 icp network start -d
 icp deploy
@@ -76,19 +78,7 @@ bash test.sh
 icp network stop
 ```
 
-`bash test.sh` exercises the model management API (clear, append, run without models). The frontend requires models to be uploaded first — see the next step.
-
-### Upload the ONNX models and open the frontend
-
-The frontend will not work until both ONNX models are uploaded to the canister. After deploying, install [ic-file-uploader](https://github.com/decide-ai/ic-file-uploader) and run the upload script:
-
-```bash
-bash upload-models-to-canister.sh
-```
-
-`ic-file-uploader` is installed automatically if not already present.
-
-This uploads the models chunk by chunk and calls `setup_models` to load them into memory. Once complete, open the frontend URL printed by `icp deploy` in your browser to interact with the smart contract.
+`bash test.sh` exercises the model management API. The frontend requires the models to be loaded — open the URL printed by `icp deploy` in your browser. If the models are not yet uploaded, the frontend shows a setup instruction.
 
 For frontend development with hot reload:
 
