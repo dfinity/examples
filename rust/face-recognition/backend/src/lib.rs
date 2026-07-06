@@ -148,11 +148,15 @@ fn post_upgrade() {
     let wasi_memory = MEMORY_MANAGER.with(|m| m.borrow().get(WASI_MEMORY_ID));
     ic_wasi_polyfill::init_with_memory(&[0u8; 32], &[], wasi_memory);
     // Reload models from stable memory if they were uploaded before this upgrade.
-    // Silently ignored if the files don't exist yet (first deployment).
-    let _ = setup(
-        storage::bytes(FACE_DETECTION_FILE),
-        storage::bytes(FACE_RECOGNITION_FILE),
-    );
+    // Guard with metadata check first — storage::bytes() panics on missing files.
+    if std::fs::metadata(FACE_DETECTION_FILE).is_ok()
+        && std::fs::metadata(FACE_RECOGNITION_FILE).is_ok()
+    {
+        let _ = setup(
+            storage::bytes(FACE_DETECTION_FILE),
+            storage::bytes(FACE_RECOGNITION_FILE),
+        );
+    }
 }
 
 ic_cdk::export_candid!();
