@@ -9,6 +9,7 @@ The example consists of two canisters:
   ```bash
   icp canister call --query backend run_detection '()'
   icp canister call backend run_recognition '()'
+  icp canister logs backend   # shows the instruction count logged by each call
   ```
 - **frontend** — serves the web UI (HTML/JS/CSS).
 

@@ -1,8 +1,9 @@
 // Benchmarking and smoke-test endpoints.
 //
 // run_detection() and run_recognition() run the respective models against a
-// hardcoded test image embedded in the Wasm binary. They print the IC instruction
-// count so you can measure the computational cost of each inference call.
+// hardcoded test image embedded in the Wasm binary. They log the IC instruction
+// count (visible via `icp canister logs backend`) so you can measure the
+// computational cost of each inference call.
 //
 // run_detection is a query (fast, single-node execution).
 // run_recognition is an update (replicated execution, consistent with recognize()).
