@@ -1,0 +1,8 @@
+canisters:
+  - name: counter
+    recipe:
+      type: "@dfinity/rust@v3.3.0"
+
+  - name: caller
+    recipe:
+      type: "@dfinity/rust@v3.3.0"

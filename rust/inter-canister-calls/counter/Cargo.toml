@@ -1,0 +1,12 @@
+[package]
+name = "counter"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+# cdylib produces a .wasm binary suitable for deployment as an ICP canister.
+crate-type = ["cdylib"]
+
+[dependencies]
+candid = "0.10"
+ic-cdk = "0.20"

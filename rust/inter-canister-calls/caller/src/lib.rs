@@ -1,9 +1,8 @@
-// Some of the imports will only be used in later examples; we list them here for simplicity
 use candid::{Nat, Principal};
 use ic_cdk::api::time;
 use ic_cdk::call::{Call, CallErrorExt};
-use ic_cdk::management_canister::{DepositCyclesArgs, CanisterId};
-use ic_cdk_macros::update;
+use ic_cdk_management_canister::DepositCyclesArgs;
+use ic_cdk::update;
 
 // When calling other canisters:
 //
@@ -136,8 +135,9 @@ pub async fn stubborn_set(counter: Principal, new_value: Nat) -> Result<(), Stri
     }
 }
 
+/// Sends cycles to the specified canister via the management canister's deposit_cycles endpoint.
 #[update]
-pub async fn send_cycles(target: CanisterId, amount: u64) -> Result<(), String> {
+pub async fn send_cycles(target: Principal, amount: u64) -> Result<(), String> {
     let request = DepositCyclesArgs {
         canister_id: target,
     };
@@ -148,6 +148,8 @@ pub async fn send_cycles(target: CanisterId, amount: u64) -> Result<(), String> 
         .await
     {
         Ok(_) => Ok(()),
-        Err(e) => Err(format!("Error attaching {} cycles: {:?}", amount, e)),
+        Err(e) => Err(format!("Error sending {} cycles: {:?}", amount, e)),
     }
 }
+
+ic_cdk::export_candid!();

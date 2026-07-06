@@ -1,25 +1,31 @@
 # Inter-canister calls
 
-This project contains the code from the [inter-canister call Rust tutorial](https://internetcomputer.org/docs/building-apps/developer-tools/cdks/rust/intercanister). Please follow the tutorial for explanations.
+This example demonstrates how to make inter-canister calls in Rust on the Internet Computer. It shows both bounded-wait and unbounded-wait call styles, retry logic, and how to send cycles to another canister via the management canister. Two canisters are deployed: a `counter` canister that exposes a simple counter interface, and a `caller` canister that calls the counter using different inter-canister call patterns.
 
-## Deploying from ICP Ninja
+## Build and deploy from the command line
 
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/inter-canister-calls)
+### Prerequisites
 
-## Build and deploy from the command-line
+- [Node.js](https://nodejs.org/) v18+
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Rust](https://www.rust-lang.org/tools/install) with `wasm32-unknown-unknown` target: `rustup target add wasm32-unknown-unknown`
 
-### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
+### Install
 
-### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
-
-### 3. Navigate into the project's directory.
-
-### 4. Deploy the project to your local environment:
-
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/rust/inter-canister-calls
 ```
-dfx start --background --clean && dfx deploy
+
+### Deploy and test
+
+```bash
+icp network start -d
+icp deploy
+bash test.sh
+icp network stop
 ```
 
 ## Security considerations and best practices
 
-If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for developing on ICP. This example may not implement all the best practices.
