@@ -8,8 +8,7 @@ canisters:
             - which wasm-opt || cargo install wasm-opt
             - export RUSTFLAGS="${RUSTFLAGS} -C target-feature=+simd128"
             - cargo build --package backend --target wasm32-wasip1 --release
-            - TARGET_DIR=$(cargo metadata --format-version 1 --no-deps | sed -n 's/.*"target_directory":"\([^"]*\)".*/\1/p')
-            - wasi2ic "${TARGET_DIR}/wasm32-wasip1/release/backend.wasm" "$ICP_WASM_OUTPUT_PATH"
+            - wasi2ic ./target/wasm32-wasip1/release/backend.wasm "$ICP_WASM_OUTPUT_PATH"
             - wasm-opt -Os --enable-simd --enable-bulk-memory -o "$ICP_WASM_OUTPUT_PATH" "$ICP_WASM_OUTPUT_PATH"
             - ic-wasm "$ICP_WASM_OUTPUT_PATH" -o "$ICP_WASM_OUTPUT_PATH" metadata candid:service -f backend/backend.did -v public --keep-name-section
 
