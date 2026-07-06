@@ -1,4 +1,4 @@
-import { backend } from "../../declarations/backend";
+import { backend } from "./actor.js";
 
 document.getElementById("classify").onclick = classify;
 document.getElementById("file").onchange = onImageChange;
@@ -36,6 +36,9 @@ async function classify(event) {
     message.innerText = "Failed to classify image: " + JSON.stringify(err);
   }
   loader.className = "loader invisible";
+  const hint = document.getElementById("upload-hint");
+  hint.innerText = "↑ Click image to classify another";
+  hint.style.display = "";
 
   return false;
 }
@@ -89,8 +92,8 @@ async function onImageChange(event) {
     const file = event.target.files[0];
     const url = await toDataURL(file);
     img.src = url;
-    img.width = 600;
     img.className = "image";
+    document.getElementById("upload-hint").style.display = "none";
   } catch (err) {
     message.innerText = "Failed to select image: " + err.toString();
   }

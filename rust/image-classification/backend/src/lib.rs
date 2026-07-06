@@ -34,7 +34,9 @@ enum ClassificationResult {
     Err(ClassificationError),
 }
 
-#[ic_cdk::query]
+// Update call: runs under replicated execution on all nodes for maximum security.
+// Use classify_query() for a faster single-node call when full replication is not needed.
+#[ic_cdk::update]
 fn classify(image: Vec<u8>) -> ClassificationResult {
     let result = match onnx::classify(image) {
         Ok(result) => ClassificationResult::Ok(result),
@@ -91,3 +93,5 @@ fn run() -> ClassificationResult {
     ic_cdk::println!("Executed instructions: {}", fmt(instructions));
     result
 }
+
+ic_cdk::export_candid!();
