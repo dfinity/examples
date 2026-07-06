@@ -13,8 +13,8 @@ if [ ! -f "face-recognition.onnx" ]; then
     PYTHON=""
     for py in python3.12 python3.11 python3.10 python3.9 python3; do
         if which "$py" >/dev/null 2>&1; then
-            minor=$("$py" -c "import sys; print(sys.version_info.minor)" 2>/dev/null || echo "99")
-            if [ "$minor" -le 12 ]; then
+            minor=$("$py" -c "import sys; print(sys.version_info.minor)" 2>/dev/null || echo "0")
+            if [ "$minor" -ge 9 ] && [ "$minor" -le 12 ]; then
                 PYTHON="$py"
                 break
             fi
