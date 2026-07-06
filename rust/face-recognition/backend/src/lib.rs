@@ -161,10 +161,12 @@ fn post_upgrade() {
     if std::fs::metadata(FACE_DETECTION_FILE).is_ok()
         && std::fs::metadata(FACE_RECOGNITION_FILE).is_ok()
     {
-        let _ = setup(
+        if let Err(err) = setup(
             storage::bytes(FACE_DETECTION_FILE),
             storage::bytes(FACE_RECOGNITION_FILE),
-        );
+        ) {
+            ic_cdk::println!("post_upgrade: model reload failed: {}", err);
+        }
     }
 }
 

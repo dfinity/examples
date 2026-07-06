@@ -57,7 +57,14 @@ echo "Models not loaded — uploading..."
 
 which ic-file-uploader || cargo install ic-file-uploader
 
-REPLICA_URL=$(icp network status --json | python3 -c "import sys,json; print(json.load(sys.stdin)['api_url'])")
+if which jq >/dev/null 2>&1; then
+    REPLICA_URL=$(icp network status --json | jq -r '.api_url')
+elif which python3 >/dev/null 2>&1; then
+    REPLICA_URL=$(icp network status --json | python3 -c "import sys,json; print(json.load(sys.stdin)['api_url'])")
+else
+    REPLICA_URL="http://localhost:8000"
+    echo "Note: jq and python3 not found; using default replica URL $REPLICA_URL"
+fi
 BACKEND_ID=$(icp canister status backend -i)
 echo "Backend canister: $BACKEND_ID"
 
