@@ -9,10 +9,27 @@ fi
 
 # Auto-generate the face recognition model if not already present.
 if [ ! -f "face-recognition.onnx" ]; then
-    if which python3 >/dev/null 2>&1; then
-        echo "Face recognition model not found — generating (this may take a few minutes)..."
-        python3 -m pip install --quiet --prefer-binary facenet-pytorch torch onnx
-        python3 << 'PYEOF'
+    # torch only supports Python 3.9-3.12; 3.13+ has no wheels yet.
+    PYTHON=""
+    for py in python3.12 python3.11 python3.10 python3.9 python3; do
+        if which "$py" >/dev/null 2>&1; then
+            minor=$("$py" -c "import sys; print(sys.version_info.minor)" 2>/dev/null || echo "99")
+            if [ "$minor" -le 12 ]; then
+                PYTHON="$py"
+                break
+            fi
+        fi
+    done
+
+    if [ -n "$PYTHON" ]; then
+        echo "Face recognition model not found — generating with $PYTHON (this may take a few minutes)..."
+        "$PYTHON" -m pip install --quiet --prefer-binary facenet-pytorch torch onnx certifi
+        "$PYTHON" << 'PYEOF'
+import os, ssl, certifi
+# Python from python.org on macOS doesn't ship with root certificates;
+# point urllib at the certifi bundle so pretrained weights can be downloaded.
+os.environ['SSL_CERT_FILE'] = certifi.where()
+ssl.create_default_context = lambda *a, **kw: ssl.create_default_context(cafile=certifi.where())
 import torch
 import facenet_pytorch
 resnet = facenet_pytorch.InceptionResnetV1(pretrained='vggface2').eval()
@@ -20,13 +37,14 @@ torch.onnx.export(resnet, torch.randn(1, 3, 160, 160), 'face-recognition.onnx', 
 print("face-recognition.onnx generated.")
 PYEOF
     else
-        echo "Face recognition model not found and python3 is not available — skipping upload."
-        echo "Install Python3 or generate face-recognition.onnx manually (see README.md)."
+        echo "Face recognition model not found — skipping upload."
+        echo "torch requires Python 3.9-3.12. Install it (e.g. 'brew install python@3.12')"
+        echo "or generate face-recognition.onnx manually (see README.md)."
         exit 0
     fi
 fi
 
-# Skip if models are already loaded (e.g. on redeployment without reinstall).
+# Skip if models are already loaded.
 result=$(icp canister call --query backend models_ready '()' 2>/dev/null || echo "(false)")
 echo "models_ready: $result"
 if echo "$result" | grep -q 'true'; then
@@ -34,15 +52,30 @@ if echo "$result" | grep -q 'true'; then
     exit 0
 fi
 
+# If the canister was upgraded (not reinstalled), model files are still in stable
+# memory but heap state was cleared. Calling setup_models() reloads them without
+# re-uploading 100MB+.
+setup_result=$(icp canister call backend setup_models '()' 2>/dev/null || echo "(variant { Err })")
+if ! echo "$setup_result" | grep -q 'Err'; then
+    echo "Models reloaded from stable memory (no re-upload needed)."
+    exit 0
+fi
+
+echo "Models not in stable memory — uploading..."
+
 which ic-file-uploader || cargo install ic-file-uploader
+
+REPLICA_URL=$(icp network status --json | python3 -c "import sys,json; print(json.load(sys.stdin)['api_url'])")
+BACKEND_ID=$(icp canister status backend -i)
+echo "Backend canister: $BACKEND_ID"
 
 echo "Uploading face detection model..."
 icp canister call backend clear_face_detection_model_bytes '()'
-ic-file-uploader backend append_face_detection_model_bytes version-RFB-320.onnx
+ic-file-uploader -n "$REPLICA_URL" "$BACKEND_ID" append_face_detection_model_bytes version-RFB-320.onnx
 
 echo "Uploading face recognition model..."
 icp canister call backend clear_face_recognition_model_bytes '()'
-ic-file-uploader backend append_face_recognition_model_bytes face-recognition.onnx
+ic-file-uploader -n "$REPLICA_URL" "$BACKEND_ID" append_face_recognition_model_bytes face-recognition.onnx
 
 echo "Running setup_models..."
 setup_result=$(icp canister call backend setup_models '()')

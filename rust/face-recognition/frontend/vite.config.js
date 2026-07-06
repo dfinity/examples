@@ -10,10 +10,13 @@ export default defineConfig(({ command }) => {
     }),
   ];
 
+  // If we're only building this is enough
   if (command !== "serve") {
     return { plugins };
   }
 
+  // If we're running the local npm dev server, we're going to look up the
+  // local network's root key and the relevant canister ids.
   const environment = process.env.ICP_ENVIRONMENT || "local";
   const CANISTER_NAME = "backend";
 
@@ -25,6 +28,7 @@ export default defineConfig(({ command }) => {
   const rootKey = networkStatus.root_key;
   const proxyTarget = networkStatus.api_url;
 
+  // Backend must be deployed before starting dev server
   let canisterId;
   try {
     canisterId = execSync(
@@ -42,20 +46,22 @@ export default defineConfig(({ command }) => {
     process.exit(1);
   }
 
-  return {
-    plugins,
-    server: {
-      headers: {
-        "Set-Cookie": `ic_env=${encodeURIComponent(
-          `PUBLIC_CANISTER_ID:${CANISTER_NAME}=${canisterId}&ic_root_key=${rootKey}`
-        )}; SameSite=Lax;`,
-      },
-      proxy: {
-        "/api": {
-          target: proxyTarget,
-          changeOrigin: true,
-        },
+  const server = {
+    headers: {
+      "Set-Cookie": `ic_env=${encodeURIComponent(
+        `PUBLIC_CANISTER_ID:${CANISTER_NAME}=${canisterId}&ic_root_key=${rootKey}`
+      )}; SameSite=Lax;`,
+    },
+    proxy: {
+      "/api": {
+        target: proxyTarget,
+        changeOrigin: true,
       },
     },
+  };
+
+  return {
+    plugins,
+    server,
   };
 });

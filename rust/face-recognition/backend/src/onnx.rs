@@ -15,6 +15,8 @@ type Model = SimplePlan<TypedFact, Box<dyn TypedOp>, Graph<TypedFact, Box<dyn Ty
 thread_local! {
     static FACE_DETECTION: RefCell<Option<Model>> = RefCell::new(None);
     static FACE_RECOGNITION: RefCell<Option<Model>> = RefCell::new(None);
+    // Stored in heap memory — cleared on canister upgrade. For a production
+    // system, persist DB to stable memory via ic-stable-structures.
     static DB: RefCell<Vec<(String, Embedding)>> = RefCell::new(vec![]);
 }
 

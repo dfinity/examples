@@ -7,7 +7,7 @@ _MACOSX
 target/
 *.old.did
 .idea
-backend/assets/version-RFB-320.onnx
-backend/assets/facerec.onnx
+# ONNX model files are downloaded/generated at runtime — do not commit
+*.onnx
 frontend/src/bindings/
 .icp/cache/
