@@ -1,18 +1,19 @@
 [package]
 name = "backend"
 version = "0.1.0"
-edition = "2021"
+edition = "2024"
 
 [lib]
+# cdylib produces a .wasm binary suitable for deployment as an ICP canister.
 crate-type = ["cdylib"]
 
 [dependencies]
-hex = "0.4.3"
-bitcoin = "0.32.7"
-candid = "0.10.19"
-ic-cdk = "0.20.0"
+bitcoin = "0.32"
+candid = "0.10"
+hex = "0.4"
+ic-cdk = "0.20"
 ic-cdk-bitcoin-canister = "0.2"
-ic-cdk-management-canister = "0.1"
-serde = "1.0.132"
-serde_bytes = "0.11.15"
-leb128 = "0.2.5"
+ic-cdk-management-canister = "0.1.1"
+leb128 = "0.2"
+serde = "1.0"
+serde_bytes = "0.11"

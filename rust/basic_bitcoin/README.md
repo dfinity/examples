@@ -1,6 +1,6 @@
 # Basic Bitcoin
 
-This example demonstrates how to deploy a smart contract on the Internet Computer that can receive and send bitcoin, including support for legacy (P2PKH), SegWit (P2WPKH), and Taproot (P2TR) address types.
+This example demonstrates how a canister can receive and send bitcoin on the Internet Computer, including support for legacy (P2PKH), SegWit (P2WPKH), and Taproot (P2TR) address types.
 
 This example also includes how to work with Bitcoin assets such as Ordinals, Runes, and BRC-20 tokens.
 
@@ -10,9 +10,9 @@ See also the [Motoko version](../../motoko/basic_bitcoin).
 
 This example integrates with the Internet Computer's built-in:
 
-* [ECDSA API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-ecdsa_public_key)
-* [Schnorr API](https://internetcomputer.org/docs/current/references/ic-interface-spec/#ic-sign_with_schnorr)
-* [Bitcoin API](https://github.com/dfinity/bitcoin-canister/blob/master/INTERFACE_SPECIFICATION.md)
+* [ECDSA API](https://docs.internetcomputer.org/references/management-canister/#ic-ecdsa_public_key)
+* [Schnorr API](https://docs.internetcomputer.org/references/management-canister/#ic-sign_with_schnorr)
+* [Bitcoin API](https://docs.internetcomputer.org/references/protocol-canisters/#bitcoin-canisters)
 
 For background on the ICP<>BTC integration, refer to the [Learn Hub](https://learn.internetcomputer.org/hc/en-us/articles/34211154520084-Bitcoin-Integration).
 
@@ -20,9 +20,10 @@ For background on the ICP<>BTC integration, refer to the [Learn Hub](https://lea
 
 ### Prerequisites
 
-- [Rust toolchain](https://www.rust-lang.org/tools/install)
-- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
-- Docker (required to run the custom network launcher image that bundles bitcoind)
+- [Node.js](https://nodejs.org/) v18+
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Rust](https://www.rust-lang.org/tools/install) v1.85+ with `wasm32-unknown-unknown` target: `rustup target add wasm32-unknown-unknown`
+- [Docker](https://docs.docker.com/get-docker/) (required to run the custom network launcher image that bundles bitcoind)
 - On macOS, an `llvm` version that supports the `wasm32-unknown-unknown` target is required. The Rust `bitcoin` library relies on the `secp256k1-sys` crate, which requires `llvm` to build. The default `llvm` version provided by XCode does not meet this requirement. Install the [Homebrew version](https://formulae.brew.sh/formula/llvm) using `brew install llvm`.
 
 ### Install
@@ -67,7 +68,7 @@ icp canister call backend get_p2pkh_address '()'
 
 ## Receiving bitcoin
 
-Use `bitcoin-cli` inside the running network container to mine blocks and send the block reward to a smart contract address:
+Use `bitcoin-cli` inside the running network container to mine blocks and send the block reward to a canister address:
 
 ```bash
 # Get the container ID of the running network launcher
@@ -131,7 +132,7 @@ You can query the current state of the Bitcoin blockchain:
 icp canister call backend get_blockchain_info '()'
 ```
 
-This calls `get_blockchain_info` on the Bitcoin canister and returns the tip height, block hash, timestamp, difficulty, and total UTXO count. It is useful for monitoring the state of the Bitcoin network from your smart contract.
+This calls `get_blockchain_info` on the Bitcoin canister and returns the tip height, block hash, timestamp, difficulty, and total UTXO count. It is useful for monitoring the state of the Bitcoin network from your canister.
 
 ## Retrieving block headers
 
@@ -147,7 +148,7 @@ This calls `bitcoin_get_block_headers`, which is useful for blockchain validatio
 
 ## Bitcoin assets
 
-Bitcoin's scripting capabilities enable various digital assets beyond simple transfers. This example demonstrates how to create and interact with three major Bitcoin asset protocols from an ICP smart contract:
+Bitcoin's scripting capabilities enable various digital assets beyond simple transfers. This example demonstrates how to create and interact with three major Bitcoin asset protocols from an ICP canister:
 
 - **Ordinals**: Inscribe arbitrary data onto individual satoshis
 - **Runes**: Create fungible tokens using `OP_RETURN` outputs
@@ -305,4 +306,4 @@ If you base your application on this example, we recommend you familiarize yours
 For example, the following aspects are particularly relevant for this app:
 
 - Certify query responses if they are relevant for security, since the app offers a method to read balances.
-- Use a decentralized governance system like SNS to make a smart contract have a decentralized controller, since decentralized control may be essential for smart contracts holding bitcoins on behalf of users.
+- Use a decentralized governance system like SNS to give a canister a decentralized controller, since decentralized control may be essential for canisters holding bitcoins on behalf of users.
