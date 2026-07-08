@@ -4,7 +4,7 @@
 
 bitcoind \
   -regtest -server \
-  -rpcbind=127.0.0.1 -rpcallowip=127.0.0.1 \
+  -rpcbind=0.0.0.0 -rpcallowip=0.0.0.0/0 \
   -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
   -fallbackfee=0.00001 -txindex=1 &
 
