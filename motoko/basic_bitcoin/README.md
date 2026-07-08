@@ -42,7 +42,6 @@ The local environment uses a self-contained Docker image (`icp-cli-network-launc
 
 ```bash
 ./build-image.sh
-# or: make build-image
 ```
 
 Then deploy and run tests:
@@ -54,7 +53,10 @@ make test
 icp network stop
 ```
 
-> If tests fail with an out-of-cycles error, run `make topup` and retry.
+> If tests fail with an out-of-cycles error, top up the canister and retry:
+> ```bash
+> icp canister top-up --amount 30t backend
+> ```
 
 ### Deploy to the IC network
 

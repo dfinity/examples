@@ -2,15 +2,7 @@ IMAGE_NAME = icp-cli-network-launcher-bitcoin
 # Find the running container built from our custom image
 BITCOIN_CONTAINER = $(shell docker ps --filter "ancestor=$(IMAGE_NAME)" --format "{{.ID}}" | head -1)
 
-.PHONY: build-image test topup
-
-build-image:
-	# Because we're building off of :latest, use --pull to fetch the latest image.
-	# Remove `--pull` if the Dockerfile is updated to pin the base image version.
-	docker build --pull -t $(IMAGE_NAME) .
-
-topup:
-	icp canister top-up --amount 30t backend
+.PHONY: test
 
 test:
 	@echo "=== Test 1: get_p2pkh_address returns a valid Bitcoin address ==="
