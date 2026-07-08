@@ -331,7 +331,8 @@ The Rune is now etched with 1,000,000 tokens minted to your address.
 The rune ID (block height : transaction index) is required to identify which rune to transfer. Fetch it from the ord server:
 
 ```bash
-RUNE_ID=$(curl -s -H "Accept: application/json" http://127.0.0.1/rune/ICPRUNE | grep -o '"id":"[^"]*"' | cut -d'"' -f4)
+RUNE_ID=$(curl -s -H "Accept: application/json" http://127.0.0.1/rune/ICPRUNE | \
+  tr -d '[:space:]' | grep -o '"id":"[0-9]*:[0-9]*"' | cut -d'"' -f4)
 RUNE_BLOCK=$(echo "$RUNE_ID" | cut -d: -f1)
 RUNE_TX=$(echo "$RUNE_ID" | cut -d: -f2)
 echo "Rune ID: $RUNE_BLOCK:$RUNE_TX"
