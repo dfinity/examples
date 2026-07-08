@@ -39,7 +39,6 @@ The local network bundles bitcoind inside a custom Docker image. Build it once b
 
 ```bash
 ./build-image.sh
-# or: make build-image
 ```
 
 ### Deploy locally and test
@@ -51,7 +50,10 @@ bash test.sh
 icp network stop
 ```
 
-> If tests fail with an out-of-cycles error, run `make topup` to add 30 trillion cycles to the backend canister and retry.
+> If tests fail with an out-of-cycles error, top up the canister and retry:
+> ```bash
+> icp canister top-up --amount 30t backend
+> ```
 
 ### Deploy to the IC network
 
