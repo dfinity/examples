@@ -207,85 +207,87 @@ For other platforms, see the [ord repository](https://github.com/ordinals/ord) f
 
 [Ordinals](https://ordinals.com) is a protocol that allows inscribing arbitrary data (text, images, etc.) onto individual satoshis, creating unique digital artifacts on Bitcoin. Each inscription is permanently stored in the Bitcoin blockchain using a two-transaction commit/reveal process.
 
-### Step-by-step process:
+### Step 1 — Start the ord server (separate terminal)
 
-1. **Start the ord server** to index transactions:
-   ```bash
-   ord --config-dir . server
-   ```
+```bash
+ord --config-dir . server
+```
 
-2. **Get a Taproot address** for funding the inscription:
-   ```bash
-   icp canister call backend get_p2tr_key_path_only_address '()'
-   ```
+### Step 2 — Fund a Taproot address
 
-3. **Fund the address** with sufficient bitcoin (101 blocks ensures spendability):
-   ```bash
-   docker exec $CONTAINER bitcoin-cli -regtest \
-     -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
-     generatetoaddress 101 <p2tr_key_path_only_address>
-   ```
+```bash
+ADDR=$(icp canister call backend get_p2tr_key_path_only_address '()' | grep -o '"[^"]*"' | tr -d '"')
+docker exec $CONTAINER bitcoin-cli -regtest \
+  -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
+  generatetoaddress 101 "$ADDR"
+```
 
-4. **Create the inscription** with your desired text:
-   ```bash
-   icp canister call backend inscribe_ordinal '("Hello Bitcoin")'
-   ```
+### Step 3 — Create the inscription
 
-5. **Mine a block** to confirm the transactions:
-   ```bash
-   docker exec $CONTAINER bitcoin-cli -regtest \
-     -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
-     generatetoaddress 1 <p2tr_key_path_only_address>
-   ```
+```bash
+TXID=$(icp canister call backend inscribe_ordinal '("Hello Bitcoin")' | grep -o '"[^"]*"' | tr -d '"')
+echo "Reveal txid: $TXID"
+```
 
-The function returns the reveal transaction ID. Your inscription is now permanently stored on Bitcoin and can be viewed in the local `ord` explorer:
+### Step 4 — Mine a confirmation block
+
+```bash
+docker exec $CONTAINER bitcoin-cli -regtest \
+  -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
+  generatetoaddress 1 "$ADDR"
+```
+
+### Step 5 — View in the ord explorer
+
+```bash
+echo "http://127.0.0.1/inscription/${TXID}i0"
+```
 
 - All inscriptions: `http://127.0.0.1/inscriptions`
-- Direct lookup by reveal transaction ID: `http://127.0.0.1/inscription/<txid>i0`
 
 > **Note:** The homepage at `http://127.0.0.1/` shows a "Latest Inscriptions" section that may appear empty — use `/inscriptions` instead.
-
-> **Note:** The `ord` server builds its index asynchronously as it scans blocks from genesis. The "Latest Inscriptions" landing page may appear empty until indexing catches up — this usually takes a few seconds after blocks are mined. You can navigate directly to your inscription using the reveal transaction ID: `http://127.0.0.1/inscription/<txid>i0`.
 
 ## Etch a Rune
 
 [Runes](https://docs.ordinals.com/runes.html) is a fungible token protocol that embeds token metadata directly into Bitcoin transactions using `OP_RETURN` outputs. Unlike Ordinals, Runes are created in a single transaction and support standard fungible token operations.
 
-### Step-by-step process:
+### Step 1 — Start the ord server (separate terminal)
 
-1. **Start the ord server** to track Rune balances:
-   ```bash
-   ord --config-dir . server
-   ```
+```bash
+ord --config-dir . server
+```
 
-2. **Get a Taproot address** for the Rune etching:
-   ```bash
-   icp canister call backend get_p2tr_key_path_only_address '()'
-   ```
+### Step 2 — Fund a Taproot address
 
-3. **Fund the address** with bitcoin to pay for the etching:
-   ```bash
-   docker exec $CONTAINER bitcoin-cli -regtest \
-     -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
-     generatetoaddress 101 <p2tr_key_path_only_address>
-   ```
+```bash
+ADDR=$(icp canister call backend get_p2tr_key_path_only_address '()' | grep -o '"[^"]*"' | tr -d '"')
+docker exec $CONTAINER bitcoin-cli -regtest \
+  -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
+  generatetoaddress 101 "$ADDR"
+```
 
-4. **Etch the Rune** with an uppercase name (maximum 28 characters):
-   ```bash
-   icp canister call backend etch_rune '("ICPRUNE")'
-   ```
+### Step 3 — Etch the Rune
 
-5. **Mine a block** to confirm the etching:
-   ```bash
-   docker exec $CONTAINER bitcoin-cli -regtest \
-     -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
-     generatetoaddress 1 <p2tr_key_path_only_address>
-   ```
+The name must be uppercase, maximum 28 characters:
 
-6. **Decode the Runestone** to verify the etching:
-   ```bash
-   ord --config-dir . decode --txid <transaction_id>
-   ```
+```bash
+TXID=$(icp canister call backend etch_rune '("ICPRUNE")' | grep -o '"[^"]*"' | tr -d '"')
+echo "Rune txid: $TXID"
+```
+
+### Step 4 — Mine a confirmation block
+
+```bash
+docker exec $CONTAINER bitcoin-cli -regtest \
+  -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
+  generatetoaddress 1 "$ADDR"
+```
+
+### Step 5 — Decode the Runestone to verify
+
+```bash
+ord --config-dir . decode --txid "$TXID"
+```
 
 The Rune is now etched with 1,000,000 tokens minted to your address. The tokens can be transferred using standard Bitcoin transactions with Runestone data.
 
@@ -293,35 +295,50 @@ The Rune is now etched with 1,000,000 tokens minted to your address. The tokens 
 
 [BRC-20](https://domo-2.gitbook.io/brc-20-experiment/) is a token standard built on top of Ordinals that uses structured JSON payloads to create fungible tokens. BRC-20 tokens follow the same inscription process as Ordinals but with standardized JSON formats.
 
-### Step-by-step process:
+### Step 1 — Start the ord server (separate terminal)
 
-1. **Start the ord server** to index BRC-20 inscriptions:
-   ```bash
-   ord --config-dir . server
-   ```
+```bash
+ord --config-dir . server
+```
 
-2. **Get a Taproot address** and fund it with bitcoin.
+### Step 2 — Fund a Taproot address
 
-3. **Deploy the BRC-20 token** with a 4-character ticker:
-   ```bash
-   icp canister call backend inscribe_brc20 '("DEMO")'
-   ```
+```bash
+ADDR=$(icp canister call backend get_p2tr_key_path_only_address '()' | grep -o '"[^"]*"' | tr -d '"')
+docker exec $CONTAINER bitcoin-cli -regtest \
+  -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
+  generatetoaddress 101 "$ADDR"
+```
 
-4. **Mine a block** to confirm the deployment:
-   ```bash
-   docker exec $CONTAINER bitcoin-cli -regtest \
-     -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
-     generatetoaddress 1 <p2tr_key_path_only_address>
-   ```
+### Step 3 — Deploy the BRC-20 token
+
+The ticker must be exactly 4 characters:
+
+```bash
+TXID=$(icp canister call backend inscribe_brc20 '("DEMO")' | grep -o '"[^"]*"' | tr -d '"')
+echo "BRC-20 deploy txid: $TXID"
+```
+
+### Step 4 — Mine a confirmation block
+
+```bash
+docker exec $CONTAINER bitcoin-cli -regtest \
+  -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
+  generatetoaddress 1 "$ADDR"
+```
 
 This creates a BRC-20 token with:
 - Ticker: "DEMO"
 - Max supply: 21,000,000 tokens
 - Mint limit: 1,000 tokens per mint
 
-The deployment inscription contains JSON metadata that BRC-20 indexers use to track token balances and transfers. Additional mint and transfer operations require separate inscriptions following the BRC-20 protocol.
+The deployment inscription contains JSON metadata that BRC-20 indexers use to track token balances and transfers. View it in the ord explorer:
 
-To view the deployed BRC-20 token, use the local `ord` explorer at `http://127.0.0.1:80/`.
+```bash
+echo "http://127.0.0.1/inscription/${TXID}i0"
+```
+
+Additional mint and transfer operations require separate inscriptions following the BRC-20 protocol.
 
 ## Notes on implementation
 
