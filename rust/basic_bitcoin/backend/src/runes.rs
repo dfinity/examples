@@ -131,6 +131,74 @@ pub struct Terms {
     pub offset: (Option<u64>, Option<u64>), // Relative block height range
 }
 
+/// An edict in a Runestone that transfers rune tokens to a specific transaction output.
+///
+/// Edicts describe how to allocate rune balances among transaction outputs.
+/// The rune ID (block + tx) uniquely identifies which rune to transfer.
+pub struct Edict {
+    /// Block height where the rune was etched (first component of rune ID).
+    pub rune_id_block: u64,
+    /// Transaction index within that block (second component of rune ID).
+    pub rune_id_tx: u32,
+    /// Number of rune tokens to move to the specified output.
+    pub amount: u64,
+    /// Index into the transaction's vout array that receives the rune tokens.
+    /// OP_RETURN outputs count toward the index but cannot hold rune balances.
+    pub output: u32,
+}
+
+/// Builds a runestone script for transferring rune tokens between addresses.
+///
+/// A transfer runestone contains only edicts — no etching fields. The edicts
+/// direct the protocol to move tokens from input UTXOs holding rune balances
+/// to specific transaction outputs. Any balance not explicitly allocated by an
+/// edict flows to the last non-OP_RETURN output by default.
+pub fn build_transfer_script(edicts: &[Edict]) -> Result<ScriptBuf, String> {
+    if edicts.is_empty() {
+        return Err("At least one edict is required".to_string());
+    }
+
+    let mut payload = Vec::new();
+
+    // Tag 0 (Body): separator signalling that edicts follow.
+    // A pure transfer runestone has no named fields before this.
+    payload.extend_from_slice(&encode_leb128(Tag::Body as u64));
+
+    // Edicts are encoded as groups of 4 LEB128 integers: [block, tx, amount, output].
+    // Block and tx use delta encoding relative to the previous edict's rune ID.
+    let mut prev_block: u64 = 0;
+    let mut prev_tx: u32 = 0;
+    for edict in edicts {
+        let block_delta = edict.rune_id_block - prev_block;
+        // When the block delta is 0 (same block), tx is a delta from the previous tx.
+        // When the block delta is non-zero (different block), tx is an absolute value.
+        let tx_encoded = if block_delta == 0 {
+            (edict.rune_id_tx - prev_tx) as u64
+        } else {
+            edict.rune_id_tx as u64
+        };
+
+        payload.extend_from_slice(&encode_leb128(block_delta));
+        payload.extend_from_slice(&encode_leb128(tx_encoded));
+        payload.extend_from_slice(&encode_leb128(edict.amount));
+        payload.extend_from_slice(&encode_leb128(edict.output as u64));
+
+        prev_block = edict.rune_id_block;
+        prev_tx = edict.rune_id_tx;
+    }
+
+    let mut builder = Builder::new().push_opcode(OP_RETURN);
+    builder = builder.push_opcode(OP_PUSHNUM_13);
+
+    let mut push_bytes = PushBytesBuf::new();
+    push_bytes
+        .extend_from_slice(&payload)
+        .map_err(|_| "Failed to create push bytes - payload may be too large")?;
+    builder = builder.push_slice(&push_bytes);
+
+    Ok(builder.into_script())
+}
+
 /// Builds a runestone script for etching a new rune token.
 ///
 /// The runestone is encoded as an OP_RETURN output with the format:

@@ -8,13 +8,13 @@ See also the [Motoko version](../../motoko/basic_bitcoin).
 
 ## Architecture
 
+For a deeper understanding of the ICP ↔ Bitcoin integration, see the [Bitcoin integration concepts](https://docs.internetcomputer.org/concepts/chain-fusion/bitcoin).
+
 This example integrates with the Internet Computer's built-in:
 
-* [ECDSA API](https://docs.internetcomputer.org/references/management-canister/#ic-ecdsa_public_key)
-* [Schnorr API](https://docs.internetcomputer.org/references/management-canister/#ic-sign_with_schnorr)
-* [Bitcoin API](https://docs.internetcomputer.org/references/protocol-canisters/#bitcoin-canisters)
-
-For background on the ICP<>BTC integration, refer to the [Learn Hub](https://learn.internetcomputer.org/hc/en-us/articles/34211154520084-Bitcoin-Integration).
+- Threshold ECDSA ([`ecdsa_public_key`](https://docs.internetcomputer.org/references/ic-interface-spec/management-canister/#ic-ecdsa_public_key), [`sign_with_ecdsa`](https://docs.internetcomputer.org/references/ic-interface-spec/management-canister/#ic-sign_with_ecdsa)) — derives P2PKH addresses and signs transactions spending from them
+- Threshold Schnorr ([`schnorr_public_key`](https://docs.internetcomputer.org/references/ic-interface-spec/management-canister/#ic-schnorr_public_key), [`sign_with_schnorr`](https://docs.internetcomputer.org/references/ic-interface-spec/management-canister/#ic-sign_with_schnorr)) — derives P2TR addresses (BIP340/341) and signs Taproot transactions
+- [Bitcoin canister](https://docs.internetcomputer.org/references/protocol-canisters/#bitcoin-canisters) — queries balances, UTXOs, fee percentiles, and block data; submits signed transactions to the Bitcoin network
 
 ## Build and deploy from the command line
 
@@ -153,6 +153,16 @@ Each endpoint internally estimates fees, selects UTXOs, builds a transaction, si
 
 When the canister is deployed on IC mainnet, you can track testnet transactions on [mempool.space](https://mempool.space/testnet4/).
 
+## Querying UTXOs
+
+You can inspect the UTXOs held at any Bitcoin address:
+
+```bash
+icp canister call backend get_utxos "(\"$ADDR\")"
+```
+
+This returns all unspent outputs at the address — useful for verifying that funds arrived or for debugging balance issues. The response includes each outpoint (txid + vout index), value in satoshis, and confirmation height.
+
 ## Retrieving blockchain info
 
 You can query the current state of the Bitcoin blockchain:
@@ -194,6 +204,12 @@ brew install ord
 ```
 
 For other platforms, see the [ord repository](https://github.com/ordinals/ord) for installation instructions.
+
+Make sure the `$CONTAINER` variable is set before running any of the steps below. If you haven't done so yet from the Bitcoin walkthrough above:
+
+```bash
+CONTAINER=$(docker ps --filter "ancestor=icp-cli-network-launcher-bitcoin" --format "{{.ID}}" | head -1)
+```
 
 > **Note:** This repository includes a [default ord config file](./ord.yaml) that matches the also provided [bitcoin config file](./bitcoin.conf).
 
@@ -299,19 +315,67 @@ echo "http://127.0.0.1/rune/ICPRUNE"
 
 > **Note:** The `/runes` listing page may appear empty for the same reason as `/` for inscriptions — use the direct URL above instead.
 
-The Rune is now etched with 1,000,000 tokens minted to your address. The tokens can be transferred using standard Bitcoin transactions with Runestone data.
+The Rune is now etched with 1,000,000 tokens minted to your address.
 
-## Deploy a BRC-20 token
+## Transfer a Rune
 
-[BRC-20](https://domo-2.gitbook.io/brc-20-experiment/) is a token standard built on top of Ordinals that uses structured JSON payloads to create fungible tokens. BRC-20 tokens follow the same inscription process as Ordinals but with standardized JSON formats.
+This section shows how to transfer rune tokens from the canister's address to another address, proving the rune is functional and balances update on-chain.
 
-### Step 1 — Start the ord server (separate terminal)
+### Step 1 — Look up the rune ID
+
+The rune ID (block height : transaction index) is required to identify which rune to transfer. Fetch it from the ord server:
+
+```bash
+RUNE_ID=$(curl -s -H "Accept: application/json" http://127.0.0.1/rune/ICPRUNE | grep -o '"id":"[^"]*"' | cut -d'"' -f4)
+RUNE_BLOCK=$(echo "$RUNE_ID" | cut -d: -f1)
+RUNE_TX=$(echo "$RUNE_ID" | cut -d: -f2)
+echo "Rune ID: $RUNE_BLOCK:$RUNE_TX"
+```
+
+### Step 2 — Transfer rune tokens
+
+```bash
+DEST="bcrt1qg8qknn6f3txqg97gt8ca0ctya0vw7ep6d02qmt"
+TRANSFER_TXID=$(icp canister call backend transfer_rune "(record {
+  rune_id_block = ${RUNE_BLOCK}: nat64;
+  rune_id_tx = ${RUNE_TX}: nat32;
+  amount = 100000: nat64;
+  destination_address = \"$DEST\";
+})" | grep -o '"[^"]*"' | tr -d '"')
+echo "Transfer txid: $TRANSFER_TXID"
+```
+
+### Step 3 — Mine a confirmation block
+
+```bash
+docker exec $CONTAINER bitcoin-cli -regtest \
+  -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
+  generatetoaddress 1 "$ADDR"
+```
+
+### Step 4 — Verify the transfer
+
+Decode the transfer transaction to confirm the Runestone edict is correct:
+
+```bash
+ord --config-dir . decode --txid "$TRANSFER_TXID"
+```
+
+The output should contain a Runestone with an edict assigning 100,000 tokens to output 0 (the recipient). The remaining 900,000 tokens stay in the change output at the canister's address.
+
+## BRC-20 tokens
+
+[BRC-20](https://domo-2.gitbook.io/brc-20-experiment/) is a token standard built on top of Ordinals that uses structured JSON payloads to create fungible tokens. Three operations make up the full lifecycle: **deploy** → **mint** → **transfer**.
+
+### Deploy a BRC-20 token
+
+#### Step 1 — Start the ord server (separate terminal)
 
 ```bash
 ord --config-dir . server
 ```
 
-### Step 2 — Fund a Taproot address
+#### Step 2 — Fund a Taproot address
 
 ```bash
 ADDR=$(icp canister call backend get_p2tr_key_path_only_address '()' | grep -o '"[^"]*"' | tr -d '"')
@@ -320,16 +384,16 @@ docker exec $CONTAINER bitcoin-cli -regtest \
   generatetoaddress 101 "$ADDR"
 ```
 
-### Step 3 — Deploy the BRC-20 token
+#### Step 3 — Deploy the BRC-20 token
 
 The ticker must be exactly 4 characters:
 
 ```bash
-TXID=$(icp canister call backend inscribe_brc20 '("DEMO")' | grep -o '"[^"]*"' | tr -d '"')
-echo "BRC-20 deploy txid: $TXID"
+DEPLOY_TXID=$(icp canister call backend inscribe_brc20 '("DEMO")' | grep -o '"[^"]*"' | tr -d '"')
+echo "BRC-20 deploy txid: $DEPLOY_TXID"
 ```
 
-### Step 4 — Mine a confirmation block
+#### Step 4 — Mine a confirmation block
 
 ```bash
 docker exec $CONTAINER bitcoin-cli -regtest \
@@ -342,13 +406,70 @@ This creates a BRC-20 token with:
 - Max supply: 21,000,000 tokens
 - Mint limit: 1,000 tokens per mint
 
-The deployment inscription contains JSON metadata that BRC-20 indexers use to track token balances and transfers. View it in the ord explorer:
+View the deploy inscription in the ord explorer:
 
 ```bash
-echo "http://127.0.0.1/inscription/${TXID}i0"
+echo "http://127.0.0.1/inscription/${DEPLOY_TXID}i0"
 ```
 
-Additional mint and transfer operations require separate inscriptions following the BRC-20 protocol.
+### Mint BRC-20 tokens
+
+Minting claims tokens from the deployed supply and credits them to the canister's address. The amount must not exceed the per-mint limit (1,000 in this example).
+
+#### Step 1 — Mint tokens
+
+```bash
+MINT_TXID=$(icp canister call backend mint_brc20 '("DEMO", 1000: nat64)' | grep -o '"[^"]*"' | tr -d '"')
+echo "BRC-20 mint txid: $MINT_TXID"
+```
+
+#### Step 2 — Mine a confirmation block
+
+```bash
+docker exec $CONTAINER bitcoin-cli -regtest \
+  -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
+  generatetoaddress 1 "$ADDR"
+```
+
+#### Step 3 — View the mint inscription
+
+```bash
+echo "http://127.0.0.1/inscription/${MINT_TXID}i0"
+```
+
+### Transfer BRC-20 tokens
+
+A BRC-20 transfer uses three transactions: create a transfer inscription at the sender's (canister's) address, then move that inscription UTXO to the recipient. This two-step handoff is how BRC-20 indexers track balance changes.
+
+#### Step 1 — Transfer tokens
+
+```bash
+DEST="bcrt1qg8qknn6f3txqg97gt8ca0ctya0vw7ep6d02qmt"
+TRANSFER_TXID=$(icp canister call backend transfer_brc20 '(record {
+  tick = "DEMO";
+  amount = 500: nat64;
+  destination_address = "'"$DEST"'";
+})' | grep -o '"[^"]*"' | tr -d '"')
+echo "BRC-20 transfer txid: $TRANSFER_TXID"
+```
+
+#### Step 2 — Mine a confirmation block
+
+```bash
+docker exec $CONTAINER bitcoin-cli -regtest \
+  -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
+  generatetoaddress 1 "$ADDR"
+```
+
+#### Step 3 — Verify the transfer inscription
+
+```bash
+ord --config-dir . decode --txid "$TRANSFER_TXID"
+# The inscription content is the transfer JSON:
+# {"p":"brc-20","op":"transfer","tick":"DEMO","amt":"500"}
+```
+
+The recipient now holds the BRC-20 transfer inscription. BRC-20 indexers credit 500 DEMO to the recipient's balance and debit it from the canister's balance.
 
 ## Notes on implementation
 
