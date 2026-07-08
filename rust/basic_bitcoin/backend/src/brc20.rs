@@ -53,7 +53,7 @@ pub fn build_brc20_reveal_script(internal_key: &XOnlyPublicKey, brc20_json: &str
         .push_opcode(OP_IF) // Begin inscription envelope (unreachable code)
         .push_slice(b"ord") // Ordinals protocol marker - identifies this as an inscription
         .push_int(1) // Content type field number (standardized in Ordinals protocol)
-        .push_slice(b"application/json") // MIME type indicating BRC-20 JSON content
+        .push_slice(b"text/plain;charset=utf-8") // BRC-20 spec requires text/plain, not application/json
         .push_int(0) // Data field number (standardized in Ordinals protocol)
         .push_slice(&inscription_payload) // The actual BRC-20 JSON token data
         .push_opcode(OP_ENDIF) // End inscription envelope

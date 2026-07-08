@@ -291,12 +291,12 @@ docker exec $CONTAINER bitcoin-cli -regtest \
 
 #### Step 3 — Etch the Rune
 
-The name must be uppercase and between 1–28 characters. The Runes protocol reserves short names until a future Bitcoin block height — names with 12 or more characters are available immediately in regtest. Using a shorter name (e.g. 7 characters) means the rune won't receive an active ID until block ~87,500+ is mined, making it unusable for transfers.
+The name must be uppercase and between 1–28 characters. The Runes protocol uses a block-height-based unlock schedule that interpolates over a 210,000-block window — **names with 13 or more characters are immediately active** in regtest at any block height. Names shorter than 13 characters have an unlock height that must be mined past before the rune receives an ID and can be transferred.
 
 > **Turbo mode**: The `etch_rune` implementation sets `turbo: true`, which opts the rune into future ord protocol upgrades. It does **not** bypass the name unlock schedule.
 
 ```bash
-TXID=$(icp canister call backend etch_rune '("BASICBITCOIN")' | grep -o '"[^"]*"' | tr -d '"')
+TXID=$(icp canister call backend etch_rune '("BASICBITCOINSS")' | grep -o '"[^"]*"' | tr -d '"')
 echo "Rune txid: $TXID"
 ```
 
@@ -317,7 +317,7 @@ ord --config-dir . decode --txid "$TXID"
 #### Step 6 — View in the ord explorer
 
 ```bash
-echo "http://127.0.0.1/rune/BASICBITCOIN"
+echo "http://127.0.0.1/rune/BASICBITCOINS"
 ```
 
 - All runes: `http://127.0.0.1/runes`
@@ -333,14 +333,14 @@ The Rune is now etched with 1,000,000 tokens minted to your address.
 The rune ID (block height : transaction index) is required to identify which rune to transfer. Fetch it from the ord JSON API:
 
 ```bash
-RUNE_ID=$(curl -s -H "Accept: application/json" http://127.0.0.1/rune/BASICBITCOIN | \
+RUNE_ID=$(curl -s -H "Accept: application/json" http://127.0.0.1/rune/BASICBITCOINS | \
   tr -d '[:space:]' | grep -o '"id":"[0-9]*:[0-9]*"' | cut -d'"' -f4)
 RUNE_BLOCK=$(echo "$RUNE_ID" | cut -d: -f1)
 RUNE_TX=$(echo "$RUNE_ID" | cut -d: -f2)
 echo "Rune ID: $RUNE_BLOCK:$RUNE_TX"
 ```
 
-> **Why 12+ characters?** The ord indexer only assigns a rune ID once the rune's name reaches its unlock height. Names shorter than 12 characters have unlock heights of 17,500–105,000+ blocks in regtest, which is impractical. With a 12-character name like `BASICBITCOIN`, the rune is immediately active and the JSON response includes its `"id"` field.
+> **Why 13+ characters?** The ord indexer uses linear interpolation to derive a minimum rune value per block. Every 13-char name has a numeric value above `STEPS[12] = 99,246,114,928,149,462` — the highest minimum the formula ever produces — so 13-char names are immediately active at any block height. Shorter names have unlock heights that must be mined past (12-char names unlock across blocks 0–17,499; 7-char names across 87,500–104,999).
 
 #### Step 2 — Transfer rune tokens
 
