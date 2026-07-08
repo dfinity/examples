@@ -238,7 +238,14 @@ For other platforms, see the [ord repository](https://github.com/ordinals/ord) f
      generatetoaddress 1 <p2tr_key_path_only_address>
    ```
 
-The function returns the reveal transaction ID. Your inscription is now permanently stored on Bitcoin and can be viewed using ord or other Ordinals explorers. The default address of the local `ord` server is `http://127.0.0.1:80/`.
+The function returns the reveal transaction ID. Your inscription is now permanently stored on Bitcoin and can be viewed in the local `ord` explorer:
+
+- All inscriptions: `http://127.0.0.1/inscriptions`
+- Direct lookup by reveal transaction ID: `http://127.0.0.1/inscription/<txid>i0`
+
+> **Note:** The homepage at `http://127.0.0.1/` shows a "Latest Inscriptions" section that may appear empty — use `/inscriptions` instead.
+
+> **Note:** The `ord` server builds its index asynchronously as it scans blocks from genesis. The "Latest Inscriptions" landing page may appear empty until indexing catches up — this usually takes a few seconds after blocks are mined. You can navigate directly to your inscription using the reveal transaction ID: `http://127.0.0.1/inscription/<txid>i0`.
 
 ## Etch a Rune
 
