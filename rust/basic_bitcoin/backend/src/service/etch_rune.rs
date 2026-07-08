@@ -31,6 +31,7 @@ use ic_cdk_bitcoin_canister::{
 /// - A premine of 1,000,000 units (all supply minted to the etcher)
 /// - No open minting terms (supply is fixed at creation)
 /// - Unicode coin symbol (🪙) for display purposes
+/// - Turbo mode enabled so any name is immediately active (no unlock height)
 ///
 /// The rune metadata becomes permanently recorded in the Bitcoin blockchain
 /// as part of the OP_RETURN output, creating a new fungible token.
@@ -82,7 +83,10 @@ pub async fn etch_rune(name: String) -> String {
         rune_name: name.clone(),
         symbol: Some('🪙'), // Unicode coin symbol for display
         terms: None,        // No open minting allowed
-        turbo: false,       // Standard etching mode
+        // Turbo mode bypasses the name unlock schedule so any name can be etched
+        // immediately, regardless of the current block height. Without this flag,
+        // short names (< 13 chars) are reserved until a high future block height.
+        turbo: true,
         spacers: 0,         // No visual spacers in the name
     };
 
