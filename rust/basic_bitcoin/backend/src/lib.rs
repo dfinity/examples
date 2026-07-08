@@ -87,3 +87,5 @@ pub struct SendRequest {
     pub destination_address: String,
     pub amount_in_satoshi: u64,
 }
+
+ic_cdk::export_candid!();
