@@ -24,7 +24,12 @@ This example integrates with the Internet Computer's built-in:
 - [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 - [Rust](https://www.rust-lang.org/tools/install) v1.85+ with `wasm32-unknown-unknown` target: `rustup target add wasm32-unknown-unknown`
 - [Docker](https://docs.docker.com/get-docker/) (required to run the custom network launcher image that bundles bitcoind)
-- On macOS, an `llvm` version that supports the `wasm32-unknown-unknown` target is required. The Rust `bitcoin` library relies on the `secp256k1-sys` crate, which requires `llvm` to build. The default `llvm` version provided by XCode does not meet this requirement. Install the [Homebrew version](https://formulae.brew.sh/formula/llvm) using `brew install llvm`.
+- On macOS, a `clang` with WASM support is required to compile the `secp256k1-sys` C library for the `wasm32-unknown-unknown` target. Xcode's bundled clang does not include the WASM backend. Install the [Homebrew LLVM](https://formulae.brew.sh/formula/llvm) and add it to your PATH:
+  ```bash
+  brew install llvm
+  export PATH="$(brew --prefix llvm)/bin:$PATH"
+  ```
+  Add the `export` line to your shell profile (`~/.zshrc` or `~/.bashrc`) to make it permanent.
 
 ### Install
 
