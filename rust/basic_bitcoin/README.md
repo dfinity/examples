@@ -289,6 +289,16 @@ docker exec $CONTAINER bitcoin-cli -regtest \
 ord --config-dir . decode --txid "$TXID"
 ```
 
+### Step 6 — View in the ord explorer
+
+```bash
+echo "http://127.0.0.1/rune/ICPRUNE"
+```
+
+- All runes: `http://127.0.0.1/runes`
+
+> **Note:** The `/runes` listing page may appear empty for the same reason as `/` for inscriptions — use the direct URL above instead.
+
 The Rune is now etched with 1,000,000 tokens minted to your address. The tokens can be transferred using standard Bitcoin transactions with Runestone data.
 
 ## Deploy a BRC-20 token
