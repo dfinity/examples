@@ -268,17 +268,19 @@ echo "http://127.0.0.1/inscription/${TXID}i0"
 
 > **Note:** The homepage at `http://127.0.0.1/` shows a "Latest Inscriptions" section that may appear empty — use `/inscriptions` instead.
 
-## Etch a Rune
+## Runes
 
-[Runes](https://docs.ordinals.com/runes.html) is a fungible token protocol that embeds token metadata directly into Bitcoin transactions using `OP_RETURN` outputs. Unlike Ordinals, Runes are created in a single transaction and support standard fungible token operations.
+[Runes](https://docs.ordinals.com/runes.html) is a fungible token protocol that embeds token metadata directly into Bitcoin transactions using `OP_RETURN` outputs. Unlike Ordinals, Runes are created in a single transaction and support standard fungible token operations. Two operations make up the full lifecycle: **etch** → **transfer**.
 
-### Step 1 — Start the ord server (separate terminal)
+### Etch a Rune
+
+#### Step 1 — Start the ord server (separate terminal)
 
 ```bash
 ord --config-dir . server
 ```
 
-### Step 2 — Fund a Taproot address
+#### Step 2 — Fund a Taproot address
 
 ```bash
 ADDR=$(icp canister call backend get_p2tr_key_path_only_address '()' | grep -o '"[^"]*"' | tr -d '"')
@@ -287,7 +289,7 @@ docker exec $CONTAINER bitcoin-cli -regtest \
   generatetoaddress 101 "$ADDR"
 ```
 
-### Step 3 — Etch the Rune
+#### Step 3 — Etch the Rune
 
 The name must be uppercase, maximum 28 characters:
 
@@ -296,7 +298,7 @@ TXID=$(icp canister call backend etch_rune '("ICPRUNE")' | grep -o '"[^"]*"' | t
 echo "Rune txid: $TXID"
 ```
 
-### Step 4 — Mine a confirmation block
+#### Step 4 — Mine a confirmation block
 
 ```bash
 docker exec $CONTAINER bitcoin-cli -regtest \
@@ -304,13 +306,13 @@ docker exec $CONTAINER bitcoin-cli -regtest \
   generatetoaddress 1 "$ADDR"
 ```
 
-### Step 5 — Decode the Runestone to verify
+#### Step 5 — Decode the Runestone to verify
 
 ```bash
 ord --config-dir . decode --txid "$TXID"
 ```
 
-### Step 6 — View in the ord explorer
+#### Step 6 — View in the ord explorer
 
 ```bash
 echo "http://127.0.0.1/rune/ICPRUNE"
@@ -322,11 +324,9 @@ echo "http://127.0.0.1/rune/ICPRUNE"
 
 The Rune is now etched with 1,000,000 tokens minted to your address.
 
-## Transfer a Rune
+### Transfer a Rune
 
-This section shows how to transfer rune tokens from the canister's address to another address, proving the rune is functional and balances update on-chain.
-
-### Step 1 — Look up the rune ID
+#### Step 1 — Look up the rune ID
 
 The rune ID (block height : transaction index) is required to identify which rune to transfer. Fetch it from the ord server:
 
@@ -337,7 +337,7 @@ RUNE_TX=$(echo "$RUNE_ID" | cut -d: -f2)
 echo "Rune ID: $RUNE_BLOCK:$RUNE_TX"
 ```
 
-### Step 2 — Transfer rune tokens
+#### Step 2 — Transfer rune tokens
 
 ```bash
 DEST="bcrt1qg8qknn6f3txqg97gt8ca0ctya0vw7ep6d02qmt"
@@ -350,7 +350,7 @@ TRANSFER_TXID=$(icp canister call backend transfer_rune "(record {
 echo "Transfer txid: $TRANSFER_TXID"
 ```
 
-### Step 3 — Mine a confirmation block
+#### Step 3 — Mine a confirmation block
 
 ```bash
 docker exec $CONTAINER bitcoin-cli -regtest \
@@ -358,7 +358,7 @@ docker exec $CONTAINER bitcoin-cli -regtest \
   generatetoaddress 1 "$ADDR"
 ```
 
-### Step 4 — Verify the transfer
+#### Step 4 — Verify the transfer
 
 Decode the transfer transaction to confirm the Runestone edict is correct:
 
