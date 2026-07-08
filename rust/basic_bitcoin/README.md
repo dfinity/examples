@@ -79,63 +79,79 @@ icp canister call backend get_p2pkh_address '()'
 # or: get_p2wpkh_address, get_p2tr_key_path_only_address, get_p2tr_script_path_enabled_address
 ```
 
-## Receiving bitcoin
+## Funding and sending bitcoin: a complete walkthrough
 
-Use `bitcoin-cli` inside the running network container to mine blocks and send the block reward to a canister address:
+This walkthrough shows how to fund an address, check its balance, send bitcoin to another address, and confirm the transfer — using the bundled `bitcoind` in regtest mode.
+
+> **Coinbase maturity:** In Bitcoin, newly mined block rewards (coinbase UTXOs) cannot be spent until 100 more blocks have been mined on top. Mine at least 101 blocks upfront so the first reward is immediately spendable.
+
+### Step 1 — Get the canister's address and the container ID
 
 ```bash
-# Get the container ID of the running network launcher
 CONTAINER=$(docker ps --filter "ancestor=icp-cli-network-launcher-bitcoin" --format "{{.ID}}" | head -1)
-
-# Get an address from the canister
 ADDR=$(icp canister call backend get_p2pkh_address '()' | grep -o '"[^"]*"' | tr -d '"')
+echo "Address: $ADDR"
+```
 
-# Mine 1 block to that address
+### Step 2 — Mine 101 blocks to fund the address
+
+Mining 101 blocks ensures the first block reward (50 BTC) is past the coinbase maturity threshold and immediately spendable.
+
+```bash
+docker exec $CONTAINER bitcoin-cli -regtest \
+  -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
+  generatetoaddress 101 "$ADDR"
+```
+
+### Step 3 — Check the balance
+
+The IC Bitcoin integration syncs new blocks continuously. If the balance shows 0, wait a few seconds and retry.
+
+```bash
+icp canister call backend get_balance "(\"$ADDR\")"
+# Expected: (5_000_000_000 : nat64)  — 50 BTC in satoshis
+```
+
+### Step 4 — Send bitcoin
+
+```bash
+DEST="bcrt1qg8qknn6f3txqg97gt8ca0ctya0vw7ep6d02qmt"
+icp canister call backend send_from_p2pkh_address "(record {
+  destination_address = \"$DEST\";
+  amount_in_satoshi = 4321;
+})"
+# Returns the transaction ID
+```
+
+The transaction is now broadcast to `bitcoind`'s mempool. The destination balance will remain 0 until it is confirmed in a block.
+
+### Step 5 — Mine a confirmation block
+
+```bash
 docker exec $CONTAINER bitcoin-cli -regtest \
   -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
   generatetoaddress 1 "$ADDR"
 ```
 
-## Checking balance
-
-Check the balance of any Bitcoin address:
+### Step 6 — Verify the destination received the funds
 
 ```bash
-icp canister call backend get_balance '("<bitcoin_address>")'
+icp canister call backend get_balance "(\"$DEST\")"
+# Expected: (4_321 : nat64)
 ```
 
-This uses `bitcoin_get_balance` and works for any supported address type. The balance requires at least one confirmation to be reflected.
+## Other send endpoints
 
-## Sending bitcoin
+The same pattern (fund → send → mine confirmation block → verify) applies to the other address types:
 
-You can send bitcoin using the following endpoints:
-
-- `send_from_p2pkh_address`
 - `send_from_p2wpkh_address`
 - `send_from_p2tr_key_path_only_address`
 - `send_from_p2tr_script_path_enabled_address_key_spend`
 - `send_from_p2tr_script_path_enabled_address_script_spend`
 
-Each endpoint internally:
+Each endpoint internally estimates fees, selects UTXOs, builds a transaction, signs it using ECDSA or Schnorr, and broadcasts it via `bitcoin_send_transaction`.
 
-1. Estimates fees
-2. Looks up spendable UTXOs
-3. Builds a transaction to the target address
-4. Signs using ECDSA or Schnorr, depending on address type
-5. Broadcasts the transaction using `bitcoin_send_transaction`
-
-Example:
-
-```bash
-icp canister call backend send_from_p2pkh_address '(record {
-  destination_address = "bcrt1qg8qknn6f3txqg97gt8ca0ctya0vw7ep6d02qmt";
-  amount_in_satoshi = 4321;
-})'
-```
-
-> **Important:** Newly mined bitcoin cannot be spent until 100 additional blocks have been added to the chain. To make your bitcoin spendable, create 100 additional blocks with any valid address as the recipient.
-
-The function returns the transaction ID. When the canister is deployed on IC mainnet, you can track testnet transactions on [mempool.space](https://mempool.space/testnet4/).
+When the canister is deployed on IC mainnet, you can track testnet transactions on [mempool.space](https://mempool.space/testnet4/).
 
 ## Retrieving blockchain info
 
