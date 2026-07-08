@@ -298,7 +298,7 @@ The name must be uppercase and between 1–28 characters. The Runes protocol use
 > **Turbo mode**: The `etch_rune` implementation sets `turbo: true`, which opts the rune into future ord protocol upgrades. It does **not** bypass the name unlock schedule.
 
 ```bash
-TXID=$(icp canister call backend etch_rune '("BASICBITCOINSS")' | grep -o '"[^"]*"' | tr -d '"')
+TXID=$(icp canister call backend etch_rune '("BASICBITCOINS")' | grep -o '"[^"]*"' | tr -d '"')
 echo "Rune txid: $TXID"
 ```
 
