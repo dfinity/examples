@@ -109,7 +109,7 @@ The IC Bitcoin integration syncs new blocks continuously. If the balance shows 0
 
 ```bash
 icp canister call backend get_balance "(\"$ADDR\")"
-# Expected: (5_000_000_000 : nat64)  — 50 BTC in satoshis
+# Expected: (505_000_000_000 : nat64)  — 101 blocks × 50 BTC each
 ```
 
 ### Step 4 — Send bitcoin
