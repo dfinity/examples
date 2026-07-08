@@ -24,10 +24,10 @@ The example covers three Bitcoin address types, each backed by a different signi
 
 ### Prerequisites
 
-- Node.js
-- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
-- ic-mops: `npm install -g ic-mops`
-- Docker (required for local testing — bundles the IC network launcher + `bitcoind`)
+- [Node.js](https://nodejs.org/) v18+
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [ic-mops](https://mops.one/): `npm install -g ic-mops`
+- [Docker](https://docs.docker.com/get-docker/) (required for local testing — bundles the IC network launcher + `bitcoind`)
 
 ### Install
 
@@ -41,7 +41,8 @@ cd examples/motoko/basic_bitcoin
 The local environment uses a self-contained Docker image (`icp-cli-network-launcher-bitcoin`) that runs `bitcoind` in regtest mode alongside the IC network. Build it once:
 
 ```bash
-make build-image
+./build-image.sh
+# or: make build-image
 ```
 
 Then deploy and run tests:
@@ -55,25 +56,22 @@ icp network stop
 
 > If tests fail with an out-of-cycles error, run `make topup` and retry.
 
-### Staging (IC mainnet, Bitcoin testnet4)
+### Deploy to the IC network
+
+The `ic` environment deploys to IC mainnet connected to Bitcoin testnet4, using `test_key_1`:
 
 ```bash
-icp deploy -e staging
+icp deploy -e ic --cycles 30t
 ```
 
-### Production (IC mainnet, Bitcoin mainnet)
-
-```bash
-icp deploy -e production
-```
+> To deploy to Bitcoin mainnet, change the `init_args` for the `ic` environment in `icp.yaml` from `testnet` to `mainnet`. The canister automatically selects `key_1` (the production threshold signing key) when initialized with the `mainnet` variant.
 
 ## Environments
 
 | Environment | IC network | Bitcoin network | Key |
 |-------------|-----------|----------------|-----|
 | `local` | local (PocketIC) | regtest | `test_key_1` |
-| `staging` | IC mainnet | testnet4 | `test_key_1` |
-| `production` | IC mainnet | mainnet | `key_1` |
+| `ic` | IC mainnet | testnet4 | `test_key_1` |
 
 ## Available functions
 
