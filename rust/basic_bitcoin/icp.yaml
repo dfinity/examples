@@ -16,12 +16,10 @@ environments:
     init_args:
       backend: "(variant { regtest })"
 
-  - name: staging
+  - name: ic
     network: ic
+    # Deploys to Bitcoin testnet4 using test_key_1 by default.
+    # For Bitcoin mainnet, change to "(variant { mainnet })" — the canister
+    # automatically switches to key_1 when initialized with the mainnet variant.
     init_args:
       backend: "(variant { testnet })"
-
-  - name: production
-    network: ic
-    init_args:
-      backend: "(variant { mainnet })"

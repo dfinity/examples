@@ -38,10 +38,11 @@ cd examples/rust/basic_bitcoin
 The local network bundles bitcoind inside a custom Docker image. Build it once before starting the network:
 
 ```bash
-make build-image
+./build-image.sh
+# or: make build-image
 ```
 
-### Deploy and test
+### Deploy locally and test
 
 ```bash
 icp network start -d
@@ -51,6 +52,16 @@ icp network stop
 ```
 
 > If tests fail with an out-of-cycles error, run `make topup` to add 30 trillion cycles to the backend canister and retry.
+
+### Deploy to the IC network
+
+The `ic` environment deploys to IC mainnet connected to Bitcoin testnet4, using `test_key_1`:
+
+```bash
+icp deploy -e ic --cycles 30t
+```
+
+> To deploy to Bitcoin mainnet, change the `init_args` for the `ic` environment in `icp.yaml` from `testnet` to `mainnet`. The canister automatically selects `key_1` (the production threshold signing key) when initialized with the `mainnet` variant.
 
 ## Generating Bitcoin addresses
 
@@ -122,7 +133,7 @@ icp canister call backend send_from_p2pkh_address '(record {
 
 > **Important:** Newly mined bitcoin cannot be spent until 100 additional blocks have been added to the chain. To make your bitcoin spendable, create 100 additional blocks with any valid address as the recipient.
 
-The function returns the transaction ID. When interacting with the contract deployed on IC mainnet, you can track testnet transactions on [mempool.space](https://mempool.space/testnet4/).
+The function returns the transaction ID. When the canister is deployed on IC mainnet, you can track testnet transactions on [mempool.space](https://mempool.space/testnet4/).
 
 ## Retrieving blockchain info
 
