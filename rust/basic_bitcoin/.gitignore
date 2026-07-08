@@ -17,6 +17,6 @@ target/
 bitcoin_data
 
 # ord
-index.redb
+ord-db/
 
 canister_ids.json
