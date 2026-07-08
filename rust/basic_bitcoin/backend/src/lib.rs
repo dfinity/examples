@@ -10,7 +10,9 @@ mod schnorr;
 mod service;
 
 use ic_cdk::{init, post_upgrade};
-use ic_cdk_bitcoin_canister::Network;
+use ic_cdk_bitcoin_canister::{
+    BlockchainInfo, GetBlockHeadersResponse, GetUtxosResponse, MillisatoshiPerByte, Network,
+};
 use std::cell::Cell;
 
 /// Runtime configuration shared across all Bitcoin-related operations.
