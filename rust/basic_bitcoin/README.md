@@ -218,6 +218,8 @@ CONTAINER=$(docker ps --filter "ancestor=icp-cli-network-launcher-bitcoin" --for
 
 > **Note:** This repository includes a [default ord config file](./ord.yaml) that matches the also provided [bitcoin config file](./bitcoin.conf).
 
+> **Fresh network:** When you restart with `icp network start`, the ord server may show stale data from a previous session. Ord stores its index in `index.redb` (inside the `basic_bitcoin` directory) and does not clear it automatically when the Bitcoin node resets. Ord detects the chain change and reindexes as soon as the first block is mined in the new instance — the mining step in the walkthrough below takes care of this. To start completely clean, delete `index.redb` before starting the ord server.
+
 > **Important — Bitcoin Configuration:** To work with Bitcoin assets, make sure bitcoind is configured to accept non-standard transactions by including this setting in your `bitcoin.conf`:
 >
 > ```
