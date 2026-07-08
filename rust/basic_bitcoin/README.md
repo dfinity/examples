@@ -291,10 +291,12 @@ docker exec $CONTAINER bitcoin-cli -regtest \
 
 #### Step 3 — Etch the Rune
 
-The name must be uppercase, maximum 28 characters:
+The name must be uppercase and between 1–28 characters. The Runes protocol reserves short names until a future Bitcoin block height — names with 12 or more characters are available immediately in regtest. Using a shorter name (e.g. 7 characters) means the rune won't receive an active ID until block ~87,500+ is mined, making it unusable for transfers.
+
+> **Turbo mode**: The `etch_rune` implementation sets `turbo: true`, which opts the rune into future ord protocol upgrades. It does **not** bypass the name unlock schedule.
 
 ```bash
-TXID=$(icp canister call backend etch_rune '("ICPRUNE")' | grep -o '"[^"]*"' | tr -d '"')
+TXID=$(icp canister call backend etch_rune '("BASICBITCOIN")' | grep -o '"[^"]*"' | tr -d '"')
 echo "Rune txid: $TXID"
 ```
 
@@ -315,7 +317,7 @@ ord --config-dir . decode --txid "$TXID"
 #### Step 6 — View in the ord explorer
 
 ```bash
-echo "http://127.0.0.1/rune/ICPRUNE"
+echo "http://127.0.0.1/rune/BASICBITCOIN"
 ```
 
 - All runes: `http://127.0.0.1/runes`
@@ -328,15 +330,17 @@ The Rune is now etched with 1,000,000 tokens minted to your address.
 
 #### Step 1 — Look up the rune ID
 
-The rune ID (block height : transaction index) is required to identify which rune to transfer. Fetch it from the ord server:
+The rune ID (block height : transaction index) is required to identify which rune to transfer. Fetch it from the ord JSON API:
 
 ```bash
-RUNE_ID=$(curl -s -H "Accept: application/json" http://127.0.0.1/rune/ICPRUNE | \
+RUNE_ID=$(curl -s -H "Accept: application/json" http://127.0.0.1/rune/BASICBITCOIN | \
   tr -d '[:space:]' | grep -o '"id":"[0-9]*:[0-9]*"' | cut -d'"' -f4)
 RUNE_BLOCK=$(echo "$RUNE_ID" | cut -d: -f1)
 RUNE_TX=$(echo "$RUNE_ID" | cut -d: -f2)
 echo "Rune ID: $RUNE_BLOCK:$RUNE_TX"
 ```
+
+> **Why 12+ characters?** The ord indexer only assigns a rune ID once the rune's name reaches its unlock height. Names shorter than 12 characters have unlock heights of 17,500–105,000+ blocks in regtest, which is impractical. With a 12-character name like `BASICBITCOIN`, the rune is immediately active and the JSON response includes its `"id"` field.
 
 #### Step 2 — Transfer rune tokens
 

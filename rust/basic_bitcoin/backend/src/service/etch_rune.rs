@@ -83,9 +83,9 @@ pub async fn etch_rune(name: String) -> String {
         rune_name: name.clone(),
         symbol: Some('🪙'), // Unicode coin symbol for display
         terms: None,        // No open minting allowed
-        // Turbo mode bypasses the name unlock schedule so any name can be etched
-        // immediately, regardless of the current block height. Without this flag,
-        // short names (< 13 chars) are reserved until a high future block height.
+        // Turbo mode opts this rune into future protocol upgrades proposed by the
+        // ord developers. It does NOT bypass the name unlock schedule — use a
+        // name of 12+ characters to ensure the rune is active from block 0 in regtest.
         turbo: true,
         spacers: 0,         // No visual spacers in the name
     };
