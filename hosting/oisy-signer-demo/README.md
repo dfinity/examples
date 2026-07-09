@@ -12,18 +12,18 @@ Testnet tokens can be obtained for free using the [ICP Faucet](https://faucet.in
 
 The `/frontend` folder contains the web assets for the application's user interface, built with React, Vite, and Tailwind CSS.
 
-## Deploying from ICP Ninja
+<!-- ## Deploying from ICP Ninja
 
-This example can be deployed directly from [ICP Ninja](https://icp.ninja), a browser-based IDE for ICP. To continue developing locally after deploying from ICP Ninja, see [BUILD.md](BUILD.md).
+This example can be deployed directly from [ICP Ninja](https://icp.ninja), a browser-based IDE for ICP.
 
-<!-- [![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/hosting/oisy-signer-demo) -->
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/hosting/oisy-signer-demo) -->
 
 ## Build and deploy from the command line
 
 ### Prerequisites
 
-- Node.js
-- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Node.js](https://nodejs.org/) v18+
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
 ### Install
 
