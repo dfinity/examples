@@ -5,4 +5,5 @@ canisters:
       configuration:
         dir: frontend/dist
         build:
+          - npm install --prefix frontend
           - npm run build --prefix frontend
