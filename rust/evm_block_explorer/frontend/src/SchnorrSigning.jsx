@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { backend } from './actor';
 
-function Block() {
+function SchnorrSigning() {
   const [loading, setLoading] = useState(false);
   const [loading2, setLoading2] = useState(false);
   const [key, setKey] = useState();
@@ -81,6 +81,8 @@ function Block() {
           {loading2 ? 'Signing...' : 'Sign'}
         </button>
       </div>
+
+      {error && <p className="text-sm text-red-500">{error}</p>}
 
       {signature && (
         <div className="rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
