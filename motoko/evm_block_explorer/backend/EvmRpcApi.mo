@@ -2,7 +2,7 @@ import Runtime "mo:core/Runtime";
 
 module {
   // Inline actor type for the EVM RPC canister, exposing only eth_getBlockByNumber.
-  // Full Candid interface: https://github.com/dfinity/evm-rpc-canister/releases/latest/download/evm_rpc.did
+  // Full Candid interface: https://github.com/dfinity/evm-rpc-canister/blob/main/candid/evm_rpc.did
 
   public type Block = {
     miner : Text;
