@@ -48,8 +48,7 @@ thread_local! {
 /// Internal shared init logic used both by init and post-upgrade hooks.
 fn init_upgrade(network: Network) {
     let key_name = match network {
-        Network::Regtest => "dfx_test_key",
-        Network::Testnet => "test_key_1",
+        Network::Regtest | Network::Testnet => "test_key_1",
         Network::Mainnet => "key_1",
     };
 
