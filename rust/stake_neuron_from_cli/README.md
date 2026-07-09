@@ -1,121 +1,96 @@
 # Neuron Staking from CLI
 
-This example demonstrates how to stake ICP to create an NNS Governance neuron.
+This example demonstrates how to stake ICP to create an NNS Governance neuron from a **Rust CLI binary** using [`ic-agent`](https://crates.io/crates/ic-agent). The core logic lives in `src/lib.rs` and can be adapted for any Rust application that needs to stake ICP programmatically.
+
+[icp-cli](https://cli.internetcomputer.org/) is used **only for local development** — to start a local IC replica with NNS canisters pre-deployed. The Rust binary connects directly to the IC via `ic-agent` and does not depend on icp-cli at runtime.
+
+Before diving in, you may want to try [nns.internetcomputer.org](https://nns.internetcomputer.org/) first — it offers an interactive introduction to staking neurons and voting without writing any code.
 
 ## What you can learn
 
-### 1. **Neuron Staking Subaccount Calculation**
+### 1. Neuron Staking Subaccount Calculation
 
-The neuron staking subaccount is the most critical thing to get right when staking a neuron.  
-If you send your ICP to the wrong subaccount, the ICP will be permanently lost, as there will not be a way
-to ask the Governance canister to retrieve it.
+The neuron staking subaccount is the most critical thing to get right.
+If ICP is sent to the wrong subaccount it is permanently lost — the Governance canister cannot retrieve it.
 
-Therefore, test your implementation (like in this example project) against a test version of Governance to ensure
-that it is able to send the ICP to the right destination.
+The subaccount is a SHA-256 hash over these four inputs in order:
+
+1. `12` — the length of the domain separator (one byte)
+2. `"neuron-stake"` — the domain separator
+3. controller principal as raw bytes (not the text form)
+4. nonce as big-endian u64
 
 ```rust
-/// Compute the subaccount for neuron staking
-fn compute_neuron_staking_subaccount(controller: Principal, nonce: u64) -> [u8; 32] {
-    let domain_length: [u8; 1] = [b"neuron-stake".len() as u8];
+pub fn compute_neuron_staking_subaccount(controller: Principal, nonce: u64) -> Subaccount {
+    let domain = b"neuron-stake";
     let mut hasher = Sha256::new();
-    hasher.update(&domain_length);
-    hasher.update(b"neuron-stake");
+    hasher.update([domain.len() as u8]);
+    hasher.update(domain);
     hasher.update(controller.as_slice());
-    hasher.update(&nonce.to_be_bytes());
-    hasher.finalize().into()
+    hasher.update(nonce.to_be_bytes());
+    Subaccount(hasher.finalize().into())
 }
 ```
 
-### 2. **Two-Step Neuron Creation Process**
+Use `--compute-only` to verify the subaccount for a given identity and nonce before sending any ICP:
 
-The neuron creation flow requires first making a ledger transfer, and then sending a message to tell
-NNS Governance about the transfer you made so that it can create a neuron.
-
-1. **Transfer ICP** → Transfer tokens to NNS Governance at the computed subaccount
-2. **Claim Neuron** → Call `claim_or_refresh_neuron_from_account` to create the neuron
-
-```rust
-// Step 1: Transfer ICP to the computed subaccount
-let to_account = AccountIdentifier::new( & governance_principal, & subaccount);
-let transfer_args = TransferArgs {
-memo: Memo(args.nonce),
-amount: Tokens::from_e8s(args.amount),
-fee: DEFAULT_FEE, // Standard ICP transfer fee
-from_subaccount: None,
-to: to_account,
-created_at_time: None,
-};
-
-let transfer_result_bytes = agent
-.update( & Principal::from_text(ICP_LEDGER_CANISTER_ID) ?, "transfer")
-.with_arg(Encode!(&transfer_args)?)
-.call_and_wait()
-.await?;
-
-// Step 2: Claim the neuron using the same nonce
-let claim_request = ClaimOrRefreshNeuronFromAccount {
-controller: Some(controller),
-memo: args.nonce,
-};
-
-let claim_result_bytes = agent
-.update(
-& governance_principal,
-"claim_or_refresh_neuron_from_account",
-)
-.with_arg(Encode!(&claim_request)?)
-.call_and_wait()
-.await?;
+```bash
+./target/release/stake_neuron_from_cli --compute-only --identity identity.pem --nonce 0
 ```
 
-### 3. **Identity Management with ic-agent**
+### 2. Two-Step Neuron Creation Process
 
-Additionally, you can see how you can use ic-agent to use different key formats to send messages.
+1. **Transfer ICP** to the Governance canister at the computed staking subaccount.
+2. **Claim the neuron** by calling `claim_or_refresh_neuron_from_account` on Governance.
 
-```rust
-async fn load_identity(identity_path: &PathBuf) -> Result<Box<dyn Identity>, Box<dyn std::error::Error>> {
-    let pem_content = std::fs::read_to_string(identity_path)?;
+The `memo` in the ledger transfer is just a label on the transaction and does not need to match anything in step 2. What matters is that the `nonce` (used to derive the staking subaccount in step 1) matches the `memo` field passed to `claim_or_refresh_neuron_from_account` in step 2 — that is how Governance recomputes the expected subaccount and verifies the funds.
 
-    // Try different identity formats
-    if let Ok(identity) = BasicIdentity::from_pem(pem_content.as_bytes()) {
-        return Ok(Box::new(identity));
-    }
+Note: **anyone can complete step 2**. The neuron's controller is determined entirely by the subaccount derived in step 1, regardless of who calls `claim_or_refresh_neuron_from_account`.
 
-    if let Ok(identity) = Secp256k1Identity::from_pem(pem_content.as_bytes()) {
-        return Ok(Box::new(identity));
-    }
+The minimum staking amount enforced by NNS Governance is 100,000,000 e8s (1 ICP). The ICP transfer fee of 10,000 e8s is charged on top.
 
-    Err("Could not parse identity file".into())
-}
-```
+> **A simpler alternative**: NNS Governance now supports a `create_neuron` method that accepts an ICRC-2 approval, handling the transfer atomically. This is safer because the ICP stays in the caller's account until Governance successfully claims it — there is no window where funds can be stranded at the staking subaccount. icp-cli support for this flow is being tracked at [dfinity/icp-cli#637](https://github.com/dfinity/icp-cli/pull/637).
 
-## Running the Example
+## Build and run from the command line
 
 ### Prerequisites
 
-1. **Install dfx**:
-   Follow [DFINITY SDK installation](https://internetcomputer.org/docs/current/developer-docs/setup/install/)
-2. **Rust toolchain**: `curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs/ | sh`
+- [Rust](https://www.rust-lang.org/tools/install) v1.85+
+- [icp-cli](https://cli.internetcomputer.org/) — only needed for local testing to start a local IC replica with NNS canisters. Install via npm (requires [Node.js](https://nodejs.org/) v18+):
+  ```bash
+  npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm
+  ```
+  Or use one of the [alternative installation methods](https://cli.internetcomputer.org/1.0/guides/installation/#alternative-installation-methods) if you prefer to avoid Node.js.
 
-### Run the script 
-```bash
-# Set up local NNS and run example
-chmod +x setup_and_run.sh
-./setup_and_run.sh
-```
-
-This will:
-
-1. Start a local IC replica
-2. Deploy ICP Ledger and NNS Governance canisters with basic configuration
-3. Run the staking example
-4. Leave the environment running for inspection
-
-### Inspecting Results
-
-After running locally, you can verify the neuron was created:
+### Install
 
 ```bash
-# Query the governance canister
-dfx canister call nns_governance list_neurons "(record {neuron_ids=vec{}; include_neurons_readable_by_caller=true})"
+git clone https://github.com/dfinity/examples
+cd examples/rust/stake_neuron_from_cli
 ```
+
+### Run locally
+
+```bash
+icp network start -d   # starts a local IC replica with NNS canisters
+bash test.sh           # builds the binary, creates a funded test identity, runs the staking flow
+icp network stop
+```
+
+### Run on mainnet
+
+icp-cli is not required for mainnet. Build the binary and run it directly:
+
+```bash
+cargo build --release
+
+./target/release/stake_neuron_from_cli \
+  --identity /path/to/identity.pem \
+  --url https://icp-api.io \
+  --amount-e8s 100000000 \
+  --nonce 0
+```
+
+## Security considerations and best practices
+
+Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app.
