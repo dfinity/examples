@@ -197,14 +197,22 @@ pub fn build_transfer_script(edicts: &[Edict], pointer: Option<u32>) -> Result<S
 
     // Edicts are encoded as groups of 4 LEB128 integers: [block, tx, amount, output].
     // Block and tx use delta encoding relative to the previous edict's rune ID.
+    // Edicts must arrive in ascending rune-ID order; underflow means caller violated that invariant.
     let mut prev_block: u64 = 0;
     let mut prev_tx: u32 = 0;
     for edict in edicts {
-        let block_delta = edict.rune_id_block - prev_block;
+        let block_delta = edict
+            .rune_id_block
+            .checked_sub(prev_block)
+            .ok_or("Edicts must be sorted by rune ID in ascending order")?;
         // When the block delta is 0 (same block), tx is a delta from the previous tx.
         // When the block delta is non-zero (different block), tx is an absolute value.
         let tx_encoded = if block_delta == 0 {
-            (edict.rune_id_tx - prev_tx) as u64
+            edict
+                .rune_id_tx
+                .checked_sub(prev_tx)
+                .ok_or("Edicts within the same block must be sorted by tx index in ascending order")?
+                as u64
         } else {
             edict.rune_id_tx as u64
         };
@@ -296,9 +304,9 @@ pub fn build_etching_script(etching: &Etching) -> Result<ScriptBuf, String> {
         payload.extend_from_slice(&encode_leb128(etching.divisibility as u64));
     }
 
-    // Tag 2: Flags
+    // Tag 2: Flags (u128 — Cenotaph flag sits at bit 127)
     payload.extend_from_slice(&encode_leb128(Tag::Flags as u64));
-    payload.extend_from_slice(&encode_leb128(flags as u64));
+    payload.extend_from_slice(&encode_leb128_u128(flags));
 
     // Tag 3: Spacers (odd tag)
     if etching.spacers > 0 {

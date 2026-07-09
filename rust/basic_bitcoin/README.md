@@ -4,8 +4,6 @@ This example demonstrates how a canister can receive and send bitcoin on the Int
 
 This example also includes how to work with Bitcoin assets such as Ordinals, Runes, and BRC-20 tokens.
 
-See also the [Motoko version](../../motoko/basic_bitcoin).
-
 ## Architecture
 
 For a deeper understanding of the ICP ↔ Bitcoin integration, see the [Bitcoin integration concepts](https://docs.internetcomputer.org/concepts/chain-fusion/bitcoin).

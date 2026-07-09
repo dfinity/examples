@@ -26,9 +26,9 @@ pub fn select_utxos_greedy(
 ) -> Result<Vec<&Utxo>, String> {
     // Greedily select UTXOs in reverse order (oldest last) until we cover amount + fee.
     let mut utxos_to_spend = vec![];
-    let mut total_spent = 0;
+    let mut total_spent: u64 = 0;
     for utxo in own_utxos.iter().rev() {
-        total_spent += utxo.value;
+        total_spent = total_spent.saturating_add(utxo.value);
         utxos_to_spend.push(utxo);
         if total_spent >= amount + fee {
             break;

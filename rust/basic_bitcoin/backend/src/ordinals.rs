@@ -1,4 +1,5 @@
 use crate::{schnorr::sign_with_schnorr, BitcoinContext};
+use ic_cdk::trap;
 use bitcoin::{
     absolute::LockTime,
     hashes::Hash,
@@ -218,7 +219,12 @@ fn build_rune_etch_transaction_with_fee(
         script_pubkey: runestone_script.clone(),
     };
 
-    let change_sats = commit_value.saturating_sub(fee);
+    let change_sats = commit_value.checked_sub(fee).unwrap_or_else(|| {
+        trap(format!(
+            "Etch fee ({} sats) exceeds commit output value ({} sats)",
+            fee, commit_value
+        ))
+    });
     let mut outputs = vec![runestone_output];
     // Only add change output if above dust threshold.
     if change_sats >= 1_000 {
