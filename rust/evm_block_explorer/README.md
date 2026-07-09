@@ -4,23 +4,23 @@
 
 ## Overview
 
-The EVM Block Explorer example demonstrates how an ICP smart contract can obtain information directly from other blockchain networks. Using HTTPS outcalls, smart contracts on ICP can interact with other networks without needing to go through a third-party service such as a bridge or an oracle. Supported interactions with other chains include querying network data, signing transactions, and submitting transactions directly to other networks.
-In this example, you'll also see how to sign transactions with canister ECDSA or Schnorr signatures.
+The EVM Block Explorer example demonstrates how an ICP canister can fetch block data directly from Ethereum and other EVM-compatible chains. Using HTTPS outcalls via the [EVM RPC canister](https://github.com/dfinity/evm-rpc-canister), canisters on ICP can read on-chain data without a bridge or oracle. The same pattern applies to any EVM-compatible chain supported by the EVM RPC canister.
 
+<!--
 ## Deploying from ICP Ninja
 
-This example can be deployed directly from [ICP Ninja](https://icp.ninja), a browser-based IDE for ICP. To continue developing locally after deploying from ICP Ninja, see [BUILD.md](BUILD.md).
+This example can be deployed directly from [ICP Ninja](https://icp.ninja), a browser-based IDE for ICP.
 
 [![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/rust/evm_block_explorer)
-
-> **Note:** ICP Ninja currently uses `dfx` under the hood, which is why this example includes a `dfx.json` configuration file. `dfx` is the legacy CLI, being superseded by [icp-cli](https://cli.icp.build), which is what developers should use for local development.
+-->
 
 ## Build and deploy from the command line
 
 ### Prerequisites
 
-- [x] Install [Node.js](https://nodejs.org/en/download/)
-- [x] Install [icp-cli](https://cli.icp.build): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Node.js](https://nodejs.org/) v18+
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Rust](https://www.rust-lang.org/tools/install) with `wasm32-unknown-unknown` target: `rustup target add wasm32-unknown-unknown`
 
 ### Install
 
@@ -31,24 +31,29 @@ git clone https://github.com/dfinity/examples
 cd examples/rust/evm_block_explorer
 ```
 
-### Deployment
+### Deploy and test
 
-Start the local network:
+Start the local network, deploy all canisters (including the local EVM RPC canister), and run the tests:
 
 ```bash
 icp network start -d
-```
-
-Deploy the canisters:
-
-```bash
 icp deploy
+bash test.sh
+icp network stop
 ```
 
-Stop the local network when done:
+To start a frontend dev server with hot reload during frontend development:
 
 ```bash
-icp network stop
+npm run dev --prefix frontend
+```
+
+### Deploying on ICP mainnet
+
+On mainnet, the `evm_rpc` canister is already deployed at `7hfb6-caaaa-aaaar-qadga-cai`. Deploy only the backend and frontend — icp-cli injects the correct canister ID via the `ic` environment configuration in `icp.yaml`:
+
+```bash
+icp deploy -e ic
 ```
 
 ## Updating the Candid interface
@@ -58,10 +63,15 @@ The `backend/backend.did` file defines the backend canister's public interface. 
 If you modify the backend's public API, rebuild the canister and regenerate the `.did` file:
 
 ```bash
-icp build backend
-candid-extractor target/wasm32-unknown-unknown/release/backend.wasm > backend/backend.did
+icp build backend && candid-extractor target/wasm32-unknown-unknown/release/backend.wasm > backend/backend.did
 ```
+
+## RPC providers and API keys
+
+The example uses [PublicNode](https://ethereum-rpc.publicnode.com) by default — a free, no-registration provider that works out of the box locally and on mainnet. This is sufficient for getting started and automated testing.
+
+For production deployments requiring premium providers (Alchemy, Ankr, BlockPi), refer to the [EVM RPC canister documentation](https://github.com/dfinity/evm-rpc-canister) for how to configure API keys. Once configured, change `RpcServices::EthMainnet(Some(vec![EthMainnetService::PublicNode]))` in `backend/src/lib.rs` to `RpcServices::EthMainnet(None)` to use all configured providers for better consensus.
 
 ## Security considerations and best practices
 
-If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://docs.internetcomputer.org/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
+If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for developing on ICP. This example may not implement all the best practices.
