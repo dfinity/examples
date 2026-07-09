@@ -6,13 +6,14 @@
 
 This example demonstrates how to use the ICP HTTPS outcalls feature to make a `POST` request from a Rust canister. It sends a plain-text body to `postman-echo.com/post`, which echoes back the request as JSON, allowing you to verify the POST body and headers were sent correctly.
 
-For a deeper understanding of HTTPS outcalls on the IC, see the [HTTPS outcalls documentation](https://docs.internetcomputer.org/building-apps/network-features/using-http/https-outcalls/post).
+For a deeper understanding of HTTPS outcalls on the IC, see the [HTTPS outcalls documentation](https://docs.internetcomputer.org/concepts/https-outcalls/).
 
 ## Build and deploy from the command line
 
 ### Prerequisites
-- Node.js
-- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Node.js](https://nodejs.org/) v18+
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Rust](https://www.rust-lang.org/tools/install) with `wasm32-unknown-unknown` target: `rustup target add wasm32-unknown-unknown`
 
 ### Install
 ```bash
