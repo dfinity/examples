@@ -1,0 +1,30 @@
+name: evm_block_explorer
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    paths:
+      - rust/evm_block_explorer/**
+      - .github/workflows/evm_block_explorer.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust-evm_block_explorer:
+    runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-rust:1.0.1
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Install Node.js dependencies
+        run: npm install --prefix rust/evm_block_explorer/frontend
+      - name: Deploy and test
+        working-directory: rust/evm_block_explorer
+        run: |
+          icp network start -d
+          icp deploy
+          bash test.sh
