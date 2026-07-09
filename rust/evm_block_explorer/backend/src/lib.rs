@@ -60,7 +60,15 @@ async fn get_evm_block(height: u128) -> Result<Block, String> {
     match result {
         MultiRpcResult::Consistent(Ok(block)) => Ok(block),
         MultiRpcResult::Consistent(Err(err)) => Err(format!("{err:?}")),
-        MultiRpcResult::Inconsistent(v) => Err(format!("RPC providers gave inconsistent results: {:?}", v)),
+        // Some providers may be temporarily unavailable while others succeed.
+        // If at least one returned Ok, use it; only fail if every provider errored.
+        MultiRpcResult::Inconsistent(responses) => {
+            if let Some(block) = responses.into_iter().find_map(|(_, r)| r.ok()) {
+                Ok(block)
+            } else {
+                Err("All RPC providers failed to return a block".to_string())
+            }
+        }
     }
 }
 
