@@ -29,12 +29,14 @@ echo "Nonce 0: $sub_n0"
 echo "Nonce 1: $sub_n1"
 [ "$sub_n0" != "$sub_n1" ] && echo "PASS" || (echo "FAIL: different nonces produced the same subaccount" && exit 1)
 
+echo "=== Setup: fund test identity with 2 ICP ==="
+# 2 ICP rather than 1: the minimum stake is 1 ICP (100_000_000 e8s) and the
+# ledger charges a 10_000 e8s transfer fee on top, so 1 ICP alone is not enough.
+icp token transfer 2 "$PRINCIPAL"
+
 echo "=== Test 3: stake_neuron rejects amount below 1 ICP minimum ==="
 "$BINARY" --url "$URL" --identity /tmp/stake-neuron-test.pem --amount-e8s 99999999 --nonce 0 2>&1 | \
   grep -q "100_000_000" && echo "PASS" || (echo "FAIL" && exit 1)
-
-echo "=== Setup: fund test identity with 2 ICP ==="
-icp token transfer 2 "$PRINCIPAL"
 
 echo "=== Test 4: stake 1 ICP and receive a neuron ID ==="
 output=$("$BINARY" --url "$URL" --identity /tmp/stake-neuron-test.pem --amount-e8s 100000000 --nonce 0)

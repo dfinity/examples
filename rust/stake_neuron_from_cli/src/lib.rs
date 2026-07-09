@@ -37,9 +37,13 @@ pub async fn stake_neuron(args: StakeNeuronArgs) -> Result<(), Box<dyn std::erro
         .with_url(&args.ic_url)
         .with_identity(identity)
         .build()?;
-    // fetch_root_key is only needed for local networks; on mainnet the root key is
-    // compiled into ic-agent and this call is a no-op.
-    agent.fetch_root_key().await?;
+    // On local networks, fetch and trust the replica's root key.
+    // Never call this against mainnet: a rogue node could return a fake key, and
+    // ic-agent already has the real mainnet root key compiled in.
+    let is_local = args.ic_url.contains("localhost") || args.ic_url.contains("127.0.0.1");
+    if is_local {
+        agent.fetch_root_key().await?;
+    }
 
     println!("Controller : {controller}");
     println!("Amount     : {} e8s ({} ICP)", args.amount_e8s, args.amount_e8s as f64 / 1e8);
@@ -59,6 +63,8 @@ pub async fn stake_neuron(args: StakeNeuronArgs) -> Result<(), Box<dyn std::erro
         fee: Tokens::from_e8s(10_000),
         from_subaccount: None,
         to: AccountIdentifier::new(&governance, &new_neuron_subaccount),
+        // Setting created_at_time enables transaction deduplication (safe retries).
+        // See https://docs.internetcomputer.org/guides/digital-assets/ledgers/#transaction-deduplication
         created_at_time: None,
     };
 
@@ -134,6 +140,8 @@ fn hex_encode(bytes: &[u8]) -> String {
 }
 
 // ── Candid types for NNS Governance ─────────────────────────────────────────
+// Minimal subset of the full interface. Full definition:
+// https://github.com/dfinity/ic/blob/master/rs/nns/governance/canister/governance.did
 
 #[derive(CandidType, Deserialize, Debug)]
 struct ClaimOrRefreshNeuronFromAccount {
