@@ -25,8 +25,9 @@ This example uses the `build.sh` script to build for Wasm64 using Rust's nightly
 
 ### Prerequisites
 
-- Node.js
-- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Node.js](https://nodejs.org/) v18+
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Rust](https://www.rust-lang.org/tools/install) with nightly toolchain (installed automatically by `build.sh`)
 
 ### Install
 
