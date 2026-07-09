@@ -57,3 +57,5 @@ async fn send_http_post_request() -> String {
     }
 }
 // #endregion post_request
+
+ic_cdk::export_candid!();
