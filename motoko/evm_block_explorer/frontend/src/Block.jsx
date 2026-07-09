@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { backend } from 'declarations/backend';
+import { backend } from './actor';
 import { JsonView, allExpanded, defaultStyles } from 'react-json-view-lite';
 import 'react-json-view-lite/dist/index.css';
 
@@ -9,13 +9,18 @@ function Block() {
   const [error, setError] = useState();
   const [blockNumber, setBlockNumber] = useState('');
 
+  const isValid = blockNumber !== '' && Number.isInteger(Number(blockNumber)) && Number(blockNumber) >= 0;
+
   const fetchBlock = async () => {
     try {
       setLoading(true);
       setError(undefined);
-      // Convert the block number string to BigInt for the backend call
-      const block = await backend.get_evm_block(BigInt(blockNumber || 420));
-      setBlock(block);
+      const result = await backend.get_evm_block(BigInt(blockNumber));
+      if ('Ok' in result) {
+        setBlock(result.Ok);
+      } else {
+        setError(result.Err);
+      }
     } catch (err) {
       console.error(err);
       setError(String(err));
@@ -32,6 +37,7 @@ function Block() {
         <div className="flex items-center space-x-4">
           <input
             type="number"
+            min="0"
             value={blockNumber}
             onChange={(e) => setBlockNumber(e.target.value)}
             placeholder="Enter block number"
@@ -39,8 +45,8 @@ function Block() {
           />
           <button
             onClick={fetchBlock}
-            disabled={loading}
-            className={`w-full rounded-lg px-6 py-3 text-sm font-medium md:w-auto ${loading ? 'cursor-not-allowed bg-gray-300 text-gray-700' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
+            disabled={loading || !isValid}
+            className={`w-full rounded-lg px-6 py-3 text-sm font-medium md:w-auto ${loading || !isValid ? 'cursor-not-allowed bg-gray-300 text-gray-700' : 'bg-blue-500 text-white hover:bg-blue-600'}`}
           >
             {loading ? 'Loading...' : 'Fetch block'}
           </button>
