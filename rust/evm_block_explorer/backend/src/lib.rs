@@ -6,7 +6,7 @@ use ic_cdk_management_canister::{
     SignWithEcdsaArgs, SignWithSchnorrArgs,
 };
 
-const KEY_NAME: &str = "test_key_1";
+const KEY_NAME: &str = "test_key_1"; // Use "key_1" for production
 
 /// Resolve the EVM RPC canister ID at runtime. icp-cli sets the
 /// `PUBLIC_CANISTER_ID:evm_rpc` env var for local deployments; on production

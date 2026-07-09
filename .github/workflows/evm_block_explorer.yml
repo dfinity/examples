@@ -20,8 +20,6 @@ jobs:
       ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-      - name: Install Node.js dependencies
-        run: npm install --prefix rust/evm_block_explorer/frontend
       - name: Deploy and test
         working-directory: rust/evm_block_explorer
         run: |
