@@ -74,8 +74,6 @@ pub fn select_one_utxo(own_utxos: &[Utxo], amount: u64, fee: u64) -> Result<Vec<
 pub enum PrimaryOutput {
     /// Pay someone (spendable output).
     Address(Address, u64), // destination address, amount in satoshis
-    /// Embed data (unspendable OP_RETURN output).
-    OpReturn(ScriptBuf), // script already starts with OP_RETURN
 }
 
 /// Constructs a Bitcoin transaction from the given UTXOs and primary output specification.
@@ -141,10 +139,6 @@ pub fn build_transaction_with_fee(
         PrimaryOutput::Address(addr, amt) => outputs.push(TxOut {
             script_pubkey: addr.script_pubkey(),
             value: Amount::from_sat(*amt),
-        }),
-        PrimaryOutput::OpReturn(script) => outputs.push(TxOut {
-            script_pubkey: script.clone(),
-            value: Amount::from_sat(0), // OP_RETURN outputs carry no bitcoin value
         }),
     }
 

@@ -1,4 +1,5 @@
 pub mod etch_rune;
+pub mod get_rune_address;
 pub mod transfer_rune;
 pub mod get_balance;
 pub mod get_blockchain_info;
@@ -13,6 +14,7 @@ pub mod inscribe_brc20;
 pub mod mint_brc20;
 pub mod transfer_brc20;
 pub mod inscribe_ordinal;
+pub mod transfer_ordinal;
 pub mod send_from_p2pkh_address;
 pub mod send_from_p2tr_key_path_only_address;
 pub mod send_from_p2tr_script_path_enabled_address_key_spend;

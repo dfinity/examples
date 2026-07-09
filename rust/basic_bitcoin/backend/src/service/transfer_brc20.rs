@@ -82,24 +82,21 @@ pub async fn transfer_brc20(request: TransferBrc20Request) -> String {
     // --- Step 1 & 2: Commit + Reveal ---
     // The reveal output goes to the canister's own address, placing the transfer
     // inscription at the sender's address as required by the BRC-20 spec.
-    // `commit_and_reveal` returns the reveal txid; the inscription is at vout 0.
-    let reveal_txid_str = commit_and_reveal(&ctx, &brc20_json, &own_address).await;
+    // Returns (reveal_txid, actual reveal output value in sats).
+    let (reveal_txid_str, reveal_output_value) =
+        commit_and_reveal(&ctx, &brc20_json, &own_address).await;
 
     // --- Step 3: Send the inscription UTXO to the recipient ---
     // Spending reveal_txid:0 moves the inscription from sender to recipient,
     // which BRC-20 indexers interpret as the token transfer completing.
     let reveal_txid = Txid::from_str(&reveal_txid_str).unwrap();
 
-    // The reveal output value was set by ordinals::INSCRIPTION_OUTPUT_VALUE minus reveal fee.
-    // We query it from the reveal transaction's known constant rather than waiting for
-    // confirmation — Bitcoin allows spending unconfirmed outputs (CPFP).
-    // Use a conservative estimate: INSCRIPTION_OUTPUT_VALUE (15_000 sat) minus a
-    // generous max reveal fee of 2_000 sat leaves at least 13_000 sat for the send step.
-    // The iterative fee loop below adjusts the exact send output value.
-    const MIN_INSCRIPTION_VALUE: u64 = 13_000;
-
+    // BIP341 Taproot key-path signatures commit to the exact prevout amounts.
+    // We must use the actual reveal output value (INSCRIPTION_OUTPUT_VALUE minus
+    // the reveal fee) — not a hardcoded estimate — otherwise the signature is
+    // cryptographically invalid and Bitcoin nodes reject the send transaction.
     let send_prevout = TxOut {
-        value: Amount::from_sat(MIN_INSCRIPTION_VALUE),
+        value: Amount::from_sat(reveal_output_value),
         script_pubkey: own_address.script_pubkey(),
     };
 
@@ -107,7 +104,7 @@ pub async fn transfer_brc20(request: TransferBrc20Request) -> String {
     let mut send_fee = 0u64;
 
     let signed_send_tx = loop {
-        let output_value = MIN_INSCRIPTION_VALUE
+        let output_value = reveal_output_value
             .checked_sub(send_fee)
             .unwrap_or_else(|| trap("inscription value insufficient to cover send fee"));
 

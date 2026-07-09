@@ -56,5 +56,5 @@ pub async fn inscribe_brc20(tick: String) -> String {
     let secp = Secp256k1::new();
     let funding_address = Address::p2tr(&secp, internal_key, None, ctx.bitcoin_network);
 
-    commit_and_reveal(&ctx, &brc20_json, &funding_address).await
+    commit_and_reveal(&ctx, &brc20_json, &funding_address).await.0
 }

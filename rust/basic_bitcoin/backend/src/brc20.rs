@@ -53,7 +53,7 @@ pub fn build_brc20_reveal_script(internal_key: &XOnlyPublicKey, brc20_json: &str
         .push_opcode(OP_IF) // Begin inscription envelope (unreachable code)
         .push_slice(b"ord") // Ordinals protocol marker - identifies this as an inscription
         .push_int(1) // Content type field number (standardized in Ordinals protocol)
-        .push_slice(b"text/plain;charset=utf-8") // BRC-20 spec requires text/plain, not application/json
+        .push_slice(b"text/plain;charset=utf-8") // BRC-20 spec requires text/plain;charset=utf-8
         .push_int(0) // Data field number (standardized in Ordinals protocol)
         .push_slice(&inscription_payload) // The actual BRC-20 JSON token data
         .push_opcode(OP_ENDIF) // End inscription envelope
@@ -68,12 +68,14 @@ pub fn build_brc20_reveal_script(internal_key: &XOnlyPublicKey, brc20_json: &str
 /// 2. Reveal: Spend from that address, revealing the BRC-20 JSON in the witness
 ///
 /// The reveal output (the inscription UTXO) is sent to `destination_address`.
-/// Returns the reveal transaction ID.
+/// Returns `(reveal_txid, reveal_output_value_sats)`. The output value is the
+/// actual amount in the reveal UTXO after fees — callers that spend this output
+/// must use this value in the Taproot sighash (BIP341 commits to exact prevout amounts).
 pub(crate) async fn commit_and_reveal(
     ctx: &BitcoinContext,
     brc20_json: &str,
     destination_address: &Address,
-) -> String {
+) -> (String, u64) {
     let internal_key_path = DerivationPath::p2tr(0, 0);
     let internal_key = get_schnorr_public_key(ctx, internal_key_path.to_vec_u8_path()).await;
     let internal_key = XOnlyPublicKey::from(PublicKey::from_slice(&internal_key).unwrap());
@@ -161,5 +163,6 @@ pub(crate) async fn commit_and_reveal(
     .await
     .unwrap();
 
-    reveal_tx.compute_txid().to_string()
+    let reveal_output_value = reveal_tx.output[0].value.to_sat();
+    (reveal_tx.compute_txid().to_string(), reveal_output_value)
 }

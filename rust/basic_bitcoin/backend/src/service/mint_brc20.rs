@@ -55,5 +55,5 @@ pub async fn mint_brc20(tick: String, amount: u64) -> String {
     let secp = Secp256k1::new();
     let own_address = Address::p2tr(&secp, internal_key, None, ctx.bitcoin_network);
 
-    commit_and_reveal(&ctx, &brc20_json, &own_address).await
+    commit_and_reveal(&ctx, &brc20_json, &own_address).await.0
 }

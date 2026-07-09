@@ -4,7 +4,7 @@
 // rune balances from the spent UTXOs to the transaction outputs.
 
 use crate::{
-    common::{get_fee_per_byte, select_utxos_greedy, DerivationPath},
+    common::{get_fee_per_byte, DerivationPath},
     p2tr,
     runes::{build_transfer_script, Edict},
     schnorr::{get_schnorr_public_key, mock_sign_with_schnorr, sign_with_schnorr},
@@ -36,10 +36,17 @@ const DUST_AMOUNT: u64 = 1_000;
 /// Bitcoin transaction whose Runestone directs the rune balance from the spent
 /// input UTXOs to the specified recipient output.
 ///
-/// Transaction output layout (vout indices matter for the edict):
-///   vout[0] — recipient: receives the rune tokens + DUST_AMOUNT satoshis
-///   vout[1] — OP_RETURN: Runestone with the transfer edict (no bitcoin value)
+/// Transaction output layout (vout indices matter for the edict and pointer):
+///   vout[0] — recipient: receives exactly `amount` rune tokens + DUST_AMOUNT satoshis
+///   vout[1] — OP_RETURN: Runestone with the transfer edict and pointer (no bitcoin value)
 ///   vout[2] — change: receives unallocated rune tokens + remaining satoshis
+///
+/// The Runestone contains:
+///   - edict: send `amount` tokens of the given rune ID to vout[0]
+///   - pointer: 2 — unallocated tokens (the remainder) go to vout[2]
+///
+/// Without the pointer, unallocated runes would default to the first non-OP_RETURN
+/// output (vout[0]), giving the recipient the entire balance instead of just `amount`.
 ///
 /// The rune ID (`rune_id_block` : `rune_id_tx`) can be found in the ord explorer
 /// at http://127.0.0.1/rune/<NAME> after starting `ord --config-dir . server`.
@@ -57,17 +64,19 @@ pub async fn transfer_rune(request: TransferRuneRequest) -> String {
         .require_network(ctx.bitcoin_network)
         .unwrap();
 
-    // Derive the P2TR key used in etch_rune — same path means same address and rune balance.
-    let internal_key_path = DerivationPath::p2tr(0, 0);
-    let internal_key = get_schnorr_public_key(&ctx, internal_key_path.to_vec_u8_path()).await;
-    let internal_key = XOnlyPublicKey::from(PublicKey::from_slice(&internal_key).unwrap());
+    // Rune balances are held at the dedicated rune address (p2tr index 1), separate from the
+    // main funding address (p2tr index 0). All UTXOs there are rune-bearing outputs created by
+    // etch_rune and previous transfer change outputs — so spending all of them is correct.
+    let rune_key_path = DerivationPath::p2tr(0, 1);
+    let rune_key = get_schnorr_public_key(&ctx, rune_key_path.to_vec_u8_path()).await;
+    let rune_key = XOnlyPublicKey::from(PublicKey::from_slice(&rune_key).unwrap());
 
     let secp256k1_engine = Secp256k1::new();
-    let own_address = Address::p2tr(&secp256k1_engine, internal_key, None, ctx.bitcoin_network);
+    let rune_address = Address::p2tr(&secp256k1_engine, rune_key, None, ctx.bitcoin_network);
 
-    // Fetch UTXOs holding the rune balance at the canister's P2TR address.
-    let own_utxos = bitcoin_get_utxos(&GetUtxosRequest {
-        address: own_address.to_string(),
+    // Fetch all UTXOs at the rune address — every one of them holds rune balance.
+    let rune_utxos = bitcoin_get_utxos(&GetUtxosRequest {
+        address: rune_address.to_string(),
         network: ctx.network.into(),
         filter: None,
     })
@@ -75,27 +84,36 @@ pub async fn transfer_rune(request: TransferRuneRequest) -> String {
     .unwrap()
     .utxos;
 
-    // Build the Runestone: a single edict sends `amount` tokens of `rune_id` to vout[0].
-    // Unallocated tokens (remainder after the edict) flow to the last non-OP_RETURN output
-    // (vout[2], the change output) by default.
-    let runestone_script = build_transfer_script(&[Edict {
-        rune_id_block: request.rune_id_block,
-        rune_id_tx: request.rune_id_tx,
-        amount: request.amount,
-        output: 0, // vout[0] is the recipient
-    }])
+    if rune_utxos.is_empty() {
+        trap("No rune UTXOs found. Etch a rune first.");
+    }
+
+    // Build the Runestone:
+    //   - edict: send `amount` tokens to vout[0] (recipient)
+    //   - pointer: 2 — unallocated tokens (the remainder) go to vout[2] (change)
+    //
+    // Without the pointer, unallocated runes default to the first non-OP_RETURN
+    // output (vout[0]), which would give the recipient the entire rune balance
+    // instead of just the requested amount.
+    let runestone_script = build_transfer_script(
+        &[Edict {
+            rune_id_block: request.rune_id_block,
+            rune_id_tx: request.rune_id_tx,
+            amount: request.amount,
+            output: 0, // vout[0] is the recipient
+        }],
+        Some(2), // pointer: unallocated runes go to vout[2] (change)
+    )
     .unwrap_or_else(|e| trap(format!("Failed to build runestone: {}", e)));
 
-    // Iterative fee estimation: mock-sign to measure vsize, adjust fee, repeat until stable.
+    let utxos_to_spend: Vec<&_> = rune_utxos.iter().collect();
+
     let fee_per_byte = get_fee_per_byte(&ctx).await;
     let mut total_fee = 0u64;
     let (transaction, prevouts) = loop {
-        let utxos_to_spend =
-            select_utxos_greedy(&own_utxos, DUST_AMOUNT, total_fee).unwrap_or_else(|e| trap(e));
-
         let (tx, prevouts) = build_rune_transfer_tx(
             &utxos_to_spend,
-            &own_address,
+            &rune_address,
             &destination_address,
             &runestone_script,
             total_fee,
@@ -103,7 +121,7 @@ pub async fn transfer_rune(request: TransferRuneRequest) -> String {
 
         let signed_tx = p2tr::sign_transaction_key_spend(
             &ctx,
-            &own_address,
+            &rune_address,
             tx.clone(),
             &prevouts,
             vec![],
@@ -122,10 +140,10 @@ pub async fn transfer_rune(request: TransferRuneRequest) -> String {
     // Sign with the real Schnorr key and broadcast.
     let signed_transaction = p2tr::sign_transaction_key_spend(
         &ctx,
-        &own_address,
+        &rune_address,
         transaction,
         prevouts.as_slice(),
-        internal_key_path.to_vec_u8_path(),
+        rune_key_path.to_vec_u8_path(),
         vec![],
         sign_with_schnorr,
     )
@@ -143,8 +161,16 @@ pub async fn transfer_rune(request: TransferRuneRequest) -> String {
 
 /// Constructs the unsigned transaction for a rune transfer.
 ///
-/// Output order is significant: the edict in the Runestone references outputs by
-/// their vout index, so recipient must be at vout[0] for `output: 0` to be correct.
+/// Output order is significant because the Runestone's edict and pointer reference
+/// outputs by their vout index:
+///   vout[0] — recipient (edict `output: 0`)
+///   vout[1] — OP_RETURN / Runestone
+///   vout[2] — change (Runestone `pointer: 2`)
+///
+/// vout[2] must always exist: if it were absent the pointer would reference a
+/// non-existent output, which the ord protocol treats as a cenotaph and burns
+/// all rune tokens in the transaction. We trap early if the fee is so large
+/// that no change satoshis remain.
 fn build_rune_transfer_tx(
     utxos_to_spend: &[&Utxo],
     own_address: &Address,
@@ -152,8 +178,6 @@ fn build_rune_transfer_tx(
     runestone_script: &ScriptBuf,
     fee: u64,
 ) -> (Transaction, Vec<TxOut>) {
-    const DUST_THRESHOLD: u64 = 1_000;
-
     let inputs: Vec<TxIn> = utxos_to_spend
         .iter()
         .map(|utxo| TxIn {
@@ -180,10 +204,17 @@ fn build_rune_transfer_tx(
         .checked_sub(DUST_AMOUNT + fee)
         .unwrap_or_else(|| trap("fee exceeds inputs"));
 
-    // vout[0]: recipient — edict output 0, receives rune tokens + dust satoshis
-    // vout[1]: OP_RETURN — Runestone data, carries no bitcoin value
-    // vout[2]: change — receives unallocated rune tokens and remaining satoshis
-    let mut outputs = vec![
+    // vout[2] must always be present for the Runestone pointer to be valid.
+    // In practice the rune UTXOs always have thousands of satoshis, so this
+    // threshold is only hit if something is severely wrong.
+    if change < DUST_AMOUNT {
+        trap("Insufficient satoshis for change output; fee too high");
+    }
+
+    // vout[0]: recipient — edict `output: 0`, receives `amount` rune tokens
+    // vout[1]: OP_RETURN — Runestone (edict + pointer), carries no bitcoin value
+    // vout[2]: change — Runestone `pointer: 2`, receives unallocated rune tokens
+    let outputs = vec![
         TxOut {
             script_pubkey: destination_address.script_pubkey(),
             value: Amount::from_sat(DUST_AMOUNT),
@@ -192,14 +223,11 @@ fn build_rune_transfer_tx(
             script_pubkey: runestone_script.clone(),
             value: Amount::from_sat(0),
         },
-    ];
-
-    if change >= DUST_THRESHOLD {
-        outputs.push(TxOut {
+        TxOut {
             script_pubkey: own_address.script_pubkey(),
             value: Amount::from_sat(change),
-        });
-    }
+        },
+    ];
 
     (
         Transaction {

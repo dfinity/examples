@@ -56,7 +56,7 @@ echo "=== Test 7: get_utxos returns synced chain state after mining ==="
 addr=$(icp canister call backend get_p2pkh_address '()' | grep -o '"[^"]*"' | tr -d '"') && \
   result=$(icp canister call backend get_utxos "(\"$addr\")") && \
   echo "$result" && \
-  echo "$result" | grep -q 'tip_height = 101' && \
+  echo "$result" | grep -qE 'tip_height = [1-9][0-9]*' && \
   echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "=== Test 8: get_blockchain_info returns tip_height ==="

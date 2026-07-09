@@ -93,10 +93,16 @@ pub fn build_reveal_transaction_with_fee(
 
     // Create output that sends remaining funds (minus fee) to destination.
     // The inscription is now "bound" to these satoshis according to ordinal theory.
-    // In production: Ensure the fee is smaller than the output value to avoid
-    // underflow scenarios.
+    let output_value = INSCRIPTION_OUTPUT_VALUE
+        .checked_sub(fee)
+        .ok_or_else(|| {
+            format!(
+                "Fee ({} sats) exceeds inscription output value ({} sats)",
+                fee, INSCRIPTION_OUTPUT_VALUE
+            )
+        })?;
     let output = TxOut {
-        value: Amount::from_sat(INSCRIPTION_OUTPUT_VALUE - fee),
+        value: Amount::from_sat(output_value),
         script_pubkey: destination_address.script_pubkey(),
     };
 
@@ -146,6 +152,95 @@ pub fn build_ordinal_reveal_script(
         .push_slice(inscription_payload) // The actual inscription content
         .push_opcode(OP_ENDIF) // End inscription envelope
         .into_script()
+}
+
+/// Builds the rune etch (reveal) transaction that spends the commit output.
+///
+/// Output layout:
+///   vout[0] — OP_RETURN Runestone (0 sat), encodes the etching parameters
+///   vout[1] — change output back to own address (commit_value minus fee)
+///
+/// Uses the same iterative fee-convergence as `build_reveal_transaction`.
+pub(crate) async fn build_rune_etch_transaction(
+    change_address: &Address,
+    runestone_script: &ScriptBuf,
+    commit_script: &ScriptBuf,
+    control_block: &ControlBlock,
+    commit_txid: &Txid,
+    commit_vout: u32,
+    commit_value: u64,
+    fee_per_byte: MillisatoshiPerByte,
+) -> Transaction {
+    let mut fee = 0u64;
+    loop {
+        let transaction = build_rune_etch_transaction_with_fee(
+            change_address,
+            runestone_script,
+            commit_script,
+            control_block,
+            commit_txid,
+            commit_vout,
+            commit_value,
+            fee,
+        );
+
+        let virtual_size = transaction.vsize() as u64;
+        if (virtual_size * fee_per_byte) / 1000 == fee {
+            return transaction;
+        } else {
+            fee = (virtual_size * fee_per_byte) / 1000;
+        }
+    }
+}
+
+fn build_rune_etch_transaction_with_fee(
+    change_address: &Address,
+    runestone_script: &ScriptBuf,
+    commit_script: &ScriptBuf,
+    control_block: &ControlBlock,
+    commit_txid: &Txid,
+    commit_vout: u32,
+    commit_value: u64,
+    fee: u64,
+) -> Transaction {
+    let input = TxIn {
+        previous_output: OutPoint {
+            txid: commit_txid.to_owned(),
+            vout: commit_vout,
+        },
+        script_sig: ScriptBuf::new(),
+        sequence: Sequence::MAX,
+        witness: Witness::new(),
+    };
+
+    let runestone_output = TxOut {
+        value: Amount::ZERO,
+        script_pubkey: runestone_script.clone(),
+    };
+
+    let change_sats = commit_value.saturating_sub(fee);
+    let mut outputs = vec![runestone_output];
+    // Only add change output if above dust threshold.
+    if change_sats >= 1_000 {
+        outputs.push(TxOut {
+            value: Amount::from_sat(change_sats),
+            script_pubkey: change_address.script_pubkey(),
+        });
+    }
+
+    let mut transaction = Transaction {
+        version: Version::TWO,
+        lock_time: LockTime::ZERO,
+        input: vec![input],
+        output: outputs,
+    };
+
+    // Placeholder witness for virtual-size estimation.
+    transaction.input[0].witness.push(SCHNORR_SIGNATURE_PLACEHOLDER);
+    transaction.input[0].witness.push(commit_script.to_bytes());
+    transaction.input[0].witness.push(control_block.serialize());
+
+    transaction
 }
 
 /// Creates the witness stack for Taproot script-path spending.

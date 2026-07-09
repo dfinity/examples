@@ -84,10 +84,8 @@ pub(crate) async fn build_transaction(
     // We solve this problem iteratively. We start with a fee of zero, build
     // and sign a transaction, see what its size is, and then update the fee,
     // rebuild the transaction, until the fee is set to the correct amount.
-    let amount = match primary_output {
-        PrimaryOutput::Address(_, amount) => *amount,
-        PrimaryOutput::OpReturn(_) => 0,
-    };
+    let PrimaryOutput::Address(_, amount) = primary_output;
+    let amount = *amount;
     let mut total_fee = 0;
     loop {
         let utxos_to_spend = match utxos_mode {

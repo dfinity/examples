@@ -5,7 +5,7 @@
 use bitcoin::{
     opcodes::all::*,
     script::{Builder, PushBytesBuf},
-    ScriptBuf,
+    ScriptBuf, XOnlyPublicKey,
 };
 use leb128::write;
 
@@ -29,7 +29,6 @@ enum Tag {
     OffsetEnd = 18,
     #[allow(dead_code)]
     Mint = 20,
-    #[allow(dead_code)]
     Pointer = 22,
     #[allow(dead_code)]
     Cenotaph = 126,
@@ -62,7 +61,7 @@ impl Flag {
     }
 }
 
-/// Encodes a u128 as LEB128 (Little Endian Base 128).
+/// Encodes a u64 as LEB128 (Little Endian Base 128).
 ///
 /// The Runes protocol uses LEB128 encoding for all integer values in the runestone
 /// to create compact, variable-length representations that minimize transaction size.
@@ -72,16 +71,34 @@ pub fn encode_leb128(value: u64) -> Vec<u8> {
     buf
 }
 
-/// Encodes a rune name into its numeric representation.
+/// Encodes a u128 as LEB128. Used for rune names, premine, amount, and cap fields,
+/// which are all u128 in the Runes protocol specification.
+pub fn encode_leb128_u128(mut value: u128) -> Vec<u8> {
+    let mut buf = Vec::new();
+    loop {
+        let byte = (value & 0x7f) as u8;
+        value >>= 7;
+        if value == 0 {
+            buf.push(byte);
+            break;
+        } else {
+            buf.push(byte | 0x80);
+        }
+    }
+    buf
+}
+
+/// Encodes a rune name into its numeric representation as u128.
 ///
 /// Runes use a modified base-26 encoding where A=0, B=1, ... Z=25.
 /// Names are encoded with A as the least significant digit for compact storage.
-pub fn encode_rune_name(name: &str) -> Result<u64, String> {
+/// The result is u128 because names of 14+ characters can exceed u64::MAX.
+pub fn encode_rune_name(name: &str) -> Result<u128, String> {
     if name.is_empty() {
         return Err("Rune name cannot be empty".to_string());
     }
 
-    let mut value = 0u64;
+    let mut value = 0u128;
     for (i, ch) in name.chars().enumerate() {
         if i >= 28 {
             return Err("Rune name cannot exceed 28 characters".to_string());
@@ -90,7 +107,7 @@ pub fn encode_rune_name(name: &str) -> Result<u64, String> {
             return Err("Rune name must contain only uppercase letters A-Z".to_string());
         }
 
-        let digit = (ch as u8 - b'A') as u64;
+        let digit = (ch as u8 - b'A') as u128;
         if i == 0 {
             value = digit;
         } else {
@@ -143,7 +160,8 @@ pub struct Edict {
     /// Number of rune tokens to move to the specified output.
     pub amount: u64,
     /// Index into the transaction's vout array that receives the rune tokens.
-    /// OP_RETURN outputs count toward the index but cannot hold rune balances.
+    /// All vouts (including OP_RETURN) count toward the index. Pointing an edict
+    /// at an OP_RETURN output or a non-existent output burns those tokens.
     pub output: u32,
 }
 
@@ -152,16 +170,29 @@ pub struct Edict {
 /// A transfer runestone contains only edicts — no etching fields. The edicts
 /// direct the protocol to move tokens from input UTXOs holding rune balances
 /// to specific transaction outputs. Any balance not explicitly allocated by an
-/// edict flows to the last non-OP_RETURN output by default.
-pub fn build_transfer_script(edicts: &[Edict]) -> Result<ScriptBuf, String> {
+/// edict flows to the first non-OP_RETURN output by default.
+///
+/// `pointer`, if set, overrides the default: unallocated runes go to the output
+/// at that vout index instead of the first non-OP_RETURN output. This is used to
+/// direct change rune tokens to the change output (vout[2]) when the recipient
+/// is at vout[0] and the OP_RETURN is at vout[1].
+pub fn build_transfer_script(edicts: &[Edict], pointer: Option<u32>) -> Result<ScriptBuf, String> {
     if edicts.is_empty() {
         return Err("At least one edict is required".to_string());
     }
 
     let mut payload = Vec::new();
 
+    // Named fields must appear before the Body (0) separator.
+    // Tag 22: Pointer — vout index that receives unallocated runes.
+    // Without this, unallocated runes would default to the first non-OP_RETURN
+    // output (vout[0], the recipient), incorrectly giving them the full balance.
+    if let Some(p) = pointer {
+        payload.extend_from_slice(&encode_leb128(Tag::Pointer as u64));
+        payload.extend_from_slice(&encode_leb128(p as u64));
+    }
+
     // Tag 0 (Body): separator signalling that edicts follow.
-    // A pure transfer runestone has no named fields before this.
     payload.extend_from_slice(&encode_leb128(Tag::Body as u64));
 
     // Edicts are encoded as groups of 4 LEB128 integers: [block, tx, amount, output].
@@ -197,6 +228,44 @@ pub fn build_transfer_script(edicts: &[Edict]) -> Result<ScriptBuf, String> {
     builder = builder.push_slice(&push_bytes);
 
     Ok(builder.into_script())
+}
+
+/// Computes the commitment bytes for a rune name.
+///
+/// The commitment is the rune's numeric encoding as a u128 value in little-endian byte order
+/// with trailing zero bytes stripped. The ord indexer scans the commit tapscript for a pushdata
+/// instruction equal to these bytes to validate that the etching transaction committed to the name.
+pub fn build_rune_commitment_bytes(name: &str) -> Result<Vec<u8>, String> {
+    let encoded = encode_rune_name(name)?;
+    let bytes = encoded.to_le_bytes();
+    let mut end = bytes.len();
+    while end > 0 && bytes[end - 1] == 0 {
+        end -= 1;
+    }
+    Ok(bytes[..end].to_vec())
+}
+
+/// Builds the tapscript for a rune commit transaction.
+///
+/// The commit script embeds the rune commitment bytes as a pushdata instruction so that
+/// the ord indexer can find them when validating the etching. Script structure:
+///
+///   <commitment_bytes> OP_DROP <internal_key> OP_CHECKSIG
+///
+/// Spending this output via script-path places the tapscript in the witness, satisfying
+/// the ord protocol requirement that etching inputs commit to the rune name.
+pub fn build_rune_commit_script(internal_key: &XOnlyPublicKey, name: &str) -> Result<ScriptBuf, String> {
+    let commitment = build_rune_commitment_bytes(name)?;
+    let mut push_buf = PushBytesBuf::new();
+    push_buf
+        .extend_from_slice(&commitment)
+        .map_err(|e| e.to_string())?;
+    Ok(Builder::new()
+        .push_slice(&push_buf)
+        .push_opcode(OP_DROP)
+        .push_slice(internal_key.serialize())
+        .push_opcode(OP_CHECKSIG)
+        .into_script())
 }
 
 /// Builds a runestone script for etching a new rune token.
@@ -237,9 +306,9 @@ pub fn build_etching_script(etching: &Etching) -> Result<ScriptBuf, String> {
         payload.extend_from_slice(&encode_leb128(etching.spacers as u64));
     }
 
-    // Tag 4: Rune name
+    // Tag 4: Rune name (u128 — names ≥14 chars exceed u64)
     payload.extend_from_slice(&encode_leb128(Tag::Rune as u64));
-    payload.extend_from_slice(&encode_leb128(encoded_name as u64));
+    payload.extend_from_slice(&encode_leb128_u128(encoded_name));
 
     // Tag 5: Symbol (odd tag)
     if let Some(symbol) = etching.symbol {
@@ -247,21 +316,21 @@ pub fn build_etching_script(etching: &Etching) -> Result<ScriptBuf, String> {
         payload.extend_from_slice(&encode_leb128(symbol as u64));
     }
 
-    // Tag 6: Premine
+    // Tag 6: Premine (u128 — protocol supports values beyond u64)
     if etching.premine > 0 {
         payload.extend_from_slice(&encode_leb128(Tag::Premine as u64));
-        payload.extend_from_slice(&encode_leb128(etching.premine as u64));
+        payload.extend_from_slice(&encode_leb128_u128(etching.premine));
     }
 
     // Add mint terms if present
     if let Some(terms) = &etching.terms {
         if let Some(amount) = terms.amount {
             payload.extend_from_slice(&encode_leb128(Tag::Amount as u64));
-            payload.extend_from_slice(&encode_leb128(amount as u64));
+            payload.extend_from_slice(&encode_leb128_u128(amount));
         }
         if let Some(cap) = terms.cap {
             payload.extend_from_slice(&encode_leb128(Tag::Cap as u64));
-            payload.extend_from_slice(&encode_leb128(cap as u64));
+            payload.extend_from_slice(&encode_leb128_u128(cap));
         }
         if let Some(start) = terms.height.0 {
             payload.extend_from_slice(&encode_leb128(Tag::HeightStart as u64));

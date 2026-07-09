@@ -226,55 +226,11 @@ CONTAINER=$(docker ps --filter "ancestor=icp-cli-network-launcher-bitcoin" --for
 > acceptnonstdtxn=1
 > ```
 
-## Inscribe an Ordinal
+## Ordinals
 
-[Ordinals](https://ordinals.com) is a protocol that allows inscribing arbitrary data (text, images, etc.) onto individual satoshis, creating unique digital artifacts on Bitcoin. Each inscription is permanently stored in the Bitcoin blockchain using a two-transaction commit/reveal process.
+[Ordinals](https://ordinals.com) is a protocol that assigns a unique serial number to every satoshi, then allows arbitrary data (text, images, etc.) to be inscribed onto individual satoshis. Inscriptions are stored permanently in the Bitcoin blockchain using a two-transaction commit/reveal process. Two operations make up the full lifecycle: **inscribe** → **transfer**.
 
-### Step 1 — Start the ord server (separate terminal)
-
-```bash
-ord --config-dir . server
-```
-
-### Step 2 — Fund a Taproot address
-
-```bash
-ADDR=$(icp canister call backend get_p2tr_key_path_only_address '()' | grep -o '"[^"]*"' | tr -d '"')
-docker exec $CONTAINER bitcoin-cli -regtest \
-  -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
-  generatetoaddress 101 "$ADDR"
-```
-
-### Step 3 — Create the inscription
-
-```bash
-TXID=$(icp canister call backend inscribe_ordinal '("Hello Bitcoin")' | grep -o '"[^"]*"' | tr -d '"')
-echo "Reveal txid: $TXID"
-```
-
-### Step 4 — Mine a confirmation block
-
-```bash
-docker exec $CONTAINER bitcoin-cli -regtest \
-  -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
-  generatetoaddress 1 "$ADDR"
-```
-
-### Step 5 — View in the ord explorer
-
-```bash
-echo "http://127.0.0.1/inscription/${TXID}i0"
-```
-
-- All inscriptions: `http://127.0.0.1/inscriptions`
-
-> **Note:** The homepage at `http://127.0.0.1/` shows a "Latest Inscriptions" section that may appear empty — use `/inscriptions` instead.
-
-## Runes
-
-[Runes](https://docs.ordinals.com/runes.html) is a fungible token protocol that embeds token metadata directly into Bitcoin transactions using `OP_RETURN` outputs. Unlike Ordinals, Runes are created in a single transaction and support standard fungible token operations. Two operations make up the full lifecycle: **etch** → **transfer**.
-
-### Etch a Rune
+### Inscribe an Ordinal
 
 #### Step 1 — Start the ord server (separate terminal)
 
@@ -291,15 +247,11 @@ docker exec $CONTAINER bitcoin-cli -regtest \
   generatetoaddress 101 "$ADDR"
 ```
 
-#### Step 3 — Etch the Rune
-
-The name must be uppercase and between 1–28 characters. The Runes protocol uses a block-height-based unlock schedule that interpolates over a 210,000-block window — **names with 13 or more characters are immediately active** in regtest at any block height. Names shorter than 13 characters have an unlock height that must be mined past before the rune receives an ID and can be transferred.
-
-> **Turbo mode**: The `etch_rune` implementation sets `turbo: true`, which opts the rune into future ord protocol upgrades. It does **not** bypass the name unlock schedule.
+#### Step 3 — Create the inscription
 
 ```bash
-TXID=$(icp canister call backend etch_rune '("BASICBITCOINS")' | grep -o '"[^"]*"' | tr -d '"')
-echo "Rune txid: $TXID"
+TXID=$(icp canister call backend inscribe_ordinal '("Hello Bitcoin")' | grep -o '"[^"]*"' | tr -d '"')
+echo "Reveal txid: $TXID"
 ```
 
 #### Step 4 — Mine a confirmation block
@@ -310,27 +262,158 @@ docker exec $CONTAINER bitcoin-cli -regtest \
   generatetoaddress 1 "$ADDR"
 ```
 
-#### Step 5 — Decode the Runestone to verify
+#### Step 5 — View in the ord explorer
 
 ```bash
-ord --config-dir . decode --txid "$TXID"
+echo "http://127.0.0.1/inscription/${TXID}i0"
 ```
 
-#### Step 6 — View in the ord explorer
+- All inscriptions: `http://127.0.0.1/inscriptions`
+
+> **Note:** The homepage at `http://127.0.0.1/` shows a "Latest Inscriptions" section that may appear empty — use `/inscriptions` instead.
+
+### Transfer an Ordinal
+
+An inscription is permanently bound to the first satoshi of the reveal output. To move the inscription to a new owner, that satoshi must flow to the first output (vout 0) of the spending transaction. `transfer_ordinal` achieves this by making the inscription UTXO the sole input — the inscription satoshi then flows directly to the recipient.
+
+> **Prerequisites:** Complete the inscribe steps above. `$TXID`, `$ADDR`, and `$CONTAINER` must be set.
+
+#### Step 1 — Transfer the inscription
 
 ```bash
-echo "http://127.0.0.1/rune/BASICBITCOINS"
+DEST="bcrt1qg8qknn6f3txqg97gt8ca0ctya0vw7ep6d02qmt"
+ORD_TRANSFER_TXID=$(icp canister call backend transfer_ordinal "(\"$TXID\", \"$DEST\")" | grep -o '"[^"]*"' | tr -d '"')
+echo "Ordinal transfer txid: $ORD_TRANSFER_TXID"
 ```
+
+#### Step 2 — Mine a confirmation block
+
+```bash
+docker exec $CONTAINER bitcoin-cli -regtest \
+  -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
+  generatetoaddress 1 "$ADDR"
+```
+
+#### Step 3 — Verify the new owner
+
+Query the inscription's owner via the ord JSON API. Before the transfer it shows the canister's Taproot address; after mining the block it should show the destination:
+
+```bash
+curl -s -H "Accept: application/json" "http://127.0.0.1/inscription/${TXID}i0" | python3 -m json.tool | grep address
+# Expected: "address": "bcrt1qg8qknn6f3txqg97gt8ca0ctya0vw7ep6d02qmt"
+```
+
+You can also view the inscription in the ord explorer and confirm ownership visually:
+
+```bash
+echo "http://127.0.0.1/inscription/${TXID}i0"
+```
+
+> **How satoshi tracking works:** The Ordinals protocol assigns ordinal numbers to satoshis in the order they are mined. The inscription is associated with the first satoshi of the reveal output. When that UTXO is spent as the first (and only) input, Bitcoin's satoshi-ordering rules guarantee the first satoshi lands in vout 0 — so the recipient at vout 0 receives the inscription. This is why `transfer_ordinal` uses the reveal UTXO as the sole input and puts the recipient at output index 0.
+
+## Runes
+
+[Runes](https://docs.ordinals.com/runes.html) is a fungible token protocol that embeds token metadata directly into Bitcoin transactions using `OP_RETURN` outputs. Two operations make up the full lifecycle: **etch** → **transfer**.
+
+### Etch a Rune
+
+Etching a rune requires two transactions separated by at least 6 block confirmations:
+
+1. **Commit** — creates a P2TR output whose tapscript contains the rune name commitment bytes
+2. **Etch** — spends that output (via script-path, placing the commitment in the witness) together with an `OP_RETURN` Runestone
+
+The ord indexer validates that the etching transaction's input spends a P2TR output containing the rune commitment bytes, and that the committed output has at least 6 block confirmations. Without this, the etching is silently ignored and no Rune ID is assigned.
+
+#### Step 1 — Start the ord server (separate terminal)
+
+```bash
+ord --config-dir . server
+```
+
+#### Step 2 — Fund a Taproot address
+
+```bash
+ADDR=$(icp canister call backend get_p2tr_key_path_only_address '()' | grep -o '"[^"]*"' | tr -d '"')
+docker exec $CONTAINER bitcoin-cli -regtest \
+  -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
+  generatetoaddress 101 "$ADDR"
+```
+
+#### Step 3 — Commit to the rune name
+
+The name must be uppercase and between 1–28 characters. The Runes protocol uses a block-height-based unlock schedule — **names with 13 or more characters are immediately active** in regtest at any block height.
+
+> **Why 13+ characters?** The ord indexer uses linear interpolation to derive a minimum rune value per block. Every 13-char name has a numeric value above `STEPS[12] = 99,246,114,928,149,462` — the highest minimum the formula ever produces — so 13-char names are immediately active at any block height. Shorter names have unlock heights that must be mined past (12-char names unlock across blocks 0–17,499; 7-char names across 87,500–104,999).
+
+> **Turbo mode**: The `etch_rune` implementation sets `turbo: true`, which opts the rune into future ord protocol upgrades. It does **not** bypass the name unlock schedule.
+
+```bash
+COMMIT_TXID=$(icp canister call backend commit_rune '("BASICBITCOINS")' | grep -o '"[^"]*"' | tr -d '"')
+echo "Commit txid: $COMMIT_TXID"
+```
+
+#### Step 4 — Mine 6 blocks to mature the commitment
+
+The ord protocol requires the commit output to have at least 6 block confirmations before the etching is accepted.
+
+```bash
+docker exec $CONTAINER bitcoin-cli -regtest \
+  -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
+  generatetoaddress 6 "$ADDR"
+```
+
+#### Step 5 — Etch the Rune
+
+```bash
+ETCH_TXID=$(icp canister call backend etch_rune '("BASICBITCOINS")' | grep -o '"[^"]*"' | tr -d '"')
+echo "Etch txid: $ETCH_TXID"
+```
+
+#### Step 6 — Mine a confirmation block
+
+```bash
+docker exec $CONTAINER bitcoin-cli -regtest \
+  -rpcuser=ic-btc-integration -rpcpassword=ic-btc-integration \
+  generatetoaddress 1 "$ADDR"
+```
+
+#### Step 7 — Decode the Runestone to verify
+
+```bash
+ord --config-dir . decode --txid "$ETCH_TXID"
+# Expected output:
+# {
+#   "inscriptions": [],
+#   "runestone": {
+#     "Runestone": {
+#       "edicts": [],
+#       "etching": {
+#         "divisibility": null,
+#         "premine": 1000000,
+#         "rune": "BASICBITCOINS",
+#         "spacers": null,
+#         "symbol": "🪙",
+#         "terms": null,
+#         "turbo": true
+#       },
+#       "mint": null,
+#       "pointer": null
+#     }
+#   }
+# }
+```
+
+#### Step 8 — View in the ord explorer
+
+Open the rune in the ord explorer: `http://127.0.0.1/rune/BASICBITCOINS`
 
 - All runes: `http://127.0.0.1/runes`
-
-> **Note:** The `/runes` listing page may appear empty for the same reason as `/` for inscriptions — use the direct URL above instead.
 
 The Rune is now etched with 1,000,000 tokens minted to your address.
 
 ### Transfer a Rune
 
-#### Step 1 — Look up the rune ID
+#### Step 1 — Look up the rune ID and verify your balance
 
 The rune ID (block height : transaction index) is required to identify which rune to transfer. Fetch it from the ord JSON API:
 
@@ -342,7 +425,15 @@ RUNE_TX=$(echo "$RUNE_ID" | cut -d: -f2)
 echo "Rune ID: $RUNE_BLOCK:$RUNE_TX"
 ```
 
-> **Why 13+ characters?** The ord indexer uses linear interpolation to derive a minimum rune value per block. Every 13-char name has a numeric value above `STEPS[12] = 99,246,114,928,149,462` — the highest minimum the formula ever produces — so 13-char names are immediately active at any block height. Shorter names have unlock heights that must be mined past (12-char names unlock across blocks 0–17,499; 7-char names across 87,500–104,999).
+The 1,000,000 premined tokens are held at the canister's dedicated rune address (derivation index 1, separate from the main funding address). Check the balance:
+
+```bash
+RUNE_ADDR=$(icp canister call backend get_rune_address '()' | grep -o '"[^"]*"' | tr -d '"')
+curl -s -H "Accept: application/json" "http://127.0.0.1/address/$RUNE_ADDR" | python3 -m json.tool | grep -A6 '"runes"'
+# Expected: "BASICBITCOINS": { "amount": 1000000, ... }
+```
+
+> **Note:** If the balance shows empty, ord may still be indexing the etching block. Wait a moment and retry.
 
 #### Step 2 — Transfer rune tokens
 
@@ -373,7 +464,15 @@ Decode the transfer transaction to confirm the Runestone edict is correct:
 ord --config-dir . decode --txid "$TRANSFER_TXID"
 ```
 
-The output should contain a Runestone with an edict assigning 100,000 tokens to output 0 (the recipient). The remaining 900,000 tokens stay in the change output at the canister's address.
+The output should contain a Runestone with an edict assigning 100,000 tokens to output 0 (the recipient) and a `pointer: 2` directing the unallocated remainder to output 2 (the change). Check the resulting output balances:
+
+```bash
+# Recipient — should show 100,000 BASICBITCOINS
+curl -s -H "Accept: application/json" "http://127.0.0.1/output/${TRANSFER_TXID}:0" | python3 -m json.tool
+
+# Change (rune address) — should show 900,000 BASICBITCOINS
+curl -s -H "Accept: application/json" "http://127.0.0.1/output/${TRANSFER_TXID}:2" | python3 -m json.tool
+```
 
 ## BRC-20 tokens
 
@@ -451,7 +550,12 @@ echo "http://127.0.0.1/inscription/${MINT_TXID}i0"
 
 ### Transfer BRC-20 tokens
 
-A BRC-20 transfer uses three transactions: create a transfer inscription at the sender's (canister's) address, then move that inscription UTXO to the recipient. This two-step handoff is how BRC-20 indexers track balance changes.
+A BRC-20 transfer chains three Bitcoin transactions internally:
+1. **Commit** — funds a Taproot address committed to the transfer JSON script
+2. **Reveal** — spends the commit output, creating the transfer inscription at the canister's own address (locking `amount` tokens from the sender's balance)
+3. **Send** — moves the inscription UTXO from the canister's address to the recipient
+
+BRC-20 indexers see the inscription travel from sender → recipient and credit the recipient's balance accordingly. The returned txid is the send transaction (step 3).
 
 #### Step 1 — Transfer tokens
 
@@ -462,7 +566,7 @@ TRANSFER_TXID=$(icp canister call backend transfer_brc20 '(record {
   amount = 500: nat64;
   destination_address = "'"$DEST"'";
 })' | grep -o '"[^"]*"' | tr -d '"')
-echo "BRC-20 transfer txid: $TRANSFER_TXID"
+echo "BRC-20 send txid: $TRANSFER_TXID"
 ```
 
 #### Step 2 — Mine a confirmation block
@@ -473,12 +577,21 @@ docker exec $CONTAINER bitcoin-cli -regtest \
   generatetoaddress 1 "$ADDR"
 ```
 
-#### Step 3 — Verify the transfer inscription
+#### Step 3 — Verify the inscription arrived at the recipient
 
 ```bash
-ord --config-dir . decode --txid "$TRANSFER_TXID"
-# The inscription content is the transfer JSON:
-# {"p":"brc-20","op":"transfer","tick":"DEMO","amt":"500"}
+curl -s -H "Accept: application/json" "http://127.0.0.1/output/${TRANSFER_TXID}:0" | python3 -m json.tool | grep -E '"address"|"inscriptions"'
+# Expected:
+#   "address": "bcrt1qg8qknn6f3txqg97gt8ca0ctya0vw7ep6d02qmt"
+#   "inscriptions": ["<reveal_txid>i0"]
+```
+
+You can view the inscription content (the transfer JSON) in the ord explorer:
+
+```bash
+# Get the inscription ID from the output and open it in the ord explorer
+INSCRIPTION_ID=$(curl -s -H "Accept: application/json" "http://127.0.0.1/output/${TRANSFER_TXID}:0" | python3 -c "import sys,json; print(json.load(sys.stdin)['inscriptions'][0])")
+echo "http://127.0.0.1/inscription/$INSCRIPTION_ID"
 ```
 
 The recipient now holds the BRC-20 transfer inscription. BRC-20 indexers credit 500 DEMO to the recipient's balance and debit it from the canister's balance.
