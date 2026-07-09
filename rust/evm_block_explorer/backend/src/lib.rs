@@ -19,12 +19,13 @@ fn evm_rpc_id() -> Principal {
 }
 
 #[ic_cdk::update]
-async fn get_evm_block(height: u128) -> Block {
-    // Ethereum Mainnet RPC providers
+async fn get_evm_block(height: u128) -> Result<Block, String> {
+    // Ethereum Mainnet RPC providers — using multiple for redundancy.
+    // If one provider is temporarily unavailable, others can still serve the request.
     let rpc_services = RpcServices::EthMainnet(Some(vec![
         EthMainnetService::Llama,
-        // EthMainnetService::Alchemy,
-        // EthMainnetService::Cloudflare,
+        EthMainnetService::Cloudflare,
+        EthMainnetService::PublicNode,
     ]));
 
     // Base Mainnet RPC providers
@@ -57,11 +58,9 @@ async fn get_evm_block(height: u128) -> Block {
         .await;
 
     match result {
-        MultiRpcResult::Consistent(Ok(block)) => block,
-        MultiRpcResult::Consistent(Err(err)) => panic!("{err:?}"),
-        MultiRpcResult::Inconsistent(v) => {
-            panic!("RPC providers gave inconsistent results: {:?}", v)
-        }
+        MultiRpcResult::Consistent(Ok(block)) => Ok(block),
+        MultiRpcResult::Consistent(Err(err)) => Err(format!("{err:?}")),
+        MultiRpcResult::Inconsistent(v) => Err(format!("RPC providers gave inconsistent results: {:?}", v)),
     }
 }
 

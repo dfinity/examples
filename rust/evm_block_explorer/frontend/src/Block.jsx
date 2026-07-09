@@ -14,8 +14,12 @@ function Block() {
       setLoading(true);
       setError(undefined);
       // Convert the block number string to BigInt for the backend call
-      const block = await backend.get_evm_block(BigInt(blockNumber || 420));
-      setBlock(block);
+      const result = await backend.get_evm_block(BigInt(blockNumber || 420));
+      if ('Ok' in result) {
+        setBlock(result.Ok);
+      } else {
+        setError(result.Err);
+      }
     } catch (err) {
       console.error(err);
       setError(String(err));
