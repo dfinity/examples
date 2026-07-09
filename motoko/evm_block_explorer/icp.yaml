@@ -1,0 +1,36 @@
+canisters:
+  - name: backend
+    recipe:
+      type: "@dfinity/motoko@v5.0.0"
+
+  - name: frontend
+    recipe:
+      type: "@dfinity/asset-canister@v2.2.1"
+      configuration:
+        dir: frontend/dist
+        build:
+          - npm install --prefix frontend
+          - npm run build --prefix frontend
+
+  # evm_rpc is only deployed locally. On ICP mainnet the shared EVM RPC canister
+  # (7hfb6-caaaa-aaaar-qadga-cai) is used instead — see the ic environment below.
+  - name: evm_rpc
+    build:
+      steps:
+        - type: pre-built
+          url: https://github.com/dfinity/evm-rpc-canister/releases/download/evm_rpc-v2.8.0/evm_rpc.wasm.gz
+    # nodesInSubnet controls how many cycles the EVM RPC canister charges per request.
+    # 28 matches the production subnet size so local cycle costs reflect mainnet.
+    init_args: "(record { nodesInSubnet = 28 })"
+
+environments:
+  - name: local
+    network: local
+
+  - name: ic
+    network: ic
+    canisters: [backend, frontend]
+    settings:
+      backend:
+        environment_variables:
+          "PUBLIC_CANISTER_ID:evm_rpc": "7hfb6-caaaa-aaaar-qadga-cai"
