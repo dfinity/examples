@@ -1,9 +1,6 @@
-use ic_cdk::{
-    api::canister_self,
-    management_canister::{
-        http_request, HttpHeader, HttpMethod, HttpRequestArgs, HttpRequestResult, TransformArgs,
-        TransformContext, TransformFunc,
-    },
+use ic_cdk_management_canister::{
+    http_request, transform_context_from_query, HttpHeader, HttpMethod, HttpRequestArgs,
+    HttpRequestResult, TransformArgs,
 };
 
 // #region transform
@@ -35,10 +32,7 @@ async fn send_http_get_request() -> String {
             value: "ic-canister".to_string(),
         }],
         body: None,
-        transform: Some(TransformContext {
-            function: TransformFunc::new(canister_self(), "transform".to_string()),
-            context: vec![],
-        }),
+        transform: Some(transform_context_from_query("transform".to_string(), vec![])),
         // Replicated mode: all subnet nodes make the request independently,
         // providing strong integrity guarantees via consensus.
         is_replicated: Some(true),
@@ -53,3 +47,5 @@ async fn send_http_get_request() -> String {
     }
 }
 // #endregion get_request
+
+ic_cdk::export_candid!();
