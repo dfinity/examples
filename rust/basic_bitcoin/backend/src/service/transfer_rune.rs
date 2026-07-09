@@ -60,9 +60,9 @@ pub async fn transfer_rune(request: TransferRuneRequest) -> String {
 
     // Parse and validate the destination address for the current network.
     let destination_address = Address::from_str(&request.destination_address)
-        .unwrap()
+        .unwrap_or_else(|e| trap(format!("Invalid destination address: {}", e)))
         .require_network(ctx.bitcoin_network)
-        .unwrap();
+        .unwrap_or_else(|e| trap(format!("Address is for wrong network: {}", e)));
 
     // Rune balances are held at the dedicated rune address (p2tr index 1), separate from the
     // main funding address (p2tr index 0). All UTXOs there are rune-bearing outputs created by

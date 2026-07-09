@@ -45,9 +45,9 @@ pub async fn transfer_ordinal(reveal_txid: String, destination_address: String) 
 
     // Parse and validate the destination address.
     let destination_address = Address::from_str(&destination_address)
-        .unwrap()
+        .unwrap_or_else(|e| trap(format!("Invalid destination address: {}", e)))
         .require_network(ctx.bitcoin_network)
-        .unwrap();
+        .unwrap_or_else(|e| trap(format!("Address is for wrong network: {}", e)));
 
     // Parse the reveal txid provided by the caller.
     let reveal_txid = Txid::from_str(&reveal_txid)

@@ -43,7 +43,16 @@ addr=$(icp canister call backend get_p2pkh_address '()' | grep -o '"[^"]*"' | tr
   echo "mined 101 blocks to $addr"
 
 echo "=== Waiting for IC to sync Bitcoin blocks ==="
-sleep 5
+_sync_addr=$(icp canister call backend get_p2pkh_address '()' | grep -o '"[^"]*"' | tr -d '"')
+for _i in $(seq 1 30); do
+  _bal=$(icp canister call backend get_balance "(\"$_sync_addr\")" 2>/dev/null)
+  if echo "$_bal" | grep -qE '[1-9]'; then
+    echo "IC synced after ${_i}s"
+    break
+  fi
+  [ "$_i" -eq 30 ] && echo "FAIL: IC did not sync within 30s" && exit 1
+  sleep 1
+done
 
 echo "=== Test 6: get_balance returns non-zero after mining ==="
 addr=$(icp canister call backend get_p2pkh_address '()' | grep -o '"[^"]*"' | tr -d '"') && \

@@ -58,9 +58,9 @@ pub async fn transfer_brc20(request: TransferBrc20Request) -> String {
     }
 
     let recipient = Address::from_str(&request.destination_address)
-        .unwrap()
+        .unwrap_or_else(|e| trap(format!("Invalid destination address: {}", e)))
         .require_network(ctx.bitcoin_network)
-        .unwrap();
+        .unwrap_or_else(|e| trap(format!("Address is for wrong network: {}", e)));
 
     let tick = request.tick.to_uppercase();
 
