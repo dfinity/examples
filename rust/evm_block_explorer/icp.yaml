@@ -22,11 +22,9 @@ canisters:
     init_args: "(record {})"
 
 environments:
-  - name: local
-    network: local
-
-  - name: production
+  - name: ic
     network: ic
+    canisters: [backend, frontend]
     settings:
       backend:
         environment_variables:
