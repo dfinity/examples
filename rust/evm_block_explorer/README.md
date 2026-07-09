@@ -4,7 +4,7 @@
 
 ## Overview
 
-The EVM Block Explorer example demonstrates how an ICP smart contract can fetch block data directly from Ethereum and other EVM-compatible chains. Using HTTPS outcalls via the [EVM RPC canister](https://github.com/dfinity/evm-rpc-canister), smart contracts on ICP can read on-chain data without a bridge or oracle. The same pattern applies to any EVM-compatible chain supported by the EVM RPC canister.
+The EVM Block Explorer example demonstrates how an ICP canister can fetch block data directly from Ethereum and other EVM-compatible chains. Using HTTPS outcalls via the [EVM RPC canister](https://github.com/dfinity/evm-rpc-canister), canisters on ICP can read on-chain data without a bridge or oracle. The same pattern applies to any EVM-compatible chain supported by the EVM RPC canister.
 
 <!--
 ## Deploying from ICP Ninja

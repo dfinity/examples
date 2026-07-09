@@ -47,5 +47,4 @@ async fn get_evm_block(height: u128) -> Result<Block, String> {
     }
 }
 
-// Export the interface for the smart contract.
 ic_cdk::export_candid!();
