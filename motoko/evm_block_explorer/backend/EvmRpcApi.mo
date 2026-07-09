@@ -128,9 +128,22 @@ module {
     #Inconsistent : [(RpcService, GetBlockByNumberResult)];
   };
 
+  // Controls how the EVM RPC canister aggregates responses from multiple providers.
+  // - responseSizeEstimate: hint for the expected response size in bytes (affects cycles cost).
+  //   Leave null to use the canister's built-in default.
+  // - responseConsensus: how providers must agree before a result is accepted.
+  //   #Equality requires all providers to return identical responses (default).
+  //   #Threshold { total; min } requires at least `min` out of `total` providers to agree.
+  //   Leave null to use #Equality.
+  // Pass null for the entire RpcConfig to use all defaults — this is the right choice for most callers.
+  type ConsensusStrategy = {
+    #Equality;
+    #Threshold : { total : ?Nat; min : Nat };
+  };
+  type RpcConfig = { responseSizeEstimate : ?Nat64; responseConsensus : ?ConsensusStrategy };
+
   type EvmRpcActor = actor {
-    // Pass null for RpcConfig — unused cycles are refunded by the EVM RPC canister.
-    eth_getBlockByNumber : (RpcServices, ?{}, BlockTag) -> async MultiGetBlockByNumberResult;
+    eth_getBlockByNumber : (RpcServices, ?RpcConfig, BlockTag) -> async MultiGetBlockByNumberResult;
   };
 
   // The result type exposed to the main actor — matches the Rust variant names for cross-language consistency.
