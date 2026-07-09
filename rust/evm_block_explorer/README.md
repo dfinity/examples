@@ -51,10 +51,10 @@ npm run dev --prefix frontend
 
 ### Deploying on ICP mainnet
 
-On mainnet, the `evm_rpc` canister is already deployed at `7hfb6-caaaa-aaaar-qadga-cai`. Deploy only the backend and frontend — icp-cli injects the correct canister ID via the `production` environment configuration in `icp.yaml`:
+On mainnet, the `evm_rpc` canister is already deployed at `7hfb6-caaaa-aaaar-qadga-cai`. Deploy only the backend and frontend — icp-cli injects the correct canister ID via the `ic` environment configuration in `icp.yaml`:
 
 ```bash
-icp deploy backend frontend -e production
+icp deploy -e ic
 ```
 
 ## Updating the Candid interface
@@ -66,6 +66,12 @@ If you modify the backend's public API, rebuild the canister and regenerate the 
 ```bash
 icp build backend && candid-extractor target/wasm32-unknown-unknown/release/backend.wasm > backend/backend.did
 ```
+
+## RPC providers and API keys
+
+The example uses [PublicNode](https://ethereum-rpc.publicnode.com) by default — a free, no-registration provider that works out of the box locally and on mainnet. This is sufficient for getting started and automated testing.
+
+For production deployments requiring premium providers (Alchemy, Ankr, BlockPi), refer to the [EVM RPC canister documentation](https://github.com/dfinity/evm-rpc-canister) for how to configure API keys. Once configured, change `RpcServices::EthMainnet(Some(vec![EthMainnetService::PublicNode]))` in `backend/src/lib.rs` to `RpcServices::EthMainnet(None)` to use all configured providers for better consensus.
 
 ## Security considerations and best practices
 

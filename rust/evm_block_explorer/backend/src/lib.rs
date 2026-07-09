@@ -1,7 +1,5 @@
 use candid::Principal;
-use evm_rpc_types::{
-    Block, BlockTag, EthMainnetService, MultiRpcResult, Nat256, RpcServices,
-};
+use evm_rpc_types::{Block, BlockTag, EthMainnetService, MultiRpcResult, Nat256, RpcServices};
 use ic_cdk_management_canister::{
     ecdsa_public_key, schnorr_public_key, sign_with_ecdsa, sign_with_schnorr, EcdsaCurve,
     EcdsaKeyId, EcdsaPublicKeyArgs, SchnorrAlgorithm, SchnorrKeyId, SchnorrPublicKeyArgs,
@@ -20,28 +18,20 @@ fn evm_rpc_id() -> Principal {
 
 #[ic_cdk::update]
 async fn get_evm_block(height: u128) -> Result<Block, String> {
-    // Ethereum Mainnet RPC providers — using multiple for redundancy.
-    // If one provider is temporarily unavailable, others can still serve the request.
-    let rpc_services = RpcServices::EthMainnet(Some(vec![
-        EthMainnetService::Llama,
-        EthMainnetService::Cloudflare,
-        EthMainnetService::PublicNode,
-    ]));
+    // Uses PublicNode by default — no API key required, works locally and on mainnet.
+    // For production deployments requiring premium providers (Alchemy, Ankr, BlockPi),
+    // configure API keys via the EVM RPC canister, then pass None to use all configured
+    // providers for better consensus:
+    //   RpcServices::EthMainnet(None)
+    let rpc_services = RpcServices::EthMainnet(Some(vec![EthMainnetService::PublicNode]));
 
-    // Base Mainnet RPC providers
-    // Get chain ID and RPC providers from https://chainlist.org/
+    // To query a different chain, use RpcServices::Custom instead:
     // let rpc_services = RpcServices::Custom {
-    //     chain_id: 8453,
-    //     services: vec![
-    //         evm_rpc_types::RpcApi {
-    //             url: "https://base.llamarpc.com".to_string(),
-    //             headers: None,
-    //         },
-    //         evm_rpc_types::RpcApi {
-    //             url: "https://base-rpc.publicnode.com".to_string(),
-    //             headers: None,
-    //         },
-    //     ],
+    //     chain_id: 8453, // Base Mainnet — see https://chainlist.org/ for chain IDs
+    //     services: vec![evm_rpc_types::RpcApi {
+    //         url: "https://base-rpc.publicnode.com".to_string(),
+    //         headers: None,
+    //     }],
     // };
 
     let client = evm_rpc_client::EvmRpcClient::builder(
@@ -60,15 +50,7 @@ async fn get_evm_block(height: u128) -> Result<Block, String> {
     match result {
         MultiRpcResult::Consistent(Ok(block)) => Ok(block),
         MultiRpcResult::Consistent(Err(err)) => Err(format!("{err:?}")),
-        // Some providers may be temporarily unavailable while others succeed.
-        // If at least one returned Ok, use it; only fail if every provider errored.
-        MultiRpcResult::Inconsistent(responses) => {
-            if let Some(block) = responses.into_iter().find_map(|(_, r)| r.ok()) {
-                Ok(block)
-            } else {
-                Err("All RPC providers failed to return a block".to_string())
-            }
-        }
+        MultiRpcResult::Inconsistent(v) => Err(format!("RPC providers gave inconsistent results: {v:?}")),
     }
 }
 
