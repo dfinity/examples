@@ -1,9 +1,6 @@
-use ic_cdk::{
-    api::canister_self,
-    management_canister::{
-        http_request, HttpHeader, HttpMethod, HttpRequestArgs, HttpRequestResult, TransformArgs,
-        TransformContext, TransformFunc,
-    },
+use ic_cdk_management_canister::{
+    http_request, transform_context_from_query, HttpHeader, HttpMethod, HttpRequestArgs,
+    HttpRequestResult, TransformArgs,
 };
 
 // #region transform
@@ -38,10 +35,7 @@ async fn send_http_post_request() -> String {
             value: "text/plain".to_string(),
         }],
         body: Some(body.as_bytes().to_vec()),
-        transform: Some(TransformContext {
-            function: TransformFunc::new(canister_self(), "transform".to_string()),
-            context: vec![],
-        }),
+        transform: Some(transform_context_from_query("transform".to_string(), vec![])),
         // Non-replicated: only one replica sends the request. For replicated
         // mode (true), add an Idempotency-Key header so the server can
         // deduplicate the requests sent by each replica independently.
@@ -57,3 +51,5 @@ async fn send_http_post_request() -> String {
     }
 }
 // #endregion post_request
+
+ic_cdk::export_candid!();
