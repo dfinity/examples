@@ -20,8 +20,8 @@ This example can be deployed directly from [ICP Ninja](https://icp.ninja), a bro
 
 ### Prerequisites
 
-- Node.js
-- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Node.js](https://nodejs.org/) v18+
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
 ### Install
 
