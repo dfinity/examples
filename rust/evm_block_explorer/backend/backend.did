@@ -23,9 +23,5 @@ type Block = record {
 };
 type Result = variant { Ok : Block; Err : text };
 service : {
-  get_ecdsa_public_key : () -> (text);
   get_evm_block : (nat) -> (Result);
-  get_schnorr_public_key : () -> (text);
-  sign_message_with_ecdsa : (text) -> (text);
-  sign_message_with_schnorr : (text) -> (text);
 }

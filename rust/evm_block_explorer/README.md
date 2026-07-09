@@ -4,8 +4,7 @@
 
 ## Overview
 
-The EVM Block Explorer example demonstrates how an ICP smart contract can obtain information directly from other blockchain networks. Using HTTPS outcalls, smart contracts on ICP can interact with other networks without needing to go through a third-party service such as a bridge or an oracle. Supported interactions with other chains include querying network data, signing transactions, and submitting transactions directly to other networks.
-In this example, you'll also see how to sign transactions with canister ECDSA or Schnorr signatures.
+The EVM Block Explorer example demonstrates how an ICP smart contract can fetch block data directly from Ethereum and other EVM-compatible chains. Using HTTPS outcalls via the [EVM RPC canister](https://github.com/dfinity/evm-rpc-canister), smart contracts on ICP can read on-chain data without a bridge or oracle. The same pattern applies to any EVM-compatible chain supported by the EVM RPC canister.
 
 <!--
 ## Deploying from ICP Ninja
