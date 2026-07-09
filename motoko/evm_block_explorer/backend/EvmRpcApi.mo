@@ -94,7 +94,7 @@ module {
     #CanisterReject;
   };
 
-  type JsonRpcError = { code : Int; message : Text };
+  type JsonRpcError = { code : Int64; message : Text };
 
   type ProviderError = {
     #TooFewCycles : { expected : Nat; received : Nat };
