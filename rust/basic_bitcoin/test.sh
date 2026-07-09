@@ -45,8 +45,12 @@ addr=$(icp canister call backend get_p2pkh_address '()' | grep -o '"[^"]*"' | tr
 echo "=== Waiting for IC to sync Bitcoin blocks ==="
 _sync_addr=$(icp canister call backend get_p2pkh_address '()' | grep -o '"[^"]*"' | tr -d '"')
 for _i in $(seq 1 30); do
-  _bal=$(icp canister call backend get_balance "(\"$_sync_addr\")" 2>/dev/null)
-  if echo "$_bal" | grep -qE '[1-9]'; then
+  # || true prevents set -e from exiting when the bitcoin canister rejects the call
+  # during its sync window ("Canister state is not fully synced").
+  _bal=$(icp canister call backend get_balance "(\"$_sync_addr\")" 2>/dev/null) || true
+  # ^\([1-9] matches only a non-zero Candid value: "(500000..." — not "(0 : nat64)"
+  # and not error messages that start with "Error:".
+  if echo "$_bal" | grep -qE '^\([1-9]'; then
     echo "IC synced after ${_i}s"
     break
   fi
@@ -58,7 +62,7 @@ echo "=== Test 6: get_balance returns non-zero after mining ==="
 addr=$(icp canister call backend get_p2pkh_address '()' | grep -o '"[^"]*"' | tr -d '"') && \
   result=$(icp canister call backend get_balance "(\"$addr\")") && \
   echo "$result" && \
-  echo "$result" | grep -qE '[1-9]' && \
+  echo "$result" | grep -qE '^\([1-9]' && \
   echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "=== Test 7: get_utxos returns synced chain state after mining ==="
