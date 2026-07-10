@@ -61,6 +61,14 @@ pub fn create_spend_script(script_key_bytes: &[u8]) -> ScriptBuf {
         .into_script()
 }
 
+/// Controls how UTXOs are selected when building a transaction.
+///
+/// - `Greedy`: accumulates UTXOs (oldest-first) until the required amount plus fee is covered.
+///   Best for normal sends where you want to consolidate smaller UTXOs.
+/// - `Single`: requires a single UTXO large enough to cover amount plus fee on its own.
+///   Useful when an operation must be tied to a specific UTXO — for example, protocols
+///   that track individual satoshis through the UTXO graph require that the target satoshi
+///   enters as the first input of a single-UTXO transaction.
 pub enum SelectUtxosMode {
     Greedy,
     Single,
@@ -84,10 +92,8 @@ pub(crate) async fn build_transaction(
     // We solve this problem iteratively. We start with a fee of zero, build
     // and sign a transaction, see what its size is, and then update the fee,
     // rebuild the transaction, until the fee is set to the correct amount.
-    let amount = match primary_output {
-        PrimaryOutput::Address(_, amount) => *amount,
-        PrimaryOutput::OpReturn(_) => 0,
-    };
+    let PrimaryOutput::Address(_, amount) = primary_output;
+    let amount = *amount;
     let mut total_fee = 0;
     loop {
         let utxos_to_spend = match utxos_mode {
@@ -259,4 +265,18 @@ where
     }
 
     transaction
+}
+
+#[cfg(test)]
+mod tests {
+    use super::SelectUtxosMode;
+
+    #[test]
+    fn select_utxos_mode_variants_exist() {
+        // Ensure both variants are reachable so that callers using Single
+        // (e.g. for single-UTXO operations that track specific satoshis)
+        // have a clear pattern to follow.
+        let _greedy = SelectUtxosMode::Greedy;
+        let _single = SelectUtxosMode::Single;
+    }
 }

@@ -1,0 +1,17 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+# cdylib produces a .wasm binary suitable for deployment as an ICP canister.
+crate-type = ["cdylib"]
+
+[dependencies]
+bitcoin = "0.32"
+candid = "0.10"
+hex = "0.4"
+ic-cdk = "0.20.2"
+ic-cdk-bitcoin-canister = "0.2"
+ic-cdk-management-canister = "0.1.1"
+serde = "1.0"

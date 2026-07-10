@@ -1,16 +1,15 @@
-mod brc20;
 mod common;
 mod ecdsa;
-mod ordinals;
 mod p2pkh;
 mod p2tr;
 mod p2wpkh;
-mod runes;
 mod schnorr;
 mod service;
 
 use ic_cdk::{init, post_upgrade};
-use ic_cdk_bitcoin_canister::Network;
+use ic_cdk_bitcoin_canister::{
+    BlockchainInfo, GetBlockHeadersResponse, GetUtxosResponse, MillisatoshiPerByte, Network,
+};
 use std::cell::Cell;
 
 /// Runtime configuration shared across all Bitcoin-related operations.
@@ -32,7 +31,7 @@ pub struct BitcoinContext {
 }
 
 // Global, thread-local instance of the Bitcoin context.
-// This is initialized at smart contract init/upgrade time and reused across all API calls.
+// Initialized at canister init/upgrade time and reused across all API calls.
 thread_local! {
     static BTC_CONTEXT: Cell<BitcoinContext> = const {
         Cell::new(BitcoinContext {
@@ -46,8 +45,8 @@ thread_local! {
 /// Internal shared init logic used both by init and post-upgrade hooks.
 fn init_upgrade(network: Network) {
     let key_name = match network {
-        Network::Regtest => "dfx_test_key",
-        Network::Mainnet | Network::Testnet => "test_key_1",
+        Network::Regtest | Network::Testnet => "test_key_1",
+        Network::Mainnet => "key_1",
     };
 
     let bitcoin_network = match network {
@@ -65,7 +64,7 @@ fn init_upgrade(network: Network) {
     });
 }
 
-/// Smart contract init hook.
+/// Canister init hook.
 /// Sets up the BitcoinContext based on the given IC Bitcoin network.
 #[init]
 pub fn init(network: Network) {
@@ -86,3 +85,5 @@ pub struct SendRequest {
     pub destination_address: String,
     pub amount_in_satoshi: u64,
 }
+
+ic_cdk::export_candid!();

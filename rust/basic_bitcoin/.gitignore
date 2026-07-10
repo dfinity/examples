@@ -16,4 +16,7 @@ target/
 # bitcoin
 bitcoin_data
 
+# ord
+ord-db/
+
 canister_ids.json

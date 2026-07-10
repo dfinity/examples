@@ -10,7 +10,6 @@ use bitcoin::{
     sighash::{EcdsaSighashType, SighashCache},
     Address, AddressType, PublicKey, Transaction, Witness,
 };
-use ic_cdk::trap;
 use ic_cdk_bitcoin_canister::{MillisatoshiPerByte, Utxo};
 use std::convert::TryFrom;
 
@@ -33,10 +32,8 @@ pub async fn build_transaction(
     // and sign a transaction, see what its size is, and then update the fee,
     // rebuild the transaction, until the fee is set to the correct amount.
 
-    let amount = match primary_output {
-        PrimaryOutput::Address(_, amt) => *amt, // grab the amount
-        PrimaryOutput::OpReturn(_) => trap("expected an address output, got OP_RETURN"),
-    };
+    let PrimaryOutput::Address(_, amount) = primary_output;
+    let amount = *amount;
 
     let mut fee = 0;
     loop {
