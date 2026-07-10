@@ -1,32 +1,34 @@
 # Counter canister in WebAssembly
 
-This example demonstrates a counter application, written in WebAssembly directly. The compiled Wasm module is only 389 bytes.
+This example demonstrates a counter application written directly in WebAssembly Text Format (WAT). The compiled Wasm module is only 389 bytes.
 
-It can be a good way to learn and experiment with [the IC system API](https://github.com/dfinity-lab/ic-ref/blob/0.17.0/spec/index.adoc#canister-interface-system-api).
+It can be a good way to learn and experiment with the [IC System API](https://docs.internetcomputer.org/references/ic-interface-spec/canister-interface/#system-api).
 
 ## Prerequisites
 
-Install the `wat2wasm` tool, which is part of [WABT](https://github.com/WebAssembly/wabt). 
-For example, on Mac, you can run the following command:
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [WABT](https://github.com/WebAssembly/wabt) (for `wat2wasm`): `brew install wabt`
 
+## Deploy and test
+
+```bash
+icp network start -d
+icp deploy
+bash test.sh
+icp network stop
 ```
-$ brew install wabt
-```
 
-## Build
+## Manual testing
 
-```
-$ dfx start [--background]
-$ dfx deploy [--no-wallet] counter
+```bash
+icp canister call --query counter get '()'
+# (0 : int64)
 
-$ dfx canister call counter get
-(0 : int64)
-$ dfx canister call counter inc
-()
-$ dfx canister call counter get
-(1 : int64)
-$ dfx canister call counter set '(42)'
-()
-$ dfx canister call counter get
-(42 : int64)
+icp canister call counter inc '()'
+icp canister call --query counter get '()'
+# (1 : int64)
+
+icp canister call counter set '(42 : int64)'
+icp canister call --query counter get '()'
+# (42 : int64)
 ```
