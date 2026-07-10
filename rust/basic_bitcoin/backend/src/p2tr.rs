@@ -1,5 +1,5 @@
 use crate::{
-    common::{build_transaction_with_fee, select_utxos_greedy, PrimaryOutput},
+    common::{build_transaction_with_fee, select_one_utxo, select_utxos_greedy, PrimaryOutput},
     schnorr::mock_sign_with_schnorr,
     BitcoinContext,
 };
@@ -61,12 +61,25 @@ pub fn create_spend_script(script_key_bytes: &[u8]) -> ScriptBuf {
         .into_script()
 }
 
+/// Controls how UTXOs are selected when building a transaction.
+///
+/// - `Greedy`: accumulates UTXOs (oldest-first) until the required amount plus fee is covered.
+///   Best for normal sends where you want to consolidate smaller UTXOs.
+/// - `Single`: requires a single UTXO large enough to cover amount plus fee on its own.
+///   Useful when an operation must be tied to a specific UTXO — for example, protocols
+///   like Ordinals inscriptions that track individual satoshis through the UTXO graph.
+pub enum SelectUtxosMode {
+    Greedy,
+    Single,
+}
+
 // Builds a P2TR transaction to send the given `amount` of satoshis to the
 // destination address.
 pub(crate) async fn build_transaction(
     ctx: &BitcoinContext,
     own_address: &Address,
     own_utxos: &[Utxo],
+    utxos_mode: SelectUtxosMode,
     primary_output: &PrimaryOutput,
     fee_per_byte: MillisatoshiPerByte,
 ) -> (Transaction, Vec<TxOut>) {
@@ -82,7 +95,11 @@ pub(crate) async fn build_transaction(
     let amount = *amount;
     let mut total_fee = 0;
     loop {
-        let utxos_to_spend = select_utxos_greedy(own_utxos, amount, total_fee).unwrap();
+        let utxos_to_spend = match utxos_mode {
+            SelectUtxosMode::Greedy => select_utxos_greedy(own_utxos, amount, total_fee),
+            SelectUtxosMode::Single => select_one_utxo(own_utxos, amount, total_fee),
+        }
+        .unwrap();
 
         let (transaction, prevouts) =
             build_transaction_with_fee(utxos_to_spend, own_address, primary_output, total_fee)

@@ -46,6 +46,26 @@ pub fn select_utxos_greedy(
     Ok(utxos_to_spend)
 }
 
+/// Selects a single UTXO that can cover the required amount plus fee.
+///
+/// Use this when an operation must be tied to a specific UTXO — for example,
+/// protocols that track individual satoshis through the UTXO graph require that
+/// the relevant satoshi remains the first satoshi of a single-input transaction.
+///
+/// Returns an error if no single UTXO has enough value to cover the payment and fee.
+pub fn select_one_utxo(own_utxos: &[Utxo], amount: u64, fee: u64) -> Result<Vec<&Utxo>, String> {
+    for utxo in own_utxos.iter().rev() {
+        if utxo.value >= amount + fee {
+            return Ok(vec![&utxo]);
+        }
+    }
+
+    Err(format!(
+        "No sufficiently large utxo found: amount {} satoshi, fee {}",
+        amount, fee
+    ))
+}
+
 /// Represents the primary output type for a Bitcoin transaction.
 pub enum PrimaryOutput {
     Address(Address, u64), // destination address, amount in satoshis
