@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using UnityEngine.UI;
 using EdjCase.ICP.Agent.Agents;
@@ -8,8 +9,17 @@ namespace IC.GameKit
 {
     public class TestICPAgent : MonoBehaviour
     {
-        public string greetFrontend = "https://qsgof-4qaaa-aaaan-qekqq-cai.icp0.io/";
-        public string greetBackendCanister = "qvhir-riaaa-aaaan-qekqa-cai";
+        // Set these in the Unity Inspector before building.
+        // After running `icp deploy`, retrieve the values with:
+        //   icp canister id frontend   → paste the resulting URL as greetFrontend
+        //   icp canister id backend    → paste the canister ID as greetBackendCanister
+        // For local testing on a device connected to the same WiFi network, use
+        // the host machine's LAN IP, e.g. "http://192.168.1.42:8000/?canisterId=<id>"
+        // and change icGateway to "http://192.168.1.42:8000".
+        public string greetFrontend = "";
+        public string greetBackendCanister = "";
+        // IC HTTP gateway — mainnet default; change to local IP for device testing.
+        public string icGateway = "https://ic0.app";
 
         Text mMyPrincipalText = null;
         Button mGreetButton = null;
@@ -60,7 +70,7 @@ namespace IC.GameKit
                 return;
 
             // Initialize HttpAgent.
-            var agent = new HttpAgent(DelegationIdentity);
+            var agent = new HttpAgent(DelegationIdentity, new Uri(icGateway));
 
             var canisterId = Principal.FromText(greetBackendCanister);
 
