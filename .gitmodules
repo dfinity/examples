@@ -2,6 +2,3 @@
 	path = archive/c/qr/QR-Code-generator
 	url = https://github.com/nayuki/QR-Code-generator
 	branch = fd6917601d0a77b6b6df81599118212d8cdb9a27
-[submodule "svelte/svelte-motoko-starter/internet-identity"]
-	path = svelte/svelte-motoko-starter/internet-identity
-	url = https://github.com/dfinity/internet-identity.git
