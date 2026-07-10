@@ -1,0 +1,33 @@
+canisters:
+  - name: backend
+    recipe:
+      type: "@dfinity/rust@v3.3.0"
+
+  # xrc_mock is only deployed locally. On IC mainnet the production XRC canister
+  # (uf6dk-hyaaa-aaaaq-qaaaq-cai) is used instead — the ic environment below
+  # restricts deployment to [backend] only and injects its principal via env vars.
+  #
+  # The mock returns a fixed rate for any asset pair; no HTTPS outcalls are made.
+  # rate = 10_000_000_000 represents a rate of ~10 in the XRC 9-decimal format.
+  - name: xrc
+    build:
+      steps:
+        - type: pre-built
+          url: https://github.com/dfinity/exchange-rate-canister/releases/download/2026.06.26/xrc_mock.wasm.gz
+    init_args: "(record { response = variant { ExchangeRate = record { base_asset = null; quote_asset = null; metadata = null; rate = 10_000_000_000 : nat64 } } })"
+
+environments:
+  # Local: deploys both backend and xrc_mock (pre-built).
+  # icp-cli auto-injects PUBLIC_CANISTER_ID:xrc into the backend after deploying xrc.
+  - name: local
+    network: local
+
+  # IC mainnet: deploys only the backend; the production XRC canister is already
+  # running at uf6dk-hyaaa-aaaaq-qaaaq-cai.
+  - name: ic
+    network: ic
+    canisters: [backend]
+    settings:
+      backend:
+        environment_variables:
+          "PUBLIC_CANISTER_ID:xrc": "uf6dk-hyaaa-aaaaq-qaaaq-cai"

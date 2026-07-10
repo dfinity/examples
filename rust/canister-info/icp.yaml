@@ -1,0 +1,12 @@
+canisters:
+  - name: backend
+    recipe:
+      type: "@dfinity/rust@v3.3.0"
+
+  # test is a pre-built canister deployed only to provide a subject for the
+  # backend's canister_info queries in test.sh.
+  - name: test
+    build:
+      steps:
+        - type: pre-built
+          path: test.wasm

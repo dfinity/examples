@@ -1,0 +1,4 @@
+networks:
+  - name: local
+    mode: managed
+    nns: true  # deploys NNS canisters at their mainnet IDs on the local network

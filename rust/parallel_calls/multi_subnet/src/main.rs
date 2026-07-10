@@ -1,0 +1,84 @@
+use candid::{decode_one, encode_one, Principal};
+use pocket_ic::{CanisterSettings, EnvironmentVariable, PocketIcBuilder};
+use std::time::Instant;
+
+const INIT_CYCLES: u128 = 2_000_000_000_000;
+
+fn main() {
+    let num_calls: u64 = 90;
+    let pic = PocketIcBuilder::new()
+        .with_application_subnet()
+        .with_application_subnet()
+        .build();
+    let app_sub_1 = pic.topology().get_app_subnets()[0];
+    let app_sub_2 = pic.topology().get_app_subnets()[1];
+
+    let caller_id = pic.create_canister_on_subnet(None, None, app_sub_1);
+    pic.add_cycles(caller_id, INIT_CYCLES);
+    pic.install_canister(caller_id, caller_wasm(), vec![], None);
+
+    let callee_id = pic.create_canister_on_subnet(None, None, app_sub_2);
+    pic.add_cycles(callee_id, INIT_CYCLES);
+    pic.install_canister(callee_id, callee_wasm(), vec![], None);
+
+    // Inject PUBLIC_CANISTER_ID:callee so the caller discovers the callee
+    // via ic_cdk::api::env_var_value — the same mechanism icp-cli uses at deploy time.
+    pic.update_canister_settings(
+        caller_id,
+        None,
+        CanisterSettings {
+            environment_variables: Some(vec![EnvironmentVariable {
+                name: "PUBLIC_CANISTER_ID:callee".to_string(),
+                value: callee_id.to_text(),
+            }]),
+            ..Default::default()
+        },
+    )
+    .expect("Failed to inject callee canister ID");
+
+    let sequential_start = Instant::now();
+    let sequential_reply = pic
+        .update_call(
+            caller_id,
+            Principal::anonymous(),
+            "sequential_calls",
+            encode_one(num_calls).unwrap(),
+        )
+        .expect("Failed to execute sequential calls");
+    let sequential_num_calls: u64 = decode_one(&sequential_reply).unwrap();
+    let sequential_duration = sequential_start.elapsed();
+
+    let parallel_start = Instant::now();
+    let parallel_reply = pic
+        .update_call(
+            caller_id,
+            Principal::anonymous(),
+            "parallel_calls",
+            encode_one(num_calls).unwrap(),
+        )
+        .expect("Failed to execute parallel calls");
+    let parallel_num_calls: u64 = decode_one(&parallel_reply).unwrap();
+    let parallel_duration = parallel_start.elapsed();
+
+    assert_eq!(sequential_num_calls, num_calls, "Some sequential calls failed");
+    assert_eq!(parallel_num_calls, num_calls, "Some parallel calls failed");
+
+    println!(
+        "Sequential calls: {}/{} successful calls in {:?}",
+        sequential_num_calls, num_calls, sequential_duration
+    );
+    println!(
+        "Parallel calls: {}/{} successful calls in {:?}",
+        parallel_num_calls, num_calls, parallel_duration
+    );
+}
+
+fn caller_wasm() -> Vec<u8> {
+    let wasm_path = std::env::var_os("CALLER_WASM").expect("Missing CALLER_WASM env var");
+    std::fs::read(wasm_path).unwrap()
+}
+
+fn callee_wasm() -> Vec<u8> {
+    let wasm_path = std::env::var_os("CALLEE_WASM").expect("Missing CALLEE_WASM env var");
+    std::fs::read(wasm_path).unwrap()
+}

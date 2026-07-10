@@ -1,5 +1,0 @@
-service : {
-    "dump": () -> (vec text) query;
-    "append": (text) -> ();
-    "remove_spam": () -> (nat64);
-}

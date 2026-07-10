@@ -6,6 +6,7 @@ on:
   pull_request:
     paths:
       - motoko/parallel_calls/**
+      - rust/parallel_calls/**
       - .github/workflows/parallel_calls.yml
 
 concurrency:
@@ -36,4 +37,33 @@ jobs:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
       - name: Run multi-subnet PocketIC test
         working-directory: motoko/parallel_calls
+        run: bash test-multi-subnet.sh
+
+  rust-parallel_calls:
+    runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-rust:1.0.1
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy and test
+        working-directory: rust/parallel_calls
+        run: |
+          icp network start -d
+          icp deploy
+          bash test.sh
+
+  rust-parallel_calls-multi-subnet:
+    runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-rust:1.0.1
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Install PocketIC server
+        uses: dfinity/pocketic@a980c334fab1b21b0b8a6bba38e1a10836e7258b # main
+        with:
+          pocket-ic-server-version: "15.0.0"
+      - name: Run multi-subnet PocketIC test
+        working-directory: rust/parallel_calls
         run: bash test-multi-subnet.sh

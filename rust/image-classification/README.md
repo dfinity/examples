@@ -1,33 +1,68 @@
 # ICP image classification
 
-This is an ICP smart contract that accepts an image from the user and runs image classification inference.
+This example demonstrates running an ONNX machine-learning model inside an ICP canister.
+The smart contract accepts an image from the user and runs image classification inference using the [Tract ONNX inference engine](https://github.com/sonos/tract) with the [MobileNet v2-7 model](https://github.com/onnx/models/tree/main/validated/vision/classification/mobilenet).
+
+The example uses the WASI polyfill to run Tract (which relies on POSIX file I/O) inside the deterministic ICP runtime, and Wasm SIMD instructions for faster inference.
+
 The smart contract consists of two canisters:
 
-- the backend canister embeds the [the Tract ONNX inference engine](https://github.com/sonos/tract) with [the MobileNet v2-7 model](https://github.com/onnx/models/tree/main/validated/vision/classification/mobilenet).
-  It provides `classify()` and `classify_query()` endpoints for the frontend code to call.
-  The former endpoint is used for replicated execution (running on all nodes) whereas the latter runs only on a single node.
-- the frontend canister contains the Web assets such as HTML, JS, CSS that are served to the browser.
+- **backend** — embeds the Tract ONNX inference engine with the MobileNet v2-7 model.
+  It provides two classification endpoints:
+  - `classify(image)` — update call, runs under replicated execution on all nodes (secure, slower).
+  - `classify_query(image)` — query call, runs on a single node (fast, not replicated).
+- **frontend** — serves the web UI (HTML/JS/CSS) from which users upload images and view results.
 
-This example uses Wasm SIMD instructions that are available in `dfx` version `0.20.2-beta.0` or newer.
+## Build and deploy from the command line
 
-## Prerequisites
+### Prerequisites
 
-- [x] Install the [IC
-  SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.
-- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
-- [x] Install WASI SDK 21:
-  - [x] Install `wasi-skd-21.0` from https://github.com/WebAssembly/wasi-sdk/releases/tag/wasi-sdk-21
-  - [x] Export `CC_wasm32_wasi` in your shell such that it points to WASI clang and sysroot. Example: `export CC_wasm32_wasi="/path/to/wasi-sdk-21.0/bin/clang --sysroot=/path/to/wasi-sdk-21.0/share/wasi-sysroot`
-- [x] Install `wasi2ic`: Follow the steps in https://github.com/wasm-forge/wasi2ic and make sure that `wasi2ic` binary is in your `$PATH`.
-- [x] Download MobileNet v2-7 to `src/backend/assets/mobilenetv2-7.onnx`: `./downdload_model.sh`
-- [x] Install `wasm-opt`: `cargo install wasm-opt`
+- [Node.js](https://nodejs.org/) v18+
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Rust](https://www.rust-lang.org/tools/install) v1.85+ with `wasm32-wasip1` target: `rustup target add wasm32-wasip1`
+- [wasi2ic](https://github.com/wasm-forge/wasi2ic): `cargo install wasi2ic`
 
-## Build the application
+`wasm-opt` is installed automatically on first deploy if not already present.
 
-```
-dfx start --background
-dfx deploy
+### Install
+
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/rust/image-classification
 ```
 
-If the deployment is successful, the it will show the `frontend` URL.
-Open that URL in browser to interact with the smart contract.
+Download the MobileNet v2-7 model:
+
+```bash
+./download_model.sh
+```
+
+### Deploy and test
+
+```bash
+icp network start -d
+icp deploy
+bash test.sh
+icp network stop
+```
+
+If the deployment is successful, the CLI will print the frontend URL.
+Open that URL in a browser to interact with the smart contract.
+
+For frontend development with hot reload:
+
+```bash
+npm run dev --prefix frontend
+```
+
+## Updating the Candid interface
+
+Only needed if you change the backend endpoints. Requires `candid-extractor` (`cargo install candid-extractor`) and `ic_cdk::export_candid!()` at the end of `backend/src/lib.rs` (already present):
+
+```bash
+icp build backend && candid-extractor target/wasm32-wasip1/release/backend.wasm > backend/backend.did
+```
+
+## Security considerations and best practices
+
+Refer to the [ICP security best practices](https://docs.internetcomputer.org/guides/security/overview) for guidance on securing your canister.

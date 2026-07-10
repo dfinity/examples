@@ -7,9 +7,6 @@
 .DS_Store
 **/.DS_Store
 
-# generated files
-src/declarations/
-
 # frontend code
 node_modules/
 dist/

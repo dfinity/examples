@@ -1,6 +1,6 @@
 [workspace]
 members = [
-    "src/hello_canister",
+    "backend",
 ]
 resolver = "2"
 

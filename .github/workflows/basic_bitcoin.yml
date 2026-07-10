@@ -41,7 +41,7 @@ jobs:
         run: |
           icp network start -d
           icp deploy --cycles 30t
-          make test
+          bash test.sh
 
   rust-basic_bitcoin:
     # Run directly on the host (no container:) so that icp-cli can bind-mount

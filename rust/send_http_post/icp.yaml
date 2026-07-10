@@ -1,7 +1,4 @@
 canisters:
-  - name: send_http_post_backend
+  - name: backend
     recipe:
-      type: "@dfinity/rust@v3.1.0"
-      configuration:
-        package: send_http_post_backend
-        candid: src/send_http_post_backend/send_http_post_backend.did
+      type: "@dfinity/rust@v3.3.0"

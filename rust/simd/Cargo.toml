@@ -1,5 +1,5 @@
 [workspace]
-members = ["mat_mat_mul"]
+members = ["backend"]
 resolver = "2"
 
 [profile.release]

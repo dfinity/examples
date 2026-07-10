@@ -1,27 +1,42 @@
-# Daily planner
+# Daily Planner
 
-Daily planner features a monthly calender that can be used to track daily activities, appointments, or tasks. Data for each task is stored onchain. For each day, a historic fact can be queried using HTTPS outcalls, which is a feature that allows ICP canisters to obtain data from external sources.
+Daily Planner is a full-stack ICP example featuring a monthly calendar that tracks daily notes and tasks stored on the network. For each day, a historic fact can be fetched from an external API using HTTPS outcalls, demonstrating how ICP canisters can access data from external services.
 
-## Deploying from ICP Ninja
+## Build and deploy from the command line
 
-When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Run" in the upper right corner. Open this project in ICP Ninja:
+### Prerequisites
 
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/rust/daily_planner)
+- Node.js
+- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
-## Build and deploy from the command-line
+### Install
 
-### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
-
-### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
-
-### 3. Navigate into the project's directory.
-
-### 4. Deploy the project to your local environment:
-
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/rust/daily_planner
 ```
-dfx start --background --clean && dfx deploy
+
+### Deploy and test
+
+```bash
+icp network start -d
+icp deploy
+bash test.sh
+icp network stop
+```
+
+To run the frontend in development mode with hot reload:
+
+```bash
+npm run dev
+```
+
+## Updating the Candid interface
+
+```bash
+icp build backend && candid-extractor target/wasm32-unknown-unknown/release/backend.wasm > backend/backend.did
 ```
 
 ## Security considerations and best practices
 
-If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
+Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app.

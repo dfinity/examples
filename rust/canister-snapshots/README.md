@@ -1,162 +1,111 @@
 # Canister snapshots
 
-This example demonstrates the process of taking and loading canister snapshots.
-It features a canister named `chat`, which functions as a miniature database.
+This example demonstrates the process of taking and restoring canister snapshots.
+It features a canister that functions as a miniature chat database.
 The `remove_spam` canister method intentionally includes a bug to simulate data loss.
-The example outlines the steps to install the canister, create a snapshot,
+The example outlines the steps to deploy the canister, create a snapshot,
 and subsequently restore the data after the simulated data loss.
 
-## Prerequisites
+## Build and deploy from the command line
 
-This example requires an installation of:
+### Prerequisites
+- Node.js
+- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). Note: the Canister Snapshots feature requires `dfx` version `0.23.0-beta.3` or later.
-- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
+### Install
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/rust/canister-snapshots
+```
 
-Begin by opening a terminal window.
+### Deploy and test
+```bash
+icp network start -d
+icp deploy
+bash test.sh
+icp network stop
+```
 
-## Step 1: Setup the project environment
+`bash test.sh` automates the full snapshot lifecycle documented below.
 
-Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
+## How it works
 
+The backend canister maintains a `CHAT` vector and a `LENGTH` counter in heap memory.
+Canister snapshots capture the full state of a stopped canister — WASM module, WASM memory,
+stable memory, and chunk store — and can restore it after a bad deployment or logic error.
+
+Key constraint: **the canister must be stopped** before taking or restoring a snapshot.
+
+## Step-by-step walkthrough
+
+### Step 1: Populate the database
 
 ```bash
-cd examples/rust/canister-snapshots
-dfx start
-```
-
-This terminal will stay blocked, printing log messages, until the `Ctrl+C` is pressed or `dfx stop` command is run.
-
-Example output:
-
-```sh
-Running dfx start for version 0.23.0-beta.3
-[...]
-Replica API running on 127.0.0.1:4943
-```
-
-## Step 2: Open another terminal window in the same directory
-
-```sh
-cd examples/rust/canister-snapshots
-```
-
-## Step 3: Compile and deploy `chat` canister
-
-```sh
-dfx deploy
+icp canister call backend append '("Hi there!")'
+icp canister call --query backend dump '()'
 ```
 
 Example output:
 
-```sh
-% dfx deploy
-Deploying all canisters.
-[...]
-Deployed canisters.
-URLs:
-   Backend canister via Candid interface:
-      chat: http://127.0.0.1:4943/?canisterId=...
 ```
-
-## Step 4: Populate the database with data
-
-```sh
-dfx canister call chat append 'Hi there!'
-dfx canister call chat dump
-```
-
-Example output:
-
-```sh
-% dfx canister call chat append 'Hi there!'
 ()
-% dfx canister call chat dump
 (vec { "Hi there!" })
 ```
 
-## Step 5: Take canister snapshot
+### Step 2: Take a snapshot
 
-Canister `chat` is currently running, and snapshots should not be taken of active canisters.
-Therefore, the canister should be stopped before taking a snapshot and then restarted.
+Snapshots must not be taken of running canisters — stop it first, then restart after.
 
-```sh
-dfx canister stop chat
-dfx canister snapshot create chat
-dfx canister start chat
+```bash
+icp canister stop backend
+icp canister snapshot create backend
+icp canister start backend
 ```
 
 Example output:
 
-```sh
-% dfx canister stop chat
-Stopping code for canister chat, with canister_id bkyz2-fmaaa-aaaaa-qaaaq-cai
-% dfx canister snapshot create chat
-Created a new snapshot of canister chat. Snapshot ID: 000000000000000080000000001000010101
-% dfx canister start chat
-Starting code for canister chat, with canister_id bkyz2-fmaaa-aaaaa-qaaaq-cai
+```
+0000000000000000ffffffffffa000020101
 ```
 
-## Step 6: Simulate data loss
+### Step 3: Simulate data loss
 
-The `remove_spam` canister method intentionally includes a bug to simulate data loss.
+`remove_spam` contains a deliberate bug: it always clears the chat via `CHAT.take()`,
+even when no spam is found.
 
-```sh
-dfx canister call chat remove_spam
-dfx canister call chat dump
+```bash
+icp canister call backend remove_spam '()'
+icp canister call --query backend dump '()'
 ```
 
 Example output:
 
-```sh
-% dfx canister call chat remove_spam
+```
 (0 : nat64)
-% dfx canister call chat dump
 (vec {})
 ```
 
-There is no more data in the database.
+### Step 4: Restore from snapshot
 
-## Step 7: Restore the canister state from the snapshot
+Stop the canister, restore the snapshot, then start it again.
 
-Canister `chat` is currently running, and snapshots should not be applied to active canisters.
-Therefore, the canister must be stopped before applying the snapshot and then restarted.
-
-```sh
-dfx canister stop chat
-dfx canister snapshot list chat
-dfx canister snapshot load chat 000000000000000080000000001000010101
-dfx canister start chat
-dfx canister call chat dump
+```bash
+icp canister stop backend
+icp canister snapshot restore backend 0000000000000000ffffffffffa000020101
+icp canister start backend
+icp canister call --query backend dump '()'
 ```
 
 Example output:
 
-```sh
-% dfx canister stop chat
-Stopping code for canister chat, with canister_id bkyz2-fmaaa-aaaaa-qaaaq-cai
-% dfx canister snapshot list chat
-000000000000000080000000001000010101: 1.61MiB, taken at 2024-08-27 18:19:20 UTC
-% dfx canister snapshot load chat 000000000000000080000000001000010101
-Loaded snapshot 000000000000000080000000001000010101 in canister chat
-% dfx canister start chat
-Starting code for canister chat, with canister_id bkyz2-fmaaa-aaaaa-qaaaq-cai
-% dfx canister call chat dump
+```
 (vec { "Hi there!" })
 ```
 
-The canister state has been successfully restored from the snapshot.
-
-## Conclusion
-
-Canister Snapshots are a powerful new tool for developers.
-In the event of accidental data loss, bugs, or configuration errors,
-canisters can be quickly restored to a previous working state.
-Snapshots help ensure that critical data and services remain accessible
-even in the face of unexpected events, providing developers with peace of mind.
+The canister state has been successfully restored.
 
 ## Security considerations and best practices
 
 If you base your application on this example, we recommend you familiarize
-yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/current/references/security/)
+yourself with and adhere to the [security best practices](https://docs.internetcomputer.org/guides/security/overview)
 for developing on the Internet Computer. This example may not implement all the best practices.

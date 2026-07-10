@@ -14,5 +14,5 @@ target/
 .mops
 mops.lock
 .env
-**/frontend/src/bindings/
 **/src/declarations/
+**/src/bindings/

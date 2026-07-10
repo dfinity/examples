@@ -1,0 +1,20 @@
+[package]
+name = "backend"
+version = "0.1.0"
+edition = "2024"
+
+[lib]
+# cdylib produces a .wasm binary suitable for deployment as an ICP canister.
+crate-type = ["cdylib"]
+path = "lib.rs"
+
+[dependencies]
+candid = "0.10"
+# Enable `custom` feature of k256's getrandom dependency. See lib.rs for more details.
+getrandom = { version = "0.2", features = ["custom"] }
+hex = "0.4"
+ic-cdk = "0.20"
+ic-cdk-management-canister = "0.1.1"
+k256 = { version = "0.13", features = ["ecdsa"] }
+serde = "1"
+sha2 = "0.10"

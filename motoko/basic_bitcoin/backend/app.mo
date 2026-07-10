@@ -12,7 +12,7 @@ actor class BasicBitcoin(network : Types.Network) {
 
   /// The Bitcoin network to connect to.
   /// Passed as an init arg and determined by the environment:
-  /// `regtest` (local), `testnet` (staging), or `mainnet` (production).
+  /// `regtest` (local), `testnet` (ic — default), or `mainnet` (ic — production).
   let NETWORK : Types.Network = network;
 
   /// The derivation path to use for ECDSA secp256k1 or Schnorr BIP340/BIP341 key
@@ -20,8 +20,8 @@ actor class BasicBitcoin(network : Types.Network) {
   transient let DERIVATION_PATH : [[Nat8]] = [];
 
   // The ECDSA/Schnorr key name depends on which Bitcoin network this canister targets:
-  //   - "key_1"       — Bitcoin mainnet on ICP mainnet
-  //   - "test_key_1"  — Bitcoin testnet4 on ICP mainnet (staging) OR local regtest
+  //   - "key_1"       — Bitcoin mainnet on ICP mainnet (production)
+  //   - "test_key_1"  — Bitcoin testnet4 on ICP mainnet OR local regtest
   transient let KEY_NAME : Text = switch NETWORK {
     case (#mainnet) "key_1";
     case (#testnet or #regtest) "test_key_1";

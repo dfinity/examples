@@ -1,23 +1,45 @@
 canisters:
   - name: backend
     recipe:
-      type: "@dfinity/rust@v3.2.0"
+      type: "@dfinity/rust@v3.3.0"
       configuration:
-        package: backend
         candid: backend/backend.did
 
   - name: frontend
     recipe:
-      type: "@dfinity/asset-canister@v2.1.0"
+      type: "@dfinity/asset-canister@v2.2.1"
       configuration:
         dir: frontend/dist
         build:
           - npm install --prefix frontend
           - npm run build --prefix frontend
 
+  # evm_rpc is only deployed locally. On ICP mainnet the shared EVM RPC canister
+  # (7hfb6-caaaa-aaaar-qadga-cai) is used instead — the ic environment below
+  # restricts deployment to [backend, frontend] only and injects its principal via env vars.
   - name: evm_rpc
     build:
       steps:
         - type: pre-built
-          url: https://github.com/dfinity/evm-rpc-canister/releases/download/v2.2.0/evm_rpc.wasm.gz
-    init_args: "(record {})"
+          url: https://github.com/dfinity/evm-rpc-canister/releases/download/evm_rpc-v2.8.0/evm_rpc.wasm.gz
+    # nodesInSubnet controls how many cycles the EVM RPC canister charges per request
+    # (each node in a subnet independently makes the HTTPS outcall, so cost scales with N).
+    # Using the production value (28) locally validates that the cycle amounts in the
+    # backend are sufficient for a real subnet, even though the local replica only runs 1 node.
+    init_args: "(record { nodesInSubnet = 28 })"
+
+environments:
+  # Local: deploys backend, frontend, and evm_rpc (pre-built).
+  # icp-cli auto-injects PUBLIC_CANISTER_ID:evm_rpc into the backend after deploying evm_rpc.
+  - name: local
+    network: local
+
+  # IC mainnet: deploys only backend and frontend; the shared EVM RPC canister is already
+  # running on ICP mainnet at 7hfb6-caaaa-aaaar-qadga-cai.
+  - name: ic
+    network: ic
+    canisters: [backend, frontend]
+    settings:
+      backend:
+        environment_variables:
+          "PUBLIC_CANISTER_ID:evm_rpc": "7hfb6-caaaa-aaaar-qadga-cai"

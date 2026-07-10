@@ -1,193 +1,152 @@
 use candid::{CandidType, Decode, Deserialize, Encode, Principal};
-use ic_agent::identity::{BasicIdentity, Secp256k1Identity};
-use ic_agent::{Agent, Identity};
+use ic_agent::{
+    identity::{BasicIdentity, Secp256k1Identity},
+    Agent, Identity,
+};
 use ic_ledger_types::{
-    AccountIdentifier, Memo, Subaccount, Tokens, TransferArgs, TransferResult, DEFAULT_FEE,
+    AccountIdentifier, Memo, Subaccount, Tokens, TransferArgs, TransferResult,
+    MAINNET_LEDGER_CANISTER_ID,
 };
 use sha2::{Digest, Sha256};
 use std::path::PathBuf;
 
-// Canonical canister IDs
-const ICP_LEDGER_CANISTER_ID: &str = "ryjl3-tyaaa-aaaaa-aaaba-cai";
 const NNS_GOVERNANCE_CANISTER_ID: &str = "rrkah-fqaaa-aaaaa-aaaaq-cai";
 
 pub struct StakeNeuronArgs {
     pub identity_path: PathBuf,
     pub ic_url: String,
-    pub amount: u64,
+    pub amount_e8s: u64,
     pub nonce: u64,
 }
 
-pub async fn stake_neuron(
-    args: StakeNeuronArgs,
-) -> Result<NeuronStakingResult, Box<dyn std::error::Error>> {
-    println!("Loading identity from: {}", args.identity_path.display());
-    println!("Connecting to IC at: {}", args.ic_url);
-    println!(
-        "Staking amount: {} e8s ({} ICP)",
-        args.amount,
-        args.amount as f64 / 100_000_000.0
-    );
-    println!("Using nonce: {}", args.nonce);
+pub async fn stake_neuron(args: StakeNeuronArgs) -> Result<(), Box<dyn std::error::Error>> {
+    if args.amount_e8s < 100_000_000 {
+        return Err("amount_e8s must be at least 100_000_000 (1 ICP)".into());
+    }
 
-    let identity = load_identity(&args.identity_path).await?;
-
+    let pem = std::fs::read(&args.identity_path)?;
+    // Try Ed25519 first, then secp256k1 (default key type created by icp-cli).
+    let identity: Box<dyn Identity> = if let Ok(id) = BasicIdentity::from_pem(&pem) {
+        Box::new(id)
+    } else {
+        Box::new(Secp256k1Identity::from_pem(&pem)?)
+    };
     let controller = identity.sender()?;
-    println!("Identity principal: {}", controller);
 
     let agent = Agent::builder()
         .with_url(&args.ic_url)
         .with_identity(identity)
-        .build()
-        .expect("Failed to create IC agent");
+        .build()?;
+    // On local networks, fetch and trust the replica's root key.
+    // Never call this against mainnet: a rogue node could return a fake key, and
+    // ic-agent already has the real mainnet root key compiled in.
+    let is_local = args.ic_url.contains("localhost") || args.ic_url.contains("127.0.0.1");
+    if is_local {
+        agent.fetch_root_key().await?;
+    }
 
-    agent.fetch_root_key().await?;
+    println!("Controller : {controller}");
+    println!("Amount     : {} e8s ({} ICP)", args.amount_e8s, args.amount_e8s as f64 / 1e8);
+    println!("Nonce      : {}", args.nonce);
 
-    println!("Successfully created IC agent!");
+    // ── Step 1: transfer ICP to governance's staking subaccount ─────────────
 
-    // Step 1: Compute neuron staking subaccount
-    let subaccount = Subaccount(compute_neuron_staking_subaccount(controller, args.nonce));
-    println!("Calculated subaccount: \"{}\"", hex::encode(subaccount.0));
+    let new_neuron_subaccount = compute_neuron_staking_subaccount(controller, args.nonce);
+    println!("Subaccount : {}", hex_encode(&new_neuron_subaccount.0));
 
-    // Step 2: Transfer ICP to governance canister subaccount
-    println!("\n===========TRANSFERRING ICP TO GOVERNANCE=========");
-    let governance_principal = Principal::from_text(NNS_GOVERNANCE_CANISTER_ID)?;
-
-    let to_account = AccountIdentifier::new(&governance_principal, &subaccount);
+    let governance = Principal::from_text(NNS_GOVERNANCE_CANISTER_ID).unwrap();
     let transfer_args = TransferArgs {
+        // The memo here is only a label on the ledger transaction; it does not need
+        // to match the nonce passed to claim_or_refresh_neuron_from_account below.
         memo: Memo(args.nonce),
-        amount: Tokens::from_e8s(args.amount),
-        fee: DEFAULT_FEE, // Standard ICP transfer fee
+        amount: Tokens::from_e8s(args.amount_e8s),
+        fee: Tokens::from_e8s(10_000),
         from_subaccount: None,
-        to: to_account,
+        to: AccountIdentifier::new(&governance, &new_neuron_subaccount),
+        // Setting created_at_time enables transaction deduplication (safe retries).
+        // See https://docs.internetcomputer.org/guides/digital-assets/ledgers/#transaction-deduplication
         created_at_time: None,
     };
 
-    let transfer_result_bytes = agent
-        .update(&Principal::from_text(ICP_LEDGER_CANISTER_ID)?, "transfer")
+    let transfer_bytes = agent
+        .update(&MAINNET_LEDGER_CANISTER_ID, "transfer")
         .with_arg(Encode!(&transfer_args)?)
         .call_and_wait()
         .await?;
-
-    let transfer_result = Decode!(&transfer_result_bytes, TransferResult)?;
-
-    let block_index = match transfer_result {
-        TransferResult::Ok(block_index) => {
-            println!("Transfer successful! Block index: {}", block_index);
-            block_index
+    let block_index = match Decode!(&transfer_bytes, TransferResult)? {
+        TransferResult::Ok(idx) => {
+            println!("Transfer OK (block {idx})");
+            idx
         }
-        TransferResult::Err(transfer_error) => {
-            println!("Transfer failed: {:?}", transfer_error);
-            return Err(format!("Transfer failed: {:?}", transfer_error).into());
-        }
+        TransferResult::Err(e) => return Err(format!("Transfer failed: {e:?}").into()),
     };
 
-    // Step 3: Claim or refresh neuron from account
-    println!("\n===========CLAIMING NEURON FROM ACCOUNT=========");
+    // ── Step 2: claim the neuron ─────────────────────────────────────────────
+    // Anyone can call claim_or_refresh_neuron_from_account to complete this step
+    // because the neuron's controller is already determined by the subaccount
+    // derived in step 1 — regardless of who the caller is here.
 
     let claim_request = ClaimOrRefreshNeuronFromAccount {
+        // The controller that will own the neuron; Governance recomputes
+        // the expected subaccount as hash(controller, memo) and checks funds.
         controller: Some(controller),
+        // This memo IS the nonce used when deriving the staking subaccount above
+        // and must match it exactly.
         memo: args.nonce,
     };
 
-    let claim_result_bytes = agent
-        .update(
-            &governance_principal,
-            "claim_or_refresh_neuron_from_account",
-        )
+    let claim_bytes = agent
+        .update(&governance, "claim_or_refresh_neuron_from_account")
         .with_arg(Encode!(&claim_request)?)
         .call_and_wait()
         .await?;
+    let response = Decode!(&claim_bytes, ClaimOrRefreshNeuronFromAccountResponse)?;
 
-    println!("Raw response bytes length: {}", claim_result_bytes.len());
-    println!(
-        "Raw response bytes (hex): {}",
-        hex::encode(&claim_result_bytes)
-    );
-
-    let claim_result = Decode!(&claim_result_bytes, ClaimOrRefreshNeuronFromAccountResponse)?;
-
-    println!("Full governance response: {:?}", claim_result);
-
-    let neuron_id = if let Some(result) = claim_result.result {
-        match result {
-            ClaimOrRefreshResult::Error(error) => {
-                println!(
-                    "Governance error: {} (type: {})",
-                    error.error_message, error.error_type
-                );
-                return Err(format!("Governance error: {}", error.error_message).into());
-            }
-            ClaimOrRefreshResult::NeuronId(neuron_id) => {
-                println!("Neuron successfully claimed/refreshed!");
-                println!("Neuron ID: {}", neuron_id.id);
-                println!("Controller: {}", controller);
-                println!(
-                    "Staked amount: {} e8s ({} ICP)",
-                    args.amount,
-                    args.amount as f64 / 100_000_000.0
-                );
-                neuron_id.id
-            }
+    let neuron_id = match response.result {
+        Some(ClaimOrRefreshResult::NeuronId(n)) => n.id,
+        Some(ClaimOrRefreshResult::Error(e)) => {
+            return Err(format!("Governance error ({}): {}", e.error_type, e.error_message).into())
         }
-    } else {
-        println!("No result received - this might indicate a decoding issue");
-        return Err("No result received from governance canister".into());
+        None => return Err("No result from governance canister".into()),
     };
 
-    println!("\nNeuron staking completed successfully!");
-
-    Ok(NeuronStakingResult {
-        neuron_id,
-        controller,
-        staked_amount_e8s: args.amount,
-        block_index,
-        subaccount,
-    })
+    println!("Neuron ID  : {neuron_id}");
+    println!("Block index: {block_index}");
+    Ok(())
 }
 
-pub struct NeuronStakingResult {
-    pub neuron_id: u64,
-    pub controller: Principal,
-    pub staked_amount_e8s: u64,
-    pub block_index: u64,
-    pub subaccount: Subaccount,
-}
-
-async fn load_identity(
-    identity_path: &PathBuf,
-) -> Result<Box<dyn Identity>, Box<dyn std::error::Error>> {
-    println!(
-        "Attempting to load identity from: {}",
-        identity_path.display()
-    );
-
-    // Read the PEM file
-    let pem_content = std::fs::read_to_string(identity_path)?;
-
-    // Try to parse as different identity types
-    if let Ok(identity) = BasicIdentity::from_pem(pem_content.as_bytes()) {
-        println!("Loaded basic identity");
-        return Ok(Box::new(identity));
-    }
-
-    if let Ok(identity) = Secp256k1Identity::from_pem(pem_content.as_bytes()) {
-        println!("Loaded secp256k1 identity");
-        return Ok(Box::new(identity));
-    }
-
-    Err("Could not parse identity file as either BasicIdentity or Secp256k1Identity".into())
-}
-
-/// Compute the subaccount for neuron staking
-fn compute_neuron_staking_subaccount(controller: Principal, nonce: u64) -> [u8; 32] {
-    let domain_length: [u8; 1] = [b"neuron-stake".len() as u8];
+/// Compute the NNS neuron staking subaccount for a (controller, nonce) pair.
+///
+/// The neuron staking subaccount is the most critical thing to get right.
+/// If ICP is sent to the wrong subaccount it is permanently lost.
+///
+/// SHA-256 over these inputs in order:
+///   1. 12  (the length of the domain separator "neuron-stake")
+///   2. "neuron-stake"
+///   3. controller principal as raw bytes (not the text form)
+///   4. nonce as big-endian u64
+pub fn compute_neuron_staking_subaccount(controller: Principal, nonce: u64) -> Subaccount {
+    let domain = b"neuron-stake";
     let mut hasher = Sha256::new();
-    hasher.update(&domain_length);
-    hasher.update(b"neuron-stake");
+    hasher.update([domain.len() as u8]);
+    hasher.update(domain);
     hasher.update(controller.as_slice());
-    hasher.update(&nonce.to_be_bytes());
-    hasher.finalize().into()
+    hasher.update(nonce.to_be_bytes());
+    Subaccount(hasher.finalize().into())
+}
+
+fn hex_encode(bytes: &[u8]) -> String {
+    bytes.iter().map(|b| format!("{b:02x}")).collect()
+}
+
+// ── Candid types for NNS Governance ─────────────────────────────────────────
+// Minimal subset of the full interface. Full definition:
+// https://github.com/dfinity/ic/blob/master/rs/nns/governance/canister/governance.did
+
+#[derive(CandidType, Deserialize, Debug)]
+struct ClaimOrRefreshNeuronFromAccount {
+    controller: Option<Principal>,
+    memo: u64,
 }
 
 #[derive(CandidType, Deserialize, Debug)]
@@ -196,9 +155,9 @@ struct NeuronId {
 }
 
 #[derive(CandidType, Deserialize, Debug)]
-struct ClaimOrRefreshNeuronFromAccount {
-    controller: Option<Principal>,
-    memo: u64,
+struct GovernanceError {
+    error_type: i32,
+    error_message: String,
 }
 
 #[derive(CandidType, Deserialize, Debug)]
@@ -210,10 +169,4 @@ enum ClaimOrRefreshResult {
 #[derive(CandidType, Deserialize, Debug)]
 struct ClaimOrRefreshNeuronFromAccountResponse {
     result: Option<ClaimOrRefreshResult>,
-}
-
-#[derive(CandidType, Deserialize, Debug)]
-struct GovernanceError {
-    error_type: i32,
-    error_message: String,
 }

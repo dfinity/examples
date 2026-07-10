@@ -1,6 +1,6 @@
 use candid::{CandidType, Deserialize};
 use ic_cdk::{
-    api::{data_certificate, set_certified_data},
+    api::{certified_data_set, data_certificate},
     *,
 };
 use ic_http_certification::{
@@ -25,7 +25,7 @@ pub struct HttpRequest {
 
 #[init]
 fn init() {
-    set_certified_data(&skip_certification_certified_data());
+    certified_data_set(&skip_certification_certified_data());
 }
 
 type ImageId = u64;
@@ -139,3 +139,5 @@ fn http_request(request: HttpRequest) -> ic_http_certification::HttpResponse<'st
     add_skip_certification_header(data_certificate().unwrap(), &mut response);
     response
 }
+
+ic_cdk::export_candid!();
