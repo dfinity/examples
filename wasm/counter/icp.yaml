@@ -1,0 +1,7 @@
+canisters:
+  - name: counter
+    build:
+      steps:
+        - type: script
+          commands:
+            - wat2wasm counter.wat -o "$ICP_WASM_OUTPUT_PATH"
