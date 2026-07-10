@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
-import { backend } from 'declarations/backend';
+import { backend } from './actor';
 import botImg from '/bot.svg';
 import userImg from '/user.svg';
 import '/index.css';

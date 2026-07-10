@@ -1,0 +1,37 @@
+# yaml-language-server: $schema=https://github.com/dfinity/icp-cli/raw/refs/tags/v0.1.0/docs/schemas/icp-yaml-schema.json
+
+canisters:
+  - name: llm
+    build:
+      steps:
+        - type: pre-built
+          url: https://github.com/dfinity/llm/releases/download/v0.3.1/llm-canister.wasm
+          sha256: 9fc6a172b13289428c6975895382c3c923fb641bcd8e8a5168469298c3cff310
+    init_args: "(opt variant { ollama }, null)"
+
+  - name: backend
+    recipe:
+      type: "@dfinity/rust@v3.3.0"
+      configuration:
+        package: backend
+        candid: backend/backend.did
+
+  - name: frontend
+    recipe:
+      type: "@dfinity/asset-canister@v2.2.1"
+      configuration:
+        dir: frontend/dist
+        build:
+          - npm install --prefix frontend
+          - npm run build --prefix frontend
+
+environments:
+  - name: ic
+    network: ic
+    # On mainnet, the LLM canister already exists at w36hm-eqaaa-aaaal-qr76a-cai.
+    # Excluding it here tells icp deploy not to redeploy it on the ic network.
+    # Locally, icp deploy auto-injects PUBLIC_CANISTER_ID:llm into the backend
+    # canister, which ic-llm reads at runtime to reach the locally-deployed LLM.
+    canisters:
+      - backend
+      - frontend

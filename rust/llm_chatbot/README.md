@@ -1,50 +1,73 @@
 # LLM Chatbot
 
-The LLM Chatbot example demonstrates how an ICP smart contract can be used to interact with a large language model (LLM) to generate text. The user can input a prompt, and the smart contract will use the LLM to generate a response.
-The response is then returned to the user, and the user can submit some follow-up prompts to continue the conversation.
+This example demonstrates how an ICP smart contract can interact with a large language model (LLM) to generate text. The user can input a prompt and the smart contract will use the LLM to generate a response. Follow-up prompts continue the conversation with the full message history.
 
-## Deploying from ICP Ninja
+## How it works
 
-When viewing this project in ICP Ninja, you can deploy it directly to the mainnet for free by clicking "Run" in the upper right corner. Open this project in ICP Ninja:
+The backend canister calls the `w36hm-eqaaa-aaaal-qr76a-cai` LLM canister on mainnet via the [`ic-llm`](https://crates.io/crates/ic-llm) crate. Locally, `icp deploy` deploys a copy of the LLM canister (backed by Ollama) and automatically injects its canister ID into the backend as the `PUBLIC_CANISTER_ID:llm` environment variable — `ic-llm` reads this at runtime so local calls go to the local LLM. On mainnet, the env var is absent and `ic-llm` falls back to the hardcoded mainnet principal.
 
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/rust/llm_chatbot)
+## Build and deploy from the command line
 
-## Deploying from ICP Ninja
+### Prerequisites
 
-[![](https://icp.ninja/assets/open.svg)](https://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/counter)
+- Node.js
+- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- ic-mops: `npm install -g ic-mops`
 
-## Build and deploy from the command-line
+### Set up Ollama (local deployment only)
 
-### 1. [Download and install the IC SDK.](https://internetcomputer.org/docs/building-apps/getting-started/install)
+The LLM canister delegates inference to [Ollama](https://ollama.com/). Install it and then run:
 
-### 2. Download your project from ICP Ninja using the 'Download files' button on the upper left corner, or [clone the GitHub examples repository.](https://github.com/dfinity/examples/)
-
-### 3. Navigate into the project's directory.
-
-### 4. Set up Ollama
-
-To be able to test the agent locally, you'll need a server for processing the agent's prompts. For that, we'll use `ollama`, which is a tool that can download and serve LLMs.
-See the documentation on the [Ollama website](https://ollama.com/) to install it. Once it's installed, run:
-
-```
+```bash
 ollama serve
-# Expected to start listening on port 11434
 ```
 
-The above command will start the Ollama server, so that it can process requests by the agent. Additionally, and in a separate window, run the following command to download the LLM that will be used by the agent:
+In a separate terminal, pull the model (about 4 GiB, one-time download):
 
+```bash
+ollama pull llama3.1:8b
 ```
-ollama run llama3.1:8b
+
+Once the model is loaded you can stop the `ollama run` command — `ollama serve` keeps it available.
+
+### Install
+
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/rust/llm_chatbot
 ```
 
-The above command will download an 8B parameter model, which is around 4GiB. Once the command executes and the model is loaded, you can terminate it. You won't need to do this step again.
+### Deploy and test
 
-### 5. Deploy the project to your local environment:
-
+```bash
+icp network start -d
+icp deploy
+bash test.sh
+icp network stop
 ```
-dfx start --background --clean && dfx deploy
+
+Open the frontend URL printed by `icp deploy` to use the chatbot in the browser.
+
+For hot-reload frontend development:
+
+```bash
+npm run dev --prefix frontend
+```
+
+## Deploying to mainnet
+
+```bash
+icp deploy -e ic
+```
+
+No Ollama setup is needed — mainnet calls go directly to the LLM canister at `w36hm-eqaaa-aaaal-qr76a-cai`.
+
+## Updating the Candid interface
+
+```bash
+icp build backend && candid-extractor target/wasm32-unknown-unknown/release/backend.wasm > backend/backend.did
 ```
 
 ## Security considerations and best practices
 
-If you base your application on this example, it is recommended that you familiarize yourself with and adhere to the [security best practices](https://internetcomputer.org/docs/building-apps/security/overview) for developing on ICP. This example may not implement all the best practices.
+If you base your application on this example, familiarize yourself with the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for developing on ICP. This example may not implement all best practices.
