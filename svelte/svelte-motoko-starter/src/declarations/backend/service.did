@@ -1,3 +1,0 @@
-service : {
-  whoami: () -> (principal) query;
-}
