@@ -4,4 +4,5 @@ canisters:
       steps:
         - type: script
           commands:
-            - wat2wasm counter.wat -o "$ICP_WASM_OUTPUT_PATH"
+            - wat2wasm counter.wat -o counter.wasm
+            - ic-wasm counter.wasm -o "$ICP_WASM_OUTPUT_PATH" metadata candid:service -f counter.did -v public
