@@ -67,7 +67,8 @@ pub fn create_spend_script(script_key_bytes: &[u8]) -> ScriptBuf {
 ///   Best for normal sends where you want to consolidate smaller UTXOs.
 /// - `Single`: requires a single UTXO large enough to cover amount plus fee on its own.
 ///   Useful when an operation must be tied to a specific UTXO — for example, protocols
-///   like Ordinals inscriptions that track individual satoshis through the UTXO graph.
+///   that track individual satoshis through the UTXO graph require that the target satoshi
+///   enters as the first input of a single-UTXO transaction.
 pub enum SelectUtxosMode {
     Greedy,
     Single,
