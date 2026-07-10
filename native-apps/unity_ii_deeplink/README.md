@@ -75,9 +75,9 @@ npm run dev --prefix frontend
 2. Find your machine's LAN IP (e.g. `192.168.1.42`).
 3. In Unity, open the `TestICPAgent` component in the Inspector and set:
    - `greetFrontend` → `http://192.168.1.42:8000/?canisterId=<frontend-canister-id>`  
-     (get the ID with `icp canister id frontend`)
+     (get the ID with `icp canister status frontend -i`)
    - `greetBackendCanister` → `<backend-canister-id>`  
-     (get with `icp canister id backend`)
+     (get with `icp canister status backend -i`)
    - `icGateway` → `http://192.168.1.42:8000`
 4. Build the Unity app to your device. Your phone and computer must be on the same WiFi network.
 
@@ -90,8 +90,8 @@ icp deploy -e ic
 After deployment, update the Unity Inspector fields with the mainnet canister IDs:
 
 ```bash
-icp canister id frontend -e ic   # → greetFrontend (as https://<id>.icp0.io/)
-icp canister id backend -e ic    # → greetBackendCanister
+icp canister status frontend -e ic -i   # → greetFrontend (as https://<id>.icp0.io/)
+icp canister status backend -e ic -i    # → greetBackendCanister
 ```
 
 Leave `icGateway` at the default `https://ic0.app`.

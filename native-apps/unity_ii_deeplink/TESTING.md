@@ -73,8 +73,8 @@ ipconfig getifaddr en0   # or en1 for WiFi
 
 Get the canister IDs:
 ```bash
-icp canister id frontend
-icp canister id backend
+icp canister status frontend -i
+icp canister status backend -i
 ```
 
 **2. Configure Unity Inspector**
@@ -112,8 +112,8 @@ The post-build processors register the `internetidentity://` custom URL scheme a
 
 ```bash
 icp deploy -e ic
-icp canister id frontend -e ic   # → set as greetFrontend in Unity Inspector
-icp canister id backend -e ic    # → set as greetBackendCanister
+icp canister status frontend -e ic -i   # → set as greetFrontend in Unity Inspector
+icp canister status backend -e ic -i    # → set as greetBackendCanister
 # Leave icGateway as https://ic0.app
 ```
 
