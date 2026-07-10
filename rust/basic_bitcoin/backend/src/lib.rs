@@ -1,11 +1,8 @@
-mod brc20;
 mod common;
 mod ecdsa;
-mod ordinals;
 mod p2pkh;
 mod p2tr;
 mod p2wpkh;
-mod runes;
 mod schnorr;
 mod service;
 
@@ -87,30 +84,6 @@ fn upgrade(network: Network) {
 pub struct SendRequest {
     pub destination_address: String,
     pub amount_in_satoshi: u64,
-}
-
-/// Input structure for transferring Rune tokens to another address.
-#[derive(candid::CandidType, candid::Deserialize)]
-pub struct TransferRuneRequest {
-    /// Block height of the etching transaction (first component of the rune ID).
-    pub rune_id_block: u64,
-    /// Transaction index within that block (second component of the rune ID).
-    pub rune_id_tx: u32,
-    /// Number of rune tokens to send.
-    pub amount: u64,
-    /// Bitcoin address of the recipient.
-    pub destination_address: String,
-}
-
-/// Input structure for transferring BRC-20 tokens to another address.
-#[derive(candid::CandidType, candid::Deserialize)]
-pub struct TransferBrc20Request {
-    /// 4-character BRC-20 ticker symbol (e.g. "DEMO").
-    pub tick: String,
-    /// Number of tokens to transfer.
-    pub amount: u64,
-    /// Bitcoin address of the recipient.
-    pub destination_address: String,
 }
 
 ic_cdk::export_candid!();

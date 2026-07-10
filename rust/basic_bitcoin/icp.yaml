@@ -8,8 +8,7 @@ networks:
     mode: managed
     image: icp-cli-network-launcher-bitcoin
     port-mapping:
-      - 0:4943      # IC gateway (dynamic)
-      - 18443:18443 # bitcoind RPC (required for ord)
+      - 0:4943 # IC gateway (dynamic)
 
 environments:
   - name: local

@@ -36,9 +36,7 @@ dependencies = [
  "ic-cdk",
  "ic-cdk-bitcoin-canister",
  "ic-cdk-management-canister",
- "leb128",
  "serde",
- "serde_bytes",
 ]
 
 [[package]]
