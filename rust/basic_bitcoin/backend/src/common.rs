@@ -315,3 +315,63 @@ impl fmt::Display for DerivationPath {
         )
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use ic_cdk_bitcoin_canister::{OutPoint, Txid, Utxo};
+
+    fn utxo(value: u64) -> Utxo {
+        Utxo {
+            outpoint: OutPoint {
+                txid: Txid::from([0u8; 32]),
+                vout: 0,
+            },
+            value,
+            height: 0,
+        }
+    }
+
+    // --- select_utxos_greedy ---
+
+    #[test]
+    fn greedy_selects_multiple_small_utxos() {
+        let utxos = vec![utxo(1_000), utxo(2_000), utxo(3_000)];
+        // Need 4_500 sat + 0 fee → must pick the two largest (3_000 + 2_000)
+        let selected = select_utxos_greedy(&utxos, 4_500, 0).unwrap();
+        assert_eq!(selected.len(), 2);
+        let total: u64 = selected.iter().map(|u| u.value).sum();
+        assert!(total >= 4_500);
+    }
+
+    #[test]
+    fn greedy_succeeds_with_exact_single_utxo() {
+        let utxos = vec![utxo(5_000)];
+        let selected = select_utxos_greedy(&utxos, 4_000, 500).unwrap();
+        assert_eq!(selected.len(), 1);
+    }
+
+    #[test]
+    fn greedy_returns_error_when_insufficient_funds() {
+        let utxos = vec![utxo(100), utxo(200)];
+        assert!(select_utxos_greedy(&utxos, 1_000, 0).is_err());
+    }
+
+    // --- select_one_utxo ---
+
+    #[test]
+    fn single_picks_a_utxo_large_enough_on_its_own() {
+        let utxos = vec![utxo(500), utxo(10_000), utxo(200)];
+        let selected = select_one_utxo(&utxos, 8_000, 500).unwrap();
+        // Must be exactly one UTXO and it must cover amount + fee
+        assert_eq!(selected.len(), 1);
+        assert!(selected[0].value >= 8_500);
+    }
+
+    #[test]
+    fn single_returns_error_when_no_utxo_is_large_enough() {
+        // Two UTXOs that together cover the amount, but neither alone does
+        let utxos = vec![utxo(3_000), utxo(3_000)];
+        assert!(select_one_utxo(&utxos, 5_000, 0).is_err());
+    }
+}

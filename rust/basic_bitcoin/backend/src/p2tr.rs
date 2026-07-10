@@ -265,3 +265,17 @@ where
 
     transaction
 }
+
+#[cfg(test)]
+mod tests {
+    use super::SelectUtxosMode;
+
+    #[test]
+    fn select_utxos_mode_variants_exist() {
+        // Ensure both variants are reachable so that callers using Single
+        // (e.g. for single-UTXO operations that track specific satoshis)
+        // have a clear pattern to follow.
+        let _greedy = SelectUtxosMode::Greedy;
+        let _single = SelectUtxosMode::Single;
+    }
+}
