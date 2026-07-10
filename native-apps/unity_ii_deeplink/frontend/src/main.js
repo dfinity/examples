@@ -69,6 +69,9 @@ document.getElementById("login").onclick = async (e) => {
     agentOptions: { ...agentDefaults, identity: middleIdentity },
   });
 
+  document.getElementById("login-status").textContent =
+    "Logged in as: " + middleIdentity.getPrincipal().toText();
+
   // Chain a second delegation from the middle key to the app's Ed25519 key.
   if (appPublicKey != null && middleIdentity instanceof DelegationIdentity) {
     delegationChain = await DelegationChain.create(
@@ -84,7 +87,11 @@ document.getElementById("open").onclick = async (e) => {
   e.preventDefault();
 
   if (!delegationChain) {
-    console.error("No delegation chain — log in with Internet Identity first.");
+    // This button only works when the page was opened by the Unity app with
+    // ?sessionkey=<hex> in the URL. Opened directly in a browser, there is no
+    // session key and therefore no delegation chain to forward.
+    document.getElementById("greeting").innerText =
+      "No delegation chain. Open this page from the Unity app to use this button.";
     return;
   }
 
