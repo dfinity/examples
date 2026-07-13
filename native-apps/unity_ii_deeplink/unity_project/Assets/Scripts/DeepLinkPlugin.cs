@@ -23,6 +23,12 @@ namespace IC.GameKit
         public void Start()
         {
             mIcpAgent = gameObject.GetComponent<ICPAgent>();
+            if (mIcpAgent == null)
+            {
+                Debug.LogError("[DeepLinkPlugin] ICPAgent component not found — DeepLinkPlugin disabled.");
+                enabled = false;
+                return;
+            }
             // Handle deep link if the app was cold-started from one.
             // SessionIdentity is generated asynchronously in ICPAgent.Start(), so
             // defer processing until it is ready rather than calling immediately.

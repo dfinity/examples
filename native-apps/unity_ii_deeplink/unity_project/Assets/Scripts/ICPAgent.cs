@@ -104,6 +104,7 @@ namespace IC.GameKit
                 return;
             }
 
+            if (mGreetButton != null) mGreetButton.interactable = false;
             try
             {
                 var agent = new HttpAgent(DelegationIdentity, new Uri(icGateway));
@@ -113,6 +114,7 @@ namespace IC.GameKit
 
                 if (mMyPrincipalText != null)
                     mMyPrincipalText.text = content;
+                if (mGreetButton != null) mGreetButton.interactable = true;
             }
             catch (Exception e)
             {
