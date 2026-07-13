@@ -125,8 +125,10 @@ document.getElementById("open").onclick = (e) => {
   // Pass the full delegation chain to the Unity app via the custom URL scheme.
   // The scheme is registered at build time by AndroidPostBuildProcessor.cs /
   // iOSPostBuildProcessor.cs.
+  // Use a URI fragment (#) so the delegation is not included in any HTTP
+  // request if the mobile app is not installed and the browser resolves the URL.
   const url =
-    "org.dfinity.unity-ii://authorize?delegation=" +
+    "org.dfinity.unity-ii://authorize#delegation=" +
     encodeURIComponent(JSON.stringify(delegationChain.toJSON()));
   window.open(url, "_self");
 };

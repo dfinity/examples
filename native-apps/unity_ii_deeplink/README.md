@@ -6,7 +6,7 @@ The example consists of three parts:
 
 - **Backend canister** (`backend/app.mo`) — a Motoko canister that returns a greeting including the caller's principal, proving the delegation was accepted.
 - **II bridge canister** (`ii-bridge/`) — a small web page that runs in the mobile browser, handles the Internet Identity login, and forwards the resulting delegation to the Unity app via a deep link callback. **Each app must deploy and control its own instance** — using a shared or third-party deployment would mean trusting that party with your users' identity flow.
-- **Unity project** (`unity_project/`) — a Unity app that opens the II bridge in a browser, receives the delegation via deep link, and calls the backend canister directly using [ICP.NET](https://github.com/BoomDAO/ICP.NET).
+- **Unity project** (`unity_project/`) — a Unity app that opens the II bridge in a browser, receives the delegation via deep link, and calls the backend canister directly using [ICP.NET](https://github.com/edjCase/ICP.NET).
 
 ## How it works
 
@@ -16,8 +16,8 @@ Internet Identity's authorization protocol requires a signable key pair in the b
 2. The II bridge generates a temporary `ECDSAKeyIdentity` (the *middle key*) whose **private key stays in the browser** and is non-extractable from WebCrypto.
 3. Internet Identity delegates to the middle key (`II → middle key`) — this is the standard II authorization flow.
 4. The II bridge uses the middle key to sign a second, short-lived delegation to the app's Ed25519 public key (`middle key → app key`).
-5. The combined `DelegationChain` is URL-encoded and returned to the Unity app via the `org.dfinity.unity-ii://authorize?delegation=…` deep link.
-6. The Unity app constructs a `DelegationIdentity` from the chain and calls the backend canister directly via [ICP.NET](https://github.com/BoomDAO/ICP.NET), without going through the browser.
+5. The combined `DelegationChain` is URL-encoded and returned to the Unity app via the `org.dfinity.unity-ii://authorize#delegation=…` deep link. A URI fragment (`#`) is used so the delegation is not included in any HTTP request if the app is not installed and the OS falls back to opening the URL in a browser.
+6. The Unity app constructs a `DelegationIdentity` from the chain and calls the backend canister directly via [ICP.NET](https://github.com/edjCase/ICP.NET), without going through the browser.
 
 The backend receives the call with the user's II principal, verifying the full chain was valid.
 
@@ -87,7 +87,7 @@ adb reverse tcp:8000 tcp:8000
 
 Set the Unity Inspector fields to:
 - `Ii Bridge Url` → `http://ii-bridge.local.localhost:8000`
-- `Greet Backend Canister` → output of `icp canister id backend`
+- `Greet Backend Canister` → output of `icp canister status backend -i`
 - `Ic Gateway` → `http://localhost:8000`
 
 **Physical device over WiFi**
@@ -114,7 +114,7 @@ icp deploy
 
 Set the Unity Inspector fields to:
 - `Ii Bridge Url` → `http://192.168.1.42:8000/?canisterId=<ii-bridge-canister-id>`
-- `Greet Backend Canister` → output of `icp canister id backend`
+- `Greet Backend Canister` → output of `icp canister status backend -i`
 - `Ic Gateway` → `http://192.168.1.42:8000`
 
 Find your LAN IP with `ipconfig getifaddr en0` (macOS), `hostname -I | awk '{print $1}'` (Linux), or `ipconfig` → IPv4 Address (Windows).
@@ -128,8 +128,8 @@ icp deploy -e ic
 After deployment, update the Unity Inspector fields:
 
 ```bash
-icp canister id ii-bridge -e ic   # → Ii Bridge Url
-icp canister id backend -e ic     # → Greet Backend Canister
+icp canister status ii-bridge -i -e ic   # → Ii Bridge Url
+icp canister status backend -i -e ic     # → Greet Backend Canister
 ```
 
 Leave `icGateway` at the default `https://icp-api.io`.
@@ -165,7 +165,7 @@ Android App Links use HTTPS instead of a custom scheme, preventing other apps fr
    ```
 5. In `ii-bridge/src/main.js`, change the callback URL:
    ```js
-   const url = "https://<canister-id>.icp0.io/authorize?delegation=" + ...
+   const url = "https://<canister-id>.icp0.io/authorize#delegation=" + ...
    ```
 
 ### iOS Universal Links (HTTPS, mainnet only)

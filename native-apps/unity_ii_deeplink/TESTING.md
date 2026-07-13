@@ -50,7 +50,7 @@ Tests the complete Unity app → browser → deep link → canister call flow us
 - Android Studio with an AVD (API 28+, with Play Store for passkey support)
 - Unity 2022 LTS or later
 - `adb` in your PATH (installed with Android Studio's SDK platform tools)
-- The ICP.NET DLLs are already bundled in `unity_project/Assets/ICP.NET/`
+- The ICP.NET DLLs are already bundled in `unity_project/Assets/Plugins/ICP.NET/`
 
 > If `adb` is not in your PATH, add `$ANDROID_HOME/platform-tools` to it, or use the full path:
 > - **macOS**: `~/Library/Android/sdk/platform-tools/adb`
@@ -96,7 +96,7 @@ Open the Unity project (`unity_project/`) and select the `AgentAndPlugin` GameOb
 | Field | Value |
 |-------|-------|
 | `Ii Bridge Url` | `http://ii-bridge.local.localhost:8000` |
-| `Greet Backend Canister` | output of `icp canister id backend` |
+| `Greet Backend Canister` | output of `icp canister status backend -i` |
 | `Ic Gateway` | `http://localhost:8000` |
 
 **4. Build and run**
@@ -118,7 +118,7 @@ Without a Google account the passkey prompt falls back to "Use another device" (
 2. Tap **Sign In with Internet Identity** — Chrome opens the II bridge at `http://ii-bridge.local.localhost:8000?sessionkey=<ed25519-hex>`.
 3. Tap **Sign in with Internet Identity** on the browser page — mainnet II opens at `https://id.ai`; log in with your passkey.
 4. Page shows `Signed in as: <your-principal>` and the sign-in button hides.
-5. Tap **Return to App** — Chrome fires `org.dfinity.unity-ii://authorize?delegation=…`.
+5. Tap **Return to App** — Chrome fires `org.dfinity.unity-ii://authorize#delegation=…`.
 6. Android routes the deep link back to the Unity app.
 7. The **Greet** button becomes active — tap it to call the backend.
 8. The UI shows `Hello, <your-principal>!` — the same principal as the browser. ✅
@@ -174,7 +174,7 @@ icp deploy
 | Field | Value |
 |-------|-------|
 | `Ii Bridge Url` | `http://192.168.1.42:8000/?canisterId=<ii-bridge-canister-id>` |
-| `Greet Backend Canister` | output of `icp canister id backend` |
+| `Greet Backend Canister` | output of `icp canister status backend -i` |
 | `Ic Gateway` | `http://192.168.1.42:8000` |
 
 **5. Build and install**
@@ -191,8 +191,8 @@ Same as the emulator flow (steps 2–8 above).
 
 ```bash
 icp deploy -e ic
-icp canister id ii-bridge -e ic  # → set as Ii Bridge Url
-icp canister id backend -e ic    # → set as Greet Backend Canister
+icp canister status ii-bridge -i -e ic  # → set as Ii Bridge Url
+icp canister status backend -i -e ic    # → set as Greet Backend Canister
 # Leave Ic Gateway as https://icp-api.io (already the default)
 ```
 

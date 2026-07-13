@@ -3,8 +3,8 @@ using EdjCase.ICP.Agent;
 using EdjCase.ICP.Agent.Identities;
 using EdjCase.ICP.Agent.Models;
 using EdjCase.ICP.Candid.Models;
-using EdjCase.ICP.Candid.Utilities;
 using System;
+using System.Linq;
 using System.Web;
 using System.Collections.Generic;
 
@@ -12,7 +12,7 @@ namespace IC.GameKit
 {
     public class DeepLinkPlugin : MonoBehaviour
     {
-        TestICPAgent mTestICPAgent = null;
+        ICPAgent mIcpAgent = null;
 
         private void Awake()
         {
@@ -22,7 +22,7 @@ namespace IC.GameKit
 
         public void Start()
         {
-            mTestICPAgent = gameObject.GetComponent<TestICPAgent>();
+            mIcpAgent = gameObject.GetComponent<ICPAgent>();
             // Handle deep link if the app was cold-started from one.
             if (!string.IsNullOrEmpty(Application.absoluteURL))
                 OnDeepLinkActivated(Application.absoluteURL);
@@ -30,8 +30,8 @@ namespace IC.GameKit
 
         public void SignIn()
         {
-            var separator = mTestICPAgent.iiBridgeUrl.Contains("?") ? "&" : "?";
-            var target = mTestICPAgent.iiBridgeUrl + separator + "sessionkey=" + ByteUtil.ToHexString(mTestICPAgent.TestIdentity.PublicKey.ToDerEncoding());
+            var separator = mIcpAgent.iiBridgeUrl.Contains("?") ? "&" : "?";
+            var target = mIcpAgent.iiBridgeUrl + separator + "sessionkey=" + ToHex(mIcpAgent.SessionIdentity.PublicKey.ToDerEncoding());
             Application.OpenURL(target);
         }
 
@@ -49,7 +49,18 @@ namespace IC.GameKit
             }
 
             var delegationString = HttpUtility.UrlDecode(url.Substring(indexOfDelegation + kDelegationParam.Length));
-            mTestICPAgent.DelegationIdentity = ConvertJsonToDelegationIdentity(delegationString);
+            mIcpAgent.DelegationIdentity = ConvertJsonToDelegationIdentity(delegationString);
+        }
+
+        private static string ToHex(byte[] bytes) =>
+            BitConverter.ToString(bytes).Replace("-", "").ToLower();
+
+        private static byte[] FromHex(string hex)
+        {
+            var result = new byte[hex.Length / 2];
+            for (int i = 0; i < result.Length; i++)
+                result[i] = Convert.ToByte(hex.Substring(i * 2, 2), 16);
+            return result;
         }
 
         internal DelegationIdentity ConvertJsonToDelegationIdentity(string jsonDelegation)
@@ -63,22 +74,32 @@ namespace IC.GameKit
                     return null;
                 }
 
+                // Verify the last delegation targets this session's public key.
+                // Prevents a delegation issued for a different session from being accepted.
+                var lastPubKey = FromHex(delegationChainModel.delegations[delegationChainModel.delegations.Length - 1].delegation.pubkey);
+                var sessionKey = mIcpAgent.SessionIdentity.PublicKey.ToDerEncoding();
+                if (!lastPubKey.SequenceEqual(sessionKey))
+                {
+                    Debug.LogError("[DeepLinkPlugin] Session key mismatch — delegation was not issued for this session.");
+                    return null;
+                }
+
                 // Initialize DelegationIdentity.
                 var delegations = new List<SignedDelegation>();
                 foreach (var signedDelegationModel in delegationChainModel.delegations)
                 {
-                    var pubKey = SubjectPublicKeyInfo.FromDerEncoding(ByteUtil.FromHexString(signedDelegationModel.delegation.pubkey));
+                    var pubKey = SubjectPublicKeyInfo.FromDerEncoding(FromHex(signedDelegationModel.delegation.pubkey));
                     var expiration = ICTimestamp.FromNanoSeconds(Convert.ToUInt64(signedDelegationModel.delegation.expiration, 16));
                     var delegation = new Delegation(pubKey, expiration);
 
-                    var signature = ByteUtil.FromHexString(signedDelegationModel.signature);
+                    var signature = FromHex(signedDelegationModel.signature);
                     var signedDelegation = new SignedDelegation(delegation, signature);
                     delegations.Add(signedDelegation);
                 }
 
-                var chainPublicKey = SubjectPublicKeyInfo.FromDerEncoding(ByteUtil.FromHexString(delegationChainModel.publicKey));
+                var chainPublicKey = SubjectPublicKeyInfo.FromDerEncoding(FromHex(delegationChainModel.publicKey));
                 var delegationChain = new DelegationChain(chainPublicKey, delegations);
-                var delegationIdentity = new DelegationIdentity(mTestICPAgent.TestIdentity, delegationChain);
+                var delegationIdentity = new DelegationIdentity(mIcpAgent.SessionIdentity, delegationChain);
 
                 Debug.Log("[DeepLinkPlugin] DelegationIdentity created successfully.");
                 return delegationIdentity;
