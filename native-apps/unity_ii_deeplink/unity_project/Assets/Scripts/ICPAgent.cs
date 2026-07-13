@@ -88,6 +88,14 @@ namespace IC.GameKit
             if (DelegationIdentity == null)
                 return;
 
+            if (string.IsNullOrEmpty(greetBackendCanister))
+            {
+                Debug.LogError("[ICPAgent] greetBackendCanister is not set — enter the canister ID in the Inspector.");
+                if (mMyPrincipalText != null)
+                    mMyPrincipalText.text = "Canister ID not configured — set it in the Inspector.";
+                return;
+            }
+
             try
             {
                 var agent = new HttpAgent(DelegationIdentity, new Uri(icGateway));

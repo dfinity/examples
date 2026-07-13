@@ -13,6 +13,7 @@ public class UnityHttpClient : IHttpClient
     {
         using (UnityWebRequest request = UnityWebRequest.Get(GetUri(url)))
         {
+            cancellationToken?.Register(() => request.Abort());
             await request.SendWebRequest();
             return ParseResponse(request);
         }
@@ -25,21 +26,21 @@ public class UnityHttpClient : IHttpClient
             request.method = "POST";
             request.uri = GetUri(url);
             request.downloadHandler = new DownloadHandlerBuffer();
-
             request.uploadHandler = new UploadHandlerRaw(cborBody);
             request.uploadHandler.contentType = "application/cbor";
+            cancellationToken?.Register(() => request.Abort());
             await request.SendWebRequest();
             return ParseResponse(request);
         }
     }
 
-    private static Uri GetUri(string path)
+    private static Uri GetUri(string url)
     {
-        if (!path.StartsWith("/"))
-        {
-            path = "/" + path;
-        }
-        return new Uri("https://ic0.app" + path);
+        if (Uri.TryCreate(url, UriKind.Absolute, out var absolute))
+            return absolute;
+        if (!url.StartsWith("/"))
+            url = "/" + url;
+        return new Uri("https://ic0.app" + url);
     }
 
     private static HttpResponse ParseResponse(UnityWebRequest request)

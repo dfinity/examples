@@ -38,6 +38,11 @@ namespace IC.GameKit
 
         public void SignIn()
         {
+            if (string.IsNullOrEmpty(mIcpAgent.iiBridgeUrl))
+            {
+                Debug.LogError("[DeepLinkPlugin] iiBridgeUrl is not set — enter the II bridge URL in the Inspector.");
+                return;
+            }
             var separator = mIcpAgent.iiBridgeUrl.Contains("?") ? "&" : "?";
             var target = mIcpAgent.iiBridgeUrl + separator + "sessionkey=" + ToHex(mIcpAgent.SessionIdentity.PublicKey.ToDerEncoding());
             Application.OpenURL(target);
