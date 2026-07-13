@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using EdjCase.ICP.Agent;
 using EdjCase.ICP.Agent.Identities;
@@ -23,8 +24,16 @@ namespace IC.GameKit
         {
             mIcpAgent = gameObject.GetComponent<ICPAgent>();
             // Handle deep link if the app was cold-started from one.
+            // SessionIdentity is generated asynchronously in ICPAgent.Start(), so
+            // defer processing until it is ready rather than calling immediately.
             if (!string.IsNullOrEmpty(Application.absoluteURL))
-                OnDeepLinkActivated(Application.absoluteURL);
+                StartCoroutine(HandleColdStartDeepLink(Application.absoluteURL));
+        }
+
+        private IEnumerator HandleColdStartDeepLink(string url)
+        {
+            yield return new WaitUntil(() => mIcpAgent.SessionIdentity != null);
+            OnDeepLinkActivated(url);
         }
 
         public void SignIn()

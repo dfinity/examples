@@ -83,7 +83,7 @@ internal class UnityWebRequestAwaiter : INotifyCompletion
 
     private void OnRequestCompleted(AsyncOperation obj)
     {
-        continuation();
+        continuation?.Invoke();
     }
 }
 internal static class ExtensionMethods
