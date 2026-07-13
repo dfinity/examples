@@ -1,19 +1,18 @@
+using System.Collections;
 using UnityEngine;
 using EdjCase.ICP.Agent;
 using EdjCase.ICP.Agent.Identities;
 using EdjCase.ICP.Agent.Models;
 using EdjCase.ICP.Candid.Models;
-using EdjCase.ICP.Candid.Utilities;
-using Newtonsoft.Json;
 using System;
-using System.Web;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace IC.GameKit
 {
     public class DeepLinkPlugin : MonoBehaviour
     {
-        TestICPAgent mTestICPAgent = null;
+        ICPAgent mIcpAgent = null;
 
         private void Awake()
         {
@@ -23,18 +22,48 @@ namespace IC.GameKit
 
         public void Start()
         {
-            mTestICPAgent = gameObject.GetComponent<TestICPAgent>();
+            mIcpAgent = gameObject.GetComponent<ICPAgent>();
+            if (mIcpAgent == null)
+            {
+                Debug.LogError("[DeepLinkPlugin] ICPAgent component not found — DeepLinkPlugin disabled.");
+                enabled = false;
+                return;
+            }
+            // Handle deep link if the app was cold-started from one.
+            // SessionIdentity is generated asynchronously in ICPAgent.Start(), so
+            // defer processing until it is ready rather than calling immediately.
+            if (!string.IsNullOrEmpty(Application.absoluteURL))
+                StartCoroutine(HandleColdStartDeepLink(Application.absoluteURL));
         }
 
-        public void OpenBrowser()
+        private IEnumerator HandleColdStartDeepLink(string url)
         {
-            var target = mTestICPAgent.greetFrontend + "?sessionkey=" + ByteUtil.ToHexString(mTestICPAgent.TestIdentity.PublicKey.ToDerEncoding());
+            const float kTimeoutSeconds = 10f;
+            var deadline = UnityEngine.Time.realtimeSinceStartup + kTimeoutSeconds;
+            yield return new WaitUntil(() => mIcpAgent.SessionIdentity != null || UnityEngine.Time.realtimeSinceStartup >= deadline);
+            if (mIcpAgent.SessionIdentity == null)
+            {
+                Debug.LogError("[DeepLinkPlugin] Timed out waiting for session key — cold-start deep link dropped.");
+                yield break;
+            }
+            OnDeepLinkActivated(url);
+        }
+
+        public void SignIn()
+        {
+            if (string.IsNullOrEmpty(mIcpAgent.iiBridgeUrl))
+            {
+                Debug.LogError("[DeepLinkPlugin] iiBridgeUrl is not set — enter the II bridge URL in the Inspector.");
+                return;
+            }
+            var separator = mIcpAgent.iiBridgeUrl.Contains("?") ? "&" : "?";
+            var target = mIcpAgent.iiBridgeUrl + separator + "sessionkey=" + ToHex(mIcpAgent.SessionIdentity.PublicKey.ToDerEncoding());
             Application.OpenURL(target);
         }
 
         public void OnDeepLinkActivated(string url)
         {
-            if (string.IsNullOrEmpty(url))
+            if (mIcpAgent == null || string.IsNullOrEmpty(url))
                 return;
 
             const string kDelegationParam = "delegation=";
@@ -45,37 +74,67 @@ namespace IC.GameKit
                 return;
             }
 
-            var delegationString = HttpUtility.UrlDecode(url.Substring(indexOfDelegation + kDelegationParam.Length));
-            mTestICPAgent.DelegationIdentity = ConvertJsonToDelegationIdentity(delegationString);
+            var delegationString = Uri.UnescapeDataString(url.Substring(indexOfDelegation + kDelegationParam.Length));
+            mIcpAgent.DelegationIdentity = ConvertJsonToDelegationIdentity(delegationString);
+        }
+
+        private static string ToHex(byte[] bytes) =>
+            BitConverter.ToString(bytes).Replace("-", "").ToLower();
+
+        private static byte[] FromHex(string hex)
+        {
+            var result = new byte[hex.Length / 2];
+            for (int i = 0; i < result.Length; i++)
+                result[i] = Convert.ToByte(hex.Substring(i * 2, 2), 16);
+            return result;
         }
 
         internal DelegationIdentity ConvertJsonToDelegationIdentity(string jsonDelegation)
         {
-            var delegationChainModel = JsonConvert.DeserializeObject<DelegationChainModel>(jsonDelegation);
-            if (delegationChainModel == null && delegationChainModel.delegations.Length == 0)
+            try
             {
-                Debug.LogError("Invalid delegation chain.");
+                var delegationChainModel = JsonUtility.FromJson<DelegationChainModel>(jsonDelegation);
+                if (delegationChainModel == null || delegationChainModel.delegations == null || delegationChainModel.delegations.Length == 0)
+                {
+                    Debug.LogError("[DeepLinkPlugin] Invalid delegation chain (null or empty).");
+                    return null;
+                }
+
+                // Verify the last delegation targets this session's public key.
+                // Prevents a delegation issued for a different session from being accepted.
+                var lastPubKey = FromHex(delegationChainModel.delegations[delegationChainModel.delegations.Length - 1].delegation.pubkey);
+                var sessionKey = mIcpAgent.SessionIdentity.PublicKey.ToDerEncoding();
+                if (!lastPubKey.SequenceEqual(sessionKey))
+                {
+                    Debug.LogError("[DeepLinkPlugin] Session key mismatch — delegation was not issued for this session.");
+                    return null;
+                }
+
+                // Initialize DelegationIdentity.
+                var delegations = new List<SignedDelegation>();
+                foreach (var signedDelegationModel in delegationChainModel.delegations)
+                {
+                    var pubKey = SubjectPublicKeyInfo.FromDerEncoding(FromHex(signedDelegationModel.delegation.pubkey));
+                    var expiration = ICTimestamp.FromNanoSeconds(Convert.ToUInt64(signedDelegationModel.delegation.expiration, 16));
+                    var delegation = new Delegation(pubKey, expiration);
+
+                    var signature = FromHex(signedDelegationModel.signature);
+                    var signedDelegation = new SignedDelegation(delegation, signature);
+                    delegations.Add(signedDelegation);
+                }
+
+                var chainPublicKey = SubjectPublicKeyInfo.FromDerEncoding(FromHex(delegationChainModel.publicKey));
+                var delegationChain = new DelegationChain(chainPublicKey, delegations);
+                var delegationIdentity = new DelegationIdentity(mIcpAgent.SessionIdentity, delegationChain);
+
+                Debug.Log("[DeepLinkPlugin] DelegationIdentity created successfully.");
+                return delegationIdentity;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("[DeepLinkPlugin] Failed to parse delegation chain: " + e.Message);
                 return null;
             }
-
-            // Initialize DelegationIdentity.
-            var delegations = new List<SignedDelegation>();
-            foreach (var signedDelegationModel in delegationChainModel.delegations)
-            {
-                var pubKey = SubjectPublicKeyInfo.FromDerEncoding(ByteUtil.FromHexString(signedDelegationModel.delegation.pubkey));
-                var expiration = ICTimestamp.FromNanoSeconds(Convert.ToUInt64(signedDelegationModel.delegation.expiration, 16));
-                var delegation = new Delegation(pubKey, expiration);
-
-                var signature = ByteUtil.FromHexString(signedDelegationModel.signature);
-                var signedDelegation = new SignedDelegation(delegation, signature);
-                delegations.Add(signedDelegation);
-            }
-
-            var chainPublicKey = SubjectPublicKeyInfo.FromDerEncoding(ByteUtil.FromHexString(delegationChainModel.publicKey));
-            var delegationChain = new DelegationChain(chainPublicKey, delegations);
-            var delegationIdentity = new DelegationIdentity(mTestICPAgent.TestIdentity, delegationChain);
-
-            return delegationIdentity;
         }
     }
 }

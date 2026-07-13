@@ -10,8 +10,7 @@ namespace IC.GameKit
     {
         const string kAndroidNamespaceURI = "http://schemas.android.com/apk/res/android";
 
-        // Android URL Scheme, you can add more parameter like port etc..
-        const string kAndroidScheme = "internetidentity";
+        const string kAndroidScheme = "org.dfinity.unity-ii";
         const string kAndroidHost = "authorize";
 
         public int callbackOrder { get { return 0; } }
@@ -30,6 +29,10 @@ namespace IC.GameKit
             var manifestXmlDoc = new XmlDocument();
             manifestXmlDoc.Load(manifestPath);
 
+            // Skip injection if the scheme is already registered (e.g. incremental builds).
+            if (manifestXmlDoc.InnerXml.Contains(kAndroidScheme))
+                return;
+
             AppendAndroidIntentFilter(manifestPath, manifestXmlDoc);
 
             manifestXmlDoc.Save(manifestPath);
@@ -41,7 +44,6 @@ namespace IC.GameKit
             if (activityNode == null)
                 throw new ArgumentException(string.Format("Missing 'activity' node in '{0}'.", manifestPath));
 
-            // TODO: we need to check if the same url scheme has already existed before injecting.
             var intentFilterNode = xmlDoc.CreateElement("intent-filter");
             
             var actionNode = xmlDoc.CreateElement("action");

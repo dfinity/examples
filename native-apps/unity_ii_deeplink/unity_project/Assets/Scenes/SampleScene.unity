@@ -38,7 +38,6 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -168,8 +167,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5c68e31d1a87467468d62c1cd739b0a0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  greetFrontend: https://qsgof-4qaaa-aaaan-qekqq-cai.icp0.io/
-  greetBackendCanister: qvhir-riaaa-aaaan-qekqa-cai
+  iiBridgeUrl: http://ii-bridge.local.localhost:8000
+  greetBackendCanister: 
+  icGateway: http://localhost:8000
 --- !u!114 &272906662
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -427,7 +427,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Open Browser
+  m_Text: Sign In with Internet Identity
 --- !u!222 &762257791
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -521,7 +521,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 272906661}
-        m_TargetAssemblyTypeName: IC.GameKit.TestICPAgent, Assembly-CSharp
+        m_TargetAssemblyTypeName: IC.GameKit.ICPAgent, Assembly-CSharp
         m_MethodName: Greet
         m_Mode: 1
         m_Arguments:
@@ -734,7 +734,7 @@ GameObject:
   - component: {fileID: 1627000290}
   - component: {fileID: 1627000289}
   m_Layer: 5
-  m_Name: My Princinpal
+  m_Name: My Principal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -888,7 +888,7 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 272906662}
         m_TargetAssemblyTypeName: IC.GameKit.DeepLinkPlugin, Assembly-CSharp
-        m_MethodName: OpenBrowser
+        m_MethodName: SignIn
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1012,6 +1012,7 @@ Canvas:
   m_OverrideSorting: 0
   m_OverridePixelPerfect: 0
   m_SortingBucketNormalizedSize: 0
+  m_VertexColorAlwaysGammaSpace: 0
   m_AdditionalShaderChannelsFlag: 0
   m_SortingLayerID: 0
   m_SortingOrder: 0

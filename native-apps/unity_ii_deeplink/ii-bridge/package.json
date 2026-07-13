@@ -1,0 +1,19 @@
+{
+  "name": "ii-bridge",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "prebuild": "npm i --include=dev",
+    "build": "vite build",
+    "dev": "vite"
+  },
+  "dependencies": {
+    "@icp-sdk/auth": "~7.1.0",
+    "@icp-sdk/core": "~5.3.1",
+    "@noble/hashes": "~1.8.0"
+  },
+  "devDependencies": {
+    "@icp-sdk/bindgen": "~0.3.0",
+    "vite": "5.4.11"
+  }
+}

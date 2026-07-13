@@ -1,0 +1,194 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>EdjCase.ICP.WebSockets</name>
+    </assembly>
+    <members>
+        <member name="T:EdjCase.ICP.WebSockets.IWebSocketAgent`1">
+            <summary>
+            Agent for the Internet Computer using websockets
+            </summary>
+            <typeparam name="TMessage">The type of the message that will be sent back and forth
+            from client/server</typeparam>
+        </member>
+        <member name="M:EdjCase.ICP.WebSockets.IWebSocketAgent`1.ConnectAsync(System.Nullable{System.Threading.CancellationToken})">
+            <summary>
+            Connects to the server with a websocket connection. Will update `State` property
+            when connected
+            </summary>
+            <param name="cancellationToken">Optional. Cancellation token used to stop the network requests before completion</param>
+            <returns></returns>
+        </member>
+        <member name="M:EdjCase.ICP.WebSockets.IWebSocketAgent`1.SendAsync(`0,System.Nullable{System.Threading.CancellationToken})">
+            <summary>
+            Sends a message to the server via websockets
+            </summary>
+            <param name="message">The message that should be sent to the server</param>
+            <param name="cancellationToken">Optional. Cancellation token used to stop the network requests before completion</param>
+            <returns></returns>
+        </member>
+        <member name="M:EdjCase.ICP.WebSockets.IWebSocketAgent`1.ReceiveNextAsync(System.Nullable{System.Threading.CancellationToken})">
+            <summary>
+            Gets the next message from the server and processes it with the defined callbacks
+            </summary>
+            <param name="cancellationToken">Optional. Cancellation token used to stop the network requests before completion</param>
+        </member>
+        <member name="M:EdjCase.ICP.WebSockets.IWebSocketAgent`1.CloseAsync">
+            <summary>
+            Closes the websocket connection. Will change the `State` property
+            </summary>
+        </member>
+        <member name="P:EdjCase.ICP.WebSockets.IWebSocketAgent`1.IsOpen">
+            <summary>
+            Will return true if the connection is open and false otherwise
+            </summary>
+        </member>
+        <member name="M:EdjCase.ICP.WebSockets.IWebSocketAgent`1.ReceiveAllAsync(System.Nullable{System.Threading.CancellationToken})">
+            <summary>
+            Waits and receives all messages from the server until the connection is closed or
+            the cancellation token is canceled
+            </summary>
+            <param name="cancellationToken">Optional. Cancellation token used to stop the loop and network requests before completion</param>
+            <returns></returns>
+        </member>
+        <member name="T:EdjCase.ICP.WebSockets.IWebSocketClient">
+            <summary>
+            Represents a WebSocket client.
+            </summary>
+        </member>
+        <member name="P:EdjCase.ICP.WebSockets.IWebSocketClient.IsOpen">
+            <summary>
+            Gets a value indicating whether the WebSocket connection is open.
+            </summary>
+        </member>
+        <member name="M:EdjCase.ICP.WebSockets.IWebSocketClient.ConnectAsync(System.Uri,System.Threading.CancellationToken)">
+            <summary>
+            Connects to the specified WebSocket gateway
+            </summary>
+            <param name="gatewayUri">The URI of the WebSocket gateway.</param>
+            <param name="cancellationToken">To cancel connection in mid operation</param>
+        </member>
+        <member name="M:EdjCase.ICP.WebSockets.IWebSocketClient.SendAsync(System.Byte[],System.Threading.CancellationToken)">
+            <summary>
+            Sends a message to the WebSocket server
+            </summary>
+            <param name="messageBytes">The message to send as a byte array.</param>
+            <param name="cancellationToken">To cancel sending in mid operation</param>
+        </member>
+        <member name="M:EdjCase.ICP.WebSockets.IWebSocketClient.ReceiveAsync(System.Threading.CancellationToken)">
+            <summary>
+            Receives the next message from the WebSocket server
+            </summary>
+            <param name="cancellationToken">To cancel receiving in mid operation</param>
+            <returns>The received bytes and a flag indicating if the message is a close message.</returns>
+        </member>
+        <member name="M:EdjCase.ICP.WebSockets.IWebSocketClient.CloseAsync(System.Threading.CancellationToken,System.String)">
+            <summary>
+            Closes the WebSocket connection
+            </summary>
+            <param name="cancellationToken">To cancel closing in mid operation</param>
+            <param name="policyViolationMessage">The optional policy violation message.</param>
+        </member>
+        <member name="T:EdjCase.ICP.WebSockets.WebSocketBuilder`1">
+            <summary>
+            Represents a builder class for creating WebSocket agents that communicate with a specified canister using the Internet Computer Protocol (ICP).
+            </summary>
+            <typeparam name="TMessage">The type of messages exchanged with the WebSocket agent</typeparam>
+        </member>
+        <member name="M:EdjCase.ICP.WebSockets.WebSocketBuilder`1.#ctor(EdjCase.ICP.Candid.Models.Principal,System.Uri)">
+            <summary>
+            Initializes a new instance of the WebSocketBuilder class.
+            </summary>
+            <param name="canisterId">The principal canister id to send messages to</param>
+            <param name="gatewayUri">The URI of the websocket gateway</param>
+        </member>
+        <member name="M:EdjCase.ICP.WebSockets.WebSocketBuilder`1.OnOpen(System.Action)">
+            <summary>
+            Sets the action to be executed when the WebSocket connection is opened.
+            </summary>
+            <param name="onOpen">The action to be executed.</param>
+            <returns>The WebSocketBuilder instance.</returns>
+        </member>
+        <member name="M:EdjCase.ICP.WebSockets.WebSocketBuilder`1.OnMessage(System.Action{`0})">
+            <summary>
+            Sets the callback action to be executed when a message is received.
+            </summary>
+            <param name="onMessage">The callback action to be executed.</param>
+            <returns>The WebSocketBuilder instance.</returns>
+        </member>
+        <member name="M:EdjCase.ICP.WebSockets.WebSocketBuilder`1.OnError(System.Action{System.Exception})">
+            <summary>
+            Sets the error handler for the WebSocketBuilder.
+            </summary>
+            <param name="onError">The action to be executed when an error occurs.</param>
+            <returns>The WebSocketBuilder instance.</returns>
+        </member>
+        <member name="M:EdjCase.ICP.WebSockets.WebSocketBuilder`1.OnClose(System.Action)">
+            <summary>
+            Sets the action to be executed when the WebSocket connection is closed.
+            </summary>
+            <param name="onClose">The action to be executed.</param>
+            <returns>The WebSocketBuilder instance.</returns>
+        </member>
+        <member name="M:EdjCase.ICP.WebSockets.WebSocketBuilder`1.WithRootKey(System.Byte[])">
+            <summary>
+            Sets the network root key for signature verification. Development networks have different
+            root keys than mainnet. If not specified, the mainnet root key is used.
+            </summary>
+            <param name="derEncodedRootKey">The DER-encoded root key.</param>
+            <returns>The WebSocketBuilder instance.</returns>
+        </member>
+        <member name="M:EdjCase.ICP.WebSockets.WebSocketBuilder`1.WithRootKey(EdjCase.ICP.Agent.SubjectPublicKeyInfo)">
+            <summary>
+            Sets the network root key for signature verification. Development networks have different
+            root keys than mainnet. If not specified, the mainnet root key is used.
+            </summary>
+            <param name="subjectPublicKeyInfo">The key info of the root key.</param>
+            <returns>The WebSocketBuilder instance.</returns>
+        </member>
+        <member name="M:EdjCase.ICP.WebSockets.WebSocketBuilder`1.WithIdentity(EdjCase.ICP.Agent.Identities.IIdentity)">
+            <summary>
+            Sets the identity for the WebSocket connection.
+            </summary>
+            <param name="identity">The identity to set.</param>
+            <returns>The WebSocketBuilder instance.</returns>
+        </member>
+        <member name="M:EdjCase.ICP.WebSockets.WebSocketBuilder`1.WithCustomCandidConverter(EdjCase.ICP.Candid.CandidConverter)">
+            <summary>
+            Sets a custom CandidConverter for the `TMessage` candid conversion to override the
+            default implemenation.
+            </summary>
+            <param name="customConverter">The custom CandidConverter to use.</param>
+            <returns>The WebSocketBuilder instance.</returns>
+        </member>
+        <member name="M:EdjCase.ICP.WebSockets.WebSocketBuilder`1.WithCustomClient(EdjCase.ICP.WebSockets.IWebSocketClient)">
+            <summary>
+            Sets a custom websocket client implementation to override the default.
+            </summary>
+            <param name="client">The custom websocket client implementation.</param>
+            <returns>The WebSocketBuilder instance.</returns>
+        </member>
+        <member name="M:EdjCase.ICP.WebSockets.WebSocketBuilder`1.WithCustomBlsCryptography(EdjCase.ICP.BLS.IBlsCryptography)">
+            <summary>
+            Sets a custom BLS cryptography implementation to override the default.
+            </summary>
+            <param name="bls">The custom BLS cryptography implementation.</param>
+            <returns>The WebSocketBuilder instance.</returns>
+        </member>
+        <member name="M:EdjCase.ICP.WebSockets.WebSocketBuilder`1.Build">
+            <summary>
+            Builds the WebSocket agent from the specified configuration.
+            Will NOT connect the agent to the WebSocket gateway
+            </summary>
+            <returns>The WebSocket agent.</returns>
+            <exception cref="T:System.InvalidOperationException">Thrown if the OnMessage action is not specified.</exception>
+        </member>
+        <member name="M:EdjCase.ICP.WebSockets.WebSocketBuilder`1.BuildAndConnectAsync(System.Nullable{System.Threading.CancellationToken})">
+            <summary>
+            Builds the WebSocket agent from the specified configuration and then connects the agent to the WebSocket gateway.
+            </summary>
+            <returns>The WebSocket agent.</returns>
+            <exception cref="T:System.InvalidOperationException">Thrown if the OnMessage action is not specified.</exception>
+        </member>
+    </members>
+</doc>

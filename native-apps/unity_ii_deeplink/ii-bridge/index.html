@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Unity + Internet Identity</title>
+    <base href="/" />
+    <link rel="icon" href="/favicon.ico" />
+    <link rel="stylesheet" href="/main.css" />
+  </head>
+  <body>
+    <main>
+      <img src="/logo2.svg" alt="DFINITY logo" />
+
+      <section class="intro">
+        <p>
+          This page is the Internet Identity bridge for the
+          <strong>Unity + ICP</strong> example. The Unity app opens it
+          automatically — sign in below and the app receives your identity via
+          a deep link callback.
+        </p>
+        <p id="no-session-key" hidden>
+          No session key found — open this page from the Unity app to complete
+          the sign-in flow.
+        </p>
+      </section>
+
+      <section class="step">
+        <h2>Step 1 — Sign in</h2>
+        <button id="login" type="button">Sign in with Internet Identity</button>
+        <p id="login-status"></p>
+      </section>
+
+      <section class="step">
+        <h2>Step 2 — Return to the Unity app</h2>
+        <button id="open" type="button">Return to App</button>
+      </section>
+
+      <section class="step">
+        <h2>Browser test</h2>
+        <p class="caption">
+          Calls the backend canister directly from the browser to verify the
+          delegation was accepted — not part of the Unity flow.
+        </p>
+        <button id="greet" type="button">Greet</button>
+        <section id="greeting"></section>
+      </section>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

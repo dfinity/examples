@@ -58,3 +58,6 @@ sysinfo.txt
 # Crashlytics generated file
 crashlytics-build.properties
 
+# Per-developer editor settings (layout, recently opened scenes, search prefs)
+/[Uu]ser[Ss]ettings/
+

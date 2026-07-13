@@ -13,7 +13,7 @@ public class iOSPostBuildProcessor : MonoBehaviour
         if (buildTarget != BuildTarget.iOS)
             return;
 
-        const string kURLScheme = "internetidentity";
+        const string kURLScheme = "org.dfinity.unity-ii";
         const string kURLIdentifier = "authorize";
 
         // Patch the plist file to add URL schemes.
@@ -38,14 +38,32 @@ public class iOSPostBuildProcessor : MonoBehaviour
             var urlTypesArray = rootDict.CreateArray(kURLTypesKey);
             var itemDict = urlTypesArray.AddDict();
             itemDict.SetString(kURLNameKey, urlIdentifier);
-            var schemeArray = itemDict.CreateArray(kURLSchemeKey);
-            schemeArray.AddString(urlScheme);
-
+            itemDict.CreateArray(kURLSchemeKey).AddString(urlScheme);
             needsToWriteChanges = true;
         }
         else
         {
-            // TODO: Check if the url shceme has been updated.
+            // CFBundleURLTypes already exists (incremental build or another plugin).
+            // Walk the entries and add our scheme if it is not already present.
+            var urlTypesArray = rootDict.values[kURLTypesKey].AsArray();
+            bool schemeFound = false;
+            foreach (var item in urlTypesArray.values)
+            {
+                var dict = item.AsDict();
+                if (dict == null || !dict.values.ContainsKey(kURLSchemeKey)) continue;
+                foreach (var scheme in dict.values[kURLSchemeKey].AsArray().values)
+                {
+                    if (scheme.AsString() == urlScheme) { schemeFound = true; break; }
+                }
+                if (schemeFound) break;
+            }
+            if (!schemeFound)
+            {
+                var itemDict = urlTypesArray.AddDict();
+                itemDict.SetString(kURLNameKey, urlIdentifier);
+                itemDict.CreateArray(kURLSchemeKey).AddString(urlScheme);
+                needsToWriteChanges = true;
+            }
         }
 
         if (needsToWriteChanges)

@@ -1,0 +1,28 @@
+name: unity_ii_deeplink
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    paths:
+      - native-apps/unity_ii_deeplink/**
+      - .github/workflows/unity_ii_deeplink.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  native-apps-unity_ii_deeplink:
+    runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-motoko:1.0.1
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Deploy and test
+        working-directory: native-apps/unity_ii_deeplink
+        run: |
+          icp network start -d
+          icp deploy
+          bash test.sh
