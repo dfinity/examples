@@ -13,7 +13,7 @@ public class UnityHttpClient : IHttpClient
     {
         using (UnityWebRequest request = UnityWebRequest.Get(GetUri(url)))
         {
-            cancellationToken?.Register(() => request.Abort());
+            using var reg = cancellationToken?.Register(() => request.Abort());
             await request.SendWebRequest();
             return ParseResponse(request);
         }
@@ -28,7 +28,7 @@ public class UnityHttpClient : IHttpClient
             request.downloadHandler = new DownloadHandlerBuffer();
             request.uploadHandler = new UploadHandlerRaw(cborBody);
             request.uploadHandler.contentType = "application/cbor";
-            cancellationToken?.Register(() => request.Abort());
+            using var reg = cancellationToken?.Register(() => request.Abort());
             await request.SendWebRequest();
             return ParseResponse(request);
         }
@@ -76,15 +76,22 @@ internal class UnityWebRequestAwaiter : INotifyCompletion
     {
         this.continuation = continuation;
         // If the request completed between IsCompleted returning false and
-        // OnCompleted being called, the completed event already fired and
-        // continuation was never invoked — call it now.
+        // OnCompleted being called, invoke now. Clear first so OnRequestCompleted
+        // (which may have already queued) cannot invoke it a second time.
         if (asyncOp.isDone)
+        {
+            this.continuation = null;
             continuation();
+        }
     }
 
     private void OnRequestCompleted(AsyncOperation obj)
     {
-        continuation?.Invoke();
+        // Read-and-clear to ensure the continuation is invoked at most once,
+        // regardless of ordering with OnCompleted's isDone check.
+        var c = continuation;
+        continuation = null;
+        c?.Invoke();
     }
 }
 internal static class ExtensionMethods
