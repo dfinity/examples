@@ -139,10 +139,15 @@ document.getElementById("greet").onclick = async (e) => {
   const btn = e.currentTarget;
   btn.setAttribute("disabled", true);
 
-  const greeting = await actor.greet();
-  document.getElementById("greeting").innerText = greeting;
-
-  btn.removeAttribute("disabled");
+  try {
+    const greeting = await actor.greet();
+    document.getElementById("greeting").innerText = greeting;
+  } catch (err) {
+    console.error("[ii-bridge] greet failed:", err);
+    document.getElementById("greeting").innerText = "Greet failed — check the console.";
+  } finally {
+    btn.removeAttribute("disabled");
+  }
 };
 
 // ---- Async init — runs after handlers are registered ----
