@@ -13,7 +13,7 @@ public class iOSPostBuildProcessor : MonoBehaviour
         if (buildTarget != BuildTarget.iOS)
             return;
 
-        const string kURLScheme = "internetidentity";
+        const string kURLScheme = "org.dfinity.unity-ii";
         const string kURLIdentifier = "authorize";
 
         // Patch the plist file to add URL schemes.

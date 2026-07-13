@@ -10,7 +10,7 @@ namespace IC.GameKit
     {
         const string kAndroidNamespaceURI = "http://schemas.android.com/apk/res/android";
 
-        const string kAndroidScheme = "internetidentity";
+        const string kAndroidScheme = "org.dfinity.unity-ii";
         const string kAndroidHost = "authorize";
 
         public int callbackOrder { get { return 0; } }

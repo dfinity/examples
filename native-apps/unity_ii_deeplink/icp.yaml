@@ -3,11 +3,11 @@ canisters:
     recipe:
       type: "@dfinity/motoko@v5.0.0"
 
-  - name: frontend
+  - name: ii-bridge
     recipe:
       type: "@dfinity/asset-canister@v2.2.1"
       configuration:
-        dir: frontend/dist
+        dir: ii-bridge/dist
         build:
-          - npm install --prefix frontend
-          - npm run build --prefix frontend
+          - npm install --prefix ii-bridge
+          - npm run build --prefix ii-bridge

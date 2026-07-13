@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using UnityEngine;
 using UnityEngine.UI;
 using EdjCase.ICP.Agent.Agents;
@@ -11,17 +12,18 @@ namespace IC.GameKit
     {
         // Set these in the Unity Inspector before building.
         // After running `icp deploy`, retrieve the values with:
-        //   icp canister id frontend   → paste the resulting URL as greetFrontend
+        //   icp canister id ii-bridge  → paste the resulting URL as iiBridgeUrl
         //   icp canister id backend    → paste the canister ID as greetBackendCanister
-        // For local testing on a device connected to the same WiFi network, use
-        // the host machine's LAN IP, e.g. "http://192.168.1.42:8000/?canisterId=<id>"
-        // and change icGateway to "http://192.168.1.42:8000".
-        public string greetFrontend = "";
+        // For local emulator testing via adb reverse, use the subdomain URL:
+        //   iiBridgeUrl  → http://ii-bridge.local.localhost:8000
+        //   icGateway      → http://localhost:8000
+        public string iiBridgeUrl = "";
         public string greetBackendCanister = "";
-        // IC HTTP gateway — mainnet default; change to local IP for device testing.
-        public string icGateway = "https://ic0.app";
+        // IC HTTP gateway — mainnet default; change for local/emulator testing.
+        public string icGateway = "https://icp-api.io";
 
         Text mMyPrincipalText = null;
+        Button mSignInButton = null;
         Button mGreetButton = null;
         Ed25519Identity mEd25519Identity = null;
         DelegationIdentity mDelegationIdentity = null;
@@ -30,28 +32,39 @@ namespace IC.GameKit
 
         internal DelegationIdentity DelegationIdentity
         {
-            get { return mDelegationIdentity; } 
-            set 
+            get { return mDelegationIdentity; }
+            set
             {
                 mDelegationIdentity = value;
-                
-                if (mDelegationIdentity != null && mGreetButton != null)
+
+                if (mDelegationIdentity != null)
                 {
-                    mGreetButton.interactable = true;
+                    if (mGreetButton != null) mGreetButton.interactable = true;
+                    if (mSignInButton != null) mSignInButton.gameObject.SetActive(false);
+                    if (mMyPrincipalText != null) mMyPrincipalText.text = "Signed in ✓";
+                }
+                else
+                {
+                    if (mGreetButton != null) mGreetButton.interactable = false;
+                    if (mSignInButton != null) mSignInButton.gameObject.SetActive(true);
                 }
             }
         }
 
-        // Start is called before the first frame update
-        void Start()
+        async void Start()
         {
             var go = GameObject.Find("My Princinpal");
             mMyPrincipalText = go?.GetComponent<Text>();
 
+            var signInGo = GameObject.Find("Button_Browser");
+            mSignInButton = signInGo?.GetComponent<Button>();
+
             var buttonGo = GameObject.Find("Button_Greet");
             mGreetButton = buttonGo?.GetComponent<Button>();
 
-            mEd25519Identity = Ed25519Identity.Generate();
+            // Generate the Ed25519 key on a background thread — crypto key
+            // generation can block for several seconds on some devices/emulators.
+            mEd25519Identity = await Task.Run(() => Ed25519Identity.Generate());
         }
 
         // Update is called once per frame
@@ -69,17 +82,23 @@ namespace IC.GameKit
             if (DelegationIdentity == null)
                 return;
 
-            // Initialize HttpAgent.
-            var agent = new HttpAgent(DelegationIdentity, new Uri(icGateway));
+            try
+            {
+                var agent = new HttpAgent(DelegationIdentity, new Uri(icGateway));
+                var canisterId = Principal.FromText(greetBackendCanister);
+                var client = new GreetingClient.GreetingClient(agent, canisterId);
+                var content = await client.Greet();
 
-            var canisterId = Principal.FromText(greetBackendCanister);
-
-            // Initialize the client and make the call.
-            var client = new GreetingClient.GreetingClient(agent, canisterId);
-            var content = await client.Greet();
-
-            if (mMyPrincipalText != null)
-                mMyPrincipalText.text = content;
+                if (mMyPrincipalText != null)
+                    mMyPrincipalText.text = content;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("[TestICPAgent] Greet failed: " + e.Message);
+                if (mMyPrincipalText != null)
+                    mMyPrincipalText.text = "Session expired — sign in again.";
+                DelegationIdentity = null;
+            }
         }
     }
 }

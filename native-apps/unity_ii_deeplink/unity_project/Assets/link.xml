@@ -1,0 +1,7 @@
+<linker>
+  <assembly fullname="EdjCase.ICP.Agent" preserve="all" />
+  <assembly fullname="EdjCase.ICP.Candid" preserve="all" />
+  <assembly fullname="EdjCase.ICP.BLS" preserve="all" />
+  <assembly fullname="System.Net.Http" preserve="all" />
+  <assembly fullname="System.Text.Json" preserve="all" />
+</linker>
