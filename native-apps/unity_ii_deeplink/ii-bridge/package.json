@@ -9,7 +9,8 @@
   },
   "dependencies": {
     "@icp-sdk/auth": "~7.1.0",
-    "@icp-sdk/core": "~5.3.1"
+    "@icp-sdk/core": "~5.3.1",
+    "@noble/hashes": "~1.8.0"
   },
   "devDependencies": {
     "@icp-sdk/bindgen": "~0.3.0",

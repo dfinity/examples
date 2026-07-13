@@ -74,6 +74,11 @@ internal class UnityWebRequestAwaiter : INotifyCompletion
     public void OnCompleted(Action continuation)
     {
         this.continuation = continuation;
+        // If the request completed between IsCompleted returning false and
+        // OnCompleted being called, the completed event already fired and
+        // continuation was never invoked — call it now.
+        if (asyncOp.isDone)
+            continuation();
     }
 
     private void OnRequestCompleted(AsyncOperation obj)

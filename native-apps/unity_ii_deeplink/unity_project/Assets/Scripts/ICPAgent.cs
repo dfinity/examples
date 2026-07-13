@@ -62,9 +62,15 @@ namespace IC.GameKit
             var buttonGo = GameObject.Find("Button_Greet");
             mGreetButton = buttonGo?.GetComponent<Button>();
 
+            // Disable sign-in while the session key is being generated so the
+            // button cannot be tapped before SessionIdentity is ready.
+            if (mSignInButton != null) mSignInButton.interactable = false;
+
             // Generate the Ed25519 key on a background thread — crypto key
             // generation can block for several seconds on some devices/emulators.
             mEd25519Identity = await Task.Run(() => Ed25519Identity.Generate());
+
+            if (mSignInButton != null) mSignInButton.interactable = true;
         }
 
         // Update is called once per frame

@@ -5,7 +5,6 @@ using EdjCase.ICP.Agent.Models;
 using EdjCase.ICP.Candid.Models;
 using System;
 using System.Linq;
-using System.Web;
 using System.Collections.Generic;
 
 namespace IC.GameKit
@@ -48,7 +47,7 @@ namespace IC.GameKit
                 return;
             }
 
-            var delegationString = HttpUtility.UrlDecode(url.Substring(indexOfDelegation + kDelegationParam.Length));
+            var delegationString = Uri.UnescapeDataString(url.Substring(indexOfDelegation + kDelegationParam.Length));
             mIcpAgent.DelegationIdentity = ConvertJsonToDelegationIdentity(delegationString);
         }
 
