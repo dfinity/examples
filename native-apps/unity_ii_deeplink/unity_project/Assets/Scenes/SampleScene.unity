@@ -168,7 +168,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   iiBridgeUrl: http://ii-bridge.local.localhost:8000
-  greetBackendCanister: a2cb4-hh777-77775-aaaba-cai
+  greetBackendCanister:
   icGateway: http://localhost:8000
 --- !u!114 &272906662
 MonoBehaviour:

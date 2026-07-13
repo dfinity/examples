@@ -134,50 +134,152 @@ icp canister status backend -i -e ic     # → Greet Backend Canister
 
 Leave `icGateway` at the default `https://icp-api.io`.
 
-## Platform variants
+## Upgrading to HTTPS deep links for production
 
-The default example uses a **custom URL scheme** (`org.dfinity.unity-ii://authorize`). Two HTTPS-based variants are possible for stronger security guarantees — they require mainnet deployment.
+The default example uses a **custom URL scheme** (`org.dfinity.unity-ii://`). Custom URL schemes work for local development but have a security limitation: any app installed on the device can register the same scheme and receive the delegation callback. The delegation chain is cryptographically bound to the app's Ed25519 private key so the data itself is useless to an interceptor, but the ICP security guidelines recommend eliminating the interception risk entirely for production apps.
+
+The solution is to switch to **Android App Links** or **iOS Universal Links** — HTTPS-based mechanisms that cryptographically bind the callback URL to your specific app via a verification file hosted on your domain. These require mainnet deployment.
 
 ### Android App Links (HTTPS, mainnet only)
 
-Android App Links use HTTPS instead of a custom scheme, preventing other apps from intercepting the callback URL.
+Android verifies the `assetlinks.json` file on your domain at install time and routes matching HTTPS URLs exclusively to your app.
 
-1. Deploy to mainnet and note the II bridge canister ID.
-2. Update `AndroidPostBuildProcessor.cs`:
-   - Replace the scheme constants:
-     ```csharp
-     const string kAndroidScheme = "https";
-     const string kAndroidHost = "<your-canister-id>.icp0.io";
-     ```
-   - Add `autoVerify` to the intent filter:
-     ```csharp
-     intentFilterNode.SetAttribute("autoVerify", kAndroidNamespaceURI, "true");
-     ```
-3. Create `ii-bridge/public/.well-known/assetlinks.json`:
-   ```json
-   [{"relation":["delegate_permission/common.handle_all_urls"],
-     "target":{"namespace":"android_app","package_name":"<your.package>",
-               "sha256_cert_fingerprints":["<YOUR_SHA256_FINGERPRINT>"]}}]
-   ```
-4. Create `ii-bridge/public/.ic-assets.json5` to expose the hidden directory:
-   ```json5
-   [{"match":".well-known/**","allow_raw_access":true}]
-   ```
-5. In `ii-bridge/src/main.js`, change the callback URL:
-   ```js
-   const url = "https://<canister-id>.icp0.io/authorize#delegation=" + ...
-   ```
+**1. Deploy to mainnet and note the II bridge canister ID.**
+
+**2. Update `AndroidPostBuildProcessor.cs`:**
+
+Change the scheme constants and add `pathPrefix` and `autoVerify`:
+
+```csharp
+const string kAndroidScheme = "https";
+const string kAndroidHost = "<your-canister-id>.icp0.io";
+```
+
+In `AppendAndroidIntentFilter`, add `autoVerify` to the intent filter and `pathPrefix` to the data node:
+
+```csharp
+var intentFilterNode = xmlDoc.CreateElement("intent-filter");
+intentFilterNode.SetAttribute("autoVerify", kAndroidNamespaceURI, "true"); // add this
+
+// ...existing action and category nodes...
+
+var dataNode = xmlDoc.CreateElement("data");
+dataNode.SetAttribute("scheme", kAndroidNamespaceURI, kAndroidScheme);
+dataNode.SetAttribute("host", kAndroidNamespaceURI, kAndroidHost);
+dataNode.SetAttribute("pathPrefix", kAndroidNamespaceURI, "/authorize"); // add this
+```
+
+**3. Create `ii-bridge/public/.well-known/assetlinks.json`:**
+
+```json
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "<your.package.name>",
+    "sha256_cert_fingerprints": ["<YOUR_SIGNING_CERT_SHA256_FINGERPRINT>"]
+  }
+}]
+```
+
+Get the fingerprint with: `keytool -list -v -keystore <your-keystore>.jks`
+
+**4. Create `ii-bridge/public/.ic-assets.json5`** to allow the asset canister to serve the hidden directory:
+
+```json5
+[{"match": ".well-known/**", "allow_raw_access": true}]
+```
+
+**5. Update the callback URL in `ii-bridge/src/main.js`:**
+
+```js
+const url = "https://<your-canister-id>.icp0.io/authorize#delegation=" + ...
+```
+
+After redeployment, Android verifies `assetlinks.json` during app install. The OS routes `https://<your-canister-id>.icp0.io/authorize#delegation=…` exclusively to your app without showing a chooser dialog.
 
 ### iOS Universal Links (HTTPS, mainnet only)
 
-iOS Universal Links use HTTPS and the `com.apple.developer.associated-domains` entitlement. Requires an Apple Developer account.
+iOS verifies the Apple App Site Association (AASA) file on your domain and registers the domain binding at app install time. Requires an Apple Developer account.
 
-1. Deploy to mainnet.
-2. Replace `iOSPostBuildProcessor.cs` with the universallink variant:
-   - Use `PBXProject` to add an `.entitlements` file instead of patching `Info.plist`.
-   - Set `kAssociatedDomainsKey = "com.apple.developer.associated-domains"` and add `applinks:<your-canister-id>.icp0.io`.
-3. Serve an Apple App Site Association (AASA) file from the II bridge canister at `/.well-known/apple-app-site-association`.
-4. In `ii-bridge/src/main.js`, change the callback URL to the HTTPS canister URL.
+**1. Deploy to mainnet and note the II bridge canister ID.**
+
+**2. Replace the body of `iOSPostBuildProcessor.cs`:**
+
+Remove the `Info.plist` URL scheme patch and instead add an Associated Domains entitlement:
+
+```csharp
+#if UNITY_IOS
+using System.IO;
+using UnityEditor;
+using UnityEditor.Callbacks;
+using UnityEditor.iOS.Xcode;
+
+public class iOSPostBuildProcessor
+{
+    const string kDomain = "<your-canister-id>.icp0.io";
+
+    [PostProcessBuild]
+    public static void OnPostprocessBuild(BuildTarget buildTarget, string path)
+    {
+        if (buildTarget != BuildTarget.iOS) return;
+        AddAssociatedDomains(path);
+    }
+
+    static void AddAssociatedDomains(string buildPath)
+    {
+        // Write the entitlements file.
+        const string kEntitlementsRelPath = "Unity-iPhone/Unity-iPhone.entitlements";
+        var entitlementsFullPath = Path.Combine(buildPath, kEntitlementsRelPath);
+        var entitlements = new PlistDocument();
+        entitlements.root
+            .CreateArray("com.apple.developer.associated-domains")
+            .AddString("applinks:" + kDomain);
+        entitlements.WriteToFile(entitlementsFullPath);
+
+        // Register the entitlements file in the Xcode project.
+        var pbxPath = PBXProject.GetPBXProjectPath(buildPath);
+        var pbx = new PBXProject();
+        pbx.ReadFromFile(pbxPath);
+        var targetGuid = pbx.GetUnityMainTargetGuid();
+        pbx.AddFileToBuild(targetGuid, pbx.AddFile(kEntitlementsRelPath, kEntitlementsRelPath));
+        pbx.SetBuildProperty(targetGuid, "CODE_SIGN_ENTITLEMENTS", kEntitlementsRelPath);
+        pbx.WriteToFile(pbxPath);
+    }
+}
+#endif
+```
+
+**3. Create `ii-bridge/public/.well-known/apple-app-site-association`** (no `.json` extension):
+
+```json
+{
+  "applinks": {
+    "details": [{
+      "appIDs": ["<TEAM_ID>.<BUNDLE_ID>"],
+      "components": [{ "/": "/authorize*" }]
+    }]
+  }
+}
+```
+
+Find your Team ID in the Apple Developer portal. Bundle ID is the one set in Unity Player Settings.
+
+**4. Create `ii-bridge/public/.ic-assets.json5`** (same file as the Android step — works for both):
+
+```json5
+[{"match": ".well-known/**", "allow_raw_access": true}]
+```
+
+The asset canister must serve `apple-app-site-association` with `Content-Type: application/json`. The ICP asset canister infers this from the missing extension — verify with `curl -I https://<canister-id>.icp0.io/.well-known/apple-app-site-association`.
+
+**5. Update the callback URL in `ii-bridge/src/main.js`:**
+
+```js
+const url = "https://<your-canister-id>.icp0.io/authorize#delegation=" + ...
+```
+
+After redeployment, iOS verifies the AASA file at app install time. The OS routes `https://<your-canister-id>.icp0.io/authorize#delegation=…` directly to your app — no other app can intercept it.
 
 ## Updating the Candid interface
 
