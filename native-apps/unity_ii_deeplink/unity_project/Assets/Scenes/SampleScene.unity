@@ -168,7 +168,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   iiBridgeUrl: http://ii-bridge.local.localhost:8000
-  greetBackendCanister:
+  greetBackendCanister: 
   icGateway: http://localhost:8000
 --- !u!114 &272906662
 MonoBehaviour:
@@ -734,7 +734,7 @@ GameObject:
   - component: {fileID: 1627000290}
   - component: {fileID: 1627000289}
   m_Layer: 5
-  m_Name: My Princinpal
+  m_Name: My Principal
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

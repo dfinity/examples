@@ -53,7 +53,7 @@ namespace IC.GameKit
 
         async void Start()
         {
-            var go = GameObject.Find("My Princinpal");
+            var go = GameObject.Find("My Principal");
             mMyPrincipalText = go?.GetComponent<Text>();
 
             var signInGo = GameObject.Find("Button_Browser");
@@ -66,11 +66,19 @@ namespace IC.GameKit
             // button cannot be tapped before SessionIdentity is ready.
             if (mSignInButton != null) mSignInButton.interactable = false;
 
-            // Generate the Ed25519 key on a background thread — crypto key
-            // generation can block for several seconds on some devices/emulators.
-            mEd25519Identity = await Task.Run(() => Ed25519Identity.Generate());
-
-            if (mSignInButton != null) mSignInButton.interactable = true;
+            try
+            {
+                // Generate the Ed25519 key on a background thread — crypto key
+                // generation can block for several seconds on some devices/emulators.
+                mEd25519Identity = await Task.Run(() => Ed25519Identity.Generate());
+                if (mSignInButton != null) mSignInButton.interactable = true;
+            }
+            catch (Exception e)
+            {
+                Debug.LogError("[ICPAgent] Failed to generate session key: " + e.Message);
+                if (mMyPrincipalText != null)
+                    mMyPrincipalText.text = "Failed to initialise — restart the app.";
+            }
         }
 
         // Update is called once per frame

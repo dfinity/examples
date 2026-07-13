@@ -32,7 +32,14 @@ namespace IC.GameKit
 
         private IEnumerator HandleColdStartDeepLink(string url)
         {
-            yield return new WaitUntil(() => mIcpAgent.SessionIdentity != null);
+            const float kTimeoutSeconds = 10f;
+            var deadline = UnityEngine.Time.realtimeSinceStartup + kTimeoutSeconds;
+            yield return new WaitUntil(() => mIcpAgent.SessionIdentity != null || UnityEngine.Time.realtimeSinceStartup >= deadline);
+            if (mIcpAgent.SessionIdentity == null)
+            {
+                Debug.LogError("[DeepLinkPlugin] Timed out waiting for session key — cold-start deep link dropped.");
+                yield break;
+            }
             OnDeepLinkActivated(url);
         }
 
@@ -50,7 +57,7 @@ namespace IC.GameKit
 
         public void OnDeepLinkActivated(string url)
         {
-            if (string.IsNullOrEmpty(url))
+            if (mIcpAgent == null || string.IsNullOrEmpty(url))
                 return;
 
             const string kDelegationParam = "delegation=";

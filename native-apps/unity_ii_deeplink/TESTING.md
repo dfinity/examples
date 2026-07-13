@@ -226,4 +226,4 @@ Supporting App Links or Universal Links would require changing the post-build pr
 
 ### iOS status
 
-The `iOSPostBuildProcessor.cs` correctly registers the custom URL scheme in `Info.plist` and Unity's `Application.deepLinkActivated` fires for custom URL schemes on iOS. The flow is expected to work on iOS, but **has not been tested** (Level 3 was only verified on Android). The iOS processor also has incomplete handling for incremental builds (the plist update only runs on the first build).
+The `iOSPostBuildProcessor.cs` correctly registers the custom URL scheme in `Info.plist` and Unity's `Application.deepLinkActivated` fires for custom URL schemes on iOS. The flow is expected to work on iOS, but **has not been tested** (Level 3 was only verified on Android).
