@@ -18,7 +18,7 @@ The app uses a **double-delegation pattern** to authenticate users. Since Intern
 
 ### Scripts
 
-- [**`DeepLinkPlugin.cs`**](./Assets/Scripts/DeepLinkPlugin.cs) — Opens the II bridge in the browser (`SignIn()`), handles the deep link callback (`OnDeepLinkActivated()`), and parses the delegation chain JSON into a `DelegationIdentity`. Uses standard .NET `Convert.FromHexString` / `Convert.ToHexString` for hex encoding (compatible with IL2CPP).
+- [**`DeepLinkPlugin.cs`**](./Assets/Scripts/DeepLinkPlugin.cs) — Opens the II bridge in the browser (`SignIn()`), handles the deep link callback (`OnDeepLinkActivated()`), and parses the delegation chain JSON into a `DelegationIdentity`. Uses local `ToHex`/`FromHex` helpers for hex encoding (`Convert.ToHexString`/`Convert.FromHexString` require .NET 5+, which is not available in Unity's .NET Standard 2.1 runtime).
 
 - [**`ICPAgent.cs`**](./Assets/Scripts/ICPAgent.cs) — Manages the `Ed25519Identity` and `DelegationIdentity`. Calls the backend canister via `GreetingClient`. Controls button state: hides the sign-in button after a delegation is received; re-shows it if the session expires.
 

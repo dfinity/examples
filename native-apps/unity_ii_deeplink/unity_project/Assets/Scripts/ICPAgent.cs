@@ -120,7 +120,7 @@ namespace IC.GameKit
             {
                 Debug.LogError("[ICPAgent] Greet failed: " + e.Message);
                 if (mMyPrincipalText != null)
-                    mMyPrincipalText.text = "Session expired — sign in again.";
+                    mMyPrincipalText.text = "Greet failed: " + e.Message;
                 DelegationIdentity = null;
             }
         }
