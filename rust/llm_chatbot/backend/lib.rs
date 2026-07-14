@@ -2,11 +2,11 @@ use candid::{CandidType, Principal};
 use ic_cdk::update;
 use serde::{Deserialize, Serialize};
 
-// The backend calls the LLM canister's `v1_chat` endpoint directly. The types
-// and canister-resolution logic below mirror that canister's Candid interface:
+// The backend calls the LLM canister's `v1_chat` endpoint directly. The request
+// and response types below mirror that canister's Candid interface:
 // https://dashboard.internetcomputer.org/canister/w36hm-eqaaa-aaaal-qr76a-cai#interface
 //
-// LLM canister interface (w36hm-eqaaa-aaaal-qr76a-cai):
+// LLM canister interface:
 //   v1_chat : (chat_request_v1) -> (chat_response_v1)
 // where
 //   chat_request_v1  = record { model : text; tools : opt vec tool; messages : vec chat_message_v1 };
@@ -15,9 +15,6 @@ use serde::{Deserialize, Serialize};
 // This example does not use tools, so the optional `tools` field is omitted
 // from the request — Candid decodes an absent optional record field as `null`
 // on the canister side, keeping the call wire-compatible.
-
-/// The mainnet principal of the LLM canister.
-const MAINNET_LLM_CANISTER: &str = "w36hm-eqaaa-aaaal-qr76a-cai";
 
 // The model this example uses. The LLM canister identifies models by string;
 // other available models include "qwen3:32b" and "llama4-scout".
@@ -78,17 +75,14 @@ struct Response {
     message: AssistantMessage,
 }
 
-/// Resolves the LLM canister principal: prefers `PUBLIC_CANISTER_ID:llm`
-/// (auto-injected by `icp deploy` locally) and otherwise falls back to the
-/// mainnet LLM canister.
+// The LLM canister ID is injected as PUBLIC_CANISTER_ID:llm at deploy time:
+//   local: auto-injected by icp-cli after deploying the pre-built llm canister
+//   ic:    set explicitly in icp.yaml to the shared mainnet LLM canister
+//
+// See icp.yaml for the environment configuration.
 fn llm_canister() -> Principal {
-    const LLM_CANISTER_ENV: &str = "PUBLIC_CANISTER_ID:llm";
-    if ic_cdk::api::env_var_name_exists(LLM_CANISTER_ENV) {
-        let id = ic_cdk::api::env_var_value(LLM_CANISTER_ENV);
-        return Principal::from_text(&id)
-            .unwrap_or_else(|e| ic_cdk::trap(format!("invalid {LLM_CANISTER_ENV}: {e}")));
-    }
-    Principal::from_text(MAINNET_LLM_CANISTER).unwrap()
+    let id = ic_cdk::api::env_var_value("PUBLIC_CANISTER_ID:llm");
+    Principal::from_text(&id).expect("invalid PUBLIC_CANISTER_ID:llm")
 }
 
 /// Sends a chat request to the LLM canister and returns the assistant's reply.

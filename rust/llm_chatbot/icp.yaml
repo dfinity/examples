@@ -27,10 +27,15 @@ canisters:
 environments:
   - name: ic
     network: ic
-    # On mainnet, the LLM canister already exists at w36hm-eqaaa-aaaal-qr76a-cai.
-    # Excluding it here tells icp deploy not to redeploy it on the ic network.
-    # Locally, icp deploy auto-injects PUBLIC_CANISTER_ID:llm into the backend
-    # canister, which it reads at runtime to reach the locally-deployed LLM.
+    # On mainnet the shared LLM canister already exists, so deployment is
+    # restricted to [backend, frontend] (the llm canister is not redeployed)
+    # and the backend receives the mainnet LLM principal via an injected env
+    # var. Locally, icp deploy deploys the pre-built llm canister and
+    # auto-injects PUBLIC_CANISTER_ID:llm into the backend instead.
     canisters:
       - backend
       - frontend
+    settings:
+      backend:
+        environment_variables:
+          "PUBLIC_CANISTER_ID:llm": "w36hm-eqaaa-aaaal-qr76a-cai"

@@ -4,7 +4,7 @@ This example demonstrates how an ICP canister can interact with a large language
 
 ## How it works
 
-The backend canister calls the [LLM canister](https://forum.dfinity.org/t/introducing-the-llm-canister-deploy-ai-agents-with-a-few-lines-of-code/41424)'s `v1_chat` endpoint directly (see `backend/lib.rs`), without a helper crate. Locally, `icp deploy` deploys a copy of the LLM canister (backed by Ollama) and automatically injects its canister ID into the backend as the `PUBLIC_CANISTER_ID:llm` environment variable — the backend reads this at runtime so local calls go to the local LLM. On mainnet, the env var is absent and the backend falls back to the hardcoded mainnet principal `w36hm-eqaaa-aaaal-qr76a-cai`.
+The backend canister calls the [LLM canister](https://forum.dfinity.org/t/introducing-the-llm-canister-deploy-ai-agents-with-a-few-lines-of-code/41424)'s `v1_chat` endpoint directly (see `backend/lib.rs`), without a helper crate. It reads the LLM canister's principal from the `PUBLIC_CANISTER_ID:llm` environment variable. Locally, `icp deploy` deploys a copy of the LLM canister (backed by Ollama) and injects this variable automatically. On mainnet the shared LLM canister already exists, so `icp.yaml` sets the variable to its principal (`w36hm-eqaaa-aaaal-qr76a-cai`) for the `ic` environment.
 
 ## Build and deploy from the command line
 
