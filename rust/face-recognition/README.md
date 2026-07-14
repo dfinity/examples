@@ -1,96 +1,91 @@
 # ICP face recognition
 
-This is an ICP smart contract runs face detection and face recognition of user's photo that can be uploaded either from a camera or a local file.
+This example demonstrates running face detection and face recognition inside an ICP canister using the [Tract ONNX inference engine](https://github.com/sonos/tract). Users can upload photos from a camera or local file, detect faces, and identify people by name.
 
-The smart contract consists of two canisters:
+The example consists of two canisters:
 
-- The backend canister embeds the [the Tract ONNX inference engine](https://github.com/sonos/tract) with two ONNX models. One model is used to detect a face in the photo and return its bounding box. Another model is used for computing face embeddings.
-- The frontend canister contains the Web assets such as HTML, JS, CSS that are served to the browser.
+- **backend** — embeds the Tract ONNX inference engine. Exposes endpoints for uploading ONNX model files in chunks, loading them into memory, detecting faces, computing face embeddings, and recognizing people. Also includes `run_detection` (query) and `run_recognition` (update) endpoints that run the models against a built-in test image — useful during development for capacity planning. Since query calls don't persist logs on ICP, only the update call produces a visible instruction count:
 
-# Models
+  ```bash
+  icp canister call backend run_recognition '()'
+  icp canister logs backend
+  ```
+- **frontend** — serves the web UI (HTML/JS/CSS).
 
-The smart contract uses two models: one for detecting the face and another for recognizing the face.
+## Models
 
-## Face detection
+The backend uses two ONNX models that are too large to embed in the Wasm binary and must be uploaded after deployment. `icp deploy` handles this automatically via its sync phase:
 
-A face detection model finds the bounding box of a face in the image.
-You can download [Ultraface](https://github.com/onnx/models/tree/main/validated/vision/body_analysis/ultraface) - ultra-lightweight face detection model - [[here](https://github.com/onnx/models/blob/bec48b6a70e5e9042c0badbaafefe4454e072d08/validated/vision/body_analysis/ultraface/models/version-RFB-320.onnx)].
+- **Face detection** ([Ultraface](https://github.com/onnx/models/tree/main/validated/vision/body_analysis/ultraface)) — downloaded automatically.
+- **Face recognition** ([facenet-pytorch](https://github.com/timesler/facenet-pytorch) InceptionResnetV1) — generated automatically if Python 3.9–3.12 is available (`facenet-pytorch`, `torch`, and `onnx` are installed via pip). If no compatible Python is found, place `face-recognition.onnx` in the project root manually and run `icp deploy` again.
 
-Alternatively, you can run
+Models are stored in stable memory and survive canister upgrades — they reload automatically without re-uploading. Note: the persons database (added via the frontend) is stored in heap memory and is cleared on upgrade.
 
-```
-./download-face-detection-model.sh
-```
+## Build and deploy from the command line
 
-## Face recognition
+### Prerequisites
 
-A face recognition model computes a vector embedding of an image with a face.
-You can obtain a pretrained model from [facenet-pytorch](https://github.com/timesler/facenet-pytorch) as follows.
+**Required:**
 
-- #### Step 1: Install `python` and `pip`: https://packaging.python.org/en/latest/tutorials/installing-packages/.
+- [Node.js](https://nodejs.org/) v18+
+- [icp-cli](https://cli.internetcomputer.org/): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- [Rust](https://www.rust-lang.org/tools/install) v1.85+ with `wasm32-wasip1` target: `rustup target add wasm32-wasip1`
+- [wasi2ic](https://github.com/wasm-forge/wasi2ic): `cargo install wasi2ic`
 
-- #### Step 2: Install `facenet-pytorch` and  `torch`:
+`wasm-opt` is installed automatically on first deploy if not already present.
 
-```
-pip install facenet-pytorch
-pip install torch
-pip install onnx
-```
+**Optional (for automatic face recognition model generation):**
 
-- #### Step 3: Export ONNX model. Start a python shell and run the following commands or create a python file and run it:
+- Python 3.9–3.12 with pip — the sync phase auto-installs `facenet-pytorch`, `torch`, and `onnx` and generates `face-recognition.onnx`. Python 3.13+ is not yet supported by torch.
 
-```
-import torch
-import facenet_pytorch
-resnet = facenet_pytorch.InceptionResnetV1(pretrained='vggface2').eval()
-input = torch.randn(1, 3, 160, 160)
-torch.onnx.export(resnet, input, "face-recognition.onnx", verbose=False, opset_version=11)
+### Install
+
+```bash
+git clone https://github.com/dfinity/examples
+cd examples/rust/face-recognition
 ```
 
-- #### Step 4: This should produce `face-recognition.onnx`. Copy the file to the root of this repository.
+### Deploy
 
-## Prerequisites
-
-- [x] Install the [IC
-  SDK](https://internetcomputer.org/docs/current/developer-docs/getting-started/install). For local testing, `dfx >= 0.22.0` is required.
-- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
-- [x] Install `wasi2ic`: Follow the steps in https://github.com/wasm-forge/wasi2ic and make sure that `wasi2ic` binary is in your `$PATH`.
-- [x] Install `wasm-opt`: `cargo install wasm-opt`
-
-## Build the application
-
-```
-dfx start --background
-dfx deploy
+```bash
+icp network start -d
+icp deploy
+icp network stop
 ```
 
-If the deployment is successful, the it will show the `frontend` URL.
-Open that URL in browser to interact with the smart contract.
+`icp deploy` runs three phases:
+1. **Build** — compiles the Rust backend to WASM (via wasm32-wasip1 + wasi2ic).
+2. **Deploy** — installs the backend and frontend canisters.
+3. **Sync** — downloads the face detection model, generates the face recognition model (if Python 3.9–3.12 is available), and uploads both to the canister. Skipped on redeployment if models are already loaded.
 
-## Chunk uploading of models
+After deployment the CLI prints the frontend URL. Open it in a browser to interact with the canister.
 
-Since the models are large, they cannot be embedded into the Wasm binary of the smart contract.
-Instead they should be uploaded separately.
+### Test
 
-[DecideAI](https://decideai.xyz/) implemented a tool for incremental uploading of models: https://github.com/modclub-app/ic-file-uploader/tree/main.
-
-You can install the tool with
-
-```
-cargo install ic-file-uploader
+```bash
+bash test.sh
 ```
 
-Afterwards, execute the `upload-models-to-canister.sh` script, which runs the following commands:
+`test.sh` exercises the model management API without requiring models to be loaded. The frontend shows a setup instruction if models are not yet uploaded.
 
+For frontend development with hot reload:
+
+```bash
+npm run dev --prefix frontend
 ```
-dfx canister call backend clear_face_detection_model_bytes
-dfx canister call backend clear_face_recognition_model_bytes
-ic-file-uploader backend append_face_detection_model_bytes version-RFB-320.onnx
-ic-file-uploader backend append_face_recognition_model_bytes face-recognition.onnx
-dfx canister call backend setup_models
+
+## Updating the Candid interface
+
+Only needed if you change the backend endpoints. Requires `candid-extractor` (`cargo install candid-extractor`):
+
+```bash
+icp build backend && candid-extractor ./target/wasm32-wasip1/release/backend.wasm > backend/backend.did
 ```
 
 ## Credits
 
-Thanks to [DecideAI](https://decideai.xyz/) for discussions and providing [ic-file-uploader](https://github.com/modclub-app/ic-file-uploader/tree/main).
+Thanks to [DecideAI](https://decideai.xyz/) for discussions and providing [ic-file-uploader](https://github.com/decide-ai/ic-file-uploader).
 
+## Security considerations and best practices
+
+See the [ICP security best practices](https://docs.internetcomputer.org/guides/security/overview).

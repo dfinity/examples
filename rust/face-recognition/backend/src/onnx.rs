@@ -15,6 +15,8 @@ type Model = SimplePlan<TypedFact, Box<dyn TypedOp>, Graph<TypedFact, Box<dyn Ty
 thread_local! {
     static FACE_DETECTION: RefCell<Option<Model>> = RefCell::new(None);
     static FACE_RECOGNITION: RefCell<Option<Model>> = RefCell::new(None);
+    // Stored in heap memory — cleared on canister upgrade. For a production
+    // system, persist DB to stable memory via ic-stable-structures.
     static DB: RefCell<Vec<(String, Embedding)>> = RefCell::new(vec![]);
 }
 
@@ -89,10 +91,14 @@ pub fn setup(facedetect: Bytes, facerec: Bytes) -> TractResult<()> {
     setup_facerec(facerec)
 }
 
+pub fn models_ready() -> bool {
+    FACE_DETECTION.with_borrow(|m| m.is_some()) && FACE_RECOGNITION.with_borrow(|m| m.is_some())
+}
+
 /// Returns a bounding box around the face detected in the given image.
 pub fn detect(image: Vec<u8>) -> Result<(BoundingBox, f32), anyhow::Error> {
     FACE_DETECTION.with_borrow(|model| {
-        let model = model.as_ref().unwrap();
+        let model = model.as_ref().ok_or_else(|| anyhow::anyhow!("Face detection model not loaded — call setup_models() first"))?;
         let image = image::load_from_memory(&image)?.to_rgb8();
 
         // The model accepts an image of size 320x240px.
@@ -129,7 +135,7 @@ pub fn detect(image: Vec<u8>) -> Result<(BoundingBox, f32), anyhow::Error> {
 /// Computes a face embedding corresponding to the given image of a face.
 pub fn embedding(image: Vec<u8>) -> Result<Embedding, anyhow::Error> {
     FACE_RECOGNITION.with_borrow(|model| {
-        let model = model.as_ref().unwrap();
+        let model = model.as_ref().ok_or_else(|| anyhow::anyhow!("Face recognition model not loaded — call setup_models() first"))?;
         let image = image::load_from_memory(&image)?.to_rgb8();
 
         // The model accepts an image of size 160x160px.

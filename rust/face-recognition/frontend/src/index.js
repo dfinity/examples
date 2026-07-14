@@ -1,6 +1,20 @@
-import { backend } from "../../declarations/backend";
+import { backend } from "./actor.js";
 
 window.onload = async () => {
+  // Check if models have been uploaded; show a warning banner if not.
+  try {
+    const ready = await backend.models_ready();
+    if (!ready) {
+      message(
+        "⚠ Models not loaded. Run 'bash upload-models-to-canister.sh' after deploying, then reload this page."
+      );
+      return;
+    }
+  } catch (err) {
+    message("⚠ Could not reach the backend: " + err.toString());
+    return;
+  }
+
   elem("recognize").onclick = recognize;
   elem("store").onclick = store;
   elem("file").onchange = load_local_image;
@@ -72,6 +86,7 @@ async function capture_image() {
   }
   let bytes = await serialize(resized);
 
+  const video = elem("video");
   if (video.srcObject) {
     video.srcObject.getTracks().forEach((track) => track.stop());
   }
@@ -116,7 +131,7 @@ async function render(scaling, box) {
 // This function performs the following steps:
 // 1. Capture the image from the camera stream (or from the local file).
 // 2. Call the backend to detect the bounding box of the face in the image.
-// 3. Call the backend to recognize the face. 
+// 3. Call the backend to recognize the face.
 async function recognize(event) {
   event.preventDefault();
   hide("buttons");
@@ -187,7 +202,7 @@ async function store(event) {
   return false;
 }
 
-// Invoked when a file is selected in the file input element. 
+// Invoked when a file is selected in the file input element.
 // Loads the given file as an image to show to the user.
 async function load_local_image(event) {
   message("");
@@ -225,13 +240,13 @@ function toDataURL(blob) {
 async function restart(event) {
   hide("restart");
   message("");
+  const video = elem("video");
   if (video.srcObject) {
     event.preventDefault();
   }
   navigator.mediaDevices
     .getUserMedia({ video: true, audio: false })
     .then((stream) => {
-      const video = elem("video");
       video.srcObject = stream;
       video.play();
       show("buttons");

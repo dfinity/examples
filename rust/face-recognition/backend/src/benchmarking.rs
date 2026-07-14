@@ -1,10 +1,18 @@
-// The code below is used for testing and benchmarking.
+// Benchmarking and smoke-test endpoints.
+//
+// run_detection() and run_recognition() run the respective models against a
+// hardcoded test image embedded in the Wasm binary. They log the IC instruction
+// count (visible via `icp canister logs backend`) so you can measure the
+// computational cost of each inference call.
+//
+// run_detection is a query (fast, single-node execution).
+// run_recognition is an update (replicated execution, consistent with recognize()).
 
 use crate::{onnx, Detection, Error, Recognition};
 
 const IMAGE: &'static [u8] = include_bytes!("../assets/image.png");
 
-/// Formats thousands for the specified `u64` integer (helper function).
+/// Formats a u64 with thousands separators, e.g. 1_234_567.
 fn fmt(n: u64) -> String {
     n.to_string()
         .as_bytes()
