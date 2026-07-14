@@ -1,6 +1,6 @@
 # LLM Chatbot
 
-This example demonstrates how an ICP smart contract can interact with a large language model (LLM) to generate text. The user can input a prompt and the smart contract will use the LLM to generate a response. Follow-up prompts continue the conversation with the full message history.
+This example demonstrates how an ICP canister can interact with a large language model (LLM) to generate text. The user can input a prompt and the canister will use the LLM to generate a response. Follow-up prompts continue the conversation with the full message history.
 
 ## How it works
 

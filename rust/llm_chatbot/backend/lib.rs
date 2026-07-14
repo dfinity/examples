@@ -118,5 +118,5 @@ async fn chat(messages: Vec<ChatMessage>) -> String {
     message.content.unwrap_or_default()
 }
 
-// Export the interface for the smart contract.
+// Export the canister's Candid interface.
 ic_cdk::export_candid!();

@@ -13,7 +13,6 @@ canisters:
     recipe:
       type: "@dfinity/rust@v3.3.0"
       configuration:
-        package: backend
         candid: backend/backend.did
 
   - name: frontend
