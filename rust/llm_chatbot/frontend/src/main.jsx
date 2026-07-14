@@ -1,5 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import ReactDOM from 'react-dom/client';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { backend } from './actor';
 import botImg from '/bot.svg';
 import userImg from '/user.svg';
@@ -96,7 +98,13 @@ const App = () => {
                     <div>{name}</div>
                     <div className="mx-2">{formatDate(new Date())}</div>
                   </div>
-                  <div>{text}</div>
+                  {isUser ? (
+                    <div className="whitespace-pre-wrap">{text}</div>
+                  ) : (
+                    <div className="prose prose-sm max-w-none break-words prose-p:my-2 prose-ul:my-2 prose-ol:my-2 prose-headings:mb-2 prose-headings:mt-3 prose-pre:my-2 prose-pre:bg-gray-800 first:prose-p:mt-0 last:prose-p:mb-0">
+                      <ReactMarkdown remarkPlugins={[remarkGfm]}>{text}</ReactMarkdown>
+                    </div>
+                  )}
                 </div>
                 {isUser && (
                   <div
