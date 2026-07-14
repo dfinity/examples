@@ -1,23 +1,22 @@
 import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
 import { icpBindgen } from "@icp-sdk/bindgen/plugins/vite";
 import { execSync } from "child_process";
 
 export default defineConfig(({ command }) => {
   const plugins = [
-    react(),
     icpBindgen({
       didFile: "../backend/backend.did",
       outDir: "./src/bindings",
     }),
   ];
 
-  // Build only — no dev-server setup needed
+  // If we're only building this is enough
   if (command !== "serve") {
     return { plugins };
   }
 
-  // Dev server: look up the local network root key and backend canister ID
+  // If we're running the local npm dev server, we're going to look up the
+  // local network's root key and the relevant canister ids.
   const environment = process.env.ICP_ENVIRONMENT || "local";
   const CANISTER_NAME = "backend";
 
@@ -29,6 +28,7 @@ export default defineConfig(({ command }) => {
   const rootKey = networkStatus.root_key;
   const proxyTarget = networkStatus.api_url;
 
+  // Backend must be deployed before starting dev server
   let canisterId;
   try {
     canisterId = execSync(

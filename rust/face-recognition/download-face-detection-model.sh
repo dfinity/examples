@@ -11,9 +11,9 @@ if [ -s "${ULTRAFACE_TGT}" ]; then
 fi
 
 if which wget >/dev/null; then
-    wget $ULTRAFACE_URL -O $ULTRAFACE_TGT
+    wget --inet4-only $ULTRAFACE_URL -O $ULTRAFACE_TGT
 elif which curl >/dev/null; then
-    curl -vL $ULTRAFACE_URL -o $ULTRAFACE_TGT
+    curl -4 -L $ULTRAFACE_URL -o $ULTRAFACE_TGT
 else
     echo "Couldn't find wget or curl."
     echo "Please download manually from \"$ULTRAFACE_URL\" and save the file in $ULTRAFACE_TGT."

@@ -1,4 +1,3 @@
-.dfx/
 build/
 node_modules/
 dist/
@@ -8,6 +7,7 @@ _MACOSX
 target/
 *.old.did
 .idea
-src/backend/assets/version-RFB-320.onnx
-src/backend/assets/facerec.onnx
-.env
+# ONNX model files are downloaded/generated at runtime — do not commit
+*.onnx
+frontend/src/bindings/
+.icp/cache/

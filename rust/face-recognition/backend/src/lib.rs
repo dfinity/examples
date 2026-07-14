@@ -119,10 +119,26 @@ fn append_face_recognition_model_bytes(bytes: Vec<u8>) {
     storage::append_bytes(FACE_RECOGNITION_FILE, bytes);
 }
 
+/// Returns true if both ONNX models have been loaded via setup_models().
+/// The frontend uses this on page load to show a setup warning if models are missing.
+#[ic_cdk::query]
+fn models_ready() -> bool {
+    onnx::models_ready()
+}
+
 /// Once the model files have been incrementally uploaded,
 /// this function loads them into in-memory models.
 #[ic_cdk::update]
 fn setup_models() -> Result<(), String> {
+    if std::fs::metadata(FACE_DETECTION_FILE).is_err()
+        || std::fs::metadata(FACE_RECOGNITION_FILE).is_err()
+    {
+        return Err(
+            "Model files not found — upload them first using append_face_detection_model_bytes \
+             and append_face_recognition_model_bytes"
+                .to_string(),
+        );
+    }
     setup(
         storage::bytes(FACE_DETECTION_FILE),
         storage::bytes(FACE_RECOGNITION_FILE),
@@ -140,4 +156,18 @@ fn init() {
 fn post_upgrade() {
     let wasi_memory = MEMORY_MANAGER.with(|m| m.borrow().get(WASI_MEMORY_ID));
     ic_wasi_polyfill::init_with_memory(&[0u8; 32], &[], wasi_memory);
+    // Reload models from stable memory if they were uploaded before this upgrade.
+    // Guard with metadata check first — storage::bytes() panics on missing files.
+    if std::fs::metadata(FACE_DETECTION_FILE).is_ok()
+        && std::fs::metadata(FACE_RECOGNITION_FILE).is_ok()
+    {
+        if let Err(err) = setup(
+            storage::bytes(FACE_DETECTION_FILE),
+            storage::bytes(FACE_RECOGNITION_FILE),
+        ) {
+            ic_cdk::println!("post_upgrade: model reload failed: {}", err);
+        }
+    }
 }
+
+ic_cdk::export_candid!();
