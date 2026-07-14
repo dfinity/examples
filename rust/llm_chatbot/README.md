@@ -42,16 +42,14 @@ git clone https://github.com/dfinity/examples
 cd examples/rust/llm_chatbot
 ```
 
-### Deploy and test
+### Deploy
 
 ```bash
 icp network start -d
 icp deploy
-bash test.sh
-icp network stop
 ```
 
-Open the frontend URL printed by `icp deploy` to use the chatbot in the browser.
+Open the frontend URL printed by `icp deploy` to use the chatbot in the browser. Make sure Ollama is running with the model warmed (see above) so the first message does not time out.
 
 For hot-reload frontend development:
 
