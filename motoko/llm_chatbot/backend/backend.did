@@ -1,0 +1,34 @@
+type ToolCallArgument = 
+ record {
+   name: text;
+   value: text;
+ };
+type ToolCall = 
+ record {
+   function: FunctionCall;
+   id: text;
+ };
+type FunctionCall = 
+ record {
+   arguments: vec ToolCallArgument;
+   name: text;
+ };
+type ChatMessage = 
+ variant {
+   assistant: AssistantMessage;
+   system: record {content: text;};
+   tool: record {
+           content: text;
+           tool_call_id: text;
+         };
+   user: record {content: text;};
+ };
+type AssistantMessage = 
+ record {
+   content: opt text;
+   tool_calls: vec ToolCall;
+ };
+service : {
+  chat: (messages: vec ChatMessage) -> (text);
+  prompt: (prompt: text) -> (text);
+}
