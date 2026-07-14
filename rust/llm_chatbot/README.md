@@ -4,7 +4,7 @@ This example demonstrates how an ICP smart contract can interact with a large la
 
 ## How it works
 
-The backend canister calls the `w36hm-eqaaa-aaaal-qr76a-cai` LLM canister on mainnet via the [`ic-llm`](https://crates.io/crates/ic-llm) crate. Locally, `icp deploy` deploys a copy of the LLM canister (backed by Ollama) and automatically injects its canister ID into the backend as the `PUBLIC_CANISTER_ID:llm` environment variable — `ic-llm` reads this at runtime so local calls go to the local LLM. On mainnet, the env var is absent and `ic-llm` falls back to the hardcoded mainnet principal.
+The backend canister calls the [LLM canister](https://forum.dfinity.org/t/introducing-the-llm-canister-deploy-ai-agents-with-a-few-lines-of-code/41424)'s `v1_chat` endpoint directly (see `backend/lib.rs`), without a helper crate. Locally, `icp deploy` deploys a copy of the LLM canister (backed by Ollama) and automatically injects its canister ID into the backend as the `PUBLIC_CANISTER_ID:llm` environment variable — the backend reads this at runtime so local calls go to the local LLM. On mainnet, the env var is absent and the backend falls back to the hardcoded mainnet principal `w36hm-eqaaa-aaaal-qr76a-cai`.
 
 ## Build and deploy from the command line
 
@@ -12,7 +12,6 @@ The backend canister calls the `w36hm-eqaaa-aaaal-qr76a-cai` LLM canister on mai
 
 - Node.js
 - icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
-- ic-mops: `npm install -g ic-mops`
 
 ### Set up Ollama (local deployment only)
 
@@ -22,13 +21,19 @@ The LLM canister delegates inference to [Ollama](https://ollama.com/). Install i
 ollama serve
 ```
 
-In a separate terminal, pull the model (about 4 GiB, one-time download):
+In a separate terminal, download the model (about 4 GiB, one-time) and load it
+into memory:
 
 ```bash
-ollama pull llama3.1:8b
+ollama run llama3.1:8b "hi"
 ```
 
-Once the model is loaded you can stop the `ollama run` command — `ollama serve` keeps it available.
+`ollama run` pulls the model if needed and warms it in memory. This matters: the
+LLM canister's HTTP outcall to Ollama has a ~30 s deadline, and a cold model
+load alone can take longer than that — so the *first* call after `ollama serve`
+starts may time out (`SysFatal: Timeout expired`) if the model isn't warm yet.
+Warming it first avoids this; `ollama serve` then keeps it loaded. If you do hit
+a timeout on the first call, simply retry — the model stays resident afterwards.
 
 ### Install
 
