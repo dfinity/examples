@@ -48,8 +48,8 @@ icp deploy icrc1_index --mode reinstall -y --args "(opt variant { Init = record 
 
 # 3. Backend and frontend (init args come from icp.yaml). Internet Identity is
 # provided by the local network (ii: true in icp.yaml), not deployed here.
-icp deploy backend -y
-icp deploy frontend -y
+icp deploy backend
+icp deploy frontend
 
 echo
 echo "Deployed. The test tokens are held by the 'ic-pos-dev' identity"
