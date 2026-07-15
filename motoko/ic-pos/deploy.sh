@@ -55,7 +55,8 @@ echo
 echo "  # check the balance"
 echo "  icp token \$(icp canister status icrc1_ledger -i) balance --identity ic-pos-dev"
 echo
-echo "  # pay a merchant (a real transfer the backend monitor picks up)"
+echo "  # pay a merchant 1 LICRC1 (amounts are in base units; 8 decimals),"
+echo "  # a real transfer the backend monitor picks up"
 echo "  icp canister call icrc1_ledger icrc1_transfer \\"
-echo "    '(record { to = record { owner = principal \"<MERCHANT_PRINCIPAL>\" }; amount = 100_000 : nat })' \\"
+echo "    '(record { to = record { owner = principal \"<MERCHANT_PRINCIPAL>\" }; amount = 100_000_000 : nat })' \\"
 echo "    --identity ic-pos-dev"

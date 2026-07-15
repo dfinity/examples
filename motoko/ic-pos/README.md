@@ -58,11 +58,11 @@ icp token $(icp canister status icrc1_ledger -i) balance --identity ic-pos-dev
 
 1. Open the frontend, log in with Internet Identity, and give your store a name.
 2. On the store page, click the principal pill to copy your store's principal.
-3. Send tokens to the store from the pre-funded `ic-pos-dev` identity using icp-cli:
+3. Send tokens to the store from the pre-funded `ic-pos-dev` identity using icp-cli. Amounts are in base units; with 8 decimals, `100_000_000` is 1 LICRC1. The ledger charges a small fee (0.0001 LICRC1) to the sender on top of the amount — the store receives the full amount.
 
    ```bash
    icp canister call icrc1_ledger icrc1_transfer \
-     '(record { to = record { owner = principal "<STORE_PRINCIPAL>" }; amount = 100_000 : nat })' \
+     '(record { to = record { owner = principal "<STORE_PRINCIPAL>" }; amount = 100_000_000 : nat })' \
      --identity ic-pos-dev
    ```
 
