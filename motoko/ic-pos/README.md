@@ -82,11 +82,13 @@ bash test.sh
 
 ## Deploy to mainnet
 
+Unlike local (which needs `deploy.sh`), mainnet uses a plain `icp deploy`:
+
 ```bash
 icp deploy -e ic
 ```
 
-On mainnet the app uses the shared **TICRC1** test token (ledger [`3jkp5-oyaaa-aaaaj-azwqa-cai`](https://dashboard.internetcomputer.org/canister/3jkp5-oyaaa-aaaaj-azwqa-cai), index [`qzre3-3iaaa-aaaai-aqmsa-cai`](https://dashboard.internetcomputer.org/canister/qzre3-3iaaa-aaaai-aqmsa-cai)) and the production Internet Identity at `https://id.ai` — the local ledger and index are not deployed.
+On mainnet the app uses the shared **TICRC1** test token (ledger [`3jkp5-oyaaa-aaaaj-azwqa-cai`](https://dashboard.internetcomputer.org/canister/3jkp5-oyaaa-aaaaj-azwqa-cai), index [`qzre3-3iaaa-aaaai-aqmsa-cai`](https://dashboard.internetcomputer.org/canister/qzre3-3iaaa-aaaai-aqmsa-cai)) and the production Internet Identity at `https://id.ai` — the local ledger and index are not deployed. Because those two canisters already exist on mainnet, there are no init-args canisters to install, so a plain `icp deploy -e ic` works (no `deploy.sh` needed).
 
 To get TICRC1 tokens to test with:
 
