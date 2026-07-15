@@ -3,7 +3,6 @@ import { useAuth } from "@/lib/auth";
 import { Button } from "../ui/button";
 import { CheckCircle, CircleX, LoaderCircle } from "lucide-react";
 import { useState, type ReactElement } from "react";
-import { router } from "@/main";
 
 type LoginStatus = "idle" | "logging-in" | "success" | "error";
 
@@ -16,7 +15,6 @@ export default function LoginButton() {
     try {
       await login();
       setLoginStatus("success");
-      router.invalidate();
     } catch (e) {
       console.error(e);
       setLoginStatus("error");

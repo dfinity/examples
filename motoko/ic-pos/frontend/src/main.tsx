@@ -2,7 +2,7 @@ import "./index.css";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
-import { StrictMode } from "react";
+import { StrictMode, useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { routeTree } from "./routeTree.gen";
 import { AuthProvider, useAuth } from "./lib/auth";
@@ -35,6 +35,13 @@ export const queryClient = new QueryClient({
 function InnerRoot() {
   const { identity, isInitializing } = useAuth();
   const { data: merchant, isPending } = useMerchant();
+
+  // Re-run route guards when auth (or the merchant) changes, so signing in/out
+  // redirects. This must happen after the new context is committed to the
+  // router, which is why it lives in an effect rather than in the login handler.
+  useEffect(() => {
+    router.invalidate();
+  }, [identity, merchant]);
 
   if (isInitializing || (identity && isPending)) return null;
 
