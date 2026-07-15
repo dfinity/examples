@@ -11,16 +11,20 @@ set -e
 #
 # Prerequisite: a running local network (`icp network start -d`).
 
-# The default identity is the ledger's minting account. A separate, pre-funded
-# "ic-pos-dev" identity lets you pay merchants locally with a real transfer via
-# `icp canister call icrc1_ledger icrc1_transfer ...` — minting (a transfer from
-# the minting account) would create a "mint", not the "transfer" the backend
-# monitors.
-MINTER=$(icp identity principal)
+# Two dedicated identities:
+#  - ic-pos-minter: the ledger's minting account (mints the initial supply).
+#  - ic-pos-dev:    a normal, pre-funded holder you pay merchants from.
+# These must be DIFFERENT identities — and independent of your current default —
+# so that transfers from ic-pos-dev are real "transfer"s (debited, with a fee)
+# that the backend monitor picks up. If the minter and the holder were the same
+# identity, its "transfers" would be mints: no debit, no fee, and the monitor
+# (which only reacts to transfers) would ignore them.
+icp identity new ic-pos-minter --storage plaintext 2>/dev/null || true
 icp identity new ic-pos-dev --storage plaintext 2>/dev/null || true
+MINTER=$(icp identity principal --identity ic-pos-minter)
 DEV=$(icp identity principal --identity ic-pos-dev)
 
-# 1. ICRC-1 ledger — minting account = default identity; ic-pos-dev pre-funded.
+# 1. ICRC-1 ledger — minting account = ic-pos-minter; ic-pos-dev pre-funded.
 # Named distinctly from the shared mainnet TICRC1 token to make clear this is a
 # throwaway local ledger, not the real thing.
 icp deploy icrc1_ledger --mode reinstall -y --args "(variant { Init = record { \
