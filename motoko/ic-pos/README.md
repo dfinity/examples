@@ -46,7 +46,13 @@ bash deploy.sh
 
 > **Use `bash deploy.sh`, not `icp deploy`, locally.** The ICRC-1 ledger and index require init args (minting account, initial balances, and the ledger's canister ID) that are only known after identities and canisters are created, so `deploy.sh` installs them with the right arguments. A plain `icp deploy` traps because those canisters receive no init args.
 
-`deploy.sh` installs the local ICRC-1 ledger + index, the `icpos` backend, and the frontend. It sets the default identity as the ledger's minting account and pre-funds a separate `ic-pos-dev` identity with test tokens. Internet Identity is provided by the local network (`ii: true` in `icp.yaml`) at `http://id.ai.localhost:8000` — no separate deployment. Open the frontend URL printed by the script.
+`deploy.sh` installs a local ICRC-1 ledger + index (a throwaway token named **LICRC1**, distinct from the mainnet TICRC1), the `icpos` backend, and the frontend. Internet Identity is provided by the local network (`ii: true` in `icp.yaml`) at `http://id.ai.localhost:8000` — no separate deployment. Open the frontend URL printed by the script.
+
+The script also creates a pre-funded **`ic-pos-dev`** identity that holds the local test tokens. It does **not** change your selected identity — your default identity has a zero balance, so pass `--identity ic-pos-dev` to spend the test tokens (no need to switch your default). Check it with:
+
+```bash
+icp token $(icp canister status icrc1_ledger -i) balance --identity ic-pos-dev
+```
 
 ### Try a payment
 

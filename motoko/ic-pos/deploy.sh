@@ -21,9 +21,11 @@ icp identity new ic-pos-dev --storage plaintext 2>/dev/null || true
 DEV=$(icp identity principal --identity ic-pos-dev)
 
 # 1. ICRC-1 ledger — minting account = default identity; ic-pos-dev pre-funded.
+# Named distinctly from the shared mainnet TICRC1 token to make clear this is a
+# throwaway local ledger, not the real thing.
 icp deploy icrc1_ledger --mode reinstall -y --args "(variant { Init = record { \
-  token_name = \"Test ICRC1\"; \
-  token_symbol = \"TICRC1\"; \
+  token_name = \"Local ICRC-1\"; \
+  token_symbol = \"LICRC1\"; \
   minting_account = record { owner = principal \"$MINTER\" }; \
   initial_balances = vec { record { record { owner = principal \"$DEV\" }; 1_000_000_000_000 : nat } }; \
   metadata = vec {}; \
@@ -46,7 +48,14 @@ icp deploy icpos -y
 icp deploy icpos_frontend -y
 
 echo
-echo "Deployed. Pay a merchant from the pre-funded ic-pos-dev identity, e.g.:"
+echo "Deployed. The test tokens are held by the 'ic-pos-dev' identity"
+echo "(your default identity has none). Pass --identity ic-pos-dev to spend"
+echo "them — no need to change your selected identity:"
+echo
+echo "  # check the balance"
+echo "  icp token \$(icp canister status icrc1_ledger -i) balance --identity ic-pos-dev"
+echo
+echo "  # pay a merchant (a real transfer the backend monitor picks up)"
 echo "  icp canister call icrc1_ledger icrc1_transfer \\"
 echo "    '(record { to = record { owner = principal \"<MERCHANT_PRINCIPAL>\" }; amount = 100_000 : nat })' \\"
 echo "    --identity ic-pos-dev"
