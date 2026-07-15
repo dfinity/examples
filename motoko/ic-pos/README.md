@@ -7,9 +7,11 @@ To let you try the full flow without spending real funds, this example uses the 
 ## Features
 
 - **Create store**: Log in with Internet Identity and configure the store with a name and notification settings.
-- **Charge customer**: Enter an amount to generate a payment QR code (following the [ICRC-22](https://github.com/dfinity/ICRC/issues/22) standard) for the customer to scan and pay.
+- **Charge customer**: Enter an amount to generate a payment QR code (following the [ICRC-22](https://github.com/dfinity/ICRC/issues/22) payment-request format) for the customer to scan and pay.
 - **Send tokens**: Send tokens to other principals from within the app.
 - **Transaction history**: View recent transactions and a live balance for the store, queried from the ICRC-1 index canister.
+
+> **Heads up: the payment QR code cannot be scanned by any wallet yet.** ICRC-22 is still a **draft** ([issue #22](https://github.com/dfinity/ICRC/issues/22), [PR #101](https://github.com/dfinity/ICRC/pull/101)) and, as far as we know, no wallet (OISY included) has adopted it. So the "Charge customer" QR code is illustrative — you can't currently pay it by scanning from a wallet. To actually complete a payment, send the tokens directly to the store's principal (copy it from the store page) with a wallet or `icp-cli`, as shown in [Try a payment](#try-a-payment) below.
 
 ## How it works
 
