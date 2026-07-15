@@ -1,12 +1,8 @@
 # IC-POS
 
-![](./media/header.png)
-
 IC-POS is a simple Point of Sale (POS) app that accepts [ICRC-1](https://github.com/dfinity/ICRC-1) token payments on the Internet Computer. A merchant logs in with [Internet Identity](https://internetcomputer.org/internet-identity), configures a store, and charges customers by showing a QR code; incoming payments show up in the store with a live balance and transaction history.
 
 To let you try the full flow without spending real funds, this example uses the **TICRC1 test token** ([`3jkp5-oyaaa-aaaaj-azwqa-cai`](https://dashboard.internetcomputer.org/canister/3jkp5-oyaaa-aaaaj-azwqa-cai)) on mainnet, and a local ICRC-1 ledger + index when developing. Because the app talks to any ICRC-1 ledger, the same code works with real tokens (e.g. [ckBTC](https://internetcomputer.org/ckbtc/)) by pointing it at a different ledger.
-
-> This example was created by [Kristofer Lund](https://github.com/kristoferlund) as a ckBTC point-of-sale demo and has been adapted here to run on [icp-cli](https://github.com/dfinity/icp-cli) with the TICRC1 test token.
 
 ## Features
 
@@ -107,7 +103,7 @@ Contributions are welcome! Please open an issue or submit a pull request.
 
 ## Author
 
-Original IC-POS by [Kristofer Lund](https://github.com/kristoferlund) — [kristofer@fmckl.se](mailto:kristofer@fmckl.se).
+Based on the original [IC-POS](https://github.com/kristoferlund/ic-pos) by [Kristofer Lund](https://github.com/kristoferlund) — [kristofer@fmckl.se](mailto:kristofer@fmckl.se).
 
 ## License
 
