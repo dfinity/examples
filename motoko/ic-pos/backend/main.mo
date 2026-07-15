@@ -1,4 +1,3 @@
-import Array "mo:core/Array";
 import Debug "mo:core/Debug";
 import Map "mo:core/Map";
 import Nat "mo:core/Nat";
@@ -47,7 +46,6 @@ actor class Main(_startBlock : Nat) {
   let merchantStore = Map.empty<Text, MainTypes.Merchant>();
   // Next ledger block index to scan for incoming transfers.
   var nextBlock : Nat = _startBlock;
-  transient var logData : [Text] = [];
 
   // Get the caller's merchant information.
   public query (context) func getMerchant() : async MainTypes.Response<MainTypes.Merchant> {
@@ -70,17 +68,6 @@ actor class Main(_startBlock : Nat) {
   public shared (context) func updateMerchant(merchant : MainTypes.Merchant) : async MainTypes.Response<MainTypes.Merchant> {
     merchantStore.add(context.caller.toText(), merchant);
     { status = 200; status_text = "OK"; data = ?merchant; error_text = null };
-  };
-
-  // Get the latest log items (capped at 100).
-  public query func getLogs() : async [Text] {
-    logData;
-  };
-
-  // Append a log message, keeping the 100 most recent.
-  func log(text : Text) {
-    Debug.print(text);
-    logData := Array.tabulate(Nat.min(logData.size() + 1, 100), func(i) { if (i == 0) text else logData[i - 1] });
   };
 
   // Resolve the ledger canister, injected as PUBLIC_CANISTER_ID:icrc1_ledger.
@@ -111,12 +98,15 @@ actor class Main(_startBlock : Nat) {
       case (?transfer) {
         switch (merchantStore.get(transfer.to.owner.toText())) {
           case (?merchant) {
+            // A payment for a merchant with notifications enabled: emit a
+            // canister log (observable via `icp canister logs icpos`) marking
+            // where a real notification would be sent. To actually send one,
+            // use HTTPS outcalls — https://docs.internetcomputer.org/guides/backends/https-outcalls
             if (merchant.email_notifications or merchant.phone_notifications) {
-              log(
+              Debug.print(
                 "Payment of " # transfer.amount.toText() # " received by merchant '" # merchant.name #
                 "' from " # transfer.from.owner.toText() #
-                ". A notification could be sent here via HTTPS outcalls " #
-                "(see https://docs.internetcomputer.org/guides/backends/https-outcalls)."
+                ". A notification could be sent here via HTTPS outcalls."
               );
             };
           };

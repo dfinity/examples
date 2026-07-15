@@ -15,7 +15,7 @@ To let you try the full flow without spending real funds, this example uses the 
 
 ### Backend (`backend/`)
 
-The backend is a single Motoko canister, `icpos`. It stores per-merchant configuration (`getMerchant` / `updateMerchant`) and runs a [timer](https://internetcomputer.org/docs/motoko/timers) that monitors the ICRC-1 ledger for incoming transfers. When a payment to a configured merchant is detected, it writes a log entry (`getLogs`) noting that a notification could be sent.
+The backend is a single Motoko canister, `icpos`. It stores per-merchant configuration (`getMerchant` / `updateMerchant`) and runs a [timer](https://internetcomputer.org/docs/motoko/timers) that monitors the ICRC-1 ledger for incoming transfers. When a payment is detected for a merchant that has notifications enabled, it emits a [canister log](https://internetcomputer.org/docs/building-apps/canister-management/logs) entry (observable with `icp canister logs icpos`) noting where a notification would be sent.
 
 The ledger canister is resolved at runtime from the `PUBLIC_CANISTER_ID:icrc1_ledger` environment variable injected by icp-cli (the local ledger when developing, TICRC1 on mainnet).
 
@@ -66,7 +66,7 @@ icp token $(icp canister status icrc1_ledger -i) balance --identity ic-pos-dev
      --identity ic-pos-dev
    ```
 
-The payment appears in the store, and the backend logs a would-be notification (`icp canister call icpos getLogs`).
+The payment appears in the store. If the merchant has notifications enabled, the backend also emits a would-be-notification entry to its canister logs (`icp canister logs icpos`).
 
 For frontend hot-reload development after deploying: `npm run dev --prefix frontend`.
 

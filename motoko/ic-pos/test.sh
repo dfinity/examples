@@ -33,8 +33,8 @@ after=$(balance_of)
 echo "balance: $before -> $after"
 [ "$((after - before))" -eq 500000 ] && echo "PASS" || { echo "FAIL: expected +500000, got +$((after - before))"; exit 1; }
 
-# The backend's global timer scans the ledger and logs a would-be notification
-# for the receiving merchant (see `icp canister call icpos getLogs`). That is
-# timing-dependent (the timer runs every 20s and scans one block at a time), so
-# it is not asserted here.
+# The backend's global timer scans the ledger and, for a merchant with
+# notifications enabled, emits a would-be-notification entry to its canister
+# logs (see `icp canister logs icpos`). That is timing-dependent (the timer runs
+# every 20s and scans one block at a time), so it is not asserted here.
 echo "All tests passed."
