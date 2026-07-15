@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button';
 import { useAuth } from '@/lib/auth';
 import useMerchant from '@/hooks/useMerchant';
 import useTokenBalance from '@/hooks/useTokenBalance';
-import { formatCkBtc } from '@/utils/formatCkBtc';
+import useTokenMetadata from '@/hooks/useTokenMetadata';
+import { formatToken } from '@/utils/formatToken';
 import PrincipalPill from '@/components/PrincipalPill';
 import LogoutButton from '@/components/LogoutButton';
 import ChargeButton from '@/components/merchant/ChargeButton';
@@ -34,6 +35,7 @@ function MerchantPage() {
   const { identity } = useAuth();
   const { data: merchant } = useMerchant();
   const { data: balance } = useTokenBalance();
+  const { symbol, decimals } = useTokenMetadata();
 
   if (!identity) return;
 
@@ -52,7 +54,7 @@ function MerchantPage() {
         <MainSection>
           <div className="flex flex-col items-center justify-between pb-10 space-y-5 grow">
             <div className="grow" />
-            <div>{formatCkBtc(balance)} ckBTC</div>
+            <div>{formatToken(balance, decimals)} {symbol}</div>
             <PrincipalPill principal={identity?.getPrincipal().toString()} />
             <div className="grow" />
             <ChargeButton />

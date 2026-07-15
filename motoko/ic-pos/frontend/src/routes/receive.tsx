@@ -1,5 +1,6 @@
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import useMerchant from '@/hooks/useMerchant';
+import useTokenMetadata from '@/hooks/useTokenMetadata';
 import { useAuth } from '@/lib/auth';
 import Page from '@/components/Page';
 import MainSection from '@/components/MainSection';
@@ -24,7 +25,10 @@ export const Route = createFileRoute('/receive')({
 
 function ReceivePage() {
   const { data: merchant } = useMerchant();
+  const { symbol } = useTokenMetadata();
   const { identity } = useAuth();
+
+  const tokenLabel = symbol || "tokens";
 
   const search = window.location.search;
   const params = new URLSearchParams(search);
@@ -37,7 +41,7 @@ function ReceivePage() {
   const amount = params.get("amount");
 
   const qrCodeValue = amount
-    ? `ckbtc:${principal}?amount=${amount}`
+    ? `icrc1:${principal}?amount=${amount}`
     : principal;
 
   return (
@@ -62,7 +66,7 @@ function ReceivePage() {
         <MainSection>
           <div className="flex flex-col items-center justify-between flex-1 pt-10 pb-10 space-y-5 grow">
             <div className="text-4xl font-bold">
-              {amount ? `Pay ckBTC: ${amount}` : "Pay with ckBTC"}
+              {amount ? `Pay ${tokenLabel}: ${amount}` : `Pay with ${tokenLabel}`}
             </div>
             <QRCodeSVG value={qrCodeValue} height={300} width={300} />
             <div className="flex flex-col items-center justify-center space-y-3">

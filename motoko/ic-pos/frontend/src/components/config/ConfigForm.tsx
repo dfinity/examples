@@ -108,6 +108,11 @@ export default function ConfigForm() {
             </FormItem>
           )}
         />
+        <p className="text-sm text-muted-foreground">
+          In this example, enabling notifications only writes a log entry in the
+          backend when a payment is received — no email or SMS is actually sent.
+          See the README for wiring up real delivery via HTTPS outcalls.
+        </p>
         <div className="flex flex-col p-5 space-y-3 border rounded-lg">
           <FormField
             control={form.control}

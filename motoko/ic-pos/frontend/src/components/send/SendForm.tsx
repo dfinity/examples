@@ -15,10 +15,12 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { convertToBigInt } from "@/utils/convertToBigInt";
+import { formatToken } from "@/utils/formatToken";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useNavigate } from "@tanstack/react-router";
 import useTokenBalance from "@/hooks/useTokenBalance";
+import useTokenMetadata from "@/hooks/useTokenMetadata";
 import { useIcrcLedger } from "@/actors";
 import { queryClient } from "@/main";
 
@@ -37,6 +39,7 @@ type SendSchemaType = z.infer<typeof SendSchema>;
 export default function SendForm({ principal, amount }: SendFormProps) {
   const navigate = useNavigate();
   const { data: balance } = useTokenBalance();
+  const { symbol, decimals, fee } = useTokenMetadata();
   const ledgerCanister = useIcrcLedger();
 
   const form = useForm<SendSchemaType>({
@@ -70,7 +73,7 @@ export default function SendForm({ principal, amount }: SendFormProps) {
     }
     let amountBigInt: bigint;
     try {
-      amountBigInt = convertToBigInt(amount);
+      amountBigInt = convertToBigInt(amount, decimals);
     } catch (error) {
       return form.setError("amount", {
         message: (error as Error).message,
@@ -139,7 +142,9 @@ export default function SendForm({ principal, amount }: SendFormProps) {
                   </FormControl>
                 </div>
                 <FormDescription>
-                  Transaction Fee: 0.0000001 ckBTC
+                  {fee !== undefined
+                    ? `Transaction Fee: ${formatToken(fee, decimals)} ${symbol}`
+                    : "Transaction Fee: …"}
                 </FormDescription>
                 <FormMessage />
               </FormItem>

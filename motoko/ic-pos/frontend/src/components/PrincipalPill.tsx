@@ -24,13 +24,15 @@ export default function PrincipalPill({
 }: PrincipalPillProps) {
   return (
     <div
-      className={`py-1 px-3 bg-black rounded-full bg-opacity-10 text-[0.9rem] ${className} hover:bg-opacity-20 cursor-pointer`}
+      className={`not-prose inline-flex items-center gap-1.5 py-1 px-3 bg-black/10 rounded-full text-[0.9rem] hover:bg-black/20 cursor-pointer ${className ?? ""}`}
       onClick={() => copyPrincipal(principal)}
     >
-      <img src={DfinityLogo} className="inline-block w-5 m-0" />{" "}
-      {variant === "short"
-        ? shortenPrincipal(principal)
-        : principalToString(principal)}
+      <img src={DfinityLogo} alt="" className="h-4 w-4 shrink-0 m-0" />
+      <span>
+        {variant === "short"
+          ? shortenPrincipal(principal)
+          : principalToString(principal)}
+      </span>
     </div>
   );
 }

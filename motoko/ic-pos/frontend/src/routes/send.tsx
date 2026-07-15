@@ -7,7 +7,8 @@ import HeaderSection from '@/components/HeaderSection';
 import { Button } from '@/components/ui/button';
 import { QrCode, X } from 'lucide-react';
 import MainSection from '@/components/MainSection';
-import { formatCkBtc } from '@/utils/formatCkBtc';
+import useTokenMetadata from '@/hooks/useTokenMetadata';
+import { formatToken } from '@/utils/formatToken';
 import PrincipalPill from '@/components/PrincipalPill';
 import SendForm from '@/components/send/SendForm';
 import QRReader from '@/components/QRReader';
@@ -27,12 +28,13 @@ export const Route = createFileRoute('/send')({
 export default function SendPage() {
   const { identity } = useAuth();
   const { data: balance } = useTokenBalance();
+  const { symbol, decimals } = useTokenMetadata();
   const [qrReaderOpen, setQrReaderOpen] = useState(false);
   const [principal, setPrincipal] = useState("");
   const [amount, setAmount] = useState("0");
 
   function parseQrString(input: string) {
-    const regex = /^ckbtc:([^?]+)\?amount="([^"]+)"$/;
+    const regex = /^icrc1:([^?]+)\?amount=([^"]+)$/;
     const match = input.match(regex);
 
     if (!match) {
@@ -86,7 +88,7 @@ export default function SendPage() {
           <div className="grow" />
           {!qrReaderOpen && (
             <>
-              <div>{formatCkBtc(balance)} ckBTC</div>
+              <div>{formatToken(balance, decimals)} {symbol}</div>
               <PrincipalPill principal={identity?.getPrincipal().toString()} />
               <div className="grow" />
               <SendForm principal={principal} amount={amount} />
