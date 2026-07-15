@@ -2,11 +2,10 @@ import "./index.css";
 
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
-import { InternetIdentityProvider, useInternetIdentity } from "ic-use-internet-identity";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import { routeTree } from "./routeTree.gen";
-import Actors from "./actors";
+import { AuthProvider, useAuth } from "./lib/auth";
 import useMerchant from "./hooks/useMerchant";
 
 export const router = createRouter({
@@ -34,7 +33,7 @@ export const queryClient = new QueryClient({
 });
 
 function InnerRoot() {
-  const { identity, isInitializing } = useInternetIdentity();
+  const { identity, isInitializing } = useAuth();
   const { data: merchant, isPending } = useMerchant();
 
   if (isInitializing || (identity && isPending)) return null;
@@ -45,13 +44,9 @@ function InnerRoot() {
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <InternetIdentityProvider>
-        <Actors>
-          <InnerRoot />
-        </Actors>
-      </InternetIdentityProvider>
+      <AuthProvider>
+        <InnerRoot />
+      </AuthProvider>
     </QueryClientProvider>
   </StrictMode>
 );
-
-

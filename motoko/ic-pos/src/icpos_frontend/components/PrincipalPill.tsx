@@ -1,5 +1,5 @@
 import DfinityLogo from "../assets/dfinity-logo.png";
-import { Principal } from "@dfinity/principal";
+import { Principal } from "@icp-sdk/core/principal";
 import { principalToString } from "../utils/principalToString";
 import { shortenPrincipal } from "../utils/shortenPrincipal";
 import { toast } from "react-hot-toast";

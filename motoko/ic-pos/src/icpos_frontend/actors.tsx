@@ -1,31 +1,57 @@
-import { ReactNode } from "react";
+import { useMemo } from "react";
+import { HttpAgent } from "@icp-sdk/core/agent";
+import { Principal } from "@icp-sdk/core/principal";
+import { IcrcLedgerCanister, IcrcIndexCanister } from "@icp-sdk/canisters/ledger/icrc";
+import { createActor } from "./bindings/icpos";
+import { useAuth } from "./lib/auth";
 import {
-  ActorProvider,
-  createActorContext,
-  createUseActorHook,
-} from "ic-use-actor";
-import {
-  canisterId,
-  idlFactory,
-} from "../declarations/icpos/index";
-import { _SERVICE } from "../declarations/icpos/icpos.did";
-import { useInternetIdentity } from "ic-use-internet-identity";
+  host,
+  rootKey,
+  icposCanisterId,
+  icrc1LedgerCanisterId,
+  icrc1IndexCanisterId,
+} from "./lib/env";
 
-const actorContext = createActorContext<_SERVICE>();
-export const useIcPosActor = createUseActorHook<_SERVICE>(actorContext);
+/**
+ * The ic-pos backend actor, built with the current identity. Memoized so it is
+ * only recreated when the identity changes (e.g. login/logout).
+ */
+export function useIcPosActor() {
+  const { identity } = useAuth();
 
-export default function Actors({ children }: { children: ReactNode }) {
-  const { identity } = useInternetIdentity();
-
-  return (
-    <ActorProvider<_SERVICE>
-      canisterId={canisterId}
-      context={actorContext}
-      identity={identity}
-      idlFactory={idlFactory}
-    >
-      {children}
-    </ActorProvider>
+  const actor = useMemo(
+    () =>
+      createActor(icposCanisterId, {
+        agentOptions: { host, rootKey, identity },
+      }),
+    [identity]
   );
+
+  return { actor };
 }
 
+/** The ICRC-1 ledger client, built with the current identity. */
+export function useIcrcLedger() {
+  const { identity } = useAuth();
+
+  return useMemo(() => {
+    const agent = HttpAgent.createSync({ host, rootKey, identity });
+    return IcrcLedgerCanister.create({
+      agent,
+      canisterId: Principal.fromText(icrc1LedgerCanisterId),
+    });
+  }, [identity]);
+}
+
+/** The ICRC-1 index client, built with the current identity. */
+export function useIcrcIndex() {
+  const { identity } = useAuth();
+
+  return useMemo(() => {
+    const agent = HttpAgent.createSync({ host, rootKey, identity });
+    return IcrcIndexCanister.create({
+      agent,
+      canisterId: Principal.fromText(icrc1IndexCanisterId),
+    });
+  }, [identity]);
+}

@@ -1,6 +1,6 @@
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
-import useTokeBalance from '@/hooks/useTokenBalance';
-import { useInternetIdentity } from 'ic-use-internet-identity';
+import useTokenBalance from '@/hooks/useTokenBalance';
+import { useAuth } from '@/lib/auth';
 import { useState } from 'react';
 import Page from '@/components/Page';
 import HeaderSection from '@/components/HeaderSection';
@@ -11,7 +11,6 @@ import { formatCkBtc } from '@/utils/formatCkBtc';
 import PrincipalPill from '@/components/PrincipalPill';
 import SendForm from '@/components/send/SendForm';
 import QRReader from '@/components/QRReader';
-import { Result } from 'react-zxing';
 import toast from 'react-hot-toast';
 
 export const Route = createFileRoute('/send')({
@@ -26,8 +25,8 @@ export const Route = createFileRoute('/send')({
 })
 
 export default function SendPage() {
-  const { identity } = useInternetIdentity();
-  const { data: balance } = useTokeBalance();
+  const { identity } = useAuth();
+  const { data: balance } = useTokenBalance();
   const [qrReaderOpen, setQrReaderOpen] = useState(false);
   const [principal, setPrincipal] = useState("");
   const [amount, setAmount] = useState("0");
@@ -46,9 +45,7 @@ export default function SendPage() {
     return { principal, amount };
   }
 
-  const handleQrResult = (result: Result) => {
-
-    const text = result.getText();
+  const handleQrResult = (text: string) => {
     try {
       // If text contains ':', we assume it to be an ICRC-22
       // payment request string. If not, we assume it to be

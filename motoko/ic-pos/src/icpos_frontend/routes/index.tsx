@@ -4,7 +4,7 @@ import MainSection from '../components/MainSection'
 import { Cog, QrCodeIcon } from "lucide-react";
 import HeaderSection from '@/components/HeaderSection';
 import { Button } from '@/components/ui/button';
-import { useInternetIdentity } from 'ic-use-internet-identity';
+import { useAuth } from '@/lib/auth';
 import useMerchant from '@/hooks/useMerchant';
 import useTokenBalance from '@/hooks/useTokenBalance';
 import { formatCkBtc } from '@/utils/formatCkBtc';
@@ -31,7 +31,7 @@ export const Route = createFileRoute('/')({
 })
 
 function MerchantPage() {
-  const { identity } = useInternetIdentity();
+  const { identity } = useAuth();
   const { data: merchant } = useMerchant();
   const { data: balance } = useTokenBalance();
 

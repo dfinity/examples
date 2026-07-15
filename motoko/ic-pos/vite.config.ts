@@ -1,50 +1,110 @@
-import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
 import { defineConfig } from "vite";
-import dotenv from "dotenv";
-import environment from "vite-plugin-environment";
-import viteReact from "@vitejs/plugin-react";
-import path from "path"
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+import { TanStackRouterVite } from "@tanstack/router-plugin/vite";
+import { icpBindgen } from "@icp-sdk/bindgen/plugins/vite";
+import { execSync } from "child_process";
+import path from "path";
 
-dotenv.config({ path: ".env" });
+// Canisters whose IDs the frontend needs at runtime. The asset canister injects
+// these as `PUBLIC_CANISTER_ID:<name>` env vars in production (see icp.yaml). In
+// dev the Vite server sets the same values via the `ic_env` cookie below.
+const FRONTEND_CANISTERS = [
+  "icpos",
+  "icrc1_ledger",
+  "icrc1_index",
+  "internet_identity",
+];
 
-process.env.II_URL =
-  process.env.DFX_NETWORK === "local"
-    ? `http://${process.env.CANISTER_ID_INTERNET_IDENTITY}.localhost:4943`
-    : `https://identity.ic0.app`;
-
-
-export default defineConfig({
-  build: {
-    emptyOutDir: true,
-  },
-  resolve: {
-    alias: {
-      "@": path.resolve(__dirname, "./src/icpos_frontend"),
-    },
-  },
-  optimizeDeps: {
-    esbuildOptions: {
-      define: {
-        global: "globalThis",
-      },
-    },
-  },
-  server: {
-    proxy: {
-      "/api": {
-        target: "http://127.0.0.1:4943",
-        changeOrigin: true,
-      },
-    },
-  },
-  plugins: [
+export default defineConfig(({ command }) => {
+  const plugins = [
+    react(),
+    tailwindcss(),
     TanStackRouterVite({
       routesDirectory: "src/icpos_frontend/routes",
       generatedRouteTree: "src/icpos_frontend/routeTree.gen.ts",
     }),
-    viteReact(),
-    environment("all", { prefix: "CANISTER_" }),
-    environment("all", { prefix: "DFX_" }),
-    environment(['II_URL']),
-  ],
+    icpBindgen({
+      didFile: "src/icpos/icpos.did",
+      outDir: "src/icpos_frontend/bindings",
+    }),
+  ];
+
+  const config = {
+    build: {
+      emptyOutDir: true,
+    },
+    resolve: {
+      alias: {
+        "@": path.resolve(__dirname, "./src/icpos_frontend"),
+      },
+    },
+    optimizeDeps: {
+      esbuildOptions: {
+        define: {
+          global: "globalThis",
+        },
+      },
+    },
+    plugins,
+  };
+
+  // Build only — no dev-server setup needed.
+  if (command !== "serve") {
+    return config;
+  }
+
+  // Dev server: look up the local network root key and canister IDs and expose
+  // them to the app via the same `ic_env` cookie the asset canister sets in
+  // production.
+  const environment = process.env.ICP_ENVIRONMENT || "local";
+
+  const networkStatus = JSON.parse(
+    execSync(`icp network status -e ${environment} --json`, {
+      encoding: "utf-8",
+    })
+  );
+  const rootKey = networkStatus.root_key;
+  const proxyTarget = networkStatus.api_url;
+
+  const envParts: string[] = [];
+  for (const name of FRONTEND_CANISTERS) {
+    try {
+      const canisterId = execSync(
+        `icp canister status ${name} -e ${environment} -i`,
+        { encoding: "utf-8" }
+      ).trim();
+      envParts.push(`PUBLIC_CANISTER_ID:${name}=${canisterId}`);
+    } catch {
+      if (name === "icpos") {
+        console.error(`
+     Canister "${name}" not found in environment "${environment}".
+
+     Before running the dev server, deploy the canisters:
+
+       ./deploy.sh
+    `);
+        process.exit(1);
+      }
+      console.warn(
+        `[vite] Canister "${name}" not found in environment "${environment}"; skipping.`
+      );
+    }
+  }
+  envParts.push(`ic_root_key=${rootKey}`);
+
+  return {
+    ...config,
+    server: {
+      headers: {
+        "Set-Cookie": `ic_env=${encodeURIComponent(envParts.join("&"))}; SameSite=Lax;`,
+      },
+      proxy: {
+        "/api": {
+          target: proxyTarget,
+          changeOrigin: true,
+        },
+      },
+    },
+  };
 });

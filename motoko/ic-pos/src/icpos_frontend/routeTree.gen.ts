@@ -8,132 +8,56 @@
 // You should NOT make any changes in this file as it will be overwritten.
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
-// Import Routes
+import { Route as rootRouteImport } from './routes/__root'
+import { Route as SetupRouteImport } from './routes/setup'
+import { Route as SendRouteImport } from './routes/send'
+import { Route as ReceiveRouteImport } from './routes/receive'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as HistoryRouteImport } from './routes/history'
+import { Route as ConfigRouteImport } from './routes/config'
+import { Route as ChargeRouteImport } from './routes/charge'
+import { Route as IndexRouteImport } from './routes/index'
 
-import { Route as rootRoute } from './routes/__root'
-import { Route as SetupImport } from './routes/setup'
-import { Route as SendImport } from './routes/send'
-import { Route as ReceiveImport } from './routes/receive'
-import { Route as LoginImport } from './routes/login'
-import { Route as HistoryImport } from './routes/history'
-import { Route as ConfigImport } from './routes/config'
-import { Route as ChargeImport } from './routes/charge'
-import { Route as IndexImport } from './routes/index'
-
-// Create/Update Routes
-
-const SetupRoute = SetupImport.update({
+const SetupRoute = SetupRouteImport.update({
   id: '/setup',
   path: '/setup',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const SendRoute = SendImport.update({
+const SendRoute = SendRouteImport.update({
   id: '/send',
   path: '/send',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const ReceiveRoute = ReceiveImport.update({
+const ReceiveRoute = ReceiveRouteImport.update({
   id: '/receive',
   path: '/receive',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const LoginRoute = LoginImport.update({
+const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const HistoryRoute = HistoryImport.update({
+const HistoryRoute = HistoryRouteImport.update({
   id: '/history',
   path: '/history',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const ConfigRoute = ConfigImport.update({
+const ConfigRoute = ConfigRouteImport.update({
   id: '/config',
   path: '/config',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const ChargeRoute = ChargeImport.update({
+const ChargeRoute = ChargeRouteImport.update({
   id: '/charge',
   path: '/charge',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-const IndexRoute = IndexImport.update({
+const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => rootRouteImport,
 } as any)
-
-// Populate the FileRoutesByPath interface
-
-declare module '@tanstack/react-router' {
-  interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexImport
-      parentRoute: typeof rootRoute
-    }
-    '/charge': {
-      id: '/charge'
-      path: '/charge'
-      fullPath: '/charge'
-      preLoaderRoute: typeof ChargeImport
-      parentRoute: typeof rootRoute
-    }
-    '/config': {
-      id: '/config'
-      path: '/config'
-      fullPath: '/config'
-      preLoaderRoute: typeof ConfigImport
-      parentRoute: typeof rootRoute
-    }
-    '/history': {
-      id: '/history'
-      path: '/history'
-      fullPath: '/history'
-      preLoaderRoute: typeof HistoryImport
-      parentRoute: typeof rootRoute
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginImport
-      parentRoute: typeof rootRoute
-    }
-    '/receive': {
-      id: '/receive'
-      path: '/receive'
-      fullPath: '/receive'
-      preLoaderRoute: typeof ReceiveImport
-      parentRoute: typeof rootRoute
-    }
-    '/send': {
-      id: '/send'
-      path: '/send'
-      fullPath: '/send'
-      preLoaderRoute: typeof SendImport
-      parentRoute: typeof rootRoute
-    }
-    '/setup': {
-      id: '/setup'
-      path: '/setup'
-      fullPath: '/setup'
-      preLoaderRoute: typeof SetupImport
-      parentRoute: typeof rootRoute
-    }
-  }
-}
-
-// Create and export the route tree
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -145,7 +69,6 @@ export interface FileRoutesByFullPath {
   '/send': typeof SendRoute
   '/setup': typeof SetupRoute
 }
-
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/charge': typeof ChargeRoute
@@ -156,9 +79,8 @@ export interface FileRoutesByTo {
   '/send': typeof SendRoute
   '/setup': typeof SetupRoute
 }
-
 export interface FileRoutesById {
-  __root__: typeof rootRoute
+  __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/charge': typeof ChargeRoute
   '/config': typeof ConfigRoute
@@ -168,7 +90,6 @@ export interface FileRoutesById {
   '/send': typeof SendRoute
   '/setup': typeof SetupRoute
 }
-
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
@@ -202,7 +123,6 @@ export interface FileRouteTypes {
     | '/setup'
   fileRoutesById: FileRoutesById
 }
-
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   ChargeRoute: typeof ChargeRoute
@@ -212,6 +132,67 @@ export interface RootRouteChildren {
   ReceiveRoute: typeof ReceiveRoute
   SendRoute: typeof SendRoute
   SetupRoute: typeof SetupRoute
+}
+
+declare module '@tanstack/react-router' {
+  interface FileRoutesByPath {
+    '/setup': {
+      id: '/setup'
+      path: '/setup'
+      fullPath: '/setup'
+      preLoaderRoute: typeof SetupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/send': {
+      id: '/send'
+      path: '/send'
+      fullPath: '/send'
+      preLoaderRoute: typeof SendRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/receive': {
+      id: '/receive'
+      path: '/receive'
+      fullPath: '/receive'
+      preLoaderRoute: typeof ReceiveRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/history': {
+      id: '/history'
+      path: '/history'
+      fullPath: '/history'
+      preLoaderRoute: typeof HistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/config': {
+      id: '/config'
+      path: '/config'
+      fullPath: '/config'
+      preLoaderRoute: typeof ConfigRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/charge': {
+      id: '/charge'
+      path: '/charge'
+      fullPath: '/charge'
+      preLoaderRoute: typeof ChargeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+  }
 }
 
 const rootRouteChildren: RootRouteChildren = {
@@ -224,51 +205,6 @@ const rootRouteChildren: RootRouteChildren = {
   SendRoute: SendRoute,
   SetupRoute: SetupRoute,
 }
-
-export const routeTree = rootRoute
+export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-/* ROUTE_MANIFEST_START
-{
-  "routes": {
-    "__root__": {
-      "filePath": "__root.tsx",
-      "children": [
-        "/",
-        "/charge",
-        "/config",
-        "/history",
-        "/login",
-        "/receive",
-        "/send",
-        "/setup"
-      ]
-    },
-    "/": {
-      "filePath": "index.tsx"
-    },
-    "/charge": {
-      "filePath": "charge.tsx"
-    },
-    "/config": {
-      "filePath": "config.tsx"
-    },
-    "/history": {
-      "filePath": "history.tsx"
-    },
-    "/login": {
-      "filePath": "login.tsx"
-    },
-    "/receive": {
-      "filePath": "receive.tsx"
-    },
-    "/send": {
-      "filePath": "send.tsx"
-    },
-    "/setup": {
-      "filePath": "setup.tsx"
-    }
-  }
-}
-ROUTE_MANIFEST_END */

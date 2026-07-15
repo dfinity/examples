@@ -64,7 +64,7 @@ export default function ConfigForm() {
       }, 500);
     } else {
       if (response?.error_text) {
-        toast.error(response?.error_text[0] || "An error occurred.");
+        toast.error(response?.error_text || "An error occurred.");
       }
     }
   }

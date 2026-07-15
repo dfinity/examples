@@ -1,14 +1,16 @@
 import { formatCkBtc } from "@/utils/formatCkBtc";
 import { shortenPrincipal } from "@/utils/shortenPrincipal";
-import { Transaction } from "@dfinity/ledger-icrc/dist/candid/icrc_index";
-import { useInternetIdentity } from "ic-use-internet-identity";
+import type { IcrcIndexDid } from "@icp-sdk/canisters/ledger/icrc";
+
+type Transaction = IcrcIndexDid.Transaction;
+import { useAuth } from "@/lib/auth";
 
 export default function TransactionRow({
   transaction,
 }: {
   transaction: Transaction;
 }) {
-  const { identity } = useInternetIdentity();
+  const { identity } = useAuth();
   const principal = identity?.getPrincipal().toString();
 
   const displayDate = new Date(Number(transaction.timestamp) / 1e6)

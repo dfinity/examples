@@ -1,15 +1,15 @@
 import { Button } from "./ui/button";
-import { Result, useZxing } from "react-zxing";
+import { useZxing } from "react-zxing";
 
 type QrReaderProps = {
-  onResult: (result: Result) => void;
+  onResult: (text: string) => void;
   setVisible: (visible: boolean) => void;
   visible: boolean;
 };
 
 export default function QRReader(props: QrReaderProps) {
   const { ref } = useZxing({
-    onResult: props.onResult,
+    onDecodeResult: (result) => props.onResult(result.rawValue),
     paused: !props.visible,
     constraints: {
       video: {

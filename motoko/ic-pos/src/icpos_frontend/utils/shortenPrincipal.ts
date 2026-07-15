@@ -1,4 +1,4 @@
-import { Principal } from "@dfinity/principal";
+import { Principal } from "@icp-sdk/core/principal";
 
 export const shortenPrincipal = (principal: string | Principal | undefined) => {
   if (!principal) return "";

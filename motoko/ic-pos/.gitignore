@@ -17,6 +17,12 @@ target/
 node_modules/
 dist/
 
+# generated canister bindings (icp-bindgen)
+src/icpos_frontend/bindings/
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
 # environment variables
 .env
 

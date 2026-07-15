@@ -1,29 +1,27 @@
 import { useQuery } from "@tanstack/react-query";
 import useHandleAgentError from "./useHandleAgentError";
-import { useInternetIdentity } from "ic-use-internet-identity";
-import { icrc1_ledger } from "../../declarations/icrc1_ledger/index";
-import { Account } from "src/declarations/icrc1_ledger/icrc1_ledger.did";
+import { useAuth } from "@/lib/auth";
+import { useIcrcLedger } from "@/actors";
 
-export default function useTokeBalance() {
+export default function useTokenBalance() {
   const { handleAgentError } = useHandleAgentError();
-  const { identity } = useInternetIdentity();
+  const { identity } = useAuth();
+  const ledger = useIcrcLedger();
 
   return useQuery({
-    queryKey: ['balance'],
+    queryKey: ["balance"],
     queryFn: async () => {
       try {
-        const account: Account = {
+        const result = await ledger.balance({
           owner: identity!.getPrincipal(),
-          subaccount: []
-        };
-
-        const result = await icrc1_ledger.icrc1_balance_of(account);
+          certified: false,
+        });
 
         if (result === undefined) {
           throw new Error("Undefined balance returned.");
         }
 
-        return result
+        return result;
       } catch (e) {
         handleAgentError(e);
         console.error(e);
@@ -33,5 +31,3 @@ export default function useTokeBalance() {
     enabled: !!identity,
   });
 }
-
-

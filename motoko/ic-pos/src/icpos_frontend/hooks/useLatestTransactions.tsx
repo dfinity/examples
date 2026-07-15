@@ -1,41 +1,22 @@
 import { useQuery } from "@tanstack/react-query";
 import useHandleAgentError from "./useHandleAgentError";
-import { useInternetIdentity } from "ic-use-internet-identity";
-import { icrc1_index } from "../../declarations/icrc1_index/index";
-import { Account } from "src/declarations/icrc1_ledger/icrc1_ledger.did";
-import { GetAccountTransactionsArgs } from "src/declarations/icrc1_index/icrc1_index.did";
-import { Principal } from "@dfinity/principal";
+import { useAuth } from "@/lib/auth";
+import { useIcrcIndex } from "@/actors";
 
 export default function useLatestTransactions() {
   const { handleAgentError } = useHandleAgentError();
-  const { identity } = useInternetIdentity();
-
-  const getAccountTransactions = (principal: Principal) => {
-    const account: Account = {
-      owner: principal,
-      subaccount: []
-    };
-    const args: GetAccountTransactionsArgs = {
-      account,
-      start: [],
-      max_results: 5n,
-    }
-    return icrc1_index.get_account_transactions(args);
-  }
+  const { identity } = useAuth();
+  const index = useIcrcIndex();
 
   return useQuery({
-    queryKey: ['latest_transactions'],
+    queryKey: ["latest_transactions"],
     queryFn: async () => {
       try {
-        const principal = identity!.getPrincipal();
-        const result = await getAccountTransactions(principal);
-        if (result === undefined) {
-          throw new Error("Undefined balance returned.");
-        }
-        if ('Err' in result) {
-          throw new Error(result.Err.message);
-        }
-        return result.Ok.transactions;
+        const result = await index.getTransactions({
+          account: { owner: identity!.getPrincipal() },
+          max_results: 5n,
+        });
+        return result.transactions;
       } catch (e) {
         handleAgentError(e);
         console.error(e);
@@ -45,5 +26,3 @@ export default function useLatestTransactions() {
     enabled: !!identity,
   });
 }
-
-

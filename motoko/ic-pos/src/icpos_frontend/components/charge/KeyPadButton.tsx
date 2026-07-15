@@ -1,7 +1,8 @@
+import type { ReactElement } from "react";
 import { Button } from "../ui/button";
 
 type KeyPadButtonProps = {
-  label: string | JSX.Element;
+  label: string | ReactElement;
   onClick: () => void;
 };
 

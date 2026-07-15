@@ -1,37 +1,53 @@
 import DfinityLogo from "../../assets/dfinity-logo.png";
-import { useInternetIdentity } from "ic-use-internet-identity";
+import { useAuth } from "@/lib/auth";
 import { Button } from "../ui/button";
 import { CheckCircle, CircleX, LoaderCircle } from "lucide-react";
-import { useEffect } from "react";
+import { useState, type ReactElement } from "react";
 import { router } from "@/main";
 
+type LoginStatus = "idle" | "logging-in" | "success" | "error";
+
 export default function LoginButton() {
-  const { login, loginStatus, isLoginSuccess } = useInternetIdentity();
+  const { login } = useAuth();
+  const [loginStatus, setLoginStatus] = useState<LoginStatus>("idle");
 
-  useEffect(() => {
-    if (!isLoginSuccess) return;
-    router.invalidate();
-  }, [isLoginSuccess]);
+  const handleLogin = async () => {
+    setLoginStatus("logging-in");
+    try {
+      await login();
+      setLoginStatus("success");
+      router.invalidate();
+    } catch (e) {
+      console.error(e);
+      setLoginStatus("error");
+    }
+  };
 
-  const className = "w-full"
-  const button = {
-    'error': <Button disabled size={"lg"} className={className}>
-      <CircleX className="inline-block w-5 m-0 mr-2" />Error
-    </Button>
-    ,
-    'logging-in': <Button disabled size={"lg"} className={className}>
-      <LoaderCircle className="inline-block w-5 m-0 mr-2 animate-spin" /> Signing in ...
-    </Button>
-    ,
-    'success': <Button disabled size={"lg"} className={className}>
-      <CheckCircle className="inline-block w-5 m-0 mr-2" /> Signed in
-    </Button>
-    ,
-    'idle': <Button onClick={login} size={"lg"} className={className}>
-      <img src={DfinityLogo} className="inline-block w-5 m-0 mr-2" /> Sign in
-    </Button>
+  const className = "w-full";
+  const button: Record<LoginStatus, ReactElement> = {
+    error: (
+      <Button disabled size={"lg"} className={className}>
+        <CircleX className="inline-block w-5 m-0 mr-2" />
+        Error
+      </Button>
+    ),
+    "logging-in": (
+      <Button disabled size={"lg"} className={className}>
+        <LoaderCircle className="inline-block w-5 m-0 mr-2 animate-spin" /> Signing
+        in ...
+      </Button>
+    ),
+    success: (
+      <Button disabled size={"lg"} className={className}>
+        <CheckCircle className="inline-block w-5 m-0 mr-2" /> Signed in
+      </Button>
+    ),
+    idle: (
+      <Button onClick={handleLogin} size={"lg"} className={className}>
+        <img src={DfinityLogo} className="inline-block w-5 m-0 mr-2" /> Sign in
+      </Button>
+    ),
+  };
 
-  }
-
-  return button[loginStatus]
+  return button[loginStatus];
 }

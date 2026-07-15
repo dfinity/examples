@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { useIcPosActor } from "@/actors";
-import { Merchant } from "src/declarations/icpos/icpos.did";
+import type { Merchant } from "@/bindings/icpos";
 import { queryClient } from "@/main";
 
 export default function useUpdateMerchant() {
@@ -8,7 +8,6 @@ export default function useUpdateMerchant() {
 
   return useMutation({
     mutationFn: async (merchant: Merchant) => {
-
       const result = await pos?.updateMerchant(merchant);
 
       if (result === undefined) {
@@ -16,13 +15,12 @@ export default function useUpdateMerchant() {
       }
 
       if (result.status === 200) {
-        queryClient.invalidateQueries({ queryKey: ['merchant'] });
+        queryClient.invalidateQueries({ queryKey: ["merchant"] });
         return;
       }
 
-      console.error(result.status, result.error_text[0]);
-      throw new Error(result.error_text[0]);
-    }
+      console.error(result.status, result.error_text);
+      throw new Error(result.error_text);
+    },
   });
 }
-

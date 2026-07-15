@@ -1,17 +1,16 @@
 import { useQuery } from "@tanstack/react-query";
 import useHandleAgentError from "./useHandleAgentError";
-import { useInternetIdentity } from "ic-use-internet-identity";
+import { useAuth } from "@/lib/auth";
 import { useIcPosActor } from "@/actors";
 
 export default function useMerchant() {
   const { actor: pos } = useIcPosActor();
   const { handleAgentError } = useHandleAgentError();
-  const { identity } = useInternetIdentity();
+  const { identity } = useAuth();
 
   return useQuery({
-    queryKey: ['merchant'],
+    queryKey: ["merchant"],
     queryFn: async () => {
-
       try {
         const result = await pos?.getMerchant();
 
@@ -19,8 +18,8 @@ export default function useMerchant() {
           throw new Error("Undefined merchant returned.");
         }
 
-        if (result.status === 200 && result.data.length > 0) {
-          return result.data[0];
+        if (result.status === 200 && result.data) {
+          return result.data;
         }
       } catch (e) {
         handleAgentError(e);
@@ -31,4 +30,3 @@ export default function useMerchant() {
     enabled: !!pos && !!identity,
   });
 }
-

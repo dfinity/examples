@@ -1,15 +1,15 @@
 import { LogOut } from "lucide-react";
 import { Button } from "./ui/button";
-import { useInternetIdentity } from "ic-use-internet-identity";
+import { useAuth } from "@/lib/auth";
 import { useNavigate } from "@tanstack/react-router";
 import { router } from "@/main";
 
 export default function LogoutButton() {
-  const { clear } = useInternetIdentity();
+  const { clear } = useAuth();
   const navigate = useNavigate();
 
   const logout = () => {
-    clear();
+    void clear();
     setTimeout(() => {
       router.invalidate();
       navigate({ to: '/' });

@@ -4,12 +4,14 @@ import useNewTransactions from '@/hooks/useNewTransactions';
 import { useEffect } from 'react';
 import toast from 'react-hot-toast';
 import { queryClient } from '@/main';
-import { Transaction } from 'src/declarations/icrc1_index/icrc1_index.did';
+import type { IcrcIndexDid } from '@icp-sdk/canisters/ledger/icrc';
+
+type Transaction = IcrcIndexDid.Transaction;
 import useSound from 'use-sound';
-import { useInternetIdentity } from 'ic-use-internet-identity';
+import { useAuth } from '@/lib/auth';
 
 export default function NewTransactionNotifier() {
-  const { identity } = useInternetIdentity();
+  const { identity } = useAuth();
   const { data: newTransactions } = useNewTransactions();
   const [play] = useSound("/cash-register.mp3");
 

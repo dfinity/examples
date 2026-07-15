@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/form"
 
 import { Loader2 } from "lucide-react";
-import { Principal } from "@dfinity/principal";
+import { Principal } from "@icp-sdk/core/principal";
 import { toast } from "react-hot-toast";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -18,13 +18,9 @@ import { convertToBigInt } from "@/utils/convertToBigInt";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { useNavigate } from "@tanstack/react-router";
-import useTokeBalance from "@/hooks/useTokenBalance";
-import { IcrcLedgerCanister } from "@dfinity/ledger-icrc";
-import { useInternetIdentity } from "ic-use-internet-identity";
-import { HttpAgent } from "@dfinity/agent";
+import useTokenBalance from "@/hooks/useTokenBalance";
+import { useIcrcLedger } from "@/actors";
 import { queryClient } from "@/main";
-
-const development = process.env.DFX_NETWORK !== "ic"
 
 type SendFormProps = {
   principal: string;
@@ -40,8 +36,8 @@ type SendSchemaType = z.infer<typeof SendSchema>;
 
 export default function SendForm({ principal, amount }: SendFormProps) {
   const navigate = useNavigate();
-  const { data: balance } = useTokeBalance();
-  const { identity } = useInternetIdentity();
+  const { data: balance } = useTokenBalance();
+  const ledgerCanister = useIcrcLedger();
 
   const form = useForm<SendSchemaType>({
     resolver: zodResolver(SendSchema),
@@ -87,20 +83,6 @@ export default function SendForm({ principal, amount }: SendFormProps) {
     }
 
     try {
-      const shouldFetchRootKey = process.env.DFX_NETWORK !== 'ic'
-      const agent = await HttpAgent.create({
-        identity,
-        host: development ? "http://localhost:4943" : "https:icp0.io",
-        shouldFetchRootKey
-      });
-
-      const ledgerCanister = IcrcLedgerCanister.create({
-        agent,
-        canisterId: Principal.fromText(
-          process.env.CANISTER_ID_ICRC1_LEDGER!
-        ),
-      });
-
       const response = await ledgerCanister.transfer({
         to: {
           owner: toPrincipal,
@@ -109,7 +91,7 @@ export default function SendForm({ principal, amount }: SendFormProps) {
         amount: amountBigInt,
       });
 
-      if (response) {
+      if (response !== undefined) {
         toast.success("Transfer successful.");
         queryClient.invalidateQueries({ queryKey: ['balance'] });
         queryClient.invalidateQueries({ queryKey: ['latest_transactions'] });

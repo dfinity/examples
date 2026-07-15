@@ -1,6 +1,6 @@
 import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import useMerchant from '@/hooks/useMerchant';
-import { useInternetIdentity } from 'ic-use-internet-identity';
+import { useAuth } from '@/lib/auth';
 import Page from '@/components/Page';
 import MainSection from '@/components/MainSection';
 import HistoryButton from '@/components/HistoryButton';
@@ -24,7 +24,7 @@ export const Route = createFileRoute('/receive')({
 
 function ReceivePage() {
   const { data: merchant } = useMerchant();
-  const { identity } = useInternetIdentity();
+  const { identity } = useAuth();
 
   const search = window.location.search;
   const params = new URLSearchParams(search);
