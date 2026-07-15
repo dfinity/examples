@@ -11,7 +11,6 @@ type IcPosCanisterEnv = {
   readonly ["PUBLIC_CANISTER_ID:icpos"]: string;
   readonly ["PUBLIC_CANISTER_ID:icrc1_ledger"]: string;
   readonly ["PUBLIC_CANISTER_ID:icrc1_index"]: string;
-  readonly ["PUBLIC_CANISTER_ID:internet_identity"]: string;
 };
 
 const env = safeGetCanisterEnv<IcPosCanisterEnv>();
@@ -33,16 +32,15 @@ export const icrc1LedgerCanisterId = requireCanisterId(
 export const icrc1IndexCanisterId = requireCanisterId(
   "PUBLIC_CANISTER_ID:icrc1_index"
 );
-export const internetIdentityCanisterId = requireCanisterId(
-  "PUBLIC_CANISTER_ID:internet_identity"
-);
-
 export const rootKey = env?.IC_ROOT_KEY;
 
 export const host = window.location.origin;
 
 export const isLocal = /localhost|127\.0\.0\.1/.test(window.location.hostname);
 
+// Internet Identity provider. Locally the network serves II at
+// id.ai.localhost (icp.yaml `ii: true`); on mainnet it's id.ai. The
+// `/authorize` path is required by @icp-sdk/auth.
 export const iiUrl = isLocal
-  ? `http://${internetIdentityCanisterId}.localhost:8000`
-  : "https://id.ai";
+  ? "http://id.ai.localhost:8000/authorize"
+  : "https://id.ai/authorize";

@@ -20,15 +20,6 @@ canisters:
         - type: pre-built
           url: https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2026-03-09/ic-icrc1-index-ng.wasm.gz
 
-  # Internet Identity, deployed locally for auth. On mainnet the app uses the
-  # production II canister (rdmx6-jaaaa-aaaaa-aaadq-cai).
-  - name: internet_identity
-    init_args: "(null)"
-    build:
-      steps:
-        - type: pre-built
-          url: https://github.com/dfinity/internet-identity/releases/download/release-2026-07-14/internet_identity_dev.wasm.gz
-
   - name: icpos
     init_args: "(0 : nat)"
     recipe:
@@ -43,16 +34,23 @@ canisters:
           - npm install --prefix frontend
           - npm run build --prefix frontend
 
+# The local network runs Internet Identity (available at
+# http://id.ai.localhost:8000) so the app can authenticate offline — no
+# internet_identity canister entry is needed in the project.
+networks:
+  - name: local
+    mode: managed
+    ii: true
+
 environments:
   - name: ic
     network: ic
-    # On mainnet, deploy only the app canisters. The ledger, index, and II
-    # already exist on mainnet; their principals are injected as env vars so the
-    # backend and frontend can reach them:
-    #   - ledger/index: the shared TICRC1 test token, so developers can use the
-    #     app with faucet tokens (https://faucet.internetcomputer.org) instead of
-    #     real funds.
-    #   - internet_identity: the production II canister.
+    # On mainnet, deploy only the app canisters. The ledger and index already
+    # exist on mainnet, so their principals are injected as env vars pointing at
+    # the shared TICRC1 test token — developers can use the app with faucet
+    # tokens (https://faucet.internetcomputer.org) instead of real funds.
+    # (Internet Identity is reached directly at https://id.ai/authorize, so no
+    # II canister ID is needed.)
     canisters:
       - icpos
       - icpos_frontend
@@ -64,4 +62,3 @@ environments:
         environment_variables:
           "PUBLIC_CANISTER_ID:icrc1_ledger": "3jkp5-oyaaa-aaaaj-azwqa-cai"
           "PUBLIC_CANISTER_ID:icrc1_index": "qzre3-3iaaa-aaaai-aqmsa-cai"
-          "PUBLIC_CANISTER_ID:internet_identity": "rdmx6-jaaaa-aaaaa-aaadq-cai"

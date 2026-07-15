@@ -44,7 +44,9 @@ icp network start -d
 bash deploy.sh
 ```
 
-`deploy.sh` installs the local ICRC-1 ledger + index, Internet Identity, the `icpos` backend, and the frontend. It sets the default identity as the ledger's minting account and pre-funds a separate `ic-pos-dev` identity with test tokens. Open the frontend URL printed by the script.
+> **Use `bash deploy.sh`, not `icp deploy`, locally.** The ICRC-1 ledger and index require init args (minting account, initial balances, and the ledger's canister ID) that are only known after identities and canisters are created, so `deploy.sh` installs them with the right arguments. A plain `icp deploy` traps because those canisters receive no init args.
+
+`deploy.sh` installs the local ICRC-1 ledger + index, the `icpos` backend, and the frontend. It sets the default identity as the ledger's minting account and pre-funds a separate `ic-pos-dev` identity with test tokens. Internet Identity is provided by the local network (`ii: true` in `icp.yaml`) at `http://id.ai.localhost:8000` — no separate deployment. Open the frontend URL printed by the script.
 
 ### Try a payment
 
@@ -60,7 +62,7 @@ bash deploy.sh
 
 The payment appears in the store, and the backend logs a would-be notification (`icp canister call icpos getLogs`).
 
-For frontend hot-reload development after deploying: `npm run dev`.
+For frontend hot-reload development after deploying: `npm run dev --prefix frontend`.
 
 ### Run the automated test
 
@@ -76,7 +78,7 @@ bash test.sh
 icp deploy -e ic
 ```
 
-On mainnet the app uses the shared **TICRC1** test token (ledger [`3jkp5-oyaaa-aaaaj-azwqa-cai`](https://dashboard.internetcomputer.org/canister/3jkp5-oyaaa-aaaaj-azwqa-cai), index [`qzre3-3iaaa-aaaai-aqmsa-cai`](https://dashboard.internetcomputer.org/canister/qzre3-3iaaa-aaaai-aqmsa-cai)) and the production Internet Identity — the local ledger, index, and II are not deployed.
+On mainnet the app uses the shared **TICRC1** test token (ledger [`3jkp5-oyaaa-aaaaj-azwqa-cai`](https://dashboard.internetcomputer.org/canister/3jkp5-oyaaa-aaaaj-azwqa-cai), index [`qzre3-3iaaa-aaaai-aqmsa-cai`](https://dashboard.internetcomputer.org/canister/qzre3-3iaaa-aaaai-aqmsa-cai)) and the production Internet Identity at `https://id.ai` — the local ledger and index are not deployed.
 
 To get TICRC1 tokens to test with:
 

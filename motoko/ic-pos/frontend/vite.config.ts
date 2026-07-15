@@ -13,7 +13,6 @@ const FRONTEND_CANISTERS = [
   "icpos",
   "icrc1_ledger",
   "icrc1_index",
-  "internet_identity",
 ];
 
 export default defineConfig(({ command }) => {

@@ -40,8 +40,8 @@ icp deploy icrc1_index --mode reinstall -y --args "(opt variant { Init = record 
   ledger_id = principal \"$LEDGER_ID\"; \
   retrieve_blocks_from_ledger_interval_seconds = opt (1 : nat64) } })"
 
-# 3. Internet Identity, backend, and frontend (init args come from icp.yaml).
-icp deploy internet_identity -y
+# 3. Backend and frontend (init args come from icp.yaml). Internet Identity is
+# provided by the local network (ii: true in icp.yaml), not deployed here.
 icp deploy icpos -y
 icp deploy icpos_frontend -y
 
