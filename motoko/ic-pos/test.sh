@@ -36,5 +36,5 @@ echo "balance: $before -> $after"
 # The backend's global timer scans the ledger and, for a merchant with
 # notifications enabled, emits a would-be-notification entry to its canister
 # logs (see `icp canister logs icpos`). That is timing-dependent (the timer runs
-# every 20s and scans one block at a time), so it is not asserted here.
+# every 20s), so it is not asserted here.
 echo "All tests passed."
