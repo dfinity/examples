@@ -1,212 +1,129 @@
 import Array "mo:core/Array";
-import Blob "mo:core/Blob";
 import Debug "mo:core/Debug";
 import Map "mo:core/Map";
 import Nat "mo:core/Nat";
 import Nat64 "mo:core/Nat64";
 import Principal "mo:core/Principal";
+import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
 
 import MainTypes "main.types";
-import CkBtcLedger "canister:icrc1_ledger";
-import HttpTypes "http/http.types";
 
-/**
-*  This actor is responsible for:
-*  - Storing merchant information
-*  - Monitoring the ledger for new transactions
-*  - Notifying merchants of new transactions
-*
-*  `_startBlock` is the block number to start monitoring transactions from.
-*/
-shared (actorContext) persistent actor class Main(_startBlock : Nat) {
+// This actor:
+//  - stores merchant information,
+//  - monitors the ICRC-1 ledger for incoming transfers, and
+//  - logs where a merchant notification would be sent.
+//
+// The ledger canister is resolved at runtime from the injected
+// `PUBLIC_CANISTER_ID:icrc1_ledger` environment variable:
+//   local: the pre-built ICRC-1 ledger deployed by deploy.sh
+//   ic:    the TICRC1 test ledger (see icp.yaml)
+//
+// `_startBlock` is the ledger block index to start monitoring from.
+//
+// NOTE: notifications are illustrative. The original example sent email/SMS via
+// an HTTPS outcall to a third party; this version only logs that a notification
+// could be sent. To implement real notifications, use HTTPS outcalls — see
+// https://docs.internetcomputer.org/guides/backends/https-outcalls
+//
+// NOTE: scanning the ledger's global transaction log sequentially does not scale
+// to a busy shared ledger (such as TICRC1); it is illustrative only. A
+// production app would query the index canister per merchant account instead
+// (as this example's frontend already does).
+actor class Main(_startBlock : Nat) {
 
-  private let merchantStore = Map.empty<Text, MainTypes.Merchant>();
-  private var latestTransactionIndex : Nat = 0;
-  private var courierApiKey : Text = "";
-  private transient var logData : [Text] = [];
+  // Minimal subset of the ICRC-1 ledger interface this actor uses. Candid
+  // ignores wire fields not declared here, so only the read fields are listed.
+  type Account = { owner : Principal };
+  type Transfer = { to : Account; from : Account; amount : Nat };
+  type Transaction = { kind : Text; transfer : ?Transfer };
+  type GetTransactionsRequest = { start : Nat; length : Nat };
+  type GetTransactionsResponse = { transactions : [Transaction] };
+  type Ledger = actor {
+    get_transactions : GetTransactionsRequest -> async GetTransactionsResponse;
+  };
 
-  /**
-    *  Get the merchant's information
-    */
+  let merchantStore = Map.empty<Text, MainTypes.Merchant>();
+  // Next ledger block index to scan for incoming transfers.
+  var nextBlock : Nat = _startBlock;
+  transient var logData : [Text] = [];
+
+  // Get the caller's merchant information.
   public query (context) func getMerchant() : async MainTypes.Response<MainTypes.Merchant> {
-    let caller : Principal = context.caller;
-
-    switch (merchantStore.get(caller.toText())) {
+    switch (merchantStore.get(context.caller.toText())) {
       case (?merchant) {
-        {
-          status = 200;
-          status_text = "OK";
-          data = ?merchant;
-          error_text = null;
-        };
+        { status = 200; status_text = "OK"; data = ?merchant; error_text = null };
       };
       case null {
         {
           status = 404;
           status_text = "Not Found";
           data = null;
-          error_text = ?("Merchant with principal ID: " # caller.toText() # " not found.");
+          error_text = ?("Merchant with principal ID: " # context.caller.toText() # " not found.");
         };
       };
     };
   };
 
-  /**
-    * Update the merchant's information
-    */
+  // Create or update the caller's merchant information.
   public shared (context) func updateMerchant(merchant : MainTypes.Merchant) : async MainTypes.Response<MainTypes.Merchant> {
-    let caller : Principal = context.caller;
-    let _ = merchantStore.swap(caller.toText(), merchant);
-    {
-      status = 200;
-      status_text = "OK";
-      data = ?merchant;
-      error_text = null;
-    };
+    merchantStore.add(context.caller.toText(), merchant);
+    { status = 200; status_text = "OK"; data = ?merchant; error_text = null };
   };
 
-  /**
-    * Set the courier API key. Only the owner can set the courier API key.
-    */
-  public shared (context) func setCourierApiKey(apiKey : Text) : async MainTypes.Response<Text> {
-    if (context.caller != actorContext.caller) {
-      return {
-        status = 403;
-        status_text = "Forbidden";
-        data = null;
-        error_text = ?"Only the owner can set the courier API key.";
-      };
-    };
-    courierApiKey := apiKey;
-    {
-      status = 200;
-      status_text = "OK";
-      data = ?courierApiKey;
-      error_text = null;
-    };
-  };
-
-  /**
-  * Get latest log items. Log output is capped at 100 items.
-  */
+  // Get the latest log items (capped at 100).
   public query func getLogs() : async [Text] {
     logData;
   };
 
-  /**
-    * Log a message. Log output is capped at 100 items.
-    */
-  private func log(text : Text) {
+  // Append a log message, keeping the 100 most recent.
+  func log(text : Text) {
     Debug.print(text);
-    logData := Array.tabulate<Text>((logData.size() + 1).min(100), func(i : Nat) : Text {
-      if (i == 0) text else logData[i - 1]
-    });
+    logData := Array.tabulate(Nat.min(logData.size() + 1, 100), func(i) { if (i == 0) text else logData[i - 1] });
   };
 
-  /**
-    * Check for new transactions and notify the merchant if a new transaction is found.
-    * This function is called by the global timer.
-    */
+  // Resolve the ledger canister, injected as PUBLIC_CANISTER_ID:icrc1_ledger.
+  func ledger<system>() : Ledger {
+    switch (Runtime.envVar<system>("PUBLIC_CANISTER_ID:icrc1_ledger")) {
+      case (?id) actor (id) : Ledger;
+      case null Runtime.trap("PUBLIC_CANISTER_ID:icrc1_ledger not set — run icp deploy");
+    };
+  };
+
+  // Check for a new transaction and log a would-be notification for the
+  // receiving merchant. Called by the global timer.
   system func timer(setGlobalTimer : Nat64 -> ()) : async () {
     let next = Nat64.fromIntWrap(Time.now()) + 20_000_000_000; // 20 seconds
     setGlobalTimer(next);
-    await notify();
+    await notify<system>();
   };
 
-  /**
-    * Notify the merchant if a new transaction is found.
-    */
-  private func notify() : async () {
-    var start : Nat = _startBlock;
-    if (latestTransactionIndex > 0) {
-      start := latestTransactionIndex + 1;
-    };
+  func notify<system>() : async () {
+    let response = await ledger<system>().get_transactions({ start = nextBlock; length = 1 });
+    if (response.transactions.size() == 0) return; // caught up; retry this block next tick
+    nextBlock += 1;
 
-    var response = await CkBtcLedger.get_transactions({
-      start = start;
-      length = 1;
-    });
+    let t = response.transactions[0];
+    if (t.kind != "transfer") return;
 
-    if (response.transactions.size() > 0) {
-      latestTransactionIndex := start;
-
-      if (response.transactions[0].kind == "transfer") {
-        let t = response.transactions[0];
-        switch (t.transfer) {
-          case (?transfer) {
-            let to = transfer.to.owner;
-            switch (merchantStore.get(to.toText())) {
-              case (?merchant) {
-                if (merchant.email_notifications or merchant.phone_notifications) {
-                  log("Sending notification to: " # debug_show (merchant.email_address));
-                  await sendNotification(merchant, t);
-                };
-              };
-              case null {
-                // No action required if merchant not found
-              };
+    switch (t.transfer) {
+      case (?transfer) {
+        switch (merchantStore.get(transfer.to.owner.toText())) {
+          case (?merchant) {
+            if (merchant.email_notifications or merchant.phone_notifications) {
+              log(
+                "Payment of " # transfer.amount.toText() # " received by merchant '" # merchant.name #
+                "' from " # transfer.from.owner.toText() #
+                ". A notification could be sent here via HTTPS outcalls " #
+                "(see https://docs.internetcomputer.org/guides/backends/https-outcalls)."
+              );
             };
           };
-          case null {
-            // No action required if transfer is null
-          };
+          case null {};
         };
-      };
-    };
-  };
-
-  /**
-    * Send a notification to a merchant about a received payment
-    */
-  private func sendNotification(merchant : MainTypes.Merchant, transaction : CkBtcLedger.Transaction) : async () {
-    let ic : HttpTypes.IC = actor ("aaaaa-aa");
-
-    var amount = "0";
-    var from = "";
-    switch (transaction.transfer) {
-      case (?transfer) {
-        amount := transfer.amount.toText();
-        from := transfer.from.owner.toText();
       };
       case null {};
     };
-    let idempotencyKey : Text = merchant.name # transaction.timestamp.toText();
-    let requestBodyJson : Text = "{ \"idempotencyKey\": \"" # idempotencyKey # "\", \"email\": \"" # merchant.email_address # "\", \"phone\": \"" # merchant.phone_number # "\", \"amount\": \"" # amount # "\", \"payer\": \"" # from # "\"}";
-    let requestBodyAsBlob : Blob = requestBodyJson.encodeUtf8();
-    let requestBodyAsNat8 : [Nat8] = requestBodyAsBlob.toArray();
-
-    let httpRequest : HttpTypes.HttpRequestArgs = {
-      url = "https://icpos-notifications.xyz/.netlify/functions/notify";
-      max_response_bytes = ?Nat64.fromNat(1000);
-      headers = [
-        { name = "Content-Type"; value = "application/json" },
-      ];
-      body = ?requestBodyAsNat8;
-      method = #post;
-      transform = null;
-    };
-
-    // Cycle cost of sending a notification
-    // 49.14M + 5200 * request_size + 10400 * max_response_bytes
-    // 49.14M + (5200 * 1000) + (10400 * 1000) = 64.74M
-    let httpResponse : HttpTypes.HttpResponsePayload = await (with cycles = 70_000_000) ic.http_request(httpRequest);
-
-    if (httpResponse.status > 299) {
-      let response_body : Blob = httpResponse.body.fromArray();
-      let decoded_text : Text = switch (response_body.decodeUtf8()) {
-        case (null) { "No value returned" };
-        case (?y) { y };
-      };
-      log("Error sending notification: " # decoded_text);
-    } else {
-      log("Notification sent");
-    };
-  };
-
-  system func postupgrade() {
-    // Make sure we start to montitor transactions from the block set on deployment
-    latestTransactionIndex := _startBlock;
   };
 };

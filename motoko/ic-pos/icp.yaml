@@ -1,0 +1,67 @@
+# yaml-language-server: $schema=https://github.com/dfinity/icp-cli/raw/refs/tags/v1.0.0/docs/schemas/icp-yaml-schema.json
+
+canisters:
+  # ICRC-1 ledger + index, deployed locally from the latest ledger suite release.
+  # Their init args (minting account, initial balances, ledger id) reference
+  # principals that only exist after identities are created, so they are
+  # installed by deploy.sh — not a plain `icp deploy`.
+  #
+  # On mainnet these are NOT deployed; the ic environment below points the app at
+  # the shared TICRC1 test token instead (see the injected env vars).
+  - name: icrc1_ledger
+    build:
+      steps:
+        - type: pre-built
+          url: https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2026-03-09/ic-icrc1-ledger.wasm.gz
+
+  - name: icrc1_index
+    build:
+      steps:
+        - type: pre-built
+          url: https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2026-03-09/ic-icrc1-index-ng.wasm.gz
+
+  # Internet Identity, deployed locally for auth. On mainnet the app uses the
+  # production II canister (rdmx6-jaaaa-aaaaa-aaadq-cai).
+  - name: internet_identity
+    init_args: "(null)"
+    build:
+      steps:
+        - type: pre-built
+          url: https://github.com/dfinity/internet-identity/releases/download/release-2026-07-14/internet_identity_dev.wasm.gz
+
+  - name: icpos
+    init_args: "(0 : nat)"
+    recipe:
+      type: "@dfinity/motoko@v5.0.0"
+
+  - name: icpos_frontend
+    recipe:
+      type: "@dfinity/asset-canister@v2.2.1"
+      configuration:
+        dir: dist
+        build:
+          - npm install
+          - npm run build
+
+environments:
+  - name: ic
+    network: ic
+    # On mainnet, deploy only the app canisters. The ledger, index, and II
+    # already exist on mainnet; their principals are injected as env vars so the
+    # backend and frontend can reach them:
+    #   - ledger/index: the shared TICRC1 test token, so developers can use the
+    #     app with faucet tokens (https://faucet.internetcomputer.org) instead of
+    #     real funds.
+    #   - internet_identity: the production II canister.
+    canisters:
+      - icpos
+      - icpos_frontend
+    settings:
+      icpos:
+        environment_variables:
+          "PUBLIC_CANISTER_ID:icrc1_ledger": "3jkp5-oyaaa-aaaaj-azwqa-cai"
+      icpos_frontend:
+        environment_variables:
+          "PUBLIC_CANISTER_ID:icrc1_ledger": "3jkp5-oyaaa-aaaaj-azwqa-cai"
+          "PUBLIC_CANISTER_ID:icrc1_index": "qzre3-3iaaa-aaaai-aqmsa-cai"
+          "PUBLIC_CANISTER_ID:internet_identity": "rdmx6-jaaaa-aaaaa-aaadq-cai"
