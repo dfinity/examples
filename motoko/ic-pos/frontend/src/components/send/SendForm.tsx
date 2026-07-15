@@ -60,20 +60,21 @@ export default function SendForm({ principal, amount }: SendFormProps) {
       });
     }
 
-    const amount = Number.parseFloat(values.amount);
-    if (Number.isNaN(amount)) {
+    const amountNumber = Number.parseFloat(values.amount);
+    if (Number.isNaN(amountNumber)) {
       return form.setError("amount", {
         message: "Amount must be a number.",
       });
     }
-    if (amount <= 0) {
+    if (amountNumber <= 0) {
       return form.setError("amount", {
         message: "Amount must be greater than 0.",
       });
     }
     let amountBigInt: bigint;
     try {
-      amountBigInt = convertToBigInt(amount, decimals);
+      // Convert from the raw string (not the parsed float) to keep exact base units.
+      amountBigInt = convertToBigInt(values.amount, decimals);
     } catch (error) {
       return form.setError("amount", {
         message: (error as Error).message,

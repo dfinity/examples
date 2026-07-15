@@ -20,7 +20,9 @@ export default function useUpdateMerchant() {
       }
 
       console.error(result.status, result.error_text);
-      throw new Error(result.error_text);
+      throw new Error(
+        result.error_text ?? `Failed to update merchant (status ${result.status}).`
+      );
     },
   });
 }

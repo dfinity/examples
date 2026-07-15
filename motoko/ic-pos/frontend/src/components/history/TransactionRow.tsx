@@ -15,7 +15,9 @@ export default function TransactionRow({
   const { decimals } = useTokenMetadata();
   const principal = identity?.getPrincipal().toString();
 
-  const displayDate = new Date(Number(transaction.timestamp) / 1e6)
+  // timestamp is nanoseconds since epoch (bigint); divide to milliseconds in
+  // bigint space before converting to Number to avoid 2^53 precision loss.
+  const displayDate = new Date(Number(transaction.timestamp / 1_000_000n))
     .toISOString()
     .slice(0, 10);
 
