@@ -20,12 +20,12 @@ canisters:
         - type: pre-built
           url: https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2026-03-09/ic-icrc1-index-ng.wasm.gz
 
-  - name: icpos
+  - name: backend
     init_args: "(0 : nat)"
     recipe:
       type: "@dfinity/motoko@v5.0.0"
 
-  - name: icpos_frontend
+  - name: frontend
     recipe:
       type: "@dfinity/asset-canister@v2.2.1"
       configuration:
@@ -52,13 +52,13 @@ environments:
     # (Internet Identity is reached directly at https://id.ai/authorize, so no
     # II canister ID is needed.)
     canisters:
-      - icpos
-      - icpos_frontend
+      - backend
+      - frontend
     settings:
-      icpos:
+      backend:
         environment_variables:
           "PUBLIC_CANISTER_ID:icrc1_ledger": "3jkp5-oyaaa-aaaaj-azwqa-cai"
-      icpos_frontend:
+      frontend:
         environment_variables:
           "PUBLIC_CANISTER_ID:icrc1_ledger": "3jkp5-oyaaa-aaaaj-azwqa-cai"
           "PUBLIC_CANISTER_ID:icrc1_index": "qzre3-3iaaa-aaaai-aqmsa-cai"

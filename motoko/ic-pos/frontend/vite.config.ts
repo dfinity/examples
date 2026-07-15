@@ -10,7 +10,7 @@ import path from "path";
 // these as `PUBLIC_CANISTER_ID:<name>` env vars in production (see icp.yaml). In
 // dev the Vite server sets the same values via the `ic_env` cookie below.
 const FRONTEND_CANISTERS = [
-  "icpos",
+  "backend",
   "icrc1_ledger",
   "icrc1_index",
 ];
@@ -24,7 +24,7 @@ export default defineConfig(({ command }) => {
       generatedRouteTree: "src/routeTree.gen.ts",
     }),
     icpBindgen({
-      didFile: "../backend/icpos.did",
+      didFile: "../backend/backend.did",
       outDir: "src/bindings",
     }),
   ];
@@ -75,7 +75,7 @@ export default defineConfig(({ command }) => {
       ).trim();
       envParts.push(`PUBLIC_CANISTER_ID:${name}=${canisterId}`);
     } catch {
-      if (name === "icpos") {
+      if (name === "backend") {
         console.error(`
      Canister "${name}" not found in environment "${environment}".
 

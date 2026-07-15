@@ -1,10 +1,10 @@
 import { useQuery } from "@tanstack/react-query";
 import useHandleAgentError from "./useHandleAgentError";
 import { useAuth } from "@/lib/auth";
-import { useIcPosActor } from "@/actors";
+import { useBackendActor } from "@/actors";
 
 export default function useMerchant() {
-  const { actor: pos } = useIcPosActor();
+  const { actor: pos } = useBackendActor();
   const { handleAgentError } = useHandleAgentError();
   const { identity } = useAuth();
 

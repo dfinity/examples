@@ -7,15 +7,15 @@ import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
  * the replica root key into the `ic_env` cookie (configured via icp.yaml). In
  * dev the Vite server sets the same cookie (see vite.config.ts).
  */
-type IcPosCanisterEnv = {
-  readonly ["PUBLIC_CANISTER_ID:icpos"]: string;
+type CanisterEnv = {
+  readonly ["PUBLIC_CANISTER_ID:backend"]: string;
   readonly ["PUBLIC_CANISTER_ID:icrc1_ledger"]: string;
   readonly ["PUBLIC_CANISTER_ID:icrc1_index"]: string;
 };
 
-const env = safeGetCanisterEnv<IcPosCanisterEnv>();
+const env = safeGetCanisterEnv<CanisterEnv>();
 
-function requireCanisterId(name: keyof IcPosCanisterEnv): string {
+function requireCanisterId(name: keyof CanisterEnv): string {
   const id = env?.[name];
   if (!id) {
     throw new Error(
@@ -25,7 +25,7 @@ function requireCanisterId(name: keyof IcPosCanisterEnv): string {
   return id;
 }
 
-export const icposCanisterId = requireCanisterId("PUBLIC_CANISTER_ID:icpos");
+export const backendCanisterId = requireCanisterId("PUBLIC_CANISTER_ID:backend");
 export const icrc1LedgerCanisterId = requireCanisterId(
   "PUBLIC_CANISTER_ID:icrc1_ledger"
 );

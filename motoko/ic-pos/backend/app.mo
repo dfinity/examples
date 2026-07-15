@@ -8,7 +8,7 @@ import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
 
-import MainTypes "main.types";
+import Types "app.types";
 
 // This actor:
 //  - stores merchant information,
@@ -46,7 +46,7 @@ actor class Main(_startBlock : Nat) {
     icrc1_decimals : () -> async Nat8;
   };
 
-  let merchantStore = Map.empty<Text, MainTypes.Merchant>();
+  let merchantStore = Map.empty<Text, Types.Merchant>();
   // Next ledger block index to scan for incoming transfers.
   var nextBlock : Nat = _startBlock;
   // Token metadata, cached lazily from the ledger to format logged amounts.
@@ -61,7 +61,7 @@ actor class Main(_startBlock : Nat) {
   let scanBatchSize : Nat = 100;
 
   // Get the caller's merchant information.
-  public query (context) func getMerchant() : async MainTypes.Response<MainTypes.Merchant> {
+  public query (context) func getMerchant() : async Types.Response<Types.Merchant> {
     switch (merchantStore.get(context.caller.toText())) {
       case (?merchant) {
         { status = 200; status_text = "OK"; data = ?merchant; error_text = null };
@@ -78,7 +78,7 @@ actor class Main(_startBlock : Nat) {
   };
 
   // Create or update the caller's merchant information.
-  public shared (context) func updateMerchant(merchant : MainTypes.Merchant) : async MainTypes.Response<MainTypes.Merchant> {
+  public shared (context) func updateMerchant(merchant : Types.Merchant) : async Types.Response<Types.Merchant> {
     merchantStore.add(context.caller.toText(), merchant);
     { status = 200; status_text = "OK"; data = ?merchant; error_text = null };
   };
@@ -137,7 +137,7 @@ actor class Main(_startBlock : Nat) {
           switch (merchantStore.get(transfer.to.owner.toText())) {
             case (?merchant) {
               // A payment for a merchant with notifications enabled: emit a
-              // canister log (observable via `icp canister logs icpos`) marking
+              // canister log (observable via `icp canister logs backend`) marking
               // where a real notification would be sent. To actually send one,
               // use HTTPS outcalls —
               // https://docs.internetcomputer.org/guides/backends/https-outcalls

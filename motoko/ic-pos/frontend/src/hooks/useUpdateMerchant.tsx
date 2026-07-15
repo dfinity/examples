@@ -1,10 +1,10 @@
 import { useMutation } from "@tanstack/react-query";
-import { useIcPosActor } from "@/actors";
-import type { Merchant } from "@/bindings/icpos";
+import { useBackendActor } from "@/actors";
+import type { Merchant } from "@/bindings/backend";
 import { queryClient } from "@/main";
 
 export default function useUpdateMerchant() {
-  const { actor: pos } = useIcPosActor();
+  const { actor: pos } = useBackendActor();
 
   return useMutation({
     mutationFn: async (merchant: Merchant) => {

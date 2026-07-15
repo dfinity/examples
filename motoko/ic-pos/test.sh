@@ -14,11 +14,11 @@ balance_of() {
 }
 
 echo "=== Test 1: configure a merchant ==="
-icp canister call icpos updateMerchant "(record { \
+icp canister call backend updateMerchant "(record { \
   name = \"Test Shop\"; \
   email_notifications = true; email_address = \"shop@example.com\"; \
   phone_notifications = false; phone_number = \"\" })" --identity ic-pos-merchant
-result=$(icp canister call icpos getMerchant "()" --identity ic-pos-merchant)
+result=$(icp canister call backend getMerchant "()" --identity ic-pos-merchant)
 echo "$result"
 echo "$result" | grep -q "Test Shop" && echo "PASS" || { echo "FAIL: merchant not stored"; exit 1; }
 
@@ -35,6 +35,6 @@ echo "balance: $before -> $after"
 
 # The backend's global timer scans the ledger and, for a merchant with
 # notifications enabled, emits a would-be-notification entry to its canister
-# logs (see `icp canister logs icpos`). That is timing-dependent (the timer runs
+# logs (see `icp canister logs backend`). That is timing-dependent (the timer runs
 # every 20s), so it is not asserted here.
 echo "All tests passed."

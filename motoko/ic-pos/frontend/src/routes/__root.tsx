@@ -2,7 +2,7 @@ import { Outlet, createRootRouteWithContext } from '@tanstack/react-router';
 import React from 'react';
 import { Toaster } from 'react-hot-toast';
 import type { Identity } from '@icp-sdk/core/agent';
-import type { Merchant } from '@/bindings/icpos';
+import type { Merchant } from '@/bindings/backend';
 import NewTransactionNotifer from '@/components/NewTransactionNotifier';
 
 interface RouterContext {

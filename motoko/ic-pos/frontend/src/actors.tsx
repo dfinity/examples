@@ -2,12 +2,12 @@ import { useMemo } from "react";
 import { HttpAgent } from "@icp-sdk/core/agent";
 import { Principal } from "@icp-sdk/core/principal";
 import { IcrcLedgerCanister, IcrcIndexCanister } from "@icp-sdk/canisters/ledger/icrc";
-import { createActor } from "./bindings/icpos";
+import { createActor } from "./bindings/backend";
 import { useAuth } from "./lib/auth";
 import {
   host,
   rootKey,
-  icposCanisterId,
+  backendCanisterId,
   icrc1LedgerCanisterId,
   icrc1IndexCanisterId,
 } from "./lib/env";
@@ -16,12 +16,12 @@ import {
  * The ic-pos backend actor, built with the current identity. Memoized so it is
  * only recreated when the identity changes (e.g. login/logout).
  */
-export function useIcPosActor() {
+export function useBackendActor() {
   const { identity } = useAuth();
 
   const actor = useMemo(
     () =>
-      createActor(icposCanisterId, {
+      createActor(backendCanisterId, {
         agentOptions: { host, rootKey, identity },
       }),
     [identity]

@@ -18,7 +18,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import useMerchant from "@/hooks/useMerchant";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { useIcPosActor } from "@/actors";
+import { useBackendActor } from "@/actors";
 import { useNavigate } from "@tanstack/react-router";
 import { queryClient } from "@/main";
 
@@ -32,7 +32,7 @@ type MerchantSchemaType = z.infer<typeof MerchantSchema>;
 
 export default function ConfigForm() {
   const { data: merchant } = useMerchant();
-  const { actor: pos } = useIcPosActor();
+  const { actor: pos } = useBackendActor();
   const navigate = useNavigate();
 
   const form = useForm<MerchantSchemaType>({

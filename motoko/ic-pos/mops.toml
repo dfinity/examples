@@ -12,6 +12,6 @@ core = "2.5.0"
 # M0223: redundant type instantiation (e.g. Array.tabulate instead of Array.tabulate<T>)
 args = ["--default-persistent-actors", "-W=M0236,M0237,M0223"]
 
-[canisters.icpos]
-main = "backend/main.mo"
-candid = "backend/icpos.did"
+[canisters.backend]
+main = "backend/app.mo"
+candid = "backend/backend.did"

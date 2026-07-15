@@ -15,7 +15,7 @@ To let you try the full flow without spending real funds, this example uses the 
 
 ### Backend (`backend/`)
 
-The backend is a single Motoko canister, `icpos`. It stores per-merchant configuration (`getMerchant` / `updateMerchant`) and runs a [timer](https://internetcomputer.org/docs/motoko/timers) that monitors the ICRC-1 ledger for incoming transfers. When a payment is detected for a merchant that has notifications enabled, it emits a [canister log](https://internetcomputer.org/docs/building-apps/canister-management/logs) entry (observable with `icp canister logs icpos`) noting where a notification would be sent.
+The backend is a single Motoko canister (`backend`). It stores per-merchant configuration (`getMerchant` / `updateMerchant`) and runs a [timer](https://internetcomputer.org/docs/motoko/timers) that monitors the ICRC-1 ledger for incoming transfers. When a payment is detected for a merchant that has notifications enabled, it emits a [canister log](https://internetcomputer.org/docs/building-apps/canister-management/logs) entry (observable with `icp canister logs backend`) noting where a notification would be sent.
 
 The ledger canister is resolved at runtime from the `PUBLIC_CANISTER_ID:icrc1_ledger` environment variable injected by icp-cli (the local ledger when developing, TICRC1 on mainnet).
 
@@ -25,7 +25,7 @@ The ledger canister is resolved at runtime from the `PUBLIC_CANISTER_ID:icrc1_le
 
 ### Frontend (`frontend/`)
 
-A TypeScript + React + Vite + Tailwind app. It authenticates with Internet Identity, calls `icpos` for store configuration, and uses the ICRC-1 ledger (balance, transfers) and index (transaction history) canisters. Canister IDs are read at runtime from the environment injected by icp-cli — there are no hardcoded IDs.
+A TypeScript + React + Vite + Tailwind app. It authenticates with Internet Identity, calls the `backend` canister for store configuration, and uses the ICRC-1 ledger (balance, transfers) and index (transaction history) canisters. Canister IDs are read at runtime from the environment injected by icp-cli — there are no hardcoded IDs.
 
 ## Build and deploy locally
 
@@ -46,7 +46,7 @@ bash deploy.sh
 
 > **Use `bash deploy.sh`, not `icp deploy`, locally.** The ICRC-1 ledger and index require init args (minting account, initial balances, and the ledger's canister ID) that are only known after identities and canisters are created, so `deploy.sh` installs them with the right arguments. A plain `icp deploy` traps because those canisters receive no init args.
 
-`deploy.sh` installs a local ICRC-1 ledger + index (a throwaway token named **LICRC1**, distinct from the mainnet TICRC1), the `icpos` backend, and the frontend. Internet Identity is provided by the local network (`ii: true` in `icp.yaml`) at `http://id.ai.localhost:8000` — no separate deployment. Open the frontend URL printed by the script.
+`deploy.sh` installs a local ICRC-1 ledger + index (a throwaway token named **LICRC1**, distinct from the mainnet TICRC1), the `backend`, and the `frontend`. Internet Identity is provided by the local network (`ii: true` in `icp.yaml`) at `http://id.ai.localhost:8000` — no separate deployment. Open the frontend URL printed by the script.
 
 The script also creates a pre-funded **`ic-pos-dev`** identity that holds the local test tokens. It does **not** change your selected identity — your default identity has a zero balance, so pass `--identity ic-pos-dev` to spend the test tokens (no need to switch your default). Check it with:
 
@@ -66,7 +66,7 @@ icp token $(icp canister status icrc1_ledger -i) balance --identity ic-pos-dev
      --identity ic-pos-dev
    ```
 
-The payment appears in the store. If the merchant has notifications enabled, the backend also emits a would-be-notification entry to its canister logs (`icp canister logs icpos`).
+The payment appears in the store. If the merchant has notifications enabled, the backend also emits a would-be-notification entry to its canister logs (`icp canister logs backend`).
 
 For frontend hot-reload development after deploying: `npm run dev --prefix frontend`.
 
@@ -94,10 +94,10 @@ To get TICRC1 tokens to test with:
 
 ## Updating the Candid interface
 
-The `backend/icpos.did` file defines the backend's public interface; the frontend bindings are generated from it during the build. If you change the backend's public API, regenerate it:
+The `backend/backend.did` file defines the backend's public interface; the frontend bindings are generated from it during the build. If you change the backend's public API, regenerate it:
 
 ```bash
-mops generate candid icpos
+mops generate candid backend
 ```
 
 ## Possible improvements
