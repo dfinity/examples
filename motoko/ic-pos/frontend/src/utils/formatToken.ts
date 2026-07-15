@@ -17,7 +17,9 @@ export function formatToken(
   const fractionalPartString = fractionalPart
     .toString()
     .padStart(decimals, "0");
-  const fractionalPartTrimmed = fractionalPartString.replace(/0+$/, ""); // Removes trailing zeroes
+  // Drop trailing zeros; a whole amount trims to "" and renders without a
+  // decimal point (e.g. "1", not "1.").
+  const fractionalPartTrimmed = fractionalPartString.replace(/0+$/, "");
   return fractionalPartTrimmed
     ? `${integerPart.toLocaleString()}.${fractionalPartTrimmed}`
     : integerPart.toLocaleString();
