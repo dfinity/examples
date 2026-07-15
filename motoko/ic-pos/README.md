@@ -17,7 +17,7 @@ To let you try the full flow without spending real funds, this example uses the 
 
 ## How it works
 
-### Backend (`src/icpos/`)
+### Backend (`backend/`)
 
 The backend is a single Motoko canister, `icpos`. It stores per-merchant configuration (`getMerchant` / `updateMerchant`) and runs a [timer](https://internetcomputer.org/docs/motoko/timers) that monitors the ICRC-1 ledger for incoming transfers. When a payment to a configured merchant is detected, it writes a log entry (`getLogs`) noting that a notification could be sent.
 
@@ -27,7 +27,7 @@ The ledger canister is resolved at runtime from the `PUBLIC_CANISTER_ID:icrc1_le
 >
 > **Note.** The monitor scans the ledger's global transaction log sequentially, which is illustrative rather than production-grade — it does not scale to a busy shared ledger. A production app would query the index canister per merchant account (as this app's frontend already does).
 
-### Frontend (`src/icpos_frontend/`)
+### Frontend (`frontend/`)
 
 A TypeScript + React + Vite + Tailwind app. It authenticates with Internet Identity, calls `icpos` for store configuration, and uses the ICRC-1 ledger (balance, transfers) and index (transaction history) canisters. Canister IDs are read at runtime from the environment injected by icp-cli — there are no hardcoded IDs.
 
@@ -90,7 +90,7 @@ To get TICRC1 tokens to test with:
 
 ## Updating the Candid interface
 
-The `src/icpos/icpos.did` file defines the backend's public interface; the frontend bindings are generated from it during the build. If you change the backend's public API, regenerate it:
+The `backend/icpos.did` file defines the backend's public interface; the frontend bindings are generated from it during the build. If you change the backend's public API, regenerate it:
 
 ```bash
 mops generate candid icpos

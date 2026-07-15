@@ -1,73 +1,13 @@
 {
   "name": "ic-pos",
   "private": true,
-  "version": "0.4.0",
   "type": "module",
-  "description": "Accept Bitcoin payments (ckBTC) on the Internet Computer using this simple Point of Sale (POS) application.",
-  "license": "MIT",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/kristoferlund/ic-pos"
-  },
-  "bugs": "https://github.com/kristoferlund/ic-pos/issues",
-  "homepage": "https://github.com/kristoferlund/ic-pos",
-  "author": "Kristofer Lund <kristofer@fmckl.se>",
-  "keywords": [
-    "pos",
-    "bitcoin",
-    "ckbtc",
-    "dfinity",
-    "ic",
-    "vite",
-    "react",
-    "tailwindcss",
-    "typescript"
-  ],
   "scripts": {
-    "dev": "vite",
-    "prebuild": "npm i --include=dev",
-    "generate": "icp-bindgen --did-file src/icpos/icpos.did --out-dir src/icpos_frontend/bindings --force",
-    "build": "npm run generate && tsc -b && vite build",
-    "preview": "vite preview"
+    "build": "npm run build --workspaces --if-present",
+    "prebuild": "npm run prebuild --workspaces --if-present",
+    "dev": "npm run dev --workspaces --if-present"
   },
-  "dependencies": {
-    "@dfinity/utils": "~4.1.0",
-    "@icp-sdk/canisters": "~3.6.0",
-    "@hookform/resolvers": "^3.1.1",
-    "@icp-sdk/auth": "~7.1.0",
-    "@icp-sdk/core": "~5.4.0",
-    "@radix-ui/react-icons": "^1.3.0",
-    "@radix-ui/react-label": "^2.0.2",
-    "@radix-ui/react-slot": "^1.0.2",
-    "@radix-ui/react-switch": "^1.0.3",
-    "@tanstack/react-query": "latest",
-    "@tanstack/react-router": "latest",
-    "class-variance-authority": "^0.6.0",
-    "clsx": "^1.2.1",
-    "lucide-react": "^0.460.0",
-    "qrcode.react": "^4.0.0",
-    "react": "~19",
-    "react-dom": "~19",
-    "react-hook-form": "^7.45.0",
-    "react-hot-toast": "^2.4.1",
-    "react-zxing": "^3.0.0",
-    "tailwind-merge": "^2.5.3",
-    "use-sound": "^4.0.3",
-    "zod": "^3.22.3"
-  },
-  "devDependencies": {
-    "@icp-sdk/bindgen": "~0.4.0",
-    "@tailwindcss/forms": "^0.5.10",
-    "@tailwindcss/typography": "^0.5.19",
-    "@tailwindcss/vite": "~4",
-    "@tanstack/router-plugin": "latest",
-    "@types/node": "latest",
-    "@types/react": "~19",
-    "@types/react-dom": "~19",
-    "@vitejs/plugin-react": "latest",
-    "tailwindcss": "~4",
-    "tw-animate-css": "latest",
-    "typescript": "latest",
-    "vite": "latest"
-  }
+  "workspaces": [
+    "frontend"
+  ]
 }

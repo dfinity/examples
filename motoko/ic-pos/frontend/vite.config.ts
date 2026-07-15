@@ -21,12 +21,12 @@ export default defineConfig(({ command }) => {
     react(),
     tailwindcss(),
     TanStackRouterVite({
-      routesDirectory: "src/icpos_frontend/routes",
-      generatedRouteTree: "src/icpos_frontend/routeTree.gen.ts",
+      routesDirectory: "src/routes",
+      generatedRouteTree: "src/routeTree.gen.ts",
     }),
     icpBindgen({
-      didFile: "src/icpos/icpos.did",
-      outDir: "src/icpos_frontend/bindings",
+      didFile: "../backend/icpos.did",
+      outDir: "src/bindings",
     }),
   ];
 
@@ -36,7 +36,7 @@ export default defineConfig(({ command }) => {
     },
     resolve: {
       alias: {
-        "@": path.resolve(__dirname, "./src/icpos_frontend"),
+        "@": path.resolve(__dirname, "./src"),
       },
     },
     optimizeDeps: {

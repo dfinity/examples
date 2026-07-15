@@ -11,7 +11,7 @@
   "compilerOptions": {
     "paths": {
       "@/*": [
-        "./src/icpos_frontend/*"
+        "./src/*"
       ]
     }
   }

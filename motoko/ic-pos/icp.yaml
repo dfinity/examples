@@ -38,10 +38,10 @@ canisters:
     recipe:
       type: "@dfinity/asset-canister@v2.2.1"
       configuration:
-        dir: dist
+        dir: frontend/dist
         build:
-          - npm install
-          - npm run build
+          - npm install --prefix frontend
+          - npm run build --prefix frontend
 
 environments:
   - name: ic

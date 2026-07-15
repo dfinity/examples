@@ -13,5 +13,5 @@ core = "2.5.0"
 args = ["--default-persistent-actors", "-W=M0236,M0237,M0223"]
 
 [canisters.icpos]
-main = "src/icpos/main.mo"
-candid = "src/icpos/icpos.did"
+main = "backend/main.mo"
+candid = "backend/icpos.did"
