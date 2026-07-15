@@ -1,0 +1,64 @@
+# yaml-language-server: $schema=https://github.com/dfinity/icp-cli/raw/refs/tags/v1.0.0/docs/schemas/icp-yaml-schema.json
+
+canisters:
+  # ICRC-1 ledger + index, deployed locally from the latest ledger suite release.
+  # Their init args (minting account, initial balances, ledger id) reference
+  # principals that only exist after identities are created, so they are
+  # installed by deploy.sh — not a plain `icp deploy`.
+  #
+  # On mainnet these are NOT deployed; the ic environment below points the app at
+  # the shared TICRC1 test token instead (see the injected env vars).
+  - name: icrc1_ledger
+    build:
+      steps:
+        - type: pre-built
+          url: https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2026-03-09/ic-icrc1-ledger.wasm.gz
+
+  - name: icrc1_index
+    build:
+      steps:
+        - type: pre-built
+          url: https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2026-03-09/ic-icrc1-index-ng.wasm.gz
+
+  - name: backend
+    init_args: "(0 : nat)"
+    recipe:
+      type: "@dfinity/motoko@v5.0.0"
+
+  - name: frontend
+    recipe:
+      type: "@dfinity/asset-canister@v2.2.1"
+      configuration:
+        dir: frontend/dist
+        build:
+          - npm install --prefix frontend
+          - npm run build --prefix frontend
+
+# The local network runs Internet Identity (available at
+# http://id.ai.localhost:8000) so the app can authenticate offline — no
+# internet_identity canister entry is needed in the project.
+networks:
+  - name: local
+    mode: managed
+    ii: true
+
+environments:
+  - name: ic
+    network: ic
+    # On mainnet, deploy only the app canisters. The ledger and index already
+    # exist on mainnet, so their principals are injected as env vars pointing at
+    # the shared TICRC1 test token — developers can use the app with faucet
+    # tokens (https://faucet.internetcomputer.org) instead of real funds.
+    # (Internet Identity is reached directly at https://id.ai/authorize, so no
+    # II canister ID is needed.)
+    canisters:
+      - backend
+      - frontend
+    settings:
+      backend:
+        environment_variables:
+          "PUBLIC_CANISTER_ID:icrc1_ledger": "3jkp5-oyaaa-aaaaj-azwqa-cai"
+      frontend:
+        environment_variables:
+          "PUBLIC_CANISTER_ID:icrc1_ledger": "3jkp5-oyaaa-aaaaj-azwqa-cai"
+          "PUBLIC_CANISTER_ID:icrc1_index": "qzre3-3iaaa-aaaai-aqmsa-cai"

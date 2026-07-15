@@ -1,222 +1,113 @@
 # IC-POS
 
-![](./media/header.png)
+IC-POS is a simple Point of Sale (POS) app that accepts [ICRC-1](https://github.com/dfinity/ICRC-1) token payments on the Internet Computer. A merchant logs in with [Internet Identity](https://internetcomputer.org/internet-identity), configures a store, and charges customers by showing a QR code; incoming payments show up in the store with a live balance and transaction history.
 
-
-IC-POS is an experimental app to demonstrate a real-world use case for [ckBTC](https://internetcomputer.org/ckbtc/) on the Internet Computer. It is a simple Point of Sale app that allows users to accept ckBTC payments.
-
-The Internet Computer [integrates directly with the Bitcoin network](https://internetcomputer.org/docs/current/developer-docs/integrations/bitcoin/). This allows canisters on the Internet Computer to receive, hold, and send Bitcoin, all directly with transactions on the Bitcoin network. Chain-key Bitcoin (ckBTC) is an ICRC-1-compliant token that is backed 1:1 by Bitcoin and held 100% on the ICP mainnet.
-
-For deeper understanding of the ICP < > BTC integration, see the IC wiki article on [Bitcoin integration](https://wiki.internetcomputer.org/wiki/Bitcoin_Integration).
+To let you try the full flow without spending real funds, this example uses the **TICRC1 test token** ([`3jkp5-oyaaa-aaaaj-azwqa-cai`](https://dashboard.internetcomputer.org/canister/3jkp5-oyaaa-aaaaj-azwqa-cai)) on mainnet, and a local ICRC-1 ledger + index when developing. Because the app talks to any ICRC-1 ledger, the same code works with real tokens (e.g. [ckBTC](https://internetcomputer.org/ckbtc/)) by pointing it at a different ledger.
 
 ## Features
 
-- **Create store**: Users log in with their Internet Identity and configure the store with a name and other settings.
-- **Charge customer**: Users can charge a customer by entering an amount. This will generate and display a QR code for the customer to scan and pay. QR code follows the [ICRC-22](https://github.com/dfinity/ICRC/issues/22) standard.
-- **Send tokens**: Users can send ckBTC tokens to other users.
-- **Receive notifications**: Users can choose to receive notifications by email or SMS when a payment is received. This uses the [HTTP Outcall](https://internetcomputer.org/docs/current/developer-docs/integrations/https-outcalls/) feature of the Internet Computer.
-- **Transaction history**: Users can view a list of transactions made to the store.
+- **Create store**: Log in with Internet Identity and configure the store with a name and notification settings.
+- **Charge customer**: Enter an amount to generate a payment QR code (following the [ICRC-22](https://github.com/dfinity/ICRC/issues/22) payment-request format) for the customer to scan and pay.
+- **Send tokens**: Send tokens to other principals from within the app.
+- **Transaction history**: View recent transactions and a live balance for the store, queried from the ICRC-1 index canister.
 
-## Try it!
+> **Heads up: the payment QR code cannot be scanned by any wallet yet.** ICRC-22 is still a **draft** ([issue #22](https://github.com/dfinity/ICRC/issues/22), [PR #101](https://github.com/dfinity/ICRC/pull/101)) and, as far as we know, no wallet (OISY included) has adopted it. So the "Charge customer" QR code is illustrative — you can't currently pay it by scanning from a wallet. To actually complete a payment, send the tokens directly to the store's principal (copy it from the store page) with a wallet or `icp-cli`, as shown in [Try a payment](#try-a-payment) below.
 
-IC-POS is deployed on the Internet Computer. You can try it out here:
+## How it works
 
-https://hngac-6aaaa-aaaal-qb6tq-cai.icp0.io
+### Backend (`backend/`)
 
-**Note:** The live version of IC-POS uses real ckBTC tokens. To test, use only fractions of a token to avoid losing funds.
+The backend is a single Motoko canister (`backend`). It stores per-merchant configuration (`getMerchant` / `updateMerchant`) and runs a [timer](https://internetcomputer.org/docs/motoko/timers) that monitors the ICRC-1 ledger for incoming transfers. When a payment is detected for a merchant that has notifications enabled, it emits a [canister log](https://internetcomputer.org/docs/building-apps/canister-management/logs) entry (observable with `icp canister logs backend`) noting where a notification would be sent.
 
-## Architecture
+The ledger canister is resolved at runtime from the `PUBLIC_CANISTER_ID:icrc1_ledger` environment variable injected by icp-cli (the local ledger when developing, TICRC1 on mainnet).
 
-### Backend
+> **Notifications.** The original app sent email/SMS via an HTTPS outcall to a third-party service. This version instead logs where a notification would be sent. To implement real notifications, use [HTTPS outcalls](https://docs.internetcomputer.org/guides/backends/https-outcalls).
+>
+> **Note.** The monitor scans the ledger's global transaction log sequentially, which is illustrative rather than production-grade — it does not scale to a busy shared ledger. A production app would query the index canister per merchant account (as this app's frontend already does).
 
-The backend is written in Motoko and consists of one canister, `icpos`. It exposes five public methods:
+### Frontend (`frontend/`)
 
-- `getMerchant` - returns the store configuration for a given principal.
-- `updateMerchant` - updates the store configuration for a given principal.
-- `setCourierApiKey` - sets the Courier API key used to send email and SMS notifications. Only the canister controller can call this method.
-- `setLedgerId` - xsets the ledger ID to monitor for transactions. Only the canister controller can call this method.
-- `getLogs` - The canister maintains a debug log that can be fetched using this method.
+A TypeScript + React + Vite + Tailwind app. It authenticates with Internet Identity, calls the `backend` canister for store configuration, and uses the ICRC-1 ledger (balance, transfers) and index (transaction history) canisters. Canister IDs are read at runtime from the environment injected by icp-cli — there are no hardcoded IDs.
 
-In addition to the public methods, the canister uses a [timer](https://internetcomputer.org/docs/current/motoko/main/timers/) to monitor ledger transactions. When a new transaction is found that matches a configured store – depending on the store settings – the canister will send a notification either by email or SMS.
+## Build and deploy locally
 
-### Frontend
+### Prerequisites
 
-The frontend is written in Typescript/Vite/React/TailwindCSS. Users authenticate using the Internet Identity to access their store. The first time a user logs in, a store is created for them.
+- Node.js
+- icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- ic-mops: `npm install -g ic-mops`
 
-The frontend interacts with the following IC canisters:
-
-- `icpos` - to fetch and update store configuration.
-- `ckbtc ledger` - to send ckBTC to other users.
-- `ckbtc index` - to fetch transaction history.
-- `internet identity` - to authenticate users.
-
-## Prerequisites
-This example requires an installation of:
-
-- [x] Install the [IC SDK](https://internetcomputer.org/docs/current/developer-docs/setup/install/index.mdx).
-- [x] Clone the example dapp project: `git clone https://github.com/dfinity/examples`
-
-Begin by opening a terminal window.
-
-## Deploy using script
-
-To get started quickly and deploy the IC-POS app locally, you can run a deploy script. This script will start a local replica, deploy the necessary canisters, and build and deploy the frontend.
+### Deploy
 
 ```bash
-bash ./scripts/deploy.sh
-```
-
-Once the script has finished, you should proceed to step 10 to create a store and mint yourself some test tokens.
-
-## Deploy manually
-
-### Step 1: Setup the project environment
-
-Navigate into the folder containing the project's files and start a local instance of the Internet Computer with the commands:
-
-
-```bash
+git clone https://github.com/dfinity/examples
 cd examples/motoko/ic-pos
-dfx start --background
+icp network start -d
+bash deploy.sh
 ```
 
-### Step 2: Deploy the Internet Identity canister
+> **Use `bash deploy.sh`, not `icp deploy`, locally.** The ICRC-1 ledger and index require init args (minting account, initial balances, and the ledger's canister ID) that are only known after identities and canisters are created, so `deploy.sh` installs them with the right arguments. A plain `icp deploy` traps because those canisters receive no init args.
 
-Integration with the [Internet Identity](https://internetcomputer.org/internet-identity/) allows store owners to securely setup and manage their store. The Internet Identity canister is already deployed on the IC mainnet. For local development, you need to deploy it to your local instance of the IC.
+`deploy.sh` installs a local ICRC-1 ledger + index (a throwaway token named **LICRC1**, distinct from the mainnet TICRC1), the `backend`, and the `frontend`. Internet Identity is provided by the local network (`ii: true` in `icp.yaml`) at `http://id.ai.localhost:8000` — no separate deployment. Open the frontend URL printed by the script.
+
+The script also creates a pre-funded **`ic-pos-dev`** identity that holds the local test tokens. It does **not** change your selected identity — your default identity has a zero balance, so pass `--identity ic-pos-dev` to spend the test tokens (no need to switch your default). Check it with:
 
 ```bash
-dfx deploy internet_identity
+icp token $(icp canister status icrc1_ledger -i) balance --identity ic-pos-dev
 ```
 
-### Step 3: Save the current principal as a variable
+### Try a payment
 
-The principal will be used when deploying the ledger canister.
+1. Open the frontend, log in with Internet Identity, and give your store a name.
+2. On the store page, click the principal pill to copy your store's principal.
+3. Send tokens to the store from the pre-funded `ic-pos-dev` identity using icp-cli. Amounts are in base units; with 8 decimals, `100_000_000` is 1 LICRC1. The ledger charges a small fee (0.0001 LICRC1) to the sender on top of the amount — the store receives the full amount.
+
+   ```bash
+   icp canister call icrc1_ledger icrc1_transfer \
+     '(record { to = record { owner = principal "<STORE_PRINCIPAL>" }; amount = 100_000_000 : nat })' \
+     --identity ic-pos-dev
+   ```
+
+The payment appears in the store. If the merchant has notifications enabled, the backend also emits a would-be-notification entry to its canister logs (`icp canister logs backend`).
+
+For frontend hot-reload development after deploying: `npm run dev --prefix frontend`.
+
+### Run the automated test
 
 ```bash
-export OWNER=$(dfx identity get-principal)
+bash test.sh
 ```
 
-### Step 4: Deploy the ckBTC ledger canister
+`test.sh` configures a merchant and performs a real token payment via icp-cli, asserting the merchant's balance increases.
 
-The responsibilities of the ledger canister is to keep track of token balances and handle token transfers.
+## Deploy to mainnet
 
-The ckBTC ledger canister is already deployed on the IC mainnet. ckBTC implements the [ICRC-1](https://internetcomputer.org/docs/current/developer-docs/integrations/icrc-1/) token standard. For local development, we deploy the ledger for an ICRC-1 token mimicking the mainnet setup.
-
-Take a moment to read the details of the call we are making below. Not only are we deploying the ledger canister, we are also:
-
-- Deploying the canister to the same canister ID as the mainnet ledger canister. This is to make it easier to switch between local and mainnet deployments.
-- Naming the token `Local ckBTC / LCKBTC`
-- Setting the owner principal to the principal we saved in the previous step.
-- Minting 100_000_000_000 tokens to the owner principal.
-- Setting the transfer fee to 10 LCKBTC.
+Unlike local (which needs `deploy.sh`), mainnet uses a plain `icp deploy`:
 
 ```bash
-dfx deploy icrc1_ledger --argument '
-  (variant {
-    Init = record {
-      token_name = "Local ckBTC";
-      token_symbol = "LCKBTC";
-      minting_account = record {
-        owner = principal "'${OWNER}'";
-      };
-      initial_balances = vec {
-        record {
-          record {
-            owner = principal "'${OWNER}'";
-          };
-          100_000_000_000;
-        };
-      };
-      metadata = vec {};
-      transfer_fee = 10;
-      archive_options = record {
-        trigger_threshold = 2000;
-        num_blocks_to_archive = 1000;
-        controller_id = principal "'${OWNER}'";
-      }
-    }
-  })
-'
+icp deploy -e ic
 ```
 
-### Step 5: Deploy the index canister
+On mainnet the app uses the shared **TICRC1** test token (ledger [`3jkp5-oyaaa-aaaaj-azwqa-cai`](https://dashboard.internetcomputer.org/canister/3jkp5-oyaaa-aaaaj-azwqa-cai), index [`qzre3-3iaaa-aaaai-aqmsa-cai`](https://dashboard.internetcomputer.org/canister/qzre3-3iaaa-aaaai-aqmsa-cai)) and the production Internet Identity at `https://id.ai` — the local ledger and index are not deployed. Because those two canisters already exist on mainnet, there are no init-args canisters to install, so a plain `icp deploy -e ic` works (no `deploy.sh` needed).
 
-The index canister syncs the ledger transactions and indexes them by account.
+To get TICRC1 tokens to test with:
+
+1. Obtain your principal — for example from [OISY Wallet](https://oisy.com) or with `icp identity principal`.
+2. Request TICRC1 tokens from the [faucet](https://faucet.internetcomputer.org) using that principal.
+3. Send tokens to a store principal from your wallet (e.g. OISY) or with `icp canister call ... icrc1_transfer` against the TICRC1 ledger.
+
+## Updating the Candid interface
+
+The `backend/backend.did` file defines the backend's public interface; the frontend bindings are generated from it during the build. If you change the backend's public API, regenerate it:
 
 ```bash
-dfx deploy icrc1_index --argument '
-  record {
-   ledger_id = (principal "mxzaz-hqaaa-aaaar-qaada-cai");
-  }
-'
+mops generate candid backend
 ```
-
-### Step 6: Deploy the `icpos` canister
-
-The icpos canister manages the store configuration and sends notifications when a payment is received.
-
-The `--argument '(0)'` argument is used to initialize the canister with `startBlock` set to 0. This is used to tell the canister to start monitoring the ledger from block 0. When deploying to the IC mainnet, this should be set to the current block height to prevent the canister from processing old transactions.
-
-```bash
-dfx deploy icpos --argument '(0)'
-```
-
-### Step 7: Configure the `icpos` canister
-
-IC-POS uses [Courier](https://courier.com/) to send email and SMS notifications. If you want to enable notifications, you need to sign up for a Courier account and and create and API key. Then issue the following command:
-
-```bash
-dfx canister call icpos setCourierApiKey "pk_prod_..."
-```
-
-### Step 8: Build and run the frontend
-
-Run npm to install dependencies and start a development version of the frontend.
-
-```bash
-pnpm install
-pnpm run dev
-```
-
-The app should now be accessible at a local url, typically `http://localhost:5173`.
-
-## Make a transfer!
-
-Now that everything is up and running, you can make a transfer to your newly created store.
-
-The easiest way to do this is to create two stores using two different Internet Identity accounts, using two different web browsers. Then, transfer some tokens from one store to the other.
-
-### Step 10: Create the first store and supply it with some tokens
-
-Log in to the frontend using the Internet Identity. Configure the store with a name and then, on the main store page, click on the principal pill to copy the address to your clipboard. Using the `dfx` command, now mint some tokens from your owner principal to the store principal.
-
-```bash
-dfx canister call icrc1_ledger icrc1_transfer '
-  (record {
-    to=(record {
-      owner=(principal "[STORE PRINCIPAL 1 HERE]")
-    });
-    amount=100_000
-  })
-'
-```
-
-### Step 11: Create the second store
-
-Log in to the frontend using **a new Internet Identity using another web browser**. Give this store a name as well and copy the store principal like in the previous step.
-
-Now, go back to the first browser/store, navigate to the `Send` page, and transfer some tokens to the second store.
-
-If everything is working, you should see a notification in the second store.
-
-🎉
 
 ## Possible improvements
 
-- Show more information about transactions.
-  - A transaction detail page.
-  - Pagination, currently only the first 5 transactions are shown.
-- Show a confirmation dialog after the user clicks on the `Send` button.
+- A transaction detail page and pagination (currently only the latest transactions are shown).
+- A confirmation dialog before sending.
 
 ## Contributing
 
@@ -224,9 +115,7 @@ Contributions are welcome! Please open an issue or submit a pull request.
 
 ## Author
 
-- [kristofer@fmckl.se](mailto:kristofer@fmckl.se)
-- Twitter: [@kristoferlund](https://twitter.com/kristoferlund)
-- Discord: kristoferkristofer
+Based on the original [IC-POS](https://github.com/kristoferlund/ic-pos) by [Kristofer Lund](https://github.com/kristoferlund) — [kristofer@fmckl.se](mailto:kristofer@fmckl.se).
 
 ## License
 
