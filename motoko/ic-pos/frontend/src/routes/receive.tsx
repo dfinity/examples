@@ -73,16 +73,15 @@ function ReceivePage() {
               {!params.has("principal") && (
                 <div>{merchant?.name}</div>
               )}
-              <PrincipalPill
-                principal={principal}
-                variant="short"
-                className="print:hidden"
-              />
-              <PrincipalPill
-                principal={principal}
-                variant="full"
-                className="hidden print:block"
-              />
+              {/* Short pill on screen; full principal only when printing. The
+                  toggle lives on the wrapper so it doesn't fight the pill's own
+                  display (inline-flex). */}
+              <div className="print:hidden">
+                <PrincipalPill principal={principal} variant="short" />
+              </div>
+              <div className="hidden print:block">
+                <PrincipalPill principal={principal} variant="full" />
+              </div>
             </div>
             <HistoryButton />
           </div>
