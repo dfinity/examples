@@ -1,0 +1,23 @@
+type _anon_class_19_1 = 
+ service {
+   addUser: (note_id: NoteId, user: PrincipalName) -> ();
+   createNote: () -> (NoteId);
+   deleteNote: (note_id: NoteId) -> ();
+   encryptedSymmetricKeyForNote: (note_id: NoteId, transport_public_key:
+    blob) -> (text);
+   getNotes: () -> (vec EncryptedNote);
+   removeUser: (note_id: NoteId, user: PrincipalName) -> ();
+   symmetricKeyVerificationKeyForNote: () -> (text);
+   updateNote: (id: NoteId, encryptedText: text) -> ();
+   whoami: () -> (text);
+ };
+type PrincipalName = text;
+type NoteId = nat;
+type EncryptedNote = 
+ record {
+   encryptedText: text;
+   id: nat;
+   owner: PrincipalName;
+   users: vec PrincipalName;
+ };
+service : (keyName: text) -> _anon_class_19_1

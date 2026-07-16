@@ -16,7 +16,7 @@ import Hex "./utils/Hex";
 
 // Declare a shared actor class
 // Bind the caller and the initializer
-shared ({ caller = initializer }) persistent actor class (keyName: Text) {
+shared ({ caller = initializer }) actor class (keyName: Text) {
 
     // Currently, a single canister smart contract is limited to 4 GB of heap size.
     // For the current limits see https://internetcomputer.org/docs/current/developer-docs/production/resource-limits.
@@ -41,7 +41,7 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
     //            Here we assume that the notes are encrypted end-
     //            to-end by the front-end (at client side).
     public type EncryptedNote = {
-        encrypted_text : Text;
+        encryptedText : Text;
         id : Nat;
         owner : PrincipalName;
         // Principals with whom this note is shared. Does not include the owner.
@@ -109,13 +109,13 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
     //      [caller] is the anonymous identity
     //      [caller] already has [MAX_NOTES_PER_USER] notes
     //      This is the first note for [caller] and [MAX_USERS] is exceeded
-    public shared ({ caller }) func create_note() : async NoteId {
+    public shared ({ caller }) func createNote() : async NoteId {
         assert not Principal.isAnonymous(caller);
         let owner = Principal.toText(caller);
 
         let newNote : EncryptedNote = {
             id = nextNoteId;
-            encrypted_text = "";
+            encryptedText = "";
             owner = owner;
             users = [];
         };
@@ -152,7 +152,7 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
     //      Future of array of EncryptedNote
     // Traps:
     //      [caller] is the anonymous identity
-    public shared ({ caller }) func get_notes() : async [EncryptedNote] {
+    public shared ({ caller }) func getNotes() : async [EncryptedNote] {
         assert not Principal.isAnonymous(caller);
         let user = Principal.toText(caller);
 
@@ -175,7 +175,7 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
         List.toArray(buf);
     };
 
-    // Replaces the encrypted text of note with ID [id] with [encrypted_text].
+    // Replaces the encrypted text of note with ID [id] with [encryptedText].
     //
     // Returns:
     //      Future of unit
@@ -183,16 +183,16 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
     //     [caller] is the anonymous identity
     //     note with ID [id] does not exist
     //     [caller] is not the note's owner and not a user with whom the note is shared
-    //     [encrypted_text] exceeds [MAX_NOTE_CHARS]
-    public shared ({ caller }) func update_note(id : NoteId, encrypted_text : Text) : async () {
+    //     [encryptedText] exceeds [MAX_NOTE_CHARS]
+    public shared ({ caller }) func updateNote(id : NoteId, encryptedText : Text) : async () {
         assert not Principal.isAnonymous(caller);
         let caller_text = Principal.toText(caller);
         let (?note_to_update) = Map.get(notesById, Nat.compare, id) else Runtime.trap("note with id " # Nat.toText(id) # "not found");
         if (not is_authorized(caller_text, note_to_update)) {
             Runtime.trap("unauthorized");
         };
-        assert note_to_update.encrypted_text.size() <= MAX_NOTE_CHARS;
-        ignore Map.insert(notesById, Nat.compare, id, { note_to_update with encrypted_text });
+        assert note_to_update.encryptedText.size() <= MAX_NOTE_CHARS;
+        ignore Map.insert(notesById, Nat.compare, id, { note_to_update with encryptedText });
     };
 
     // Shares the note with ID [note_id] with the [user].
@@ -204,7 +204,7 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
     //     [caller] is the anonymous identity
     //     note with ID [id] does not exist
     //     [caller] is not the note's owner
-    public shared ({ caller }) func add_user(note_id : NoteId, user : PrincipalName) : async () {
+    public shared ({ caller }) func addUser(note_id : NoteId, user : PrincipalName) : async () {
         assert not Principal.isAnonymous(caller);
         let caller_text = Principal.toText(caller);
         let (?note) = Map.get(notesById, Nat.compare, note_id) else Runtime.trap("note with id " # Nat.toText(note_id) # "not found");
@@ -239,7 +239,7 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
     //     [caller] is the anonymous identity
     //     note with ID [id] does not exist
     //     [caller] is not the note's owner
-    public shared ({ caller }) func remove_user(note_id : NoteId, user : PrincipalName) : async () {
+    public shared ({ caller }) func removeUser(note_id : NoteId, user : PrincipalName) : async () {
         assert not Principal.isAnonymous(caller);
         let caller_text = Principal.toText(caller);
         let (?note) = Map.get(notesById, Nat.compare, note_id) else Runtime.trap("note with id " # Nat.toText(note_id) # "not found");
@@ -270,7 +270,7 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
     //     [caller] is the anonymous identity
     //     note with ID [id] does not exist
     //     [caller] is not the note's owner
-    public shared ({ caller }) func delete_note(note_id : NoteId) : async () {
+    public shared ({ caller }) func deleteNote(note_id : NoteId) : async () {
         assert not Principal.isAnonymous(caller);
         let caller_text = Principal.toText(caller);
         let (?note_to_delete) = Map.get(notesById, Nat.compare, note_id) else Runtime.trap("note with id " # Nat.toText(note_id) # "not found");
@@ -322,7 +322,7 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
 
     transient let management_canister : VETKD_API = actor ("aaaaa-aa");
 
-    public shared func symmetric_key_verification_key_for_note() : async Text {
+    public shared func symmetricKeyVerificationKeyForNote() : async Text {
         let { public_key } = await management_canister.vetkd_public_key({
             canister_id = null;
             context = Text.encodeUtf8("note_symmetric_key");
@@ -331,7 +331,7 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
         Hex.encode(Blob.toArray(public_key));
     };
 
-    public shared ({ caller }) func encrypted_symmetric_key_for_note(note_id : NoteId, transport_public_key : Blob) : async Text {
+    public shared ({ caller }) func encryptedSymmetricKeyForNote(note_id : NoteId, transport_public_key : Blob) : async Text {
         let caller_text = Principal.toText(caller);
         let (?note) = Map.get(notesById, Nat.compare, note_id) else Runtime.trap("note with id " # Nat.toText(note_id) # "not found");
         if (not is_authorized(caller_text, note)) {

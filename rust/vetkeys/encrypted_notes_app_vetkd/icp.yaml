@@ -1,23 +1,22 @@
 canisters:
-  - name: encrypted_notes
+  - name: backend
     recipe:
       type: "@dfinity/rust@v3.2.0"
       configuration:
         package: encrypted_notes_backend
-        candid: backend/src/encrypted_notes_rust.did
+        candid: backend/backend.did
     init_args:
       type: text
       value: "(\"test_key_1\")"
 
-  - name: www
+  - name: frontend
     recipe:
       type: "@dfinity/asset-canister@v2.2.1"
       configuration:
-        dir: dist
+        dir: frontend/dist
         build:
-          - npm install --include=dev --legacy-peer-deps --prefix ../frontend
-          - npm run build --prefix ../frontend
-          - rm -rf dist && mv ../frontend/dist dist
+          - npm install --prefix frontend
+          - npm run build --prefix frontend
 
 networks:
   - name: local

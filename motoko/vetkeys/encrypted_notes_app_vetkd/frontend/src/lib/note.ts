@@ -49,7 +49,7 @@ export async function serialize(
   );
   return {
     id: note.id,
-    encrypted_text: encryptedNote,
+    encryptedText: encryptedNote,
     owner: note.owner,
     users: note.users,
   };
@@ -59,7 +59,7 @@ export async function deserialize(
   enote: EncryptedNote,
   cryptoService: CryptoService
 ): Promise<NoteModel> {
-  const serializedNote = await cryptoService.decryptWithNoteKey(enote.id, enote.owner, enote.encrypted_text);
+  const serializedNote = await cryptoService.decryptWithNoteKey(enote.id, enote.owner, enote.encryptedText);
   const deserializedNote: SerializableNoteModel = JSON.parse(serializedNote);
   return {
     id: enote.id,

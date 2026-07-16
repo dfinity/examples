@@ -1,8 +1,0 @@
-[toolchain]
-moc = "1.9.0"
-
-[dependencies]
-core = "2.5.0"
-
-[canisters.encrypted_notes]
-main = "backend/main.mo"
