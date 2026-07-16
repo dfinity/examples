@@ -6,6 +6,13 @@ import Blob "mo:core/Blob";
 import Result "mo:core/Result";
 import Array "mo:core/Array";
 
+// This canister exposes the Encrypted Maps interface. Its public methods are
+// intentionally snake_case (not the usual Motoko camelCase) because the
+// `@icp-sdk/vetkeys` Encrypted Maps client calls the canister by these exact
+// names — renaming them to camelCase would break the frontend. The delegation
+// methods below are hand-written today; an upstream Motoko actor mixin that
+// generates this endpoint set automatically is in progress
+// (https://github.com/dfinity/vetkeys/pull/405).
 actor class (keyName : Text) {
     let encryptedMapsState = IcVetkeys.EncryptedMaps.newEncryptedMapsState<Types.AccessRights>({ curve = #bls12_381_g2; name = keyName }, "password_manager_example_dapp");
     transient let encryptedMaps = IcVetkeys.EncryptedMaps.EncryptedMaps<Types.AccessRights>(encryptedMapsState, Types.accessRightsOperations());
