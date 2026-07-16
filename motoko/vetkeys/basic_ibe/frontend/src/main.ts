@@ -48,7 +48,7 @@ async function getIbePublicKey(): Promise<DerivedPublicKey> {
     if (ibePublicKey) return ibePublicKey;
     const actor = await getBasicIbeActor();
     ibePublicKey = DerivedPublicKey.deserialize(
-        new Uint8Array(await actor.get_ibe_public_key()),
+        new Uint8Array(await actor.getIbePublicKey()),
     );
     return ibePublicKey;
 }
@@ -76,7 +76,7 @@ async function getMyIbePrivateKey(): Promise<VetKey> {
         const transportSecretKey = TransportSecretKey.random();
         const actor = await getBasicIbeActor();
         const encryptedKey = Uint8Array.from(
-            await actor.get_my_encrypted_ibe_key(
+            await actor.getMyEncryptedIbeKey(
                 transportSecretKey.publicKeyBytes(),
             ),
         );
@@ -114,8 +114,8 @@ async function sendMessage() {
         );
 
         const actor = await getBasicIbeActor();
-        const result = await actor.send_message({
-            encrypted_message: encryptedMessage,
+        const result = await actor.sendMessage({
+            encryptedMessage: encryptedMessage,
             receiver: receiverPrincipal,
         });
 
@@ -133,7 +133,7 @@ async function sendMessage() {
 
 async function showMessages() {
     const actor = await getBasicIbeActor();
-    const inbox = await actor.get_my_messages();
+    const inbox = await actor.getMyMessages();
     await displayMessages(inbox);
 }
 
@@ -200,7 +200,7 @@ async function displayMessages(inbox: Inbox) {
     for (let i = inbox.messages.length - 1; i >= 0; i--) {
         const message = inbox.messages[i];
         const plaintextString = await decryptMessage(
-            new Uint8Array(message.encrypted_message),
+            new Uint8Array(message.encryptedMessage),
         );
 
         const messageElement = createMessageElement(
@@ -227,7 +227,7 @@ async function displayMessages(inbox: Inbox) {
             void (async () => {
                 try {
                     const actor = await getBasicIbeActor();
-                    const result = await actor.remove_my_message_by_index(
+                    const result = await actor.removeMyMessageByIndex(
                         BigInt(index),
                     );
                     if ("Err" in result) {

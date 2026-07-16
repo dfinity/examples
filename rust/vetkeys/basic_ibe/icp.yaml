@@ -1,5 +1,5 @@
 canisters:
-  - name: basic_ibe
+  - name: backend
     recipe:
       type: "@dfinity/rust@v3.2.0"
       configuration:
@@ -9,13 +9,14 @@ canisters:
       type: text
       value: "(\"test_key_1\")"
 
-  - name: www
+  - name: frontend
     recipe:
       type: "@dfinity/asset-canister@v2.2.1"
       configuration:
-        dir: dist
+        dir: frontend/dist
         build:
-          - cd frontend && npm i --include=dev && npm run build && cd - && rm -rf dist; mv frontend/dist ./
+          - npm install --prefix frontend
+          - npm run build --prefix frontend
 
 networks:
   - name: local
