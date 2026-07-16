@@ -8,7 +8,7 @@ result=$(icp canister call backend getIbePublicKey '()') && \
   echo "PASS" || (echo "FAIL" && exit 1)
 
 echo "--- Testing basic_ibe: empty inbox query ---"
-result=$(icp canister call backend getMyMessages '()') && \
+result=$(icp canister call backend getMyMessages '()' --query) && \
   echo "$result" && \
   echo "$result" | grep -q 'messages' && \
   echo "PASS" || (echo "FAIL" && exit 1)

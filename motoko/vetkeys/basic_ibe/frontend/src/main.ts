@@ -28,7 +28,7 @@ async function getBasicIbeActor(): Promise<Backend> {
     if (basicIbeActor) return basicIbeActor;
     const canisterId = canisterEnv?.["PUBLIC_CANISTER_ID:backend"];
     if (!canisterId) {
-        throw Error("Canister ID for basic_ibe is not set");
+        throw Error("Canister ID for backend is not set");
     }
     if (!authClient) {
         throw Error("Auth client is not initialized");
