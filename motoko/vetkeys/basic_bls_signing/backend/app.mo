@@ -10,7 +10,7 @@ import Nat8 "mo:core/Nat8";
 import VetKeys "mo:ic-vetkeys";
 import Order "mo:core/Order";
 
-shared persistent actor class (keyName : Text) = {
+shared actor class (keyName : Text) = {
     // Types
     type Signature = {
         message : Text;
@@ -71,7 +71,7 @@ shared persistent actor class (keyName : Text) = {
     };
 
     // Sign a message using BLS
-    public shared ({ caller }) func sign_message(message : Text) : async Blob {
+    public shared ({ caller }) func signMessage(message : Text) : async Blob {
         let signatureBytes = await VetKeys.ManagementCanister.signWithBls(
             Text.encodeUtf8(message),
             context(caller),
@@ -97,7 +97,7 @@ shared persistent actor class (keyName : Text) = {
     };
 
     // Get all signatures for the current caller
-    public shared query ({ caller }) func get_my_signatures() : async [Signature] {
+    public shared query ({ caller }) func getMySignatures() : async [Signature] {
         var callerSignatures = List.empty<Signature>();
 
         for ((key, value) in Map.entries(signatures)) {
@@ -110,7 +110,7 @@ shared persistent actor class (keyName : Text) = {
     };
 
     // Get verification key for the current caller
-    public shared ({ caller }) func get_my_verification_key() : async Blob {
+    public shared ({ caller }) func getMyVerificationKey() : async Blob {
         await VetKeys.ManagementCanister.blsPublicKey(
             null,
             context(caller),
