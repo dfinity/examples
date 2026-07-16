@@ -12,6 +12,14 @@ import Debug "mo:core/Debug";
 import Runtime "mo:core/Runtime";
 import VetKeys "mo:ic-vetkeys";
 
+// This canister combines the Encrypted Maps interface with extra metadata-aware
+// methods. Its public methods are intentionally snake_case (not the usual Motoko
+// camelCase): the standard Encrypted Maps methods are called by these exact names
+// by the `@icp-sdk/vetkeys` Encrypted Maps client, and the custom metadata
+// methods follow the same convention for a consistent interface — renaming to
+// camelCase would break the frontend. An upstream Motoko actor mixin that
+// generates the Encrypted Maps endpoint set automatically is in progress
+// (https://github.com/dfinity/vetkeys/pull/405).
 actor class (keyName : Text) {
 
   // Global state

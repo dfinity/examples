@@ -61,6 +61,8 @@ icp network stop
 
 An **Encrypted Maps**-enabled Motoko canister that stores encrypted passwords together with unencrypted metadata (URLs, tags) in atomic update calls.
 
+> **Note on naming.** The backend methods are snake_case (rather than the usual Motoko camelCase). The standard Encrypted Maps methods are called by these exact names by the `@icp-sdk/vetkeys` Encrypted Maps client, and the custom metadata methods follow the same convention — renaming them would break the frontend. An upstream Motoko actor mixin that generates the Encrypted Maps endpoint set automatically is in progress ([dfinity/vetkeys#405](https://github.com/dfinity/vetkeys/pull/405)).
+
 ### Frontend (`frontend/`)
 
 A **Svelte** application for managing vaults and passwords. It uses the `@icp-sdk/vetkeys` Encrypted Maps client for the crypto operations and a canister actor (bindings generated from `backend/backend.did` by the `@icp-sdk/bindgen` Vite plugin) for the metadata methods.
