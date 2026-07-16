@@ -1,8 +1,8 @@
-# VetKey Password Manager (Rust)
+# VetKey Password Manager (Motoko)
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/vetkeys/password_manager)
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/vetkeys/password_manager)
 
-Also available in: [Motoko](../../../motoko/vetkeys/password_manager)
+Also available in: [Rust](../../../rust/vetkeys/password_manager)
 
 The **VetKey Password Manager** is an example application demonstrating how to use **VetKeys** and **Encrypted Maps** to build a secure, decentralized password manager on the **Internet Computer (IC)**. This application allows users to create password vaults, store encrypted passwords, and share vaults with other users via their **Internet Identity Principal**.
 
@@ -18,7 +18,7 @@ The **VetKey Password Manager** is an example application demonstrating how to u
 
 - Install [Node.js](https://nodejs.org/en/download/)
 - Install [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
-- Install the [Rust toolchain](https://www.rust-lang.org/tools/install), then add the WASM target: `rustup target add wasm32-unknown-unknown`
+- Install [ic-mops](https://mops.one): `npm install -g ic-mops`
 
 ### (Optionally) choose a different master key
 
@@ -28,7 +28,7 @@ This example uses `test_key_1` by default. To use a different [available master 
 
 ```bash
 git clone https://github.com/dfinity/examples
-cd examples/rust/vetkeys/password_manager
+cd examples/motoko/vetkeys/password_manager
 ```
 
 ### Deploy
@@ -56,7 +56,7 @@ icp network stop
 
 ### Backend (`backend/`)
 
-An **Encrypted Maps**-enabled Rust canister that securely stores passwords.
+An **Encrypted Maps**-enabled Motoko canister that securely stores passwords.
 
 ### Frontend (`frontend/`)
 
@@ -68,6 +68,6 @@ This example dapp does not implement key rotation, which is strongly recommended
 
 ## Additional resources
 
-- **[Password Manager with Metadata](../password_manager_with_metadata)** — if you need to store additional metadata alongside passwords.
+- **[Password Manager with Metadata](../../../rust/vetkeys/password_manager_with_metadata)** — if you need to store additional metadata alongside passwords.
 - **[What are VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** — more information about VetKeys and VetKD.
 - [Security best practices](https://docs.internetcomputer.org/guides/security/overview)
