@@ -58,6 +58,8 @@ icp network stop
 
 An **Encrypted Maps**-enabled Rust canister that securely stores passwords.
 
+> **Note.** This backend is hand-written today. An upstream Rust macro that generates an entire Encrypted Maps canister in one line — `ic_vetkeys::export_encrypted_maps_canister!(...)` — is in progress ([dfinity/vetkeys#404](https://github.com/dfinity/vetkeys/pull/404)); it produces the same Candid interface with far less boilerplate.
+
 ### Frontend (`frontend/`)
 
 A **Svelte** application providing a user-friendly interface for managing vaults and passwords. It talks to the backend through the `@icp-sdk/vetkeys` Encrypted Maps client.
