@@ -77,10 +77,10 @@ icp build backend && candid-extractor target/wasm32-unknown-unknown/release/back
 
 ## Limitations
 
-This example dapp does not implement key rotation, which is strongly recommended in a production environment. Key rotation involves periodically changing encryption keys and re-encrypting data to enhance security. In a production dapp, key rotation would be useful to limit the impact of a potential key compromise, or to limit access when users are added to or removed from sharing.
+This example app does not implement key rotation, which is strongly recommended in a production environment. Key rotation involves periodically changing encryption keys and re-encrypting data to enhance security. In a production app, key rotation would be useful to limit the impact of a potential key compromise, or to limit access when users are added to or removed from sharing.
 
 ## Additional resources
 
 - **[Basic Password Manager](../password_manager)** — a simpler example without metadata.
 - **[What are VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** — more information about VetKeys and VetKD.
-- [Security best practices](https://docs.internetcomputer.org/guides/security/overview)
+- [Security best practices](https://docs.internetcomputer.org/guides/security/overview/)
