@@ -1,9 +1,8 @@
 canisters:
   - name: backend
     recipe:
-      type: "@dfinity/rust@v3.2.0"
+      type: "@dfinity/rust@v3.3.0"
       configuration:
-        package: encrypted_notes_backend
         candid: backend/backend.did
     init_args:
       type: text
