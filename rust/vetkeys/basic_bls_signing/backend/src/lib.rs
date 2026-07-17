@@ -105,7 +105,7 @@ async fn get_my_verification_key() -> VetKeyPublicKey {
 
 fn context(signer: &Principal) -> Vec<u8> {
     // A domain separator is not strictly necessary in this app, but having one is considered a good practice.
-    const DOMAIN_SEPARATOR: [u8; 22] = *b"basic_bls_signing_dapp";
+    const DOMAIN_SEPARATOR: [u8; 21] = *b"basic_bls_signing_app";
     const DOMAIN_SEPARATOR_LENGTH: u8 = DOMAIN_SEPARATOR.len() as u8;
     [DOMAIN_SEPARATOR_LENGTH]
         .into_iter()
