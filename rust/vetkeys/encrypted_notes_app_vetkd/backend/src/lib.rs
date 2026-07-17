@@ -63,7 +63,7 @@ impl Storable for NoteIds {
 // We use a canister's stable memory as storage. This simplifies the code and makes the appliation
 // more robust because no (potentially failing) pre_upgrade/post_upgrade hooks are needed.
 // Note that stable memory is less performant than heap memory, however.
-// Currently, a single canister smart contract is limited to 96 GB of stable memory.
+// Currently, a single canister is limited to 96 GB of stable memory.
 // For the current limits see https://internetcomputer.org/docs/current/developer-docs/production/resource-limits.
 // To ensure that our canister does not exceed the limit, we put various restrictions (e.g., number of users) in place.
 static MAX_USERS: u64 = 1_000;

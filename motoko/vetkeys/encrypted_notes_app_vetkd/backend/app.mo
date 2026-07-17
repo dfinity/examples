@@ -18,7 +18,7 @@ import Hex "./utils/Hex";
 // Bind the caller and the initializer
 shared ({ caller = initializer }) actor class (keyName: Text) {
 
-    // Currently, a single canister smart contract is limited to 4 GB of heap size.
+    // Currently, a single canister is limited to 4 GB of heap size.
     // For the current limits see https://internetcomputer.org/docs/current/developer-docs/production/resource-limits.
     // To ensure that our canister does not exceed the limit, we put various restrictions (e.g., max number of users) in place.
     // This should keep us well below a memory usage of 2 GB because

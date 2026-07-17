@@ -73,4 +73,5 @@ For most applications, the higher-level [`EncryptedMaps`](https://github.com/dfi
 ## Additional resources
 
 - **[What are VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** — more information about VetKeys and VetKD.
+- [Security checklist for this example](security-checklist.md)
 - [Security best practices](https://docs.internetcomputer.org/guides/security/overview)

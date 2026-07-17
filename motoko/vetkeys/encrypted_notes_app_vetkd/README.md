@@ -68,9 +68,10 @@ If you run into issues, clearing all the application-specific IndexedDBs in the 
 
 This example intentionally uses the **raw vetKD management canister API** (`encryptedSymmetricKeyForNote`, `symmetricKeyVerificationKeyForNote`) to demonstrate how vetKD works at the protocol level.
 
-For most applications, the higher-level [`EncryptedMaps`](https://github.com/dfinity/vetkeys/tree/main/frontend/ic_vetkeys/src/encrypted_maps) abstraction from `@icp-sdk/vetkeys` is the recommended approach — it handles key derivation, caching, and access control internally without requiring a custom crypto layer. See the **VetKD Password Manager** ([`../../../rust/vetkeys/password_manager`](../../../rust/vetkeys/password_manager)) and **Password Manager with Metadata** ([`../../../rust/vetkeys/password_manager_with_metadata`](../../../rust/vetkeys/password_manager_with_metadata)) examples for how `EncryptedMaps` is used in practice.
+For most applications, the higher-level [`EncryptedMaps`](https://github.com/dfinity/vetkeys/tree/main/frontend/ic_vetkeys/src/encrypted_maps) abstraction from `@icp-sdk/vetkeys` is the recommended approach — it handles key derivation, caching, and access control internally without requiring a custom crypto layer. See the **VetKD Password Manager** ([`../password_manager`](../password_manager)) and **Password Manager with Metadata** ([`../password_manager_with_metadata`](../password_manager_with_metadata)) examples for how `EncryptedMaps` is used in practice.
 
 ## Additional resources
 
 - **[What are VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** — more information about VetKeys and VetKD.
+- [Security checklist for this example](security-checklist.md)
 - [Security best practices](https://docs.internetcomputer.org/guides/security/overview)
