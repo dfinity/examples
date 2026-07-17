@@ -36,7 +36,7 @@ actor class (keyName : Text) = {
         }
     };
 
-    // Stable storage for signatures
+    // Signatures are retained across upgrades: this actor field is not declared `transient`.
     private var signatures = Map.empty<SignatureKey, Signature>();
 
     // Helper function to get current timestamp
