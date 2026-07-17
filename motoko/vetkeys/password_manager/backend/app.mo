@@ -14,7 +14,7 @@ import Array "mo:core/Array";
 // generates this endpoint set automatically is in progress
 // (https://github.com/dfinity/vetkeys/pull/405).
 actor class (keyName : Text) {
-    let encryptedMapsState = IcVetkeys.EncryptedMaps.newEncryptedMapsState<Types.AccessRights>({ curve = #bls12_381_g2; name = keyName }, "password_manager_example_dapp");
+    let encryptedMapsState = IcVetkeys.EncryptedMaps.newEncryptedMapsState<Types.AccessRights>({ curve = #bls12_381_g2; name = keyName }, "password_manager_example_app");
     transient let encryptedMaps = IcVetkeys.EncryptedMaps.EncryptedMaps<Types.AccessRights>(encryptedMapsState, Types.accessRightsOperations());
 
     /// In this canister, we use the `ByteBuf` type to represent blobs. The reason is that we want to be consistent with the Rust canister implementation.
