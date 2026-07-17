@@ -23,7 +23,7 @@ import VetKeys "mo:ic-vetkeys";
 actor class (keyName : Text) {
 
   // Global state
-  let encryptedMapsState = VetKeys.EncryptedMaps.newEncryptedMapsState<VetKeys.AccessRights>({ curve = #bls12_381_g2; name = keyName }, "password_manager_example_dapp");
+  let encryptedMapsState = VetKeys.EncryptedMaps.newEncryptedMapsState<VetKeys.AccessRights>({ curve = #bls12_381_g2; name = keyName }, "password_manager_example_app");
   transient let encryptedMaps = VetKeys.EncryptedMaps.EncryptedMaps<VetKeys.AccessRights>(encryptedMapsState, VetKeys.accessRightsOperations());
 
   func compareMetadataKeys(a : MetadataKey, b : MetadataKey) : {
