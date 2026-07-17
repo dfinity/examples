@@ -19,14 +19,14 @@ import Hex "./utils/Hex";
 shared ({ caller = initializer }) actor class (keyName: Text) {
 
     // Currently, a single canister is limited to 4 GB of heap size.
-    // For the current limits see https://internetcomputer.org/docs/current/developer-docs/production/resource-limits.
+    // For the current limits see https://docs.internetcomputer.org/references/resource-limits.
     // To ensure that our canister does not exceed the limit, we put various restrictions (e.g., max number of users) in place.
     // This should keep us well below a memory usage of 2 GB because
     // up to 2x memory may be needed for data serialization during canister upgrades.
     // This is sufficient for this proof-of-concept, but in a production environment the actual
     // memory usage must be calculated or monitored and the various restrictions adapted accordingly.
 
-    // Define dapp limits - important for security assurance
+    // Define app limits - important for security assurance
     private transient let MAX_USERS = 500;
     private transient let MAX_NOTES_PER_USER = 200;
     private transient let MAX_NOTE_CHARS = 1000;
@@ -49,15 +49,14 @@ shared ({ caller = initializer }) actor class (keyName: Text) {
         users : [PrincipalName];
     };
 
-    // Define private fields
-    // Stable actor fields are automatically retained across canister upgrades.
-    // See https://internetcomputer.org/docs/current/motoko/main/upgrades/
+    // Define private fields.
+    // Non-`transient` actor fields are automatically retained across canister upgrades.
 
     // Design choice: Use globally unique note identifiers for all users.
     //
-    // The keyword `stable` makes this (scalar) variable keep its value across canister upgrades.
+    // This variable is retained across upgrades because it is not declared `transient`.
     //
-    // See https://internetcomputer.org/docs/current/developer-docs/setup/manage-canisters#upgrade-a-canister
+    // See https://docs.internetcomputer.org/guides/canister-management/lifecycle/#upgrade-a-canister
     private var nextNoteId : Nat = 1;
 
     // Store notes by their ID, so that note-specific encryption keys can be derived.
@@ -67,14 +66,12 @@ shared ({ caller = initializer }) actor class (keyName: Text) {
     // Store which notes are shared with a particular principal. Does not include the owner, as this is tracked by `noteIdsByOwner`.
     private transient var noteIdsByUser = Map.empty<PrincipalName, PureList.List<NoteId>>();
 
-    // While accessing _heap_ data is more efficient, we use the following _stable memory_
-    // as a buffer to preserve data across canister upgrades.
-    // Stable memory is currently 96GB. For the current limits see
-    // https://internetcomputer.org/docs/current/developer-docs/production/resource-limits.
-    // See also: [preupgrade], [postupgrade]
-    private var stable_notesById : [(NoteId, EncryptedNote)] = [];
-    private var stable_noteIdsByOwner : [(PrincipalName, PureList.List<NoteId>)] = [];
-    private var stable_noteIdsByUser : [(PrincipalName, PureList.List<NoteId>)] = [];
+    // The maps above are `transient` (not retained across upgrades), so we snapshot
+    // them into the retained buffer arrays below during `preupgrade` and restore
+    // them in `postupgrade`.
+    private var notesByIdBackup : [(NoteId, EncryptedNote)] = [];
+    private var noteIdsByOwnerBackup : [(PrincipalName, PureList.List<NoteId>)] = [];
+    private var noteIdsByUserBackup : [(PrincipalName, PureList.List<NoteId>)] = [];
 
     // Utility function that helps writing assertion-driven code more concisely.
     private func expect<T>(opt : ?T, violation_msg : Text) : T {
@@ -99,7 +96,7 @@ shared ({ caller = initializer }) actor class (keyName: Text) {
     // Shared functions, i.e., those specified with [shared], are
     // accessible to remote callers.
     // The extra parameter [caller] is the caller's principal
-    // See https://internetcomputer.org/docs/current/motoko/main/actors-async
+    // See https://docs.internetcomputer.org/languages/motoko/fundamentals/actors/actors-async
 
     // Add new empty note for this [caller].
     //
@@ -142,11 +139,11 @@ shared ({ caller = initializer }) actor class (keyName: Text) {
     // Note that this method is declared as an *update* call (see `shared`) rather than *query*.
     //
     // While queries are significantly faster than updates, they are not certified by the IC.
-    // Thus, we avoid using queries throughout this dapp, ensuring that the result of our
+    // Thus, we avoid using queries throughout this app, ensuring that the result of our
     // functions gets through consensus. Otherwise, this function could e.g. omit some notes
-    // if it got executed by a malicious node. (To make the dapp more efficient, one could
+    // if it got executed by a malicious node. (To make the app more efficient, one could
     // use an approach in which both queries and updates are combined.)
-    // See https://internetcomputer.org/docs/current/concepts/canisters-code#query-and-update-methods
+    // See https://docs.internetcomputer.org/guides/canister-calls/calling-from-clients/#query-vs-update-calls
     //
     // Returns:
     //      Future of array of EncryptedNote
@@ -363,39 +360,38 @@ shared ({ caller = initializer }) actor class (keyName: Text) {
     };
 
     // Below, we implement the upgrade hooks for our canister.
-    // See https://internetcomputer.org/docs/current/motoko/main/upgrades/
 
     // The work required before a canister upgrade begins.
     system func preupgrade() {
         Debug.print("Starting pre-upgrade hook...");
-        stable_notesById := Iter.toArray(Map.entries(notesById));
-        stable_noteIdsByOwner := Iter.toArray(Map.entries(noteIdsByOwner));
-        stable_noteIdsByUser := Iter.toArray(Map.entries(noteIdsByUser));
+        notesByIdBackup := Iter.toArray(Map.entries(notesById));
+        noteIdsByOwnerBackup := Iter.toArray(Map.entries(noteIdsByOwner));
+        noteIdsByUserBackup := Iter.toArray(Map.entries(noteIdsByUser));
         Debug.print("pre-upgrade finished.");
     };
 
-    // The work required after a canister upgrade ends.
-    // See [nextNoteId], [stable_notesByUser]
+    // The work required after a canister upgrade ends: restore the transient maps
+    // from the retained backup buffers.
     system func postupgrade() {
         Debug.print("Starting post-upgrade hook...");
 
         notesById := Map.fromIter(
-            stable_notesById.values(),
+            notesByIdBackup.values(),
             Nat.compare,
         );
-        stable_notesById := [];
+        notesByIdBackup := [];
 
         noteIdsByOwner := Map.fromIter(
-            stable_noteIdsByOwner.values(),
+            noteIdsByOwnerBackup.values(),
             Text.compare,
         );
-        stable_noteIdsByOwner := [];
+        noteIdsByOwnerBackup := [];
 
         noteIdsByUser := Map.fromIter(
-            stable_noteIdsByUser.values(),
+            noteIdsByUserBackup.values(),
             Text.compare,
         );
-        stable_noteIdsByUser := [];
+        noteIdsByUserBackup := [];
 
         Debug.print("post-upgrade finished.");
     };

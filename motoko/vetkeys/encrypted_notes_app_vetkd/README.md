@@ -4,9 +4,9 @@
 
 Also available in: [Rust](../../../rust/vetkeys/encrypted_notes_app_vetkd)
 
-Encrypted notes is an example dapp for authoring and storing confidential information on the Internet Computer (ICP) in the form of short pieces of text. Users can create and access their notes via any number of automatically synchronized devices authenticated via Internet Identity (II). Notes are stored confidentially using vetKeys. The end-to-end encryption is performed by the dapp's frontend.
+Encrypted notes is an example app for authoring and storing confidential information on the Internet Computer (ICP) in the form of short pieces of text. Users can create and access their notes via any number of automatically synchronized devices authenticated via Internet Identity (II). Notes are stored confidentially using vetKeys. The end-to-end encryption is performed by the app's frontend.
 
-In particular, the notes are encrypted with an AES key that is derived (directly in the browser) from a note-ID-specific vetKey obtained from the backend canister (in encrypted form, using an ephemeral transport key), which itself obtains it from the vetKD system API. This way, there is no need for any device management in the dapp, plus sharing of notes becomes possible.
+In particular, the notes are encrypted with an AES key that is derived (directly in the browser) from a note-ID-specific vetKey obtained from the backend canister (in encrypted form, using an ephemeral transport key), which itself obtains it from the vetKD system API. This way, there is no need for any device management in the app, plus sharing of notes becomes possible.
 
 The vetKey used to encrypt and decrypt a note is note-ID-specific (and not, for example, principal-specific) to enable the sharing of notes between users. The derived AES keys are stored as non-extractable CryptoKeys in an IndexedDB in the browser for efficiency so that their respective vetKey only has to be fetched from the server once.
 
@@ -58,7 +58,7 @@ A **Svelte** application providing a user-friendly interface for managing encryp
 
 ## Limitations
 
-This example dapp does not implement key rotation, which is strongly recommended in a production environment.
+This example app does not implement key rotation, which is strongly recommended in a production environment.
 
 ## Troubleshooting
 
@@ -74,4 +74,4 @@ For most applications, the higher-level [`EncryptedMaps`](https://github.com/dfi
 
 - **[What are VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** — more information about VetKeys and VetKD.
 - [Security checklist for this example](security-checklist.md)
-- [Security best practices](https://docs.internetcomputer.org/guides/security/overview)
+- [Security best practices](https://docs.internetcomputer.org/guides/security/overview/)

@@ -1,6 +1,6 @@
 # Security checklist (Rust)
 
-These notes summarize how this example's **Rust** backend addresses the security considerations most relevant to a vetKeys dapp. They follow the broader [IC security best practices](https://internetcomputer.org/docs/building-apps/security/overview), which are more exhaustive — a production dapp should still perform its own review.
+These notes summarize how this example's **Rust** backend addresses the security considerations most relevant to a vetKeys app. They follow the broader [IC security best practices](https://docs.internetcomputer.org/guides/security/overview/), which are more exhaustive — a production app should still perform its own review.
 
 ## Authentication
 
@@ -19,7 +19,7 @@ These notes summarize how this example's **Rust** backend addresses the security
 - Notes are encrypted in the browser; the canister only ever stores ciphertext.
 - Encryption uses a fresh random IV per message (no deterministic encryption).
 - Derived keys are stored as non-extractable `CryptoKey`s in IndexedDB.
-- *Future:* shorten the Internet Identity delegation lifetime for a security-sensitive dapp, and rotate encryption keys periodically.
+- *Future:* shorten the Internet Identity delegation lifetime for a security-sensitive app, and rotate encryption keys periodically.
 
 ## vetKD and inter-canister calls
 
