@@ -64,6 +64,14 @@ An **Encrypted Maps**-enabled Rust canister that securely stores passwords.
 
 A **Svelte** application providing a user-friendly interface for managing vaults and passwords. It talks to the backend through the `@icp-sdk/vetkeys` Encrypted Maps client.
 
+## Updating the Candid interface
+
+`backend/backend.did` defines the backend's public interface. If you change the backend's public API, regenerate it:
+
+```bash
+icp build backend && candid-extractor target/wasm32-unknown-unknown/release/backend.wasm > backend/backend.did
+```
+
 ## Limitations
 
 This example dapp does not implement key rotation, which is strongly recommended in a production environment. Key rotation involves periodically changing encryption keys and re-encrypting data to enhance security. In a production dapp, key rotation would be useful to limit the impact of a potential key compromise, or to limit access when users are added to or removed from sharing.

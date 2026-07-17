@@ -1,5 +1,5 @@
 [package]
-name = "ic-vetkeys-encrypted-maps-canister"
+name = "backend"
 authors = ["DFINITY Stiftung"]
 version = "0.1.0"
 edition = "2021"
