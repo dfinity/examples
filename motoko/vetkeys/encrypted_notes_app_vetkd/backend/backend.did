@@ -1,4 +1,4 @@
-type _anon_class_19_1 = 
+type _anon_class_17_1 = 
  service {
    addUser: (note_id: NoteId, user: PrincipalName) -> ();
    createNote: () -> (NoteId);
@@ -20,4 +20,4 @@ type EncryptedNote =
    owner: PrincipalName;
    users: vec PrincipalName;
  };
-service : (keyName: text) -> _anon_class_19_1
+service : (keyName: text) -> _anon_class_17_1

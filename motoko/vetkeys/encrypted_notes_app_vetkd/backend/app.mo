@@ -3,13 +3,11 @@ import Text "mo:core/Text";
 import Array "mo:core/Array";
 import List "mo:core/List";
 import PureList "mo:core/pure/List";
-import Iter "mo:core/Iter";
 import Nat "mo:core/Nat";
 import Nat8 "mo:core/Nat8";
 import Bool "mo:core/Bool";
 import Principal "mo:core/Principal";
 import Option "mo:core/Option";
-import Debug "mo:core/Debug";
 import Runtime "mo:core/Runtime";
 import Blob "mo:core/Blob";
 import Hex "./utils/Hex";
@@ -50,28 +48,21 @@ shared ({ caller = initializer }) actor class (keyName: Text) {
     };
 
     // Define private fields.
-    // Non-`transient` actor fields are automatically retained across canister upgrades.
-
-    // Design choice: Use globally unique note identifiers for all users.
-    //
-    // This variable is retained across upgrades because it is not declared `transient`.
+    // Actor fields are automatically retained across canister upgrades unless
+    // declared `transient` (enhanced orthogonal persistence), so no `preupgrade`/
+    // `postupgrade` hooks are needed to persist the state below.
     //
     // See https://docs.internetcomputer.org/guides/canister-management/lifecycle/#upgrade-a-canister
+
+    // Design choice: Use globally unique note identifiers for all users.
     private var nextNoteId : Nat = 1;
 
     // Store notes by their ID, so that note-specific encryption keys can be derived.
-    private transient var notesById = Map.empty<NoteId, EncryptedNote>();
+    private var notesById = Map.empty<NoteId, EncryptedNote>();
     // Store which note IDs are owned by a particular principal
-    private transient var noteIdsByOwner = Map.empty<PrincipalName, PureList.List<NoteId>>();
+    private var noteIdsByOwner = Map.empty<PrincipalName, PureList.List<NoteId>>();
     // Store which notes are shared with a particular principal. Does not include the owner, as this is tracked by `noteIdsByOwner`.
-    private transient var noteIdsByUser = Map.empty<PrincipalName, PureList.List<NoteId>>();
-
-    // The maps above are `transient` (not retained across upgrades), so we snapshot
-    // them into the retained buffer arrays below during `preupgrade` and restore
-    // them in `postupgrade`.
-    private var notesByIdBackup : [(NoteId, EncryptedNote)] = [];
-    private var noteIdsByOwnerBackup : [(PrincipalName, PureList.List<NoteId>)] = [];
-    private var noteIdsByUserBackup : [(PrincipalName, PureList.List<NoteId>)] = [];
+    private var noteIdsByUser = Map.empty<PrincipalName, PureList.List<NoteId>>();
 
     // Utility function that helps writing assertion-driven code more concisely.
     private func expect<T>(opt : ?T, violation_msg : Text) : T {
@@ -357,42 +348,5 @@ shared ({ caller = initializer }) actor class (keyName: Text) {
             Nat8.fromIntWrap(n / 2 ** shift);
         };
         Array.tabulate<Nat8>(len, ith_byte);
-    };
-
-    // Below, we implement the upgrade hooks for our canister.
-
-    // The work required before a canister upgrade begins.
-    system func preupgrade() {
-        Debug.print("Starting pre-upgrade hook...");
-        notesByIdBackup := Iter.toArray(Map.entries(notesById));
-        noteIdsByOwnerBackup := Iter.toArray(Map.entries(noteIdsByOwner));
-        noteIdsByUserBackup := Iter.toArray(Map.entries(noteIdsByUser));
-        Debug.print("pre-upgrade finished.");
-    };
-
-    // The work required after a canister upgrade ends: restore the transient maps
-    // from the retained backup buffers.
-    system func postupgrade() {
-        Debug.print("Starting post-upgrade hook...");
-
-        notesById := Map.fromIter(
-            notesByIdBackup.values(),
-            Nat.compare,
-        );
-        notesByIdBackup := [];
-
-        noteIdsByOwner := Map.fromIter(
-            noteIdsByOwnerBackup.values(),
-            Text.compare,
-        );
-        noteIdsByOwnerBackup := [];
-
-        noteIdsByUser := Map.fromIter(
-            noteIdsByUserBackup.values(),
-            Text.compare,
-        );
-        noteIdsByUserBackup := [];
-
-        Debug.print("post-upgrade finished.");
     };
 };
