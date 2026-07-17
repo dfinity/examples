@@ -46,7 +46,7 @@ actor class (keyName : Text) = {
 
     // Helper function to create context for vetKD
     private func context(signer : Principal) : Blob {
-        // Domain separator for this dapp
+        // Domain separator for this app
         let domainSeparator : [Nat8] = Blob.toArray(Text.encodeUtf8("basic_bls_signing_dapp"));
         let domainSeparatorLength : [Nat8] = [Nat8.fromNat(domainSeparator.size())]; // Length of domain separator
 
