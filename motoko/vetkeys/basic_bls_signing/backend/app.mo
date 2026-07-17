@@ -10,7 +10,7 @@ import Nat8 "mo:core/Nat8";
 import VetKeys "mo:ic-vetkeys";
 import Order "mo:core/Order";
 
-persistent actor class (keyName : Text) = {
+actor class (keyName : Text) = {
     // Types
     type Signature = {
         message : Text;
