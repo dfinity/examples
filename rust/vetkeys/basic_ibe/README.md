@@ -74,7 +74,7 @@ A vanilla TypeScript application providing a simple interface for sending, recei
 `backend/backend.did` defines the backend's public interface; the frontend bindings are generated from it during the build. If you change the backend's public API, regenerate it:
 
 ```bash
-cd backend && make extract-candid
+icp build backend && candid-extractor target/wasm32-unknown-unknown/release/backend.wasm > backend/backend.did
 ```
 
 ## Limitations
