@@ -1,5 +1,5 @@
 [package]
-name = "ic-vetkeys-example-basic-bls-signing-backend"
+name = "backend"
 authors = ["DFINITY Stiftung"]
 version = "0.1.0"
 edition = "2021"
