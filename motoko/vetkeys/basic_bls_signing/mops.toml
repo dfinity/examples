@@ -9,7 +9,7 @@ ic-vetkeys = "0.5.0"
 # M0236: use context dot notation
 # M0237: redundant explicit implicit arguments
 # M0223: redundant type instantiation
-args = ["--default-persistent-actors", "-W=M0236,M0237,M0223"]
+args = ["-W=M0236,M0237,M0223"]
 
 [canisters.backend]
 main = "backend/app.mo"
