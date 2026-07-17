@@ -79,9 +79,9 @@ mops generate candid backend
 
 ## Limitations
 
-This example dapp does not implement key rotation, which is strongly recommended in a production dapp to limit the impact of a potential key compromise if a malicious party gains access to a user's decryption key.
+This example app does not implement key rotation, which is strongly recommended in a production app to limit the impact of a potential key compromise if a malicious party gains access to a user's decryption key.
 
 ## Additional resources
 
 - **[What are VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** — more information about VetKeys and VetKD.
-- [Security best practices](https://docs.internetcomputer.org/guides/security/overview)
+- [Security best practices](https://docs.internetcomputer.org/guides/security/overview/)
