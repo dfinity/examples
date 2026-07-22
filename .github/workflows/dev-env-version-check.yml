@@ -22,7 +22,7 @@ jobs:
       - name: Compare dev-env image versions
         run: |
           devcontainer_version=$(jq -r '.image' .devcontainer/devcontainer.json | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
-          ci_version=$(grep -E 'container:.*icp-dev-env' .github/workflows/_run-example.yml | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+          ci_version=$(grep -m1 -E '^[[:space:]]*container:[[:space:]]*ghcr\.io/dfinity/icp-dev-env' .github/workflows/_run-example.yml | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
           echo "devcontainer.json: ${devcontainer_version:-<none>}"
           echo "_run-example.yml:   ${ci_version:-<none>}"
           if [ -z "$devcontainer_version" ] || [ -z "$ci_version" ]; then
