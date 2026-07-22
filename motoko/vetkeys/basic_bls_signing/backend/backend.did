@@ -1,0 +1,13 @@
+type _anon_class_13_1 = 
+ service {
+   getMySignatures: () -> (vec Signature) query;
+   getMyVerificationKey: () -> (blob);
+   signMessage: (message: text) -> (blob);
+ };
+type Signature = 
+ record {
+   message: text;
+   signature: blob;
+   timestamp: nat64;
+ };
+service : (keyName: text) -> _anon_class_13_1

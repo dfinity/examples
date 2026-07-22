@@ -155,7 +155,7 @@ document.getElementById("signMessageButton")!.addEventListener("click", () => {
     const message = prompt("Enter message to sign:");
     if (message) {
       try {
-        await (await getBasicBlsSigningActor()).sign_message(message);
+        await (await getBasicBlsSigningActor()).signMessage(message);
         alert("Created and stored signature successfully.");
       } catch (error) {
         alert(`Error: ${error as Error}`);
@@ -215,7 +215,7 @@ document
 
 async function listSignatures() {
   const actor = await getBasicBlsSigningActor();
-  const signatures: Array<Signature> = await actor.get_my_signatures();
+  const signatures: Array<Signature> = await actor.getMySignatures();
   const signaturesDiv = document.getElementById("signatures")!;
   signaturesDiv.innerHTML = "";
 
@@ -227,7 +227,7 @@ async function listSignatures() {
       `;
   } else {
     if (!myVerificationKey) {
-      const myVerificationKeyRaw = await actor.get_my_verification_key();
+      const myVerificationKeyRaw = await actor.getMyVerificationKey();
       myVerificationKey = DerivedPublicKey.deserialize(
         Uint8Array.from(myVerificationKeyRaw),
       );

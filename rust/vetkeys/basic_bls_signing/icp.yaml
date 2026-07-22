@@ -1,21 +1,21 @@
 canisters:
-  - name: basic_bls_signing
+  - name: backend
     recipe:
-      type: "@dfinity/rust@v3.2.0"
+      type: "@dfinity/rust@v3.3.0"
       configuration:
-        package: ic-vetkeys-example-basic-bls-signing-backend
         candid: backend/backend.did
     init_args:
       type: text
       value: "(\"test_key_1\")"
 
-  - name: www
+  - name: frontend
     recipe:
       type: "@dfinity/asset-canister@v2.2.1"
       configuration:
-        dir: dist
+        dir: frontend/dist
         build:
-          - cd frontend && npm i --include=dev && npm run build && cd - && rm -rf dist; mv frontend/dist ./
+          - npm install --prefix frontend
+          - npm run build --prefix frontend
 
 networks:
   - name: local
