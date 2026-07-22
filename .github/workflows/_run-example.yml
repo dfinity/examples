@@ -7,8 +7,8 @@
 # directory, and the commands to run. Example:
 #
 #   jobs:
-#     motoko:
-#       uses: ./.github/workflows/run-example.yml
+#     motoko-hello_world:
+#       uses: ./.github/workflows/_run-example.yml
 #       with:
 #         language: motoko
 #         working-directory: motoko/hello_world
@@ -16,6 +16,9 @@
 #           icp network start -d
 #           icp deploy
 #           bash test.sh
+#
+# Examples that need a PocketIC server for integration tests set
+# install-pocketic: true (optionally overriding pocketic-version).
 name: run-example
 
 on:
@@ -35,6 +38,14 @@ on:
         default: |
           icp network start -d
           icp deploy
+      install-pocketic:
+        description: "Install the PocketIC server before running the commands"
+        type: boolean
+        default: false
+      pocketic-version:
+        description: "PocketIC server version to install when install-pocketic is true"
+        type: string
+        default: "15.0.0"
 
 jobs:
   run:
@@ -44,6 +55,11 @@ jobs:
       ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Install PocketIC server
+        if: ${{ inputs.install-pocketic }}
+        uses: dfinity/pocketic@a980c334fab1b21b0b8a6bba38e1a10836e7258b # main
+        with:
+          pocket-ic-server-version: ${{ inputs.pocketic-version }}
       - name: Run
         working-directory: ${{ inputs.working-directory }}
         run: ${{ inputs.run }}

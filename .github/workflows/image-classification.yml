@@ -8,6 +8,7 @@ on:
     paths:
       - rust/image-classification/**
       - .github/workflows/image-classification.yml
+      - .github/workflows/_run-example.yml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -15,25 +16,16 @@ concurrency:
 
 jobs:
   rust-image-classification:
-    runs-on: ubuntu-24.04
-    container: ghcr.io/dfinity/icp-dev-env-rust:1.0.1
-    env:
-      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-      - name: Install wasm32-wasip1 target
-        run: rustup target add wasm32-wasip1
-      - name: Install wasi2ic
-        run: |
-          apt-get update && apt-get install -y --no-install-recommends build-essential
-          git clone https://github.com/wasm-forge/wasi2ic /tmp/wasi2ic
-          cargo install --path /tmp/wasi2ic --locked
-      - name: Download model
-        working-directory: rust/image-classification
-        run: ./download_model.sh
-      - name: Deploy and test
-        working-directory: rust/image-classification
-        run: |
-          icp network start -d
-          icp deploy
-          bash test.sh
+    uses: ./.github/workflows/_run-example.yml
+    with:
+      language: rust
+      working-directory: rust/image-classification
+      run: |
+        rustup target add wasm32-wasip1
+        apt-get update && apt-get install -y --no-install-recommends build-essential
+        git clone https://github.com/wasm-forge/wasi2ic /tmp/wasi2ic
+        cargo install --path /tmp/wasi2ic --locked
+        ./download_model.sh
+        icp network start -d
+        icp deploy
+        bash test.sh

@@ -8,6 +8,7 @@ on:
       - motoko/send_http_post/**
       - rust/send_http_post/**
       - .github/workflows/send_http_post.yml
+      - .github/workflows/_run-example.yml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -15,29 +16,21 @@ concurrency:
 
 jobs:
   motoko-send_http_post:
-    runs-on: ubuntu-24.04
-    container: ghcr.io/dfinity/icp-dev-env-motoko:1.0.1
-    env:
-      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-      - name: Deploy and test
-        working-directory: motoko/send_http_post
-        run: |
-          icp network start -d
-          icp deploy
-          bash test.sh
+    uses: ./.github/workflows/_run-example.yml
+    with:
+      language: motoko
+      working-directory: motoko/send_http_post
+      run: |
+        icp network start -d
+        icp deploy
+        bash test.sh
 
   rust-send_http_post:
-    runs-on: ubuntu-24.04
-    container: ghcr.io/dfinity/icp-dev-env-rust:1.0.1
-    env:
-      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-      - name: Deploy and test
-        working-directory: rust/send_http_post
-        run: |
-          icp network start -d
-          icp deploy
-          bash test.sh
+    uses: ./.github/workflows/_run-example.yml
+    with:
+      language: rust
+      working-directory: rust/send_http_post
+      run: |
+        icp network start -d
+        icp deploy
+        bash test.sh

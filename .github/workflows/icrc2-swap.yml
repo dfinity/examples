@@ -7,6 +7,7 @@ on:
     paths:
       - motoko/icrc2-swap/**
       - .github/workflows/icrc2-swap.yml
+      - .github/workflows/_run-example.yml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -14,15 +15,11 @@ concurrency:
 
 jobs:
   motoko-icrc2-swap:
-    runs-on: ubuntu-24.04
-    container: ghcr.io/dfinity/icp-dev-env-motoko:1.0.1
-    env:
-      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-      - name: Deploy and test
-        working-directory: motoko/icrc2-swap
-        run: |
-          icp network start -d
-          bash deploy.sh
-          bash test.sh
+    uses: ./.github/workflows/_run-example.yml
+    with:
+      language: motoko
+      working-directory: motoko/icrc2-swap
+      run: |
+        icp network start -d
+        bash deploy.sh
+        bash test.sh

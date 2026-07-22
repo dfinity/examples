@@ -7,6 +7,7 @@ on:
     paths:
       - rust/unit_testable_rust_canister/**
       - .github/workflows/unit_testable_rust_canister.yml
+      - .github/workflows/_run-example.yml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -14,27 +15,15 @@ concurrency:
 
 jobs:
   rust-unit_testable_rust_canister:
-    runs-on: ubuntu-24.04
-    container: ghcr.io/dfinity/icp-dev-env-rust:1.0.1
-    env:
-      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-      - name: Unit tests
-        working-directory: rust/unit_testable_rust_canister
-        run: cargo test --package backend --lib
-      - name: Install PocketIC server
-        uses: dfinity/pocketic@a980c334fab1b21b0b8a6bba38e1a10836e7258b # main
-        with:
-          pocket-ic-server-version: "15.0.0"
-      - name: Build WASM and run PocketIC integration tests
-        working-directory: rust/unit_testable_rust_canister
-        run: |
-          cargo build --package backend --target wasm32-unknown-unknown --release
-          cargo test --package backend --test integration_tests
-      - name: Deploy and test
-        working-directory: rust/unit_testable_rust_canister
-        run: |
-          icp network start -d
-          icp deploy
-          bash test.sh
+    uses: ./.github/workflows/_run-example.yml
+    with:
+      language: rust
+      working-directory: rust/unit_testable_rust_canister
+      run: |
+        cargo test --package backend --lib
+        cargo build --package backend --target wasm32-unknown-unknown --release
+        cargo test --package backend --test integration_tests
+        icp network start -d
+        icp deploy
+        bash test.sh
+      install-pocketic: true
