@@ -1,0 +1,36 @@
+# Guards that the dev-env image version is consistent across the two places it
+# is defined: the CI reusable workflow (run-example.yml) and the devcontainer
+# (.devcontainer/devcontainer.json). Fails the PR if they drift apart.
+name: dev-env-version-check
+
+on:
+  pull_request:
+    paths:
+      - .devcontainer/devcontainer.json
+      - .github/workflows/run-example.yml
+      - .github/workflows/dev-env-version-check.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Compare dev-env image versions
+        run: |
+          devcontainer_version=$(jq -r '.image' .devcontainer/devcontainer.json | grep -oE '[0-9]+\.[0-9]+\.[0-9]+')
+          ci_version=$(grep -E 'container:.*icp-dev-env' .github/workflows/run-example.yml | grep -oE '[0-9]+\.[0-9]+\.[0-9]+' | head -1)
+          echo "devcontainer.json: ${devcontainer_version:-<none>}"
+          echo "run-example.yml:   ${ci_version:-<none>}"
+          if [ -z "$devcontainer_version" ] || [ -z "$ci_version" ]; then
+            echo "::error::Could not extract a dev-env image version from one of the files."
+            exit 1
+          fi
+          if [ "$devcontainer_version" != "$ci_version" ]; then
+            echo "::error::dev-env image version mismatch: devcontainer.json=$devcontainer_version vs run-example.yml=$ci_version. Update both to the same version."
+            exit 1
+          fi
+          echo "dev-env image versions are consistent ($ci_version)."

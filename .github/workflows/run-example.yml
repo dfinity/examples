@@ -1,0 +1,49 @@
+# Reusable workflow that runs an example's CI steps inside the ICP dev-env container.
+#
+# This is the single source of truth for the dev-env image version used in CI.
+# It is kept in sync with .devcontainer/devcontainer.json by dev-env-version-check.yml.
+#
+# Callers provide the language (which selects the image variant), the working
+# directory, and the commands to run. Example:
+#
+#   jobs:
+#     motoko:
+#       uses: ./.github/workflows/run-example.yml
+#       with:
+#         language: motoko
+#         working-directory: motoko/hello_world
+#         run: |
+#           icp network start -d
+#           icp deploy
+#           bash test.sh
+name: run-example
+
+on:
+  workflow_call:
+    inputs:
+      language:
+        description: "Dev-env image variant to run in: motoko | rust | all"
+        type: string
+        required: true
+      working-directory:
+        description: "Path to the example directory to run the commands in"
+        type: string
+        required: true
+      run:
+        description: "Commands to execute inside the dev-env container"
+        type: string
+        default: |
+          icp network start -d
+          icp deploy
+
+jobs:
+  run:
+    runs-on: ubuntu-24.04
+    container: ghcr.io/dfinity/icp-dev-env-${{ inputs.language }}:1.1.0
+    env:
+      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+      - name: Run
+        working-directory: ${{ inputs.working-directory }}
+        run: ${{ inputs.run }}
