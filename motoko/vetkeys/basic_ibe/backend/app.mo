@@ -10,11 +10,11 @@ import Nat "mo:core/Nat";
 import Result "mo:core/Result";
 import Int "mo:core/Int";
 
-persistent actor class (keyNameString : Text) {
+actor class (keyNameString : Text) {
   // Types
   type Message = {
     sender : Principal;
-    encrypted_message : Blob;
+    encryptedMessage : Blob;
     timestamp : Nat64;
   };
 
@@ -24,7 +24,7 @@ persistent actor class (keyNameString : Text) {
 
   type SendMessageRequest = {
     receiver : Principal;
-    encrypted_message : Blob;
+    encryptedMessage : Blob;
   };
 
   type Result<T, E> = {
@@ -32,6 +32,8 @@ persistent actor class (keyNameString : Text) {
     #Err : E;
   };
 
+  // vetKD management canister interface. These names are the fixed system API
+  // contract (snake_case), so they are kept as-is rather than camelCased.
   type VetKdKeyId = {
     curve : { #bls12_381_g2 };
     name : Text;
@@ -68,33 +70,33 @@ persistent actor class (keyNameString : Text) {
   let vetKdSystemApi : VetKdSystemApi = actor ("aaaaa-aa");
 
   // Send a message to a receiver
-  public shared ({ caller }) func send_message(request : SendMessageRequest) : async Result<(), Text> {
+  public shared ({ caller }) func sendMessage(request : SendMessageRequest) : async Result<(), Text> {
     let message : Message = {
       sender = caller;
-      encrypted_message = request.encrypted_message;
+      encryptedMessage = request.encryptedMessage;
       timestamp = Nat64.fromNat(Int.abs(Time.now()));
     };
 
     let receiver = request.receiver;
-    let current_inbox = switch (Map.get(inboxes, Principal.compare, receiver)) {
+    let currentInbox = switch (Map.get(inboxes, Principal.compare, receiver)) {
       case (?inbox) { inbox };
       case null { { messages = [] } };
     };
 
-    if (current_inbox.messages.size() >= MAX_MESSAGES_PER_INBOX) {
+    if (currentInbox.messages.size() >= MAX_MESSAGES_PER_INBOX) {
       return #Err("Inbox for " # Principal.toText(receiver) # " is full");
     };
-  
-    let new_messages = Array.concat(current_inbox.messages, [message]);
-    let new_inbox : Inbox = { messages = new_messages };
-    ignore Map.insert(inboxes, Principal.compare, receiver, new_inbox);
+
+    let newMessages = Array.concat(currentInbox.messages, [message]);
+    let newInbox : Inbox = { messages = newMessages };
+    ignore Map.insert(inboxes, Principal.compare, receiver, newInbox);
 
     #Ok();
   };
 
   // Get the IBE public key
-  public shared func get_ibe_public_key() : async Blob {
-    let key_id : VetKdKeyId = {
+  public shared func getIbePublicKey() : async Blob {
+    let keyId : VetKdKeyId = {
       curve = #bls12_381_g2;
       name = keyNameString;
     };
@@ -103,7 +105,7 @@ persistent actor class (keyNameString : Text) {
     let request : VetKdPublicKeyArgs = {
       canister_id = null;
       context = context;
-      key_id = key_id;
+      key_id = keyId;
     };
 
     let result = await vetKdSystemApi.vetkd_public_key(request);
@@ -111,8 +113,8 @@ persistent actor class (keyNameString : Text) {
   };
 
   // Get the caller's encrypted IBE key
-  public shared ({ caller }) func get_my_encrypted_ibe_key(transport_key : Blob) : async Blob {
-    let key_id : VetKdKeyId = {
+  public shared ({ caller }) func getMyEncryptedIbeKey(transportKey : Blob) : async Blob {
+    let keyId : VetKdKeyId = {
       curve = #bls12_381_g2;
       name = keyNameString;
     };
@@ -122,8 +124,8 @@ persistent actor class (keyNameString : Text) {
     let request : VetKdDeriveKeyArgs = {
       context = context;
       input = input;
-      key_id = key_id;
-      transport_public_key = transport_key;
+      key_id = keyId;
+      transport_public_key = transportKey;
     };
 
     let result = await (with cycles = 26_153_846_153) vetKdSystemApi.vetkd_derive_key(request);
@@ -131,7 +133,7 @@ persistent actor class (keyNameString : Text) {
   };
 
   // Get the caller's messages
-  public shared query ({ caller }) func get_my_messages() : async Inbox {
+  public shared query ({ caller }) func getMyMessages() : async Inbox {
     switch (Map.get(inboxes, Principal.compare, caller)) {
       case (?inbox) { inbox };
       case null { { messages = [] } };
@@ -139,30 +141,30 @@ persistent actor class (keyNameString : Text) {
   };
 
   // Remove a message by index
-  public shared ({ caller }) func remove_my_message_by_index(message_index : Nat64) : async Result<(), Text> {
-    let current_inbox = switch (Map.get(inboxes, Principal.compare, caller)) {
+  public shared ({ caller }) func removeMyMessageByIndex(messageIndex : Nat64) : async Result<(), Text> {
+    let currentInbox = switch (Map.get(inboxes, Principal.compare, caller)) {
       case (?inbox) { inbox };
       case null { { messages = [] } };
     };
 
-    let index = Nat64.toNat(message_index);
-    if (index >= current_inbox.messages.size()) {
+    let index = Nat64.toNat(messageIndex);
+    if (index >= currentInbox.messages.size()) {
       return #Err("Message index out of bounds");
     };
 
     // Create a new array without the specified index
-    let messages = current_inbox.messages;
-    let new_messages_list = List.empty<Message>();
+    let messages = currentInbox.messages;
+    let newMessagesList = List.empty<Message>();
 
     for (i in messages.keys()) {
       if (i != index) {
-        List.add(new_messages_list, messages[i]);
+        List.add(newMessagesList, messages[i]);
       };
     };
 
-    let new_messages = List.toArray(new_messages_list);
-    let new_inbox : Inbox = { messages = new_messages };
-    ignore Map.insert(inboxes, Principal.compare, caller, new_inbox);
+    let newMessages = List.toArray(newMessagesList);
+    let newInbox : Inbox = { messages = newMessages };
+    ignore Map.insert(inboxes, Principal.compare, caller, newInbox);
 
     #Ok();
   };

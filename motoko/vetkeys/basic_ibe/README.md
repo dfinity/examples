@@ -1,8 +1,8 @@
-# Identity-Based Encryption (Rust)
+# Identity-Based Encryption (Motoko)
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/vetkeys/basic_ibe)
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/vetkeys/basic_ibe)
 
-Also available in: [Motoko](../../../motoko/vetkeys/basic_ibe)
+Also available in: [Rust](../../../rust/vetkeys/basic_ibe)
 
 The **Basic IBE** example demonstrates how to use **[VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** to implement secure messaging between users by means of Identity-Based Encryption (IBE) on the **Internet Computer (IC)**. Users send encrypted messages to other users using their **Internet Identity Principal** as the encryption key identifier. The canister ensures that only the authorized user can access their private decryption key — even if someone else knows your principal, they cannot decrypt messages intended for you, because neither other users nor this canister can access your private key.
 
@@ -22,7 +22,7 @@ Note that generally it is possible for a canister to request a decryption key to
 
 - Install [Node.js](https://nodejs.org/en/download/)
 - Install [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
-- Install the [Rust toolchain](https://www.rust-lang.org/tools/install), then add the WASM target: `rustup target add wasm32-unknown-unknown`
+- Install [ic-mops](https://mops.one): `npm install -g ic-mops`
 
 ### (Optionally) choose a different master key
 
@@ -32,7 +32,7 @@ This example uses `test_key_1` by default. To use a different [available master 
 
 ```bash
 git clone https://github.com/dfinity/examples
-cd examples/rust/vetkeys/basic_ibe
+cd examples/motoko/vetkeys/basic_ibe
 ```
 
 ### Deploy
@@ -60,7 +60,7 @@ icp network stop
 
 ### Backend (`backend/`)
 
-A single Rust canister that:
+A single Motoko canister that:
 - Stores encrypted messages between users.
 - Lets users retrieve their personal encrypted messages.
 - Lets users retrieve the decryption key for their messages, for later decryption in the user's browser.
@@ -74,7 +74,7 @@ A vanilla TypeScript application providing a simple interface for sending, recei
 `backend/backend.did` defines the backend's public interface; the frontend bindings are generated from it during the build. If you change the backend's public API, regenerate it:
 
 ```bash
-icp build backend && candid-extractor target/wasm32-unknown-unknown/release/backend.wasm > backend/backend.did
+mops generate candid backend
 ```
 
 ## Limitations

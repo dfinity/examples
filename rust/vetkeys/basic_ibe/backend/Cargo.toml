@@ -1,5 +1,5 @@
 [package]
-name = "ic-vetkd-example-basic-ibe-backend"
+name = "backend"
 authors = ["DFINITY Stiftung"]
 version = "0.1.0"
 edition = "2021"
