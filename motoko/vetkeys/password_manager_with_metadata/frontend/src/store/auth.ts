@@ -1,0 +1,130 @@
+import { get, writable } from "svelte/store";
+import { AuthClient, LocalStorage } from "@icp-sdk/auth/client";
+import { DelegationIdentity } from "@icp-sdk/core/identity";
+import type { Principal } from "@icp-sdk/core/principal";
+import { replace } from "svelte-spa-router";
+import {
+    PasswordManager,
+    createPasswordManager,
+} from "../lib/password_manager.js";
+
+export type AuthState =
+    | {
+          state: "initializing-auth";
+      }
+    | {
+          state: "anonymous";
+          client: AuthClient;
+      }
+    | {
+          state: "initialized";
+          passwordManager: PasswordManager;
+          client: AuthClient;
+          principal: Principal;
+      }
+    | {
+          state: "error";
+          error: string;
+      };
+
+export const auth = writable<AuthState>({
+    state: "initializing-auth",
+});
+
+async function initAuth() {
+    const isLocalEnv =
+        window.location.hostname === "localhost" ||
+        window.location.hostname.endsWith(".localhost");
+    // Workaround for https://github.com/dfinity/icp-js-auth/issues/120
+    // IdbStorage has a race condition on localhost dev servers. LocalStorage
+    // avoids IDB on local but uses plain string storage (less secure), so
+    // production deployments keep the default secure IdbStorage + ECDSA key.
+    const client = new AuthClient({
+        identityProvider: isLocalEnv
+            ? "http://id.ai.localhost:8000/authorize"
+            : "https://id.ai/authorize",
+        ...(isLocalEnv
+            ? { storage: new LocalStorage(), keyType: "Ed25519" as const }
+            : {}),
+    });
+    if (client.isAuthenticated()) {
+        await authenticate(client);
+    } else {
+        auth.update(() => ({
+            state: "anonymous",
+            client,
+        }));
+    }
+}
+
+void initAuth();
+
+export function login() {
+    const currentAuth = get(auth);
+
+    if (currentAuth.state === "anonymous") {
+        void (async () => {
+            try {
+                await currentAuth.client.signIn({
+                    maxTimeToLive: BigInt(1800) * BigInt(1_000_000_000),
+                });
+                void authenticate(currentAuth.client);
+            } catch (error: unknown) {
+                console.error("Login failed:", error);
+            }
+        })();
+    }
+}
+
+export async function logout() {
+    const currentAuth = get(auth);
+
+    if (currentAuth.state === "initialized") {
+        await currentAuth.client.signOut();
+        auth.update(() => ({
+            state: "anonymous",
+            client: currentAuth.client,
+        }));
+        await replace("/");
+    }
+}
+
+export async function authenticate(client: AuthClient) {
+    void handleSessionTimeout(client);
+
+    try {
+        const identity = await client.getIdentity();
+        const passwordManager = await createPasswordManager({ identity });
+
+        auth.update(() => ({
+            state: "initialized",
+            passwordManager,
+            client,
+            principal: identity.getPrincipal(),
+        }));
+    } catch (e) {
+        auth.update(() => ({
+            state: "error",
+            error: (e as Error).message || "An error occurred",
+        }));
+    }
+}
+
+// set a timer when the II session will expire and log the user out
+async function handleSessionTimeout(client: AuthClient) {
+    try {
+        const identity = await client.getIdentity();
+        if (!(identity instanceof DelegationIdentity)) return;
+
+        const chain = identity.getDelegation();
+        // expiration is a BigInt of nanoseconds since epoch
+        const expirationMs =
+            Number(chain.delegations[0].delegation.expiration) / 1_000_000;
+
+        setTimeout(() => {
+            void logout();
+        }, expirationMs - Date.now());
+    } catch {
+        console.error("Could not handle delegation expiry.");
+    }
+}
