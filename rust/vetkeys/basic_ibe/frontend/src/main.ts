@@ -9,13 +9,13 @@ import {
     IbeIdentity,
     IbeSeed,
 } from "@icp-sdk/vetkeys";
-import { createActor, type Backend, type Inbox } from "./declarations/basic_ibe/backend";
+import { createActor, type Backend, type Inbox } from "./bindings/backend";
 import { AuthClient, LocalStorage } from "@icp-sdk/auth/client";
 import { HttpAgent } from "@icp-sdk/core/agent";
 import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
 
 const canisterEnv = safeGetCanisterEnv<{
-    "PUBLIC_CANISTER_ID:basic_ibe": string;
+    "PUBLIC_CANISTER_ID:backend": string;
 }>();
 
 let ibePrivateKey: VetKey | undefined = undefined;
@@ -26,9 +26,9 @@ let basicIbeActor: Backend | undefined;
 
 async function getBasicIbeActor(): Promise<Backend> {
     if (basicIbeActor) return basicIbeActor;
-    const canisterId = canisterEnv?.["PUBLIC_CANISTER_ID:basic_ibe"];
+    const canisterId = canisterEnv?.["PUBLIC_CANISTER_ID:backend"];
     if (!canisterId) {
-        throw Error("Canister ID for basic_ibe is not set");
+        throw Error("Canister ID for backend is not set");
     }
     if (!authClient) {
         throw Error("Auth client is not initialized");

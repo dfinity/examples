@@ -1,0 +1,98 @@
+type _anon_class_9_1 = 
+ service {
+   get_accessible_shared_map_names: () ->
+    (vec record {
+           principal;
+           ByteBuf;
+         }) query;
+   get_all_accessible_encrypted_maps: () -> (vec EncryptedMapData) query;
+   get_all_accessible_encrypted_values: () ->
+    (vec record {
+           record {
+             principal;
+             ByteBuf;
+           };
+           vec record {
+                 ByteBuf;
+                 ByteBuf;
+               };
+         }) query;
+   get_encrypted_value: (map_owner: principal, map_name: ByteBuf, map_key:
+    ByteBuf) -> (Result_2) query;
+   get_encrypted_values_for_map: (map_owner: principal, map_name: ByteBuf) ->
+    (Result_5) query;
+   get_encrypted_vetkey: (map_owner: principal, map_name: ByteBuf,
+    transport_key: ByteBuf) -> (Result_4);
+   get_owned_non_empty_map_names: () -> (vec ByteBuf) query;
+   get_shared_user_access_for_map: (map_owner: principal, map_name:
+    ByteBuf) -> (Result_3) query;
+   get_user_rights: (map_owner: principal, map_name: ByteBuf, user:
+    principal) -> (Result) query;
+   get_vetkey_verification_key: () -> (ByteBuf);
+   insert_encrypted_value: (map_owner: principal, map_name: ByteBuf, map_key:
+    ByteBuf, value: ByteBuf) -> (Result_2);
+   remove_encrypted_value: (map_owner: principal, map_name: ByteBuf, map_key:
+    ByteBuf) -> (Result_2);
+   remove_map_values: (map_owner: principal, map_name: ByteBuf) -> (Result_1);
+   remove_user: (map_owner: principal, map_name: ByteBuf, user: principal) ->
+    (Result);
+   set_user_rights: (map_owner: principal, map_name: ByteBuf, user:
+    principal, access_rights: AccessRights) -> (Result);
+ };
+type Result_5 = 
+ variant {
+   Err: text;
+   Ok: vec record {
+             ByteBuf;
+             ByteBuf;
+           };
+ };
+type Result_4 = 
+ variant {
+   Err: text;
+   Ok: ByteBuf;
+ };
+type Result_3 = 
+ variant {
+   Err: text;
+   Ok: vec record {
+             principal;
+             AccessRights;
+           };
+ };
+type Result_2 = 
+ variant {
+   Err: text;
+   Ok: opt ByteBuf;
+ };
+type Result_1 = 
+ variant {
+   Err: text;
+   Ok: vec ByteBuf;
+ };
+type Result = 
+ variant {
+   Err: text;
+   Ok: opt AccessRights;
+ };
+type EncryptedMapData = 
+ record {
+   access_control: vec record {
+                         principal;
+                         AccessRights;
+                       };
+   keyvals: vec record {
+                  ByteBuf;
+                  ByteBuf;
+                };
+   map_name: ByteBuf;
+   map_owner: principal;
+ };
+type ByteBuf = record {inner: blob;};
+type AccessRights = 
+ variant {
+   Read;
+   ReadWrite;
+   ReadWriteManage;
+ };
+service : (keyName: text) -> _anon_class_9_1

@@ -1,4 +1,4 @@
-import type { EncryptedNote } from '../declarations/encrypted_notes/backend.did';
+import type { EncryptedNote } from '../bindings/backend';
 import type { CryptoService } from './crypto';
 import type { Principal } from '@icp-sdk/core/principal';
 

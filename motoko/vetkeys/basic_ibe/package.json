@@ -1,0 +1,13 @@
+{
+  "name": "basic_ibe",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "npm run build --workspaces --if-present",
+    "prebuild": "npm run prebuild --workspaces --if-present",
+    "dev": "npm run dev --workspaces --if-present"
+  },
+  "workspaces": [
+    "frontend"
+  ]
+}

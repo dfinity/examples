@@ -1,85 +1,82 @@
-# Threshold BLS Signatures
+# Threshold BLS Signatures (Rust)
 
-<!-- TODO: re-enable once icp.ninja supports icp-cli -->
-<!--
-| Motoko backend | [![](https://icp.ninja/assets/open.svg)](http://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/vetkeys/basic_bls_signing/motoko)|
-| --- | --- |
-| Rust backend | [![](https://icp.ninja/assets/open.svg)](http://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/vetkeys/basic_bls_signing/rust) |
--->
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/vetkeys/basic_bls_signing)
 
-The **Basic BLS signing** example demonstrates how to use **[vetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** to implement a threshold BLS signing service on the **Internet Computer (IC)**, where every authenticated user can ask the canister (IC smart contract) to produce signatures, where the **Internet Identity Principal** identifies the signer. This canister ensures that users can only produce signature for their own principal and not for someone else's principal. Furthermore, the vetKeys in this dapp can only be produced upon a user request, as specified in the canister code, meaning that the canister cannot produce signatures for arbitrary users or messages.
+Also available in: [Motoko](../../../motoko/vetkeys/basic_bls_signing)
 
-For confirming that the canister can only produce signatures in the intended way, users need to inspect the code installed in the canister. For this, it is crucial that canisters using VetKeys have their code public.
+The **Basic BLS signing** example demonstrates how to use **[VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** to implement a threshold BLS signing service on the **Internet Computer (IC)**, where every authenticated user can ask the canister to produce signatures, with the **Internet Identity Principal** identifying the signer. The canister ensures a user can only produce signatures for their own principal, not for someone else's. Furthermore, the vetKeys in this app can only be produced upon a user request, as specified in the canister code — the canister cannot produce signatures for arbitrary users or messages.
+
+To confirm the canister can only produce signatures in the intended way, users need to inspect the code installed in the canister. For this, it is crucial that canisters using VetKeys have their code public.
 
 ![UI Screenshot](ui_screenshot.png)
 
 ## Features
 
-- **Signer Authorization**: Only authorized users can produce signatures and only for their own identity.
-- **Frontend Signature Verification**: Any user can publish any signature from their principal in the canister storage and the frontend automatically checks the signature validity.
+- **Signer Authorization**: Only authorized users can produce signatures, and only for their own identity.
+- **Frontend Signature Verification**: Any user can publish a signature from their principal in the canister storage, and the frontend automatically checks its validity.
 
-## Setup
+## Build and deploy from the command line
 
 ### Prerequisites
 
-- [ICP CLI](https://cli.internetcomputer.org)
-- [npm](https://www.npmjs.com/package/npm)
+- Install [Node.js](https://nodejs.org/en/download/)
+- Install [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- Install the [Rust toolchain](https://www.rust-lang.org/tools/install), then add the WASM target: `rustup target add wasm32-unknown-unknown`
 
-### (Optionally) Choose a Different Master Key
+### (Optionally) choose a different master key
 
-This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/concepts/vetkeys/#api-overview), change the `value: "(\"test_key_1\")"` line in `icp.yaml` to the desired key before running `icp deploy` in the next step.
+This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/concepts/vetkeys/#api-overview), change the `init_args` value in `icp.yaml` before deploying.
 
-### Folder Structure
+### Install
 
-This example provides both a **Rust** and a **Motoko** backend, sharing a common `frontend/`:
-
-```
-basic_bls_signing/
-├── frontend/   ← shared frontend (symlinked into rust/ and motoko/)
-├── motoko/     ← Motoko backend + icp.yaml
-└── rust/       ← Rust backend + icp.yaml
-```
-
-### Deploy the Canisters Locally
-
-Deploy with the **Motoko** backend:
 ```bash
-cd motoko
-icp network start -d && icp deploy
+git clone https://github.com/dfinity/examples
+cd examples/rust/vetkeys/basic_bls_signing
 ```
 
-Or deploy with the **Rust** backend:
+### Deploy
+
 ```bash
-cd rust
-icp network start -d && icp deploy
+icp network start -d
+icp deploy
 ```
 
-When finished, stop the local network:
+Open the frontend URL printed by `icp deploy`.
+
+To run the frontend in development mode with hot reloading (after `icp deploy`):
+
+```bash
+npm run dev
+```
+
+When done, stop the local network to free up the port for other projects:
+
 ```bash
 icp network stop
 ```
 
-## Example Components
+## Example components
 
-### Backend
+### Backend (`backend/`)
 
-The backend consists of a canister that:
-* Produces signatures upon a user request.
-* Allows users to retrieve the root public key that can be used to check any user's signature for this canister.
-* Allows users to store signatures (real or fake) in a log datastructure.
+A single Rust canister that:
+- Produces BLS signatures upon a user request.
+- Lets users retrieve the public key used to verify their signatures.
+- Lets users store signatures (real or fake) in a log data structure.
 
-### Frontend
+### Frontend (`frontend/`)
 
-The frontend is a vanilla typescript application providing a simple interface for signing, showing the signatures stored in the canister, and publishing a signature.
+A vanilla TypeScript application providing a simple interface for signing, showing the signatures stored in the canister, and verifying a signature. Canister bindings are generated from `backend/backend.did` at build time by the `@icp-sdk/bindgen` Vite plugin.
 
-To run the frontend in development mode with hot reloading (after running `icp deploy`):
+## Updating the Candid interface
+
+`backend/backend.did` defines the backend's public interface; the frontend bindings are generated from it during the build. If you change the backend's public API, regenerate it:
+
 ```bash
-cd frontend
-npm run dev:rust     # if you deployed the Rust backend
-# or
-npm run dev:motoko   # if you deployed the Motoko backend
+icp build backend && candid-extractor target/wasm32-unknown-unknown/release/backend.wasm > backend/backend.did
 ```
 
-## Additional Resources
+## Additional resources
 
-- **[What are VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** - For more information about VetKeys and VetKD.
+- **[What are VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** — more information about VetKeys and VetKD.
+- [Security best practices](https://docs.internetcomputer.org/guides/security/overview/)

@@ -1,0 +1,26 @@
+type _anon_class_13_1 = 
+ service {
+   getIbePublicKey: () -> (blob);
+   getMyEncryptedIbeKey: (transportKey: blob) -> (blob);
+   getMyMessages: () -> (Inbox) query;
+   removeMyMessageByIndex: (messageIndex: nat64) -> (Result);
+   sendMessage: (request: SendMessageRequest) -> (Result);
+ };
+type SendMessageRequest = 
+ record {
+   encryptedMessage: blob;
+   receiver: principal;
+ };
+type Result = 
+ variant {
+   Err: text;
+   Ok;
+ };
+type Message = 
+ record {
+   encryptedMessage: blob;
+   sender: principal;
+   timestamp: nat64;
+ };
+type Inbox = record {messages: vec Message;};
+service : (keyNameString: text) -> _anon_class_13_1

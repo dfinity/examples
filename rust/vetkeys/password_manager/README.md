@@ -1,10 +1,8 @@
-# VetKey Password Manager
+# VetKey Password Manager (Rust)
 
-<!-- TODO: re-enable once icp.ninja supports icp-cli (currently requires dfx)
-| Motoko backend | [![](https://icp.ninja/assets/open.svg)](http://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/vetkeys/password_manager/motoko)|
-| --- | --- |
-| Rust backend | [![](https://icp.ninja/assets/open.svg)](http://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/vetkeys/password_manager/rust) |
--->
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/vetkeys/password_manager)
+
+Also available in: [Motoko](../../../motoko/vetkeys/password_manager)
 
 The **VetKey Password Manager** is an example application demonstrating how to use **VetKeys** and **Encrypted Maps** to build a secure, decentralized password manager on the **Internet Computer (IC)**. This application allows users to create password vaults, store encrypted passwords, and share vaults with other users via their **Internet Identity Principal**.
 
@@ -14,71 +12,72 @@ The **VetKey Password Manager** is an example application demonstrating how to u
 - **Vault-Based Organization**: Users can create multiple vaults, each containing multiple passwords.
 - **Access Control**: Vaults can be shared with other users via their **Internet Identity Principal**.
 
-## Setup
+## Build and deploy from the command line
 
 ### Prerequisites
 
-- [ICP CLI](https://cli.internetcomputer.org)
-- [npm](https://www.npmjs.com/package/npm)
+- Install [Node.js](https://nodejs.org/en/download/)
+- Install [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- Install the [Rust toolchain](https://www.rust-lang.org/tools/install), then add the WASM target: `rustup target add wasm32-unknown-unknown`
 
-### (Optionally) Choose a Different Master Key
+### (Optionally) choose a different master key
 
-This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/concepts/vetkeys/#api-overview), change the `init_args` value in `icp.yaml` to the desired key before running `icp deploy` in the next step.
+This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/concepts/vetkeys/#api-overview), change the `init_args` value in `icp.yaml` before deploying.
 
-### Folder Structure
+### Install
 
-This example provides both a **Rust** and a **Motoko** backend, sharing a common `frontend/`:
-
-```
-password_manager/
-├── frontend/       ← shared frontend (symlinked into rust/ and motoko/)
-├── motoko/     ← Motoko backend + icp.yaml
-└── rust/           ← Rust backend + icp.yaml
-```
-
-### Deploy the Canisters Locally
-
-Deploy with the **Motoko** backend:
 ```bash
-cd motoko
-icp network start -d && icp deploy
+git clone https://github.com/dfinity/examples
+cd examples/rust/vetkeys/password_manager
 ```
 
-Or deploy with the **Rust** backend:
+### Deploy
+
 ```bash
-cd rust
-icp network start -d && icp deploy
+icp network start -d
+icp deploy
 ```
 
-To run the frontend in development mode with hot reloading (after running `icp deploy`):
+Open the frontend URL printed by `icp deploy`.
+
+To run the frontend in development mode with hot reloading (after `icp deploy`):
+
 ```bash
-cd frontend
-npm run dev:motoko   # if you deployed the Motoko backend
-# or
-npm run dev:rust     # if you deployed the Rust backend
+npm run dev
 ```
 
-When you are done testing, stop the local network to free up resources and unblock the default port for other projects:
+When done, stop the local network to free up the port for other projects:
+
 ```bash
 icp network stop
 ```
 
-## Example Components
+## Example components
 
-### Backend
+### Backend (`backend/`)
 
-The backend consists of an **Encrypted Maps**-enabled canister that securely stores passwords.
+An **Encrypted Maps**-enabled Rust canister that securely stores passwords.
 
-### Frontend
+> **Note.** This backend is hand-written today. An upstream Rust macro that generates an entire Encrypted Maps canister in one line — `ic_vetkeys::export_encrypted_maps_canister!(...)` — is in progress ([dfinity/vetkeys#404](https://github.com/dfinity/vetkeys/pull/404)); it produces the same Candid interface with far less boilerplate.
 
-The frontend is a **Svelte** application providing a user-friendly interface for managing vaults and passwords.
+### Frontend (`frontend/`)
+
+A **Svelte** application providing a user-friendly interface for managing vaults and passwords. It talks to the backend through the `@icp-sdk/vetkeys` Encrypted Maps client.
+
+## Updating the Candid interface
+
+`backend/backend.did` defines the backend's public interface. If you change the backend's public API, regenerate it:
+
+```bash
+icp build backend && candid-extractor target/wasm32-unknown-unknown/release/backend.wasm > backend/backend.did
+```
 
 ## Limitations
 
-This example dapp does not implement key rotation, which is strongly recommended in a production environment.
-Key rotation involves periodically changing encryption keys and re-encrypting data to enhance security.
-In a production dapp, key rotation would be useful to limit the impact of potential key compromise if a malicious party gains access to a key, or to limit access when users are added or removed from note sharing.
+This example app does not implement key rotation, which is strongly recommended in a production environment. Key rotation involves periodically changing encryption keys and re-encrypting data to enhance security. In a production app, key rotation would be useful to limit the impact of a potential key compromise, or to limit access when users are added to or removed from sharing.
 
-## Additional Resources
+## Additional resources
 
-- **[Password Manager with Metadata](../password_manager_with_metadata/)** - If you need to store additional metadata alongside passwords.
+- **[Password Manager with Metadata](../password_manager_with_metadata)** — if you need to store additional metadata alongside passwords.
+- **[What are VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** — more information about VetKeys and VetKD.
+- [Security best practices](https://docs.internetcomputer.org/guides/security/overview/)

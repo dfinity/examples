@@ -2,12 +2,12 @@ import "./style.css";
 import { Principal } from "@icp-sdk/core/principal";
 import { AuthClient, LocalStorage } from "@icp-sdk/auth/client";
 import { HttpAgent } from "@icp-sdk/core/agent";
-import { createActor, type Backend, type Signature } from "./declarations/basic_bls_signing/backend";
+import { createActor, type Backend, type Signature } from "./bindings/backend";
 import { DerivedPublicKey, verifyBlsSignature } from "@icp-sdk/vetkeys";
 import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
 
 const canisterEnv = safeGetCanisterEnv<{
-  "PUBLIC_CANISTER_ID:basic_bls_signing": string;
+  "PUBLIC_CANISTER_ID:backend": string;
 }>();
 
 let myPrincipal: Principal | undefined = undefined;
@@ -18,9 +18,9 @@ let myVerificationKey: DerivedPublicKey | undefined;
 
 async function getBasicBlsSigningActor(): Promise<Backend> {
   if (basicBlsSigningActor) return basicBlsSigningActor;
-  const canisterId = canisterEnv?.["PUBLIC_CANISTER_ID:basic_bls_signing"];
+  const canisterId = canisterEnv?.["PUBLIC_CANISTER_ID:backend"];
   if (!canisterId) {
-    throw Error("Canister ID for basic_bls_signing is not set");
+    throw Error("Canister ID for backend is not set");
   }
   if (!authClient) {
     throw Error("Auth client is not initialized");

@@ -1,82 +1,77 @@
-# Encrypted notes: vetKD
+# Encrypted Notes: vetKD (Rust)
 
-<!--
-ICP Ninja links removed: icp.ninja support requires dfx which is no longer used in this example.
-| Motoko backend | [![](https://icp.ninja/assets/open.svg)](http://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/vetkeys/encrypted_notes_dapp_vetkd/motoko)|
-| --- | --- |
-| Rust backend | [![](https://icp.ninja/assets/open.svg)](http://icp.ninja/editor?g=https://github.com/dfinity/examples/tree/master/rust/vetkeys/encrypted_notes_dapp_vetkd/rust) |
--->
+[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/vetkeys/encrypted_notes_app_vetkd)
 
-Encrypted notes is an example dapp for authoring and storing confidential information on the Internet Computer (ICP) in the form of short pieces of text. Users can create and access their notes via any number of automatically synchronized devices authenticated via Internet Identity (II). Notes are stored confidentially using vetKeys. The end-to-end encryption is performed by the dapp's frontend.
+Also available in: [Motoko](../../../motoko/vetkeys/encrypted_notes_app_vetkd)
 
-In particular, the notes are encrypted with an AES key that is derived (directly in the browser) from a note-ID-specific vetKey obtained from the backend canister (in encrypted form, using an ephemeral transport key), which itself obtains it from the vetKD system API. This way, there is no need for any device management in the dapp, plus sharing of notes becomes possible.
+Encrypted notes is an example app for authoring and storing confidential information on the Internet Computer (ICP) in the form of short pieces of text. Users can create and access their notes via any number of automatically synchronized devices authenticated via Internet Identity (II). Notes are stored confidentially using vetKeys. The end-to-end encryption is performed by the app's frontend.
+
+In particular, the notes are encrypted with an AES key that is derived (directly in the browser) from a note-ID-specific vetKey obtained from the backend canister (in encrypted form, using an ephemeral transport key), which itself obtains it from the vetKD system API. This way, there is no need for any device management in the app, plus sharing of notes becomes possible.
 
 The vetKey used to encrypt and decrypt a note is note-ID-specific (and not, for example, principal-specific) to enable the sharing of notes between users. The derived AES keys are stored as non-extractable CryptoKeys in an IndexedDB in the browser for efficiency so that their respective vetKey only has to be fetched from the server once.
 
-## Prerequisites
+## Build and deploy from the command line
 
-- [x] Install the [ICP CLI](https://cli.internetcomputer.org).
-- [x] Install [npm](https://www.npmjs.com/package/npm).
+### Prerequisites
 
-## Folder Structure
+- Install [Node.js](https://nodejs.org/en/download/)
+- Install [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
+- Install the [Rust toolchain](https://www.rust-lang.org/tools/install), then add the WASM target: `rustup target add wasm32-unknown-unknown`
 
-This example provides both a **Rust** and a **Motoko** backend, sharing a common `frontend/`:
+### Install
 
-```
-encrypted_notes_app_vetkd/
-├── frontend/   ← shared frontend (symlinked into rust/ and motoko/)
-├── motoko/     ← Motoko backend + icp.yaml
-└── rust/       ← Rust backend + icp.yaml
-```
-
-## Deploy the Canisters Locally
-
-Deploy with the **Motoko** backend:
 ```bash
-cd motoko
-icp network start -d && icp deploy
+git clone https://github.com/dfinity/examples
+cd examples/rust/vetkeys/encrypted_notes_app_vetkd
 ```
 
-Or deploy with the **Rust** backend:
+### Deploy
+
 ```bash
-cd rust
-icp network start -d && icp deploy
+icp network start -d
+icp deploy
 ```
 
-## Running the Frontend in Development Mode
+Open the frontend URL printed by `icp deploy`.
 
-After deploying, run from the `frontend` folder:
+To run the frontend in development mode with hot reloading (after `icp deploy`):
+
 ```bash
-cd frontend
-npm run dev:motoko   # if you deployed the Motoko backend
-# or
-npm run dev:rust     # if you deployed the Rust backend
+npm run dev
 ```
 
-## Example Components
+When done, stop the local network to free up the port for other projects:
 
-### Backend
+```bash
+icp network stop
+```
 
-The backend consists of a canister that stores encrypted notes. It is automatically deployed with `icp deploy`.
+## Example components
 
-### Frontend
+### Backend (`backend/`)
 
-The frontend is a **Svelte** application providing a user-friendly interface for managing encrypted notes.
+A single Rust canister that stores encrypted notes. It is deployed automatically with `icp deploy`.
+
+### Frontend (`frontend/`)
+
+A **Svelte** application providing a user-friendly interface for managing encrypted notes. Canister bindings are generated from `backend/backend.did` at build time by the `@icp-sdk/bindgen` Vite plugin.
 
 ## Limitations
 
-This example dapp does not implement key rotation, which is strongly recommended in a production environment.
+This example app does not implement key rotation, which is strongly recommended in a production environment.
 
 ## Troubleshooting
 
 If you run into issues, clearing all the application-specific IndexedDBs in the browser might help. For example in Chrome, go to Inspect → Application → Local Storage → Clear All, and then reload.
 
-## API Level
+## API level
 
-This example intentionally uses the **raw VetKD management canister API** (`encrypted_symmetric_key_for_note`, `symmetric_key_verification_key_for_note`) to demonstrate how VetKD works at the protocol level.
+This example intentionally uses the **raw vetKD management canister API** (`encrypted_symmetric_key_for_note`, `symmetric_key_verification_key_for_note`) to demonstrate how vetKD works at the protocol level.
 
-For most applications, the higher-level [`EncryptedMaps`](https://github.com/dfinity/vetkeys/tree/main/frontend/ic_vetkeys/src/encrypted_maps) abstraction from `@icp-sdk/vetkeys` is the recommended approach — it handles key derivation, caching, and access control internally without requiring a custom crypto layer. See the [**VetKD Password Manager**](../password_manager/) and [**VetKD Password Manager with Metadata**](../password_manager_with_metadata/) examples for how `EncryptedMaps` is used in practice.
+For most applications, the higher-level [`EncryptedMaps`](https://github.com/dfinity/vetkeys/tree/main/frontend/ic_vetkeys/src/encrypted_maps) abstraction from `@icp-sdk/vetkeys` is the recommended approach — it handles key derivation, caching, and access control internally without requiring a custom crypto layer. See the **VetKD Password Manager** ([`../password_manager`](../password_manager)) and **Password Manager with Metadata** ([`../password_manager_with_metadata`](../password_manager_with_metadata)) examples for how `EncryptedMaps` is used in practice.
 
-## Additional Resources
+## Additional resources
 
-- **[What are VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** - For more information about VetKeys and VetKD.
+- **[What are VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** — more information about VetKeys and VetKD.
+- [Security checklist for this example](security-checklist.md)
+- [Security best practices](https://docs.internetcomputer.org/guides/security/overview/)
