@@ -3,30 +3,28 @@ import Text "mo:core/Text";
 import Array "mo:core/Array";
 import List "mo:core/List";
 import PureList "mo:core/pure/List";
-import Iter "mo:core/Iter";
 import Nat "mo:core/Nat";
 import Nat8 "mo:core/Nat8";
 import Bool "mo:core/Bool";
 import Principal "mo:core/Principal";
 import Option "mo:core/Option";
-import Debug "mo:core/Debug";
 import Runtime "mo:core/Runtime";
 import Blob "mo:core/Blob";
 import Hex "./utils/Hex";
 
 // Declare a shared actor class
 // Bind the caller and the initializer
-shared ({ caller = initializer }) persistent actor class (keyName: Text) {
+shared ({ caller = initializer }) actor class (keyName: Text) {
 
-    // Currently, a single canister smart contract is limited to 4 GB of heap size.
-    // For the current limits see https://internetcomputer.org/docs/current/developer-docs/production/resource-limits.
+    // Currently, a single canister is limited to 4 GB of heap size.
+    // For the current limits see https://docs.internetcomputer.org/references/resource-limits.
     // To ensure that our canister does not exceed the limit, we put various restrictions (e.g., max number of users) in place.
     // This should keep us well below a memory usage of 2 GB because
     // up to 2x memory may be needed for data serialization during canister upgrades.
     // This is sufficient for this proof-of-concept, but in a production environment the actual
     // memory usage must be calculated or monitored and the various restrictions adapted accordingly.
 
-    // Define dapp limits - important for security assurance
+    // Define app limits - important for security assurance
     private transient let MAX_USERS = 500;
     private transient let MAX_NOTES_PER_USER = 200;
     private transient let MAX_NOTE_CHARS = 1000;
@@ -41,7 +39,7 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
     //            Here we assume that the notes are encrypted end-
     //            to-end by the front-end (at client side).
     public type EncryptedNote = {
-        encrypted_text : Text;
+        encryptedText : Text;
         id : Nat;
         owner : PrincipalName;
         // Principals with whom this note is shared. Does not include the owner.
@@ -49,32 +47,22 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
         users : [PrincipalName];
     };
 
-    // Define private fields
-    // Stable actor fields are automatically retained across canister upgrades.
-    // See https://internetcomputer.org/docs/current/motoko/main/upgrades/
+    // Define private fields.
+    // Actor fields are automatically retained across canister upgrades unless
+    // declared `transient` (enhanced orthogonal persistence), so no `preupgrade`/
+    // `postupgrade` hooks are needed to persist the state below.
+    //
+    // See https://docs.internetcomputer.org/guides/canister-management/lifecycle/#upgrade-a-canister
 
     // Design choice: Use globally unique note identifiers for all users.
-    //
-    // The keyword `stable` makes this (scalar) variable keep its value across canister upgrades.
-    //
-    // See https://internetcomputer.org/docs/current/developer-docs/setup/manage-canisters#upgrade-a-canister
     private var nextNoteId : Nat = 1;
 
     // Store notes by their ID, so that note-specific encryption keys can be derived.
-    private transient var notesById = Map.empty<NoteId, EncryptedNote>();
+    private var notesById = Map.empty<NoteId, EncryptedNote>();
     // Store which note IDs are owned by a particular principal
-    private transient var noteIdsByOwner = Map.empty<PrincipalName, PureList.List<NoteId>>();
+    private var noteIdsByOwner = Map.empty<PrincipalName, PureList.List<NoteId>>();
     // Store which notes are shared with a particular principal. Does not include the owner, as this is tracked by `noteIdsByOwner`.
-    private transient var noteIdsByUser = Map.empty<PrincipalName, PureList.List<NoteId>>();
-
-    // While accessing _heap_ data is more efficient, we use the following _stable memory_
-    // as a buffer to preserve data across canister upgrades.
-    // Stable memory is currently 96GB. For the current limits see
-    // https://internetcomputer.org/docs/current/developer-docs/production/resource-limits.
-    // See also: [preupgrade], [postupgrade]
-    private var stable_notesById : [(NoteId, EncryptedNote)] = [];
-    private var stable_noteIdsByOwner : [(PrincipalName, PureList.List<NoteId>)] = [];
-    private var stable_noteIdsByUser : [(PrincipalName, PureList.List<NoteId>)] = [];
+    private var noteIdsByUser = Map.empty<PrincipalName, PureList.List<NoteId>>();
 
     // Utility function that helps writing assertion-driven code more concisely.
     private func expect<T>(opt : ?T, violation_msg : Text) : T {
@@ -99,7 +87,7 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
     // Shared functions, i.e., those specified with [shared], are
     // accessible to remote callers.
     // The extra parameter [caller] is the caller's principal
-    // See https://internetcomputer.org/docs/current/motoko/main/actors-async
+    // See https://docs.internetcomputer.org/languages/motoko/fundamentals/actors/actors-async
 
     // Add new empty note for this [caller].
     //
@@ -109,13 +97,13 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
     //      [caller] is the anonymous identity
     //      [caller] already has [MAX_NOTES_PER_USER] notes
     //      This is the first note for [caller] and [MAX_USERS] is exceeded
-    public shared ({ caller }) func create_note() : async NoteId {
+    public shared ({ caller }) func createNote() : async NoteId {
         assert not Principal.isAnonymous(caller);
         let owner = Principal.toText(caller);
 
         let newNote : EncryptedNote = {
             id = nextNoteId;
-            encrypted_text = "";
+            encryptedText = "";
             owner = owner;
             users = [];
         };
@@ -142,17 +130,17 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
     // Note that this method is declared as an *update* call (see `shared`) rather than *query*.
     //
     // While queries are significantly faster than updates, they are not certified by the IC.
-    // Thus, we avoid using queries throughout this dapp, ensuring that the result of our
+    // Thus, we avoid using queries throughout this app, ensuring that the result of our
     // functions gets through consensus. Otherwise, this function could e.g. omit some notes
-    // if it got executed by a malicious node. (To make the dapp more efficient, one could
+    // if it got executed by a malicious node. (To make the app more efficient, one could
     // use an approach in which both queries and updates are combined.)
-    // See https://internetcomputer.org/docs/current/concepts/canisters-code#query-and-update-methods
+    // See https://docs.internetcomputer.org/guides/canister-calls/calling-from-clients/#query-vs-update-calls
     //
     // Returns:
     //      Future of array of EncryptedNote
     // Traps:
     //      [caller] is the anonymous identity
-    public shared ({ caller }) func get_notes() : async [EncryptedNote] {
+    public shared ({ caller }) func getNotes() : async [EncryptedNote] {
         assert not Principal.isAnonymous(caller);
         let user = Principal.toText(caller);
 
@@ -175,7 +163,7 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
         List.toArray(buf);
     };
 
-    // Replaces the encrypted text of note with ID [id] with [encrypted_text].
+    // Replaces the encrypted text of note with ID [id] with [encryptedText].
     //
     // Returns:
     //      Future of unit
@@ -183,16 +171,16 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
     //     [caller] is the anonymous identity
     //     note with ID [id] does not exist
     //     [caller] is not the note's owner and not a user with whom the note is shared
-    //     [encrypted_text] exceeds [MAX_NOTE_CHARS]
-    public shared ({ caller }) func update_note(id : NoteId, encrypted_text : Text) : async () {
+    //     [encryptedText] exceeds [MAX_NOTE_CHARS]
+    public shared ({ caller }) func updateNote(id : NoteId, encryptedText : Text) : async () {
         assert not Principal.isAnonymous(caller);
         let caller_text = Principal.toText(caller);
         let (?note_to_update) = Map.get(notesById, Nat.compare, id) else Runtime.trap("note with id " # Nat.toText(id) # "not found");
         if (not is_authorized(caller_text, note_to_update)) {
             Runtime.trap("unauthorized");
         };
-        assert note_to_update.encrypted_text.size() <= MAX_NOTE_CHARS;
-        ignore Map.insert(notesById, Nat.compare, id, { note_to_update with encrypted_text });
+        assert note_to_update.encryptedText.size() <= MAX_NOTE_CHARS;
+        ignore Map.insert(notesById, Nat.compare, id, { note_to_update with encryptedText });
     };
 
     // Shares the note with ID [note_id] with the [user].
@@ -204,7 +192,7 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
     //     [caller] is the anonymous identity
     //     note with ID [id] does not exist
     //     [caller] is not the note's owner
-    public shared ({ caller }) func add_user(note_id : NoteId, user : PrincipalName) : async () {
+    public shared ({ caller }) func addUser(note_id : NoteId, user : PrincipalName) : async () {
         assert not Principal.isAnonymous(caller);
         let caller_text = Principal.toText(caller);
         let (?note) = Map.get(notesById, Nat.compare, note_id) else Runtime.trap("note with id " # Nat.toText(note_id) # "not found");
@@ -239,7 +227,7 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
     //     [caller] is the anonymous identity
     //     note with ID [id] does not exist
     //     [caller] is not the note's owner
-    public shared ({ caller }) func remove_user(note_id : NoteId, user : PrincipalName) : async () {
+    public shared ({ caller }) func removeUser(note_id : NoteId, user : PrincipalName) : async () {
         assert not Principal.isAnonymous(caller);
         let caller_text = Principal.toText(caller);
         let (?note) = Map.get(notesById, Nat.compare, note_id) else Runtime.trap("note with id " # Nat.toText(note_id) # "not found");
@@ -270,7 +258,7 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
     //     [caller] is the anonymous identity
     //     note with ID [id] does not exist
     //     [caller] is not the note's owner
-    public shared ({ caller }) func delete_note(note_id : NoteId) : async () {
+    public shared ({ caller }) func deleteNote(note_id : NoteId) : async () {
         assert not Principal.isAnonymous(caller);
         let caller_text = Principal.toText(caller);
         let (?note_to_delete) = Map.get(notesById, Nat.compare, note_id) else Runtime.trap("note with id " # Nat.toText(note_id) # "not found");
@@ -322,7 +310,7 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
 
     transient let management_canister : VETKD_API = actor ("aaaaa-aa");
 
-    public shared func symmetric_key_verification_key_for_note() : async Text {
+    public shared func symmetricKeyVerificationKeyForNote() : async Text {
         let { public_key } = await management_canister.vetkd_public_key({
             canister_id = null;
             context = Text.encodeUtf8("note_symmetric_key");
@@ -331,7 +319,7 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
         Hex.encode(Blob.toArray(public_key));
     };
 
-    public shared ({ caller }) func encrypted_symmetric_key_for_note(note_id : NoteId, transport_public_key : Blob) : async Text {
+    public shared ({ caller }) func encryptedSymmetricKeyForNote(note_id : NoteId, transport_public_key : Blob) : async Text {
         let caller_text = Principal.toText(caller);
         let (?note) = Map.get(notesById, Nat.compare, note_id) else Runtime.trap("note with id " # Nat.toText(note_id) # "not found");
         if (not is_authorized(caller_text, note)) {
@@ -360,43 +348,5 @@ shared ({ caller = initializer }) persistent actor class (keyName: Text) {
             Nat8.fromIntWrap(n / 2 ** shift);
         };
         Array.tabulate<Nat8>(len, ith_byte);
-    };
-
-    // Below, we implement the upgrade hooks for our canister.
-    // See https://internetcomputer.org/docs/current/motoko/main/upgrades/
-
-    // The work required before a canister upgrade begins.
-    system func preupgrade() {
-        Debug.print("Starting pre-upgrade hook...");
-        stable_notesById := Iter.toArray(Map.entries(notesById));
-        stable_noteIdsByOwner := Iter.toArray(Map.entries(noteIdsByOwner));
-        stable_noteIdsByUser := Iter.toArray(Map.entries(noteIdsByUser));
-        Debug.print("pre-upgrade finished.");
-    };
-
-    // The work required after a canister upgrade ends.
-    // See [nextNoteId], [stable_notesByUser]
-    system func postupgrade() {
-        Debug.print("Starting post-upgrade hook...");
-
-        notesById := Map.fromIter(
-            stable_notesById.values(),
-            Nat.compare,
-        );
-        stable_notesById := [];
-
-        noteIdsByOwner := Map.fromIter(
-            stable_noteIdsByOwner.values(),
-            Text.compare,
-        );
-        stable_noteIdsByOwner := [];
-
-        noteIdsByUser := Map.fromIter(
-            stable_noteIdsByUser.values(),
-            Text.compare,
-        );
-        stable_noteIdsByUser := [];
-
-        Debug.print("post-upgrade finished.");
     };
 };

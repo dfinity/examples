@@ -63,8 +63,8 @@ impl Storable for NoteIds {
 // We use a canister's stable memory as storage. This simplifies the code and makes the appliation
 // more robust because no (potentially failing) pre_upgrade/post_upgrade hooks are needed.
 // Note that stable memory is less performant than heap memory, however.
-// Currently, a single canister smart contract is limited to 96 GB of stable memory.
-// For the current limits see https://internetcomputer.org/docs/current/developer-docs/production/resource-limits.
+// Currently, a single canister is limited to 96 GB of stable memory.
+// For the current limits see https://docs.internetcomputer.org/references/resource-limits.
 // To ensure that our canister does not exceed the limit, we put various restrictions (e.g., number of users) in place.
 static MAX_USERS: u64 = 1_000;
 static MAX_NOTES_PER_USER: usize = 500;
@@ -138,12 +138,12 @@ fn caller() -> Principal {
 // #[query(name = "notesCnt")] ...
 //
 // While queries are significantly faster than updates, they are not certified by the IC.
-// Thus, we avoid using queries throughout this dapp, ensuring that the result of our
+// Thus, we avoid using queries throughout this app, ensuring that the result of our
 // methods gets through consensus. Otherwise, this method could e.g. omit some notes
-// if it got executed by a malicious node. (To make the dapp more efficient, one could
+// if it got executed by a malicious node. (To make the app more efficient, one could
 // use an approach in which both queries and updates are combined.)
 //
-// See https://internetcomputer.org/docs/current/concepts/canisters-code#query-and-update-methods
+// See https://docs.internetcomputer.org/guides/canister-calls/calling-from-clients/#query-vs-update-calls
 
 /// Reflects the [caller]'s identity by returning (a future of) its principal.
 /// Useful for debugging.

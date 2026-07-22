@@ -1,16 +1,16 @@
-# Security checklist (Rust)
+# Security checklist (Motoko)
 
-These notes summarize how this example's **Rust** backend addresses the security considerations most relevant to a vetKeys app. They follow the broader [IC security best practices](https://docs.internetcomputer.org/guides/security/overview/), which are more exhaustive — a production app should still perform its own review.
+These notes summarize how this example's **Motoko** backend addresses the security considerations most relevant to a vetKeys app. They follow the broader [IC security best practices](https://docs.internetcomputer.org/guides/security/overview/), which are more exhaustive — a production app should still perform its own review.
 
 Checked items (`[x]`) are implemented by this example. Unchecked items (`[ ]`) are recommendations that this example intentionally leaves out for simplicity and that a production app should still address.
 
 ## Authentication
 
-- [x] Every note operation requires authentication and rejects the anonymous principal (the `caller()` helper traps for the anonymous principal).
+- [x] Every note operation requires authentication and rejects the anonymous principal (`assert not Principal.isAnonymous(caller)`).
 
 ## Consensus
 
-- [x] The public API has no `query` methods; `get_notes` is an update call, so results go through consensus and cannot be forged by a single malicious node.
+- [x] The public API has no `query` methods; `getNotes` is an update call, so results go through consensus and cannot be forged by a single malicious node.
 
 ## Input validation
 
@@ -30,14 +30,10 @@ Checked items (`[x]`) are implemented by this example. Unchecked items (`[ ]`) a
 
 ## Canister storage and upgrades
 
-- [x] State is stored directly in stable memory via `ic-stable-structures` (`StableBTreeMap`), so it is upgrade-safe by construction (no serialization step that could time out on large data).
 - [x] Only encrypted data is stored on the canister.
 - [x] Per-user limits bound how much any caller can store (max notes, note size, shares).
-
-## Rust-specific
-
-- [x] No `unsafe` code.
-- [x] Arithmetic is written to avoid integer overflow (e.g. the note-ID counter uses `checked_add`).
+- [x] State is retained across upgrades.
+- [ ] For long-term upgradeability, back large state with stable memory directly and version it.
 
 ## Asset certification
 

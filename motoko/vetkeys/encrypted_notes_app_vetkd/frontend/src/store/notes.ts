@@ -39,7 +39,7 @@ async function decryptNotes(
   // already exists but doesn't have any (encrypted) content yet.
   // To avoid decryption errors for these notes, we skip deserializing (and thus
   // decrypting) these notes here.
-  const notes_with_content = notes.filter((note) => note.encrypted_text != "");
+  const notes_with_content = notes.filter((note) => note.encryptedText != "");
 
   return await Promise.all(
     notes_with_content.map((encryptedNote) => deserialize(encryptedNote, cryptoService))
@@ -57,7 +57,7 @@ export async function refreshNotes(
   actor: BackendActor,
   cryptoService: CryptoService
 ) {
-  const encryptedNotes = await actor.get_notes();
+  const encryptedNotes = await actor.getNotes();
 
   const notes = await decryptNotes(encryptedNotes, cryptoService);
   updateNotes(notes);
@@ -68,10 +68,10 @@ export async function addNote(
   actor: BackendActor,
   crypto: CryptoService
 ) {
-  const new_id: bigint = await actor.create_note();
+  const new_id: bigint = await actor.createNote();
   note.id = new_id;
-  const encryptedNote = (await serialize(note, crypto)).encrypted_text;
-  await actor.update_note(new_id, encryptedNote);
+  const encryptedNote = (await serialize(note, crypto)).encryptedText;
+  await actor.updateNote(new_id, encryptedNote);
 }
 export async function updateNote(
   note: NoteModel,
@@ -79,7 +79,7 @@ export async function updateNote(
   crypto: CryptoService
 ) {
   const encryptedNote = await serialize(note, crypto);
-  await actor.update_note(note.id, encryptedNote.encrypted_text);
+  await actor.updateNote(note.id, encryptedNote.encryptedText);
 }
 
 export async function addUser(
@@ -87,7 +87,7 @@ export async function addUser(
   user: string,
   actor: BackendActor,
 ) {
-  await actor.add_user(id, user);
+  await actor.addUser(id, user);
 }
 
 export async function removeUser(
@@ -95,7 +95,7 @@ export async function removeUser(
   user: string,
   actor: BackendActor,
 ) {
-  await actor.remove_user(id, user);
+  await actor.removeUser(id, user);
 }
 
 auth.subscribe(async ($auth) => {
