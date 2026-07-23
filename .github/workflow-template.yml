@@ -1,10 +1,18 @@
 # Workflow template for ICP examples.
-# Copy this file to .github/workflows/<example_name>.yml and replace the placeholders.
+# Copy this file to .github/workflows/<example_name>.yml and replace <example_name>.
 #
-# PLACEHOLDERS:
-#   <example_name>   e.g. hello_world
-#   <language>       motoko | rust
-#   <image>          ghcr.io/dfinity/icp-dev-env-motoko | ghcr.io/dfinity/icp-dev-env-rust
+# Examples run inside the ICP dev-env container via the reusable _run-example.yml
+# workflow, which is the single source of truth for the dev-env image version.
+#
+# This template shows a two-language example (Motoko + Rust). Adjust it:
+#   - Single-language example: keep only the relevant job and its path entry.
+#   - Frontend-only example: use one job with `language: all` and a
+#     `hosting/<example_name>/**` path + `working-directory: hosting/<example_name>`.
+#   - Integration tests needing PocketIC: add `install-pocketic: true` to the job
+#     (and optionally `pocketic-version`).
+#
+# Keep one pull_request path entry per language directory the example ships, so a
+# change in any of them triggers this workflow.
 
 name: <example_name>
 
@@ -14,24 +22,32 @@ on:
       - master
   pull_request:
     paths:
-      - <language>/<example_name>/**
+      - motoko/<example_name>/**
+      - rust/<example_name>/**
       - .github/workflows/<example_name>.yml
+      - .github/workflows/_run-example.yml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  <language>-<example_name>:
-    runs-on: ubuntu-24.04
-    container: <image>
-    env:
-      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-      - name: Deploy and test
-        working-directory: <language>/<example_name>
-        run: |
-          icp network start -d
-          icp deploy
-          make test
+  motoko-<example_name>:
+    uses: ./.github/workflows/_run-example.yml
+    with:
+      language: motoko
+      working-directory: motoko/<example_name>
+      run: |
+        icp network start -d
+        icp deploy
+        bash test.sh
+
+  rust-<example_name>:
+    uses: ./.github/workflows/_run-example.yml
+    with:
+      language: rust
+      working-directory: rust/<example_name>
+      run: |
+        icp network start -d
+        icp deploy
+        bash test.sh

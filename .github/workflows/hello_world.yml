@@ -9,36 +9,29 @@ on:
       - motoko/hello_world/**
       - rust/hello_world/**
       - .github/workflows/hello_world.yml
+      - .github/workflows/_run-example.yml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  motoko-hello_world:
-    runs-on: ubuntu-24.04
-    container: ghcr.io/dfinity/icp-dev-env-motoko:1.0.1
-    env:
-      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-      - name: Deploy and test
-        working-directory: motoko/hello_world
-        run: |
-          icp network start -d
-          icp deploy
-          bash test.sh
+  motoko:
+    uses: ./.github/workflows/_run-example.yml
+    with:
+      language: motoko
+      working-directory: motoko/hello_world
+      run: |
+        icp network start -d
+        icp deploy
+        bash test.sh
 
-  rust-hello_world:
-    runs-on: ubuntu-24.04
-    container: ghcr.io/dfinity/icp-dev-env-rust:1.0.1
-    env:
-      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-      - name: Deploy and test
-        working-directory: rust/hello_world
-        run: |
-          icp network start -d
-          icp deploy
-          bash test.sh
+  rust:
+    uses: ./.github/workflows/_run-example.yml
+    with:
+      language: rust
+      working-directory: rust/hello_world
+      run: |
+        icp network start -d
+        icp deploy
+        bash test.sh
