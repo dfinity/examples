@@ -5,7 +5,7 @@ canisters:
 
   - name: frontend
     recipe:
-      type: "@dfinity/asset-canister@v2.2.1"
+      type: "@dfinity/static-site@v0.3.0"
       configuration:
         dir: frontend/dist
         build:
