@@ -20,5 +20,8 @@ jobs:
       language: all
       working-directory: hosting/godot-html5-template
       run: |
+        # Brotli-compressing the large Godot HTML5 asset bundle can exceed the
+        # default 60s plugin compute limit; raise it for the asset sync.
+        export ICP_CLI_PLUGIN_COMPUTE_LIMIT_SECS=300
         icp network start -d
         icp deploy
