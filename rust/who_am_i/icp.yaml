@@ -13,7 +13,7 @@ canisters:
 
   - name: frontend
     recipe:
-      type: "@dfinity/static-site@v0.3.0"
+      type: "@dfinity/static-site@v0.3.1"
       configuration:
         dir: src/frontend/dist
         build:

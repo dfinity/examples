@@ -5,7 +5,7 @@ canisters:
 
   - name: ii-bridge
     recipe:
-      type: "@dfinity/static-site@v0.3.0"
+      type: "@dfinity/static-site@v0.3.1"
       configuration:
         dir: ii-bridge/dist
         build:
