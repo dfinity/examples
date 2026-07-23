@@ -50,7 +50,7 @@ on:
 jobs:
   run:
     runs-on: ubuntu-24.04
-    container: ghcr.io/dfinity/icp-dev-env-${{ inputs.language }}:1.1.0
+    container: ghcr.io/dfinity/icp-dev-env-${{ inputs.language }}:v1.2.0
     env:
       ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     steps:
