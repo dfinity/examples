@@ -8,6 +8,7 @@ on:
     paths:
       - rust/qrcode/**
       - .github/workflows/qrcode.yml
+      - .github/workflows/_run-example.yml
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -15,15 +16,11 @@ concurrency:
 
 jobs:
   rust-qrcode:
-    runs-on: ubuntu-24.04
-    container: ghcr.io/dfinity/icp-dev-env-rust:1.0.1
-    env:
-      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-      - name: Deploy and test
-        working-directory: rust/qrcode
-        run: |
-          icp network start -d
-          icp deploy
-          bash test.sh
+    uses: ./.github/workflows/_run-example.yml
+    with:
+      language: rust
+      working-directory: rust/qrcode
+      run: |
+        icp network start -d
+        icp deploy
+        bash test.sh

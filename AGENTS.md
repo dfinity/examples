@@ -491,9 +491,11 @@ Rust: `icp build backend && candid-extractor target/wasm32-unknown-unknown/relea
 ## Pending items (do not resolve prematurely)
 
 ### Container images
-Images are published at `ghcr.io/dfinity/icp-dev-env-{motoko,rust,all}`. Current pinned version: **`1.0.1`**. All devcontainer configs and CI workflows reference the pinned tag. When a new release is cut, update the tag in:
+Images are published at `ghcr.io/dfinity/icp-dev-env-{motoko,rust,all}`. Current pinned version: **`v1.2.0`**. Releases are tagged with a `v` prefix (e.g. `v1.2.0`); the registry publishes both `v1.2.0` and `1.2.0` tags, and we pin the `v`-prefixed form. When a new release is cut, update the tag in:
 - `.devcontainer/devcontainer.json`
-- `.github/workflows/*.yml`
+- `.github/workflows/_run-example.yml` (the single source of truth for the CI image version)
+
+`dev-env-version-check.yml` guards that these two stay in sync.
 
 Source: https://github.com/dfinity/icp-dev-env
 
