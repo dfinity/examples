@@ -1,0 +1,16 @@
+{
+  "name": "blazor-icp",
+  "version": "1.0.0",
+  "scripts": {
+    "build": "webpack"
+  },
+  "dependencies": {
+    "@dfinity/agent": "^2.0.0"
+  },
+  "devDependencies": {
+    "webpack": "^5.0.0",
+    "webpack-cli": "^5.0.0",
+    "ts-loader": "^9.0.0",
+    "typescript": "^5.0.0"
+  }
+}

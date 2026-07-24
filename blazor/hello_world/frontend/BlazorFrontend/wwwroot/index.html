@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ICP Blazor Hello World</title>
+    <base href="/" />
+    <link rel="stylesheet" href="app.css" />
+    <link rel="stylesheet" href="BlazorFrontend.styles.css" />
+</head>
+<body>
+    <div id="app">Loading...</div>
+
+    <!--
+        icpAgent.js is loaded with `defer` — this guarantees it runs
+        before DOMContentLoaded and before Blazor makes any JS interop calls.       
+    -->
+    <script defer src="icpAgent.js"></script>
+    <script src="_framework/blazor.webassembly.js"></script>
+</body>
+</html>

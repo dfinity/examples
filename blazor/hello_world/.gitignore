@@ -1,0 +1,20 @@
+# ICP - cache only, keep .icp/data/ for canister IDs
+.icp/cache/
+
+# .NET build output
+bin/
+obj/
+
+# Node
+node_modules/
+
+# webpack generated output (regenerated on build)
+frontend/BlazorFrontend/wwwroot/icpAgent.js
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
