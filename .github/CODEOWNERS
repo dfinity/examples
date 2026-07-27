@@ -13,7 +13,6 @@
 /motoko/backend_only/ @dfinity/ninja-devs
 /motoko/canister_factory/ @dfinity/sdk
 /motoko/canister_logs/ @dfinity/core-protocol
-/motoko/cert-var/ @dfinity/trust
 /motoko/daily_planner/ @dfinity/ninja-devs
 /motoko/evm_block_explorer/ @dfinity/ninja-devs
 /motoko/filevault/ @dfinity/ninja-devs
