@@ -18,7 +18,7 @@ The call flow:
       PUBLIC_CANISTER_ID:publisher, injected by icp-cli)
 
 2. publisher.publish({ topic = "Apples"; value = 2 })
-     └─► subscriber.updateCount({ topic = "Apples"; value = 2 })   ← async callback
+     └─► subscriber.updateCount({ topic = "Apples"; value = 2 })   ← oneway callback (fire-and-forget)
 
 3. subscriber.getCount()  →  2
 ```
