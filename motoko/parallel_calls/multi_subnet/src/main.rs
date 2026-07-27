@@ -13,16 +13,19 @@ fn main() {
     let app_sub_1 = pic.topology().get_app_subnets()[0];
     let app_sub_2 = pic.topology().get_app_subnets()[1];
 
+    // Create both canisters first; installation happens further below. Creation
+    // only reserves the canister IDs, so the callee's principal is known before
+    // the caller is installed.
     let caller_id = pic.create_canister_on_subnet(None, None, app_sub_1);
-    pic.add_cycles(caller_id, INIT_CYCLES);
-    pic.install_canister(caller_id, caller_wasm(), vec![], None);
-
     let callee_id = pic.create_canister_on_subnet(None, None, app_sub_2);
+
     pic.add_cycles(callee_id, INIT_CYCLES);
     pic.install_canister(callee_id, callee_wasm(), vec![], None);
 
-    // Inject PUBLIC_CANISTER_ID:callee so the caller discovers the callee
-    // via Runtime.envVar without a separate setup call.
+    // Inject PUBLIC_CANISTER_ID:callee before installing the caller. The caller
+    // reaches the callee through the `canister:callee` import, which moc's
+    // --actor-env-alias flag binds to this environment variable at canister init
+    // — so it must be set before the caller's Wasm is installed, not after.
     pic.update_canister_settings(
         caller_id,
         None,
@@ -35,6 +38,9 @@ fn main() {
         },
     )
     .expect("Failed to inject callee canister ID");
+
+    pic.add_cycles(caller_id, INIT_CYCLES);
+    pic.install_canister(caller_id, caller_wasm(), vec![], None);
 
     let sequential_start = Instant::now();
     let sequential_reply = pic
