@@ -39,7 +39,7 @@ The `backend/backend.did` file defines the backend canister's public interface. 
 If you modify the backend's public API, regenerate the `.did` file:
 
 ```bash
-$(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo
+mops generate candid backend
 ```
 
 ## Security considerations and best practices

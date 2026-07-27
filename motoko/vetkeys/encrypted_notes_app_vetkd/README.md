@@ -56,6 +56,14 @@ A single Motoko canister that stores encrypted notes. It is deployed automatical
 
 A **Svelte** application providing a user-friendly interface for managing encrypted notes. Canister bindings are generated from `backend/backend.did` at build time by the `@icp-sdk/bindgen` Vite plugin.
 
+## Updating the Candid interface
+
+`backend/backend.did` defines the backend's public interface; the frontend bindings are generated from it during the build. If you change the backend's public API, regenerate it:
+
+```bash
+mops generate candid backend
+```
+
 ## Limitations
 
 This example app does not implement key rotation, which is strongly recommended in a production environment.
