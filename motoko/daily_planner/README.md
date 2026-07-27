@@ -35,7 +35,7 @@ npm run dev
 ## Updating the Candid interface
 
 ```bash
-$(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo
+mops generate candid backend
 ```
 
 ## Security considerations and best practices

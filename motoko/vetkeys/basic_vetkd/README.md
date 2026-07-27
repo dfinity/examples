@@ -37,7 +37,7 @@ Open the frontend URL printed by `icp deploy`. When done: `icp network stop`
 ## Updating the Candid interface
 
 ```bash
-$(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo
+mops generate candid backend
 ```
 
 ## Security considerations and best practices
