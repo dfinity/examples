@@ -2,7 +2,7 @@ import LLM "canister:llm";
 
 // The backend calls the LLM canister's `v1_chat` endpoint through the typed
 // `canister:llm` import — no LLM actor type is declared here. The import is
-// typed against the LLM canister's committed Candid interface (backend/llm.did),
+// typed against the LLM canister's committed Candid interface (candid/llm.did),
 // and the mops.toml `--actor-env-alias` flag binds it to the
 // PUBLIC_CANISTER_ID:llm env var that icp-cli injects.
 //

@@ -23,5 +23,5 @@ candid = "backend/backend.did"
 args = [
     "--default-persistent-actors",
     "-W=M0236,M0237,M0223",
-    "--actor-env-alias", "llm", "PUBLIC_CANISTER_ID:llm", "backend/llm.did",
+    "--actor-env-alias", "llm", "PUBLIC_CANISTER_ID:llm", "candid/llm.did",
 ]

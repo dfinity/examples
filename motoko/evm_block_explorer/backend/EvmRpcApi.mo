@@ -2,7 +2,7 @@ import EvmRpc "canister:evm_rpc";
 
 module {
   // The EVM RPC canister is imported by name via `canister:evm_rpc`, typed
-  // against backend/evm_rpc.did — so the request/response types below are the
+  // against candid/evm_rpc.did — so the request/response types below are the
   // canister's own (e.g. EvmRpc.Block, EvmRpc.RpcServices), not hand-written.
   // icp-cli injects its principal as PUBLIC_CANISTER_ID:evm_rpc at deploy time;
   // the mops.toml `--actor-env-alias` flag binds the import to that variable.

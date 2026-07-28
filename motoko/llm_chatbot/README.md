@@ -4,7 +4,7 @@ This example demonstrates how an ICP canister can interact with a large language
 
 ## How it works
 
-The backend canister calls the [LLM canister](https://forum.dfinity.org/t/introducing-the-llm-canister-deploy-ai-agents-with-a-few-lines-of-code/41424)'s `v1_chat` endpoint directly (see `backend/app.mo`), without a helper library. It reaches the canister through the typed import `import LLM "canister:llm"` — no LLM actor type is hand-written. The import is typed against the LLM canister's committed Candid interface (`backend/llm.did`), and the `--actor-env-alias` flag in `mops.toml` binds it to the `PUBLIC_CANISTER_ID:llm` environment variable. Locally, `icp deploy` deploys a copy of the LLM canister (backed by Ollama) and injects this variable automatically. On mainnet the shared LLM canister already exists, so `icp.yaml` sets the variable to its principal (`w36hm-eqaaa-aaaal-qr76a-cai`) for the `ic` environment. The principal is resolved at canister install/upgrade, so the same Wasm runs in both environments.
+The backend canister calls the [LLM canister](https://forum.dfinity.org/t/introducing-the-llm-canister-deploy-ai-agents-with-a-few-lines-of-code/41424)'s `v1_chat` endpoint directly (see `backend/app.mo`), without a helper library. It reaches the canister through the typed import `import LLM "canister:llm"` — no LLM actor type is hand-written. The import is typed against the LLM canister's committed Candid interface (`candid/llm.did`), and the `--actor-env-alias` flag in `mops.toml` binds it to the `PUBLIC_CANISTER_ID:llm` environment variable. Locally, `icp deploy` deploys a copy of the LLM canister (backed by Ollama) and injects this variable automatically. On mainnet the shared LLM canister already exists, so `icp.yaml` sets the variable to its principal (`w36hm-eqaaa-aaaal-qr76a-cai`) for the `ic` environment. The principal is resolved at canister install/upgrade, so the same Wasm runs in both environments.
 
 ## Build and deploy from the command line
 
@@ -74,10 +74,10 @@ The `backend/backend.did` file defines the backend canister's public interface. 
 mops generate candid backend
 ```
 
-`backend/llm.did` is a different kind of file: it is the **LLM canister's** interface, used to type the backend's `canister:llm` import. It is not generated from this project — it is the Candid interface of the pre-built LLM Wasm pinned in `icp.yaml`. To refresh it (e.g. after bumping the LLM release), extract it from that Wasm:
+`candid/llm.did` is the **LLM canister's own interface**, not the backend's — the `canister:llm` import is typed against it. The `candid/` directory holds the interfaces of external canisters this project calls (as opposed to `backend/backend.did`, which is this project's own interface). These are not produced by `mops generate candid`; each is the Candid interface of a pre-built Wasm pinned in `icp.yaml`. To refresh it (e.g. after bumping the LLM release), re-extract it from that Wasm:
 
 ```bash
-ic-wasm llm-canister.wasm metadata candid:service > backend/llm.did
+ic-wasm llm-canister.wasm metadata candid:service > candid/llm.did
 ```
 
 ## Security considerations and best practices

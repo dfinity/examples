@@ -21,5 +21,5 @@ candid = "backend/backend.did"
 args = [
     "--default-persistent-actors",
     "-W=M0236,M0237,M0223",
-    "--actor-env-alias", "evm_rpc", "PUBLIC_CANISTER_ID:evm_rpc", "backend/evm_rpc.did",
+    "--actor-env-alias", "evm_rpc", "PUBLIC_CANISTER_ID:evm_rpc", "candid/evm_rpc.did",
 ]

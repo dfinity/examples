@@ -23,5 +23,5 @@ candid = "backend/backend.did"
 args = [
     "--default-persistent-actors",
     "-W=M0236,M0237,M0223",
-    "--actor-env-alias", "icrc1_ledger", "PUBLIC_CANISTER_ID:icrc1_ledger", "backend/icrc1_ledger.did",
+    "--actor-env-alias", "icrc1_ledger", "PUBLIC_CANISTER_ID:icrc1_ledger", "candid/icrc1_ledger.did",
 ]

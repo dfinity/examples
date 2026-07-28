@@ -34,7 +34,7 @@ import Types "app.types";
 actor class Main(_startBlock : Nat) {
 
   // The ledger is imported by name via `canister:icrc1_ledger`, typed against
-  // backend/icrc1_ledger.did — so no actor type is declared here. icp-cli
+  // candid/icrc1_ledger.did — so no actor type is declared here. icp-cli
   // injects its principal as PUBLIC_CANISTER_ID:icrc1_ledger at deploy time;
   // the mops.toml `--actor-env-alias` flag binds the import to that variable.
 
