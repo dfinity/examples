@@ -19,7 +19,7 @@ To let you try the full flow without spending real funds, this example uses the 
 
 The backend is a single Motoko canister (`backend`). It stores per-merchant configuration (`getMerchant` / `updateMerchant`) and runs a [timer](https://internetcomputer.org/docs/motoko/timers) that monitors the ICRC-1 ledger for incoming transfers. When a payment is detected for a merchant that has notifications enabled, it emits a [canister log](https://internetcomputer.org/docs/building-apps/canister-management/logs) entry (observable with `icp canister logs backend`) noting where a notification would be sent.
 
-The ledger canister is resolved at runtime from the `PUBLIC_CANISTER_ID:icrc1_ledger` environment variable injected by icp-cli (the local ledger when developing, TICRC1 on mainnet).
+The backend reaches the ledger through the typed import `import Ledger "canister:icrc1_ledger"` — no ledger actor type is declared in the code. The import is typed against the ledger's committed Candid interface (`candid/icrc1_ledger.did`), and the `--actor-env-alias` flag in `mops.toml` binds it to the `PUBLIC_CANISTER_ID:icrc1_ledger` environment variable that icp-cli injects (the local ledger when developing, TICRC1 on mainnet). The principal is resolved at canister install/upgrade; no principal is compiled into the Wasm, so the same artifact runs in every environment.
 
 > **Notifications.** The original app sent email/SMS via an HTTPS outcall to a third-party service. This version instead logs where a notification would be sent. To implement real notifications, use [HTTPS outcalls](https://docs.internetcomputer.org/guides/backends/https-outcalls).
 >
@@ -103,6 +103,23 @@ The `backend/backend.did` file defines the backend's public interface; the front
 ```bash
 mops generate candid backend
 ```
+
+`candid/icrc1_ledger.did` is the **ledger's own interface**, not the backend's — the `canister:icrc1_ledger` import is typed against it. The `candid/` directory holds the interfaces of external canisters this project calls (as opposed to `backend/backend.did`, which is this project's own interface). These are not produced by `mops generate candid` — each is the Candid interface of an external canister. To refresh one (e.g. after bumping the ledger release), get it straight from the ledger with either of:
+
+**From mainnet** — the live shared ledger (TICRC1). One command, no files to handle:
+
+```bash
+icp canister metadata 3jkp5-oyaaa-aaaaj-azwqa-cai candid:service -e ic > candid/icrc1_ledger.did
+```
+
+**From the pinned Wasm** — matches exactly what deploys locally. The Wasm is the pre-built artifact pinned in this project's `icp.yaml` (the `icrc1_ledger` canister's `build.steps[].url`); download and unpack it, then extract its interface:
+
+```bash
+curl -sSL https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2026-03-09/ic-icrc1-ledger.wasm.gz | gunzip > ic-icrc1-ledger.wasm
+ic-wasm ic-icrc1-ledger.wasm metadata candid:service > candid/icrc1_ledger.did
+```
+
+Both give the same interface as long as `icp.yaml` pins the release that is live on mainnet.
 
 ## Possible improvements
 

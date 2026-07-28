@@ -6,6 +6,8 @@
 
 The EVM Block Explorer example demonstrates how an ICP canister can fetch block data directly from Ethereum and other EVM-compatible chains. Using HTTPS outcalls via the [EVM RPC canister](https://github.com/dfinity/evm-rpc-canister), canisters on ICP can read on-chain data without a bridge or oracle. The same pattern applies to any EVM-compatible chain supported by the EVM RPC canister.
 
+The backend reaches the EVM RPC canister through the typed import `import EvmRpc "canister:evm_rpc"` in `backend/EvmRpcApi.mo` — no RPC actor type is hand-written. The import is typed against the EVM RPC canister's committed Candid interface (`candid/evm_rpc.did`), and the `--actor-env-alias` flag in `mops.toml` binds it to the `PUBLIC_CANISTER_ID:evm_rpc` environment variable that icp-cli injects (the local `evm_rpc` canister when developing, the shared `7hfb6-caaaa-aaaar-qadga-cai` on mainnet). The principal is resolved at canister install/upgrade; no principal is compiled into the Wasm, so the same artifact runs in every environment.
+
 <!--
 ## Deploying from ICP Ninja
 
@@ -65,6 +67,23 @@ If you modify the backend's public API, regenerate the `.did` file:
 ```bash
 mops generate candid backend
 ```
+
+`candid/evm_rpc.did` is the **EVM RPC canister's own interface**, not the backend's — the `canister:evm_rpc` import is typed against it. The `candid/` directory holds the interfaces of external canisters this project calls (as opposed to `backend/backend.did`, which is this project's own interface). These are not produced by `mops generate candid` — each is the Candid interface of an external canister. To refresh one (e.g. after bumping the EVM RPC release), get it straight from the canister with either of:
+
+**From mainnet** — the live shared EVM RPC canister. One command, no files to handle:
+
+```bash
+icp canister metadata 7hfb6-caaaa-aaaar-qadga-cai candid:service -e ic > candid/evm_rpc.did
+```
+
+**From the pinned Wasm** — matches exactly what deploys locally. The Wasm is the pre-built artifact pinned in this project's `icp.yaml` (the `evm_rpc` canister's `build.steps[].url`); download and unpack it, then extract its interface:
+
+```bash
+curl -sSL https://github.com/dfinity/evm-rpc-canister/releases/download/evm_rpc-v2.8.0/evm_rpc.wasm.gz | gunzip > evm_rpc.wasm
+ic-wasm evm_rpc.wasm metadata candid:service > candid/evm_rpc.did
+```
+
+Both give the same interface as long as `icp.yaml` pins the release that is live on mainnet.
 
 ## RPC providers and API keys
 
