@@ -19,7 +19,7 @@ To let you try the full flow without spending real funds, this example uses the 
 
 The backend is a single Motoko canister (`backend`). It stores per-merchant configuration (`getMerchant` / `updateMerchant`) and runs a [timer](https://internetcomputer.org/docs/motoko/timers) that monitors the ICRC-1 ledger for incoming transfers. When a payment is detected for a merchant that has notifications enabled, it emits a [canister log](https://internetcomputer.org/docs/building-apps/canister-management/logs) entry (observable with `icp canister logs backend`) noting where a notification would be sent.
 
-The ledger canister is resolved at runtime from the `PUBLIC_CANISTER_ID:icrc1_ledger` environment variable injected by icp-cli (the local ledger when developing, TICRC1 on mainnet).
+The backend reaches the ledger through the typed import `import Ledger "canister:icrc1_ledger"` — no ledger actor type is declared in the code. The import is typed against the ledger's committed Candid interface (`backend/icrc1_ledger.did`), and the `--actor-env-alias` flag in `mops.toml` binds it to the `PUBLIC_CANISTER_ID:icrc1_ledger` environment variable that icp-cli injects (the local ledger when developing, TICRC1 on mainnet). The principal is resolved at canister install/upgrade; no principal is compiled into the Wasm, so the same artifact runs in every environment.
 
 > **Notifications.** The original app sent email/SMS via an HTTPS outcall to a third-party service. This version instead logs where a notification would be sent. To implement real notifications, use [HTTPS outcalls](https://docs.internetcomputer.org/guides/backends/https-outcalls).
 >
@@ -102,6 +102,12 @@ The `backend/backend.did` file defines the backend's public interface; the front
 
 ```bash
 mops generate candid backend
+```
+
+`backend/icrc1_ledger.did` is a different kind of file: it is the **ledger's** interface, used to type the backend's `canister:icrc1_ledger` import. It is not generated from this project — it is the Candid interface of the pre-built ICRC-1 ledger Wasm pinned in `icp.yaml`. To refresh it (e.g. after bumping the ledger release), extract it from that Wasm:
+
+```bash
+ic-wasm ic-icrc1-ledger.wasm metadata candid:service > backend/icrc1_ledger.did
 ```
 
 ## Possible improvements

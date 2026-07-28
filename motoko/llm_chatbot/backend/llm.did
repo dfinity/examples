@@ -1,0 +1,56 @@
+type assistant_message = record {
+  content : opt text;
+  tool_calls : vec record {
+    id : text;
+    function : record { name : text; arguments : vec tool_call_argument };
+  };
+};
+type backend_config = variant {
+  worker;
+  ollama;
+  openrouter : record { api_key : text };
+};
+type chat_message_v0 = record {
+  content : text;
+  role : variant { user; assistant; system };
+};
+type chat_message_v1 = variant {
+  tool : record { content : text; tool_call_id : text };
+  user : record { content : text };
+  assistant : assistant_message;
+  system : record { content : text };
+};
+type chat_request_v0 = record { model : text; messages : vec chat_message_v0 };
+type chat_request_v1 = record {
+  model : text;
+  tools : opt vec tool;
+  messages : vec chat_message_v1;
+};
+type chat_response_v1 = record { message : assistant_message };
+type config = record {
+  workers_whitelist : variant { all; some : vec principal };
+  api_disabled : bool;
+};
+type parameters = record {
+  "type" : text;
+  properties : opt vec property;
+  required : opt vec text;
+};
+type property = record {
+  enum : opt vec text;
+  name : text;
+  "type" : text;
+  description : opt text;
+};
+type tool = variant {
+  function : record {
+    name : text;
+    parameters : opt parameters;
+    description : opt text;
+  };
+};
+type tool_call_argument = record { value : text; name : text };
+service : {
+  v0_chat : (chat_request_v0) -> (text);
+  v1_chat : (chat_request_v1) -> (chat_response_v1);
+}

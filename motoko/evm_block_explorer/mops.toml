@@ -13,3 +13,13 @@ args = ["--default-persistent-actors", "-W=M0236,M0237,M0223"]
 [canisters.backend]
 main = "backend/app.mo"
 candid = "backend/backend.did"
+# --actor-env-alias <alias> <envvar> <did-path>: resolve the `canister:evm_rpc`
+# import from the PUBLIC_CANISTER_ID:evm_rpc env var (injected by icp deploy),
+# typed against the EVM RPC canister's committed Candid interface — so no RPC
+# actor type is declared in the backend.
+# Per-canister args replace the global [moc].args, so repeat those flags here.
+args = [
+    "--default-persistent-actors",
+    "-W=M0236,M0237,M0223",
+    "--actor-env-alias", "evm_rpc", "PUBLIC_CANISTER_ID:evm_rpc", "backend/evm_rpc.did",
+]

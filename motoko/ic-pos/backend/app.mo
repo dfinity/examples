@@ -4,10 +4,10 @@ import Nat "mo:core/Nat";
 import Nat8 "mo:core/Nat8";
 import Nat64 "mo:core/Nat64";
 import Principal "mo:core/Principal";
-import Runtime "mo:core/Runtime";
 import Text "mo:core/Text";
 import Time "mo:core/Time";
 
+import Ledger "canister:icrc1_ledger";
 import Types "app.types";
 
 // This actor:
@@ -33,18 +33,10 @@ import Types "app.types";
 // (as this example's frontend already does).
 actor class Main(_startBlock : Nat) {
 
-  // Minimal subset of the ICRC-1 ledger interface this actor uses. Candid
-  // ignores wire fields not declared here, so only the read fields are listed.
-  type Account = { owner : Principal };
-  type Transfer = { to : Account; from : Account; amount : Nat };
-  type Transaction = { kind : Text; transfer : ?Transfer };
-  type GetTransactionsRequest = { start : Nat; length : Nat };
-  type GetTransactionsResponse = { transactions : [Transaction] };
-  type Ledger = actor {
-    get_transactions : GetTransactionsRequest -> async GetTransactionsResponse;
-    icrc1_symbol : () -> async Text;
-    icrc1_decimals : () -> async Nat8;
-  };
+  // The ledger is imported by name via `canister:icrc1_ledger`, typed against
+  // backend/icrc1_ledger.did — so no actor type is declared here. icp-cli
+  // injects its principal as PUBLIC_CANISTER_ID:icrc1_ledger at deploy time;
+  // the mops.toml `--actor-env-alias` flag binds the import to that variable.
 
   let merchantStore = Map.empty<Text, Types.Merchant>();
   // Next ledger block index to scan for incoming transfers.
@@ -83,20 +75,11 @@ actor class Main(_startBlock : Nat) {
     { status = 200; status_text = "OK"; data = ?merchant; error_text = null };
   };
 
-  // Resolve the ledger canister, injected as PUBLIC_CANISTER_ID:icrc1_ledger.
-  func ledger<system>() : Ledger {
-    switch (Runtime.envVar<system>("PUBLIC_CANISTER_ID:icrc1_ledger")) {
-      case (?id) actor (id) : Ledger;
-      case null Runtime.trap("PUBLIC_CANISTER_ID:icrc1_ledger not set — run icp deploy");
-    };
-  };
-
   // Fetch the token's symbol and decimals from the ledger once, then cache them.
-  func loadMetadataOnce<system>() : async () {
+  func loadMetadataOnce() : async () {
     if (metadataLoaded) return;
-    let l = ledger<system>();
-    tokenSymbol := await l.icrc1_symbol();
-    tokenDecimals := Nat8.toNat(await l.icrc1_decimals());
+    tokenSymbol := await Ledger.icrc1_symbol();
+    tokenDecimals := Nat8.toNat(await Ledger.icrc1_decimals());
     metadataLoaded := true;
   };
 
@@ -118,11 +101,11 @@ actor class Main(_startBlock : Nat) {
   system func timer(setGlobalTimer : Nat64 -> ()) : async () {
     let next = Nat64.fromIntWrap(Time.now()) + 20_000_000_000; // 20 seconds
     setGlobalTimer(next);
-    await notify<system>();
+    await notify();
   };
 
-  func notify<system>() : async () {
-    let response = await ledger<system>().get_transactions({ start = nextBlock; length = scanBatchSize });
+  func notify() : async () {
+    let response = await Ledger.get_transactions({ start = nextBlock; length = scanBatchSize });
     let txs = response.transactions;
     if (txs.size() == 0) return; // caught up; check again next tick
     nextBlock += txs.size();
@@ -142,7 +125,7 @@ actor class Main(_startBlock : Nat) {
               // use HTTPS outcalls —
               // https://docs.internetcomputer.org/guides/backends/https-outcalls
               if (merchant.email_notifications or merchant.phone_notifications) {
-                if (not metadataLoaded) await loadMetadataOnce<system>();
+                if (not metadataLoaded) await loadMetadataOnce();
                 Debug.print(
                   "Payment of " # formatAmount(transfer.amount) # " received by merchant '" # merchant.name #
                   "' from " # transfer.from.owner.toText() #

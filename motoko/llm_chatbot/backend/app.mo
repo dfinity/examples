@@ -1,15 +1,17 @@
-import Runtime "mo:core/Runtime";
+import LLM "canister:llm";
 
-// The backend calls the LLM canister's `v1_chat` endpoint directly. The request
-// and response types below mirror that canister's Candid interface:
-// https://dashboard.internetcomputer.org/canister/w36hm-eqaaa-aaaal-qr76a-cai#interface
+// The backend calls the LLM canister's `v1_chat` endpoint through the typed
+// `canister:llm` import — no LLM actor type is declared here. The import is
+// typed against the LLM canister's committed Candid interface (backend/llm.did),
+// and the mops.toml `--actor-env-alias` flag binds it to the
+// PUBLIC_CANISTER_ID:llm env var that icp-cli injects.
 //
-// LLM canister interface:
-//   v1_chat : (chat_request_v1) -> (chat_response_v1)
+// The message types below are this backend's own public API (the frontend
+// generates its bindings from them); they are structurally identical to the LLM
+// canister's `chat_message_v1` / `assistant_message`, so values flow straight
+// into `LLM.v1_chat` without conversion.
 //
-// This example does not use tools, so the optional `tools` field is omitted from
-// the request — Candid decodes an absent optional record field as `null` on the
-// canister side, keeping the call wire-compatible.
+// This example does not use tools, so `tools` is passed as null.
 actor {
 
   // A message in a chat. Mirrors `chat_message_v1` in the LLM canister interface.
@@ -41,36 +43,17 @@ actor {
     value : Text;
   };
 
-  // Request/response for `v1_chat`. The request omits the optional `tools` field
-  // (see the note above).
-  type Request = {
-    model : Text;
-    messages : [ChatMessage];
-  };
-  type Response = { message : AssistantMessage };
-  type LlmActor = actor { v1_chat : (Request) -> async Response };
-
   // The model this example uses. The LLM canister identifies models by string;
   // other available models include "qwen3:32b" and "llama4-scout".
   let model = "llama3.1:8b";
 
-  // The LLM canister ID is injected as PUBLIC_CANISTER_ID:llm at deploy time:
-  //   local: auto-injected by icp-cli after deploying the pre-built llm canister
-  //   ic:    set explicitly in icp.yaml to the shared mainnet LLM canister
-  //
-  // See icp.yaml for the environment configuration.
-  func llmCanister<system>() : LlmActor {
-    let ?id = Runtime.envVar<system>("PUBLIC_CANISTER_ID:llm") else Runtime.trap("PUBLIC_CANISTER_ID:llm not set — run icp deploy");
-    actor (id) : LlmActor;
-  };
-
-  func sendChat<system>(messages : [ChatMessage]) : async AssistantMessage {
-    let response = await llmCanister<system>().v1_chat({ model; messages });
+  func sendChat(messages : [ChatMessage]) : async AssistantMessage {
+    let response = await LLM.v1_chat({ model; messages; tools = null });
     response.message;
   };
 
   public func prompt(prompt : Text) : async Text {
-    let message = await sendChat<system>([#user({ content = prompt })]);
+    let message = await sendChat([#user({ content = prompt })]);
     switch (message.content) {
       case (?text) text;
       case null "";
@@ -78,7 +61,7 @@ actor {
   };
 
   public func chat(messages : [ChatMessage]) : async Text {
-    let message = await sendChat<system>(messages);
+    let message = await sendChat(messages);
     switch (message.content) {
       case (?text) text;
       case null "";

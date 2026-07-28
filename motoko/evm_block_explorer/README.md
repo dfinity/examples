@@ -6,6 +6,8 @@
 
 The EVM Block Explorer example demonstrates how an ICP canister can fetch block data directly from Ethereum and other EVM-compatible chains. Using HTTPS outcalls via the [EVM RPC canister](https://github.com/dfinity/evm-rpc-canister), canisters on ICP can read on-chain data without a bridge or oracle. The same pattern applies to any EVM-compatible chain supported by the EVM RPC canister.
 
+The backend reaches the EVM RPC canister through the typed import `import EvmRpc "canister:evm_rpc"` in `backend/EvmRpcApi.mo` — no RPC actor type is hand-written. The import is typed against the EVM RPC canister's committed Candid interface (`backend/evm_rpc.did`), and the `--actor-env-alias` flag in `mops.toml` binds it to the `PUBLIC_CANISTER_ID:evm_rpc` environment variable that icp-cli injects (the local `evm_rpc` canister when developing, the shared `7hfb6-caaaa-aaaar-qadga-cai` on mainnet). The principal is resolved at canister install/upgrade; no principal is compiled into the Wasm, so the same artifact runs in every environment.
+
 <!--
 ## Deploying from ICP Ninja
 
@@ -64,6 +66,12 @@ If you modify the backend's public API, regenerate the `.did` file:
 
 ```bash
 mops generate candid backend
+```
+
+`backend/evm_rpc.did` is a different kind of file: it is the **EVM RPC canister's** interface, used to type the backend's `canister:evm_rpc` import. It is not generated from this project — it is the Candid interface of the pre-built EVM RPC Wasm pinned in `icp.yaml`. To refresh it (e.g. after bumping the EVM RPC release), extract it from that Wasm:
+
+```bash
+ic-wasm evm_rpc.wasm metadata candid:service > backend/evm_rpc.did
 ```
 
 ## RPC providers and API keys

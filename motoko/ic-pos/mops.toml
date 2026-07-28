@@ -15,3 +15,13 @@ args = ["--default-persistent-actors", "-W=M0236,M0237,M0223"]
 [canisters.backend]
 main = "backend/app.mo"
 candid = "backend/backend.did"
+# --actor-env-alias <alias> <envvar> <did-path>: resolve the
+# `canister:icrc1_ledger` import from the PUBLIC_CANISTER_ID:icrc1_ledger env
+# var (injected by icp deploy), typed against the ledger's committed Candid
+# interface — so no ledger actor type is declared in the backend.
+# Per-canister args replace the global [moc].args, so repeat those flags here.
+args = [
+    "--default-persistent-actors",
+    "-W=M0236,M0237,M0223",
+    "--actor-env-alias", "icrc1_ledger", "PUBLIC_CANISTER_ID:icrc1_ledger", "backend/icrc1_ledger.did",
+]
