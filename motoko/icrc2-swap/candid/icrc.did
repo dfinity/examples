@@ -1,0 +1,125 @@
+// ICRC-1 + ICRC-2 token-ledger interface.
+//
+// This is the *standard* interface every ICRC-1/ICRC-2 ledger exposes — not a
+// specific ledger. The swap backend types its `actor(<token-principal>)`
+// references against it, so the same generated bindings work for any ICRC-1/2
+// ledger the backend is pointed at (token_a, token_b, ckBTC, an SNS token, ...).
+//
+// The type definitions match the ICRC-1 ledger reference implementation
+// (dfinity/ic, ledger-suite-icrc). Generate the Motoko bindings with:
+//   didc bind -t mo candid/icrc.did > bindings/ICRC.mo
+
+type Subaccount = blob;
+type Timestamp = nat64;
+type Tokens = nat;
+type BlockIndex = nat;
+
+type Account = record {
+  owner : principal;
+  subaccount : opt Subaccount;
+};
+
+type TransferArg = record {
+  from_subaccount : opt Subaccount;
+  to : Account;
+  amount : Tokens;
+  fee : opt Tokens;
+  memo : opt blob;
+  created_at_time : opt Timestamp;
+};
+
+type TransferError = variant {
+  BadFee : record { expected_fee : Tokens };
+  BadBurn : record { min_burn_amount : Tokens };
+  InsufficientFunds : record { balance : Tokens };
+  TooOld;
+  CreatedInFuture : record { ledger_time : Timestamp };
+  TemporarilyUnavailable;
+  Duplicate : record { duplicate_of : BlockIndex };
+  GenericError : record { error_code : nat; message : text };
+};
+
+type TransferResult = variant {
+  Ok : BlockIndex;
+  Err : TransferError;
+};
+
+type MetadataValue = variant {
+  Nat : nat;
+  Int : int;
+  Text : text;
+  Blob : blob;
+};
+
+type StandardRecord = record { url : text; name : text };
+
+type Allowance = record { allowance : Tokens; expires_at : opt Timestamp };
+type AllowanceArgs = record { account : Account; spender : Account };
+
+type ApproveArgs = record {
+  from_subaccount : opt Subaccount;
+  spender : Account;
+  amount : Tokens;
+  expected_allowance : opt Tokens;
+  expires_at : opt Timestamp;
+  fee : opt Tokens;
+  memo : opt blob;
+  created_at_time : opt Timestamp;
+};
+
+type ApproveError = variant {
+  BadFee : record { expected_fee : Tokens };
+  InsufficientFunds : record { balance : Tokens };
+  AllowanceChanged : record { current_allowance : Tokens };
+  Expired : record { ledger_time : Timestamp };
+  TooOld;
+  CreatedInFuture : record { ledger_time : Timestamp };
+  Duplicate : record { duplicate_of : BlockIndex };
+  TemporarilyUnavailable;
+  GenericError : record { error_code : nat; message : text };
+};
+
+type ApproveResult = variant { Ok : BlockIndex; Err : ApproveError };
+
+type TransferFromArgs = record {
+  spender_subaccount : opt Subaccount;
+  from : Account;
+  to : Account;
+  amount : Tokens;
+  fee : opt Tokens;
+  memo : opt blob;
+  created_at_time : opt Timestamp;
+};
+
+type TransferFromError = variant {
+  BadFee : record { expected_fee : Tokens };
+  BadBurn : record { min_burn_amount : Tokens };
+  InsufficientFunds : record { balance : Tokens };
+  InsufficientAllowance : record { allowance : Tokens };
+  TooOld;
+  CreatedInFuture : record { ledger_time : Timestamp };
+  Duplicate : record { duplicate_of : BlockIndex };
+  TemporarilyUnavailable;
+  GenericError : record { error_code : nat; message : text };
+};
+
+type TransferFromResult = variant {
+  Ok : BlockIndex;
+  Err : TransferFromError;
+};
+
+service : {
+  icrc1_name : () -> (text) query;
+  icrc1_symbol : () -> (text) query;
+  icrc1_decimals : () -> (nat8) query;
+  icrc1_metadata : () -> (vec record { text; MetadataValue }) query;
+  icrc1_total_supply : () -> (Tokens) query;
+  icrc1_fee : () -> (Tokens) query;
+  icrc1_minting_account : () -> (opt Account) query;
+  icrc1_balance_of : (Account) -> (Tokens) query;
+  icrc1_transfer : (TransferArg) -> (TransferResult);
+  icrc1_supported_standards : () -> (vec StandardRecord) query;
+  icrc2_approve : (ApproveArgs) -> (ApproveResult);
+  icrc2_allowance : (AllowanceArgs) -> (Allowance) query;
+  icrc2_transfer_from : (TransferFromArgs) -> (TransferFromResult);
+}
