@@ -68,11 +68,22 @@ If you modify the backend's public API, regenerate the `.did` file:
 mops generate candid backend
 ```
 
-`candid/evm_rpc.did` is the **EVM RPC canister's own interface**, not the backend's — the `canister:evm_rpc` import is typed against it. The `candid/` directory holds the interfaces of external canisters this project calls (as opposed to `backend/backend.did`, which is this project's own interface). These are not produced by `mops generate candid`; each is the Candid interface of a pre-built Wasm pinned in `icp.yaml`. To refresh it (e.g. after bumping the EVM RPC release), re-extract it from that Wasm:
+`candid/evm_rpc.did` is the **EVM RPC canister's own interface**, not the backend's — the `canister:evm_rpc` import is typed against it. The `candid/` directory holds the interfaces of external canisters this project calls (as opposed to `backend/backend.did`, which is this project's own interface). These are not produced by `mops generate candid` — each is the Candid interface of an external canister. To refresh one (e.g. after bumping the EVM RPC release), get it straight from the canister with either of:
+
+**From mainnet** — the live shared EVM RPC canister. One command, no files to handle:
 
 ```bash
+icp canister metadata 7hfb6-caaaa-aaaar-qadga-cai candid:service -e ic > candid/evm_rpc.did
+```
+
+**From the pinned Wasm** — matches exactly what deploys locally. The Wasm is the pre-built artifact pinned in this project's `icp.yaml` (the `evm_rpc` canister's `build.steps[].url`); download and unpack it, then extract its interface:
+
+```bash
+curl -sSL https://github.com/dfinity/evm-rpc-canister/releases/download/evm_rpc-v2.8.0/evm_rpc.wasm.gz | gunzip > evm_rpc.wasm
 ic-wasm evm_rpc.wasm metadata candid:service > candid/evm_rpc.did
 ```
+
+Both give the same interface as long as `icp.yaml` pins the release that is live on mainnet.
 
 ## RPC providers and API keys
 

@@ -74,11 +74,22 @@ The `backend/backend.did` file defines the backend canister's public interface. 
 mops generate candid backend
 ```
 
-`candid/llm.did` is the **LLM canister's own interface**, not the backend's — the `canister:llm` import is typed against it. The `candid/` directory holds the interfaces of external canisters this project calls (as opposed to `backend/backend.did`, which is this project's own interface). These are not produced by `mops generate candid`; each is the Candid interface of a pre-built Wasm pinned in `icp.yaml`. To refresh it (e.g. after bumping the LLM release), re-extract it from that Wasm:
+`candid/llm.did` is the **LLM canister's own interface**, not the backend's — the `canister:llm` import is typed against it. The `candid/` directory holds the interfaces of external canisters this project calls (as opposed to `backend/backend.did`, which is this project's own interface). These are not produced by `mops generate candid` — each is the Candid interface of an external canister. To refresh one (e.g. after bumping the LLM release), get it straight from the canister with either of:
+
+**From mainnet** — the live shared LLM canister. One command, no files to handle:
 
 ```bash
+icp canister metadata w36hm-eqaaa-aaaal-qr76a-cai candid:service -e ic > candid/llm.did
+```
+
+**From the pinned Wasm** — matches exactly what deploys locally. The Wasm is the pre-built artifact pinned in this project's `icp.yaml` (the `llm` canister's `build.steps[].url`); download it, then extract its interface (the LLM Wasm is not gzipped):
+
+```bash
+curl -sSL https://github.com/dfinity/llm/releases/download/v0.3.1/llm-canister.wasm -o llm-canister.wasm
 ic-wasm llm-canister.wasm metadata candid:service > candid/llm.did
 ```
+
+Both give the same interface as long as `icp.yaml` pins the release that is live on mainnet.
 
 ## Security considerations and best practices
 

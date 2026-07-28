@@ -104,11 +104,22 @@ The `backend/backend.did` file defines the backend's public interface; the front
 mops generate candid backend
 ```
 
-`candid/icrc1_ledger.did` is the **ledger's own interface**, not the backend's — the `canister:icrc1_ledger` import is typed against it. The `candid/` directory holds the interfaces of external canisters this project calls (as opposed to `backend/backend.did`, which is this project's own interface). These are not produced by `mops generate candid`; each is the Candid interface of a pre-built Wasm pinned in `icp.yaml`. To refresh it (e.g. after bumping the ledger release), re-extract it from that Wasm:
+`candid/icrc1_ledger.did` is the **ledger's own interface**, not the backend's — the `canister:icrc1_ledger` import is typed against it. The `candid/` directory holds the interfaces of external canisters this project calls (as opposed to `backend/backend.did`, which is this project's own interface). These are not produced by `mops generate candid` — each is the Candid interface of an external canister. To refresh one (e.g. after bumping the ledger release), get it straight from the ledger with either of:
+
+**From mainnet** — the live shared ledger (TICRC1). One command, no files to handle:
 
 ```bash
+icp canister metadata 3jkp5-oyaaa-aaaaj-azwqa-cai candid:service -e ic > candid/icrc1_ledger.did
+```
+
+**From the pinned Wasm** — matches exactly what deploys locally. The Wasm is the pre-built artifact pinned in this project's `icp.yaml` (the `icrc1_ledger` canister's `build.steps[].url`); download and unpack it, then extract its interface:
+
+```bash
+curl -sSL https://github.com/dfinity/ic/releases/download/ledger-suite-icrc-2026-03-09/ic-icrc1-ledger.wasm.gz | gunzip > ic-icrc1-ledger.wasm
 ic-wasm ic-icrc1-ledger.wasm metadata candid:service > candid/icrc1_ledger.did
 ```
+
+Both give the same interface as long as `icp.yaml` pins the release that is live on mainnet.
 
 ## Possible improvements
 
