@@ -14,6 +14,14 @@ The example exposes three functions to make this concrete:
 
 > The ICP ledger also supports the [ICRC-1](https://github.com/dfinity/ICRC-1) standard via `icrc1_transfer`. For new token integrations that don't require AccountIdentifier compatibility, ICRC-1 is the recommended interface. A comprehensive ICRC ledger example is planned.
 
+## Calling the ICP ledger
+
+The backend reaches the ledger through the typed import `import IcpLedger "canister:icp_ledger"` — no ledger types are declared in the code. Because the ICP ledger lives at the **same well-known principal** (`ryjl3-tyaaa-aaaaa-aaaba-cai`) on both mainnet and the local development network, the `--actor-id-alias` flag in `mops.toml` binds the import to that fixed id and types it against the ledger's official Candid interface (`candid/icp_ledger.did`). The request/response types (`IcpLedger.Tokens`, `IcpLedger.TransferArgs`, …) come straight from that interface.
+
+> `--actor-id-alias` fits here because the target's id is *fixed and universal*. When a target's id varies per environment, `--actor-env-alias` resolves it from an injected env var instead; when the target is chosen at runtime, generate bindings and construct `actor(principal)` per call.
+
+`candid/icp_ledger.did` is the ledger's own interface, taken from the [ICP ledger suite release](https://github.com/dfinity/ic/releases/tag/ledger-suite-icp-2025-08-29) (`ledger.did`). To refresh it after a new ledger release, download the `ledger.did` asset from that release.
+
 ## Build and deploy from the command line
 
 ### Prerequisites
