@@ -19,10 +19,11 @@ fn memory(id: u8) -> Memory {
     MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(id)))
 }
 
-// The first argument is the domain separator that isolates this application's
-// derived keys; it must stay stable for the life of the canister. The four
-// memories are, in order: [domain_separator, access_control, shared_keys,
-// encrypted_maps].
+// The first argument is the domain-separator string that isolates this
+// application's derived keys; it must stay stable for the life of the canister.
+// The four Memory instances back EncryptedMaps' own stable state, in the order
+// it expects: config (which persists the domain separator and vetKD key id),
+// access control, shared keys, and the encrypted values.
 ic_vetkeys::export_encrypted_maps_canister!(
     "encrypted_maps_app",
     [memory(0), memory(1), memory(2), memory(3)],

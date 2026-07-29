@@ -33,7 +33,7 @@ export async function createEncryptedMaps(
     // it across reloads with IndexedDbDerivedKeyMaterialCache, namespacing the
     // store by the caller's principal so one identity's cached keys are never
     // served to another on the same origin. Remember to call clearCache() on
-    // logout / identity change (see the auth store).
+    // logout (see the auth store).
     const cache = new IndexedDbDerivedKeyMaterialCache(
         `vetkeys-${identity.getPrincipal().toText()}`,
     );

@@ -69,7 +69,7 @@ A **Svelte** application for managing vaults and passwords. It uses the `@icp-sd
 
 #### Derived-key caching
 
-`EncryptedMaps` derives and caches the vetKey material used to encrypt/decrypt values. As of `@icp-sdk/vetkeys` 0.5.0 this cache is **in memory by default** (discarded on page reload). This example opts into cross-reload persistence with `IndexedDbDerivedKeyMaterialCache`, giving the store a **per-identity namespace** (`vetkeys-<principal>`) so one identity's keys are never served to another on the same origin, and it calls `EncryptedMaps.clearCache()` on logout (and on any identity change) to drop the cached material.
+`EncryptedMaps` derives and caches the vetKey material used to encrypt/decrypt values. As of `@icp-sdk/vetkeys` 0.5.0 this cache is **in memory by default** (discarded on page reload). This example opts into cross-reload persistence with `IndexedDbDerivedKeyMaterialCache`, giving the store a **per-identity namespace** (`vetkeys-<principal>`) so one identity's keys are never served to another on the same origin, and it calls `clearCache()` on the `EncryptedMaps` instance on logout to drop the cached material.
 
 **Verifying `clearCache()` on logout.** `clearCache()` *empties* the cache's object store; it does not delete the database, so an empty `vetkeys-<principal>` database remaining in the list is expected (an empty store holds no usable key material). To check it:
 
