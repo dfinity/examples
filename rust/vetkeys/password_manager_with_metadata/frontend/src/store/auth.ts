@@ -80,6 +80,15 @@ export async function logout() {
     const currentAuth = get(auth);
 
     if (currentAuth.state === "initialized") {
+        // Best-effort: drop cached derived key material so a persisted
+        // (IndexedDB) handle can no longer be used to decrypt after logout. This
+        // must not block sign-out if IndexedDB is unavailable (private mode,
+        // quota, blocked storage), so failures are logged and swallowed.
+        try {
+            await currentAuth.passwordManager.encryptedMaps.clearCache();
+        } catch (e) {
+            console.error("Failed to clear derived-key cache on logout:", e);
+        }
         await currentAuth.client.signOut();
         auth.update(() => ({
             state: "anonymous",
@@ -94,7 +103,7 @@ export async function authenticate(client: AuthClient) {
 
     try {
         const identity = await client.getIdentity();
-        const passwordManager = await createPasswordManager({ identity });
+        const passwordManager = await createPasswordManager(identity);
 
         auth.update(() => ({
             state: "initialized",
