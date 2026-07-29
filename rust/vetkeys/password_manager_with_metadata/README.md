@@ -67,6 +67,18 @@ An **Encrypted Maps**-enabled Rust canister that stores encrypted passwords toge
 
 A **Svelte** application for managing vaults and passwords. It uses the `@icp-sdk/vetkeys` Encrypted Maps client for the crypto operations and a canister actor (bindings generated from `backend/backend.did` by the `@icp-sdk/bindgen` Vite plugin) for the metadata methods.
 
+#### Derived-key caching
+
+`EncryptedMaps` derives and caches the vetKey material used to encrypt/decrypt values. As of `@icp-sdk/vetkeys` 0.5.0 this cache is **in memory by default** (discarded on page reload). This example opts into cross-reload persistence with `IndexedDbDerivedKeyMaterialCache`, giving the store a **per-identity namespace** (`vetkeys-<principal>`) so one identity's keys are never served to another on the same origin, and it calls `EncryptedMaps.clearCache()` on logout (and on any identity change) to drop the cached material.
+
+**Verifying `clearCache()` on logout.** `clearCache()` *empties* the cache's object store; it does not delete the database, so an empty `vetkeys-<principal>` database remaining in the list is expected (an empty store holds no usable key material). To check it:
+
+1. Open DevTools → **Application → IndexedDB**.
+2. Expand `vetkeys-<principal>` → `derived-key-material`. While logged in and after opening a vault it holds one or more entries; after logout it should hold **0**.
+3. DevTools caches this view — click **Refresh database** after logging out, otherwise stale entries appear to linger.
+
+You will also see an unrelated `icp-sdk-<host>` database (object store `subnetNodeKeys`): that is the agent's cache of public subnet node keys, not key material, and is safe to ignore.
+
 ## Updating the Candid interface
 
 `backend/backend.did` defines the backend's public interface; the frontend bindings are generated from it during the build. If you change the backend's public API, regenerate it:
