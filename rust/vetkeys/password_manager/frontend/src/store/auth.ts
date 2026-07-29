@@ -79,6 +79,9 @@ export async function logout() {
     const currentAuth = get(auth);
 
     if (currentAuth.state === "initialized") {
+        // Drop cached derived key material so a persisted (IndexedDB) handle
+        // can no longer be used to decrypt after logout.
+        await currentAuth.encryptedMaps.clearCache();
         await currentAuth.client.signOut();
         auth.update(() => ({
             state: "anonymous",
@@ -93,7 +96,7 @@ export async function authenticate(client: AuthClient) {
 
     try {
         const identity = await client.getIdentity();
-        const encryptedMaps = await createEncryptedMaps({ identity });
+        const encryptedMaps = await createEncryptedMaps(identity);
 
         auth.update(() => ({
             state: "initialized",

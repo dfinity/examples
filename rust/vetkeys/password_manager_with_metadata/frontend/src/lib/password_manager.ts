@@ -1,4 +1,9 @@
-import { Actor, HttpAgent, type ActorSubclass } from "@icp-sdk/core/agent";
+import {
+    Actor,
+    HttpAgent,
+    type ActorSubclass,
+    type Identity,
+} from "@icp-sdk/core/agent";
 import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
 import type { Principal } from "@icp-sdk/core/principal";
 import { EncryptedMaps } from "@icp-sdk/vetkeys/encrypted_maps";
@@ -151,9 +156,9 @@ export class PasswordManager {
     }
 }
 
-export async function createPasswordManager(agentOptions?: {
-    identity?: HttpAgent["config"]["identity"];
-}): Promise<PasswordManager> {
+export async function createPasswordManager(
+    identity: Identity,
+): Promise<PasswordManager> {
     const canisterId =
         canisterEnv?.["PUBLIC_CANISTER_ID:backend"];
     if (!canisterId) {
@@ -163,12 +168,12 @@ export async function createPasswordManager(agentOptions?: {
     }
 
     const agent = await HttpAgent.create({
-        ...agentOptions,
+        identity,
         host: window.location.origin,
         rootKey: canisterEnv?.IC_ROOT_KEY,
     });
 
-    const encryptedMaps = createEncryptedMaps(agent);
+    const encryptedMaps = createEncryptedMaps(agent, identity.getPrincipal());
     const canisterClient = Actor.createActor<_SERVICE>(idlFactory, {
         agent,
         canisterId,
