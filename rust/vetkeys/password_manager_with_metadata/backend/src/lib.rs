@@ -76,7 +76,10 @@ thread_local! {
         RefCell::new(MemoryManager::init(DefaultMemoryImpl::default()));
     static ENCRYPTED_MAPS: RefCell<Option<EncryptedMaps<AccessRights>>> =
         const { RefCell::new(None) };
-    static METADATA: RefCell<StableMetadataMap> = RefCell::new(StableBTreeMap::new(
+    // Use `init` (not `new`): after an upgrade the thread-local is re-created,
+    // and `new` would overwrite the existing map with an empty one, dropping all
+    // metadata. `init` loads the persisted map when the memory already holds one.
+    static METADATA: RefCell<StableMetadataMap> = RefCell::new(StableBTreeMap::init(
         MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(4))),
     ));
     static KEY_NAME: RefCell<StableCell<String, Memory>> =
