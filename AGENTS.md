@@ -2,24 +2,19 @@
 
 Guidelines for AI agents (Claude, Codex, Cursor, Copilot, etc.) working in this repository.
 
-## Skills — fetch before working
+## ICP Skills
 
-ICP skills are live reference documents maintained by DFINITY. Always fetch the relevant skills **before** making changes — do not rely on cached or training-data versions.
+ICP skills are tested, frequently-updated instruction files maintained by DFINITY (see https://skills.internetcomputer.org). Consult the relevant skills **before** making changes — do not rely on training-data knowledge of ICP tooling.
 
-**Index:** `https://skills.internetcomputer.org/.well-known/skills/index.json`
-
-Fetch the skill content at its `url` field. Skills relevant to this repo:
-
-| Task | Skill to fetch |
-|------|---------------|
-| Any ICP project work, `icp.yaml`, canister lifecycle | `icp-cli` |
-| Migrating an example from dfx to icp-cli | `icp-cli` + its `references/dfx-migration.md` file |
-| Motoko canister code | `motoko` |
-| `mops.toml`, toolchain pinning, moc flags | `mops-cli` |
-| Internet Identity integration | `internet-identity` |
-| Frontend asset canister | `asset-canister` |
-
-Skills take precedence over general knowledge when both cover the same topic.
+<!-- ic-skills:managed:start -->
+<!-- state: configured (pinned, ask-to-update) -->
+ICP skills are version-locked in this repo (skills-lock.json) and live in your
+agent skills directory. Skills are authoritative — prefer them over general
+knowledge for all ICP work. Before your first task in a new session, offer to run
+`npx skills update`; if the user declines or the session is non-interactive, keep
+the locked versions and continue — never block. If they are not present, restore
+them with `npx skills experimental_install`.
+<!-- ic-skills:managed:end -->
 
 ---
 
@@ -32,42 +27,53 @@ motoko/<example_name>/
 rust/<example_name>/
 ```
 
-Both implement the same Candid interface so readers can compare language implementations side by side.
+Both implement the same Candid interface so readers can compare language implementations side by side. `hosting/` contains frontend-only examples.
 
 Reference examples to study first:
-- `hello_world` — canonical full-stack example (Motoko backend + Vite frontend); use as the structural template for new examples
+- `hello_world` — canonical full-stack example (backend + Vite frontend); use as the structural template for new examples
 - `who_am_i` — Internet Identity integration; reference for II-authenticated examples
 
----
+### Adding a new example
 
-## Toolchain
+Examples have an **educational focus** — general-purpose or arbitrary examples are not accepted. Before adding one, confirm that:
 
-- **Always use `icp-cli`** for all ICP operations. Never use `dfx`.
-- CLI docs: https://cli.internetcomputer.org
-- ICP developer docs: https://docs.internetcomputer.org
+- It demonstrates a distinct ICP capability or pattern not already covered by an existing example.
+- It has a clear home in the [developer documentation](https://docs.internetcomputer.org) (an existing or planned guide, tutorial, or reference page).
+- The DFINITY DX team has agreed to maintain it long-term.
+
+Ship both language variants (Motoko and Rust) with the same Candid interface. The per-language duplication — including shared frontend code — is deliberate: it keeps each variant self-contained for readers of that language.
+
+**Toolchain**: always use `icp-cli` for all ICP operations — never `dfx`, and never add dfx artifacts (`dfx.json`, `.dfx/`, dfx-generated `.env`) to an example.
+CLI docs: https://cli.internetcomputer.org · ICP developer docs: https://docs.internetcomputer.org
+
+### Versions
+
+This document deliberately does not pin library, recipe, or toolchain versions — any `vX.Y.Z` in a snippet is a placeholder. When creating or updating an example, take current versions (recipe versions in `icp.yaml`, `moc`/`core` in `mops.toml`, crate versions in `Cargo.toml`, npm packages) from the most recently updated examples in this repo (check `git log`), preferring the newest version already in use. When in doubt, consult the installed ICP skills.
+
+When asked to bump a specific version — whether a library dependency or an `icp.yaml` recipe (`@dfinity/motoko`, `@dfinity/rust`, `@dfinity/static-site`, ...) — clarify the scope first: all examples, or only the one named? The goal is that every example stays consistent and up to date with the same versions, so prefer repo-wide bumps unless told otherwise.
 
 ---
 
 ## Canonical example structure
 
-Follow the `hello_world` layout. New examples and migrations should use this pattern:
+Follow the `hello_world` layout:
 
 ```
 <language>/<example_name>/
 ├── icp.yaml                  # canister definitions (icp-cli project file)
 ├── test.sh                   # executable bash test script
 ├── README.md
-├── package.json              # npm workspaces root pointing to frontend/
+├── package.json              # npm workspaces root pointing to frontend/ (only if frontend exists)
 ├── mops.toml                 # Motoko only
 ├── Cargo.toml                # Rust only (workspace)
 ├── rust-toolchain.toml       # Rust only
 ├── backend/
 │   ├── app.mo or lib.rs      # canister entry point
-│   └── backend.did           # Candid interface (source of truth)
+│   └── backend.did           # Candid interface (only if a frontend consumes it)
 └── frontend/
     ├── index.html
     ├── package.json
-    ├── vite.config.js
+    ├── vite.config.js        # includes @icp-sdk/bindgen vite plugin
     ├── src/
     │   ├── actor.js          # icp-sdk actor wiring
     │   ├── App.jsx
@@ -75,24 +81,20 @@ Follow the `hello_world` layout. New examples and migrations should use this pat
     └── dist/                 # build output (gitignored, rebuilt by icp deploy)
 ```
 
-> **Note:** `who_am_i` uses `src/backend/` and `src/frontend/` for historical reasons.
-> New examples and migrations should use the flat `backend/` / `frontend/` layout above.
+> `who_am_i` uses `src/backend/` and `src/frontend/` for historical reasons. New examples use the flat `backend/` / `frontend/` layout above.
 
-### What NOT to include
+### What NOT to commit
 
-- `dfx.json` — dfx project file, not used with icp-cli
-- `BUILD.md` — ICP Ninja artifact
-- `.dfx/` — dfx state directory
-- `src/bindings/` — auto-generated by the bindgen Vite plugin, must be gitignored
-- Committed `dist/` output — built by `icp deploy`; never commit pre-built assets
+- dfx artifacts (`dfx.json`, `.dfx/`) or ICP Ninja artifacts (`BUILD.md`)
+- `frontend/src/bindings/` — auto-generated by the bindgen Vite plugin, must be gitignored
+- `dist/` output — built by `icp deploy`; never commit pre-built assets
+- Per-example `.devcontainer/` — only the repo-root devcontainer exists (see below)
 
 ### What NOT to gitignore
 
-- `.icp/data/` — **always commit this**. It holds canister ID mappings (e.g. `local.ids.json`) that map canister names to on-chain principals. Losing this means losing the link between the example's code and its deployed canisters.
+- `.icp/data/` — **always commit this**. It holds canister ID mappings (e.g. `local.ids.json`) that map canister names to on-chain principals.
 
-The root `.gitignore` already has `**/.icp/cache/` which correctly ignores only the ephemeral build cache. Do **not** add `.icp/` to per-example `.gitignore` files — it would incorrectly hide `data/` as well.
-
-When migrating an example, also remove any existing `.dfx/` entries from per-example `.gitignore` files — dfx is no longer used and these entries are dead weight.
+The root `.gitignore` already has `**/.icp/cache/`, which correctly ignores only the ephemeral build cache. Do **not** add `.icp/` to per-example `.gitignore` files — it would incorrectly hide `data/` as well.
 
 ---
 
@@ -109,17 +111,19 @@ networks:                          # omit if no Internet Identity needed
 canisters:
   - name: backend
     recipe:
-      type: "@dfinity/motoko@v5.0.0"
+      type: "@dfinity/motoko@vX.Y.Z"
 
   - name: frontend
     recipe:
-      type: "@dfinity/asset-canister@v2.2.1"
+      type: "@dfinity/static-site@vX.Y.Z"
       configuration:
         dir: frontend/dist
         build:
           - npm install --prefix frontend
           - npm run build --prefix frontend
 ```
+
+The Motoko recipe reads its configuration (`main`, `candid`, `args`) from the `[canisters.<name>]` section of `mops.toml`, so the Motoko canister needs no `configuration:` block here.
 
 ### Rust
 
@@ -127,14 +131,14 @@ canisters:
 canisters:
   - name: backend
     recipe:
-      type: "@dfinity/rust@v3.2.0"
+      type: "@dfinity/rust@vX.Y.Z"
       configuration:
         package: backend
         candid: backend/backend.did   # omit for backend-only examples (no frontend)
 
   - name: frontend
     recipe:
-      type: "@dfinity/asset-canister@v2.2.1"
+      type: "@dfinity/static-site@vX.Y.Z"
       configuration:
         dir: frontend/dist
         build:
@@ -142,64 +146,72 @@ canisters:
           - npm run build --prefix frontend
 ```
 
-- With `candid:` specified: the recipe reads the committed `.did` file and embeds it as WASM metadata (no `candid-extractor` needed).
-- Without `candid:`: `candid-extractor` extracts the interface directly from the compiled WASM. For backend-only examples, omit `candid:` and do not commit `backend.did`.
+- With `candid:`: the recipe reads the committed `.did` file and embeds it as WASM metadata.
+- Without `candid:`: `candid-extractor` extracts the interface from the compiled WASM. For backend-only examples, omit `candid:` and do not commit `backend.did`.
 
-**Canister names are always `backend` and `frontend`.** Never use names like `<example>_backend`, `internet_identity_app_backend`, etc.
+### Canister naming
 
-### Per-environment canister configuration
+- The standard pair is **`backend`** and **`frontend`**. Never use names like `<example>_backend`.
+- Multi-canister examples use short role names instead (e.g. `caller`/`callee`, `publisher`/`subscriber`, `token_a`/`token_b`).
 
-When an example interacts with a well-known external canister whose principal differs by environment (e.g. the ICP ledger mainnet vs. TESTICP on staging), use the `environments` block to inject the right value per deployment rather than hardcoding it:
+### Environments
+
+Examples define at most **two** environments, always named exactly:
+
+- **`local`** — the managed local network, used for development and CI.
+- **`ic`** — mainnet. The name `ic` is a contract with ICP Ninja: projects deploy successfully from Ninja only if the mainnet environment carries this exact name.
+
+Never add a `staging` (or any other) environment by default — developers can extend their own copies, but examples ship with only these two. Self-contained examples that behave identically everywhere need no `environments` block at all.
+
+Use the block when local and mainnet deployments differ. The common pattern: a companion canister (mock or local instance) is deployed locally, while on mainnet an already-running well-known canister is used instead — the `ic` environment restricts the canister list and injects the principal via an environment variable:
 
 ```yaml
 canisters:
   - name: backend
     recipe:
-      type: "@dfinity/rust@v3.3.0"
+      type: "@dfinity/rust@vX.Y.Z"
+
+  - name: xrc              # mock, deployed locally only
+    build:
+      steps:
+        - type: pre-built
+          url: https://github.com/dfinity/exchange-rate-canister/releases/download/<tag>/xrc_mock.wasm.gz
 
 environments:
+  # Local: deploys backend and the mock; icp-cli auto-injects
+  # PUBLIC_CANISTER_ID:xrc into the backend after deploying xrc.
   - name: local
     network: local
-    settings:
-      backend:
-        environment_variables:
-          ICP_LEDGER_CANISTER_ID: "ryjl3-tyaaa-aaaaa-aaaba-cai"
 
-  - name: staging
+  # Mainnet: deploys only the backend; the production XRC canister already exists.
+  - name: ic
     network: ic
+    canisters: [backend]
     settings:
       backend:
         environment_variables:
-          ICP_LEDGER_CANISTER_ID: "xafvr-biaaa-aaaai-aql5q-cai"   # TESTICP
-
-  - name: production
-    network: ic
-    settings:
-      backend:
-        environment_variables:
-          ICP_LEDGER_CANISTER_ID: "ryjl3-tyaaa-aaaaa-aaaba-cai"
+          "PUBLIC_CANISTER_ID:xrc": "uf6dk-hyaaa-aaaaq-qaaaq-cai"
 ```
 
-icp-cli applies these as canister settings at deploy time. Read them at **runtime** via `ic_cdk::api::env_var_value("ICP_LEDGER_CANISTER_ID")` (Rust) or `Runtime.envVar<system>("ICP_LEDGER_CANISTER_ID")` (Motoko) — not via `env!()` or `std::env::var()`.
+Per-environment `init_args` follow the same shape (see `basic_bitcoin`: `regtest` locally, `testnet` on `ic`).
 
-**When to apply this pattern**: judge whether staging/production environments make sense for the specific example. Apply it when the example hardcodes an external canister principal that has a test counterpart (TESTICP, testnet URLs, staging governance canisters, etc.). Skip it for self-contained examples that don't call external canisters.
+icp-cli applies `environment_variables` as canister settings at deploy time. Read them at **runtime**:
 
-### Motoko naming conventions
-
-- **Top-level actor:** name it after its logical role, not generically — e.g. `actor TodoList`, `actor CanisterFactory`, not `actor Backend`.
-- **Supporting module files:** use PascalCase matching the type they export — e.g. `Counter.mo` exporting `actor class Counter`, `Types.mo` exporting `type X`.
-- **Entry point file:** always `backend/app.mo` regardless of actor name.
+- Motoko: `Runtime.envVar<system>("PUBLIC_CANISTER_ID:xrc")`
+- Rust: `ic_cdk::api::env_var_value("PUBLIC_CANISTER_ID:xrc")` — never `env!()` (compile-time) or `std::env::var()` (no OS environment in WASM)
 
 ---
 
-## mops.toml (Motoko)
+## Motoko conventions
+
+### mops.toml
 
 ```toml
 [toolchain]
-moc = "1.9.0"
+moc = "X.Y.Z"
 
 [dependencies]
-core = "2.5.0"
+core = "X.Y.Z"
 
 [moc]
 # M0236: use context dot notation
@@ -212,39 +224,58 @@ main = "backend/app.mo"
 candid = "backend/backend.did"   # omit for backend-only examples (no frontend)
 ```
 
-`[canisters.<name>]` replaces the `main`, `candid`, and `args` fields that were previously in `icp.yaml`. The `@dfinity/motoko@v5.0.0` recipe reads this section directly, so the Motoko canister needs no `configuration:` block in `icp.yaml` — the `<name>` must match the canister `name` in `icp.yaml`.
+The `[canisters.<name>]` name must match the canister `name` in `icp.yaml`.
 
-After writing or editing Motoko source files, always run:
+After writing or editing Motoko source files, always run — both must pass before committing:
 
 ```bash
 mops check          # type-check all canister entry points
-mops check --fix    # auto-fix style warnings (M0236 dot notation, M0237, M0223)
+mops check --fix    # auto-fix style warnings (M0236, M0237, M0223)
 ```
 
-Both commands must pass with no errors before committing.
+`--default-persistent-actors` makes the **main actor** persistent by default, so the `persistent` keyword is omitted on the top-level `actor` declaration. `persistent actor class` declarations holding mutable state must still carry the keyword explicitly — the flag does not propagate into actor class sub-WASMs.
 
-`--default-persistent-actors` makes the **main actor** persistent by default, so the `persistent` keyword can be omitted on the top-level `actor` declaration. However, `persistent actor class` declarations that hold mutable state must still carry the `persistent` keyword explicitly — the flag does not propagate into actor class sub-WASMs.
+### Naming
 
-### Management canister (Motoko)
+- **Top-level actor:** name it after its logical role — e.g. `actor TodoList`, `actor CanisterFactory`, not `actor Backend`.
+- **Supporting module files:** PascalCase matching the type they export — e.g. `Counter.mo` exporting `actor class Counter`.
+- **Entry point file:** always `backend/app.mo` (or `<role>/app.mo` in multi-canister examples) regardless of actor name.
 
-Use the [`mo:ic`](https://mops.one/ic) mops package instead of `ic:aaaaa-aa` or inline `actor("aaaaa-aa")` definitions:
+### Inter-canister calls
+
+For calls between canisters in the same project (and to well-known external canisters), use a `canister:` import wired via `--actor-env-alias` — do not hand-write actor types or use `actor(...)` casts:
+
+```motoko
+import Callee "canister:callee";
+```
 
 ```toml
-[dependencies]
-ic = "4.0.0"
+[canisters.caller]
+main = "caller/app.mo"
+# Per-canister args REPLACE the global [moc].args — repeat the shared flags.
+args = [
+    "--default-persistent-actors",
+    "-W=M0236,M0237,M0223",
+    "--actor-env-alias", "callee", "PUBLIC_CANISTER_ID:callee", "callee/callee.did",
+]
 ```
+
+`icp deploy` injects the `PUBLIC_CANISTER_ID:<name>` environment variable; the import is typed against the committed `.did` file of the target canister. See `parallel_calls` and `pub-sub` for working setups.
+
+### Management canister
+
+Use the [`mo:ic`](https://mops.one/ic) mops package instead of `ic:aaaaa-aa` or inline `actor("aaaaa-aa")` definitions:
 
 ```motoko
 import { ic } "mo:ic";
 ```
 
-**Breaking change in `mo:ic` v4.0.0:** `CanisterSettings` gained two new required fields. Always include `environment_variables = null` and `snapshot_visibility = null` in settings records passed to `ic.create_canister`.
-
 ---
 
-## Cargo.toml (Rust)
+## Rust conventions
 
-Root workspace:
+Root workspace `Cargo.toml`:
+
 ```toml
 [workspace]
 members = ["backend"]
@@ -252,6 +283,7 @@ resolver = "2"
 ```
 
 `backend/Cargo.toml`:
+
 ```toml
 [package]
 name = "backend"
@@ -260,56 +292,16 @@ edition = "2024"
 
 [lib]
 crate-type = ["cdylib"]
-
-[dependencies]
-candid = "0.10"
-ic-cdk = "0.20"
 ```
 
-Always use `ic-cdk = "0.20"` unless a dependency forces a lower version. When using `ic-ledger-types`, use `"0.16"` (requires `ic-cdk = "^0.19"`) — version `0.15` pins `ic-cdk = "^0.18"` which conflicts with `0.20` via an `ic-cdk-executor` `links` constraint.
-
-**`ic_cdk::export_candid!()` is required** at the end of every Rust canister `lib.rs`. Without it, `candid-extractor` cannot find the `get_candid_pointer` export and the build fails.
-
-**CI image**: use `ghcr.io/dfinity/icp-dev-env-rust:1.0.1` or later. Earlier images bundle `candid-extractor 0.1.4` which fails with `Error: unknown import: ic0::cost_call` for any WASM compiled with ic-cdk ≥ 0.19.
-
-### Environment variables in Rust canisters
-
-Use `ic_cdk::api::env_var_value("VAR_NAME")` to read canister environment variables at **runtime**. These are canister settings applied by icp-cli at deploy time, not WASM metadata. This is the Rust equivalent of `Runtime.envVar<system>` in Motoko:
-
-```rust
-fn ledger_principal() -> Principal {
-    Principal::from_text(ic_cdk::api::env_var_value("ICP_LEDGER_CANISTER_ID"))
-        .expect("invalid ICP_LEDGER_CANISTER_ID")
-}
-```
-
-Do **not** use `env!()` (compile-time macro, fails if the var is not set during `cargo build`) or `std::env::var()` (no OS environment in WASM).
-
-### Management canister (Rust)
-
-Use the [`ic-cdk-management-canister`](https://crates.io/crates/ic-cdk-management-canister) crate instead of `ic_cdk::api::management_canister` (removed in ic-cdk 0.17+):
-
-```toml
-[dependencies]
-ic-cdk-management-canister = "0.1.1"
-```
-
-```rust
-use ic_cdk_management_canister::raw_rand;
-
-#[ic_cdk::update]
-async fn get_randomness() -> Vec<u8> {
-    raw_rand().await.expect("raw_rand failed")
-}
-```
+- **`ic_cdk::export_candid!()` is required** at the end of every canister `lib.rs`. Without it, `candid-extractor` cannot find the `get_candid_pointer` export and the build fails.
+- **Management canister:** use the [`ic-cdk-management-canister`](https://crates.io/crates/ic-cdk-management-canister) crate (e.g. `use ic_cdk_management_canister::raw_rand;`) — `ic_cdk::api::management_canister` was removed in ic-cdk 0.17+.
 
 ---
 
 ## test.sh
 
-Every example must have a `test.sh` bash script that exercises the deployed canister via `icp canister call`. Write a numbered test for every public function. Include state-assertion tests for mutating operations: call the mutating function, then call a read function and assert the stored value changed.
-
-Using `test.sh` instead of `Makefile` avoids Make-specific syntax pitfalls (`$$`, `\\` continuations, `@` prefix) and works natively in Git Bash on Windows.
+Every example has an executable `test.sh` that exercises the deployed canister via `icp canister call`. Write a numbered test for every public function. For mutating operations, also assert state: call the mutating function, then a read function, and check the stored value changed.
 
 ```bash
 #!/usr/bin/env bash
@@ -319,135 +311,54 @@ echo "=== Test 1: <description of what is tested> ==="
 result=$(icp canister call backend <method> '<args>')
 echo "$result"
 echo "$result" | grep -q '<expected>' && echo "PASS" || (echo "FAIL" && exit 1)
-
-echo "=== Test 2: <mutating operation returns expected value> ==="
-result=$(icp canister call backend <mutating_method> '<args>')
-echo "$result"
-echo "$result" | grep -q '<expected_return>' && echo "PASS" || (echo "FAIL" && exit 1)
-
-echo "=== Test 3: <state persisted after mutation> ==="
-result=$(icp canister call backend <read_method> '()')
-echo "$result"
-echo "$result" | grep -q '<expected_persisted_value>' && echo "PASS" || (echo "FAIL" && exit 1)
 ```
 
-- Tests must call the `backend` canister by that name.
-- Always pass explicit Candid args, including `'()'` for zero-argument calls — omitting args triggers an interactive prompt that blocks CI.
-- Use `grep -q` to assert on output content.
-- Number each test (`=== Test N: ... ===`) so CI logs are easy to scan.
-- For examples that create child canisters, capture the returned principal and call the child directly by ID.
-- **Query functions**: always pass `--query` to `icp canister call` for `public query func` and `public composite query func` methods.
-- **Balance checks**: use delta-based assertions (record before, act, assert delta) rather than checking absolute values — this keeps tests idempotent across re-runs regardless of prior state:
-
-```bash
-before=$(icp canister call backend get_balance '()' | grep -oE '[0-9_]+' | tr -d '_' | head -1)
-icp token transfer 1 "$account_hex"
-after=$(icp canister call backend get_balance '()' | grep -oE '[0-9_]+' | tr -d '_' | head -1)
-delta=$((after - before))
-[ "$delta" -eq 100000000 ] && echo "PASS" || (echo "FAIL: expected +100000000 e8s" && exit 1)
-```
-
-- **Async/time-dependent behavior**: if the observable result depends on timers, heartbeats, or polling, use a polling loop:
-
-```bash
-echo "=== Polling for <condition> (up to 60s) ==="
-secs=0
-while [ "$secs" -lt 60 ]; do
-  result=$(icp canister call --query backend <method> '()')
-  echo "$result"
-  echo "$result" | grep -q '<expected>' && echo "PASS" && exit 0
-  sleep 3
-  secs=$((secs + 3))
-done
-echo "FAIL: condition not met within 60s"; exit 1
-```
-
-- **Canister settings**: if the example requires non-default canister settings (e.g. `wasm_memory_limit`, `wasm_memory_threshold`), apply them at the top of `test.sh` before the tests:
-
-```bash
-icp canister settings update backend --<flag> <value> -f
-```
-
-- If `icp deploy --cycles 30t` is required (see below), document `icp canister top-up --amount 30t backend` in the README so users can replenish cycles when needed. (`30t` is an example amount — adjust to the example's actual consumption.)
-
----
-
-## Devcontainer config
-
-A single root devcontainer at `.devcontainer/devcontainer.json` covers local VS Code usage across all examples. It uses `ghcr.io/dfinity/icp-dev-env-all:<version>` (Motoko + Rust) with `workspaceFolder` set to `/workspaces/examples`. No per-example devcontainer configs exist — do not add them.
+- Call canisters by their `icp.yaml` name (`backend`).
+- Always pass explicit Candid args, including `'()'` for zero-argument calls — omitting args triggers an interactive prompt that blocks CI. This applies especially when calling dynamically created canisters by principal.
+- Always pass `--query` for `public query func` and `public composite query func` methods.
+- Use `grep -q` to assert on output and number each test (`=== Test N: ... ===`) so CI logs are easy to scan.
+- For examples that create child canisters, capture the returned principal and call the child directly by ID. Deploy with `icp deploy --cycles <amount>` (in CI and README) so the parent can fund children, and document `icp canister top-up --amount <amount> backend` in the README.
+- **Balance checks:** use delta-based assertions (record before, act, assert the delta) rather than absolute values — keeps tests idempotent across re-runs.
+- **Async/time-dependent behavior** (timers, heartbeats): poll in a loop with a timeout instead of a fixed `sleep`.
+- **Non-default canister settings** (e.g. `wasm_memory_limit`): apply at the top of `test.sh` via `icp canister settings update backend --<flag> <value> -f`.
 
 ---
 
 ## CI workflow
 
-Copy `.github/workflow-template.yml` to `.github/workflows/<example_name>.yml` and fill in the placeholders. A single workflow file covers both language variants:
+Copy `.github/workflow-template.yml` to `.github/workflows/<example_name>.yml` and fill in the placeholders. One workflow file covers all language variants of an example; each job calls the reusable `_run-example.yml` workflow:
 
 ```yaml
-name: <example_name>
-
-on:
-  push:
-    branches: [master]
-  pull_request:
-    paths:
-      - motoko/<example_name>/**
-      - rust/<example_name>/**
-      - .github/workflows/<example_name>.yml
-
-concurrency:
-  group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
-
 jobs:
-  motoko-<example_name>:
-    runs-on: ubuntu-24.04
-    container: ghcr.io/dfinity/icp-dev-env-motoko:1.0.1
-    env:
-      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-      - name: Deploy and test
-        working-directory: motoko/<example_name>
-        run: |
-          icp network start -d
-          icp deploy
-          bash test.sh
-
-  rust-<example_name>:
-    runs-on: ubuntu-24.04
-    container: ghcr.io/dfinity/icp-dev-env-rust:1.0.1
-    env:
-      ICP_CLI_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-    steps:
-      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
-      - name: Deploy and test
-        working-directory: rust/<example_name>
-        run: |
-          icp network start -d
-          icp deploy
-          bash test.sh
+  motoko:
+    uses: ./.github/workflows/_run-example.yml
+    with:
+      language: motoko
+      working-directory: motoko/<example_name>
+      run: |
+        icp network start -d
+        icp deploy
+        bash test.sh
 ```
 
-- Linux only, no macOS runners.
-- No provision scripts — toolchain comes from the container image.
-- Always include the `concurrency` block to cancel superseded runs.
-- Pin the `actions/checkout` SHA and annotate it with the version tag.
+- `_run-example.yml` is the single source of truth for the dev-env container image version — never pin container images in per-example workflows.
+- One job per language variant the example ships; frontend-only `hosting/` examples use a single job with `language: all`.
+- Keep the template's `concurrency` block and one `pull_request` path entry per shipped language directory.
+- Examples with PocketIC integration tests set `install-pocketic: true`.
+- Linux only; the toolchain comes from the container image — no provision scripts.
 
-**When migrating only one language variant**, only include the corresponding job. Do not add a stub for the other language — it will be added when that variant is migrated. Example: migrating `motoko/hello_cycles` → add only `motoko-hello_cycles` job; leave `rust-hello_cycles` for a separate PR.
+### Dev-env container images
 
-**Deleting old workflows during migration**: the repo may contain legacy dfx-based workflow files (e.g. `motoko-hello_cycles-example.yaml`). When migrating an example, delete the old workflow file for the language being migrated. Do **not** delete workflow files for the other language:
+Images live at `ghcr.io/dfinity/icp-dev-env-{motoko,rust,all}` (source: https://github.com/dfinity/icp-dev-env), pinned with a `v`-prefixed tag in exactly two places, guarded by `dev-env-version-check.yml`:
 
-```bash
-# Migrating Motoko — delete only the Motoko legacy workflow:
-git rm .github/workflows/motoko-<example_name>-example.yaml   # or .yml
-# Do NOT touch rust-<example_name>-example.yml
-```
+- `.github/workflows/_run-example.yml` (CI)
+- `.devcontainer/devcontainer.json` (local VS Code; single root devcontainer for all examples — do not add per-example configs)
 
 ---
 
 ## README structure
 
-Each example's README should follow this structure:
+Each example's README follows this structure:
 
 ```markdown
 # <Example Title>
@@ -457,6 +368,7 @@ Each example's README should follow this structure:
 ## Build and deploy from the command line
 
 ### Prerequisites
+
 - Node.js
 - icp-cli: `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 - ic-mops: `npm install -g ic-mops`
@@ -466,85 +378,19 @@ Each example's README should follow this structure:
 
 ### Deploy and test
 <icp network start -d && icp deploy && bash test.sh && icp network stop>
-If the example has a frontend with a Vite dev server: `npm run dev` (hot reload during frontend development)
-
-> If tests fail with an out-of-cycles error, run `icp canister top-up --amount 30t backend` to replenish cycles and retry (`30t` is an example amount). Only relevant for examples that create child canisters.
+If the example has a frontend: `npm run dev` (Vite dev server with hot reload)
 
 ## Updating the Candid interface
-<instructions to regenerate backend.did>
-Motoko: `$(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo`
+Motoko: `mops generate candid backend`
 Rust: `icp build backend && candid-extractor target/wasm32-unknown-unknown/release/backend.wasm > backend/backend.did`
 
 ## Security considerations and best practices
 <standard disclaimer linking to https://docs.internetcomputer.org/guides/security/overview>
 ```
 
-- Security best practices URL: `https://docs.internetcomputer.org/guides/security/overview`
+- Say **"canister"**, not "smart contract" — in READMEs and code comments alike.
 - Each README links to its counterpart in the other language.
-- **Backend-only examples**: omit the `## Updating the Candid interface` section — there is no frontend consuming the `.did` file, so regeneration instructions add no value.
-- **If the original example has a frontend, the migration must include it.** Never drop a frontend that existed in the dfx version — check `dfx.json` for `"type": "assets"` canisters. Port the frontend to Vite + `@icp-sdk/bindgen` following the `hello_world` template. If the original frontend contains important educational logic (e.g. certificate verification, custom cryptography), keep that logic intact and only update the canister interaction layer.
-- **Preserve important domain knowledge**: the original README may contain non-obvious details about how the example works (memory limits, fee calculations, network-specific behavior, address type explanations, etc.). Read the original README carefully before migrating and carry forward any content that helps a reader understand *why* the example is structured the way it is — not just *how* to deploy it. Do not silently drop explanatory paragraphs, even if they reference dfx commands that need updating.
-- **Broken links**: do not copy anchor links from the original README unless you have verified they resolve on the current docs site. When in doubt, link to the top-level page (e.g. the spec index) rather than a specific anchor.
-
----
-
-## Pending items (do not resolve prematurely)
-
-### Container images
-Images are published at `ghcr.io/dfinity/icp-dev-env-{motoko,rust,all}`. Current pinned version: **`v1.2.0`**. Releases are tagged with a `v` prefix (e.g. `v1.2.0`); the registry publishes both `v1.2.0` and `1.2.0` tags, and we pin the `v`-prefixed form. When a new release is cut, update the tag in:
-- `.devcontainer/devcontainer.json`
-- `.github/workflows/_run-example.yml` (the single source of truth for the CI image version)
-
-`dev-env-version-check.yml` guards that these two stay in sync.
-
-Source: https://github.com/dfinity/icp-dev-env
-
----
-
-## dfx → icp-cli migration checklist
-
-When migrating an existing example:
-
-**Before you start**: read the original README, Makefile, and any deploy scripts in full. Note any non-obvious configuration (canister settings, special deploy steps, memory limits, key names, etc.) that must be carried forward.
-
-### Code and configuration
-- [ ] Replace `dfx.json` with `icp.yaml` using the canonical structure above
-- [ ] Rename canisters to `backend` and `frontend`
-- [ ] Rename `src/<old_name>/` to `backend/` (or `src/backend/` if keeping the `src/` layout)
-- [ ] Rename `src/<old_frontend>/` to `frontend/` (or `src/frontend/`)
-- [ ] Rename `.did` file to `backend.did`
-- [ ] Update `Cargo.toml` package name to `backend` (Rust)
-- [ ] Update `Cargo.lock` package name entry (Rust)
-- [ ] Update workspace member path in root `Cargo.toml` (Rust)
-- [ ] Update `vite.config.js`: canister name, `didFile` path, env var names, remove dfx fallback
-- [ ] Update `actor.js`: import path, `PUBLIC_CANISTER_ID:backend`, `CANISTER_ID_BACKEND`
-- [ ] Update root `package.json` workspace path to `frontend/`
-- [ ] Update `.gitignore` bindings path to `frontend/src/bindings/`
-- [ ] Update `mops.toml` to current toolchain versions (Motoko)
-- [ ] Run `mops check --fix` in the example directory and commit any auto-fixes (Motoko)
-- [ ] If the example uses the management canister: add `ic = "4.0.0"` dependency and replace `ic:aaaaa-aa` / `actor("aaaaa-aa")` with `import { ic } "mo:ic"` (Motoko)
-- [ ] If the Rust example uses the management canister: add `ic-cdk-management-canister = "0.1.1"` dependency and replace `ic_cdk::api::management_canister` with the appropriate function from that crate
-- [ ] **Judge whether per-environment configuration makes sense**: if the example calls an external canister whose principal differs by environment (e.g. ICP ledger vs. TESTICP), add an `environments` block to `icp.yaml`. Skip for self-contained examples.
-- [ ] If the example creates child canisters: use `icp deploy --cycles 30t` in the CI workflow and README
-- [ ] If the example requires non-default canister settings (memory limits, freezing threshold, etc.): apply them via `icp canister settings update` at the top of `test.sh`
-- [ ] Delete `dfx.json`, `BUILD.md`, `.dfx/`, `.env` (dfx-generated)
-- [ ] Delete `.devcontainer/` inside the example folder if one exists (only the repo-root devcontainer is kept)
-
-### test.sh
-- [ ] Add `test.sh` (executable, `#!/usr/bin/env bash`, `set -e`) with numbered tests
-- [ ] Use `--query` for all `public query func` and `public composite query func` calls
-- [ ] Use a polling loop for any behavior that depends on timers, heartbeats, or async system hooks
-- [ ] Use delta-based balance assertions (before/after) rather than absolute values for idempotency
-- [ ] For backend-only examples, no `## Updating the Candid interface` section is needed
-
-### CI workflow
-- [ ] Add CI workflow under `.github/workflows/<example_name>.yml`
-- [ ] Include only the job(s) for the language being migrated — do not add stubs for the other language
-- [ ] Delete the old dfx-based workflow for the language being migrated (e.g. `motoko-<name>-example.yaml`)
-- [ ] Do **not** delete workflow files for the other language variant — they will be handled in a separate PR
-
-### README
-- [ ] Update deploy instructions to use `icp-cli`
-- [ ] Preserve important domain-specific content from the original README (memory limits, fee behaviour, address type explanations, network-specific notes, etc.) — update the commands but keep the explanations
-- [ ] Omit `## Updating the Candid interface` for backend-only examples (no frontend bindings)
-- [ ] Verify that all links resolve — do not copy anchors from the old README without checking them
+- **Backend-only examples:** omit the `## Updating the Candid interface` section — no frontend consumes the `.did` file.
+- **Child-canister examples:** add a note that an out-of-cycles error is fixed with `icp canister top-up --amount <amount> backend`.
+- **Links:** only add links you have verified resolve on the current docs site; prefer top-level pages over deep anchors when unsure.
+- **Docs over product pages:** when the context is learning or integrating a feature, link the developer docs (e.g. https://docs.internetcomputer.org/guides/authentication/internet-identity for Internet Identity); link the product itself (e.g. https://id.ai) only when referring to the live instance an end user interacts with.

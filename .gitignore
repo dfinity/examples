@@ -1,18 +1,35 @@
-.dfx/
+# icp-cli — ignore only the ephemeral build cache; **/.icp/data/ is committed
+# (it holds the canister ID mappings)
 **/.icp/cache/
-build/
+
+# Motoko / mops
+.mops/
+mops.lock
+
+# Rust
+target/
+Cargo.lock
+
+# Node.js / frontends
 node_modules/
 package-lock.json
-Cargo.lock
 dist/
-.DS_Store
-_MACOSX
-.vscode/
-target/
-*.old.did
-.idea
-.mops
-mops.lock
-.env
-**/src/declarations/
+build/
+
+# Generated canister bindings and Candid artifacts
 **/src/bindings/
+**/src/declarations/
+*.old.did
+
+# Local environment
+.env
+
+# IDEs and editors
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+
+# ICP skills — these can be reinstalled with npx skills
+.agents/skills
