@@ -50,7 +50,7 @@ To authorize an identity to upload files, it must be authorized first:
 icp canister call frontend authorize '(principal "535yc-uxytb-gfk7h-tny7p-vjkoe-i4krp-3qmcl-uqfgr-cpgej-yqtjq-rqe")'
 ```
 
-> **Warning:** This example uses a hardcoded identity (defined in `src/App.js`). Before deploying to the IC mainnet, replace it with a proper authentication method such as [Internet Identity](https://docs.internetcomputer.org/guides/authentication/internet-identity).
+> **Warning:** This example uses a hardcoded identity (defined in `src/App.jsx`). Before deploying to the IC mainnet, replace it with a proper authentication method such as [Internet Identity](https://docs.internetcomputer.org/guides/authentication/internet-identity).
 
 Stop the local network when done:
 

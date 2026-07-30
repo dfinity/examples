@@ -15,10 +15,10 @@ const identity = Ed25519KeyIdentity.generate(new Uint8Array(Array.from({length: 
 // variables, so the app finds its own canister ID regardless of which URL the
 // gateway serves it under (canister-id-based or name-based).
 const canisterEnv = safeGetCanisterEnv();
-const canisterId = canisterEnv?.["PUBLIC_CANISTER_ID:frontend"] ?? new URLSearchParams(window.location.search).get('canisterId');
+const canisterId = canisterEnv?.["PUBLIC_CANISTER_ID:frontend"];
 
 if (!canisterId) {
-    throw new Error("Canister ID for 'frontend' not found. Run 'icp deploy' first.");
+    throw new Error("Canister ID for 'frontend' not found. Run 'icp deploy' and open the URL it prints.");
 }
 
 const agent = HttpAgent.createSync({
