@@ -1,6 +1,6 @@
 # Unity + Internet Identity
 
-This example shows how a Unity mobile app can authenticate users through [Internet Identity](https://internetcomputer.org/internet-identity) and call an ICP canister using the resulting delegation identity.
+This example shows how a Unity mobile app can authenticate users through [Internet Identity](https://docs.internetcomputer.org/guides/authentication/internet-identity) and call an ICP canister using the resulting delegation identity.
 
 The example consists of three parts:
 

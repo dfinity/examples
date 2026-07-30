@@ -6,11 +6,9 @@ Get started building on ICP with the sample applications in this repository. Fro
 
 The projects in this repository are not intended to be used as commercial applications and do not provide any explicit or implied support or warranty of any kind.
 
-You can also contribute your own project or suggest updates to published projects using the standard GitHub workflow.
-
 ## Sample applications
 
-**New here?** Start with [hello_world](motoko/hello_world/) (Motoko) or [hello_world](rust/hello_world/) (Rust) — a simple full-stack canister with a frontend. For user authentication with Internet Identity, see [who_am_i](motoko/who_am_i/) or [who_am_i](rust/who_am_i/).
+**New here?** Start with `hello_world` ([Motoko](motoko/hello_world/) or [Rust](rust/hello_world/)) — a simple full-stack canister with a frontend. Then move on to `who_am_i` ([Motoko](motoko/who_am_i/) or [Rust](rust/who_am_i/)) to add user authentication with [Internet Identity](https://docs.internetcomputer.org/guides/authentication/internet-identity).
 
 Canister examples are organized by language:
 
@@ -21,6 +19,7 @@ Frontend-only and native app examples:
 
 - [hosting/](hosting/) — frontend examples (React, static sites, etc.)
 - [native-apps/](native-apps/) — Unity and other native app integrations
+- [wasm/](wasm/) — canisters written directly in WebAssembly
 
 ## Local development
 
