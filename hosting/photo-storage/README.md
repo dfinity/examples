@@ -38,19 +38,19 @@ Deploy the canisters:
 icp deploy
 ```
 
-The URL for the frontend depends on the canister ID. When deployed, the URL will look like this:
+Open the frontend URL printed by `icp deploy`, e.g.:
 
 ```
-http://{canister_id}.localhost:8000
+http://frontend.local.localhost:8000
 ```
 
 To authorize an identity to upload files, it must be authorized first:
 
 ```bash
-icp canister call photo-storage authorize '(principal "535yc-uxytb-gfk7h-tny7p-vjkoe-i4krp-3qmcl-uqfgr-cpgej-yqtjq-rqe")'
+icp canister call frontend authorize '(principal "535yc-uxytb-gfk7h-tny7p-vjkoe-i4krp-3qmcl-uqfgr-cpgej-yqtjq-rqe")'
 ```
 
-> **Warning:** This example uses a hardcoded identity (defined in `src/App.js`). Before deploying to the IC mainnet, replace it with a proper authentication method such as [Internet Identity](https://docs.internetcomputer.org/building-apps/authentication/integrate-internet-identity).
+> **Warning:** This example uses a hardcoded identity (defined in `src/App.js`). Before deploying to the IC mainnet, replace it with a proper authentication method such as [Internet Identity](https://docs.internetcomputer.org/guides/authentication/internet-identity).
 
 Stop the local network when done:
 

@@ -1,5 +1,6 @@
 import {Ed25519KeyIdentity} from '@icp-sdk/core/identity';
 import {HttpAgent} from '@icp-sdk/core/agent';
+import {safeGetCanisterEnv} from '@icp-sdk/core/agent/canister-env';
 import {AssetManager} from '@icp-sdk/canisters/assets';
 import {useEffect, useState} from "react";
 import Masonry from "react-masonry-css";
@@ -8,16 +9,23 @@ import './App.css';
 // Hardcoded principal: 535yc-uxytb-gfk7h-tny7p-vjkoe-i4krp-3qmcl-uqfgr-cpgej-yqtjq-rqe
 // Should be replaced with authentication method e.g. Internet Identity when deployed on IC
 const identity = Ed25519KeyIdentity.generate(new Uint8Array(Array.from({length: 32}).fill(0)));
-const isLocal = !window.location.host.endsWith('ic0.app');
-const agent = HttpAgent.createSync({
-    host: isLocal ? `http://127.0.0.1:${window.location.port}` : 'https://ic0.app', identity,
-});
-if (isLocal) {
-    await agent.fetchRootKey();
+
+// The ic_env cookie is set by the asset canister on all HTML responses. It
+// contains the replica root key and the PUBLIC_* canister environment
+// variables, so the app finds its own canister ID regardless of which URL the
+// gateway serves it under (canister-id-based or name-based).
+const canisterEnv = safeGetCanisterEnv();
+const canisterId = canisterEnv?.["PUBLIC_CANISTER_ID:frontend"] ?? new URLSearchParams(window.location.search).get('canisterId');
+
+if (!canisterId) {
+    throw new Error("Canister ID for 'frontend' not found. Run 'icp deploy' first.");
 }
 
-// Canister id can be fetched from URL since frontend in this example is hosted in the same canister as file upload
-const canisterId = new URLSearchParams(window.location.search).get('canisterId') ?? /(.*?)(?:\.raw)?\.ic0.app/.exec(window.location.host)?.[1] ?? /(.*)\.localhost/.exec(window.location.host)?.[1];
+const agent = HttpAgent.createSync({
+    host: window.location.origin,
+    rootKey: canisterEnv?.IC_ROOT_KEY,
+    identity,
+});
 
 // Create asset manager instance for above asset canister
 const assetManager = new AssetManager({canisterId, agent});
