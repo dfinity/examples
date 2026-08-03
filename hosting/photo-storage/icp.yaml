@@ -1,7 +1,11 @@
 canisters:
   - name: frontend
     recipe:
-      type: "@dfinity/static-site@v0.3.1"
+      # Deliberately stays on the legacy asset-canister recipe: this example
+      # demonstrates programmatic uploads via AssetManager, which the
+      # static-site (certified-assets) canister does not support.
+      # See https://github.com/dfinity/examples/issues/1459
+      type: "@dfinity/asset-canister@v2.2.1"
       configuration:
         dir: dist
         build:
