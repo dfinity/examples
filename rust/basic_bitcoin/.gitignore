@@ -7,9 +7,6 @@
 .DS_Store
 **/.DS_Store
 
-# dfx temporary files
-.dfx/
-
 # rust
 target/
 
@@ -19,4 +16,3 @@ bitcoin_data
 # ord
 ord-db/
 
-canister_ids.json

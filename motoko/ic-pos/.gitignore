@@ -7,9 +7,6 @@
 .DS_Store
 **/.DS_Store
 
-# dfx temporary files
-.dfx/
-
 # rust
 target/
 
@@ -38,5 +35,4 @@ yarn-error.log*
 
 # misc
 scratch/
-canister_ids.json
 

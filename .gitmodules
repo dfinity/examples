@@ -1,4 +1,0 @@
-[submodule "QR-Code-generator"]
-	path = archive/c/qr/QR-Code-generator
-	url = https://github.com/nayuki/QR-Code-generator
-	branch = fd6917601d0a77b6b6df81599118212d8cdb9a27
