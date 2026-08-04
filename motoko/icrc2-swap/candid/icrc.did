@@ -1,13 +1,14 @@
 // ICRC-1 + ICRC-2 token-ledger interface.
 //
 // This is the *standard* interface every ICRC-1/ICRC-2 ledger exposes — not a
-// specific ledger. The swap backend types its `actor(<token-principal>)`
-// references against it, so the same generated bindings work for any ICRC-1/2
-// ledger the backend is pointed at (token_a, token_b, ckBTC, an SNS token, ...).
+// specific ledger. The swap backend imports it directly (moc `idl:` import,
+// see backend/app.mo) and types its `actor(<token-principal>)` references
+// against it, so the same interface works for any ICRC-1/2 ledger the backend
+// is pointed at (token_a, token_b, ckBTC, an SNS token, ...).
 //
 // The type definitions match the ICRC-1 ledger reference implementation
-// (dfinity/ic, ledger-suite-icrc). Generate the Motoko bindings with:
-//   didc bind -t mo candid/icrc.did > bindings/ICRC.mo
+// (dfinity/ic, ledger-suite-icrc). To update, edit this file directly — moc
+// reads it at build time; there are no generated bindings to regenerate.
 
 type Subaccount = blob;
 type Timestamp = nat64;
