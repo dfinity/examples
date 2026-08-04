@@ -1,8 +1,8 @@
 [toolchain]
-moc = "1.9.0"
+moc = "1.13.0"
 
 [dependencies]
-core = "2.5.0"
+core = "2.6.0"
 
 [moc]
 # M0236: use context dot notation

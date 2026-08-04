@@ -27,7 +27,13 @@ Three canisters:
 - **`token_a` / `token_b`**: Standard ICRC-1/ICRC-2 ledger canisters, pre-built from the DFINITY IC release.
 - **`backend`**: The swap canister (`backend/app.mo`). Accepts deposits, performs 1:1 swaps, and processes withdrawals. It discovers the token canister principals automatically at runtime via `PUBLIC_CANISTER_ID:token_a` / `PUBLIC_CANISTER_ID:token_b` environment variables injected by icp-cli.
 
-`backend/ICRC.mo` defines the ICRC-1/2 types and actor interface used by the backend. These are defined inline (rather than from a mops package) so the full interface is visible in the example.
+The backend imports the ICRC-1/ICRC-2 interface **directly from the committed Candid file** `candid/icrc.did`, using Motoko's `idl:` import (moc 1.13.0+):
+
+```motoko
+import ICRC "idl:../candid/icrc.did";
+```
+
+This yields the interface's named types and its service type `ICRC.Self` — no bindings are generated or committed, and no extra tooling is needed. The `idl:` import provides *types only*, so the backend supplies its own actor reference per token: `actor(<token-principal>) : ICRC.Self`. Every token reference is typed against that one shared type, so the same interface serves both `token_a` and `token_b` (and would serve any ICRC-1/2 ledger the backend is pointed at, e.g. ckBTC or an SNS token). This is the "one interface, many ledgers, principal chosen at runtime" pattern: because the target is dynamic, the types come from the standard Candid interface rather than being bound to a single canister id.
 
 ## Build and deploy from the command line
 
@@ -61,6 +67,10 @@ icp network stop
 3. Deploys `backend` — no init args needed; it discovers the token principals via injected environment variables.
 
 `bash test.sh` runs the full swap flow with `icrc2-alice` and `icrc2-bob` as the two parties. Test 2 verifies that swapping with no deposits returns `InsufficientBalance`. Tests 6 and 7 verify the actual token balance delta in the ledger after withdrawal, confirming the full round-trip. Tests are idempotent — they can be run multiple times without redeploying.
+
+## Updating the token interface
+
+`candid/icrc.did` is the ICRC-1/ICRC-2 interface the backend calls. It is imported directly via the `idl:` import (see [Architecture](#architecture)), so there is nothing to regenerate and no extra tooling to install — just edit `candid/icrc.did` and rebuild. moc reads it at build time and derives the Motoko types (snake_case Candid names become PascalCase automatically).
 
 ## Fee handling
 

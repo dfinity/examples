@@ -6,7 +6,12 @@ import Principal "mo:core/Principal";
 import Result "mo:core/Result";
 import Runtime "mo:core/Runtime";
 
-import ICRC "ICRC";
+// Import the ICRC-1/ICRC-2 interface types directly from the committed Candid
+// file (moc 1.13.0+ `idl:` import). This yields the named types and the service
+// type `ICRC.Self`; no bindings are generated or committed. The backend brings
+// its own actor reference per token — `actor(<principal>) : ICRC.Self` — so the
+// same types serve any ICRC-1/2 ledger the backend is pointed at.
+import ICRC "idl:../candid/icrc.did";
 
 // The swap canister accepts deposits of two ICRC-2 tokens, swaps balances
 // 1:1 between users, and allows withdrawals.
@@ -58,7 +63,7 @@ actor Swap {
   // - user deposits their token: `swap_canister.deposit({ token=token_a; amount=amount; ... })`
   // - These deposit handlers show how to safely accept and register deposits of an ICRC-2 token.
   public shared func deposit(args : DepositArgs) : async Result.Result<Nat, DepositError> {
-    let token : ICRC.Actor = actor (args.token.toText());
+    let token : ICRC.Self = actor (args.token.toText());
     let balances = which_balances<system>(args.token);
 
     // Load the fee from the token here. The user can pass a null fee, which
@@ -99,7 +104,7 @@ actor Swap {
     // Credit the sender's account
     let sender = args.from.owner;
     let old_balance = balances.get(sender).get(0 : Nat);
-    let _ = balances.swap(sender, old_balance + args.amount);
+    balances.add(sender, old_balance + args.amount);
 
     // Return the "block height" of the transfer
     #ok(block_height);
@@ -131,7 +136,7 @@ actor Swap {
     };
 
     // Give user_a's token_a to user_b
-    let _ = balancesA.swap(
+    balancesA.add(
       args.user_b,
       balancesA.get(args.user_a).get(0 : Nat) +
       balancesA.get(args.user_b).get(0 : Nat),
@@ -139,7 +144,7 @@ actor Swap {
     balancesA.remove(args.user_a);
 
     // Give user_b's token_b to user_a
-    let _ = balancesB.swap(
+    balancesB.add(
       args.user_a,
       balancesB.get(args.user_a).get(0 : Nat) +
       balancesB.get(args.user_b).get(0 : Nat),
@@ -179,7 +184,7 @@ actor Swap {
       Runtime.trap("anonymous caller not allowed");
     };
 
-    let token : ICRC.Actor = actor (args.token.toText());
+    let token : ICRC.Self = actor (args.token.toText());
     let balances = which_balances<system>(args.token);
 
     let fee = switch (args.fee) {
@@ -202,7 +207,7 @@ actor Swap {
     if (new_balance == 0) {
       balances.remove(msg.caller);
     } else {
-      let _ = balances.swap(msg.caller, new_balance);
+      balances.add(msg.caller, new_balance);
     };
 
     // Perform the transfer, to send the tokens.
@@ -222,7 +227,7 @@ actor Swap {
     } catch (e) {
       // Token ledger trapped — refund and surface the error.
       let b = balances.get(msg.caller).get(0 : Nat);
-      let _ = balances.swap(msg.caller, b + args.amount + fee);
+      balances.add(msg.caller, b + args.amount + fee);
       return #err(#CallFailed(e.message()));
     };
 
@@ -231,7 +236,7 @@ actor Swap {
       case (#Err(err)) {
         // Transfer failed — refund the user's account.
         let b = balances.get(msg.caller).get(0 : Nat);
-        let _ = balances.swap(msg.caller, b + args.amount + fee);
+        balances.add(msg.caller, b + args.amount + fee);
         return #err(#TransferError(err));
       };
     };
