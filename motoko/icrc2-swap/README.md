@@ -27,7 +27,13 @@ Three canisters:
 - **`token_a` / `token_b`**: Standard ICRC-1/ICRC-2 ledger canisters, pre-built from the DFINITY IC release.
 - **`backend`**: The swap canister (`backend/app.mo`). Accepts deposits, performs 1:1 swaps, and processes withdrawals. It discovers the token canister principals automatically at runtime via `PUBLIC_CANISTER_ID:token_a` / `PUBLIC_CANISTER_ID:token_b` environment variables injected by icp-cli.
 
-The backend talks to the token ledgers through a single generated Motoko binding, `bindings/ICRC.mo`, produced from the ICRC-1/ICRC-2 interface in `candid/icrc.did`. Every token reference is typed against that one shared type — `actor(<token-principal>) : ICRC.Self` — so the same binding serves both `token_a` and `token_b` (and would serve any ICRC-1/2 ledger the backend is pointed at, e.g. ckBTC or an SNS token). This is the "one interface, many ledgers, principal chosen at runtime" pattern: because the target is dynamic, the types come from the standard Candid interface rather than being bound to a single canister id. The binding is committed, so building the example needs no extra tooling.
+The backend imports the ICRC-1/ICRC-2 interface **directly from the committed Candid file** `candid/icrc.did`, using Motoko's `idl:` import (moc 1.13.0+):
+
+```motoko
+import ICRC "idl:../candid/icrc.did";
+```
+
+This yields the interface's named types and its service type `ICRC.Self` — no bindings are generated or committed, and no extra tooling is needed. The `idl:` import provides *types only*, so the backend supplies its own actor reference per token: `actor(<token-principal>) : ICRC.Self`. Every token reference is typed against that one shared type, so the same interface serves both `token_a` and `token_b` (and would serve any ICRC-1/2 ledger the backend is pointed at, e.g. ckBTC or an SNS token). This is the "one interface, many ledgers, principal chosen at runtime" pattern: because the target is dynamic, the types come from the standard Candid interface rather than being bound to a single canister id.
 
 ## Build and deploy from the command line
 
@@ -62,15 +68,9 @@ icp network stop
 
 `bash test.sh` runs the full swap flow with `icrc2-alice` and `icrc2-bob` as the two parties. Test 2 verifies that swapping with no deposits returns `InsufficientBalance`. Tests 6 and 7 verify the actual token balance delta in the ledger after withdrawal, confirming the full round-trip. Tests are idempotent — they can be run multiple times without redeploying.
 
-## Updating the token interface bindings
+## Updating the token interface
 
-`candid/icrc.did` is the ICRC-1/ICRC-2 interface the backend calls; `bindings/ICRC.mo` is the Motoko binding generated from it. The binding is committed, so no extra tooling is needed to build. If you change the interface, regenerate the binding with [`didc`](https://github.com/dfinity/candid/releases):
-
-```bash
-didc bind -t mo candid/icrc.did > bindings/ICRC.mo
-```
-
-(The ICRC-1/2 type names are already PascalCase, so `didc` output is idiomatic as-is — no post-processing needed.)
+`candid/icrc.did` is the ICRC-1/ICRC-2 interface the backend calls. It is imported directly via the `idl:` import (see [Architecture](#architecture)), so there is nothing to regenerate and no extra tooling to install — just edit `candid/icrc.did` and rebuild. moc reads it at build time and derives the Motoko types (snake_case Candid names become PascalCase automatically).
 
 ## Fee handling
 

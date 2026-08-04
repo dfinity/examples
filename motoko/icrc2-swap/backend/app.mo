@@ -6,7 +6,12 @@ import Principal "mo:core/Principal";
 import Result "mo:core/Result";
 import Runtime "mo:core/Runtime";
 
-import ICRC "../bindings/ICRC";
+// Import the ICRC-1/ICRC-2 interface types directly from the committed Candid
+// file (moc 1.13.0+ `idl:` import). This yields the named types and the service
+// type `ICRC.Self`; no bindings are generated or committed. The backend brings
+// its own actor reference per token — `actor(<principal>) : ICRC.Self` — so the
+// same types serve any ICRC-1/2 ledger the backend is pointed at.
+import ICRC "idl:../candid/icrc.did";
 
 // The swap canister accepts deposits of two ICRC-2 tokens, swaps balances
 // 1:1 between users, and allows withdrawals.
