@@ -1,6 +1,6 @@
-# vetKeys examples (Rust)
+# vetKeys examples (Motoko)
 
-Examples for [vetKeys](https://docs.internetcomputer.org/concepts/vetkeys) — verifiably encrypted threshold key derivation, the Internet Computer's primitive for on-chain encryption. Each example is self-contained: follow its README to deploy it locally with `icp-cli`. Motoko counterparts live in [`../../motoko/vetkeys/`](../../motoko/vetkeys/).
+Examples for [vetKeys](https://docs.internetcomputer.org/concepts/vetkeys) — verifiably encrypted threshold key derivation, the Internet Computer's primitive for on-chain encryption. Each example is self-contained: follow its README to deploy it locally with `icp-cli`. Rust counterparts live in [`../../rust/vetkeys/`](../../rust/vetkeys/).
 
 **Start with** [`basic_vetkd`](basic_vetkd/) to understand the raw API, then move to the SDK-based examples.
 
@@ -8,7 +8,6 @@ Examples for [vetKeys](https://docs.internetcomputer.org/concepts/vetkeys) — v
 
 - [`basic_vetkd`](basic_vetkd/) — the raw VetKD management canister API: symmetric key derivation and IBE without any SDK abstraction.
 - [`basic_ibe`](basic_ibe/) — secure messaging with Identity-Based Encryption, using Internet Identity principals as encryption keys.
-- [`basic_timelock_ibe`](basic_timelock_ibe/) — a secret-bid auction where bids stay encrypted until the deadline (timelock encryption).
 - [`basic_bls_signing`](basic_bls_signing/) — a threshold BLS signing service where users can only sign for their own principal.
 
 ## Applications
