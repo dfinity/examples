@@ -37,12 +37,14 @@ bash test.sh
 icp network stop
 ```
 
-After deploying, you can inspect any canister by passing its principal to the backend. For example, to inspect the `test` canister itself:
+After deploying, you can inspect any canister by passing its principal to the backend. Locally, the `test` helper canister is deployed as a convenient subject:
 
 ```bash
 test_id=$(icp canister status test -i)
 icp canister call backend info "(principal \"$test_id\")"
 ```
+
+The `test` canister is deployed **locally only** — the `info` methods accept any canister principal, so on mainnet you can inspect the `backend` itself (`icp canister status backend -i -e ic`) or any other canister ID without it.
 
 ## Canister history limit
 

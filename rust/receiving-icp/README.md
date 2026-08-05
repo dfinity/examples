@@ -54,6 +54,12 @@ icp deploy -e ic
 
 This targets the TESTICP ledger by default. To use the real ICP ledger, update `ICP_LEDGER_CANISTER_ID` in `icp.yaml` first.
 
+**Try the receive flow with test tokens (no real ICP needed):**
+
+1. Call `account` to get the canister's deposit account identifier.
+2. Request **TESTICP** for that account from the [ICP faucet](https://faucet.internetcomputer.org).
+3. Call `get_balance` — it now reflects the received TESTICP.
+
 ## Security considerations and best practices
 
 Refer to the [security best practices](https://docs.internetcomputer.org/guides/security/overview) for information on security and best practices for your ICP app.
