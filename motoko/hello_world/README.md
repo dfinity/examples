@@ -4,8 +4,6 @@
 
 > 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/hello_world)
-
 ## Overview
 
 This example demonstrates a simple "Hello, world!" application for ICP with both a Motoko backend canister and a frontend UI.
