@@ -1,5 +1,7 @@
 # Hello, world!
 
+> 🥷 **Try it live:** [Open in ICP Ninja](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/rust/hello_world) — deploy to the mainnet for free from your browser, no local setup.
+
 [View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/hello_world)
 
 ## Overview
