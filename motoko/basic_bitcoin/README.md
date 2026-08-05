@@ -1,5 +1,9 @@
 # Basic Bitcoin
 
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/motoko/basic_bitcoin)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
+
 This example demonstrates how a canister can send and receive Bitcoin on the Internet Computer using threshold ECDSA and Schnorr signatures. It covers three address types (P2PKH, P2TR key-path, P2TR script-path), querying balances and UTXOs, reading chain state, and sending transactions.
 
 For a deeper understanding of the ICP ↔ Bitcoin integration, see the [Bitcoin integration concepts](https://docs.internetcomputer.org/concepts/chain-fusion/bitcoin).

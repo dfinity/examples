@@ -1,7 +1,5 @@
 # Motoko Canister Factory
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/canister_factory)
-
 ## Overview
 
 This example demonstrates two approaches to creating canisters dynamically on the Internet Computer: high-level actor class management (using the `system` keyword) and low-level management canister calls. It also shows the critical difference between upgrading a canister (state preserved) and reinstalling it (state reset).

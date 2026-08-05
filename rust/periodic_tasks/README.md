@@ -1,5 +1,9 @@
 # Periodic tasks and timers
 
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/rust/periodic_tasks)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
+
 The Internet Computer allows canisters to execute code automatically — either after a specified delay or on a recurring schedule — without requiring any external trigger.
 
 There are two ways to schedule an automatic canister execution on the IC:

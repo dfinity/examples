@@ -1,5 +1,9 @@
 # X.509
 
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/rust/x509)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
+
 A minimal example canister demonstrating two use cases of [X.509](https://en.wikipedia.org/wiki/X.509) certificates on the Internet Computer:
 
 1. How to create an X.509 certification authority (CA) certificate whose private key is a **threshold signing key** — the CA's private key is never revealed in cleartext and cannot be revealed due to the properties of the threshold signature protocols on the Internet Computer. This means that only the canister can sign child certificates.

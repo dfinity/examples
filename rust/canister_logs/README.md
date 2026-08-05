@@ -1,10 +1,12 @@
 # Canister logs
 
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/rust/canister_logs)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
+
 This example demonstrates canister logging and error handling on the Internet Computer. It shows how to use `ic_cdk::println!` for diagnostic output, how traps, panics, and memory errors are automatically captured in the canister log, and how periodic timers generate log entries.
 
 The canister exposes methods to print messages, trigger explicit traps, cause panics, simulate stable-memory out-of-bounds errors, and call `raw_rand`. A key behavioral distinction is demonstrated: log messages from **update calls and replicated queries** are recorded in the canister log, while messages from **non-replicated query calls** are not.
-
-See also the [Motoko version](../../motoko/canister_logs).
 
 ## Build and deploy from the command line
 

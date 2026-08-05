@@ -1,5 +1,9 @@
 # Query Stats
 
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/rust/query_stats)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
+
 This example demonstrates how a canister can read its own query statistics using the management canister's `canister_status` endpoint. It retrieves metrics such as the total number of query calls, instructions executed, and payload bytes.
 
 ## How query stats work

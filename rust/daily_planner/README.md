@@ -1,5 +1,9 @@
 # Daily Planner
 
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/rust/daily_planner)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
+
 Daily Planner is a full-stack ICP example featuring a monthly calendar that tracks daily notes and tasks stored on the network. For each day, a historic fact can be fetched from an external API using HTTPS outcalls, demonstrating how ICP canisters can access data from external services.
 
 ## Build and deploy from the command line

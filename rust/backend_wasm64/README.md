@@ -1,6 +1,8 @@
 # Rust backend (Wasm64)
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/backend_wasm64)
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/rust/backend_wasm64)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
 
 ## Overview
 
@@ -16,10 +18,6 @@ The Wasm64 target allows canisters to:
 - Use 64-bit memory addressing
 
 This example uses the `build.sh` script to build for Wasm64 using Rust's nightly toolchain and the `-Z build-std` feature.
-
-<!--
-[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/rust/backend_wasm64)
--->
 
 ## Build and deploy from the command line
 

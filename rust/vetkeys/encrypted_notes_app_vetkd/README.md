@@ -1,9 +1,5 @@
 # Encrypted Notes: vetKD (Rust)
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/vetkeys/encrypted_notes_app_vetkd)
-
-Also available in: [Motoko](../../../motoko/vetkeys/encrypted_notes_app_vetkd)
-
 Encrypted notes is an example app for authoring and storing confidential information on the Internet Computer (ICP) in the form of short pieces of text. Users can create and access their notes via any number of automatically synchronized devices authenticated via Internet Identity (II). Notes are stored confidentially using vetKeys. The end-to-end encryption is performed by the app's frontend.
 
 In particular, the notes are encrypted with an AES key that is derived (directly in the browser) from a note-ID-specific vetKey obtained from the backend canister (in encrypted form, using an ephemeral transport key), which itself obtains it from the vetKD system API. This way, there is no need for any device management in the app, plus sharing of notes becomes possible.

@@ -1,7 +1,5 @@
 # Static website
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/hosting/static-website)
-
 ## Overview
 
 The example shows how to deploy a simple, static website hosted on ICP. The website is very simple; it just displays the DFINITY logo. While the website in this example is very simple, the method would be the same for a more advanced static website, e.g., based on popular static site generators.

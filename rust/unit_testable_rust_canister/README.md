@@ -1,5 +1,9 @@
 # Unit Testable Rust Canister
 
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/rust/unit_testable_rust_canister)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
+
 This example demonstrates how to structure a Rust canister for comprehensive unit testing by isolating
 non-deterministic dependencies behind interfaces. It uses dependency injection so that inter-canister
 calls and stable memory operations can all be mocked in fast pure-Rust unit tests.

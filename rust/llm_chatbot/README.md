@@ -1,5 +1,9 @@
 # LLM Chatbot
 
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/rust/llm_chatbot)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
+
 This example demonstrates how an ICP canister can interact with a large language model (LLM) to generate text. The user can input a prompt and the canister will use the LLM to generate a response. Follow-up prompts continue the conversation with the full message history.
 
 ## How it works

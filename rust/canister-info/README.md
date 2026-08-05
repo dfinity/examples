@@ -1,5 +1,9 @@
 # Canister Info
 
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/rust/canister-info)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
+
 This example demonstrates how to use the IC's [`canister_info`](https://docs.internetcomputer.org/references/management-canister/#canister_info) management call to retrieve information about any canister, including its recent change history (the IC retains up to 20 changes per canister).
 
 Two canisters are deployed:

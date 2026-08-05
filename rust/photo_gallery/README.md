@@ -1,5 +1,9 @@
 # Photo Gallery
 
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/rust/photo_gallery)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
+
 A photo gallery application built on the Internet Computer. Users can upload and view photos stored on the network, served via the HTTP gateway with browser-cacheable responses.
 
 **Note:** This example is primarily a demo showing how the [`ic-http-certification`](https://docs.rs/ic-http-certification) crate and the HTTP gateway can serve images with long-lived `Cache-Control` headers. The canister uses *skip-certification* headers, which tell the HTTP gateway to bypass response verification — this is suitable for public, immutable content like uploaded images. It does not implement authentication or per-user access control. Use it at your own risk.

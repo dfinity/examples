@@ -1,5 +1,9 @@
 # Basic Ethereum
 
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/rust/basic_ethereum)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
+
 This example demonstrates how to deploy a canister smart contract on the Internet Computer that can **send and receive Ether (ETH)** on the Ethereum network. The canister uses threshold ECDSA to sign Ethereum transactions and HTTPS outcalls to communicate with the Ethereum network via the EVM RPC canister.
 
 ## Architecture

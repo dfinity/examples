@@ -2,8 +2,6 @@
 
 This example demonstrates the low Wasm memory hook on the Internet Computer. The ICP runtime automatically executes a special `on_low_wasm_memory` system function when a canister's available Wasm memory falls below the configured `wasm_memory_threshold`. The example shows the execution order of the `heartbeat` and `on_low_wasm_memory` system functions as the canister progressively allocates memory until the threshold is reached.
 
-If you're interested in how this example is implemented in Motoko, check out the [Motoko variation](../../motoko/low_wasm_memory).
-
 For more information, see the [low Wasm memory hook specification](https://docs.internetcomputer.org/references/ic-interface-spec/canister-interface/#on-low-wasm-memory).
 
 ## Build and deploy from the command line

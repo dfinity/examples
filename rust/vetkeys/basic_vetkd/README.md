@@ -1,9 +1,5 @@
 # Basic VetKD Demo (Rust)
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/vetkeys/basic_vetkd)
-
-Also available in: [Motoko](../../motoko/vetkeys/basic_vetkd)
-
 ## Overview
 
 Demonstrates the raw VetKD management canister API — the lowest-level building block for verifiably encrypted threshold key derivation on the Internet Computer. The example shows two use cases: symmetric key derivation (AES-GCM-256) and identity-based encryption (IBE), both driven directly via the management canister interface without any SDK abstraction.

@@ -10,9 +10,6 @@ More specifically:
 - The canister uses the caller's principal bytes as the key derivation path.
 - The canister requests a signature from the threshold Schnorr subnet, which computes it using threshold cryptography.
 
-This walkthrough focuses on the [Rust](https://github.com/dfinity/examples/tree/master/rust/threshold-schnorr) implementation.
-There is also a [Motoko version](https://github.com/dfinity/examples/tree/master/motoko/threshold-schnorr) in the same repo.
-
 ## Build and deploy from the command line
 
 ### Prerequisites

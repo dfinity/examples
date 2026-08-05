@@ -1,5 +1,9 @@
 # Candid Type Generation
 
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/rust/candid_type_generation)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
+
 This example shows how to automatically generate Rust types from a Candid interface definition (`.did` file), eliminating the need to manually copy and maintain type definitions from external canisters.
 
 The example deploys a canister that calls the [NNS Governance](https://dashboard.internetcomputer.org/canister/rrkah-fqaaa-aaaaa-aaaaq-cai) canister using types generated directly from its live Candid interface. The local network is configured with `nns: true` so that NNS canisters are available at their mainnet IDs during local development and testing.
