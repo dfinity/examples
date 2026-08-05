@@ -1,6 +1,6 @@
 # Hello, world!
 
-> 🥷 **Try it live:** [Open in ICP Ninja](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/motoko/hello_world) — deploy to the mainnet for free from your browser, no local setup.
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/motoko/hello_world)
 
 [View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/hello_world)
 
