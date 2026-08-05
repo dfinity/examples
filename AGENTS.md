@@ -399,7 +399,7 @@ Rust: `icp build backend && candid-extractor target/wasm32-unknown-unknown/relea
 
 ### ICP Ninja badge
 
-[ICP Ninja](https://icp.ninja) is a browser-based IDE that deploys a project to the mainnet for free. Eligible examples carry an "Open in ICP Ninja" badge as the first thing under the H1, followed by a short callout:
+[ICP Ninja](https://icp.ninja) is a browser-based IDE that deploys a project to the mainnet for free. An example carries an "Open in ICP Ninja" badge only once it is **both eligible (rules below) and known to ICP Ninja**; the badge is the first thing under the H1, followed by a short callout:
 
 ```markdown
 # <Example Title>
@@ -421,4 +421,4 @@ Rust: `icp build backend && candid-extractor target/wasm32-unknown-unknown/relea
 
 For token examples, the `ic` environment should use the **TESTICP**/**TESTICRC1** test ledgers (not the real ICP ledger) so users can exercise transfers with free faucet tokens — and the README should point at the [faucet](https://faucet.internetcomputer.org) and the steps to use it.
 
-Skip the badge for ineligible examples and for language-native/CLI examples that aren't a deployable canister project. An example eligible by these rules but not yet known to ICP Ninja should be proposed to the Ninja team before adding the badge.
+Skip the badge for ineligible examples and for language-native/CLI examples that aren't a deployable canister project. Eligibility is necessary but not sufficient: an example that satisfies these rules but is not yet known to ICP Ninja should be **proposed to the Ninja team first**, and the badge added only once Ninja supports it.
