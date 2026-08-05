@@ -6,13 +6,13 @@
 
 The **Basic Timelock IBE** example demonstrates how to use **[VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** to implement a secret-bid auction using timelock encryption on the **Internet Computer (IC)**. This application allows users authenticated with their **Internet Identity Principal** to create auction lots with a description and deadline, and other users to place a secret bid for the lot. The bids in this example are just dummy integer values, contrary to real-world use cases where users would place bids holding some value.
 
-This canister (IC smart contract) ensures that:
+This canister ensures that:
 1. Only authorized users can create auction lots and place secret bids until the lot is closed.
 2. The bids stay secret until the lot is closed.
 3. The winner is chosen fairly among all the placed bids, once the lot closes and the canister decrypts the secret bids. Note that once secret bids are decrypted they inherently become public.
 
 Note that generally it is possible for a canister to request a decryption key to decrypt secrets at any time.
-The code of smart contract determines the rules for when the decryption happens.
+The canister's code determines the rules for when the decryption happens.
 In this example, the decryption happens only after the lot is closed and does not accept new bids.
 A canister functionality for decrypting secrets can be detected by inspecting the code and, therefore, it is crucial that canisters using VetKeys have their code public to allow to verify that the canister handles secrets in a secure and intended way.
 

@@ -6,7 +6,7 @@
 
 ## Overview
 
-This backend-only project demonstrates how to write a simple smart contract for ICP using **Wasm64** compilation target.
+This backend-only project demonstrates how to write a simple canister for ICP using **Wasm64** compilation target.
 
 This example specifically showcases building and deploying canisters compiled to the Wasm64 target, which provides access to 64-bit memory addressing and can handle larger memory spaces compared to the traditional Wasm32 target.
 

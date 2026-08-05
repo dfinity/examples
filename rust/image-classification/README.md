@@ -1,11 +1,11 @@
 # ICP image classification
 
 This example demonstrates running an ONNX machine-learning model inside an ICP canister.
-The smart contract accepts an image from the user and runs image classification inference using the [Tract ONNX inference engine](https://github.com/sonos/tract) with the [MobileNet v2-7 model](https://github.com/onnx/models/tree/main/validated/vision/classification/mobilenet).
+The canister accepts an image from the user and runs image classification inference using the [Tract ONNX inference engine](https://github.com/sonos/tract) with the [MobileNet v2-7 model](https://github.com/onnx/models/tree/main/validated/vision/classification/mobilenet).
 
 The example uses the WASI polyfill to run Tract (which relies on POSIX file I/O) inside the deterministic ICP runtime, and Wasm SIMD instructions for faster inference.
 
-The smart contract consists of two canisters:
+The example consists of two canisters:
 
 - **backend** — embeds the Tract ONNX inference engine with the MobileNet v2-7 model.
   It provides two classification endpoints:
@@ -47,7 +47,7 @@ icp network stop
 ```
 
 If the deployment is successful, the CLI will print the frontend URL.
-Open that URL in a browser to interact with the smart contract.
+Open that URL in a browser to interact with the canister.
 
 For frontend development with hot reload:
 

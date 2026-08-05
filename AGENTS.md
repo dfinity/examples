@@ -409,7 +409,7 @@ Rust: `icp build backend && candid-extractor target/wasm32-unknown-unknown/relea
 > 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
 ```
 
-- **Badge asset:** always `https://icp.ninja/assets/open.svg` (the official badge). **Import URL:** `https://icp.ninja/i?g=<full GitHub tree URL on `master`>`.
+- **Badge asset:** always `https://icp.ninja/assets/open.svg` (the official badge). **Import URL:** `https://icp.ninja/i?g=<full GitHub tree URL on master>`.
 - **The callout is dual-context.** ICP Ninja renders the README as its default preview, so the block is read both on GitHub (where the badge is the call-to-action) and inside Ninja (where "hit **Deploy**" is the actionable step). Keep both cues.
 
 **Eligibility — only add the badge when all of these hold:**

@@ -6,7 +6,7 @@
 
 ## Overview
 
-Who am I? demonstrates how entities on the Internet Computer are identified. Every entity, such as a user or canister smart contract, has a principal identifier. Principals can be used for identification and authentication. Who am I? uses Internet Identity (II) for user authentication, then displays the principal identifier associated with that Internet Identity on the user interface.
+Who am I? demonstrates how entities on the Internet Computer are identified. Every entity, such as a user or canister, has a principal identifier. Principals can be used for identification and authentication. Who am I? uses Internet Identity (II) for user authentication, then displays the principal identifier associated with that Internet Identity on the user interface.
 
 ## Build and deploy from the command line
 

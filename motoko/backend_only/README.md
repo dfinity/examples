@@ -4,7 +4,7 @@
 
 > 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
 
-This backend-only example demonstrates how to write a simple smart contract for ICP. It implements a single `greet(name)` query function that returns a greeting string.
+This backend-only example demonstrates how to write a simple canister for ICP. It implements a single `greet(name)` query function that returns a greeting string.
 
 ## Build and deploy from the command line
 
