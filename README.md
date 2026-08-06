@@ -54,7 +54,7 @@ Then navigate into an example and follow its README to deploy.
 
 ## Working with AI coding agents
 
-These examples are built to work well with AI coding agents, backed by [ICP skills](https://docs.internetcomputer.org/guides/ai-coding-agents) — tested, frequently-updated instructions that keep an agent aligned with the fast-moving platform.
+These examples are built to work well with AI coding agents, backed by **ICP skills** — tested, frequently-updated instructions that keep an agent aligned with the fast-moving platform. Browse the skills at [skills.internetcomputer.org](https://skills.internetcomputer.org), and see the [AI coding agents guide](https://docs.internetcomputer.org/guides/ai-coding-agents) for how agents consume and install them.
 
 The repo is set up with **autosync**: opening it in Claude Code runs a `SessionStart` hook that keeps the skills current automatically (you'll be asked to trust the hook the first time). This targets Claude Code today; other agents fetch the skills on demand instead. Details are in [AGENTS.md](AGENTS.md).
 
