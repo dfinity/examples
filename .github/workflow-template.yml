@@ -17,6 +17,8 @@
 name: <example_name>
 
 on:
+  schedule:
+    - cron: "30 6 * * 1"  # weekly build to catch dependency drift (lock files are gitignored)
   push:
     branches:
       - master
