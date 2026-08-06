@@ -200,6 +200,26 @@ icp-cli applies `environment_variables` as canister settings at deploy time. Rea
 - Motoko: `Runtime.envVar<system>("PUBLIC_CANISTER_ID:xrc")`
 - Rust: `ic_cdk::api::env_var_value("PUBLIC_CANISTER_ID:xrc")` — never `env!()` (compile-time) or `std::env::var()` (no OS environment in WASM)
 
+### Frontend headers and routing
+
+Frontends use the `@dfinity/static-site` recipe (the certified-assets canister). Configure it with two files at the **root of the build's publish dir** — put them in `frontend/public/` (Vite's `public/` is copied to `dist/`), never in a subfolder that only gets bundled:
+
+- `_headers` — security headers and caching, Netlify-style. Certified-assets ships **no default headers**, so declare them explicitly. Baseline (tighten the CSP per app; keep each example's own `connect-src`/`script-src`):
+  ```
+  /*
+    X-Frame-Options: DENY
+    X-Content-Type-Options: nosniff
+    Referrer-Policy: strict-origin-when-cross-origin
+    Content-Security-Policy: default-src 'self'; ...
+  /assets/*
+    Cache-Control: public, max-age=31536000, immutable
+  /*.html
+    Cache-Control: public, max-age=0, must-revalidate
+  ```
+- `_redirects` — SPA fallback so deep-link reloads don't 404: `/*  /index.html  200` (a `200` rewrite, not a redirect).
+
+Do **not** use `.ic-assets.json5` — that is the legacy asset-canister config; certified-assets ignores it (it gets served as a dead asset). No HSTS in the baseline: `_headers` apply in local dev too, and a canister-served `Strict-Transport-Security` would force HTTPS on `http://…localhost`. Consult the `static-site` skill before changing these (reserved-header list, `_headers` matches the asset key not the URL, etc.).
+
 ---
 
 ## Motoko conventions
