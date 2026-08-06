@@ -11,10 +11,10 @@ core = "2.5.0"
 args = ["--default-persistent-actors", "-W=M0236,M0237,M0223"]
 
 [canisters.caller]
-main = "caller/app.mo"
+main = "caller/main.mo"
 # --actor-env-alias <alias> <envvar> <did-path>: resolve the `canister:callee`
 # import from the PUBLIC_CANISTER_ID:callee env var (injected by icp deploy),
-# typed against callee/callee.did — no actor type needed in caller/app.mo.
+# typed against callee/callee.did — no actor type needed in caller/main.mo.
 # Per-canister args replace the global [moc].args, so repeat those flags here.
 args = [
     "--default-persistent-actors",
@@ -23,5 +23,5 @@ args = [
 ]
 
 [canisters.callee]
-main = "callee/app.mo"
+main = "callee/main.mo"
 candid = "callee/callee.did"

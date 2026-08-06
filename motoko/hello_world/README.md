@@ -19,7 +19,7 @@ This application's logic is written in [Motoko](https://docs.internetcomputer.or
 
 ## Project structure
 
-The `/backend` folder contains the Motoko canister, `app.mo`. The `/frontend` folder contains web assets for the application's user interface. The user interface is written with plain JavaScript, but any frontend framework can be used.
+The `/backend` folder contains the Motoko canister, `main.mo`. The `/frontend` folder contains web assets for the application's user interface. The user interface is written with plain JavaScript, but any frontend framework can be used.
 
 Edit the `mops.toml` file to add [Motoko dependencies](https://mops.one/) to the project.
 

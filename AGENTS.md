@@ -68,7 +68,7 @@ Follow the `hello_world` layout:
 ├── Cargo.toml                # Rust only (workspace)
 ├── rust-toolchain.toml       # Rust only
 ├── backend/
-│   ├── app.mo or lib.rs      # canister entry point
+│   ├── main.mo or lib.rs     # canister entry point
 │   └── backend.did           # Candid interface (only if a frontend consumes it)
 └── frontend/
     ├── index.html
@@ -220,7 +220,7 @@ core = "X.Y.Z"
 args = ["--default-persistent-actors", "-W=M0236,M0237,M0223"]
 
 [canisters.backend]
-main = "backend/app.mo"
+main = "backend/main.mo"
 candid = "backend/backend.did"   # omit for backend-only examples (no frontend)
 ```
 
@@ -239,7 +239,7 @@ mops check --fix    # auto-fix style warnings (M0236, M0237, M0223)
 
 - **Top-level actor:** name it after its logical role — e.g. `actor TodoList`, `actor CanisterFactory`, not `actor Backend`.
 - **Supporting module files:** PascalCase matching the type they export — e.g. `Counter.mo` exporting `actor class Counter`.
-- **Entry point file:** always `backend/app.mo` (or `<role>/app.mo` in multi-canister examples) regardless of actor name.
+- **Entry point file:** always lowercase `backend/main.mo` (or `<role>/main.mo` in multi-canister examples) regardless of the actor name — the composition root is lowercase `main.mo` (like Rust's `lib.rs`), matching `icp new`, mops, and the Motoko skill. PascalCase is only for the exported module files above.
 
 ### Inter-canister calls
 
@@ -251,7 +251,7 @@ import Callee "canister:callee";
 
 ```toml
 [canisters.caller]
-main = "caller/app.mo"
+main = "caller/main.mo"
 # Per-canister args REPLACE the global [moc].args — repeat the shared flags.
 args = [
     "--default-persistent-actors",

@@ -27,7 +27,7 @@ The callback (`subscriber.updateCount`) is a **shared function reference** — a
 
 ## How the publisher is resolved
 
-The subscriber calls the publisher through `import Publisher "canister:publisher"`. The `--actor-env-alias publisher PUBLIC_CANISTER_ID:publisher publisher/publisher.did` flag in `mops.toml` tells the Motoko compiler to type that import against `publisher/publisher.did` at build time, and to resolve the publisher's **principal at runtime** from the canister environment variable `PUBLIC_CANISTER_ID:publisher`. Because the interface comes from the `.did`, no actor type is written in `subscriber/app.mo`.
+The subscriber calls the publisher through `import Publisher "canister:publisher"`. The `--actor-env-alias publisher PUBLIC_CANISTER_ID:publisher publisher/publisher.did` flag in `mops.toml` tells the Motoko compiler to type that import against `publisher/publisher.did` at build time, and to resolve the publisher's **principal at runtime** from the canister environment variable `PUBLIC_CANISTER_ID:publisher`. Because the interface comes from the `.did`, no actor type is written in `subscriber/main.mo`.
 
 The consequence is that the subscriber's Wasm contains **no publisher principal** — the compiler embeds only the environment-variable *name*, so **the same Wasm artifact runs unchanged in every environment**:
 

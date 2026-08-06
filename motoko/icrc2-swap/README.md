@@ -10,13 +10,13 @@ This example demonstrates how to safely work with [ICRC-2](https://docs.internet
 
 When sending tokens out of the canister, **deduct the user's internal balance first**, then perform the transfer on the token ledger. If the order is reversed and the transfer executes before the debit, a concurrent or reentering call could withdraw the same tokens twice.
 
-See `backend/app.mo` `withdraw` for the implementation and detailed inline comments.
+See `backend/main.mo` `withdraw` for the implementation and detailed inline comments.
 
 ### 2. Atomic swap (no `await` in swap)
 
 The `swap` function exchanges two users' balances **without any `await` calls**. On the IC, an `await` creates a commit point — if the function fails after an `await`, only the changes before it persist, leaving state inconsistent. By keeping `swap` entirely synchronous, either all balance changes apply or none do.
 
-See `backend/app.mo` `swap` for the implementation and detailed inline comments.
+See `backend/main.mo` `swap` for the implementation and detailed inline comments.
 
 For more background, see the [inter-canister calls security best practices](https://docs.internetcomputer.org/guides/security/inter-canister-calls).
 
@@ -25,7 +25,7 @@ For more background, see the [inter-canister calls security best practices](http
 Three canisters:
 
 - **`token_a` / `token_b`**: Standard ICRC-1/ICRC-2 ledger canisters, pre-built from the DFINITY IC release.
-- **`backend`**: The swap canister (`backend/app.mo`). Accepts deposits, performs 1:1 swaps, and processes withdrawals. It discovers the token canister principals automatically at runtime via `PUBLIC_CANISTER_ID:token_a` / `PUBLIC_CANISTER_ID:token_b` environment variables injected by icp-cli.
+- **`backend`**: The swap canister (`backend/main.mo`). Accepts deposits, performs 1:1 swaps, and processes withdrawals. It discovers the token canister principals automatically at runtime via `PUBLIC_CANISTER_ID:token_a` / `PUBLIC_CANISTER_ID:token_b` environment variables injected by icp-cli.
 
 The backend imports the ICRC-1/ICRC-2 interface **directly from the committed Candid file** `candid/icrc.did`, using Motoko's `idl:` import (moc 1.13.0+):
 
