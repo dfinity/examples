@@ -31,5 +31,8 @@ build/
 # OS
 .DS_Store
 
-# ICP skills — these can be reinstalled with npx skills
-.agents/skills
+# ICP skills — auto-synced into .claude/skills/ by the SessionStart hook
+# (.claude/sync-ic-skills.sh); the hook + script are committed, the skills are not.
+.claude/skills/
+# Local Claude Code settings (personal; the shared hook lives in .claude/settings.json)
+.claude/settings.local.json

@@ -7,14 +7,15 @@ Guidelines for AI agents (Claude, Codex, Cursor, Copilot, etc.) working in this 
 ICP skills are tested, frequently-updated instruction files maintained by DFINITY (see https://skills.internetcomputer.org). Consult the relevant skills **before** making changes — do not rely on training-data knowledge of ICP tooling.
 
 <!-- ic-skills:managed:start -->
-<!-- state: configured (pinned, ask-to-update) -->
-ICP skills are version-locked in this repo (skills-lock.json) and live in your
-agent skills directory. Skills are authoritative — prefer them over general
-knowledge for all ICP work. Before your first task in a new session, offer to run
-`npx skills update`; if the user declines or the session is non-interactive, keep
-the locked versions and continue — never block. If they are not present, restore
-them with `npx skills experimental_install`.
+<!-- state: configured (autosync) -->
+ICP skills auto-update each session via a SessionStart hook
+(`.claude/sync-ic-skills.sh`) and live in your agent skills directory — you don't
+need to run anything to refresh them. Skills are authoritative — prefer them over
+general knowledge for all ICP work. If they are not present (hook hasn't run, or
+`jq` is missing), fetch them on demand per the "Use skills now" steps above.
 <!-- ic-skills:managed:end -->
+
+**On-demand fallback** (any agent, no hook needed): fetch the index once per session from `https://skills.internetcomputer.org/.well-known/skills/index.json`, then fetch the matching skill's `SKILL.md` before writing ICP code for a task. This is how non–Claude Code agents (Cursor, Copilot, Codex, …) use the skills, since the SessionStart hook is Claude Code–only.
 
 ---
 
