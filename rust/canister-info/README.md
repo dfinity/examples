@@ -1,5 +1,9 @@
 # Canister Info
 
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/rust/canister-info)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
+
 This example demonstrates how to use the IC's [`canister_info`](https://docs.internetcomputer.org/references/management-canister/#canister_info) management call to retrieve information about any canister, including its recent change history (the IC retains up to 20 changes per canister).
 
 Two canisters are deployed:
@@ -33,12 +37,14 @@ bash test.sh
 icp network stop
 ```
 
-After deploying, you can inspect any canister by passing its principal to the backend. For example, to inspect the `test` canister itself:
+After deploying, you can inspect any canister by passing its principal to the backend. Locally, the `test` helper canister is deployed as a convenient subject:
 
 ```bash
 test_id=$(icp canister status test -i)
 icp canister call backend info "(principal \"$test_id\")"
 ```
+
+The `test` canister is deployed **locally only** — the `info` methods accept any canister principal, so on mainnet you can inspect the `backend` itself (`icp canister status backend -i -e ic`) or any other canister ID without it.
 
 ## Canister history limit
 

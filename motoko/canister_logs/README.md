@@ -1,5 +1,9 @@
 # Canister logs
 
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/motoko/canister_logs)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
+
 This example demonstrates canister logging on the Internet Computer. Every message written with `Debug.print` and every trap is recorded in the canister's log, which can be retrieved at any time with `icp canister logs`. The example covers:
 
 - **Update calls** — `Debug.print` output from update methods

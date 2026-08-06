@@ -1,5 +1,9 @@
 # QR code generator
 
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/rust/qrcode)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
+
 This example shows that an Internet Computer dapp can perform a long-running computation, like image processing, in a single message execution.
 This is possible due to a unique feature called Deterministic Time Slicing (DTS), which automatically divides long computations into smaller slices executed across multiple blocks.
 Developers can write long-running code as usual and don't require anything special to take advantage of DTS, as demonstrated in this example.

@@ -1,18 +1,12 @@
 # EVM Block Explorer
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/evm_block_explorer)
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/rust/evm_block_explorer)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
 
 ## Overview
 
 The EVM Block Explorer example demonstrates how an ICP canister can fetch block data directly from Ethereum and other EVM-compatible chains. Using HTTPS outcalls via the [EVM RPC canister](https://github.com/dfinity/evm-rpc-canister), canisters on ICP can read on-chain data without a bridge or oracle. The same pattern applies to any EVM-compatible chain supported by the EVM RPC canister.
-
-<!--
-## Deploying from ICP Ninja
-
-This example can be deployed directly from [ICP Ninja](https://icp.ninja), a browser-based IDE for ICP.
-
-[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/rust/evm_block_explorer)
--->
 
 ## Build and deploy from the command line
 

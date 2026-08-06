@@ -363,6 +363,8 @@ Each example's README follows this structure:
 ```markdown
 # <Example Title>
 
+<ICP Ninja badge + callout — eligible examples only; see "ICP Ninja badge" below>
+
 <2-3 sentences describing what the example demonstrates>
 
 ## Build and deploy from the command line
@@ -389,8 +391,34 @@ Rust: `icp build backend && candid-extractor target/wasm32-unknown-unknown/relea
 ```
 
 - Say **"canister"**, not "smart contract" — in READMEs and code comments alike.
-- Each README links to its counterpart in the other language.
+- **No back-references:** do not add a "View this sample's code on GitHub" link or a cross-language "also available in \<other language\>" link. Readers arrive from GitHub and pick a language folder upfront, so both are redundant. (Language-*description* links — e.g. to the Motoko or Rust docs — are fine; those explain the language, they don't jump to the sibling example.)
 - **Backend-only examples:** omit the `## Updating the Candid interface` section — no frontend consumes the `.did` file.
 - **Child-canister examples:** add a note that an out-of-cycles error is fixed with `icp canister top-up --amount <amount> backend`.
 - **Links:** only add links you have verified resolve on the current docs site; prefer top-level pages over deep anchors when unsure.
 - **Docs over product pages:** when the context is learning or integrating a feature, link the developer docs (e.g. https://docs.internetcomputer.org/guides/authentication/internet-identity for Internet Identity); link the product itself (e.g. https://id.ai) only when referring to the live instance an end user interacts with.
+
+### ICP Ninja badge
+
+[ICP Ninja](https://icp.ninja) is a browser-based IDE that deploys a project to the mainnet for free. An example carries an "Open in ICP Ninja" badge only once it is **both eligible (rules below) and known to ICP Ninja**; the badge is the first thing under the H1, followed by a short callout:
+
+```markdown
+# <Example Title>
+
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/<language>/<example_name>)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
+```
+
+- **Badge asset:** always `https://icp.ninja/assets/open.svg` (the official badge). **Import URL:** `https://icp.ninja/i?g=<full GitHub tree URL on master>`.
+- **The callout is dual-context.** ICP Ninja renders the README as its default preview, so the block is read both on GitHub (where the badge is the call-to-action) and inside Ninja (where "hit **Deploy**" is the actionable step). Keep both cues.
+
+**Eligibility — only add the badge when all of these hold:**
+
+- **No canister factory.** The example must not create canisters at runtime (e.g. `actor class` sub-canisters, `create_canister` + `install_code`).
+- **At most 2 canisters in the `ic` environment.** Count the `ic` environment's canister list, not the local one (an example may deploy extra canisters locally — mock ledgers, pre-built infra — while restricting `ic` to `backend`+`frontend`). If a helper canister is only needed locally (e.g. a test subject, a mock ledger), restrict it to `local` via the `environments` block so `ic`/Ninja deploys only the real thing.
+- **Deployable in Ninja's no-terminal environment.** No custom build scripts beyond the standard recipe build; no controller-only setup step a Ninja user can't perform (e.g. `photo-storage` needs an `authorize` call from a controller, so it is excluded despite being a single canister).
+- **Demonstrable, not just deployable.** A user must be able to do something meaningful with a *fresh* deploy — the core method returns a real result (compute, an HTTPS/inter-canister call, a CRUD round-trip, canister logs, a derived address/key), **or** the README gives a clear path to make it meaningful using resources the user can obtain themselves (II login, faucet **TESTICP**/**TESTICRC1** tokens, passing a canister principal). Exclude examples whose headline function returns nothing without state the user can't supply — e.g. `candid_type_generation`'s `list_neurons` returns only neurons the caller controls, which a fresh canister has none of, so it always comes back empty.
+
+For token examples, the `ic` environment should use the **TESTICP**/**TESTICRC1** test ledgers (not the real ICP ledger) so users can exercise transfers with free faucet tokens — and the README should point at the [faucet](https://faucet.internetcomputer.org) and the steps to use it.
+
+Skip the badge for ineligible examples and for language-native/CLI examples that aren't a deployable canister project. Eligibility is necessary but not sufficient: an example that satisfies these rules but is not yet known to ICP Ninja should be **proposed to the Ninja team first**, and the badge added only once Ninja supports it.

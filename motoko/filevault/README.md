@@ -1,5 +1,9 @@
 # FileVault
 
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/motoko/filevault)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
+
 FileVault is a file storage application that allows you to upload files from your local computer and store them on the network. FileVault uses Internet Identity (II) for user login and authentication. Once files are uploaded, they can be downloaded at a later time, or they can be deleted. Each user's files are stored under their Internet Identity principal, so only that principal can access them through the canister's public interface.
 
 ## Build and deploy from the command line

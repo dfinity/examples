@@ -1,5 +1,9 @@
 # Superheroes CRUD
 
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/motoko/superheroes)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
+
 This example demonstrates how to build a CRUD (Create, Read, Update, Delete) application on ICP using Motoko and React. The backend canister stores superhero records (a name and a list of superpowers), and exposes four methods: `create`, `read`, `update`, and `delete`. The React frontend provides a simple UI for interacting with each operation.
 
 ## Build and deploy from the command line

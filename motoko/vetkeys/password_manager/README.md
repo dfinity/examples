@@ -1,9 +1,5 @@
 # VetKey Password Manager (Motoko)
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/vetkeys/password_manager)
-
-Also available in: [Rust](../../../rust/vetkeys/password_manager)
-
 The **VetKey Password Manager** is an example application demonstrating how to use **VetKeys** and **Encrypted Maps** to build a secure, decentralized password manager on the **Internet Computer (IC)**. This application allows users to create password vaults, store encrypted passwords, and share vaults with other users via their **Internet Identity Principal**.
 
 ## Features
@@ -70,6 +66,6 @@ This example app does not implement key rotation, which is strongly recommended 
 
 ## Additional resources
 
-- **[Password Manager with Metadata](../../../rust/vetkeys/password_manager_with_metadata)** — if you need to store additional metadata alongside passwords.
+- **[Password Manager with Metadata](../password_manager_with_metadata)** — if you need to store additional metadata alongside passwords.
 - **[What are VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** — more information about VetKeys and VetKD.
 - [Security best practices](https://docs.internetcomputer.org/guides/security/overview/)

@@ -1,7 +1,5 @@
 # Godot HTML5 sample
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/hosting/godot-html5-template)
-
 ## Overview
 
 The example shows how to deploy a Godot HTML5 build on ICP in an asset canister. The Godot HTML5 build is deployed as frontend, no backend is needed in this sample.

@@ -1,5 +1,9 @@
 # Exchange Rates Canister
 
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/rust/exchange-rates)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
+
 A Rust canister demonstrating how to query the [Exchange Rate Canister (XRC)](https://docs.internetcomputer.org/concepts/chain-fusion/exchange-rate-canister/) to get cryptocurrency and fiat currency exchange rates.
 
 The XRC returns real-time rates sourced via HTTPS outcalls to external data providers, with decentralized consensus across the subnet.

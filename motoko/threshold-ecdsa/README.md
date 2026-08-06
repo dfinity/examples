@@ -1,5 +1,9 @@
 # Threshold ECDSA
 
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/motoko/threshold-ecdsa)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
+
 This example demonstrates threshold ECDSA signing, part of ICP's [chain-key cryptography](https://docs.internetcomputer.org/concepts/chain-key-cryptography). The canister acts as a signing oracle: callers can request a threshold ECDSA public key derived from their principal, and sign arbitrary messages using the corresponding private key — without the canister ever holding the key material itself.
 
 ## Build and deploy from the command line

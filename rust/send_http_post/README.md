@@ -1,8 +1,8 @@
 # HTTP: POST
 
-<!--
-[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/rust/send_http_post)
--->
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/rust/send_http_post)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
 
 This example demonstrates how to use the ICP HTTPS outcalls feature to make a `POST` request from a Rust canister. It sends a plain-text body to `postman-echo.com/post`, which echoes back the request as JSON, allowing you to verify the POST body and headers were sent correctly.
 

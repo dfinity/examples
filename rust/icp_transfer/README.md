@@ -1,6 +1,6 @@
 # ICP Transfer
 
-ICP Transfer demonstrates how a canister can hold ICP and send it to other accounts using the [ICP ledger](https://dashboard.internetcomputer.org/canister/ryjl3-tyaaa-aaaaa-aaaba-cai). The same example is also available in [Motoko](https://github.com/dfinity/examples/tree/master/motoko/icp_transfer).
+ICP Transfer demonstrates how a canister can hold ICP and send it to other accounts using the [ICP ledger](https://dashboard.internetcomputer.org/canister/ryjl3-tyaaa-aaaaa-aaaba-cai).
 
 ## Account identifiers
 

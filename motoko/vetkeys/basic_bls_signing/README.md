@@ -1,9 +1,5 @@
 # Threshold BLS Signatures (Motoko)
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/motoko/vetkeys/basic_bls_signing)
-
-Also available in: [Rust](../../../rust/vetkeys/basic_bls_signing)
-
 The **Basic BLS signing** example demonstrates how to use **[VetKeys](https://docs.internetcomputer.org/concepts/vetkeys)** to implement a threshold BLS signing service on the **Internet Computer (IC)**, where every authenticated user can ask the canister to produce signatures, with the **Internet Identity Principal** identifying the signer. The canister ensures a user can only produce signatures for their own principal, not for someone else's. Furthermore, the vetKeys in this app can only be produced upon a user request, as specified in the canister code — the canister cannot produce signatures for arbitrary users or messages.
 
 To confirm the canister can only produce signatures in the intended way, users need to inspect the code installed in the canister. For this, it is crucial that canisters using VetKeys have their code public.

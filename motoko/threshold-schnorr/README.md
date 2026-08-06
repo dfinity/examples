@@ -1,5 +1,9 @@
 # Threshold Schnorr
 
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/motoko/threshold-schnorr)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
+
 This example demonstrates threshold Schnorr signing (BIP340/BIP341 and Ed25519), part of ICP's [chain-key cryptography](https://docs.internetcomputer.org/concepts/chain-key-cryptography). The canister acts as a signing oracle that creates Schnorr signatures using keys derived from the canister ID. Canisters do not hold private keys themselves — signing requests are routed to threshold Schnorr subnets that compute signatures using distributed key shares.
 
 ## Build and deploy from the command line

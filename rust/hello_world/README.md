@@ -1,6 +1,8 @@
 # Hello, world!
 
-[View this sample's code on GitHub](https://github.com/dfinity/examples/tree/master/rust/hello_world)
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/rust/hello_world)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
 
 ## Overview
 

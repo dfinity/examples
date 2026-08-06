@@ -1,5 +1,9 @@
 # Receiving ICP
 
+[![Open in ICP Ninja](https://icp.ninja/assets/open.svg)](https://icp.ninja/i?g=https://github.com/dfinity/examples/tree/master/rust/receiving-icp)
+
+> 🥷 **Try it live — no local setup.** [ICP Ninja](https://icp.ninja) is a web-based IDE that builds and deploys this project to the mainnet for free, right in your browser. Click the badge above, or hit **Deploy** if you're already in Ninja. To build and run it locally instead, follow the steps below.
+
 A canister demonstrating how to receive ICP tokens by generating account identifiers and checking balances on the ICP ledger.
 
 The canister exposes methods to compute account identifiers (including subaccounts based on arbitrary 128-bit upper/lower values) and to query balances from the ledger canister. This makes it easy to give each user or purpose a distinct deposit address while keeping all ICP under one canister's control.
@@ -49,6 +53,12 @@ icp deploy -e ic
 ```
 
 This targets the TESTICP ledger by default. To use the real ICP ledger, update `ICP_LEDGER_CANISTER_ID` in `icp.yaml` first.
+
+**Try the receive flow with test tokens (no real ICP needed):**
+
+1. Call `account` to get the canister's deposit account identifier.
+2. Request **TESTICP** for that account from the [ICP faucet](https://faucet.internetcomputer.org).
+3. Call `get_balance` — it now reflects the received TESTICP.
 
 ## Security considerations and best practices
 

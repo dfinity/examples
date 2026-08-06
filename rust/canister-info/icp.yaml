@@ -3,10 +3,20 @@ canisters:
     recipe:
       type: "@dfinity/rust@v3.3.0"
 
-  # test is a pre-built canister deployed only to provide a subject for the
-  # backend's canister_info queries in test.sh.
+  # test is a pre-built canister that provides a subject for the backend's
+  # canister_info queries in test.sh. It is deployed locally only (see the
+  # environments block): the backend's info methods accept any canister
+  # principal, so on mainnet you can inspect the backend itself or any other
+  # canister without deploying this helper.
   - name: test
     build:
       steps:
         - type: pre-built
           path: test.wasm
+
+environments:
+  - name: local
+    network: local
+  - name: ic
+    network: ic
+    canisters: [backend]
