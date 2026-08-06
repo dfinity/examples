@@ -4,7 +4,9 @@ Guidelines for AI agents (Claude, Codex, Cursor, Copilot, etc.) working in this 
 
 ## ICP Skills
 
-ICP skills are tested, frequently-updated instruction files maintained by DFINITY (see https://skills.internetcomputer.org). Consult the relevant skills **before** making changes — do not rely on training-data knowledge of ICP tooling.
+ICP skills are tested, frequently-updated instruction files maintained by DFINITY (see https://skills.internetcomputer.org). Consult the relevant skills **before** making changes — do not rely on training-data knowledge of ICP tooling. For background on how agents consume ICP skills, see the [AI coding agents guide](https://docs.internetcomputer.org/guides/ai-coding-agents).
+
+**How this repo is set up:** it uses **autosync**. A committed `SessionStart` hook (`.claude/settings.json` → `.claude/sync-ic-skills.sh`) mirrors the latest skills into `.claude/skills/` at the start of every session, so they stay current with **nothing to commit** when a skill changes (the skills directory itself is gitignored). The first time it runs, Claude Code asks you to trust the hook. **This targets Claude Code only** — other agents (Cursor, Copilot, Codex, …) don't run the hook and instead use the on-demand fallback noted below.
 
 <!-- ic-skills:managed:start -->
 <!-- state: configured (autosync) -->
