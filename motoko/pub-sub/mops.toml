@@ -11,14 +11,14 @@ core = "2.5.0"
 args = ["--default-persistent-actors", "-W=M0236,M0237,M0223"]
 
 [canisters.publisher]
-main = "publisher/app.mo"
+main = "publisher/main.mo"
 candid = "publisher/publisher.did"
 
 [canisters.subscriber]
-main = "subscriber/app.mo"
+main = "subscriber/main.mo"
 # --actor-env-alias <alias> <envvar> <did-path>: resolve the `canister:publisher`
 # import from the PUBLIC_CANISTER_ID:publisher env var (injected by icp deploy),
-# typed against publisher/publisher.did — no actor type needed in subscriber/app.mo.
+# typed against publisher/publisher.did — no actor type needed in subscriber/main.mo.
 # Per-canister args replace the global [moc].args, so repeat those flags here.
 args = [
     "--default-persistent-actors",

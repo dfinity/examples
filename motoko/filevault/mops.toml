@@ -12,5 +12,5 @@ map = "9.0.1"
 args = ["--default-persistent-actors", "-W=M0236,M0237,M0223"]
 
 [canisters.backend]
-main = "backend/app.mo"
+main = "backend/main.mo"
 candid = "backend/backend.did"

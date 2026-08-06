@@ -9,7 +9,7 @@ Two canisters are deployed:
 
 ## How the callee is resolved
 
-The caller talks to the callee through `import Callee "canister:callee"`. The `--actor-env-alias callee PUBLIC_CANISTER_ID:callee callee/callee.did` flag in `mops.toml` tells the Motoko compiler to type that import against `callee/callee.did` at build time, and to resolve the callee's **principal at runtime** from the canister environment variable `PUBLIC_CANISTER_ID:callee`. Because the interface comes from the `.did`, no actor type is written in `caller/app.mo`.
+The caller talks to the callee through `import Callee "canister:callee"`. The `--actor-env-alias callee PUBLIC_CANISTER_ID:callee callee/callee.did` flag in `mops.toml` tells the Motoko compiler to type that import against `callee/callee.did` at build time, and to resolve the callee's **principal at runtime** from the canister environment variable `PUBLIC_CANISTER_ID:callee`. Because the interface comes from the `.did`, no actor type is written in `caller/main.mo`.
 
 The consequence is that the caller's Wasm contains **no callee principal** — the compiler embeds only the environment-variable *name*, so **the same Wasm artifact runs unchanged in every environment**:
 

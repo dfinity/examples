@@ -4,7 +4,7 @@ This example shows how a Unity mobile app can authenticate users through [Intern
 
 The example consists of three parts:
 
-- **Backend canister** (`backend/app.mo`) — a Motoko canister that returns a greeting including the caller's principal, proving the delegation was accepted.
+- **Backend canister** (`backend/main.mo`) — a Motoko canister that returns a greeting including the caller's principal, proving the delegation was accepted.
 - **II bridge canister** (`ii-bridge/`) — a small web page that runs in the mobile browser, handles the Internet Identity login, and forwards the resulting delegation to the Unity app via a deep link callback. **Each app must deploy and control its own instance** — using a shared or third-party deployment would mean trusting that party with your users' identity flow.
 - **Unity project** (`unity_project/`) — a Unity app that opens the II bridge in a browser, receives the delegation via deep link, and calls the backend canister directly using [ICP.NET](https://github.com/edjCase/ICP.NET).
 
@@ -284,7 +284,7 @@ After redeployment, iOS verifies the AASA file at app install time. The OS route
 ## Updating the Candid interface
 
 ```bash
-$(mops toolchain bin moc) --idl -o backend/backend.did backend/app.mo
+$(mops toolchain bin moc) --idl -o backend/backend.did backend/main.mo
 ```
 
 ## Security considerations and best practices

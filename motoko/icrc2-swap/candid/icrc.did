@@ -2,7 +2,7 @@
 //
 // This is the *standard* interface every ICRC-1/ICRC-2 ledger exposes — not a
 // specific ledger. The swap backend imports it directly (moc `idl:` import,
-// see backend/app.mo) and types its `actor(<token-principal>)` references
+// see backend/main.mo) and types its `actor(<token-principal>)` references
 // against it, so the same interface works for any ICRC-1/2 ledger the backend
 // is pointed at (token_a, token_b, ckBTC, an SNS token, ...).
 //

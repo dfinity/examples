@@ -17,4 +17,4 @@ args = [
 ]
 
 [canisters.backend]
-main = "backend/app.mo"
+main = "backend/main.mo"
