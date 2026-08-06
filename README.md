@@ -52,6 +52,12 @@ Then navigate into an example and follow its README to deploy.
 
 > **Note:** Open the repo root in the container — not an individual example subfolder.
 
+## Working with AI coding agents
+
+These examples are built to work well with AI coding agents, backed by [ICP skills](https://docs.internetcomputer.org/guides/ai-coding-agents) — tested, frequently-updated instructions that keep an agent aligned with the fast-moving platform.
+
+The repo is set up with **autosync**: opening it in Claude Code runs a `SessionStart` hook that keeps the skills current automatically (you'll be asked to trust the hook the first time). This targets Claude Code today; other agents fetch the skills on demand instead. Details are in [AGENTS.md](AGENTS.md).
+
 ## Resources
 
 - [Quickstart](https://docs.internetcomputer.org/getting-started/quickstart)
