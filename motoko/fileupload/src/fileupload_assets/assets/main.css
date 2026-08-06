@@ -1,0 +1,31 @@
+body {
+    font-family: sans-serif;
+    
+}
+
+img {
+    max-width: 50vw;
+    max-height: 25vw;
+    display: block;
+    margin: auto;
+}
+
+form {
+    display: flex;
+    justify-content: center;
+    gap: 0.5em;
+    flex-flow: row wrap;
+    max-width: 40vw;
+    margin: auto;
+    align-items: baseline;
+}
+
+button[type="submit"] {
+    padding: 5px 20px;
+    margin: 10px auto;
+    float: right;
+}
+
+section {
+    margin: 25px;
+}
