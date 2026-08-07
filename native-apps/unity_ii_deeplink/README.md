@@ -184,13 +184,9 @@ dataNode.SetAttribute("pathPrefix", kAndroidNamespaceURI, "/authorize"); // add 
 
 Get the fingerprint with: `keytool -list -v -keystore <your-keystore>.jks`
 
-**4. Create `ii-bridge/public/.ic-assets.json5`** to allow the asset canister to serve the hidden directory:
+The static-site canister uploads `.well-known/` automatically and serves `assetlinks.json` as `application/json` (inferred from its `.json` extension), so no extra configuration is needed.
 
-```json5
-[{"match": ".well-known/**", "allow_raw_access": true}]
-```
-
-**5. Update the callback URL in `ii-bridge/src/main.js`:**
+**4. Update the callback URL in `ii-bridge/src/main.js`:**
 
 ```js
 const url = "https://<your-canister-id>.icp0.io/authorize#delegation=" + ...
@@ -265,13 +261,16 @@ public class iOSPostBuildProcessor
 
 Find your Team ID in the Apple Developer portal. Bundle ID is the one set in Unity Player Settings.
 
-**4. Create `ii-bridge/public/.ic-assets.json5`** (same file as the Android step — works for both):
+**4. Create `ii-bridge/public/_headers`** to serve the association file as JSON:
 
-```json5
-[{"match": ".well-known/**", "allow_raw_access": true}]
+`.well-known/` is uploaded automatically, but because `apple-app-site-association` has no file extension the static-site canister serves it as `application/octet-stream` by default, while iOS requires `application/json`. Override the content type with a `_headers` entry (this is the certified-assets replacement for the legacy asset canister's extension inference):
+
+```
+/.well-known/apple-app-site-association
+  Content-Type: application/json
 ```
 
-The asset canister must serve `apple-app-site-association` with `Content-Type: application/json`. The ICP asset canister infers this from the missing extension — verify with `curl -I https://<canister-id>.icp0.io/.well-known/apple-app-site-association`.
+After redeployment, verify with `curl -I https://<canister-id>.icp0.io/.well-known/apple-app-site-association` (expect `content-type: application/json`).
 
 **5. Update the callback URL in `ii-bridge/src/main.js`:**
 
