@@ -25,7 +25,7 @@ fn memory(id: u8) -> Memory {
 // it expects: config (which persists the domain separator and vetKD key id),
 // access control, shared keys, and the encrypted values.
 ic_vetkeys::export_encrypted_maps_canister!(
-    "encrypted_maps_app",
+    "password_manager_app",
     [memory(0), memory(1), memory(2), memory(3)],
 );
 

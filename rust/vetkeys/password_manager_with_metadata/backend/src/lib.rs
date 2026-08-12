@@ -1,12 +1,22 @@
+// This canister layers a second, backend-authoritative store on top of the
+// `ic-vetkeys` EncryptedMaps library: every encrypted password has a matching
+// metadata row (creation date, modification counter, tags, url) that the
+// canister — not the client — maintains.
+//
+// The `custom_value_endpoints` form of the library macro generates the state,
+// the `#[init]`/`#[post_upgrade]`, the control-plane endpoints (vetKD keys,
+// access control, map-name enumeration) and the `with_encrypted_maps`/`_mut`
+// accessors, but *no* endpoints that read or write encrypted values. That is
+// what this canister needs: the raw `insert_encrypted_value` /
+// `remove_encrypted_value` mutators are never exposed, so nothing can write a
+// value without its metadata row, and the `*_with_metadata` endpoints below
+// update both stores in a single call.
 use candid::{CandidType, Principal};
-use ic_cdk_management_canister::{VetKDCurve, VetKDKeyId};
-use ic_cdk::{init, post_upgrade, query, update};
 use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
 use ic_stable_structures::storable::Blob;
 use ic_stable_structures::{storable::Bound, Storable};
-use ic_stable_structures::{BTreeMap as StableBTreeMap, Cell as StableCell, DefaultMemoryImpl};
-use ic_vetkeys::encrypted_maps::{EncryptedMaps, VetKey, VetKeyVerificationKey};
-use ic_vetkeys::types::{AccessRights, ByteBuf, EncryptedMapValue, TransportKey};
+use ic_stable_structures::{BTreeMap as StableBTreeMap, DefaultMemoryImpl};
+use ic_vetkeys::types::{ByteBuf, EncryptedMapValue};
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::cell::RefCell;
@@ -52,7 +62,7 @@ impl Storable for PasswordMetadata {
         self.to_bytes().into_owned()
     }
 
-    fn to_bytes(&self) -> Cow<[u8]> {
+    fn to_bytes(&self) -> Cow<'_, [u8]> {
         Cow::Owned(serde_cbor::to_vec(self).expect("failed to serialize"))
     }
 
@@ -74,133 +84,64 @@ type StableMetadataMap = StableBTreeMap<(MapOwner, MapName, MapKey), PasswordMet
 thread_local! {
     static MEMORY_MANAGER: RefCell<MemoryManager<DefaultMemoryImpl>> =
         RefCell::new(MemoryManager::init(DefaultMemoryImpl::default()));
-    static ENCRYPTED_MAPS: RefCell<Option<EncryptedMaps<AccessRights>>> =
-        const { RefCell::new(None) };
     // Use `init` (not `new`): after an upgrade the thread-local is re-created,
     // and `new` would overwrite the existing map with an empty one, dropping all
     // metadata. `init` loads the persisted map when the memory already holds one.
-    static METADATA: RefCell<StableMetadataMap> = RefCell::new(StableBTreeMap::init(
-        MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(4))),
-    ));
-    static KEY_NAME: RefCell<StableCell<String, Memory>> =
-        RefCell::new(StableCell::init(
-            MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(5))),
-            String::new(),
-        ));
+    static METADATA: RefCell<StableMetadataMap> = RefCell::new(StableBTreeMap::init(memory(4)));
 }
 
-#[init]
-fn init(key_name: String) {
-    KEY_NAME.with_borrow_mut(|k| { k.set(key_name.clone()); });
-    init_encrypted_maps(key_name);
+fn memory(id: u8) -> Memory {
+    MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(id)))
 }
 
-#[post_upgrade]
-fn post_upgrade() {
-    let key_name = KEY_NAME.with_borrow(|k| k.get().clone());
-    init_encrypted_maps(key_name);
-}
+// The first argument is the domain-separator string that isolates this
+// application's derived keys; it must stay stable for the life of the canister.
+// The four Memory instances back EncryptedMaps' own stable state, in the order
+// it expects: config (which persists the domain separator and vetKD key id),
+// access control, shared keys, and the encrypted values. This canister's own
+// metadata map lives in the same MemoryManager under id 4.
+//
+// The generated `#[init]` takes the vetKD key name (see `init_args` in
+// `icp.yaml`); `#[post_upgrade]` re-reads it from the persisted config.
+ic_vetkeys::export_encrypted_maps_canister!(
+    "password_manager_with_metadata_app",
+    [memory(0), memory(1), memory(2), memory(3)],
+    custom_value_endpoints,
+);
 
-fn init_encrypted_maps(key_name: String) {
-    let key_id = VetKDKeyId {
-        curve: VetKDCurve::Bls12_381_G2,
-        name: key_name,
-    };
-    ENCRYPTED_MAPS.with_borrow_mut(|encrypted_maps| {
-        encrypted_maps.replace(EncryptedMaps::init(
-            "password_manager_app",
-            key_id,
-            MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(0))),
-            MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(1))),
-            MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(2))),
-            MEMORY_MANAGER.with(|m| m.borrow().get(MemoryId::new(3))),
-        ))
-    });
-}
-
-#[query]
-fn get_accessible_shared_map_names() -> Vec<(Principal, ByteBuf)> {
-    ENCRYPTED_MAPS.with_borrow(|encrypted_maps| {
-        encrypted_maps
-            .as_ref()
-            .unwrap()
-            .get_accessible_shared_map_names(ic_cdk::api::msg_caller())
-            .into_iter()
-            .map(|map_id| (map_id.0, ByteBuf::from(map_id.1.as_ref().to_vec())))
-            .collect()
-    })
-}
-
-#[query]
-fn get_shared_user_access_for_map(
-    map_owner: Principal,
-    map_name: ByteBuf,
-) -> Result<Vec<(Principal, AccessRights)>, String> {
-    let caller = ic_cdk::api::msg_caller();
-    let key_id = (
-        map_owner,
-        Blob::try_from(map_name.as_ref()).map_err(|_e| "name too long")?,
-    );
-    ENCRYPTED_MAPS.with_borrow(|encrypted_maps| {
-        encrypted_maps
-            .as_ref()
-            .unwrap()
-            .get_shared_user_access_for_map(caller, key_id)
-    })
-}
-
-#[query]
+#[ic_cdk::query]
 fn get_encrypted_values_for_map_with_metadata(
     map_owner: Principal,
     map_name: ByteBuf,
 ) -> Result<Vec<(ByteBuf, EncryptedMapValue, PasswordMetadata)>, String> {
     let map_name = bytebuf_to_blob(map_name)?;
     let map_id = (map_owner, map_name);
-    let encrypted_values_result = ENCRYPTED_MAPS.with_borrow(|encrypted_maps| {
-        encrypted_maps
-            .as_ref()
-            .unwrap()
-            .get_encrypted_values_for_map(ic_cdk::api::msg_caller(), map_id)
-    });
-    encrypted_values_result.map(|map_values| {
-        METADATA.with_borrow(|metadata| {
-            let iter_metadata = metadata
-                .range((map_owner, map_name, Blob::default())..)
-                .take_while(|entry| {
-                    let (owner, name, _) = entry.key();
-                    owner == &map_owner && name == &map_name
-                })
-                .map(|entry| (entry.key().2, entry.value()));
+    let map_values = with_encrypted_maps(|encrypted_maps| {
+        encrypted_maps.get_encrypted_values_for_map(ic_cdk::api::msg_caller(), map_id)
+    })?;
 
-            iter_metadata
-                .zip(map_values)
-                .map(|((key_left, metadata), (key_right, encrypted_value))| {
-                    debug_assert_eq!(key_left, key_right);
-                    (
-                        EncryptedMapValue::from(key_left.as_slice().to_vec()),
-                        encrypted_value,
-                        metadata,
-                    )
-                })
-                .collect()
-        })
-    })
-}
-
-#[query]
-fn get_owned_non_empty_map_names() -> Vec<ByteBuf> {
-    ENCRYPTED_MAPS.with_borrow(|encrypted_maps| {
-        encrypted_maps
-            .as_ref()
-            .unwrap()
-            .get_owned_non_empty_map_names(ic_cdk::api::msg_caller())
+    // Look the metadata up per key rather than zipping two ordered iterators:
+    // the pairing then cannot silently shift if the two stores ever disagree.
+    // A missing row would mean the invariant maintained by the insert/remove
+    // endpoints below was broken, so surface it instead of hiding the entry.
+    METADATA.with_borrow(|metadata| {
+        map_values
             .into_iter()
-            .map(|map_name| ByteBuf::from(map_name.as_slice().to_vec()))
+            .map(|(map_key, encrypted_value)| {
+                let password_metadata = metadata
+                    .get(&(map_owner, map_name, map_key))
+                    .ok_or_else(|| "missing metadata for stored password".to_string())?;
+                Ok((
+                    ByteBuf::from(map_key.as_slice().to_vec()),
+                    encrypted_value,
+                    password_metadata,
+                ))
+            })
             .collect()
     })
 }
 
-#[update]
+#[ic_cdk::update]
 fn insert_encrypted_value_with_metadata(
     map_owner: Principal,
     map_name: ByteBuf,
@@ -213,25 +154,22 @@ fn insert_encrypted_value_with_metadata(
     let map_name = bytebuf_to_blob(map_name)?;
     let map_id = (map_owner, map_name);
     let map_key = bytebuf_to_blob(map_key)?;
-    ENCRYPTED_MAPS.with_borrow_mut(|encrypted_maps| {
-        encrypted_maps
-            .as_mut()
-            .unwrap()
-            .insert_encrypted_value(caller, map_id, map_key, value)
-            .map(|opt_prev_value| {
-                METADATA.with_borrow_mut(|metadata| {
-                    let metadata_key = (map_owner, map_name, map_key);
-                    let metadata_value = metadata
-                        .get(&metadata_key)
-                        .map(|m| m.update(caller, tags.clone(), url.clone()))
-                        .unwrap_or(PasswordMetadata::new(caller, tags, url));
-                    opt_prev_value.zip(metadata.insert(metadata_key, metadata_value))
-                })
-            })
-    })
+    // The library call performs the access-control check, so it comes first:
+    // if the caller may not write, the metadata store is left untouched.
+    let opt_prev_value = with_encrypted_maps_mut(|encrypted_maps| {
+        encrypted_maps.insert_encrypted_value(caller, map_id, map_key, value)
+    })?;
+    Ok(METADATA.with_borrow_mut(|metadata| {
+        let metadata_key = (map_owner, map_name, map_key);
+        let metadata_value = metadata
+            .get(&metadata_key)
+            .map(|m| m.update(caller, tags.clone(), url.clone()))
+            .unwrap_or(PasswordMetadata::new(caller, tags, url));
+        opt_prev_value.zip(metadata.insert(metadata_key, metadata_value))
+    }))
 }
 
-#[update]
+#[ic_cdk::update]
 fn remove_encrypted_value_with_metadata(
     map_owner: Principal,
     map_name: ByteBuf,
@@ -240,100 +178,12 @@ fn remove_encrypted_value_with_metadata(
     let map_name = bytebuf_to_blob(map_name)?;
     let map_id = (map_owner, map_name);
     let map_key = bytebuf_to_blob(map_key)?;
-    ENCRYPTED_MAPS.with_borrow_mut(|encrypted_maps| {
-        encrypted_maps
-            .as_mut()
-            .unwrap()
-            .remove_encrypted_value(ic_cdk::api::msg_caller(), map_id, map_key)
-            .map(|opt_prev_value| {
-                METADATA.with_borrow_mut(|metadata| {
-                    let metadata_key = (map_owner, map_name, map_key);
-                    opt_prev_value.zip(metadata.remove(&metadata_key))
-                })
-            })
-    })
-}
-
-#[update]
-async fn get_vetkey_verification_key() -> VetKeyVerificationKey {
-    ENCRYPTED_MAPS
-        .with_borrow(|encrypted_maps| {
-            encrypted_maps
-                .as_ref()
-                .unwrap()
-                .get_vetkey_verification_key()
-        })
-        .await
-}
-
-#[update]
-async fn get_encrypted_vetkey(
-    map_owner: Principal,
-    map_name: ByteBuf,
-    transport_key: TransportKey,
-) -> Result<VetKey, String> {
-    let map_name = bytebuf_to_blob(map_name)?;
-    let map_id = (map_owner, map_name);
-    Ok(ENCRYPTED_MAPS
-        .with_borrow(|encrypted_maps| {
-            encrypted_maps.as_ref().unwrap().get_encrypted_vetkey(
-                ic_cdk::api::msg_caller(),
-                map_id,
-                transport_key,
-            )
-        })?
-        .await)
-}
-
-#[query]
-fn get_user_rights(
-    map_owner: Principal,
-    map_name: ByteBuf,
-    user: Principal,
-) -> Result<Option<AccessRights>, String> {
-    let map_name = bytebuf_to_blob(map_name)?;
-    let map_id = (map_owner, map_name);
-    ENCRYPTED_MAPS.with_borrow(|encrypted_maps| {
-        encrypted_maps
-            .as_ref()
-            .unwrap()
-            .get_user_rights(ic_cdk::api::msg_caller(), map_id, user)
-    })
-}
-
-#[update]
-fn set_user_rights(
-    map_owner: Principal,
-    map_name: ByteBuf,
-    user: Principal,
-    access_rights: AccessRights,
-) -> Result<Option<AccessRights>, String> {
-    let map_name = bytebuf_to_blob(map_name)?;
-    let map_id = (map_owner, map_name);
-    ENCRYPTED_MAPS.with_borrow_mut(|encrypted_maps| {
-        encrypted_maps.as_mut().unwrap().set_user_rights(
-            ic_cdk::api::msg_caller(),
-            map_id,
-            user,
-            access_rights,
-        )
-    })
-}
-
-#[update]
-fn remove_user(
-    map_owner: Principal,
-    map_name: ByteBuf,
-    user: Principal,
-) -> Result<Option<AccessRights>, String> {
-    let map_name = bytebuf_to_blob(map_name)?;
-    let map_id = (map_owner, map_name);
-    ENCRYPTED_MAPS.with_borrow_mut(|encrypted_maps| {
-        encrypted_maps
-            .as_mut()
-            .unwrap()
-            .remove_user(ic_cdk::api::msg_caller(), map_id, user)
-    })
+    let opt_prev_value = with_encrypted_maps_mut(|encrypted_maps| {
+        encrypted_maps.remove_encrypted_value(ic_cdk::api::msg_caller(), map_id, map_key)
+    })?;
+    Ok(METADATA.with_borrow_mut(|metadata| {
+        opt_prev_value.zip(metadata.remove(&(map_owner, map_name, map_key)))
+    }))
 }
 
 fn bytebuf_to_blob(buf: ByteBuf) -> Result<Blob<32>, String> {
