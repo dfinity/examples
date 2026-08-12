@@ -1,16 +1,16 @@
-// This canister layers a second, backend-authoritative store on top of the
-// `ic-vetkeys` EncryptedMaps library: every encrypted password has a matching
-// metadata row (creation date, modification counter, tags, url) that the
-// canister — not the client — maintains.
-//
-// The `custom_value_endpoints` form of the library macro generates the state,
-// the `#[init]`/`#[post_upgrade]`, the control-plane endpoints (vetKD keys,
-// access control, map-name enumeration) and the `with_encrypted_maps`/`_mut`
-// accessors, but *no* endpoints that read or write encrypted values. That is
-// what this canister needs: the raw `insert_encrypted_value` /
-// `remove_encrypted_value` mutators are never exposed, so nothing can write a
-// value without its metadata row, and the `*_with_metadata` endpoints below
-// update both stores in a single call.
+//! This canister layers a second, backend-authoritative store on top of the
+//! `ic-vetkeys` EncryptedMaps library: every encrypted password has a matching
+//! metadata row (creation date, modification counter, tags, url) that the
+//! canister — not the client — maintains.
+//!
+//! The `custom_value_endpoints` form of the library macro generates the state,
+//! the `#[init]`/`#[post_upgrade]`, the control-plane endpoints (vetKD keys,
+//! access control, map-name enumeration) and the `with_encrypted_maps`/`_mut`
+//! accessors, but *no* endpoints that read or write encrypted values. That is
+//! what this canister needs: the raw `insert_encrypted_value` /
+//! `remove_encrypted_value` mutators are never exposed, so nothing can write a
+//! value without its metadata row, and the `*_with_metadata` endpoints below
+//! update both stores in a single call.
 use candid::{CandidType, Principal};
 use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
 use ic_stable_structures::storable::Blob;
