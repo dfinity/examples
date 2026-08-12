@@ -64,7 +64,7 @@ actor class (keyNameString : Text) {
   let DOMAIN_SEPARATOR : Text = "basic_ibe_example_dapp";
 
   // State
-  var inboxes = Map.empty<Principal, Inbox>();
+  let inboxes = Map.empty<Principal, Inbox>();
 
   // Management canister actor
   let vetKdSystemApi : VetKdSystemApi = actor ("aaaaa-aa");
@@ -74,22 +74,22 @@ actor class (keyNameString : Text) {
     let message : Message = {
       sender = caller;
       encryptedMessage = request.encryptedMessage;
-      timestamp = Nat64.fromNat(Int.abs(Time.now()));
+      timestamp = Int.abs(Time.now()).toNat64();
     };
 
     let receiver = request.receiver;
-    let currentInbox = switch (Map.get(inboxes, Principal.compare, receiver)) {
+    let currentInbox = switch (inboxes.get(receiver)) {
       case (?inbox) { inbox };
       case null { { messages = [] } };
     };
 
     if (currentInbox.messages.size() >= MAX_MESSAGES_PER_INBOX) {
-      return #Err("Inbox for " # Principal.toText(receiver) # " is full");
+      return #Err("Inbox for " # receiver.toText() # " is full");
     };
 
-    let newMessages = Array.concat(currentInbox.messages, [message]);
+    let newMessages = currentInbox.messages.concat([message]);
     let newInbox : Inbox = { messages = newMessages };
-    ignore Map.insert(inboxes, Principal.compare, receiver, newInbox);
+    ignore inboxes.insert(receiver, newInbox);
 
     #Ok();
   };
@@ -101,7 +101,7 @@ actor class (keyNameString : Text) {
       name = keyNameString;
     };
 
-    let context = Text.encodeUtf8(DOMAIN_SEPARATOR);
+    let context = DOMAIN_SEPARATOR.encodeUtf8();
     let request : VetKdPublicKeyArgs = {
       canister_id = null;
       context = context;
@@ -119,8 +119,8 @@ actor class (keyNameString : Text) {
       name = keyNameString;
     };
 
-    let context = Text.encodeUtf8(DOMAIN_SEPARATOR);
-    let input = Principal.toBlob(caller);
+    let context = DOMAIN_SEPARATOR.encodeUtf8();
+    let input = caller.toBlob();
     let request : VetKdDeriveKeyArgs = {
       context = context;
       input = input;
@@ -134,7 +134,7 @@ actor class (keyNameString : Text) {
 
   // Get the caller's messages
   public shared query ({ caller }) func getMyMessages() : async Inbox {
-    switch (Map.get(inboxes, Principal.compare, caller)) {
+    switch (inboxes.get(caller)) {
       case (?inbox) { inbox };
       case null { { messages = [] } };
     };
@@ -142,12 +142,12 @@ actor class (keyNameString : Text) {
 
   // Remove a message by index
   public shared ({ caller }) func removeMyMessageByIndex(messageIndex : Nat64) : async Result<(), Text> {
-    let currentInbox = switch (Map.get(inboxes, Principal.compare, caller)) {
+    let currentInbox = switch (inboxes.get(caller)) {
       case (?inbox) { inbox };
       case null { { messages = [] } };
     };
 
-    let index = Nat64.toNat(messageIndex);
+    let index = messageIndex.toNat();
     if (index >= currentInbox.messages.size()) {
       return #Err("Message index out of bounds");
     };
@@ -158,13 +158,13 @@ actor class (keyNameString : Text) {
 
     for (i in messages.keys()) {
       if (i != index) {
-        List.add(newMessagesList, messages[i]);
+        newMessagesList.add(messages[i]);
       };
     };
 
-    let newMessages = List.toArray(newMessagesList);
+    let newMessages = newMessagesList.toArray();
     let newInbox : Inbox = { messages = newMessages };
-    ignore Map.insert(inboxes, Principal.compare, caller, newInbox);
+    ignore inboxes.insert(caller, newInbox);
 
     #Ok();
   };

@@ -21,7 +21,9 @@ This version extends the basic password manager by supporting unencrypted metada
 
 ### (Optionally) choose a different master key
 
-This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/concepts/vetkeys/#api-overview), change the `init_args` value in `icp.yaml` before deploying.
+This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/concepts/vetkeys/#api-overview), change the `VETKD_KEY_NAME` environment variable in `icp.yaml` before the first deploy.
+
+The key name is read once at install time and baked into the canister's stable state, because it feeds vetKD key derivation: changing it later would make every already-encrypted value undecryptable. Changing the variable on a later upgrade is therefore silently ignored — only `icp deploy --mode reinstall`, which drops all data, switches keys.
 
 ### Install
 
@@ -57,7 +59,7 @@ icp network stop
 
 An **Encrypted Maps**-enabled Motoko canister that stores encrypted passwords together with unencrypted metadata (URLs, tags) in atomic update calls.
 
-> **Note on naming.** The backend methods are snake_case (rather than the usual Motoko camelCase). The standard Encrypted Maps methods are called by these exact names by the `@icp-sdk/vetkeys` Encrypted Maps client, and the custom metadata methods follow the same convention — renaming them would break the frontend. An upstream Motoko actor mixin that generates the Encrypted Maps endpoint set automatically is in progress ([dfinity/vetkeys#405](https://github.com/dfinity/vetkeys/pull/405)).
+> **Note.** This example includes the `EncryptedMapsControlPlaneCanister` mixin (`mo:ic-vetkeys/encrypted_maps/ControlPlaneCanister`) rather than the full `EncryptedMapsCanister` used by the [`password_manager`](../password_manager/) example. The control-plane mixin contributes the vetKD key, access-control and map-name endpoints plus the in-scope `encryptedMaps` object, but **none** of the endpoints that read or write encrypted values — so the plain `insert_encrypted_value`/`remove_encrypted_value` mutators, which would write a value with no metadata row and desync the two stores, are never exposed. The canister writes its own `*_with_metadata` endpoints against `encryptedMaps` instead, updating both stores in a single call. All methods are snake_case (rather than the usual Motoko camelCase) because the `@icp-sdk/vetkeys` client calls the standard ones by these exact names, and the metadata methods follow the same convention.
 
 ### Frontend (`frontend/`)
 

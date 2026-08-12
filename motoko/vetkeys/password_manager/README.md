@@ -18,7 +18,9 @@ The **VetKey Password Manager** is an example application demonstrating how to u
 
 ### (Optionally) choose a different master key
 
-This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/concepts/vetkeys/#api-overview), change the `init_args` value in `icp.yaml` before deploying.
+This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/concepts/vetkeys/#api-overview), change the `VETKD_KEY_NAME` environment variable in `icp.yaml` before the first deploy.
+
+The key name is read once at install time and baked into the canister's stable state, because it feeds vetKD key derivation: changing it later would make every already-encrypted value undecryptable. Changing the variable on a later upgrade is therefore silently ignored — only `icp deploy --mode reinstall`, which drops all data, switches keys.
 
 ### Install
 
@@ -54,7 +56,7 @@ icp network stop
 
 An **Encrypted Maps**-enabled Motoko canister that securely stores passwords.
 
-> **Note on naming.** The backend methods are snake_case (rather than the usual Motoko camelCase) because the `@icp-sdk/vetkeys` Encrypted Maps client calls the canister by these exact names — renaming them would break the frontend. The delegation methods are hand-written for now; an upstream Motoko actor mixin that generates this endpoint set automatically is in progress ([dfinity/vetkeys#405](https://github.com/dfinity/vetkeys/pull/405)).
+> **Note.** The whole Encrypted Maps endpoint set comes from the `EncryptedMapsCanister` mixin (`mo:ic-vetkeys/encrypted_maps/Canister`), so the backend is a few lines instead of ~200 lines of hand-written delegation, and the exposed Candid matches what the `@icp-sdk/vetkeys` client expects by construction. Those methods are snake_case (rather than the usual Motoko camelCase) because the client calls the canister by these exact names. The mixin holds no stable state of its own: this actor declares the `EncryptedMapsState` and passes it in, so the persistent state stays a plain, visible stable variable the canister owns and can migrate. If you need to keep state linked to each value, use the `EncryptedMapsControlPlaneCanister` mixin instead — see the [`password_manager_with_metadata`](../password_manager_with_metadata/) example.
 
 ### Frontend (`frontend/`)
 

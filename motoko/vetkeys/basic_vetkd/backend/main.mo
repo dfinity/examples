@@ -14,7 +14,7 @@ actor {
     };
 
     public shared ({ caller }) func encrypted_symmetric_key_for_caller(transport_public_key : Blob) : async Blob {
-        await ManagementCanister.vetKdDeriveKey(Principal.toBlob(caller), Text.encodeUtf8("symmetric_key"), TEST_KEY, transport_public_key);
+        await ManagementCanister.vetKdDeriveKey(caller.toBlob(), Text.encodeUtf8("symmetric_key"), TEST_KEY, transport_public_key);
     };
 
     public shared func ibe_encryption_key() : async Blob {
@@ -22,6 +22,6 @@ actor {
     };
 
     public shared ({ caller }) func encrypted_ibe_decryption_key_for_caller(transport_public_key : Blob) : async Blob {
-        await ManagementCanister.vetKdDeriveKey(Principal.toBlob(caller), Text.encodeUtf8("ibe_encryption"), TEST_KEY, transport_public_key);
+        await ManagementCanister.vetKdDeriveKey(caller.toBlob(), Text.encodeUtf8("ibe_encryption"), TEST_KEY, transport_public_key);
     };
 };
