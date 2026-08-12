@@ -9,8 +9,17 @@ import List "mo:core/List";
 import Nat "mo:core/Nat";
 import VetKeys "mo:ic-vetkeys";
 import Order "mo:core/Order";
+import Runtime "mo:core/Runtime";
 
-actor class (keyName : Text) = {
+actor {
+    // The vetKD key name this canister derives from. Set the `VETKD_KEY_NAME`
+    // canister environment variable (see `icp.yaml`) to pick a different key; it
+    // defaults to `test_key_1` so a deploy can never leave the canister
+    // half-initialized. Do not change it once the canister holds data: the key
+    // feeds vetKD derivation, so a different key cannot decrypt what the old one
+    // encrypted.
+    transient let keyName = Runtime.envVar<system>("VETKD_KEY_NAME") ?? "test_key_1";
+
     // Types
     type Signature = {
         message : Text;

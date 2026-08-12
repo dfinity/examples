@@ -9,8 +9,17 @@ import Nat64 "mo:core/Nat64";
 import Nat "mo:core/Nat";
 import Result "mo:core/Result";
 import Int "mo:core/Int";
+import Runtime "mo:core/Runtime";
 
-actor class (keyNameString : Text) {
+actor {
+  // The vetKD key name this canister derives from. Set the `VETKD_KEY_NAME`
+  // canister environment variable (see `icp.yaml`) to pick a different key; it
+  // defaults to `test_key_1` so a deploy can never leave the canister
+  // half-initialized. Do not change it once the canister holds data: the key
+  // feeds vetKD derivation, so a different key cannot decrypt what the old one
+  // encrypted.
+  transient let keyNameString = Runtime.envVar<system>("VETKD_KEY_NAME") ?? "test_key_1";
+
   // Types
   type Message = {
     sender : Principal;

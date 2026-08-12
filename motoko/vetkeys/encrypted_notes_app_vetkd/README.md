@@ -14,6 +14,12 @@ The vetKey used to encrypt and decrypt a note is note-ID-specific (and not, for 
 - Install [icp-cli](https://cli.internetcomputer.org): `npm install -g @icp-sdk/icp-cli @icp-sdk/ic-wasm`
 - Install [ic-mops](https://mops.one): `npm install -g ic-mops`
 
+### (Optionally) choose a different master key
+
+This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/concepts/vetkeys/#api-overview), change the `VETKD_KEY_NAME` environment variable in `icp.yaml` before the first deploy.
+
+Do not change it once the canister holds data: the key name feeds vetKD key derivation, so a different key cannot decrypt what the old one encrypted.
+
 ### Install
 
 ```bash

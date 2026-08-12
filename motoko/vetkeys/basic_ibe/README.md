@@ -22,7 +22,9 @@ Note that generally it is possible for a canister to request a decryption key to
 
 ### (Optionally) choose a different master key
 
-This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/concepts/vetkeys/#api-overview), change the `init_args` value in `icp.yaml` before deploying.
+This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/concepts/vetkeys/#api-overview), change the `VETKD_KEY_NAME` environment variable in `icp.yaml` before the first deploy.
+
+Do not change it once the canister holds data: the key name feeds vetKD key derivation, so a different key cannot decrypt what the old one encrypted.
 
 ### Install
 

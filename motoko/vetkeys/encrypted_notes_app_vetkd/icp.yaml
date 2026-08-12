@@ -2,9 +2,12 @@ canisters:
   - name: backend
     recipe:
       type: "@dfinity/motoko@v5.0.0"
-    init_args:
-      type: text
-      value: "(\"test_key_1\")"
+    settings:
+      # The vetKD master key this canister derives from. Read at install time via
+      # `Runtime.envVar("VETKD_KEY_NAME")`; see the note in the README before
+      # changing it on a canister that already holds data.
+      environment_variables:
+        VETKD_KEY_NAME: "test_key_1"
 
   - name: frontend
     recipe:

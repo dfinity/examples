@@ -12,9 +12,14 @@ import Runtime "mo:core/Runtime";
 import Blob "mo:core/Blob";
 import Hex "./utils/Hex";
 
-// Declare a shared actor class
-// Bind the caller and the initializer
-shared ({ caller = initializer }) actor class (keyName: Text) {
+actor {
+    // The vetKD key name this canister derives from. Set the `VETKD_KEY_NAME`
+    // canister environment variable (see `icp.yaml`) to pick a different key; it
+    // defaults to `test_key_1` so a deploy can never leave the canister
+    // half-initialized. Do not change it once the canister holds data: the key
+    // feeds vetKD derivation, so a different key cannot decrypt what the old one
+    // encrypted.
+    transient let keyName = Runtime.envVar<system>("VETKD_KEY_NAME") ?? "test_key_1";
 
     // Currently, a single canister is limited to 4 GB of heap size.
     // For the current limits see https://docs.internetcomputer.org/references/resource-limits.

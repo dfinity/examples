@@ -1,12 +1,21 @@
 import ManagementCanister "mo:ic-vetkeys/ManagementCanister";
 import Principal "mo:core/Principal";
 import Text "mo:core/Text";
+import Runtime "mo:core/Runtime";
 
 actor {
 
+    // The vetKD key name this canister derives from. Set the `VETKD_KEY_NAME`
+    // canister environment variable (see `icp.yaml`) to pick a different key; it
+    // defaults to `test_key_1` so a deploy can never leave the canister
+    // half-initialized. Do not change it once the canister holds data: the key
+    // feeds vetKD derivation, so a different key cannot decrypt what the old one
+    // encrypted.
+    transient let keyName = Runtime.envVar<system>("VETKD_KEY_NAME") ?? "test_key_1";
+
     let TEST_KEY : ManagementCanister.VetKdKeyid = {
         curve = #bls12_381_g2;
-        name = "test_key_1";
+        name = keyName;
     };
 
     public shared func symmetric_key_verification_key() : async Blob {
