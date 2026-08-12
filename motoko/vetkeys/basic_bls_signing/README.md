@@ -23,7 +23,7 @@ To confirm the canister can only produce signatures in the intended way, users n
 
 This example uses `test_key_1` by default. To use a different [available master key](https://docs.internetcomputer.org/concepts/vetkeys/#api-overview), change the `VETKD_KEY_NAME` environment variable in `icp.yaml` before the first deploy.
 
-Treat it as fixed once the canister holds data. The key name feeds vetKD key derivation, and this canister re-reads the variable on every upgrade, so a changed value takes effect immediately and orphans everything encrypted under the old key.
+The key name is read once at the first install and captured in stable state: it feeds vetKD key derivation, so a different key cannot decrypt what the old one encrypted — and since the canister only ever sees ciphertext, it cannot re-encrypt either. Changing the variable on a later upgrade is therefore silently ignored; only `icp deploy --mode reinstall`, which drops all data, switches keys. Re-keying live data would need application-level key rotation, which these examples do not implement.
 
 ### Install
 

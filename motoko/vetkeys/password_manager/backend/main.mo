@@ -22,9 +22,10 @@ actor PasswordManager {
     //
     // The key name is immutable for the life of the canister's data: it feeds
     // vetKD key derivation, so changing it would make every already-encrypted
-    // value undecryptable. Changing the environment variable on a later upgrade
-    // is silently ignored (the stable state is not rebuilt); only a `reinstall`,
-    // which drops all data, switches keys.
+    // value undecryptable — and this canister only ever sees ciphertext, so it
+    // cannot re-encrypt them either. Changing the environment variable on a later
+    // upgrade is silently ignored (the stable state is not rebuilt); only a
+    // `reinstall`, which drops all data, switches keys.
     transient let keyName = Runtime.envVar<system>("VETKD_KEY_NAME") ?? "test_key_1";
 
     // The second argument is the domain separator that isolates this

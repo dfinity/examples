@@ -15,10 +15,16 @@ actor {
     // The vetKD key name this canister derives from. Set the `VETKD_KEY_NAME`
     // canister environment variable (see `icp.yaml`) to pick a different key; it
     // defaults to `test_key_1` so a deploy can never leave the canister
-    // half-initialized. It is re-read on every upgrade, so changing the variable
-    // does take effect — and orphans everything encrypted under the old key, which
-    // no other key can decrypt. Treat it as fixed once the canister holds data.
-    transient let keyName = Runtime.envVar<system>("VETKD_KEY_NAME") ?? "test_key_1";
+    // half-initialized.
+    //
+    // This is a stable variable on purpose, so it is captured at the first install
+    // and never re-read: changing the environment variable later is silently
+    // ignored, and only a reinstall — which drops all data — switches keys. The key
+    // feeds vetKD derivation, so a different key cannot decrypt what the old one
+    // encrypted, and this canister only ever sees ciphertext and so cannot
+    // re-encrypt. Were it `transient` instead, a changed variable would take effect
+    // on the next upgrade and silently orphan the stored data.
+    let keyName = Runtime.envVar<system>("VETKD_KEY_NAME") ?? "test_key_1";
 
     // Types
     type Signature = {
