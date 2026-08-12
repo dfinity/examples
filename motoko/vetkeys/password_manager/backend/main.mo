@@ -3,14 +3,14 @@ import EncryptedMaps "mo:ic-vetkeys/encrypted_maps/EncryptedMaps";
 import Types "mo:ic-vetkeys/Types";
 import Runtime "mo:core/Runtime";
 
-// This canister is a thin wrapper around the `ic-vetkeys` Encrypted Maps
-// library. The `EncryptedMapsCanister` mixin contributes the whole endpoint set
-// — the vetKD key, access-control, map-name and value endpoints — so the Candid
-// this canister exposes is exactly what the `@icp-sdk/vetkeys` Encrypted Maps
-// client expects. Those endpoints are snake_case (not the usual Motoko
-// camelCase) because the client calls them by these exact names.
-//
-// The mixin holds no stable state of its own: this actor declares the
+/// This canister is a thin wrapper around the `ic-vetkeys` Encrypted Maps
+/// library. The `EncryptedMapsCanister` mixin contributes the whole endpoint set
+/// — the vetKD key, access-control, map-name and value endpoints — so the Candid
+/// this canister exposes is exactly what the `@icp-sdk/vetkeys` Encrypted Maps
+/// client expects. Those endpoints are snake_case (not the usual Motoko
+/// camelCase) because the client calls them by these exact names.
+///
+/// The mixin holds no stable state of its own: this actor declares the
 // `EncryptedMapsState` and passes it in, so the persistent state stays a plain,
 // visible stable variable this canister owns and can migrate.
 actor PasswordManager {

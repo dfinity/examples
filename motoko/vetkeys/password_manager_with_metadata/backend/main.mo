@@ -10,24 +10,24 @@ import EncryptedMapsControlPlaneCanister "mo:ic-vetkeys/encrypted_maps/ControlPl
 import EncryptedMaps "mo:ic-vetkeys/encrypted_maps/EncryptedMaps";
 import Types "mo:ic-vetkeys/Types";
 
-// This canister layers a second, backend-authoritative store on top of the
-// `ic-vetkeys` Encrypted Maps library: every encrypted password has a matching
-// metadata row (creation date, modification counter, tags, url) that the
-// canister — not the client — maintains.
-//
-// It includes the `EncryptedMapsControlPlaneCanister` mixin rather than the full
-// `EncryptedMapsCanister`: the control-plane mixin contributes the vetKD key,
-// access-control and map-name endpoints plus the in-scope `encryptedMaps`
-// object, but none of the endpoints that read or write encrypted values. That is
-// what this canister needs — the plain `insert_encrypted_value` /
-// `remove_encrypted_value` mutators are never exposed, so nothing can write a
-// value without its metadata row, and the `*_with_metadata` endpoints below
-// update both stores in a single call.
-//
-// The public methods are snake_case (not the usual Motoko camelCase): the
-// standard Encrypted Maps methods are called by these exact names by the
-// `@icp-sdk/vetkeys` client, and the custom metadata methods follow the same
-// convention for a consistent interface.
+/// This canister layers a second, backend-authoritative store on top of the
+/// `ic-vetkeys` Encrypted Maps library: every encrypted password has a matching
+/// metadata row (creation date, modification counter, tags, url) that the
+/// canister — not the client — maintains.
+///
+/// It includes the `EncryptedMapsControlPlaneCanister` mixin rather than the full
+/// `EncryptedMapsCanister`: the control-plane mixin contributes the vetKD key,
+/// access-control and map-name endpoints plus the in-scope `encryptedMaps`
+/// object, but none of the endpoints that read or write encrypted values. That is
+/// what this canister needs — the plain `insert_encrypted_value` /
+/// `remove_encrypted_value` mutators are never exposed, so nothing can write a
+/// value without its metadata row, and the `*_with_metadata` endpoints below
+/// update both stores in a single call.
+///
+/// The public methods are snake_case (not the usual Motoko camelCase): the
+/// standard Encrypted Maps methods are called by these exact names by the
+/// `@icp-sdk/vetkeys` client, and the custom metadata methods follow the same
+/// convention for a consistent interface.
 actor PasswordManagerWithMetadata {
   // The vetKD key name is only an install-time input — it is baked into the
   // stable state below and never read again, hence `transient`. Set the
