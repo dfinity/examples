@@ -11,8 +11,8 @@ import Runtime "mo:core/Runtime";
 /// camelCase) because the client calls them by these exact names.
 ///
 /// The mixin holds no stable state of its own: this actor declares the
-// `EncryptedMapsState` and passes it in, so the persistent state stays a plain,
-// visible stable variable this canister owns and can migrate.
+/// `EncryptedMapsState` and passes it in, so the persistent state stays a plain,
+/// visible stable variable this canister owns and can migrate.
 actor PasswordManager {
     // The vetKD key name is only an install-time input — it is baked into the
     // stable state below and never read again, hence `transient`. Set the
