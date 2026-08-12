@@ -6,11 +6,26 @@ import Time "mo:core/Time";
 import Map "mo:core/Map";
 import Array "mo:core/Array";
 import List "mo:core/List";
-import Nat8 "mo:core/Nat8";
+import Nat "mo:core/Nat";
 import VetKeys "mo:ic-vetkeys";
 import Order "mo:core/Order";
+import Runtime "mo:core/Runtime";
 
-actor class (keyName : Text) = {
+actor {
+    // The vetKD key name this canister derives from. Set the `VETKD_KEY_NAME`
+    // canister environment variable (see `icp.yaml`) to pick a different key; it
+    // defaults to `test_key_1` so a deploy can never leave the canister
+    // half-initialized.
+    //
+    // This is a stable variable on purpose, so it is captured at the first install
+    // and never re-read: changing the environment variable later is silently
+    // ignored, and only a reinstall — which drops all data — switches keys. The key
+    // feeds vetKD derivation, so a different key cannot decrypt what the old one
+    // encrypted, and this canister only ever sees ciphertext and so cannot
+    // re-encrypt. Were it `transient` instead, a changed variable would take effect
+    // on the next upgrade and silently orphan the stored data.
+    let keyName = Runtime.envVar<system>("VETKD_KEY_NAME") ?? "test_key_1";
+
     // Types
     type Signature = {
         message : Text;
@@ -37,7 +52,7 @@ actor class (keyName : Text) = {
     };
 
     // Signatures are retained across upgrades: this actor field is not declared `transient`.
-    private var signatures = Map.empty<SignatureKey, Signature>();
+    private let signatures = Map.empty<SignatureKey, Signature>();
 
     // Helper function to get current timestamp
     private func getTimestamp() : Nat64 {
@@ -47,19 +62,18 @@ actor class (keyName : Text) = {
     // Helper function to create context for vetKD
     private func context(signer : Principal) : Blob {
         // Domain separator for this app
-        let domainSeparator : [Nat8] = Blob.toArray(Text.encodeUtf8("basic_bls_signing_app"));
-        let domainSeparatorLength : [Nat8] = [Nat8.fromNat(domainSeparator.size())]; // Length of domain separator
+        let domainSeparator : [Nat8] = Text.encodeUtf8("basic_bls_signing_app").toArray();
+        let domainSeparatorLength : [Nat8] = [domainSeparator.size().toNat8()]; // Length of domain separator
 
         // Combine domain separator length, domain separator, and signer principal
-        let signerBytes = Principal.toBlob(signer);
-        let signerArray = Blob.toArray(signerBytes);
+        let signerBytes = signer.toBlob();
+        let signerArray = signerBytes.toArray();
 
-        let contextArray = Array.concat<Nat8>(
-            Array.concat<Nat8>(domainSeparatorLength, domainSeparator),
+        let contextArray = domainSeparatorLength.concat(domainSeparator).concat(
             signerArray,
         );
 
-        Blob.fromArray(contextArray);
+        contextArray.toBlob();
     };
 
     // Helper function to get key ID
@@ -73,7 +87,7 @@ actor class (keyName : Text) = {
     // Sign a message using BLS
     public shared ({ caller }) func signMessage(message : Text) : async Blob {
         let signatureBytes = await VetKeys.ManagementCanister.signWithBls(
-            Text.encodeUtf8(message),
+            message.encodeUtf8(),
             context(caller),
             keyId(),
         );
@@ -87,26 +101,26 @@ actor class (keyName : Text) = {
 
         // Handle potential timestamp collisions by incrementing until we find a free slot
         var timestampForMapKey = timestamp;
-        while (Map.get(signatures, signatureKeyCompare, { signer = caller; timestamp = timestampForMapKey }) != null) {
+        while (signatures.get(signatureKeyCompare, { signer = caller; timestamp = timestampForMapKey }) != null) {
             timestampForMapKey += 1;
         };
 
-        ignore Map.insert(signatures, signatureKeyCompare, { signer = caller; timestamp = timestampForMapKey }, signature);
+        ignore signatures.insert(signatureKeyCompare, { signer = caller; timestamp = timestampForMapKey }, signature);
 
         signatureBytes;
     };
 
     // Get all signatures for the current caller
     public shared query ({ caller }) func getMySignatures() : async [Signature] {
-        var callerSignatures = List.empty<Signature>();
+        let callerSignatures = List.empty<Signature>();
 
-        for ((key, value) in Map.entries(signatures)) {
+        for ((key, value) in signatures.entries()) {
             if (Principal.equal(key.signer, caller)) {
-                List.add(callerSignatures, value);
+                callerSignatures.add(value);
             };
         };
 
-        List.toArray(callerSignatures);
+        callerSignatures.toArray();
     };
 
     // Get verification key for the current caller
