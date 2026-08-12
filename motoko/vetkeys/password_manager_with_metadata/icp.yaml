@@ -3,9 +3,10 @@ canisters:
     recipe:
       type: "@dfinity/motoko@v5.0.0"
     settings:
-      # The vetKD master key this canister derives from. Read at install time via
-      # `Runtime.envVar("VETKD_KEY_NAME")`; see the note in the README before
-      # changing it on a canister that already holds data.
+      # The vetKD master key this canister derives from, read by the canister via
+      # `Runtime.envVar("VETKD_KEY_NAME")`. See the README before changing it on a
+      # canister that already holds data — a different key cannot decrypt what the
+      # old one encrypted.
       environment_variables:
         VETKD_KEY_NAME: "test_key_1"
 
