@@ -4,7 +4,7 @@
 /// system-level certified-data hash so that query callers can cryptographically
 /// verify the returned value without waiting for a full consensus round.
 import CD "mo:core/CertifiedData";
-import Blob "mo:core/Blob";
+import Array "mo:core/Array";
 import Nat32 "mo:core/Nat32";
 
 actor CertVar {
@@ -17,12 +17,12 @@ actor CertVar {
   func blobOfNat32(n : Nat32) : Blob {
     let byteMask : Nat32 = 0xff;
     func byte(x : Nat32) : Nat8 = x.toNat8();
-    Blob.fromArray([
+    [
       byte(((byteMask << 0) & n) >> 0),
       byte(((byteMask << 8) & n) >> 8),
       byte(((byteMask << 16) & n) >> 16),
       byte(((byteMask << 24) & n) >> 24),
-    ]);
+    ].toBlob();
   };
 
   /// Increment the counter by one, update the certificate, and return the new value.

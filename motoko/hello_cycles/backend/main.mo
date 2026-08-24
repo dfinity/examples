@@ -1,5 +1,4 @@
 import Nat "mo:core/Nat";
-import Nat64 "mo:core/Nat64";
 import Cycles "mo:core/Cycles";
 
 actor HelloCycles {
@@ -20,7 +19,7 @@ actor HelloCycles {
   public func acceptCycles() : async { accepted : Nat64 } {
     let available = Cycles.available(); // total cycles the caller attached
     let accepted = Cycles.accept<system>(Nat.min(available, limit)); // claim up to limit
-    { accepted = Nat64.fromNat(accepted) };
+    { accepted = accepted.toNat64() };
   };
 
   /// Sends `amount` cycles from this canister's balance to `receiver`.

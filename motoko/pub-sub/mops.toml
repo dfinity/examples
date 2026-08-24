@@ -1,14 +1,11 @@
 [toolchain]
-moc = "1.9.0"
+moc = "1.14.1"
 
 [dependencies]
-core = "2.5.0"
+core = "2.6.1"
 
 [moc]
-# M0236: use context dot notation
-# M0237: redundant explicit implicit arguments
-# M0223: redundant type instantiation
-args = ["--default-persistent-actors", "-W=M0236,M0237,M0223"]
+args = [ "--default-persistent-actors", "-W=M0236,M0237,M0223" ]
 
 [canisters.publisher]
 main = "publisher/main.mo"
@@ -16,12 +13,4 @@ candid = "publisher/publisher.did"
 
 [canisters.subscriber]
 main = "subscriber/main.mo"
-# --actor-env-alias <alias> <envvar> <did-path>: resolve the `canister:publisher`
-# import from the PUBLIC_CANISTER_ID:publisher env var (injected by icp deploy),
-# typed against publisher/publisher.did — no actor type needed in subscriber/main.mo.
-# Per-canister args replace the global [moc].args, so repeat those flags here.
-args = [
-    "--default-persistent-actors",
-    "-W=M0236,M0237,M0223",
-    "--actor-env-alias", "publisher", "PUBLIC_CANISTER_ID:publisher", "publisher/publisher.did",
-]
+args = [ "--default-persistent-actors", "-W=M0236,M0237,M0223", "--actor-env-alias", "publisher", "PUBLIC_CANISTER_ID:publisher", "publisher/publisher.did" ]

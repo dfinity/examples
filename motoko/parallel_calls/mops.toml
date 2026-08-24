@@ -1,26 +1,15 @@
 [toolchain]
-moc = "1.9.0"
+moc = "1.14.1"
 
 [dependencies]
-core = "2.5.0"
+core = "2.6.1"
 
 [moc]
-# M0236: use context dot notation
-# M0237: redundant explicit implicit arguments
-# M0223: redundant type instantiation
-args = ["--default-persistent-actors", "-W=M0236,M0237,M0223"]
+args = [ "--default-persistent-actors", "-W=M0236,M0237,M0223" ]
 
 [canisters.caller]
 main = "caller/main.mo"
-# --actor-env-alias <alias> <envvar> <did-path>: resolve the `canister:callee`
-# import from the PUBLIC_CANISTER_ID:callee env var (injected by icp deploy),
-# typed against callee/callee.did — no actor type needed in caller/main.mo.
-# Per-canister args replace the global [moc].args, so repeat those flags here.
-args = [
-    "--default-persistent-actors",
-    "-W=M0236,M0237,M0223",
-    "--actor-env-alias", "callee", "PUBLIC_CANISTER_ID:callee", "callee/callee.did",
-]
+args = [ "--default-persistent-actors", "-W=M0236,M0237,M0223", "--actor-env-alias", "callee", "PUBLIC_CANISTER_ID:callee", "callee/callee.did" ]
 
 [canisters.callee]
 main = "callee/main.mo"

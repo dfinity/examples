@@ -1,3 +1,4 @@
+import Array "mo:core/Array";
 import Blob "mo:core/Blob";
 import Error "mo:core/Error";
 import Option "mo:core/Option";
@@ -67,7 +68,7 @@ actor ThresholdSchnorr {
       case (#ok bytes) {
         #ok(
           #bip341({
-            merkle_root_hash = Blob.fromArray(bytes);
+            merkle_root_hash = bytes.toBlob();
           })
         );
       };

@@ -69,11 +69,11 @@ actor {
     private var nextNoteId : Nat = 1;
 
     // Store notes by their ID, so that note-specific encryption keys can be derived.
-    private var notesById = Map.empty<NoteId, EncryptedNote>();
+    private let notesById = Map.empty<NoteId, EncryptedNote>();
     // Store which note IDs are owned by a particular principal
-    private var noteIdsByOwner = Map.empty<PrincipalName, PureList.List<NoteId>>();
+    private let noteIdsByOwner = Map.empty<PrincipalName, PureList.List<NoteId>>();
     // Store which notes are shared with a particular principal. Does not include the owner, as this is tracked by `noteIdsByOwner`.
-    private var noteIdsByUser = Map.empty<PrincipalName, PureList.List<NoteId>>();
+    private let noteIdsByUser = Map.empty<PrincipalName, PureList.List<NoteId>>();
 
     // Utility function that helps writing assertion-driven code more concisely.
     private func expect<T>(opt : ?T, violation_msg : Text) : T {
@@ -88,11 +88,11 @@ actor {
     };
 
     private func is_authorized(user : PrincipalName, note : EncryptedNote) : Bool {
-        user == note.owner or Option.isSome(Array.find(note.users, func(x : PrincipalName) : Bool { x == user }));
+        user == note.owner or Option.isSome(note.users.find(func(x : PrincipalName) : Bool { x == user }));
     };
 
     public shared ({ caller }) func whoami() : async Text {
-        return Principal.toText(caller);
+        return caller.toText();
     };
 
     // Shared functions, i.e., those specified with [shared], are
@@ -109,8 +109,8 @@ actor {
     //      [caller] already has [MAX_NOTES_PER_USER] notes
     //      This is the first note for [caller] and [MAX_USERS] is exceeded
     public shared ({ caller }) func createNote() : async NoteId {
-        assert not Principal.isAnonymous(caller);
-        let owner = Principal.toText(caller);
+        assert not caller.isAnonymous();
+        let owner = caller.toText();
 
         let newNote : EncryptedNote = {
             id = nextNoteId;
@@ -119,18 +119,18 @@ actor {
             users = [];
         };
 
-        switch (Map.get(noteIdsByOwner, Text.compare, owner)) {
+        switch (noteIdsByOwner.get(owner)) {
             case (?owner_nids) {
-                assert PureList.size(owner_nids) < MAX_NOTES_PER_USER;
-                ignore Map.insert(noteIdsByOwner, Text.compare, owner, PureList.pushFront(owner_nids, newNote.id));
+                assert owner_nids.size() < MAX_NOTES_PER_USER;
+                ignore noteIdsByOwner.insert(owner, owner_nids.pushFront(newNote.id));
             };
             case null {
-                assert Map.size(noteIdsByOwner) < MAX_USERS;
-                ignore Map.insert(noteIdsByOwner, Text.compare, owner, PureList.singleton(newNote.id));
+                assert noteIdsByOwner.size() < MAX_USERS;
+                ignore noteIdsByOwner.insert(owner, PureList.singleton(newNote.id));
             };
         };
 
-        ignore Map.insert(notesById, Nat.compare, newNote.id, newNote);
+        ignore notesById.insert(newNote.id, newNote);
         nextNoteId += 1;
         newNote.id;
     };
@@ -152,26 +152,26 @@ actor {
     // Traps:
     //      [caller] is the anonymous identity
     public shared ({ caller }) func getNotes() : async [EncryptedNote] {
-        assert not Principal.isAnonymous(caller);
-        let user = Principal.toText(caller);
+        assert not caller.isAnonymous();
+        let user = caller.toText();
 
         let owned_notes = PureList.map(
-            Option.get(Map.get(noteIdsByOwner, Text.compare, user), PureList.empty()),
+            noteIdsByOwner.get(user).get(PureList.empty()),
             func(nid : NoteId) : EncryptedNote {
-                expect(Map.get(notesById, Nat.compare, nid), "missing note with ID " # Nat.toText(nid));
+                expect(notesById.get(nid), "missing note with ID " # nid.toText());
             },
         );
         let shared_notes = PureList.map(
-            Option.get(Map.get(noteIdsByUser, Text.compare, user), PureList.empty()),
+            noteIdsByUser.get(user).get(PureList.empty()),
             func(nid : NoteId) : EncryptedNote {
-                expect(Map.get(notesById, Nat.compare, nid), "missing note with ID " # Nat.toText(nid));
+                expect(notesById.get(nid), "missing note with ID " # nid.toText());
             },
         );
 
         let buf = List.empty<EncryptedNote>();
-        List.append(buf, List.fromArray<EncryptedNote>(PureList.toArray(owned_notes)));
-        List.append(buf, List.fromArray<EncryptedNote>(PureList.toArray(shared_notes)));
-        List.toArray(buf);
+        buf.append(List.fromArray<EncryptedNote>(owned_notes.toArray()));
+        buf.append(List.fromArray<EncryptedNote>(shared_notes.toArray()));
+        buf.toArray();
     };
 
     // Replaces the encrypted text of note with ID [id] with [encryptedText].
@@ -184,14 +184,14 @@ actor {
     //     [caller] is not the note's owner and not a user with whom the note is shared
     //     [encryptedText] exceeds [MAX_NOTE_CHARS]
     public shared ({ caller }) func updateNote(id : NoteId, encryptedText : Text) : async () {
-        assert not Principal.isAnonymous(caller);
-        let caller_text = Principal.toText(caller);
-        let (?note_to_update) = Map.get(notesById, Nat.compare, id) else Runtime.trap("note with id " # Nat.toText(id) # "not found");
+        assert not caller.isAnonymous();
+        let caller_text = caller.toText();
+        let (?note_to_update) = notesById.get(id) else Runtime.trap("note with id " # id.toText() # "not found");
         if (not is_authorized(caller_text, note_to_update)) {
             Runtime.trap("unauthorized");
         };
         assert note_to_update.encryptedText.size() <= MAX_NOTE_CHARS;
-        ignore Map.insert(notesById, Nat.compare, id, { note_to_update with encryptedText });
+        ignore notesById.insert(id, { note_to_update with encryptedText });
     };
 
     // Shares the note with ID [note_id] with the [user].
@@ -204,27 +204,27 @@ actor {
     //     note with ID [id] does not exist
     //     [caller] is not the note's owner
     public shared ({ caller }) func addUser(note_id : NoteId, user : PrincipalName) : async () {
-        assert not Principal.isAnonymous(caller);
-        let caller_text = Principal.toText(caller);
-        let (?note) = Map.get(notesById, Nat.compare, note_id) else Runtime.trap("note with id " # Nat.toText(note_id) # "not found");
+        assert not caller.isAnonymous();
+        let caller_text = caller.toText();
+        let (?note) = notesById.get(note_id) else Runtime.trap("note with id " # note_id.toText() # "not found");
         if (caller_text != note.owner) {
             Runtime.trap("unauthorized");
         };
         assert note.users.size() < MAX_SHARES_PER_NOTE;
-        if (not Option.isSome(Array.find(note.users, func(u : PrincipalName) : Bool { u == user }))) {
-            let users_buf = List.fromArray<PrincipalName>(note.users);
-            List.add(users_buf, user);
-            let updated_note = { note with users = List.toArray(users_buf) };
-            ignore Map.insert(notesById, Nat.compare, note_id, updated_note);
+        if (not Option.isSome(note.users.find(func(u : PrincipalName) : Bool { u == user }))) {
+            let users_buf = List.fromArray(note.users);
+            users_buf.add(user);
+            let updated_note = { note with users = users_buf.toArray() };
+            ignore notesById.insert(note_id, updated_note);
         };
-        switch (Map.get(noteIdsByUser, Text.compare, user)) {
+        switch (noteIdsByUser.get(user)) {
             case (?user_nids) {
-                if (not PureList.any(user_nids, func(nid : NoteId) : Bool { nid == note_id })) {
-                    ignore Map.insert(noteIdsByUser, Text.compare, user, PureList.pushFront(user_nids, note_id));
+                if (not user_nids.any(func(nid : NoteId) : Bool { nid == note_id })) {
+                    ignore noteIdsByUser.insert(user, user_nids.pushFront(note_id));
                 };
             };
             case null {
-                ignore Map.insert(noteIdsByUser, Text.compare, user, PureList.singleton(note_id));
+                ignore noteIdsByUser.insert(user, PureList.singleton(note_id));
             };
         };
     };
@@ -239,22 +239,22 @@ actor {
     //     note with ID [id] does not exist
     //     [caller] is not the note's owner
     public shared ({ caller }) func removeUser(note_id : NoteId, user : PrincipalName) : async () {
-        assert not Principal.isAnonymous(caller);
-        let caller_text = Principal.toText(caller);
-        let (?note) = Map.get(notesById, Nat.compare, note_id) else Runtime.trap("note with id " # Nat.toText(note_id) # "not found");
+        assert not caller.isAnonymous();
+        let caller_text = caller.toText();
+        let (?note) = notesById.get(note_id) else Runtime.trap("note with id " # note_id.toText() # "not found");
         if (caller_text != note.owner) {
             Runtime.trap("unauthorized");
         };
-        let updated_note = { note with users = Array.filter(note.users, func(u : PrincipalName) : Bool { u != user }) };
-        ignore Map.insert(notesById, Nat.compare, note_id, updated_note);
+        let updated_note = { note with users = note.users.filter(func(u : PrincipalName) : Bool { u != user }) };
+        ignore notesById.insert(note_id, updated_note);
 
-        switch (Map.get(noteIdsByUser, Text.compare, user)) {
+        switch (noteIdsByUser.get(user)) {
             case (?user_nids) {
-                let updated_nids = PureList.filter(user_nids, func(nid : NoteId) : Bool { nid != note_id });
-                if (not PureList.isEmpty(updated_nids)) {
-                    ignore Map.insert(noteIdsByUser, Text.compare, user, updated_nids);
+                let updated_nids = user_nids.filter(func(nid : NoteId) : Bool { nid != note_id });
+                if (not updated_nids.isEmpty()) {
+                    ignore noteIdsByUser.insert(user, updated_nids);
                 } else {
-                    ignore Map.remove(noteIdsByUser, Text.compare, user);
+                    noteIdsByUser.remove(user);
                 };
             };
             case null {};
@@ -270,38 +270,38 @@ actor {
     //     note with ID [id] does not exist
     //     [caller] is not the note's owner
     public shared ({ caller }) func deleteNote(note_id : NoteId) : async () {
-        assert not Principal.isAnonymous(caller);
-        let caller_text = Principal.toText(caller);
-        let (?note_to_delete) = Map.get(notesById, Nat.compare, note_id) else Runtime.trap("note with id " # Nat.toText(note_id) # "not found");
+        assert not caller.isAnonymous();
+        let caller_text = caller.toText();
+        let (?note_to_delete) = notesById.get(note_id) else Runtime.trap("note with id " # note_id.toText() # "not found");
         let owner = note_to_delete.owner;
         if (owner != caller_text) {
             Runtime.trap("unauthorized");
         };
-        switch (Map.get(noteIdsByOwner, Text.compare, owner)) {
+        switch (noteIdsByOwner.get(owner)) {
             case (?owner_nids) {
-                let updated_nids = PureList.filter(owner_nids, func(nid : NoteId) : Bool { nid != note_id });
-                if (not PureList.isEmpty(updated_nids)) {
-                    ignore Map.insert(noteIdsByOwner, Text.compare, owner, updated_nids);
+                let updated_nids = owner_nids.filter(func(nid : NoteId) : Bool { nid != note_id });
+                if (not updated_nids.isEmpty()) {
+                    ignore noteIdsByOwner.insert(owner, updated_nids);
                 } else {
-                    ignore Map.remove(noteIdsByOwner, Text.compare, owner);
+                    noteIdsByOwner.remove(owner);
                 };
             };
             case null {};
         };
         for (user in note_to_delete.users.values()) {
-            switch (Map.get(noteIdsByUser, Text.compare, user)) {
+            switch (noteIdsByUser.get(user)) {
                 case (?user_nids) {
-                    let updated_nids = PureList.filter(user_nids, func(nid : NoteId) : Bool { nid != note_id });
-                    if (not PureList.isEmpty(updated_nids)) {
-                        ignore Map.insert(noteIdsByUser, Text.compare, user, updated_nids);
+                    let updated_nids = user_nids.filter(func(nid : NoteId) : Bool { nid != note_id });
+                    if (not updated_nids.isEmpty()) {
+                        ignore noteIdsByUser.insert(user, updated_nids);
                     } else {
-                        ignore Map.remove(noteIdsByUser, Text.compare, user);
+                        noteIdsByUser.remove(user);
                     };
                 };
                 case null {};
             };
         };
-        ignore Map.remove(notesById, Nat.compare, note_id);
+        notesById.remove(note_id);
     };
 
     // Only the vetKD methods in the IC management canister are required here.
@@ -327,20 +327,20 @@ actor {
             context = Text.encodeUtf8("note_symmetric_key");
             key_id = { curve = #bls12_381_g2; name = keyName };
         });
-        Hex.encode(Blob.toArray(public_key));
+        Hex.encode(public_key.toArray());
     };
 
     public shared ({ caller }) func encryptedSymmetricKeyForNote(note_id : NoteId, transport_public_key : Blob) : async Text {
-        let caller_text = Principal.toText(caller);
-        let (?note) = Map.get(notesById, Nat.compare, note_id) else Runtime.trap("note with id " # Nat.toText(note_id) # "not found");
+        let caller_text = caller.toText();
+        let (?note) = notesById.get(note_id) else Runtime.trap("note with id " # note_id.toText() # "not found");
         if (not is_authorized(caller_text, note)) {
             Runtime.trap("unauthorized");
         };
 
         let buf = List.empty<Nat8>();
-        List.append(buf, List.fromArray<Nat8>(natToBigEndianByteArray(16, note_id))); // fixed-size encoding
-        List.append(buf, List.fromArray<Nat8>(Blob.toArray(Text.encodeUtf8(note.owner))));
-        let input = Blob.fromArray(List.toArray(buf)); // prefix-free
+        buf.append(List.fromArray(natToBigEndianByteArray(16, note_id))); // fixed-size encoding
+        buf.append(List.fromArray(note.owner.encodeUtf8().toArray()));
+        let input = buf.toArray().toBlob(); // prefix-free
 
         let { encrypted_key } = await (with cycles = 26_153_846_153) management_canister.vetkd_derive_key({
             input;
@@ -348,7 +348,7 @@ actor {
             key_id = { curve = #bls12_381_g2; name = keyName };
             transport_public_key;
         });
-        Hex.encode(Blob.toArray(encrypted_key));
+        Hex.encode(encrypted_key.toArray());
     };
 
     // Converts a nat to a fixed-size big-endian byte (Nat8) array
@@ -358,6 +358,6 @@ actor {
             let shift : Nat = 8 * (len - 1 - i);
             Nat8.fromIntWrap(n / 2 ** shift);
         };
-        Array.tabulate<Nat8>(len, ith_byte);
+        Array.tabulate(len, ith_byte);
     };
 };

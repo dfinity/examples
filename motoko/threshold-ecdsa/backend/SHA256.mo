@@ -1,4 +1,5 @@
 import Array "mo:core/Array";
+import VarArray "mo:core/VarArray";
 import Nat "mo:core/Nat";
 import Nat8 "mo:core/Nat8";
 import Nat32 "mo:core/Nat32";
@@ -66,7 +67,7 @@ module {
         };
         nx += n;
         if (nx == 64) {
-          let buf = Array.fromVarArray(x);
+          let buf = x.toArray();
           block(buf);
           nx := 0;
         };
@@ -101,13 +102,13 @@ module {
       if (m > 0) {
         buf[0] := 0x80;
       };
-      write(Array.fromVarArray(buf));
+      write(buf.toArray());
       buf := Array.repeat(0 : Nat8, 8).toVarArray();
       for (i in buf.keys()) {
         let j : Nat64 = 56 -% 8 *% Nat64.fromIntWrap(i);
         buf[i] := Nat8.fromIntWrap((n >> j).toNat());
       };
-      write(Array.fromVarArray(buf));
+      write(buf.toArray());
       let hash = Array.repeat(0 : Nat8, 32).toVarArray();
       for (i in s.keys()) {
         var j = 0;
@@ -117,7 +118,7 @@ module {
           j += 1;
         };
       };
-      return Array.fromVarArray(hash);
+      return hash.toArray();
     };
 
     private func block(data : [Nat8]) {

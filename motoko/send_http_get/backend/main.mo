@@ -1,16 +1,16 @@
-import Blob "mo:core/Blob";
+import Array "mo:core/Array";
 import Text "mo:core/Text";
 import { ic } "mo:ic";
 import IC "mo:ic/Types";
 
-persistent actor SendHttpGet {
+actor SendHttpGet {
 
   // #region transform
   // Strip HTTP response headers (date, cookies, tracking IDs) that vary across replicas.
   // In replicated mode, all replicas must see an identical response for consensus to
   // succeed — the transform ensures this by discarding non-deterministic fields.
   public query func transform({
-    context : Blob;
+    context = _context : Blob;
     response : IC.HttpRequestResult;
   }) : async IC.HttpRequestResult {
     { response with headers = [] };
@@ -29,7 +29,7 @@ persistent actor SendHttpGet {
       headers = [{ name = "User-Agent"; value = "ic-canister" }];
       body = null;
       method = #get;
-      transform = ?{ function = transform; context = Blob.fromArray([]) };
+      transform = ?{ function = transform; context = ([] : [Nat8]).toBlob() };
       // Replicated mode: all subnet nodes make the request independently,
       // providing strong integrity guarantees via consensus.
       is_replicated = ?true;

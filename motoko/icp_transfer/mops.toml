@@ -1,20 +1,12 @@
 [toolchain]
-moc = "1.9.0"
+moc = "1.14.1"
 
 [dependencies]
-core = "2.5.0"
+core = "2.6.1"
 hex = "1.0.3"
 
 [moc]
-args = [
-    "--default-persistent-actors",
-    "-W=M0236,M0237,M0223",
-    # --actor-id-alias <alias> <principal> <did-path>: bind the `canister:icp_ledger`
-    # import to the ICP ledger's fixed, well-known principal (same on mainnet and the
-    # local network), typed against candid/icp_ledger.did — so no ledger types are
-    # hand-written in the backend.
-    "--actor-id-alias", "icp_ledger", "ryjl3-tyaaa-aaaaa-aaaba-cai", "candid/icp_ledger.did",
-]
+args = [ "--default-persistent-actors", "-W=M0236,M0237,M0223", "--actor-id-alias", "icp_ledger", "ryjl3-tyaaa-aaaaa-aaaba-cai", "candid/icp_ledger.did" ]
 
 [canisters.backend]
 main = "backend/main.mo"

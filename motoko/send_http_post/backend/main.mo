@@ -1,9 +1,9 @@
-import Blob "mo:core/Blob";
+import Array "mo:core/Array";
 import Text "mo:core/Text";
 import { ic } "mo:ic";
 import IC "mo:ic/Types";
 
-persistent actor SendHttpPost {
+actor SendHttpPost {
 
   // #region transform
   // Strip HTTP response headers (date, cookies, tracking IDs) that vary across requests.
@@ -11,7 +11,7 @@ persistent actor SendHttpPost {
   // always invokes it. In replicated mode, stripping non-deterministic fields is
   // essential for consensus to succeed.
   public query func transform({
-    context : Blob;
+    context = _context : Blob;
     response : IC.HttpRequestResult;
   }) : async IC.HttpRequestResult {
     { response with headers = [] };
@@ -34,7 +34,7 @@ persistent actor SendHttpPost {
       ];
       body = ?body;
       method = #post;
-      transform = ?{ function = transform; context = Blob.fromArray([]) };
+      transform = ?{ function = transform; context = ([] : [Nat8]).toBlob() };
       // Non-replicated: only one replica sends the request. For replicated
       // mode (true), add an Idempotency-Key header so the server can
       // deduplicate the requests sent by each replica independently.

@@ -1,8 +1,8 @@
 [toolchain]
-moc = "1.9.0"
+moc = "1.14.1"
 
 [dependencies]
-core = "2.5.0"
+core = "2.6.1"
 bitcoin = "0.2.0"
 ic = "4.0.0"
 

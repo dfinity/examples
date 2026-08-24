@@ -1,9 +1,9 @@
 import Result "mo:core/Result";
 import Nat8 "mo:core/Nat8";
 import Runtime "mo:core/Runtime";
+import Char "mo:core/Char";
 import Text "mo:core/Text";
 import Iter "mo:core/Iter";
-import Blob "mo:core/Blob";
 import Array "mo:core/Array";
 import IC "mo:ic/Types";
 
@@ -39,7 +39,7 @@ module {
 
     // Returns the hexadecimal representation of a `Nat8` considered as a `Nat4`.
     func nat4ToText(nat4 : Nat8) : Text {
-        Text.fromChar(
+        (
             switch nat4 {
                 case 0 '0';
                 case 1 '1';
@@ -59,7 +59,7 @@ module {
                 case 15 'f';
                 case _ Runtime.unreachable();
             }
-        );
+        ).toText();
     };
 
     /// Returns the hexadecimal representation of a `Nat8`.
@@ -71,20 +71,20 @@ module {
 
     /// Returns the hexadecimal representation of a byte array.
     public func bytesToText(bytes : [Nat8]) : Text {
-        bytes.vals().map(func(n : Nat8) : Text { nat8ToText(n) }).join("");
+        bytes.values().map(func(n : Nat8) : Text { nat8ToText(n) }).join("");
     };
 
     /// Mock ECDSA signer that returns a 64-byte placeholder signature.
     /// Used only during fee estimation to get the correct transaction size
     /// before invoking the real (expensive) threshold signing operation.
     public func mock_sign_with_ecdsa(_key_name : Text, _derivation_path : [Blob], _message_hash : Blob) : async Blob {
-        Blob.fromArray(Array.repeat(255 : Nat8, 64));
+        Array.repeat(255 : Nat8, 64).toBlob();
     };
 
     /// Mock Schnorr signer that returns a 64-byte placeholder signature.
     /// Used only during fee estimation to get the correct transaction size
     /// before invoking the real (expensive) threshold signing operation.
     public func mock_sign_with_schnorr(_key_name : Text, _derivation_path : [Blob], _message_hash : Blob, _aux : ?SchnorrAux) : async Blob {
-        Blob.fromArray(Array.repeat(255 : Nat8, 64));
+        Array.repeat(255 : Nat8, 64).toBlob();
     };
 };
