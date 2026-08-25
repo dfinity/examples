@@ -1,6 +1,6 @@
 import Array "mo:core/Array";
 import Text "mo:core/Text";
-import { ic } "mo:ic";
+import Call "mo:ic/Call";
 import IC "mo:ic/Types";
 
 actor SendHttpPost {
@@ -41,9 +41,12 @@ actor SendHttpPost {
       is_replicated = ?false;
     };
 
-    // Cycles must be explicitly attached to management canister calls.
-    // The amount is based on request size and max_response_bytes.
-    let response = await (with cycles = 230_949_972_000) ic.http_request(request);
+    // Cycles must be attached to management canister calls. Call.httpRequest
+    // computes the exact amount from the request size and max_response_bytes
+    // and attaches it. Prefer this over a hand-picked figure: attached cycles
+    // are held for the duration of the call, so an arbitrary margin caps how
+    // many outcalls the canister can have in flight.
+    let response = await Call.httpRequest(request);
 
     // postman-echo.com echoes back the request data as JSON, letting you
     // verify the POST body and headers were sent correctly.
