@@ -1,5 +1,5 @@
 import Array "mo:core/Array";
-import Blob "mo:core/Blob";
+import Iter "mo:core/Iter";
 import Debug "mo:core/Debug";
 import Hex "mo:hex";
 import Result "mo:core/Result";
@@ -47,7 +47,7 @@ actor IcpTransfer {
   // Convert a principal and optional subaccount to its AccountIdentifier as a
   // lowercase hex string — the format shown in block explorers and CEX deposit screens.
   public query func toAccountIdHex(p : Principal, subaccount : ?IcpLedger.SubAccount) : async Text {
-    let bytes = Array.fromIter(p.toLedgerAccount(subaccount).vals());
+    let bytes = p.toLedgerAccount(subaccount).vals().toArray();
     Hex.toText(bytes);
   };
 
@@ -74,7 +74,7 @@ actor IcpTransfer {
         if (bytes.size() != 32) {
           return #err("AccountIdentifier must be 32 bytes (64 hex chars), got " # debug_show(bytes.size()));
         };
-        await doTransfer(amount, Blob.fromArray(bytes));
+        await doTransfer(amount, bytes.toBlob());
       };
     };
   };

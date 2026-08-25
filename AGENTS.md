@@ -257,7 +257,7 @@ mops check          # type-check all canister entry points
 mops check --fix    # auto-fix style warnings (M0236, M0237, M0223)
 ```
 
-`--default-persistent-actors` makes the **main actor** persistent by default, so the `persistent` keyword is omitted on the top-level `actor` declaration. `persistent actor class` declarations holding mutable state must still carry the keyword explicitly — the flag does not propagate into actor class sub-WASMs.
+`--default-persistent-actors` makes every actor persistent by default, including spawned `actor class` sub-WASMs — so the `persistent` keyword is omitted everywhere: on the top-level `actor` declaration and on `actor class` declarations alike (verified with `moc` 1.14.1: an `actor class` holding mutable `var` fields compiles and preserves state across `#upgrade` without the keyword, under this flag). If `moc` warns `M0217` ("the `persistent` keyword is redundant") on an `actor class`, remove it rather than keeping it "to be safe" — it is genuinely redundant.
 
 ### Naming
 

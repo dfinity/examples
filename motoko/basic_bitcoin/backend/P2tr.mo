@@ -16,7 +16,7 @@
 import Debug "mo:core/Debug";
 import Runtime "mo:core/Runtime";
 import Array "mo:core/Array";
-import Nat8 "mo:core/Nat8";
+import Nat "mo:core/Nat";
 import Nat32 "mo:core/Nat32";
 import Nat64 "mo:core/Nat64";
 import Blob "mo:core/Blob";
@@ -103,7 +103,7 @@ module {
         var total_fee : Nat = 0;
 
         loop {
-            let transaction = Utils.get_ok_expect(Bitcoin.buildTransaction(2, own_utxos, [(dst_address_typed, amount)], #p2tr_key own_address, Nat64.fromNat(total_fee)), "Error building transaction.");
+            let transaction = Utils.get_ok_expect(Bitcoin.buildTransaction(2, own_utxos, [(dst_address_typed, amount)], #p2tr_key own_address, total_fee.toNat64()), "Error building transaction.");
             let tx_in_outpoints = transaction.txInputs.map(func(txin : TxInput.TxInput) : Types.OutPoint { txin.prevOutput });
 
             let amounts = own_utxos.filterMap(
@@ -169,7 +169,7 @@ module {
                         Nat32.fromIntWrap(i),
                     );
 
-                    let signature = (await signer(key_name, derivation_path, Blob.fromArray(sighash), aux)).toArray();
+                    let signature = (await signer(key_name, derivation_path, sighash.toBlob(), aux)).toArray();
                     transaction.witnesses[i] := [signature];
                 };
             };
@@ -226,7 +226,7 @@ module {
 
                     Debug.print("Signing sighash: " # debug_show (sighash));
 
-                    let signature = (await signer(key_name, derivation_path, Blob.fromArray(sighash), null)).toArray();
+                    let signature = (await signer(key_name, derivation_path, sighash.toBlob(), null)).toArray();
                     transaction.witnesses[i] := [signature, script_bytes, control_block_bytes];
                 };
             };
@@ -248,7 +248,7 @@ module {
         let leaf_script = Utils.get_ok(leafScript(script_bip340_public_key));
         let aux =
         #bip341({
-            merkle_root_hash = Blob.fromArray(leafHash(leaf_script));
+            merkle_root_hash = leafHash(leaf_script).toBlob();
         });
 
         await send_key_path_generic(own_tweaked_address, network, derivation_paths.key_path_derivation_path, key_name, ?aux, dst_address, amount);
@@ -293,7 +293,7 @@ module {
             },
         );
 
-        let signed_transaction_bytes = await sign_key_spend_transaction(own_address, transaction, amounts, key_name, signer_derivation_path.map(Blob.fromArray), aux, SchnorrApi.sign_with_schnorr);
+        let signed_transaction_bytes = await sign_key_spend_transaction(own_address, transaction, amounts, key_name, signer_derivation_path.map(Array.toBlob), aux, SchnorrApi.sign_with_schnorr);
 
         Debug.print("Sending transaction : " # debug_show (signed_transaction_bytes));
         let signed_transaction = Utils.get_ok(Transaction.fromBytes(signed_transaction_bytes.vals()));
@@ -359,7 +359,7 @@ module {
             transaction,
             amounts,
             key_name,
-            derivation_paths.script_path_derivation_path.map(Blob.fromArray),
+            derivation_paths.script_path_derivation_path.map(Array.toBlob),
             SchnorrApi.sign_with_schnorr,
         );
 
@@ -413,7 +413,7 @@ module {
     };
 
     public func fetch_bip340_public_key(key_name : Text, derivation_path : [[Nat8]]) : async [Nat8] {
-        let sec1_public_key = (await SchnorrApi.schnorr_public_key(key_name, derivation_path.map(Blob.fromArray))).toArray();
+        let sec1_public_key = (await SchnorrApi.schnorr_public_key(key_name, derivation_path.map(Array.toBlob))).toArray();
         sec1_public_key.sliceToArray(1, 33);
     };
 };

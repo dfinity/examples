@@ -1,12 +1,13 @@
 import Error "mo:core/Error";
 import Principal "mo:core/Principal";
 import Text "mo:core/Text";
+import Array "mo:core/Array";
 import Blob "mo:core/Blob";
 import Hex "./Hex";
 import SHA256 "./SHA256";
 import { ic } "mo:ic";
 
-persistent actor ThresholdEcdsa {
+actor ThresholdEcdsa {
   transient let key_id : Text = "test_key_1"; // Use "key_1" for mainnet production
 
   public shared (msg) func public_key() : async {
@@ -32,7 +33,7 @@ persistent actor ThresholdEcdsa {
   } {
     let caller = msg.caller.toBlob();
     try {
-      let message_hash : Blob = Blob.fromArray(SHA256.sha256(message.encodeUtf8().toArray()));
+      let message_hash : Blob = SHA256.sha256(message.encodeUtf8().toArray()).toBlob();
       let { signature } = await (with cycles = 30_000_000_000) ic.sign_with_ecdsa({
         message_hash;
         derivation_path = [caller];

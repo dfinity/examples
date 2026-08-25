@@ -93,7 +93,7 @@ actor class Main(_startBlock : Nat) {
     // Left-pad the fractional digits to `tokenDecimals`, then drop trailing zeros.
     var fracText = frac.toText();
     while (fracText.size() < tokenDecimals) { fracText := "0" # fracText };
-    whole # "." # Text.trimEnd(fracText, #char '0') # " " # tokenSymbol;
+    whole # "." # fracText.trimEnd(#char '0') # " " # tokenSymbol;
   };
 
   // Scan for new transactions and log a would-be notification for each payment

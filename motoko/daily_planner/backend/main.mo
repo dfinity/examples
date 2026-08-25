@@ -1,5 +1,4 @@
 import Array "mo:core/Array";
-import Blob "mo:core/Blob";
 import Iter "mo:core/Iter";
 import Option "mo:core/Option";
 import Text "mo:core/Text";
@@ -11,7 +10,7 @@ import { thash } "mo:map/Map";
 import { ic } "mo:ic";
 import IC "mo:ic/Types";
 
-persistent actor DailyPlanner {
+actor DailyPlanner {
   // General types used by the planner
   public type Note = {
     id : Nat;
@@ -131,7 +130,7 @@ persistent actor DailyPlanner {
         method = #get;
         transform = ?{
           function = transform;
-          context = Blob.fromArray([]);
+          context = ([] : [Nat8]).toBlob();
         };
         is_replicated = ?true;
       };
@@ -186,7 +185,7 @@ persistent actor DailyPlanner {
 
   // Transforms the raw HTTPS call response to an HttpResponsePayload on which the nodes can run consensus on.
   public query func transform({
-    context : Blob;
+    context = _context : Blob;
     response : IC.HttpRequestResult;
   }) : async IC.HttpRequestResult {
     {

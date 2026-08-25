@@ -11,7 +11,7 @@
 import Debug "mo:core/Debug";
 import Runtime "mo:core/Runtime";
 import Array "mo:core/Array";
-import Nat8 "mo:core/Nat8";
+import Nat "mo:core/Nat";
 import Nat32 "mo:core/Nat32";
 import Nat64 "mo:core/Nat64";
 import Blob "mo:core/Blob";
@@ -48,7 +48,7 @@ module {
     /// Returns the P2PKH address of this canister at the given derivation path.
     public func get_address(network : Network, key_name : Text, derivation_path : [[Nat8]]) : async BitcoinAddress {
         // Fetch the public key of the given derivation path.
-        let public_key = await EcdsaApi.ecdsa_public_key(key_name, derivation_path.map(Blob.fromArray));
+        let public_key = await EcdsaApi.ecdsa_public_key(key_name, derivation_path.map(Array.toBlob));
 
         // Compute the address.
         public_key_to_p2pkh_address(network, public_key.toArray());
@@ -72,7 +72,7 @@ module {
         };
 
         // Fetch our public key, P2PKH address, and UTXOs.
-        let own_public_key = (await EcdsaApi.ecdsa_public_key(key_name, derivation_path.map(Blob.fromArray))).toArray();
+        let own_public_key = (await EcdsaApi.ecdsa_public_key(key_name, derivation_path.map(Array.toBlob))).toArray();
         let own_address = public_key_to_p2pkh_address(network, own_public_key);
 
         // Note that pagination may have to be used to get all UTXOs for the given address.
@@ -82,11 +82,11 @@ module {
 
         // Build the transaction that sends `amount` to the destination address.
         let tx_bytes = await build_transaction(own_public_key, own_address, own_utxos, dst_address, amount, fee_per_vbyte);
-        let transaction = Utils.get_ok(Transaction.fromBytes(tx_bytes.vals()));
+        let transaction = Utils.get_ok(Transaction.fromBytes(tx_bytes.values()));
 
         // Sign the transaction.
-        let signed_transaction_bytes = await sign_transaction(own_public_key, own_address, transaction, key_name, derivation_path.map(Blob.fromArray), EcdsaApi.sign_with_ecdsa);
-        let signed_transaction = Utils.get_ok(Transaction.fromBytes(signed_transaction_bytes.vals()));
+        let signed_transaction_bytes = await sign_transaction(own_public_key, own_address, transaction, key_name, derivation_path.map(Array.toBlob), EcdsaApi.sign_with_ecdsa);
+        let signed_transaction = Utils.get_ok(Transaction.fromBytes(signed_transaction_bytes.values()));
 
         Debug.print("Sending transaction");
         await BitcoinApi.send_transaction(network, signed_transaction_bytes);
@@ -118,7 +118,7 @@ module {
         Debug.print("Building transaction...");
         var total_fee : Nat = 0;
         loop {
-            let transaction = Utils.get_ok_expect(Bitcoin.buildTransaction(2, own_utxos, [(dst_address_typed, amount)], #p2pkh own_address, Nat64.fromNat(total_fee)), "Error building transaction.");
+            let transaction = Utils.get_ok_expect(Bitcoin.buildTransaction(2, own_utxos, [(dst_address_typed, amount)], #p2pkh own_address, total_fee.toNat64()), "Error building transaction.");
 
             // Sign the transaction. We only care about the size of the signed
             // transaction for fee estimation, so we use a mock signer here for efficiency.
@@ -171,7 +171,7 @@ module {
                         SIGHASH_ALL,
                     );
 
-                    let signature_sec = await signer(key_name, derivation_path, Blob.fromArray(sighash));
+                    let signature_sec = await signer(key_name, derivation_path, sighash.toBlob());
                     let signature_der = Der.encodeSignature(signature_sec).toArray();
 
                     // Append the sighash type.
@@ -181,7 +181,7 @@ module {
                             if (n < signature_der.size()) {
                                 signature_der[n];
                             } else {
-                                Nat8.fromNat(SIGHASH_ALL.toNat());
+                                SIGHASH_ALL.toNat().toNat8();
                             };
                         },
                     );

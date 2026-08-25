@@ -33,11 +33,11 @@ actor {
     var cs = PureList.empty<(Nat, Nat)>();
     if (i > 1 and not visited(m[i - 2][j]))
       // The <(Nat,Nat)> type annotation is not required, but it can silence the underflow warning for i - 2
-      cs := cs.pushFront<(Nat, Nat)>((i - 2, j));
+      cs := cs.pushFront((i - 2, j));
     if (i + 1 < max and not visited(m[i + 2][j]))
       cs := cs.pushFront((i + 2, j));
     if (j > 1 and not visited(m[i][j - 2]))
-      cs := cs.pushFront<(Nat, Nat)>((i, j - 2));
+      cs := cs.pushFront((i, j - 2));
     if (j + 1 < max and not visited(m[i][j + 2]))
       cs := cs.pushFront((i, j + 2));
     cs;

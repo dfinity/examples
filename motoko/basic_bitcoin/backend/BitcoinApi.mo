@@ -1,5 +1,5 @@
+import Array "mo:core/Array";
 import Types "Types";
-import Blob "mo:core/Blob";
 
 module {
   type Network = Types.Network;
@@ -116,7 +116,7 @@ module {
     let cost = 5_000_000_000 + transaction.size() * 20_000_000;
     await (with cycles = cost) bitcoinCanister(network).bitcoin_send_transaction({
       network;
-      transaction = Blob.fromArray(transaction);
+      transaction = transaction.toBlob();
     });
   };
 }

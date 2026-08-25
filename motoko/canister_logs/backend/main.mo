@@ -6,7 +6,7 @@ import { now } = "mo:core/Time";
 import { setTimer; recurringTimer } = "mo:core/Timer";
 import { ic } "mo:ic";
 
-persistent actor CanisterLogs {
+actor CanisterLogs {
 
   transient let timerDelaySeconds = 5;
   transient let second = 1_000_000_000;

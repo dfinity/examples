@@ -38,11 +38,11 @@ module {
    * Encode an array of unsigned 8-bit integers in hexadecimal format.
    */
   public func encode(array : [Nat8]) : Text {
-    let encoded = Array.foldLeft<Nat8, Text>(array, "", func (accum, w8) {
+    let encoded = array.foldLeft("", func (accum, w8) {
       accum # encodeW8(w8);
     });
     // encode as lowercase
-    return Text.map(encoded, Prim.charToLower);
+    return encoded.map(Prim.charToLower);
   };
 
   /**
@@ -51,7 +51,7 @@ module {
   private func encodeW8(w8 : Nat8) : Text {
     let c1 = symbols[Nat8.toNat(w8 / base)];
     let c2 = symbols[Nat8.toNat(w8 % base)];
-    Char.toText(c1) # Char.toText(c2);
+    c1.toText() # c2.toText();
   };
 
   /**
@@ -59,15 +59,15 @@ module {
    */
   public func decode(text : Text) : Result<[Nat8], DecodeError> {
     // Transform to uppercase for uniform decoding
-    let upper = Text.map(text, Prim.charToUpper);
+    let upper = text.map(Prim.charToUpper);
     let next = upper.chars().next;
     func parse() : Result<Nat8, DecodeError> {
-      Option.get<Result<Nat8, DecodeError>>(
+      Option.get(
         do ? {
           let c1 = next()!;
           let c2 = next()!;
-          Result.chain<Nat8, Nat8, DecodeError>(decodeW4(c1), func (x1) {
-            Result.chain<Nat8, Nat8, DecodeError>(decodeW4(c2), func (x2) {
+          decodeW4(c1).chain(func (x1) {
+            decodeW4(c2).chain(func (x2) {
                 #ok (x1 * base + x2);
             })
           })
@@ -89,7 +89,7 @@ module {
         };
       };
     };
-    #ok (Array.fromVarArray<Nat8>(array));
+    #ok (array.toArray());
   };
 
   /**
@@ -98,10 +98,10 @@ module {
   private func decodeW4(char : Char) : Result<Nat8, DecodeError> {
     for (i in Nat.range(0, 16)) {
       if (symbols[i] == char) {
-        return #ok (Nat8.fromNat(i));
+        return #ok (i.toNat8());
       };
     };
-    let str = "Unexpected character: " # Char.toText(char);
+    let str = "Unexpected character: " # char.toText();
     #err (#msg str);
   };
 };

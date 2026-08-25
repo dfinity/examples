@@ -1,25 +1,13 @@
 [toolchain]
-moc = "1.11.0"
+moc = "1.14.1"
 
 [dependencies]
-core = "2.5.0"
+core = "2.6.1"
 
 [moc]
-# M0236: use context dot notation
-# M0237: redundant explicit implicit arguments
-# M0223: redundant type instantiation
-args = ["--default-persistent-actors", "-W=M0236,M0237,M0223"]
+args = [ "--default-persistent-actors", "-W=M0236,M0237,M0223" ]
 
 [canisters.backend]
 main = "backend/main.mo"
 candid = "backend/backend.did"
-# --actor-env-alias <alias> <envvar> <did-path>: resolve the `canister:evm_rpc`
-# import from the PUBLIC_CANISTER_ID:evm_rpc env var (injected by icp deploy),
-# typed against the EVM RPC canister's committed Candid interface — so no RPC
-# actor type is declared in the backend.
-# Per-canister args replace the global [moc].args, so repeat those flags here.
-args = [
-    "--default-persistent-actors",
-    "-W=M0236,M0237,M0223",
-    "--actor-env-alias", "evm_rpc", "PUBLIC_CANISTER_ID:evm_rpc", "candid/evm_rpc.did",
-]
+args = [ "--default-persistent-actors", "-W=M0236,M0237,M0223", "--actor-env-alias", "evm_rpc", "PUBLIC_CANISTER_ID:evm_rpc", "candid/evm_rpc.did" ]

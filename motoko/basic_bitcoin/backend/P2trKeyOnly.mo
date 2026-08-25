@@ -10,8 +10,7 @@
 //! * Caching spent UTXOs so that they are not reused in future transactions.
 //! * Option to set the fee.
 
-import Nat8 "mo:core/Nat8";
-import Blob "mo:core/Blob";
+import Array "mo:core/Array";
 
 import Script "mo:bitcoin/bitcoin/Script";
 import Transaction "mo:bitcoin/bitcoin/Transaction";
@@ -38,7 +37,7 @@ module {
     let untweaked_bip340_public_key_bytes = await P2tr.fetch_bip340_public_key(key_name, derivation_path);
     let aux =
     #bip341({
-      merkle_root_hash = Blob.fromArray(P2tr.unspendableMerkleRoot(untweaked_bip340_public_key_bytes));
+      merkle_root_hash = P2tr.unspendableMerkleRoot(untweaked_bip340_public_key_bytes).toBlob();
     });
     await P2tr.send_key_path_generic(own_address, network, derivation_path, key_name, ?aux, dst_address, amount);
   };

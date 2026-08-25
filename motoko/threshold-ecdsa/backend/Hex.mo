@@ -1,5 +1,7 @@
 import Array "mo:core/Array";
+import VarArray "mo:core/VarArray";
 import Option "mo:core/Option";
+import Nat "mo:core/Nat";
 import Nat8 "mo:core/Nat8";
 import Char "mo:core/Char";
 import Result "mo:core/Result";
@@ -63,13 +65,13 @@ module {
         };
       };
     };
-    #ok(Array.fromVarArray(array));
+    #ok(array.toArray());
   };
 
   private func decodeW4(char : Char) : Result<Nat8, DecodeError> {
     for (i in symbols.keys()) {
       if (symbols[i] == char) {
-        return #ok(Nat8.fromNat(i));
+        return #ok(i.toNat8());
       };
     };
     let str = "Unexpected character: " # char.toText();

@@ -3,7 +3,7 @@ import Principal "mo:core/Principal";
 import Time "mo:core/Time";
 import { ic } "mo:ic";
 
-persistent actor QueryStats {
+actor QueryStats {
 
   public query func load() : async Int {
     Time.now();
