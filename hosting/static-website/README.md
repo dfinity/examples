@@ -21,20 +21,7 @@ static-website
         └── index.html
 ```
 
-The `icp.yaml` file is a configuration file that specifies the canister used for the dapp. In this case only one canister is needed.
-
-```yaml
-canisters:
-  - name: frontend
-    recipe:
-      type: "@dfinity/asset-canister@v2.1.0"
-      configuration:
-        dir: dist
-        build:
-          - mkdir -p dist
-          - cp -r frontend/assets/* dist/
-          - cp -r frontend/src/* dist/
-```
+[`icp.yaml`](icp.yaml) is the icp-cli project file. It defines the single canister this dapp needs — a `frontend` canister on the `@dfinity/static-site` recipe — together with the build steps that assemble the site into `dist/`.
 
 ## Prerequisites
 
@@ -63,10 +50,10 @@ Deploy the canisters:
 icp deploy
 ```
 
-The URL for the frontend depends on the canister ID. When deployed, the URL will look like this:
+`icp deploy` prints the frontend URL. On the local network it is derived from the canister name:
 
 ```
-http://{canister_id}.localhost:8000
+http://frontend.local.localhost:8000
 ```
 
 Stop the local network when done:

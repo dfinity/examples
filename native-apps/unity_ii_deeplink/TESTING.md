@@ -25,8 +25,8 @@ Confirms the II login and double-delegation logic work. Does **not** test the Un
 ```bash
 icp network start -d
 icp deploy
-# Open the II bridge URL printed by icp deploy in a browser, e.g.:
-#   http://bkyz2-fmaaa-aaaaa-qaaaq-cai.localhost:8000
+# Open the II bridge URL printed by icp deploy in a browser:
+#   http://ii-bridge.local.localhost:8000
 ```
 
 **Steps and expected results:**
