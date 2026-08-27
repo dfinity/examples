@@ -1,4 +1,4 @@
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig } from "vite";
 import { execSync } from "child_process";
 import react from "@vitejs/plugin-react";
 import { icpBindgen } from "@icp-sdk/bindgen/plugins/vite";
@@ -33,8 +33,7 @@ function getDevServerConfig() {
   );
 }
 
-export default defineConfig(({ command, mode }) => {
-  const env = loadEnv(mode, "..", ["CANISTER_"]);
+export default defineConfig(({ command }) => {
   const devConfig = command === "serve" ? getDevServerConfig() : undefined;
 
   return {
@@ -47,9 +46,6 @@ export default defineConfig(({ command, mode }) => {
       }),
     ],
     define: {
-      "process.env.CANISTER_ID_BACKEND": JSON.stringify(
-        env.CANISTER_ID_BACKEND
-      ),
       "process.env.REPLICA_PORT": JSON.stringify(devConfig?.replicaPort ?? ""),
     },
     optimizeDeps: {

@@ -1,9 +1,8 @@
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig } from "vite";
 import { execSync } from "child_process";
 import { icpBindgen } from "@icp-sdk/bindgen/plugins/vite";
 
 function getDevServerConfig() {
-  // Try icp-cli first
   try {
     const canisterId = execSync("icp canister status backend -e local -i", {
       encoding: "utf-8",
@@ -32,9 +31,7 @@ function getDevServerConfig() {
   );
 }
 
-export default defineConfig(({ command, mode }) => {
-  const env = loadEnv(mode, "..", ["CANISTER_"]);
-
+export default defineConfig(({ command }) => {
   return {
     base: "./",
     plugins: [
@@ -43,11 +40,6 @@ export default defineConfig(({ command, mode }) => {
         outDir: "./src/bindings",
       }),
     ],
-    define: {
-      "process.env.CANISTER_ID_BACKEND": JSON.stringify(
-        env.CANISTER_ID_BACKEND
-      ),
-    },
     optimizeDeps: {
       esbuildOptions: { define: { global: "globalThis" } },
     },
