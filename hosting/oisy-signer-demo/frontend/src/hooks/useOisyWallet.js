@@ -20,7 +20,9 @@ const oisySigner = new Signer({
 async function initFromPrincipal(principalText) {
   const principal = Principal.fromText(principalText);
   const accountIdentifier = AccountIdentifier.fromPrincipal({ principal });
-  const defaultAgent = await HttpAgent.create({ host: 'https://icp0.io' });
+  // `host` is the API endpoint calls go to, not the gateway the app is served
+  // from. Mainnet API boundary nodes live at icp-api.io.
+  const defaultAgent = await HttpAgent.create({ host: 'https://icp-api.io' });
   return { principal, accountIdentifier, defaultAgent };
 }
 

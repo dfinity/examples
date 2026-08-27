@@ -2,7 +2,7 @@
   X-Frame-Options: DENY
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
-  Content-Security-Policy: default-src 'self';script-src 'self' 'unsafe-eval';connect-src 'self' https://icp0.io https://*.icp0.io;img-src 'self' data:;style-src * 'unsafe-inline';style-src-elem * 'unsafe-inline';font-src *;object-src 'none';base-uri 'self';frame-ancestors 'none';form-action 'self';upgrade-insecure-requests;
+  Content-Security-Policy: default-src 'self';script-src 'self' 'unsafe-eval';connect-src 'self' https://icp.net https://*.icp.net;img-src 'self' data:;style-src * 'unsafe-inline';style-src-elem * 'unsafe-inline';font-src *;object-src 'none';base-uri 'self';frame-ancestors 'none';form-action 'self';upgrade-insecure-requests;
 
 # Fingerprinted build assets never change - cache them hard
 /assets/*

@@ -38,7 +38,7 @@ Select the `AgentAndPlugin` GameObject in the scene hierarchy and set these fiel
 
 | Field | Local (emulator) | Mainnet |
 |-------|-----------------|---------|
-| `Ii Bridge Url` | `http://ii-bridge.local.localhost:8000` | `https://<ii-bridge-canister-id>.icp0.io` |
+| `Ii Bridge Url` | `http://ii-bridge.local.localhost:8000` | `https://<ii-bridge-canister-id>.icp.net` |
 | `Greet Backend Canister` | output of `icp canister status backend -i` | output of `icp canister status backend -i -e ic` |
 | `Ic Gateway` | `http://localhost:8000` | `https://icp-api.io` (default) |
 
