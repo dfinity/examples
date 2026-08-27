@@ -2,7 +2,7 @@
 
 Frontend-only examples that run entirely on the Internet Computer — static sites, web apps, and game builds served on-chain with no custom backend. Each example is self-contained: follow its README to deploy it locally with `icp-cli`.
 
-These examples use the `@dfinity/static-site` recipe, which deploys the [certified-assets canister](https://github.com/dfinity/certified-assets) — the successor of the legacy [asset canister](https://docs.internetcomputer.org/guides/frontends/asset-canister) going forward, adding response certification, clean-URL canonicalization, and `_headers`/`_redirects` configuration.
+These examples use the `@dfinity/static-site` recipe, which deploys the [certified-assets canister](https://github.com/dfinity/certified-assets) — the successor to the dfx-era asset canister, adding response certification, clean-URL canonicalization, and `_headers`/`_redirects` configuration.
 
 **New to ICP?** Start with [`static-website`](static-website/), the smallest possible deployment, then [`react`](react/) for a typical single-page app setup.
 

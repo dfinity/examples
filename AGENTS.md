@@ -222,7 +222,7 @@ Frontends use the `@dfinity/static-site` recipe (the certified-assets canister).
   ```
 - `_redirects` — SPA fallback so deep-link reloads don't 404: `/*  /index.html  200` (a `200` rewrite, not a redirect).
 
-Do **not** use `.ic-assets.json5` — that is the legacy asset-canister config; certified-assets ignores it (it gets served as a dead asset). No HSTS in the baseline: `_headers` apply in local dev too, and a canister-served `Strict-Transport-Security` would force HTTPS on `http://…localhost`. Consult the `static-site` skill before changing these (reserved-header list, `_headers` matches the asset key not the URL, etc.).
+Do **not** use `.ic-assets.json5` — that is the dfx-era asset-canister config; certified-assets ignores it (it gets served as a dead asset). Don't confuse the two canisters when reading source: the retired one is [`dfinity/sdk/src/canisters/frontend`](https://github.com/dfinity/sdk/tree/master/src/canisters/frontend) — whose crate is *also* called `ic-certified-assets` — while the one this repo uses is the separate [`dfinity/certified-assets`](https://github.com/dfinity/certified-assets) repo. No HSTS in the baseline: `_headers` apply in local dev too, and a canister-served `Strict-Transport-Security` would force HTTPS on `http://…localhost`. Consult the `static-site` skill before changing these (reserved-header list, `_headers` matches the asset key not the URL, etc.).
 
 ---
 
