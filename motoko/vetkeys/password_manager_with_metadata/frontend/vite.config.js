@@ -31,7 +31,7 @@ function getDevServerConfig() {
     } catch {}
 
     throw new Error(
-        "No local network running. Start with:\n  icp network start -d && icp deploy"
+        "No local network running, or 'backend' is not deployed yet. Run:\n  icp network start -d && icp deploy"
     );
 }
 
