@@ -21,11 +21,21 @@ export default defineConfig(({ command }) => {
   const environment = process.env.ICP_ENVIRONMENT || "local";
   const CANISTER_NAME = "backend";
 
-  const networkStatus = JSON.parse(
-    execSync(`icp network status -e ${environment} --json`, {
-      encoding: "utf-8",
-    })
-  );
+  let networkStatus;
+  try {
+    networkStatus = JSON.parse(
+      execSync(`icp network status -e ${environment} --json`, {
+        encoding: "utf-8",
+        stdio: "pipe",
+      })
+    );
+  } catch {
+    console.error(
+      `No local network running for environment "${environment}". Start it and deploy first:\n` +
+        "  icp network start -d && icp deploy"
+    );
+    process.exit(1);
+  }
   const rootKey = networkStatus.root_key;
   const proxyTarget = networkStatus.api_url;
 
@@ -33,16 +43,13 @@ export default defineConfig(({ command }) => {
   try {
     canisterId = execSync(
       `icp canister status ${CANISTER_NAME} -e ${environment} -i`,
-      { encoding: "utf-8" }
+      { encoding: "utf-8", stdio: "pipe" }
     ).trim();
   } catch {
-    console.error(`
-     Backend canister "${CANISTER_NAME}" not found in environment "${environment}"
-
-     Before running the dev server, deploy the backend canister:
-
-       icp deploy ${CANISTER_NAME} -e ${environment}
-    `);
+    console.error(
+      `Canister "${CANISTER_NAME}" is not deployed in environment "${environment}". Deploy it first:\n` +
+        `  icp deploy ${CANISTER_NAME} -e ${environment}`
+    );
     process.exit(1);
   }
 
