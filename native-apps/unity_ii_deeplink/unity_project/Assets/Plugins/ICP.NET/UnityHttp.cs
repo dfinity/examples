@@ -40,7 +40,7 @@ public class UnityHttpClient : IHttpClient
             return absolute;
         if (!url.StartsWith("/"))
             url = "/" + url;
-        return new Uri("https://ic0.app" + url);
+        return new Uri("https://icp.net" + url);
     }
 
     private static HttpResponse ParseResponse(UnityWebRequest request)

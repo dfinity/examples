@@ -152,7 +152,7 @@ Change the scheme constants and add `pathPrefix` and `autoVerify`:
 
 ```csharp
 const string kAndroidScheme = "https";
-const string kAndroidHost = "<your-canister-id>.icp0.io";
+const string kAndroidHost = "<your-canister-id>.icp.net";
 ```
 
 In `AppendAndroidIntentFilter`, add `autoVerify` to the intent filter and `pathPrefix` to the data node:
@@ -189,10 +189,10 @@ The static-site canister uploads `.well-known/` automatically and serves `assetl
 **4. Update the callback URL in `ii-bridge/src/main.js`:**
 
 ```js
-const url = "https://<your-canister-id>.icp0.io/authorize#delegation=" + ...
+const url = "https://<your-canister-id>.icp.net/authorize#delegation=" + ...
 ```
 
-After redeployment, Android verifies `assetlinks.json` during app install. The OS routes `https://<your-canister-id>.icp0.io/authorize#delegation=…` exclusively to your app without showing a chooser dialog.
+After redeployment, Android verifies `assetlinks.json` during app install. The OS routes `https://<your-canister-id>.icp.net/authorize#delegation=…` exclusively to your app without showing a chooser dialog.
 
 ### iOS Universal Links (HTTPS, mainnet only)
 
@@ -213,7 +213,7 @@ using UnityEditor.iOS.Xcode;
 
 public class iOSPostBuildProcessor
 {
-    const string kDomain = "<your-canister-id>.icp0.io";
+    const string kDomain = "<your-canister-id>.icp.net";
 
     [PostProcessBuild]
     public static void OnPostprocessBuild(BuildTarget buildTarget, string path)
@@ -270,15 +270,15 @@ Find your Team ID in the Apple Developer portal. Bundle ID is the one set in Uni
   Content-Type: application/json
 ```
 
-After redeployment, verify with `curl -I https://<canister-id>.icp0.io/.well-known/apple-app-site-association` (expect `content-type: application/json`).
+After redeployment, verify with `curl -I https://<canister-id>.icp.net/.well-known/apple-app-site-association` (expect `content-type: application/json`).
 
 **5. Update the callback URL in `ii-bridge/src/main.js`:**
 
 ```js
-const url = "https://<your-canister-id>.icp0.io/authorize#delegation=" + ...
+const url = "https://<your-canister-id>.icp.net/authorize#delegation=" + ...
 ```
 
-After redeployment, iOS verifies the AASA file at app install time. The OS routes `https://<your-canister-id>.icp0.io/authorize#delegation=…` directly to your app — no other app can intercept it.
+After redeployment, iOS verifies the AASA file at app install time. The OS routes `https://<your-canister-id>.icp.net/authorize#delegation=…` directly to your app — no other app can intercept it.
 
 ## Updating the Candid interface
 

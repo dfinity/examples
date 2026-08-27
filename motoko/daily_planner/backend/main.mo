@@ -136,7 +136,7 @@ actor DailyPlanner {
       };
 
       // Perform HTTPS outcall using roughly 100B cycles.
-      // See https outcall cost calculator: https://7joko-hiaaa-aaaal-ajz7a-cai.icp0.io.
+      // See https outcall cost calculator: https://7joko-hiaaa-aaaal-ajz7a-cai.icp.net.
       // Unused cycles are returned.
       let http_response : IC.HttpRequestResult = await (with cycles = 100_000_000_000) ic.http_request(http_request);
 
