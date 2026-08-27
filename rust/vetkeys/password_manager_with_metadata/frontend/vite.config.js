@@ -18,11 +18,17 @@ function getDevServerConfig() {
         stdio: "pipe",
       })
     );
-  } catch {
-    console.error(
-      `No network running for environment "${ENVIRONMENT}". Start it and deploy first:\n` +
-        "  icp network start -d && icp deploy"
-    );
+  } catch (error) {
+    if (String(error.stderr).includes("does not contain an environment named")) {
+      console.error(
+        `Unknown environment "${ENVIRONMENT}". Check ICP_ENVIRONMENT against the environments in icp.yaml.`
+      );
+    } else {
+      console.error(
+        `No network running for environment "${ENVIRONMENT}". Start it and deploy first:\n` +
+          `  icp network start -d -e ${ENVIRONMENT} && icp deploy -e ${ENVIRONMENT}`
+      );
+    }
     process.exit(1);
   }
 
