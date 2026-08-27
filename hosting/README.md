@@ -2,7 +2,7 @@
 
 Frontend-only examples that run entirely on the Internet Computer — static sites, web apps, and game builds served on-chain with no custom backend. Each example is self-contained: follow its README to deploy it locally with `icp-cli`.
 
-These examples use the `@dfinity/static-site` recipe, which deploys the [certified-assets canister](https://github.com/dfinity/certified-assets) — the successor of the legacy [asset canister](https://docs.internetcomputer.org/guides/frontends/asset-canister) going forward, adding response certification, clean-URL canonicalization, and `_headers`/`_redirects` configuration. The one deliberate exception is [`photo-storage`](photo-storage/): it demonstrates programmatic uploads via `AssetManager`, an API only the legacy asset canister provides.
+These examples use the `@dfinity/static-site` recipe, which deploys the [certified-assets canister](https://github.com/dfinity/certified-assets) — the successor to the dfx-era asset canister, adding response certification, clean-URL canonicalization, and `_headers`/`_redirects` configuration.
 
 **New to ICP?** Start with [`static-website`](static-website/), the smallest possible deployment, then [`react`](react/) for a typical single-page app setup.
 
@@ -12,7 +12,6 @@ Prerequisites and dev-container setup are covered in the [repository README](../
 
 - [`static-website`](static-website/) — deploy a plain HTML/CSS website on ICP.
 - [`react`](react/) — a minimal React single-page application hosted fully on-chain.
-- [`photo-storage`](photo-storage/) — store and manage photos programmatically with `AssetManager` from `@icp-sdk/canisters/assets` (runs on the legacy asset canister).
 - [`godot-html5-template`](godot-html5-template/) — deploy a Godot HTML5 game build.
 - [`unity-webgl-template`](unity-webgl-template/) — deploy a Unity WebGL game build.
 - [`oisy-signer-demo`](oisy-signer-demo/) — connect to the OISY wallet signer, fetch token balances, and perform ICRC transfers.
