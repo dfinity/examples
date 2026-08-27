@@ -42,10 +42,10 @@ Deploy the canister:
 icp deploy
 ```
 
-The URL for the frontend depends on the canister ID. When deployed, the URL will look like this:
+`icp deploy` prints the frontend URL. On the local network it is derived from the canister name:
 
 ```
-http://{canister_id}.localhost:8000
+http://frontend.local.localhost:8000
 ```
 
 Stop the local network when done:
