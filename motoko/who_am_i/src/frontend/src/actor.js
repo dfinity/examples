@@ -3,9 +3,7 @@ import { createActor } from "./bindings/backend";
 
 const canisterEnv = safeGetCanisterEnv();
 
-const canisterId =
-  canisterEnv?.["PUBLIC_CANISTER_ID:backend"] ??
-  process.env.CANISTER_ID_BACKEND;
+const canisterId = canisterEnv?.["PUBLIC_CANISTER_ID:backend"];
 
 if (!canisterId) {
   throw new Error(

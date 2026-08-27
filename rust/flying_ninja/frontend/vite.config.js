@@ -1,71 +1,61 @@
-import { defineConfig, loadEnv } from "vite";
+import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { execSync } from "child_process";
 import { icpBindgen } from "@icp-sdk/bindgen/plugins/vite";
 
+const CANISTER_NAME = "backend";
+const ENVIRONMENT = process.env.ICP_ENVIRONMENT || "local";
+
 function getDevServerConfig() {
-  // Try icp-cli first
+  let networkStatus;
   try {
-    const canisterId = execSync("icp canister status backend -e local -i", {
-      encoding: "utf-8",
-      stdio: "pipe",
-    }).trim();
-    const networkStatus = JSON.parse(
-      execSync("icp network status --json", {
+    networkStatus = JSON.parse(
+      execSync(`icp network status -e ${ENVIRONMENT} --json`, {
         encoding: "utf-8",
         stdio: "pipe",
       })
     );
-    return {
-      headers: {
-        "Set-Cookie": `ic_env=${encodeURIComponent(
-          `ic_root_key=${networkStatus.root_key}&PUBLIC_CANISTER_ID:backend=${canisterId}`
-        )}; SameSite=Lax;`,
-      },
-      proxy: {
-        "/api": { target: "http://127.0.0.1:8000", changeOrigin: true },
-      },
-    };
-  } catch {}
+  } catch (error) {
+    if (String(error.stderr).includes("does not contain an environment named")) {
+      console.error(
+        `Unknown environment "${ENVIRONMENT}". Check ICP_ENVIRONMENT against the environments in icp.yaml.`
+      );
+    } else {
+      console.error(
+        `No network running for environment "${ENVIRONMENT}". Start it and deploy first:\n` +
+          `  icp network start -d -e ${ENVIRONMENT} && icp deploy -e ${ENVIRONMENT}`
+      );
+    }
+    process.exit(1);
+  }
 
-  // Try dfx
+  let canisterId;
   try {
-    const pingResult = JSON.parse(
-      execSync("dfx ping", { encoding: "utf-8", stdio: "pipe" })
+    canisterId = execSync(
+      `icp canister status ${CANISTER_NAME} -e ${ENVIRONMENT} -i`,
+      { encoding: "utf-8", stdio: "pipe" }
+    ).trim();
+  } catch {
+    console.error(
+      `Canister "${CANISTER_NAME}" is not deployed in environment "${ENVIRONMENT}". Deploy it first:\n` +
+        `  icp deploy ${CANISTER_NAME} -e ${ENVIRONMENT}`
     );
-    const rootKeyHex = Buffer.from(pingResult.root_key).toString("hex");
-    const canisterId = execSync("dfx canister id backend", {
-      encoding: "utf-8",
-      stdio: "pipe",
-    }).trim();
-    return {
-      headers: {
-        "Set-Cookie": `ic_env=${encodeURIComponent(
-          `ic_root_key=${rootKeyHex}&PUBLIC_CANISTER_ID:backend=${canisterId}`
-        )}; SameSite=Lax;`,
-      },
-      proxy: {
-        "/api": {
-          target: "http://127.0.0.1:4943",
-          changeOrigin: true,
-        },
-      },
-      host: "127.0.0.1",
-    };
-  } catch {}
+    process.exit(1);
+  }
 
-  throw new Error(
-    "No local network running. Start with:\n  icp network start -d && icp deploy\nor:\n  dfx start --background && dfx deploy"
-  );
+  return {
+    headers: {
+      "Set-Cookie": `ic_env=${encodeURIComponent(
+        `ic_root_key=${networkStatus.root_key}&PUBLIC_CANISTER_ID:${CANISTER_NAME}=${canisterId}`
+      )}; SameSite=Lax;`,
+    },
+    proxy: {
+      "/api": { target: networkStatus.api_url, changeOrigin: true },
+    },
+  };
 }
 
-export default defineConfig(({ command, mode }) => {
-  // dfx generates ../.env with CANISTER_ID_* vars on deploy. Bake them into the
-  // bundle so actor.js can fall back to them when the ic_env cookie does not
-  // contain canister IDs (dfx does not inject PUBLIC_CANISTER_ID:* env vars
-  // into the asset canister, unlike icp-cli).
-  const env = loadEnv(mode, "..", ["CANISTER_"]);
-
+export default defineConfig(({ command }) => {
   return {
     base: "./",
     plugins: [
@@ -75,11 +65,6 @@ export default defineConfig(({ command, mode }) => {
         outDir: "./src/bindings",
       }),
     ],
-    define: {
-      "process.env.CANISTER_ID_BACKEND": JSON.stringify(
-        env.CANISTER_ID_BACKEND
-      ),
-    },
     optimizeDeps: {
       esbuildOptions: { define: { global: "globalThis" } },
     },
