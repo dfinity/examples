@@ -8,8 +8,7 @@ use serde::Deserialize;
 /// (absent, empty, invalid length, valid 32 bytes) for sign+verify, plus negative cases.
 ///
 /// The PocketIC instance is reused across iterations for speed.
-/// The test threshold keys subnet provides `test_key_1` and `dfx_test_key`, matching
-/// the canister's default key (`test_key_1`).
+/// The test threshold keys subnet provides `test_key_1`, the canister's default key.
 #[test]
 fn signing_and_verification_should_work_correctly() {
     const ALGORITHMS: [SchnorrAlgorithm; 2] =

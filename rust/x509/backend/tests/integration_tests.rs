@@ -19,7 +19,7 @@ fn load_wasm() -> Vec<u8> {
 }
 
 fn pic_and_canister_id(ca_key_information: CaKeyInformation) -> (pocket_ic::PocketIc, Principal) {
-    // with_test_threshold_keys_subnet provides test_key_1 and dfx_test_key for all algorithms.
+    // with_test_threshold_keys_subnet provides test_key_1 for all algorithms.
     let pic = PocketIcBuilder::new()
         .with_application_subnet()
         .with_test_threshold_keys_subnet()

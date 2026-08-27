@@ -256,9 +256,9 @@ fn estimate_transaction_fees() -> (u128, u128, u128) {
 #[derive(CandidType, Deserialize, Debug, Default, PartialEq, Eq)]
 pub struct InitArg {
     pub ethereum_network: Option<EthereumNetwork>,
-    /// ECDSA key name as used by the IC management canister: "dfx_test_key" (local dfx),
-    /// "test_key_1" (ICP mainnet testing), or "key_1" (ICP mainnet production).
-    /// Defaults to "test_key_1".
+    /// ECDSA key name as used by the IC management canister: "test_key_1" (test key,
+    /// works on both the local network and ICP mainnet) or "key_1" (ICP mainnet
+    /// production). Defaults to "test_key_1".
     pub ecdsa_key_name: Option<String>,
 }
 
