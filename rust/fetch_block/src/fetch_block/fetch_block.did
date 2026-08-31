@@ -1,0 +1,23 @@
+type Block = record {
+  transaction : Transaction;
+  timestamp : Timestamp;
+  parent_hash : opt vec nat8;
+};
+type Operation = variant {
+  Burn : record { from : vec nat8; amount : Tokens };
+  Mint : record { to : vec nat8; amount : Tokens };
+  Transfer : record {
+    to : vec nat8;
+    fee : Tokens;
+    from : vec nat8;
+    amount : Tokens;
+  };
+};
+type Timestamp = record { timestamp_nanos : nat64 };
+type Tokens = record { e8s : nat64 };
+type Transaction = record {
+  memo : nat64;
+  operation : opt Operation;
+  created_at_time : Timestamp;
+};
+service : { fetch_block : (nat64) -> (opt Block) }
