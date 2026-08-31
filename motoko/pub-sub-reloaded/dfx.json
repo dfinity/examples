@@ -1,0 +1,20 @@
+{
+  "canisters": {
+    "pub": {
+      "type": "motoko",
+      "main": "src/pub/Main.mo"
+    },
+    "sub1": {
+      "type": "motoko",
+      "main": "src/sub/Main.mo"
+    },
+    "sub2": {
+      "type": "motoko",
+      "main": "src/sub/Main.mo"
+    },
+    "sub3": {
+      "type": "motoko",
+      "main": "src/sub/Main.mo"
+    }
+  }
+}
