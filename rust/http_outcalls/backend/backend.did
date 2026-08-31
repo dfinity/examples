@@ -1,0 +1,5 @@
+type Result = variant { Ok : text; Err : text };
+service : {
+  get_bitcoin_price : () -> (Result);
+  get_typicode_post : (nat64) -> (Result);
+}
