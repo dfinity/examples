@@ -83,6 +83,8 @@ Both give the same interface as long as `icp.yaml` pins the release that is live
 
 The example uses [PublicNode](https://ethereum-rpc.publicnode.com) by default — a free, no-registration provider that works out of the box locally and on mainnet. This is sufficient for getting started and automated testing.
 
+PublicNode routes requests across regional node pools, and not all of them keep the full chain history — some only retain blocks from shortly before the Merge (block ~15500000). Queries for earlier blocks therefore fail with `pruned history unavailable` depending on which pool serves the outcall. `test.sh` queries a post-Merge block for that reason; an archive provider is needed to read early history reliably.
+
 For production deployments requiring premium providers (Alchemy, Ankr, BlockPi), refer to the [EVM RPC canister documentation](https://github.com/dfinity/evm-rpc-canister) for how to configure API keys. Once configured, change `#EthMainnet(?[#PublicNode])` in `backend/EvmRpcApi.mo` to `#EthMainnet(null)` to use all configured providers for better consensus.
 
 ## Security considerations and best practices

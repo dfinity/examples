@@ -60,6 +60,17 @@ jobs:
         uses: dfinity/pocketic@a980c334fab1b21b0b8a6bba38e1a10836e7258b # main
         with:
           pocket-ic-server-version: ${{ inputs.pocketic-version }}
+      # Projects with more than one Motoko canister run one `mops build` per canister
+      # concurrently, and those invocations race on the shared moc toolchain download and
+      # extraction: whichever build loses reads a half-extracted moc and fails with no
+      # diagnostics. Warming the cache first makes the download happen exactly once.
+      # Reproduces with mops 3.2.0; remove once mops locks the toolchain cache itself.
+      - name: Warm the mops toolchain cache
+        working-directory: ${{ inputs.working-directory }}
+        run: |
+          if [ -f mops.toml ] && command -v mops > /dev/null; then
+            mops install
+          fi
       - name: Run
         working-directory: ${{ inputs.working-directory }}
         run: ${{ inputs.run }}
