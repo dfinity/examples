@@ -1,7 +1,9 @@
 use candid::{decode_one, encode_one, CandidType, Principal};
+use flate2::read::GzDecoder;
 use pocket_ic::{PocketIc, PocketIcBuilder};
 use serde::Deserialize;
 use std::io;
+use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::process::Command;
 use std::sync::LazyLock;
@@ -173,12 +175,16 @@ fn download_wasm_to(url: String, wasm_path: &Path) {
     std::fs::rename(&download_path, wasm_path).expect("Failed to move downloaded WASM into place");
 }
 
-/// Reads the file only if it is a gzip archive. A missing prefix means a partial or failed
-/// download, which would otherwise surface as an opaque `CanisterInvalidWasm` rejection.
+/// Reads the archive only if the whole gzip stream decodes, which covers the trailing CRC and
+/// length. Checking just the magic prefix would accept a truncated download and install it,
+/// surfacing later as an opaque `CanisterInvalidWasm` rejection.
 fn read_gzip(wasm_path: &Path) -> Option<Vec<u8>> {
-    std::fs::read(wasm_path)
-        .ok()
-        .filter(|bytes| bytes.starts_with(&[0x1f, 0x8b]))
+    let bytes = std::fs::read(wasm_path).ok()?;
+    let mut decoded = Vec::new();
+    GzDecoder::new(bytes.as_slice())
+        .read_to_end(&mut decoded)
+        .ok()?;
+    Some(bytes)
 }
 
 /// Get the NNS Governance WASM binary, downloading if necessary.
@@ -189,6 +195,9 @@ fn load_governance_wasm() -> Vec<u8> {
     if let Some(wasm) = read_gzip(&wasm_path) {
         println!("NNS Governance WASM already exists, skipping download");
         return wasm;
+    }
+    if wasm_path.exists() {
+        println!("Cached NNS Governance WASM is corrupt, downloading again");
     }
 
     let url = format!(
