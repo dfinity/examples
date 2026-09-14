@@ -64,7 +64,7 @@ jobs:
       # concurrently, and those invocations race on the shared moc toolchain download and
       # extraction: whichever build loses reads a half-extracted moc and fails with no
       # diagnostics. Warming the cache first makes the download happen exactly once.
-      # Reproduces with mops 3.2.0; remove once mops locks the toolchain cache itself.
+      # Remove once caffeinelabs/mops#818 is fixed and released.
       - name: Warm the mops toolchain cache
         working-directory: ${{ inputs.working-directory }}
         run: |
