@@ -132,14 +132,16 @@ fn rebuild_wasm() {
     }
 }
 
-/// Download to a sibling temporary file and rename into place, so an interrupted or failed
-/// transfer never leaves a truncated file behind for the next run to pick up from the cache.
+/// Download to a temporary file and rename into place, so an interrupted or failed transfer
+/// never leaves a truncated file behind for the next run to pick up from the cache. The
+/// temporary name carries the process id so that concurrent runs of the test binary cannot
+/// clobber each other's transfer either.
 fn download_wasm_to(url: String, wasm_path: &Path) {
     if let Some(parent) = wasm_path.parent() {
         std::fs::create_dir_all(parent)
             .unwrap_or_else(|e| panic!("Failed to create directory {:?}: {}", parent, e));
     }
-    let download_path = wasm_path.with_extension("gz.partial");
+    let download_path = wasm_path.with_extension(format!("gz.{}.partial", std::process::id()));
 
     let output = Command::new("curl")
         .args([
