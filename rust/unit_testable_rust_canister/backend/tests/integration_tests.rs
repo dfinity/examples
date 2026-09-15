@@ -1,9 +1,12 @@
 use candid::{decode_one, encode_one, CandidType, Principal};
+use flate2::read::GzDecoder;
 use pocket_ic::{PocketIc, PocketIcBuilder};
 use serde::Deserialize;
 use std::io;
+use std::io::Read;
 use std::path::{Path, PathBuf};
 use std::process::Command;
+use std::sync::LazyLock;
 use std::time::SystemTime;
 use walkdir::WalkDir;
 
@@ -21,11 +24,19 @@ const IC_COMMIT_FOR_PROPOSALS: &str = "4b7cde9a0e3b5ad4725e75cbc36ce635be6fa6a8"
 const NNS_GOVERNANCE_CANISTER_ID: &str = "rrkah-fqaaa-aaaaa-aaaaq-cai";
 const NNS_ROOT_CANISTER_ID: &str = "r7inp-6aaaa-aaaaa-aaabq-cai";
 
-// WASM will be loaded dynamically with smart rebuilding
-fn get_backend_wasm() -> Vec<u8> {
+// Tests run concurrently on separate threads but share the files below, so each artifact is
+// prepared exactly once per test binary. Without this, two tests building or downloading the
+// same path at the same time can read a half-written file.
+static BACKEND_WASM: LazyLock<Vec<u8>> = LazyLock::new(|| {
     let wasm_path = ensure_wasm_built();
     std::fs::read(&wasm_path)
         .unwrap_or_else(|e| panic!("Failed to read WASM file at {:?}: {}", wasm_path, e))
+});
+
+static GOVERNANCE_WASM: LazyLock<Vec<u8>> = LazyLock::new(load_governance_wasm);
+
+fn get_backend_wasm() -> Vec<u8> {
+    BACKEND_WASM.clone()
 }
 
 /// Ensures the WASM is built and up-to-date, returns path to the WASM file
@@ -123,43 +134,85 @@ fn rebuild_wasm() {
     }
 }
 
+/// Download to a temporary file and rename into place, so an interrupted or failed transfer
+/// never leaves a truncated file behind for the next run to pick up from the cache. The
+/// temporary name carries the process id so that concurrent runs of the test binary cannot
+/// clobber each other's transfer either.
 fn download_wasm_to(url: String, wasm_path: &Path) {
-    // Ensure the target directory exists
     if let Some(parent) = wasm_path.parent() {
         std::fs::create_dir_all(parent)
             .unwrap_or_else(|e| panic!("Failed to create directory {:?}: {}", parent, e));
     }
+    let download_path = wasm_path.with_extension(format!("gz.{}.partial", std::process::id()));
 
-    let wasm = std::process::Command::new("curl")
-        .args(["-L", "-f", &url])
+    let output = Command::new("curl")
+        .args([
+            "--location",
+            "--fail",
+            "--silent",
+            "--show-error",
+            "--retry",
+            "5",
+            "--retry-all-errors",
+            "--retry-delay",
+            "2",
+            "--output",
+            &download_path.to_string_lossy(),
+            &url,
+        ])
         .output()
-        .expect("Failed to download NNS Governance WASM")
-        .stdout;
+        .expect("Failed to run curl");
 
-    std::fs::write(wasm_path, wasm).expect("Failed to write compressed WASM");
-}
-
-/// Get the NNS Governance WASM binary, downloading if necessary
-fn get_governance_wasm() -> Vec<u8> {
-    let wasm_path = PathBuf::from("../../target/ic/governance-canister.wasm.gz");
-
-    // Check if we need to download
-    if !wasm_path.exists() {
-        let url = format!(
-            "https://download.dfinity.systems/ic/{}/canisters/governance-canister.wasm.gz",
-            IC_COMMIT_FOR_PROPOSALS
+    if !output.status.success() {
+        let _ = std::fs::remove_file(&download_path);
+        panic!(
+            "Failed to download {url}: curl exited with {:?}: {}",
+            output.status.code(),
+            String::from_utf8_lossy(&output.stderr)
         );
-        download_wasm_to(url, &wasm_path);
-    } else {
-        println!("NNS Governance WASM already exists, skipping download");
     }
 
-    std::fs::read(&wasm_path).unwrap_or_else(|e| {
-        panic!(
-            "Failed to read governance WASM file at {:?}: {}",
-            wasm_path, e
-        )
+    std::fs::rename(&download_path, wasm_path).expect("Failed to move downloaded WASM into place");
+}
+
+/// Reads the archive only if the whole gzip stream decodes, which covers the trailing CRC and
+/// length. Checking just the magic prefix would accept a truncated download and install it,
+/// surfacing later as an opaque `CanisterInvalidWasm` rejection.
+fn read_gzip(wasm_path: &Path) -> Option<Vec<u8>> {
+    let bytes = std::fs::read(wasm_path).ok()?;
+    let mut decoded = Vec::new();
+    GzDecoder::new(bytes.as_slice())
+        .read_to_end(&mut decoded)
+        .ok()?;
+    Some(bytes)
+}
+
+/// Get the NNS Governance WASM binary, downloading if necessary.
+/// Call [`get_governance_wasm`] instead — this runs once, behind `GOVERNANCE_WASM`.
+fn load_governance_wasm() -> Vec<u8> {
+    let wasm_path = PathBuf::from("../../target/ic/governance-canister.wasm.gz");
+
+    if let Some(wasm) = read_gzip(&wasm_path) {
+        println!("NNS Governance WASM already exists, skipping download");
+        return wasm;
+    }
+    if wasm_path.exists() {
+        println!("Cached NNS Governance WASM is corrupt, downloading again");
+    }
+
+    let url = format!(
+        "https://download.dfinity.systems/ic/{}/canisters/governance-canister.wasm.gz",
+        IC_COMMIT_FOR_PROPOSALS
+    );
+    download_wasm_to(url, &wasm_path);
+
+    read_gzip(&wasm_path).unwrap_or_else(|| {
+        panic!("Downloaded governance WASM at {wasm_path:?} is not a readable gzip archive")
     })
+}
+
+fn get_governance_wasm() -> Vec<u8> {
+    GOVERNANCE_WASM.clone()
 }
 
 /// Sets up a minimal NNS Governance canister for testing.

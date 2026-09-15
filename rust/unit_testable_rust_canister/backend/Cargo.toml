@@ -21,3 +21,4 @@ pocket-ic = "15.0.0"
 candid = "0.10"
 tokio = { version = "1.0", features = ["macros", "rt"] }
 walkdir = "2.0"
+flate2 = "1.1"
