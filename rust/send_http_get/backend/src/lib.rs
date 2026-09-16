@@ -1,12 +1,11 @@
 use ic_cdk_management_canister::{
-    http_request, transform_context_from_query, HttpHeader, HttpMethod, HttpRequestArgs,
-    HttpRequestResult, TransformArgs,
+    transform_context_from_query, HttpMethod, HttpRequest, HttpRequestResult, TransformArgs,
 };
 
 // #region transform
 // Strip HTTP response headers (date, cookies, tracking IDs) that vary across replicas.
 // In replicated mode, all replicas must see an identical response for consensus to
-// succeed — the transform ensures this by discarding non-deterministic fields.
+// succeed. The transform ensures this by discarding non-deterministic fields.
 #[ic_cdk::query(hidden = true)]
 fn transform(raw: TransformArgs) -> HttpRequestResult {
     HttpRequestResult {
@@ -19,27 +18,27 @@ fn transform(raw: TransformArgs) -> HttpRequestResult {
 // #region get_request
 #[ic_cdk::update]
 async fn send_http_get_request() -> String {
-    let request = HttpRequestArgs {
-        url: "https://postman-echo.com/get?greeting=hello-from-icp".to_string(),
-        method: HttpMethod::GET,
-        // Always set max_response_bytes to a tight bound. The cycle cost scales
-        // with this value, not the actual response size. If omitted, the system
-        // assumes 2MB. Unused cycles are refunded, but you still pay for the
-        // declared maximum.
-        max_response_bytes: Some(3_000),
-        headers: vec![HttpHeader {
-            name: "User-Agent".to_string(),
-            value: "ic-canister".to_string(),
-        }],
-        body: None,
-        transform: Some(transform_context_from_query("transform".to_string(), vec![])),
-        // Replicated mode: all subnet nodes make the request independently,
-        // providing strong integrity guarantees via consensus.
-        is_replicated: Some(true),
-    };
+    // Replicated mode is the builder's default: all subnet nodes make the request
+    // independently, providing strong integrity guarantees via consensus.
+    let request = HttpRequest::new("https://postman-echo.com/get?greeting=hello-from-icp")
+        .with_method(HttpMethod::GET)
+        // max_response_bytes bounds the response. A larger one fails the call.
+        // Under pay-as-you-go pricing it no longer sets the price, because only
+        // the bytes that actually arrive are charged.
+        .with_max_response_bytes(3_000)
+        .with_header("User-Agent", "ic-canister")
+        .with_transform(transform_context_from_query("transform".to_string(), vec![]))
+        // Unset expectations are reserved at their worst case: a 60 second round
+        // trip, and a transform running to the full query instruction limit.
+        // Declaring what this call expects holds far fewer cycles while it runs.
+        // The charge is unchanged, because only the resources actually used are
+        // billed. Leave headroom, since the reservation doubles as each node's
+        // budget for the call.
+        .with_expected_roundtrip_time_ms(10_000)
+        .with_expected_transform_instructions(1_000_000);
 
-    // http_request auto-calculates and attaches the required cycles
-    match http_request(&request).await {
+    // send() computes the cycles the call may need and attaches them.
+    match request.send().await {
         // postman-echo.com echoes back the request metadata as JSON, letting you
         // verify the query params and headers were sent correctly.
         Ok(response) => String::from_utf8(response.body).unwrap_or_default(),
