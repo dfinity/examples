@@ -1,8 +1,7 @@
 use candid::{CandidType, Decode, Deserialize, Encode, Nat};
 use ic_cdk::api::canister_self;
 use ic_cdk_management_canister::{
-    http_request, HttpMethod, HttpRequestArgs, HttpRequestResult, TransformArgs, TransformContext,
-    TransformFunc,
+    HttpMethod, HttpRequest, HttpRequestResult, TransformArgs, TransformContext, TransformFunc,
 };
 use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
 use ic_stable_structures::storable::{Bound, Storable};
@@ -159,25 +158,27 @@ async fn fetch_and_store_on_this_day(date: String) -> Result<String, String> {
     // This is useful to e.g. filter out timestamps/sessionIDs out of headers that will be different across the responses the different replicas receive.
     // If the data (including status, headers and body) they receive does not match across the nodes, the canister will reject the response!
     // You can read more about it here: https://docs.internetcomputer.org/guides/backends/https-outcalls.
-    let request = HttpRequestArgs {
-        url,
-        method: HttpMethod::GET,
-        body: None,
-        max_response_bytes: None, // Can be set to limit cost. Our response has no predictable size, so we set no limit.
-        headers: vec![],
-        transform: Some(TransformContext {
+    // Replicated mode is the builder's default: all subnet nodes make the request
+    // independently, providing strong integrity guarantees via consensus.
+    //
+    // max_response_bytes stays unset, because the response size is not known up
+    // front. It then defaults to the 2MB ceiling, and the reservation covers
+    // delivering that much. Only the round trip and the transform are narrowed
+    // below. An expectation the response later exceeds would fail the call at
+    // delivery, after the request was already made.
+    let request = HttpRequest::new(url)
+        .with_method(HttpMethod::GET)
+        .with_transform(TransformContext {
             function: TransformFunc::new(canister_self(), "transform".to_string()),
             context: vec![],
-        }),
-        // Replicated mode: all subnet nodes make the request independently,
-        // providing strong integrity guarantees via consensus.
-        is_replicated: Some(true),
-    };
+        })
+        .with_expected_roundtrip_time_ms(10_000)
+        .with_expected_transform_instructions(1_000_000);
 
-    // Perform HTTPS outcall. Cycles are automatically calculated and attached.
-    // Unused cycles are returned.
+    // Perform HTTPS outcall. send() computes the cycles the call may need and
+    // attaches them. Unused cycles are returned.
     // See https outcall cost calculator: https://7joko-hiaaa-aaaal-ajz7a-cai.icp.net.
-    let quote = match http_request(&request).await {
+    let quote = match request.send().await {
         Ok(response) => {
             let body_string =
                 String::from_utf8(response.body).expect("Response is not UTF-8 encoded.");

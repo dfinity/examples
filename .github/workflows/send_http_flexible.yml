@@ -1,0 +1,28 @@
+name: send_http_flexible
+
+on:
+  schedule:
+    - cron: "30 6 * * 1"  # weekly build to catch dependency drift (lock files are gitignored)
+  push:
+    branches:
+      - master
+  pull_request:
+    paths:
+      - rust/send_http_flexible/**
+      - .github/workflows/send_http_flexible.yml
+      - .github/workflows/_run-example.yml
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  rust-send_http_flexible:
+    uses: ./.github/workflows/_run-example.yml
+    with:
+      language: rust
+      working-directory: rust/send_http_flexible
+      run: |
+        icp network start -d
+        icp deploy
+        bash test.sh
