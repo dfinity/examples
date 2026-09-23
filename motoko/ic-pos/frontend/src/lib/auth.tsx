@@ -9,7 +9,7 @@ import {
 } from "react";
 import { AuthClient } from "@icp-sdk/auth/client";
 import type { Identity } from "@icp-sdk/core/agent";
-import { iiUrl } from "./env";
+import { identityProvider, rootKey } from "./env";
 
 interface AuthContextValue {
   /** The authenticated identity, or `undefined` when logged out. */
@@ -30,30 +30,35 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isInitializing, setIsInitializing] = useState(true);
 
   useEffect(() => {
+    // The client mints its delegations by calling the II canister, so its
+    // agent needs the network's root key to verify the responses.
     const client = new AuthClient({
-      identityProvider: iiUrl,
-      // Keep the session alive; expiry is handled explicitly via
-      // useHandleAgentError when the delegation is rejected.
-      idleOptions: { disableIdle: true },
+      identityProvider,
+      agentOptions: { rootKey },
     });
     setAuthClient(client);
 
+    // Leave the signed-in views when the session ends, including from another tab.
+    const unsubscribe = client.subscribe(() => {
+      if (!client.isAuthenticated()) setIdentity(undefined);
+    });
+
     void (async () => {
-      // getIdentity() restores a previous session from storage if present.
-      await client.getIdentity();
       if (client.isAuthenticated()) {
         setIdentity(await client.getIdentity());
       }
       setIsInitializing(false);
     })();
+
+    return () => {
+      unsubscribe();
+      client.dispose();
+    };
   }, []);
 
   const login = useCallback(async () => {
     if (!authClient) return;
-    await authClient.signIn();
-    if (authClient.isAuthenticated()) {
-      setIdentity(await authClient.getIdentity());
-    }
+    setIdentity(await authClient.signIn());
   }, [authClient]);
 
   const clear = useCallback(async () => {

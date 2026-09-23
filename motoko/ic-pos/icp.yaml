@@ -23,7 +23,7 @@ canisters:
   - name: backend
     init_args: "(0 : nat)"
     recipe:
-      type: "@dfinity/motoko@v5.0.0"
+      type: "@dfinity/motoko@v5.1.0"
 
   - name: frontend
     recipe:

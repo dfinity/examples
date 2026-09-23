@@ -39,8 +39,11 @@ export const host = window.location.origin;
 export const isLocal = /localhost|127\.0\.0\.1/.test(window.location.hostname);
 
 // Internet Identity provider. Locally the network serves II at
-// id.ai.localhost (icp.yaml `ii: true`); on mainnet it's id.ai. The
-// `/authorize` path is required by @icp-sdk/auth.
-export const iiUrl = isLocal
-  ? "http://id.ai.localhost:8000/authorize"
-  : "https://id.ai/authorize";
+// id.ai.localhost (icp.yaml `ii: true`); on mainnet it's id.ai. The canister
+// that mints delegations has the same ID on both.
+export const identityProvider = {
+  authorizeUrl: isLocal
+    ? "http://id.ai.localhost:8000/authorize"
+    : "https://id.ai/authorize",
+  canisterId: "rdmx6-jaaaa-aaaaa-aaadq-cai",
+};

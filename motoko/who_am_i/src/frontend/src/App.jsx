@@ -1,61 +1,35 @@
 import React, { useState, useEffect } from 'react';
-import { AuthClient } from '@icp-sdk/auth/client';
-import { createBackendActor, identityProviderUrl } from './actor';
+import { authClient, createBackendActor } from './actor';
 
 // Reusable button component
 const Button = ({ onClick, children }) => <button onClick={onClick}>{children}</button>;
 
 const App = () => {
-  const [state, setState] = useState({
-    actor: undefined,
-    authClient: undefined,
-    isAuthenticated: false,
-    principal: 'Click "Whoami" to see your principal ID'
-  });
+  const [isAuthenticated, setIsAuthenticated] = useState(authClient.isAuthenticated());
+  const [principal, setPrincipal] = useState('Click "Whoami" to see your principal ID');
 
-  // Initialize auth client
-  useEffect(() => {
-    updateActor();
-  }, []);
-
-  const updateActor = async () => {
-    const authClient = await AuthClient.create();
-    const identity = authClient.getIdentity();
-    const actor = createBackendActor(identity);
-    const isAuthenticated = await authClient.isAuthenticated();
-
-    setState((prev) => ({
-      ...prev,
-      actor,
-      authClient,
-      isAuthenticated
-    }));
-  };
+  // Track the sign-in status, including changes made in another tab.
+  useEffect(() => authClient.subscribe(() => setIsAuthenticated(authClient.isAuthenticated())), []);
 
   const login = async () => {
-    await state.authClient.login({
-      identityProvider: identityProviderUrl,
-      onSuccess: updateActor
-    });
+    try {
+      await authClient.signIn();
+    } catch (error) {
+      console.error('Sign-in failed:', error);
+    }
   };
 
   const logout = async () => {
-    await state.authClient.logout();
-    updateActor();
+    await authClient.signOut();
   };
 
   const whoami = async () => {
-    setState((prev) => ({
-      ...prev,
-      principal: 'Loading...'
-    }));
+    setPrincipal('Loading...');
 
-    const result = await state.actor.whoami();
-    const principal = result.toString();
-    setState((prev) => ({
-      ...prev,
-      principal
-    }));
+    // Read the identity at call time: it is installed only once signIn() completes.
+    const identity = authClient.isAuthenticated() ? await authClient.getIdentity() : undefined;
+    const result = await createBackendActor(identity).whoami();
+    setPrincipal(result.toString());
   };
 
   return (
@@ -82,7 +56,7 @@ const App = () => {
         </div>
       </div>
 
-      {!state.isAuthenticated ? (
+      {!isAuthenticated ? (
         <Button onClick={login}>Login with Internet Identity</Button>
       ) : (
         <Button onClick={logout}>Logout</Button>
@@ -90,10 +64,10 @@ const App = () => {
 
       <Button onClick={whoami}>Whoami</Button>
 
-      {state.principal && (
+      {principal && (
         <div>
           <h2>Your principal ID is:</h2>
-          <h4>{state.principal}</h4>
+          <h4>{principal}</h4>
         </div>
       )}
     </div>

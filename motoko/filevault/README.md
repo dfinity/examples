@@ -34,6 +34,8 @@ bash test.sh
 icp network stop
 ```
 
+> Internet Identity sign-in runs against the Internet Identity canister deployed on the local network (`ii: true` in `icp.yaml`). If signing in fails, update the local network launcher with `icp network update` and restart the network.
+
 The frontend is served by the asset canister. To run the Vite dev server with hot reload during frontend development:
 
 ```bash

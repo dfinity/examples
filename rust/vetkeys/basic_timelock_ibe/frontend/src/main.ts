@@ -7,7 +7,7 @@ import {
     IbeIdentity,
     IbeSeed,
 } from "@icp-sdk/vetkeys";
-import { AuthClient, LocalStorage } from "@icp-sdk/auth/client";
+import { AuthClient } from "@icp-sdk/auth/client";
 import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
 import { HttpAgent } from "@icp-sdk/core/agent";
 
@@ -64,13 +64,16 @@ export function logout() {
 
 async function initAuth() {
     const isLocalEnv = window.location.hostname === "localhost" || window.location.hostname.endsWith(".localhost");
-    // Workaround for https://github.com/dfinity/icp-js-auth/issues/120
-    // IdbStorage has a race condition on localhost dev servers. LocalStorage
-    // avoids IDB on local but uses plain string storage (less secure), so
-    // production deployments keep the default secure IdbStorage + ECDSA key.
+    // The client mints its delegations by calling the II canister, so its agent
+    // needs the network's root key to verify the responses.
     authClient = new AuthClient({
-        identityProvider: isLocalEnv ? "http://id.ai.localhost:8000/authorize" : "https://id.ai/authorize",
-        ...(isLocalEnv ? { storage: new LocalStorage(), keyType: "Ed25519" as const } : {}),
+        identityProvider: {
+            authorizeUrl: isLocalEnv
+                ? "http://id.ai.localhost:8000/authorize"
+                : "https://id.ai/authorize",
+            canisterId: "rdmx6-jaaaa-aaaaa-aaadq-cai",
+        },
+        agentOptions: { rootKey: canisterEnv?.IC_ROOT_KEY },
     });
     const isAuthenticated = authClient.isAuthenticated();
 

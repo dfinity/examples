@@ -46,6 +46,8 @@ icp network start -d
 bash deploy.sh
 ```
 
+> Internet Identity sign-in runs against the Internet Identity canister deployed on the local network (`ii: true` in `icp.yaml`). If signing in fails, update the local network launcher with `icp network update` and restart the network.
+
 > **Use `bash deploy.sh`, not `icp deploy`, locally.** The ICRC-1 ledger and index require init args (minting account, initial balances, and the ledger's canister ID) that are only known after identities and canisters are created, so `deploy.sh` installs them with the right arguments. A plain `icp deploy` traps because those canisters receive no init args.
 
 `deploy.sh` installs a local ICRC-1 ledger + index (a throwaway token named **LICRC1**, distinct from the mainnet TICRC1), the `backend`, and the `frontend`. Internet Identity is provided by the local network (`ii: true` in `icp.yaml`) at `http://id.ai.localhost:8000` — no separate deployment. Open the frontend URL printed by the script.

@@ -1,7 +1,7 @@
 canisters:
   - name: backend
     recipe:
-      type: "@dfinity/rust@v3.3.0"
+      type: "@dfinity/rust@v3.4.0"
 
   # xrc_mock is only deployed locally. On IC mainnet the production XRC canister
   # (uf6dk-hyaaa-aaaaq-qaaaq-cai) is used instead — the ic environment below

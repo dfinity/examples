@@ -1,7 +1,7 @@
 import "./style.css";
 import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
 import { createActor } from "./bindings/backend";
-import { AuthClient, LocalStorage } from "@icp-sdk/auth/client";
+import { AuthClient } from "@icp-sdk/auth/client";
 import { HttpAgent } from "@icp-sdk/core/agent";
 import { Principal } from "@icp-sdk/core/principal";
 import {
@@ -207,11 +207,16 @@ async function initAuth() {
   const isLocal =
     window.location.hostname === "localhost" ||
     window.location.hostname.endsWith(".localhost");
+  // The client mints its delegations by calling the II canister, so its agent
+  // needs the network's root key to verify the responses.
   authClient = new AuthClient({
-    identityProvider: isLocal
-      ? "http://id.ai.localhost:8000/authorize"
-      : "https://id.ai/authorize",
-    ...(isLocal ? { storage: new LocalStorage(), keyType: "Ed25519" } : {}),
+    identityProvider: {
+      authorizeUrl: isLocal
+        ? "http://id.ai.localhost:8000/authorize"
+        : "https://id.ai/authorize",
+      canisterId: "rdmx6-jaaaa-aaaaa-aaadq-cai",
+    },
+    agentOptions: { rootKey: canisterEnv?.IC_ROOT_KEY },
   });
   if (authClient.isAuthenticated()) {
     myPrincipal = (await authClient.getIdentity()).getPrincipal();
