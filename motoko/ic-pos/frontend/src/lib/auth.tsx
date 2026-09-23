@@ -9,7 +9,7 @@ import {
 } from "react";
 import { AuthClient } from "@icp-sdk/auth/client";
 import type { Identity } from "@icp-sdk/core/agent";
-import { host, identityProvider, rootKey } from "./env";
+import { identityProvider, rootKey } from "./env";
 
 interface AuthContextValue {
   /** The authenticated identity, or `undefined` when logged out. */
@@ -31,10 +31,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     // The client mints its delegations by calling the II canister, so its
-    // agent needs the same host and root key as the backend actors.
+    // agent needs the network's root key to verify the responses.
     const client = new AuthClient({
       identityProvider,
-      agentOptions: { host, rootKey },
+      agentOptions: { rootKey },
     });
     setAuthClient(client);
 

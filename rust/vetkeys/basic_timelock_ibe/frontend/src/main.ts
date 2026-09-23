@@ -65,7 +65,7 @@ export function logout() {
 async function initAuth() {
     const isLocalEnv = window.location.hostname === "localhost" || window.location.hostname.endsWith(".localhost");
     // The client mints its delegations by calling the II canister, so its agent
-    // needs the same host and root key as the backend actor.
+    // needs the network's root key to verify the responses.
     authClient = new AuthClient({
         identityProvider: {
             authorizeUrl: isLocalEnv
@@ -73,7 +73,7 @@ async function initAuth() {
                 : "https://id.ai/authorize",
             canisterId: "rdmx6-jaaaa-aaaaa-aaadq-cai",
         },
-        agentOptions: { host: window.location.origin, rootKey: canisterEnv?.IC_ROOT_KEY },
+        agentOptions: { rootKey: canisterEnv?.IC_ROOT_KEY },
     });
     const isAuthenticated = authClient.isAuthenticated();
 

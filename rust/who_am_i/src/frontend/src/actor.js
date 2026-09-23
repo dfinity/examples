@@ -27,7 +27,7 @@ const isLocal =
 const networkPort = process.env.REPLICA_PORT || window.location.port;
 
 // The client mints its delegations by calling the II canister, so its agent
-// needs the same host and root key as the backend actor.
+// needs the network's root key to verify the responses.
 export const authClient = new AuthClient({
   identityProvider: {
     authorizeUrl: isLocal
@@ -35,7 +35,7 @@ export const authClient = new AuthClient({
       : "https://id.ai/authorize",
     canisterId: "rdmx6-jaaaa-aaaaa-aaadq-cai",
   },
-  agentOptions,
+  agentOptions: { rootKey: canisterEnv?.IC_ROOT_KEY },
 });
 
 export function createBackendActor(identity) {
