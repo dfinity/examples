@@ -5,7 +5,6 @@ import { IcrcLedgerCanister, IcrcIndexCanister } from "@icp-sdk/canisters/ledger
 import { createActor } from "./bindings/backend";
 import { useAuth } from "./lib/auth";
 import {
-  host,
   rootKey,
   backendCanisterId,
   icrc1LedgerCanisterId,
@@ -22,7 +21,7 @@ export function useBackendActor() {
   const actor = useMemo(
     () =>
       createActor(backendCanisterId, {
-        agentOptions: { host, rootKey, identity },
+        agentOptions: { rootKey, identity },
       }),
     [identity]
   );
@@ -35,7 +34,7 @@ export function useIcrcLedger() {
   const { identity } = useAuth();
 
   return useMemo(() => {
-    const agent = HttpAgent.createSync({ host, rootKey, identity });
+    const agent = HttpAgent.createSync({ rootKey, identity });
     return IcrcLedgerCanister.create({
       agent,
       canisterId: Principal.fromText(icrc1LedgerCanisterId),
@@ -48,7 +47,7 @@ export function useIcrcIndex() {
   const { identity } = useAuth();
 
   return useMemo(() => {
-    const agent = HttpAgent.createSync({ host, rootKey, identity });
+    const agent = HttpAgent.createSync({ rootKey, identity });
     return IcrcIndexCanister.create({
       agent,
       canisterId: Principal.fromText(icrc1IndexCanisterId),

@@ -169,7 +169,6 @@ export async function createPasswordManager(
 
     const agent = await HttpAgent.create({
         identity,
-        host: window.location.origin,
         rootKey: canisterEnv?.IC_ROOT_KEY,
     });
 

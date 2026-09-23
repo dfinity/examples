@@ -27,7 +27,6 @@ async function getActor() {
   if (!canisterId) throw new Error("Canister ID for backend is not set. Deploy first.");
   const agent = await HttpAgent.create({
     identity: authClient ? await authClient.getIdentity() : undefined,
-    host: window.location.origin,
     rootKey: canisterEnv?.IC_ROOT_KEY,
   });
   backendActor = createActor(canisterId, { agent });
