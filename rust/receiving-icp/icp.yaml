@@ -1,7 +1,7 @@
 canisters:
   - name: backend
     recipe:
-      type: "@dfinity/rust@v3.3.0"
+      type: "@dfinity/rust@v3.4.0"
 
 # ICP_LEDGER_CANISTER_ID is injected at deploy time and read at runtime via
 # ic_cdk::api::env_var_value("ICP_LEDGER_CANISTER_ID").

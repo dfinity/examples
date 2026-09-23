@@ -1,7 +1,7 @@
 canisters:
   - name: backend
     recipe:
-      type: "@dfinity/rust@v3.3.0"
+      type: "@dfinity/rust@v3.4.0"
 
   # test is a pre-built canister that provides a subject for the backend's
   # canister_info queries in test.sh. It is deployed locally only (see the

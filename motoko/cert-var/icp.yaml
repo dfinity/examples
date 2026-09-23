@@ -1,7 +1,7 @@
 canisters:
   - name: backend
     recipe:
-      type: "@dfinity/motoko@v5.0.0"
+      type: "@dfinity/motoko@v5.1.0"
 
   - name: frontend
     recipe:

@@ -8,12 +8,12 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@icp-sdk/auth": "^7.1.0",
-    "@icp-sdk/core": "^5.4.0",
-    "@icp-sdk/vetkeys": "^0.5.0"
+    "@icp-sdk/auth": "^10.0.0",
+    "@icp-sdk/core": "^6.1.0",
+    "@icp-sdk/vetkeys": "^0.7.0"
   },
   "devDependencies": {
-    "@icp-sdk/bindgen": "~0.2.2",
+    "@icp-sdk/bindgen": "~0.4.1",
     "typescript": "~5.7.2",
     "vite": "^6.4.1"
   }

@@ -10,9 +10,9 @@
   },
   "dependencies": {
     "@hookform/resolvers": "^3.1.1",
-    "@icp-sdk/auth": "~7.1.0",
-    "@icp-sdk/canisters": "~3.6.0",
-    "@icp-sdk/core": "~5.4.0",
+    "@icp-sdk/auth": "~10.0.0",
+    "@icp-sdk/canisters": "~4.0.0",
+    "@icp-sdk/core": "~6.1.0",
     "@radix-ui/react-label": "^2.0.2",
     "@radix-ui/react-slot": "^1.0.2",
     "@radix-ui/react-switch": "^1.0.3",
@@ -32,7 +32,7 @@
     "zod": "^3.22.3"
   },
   "devDependencies": {
-    "@icp-sdk/bindgen": "~0.4.0",
+    "@icp-sdk/bindgen": "~0.4.1",
     "@tailwindcss/forms": "^0.5.10",
     "@tailwindcss/typography": "^0.5.19",
     "@tailwindcss/vite": "~4",

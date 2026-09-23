@@ -1,8 +1,8 @@
 canisters:
   - name: caller
     recipe:
-      type: "@dfinity/motoko@v5.0.0"
+      type: "@dfinity/motoko@v5.1.0"
 
   - name: callee
     recipe:
-      type: "@dfinity/motoko@v5.0.0"
+      type: "@dfinity/motoko@v5.1.0"

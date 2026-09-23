@@ -37,6 +37,8 @@ icp network start -d
 icp deploy
 ```
 
+> Internet Identity sign-in runs against the Internet Identity canister deployed on the local network (`ii: true` in `icp.yaml`). If signing in fails, update the local network launcher with `icp network update` and restart the network.
+
 Open the frontend URL printed by `icp deploy`.
 
 To run the frontend in development mode with hot reloading (after `icp deploy`):

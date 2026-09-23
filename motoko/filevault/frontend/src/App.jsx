@@ -1,20 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { AuthClient } from '@icp-sdk/auth/client';
-import { createBackendActor, identityProviderUrl } from './actor';
+import { authClient, getBackendActor } from './actor';
 import '../index.css';
 
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [authClient, setAuthClient] = useState();
-  const [actor, setActor] = useState();
+  const [isAuthenticated, setIsAuthenticated] = useState(authClient.isAuthenticated());
   const [files, setFiles] = useState([]);
   const [errorMessage, setErrorMessage] = useState();
   const [fileTransferProgress, setFileTransferProgress] = useState();
 
-  useEffect(() => {
-    updateActor();
-    setErrorMessage();
-  }, []);
+  // Sign-out or session expiry, including from another tab.
+  useEffect(
+    () =>
+      authClient.subscribe(() => {
+        if (!authClient.isAuthenticated()) setIsAuthenticated(false);
+      }),
+    []
+  );
 
   useEffect(() => {
     if (isAuthenticated) {
@@ -22,31 +23,22 @@ function App() {
     }
   }, [isAuthenticated]);
 
-  async function updateActor() {
-    const authClient = await AuthClient.create();
-    const identity = authClient.getIdentity();
-    const actor = createBackendActor(identity);
-    const isAuthenticated = await authClient.isAuthenticated();
-
-    setActor(actor);
-    setAuthClient(authClient);
-    setIsAuthenticated(isAuthenticated);
-  }
-
   async function login() {
-    await authClient.login({
-      identityProvider: identityProviderUrl,
-      onSuccess: updateActor
-    });
+    try {
+      await authClient.signIn();
+      setIsAuthenticated(true);
+    } catch (error) {
+      console.error('Sign-in failed:', error);
+    }
   }
 
   async function logout() {
-    await authClient.logout();
-    updateActor();
+    await authClient.signOut();
   }
 
   async function loadFiles() {
     try {
+      const actor = await getBackendActor();
       const fileList = await actor.getFiles();
       setFiles(fileList);
     } catch (error) {
@@ -64,6 +56,7 @@ function App() {
       return;
     }
 
+    const actor = await getBackendActor();
     if (await actor.checkFileExists(file.name)) {
       setErrorMessage(`File "${file.name}" already exists. Please choose a different file name.`);
       return;
@@ -111,6 +104,7 @@ function App() {
       progress: 0
     });
     try {
+      const actor = await getBackendActor();
       const totalChunks = Number(await actor.getTotalChunks(name));
       const fileType = await actor.getFileType(name) ?? '';
       let chunks = [];
@@ -147,6 +141,7 @@ function App() {
   async function handleFileDelete(name) {
     if (window.confirm(`Are you sure you want to delete "${name}"?`)) {
       try {
+        const actor = await getBackendActor();
         const success = await actor.deleteFile(name);
         if (success) {
           await loadFiles();

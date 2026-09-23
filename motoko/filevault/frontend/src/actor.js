@@ -1,3 +1,4 @@
+import { AuthClient } from "@icp-sdk/auth/client";
 import { safeGetCanisterEnv } from "@icp-sdk/core/agent/canister-env";
 import { createActor } from "./bindings/backend";
 
@@ -16,18 +17,38 @@ const agentOptions = {
   rootKey: canisterEnv?.IC_ROOT_KEY,
 };
 
+// Internet Identity is deployed on the local network (`ii: true` in icp.yaml).
 const isLocal =
   window.location.hostname === "localhost" ||
   window.location.hostname === "127.0.0.1" ||
   window.location.hostname.endsWith(".localhost");
-const II_CANISTER_ID = "uqzsh-gqaaa-aaaaq-qaada-cai";
 const networkPort = process.env.REPLICA_PORT || window.location.port || "8000";
-export const identityProviderUrl = isLocal
-  ? `http://${II_CANISTER_ID}.localhost:${networkPort}`
-  : "https://id.ai";
+
+// The client mints its delegations by calling the II canister, so its agent
+// needs the same host and root key as the backend actor.
+export const authClient = new AuthClient({
+  identityProvider: {
+    authorizeUrl: isLocal
+      ? `http://id.ai.localhost:${networkPort}/authorize`
+      : "https://id.ai/authorize",
+    canisterId: "rdmx6-jaaaa-aaaaa-aaadq-cai",
+  },
+  agentOptions,
+});
 
 export function createBackendActor(identity) {
   return createActor(canisterId, {
     agentOptions: { ...agentOptions, identity },
   });
+}
+
+let cached;
+
+// Resolves the identity at call time and reuses the actor while it is unchanged.
+export async function getBackendActor() {
+  const identity = authClient.isAuthenticated() ? await authClient.getIdentity() : undefined;
+  if (!cached || cached.identity !== identity) {
+    cached = { identity, actor: createBackendActor(identity) };
+  }
+  return cached.actor;
 }

@@ -6,6 +6,6 @@ networks:
 canisters:
   - name: backend
     recipe:
-      type: "@dfinity/rust@v3.3.0"
+      type: "@dfinity/rust@v3.4.0"
       configuration:
         package: backend

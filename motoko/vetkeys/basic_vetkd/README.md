@@ -34,6 +34,8 @@ icp network start -d
 icp deploy
 ```
 
+> Internet Identity sign-in runs against the Internet Identity canister deployed on the local network (`ii: true` in `icp.yaml`). If signing in fails, update the local network launcher with `icp network update` and restart the network.
+
 Open the frontend URL printed by `icp deploy`. When done: `icp network stop`
 
 ## Updating the Candid interface

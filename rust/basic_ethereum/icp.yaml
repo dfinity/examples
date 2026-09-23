@@ -1,7 +1,7 @@
 canisters:
   - name: backend
     recipe:
-      type: "@dfinity/rust@v3.3.0"
+      type: "@dfinity/rust@v3.4.0"
 
   # evm_rpc is only deployed locally. On ICP mainnet the shared EVM RPC canister
   # (7hfb6-caaaa-aaaar-qadga-cai) is used instead — the ic environment below

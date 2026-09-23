@@ -8,12 +8,12 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@icp-sdk/core": "~5.2.0",
+    "@icp-sdk/core": "~6.1.0",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@icp-sdk/bindgen": "~0.2.2",
+    "@icp-sdk/bindgen": "~0.4.1",
     "@types/react": "^18.2.14",
     "@types/react-dom": "^18.2.6",
     "@vitejs/plugin-react": "^4.0.1",

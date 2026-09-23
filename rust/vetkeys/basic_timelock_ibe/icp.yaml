@@ -1,7 +1,7 @@
 canisters:
   - name: basic_timelock_ibe
     recipe:
-      type: "@dfinity/rust@v3.2.0"
+      type: "@dfinity/rust@v3.4.0"
       configuration:
         package: ic-vetkd-example-basic-timelock-ibe-backend
         candid: backend/backend.did

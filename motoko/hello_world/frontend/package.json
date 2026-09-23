@@ -8,10 +8,10 @@
     "dev": "vite"
   },
   "dependencies": {
-    "@icp-sdk/core": "~5.0.0"
+    "@icp-sdk/core": "~6.1.0"
   },
   "devDependencies": {
-    "@icp-sdk/bindgen": "~0.2.2",
+    "@icp-sdk/bindgen": "~0.4.1",
     "vite": "5.4.11"
   }
 }
