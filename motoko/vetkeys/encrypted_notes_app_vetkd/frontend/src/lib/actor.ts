@@ -12,7 +12,6 @@ export async function createActor(options?: { identity?: any }): Promise<Backend
   const canisterId = canisterEnv?.["PUBLIC_CANISTER_ID:backend"];
   const agent = await HttpAgent.create({
     identity: options?.identity,
-    host: window.location.origin,
     rootKey: canisterEnv?.IC_ROOT_KEY,
   });
   return createEncryptedNotesActor(canisterId, { agent });

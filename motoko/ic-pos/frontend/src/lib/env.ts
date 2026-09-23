@@ -34,8 +34,6 @@ export const icrc1IndexCanisterId = requireCanisterId(
 );
 export const rootKey = env?.IC_ROOT_KEY;
 
-export const host = window.location.origin;
-
 export const isLocal = /localhost|127\.0\.0\.1/.test(window.location.hostname);
 
 // Internet Identity provider. Locally the network serves II at

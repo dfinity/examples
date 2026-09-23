@@ -19,7 +19,6 @@ if (!canisterId) {
 
 export const backend = createActor(canisterId, {
   agentOptions: {
-    host: window.location.origin,
     rootKey: canisterEnv?.IC_ROOT_KEY,
   },
 });

@@ -13,7 +13,6 @@ if (!canisterId) {
 }
 
 const agentOptions = {
-  host: window.location.origin,
   rootKey: canisterEnv?.IC_ROOT_KEY,
 };
 

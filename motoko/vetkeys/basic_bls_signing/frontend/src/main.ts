@@ -27,7 +27,6 @@ async function getBasicBlsSigningActor(): Promise<Backend> {
   }
   const agent = await HttpAgent.create({
     identity: await authClient.getIdentity(),
-    host: window.location.origin,
     rootKey: canisterEnv?.IC_ROOT_KEY,
   });
   basicBlsSigningActor = createActor(canisterId, { agent });
