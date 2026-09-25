@@ -25,6 +25,10 @@ actor CertVar {
     ].toBlob();
   };
 
+  // Certify the initial value at install: certified data starts empty, so without
+  // this a `get` before the first `set` would fail verification.
+  CD.set(blobOfNat32(value));
+
   /// Increment the counter by one, update the certificate, and return the new value.
   public func inc() : async Nat32 {
     value += 1;
