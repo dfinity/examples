@@ -1,0 +1,23 @@
+{
+  "version": 1,
+  "dfx": "0.10.0",
+  "canisters": {
+    "fetch_block": {
+      "type": "rust",
+      "package": "fetch_block",
+      "candid": "src/fetch_block/fetch_block.did"
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": "",
+      "args": ""
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  }
+}

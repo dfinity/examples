@@ -1,0 +1,4 @@
+[workspace]
+members = [
+    "src/fetch_block",
+]
