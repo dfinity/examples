@@ -9,7 +9,7 @@ The frontend demonstrates the entire client-side verification flow in the browse
 When you click "Set and get!", the frontend performs four checks on the query response:
 
 1. **Verify system certificate** — The IC signs a certificate over the canister's certified data tree. `Certificate.create()` verifies this BLS signature against the network's root key.
-2. **Check timestamp** — The certificate contains the IC's current time (LEB128-encoded). The frontend decodes it and confirms the certificate is fresh (within 5 seconds of the client's clock).
+2. **Check timestamp** — The certificate contains the IC's current time (LEB128-encoded). The frontend decodes it and confirms the certificate is fresh (within 5 minutes of the client's clock).
 3. **Check canister ID** — The certificate's state tree contains a path `canister/<id>/certified_data`. The frontend looks up the canister ID to confirm the certificate covers our specific canister.
 4. **Check certified data** — The 4-byte little-endian blob stored in certified data is decoded as a Candid `Nat32` and compared against the `value` field in the query response. If they match, the response is authentic.
 

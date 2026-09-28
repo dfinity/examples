@@ -85,7 +85,7 @@
           giving us a "current certificate" within the response; this certificate
           is signed by the entire IC, using a system feature described here:
 
-          https://sdk.dfinity.org/docs/interface-spec/index.html#system-api-certified-data
+          https://docs.internetcomputer.org/references/ic-interface-spec/canister-interface/#system-api-certified-data
 
           Before we trust the response from our apparently "true" canister,
           we interrogate it, and verify its authenticity:
@@ -154,14 +154,15 @@
         const decodedTime = lebDecode(new PipeArrayBuffer(timeResult.value.buffer));
         const time = Number(decodedTime) / 1e9;
 
-        // Check 2: The diff between decoded time and local time is within 5s.
+        // Check 2: The diff between decoded time and local time is within 5 minutes,
+        // the same window Certificate.create() allows, so client clock skew does not fail it.
         const now = Date.now() / 1000;
         const diff = Math.abs(time - now);
-        if (diff > 5) {
-          log.innerText = "Failure: Certificate timestamp is too old (diff: " + diff.toFixed(1) + "s, max: 5s).";
+        if (diff > 300) {
+          log.innerText = "Failure: Certificate timestamp is too old (diff: " + diff.toFixed(1) + "s, max: 300s).";
           return;
         }
-        console.log("Check 2: Timestamp difference seems legit (< 5 sec).", diff);
+        console.log("Check 2: Timestamp difference seems legit (< 5 min).", diff);
 
         // Checks 3 and 4:
         // - Canister ID is correct.
