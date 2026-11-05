@@ -29,6 +29,12 @@ actor SendHttpFlexible {
     // A committee of five, rather than every node on the subnet. Fewer requests
     // cost less and are gentler on the server's rate limits. The tradeoff is
     // that a smaller committee is easier for a single node to skew.
+    //
+    // `total_requests` cannot exceed the subnet, so the node count is read
+    // first. `core` has no wrapper for it, unlike `isReplicatedExecution` and
+    // the other system calls in its `InternetComputer` module, so this is one
+    // of the few places a canister reaches into `Prim` directly. Rust has it
+    // as ordinary public API: `ic_cdk::api::subnet_self_node_count()`.
     let total_requests = Nat32.min(Prim.subnetSelfNodeCount(), 5);
     // Return as soon as a strict majority of the committee has answered.
     let min_responses = total_requests / 2 + 1;
