@@ -1,6 +1,6 @@
 import Array "mo:core/Array";
+import Error "mo:core/Error";
 import List "mo:core/List";
-import Nat "mo:core/Nat";
 import Nat32 "mo:core/Nat32";
 import Order "mo:core/Order";
 import Text "mo:core/Text";
@@ -42,28 +42,37 @@ actor SendHttpFlexible {
     // Return as soon as a strict majority of the committee has answered.
     let min_responses = total_requests / 2 + 1;
 
-    // No transform function. A flexible outcall hands back each node's own
-    // response instead of one the subnet agreed on, so there is nothing to make
-    // identical across nodes. Leaving it off also means no cycles are reserved
-    // for running it.
-    let result = await Call.flexibleHttpRequest("https://postman-echo.com/time/now")
-      .withMaxResponseBytes(1_000)
-      .withReplication({
-        total_requests;
-        min_responses;
-        max_responses = total_requests;
-      })
-      .withExpectedRoundtripTimeMs(10_000)
-      .send();
+    // The management canister can also refuse the call outright, before any node
+    // makes a request, for arguments it will not accept. That rejection is a
+    // separate failure from the one below, and an uncaught one would reject
+    // fetch_server_time instead of returning through its result type. Catching
+    // it keeps both failures inside the declared Result, as `?` does in Rust.
+    try {
+      // No transform function. A flexible outcall hands back each node's own
+      // response instead of one the subnet agreed on, so there is nothing to make
+      // identical across nodes. Leaving it off also means no cycles are reserved
+      // for running it.
+      let result = await Call.flexibleHttpRequest("https://postman-echo.com/time/now")
+        .withMaxResponseBytes(1_000)
+        .withReplication({
+          total_requests;
+          min_responses;
+          max_responses = total_requests;
+        })
+        .withExpectedRoundtripTimeMs(10_000)
+        .send();
 
-    switch (result) {
-      // Any count between min_responses and max_responses is a normal success,
-      // not a degraded one.
-      case (#ok(responses)) #Ok(reconcile(responses));
-      // global_error says why the replication could not be met: a timeout,
-      // out_of_cycles, responses_too_large, or too_many_rejects. node_details
-      // reports what the individual nodes did.
-      case (#err(err)) #Err("Fewer than " # min_responses.toText() # " responses: " # err.message);
+      switch (result) {
+        // Any count between min_responses and max_responses is a normal success,
+        // not a degraded one.
+        case (#ok(responses)) #Ok(reconcile(responses));
+        // global_error says why the replication could not be met: a timeout,
+        // out_of_cycles, responses_too_large, or too_many_rejects. node_details
+        // reports what the individual nodes did.
+        case (#err(err)) #Err("Fewer than " # min_responses.toText() # " responses: " # err.message);
+      };
+    } catch (e) {
+      #Err("Outcall failed: " # e.message());
     };
   };
   // #endregion flexible_request
