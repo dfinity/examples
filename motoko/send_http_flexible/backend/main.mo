@@ -3,7 +3,6 @@ import List "mo:core/List";
 import Nat "mo:core/Nat";
 import Nat32 "mo:core/Nat32";
 import Order "mo:core/Order";
-import Result "mo:core/Result";
 import Text "mo:core/Text";
 import Prim "mo:⛔";
 import Call "mo:ic/Call";
@@ -14,18 +13,22 @@ actor SendHttpFlexible {
   /// One distinct answer, and how many nodes returned it.
   public type Tally = {
     value : Text;
-    count : Nat;
+    count : Nat32;
   };
 
   public type TimeReport = {
     /// How many nodes answered with a 200.
-    responses : Nat;
+    responses : Nat32;
     /// Each distinct answer, most common first.
     tally : [Tally];
   };
 
+  /// Tagged to match the Rust variant's Candid labels, which `Result.Result`
+  /// would render as `ok` and `err`. Both examples export one interface.
+  public type Result = { #Ok : TimeReport; #Err : Text };
+
   // #region flexible_request
-  public func fetch_server_time() : async Result.Result<TimeReport, Text> {
+  public func fetch_server_time() : async Result {
     // A committee of five, rather than every node on the subnet. Fewer requests
     // cost less and are gentler on the server's rate limits. The tradeoff is
     // that a smaller committee is easier for a single node to skew.
@@ -56,11 +59,11 @@ actor SendHttpFlexible {
     switch (result) {
       // Any count between min_responses and max_responses is a normal success,
       // not a degraded one.
-      case (#ok(responses)) #ok(reconcile(responses));
+      case (#ok(responses)) #Ok(reconcile(responses));
       // global_error says why the replication could not be met: a timeout,
       // out_of_cycles, responses_too_large, or too_many_rejects. node_details
       // reports what the individual nodes did.
-      case (#err(err)) #err("Fewer than " # min_responses.toText() # " responses: " # err.message);
+      case (#err(err)) #Err("Fewer than " # min_responses.toText() # " responses: " # err.message);
     };
   };
   // #endregion flexible_request
@@ -72,7 +75,7 @@ actor SendHttpFlexible {
   // any other. This tallies the distinct bodies and puts the most common first.
   func reconcile(responses : [IC.HttpRequestResult]) : TimeReport {
     let tally = List.empty<Tally>();
-    var counted = 0;
+    var counted : Nat32 = 0;
 
     for (response in responses.values()) {
       if (response.status == 200) {
@@ -83,14 +86,14 @@ actor SendHttpFlexible {
         };
         switch (tally.findIndex(func(entry : Tally) : Bool = entry.value == value)) {
           case (?i) tally.put(i, { value; count = tally.at(i).count + 1 });
-          case null tally.add({ value; count = 1 });
+          case null tally.add({ value; count = 1 : Nat32 });
         };
       };
     };
 
     {
       responses = counted;
-      tally = tally.toArray().sort(func(a : Tally, b : Tally) : Order.Order = Nat.compare(b.count, a.count));
+      tally = tally.toArray().sort(func(a : Tally, b : Tally) : Order.Order = Nat32.compare(b.count, a.count));
     };
   };
   // #endregion reconcile

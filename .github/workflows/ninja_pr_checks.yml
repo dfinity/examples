@@ -16,7 +16,6 @@ on:
       - 'motoko/flying_ninja/**'
       - 'motoko/llm_chatbot/**'
       - 'motoko/query_stats/**'
-      - 'motoko/send_http_flexible/**'
       - 'motoko/send_http_get/**'
       - 'motoko/send_http_post/**'
       - 'motoko/superheroes/**'
@@ -38,7 +37,6 @@ on:
       - 'rust/periodic_tasks/**'
       - 'rust/qrcode/**'
       - 'rust/query_stats/**'
-      - 'rust/send_http_flexible/**'
       - 'rust/send_http_get/**'
       - 'rust/send_http_post/**'
       - 'rust/simd/**'
@@ -89,7 +87,6 @@ jobs:
             ["Flying Ninja (Motoko)"]="motoko/flying_ninja"
             ["LLM Chatbot (Motoko)"]="motoko/llm_chatbot"
             ["Query Stats (Motoko)"]="motoko/query_stats"
-            ["Send HTTP Flexible (Motoko)"]="motoko/send_http_flexible"
             ["Send HTTP Get (Motoko)"]="motoko/send_http_get"
             ["Send HTTP Post (Motoko)"]="motoko/send_http_post"
             ["Superheroes (Motoko)"]="motoko/superheroes"
@@ -111,7 +108,6 @@ jobs:
             ["Periodic Tasks (Rust)"]="rust/periodic_tasks"
             ["QR Code (Rust)"]="rust/qrcode"
             ["Query Stats (Rust)"]="rust/query_stats"
-            ["Send HTTP Flexible (Rust)"]="rust/send_http_flexible"
             ["Send HTTP Get (Rust)"]="rust/send_http_get"
             ["Send HTTP Post (Rust)"]="rust/send_http_post"
             ["SIMD (Rust)"]="rust/simd"
