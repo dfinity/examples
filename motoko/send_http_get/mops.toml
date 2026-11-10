@@ -1,12 +1,12 @@
 [toolchain]
-moc = "1.14.1"
+moc = "2.1.0"
 
 [dependencies]
 core = "2.6.1"
-ic = "4.0.0"
+ic = "6.0.0"
 
 [moc]
-args = [ "--default-persistent-actors", "-W=M0236,M0237,M0223" ]
+args = [ "-W=M0236,M0237,M0223" ]
 
 [canisters.backend]
 main = "backend/main.mo"

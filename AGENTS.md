@@ -259,6 +259,10 @@ mops check --fix    # auto-fix style warnings (M0236, M0237, M0223)
 
 `--default-persistent-actors` makes every actor persistent by default, including spawned `actor class` sub-WASMs — so the `persistent` keyword is omitted everywhere: on the top-level `actor` declaration and on `actor class` declarations alike (verified with `moc` 1.14.1: an `actor class` holding mutable `var` fields compiles and preserves state across `#upgrade` without the keyword, under this flag). If `moc` warns `M0217` ("the `persistent` keyword is redundant") on an `actor class`, remove it rather than keeping it "to be safe" — it is genuinely redundant.
 
+From `moc` 2.0 the flag is gone: actors are persistent by default and `--default-persistent-actors` is rejected as an unknown option, so an example moving to `moc` 2.x drops it from `[moc] args`. The convention is unchanged, for a different reason: omit `persistent` everywhere, because it is now the language default rather than a flag.
+
+An example on `moc` 2.x cannot depend on `base`, directly or transitively. `base` still carries `ExperimentalStableMemory`, whose primitives `moc` 2.0 removed, so `mops check` fails on it even when nothing imports it and `mops build` succeeds. Up to and including `base` 0.16.0 this is unfixed; `core` is unaffected.
+
 ### Naming
 
 - **Top-level actor:** name it after its logical role — e.g. `actor TodoList`, `actor CanisterFactory`, not `actor Backend`.

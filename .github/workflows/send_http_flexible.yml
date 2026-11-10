@@ -8,6 +8,7 @@ on:
       - master
   pull_request:
     paths:
+      - motoko/send_http_flexible/**
       - rust/send_http_flexible/**
       - .github/workflows/send_http_flexible.yml
       - .github/workflows/_run-example.yml
@@ -17,6 +18,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  motoko-send_http_flexible:
+    uses: ./.github/workflows/_run-example.yml
+    with:
+      language: motoko
+      working-directory: motoko/send_http_flexible
+      run: |
+        icp network start -d
+        icp deploy
+        bash test.sh
+
   rust-send_http_flexible:
     uses: ./.github/workflows/_run-example.yml
     with:
